@@ -151,7 +151,7 @@ impl Service {
 
 // ---------- Settings ----------
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(default)]
 pub struct Theme {
     pub font: String,
