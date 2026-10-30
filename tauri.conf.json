@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "RustyPresenter",
+  "version": "0.2.0",
+  "identifier": "com.rustypresenter.app",
+  "build": { "frontendDist": "web" },
+  "app": {
+    "windows": [],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico"] }
+}

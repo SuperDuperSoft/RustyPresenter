@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RustyPresenter Remote</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0d0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { color-scheme: dark; --bg:#0d0f13; --panel:#171a21; --raise:#232833; --line:#2a303b; --text:#eceef3; --muted:#8d95a8; --accent:#f5b94a; --live:#ff4f55; --ok:#3ccf91; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.4 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); min-height: 100vh; }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+  .pair { max-width: 380px; margin: 14vh auto 0; padding: 0 22px; text-align: center; }
+  .pair h1 { font-size: 24px; margin: 0 0 8px; }
+  .pair p { color: var(--muted); margin: 0 0 22px; }
+  .pair input { width: 100%; font: 700 34px/1 ui-monospace, Consolas, monospace; letter-spacing: .3em; text-align: center; padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--text); outline: 0; }
+  .pair input:focus { border-color: var(--accent); }
+  .pair button { width: 100%; margin-top: 14px; padding: 16px; border-radius: 14px; background: var(--accent); color: #1a1405; font-weight: 800; font-size: 18px; }
+  .err { color: #ff9a9e; margin-top: 12px; min-height: 22px; }
+  .app { display: none; flex-direction: column; min-height: 100vh; padding: 12px; gap: 12px; }
+  .bar { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #555; }
+  .dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .now { background: var(--panel); border-radius: 16px; padding: 14px 16px; border: 1.5px solid rgba(255,79,85,.5); }
+  .label { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--live); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .label span { color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 600; }
+  .text { white-space: pre-wrap; font-size: 19px; font-weight: 600; min-height: 52px; }
+  .next { background: var(--panel); border-radius: 16px; padding: 12px 16px; }
+  .next .label { color: var(--muted); }
+  .next .text { font-size: 15px; font-weight: 500; color: #f2d08f; min-height: 0; max-height: 64px; overflow: hidden; }
+  .nav { display: grid; grid-template-columns: 1fr 1.7fr; gap: 10px; }
+  .nav button { height: 92px; border-radius: 18px; background: var(--raise); font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .nav button:active { transform: scale(.98); }
+  .nav .go { background: var(--accent); color: #1a1405; }
+  .clears { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .clears button { padding: 14px 4px; border-radius: 12px; background: var(--panel); font-weight: 700; font-size: 14px; border: 1px solid var(--line); }
+  .clears .all { grid-column: 1 / -1; background: #2a1517; color: #ffb0b3; border-color: rgba(255,79,85,.45); padding: 15px; font-size: 16px; }
+  .clears .on { border-color: var(--accent); color: var(--accent); }
+  .items { background: var(--panel); border-radius: 16px; overflow: hidden; }
+  .items h2 { margin: 0; padding: 12px 16px 6px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .it { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--line); }
+  .it .n { color: var(--muted); width: 22px; text-align: right; font-size: 14px; }
+  .it .t { flex: 1; font-weight: 600; }
+  .it .k { color: var(--muted); font-size: 13px; }
+  .it.live { background: rgba(255,79,85,.1); }
+  .it.live .t { color: #ff9a9e; }
+  .media { display: none; gap: 10px; }
+  .media.on { display: grid; grid-template-columns: 1fr; }
+  .media button { padding: 14px; border-radius: 12px; background: var(--raise); font-weight: 700; }
+  .sheet { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: flex-end; z-index: 5; }
+  .sheet.on { display: flex; }
+  .sheet .box { background: var(--panel); width: 100%; border-radius: 20px 20px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .sheet h3 { margin: 0 0 4px; }
+  .sheet p { color: var(--muted); margin: 0 0 14px; }
+  .sheet .slides { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; margin-bottom: 12px; }
+  .sheet .slides button { text-align: left; padding: 11px 12px; border-radius: 10px; background: var(--raise); white-space: pre-wrap; font-size: 14px; }
+  .sheet .slides button small { display: block; color: var(--muted); font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+  .sheet .cancel { width: 100%; padding: 15px; border-radius: 12px; background: var(--raise); font-weight: 700; }
+  .toast { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); background: #3a1b1d; color: #ffd3d5; padding: 10px 14px; border-radius: 10px; display: none; z-index: 9; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="pair" id="pair">
+  <h1>Phone remote</h1>
+  <p>On the presentation computer, click <b>Phone</b> → <b>Pair a phone</b>, then type the 6-digit code here.</p>
+  <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+  <button id="pairBtn">Connect</button>
+  <div class="err" id="pairErr"></div>
+</div>
+<div class="app" id="app">
+  <div class="bar"><span class="dot" id="dot"></span><span id="svc">Connecting…</span></div>
+  <div class="now"><div class="label">On screen <span id="nowLabel"></span></div><div class="text" id="now"></div></div>
+  <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
+  <div class="media" id="media"><button id="mediaBtn">Pause video</button></div>
+  <div class="next"><div class="label">Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>
+  <div class="clears">
+    <button class="all" data-c="clear_all">Clear All</button>
+    <button data-c="clear_slide">Text</button><button data-c="clear_media">Media</button><button data-c="clear_audio">Audio</button><button data-c="logo" id="logoBtn">Logo</button>
+  </div>
+  <div class="items"><h2>Service</h2><div id="items"></div></div>
+</div>
+<div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel">Cancel</button></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="/static/remote.js"></script>
+</body>
+</html>

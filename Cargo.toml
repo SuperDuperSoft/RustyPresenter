@@ -1,0 +1,28 @@
+[package]
+name = "rustypresenter"
+version = "0.2.0"
+edition = "2024"
+description = "Church presentation app: lyrics, scripture, slides, video, phone remote"
+publish = false
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "fs", "process", "sync", "time", "io-util"] }
+futures-util = { version = "0.3", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+dirs = "6"
+tauri = "2"
+sha2 = "0.10"
+qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+
+[build-dependencies]
+tauri-build = "2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+
+[profile.release]
+lto = "thin"
+strip = true

@@ -1,0 +1,10 @@
+/target/
+/.tools/
+/.local-data/
+*.tmp
+.DS_Store
+Thumbs.db
+build.log
+*.request
+/experiments/*/target/
+/.superpowers/

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RustyPresenter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/operator.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5b94a'/%3E%3Cpath d='M22 18h14a10 10 0 0 1 0 20h-6v8h-8z' fill='%23111'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo-mark">R</span><span>RustyPresenter</span></div>
+  <button class="service-pick" id="servicePick" title="Switch or create services"><span id="serviceName">Service</span><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button>
+  <form class="bible" id="bibleForm" autocomplete="off">
+    <svg class="ico" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 7h6"/></svg>
+    <input id="bibleInput" placeholder="Bible verse — type John 3:16 and press Enter" spellcheck="false" title="Ctrl+B">
+    <div class="translations" id="translations"></div>
+    <kbd>Ctrl B</kbd>
+  </form>
+  <div class="status" id="status"></div>
+  <button class="top-btn" id="screensBtn"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Screens</button>
+  <button class="top-btn" id="phoneBtn"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Phone</button>
+  <button class="top-btn icon-only" id="settingsBtn" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+</header>
+
+<main class="layout">
+  <aside class="panel service">
+    <div class="panel-head"><h2>Service</h2><span class="count" id="itemCount"></span></div>
+    <ol class="items" id="items"></ol>
+    <button class="add-btn" id="addBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add to service</button>
+  </aside>
+
+  <section class="panel slides">
+    <div class="panel-head">
+      <div class="item-title"><span class="kind-ico" id="itemIco"></span><h1 id="itemTitle">Nothing selected</h1></div>
+      <div class="head-actions" id="itemActions"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="panel live-panel">
+    <div class="monitor-label"><span class="live-dot"></span>LIVE <span class="pending" id="pending">updating…</span><span class="live-what" id="liveWhat"></span></div>
+    <div class="monitor" id="liveMonitor"></div>
+    <div class="transport" id="transport"></div>
+    <div class="notice" id="notice"></div>
+    <div class="nav">
+      <button class="nav-btn" id="prevBtn" title="Back (← or Page Up)"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Back</button>
+      <button class="nav-btn next" id="nextBtn" title="Next (→, Space or Page Down)">Next<svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="clears">
+      <button class="clear big" data-cmd="clear_all"><b>Clear All</b><kbd>F1</kbd></button>
+      <button class="clear" data-cmd="clear_slide"><b>Text</b><kbd>F2</kbd></button>
+      <button class="clear" data-cmd="clear_media"><b>Media</b><kbd>F3</kbd></button>
+      <button class="clear" data-cmd="clear_audio"><b>Audio</b><kbd>F4</kbd></button>
+      <button class="clear logo" data-cmd="logo"><b>Logo</b><kbd>F5</kbd></button>
+    </div>
+    <div class="next-up">
+      <div class="next-label">Up next</div>
+      <div class="next-body" id="nextUp">—</div>
+    </div>
+  </section>
+</main>
+
+<div class="drop-hint" id="dropHint"><div>Drop to add to the service<small>Videos, pictures, music, PowerPoint, SongSelect lyric files</small></div></div>
+<div class="toasts" id="toasts"></div>
+<div class="jobs" id="jobs"></div>
+<dialog id="dialog"></dialog>
+<input type="file" id="filePick" hidden multiple>
+<script type="module" src="/static/operator.js"></script>
+</body>
+</html>

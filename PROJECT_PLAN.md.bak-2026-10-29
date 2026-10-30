@@ -1,0 +1,319 @@
+# RustyPresenter — shared project plan
+
+**Status:** Planning. Do not continue implementation until the user asks to start building.
+**Updated:** October 29, 2026
+**Collaborators:** User, Codex, and Claude
+**Purpose:** A Rust-based presentation application for this church's personal use during live services.
+
+## Start here — for Codex and Claude
+
+Read this file before working. It is the shared record of requirements, decisions, work ownership, and handoffs. The existing code is an unfinished experiment, not an approved architecture or a usable release.
+
+- Preserve the user's requirements. Do not quietly replace a required integration with a lesser workflow.
+- Keep planning separate from implementation. The user explicitly clarified that we are currently planning.
+- Before starting an authorized task, record its owner and the files or area involved in the work board below. Read the other collaborator's latest handoff first.
+- Avoid simultaneous edits to the same files. Agree on shared interfaces before implementing connected components.
+- Record discoveries, decisions, checks performed, and unresolved issues here. Distinguish working functionality from designs, placeholders, and untested code.
+- Review each other's work. A collaborator's completion claim alone is not release verification.
+- Do not put account passwords, access tokens, API keys, or downloaded private church content in this plan or source control.
+- Only the user can change product priorities. Both collaborators may propose changes and explain tradeoffs.
+
+No tasks have been dispatched to Claude through this plan. The ownership split below is a proposal for coordination.
+
+## 1. Confirmed requirements
+
+| ID | Requirement | What success means |
+| --- | --- | --- |
+| R1 | Rust-based, cross-platform desktop application | Runs on Windows, macOS, and Linux. Windows is the primary platform, but the others are included in the product scope. |
+| R2 | Live church presentation | An operator can prepare the next slide while the congregation sees the current slide. Editing or importing content must not unexpectedly change what is on air. |
+| R3 | Android and iOS remote control | Phones can control the active presentation, including slide navigation and immediate output controls. Whether this is initially a browser remote or native mobile app remains a design decision. |
+| R4 | SongSelect account login and automatic song import — absolute requirement | Sign in using the church's existing SongSelect account, find/select a song, retrieve its lyrics, and automatically create usable lyric slides. The church already has an active subscription and login. |
+| R5 | Easy Bible verse presentation | Enter a reference, choose a translation, preview automatically formatted slides, and send them live with minimal steps. This must be practical for an unexpected passage request during a service. |
+| R6 | Six requested Bible translations | NIV, ESV, CSB, HCSB, NLT, and KJV. Keep CSB and HCSB as distinct translations. Do not substitute one for the other. |
+| R7 | PowerPoint import/conversion | Bring a PowerPoint presentation into the service without manually recreating its slides. Automatic conversion must preserve appearance as faithfully as the chosen method allows. |
+| R8 | Google Slides import/conversion | Select a Google Slides presentation and automatically bring its slides into the service. Private presentations need an appropriate account connection. |
+| R9 | Personal church use | The initial product is for the user's church, not a public commercial product. Do not add public distribution, subscriptions, or cloud hosting to the scope without a request. |
+
+**Critical distinction:** A link that opens SongSelect, a TXT-file importer, or pasted lyrics does **not** by itself satisfy R4. Those can be useful additional paths, but direct login and automatic retrieval remain required unless the user explicitly changes that requirement.
+
+## 2. Intended live-service experience
+
+### Operator and congregation displays
+
+1. Open or prepare the service plan.
+2. Arrange songs, scripture passages, imported presentations, and announcements in service order.
+3. Select a slide to preview without changing the congregation display.
+4. Use **Show Live / Take Live** to intentionally display the prepared slide.
+5. Advance through the live slides using the operator screen, keyboard, or paired phone remote.
+6. Use **Clear Text**, **Blackout**, and explicit restore controls when needed.
+
+Edits, item removal, service loading, and imports must leave the current on-air frame unchanged until a deliberate output command. Navigation while blacked out must not unexpectedly restore the output. Clearly show both the live state and the preview state to the operator.
+
+### Bible lookup — a first-class live control
+
+Target flow: **type `John 3:16–18` → select translation → preview → Show Live**.
+
+- Make Bible lookup prominent, with a keyboard shortcut and a readable reference field.
+- Recognize common book names and abbreviations, numbered books, whole chapters, and verse ranges. Define cross-chapter range support during design.
+- Remember the preferred translation and offer a quick way to switch among installed/connected translations.
+- Convert passages into readable slides automatically. Preserve the wording, verse order, references, translation label, and attribution.
+- Split long passages without dropping words. Establish font sizing and slide-break rules that work on the congregation display.
+- Preview lookup results before showing them. Invalid references or unavailable translations must produce a clear operator message and leave the live display untouched.
+- Prepared scripture slides must remain usable during internet loss, subject to the text provider's storage permissions. Full offline translation availability needs verification per source.
+- Never silently use KJV when another translation was selected.
+
+### SongSelect
+
+Target flow: **connect account → search → choose song → import → review generated slides → add to service**.
+
+- Preserve song title, writers, section labels, CCLI song number, copyright information, and the church's license attribution.
+- Automatically split verses and choruses into readable slides, with adjustable lines per slide.
+- Allow the operator to arrange repeated choruses, verses, bridges, and endings.
+- Keep prepared songs usable locally during a service where the provider's terms allow it.
+- Treat song usage tracking and CCLI reporting as a separate design question. Importing a song is not necessarily reporting its use.
+- Test account expiry, sign-in failure, connection loss, and unavailable songs without disturbing live output.
+
+### PowerPoint and Google Slides
+
+Target flow: **choose a file or connected presentation → convert → inspect preview → add to service → Show Live**.
+
+- Preserve slide order, aspect ratio, text appearance, backgrounds, and images.
+- Preserve the source file or source identity; never modify the user's original presentation during conversion.
+- Keep the converted slides locally so presenting them does not require an internet connection.
+- Keep the current import out of the congregation display until explicitly taken live.
+- Show conversion progress and explain any unsupported content before presentation.
+- Make reimport/update behavior explicit. Do not automatically replace an on-air slide when its source changes.
+
+**Unresolved conversion choices:** editable objects versus rendered slide images; animation/transition fidelity; embedded audio/video; speaker notes; older `.ppt` files; font availability; and whether presentation software is required on the host. A static-slide baseline is a proposal, not an agreed limitation.
+
+## 3. Feasibility work that comes first
+
+### A. Prove the SongSelect integration path
+
+This is a product feasibility gate because R4 is absolute.
+
+1. Verify the current supported way for a new personal application to connect to SongSelect.
+2. Establish whether CCLI developer/partner access or application credentials are available. A church subscription and developer access are different questions.
+3. Obtain current documentation for the supported authorization and retrieval flow before implementing it. Do not invent endpoints or use another application's credentials.
+4. With the user handling the actual account sign-in, demonstrate retrieving an authorized song and converting it into slides with credits intact.
+5. Document any required setup and recurring dependency.
+
+**Current finding:** CCLI operates a partner API, but public developer onboarding for this application has not been verified. Do not claim either that access is guaranteed or that it is definitively impossible. No working direct account connection exists in the prototype.
+
+If no supported path is available, explain the finding to the user before building around an assumption. A fallback is not acceptance of a changed requirement.
+
+### B. Establish sources for all six Bible translations
+
+1. Identify a publisher-approved service or authorized local text package for each requested translation.
+2. Verify attribution, storage/offline availability, permitted presentation use, account setup, and any cost with the chosen provider.
+3. Keep provider access behind a common translation interface. The live presenter should consume prepared local slides rather than make network requests during each slide advance.
+4. Track readiness separately for each translation. “Listed in a dropdown” must never mean “installed and working.”
+
+| Translation | Current state | Required next step |
+| --- | --- | --- |
+| KJV | Source text downloaded from eBible.org; experimental parser has failing tests | Correct source-code mapping and verify the intended canon and passage accuracy. |
+| NIV | Required; not implemented | Verify authorized provider access and offline/preparation behavior. |
+| ESV | Required; not implemented | Evaluate Crossway's official API or authorized text package, including storage limits. |
+| CSB | Required; not implemented | Verify authorized provider access and offline/preparation behavior. |
+| HCSB | Required; not implemented | Verify availability of this specific translation and an authorized source. |
+| NLT | Required; not implemented | Evaluate Tyndale's API or another authorized provider and storage behavior. |
+
+Personal church use is the project context. Provider-specific permissions still need to be checked before bundling full copyrighted translations. Keep this setup work out of the ordinary live-service workflow.
+
+### C. Demonstrate presentation conversion
+
+Use representative church presentations to compare candidate conversion methods on all desktop platforms. Evaluate appearance, fonts, aspect ratios, speaker notes, media, installation burden, and time to import. Include Google account connection and access to a private deck in the feasibility demonstration.
+
+## 4. Proposed architecture — not yet selected
+
+Separate these responsibilities so Codex and Claude can work independently after agreeing on interfaces:
+
+| Component | Responsibility |
+| --- | --- |
+| Rust presentation core | Service plans, song/slide data, cue ordering, live output state, commands, persistence, and validation. |
+| Operator interface | Library, service order, preview, editing, Bible lookup, content import, and live controls. |
+| Congregation renderer | Clean audience output, consistent slide layout, monitor selection, full-screen behavior, and output recovery. |
+| Remote control service | Pair phones, authenticate sessions, synchronize presentation state, and accept restricted live-control commands. |
+| Content adapters | SongSelect, individual Bible providers, PowerPoint conversion, and Google Slides connection/import. |
+| Local asset store | Prepared slides, converted presentation assets, allowed content caches, service files, and recovery data. |
+
+Architecture decisions to make after feasibility checks:
+
+- Native Rust UI, a webview desktop shell with a Rust core, or another cross-platform approach.
+- Whether the existing browser-host experiment contributes any reusable code.
+- Native desktop packaging and update approach for Windows, macOS, and Linux.
+- Browser-based versus native phone remote for the first release.
+- Real-time remote transport and reconnection behavior.
+- Rendering and presentation-conversion libraries or external tools.
+- Storage format, backup/recovery strategy, and credential storage using platform facilities.
+
+The likely priority is a dependable local service host with the network used for remote control and content preparation. This is a proposal, not a confirmed requirement to eliminate every cloud connection.
+
+## 5. Proposed delivery sequence
+
+No implementation phase starts until the user asks to build. These phases describe order, not promised dates.
+
+### Phase 0 — planning and feasibility
+
+- Finish the requirements and screen-flow review.
+- Prove SongSelect access and identify sources for the six translations.
+- Compare PowerPoint/Google Slides conversion approaches.
+- Select the desktop, renderer, and remote architecture.
+- Agree on shared data models, component boundaries, and ownership.
+
+**Exit:** A credible path exists for the absolute requirements; unresolved limitations are visible to the user.
+
+### Phase 1 — dependable live foundation
+
+- Service plans; distinct preview and live states; deliberate take-live behavior.
+- Multiple-display congregation output, keyboard controls, blackout, clear, and restore.
+- Persistent local services, import/export, backups, and recovery behavior.
+- Paired Android/iOS remote with restricted controls and clear connection status.
+
+**Exit:** A representative service can be operated locally and from a phone without accidental output changes.
+
+### Phase 2 — church content workflows
+
+- Supported SongSelect login/search/retrieval and automatic lyric slides.
+- Easy Bible lookup and the six requested translation integrations/packages.
+- Verified attribution, readable automatic formatting, and allowed offline preparation.
+
+**Exit:** A user can prepare and run a realistic song-and-scripture service without manually reconstructing the content.
+
+### Phase 3 — presentation imports
+
+- PowerPoint file import and chosen conversion workflow.
+- Google account connection, Slides selection, and conversion workflow.
+- Preflight checks and local assets for reliable playback.
+
+**Exit:** Representative imported decks retain acceptable appearance and can be presented from the service plan offline after preparation.
+
+### Phase 4 — rehearsal, platform verification, and packaging
+
+- Verify real Windows, macOS, and Linux builds. A passing Windows build is not cross-platform verification.
+- Verify remote operation in Android Chrome and iPhone Safari, plus native clients if selected.
+- Test multiple monitors, display scaling, projector resolutions, and full-screen behavior.
+- Rehearse a complete service, including content preparation, last-minute Bible lookup, remote reconnection, and recovery.
+- Package a personal-use release with straightforward setup and backup instructions.
+
+**Exit:** Every required workflow has evidence from the intended setup and all material limitations are recorded.
+
+## 6. Acceptance checks
+
+| Area | Evidence required |
+| --- | --- |
+| Live separation | Editing, deleting, importing, reordering, or loading a service does not alter the current audience frame. |
+| Live navigation | Previous/next behave predictably at item boundaries and the start/end of a service. Blackout stays active until explicitly restored. |
+| Bible ease | During a rehearsal, enter a previously unprepared reference, choose a translation, and show the correct passage through the planned short workflow. |
+| Bible accuracy | Check references, exact wording, verse ordering, long-verse splits, attribution, missing verses, invalid references, and each requested translation. |
+| SongSelect | Sign in using the church's own account and retrieve a song through the supported integration; automatically generate lyric slides with metadata. |
+| Import fidelity | Compare source and converted PowerPoint/Google Slides decks visually, including nonstandard aspect ratios, fonts, images, and any supported media. |
+| Offline service | Prepared content remains available when internet access is lost; provider-specific storage limits are respected. |
+| Remote | A paired phone can control the service, an unpaired client cannot, and remote permissions do not expose unrestricted editing or account credentials. |
+| Responsiveness | Measure control-to-display delay on the church network. A proposed target is under 200 ms in normal local-network conditions; validate before adopting it as a release criterion. |
+| Recovery | Lost remote connections, failed content requests, damaged service files, and interrupted imports do not corrupt the saved service or unexpectedly change live output. |
+| Desktop platforms | Record actual build/run results for Windows, macOS, and Linux, including multiple-display checks. |
+
+This is not yet ready to replace the church's existing presentation setup.
+
+## 7. Proposed Codex / Claude work split
+
+| Area | Proposed lead | Reviewer | Boundary |
+| --- | --- | --- | --- |
+| Requirements, architecture, and acceptance criteria | Shared with user | Both | Keep this plan current. |
+| SongSelect and Bible integration feasibility | Codex | Claude | Verify provider access and content interfaces before implementation. |
+| Rust presentation engine, persistence, and remote permissions | Codex | Claude | Own core modules after shared interfaces are agreed. |
+| Operator interface and easy live-service workflows | Claude | Codex | Own UI work after shared interfaces are agreed. |
+| PowerPoint / Google Slides conversion feasibility | Claude | Codex | Compare methods and report platform/fidelity constraints. |
+| Conversion implementation and cross-platform packaging | Assign after feasibility | Other collaborator | Avoid committing to a conversion stack prematurely. |
+| Rehearsal and release verification | Shared with user | Both | Record evidence instead of assuming completion. |
+
+Both collaborators should be able to question the design and review any area. These leads prevent overlapping edits; they do not restrict review.
+
+## 8. Shared work board
+
+Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked**, **Done**. Use “Done” only with recorded evidence.
+
+| Task | Description | Owner | Status | Evidence / next action |
+| --- | --- | --- | --- | --- |
+| PLAN-01 | Capture agreed scope and collaboration process | Codex | Done | This plan; update when the user changes requirements. |
+| PLAN-02 | Review the plan and propose missing live-service requirements | Claude — proposed | Planning | Read the user requirements and current prototype handoff. |
+| FEAS-01 | Verify supported SongSelect access for this app | Codex — proposed | Planning | Partner API exists; developer onboarding and actual access are unverified. |
+| FEAS-02 | Establish sources for NIV, ESV, CSB, HCSB, NLT, KJV | Codex — proposed | Planning | KJV source downloaded; other sources need access/storage verification. |
+| FEAS-03 | Compare PowerPoint conversion methods | Claude — proposed | Planning | Evaluate all three desktop platforms and fidelity. |
+| FEAS-04 | Verify Google Slides account/import workflow | Claude — proposed | Planning | Demonstrate authorized access to a private deck and local conversion. |
+| DESIGN-01 | Draft operator, Bible lookup, and remote screen flows | Claude — proposed | Planning | Prioritize minimal live-service steps. |
+| DESIGN-02 | Choose architecture and agree on shared interfaces | Shared | Planning | Depends on feasibility findings. |
+| AUDIT-01 | Decide what to reuse from the early experiment | Shared | Planning | Audit only after planning; current code is not validated for use. |
+
+Add implementation tasks after the user asks to begin building and the architecture is selected.
+
+## 9. Current workspace handoff
+
+Codex began experimenting before the user clarified that this conversation was planning only. The files remain in place for inspection, but implementation has stopped.
+
+### Existing experimental files
+
+- `Cargo.toml` / `Cargo.lock`: Rust package with Axum, Tokio, Serde, UUID, and local-data-directory dependencies.
+- `src/model.rs`: service/slide structures, live snapshots, commands, and local JSON persistence.
+- `src/server.rs`: local HTTP host, operator/remote authentication, pairing, commands, TXT conversion, and KJV endpoints.
+- `src/main.rs`: experimental host that can open a browser operator interface.
+- `src/songselect.rs`: user-supplied lyric TXT parser and automatic slide splitting. **No direct SongSelect integration.**
+- `src/bible.rs`: experimental KJV parser and lookup. **Known failing tests.**
+- `web/`: unfinished operator, remote, and output pages. These are not a selected desktop architecture or a visually verified application.
+- `assets/bibles/`: downloaded KJV source text and its source information.
+- `.tools/`: a project-local Rust toolchain and download artifacts; excluded by `.gitignore`.
+- `target/`: build/test artifacts; excluded by `.gitignore`.
+
+### Last recorded verification
+
+- JavaScript syntax check passed.
+- Rust compiled on Windows using the local GNU toolchain.
+- Last test run: **9 passed, 3 failed**. All three failures were in KJV lookup/data checks.
+- The intended 66-book KJV parser loaded 27,691 verses instead of 31,102 because the source uses several legacy book identifiers the parser does not map.
+- Examples of missing mappings include `JOH` → `JHN`, `1JO` → `1JN`, `EZE` → `EZK`, and `MAR` → `MRK`. Audit every book mapping rather than fixing only one example.
+- The downloaded source also includes deuterocanonical books; the experimental parser intends to select the 66-book canon. Confirm the desired library scope during planning.
+- No end-to-end browser, phone, projector, macOS, or Linux verification has been completed.
+- No direct SongSelect login/retrieval, other requested Bible translation, PowerPoint import, or Google Slides import has been implemented.
+
+Do not build on top of these files without reviewing their behavior and the chosen architecture. Do not describe the experiment as complete or service-ready.
+
+## 10. Open product decisions
+
+Resolve these as planning progresses; do not ask the user to answer every question at once.
+
+1. **SongSelect feasibility:** What supported access can this new app obtain?
+2. **Bible sources:** Which authorized sources and offline options are available for each translation?
+3. **Presentation fidelity:** Are static converted slides sufficient initially, or are animations and embedded media required from the start?
+4. **Display setup:** How many congregation screens/projectors does the church use? Is a separate stage/confidence display needed?
+5. **Remote scope:** Browser remote or native apps initially? One operator phone or several? Which controls beyond next/previous/clear/blackout?
+6. **Other media:** Are background images, motion backgrounds, audio, and video required for the first usable version?
+7. **Existing material:** What presentation files, song libraries, fonts, and Bible resources does the church already use?
+8. **Service planning:** Is a saved local service plan sufficient initially, or is a Planning Center/other service integration also required?
+
+These are questions, not additional confirmed features.
+
+## 11. Research starting points
+
+Links were consulted during the initial conversation on October 29, 2026. Recheck current documentation before implementation. These are research leads, not proof that access has been granted.
+
+- [CCLI partner service status](https://status.ccli.com/)
+- [CCLI contact](https://songselect.ccli.com/about/contact)
+- [ProPresenter's SongSelect workflow](https://support.renewedvision.com/hc/en-us/articles/360041815033-SongSelect-and-ProPresenter)
+- [KJV source and download information at eBible.org](https://www.ebible.org/find/details.php?id=eng-kjv)
+- [API.Bible documentation](https://docs.api.bible/)
+- [API.Bible translation access](https://docs.api.bible/quick-start/working-with-bibles/)
+- [Crossway ESV API documentation](https://api.esv.org/docs/)
+- [Crossway ESV API conditions and caching information](https://www.esv.org/api/)
+- [Tyndale NLT API](https://api.nlt.to/)
+
+## 12. Handoff log
+
+### October 29, 2026 — Codex
+
+- Captured the confirmed requirements, including the absolute SongSelect requirement, six Bible translations, easy live Bible lookup, and PowerPoint/Google Slides imports.
+- Recorded known prototype limitations and the failed KJV checks.
+- Proposed a collaboration split and work board for Claude and Codex.
+- Current action is planning only. No implementation work is assigned or running.
+
+For the next handoff, append the collaborator name, task IDs, decisions made, files changed, evidence gathered, and the next unresolved step.
