@@ -1,0 +1,219 @@
+//! Where slide text goes and how big it is. Mirrors the rules of the web renderer (`web/render.js`):
+//! a 1920-wide logical canvas, text shrinks until it fits, and words are never dropped.
+use crate::model::Theme;
+use cosmic_text::{Align, Attrs, Buffer, Family, FontSystem, Metrics, Shaping, Weight, Wrap};
+
+/// Logical canvas width every size below is measured against.
+pub const CANVAS_W: f32 = 1920.0;
+const PAD_X: f32 = 110.0;
+const PAD_Y: f32 = 66.0;
+const PAD_BOTTOM_LOWER: f32 = 70.0;
+const FOOT_PAD_BOTTOM: f32 = 46.0;
+const REFERENCE_PX: f32 = 44.0;
+const FOOTER_PX: f32 = 30.0;
+/// Line height of the reference/footer line, relative to its font size.
+const FOOT_LINE: f32 = 1.25;
+const MIN_PX: f32 = 26.0;
+pub const BUNDLED_FAMILY: &str = "Noto Sans";
+
+/// The font database: system fonts plus the bundled Noto Sans, so text looks the same everywhere.
+pub struct Fonts { pub(crate) sys: FontSystem }
+
+impl Fonts {
+    pub fn new() -> Self {
+        let mut sys = FontSystem::new();
+        let db = sys.db_mut();
+        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-Regular.ttf").to_vec());
+        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-Medium.ttf").to_vec());
+        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-SemiBold.ttf").to_vec());
+        Self { sys }
+    }
+
+    pub fn has_family(&self, name: &str) -> bool {
+        self.sys.db().faces().any(|f| f.families.iter().any(|(n, _)| n.eq_ignore_ascii_case(name)))
+    }
+}
+
+impl Default for Fonts { fn default() -> Self { Self::new() } }
+
+/// The text parts of a slide (`live::SlideLayer::Text`).
+#[derive(Clone, Copy, Debug)]
+pub struct TextSlide<'a> {
+    pub text: &'a str,
+    pub footer: Option<&'a str>,
+    pub reference: Option<&'a str>,
+    pub scripture: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Rect { pub x: f32, pub y: f32, pub w: f32, pub h: f32 }
+
+pub struct TextLayout {
+    /// Body font size in canvas pixels after fitting.
+    pub font_px: f32,
+    /// The theme's font is not installed; the bundled one was used.
+    pub font_fallback: bool,
+    pub family: String,
+    /// The body text, shaped and wrapped to `body_box.w`. Its height is not limited: nothing is cut.
+    pub body: Buffer,
+    /// Reference (scripture) or footer line, shaped to the canvas width minus padding.
+    pub foot: Option<Buffer>,
+    /// Where the foot line's top edge sits, in canvas pixels.
+    pub foot_y: f32,
+    pub body_box: Rect,
+    /// Lower-third position: text sits at the bottom over a dark gradient.
+    pub lower: bool,
+    pub scripture: bool,
+    pub canvas: (u32, u32),
+}
+
+/// Font sizes to try, largest first: −4 px above 60 px, then −2 px, ending at 26 px.
+pub fn fit_steps(max: f32) -> impl Iterator<Item = f32> {
+    let mut next = Some(max.max(MIN_PX));
+    std::iter::from_fn(move || {
+        let cur = next?;
+        let step = if cur > 60.0 { 4.0 } else { 2.0 };
+        next = if cur <= MIN_PX { None } else { Some((cur - step).max(MIN_PX)) };
+        Some(cur)
+    })
+}
+
+/// Lay out a text slide on a `canvas` (width, height) in pixels. All sizes scale by width / 1920.
+pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> TextLayout {
+    let (cw, ch) = (canvas.0 as f32, canvas.1 as f32);
+    let s = cw / CANVAS_W;
+    let lower = theme.position == "lower";
+    let font_fallback = !fonts.has_family(&theme.font);
+    let family = if font_fallback { BUNDLED_FAMILY.to_string() } else { theme.font.clone() };
+
+    let foot_text = slide.reference.or(slide.footer).filter(|t| !t.trim().is_empty());
+    let (foot, foot_h) = match foot_text {
+        Some(t) => {
+            let (px, weight) = if slide.reference.is_some() { (REFERENCE_PX, 600) } else { (FOOTER_PX, 400) };
+            let align = if slide.reference.is_some() { Align::Right } else { Align::Center };
+            let px = px * s;
+            let mut b = Buffer::new(&mut fonts.sys, Metrics::new(px, px * FOOT_LINE));
+            let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
+            b.set_size(Some(cw - 2.0 * PAD_X * s), None);
+            b.set_wrap(Wrap::WordOrGlyph);
+            b.set_text(t, &attrs, Shaping::Advanced, Some(align));
+            b.shape_until_scroll(&mut fonts.sys, false);
+            let h = text_height(&b) + FOOT_PAD_BOTTOM * s;
+            (Some(b), h)
+        }
+        None => (None, 0.0),
+    };
+
+    let top = PAD_Y * s;
+    let bottom = if lower { PAD_BOTTOM_LOWER } else { PAD_Y } * s;
+    let body_box = Rect { x: PAD_X * s, y: top, w: cw - 2.0 * PAD_X * s, h: (ch - top - bottom - foot_h).max(0.0) };
+
+    let text = if theme.uppercase && !slide.scripture { slide.text.to_uppercase() } else { slide.text.to_string() };
+    let (weight, line, align, max) = if slide.scripture {
+        (500, 1.32, Align::Left, theme.scripture_size as f32)
+    } else {
+        (600, 1.22, Align::Center, theme.size as f32)
+    };
+    let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
+    let mut body = Buffer::new(&mut fonts.sys, Metrics::new(max * s, max * s * line));
+    body.set_size(Some(body_box.w), None);
+    body.set_wrap(Wrap::WordOrGlyph);
+    body.set_text(&text, &attrs, Shaping::Advanced, Some(align));
+
+    let mut font_px = MIN_PX;
+    for px in fit_steps(max) {
+        body.set_metrics(Metrics::new(px * s, px * s * line));
+        body.shape_until_scroll(&mut fonts.sys, false);
+        font_px = px;
+        if text_height(&body) <= body_box.h - 4.0 * s && max_line_width(&body) <= body_box.w + 1.0 { break; }
+    }
+
+    TextLayout {
+        font_px,
+        font_fallback,
+        family,
+        body,
+        foot,
+        foot_y: ch - foot_h,
+        body_box,
+        lower,
+        scripture: slide.scripture,
+        canvas,
+    }
+}
+
+/// Total height of all laid-out lines.
+pub fn text_height(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_height).sum() }
+
+/// Width of the widest laid-out line.
+pub fn max_line_width(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_w).fold(0.0, f32::max) }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
+
+    fn lay(text: &str) -> TextLayout {
+        let mut t = Theme::default();
+        t.font = BUNDLED_FAMILY.into();
+        layout(&mut Fonts::new(), &slide(text), &t, (1920, 1080))
+    }
+
+    /// Words in the laid-out lines, read back from the glyphs that were placed.
+    fn laid_out_words(b: &Buffer) -> usize {
+        b.layout_runs().map(|r| {
+            let (Some(first), Some(last)) = (r.glyphs.first(), r.glyphs.last()) else { return 0 };
+            r.text[first.start.min(last.start)..first.end.max(last.end)].split_whitespace().count()
+        }).sum()
+    }
+
+    #[test]
+    fn fit_steps_match_render_js() {
+        let s: Vec<f32> = fit_steps(84.0).collect();
+        assert_eq!(&s[..7], &[84., 80., 76., 72., 68., 64., 60.]);
+        assert_eq!(s[7], 58.);
+        assert_eq!(*s.last().unwrap(), 26.);
+    }
+
+    #[test]
+    fn short_lyric_keeps_theme_size() { assert_eq!(lay("Amazing grace").font_px, 84.0); }
+
+    #[test]
+    fn long_lyric_shrinks_but_not_below_26() {
+        let l = lay(&"How sweet the sound that saved a wretch like me ".repeat(12));
+        assert!(l.font_px < 84.0 && l.font_px >= 26.0, "{}", l.font_px);
+    }
+
+    #[test]
+    fn overlong_lyric_stops_at_26_and_keeps_every_word() {
+        let l = lay(&"word ".repeat(2000));
+        assert_eq!(l.font_px, 26.0);
+        assert_eq!(laid_out_words(&l.body), 2000);
+    }
+
+    #[test]
+    fn unbreakable_word_wraps_inside_the_box() {
+        let l = lay(&"x".repeat(400));
+        assert!(max_line_width(&l.body) <= l.body_box.w + 1.0);
+    }
+
+    #[test]
+    fn missing_font_falls_back_to_bundled() {
+        let mut t = Theme::default();
+        t.font = "No Such Font 123".into();
+        let l = layout(&mut Fonts::new(), &slide("Hi"), &t, (1920, 1080));
+        assert!(l.font_fallback);
+        assert_eq!(l.family, BUNDLED_FAMILY);
+    }
+
+    #[test]
+    fn scripture_uses_scripture_size_and_left_align() {
+        let mut t = Theme::default();
+        t.font = BUNDLED_FAMILY.into();
+        let l = layout(&mut Fonts::new(), &TextSlide { text: "For God so loved", footer: None, reference: Some("John 3:16"), scripture: true }, &t, (1920, 1080));
+        assert_eq!(l.font_px, 64.0);
+        assert!(l.foot.is_some());
+        assert!(l.foot_y < 1080.0 && l.foot_y > l.body_box.y + l.body_box.h - 1.0);
+    }
+}

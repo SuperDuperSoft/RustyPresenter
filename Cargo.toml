@@ -16,6 +16,7 @@ dirs = "6"
 tauri = "2"
 sha2 = "0.10"
 qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+cosmic-text = "0.19.0"
 
 [build-dependencies]
 tauri-build = "2"
