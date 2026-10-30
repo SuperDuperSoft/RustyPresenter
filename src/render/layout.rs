@@ -20,6 +20,10 @@ pub const MAX_CANVAS: u32 = 8192;
 /// `canvas` with each side kept within 1..=`MAX_CANVAS`.
 pub fn clamp_canvas(canvas: (u32, u32)) -> (u32, u32) { (canvas.0.clamp(1, MAX_CANVAS), canvas.1.clamp(1, MAX_CANVAS)) }
 pub const BUNDLED_FAMILY: &str = "Noto Sans";
+/// The web renderer's defaults for theme values left empty or zero (`t.font || 'Segoe UI'` etc.).
+const DEFAULT_FAMILY: &str = "Segoe UI";
+const DEFAULT_SIZE: u32 = 84;
+const DEFAULT_SCRIPTURE_SIZE: u32 = 64;
 
 /// The bundled Noto Sans faces (regular 400, medium 500, semibold 600).
 const BUNDLED_FACES: [&[u8]; 3] = [
@@ -108,14 +112,20 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let (cw, ch) = (canvas.0 as f32, canvas.1 as f32);
     let s = cw / CANVAS_W;
     let lower = theme.position == "lower";
-    let font_fallback = !fonts.has_family(&theme.font);
-    let family = if font_fallback { BUNDLED_FAMILY.to_string() } else { theme.font.clone() };
+    // Like render.js `t.font || 'Segoe UI'`; a blank name is no font either.
+    let wanted = if theme.font.trim().is_empty() { DEFAULT_FAMILY } else { theme.font.as_str() };
+    let font_fallback = !fonts.has_family(wanted);
+    let family = if font_fallback { BUNDLED_FAMILY.to_string() } else { wanted.to_string() };
 
-    let foot_text = slide.reference.or(slide.footer).filter(|t| !t.trim().is_empty());
+    // render.js shows `layer.reference || layer.footer`: a blank reference gives way to the footer.
+    let filled = |t: &&str| !t.trim().is_empty();
+    let reference = slide.reference.filter(filled);
+    let foot_text = reference.or(slide.footer.filter(filled));
     let (foot, foot_h) = match foot_text {
         Some(t) => {
-            let (px, weight) = if slide.reference.is_some() { (REFERENCE_PX, 600) } else { (FOOTER_PX, 400) };
-            let align = if slide.reference.is_some() { Align::Right } else { Align::Center };
+            let is_ref = reference.is_some();
+            let (px, weight) = if is_ref { (REFERENCE_PX, 600) } else { (FOOTER_PX, 400) };
+            let align = if is_ref { Align::Right } else { Align::Center };
             let px = px * s;
             let mut b = Buffer::new(&mut fonts.sys, Metrics::new(px, px * FOOT_LINE));
             let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
@@ -135,9 +145,9 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
 
     let text = if theme.uppercase && !slide.scripture { slide.text.to_uppercase() } else { slide.text.to_string() };
     let (weight, line, align, max) = if slide.scripture {
-        (500, 1.32, Align::Left, theme.scripture_size as f32)
+        (500, 1.32, Align::Left, or_default(theme.scripture_size, DEFAULT_SCRIPTURE_SIZE))
     } else {
-        (600, 1.22, Align::Center, theme.size as f32)
+        (600, 1.22, Align::Center, or_default(theme.size, DEFAULT_SIZE))
     };
     let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
     let mut body = Buffer::new(&mut fonts.sys, Metrics::new(max * s, max * s * line));
@@ -167,6 +177,9 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         canvas,
     }
 }
+
+/// A theme size, or the web's default when it is 0 (`t.size || 84`).
+fn or_default(size: u32, default: u32) -> f32 { (if size == 0 { default } else { size }) as f32 }
 
 /// Total height of all laid-out lines.
 pub fn text_height(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_height).sum() }
@@ -239,6 +252,67 @@ mod tests {
         let l = layout(&mut Fonts::new(), &slide("Hi"), &t, (1920, 1080));
         assert!(l.font_fallback);
         assert_eq!(l.family, BUNDLED_FAMILY);
+    }
+
+    // render.js reads theme values with `||` defaults, so empty/zero values mean "the default".
+
+    #[test]
+    fn empty_theme_font_means_segoe_ui_like_the_web() {
+        for font in ["", "   "] {
+            let mut fonts = Fonts::new();
+            let want = if fonts.has_family("Segoe UI") { "Segoe UI" } else { BUNDLED_FAMILY };
+            let t = Theme { font: font.into(), ..Theme::default() };
+            let l = layout(&mut fonts, &slide("Hi"), &t, (1920, 1080));
+            assert_eq!(l.family, want, "font {font:?}");
+            assert_eq!(l.font_fallback, want == BUNDLED_FAMILY, "font {font:?}");
+        }
+    }
+
+    #[test]
+    fn empty_theme_font_without_segoe_ui_falls_back_to_bundled() {
+        let t = Theme { font: String::new(), ..Theme::default() };
+        let l = layout(&mut Fonts::bundled_only(), &slide("Hi"), &t, (1920, 1080));
+        assert!(l.font_fallback);
+        assert_eq!(l.family, BUNDLED_FAMILY);
+    }
+
+    #[test]
+    fn zero_theme_size_means_84_like_the_web() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), size: 0, ..Theme::default() };
+        assert_eq!(layout(&mut Fonts::bundled_only(), &slide("Amazing grace"), &t, (1920, 1080)).font_px, 84.0);
+    }
+
+    #[test]
+    fn zero_scripture_size_means_64_like_the_web() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), scripture_size: 0, ..Theme::default() };
+        let s = TextSlide { text: "For God so loved", footer: None, reference: None, scripture: true };
+        assert_eq!(layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080)).font_px, 64.0);
+    }
+
+    #[test]
+    fn blank_reference_shows_the_footer_like_the_web() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
+        for reference in ["", "  "] {
+            let s = TextSlide { text: "Welcome", footer: Some("Service at 10:30"), reference: Some(reference), scripture: false };
+            let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
+            let foot = l.foot.as_ref().unwrap_or_else(|| panic!("reference {reference:?}: footer missing"));
+            assert_eq!(foot.metrics().font_size, FOOTER_PX, "reference {reference:?}: footer style");
+            let run = foot.layout_runs().next().unwrap();
+            assert_eq!(run.text, "Service at 10:30");
+            // Footers are centered; a right-aligned line would end at the right padding.
+            let mid = run.glyphs.first().unwrap().x + run.line_w / 2.0;
+            assert!((mid - l.body_box.w / 2.0).abs() < 2.0, "reference {reference:?}: footer centered, mid {mid}");
+        }
+    }
+
+    #[test]
+    fn reference_wins_over_footer() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
+        let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true };
+        let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
+        let foot = l.foot.as_ref().unwrap();
+        assert_eq!(foot.metrics().font_size, REFERENCE_PX);
+        assert_eq!(foot.layout_runs().next().unwrap().text, "John 3:16");
     }
 
     #[test]
