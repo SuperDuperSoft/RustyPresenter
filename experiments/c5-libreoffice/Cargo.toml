@@ -1,0 +1,11 @@
+[package]
+name = "c5-libreoffice"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# Throwaway check C5: PowerPoint import via LibreOffice (headless, private profile) -> PDF -> pdfium -> PNG.
+# pdfium is loaded at runtime with Pdfium::bind_to_library; nothing links it at build time.
+[dependencies]
+pdfium-render = "0.8"
+image = { version = "0.25", default-features = false, features = ["png"] }
