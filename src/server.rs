@@ -1,6 +1,6 @@
 //! HTTP host with live updates over Server-Sent Events. Operator, room and stage pages are served only to this
 //! computer (loopback). The LAN only sees the phone remote, behind PIN pairing.
-use crate::app::{App, DataPlan, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token, spawn_conversion};
+use crate::app::{App, DataPlan, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token, spawn_conversion};
 use crate::{live::*, media, model::*, slides::build_item};
 use axum::{
     Json, Router,
@@ -255,24 +255,39 @@ fn conn_guard(app: &Arc<App>, role: &'static str) -> ConnGuard {
     ConnGuard { app: app.clone(), role }
 }
 
-/// A stream of messages: `first`, then every broadcast passed through `map` (None = skip, Err = end).
-fn event_stream(app: Arc<App>, role: &'static str, first: String, map: impl Fn(&App, &str) -> Result<Option<String>, ()> + Send + 'static)
+/// The JSON the web pages and phone remote receive for an update.
+pub fn update_json(u: &Update) -> String {
+    match u {
+        Update::Live(v) => {
+            let mut j = serde_json::to_value(&**v).unwrap_or_default();
+            if let Value::Object(m) = &mut j { m.insert("type".into(), "live".into()); }
+            j.to_string()
+        }
+        Update::Data => json!({ "type": "data" }).to_string(),
+        Update::Job { id, percent } => json!({ "type": "job", "id": id, "percent": percent }).to_string(),
+        Update::Convert { id, percent } => json!({ "type": "convert", "id": id, "percent": percent }).to_string(),
+        Update::Revoked { phone } => json!({ "type": "revoked", "id": phone }).to_string(),
+    }
+}
+
+/// A stream of messages: `first`, then every update passed through `map` (None = skip, Err = end).
+/// `map` gets `None` when this client fell behind and needs a full snapshot instead of the missed updates.
+fn event_stream(app: Arc<App>, role: &'static str, first: String, map: impl Fn(&App, Option<&Update>) -> Result<Option<String>, ()> + Send + 'static)
     -> impl Stream<Item = Result<Event, std::convert::Infallible>> {
     let guard = conn_guard(&app, role);
-    let rx = app.tx.subscribe();
+    let rx = app.subscribe();
     let head = stream::once(async move { Ok(Event::default().data(first)) });
     let tail = stream::unfold((rx, app, guard, map, false), |(mut rx, app, guard, map, done)| async move {
         if done { return None; }
         loop {
             match rx.recv().await {
-                Ok(text) => match map(&app, &text) {
+                Ok(update) => match map(&app, Some(&update)) {
                     Ok(Some(out)) => return Some((Ok(Event::default().data(out)), (rx, app, guard, map, false))),
                     Ok(None) => continue,
                     Err(()) => return None,
                 },
                 Err(broadcast::error::RecvError::Lagged(_)) => {
-                    // Too far behind: send a full snapshot instead of the missed messages.
-                    if let Ok(Some(out)) = map(&app, "{\"type\":\"resync\"}") { return Some((Ok(Event::default().data(out)), (rx, app, guard, map, false))); }
+                    if let Ok(Some(out)) = map(&app, None) { return Some((Ok(Event::default().data(out)), (rx, app, guard, map, false))); }
                 }
                 Err(_) => return None,
             }
@@ -281,11 +296,13 @@ fn event_stream(app: Arc<App>, role: &'static str, first: String, map: impl Fn(&
     head.chain(tail)
 }
 
+fn live_json(app: &App) -> String { update_json(&Update::Live(Arc::new(app.live_view()))) }
+
 async fn events(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Query(q): Query<RoleQuery>) -> Response {
     if !local_ok(&app, &addr, &headers) { return forbidden(); }
     let role = match q.role.as_str() { "room" => "room", "stage" => "stage", _ => "operator" };
-    let first = app.live_json();
-    let s = event_stream(app, role, first, |app, text| Ok(Some(if text.contains("\"resync\"") { app.live_json() } else { text.to_string() })));
+    let first = live_json(&app);
+    let s = event_stream(app, role, first, |app, u| Ok(Some(match u { Some(u) => update_json(u), None => live_json(app) })));
     Sse::new(s).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))).into_response()
 }
 
@@ -362,11 +379,10 @@ fn same_origin(headers: &HeaderMap) -> bool {
 async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, "pair first").into_response() };
     let first = remote_view(&app);
-    let revoked = format!("\"revoked\",\"id\":\"{phone}\"");
-    let s = event_stream(app, "remote", first, move |app, text| {
-        if text.contains(&revoked) { return Err(()); }
-        if text.contains("\"type\":\"job\"") || text.contains("\"type\":\"convert\"") { return Ok(None); }
-        Ok(Some(remote_view(app)))
+    let s = event_stream(app, "remote", first, move |app, u| match u {
+        Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
+        Some(Update::Job { .. } | Update::Convert { .. }) => Ok(None),
+        _ => Ok(Some(remote_view(app))),
     });
     Sse::new(s).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))).into_response()
 }
@@ -439,4 +455,28 @@ pub fn router(app: Arc<App>) -> Router {
 
 pub fn data_dir() -> Option<PathBuf> {
     std::env::var_os("RUSTYPRESENTER_DATA").map(PathBuf::from).or_else(|| dirs::data_local_dir().map(|p| p.join("RustyPresenter")))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::app::{Update, test_app};
+
+    #[test]
+    fn live_update_json_matches_the_old_wire_format() {
+        let app = test_app();
+        let v: Value = serde_json::from_str(&update_json(&Update::Live(Arc::new(app.live_view())))).unwrap();
+        assert_eq!(v["type"], "live");
+        for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
+            assert!(v.get(k).is_some(), "{k}");
+        }
+    }
+
+    #[test]
+    fn other_updates_keep_their_wire_format() {
+        let id = Uuid::nil();
+        assert_eq!(update_json(&Update::Data), r#"{"type":"data"}"#);
+        assert_eq!(update_json(&Update::Job { id, percent: 5 }), format!(r#"{{"id":"{id}","percent":5,"type":"job"}}"#));
+        assert_eq!(update_json(&Update::Revoked { phone: id }), format!(r#"{{"id":"{id}","type":"revoked"}}"#));
+    }
 }

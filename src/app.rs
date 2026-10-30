@@ -24,6 +24,42 @@ impl ActionError {
 
 macro_rules! tryr { ($e:expr) => { $e.map_err(ActionError::bad)? }; }
 
+/// Something every screen may need to react to. Sent on `App::tx`.
+#[derive(Clone, Debug)]
+pub enum Update {
+    Live(Arc<LiveView>),
+    /// Library, service, settings or windows changed: re-read `state_json`.
+    Data,
+    Job { id: Uuid, percent: u8 },
+    Convert { id: Uuid, percent: u8 },
+    /// A paired phone was removed; its remote stream ends.
+    Revoked { phone: Uuid },
+}
+
+/// What is live, as every screen draws it.
+#[derive(Serialize, Clone, Debug)]
+pub struct LiveView {
+    pub version: u64,
+    pub committed: u64,
+    pub pending: bool,
+    pub frame: Frame,
+    pub cursor: Option<Cursor>,
+    pub item: Option<LiveItemSummary>,
+    pub slide: Option<Slide>,
+    pub next: Option<NextUp>,
+    pub media: Option<PlayStatus>,
+    pub audio: Option<PlayStatus>,
+    pub notice: Option<String>,
+    pub theme: Theme,
+    pub logo: Option<AssetId>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct LiveItemSummary { pub item_id: Uuid, pub title: String, pub kind: String, pub count: usize }
+
+#[derive(Serialize, Clone, Debug)]
+pub struct NextUp { pub title: String, pub slide: Slide }
+
 /// A connected screen as the windowing layer reports it.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Monitor {
@@ -58,7 +94,7 @@ pub struct App {
     pub store: Store,
     pub data: Mutex<Data>,
     pub live: Mutex<Live>,
-    pub tx: broadcast::Sender<Arc<str>>,
+    pub tx: broadcast::Sender<Update>,
     pub port: u16,
     pub lan_url: Option<String>,
     /// Set once the windowing layer is running; windows can only be opened after that.
@@ -100,32 +136,31 @@ impl App {
         })
     }
 
-    pub fn live_json(&self) -> String {
+    pub fn live_view(&self) -> LiveView {
         let data = self.data.lock().unwrap();
         let live = self.live.lock().unwrap();
         let plan = DataPlan(&data);
-        let slide = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide)));
-        let next = live.next_preview(&plan).map(|(t, s)| json!({ "title": t, "slide": s }));
-        json!({
-            "type": "live",
-            "version": live.version,
-            "committed": live.committed_version,
-            "pending": live.pending(),
-            "frame": live.frame,
-            "cursor": live.cursor,
-            "item": live.item.as_ref().map(|i| json!({ "item_id": i.item_id, "title": i.title, "kind": i.kind, "count": i.slides.len() })),
-            "slide": slide,
-            "next": next,
-            "media": live.media_status,
-            "audio": live.audio_status,
-            "notice": live.notice,
-            "theme": data.settings.theme,
-            "logo": data.settings.logo,
-        }).to_string()
+        LiveView {
+            version: live.version,
+            committed: live.committed_version,
+            pending: live.pending(),
+            frame: live.frame.clone(),
+            cursor: live.cursor.clone(),
+            item: live.item.as_ref().map(|i| LiveItemSummary { item_id: i.item_id, title: i.title.clone(), kind: i.kind.clone(), count: i.slides.len() }),
+            slide: live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).cloned(),
+            next: live.next_preview(&plan).map(|(title, slide)| NextUp { title, slide }),
+            media: live.media_status.clone(),
+            audio: live.audio_status.clone(),
+            notice: live.notice.clone(),
+            theme: data.settings.theme.clone(),
+            logo: data.settings.logo.clone(),
+        }
     }
 
-    pub fn broadcast_live(&self) { let _ = self.tx.send(Arc::from(self.live_json())); }
-    pub fn broadcast_data(&self) { let _ = self.tx.send(Arc::from(json!({ "type": "data" }).to_string())); }
+    pub fn subscribe(&self) -> broadcast::Receiver<Update> { self.tx.subscribe() }
+
+    pub fn broadcast_live(&self) { let _ = self.tx.send(Update::Live(Arc::new(self.live_view()))); }
+    pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.store.save(data).map_err(|e| format!("Could not save: {e}")) }
 
@@ -184,7 +219,7 @@ impl App {
     }
     pub(crate) fn job_progress(&self, id: Uuid, p: u8) {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { if j.percent == p { return; } j.percent = p; }
-        let _ = self.tx.send(Arc::from(json!({ "type": "job", "id": id, "percent": p }).to_string()));
+        let _ = self.tx.send(Update::Job { id, percent: p });
     }
     pub(crate) fn job_end(&self, id: Uuid, error: Option<String>) {
         let mut jobs = self.jobs.lock().unwrap();
@@ -484,7 +519,7 @@ impl App {
             phones.retain(|p| p.id != id);
             app.save_phones(&phones);
             drop(phones);
-            let _ = app.tx.send(Arc::from(json!({ "type": "revoked", "id": id }).to_string()));
+            let _ = app.tx.send(Update::Revoked { phone: id });
             app.broadcast_data();
             Ok(json!({}))
         }
@@ -527,7 +562,7 @@ pub(crate) fn spawn_conversion(app: Arc<App>, id: Uuid, src: AssetId, plan: medi
             if p >= last + 2 || p == 100 {
                 last = p;
                 set(&app2, MediaStatus::Converting { percent: p });
-                let _ = app2.tx.send(Arc::from(json!({ "type": "convert", "id": id, "percent": p }).to_string()));
+                let _ = app2.tx.send(Update::Convert { id, percent: p });
             }
         }).await;
         let final_status = match result {
@@ -574,6 +609,23 @@ mod tests {
     async fn do_action_rejects_untitled_song_with_400() {
         let err = test_app().do_action("song/save", br#"{"id":"00000000-0000-0000-0000-000000000000","title":" ","lyrics":""}"#).await.unwrap_err();
         assert_eq!((err.status, err.message.as_str()), (400, "Give the song a title."));
+    }
+
+    #[tokio::test]
+    async fn a_live_command_publishes_one_live_update() {
+        let app = test_app();
+        let mut rx = app.subscribe();
+        app.command(Envelope { id: "c1".into(), base: None, cmd: Command::ClearAll });
+        assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
+        assert!(rx.try_recv().is_err());
+    }
+
+    #[test]
+    fn live_view_serializes_every_field_the_screens_read() {
+        let v = serde_json::to_value(test_app().live_view()).unwrap();
+        for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
+            assert!(v.get(k).is_some(), "{k}");
+        }
     }
 
     #[tokio::test]
