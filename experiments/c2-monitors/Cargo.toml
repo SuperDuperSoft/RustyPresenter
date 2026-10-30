@@ -1,0 +1,9 @@
+[package]
+name = "c2-monitors"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# Throwaway check C2: list monitors and go borderless fullscreen on a chosen one through Slint's winit backend.
+[dependencies]
+slint = { version = "1.18", features = ["unstable-winit-030"] }
