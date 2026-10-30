@@ -21,17 +21,36 @@ pub const MAX_CANVAS: u32 = 8192;
 pub fn clamp_canvas(canvas: (u32, u32)) -> (u32, u32) { (canvas.0.clamp(1, MAX_CANVAS), canvas.1.clamp(1, MAX_CANVAS)) }
 pub const BUNDLED_FAMILY: &str = "Noto Sans";
 
+/// The bundled Noto Sans faces (regular 400, medium 500, semibold 600).
+const BUNDLED_FACES: [&[u8]; 3] = [
+    include_bytes!("../../assets/fonts/NotoSans-Regular.ttf"),
+    include_bytes!("../../assets/fonts/NotoSans-Medium.ttf"),
+    include_bytes!("../../assets/fonts/NotoSans-SemiBold.ttf"),
+];
+
 /// The font database: system fonts plus the bundled Noto Sans, so text looks the same everywhere.
 pub struct Fonts { pub(crate) sys: FontSystem }
 
 impl Fonts {
+    /// Installed system fonts plus the bundled Noto Sans. What the app uses: theme fonts the
+    /// operator installed work, and other scripts (Korean, emoji, ...) fall back to system faces.
     pub fn new() -> Self {
         let mut sys = FontSystem::new();
-        let db = sys.db_mut();
-        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-Regular.ttf").to_vec());
-        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-Medium.ttf").to_vec());
-        db.load_font_data(include_bytes!("../../assets/fonts/NotoSans-SemiBold.ttf").to_vec());
+        for face in BUNDLED_FACES { sys.db_mut().load_font_data(face.to_vec()); }
         Self { sys }
+    }
+
+    /// Only the bundled Noto Sans, with a fixed locale: the same pixels on every machine, whatever
+    /// is installed (a system "Noto Sans" of another version cannot change the result). For
+    /// reference-image tests; text outside Noto Sans' coverage draws as missing-glyph boxes.
+    pub fn bundled_only() -> Self {
+        let mut db = cosmic_text::fontdb::Database::new();
+        for face in BUNDLED_FACES { db.load_font_data(face.to_vec()); }
+        for set in [cosmic_text::fontdb::Database::set_sans_serif_family, cosmic_text::fontdb::Database::set_serif_family,
+                    cosmic_text::fontdb::Database::set_monospace_family] {
+            set(&mut db, BUNDLED_FAMILY);
+        }
+        Self { sys: FontSystem::new_with_locale_and_db("en-US".into(), db) }
     }
 
     pub fn has_family(&self, name: &str) -> bool {
@@ -220,6 +239,25 @@ mod tests {
         let l = layout(&mut Fonts::new(), &slide("Hi"), &t, (1920, 1080));
         assert!(l.font_fallback);
         assert_eq!(l.family, BUNDLED_FAMILY);
+    }
+
+    #[test]
+    fn bundled_only_holds_just_the_three_noto_sans_faces() {
+        let f = Fonts::bundled_only();
+        let faces: Vec<_> = f.sys.db().faces().collect();
+        assert_eq!(faces.len(), 3);
+        assert!(faces.iter().all(|face| face.families.iter().any(|(n, _)| n == BUNDLED_FAMILY)));
+        let mut weights: Vec<u16> = faces.iter().map(|face| face.weight.0).collect();
+        weights.sort();
+        assert_eq!(weights, [400, 500, 600]);
+    }
+
+    #[test]
+    fn bundled_only_lays_out_with_noto_sans() {
+        let l = layout(&mut Fonts::bundled_only(), &slide("Amazing grace"), &Theme::default(), (1920, 1080));
+        assert!(l.font_fallback, "Segoe UI is never in the bundled-only database");
+        assert_eq!(l.family, BUNDLED_FAMILY);
+        assert_eq!(l.font_px, 84.0);
     }
 
     #[test]
