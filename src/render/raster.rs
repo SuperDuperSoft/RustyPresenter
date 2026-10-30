@@ -1,6 +1,6 @@
 //! Turns a laid-out text slide into pixels: lower-third gradient, soft shadows, then the text.
 use super::color::parse_color;
-use super::layout::{CANVAS_W, Fonts, TextSlide, layout, text_height};
+use super::layout::{CANVAS_W, Fonts, TextSlide, clamp_canvas, layout, text_height};
 use crate::model::Theme;
 use cosmic_text::{Buffer, Color, SwashCache};
 use tiny_skia::{Color as SkColor, GradientStop, LinearGradient, Paint, Pixmap, Point, Rect, SpreadMode, Transform};
@@ -26,10 +26,11 @@ const FOOT_OPACITY: f32 = 0.88;
 const LOWER_SHADE: f32 = 0.55;
 
 pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> Rendered {
+    let canvas = clamp_canvas(canvas);
     let mut l = layout(fonts, slide, theme, canvas);
-    let (w, h) = (canvas.0.max(1), canvas.1.max(1));
+    let (w, h) = canvas;
     let s = w as f32 / CANVAS_W;
-    let mut pix = Pixmap::new(w, h).expect("non-zero canvas");
+    let mut pix = Pixmap::new(w, h).expect("canvas is clamped to a drawable size");
     if l.lower { draw_lower_shade(&mut pix); }
 
     let color = parse_color(&theme.color);
@@ -38,7 +39,7 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
     let body_mask = {
         let text_h = text_height(&l.body);
         let b = l.body_box;
-        // Too tall to fit even at the smallest size: start at the top so the first lines show.
+        // Taller than the content box (it may still fit within the padding, as on the web): start at the top.
         let y = if text_h > b.h { b.y } else if l.lower { b.y + b.h - text_h } else { b.y + (b.h - text_h) / 2.0 };
         mask_of(fonts, &mut cache, &mut l.body, (w, h), (b.x, y))
     };

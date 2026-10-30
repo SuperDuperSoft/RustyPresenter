@@ -14,6 +14,11 @@ const FOOTER_PX: f32 = 30.0;
 /// Line height of the reference/footer line, relative to its font size.
 const FOOT_LINE: f32 = 1.25;
 const MIN_PX: f32 = 26.0;
+/// Largest canvas side drawn. Bigger (or zero) sizes are clamped so a bad size can never crash rendering.
+pub const MAX_CANVAS: u32 = 8192;
+
+/// `canvas` with each side kept within 1..=`MAX_CANVAS`.
+pub fn clamp_canvas(canvas: (u32, u32)) -> (u32, u32) { (canvas.0.clamp(1, MAX_CANVAS), canvas.1.clamp(1, MAX_CANVAS)) }
 pub const BUNDLED_FAMILY: &str = "Noto Sans";
 
 /// The font database: system fonts plus the bundled Noto Sans, so text looks the same everywhere.
@@ -80,6 +85,7 @@ pub fn fit_steps(max: f32) -> impl Iterator<Item = f32> {
 
 /// Lay out a text slide on a `canvas` (width, height) in pixels. All sizes scale by width / 1920.
 pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> TextLayout {
+    let canvas = clamp_canvas(canvas);
     let (cw, ch) = (canvas.0 as f32, canvas.1 as f32);
     let s = cw / CANVAS_W;
     let lower = theme.position == "lower";
@@ -125,7 +131,8 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         body.set_metrics(Metrics::new(px * s, px * s * line));
         body.shape_until_scroll(&mut fonts.sys, false);
         font_px = px;
-        if text_height(&body) <= body_box.h - 4.0 * s && max_line_width(&body) <= body_box.w + 1.0 { break; }
+        // Like render.js, measure against the padded box: its clientHeight includes the vertical padding.
+        if text_height(&body) <= body_box.h + top + bottom - 4.0 * s && max_line_width(&body) <= body_box.w + 1.0 { break; }
     }
 
     TextLayout {
@@ -178,6 +185,14 @@ mod tests {
 
     #[test]
     fn short_lyric_keeps_theme_size() { assert_eq!(lay("Amazing grace").font_px, 84.0); }
+
+    /// web/render.js measures against the padded box (clientHeight includes padding), so ten
+    /// lines at 84 px (1025 px) still fit a 1080 px screen there.
+    #[test]
+    fn fit_threshold_includes_vertical_padding_like_the_web() {
+        assert_eq!(lay(&vec!["Amazing grace"; 10].join("
+")).font_px, 84.0);
+    }
 
     #[test]
     fn long_lyric_shrinks_but_not_below_26() {

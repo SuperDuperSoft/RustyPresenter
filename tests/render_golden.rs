@@ -87,3 +87,11 @@ fn bad_colors_fall_back_to_white() {
 
 #[test]
 fn thumbnail_scales_font_with_canvas() { assert_eq!(render_at("Amazing grace", (480, 270)).font_px, 21.0); }
+
+#[test]
+fn zero_and_huge_canvases_do_not_panic() {
+    for c in [(0, 0), (0, 1080), (1920, 0), (100_000, 10)] {
+        let r = render_at("Amazing grace", c);
+        assert_eq!(r.rgba_premul.len(), (r.width * r.height * 4) as usize, "{c:?}");
+    }
+}

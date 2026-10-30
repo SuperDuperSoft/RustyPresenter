@@ -376,14 +376,20 @@ fn same_origin(headers: &HeaderMap) -> bool {
     headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}"))
 }
 
-async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
-    let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, "pair first").into_response() };
-    let first = remote_view(&app);
-    let s = event_stream(app, "remote", first, move |app, u| match u {
+/// What a phone's remote stream sends for each update: a fresh remote view, nothing for import
+/// progress, and the end of the stream when this phone is unpaired.
+fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<String>, ()> + Send + 'static {
+    move |app, u| match u {
         Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
         Some(Update::Job { .. } | Update::Convert { .. }) => Ok(None),
         _ => Ok(Some(remote_view(app))),
-    });
+    }
+}
+
+async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
+    let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, "pair first").into_response() };
+    let first = remote_view(&app);
+    let s = event_stream(app, "remote", first, remote_map(phone));
     Sse::new(s).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))).into_response()
 }
 
@@ -470,6 +476,19 @@ mod tests {
         for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
             assert!(v.get(k).is_some(), "{k}");
         }
+    }
+
+    #[test]
+    fn revoking_a_phone_ends_only_that_phones_remote_stream() {
+        let app = test_app();
+        let (me, other) = (Uuid::new_v4(), Uuid::new_v4());
+        let map = remote_map(me);
+        assert!(map(&app, Some(&Update::Revoked { phone: me })).is_err());
+        assert!(matches!(map(&app, Some(&Update::Revoked { phone: other })), Ok(Some(_))));
+        assert!(matches!(map(&app, Some(&Update::Job { id: other, percent: 1 })), Ok(None)));
+        assert!(matches!(map(&app, Some(&Update::Convert { id: other, percent: 1 })), Ok(None)));
+        assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))));
+        assert!(matches!(map(&app, None), Ok(Some(_))));
     }
 
     #[test]

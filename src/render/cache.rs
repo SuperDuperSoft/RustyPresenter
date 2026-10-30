@@ -43,6 +43,11 @@ impl Lru {
 
 type Job = (RenderKey, oneshot::Sender<Arc<Rendered>>);
 
+fn blank(canvas: (u32, u32)) -> Rendered {
+    let (w, h) = crate::render::layout::clamp_canvas(canvas);
+    Rendered { width: w, height: h, rgba_premul: vec![0; (w * h * 4) as usize], font_px: 0.0, font_fallback: false }
+}
+
 pub struct Renderer { cache: Arc<Mutex<Lru>>, jobs: Mutex<mpsc::Sender<Job>> }
 
 impl Renderer {
@@ -60,7 +65,13 @@ impl Renderer {
                 let hit = worker_cache.lock().unwrap().get(&key);
                 let r = hit.unwrap_or_else(|| {
                     let slide = TextSlide { text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture };
-                    let r = Arc::new(render_text(&mut fonts, &slide, &key.theme, key.canvas));
+                    // A panic while drawing one slide must not stop the renderer for every screen: show it blank.
+                    let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| render_text(&mut fonts, &slide, &key.theme, key.canvas)));
+                    let r = Arc::new(drawn.unwrap_or_else(|_| {
+                        eprintln!("Could not draw a slide ({:?}); showing it blank", key.text.chars().take(40).collect::<String>());
+                        fonts = Fonts::new();
+                        blank(key.canvas)
+                    }));
                     worker_cache.lock().unwrap().put(key, r.clone());
                     r
                 });
@@ -104,6 +115,14 @@ mod tests {
         for t in ["a", "b", "c"] { r.render(key(t, (1920, 1080))).await; }
         assert!(r.cached(&key("a", (1920, 1080))).is_none());
         assert!(r.cached(&key("c", (1920, 1080))).is_some());
+    }
+
+    #[tokio::test]
+    async fn renderer_keeps_working_after_a_degenerate_canvas() {
+        let r = Renderer::new();
+        r.render(key("zero", (0, 0))).await;
+        let ok = r.render(key("Amazing grace", (480, 270))).await;
+        assert!(ok.rgba_premul.chunks(4).any(|p| p[3] > 0));
     }
 
     #[tokio::test]
