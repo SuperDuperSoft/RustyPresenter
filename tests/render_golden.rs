@@ -95,3 +95,25 @@ fn zero_and_huge_canvases_do_not_panic() {
         assert_eq!(r.rgba_premul.len(), (r.width * r.height * 4) as usize, "{c:?}");
     }
 }
+
+/// Prints how long a shadowed full-HD slide takes. Run with
+/// `cargo test --release --test render_golden -- --ignored --nocapture bench_`.
+#[test]
+#[ignore]
+fn bench_1080p_render_ms() {
+    let mut fonts = Fonts::new();
+    let lyric = slide("Amazing grace, how sweet the sound\nThat saved a wretch like me");
+    let scripture = TextSlide {
+        text: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+        footer: None,
+        reference: Some("John 3:16 KJV"),
+        scripture: true,
+    };
+    for (name, s) in [("lyric", &lyric), ("scripture", &scripture)] {
+        render_text(&mut fonts, s, &theme(), (1920, 1080)); // warm the shaping and glyph caches
+        let n = 10;
+        let start = std::time::Instant::now();
+        for _ in 0..n { std::hint::black_box(render_text(&mut fonts, s, &theme(), (1920, 1080))); }
+        println!("bench {name}: {:.1} ms per 1080p render", start.elapsed().as_secs_f64() * 1000.0 / n as f64);
+    }
+}
