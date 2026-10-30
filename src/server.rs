@@ -1,6 +1,6 @@
 //! HTTP host with live updates over Server-Sent Events. Operator, room and stage pages are served only to this
 //! computer (loopback). The LAN only sees the phone remote, behind PIN pairing.
-use crate::app::{App, DataPlan, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token, spawn_conversion};
+use crate::app::{App, DataPlan, LiveUpdate, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token, spawn_conversion};
 use crate::{live::*, media, model::*, slides::build_item};
 use axum::{
     Json, Router,
@@ -258,11 +258,7 @@ fn conn_guard(app: &Arc<App>, role: &'static str) -> ConnGuard {
 /// The JSON the web pages and phone remote receive for an update.
 pub fn update_json(u: &Update) -> String {
     match u {
-        Update::Live(v) => {
-            let mut j = serde_json::to_value(&**v).unwrap_or_default();
-            if let Value::Object(m) = &mut j { m.insert("type".into(), "live".into()); }
-            j.to_string()
-        }
+        Update::Live(v) => v.json().to_owned(),
         Update::Data => json!({ "type": "data" }).to_string(),
         Update::Job { id, percent } => json!({ "type": "job", "id": id, "percent": percent }).to_string(),
         Update::Convert { id, percent } => json!({ "type": "convert", "id": id, "percent": percent }).to_string(),
@@ -296,7 +292,7 @@ fn event_stream(app: Arc<App>, role: &'static str, first: String, map: impl Fn(&
     head.chain(tail)
 }
 
-fn live_json(app: &App) -> String { update_json(&Update::Live(Arc::new(app.live_view()))) }
+fn live_json(app: &App) -> String { LiveUpdate::new(app.live_view()).json().to_owned() }
 
 async fn events(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Query(q): Query<RoleQuery>) -> Response {
     if !local_ok(&app, &addr, &headers) { return forbidden(); }
@@ -466,16 +462,24 @@ pub fn data_dir() -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::{Update, test_app};
+    use crate::app::{LiveUpdate, Update, test_app};
 
     #[test]
     fn live_update_json_matches_the_old_wire_format() {
         let app = test_app();
-        let v: Value = serde_json::from_str(&update_json(&Update::Live(Arc::new(app.live_view())))).unwrap();
+        let v: Value = serde_json::from_str(&update_json(&Update::Live(LiveUpdate::new(app.live_view())))).unwrap();
         assert_eq!(v["type"], "live");
         for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
             assert!(v.get(k).is_some(), "{k}");
         }
+    }
+
+    #[test]
+    fn live_update_json_is_byte_identical_to_the_serialized_view_plus_type() {
+        let view = test_app().live_view();
+        let mut expected = serde_json::to_value(&view).unwrap();
+        expected.as_object_mut().unwrap().insert("type".into(), "live".into());
+        assert_eq!(update_json(&Update::Live(LiveUpdate::new(view))), expected.to_string());
     }
 
     #[test]

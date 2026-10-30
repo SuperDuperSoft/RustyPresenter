@@ -27,13 +27,40 @@ macro_rules! tryr { ($e:expr) => { $e.map_err(ActionError::bad)? }; }
 /// Something every screen may need to react to. Sent on `App::tx`.
 #[derive(Clone, Debug)]
 pub enum Update {
-    Live(Arc<LiveView>),
+    Live(LiveUpdate),
     /// Library, service, settings or windows changed: re-read `state_json`.
     Data,
     Job { id: Uuid, percent: u8 },
     Convert { id: Uuid, percent: u8 },
     /// A paired phone was removed; its remote stream ends.
     Revoked { phone: Uuid },
+}
+
+/// One published live view, shared by every receiver of the update.
+/// Native screens read the typed view (via `Deref`); web clients read `json()`, which is
+/// serialized on first use and then reused, so N connected clients cost one serialization.
+#[derive(Clone, Debug)]
+pub struct LiveUpdate(Arc<LiveShared>);
+
+#[derive(Debug)]
+struct LiveShared { view: LiveView, json: OnceLock<String> }
+
+impl LiveUpdate {
+    pub fn new(view: LiveView) -> Self { Self(Arc::new(LiveShared { view, json: OnceLock::new() })) }
+    pub fn view(&self) -> &LiveView { &self.0.view }
+    /// The wire message: the view's fields plus `"type":"live"`.
+    pub fn json(&self) -> &str {
+        self.0.json.get_or_init(|| {
+            let mut j = serde_json::to_value(&self.0.view).unwrap_or_default();
+            if let Value::Object(m) = &mut j { m.insert("type".into(), "live".into()); }
+            j.to_string()
+        })
+    }
+}
+
+impl std::ops::Deref for LiveUpdate {
+    type Target = LiveView;
+    fn deref(&self) -> &LiveView { &self.0.view }
 }
 
 /// What is live, as every screen draws it.
@@ -159,7 +186,7 @@ impl App {
 
     pub fn subscribe(&self) -> broadcast::Receiver<Update> { self.tx.subscribe() }
 
-    pub fn broadcast_live(&self) { let _ = self.tx.send(Update::Live(Arc::new(self.live_view()))); }
+    pub fn broadcast_live(&self) { let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view()))); }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.store.save(data).map_err(|e| format!("Could not save: {e}")) }
@@ -618,6 +645,19 @@ mod tests {
         app.command(Envelope { id: "c1".into(), base: None, cmd: Command::ClearAll });
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
         assert!(rx.try_recv().is_err());
+    }
+
+    #[test]
+    fn a_live_update_is_serialized_once_however_many_clients_receive_it() {
+        let app = test_app();
+        let (mut a, mut b) = (app.subscribe(), app.subscribe());
+        app.broadcast_live();
+        let (Update::Live(x), Update::Live(y)) = (a.try_recv().unwrap(), b.try_recv().unwrap()) else { panic!("expected live updates") };
+        // Both receivers read the JSON; the second must get the first one's string, not a fresh serialization.
+        assert!(std::ptr::eq(x.json(), y.json()), "each client re-serialized the live view");
+        assert!(std::ptr::eq(x.json(), x.json()));
+        // The typed view stays available to native screens.
+        assert_eq!(x.version, app.live_view().version);
     }
 
     #[test]
