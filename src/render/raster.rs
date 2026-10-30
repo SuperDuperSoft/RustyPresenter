@@ -140,3 +140,63 @@ fn box_pass(src: &[u8], dst: &mut [u8], w: usize, h: usize, r: usize, horizontal
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::render::layout::{BUNDLED_FAMILY, TextLayout};
+    use cosmic_text::Weight;
+
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
+
+    /// Whether some face in the database has a glyph for every non-space character of `text`.
+    fn some_face_covers(fonts: &mut Fonts, text: &str) -> bool {
+        let ids: Vec<_> = fonts.sys.db().faces().map(|f| f.id).collect();
+        text.chars().filter(|c| !c.is_whitespace()).all(|c| {
+            ids.iter().any(|&id| fonts.sys.get_font(id, Weight::NORMAL).is_some_and(|f| f.as_swash().charmap().map(c) != 0))
+        })
+    }
+
+    /// Glyphs that came out as the missing-glyph box (.notdef, glyph 0).
+    fn missing_glyphs(l: &TextLayout) -> usize {
+        l.body.layout_runs().flat_map(|r| r.glyphs.iter()).filter(|g| g.glyph_id == 0).count()
+    }
+
+    fn inked_pixels(r: &Rendered) -> usize { r.rgba_premul.chunks(4).filter(|p| p[3] > 0).count() }
+
+    /// `text` shapes to real glyphs (no missing-glyph boxes) and draws them. No shadow, so every
+    /// inked pixel is a glyph. Skipped, with a note, when no installed font covers the text.
+    fn assert_script_draws(fonts: &mut Fonts, text: &str) {
+        if !some_face_covers(fonts, text) {
+            println!("SKIP: no installed font covers {text:?}; nothing to check on this machine");
+            return;
+        }
+        let t = Theme { shadow: false, ..Theme::default() };
+        let l = layout(fonts, &slide(text), &t, (1920, 1080));
+        assert_eq!(missing_glyphs(&l), 0, "{text:?}: a covering font is installed but glyphs came out missing");
+        let r = render_text(fonts, &slide(text), &t, (1920, 1080));
+        assert!(inked_pixels(&r) > 500, "{text:?}: a covering font is installed but almost nothing was drawn");
+    }
+
+    #[test]
+    fn korean_draws_with_an_installed_font() { assert_script_draws(&mut Fonts::new(), "놀라운 은혜"); }
+
+    #[test]
+    fn emoji_draw_with_an_installed_font() { assert_script_draws(&mut Fonts::new(), "🙏🎵"); }
+
+    #[test]
+    fn latin_accents_draw_with_bundled_noto_sans() {
+        let mut fonts = Fonts::bundled_only();
+        assert!(some_face_covers(&mut fonts, "Señor ñáéíóúü"), "Noto Sans covers Latin accents");
+        assert_script_draws(&mut fonts, "Señor ñáéíóúü");
+    }
+
+    /// The checks above can fail: without a covering font the glyphs come out missing.
+    #[test]
+    fn missing_glyphs_are_detected() {
+        let mut fonts = Fonts::bundled_only();
+        assert!(!some_face_covers(&mut fonts, "놀라운"));
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
+        assert!(missing_glyphs(&layout(&mut fonts, &slide("놀라운"), &t, (1920, 1080))) > 0);
+    }
+}
+
