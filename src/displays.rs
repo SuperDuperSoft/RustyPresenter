@@ -1,21 +1,14 @@
 //! Monitors and the app's windows (operator, room output, stage display).
 //! Each window is a Tauri WebView2 window with its own data folder, so each runs in
 //! its own browser process: a crash in one page cannot take down the room output.
-use serde::Serialize;
-use std::{path::Path, sync::atomic::{AtomicU32, Ordering}, time::Instant};
+use crate::app::{App, Monitor, Screens};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex, Weak, atomic::{AtomicU32, Ordering}},
+    time::{Duration, Instant},
+};
 use tauri::{AppHandle, Manager, PhysicalPosition, WebviewUrl, WebviewWindowBuilder};
-
-#[derive(Serialize, Clone, Debug, PartialEq)]
-pub struct Monitor {
-    /// Windows device name, e.g. `\\.\DISPLAY2`. Used as the role binding.
-    pub id: String,
-    pub label: String,
-    pub x: i32,
-    pub y: i32,
-    pub width: i32,
-    pub height: i32,
-    pub primary: bool,
-}
 
 #[cfg(windows)]
 pub fn monitors() -> Vec<Monitor> {
@@ -106,4 +99,97 @@ pub fn error_box(msg: &str) {
         let wide = |s: &str| s.encode_utf16().chain(Some(0)).collect::<Vec<u16>>();
         unsafe { MessageBoxW(std::ptr::null_mut(), wide(msg).as_ptr(), wide("RustyPresenter").as_ptr(), MB_OK | MB_ICONERROR); }
     }
+}
+
+/// The Tauri windowing layer: one WebView2 window per role, each with its own browser process.
+pub struct TauriScreens {
+    handle: AppHandle,
+    app: Weak<App>,
+    port: u16,
+    data_root: PathBuf,
+    windows: Mutex<HashMap<String, Window>>,
+}
+
+impl TauriScreens {
+    pub fn new(handle: AppHandle, app: &Arc<App>) -> Arc<Self> {
+        Arc::new(Self { handle, app: Arc::downgrade(app), port: app.port, data_root: app.store.root.clone(), windows: Mutex::new(HashMap::new()) })
+    }
+
+    /// Reopen outputs that were closed unexpectedly, and reload ones whose page crashed.
+    pub async fn watchdog(self: Arc<Self>) {
+        loop {
+            tokio::time::sleep(Duration::from_secs(2)).await;
+            let Some(app) = self.app.upgrade() else { return };
+            let handle = &self.handle;
+            let mut dead = vec![];
+            let mut reloaded = vec![];
+            {
+                let mut w = self.windows.lock().unwrap();
+                for (role, win) in w.iter_mut() {
+                    if role == "operator" { continue; }
+                    if !win.alive(handle) { dead.push((role.clone(), win.monitor.clone(), win.opened.elapsed())); continue; }
+                    // The window is open but its page is not connected: the renderer crashed or hung.
+                    let conns = if role == "room" { &app.room_conns } else { &app.stage_conns };
+                    if conns.load(Ordering::Relaxed) > 0 || win.opened.elapsed() < Duration::from_secs(15) { win.quiet_since = None; continue; }
+                    let since = *win.quiet_since.get_or_insert_with(Instant::now);
+                    if since.elapsed() >= Duration::from_secs(6) && win.reload(handle) { reloaded.push(role.clone()); }
+                }
+                for (r, _, _) in &dead { w.remove(r); }
+            }
+            for role in reloaded {
+                eprintln!("{role} page stopped responding; reloaded it");
+                if role == "room" { app.room_recovered(); }
+            }
+            for (role, mon, lived) in dead {
+                if lived < Duration::from_secs(10) {
+                    // Closed right away: don't fight the user or loop on a window that cannot open.
+                    eprintln!("{role} window closed right after opening; not reopening automatically");
+                    continue;
+                }
+                eprintln!("{role} window closed unexpectedly; reopening");
+                let present = mon.as_ref().is_none_or(|id| monitors().iter().any(|m| &m.id == id));
+                if present && self.open(&role, mon.as_deref()).is_ok() && role == "room" { app.room_recovered(); }
+            }
+        }
+    }
+}
+
+impl Screens for TauriScreens {
+    fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
+        let (path, title) = match role {
+            "room" => ("/output", "RustyPresenter — Room screen"),
+            "stage" => ("/stage", "RustyPresenter — Stage display"),
+            "operator" => ("/", "RustyPresenter"),
+            _ => return Err("unknown window".into()),
+        };
+        let handle = &self.handle;
+        // A second launch just brings the operator window forward.
+        if role == "operator" {
+            let label = self.windows.lock().unwrap().get(role).map(|w| w.label.clone());
+            if let Some(w) = label.and_then(|l| handle.get_webview_window(&l)) {
+                let _ = w.unminimize();
+                let _ = w.set_focus();
+                return Ok(());
+            }
+        }
+        let url = format!("http://127.0.0.1:{}{path}", self.port);
+        let mons = monitors();
+        let mon = match monitor {
+            Some(id) => Some(mons.iter().find(|m| m.id == id).ok_or("That screen is not connected right now.")?),
+            None => None,
+        };
+        if let Some(old) = self.windows.lock().unwrap().remove(role) { old.close(handle); }
+        let profile = self.data_root.join("webview").join(role);
+        let w = open_app_window(handle, role, title, &url, &profile, mon)?;
+        self.windows.lock().unwrap().insert(role.to_string(), w);
+        Ok(())
+    }
+
+    fn close(&self, role: &str) {
+        if let Some(w) = self.windows.lock().unwrap().remove(role) { w.close(&self.handle); }
+    }
+
+    fn open_roles(&self) -> Vec<String> { self.windows.lock().unwrap().keys().cloned().collect() }
+
+    fn monitors(&self) -> Vec<Monitor> { monitors() }
 }

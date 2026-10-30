@@ -1,3 +1,4 @@
+pub mod app;
 pub mod bible;
 pub mod displays;
 pub mod live;

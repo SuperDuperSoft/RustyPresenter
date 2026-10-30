@@ -1,7 +1,7 @@
 // Release builds are a windowed app with no console window behind them.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rustypresenter::{displays, server::{self, App}, store::Store};
+use rustypresenter::{app::App, displays, server, store::Store};
 use tauri::Manager;
 use std::{io::Write, net::{SocketAddr, TcpStream, UdpSocket}, time::Duration};
 
@@ -58,7 +58,8 @@ fn main() {
     let result = tauri::Builder::default()
         .setup(move |t| {
             let app = setup_app;
-            let _ = app.tauri.set(t.handle().clone());
+            let screens = displays::TauriScreens::new(t.handle().clone(), &app);
+            app.set_screens(screens.clone());
 
             // A complete backup at every start, then daily.
             {
@@ -73,7 +74,7 @@ fn main() {
                     }
                 });
             }
-            tauri::async_runtime::spawn(app.clone().watchdog());
+            tauri::async_runtime::spawn(screens.watchdog());
 
             let svc = server::router(app.clone()).into_make_service_with_connect_info::<SocketAddr>();
             tauri::async_runtime::spawn(async move {
