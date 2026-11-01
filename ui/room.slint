@@ -1,0 +1,110 @@
+// The room output (same layers as `web/output.html`): background, media, slide, logo, bottom → top.
+// Video is drawn by mpv under the whole scene (OpenGL) or handed in as `video-frame` (software).
+// Each layer has two faces, so a new picture fades in over the old one as it fades out.
+import { Theme } from "theme.slint";
+
+/// One picture: `image` over a `color` fill (transparent = none).
+export struct Side { image: image, color: color }
+
+/// A layer's two faces. `b-top`: face b is the current one; `shown`: the current face is visible.
+export struct Layer { a: Side, b: Side, b-top: bool, shown: bool }
+
+component Face inherits Rectangle {
+    in property <Side> side;
+    in property <ImageFit> fit;
+    /// Share of the screen the picture may take (the logo uses 70 %).
+    in property <float> scale: 1;
+    background: side.color;
+    Image {
+        width: parent.width * root.scale;
+        height: parent.height * root.scale;
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        source: root.side.image;
+        image-fit: root.fit;
+    }
+}
+
+component FadeLayer {
+    in property <Layer> layer;
+    in property <ImageFit> fit: contain;
+    in property <float> scale: 1;
+    Face {
+        side: root.layer.a;
+        fit: root.fit;
+        scale: root.scale;
+        opacity: root.layer.shown && !root.layer.b-top ? 1 : 0;
+        animate opacity { duration: 400ms; }
+    }
+    Face {
+        side: root.layer.b;
+        fit: root.fit;
+        scale: root.scale;
+        opacity: root.layer.shown && root.layer.b-top ? 1 : 0;
+        animate opacity { duration: 400ms; }
+    }
+}
+
+export component RoomWindow inherits Window {
+    title: "RustyPresenter — Room";
+    background: transparent;
+    preferred-width: 1280px;
+    preferred-height: 720px;
+
+    in property <Layer> bg;
+    /// False while a foreground video is live: the video fills the screen instead (spec §5).
+    in property <bool> bg-visible: true;
+    in property <Layer> media;
+    in property <Layer> slide;
+    in property <Layer> logo;
+    /// A video is drawn under the scene, so nothing here may paint the base black.
+    in property <bool> video;
+    /// Software drawing: the current video frame.
+    in property <image> video-frame;
+    /// Fade-through-black overlay, 0–1 (a change that starts or stops a foreground video).
+    in property <float> black;
+    /// Work arrived for the room glue (prepared layers, player reports, live updates).
+    callback pump();
+
+    TouchArea { mouse-cursor: none; }
+
+    base := Rectangle {
+        background: Theme.room-black;
+        visible: !root.video;
+    }
+    video-frame := Image {
+        width: root.width;
+        height: root.height;
+        source: root.video-frame;
+        image-fit: fill;
+        visible: root.video;
+    }
+    bg := FadeLayer {
+        width: root.width;
+        height: root.height;
+        layer: root.bg;
+        fit: cover;
+        visible: root.bg-visible;
+    }
+    media := FadeLayer {
+        width: root.width;
+        height: root.height;
+        layer: root.media;
+    }
+    slide := FadeLayer {
+        width: root.width;
+        height: root.height;
+        layer: root.slide;
+    }
+    logo := FadeLayer {
+        width: root.width;
+        height: root.height;
+        layer: root.logo;
+        scale: 0.7;
+    }
+    black := Rectangle {
+        background: Theme.room-black;
+        opacity: root.black;
+        animate opacity { duration: 200ms; }
+    }
+}

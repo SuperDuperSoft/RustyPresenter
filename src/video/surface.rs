@@ -18,20 +18,31 @@ pub enum DrawMode {
     Software,
 }
 
+static CHOSEN: std::sync::OnceLock<DrawMode> = std::sync::OnceLock::new();
+
 /// Picks Slint's backend: winit + FemtoVG (OpenGL), or the software renderer when
 /// `RP_FORCE_SOFTWARE=1` or OpenGL cannot be selected. Call once, before any window.
 pub fn choose_backend() -> DrawMode {
     let select = |r: &str| slint::BackendSelector::new().backend_name("winit".into()).renderer_name(r.into()).select();
+    let mut mode = DrawMode::Software;
     if std::env::var("RP_FORCE_SOFTWARE").as_deref() != Ok("1") {
         match select("femtovg") {
-            Ok(()) => return DrawMode::OpenGl,
+            Ok(()) => mode = DrawMode::OpenGl,
             Err(e) => eprintln!("OpenGL drawing unavailable ({e}); drawing video in software"),
         }
     }
-    if let Err(e) = select("software") {
-        eprintln!("software renderer: {e}");
+    if mode == DrawMode::Software {
+        if let Err(e) = select("software") {
+            eprintln!("software renderer: {e}");
+        }
     }
-    DrawMode::Software
+    let _ = CHOSEN.set(mode);
+    mode
+}
+
+/// What `choose_backend` picked; software when it was never called (tests, other backends).
+pub fn drawing() -> DrawMode {
+    CHOSEN.get().copied().unwrap_or(DrawMode::Software)
 }
 
 /// What mpv's update callback reaches. Leaked once per surface, so a callback that
