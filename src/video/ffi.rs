@@ -60,6 +60,7 @@ pub const PARAM_OPENGL_FBO: c_int = 3;
 pub const PARAM_FLIP_Y: c_int = 4;
 pub const PARAM_ADVANCED_CONTROL: c_int = 10;
 pub const PARAM_BLOCK_FOR_TARGET_TIME: c_int = 12;
+pub const PARAM_SKIP_RENDERING: c_int = 13;
 pub const PARAM_SW_SIZE: c_int = 17;
 pub const PARAM_SW_FORMAT: c_int = 18;
 pub const PARAM_SW_STRIDE: c_int = 19;

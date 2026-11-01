@@ -4,7 +4,9 @@
 //! Args: `--sw` (same as `RP_FORCE_SOFTWARE=1`), `--measure` (after the video
 //! plays, warm up 2 s, measure `--secs` seconds (default 10), print a summary
 //! and exit 0 on PASS / 1 on FAIL), `--src <url>`. libmpv comes from the usual
-//! lookup (`RP_LIBMPV` first).
+//! lookup (`RP_LIBMPV` first). `--switch` instead checks switching players: a
+//! foreground video added undrawn must report `Playing`, is drawn for 2 s, then
+//! removed, and the background video must move again (exit 0 on PASS / 1 on FAIL).
 //!
 //! Measurement (as the C1 spike): every drawn frame three rows are read back
 //! (GL: `glReadPixels` after Slint drew; software: the frame image) and a frame
@@ -12,6 +14,7 @@
 //! is ±1). Once a second the whole window is read back and the text box checked:
 //! the same pixels must stay white while the video under them changes.
 use glow::HasContext;
+use rustypresenter::model::EndAction;
 use rustypresenter::video::{DrawMode, Options, Player, Role, VideoSurface, choose_backend, ffi::Mpv};
 use slint::ComponentHandle;
 use std::cell::RefCell;
@@ -115,6 +118,7 @@ fn main() {
         unsafe { std::env::set_var("RP_FORCE_SOFTWARE", "1") }; // still single-threaded here
     }
     let measure = args.iter().any(|a| a == "--measure");
+    let switch = args.iter().any(|a| a == "--switch");
     let secs: f64 = arg(&args, "--secs").and_then(|s| s.parse().ok()).unwrap_or(10.0);
     let src = arg(&args, "--src").unwrap_or_else(|| "av://lavfi:testsrc2=size=1920x1080:rate=30".into());
     let mpv = match Mpv::load() {
@@ -171,9 +175,15 @@ fn main() {
 
     let (tx, rx) = channel();
     let opts = Options { vo: "libmpv", ao: "null", audio_device: String::new() };
-    let player = Rc::new(Player::with_options(mpv.clone(), Role::Background, 1, tx, &opts).expect("player"));
+    let player = Rc::new(Player::with_options(mpv.clone(), Role::Background, 1, tx.clone(), &opts).expect("player"));
     player.load(Path::new(&src), 0.0); // waits for the render context
     surface.set_player(Some(player.clone()));
+    let fg = switch.then(|| {
+        let fg = Rc::new(Player::with_options(mpv.clone(), Role::Foreground(EndAction::Loop), 2, tx.clone(), &opts).expect("player"));
+        fg.load(Path::new("av://lavfi:testsrc2=size=1280x720:rate=30"), 0.0);
+        surface.add(fg.clone()); // plays before it is drawn
+        fg
+    });
 
     // Once the video plays: warm up, then measure.
     let started = Rc::new(RefCell::new(None::<Instant>));
@@ -181,16 +191,61 @@ fn main() {
     {
         let (started, stats, player, weak, mpv) = (started.clone(), stats.clone(), player.clone(), stage.as_weak(), mpv.clone());
         let mut base: Option<(Instant, u64, u64, f64, f64)> = None;
+        let (surface, mut fg, mut fg_playing, mut step) = (surface.clone(), fg, false, 0);
         poll.start(slint::TimerMode::Repeated, Duration::from_millis(50), move || {
             while let Ok(r) = rx.try_recv() {
                 if r.state == rustypresenter::live::PlayState::Error {
                     eprintln!("FAIL: {:?}", r.error);
                     std::process::exit(2);
                 }
+                fg_playing |= r.inst == 2 && r.state == rustypresenter::live::PlayState::Playing;
                 if started.borrow().is_none() && r.state == rustypresenter::live::PlayState::Playing {
                     println!("playing");
                     *started.borrow_mut() = Some(Instant::now());
                 }
+            }
+            if switch {
+                let Some(t0) = *started.borrow() else { return };
+                let el = t0.elapsed().as_secs_f64();
+                let distinct = stats.borrow().distinct;
+                let at = [2.0, 2.5, 4.0, 4.5, 6.5];
+                if step >= at.len() || el < at[step] {
+                    return;
+                }
+                match step {
+                    0 => {
+                        println!("foreground playing before drawn: {fg_playing}");
+                        if !fg_playing {
+                            println!("RESULT switch: FAIL");
+                            std::process::exit(1);
+                        }
+                        surface.set_player(fg.clone());
+                    }
+                    1 | 3 => base = Some((Instant::now(), 0, distinct, 0.0, 0.0)),
+                    2 => {
+                        let b = base.unwrap();
+                        let rate = (distinct - b.2) as f64 / b.0.elapsed().as_secs_f64();
+                        println!("foreground distinct frames/s: {rate:.1}");
+                        surface.set_player(Some(player.clone()));
+                        if let Some(f) = fg.take() {
+                            surface.remove(&f);
+                        }
+                        if rate < 20.0 {
+                            println!("RESULT switch {mode:?}: FAIL");
+                            std::process::exit(1);
+                        }
+                    }
+                    _ => {
+                        let b = base.unwrap();
+                        let rate = (distinct - b.2) as f64 / b.0.elapsed().as_secs_f64();
+                        println!("background distinct frames/s after switching back: {rate:.1}");
+                        let pass = rate >= 20.0;
+                        println!("RESULT switch {mode:?}: {}", if pass { "PASS" } else { "FAIL" });
+                        std::process::exit(if pass { 0 } else { 1 });
+                    }
+                }
+                step += 1;
+                return;
             }
             if !measure {
                 return;

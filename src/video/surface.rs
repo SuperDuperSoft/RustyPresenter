@@ -67,7 +67,9 @@ unsafe extern "C" fn gl_proc(ctx: *mut c_void, name: *const c_char) -> *mut c_vo
     f(unsafe { CStr::from_ptr(name) }) as *mut c_void
 }
 
-/// Draws the chosen player (the foreground video if any, else the background) under one window.
+/// Draws the chosen player (the foreground video if any, else the background) under
+/// one window. Every player added keeps its own render context until removed, so it
+/// loads and plays before it is drawn, and switching players never turns video off.
 pub struct VideoSurface {
     mode: DrawMode,
     wake: &'static Wake,
@@ -78,18 +80,44 @@ pub struct VideoSurface {
     probe: RefCell<Option<Box<dyn FnMut(&glow::Context, PhysicalSize)>>>,
 }
 
+/// A player with a render context from this surface.
+struct Bound {
+    p: Rc<Player>,
+    /// Renders through mpv's software API (always in Software mode; after a GL failure in OpenGL mode).
+    sw: bool,
+}
+
 #[derive(Default)]
 struct State {
     /// What `set_player` asked for.
     want: Option<Rc<Player>>,
-    /// The player a render context was made for (or tried); differs from `want` until synced.
-    bound: Option<Rc<Player>>,
-    /// `bound` renders through mpv's software API (always in Software mode; after a GL failure in OpenGL mode).
-    sw: bool,
+    bound: Vec<Bound>,
+    /// Players waiting for a render context (OpenGL: made in the next frame).
+    adding: Vec<Rc<Player>>,
+    /// Players whose OpenGL render context is freed in the next frame.
+    removing: Vec<Rc<Player>>,
+    /// `on_frame` was last given an image.
+    shown: bool,
     gl: Option<glow::Context>,
     buf: Vec<u8>,
     w: u32,
     h: u32,
+}
+
+impl State {
+    fn has(&self, p: &Rc<Player>) -> bool {
+        self.bound.iter().any(|b| Rc::ptr_eq(&b.p, p)) || self.adding.iter().any(|a| Rc::ptr_eq(a, p))
+    }
+
+    fn wanted(&self, p: &Rc<Player>) -> bool {
+        self.want.as_ref().is_some_and(|w| Rc::ptr_eq(w, p))
+    }
+
+    /// The drawn player's render context, if it has one of kind `sw`.
+    fn drawn(&self, sw: bool) -> Option<(Rc<Player>, *mut mpv_render_context)> {
+        let b = self.bound.iter().find(|b| b.sw == sw && self.wanted(&b.p))?;
+        Some((b.p.clone(), b.p.render_raw()?))
+    }
 }
 
 impl VideoSurface {
@@ -152,14 +180,57 @@ impl VideoSurface {
         self.mode
     }
 
-    /// Chooses the player to draw (`None` = nothing). Its `load` may come before or
-    /// after: with `vo=libmpv` the player waits for the render context made here.
-    pub fn set_player(self: &Rc<Self>, player: Option<Rc<Player>>) {
-        self.st.borrow_mut().want = player;
+    /// Gives `player` a render context without drawing it, so a `vo=libmpv` player
+    /// loads and reports `Playing` before it is shown (Software: now; OpenGL: in the
+    /// next frame of a shown window). A context that cannot be made is reported as
+    /// the player's `Error`.
+    pub fn add(self: &Rc<Self>, player: Rc<Player>) {
+        {
+            let mut st = self.st.borrow_mut();
+            if st.has(&player) {
+                return;
+            }
+            st.adding.push(player);
+        }
         match self.mode {
             DrawMode::Software => self.sync(None),
             DrawMode::OpenGl => (self.redraw)(),
         }
+    }
+
+    /// Frees `player`'s render context (OpenGL: in the next frame) and stops drawing it.
+    /// Call when the player is disposed.
+    pub fn remove(self: &Rc<Self>, player: &Rc<Player>) {
+        let sw_ctx = {
+            let mut st = self.st.borrow_mut();
+            st.adding.retain(|a| !Rc::ptr_eq(a, player));
+            if st.wanted(player) {
+                st.want = None;
+            }
+            let Some(i) = st.bound.iter().position(|b| Rc::ptr_eq(&b.p, player)) else { return self.changed() };
+            let b = st.bound.remove(i);
+            if b.sw {
+                b.p.take_render() // no GL involved: free it now
+            } else {
+                st.removing.push(b.p);
+                None
+            }
+        };
+        drop(sw_ctx);
+        (self.redraw)();
+        self.changed();
+    }
+
+    /// Chooses the player to draw (`None` = nothing); a new player is added first.
+    /// Its `load` may come before or after: with `vo=libmpv` the player waits for the
+    /// render context. Players no longer drawn keep playing until `remove`d.
+    pub fn set_player(self: &Rc<Self>, player: Option<Rc<Player>>) {
+        self.st.borrow_mut().want = player.clone();
+        if let Some(p) = player {
+            self.add(p);
+        }
+        (self.redraw)();
+        self.changed();
     }
 
     /// Whether a video is set to be drawn.
@@ -172,59 +243,74 @@ impl VideoSurface {
         *self.probe.borrow_mut() = Some(Box::new(f));
     }
 
-    /// Frees the old render context and makes one for the wanted player. In OpenGL
-    /// mode this runs inside the notifier with the GL context current.
+    /// Updates the software image soon (never from inside the notifier): the drawn
+    /// player's current frame, or `None` once nothing is drawn in software.
+    fn changed(self: &Rc<Self>) {
+        let s = self.clone();
+        slint::Timer::single_shot(Duration::ZERO, move || s.show_sw(true));
+    }
+
+    /// Frees the queued OpenGL contexts and makes the waiting ones. In OpenGL mode
+    /// this runs inside the notifier with the GL context current.
     fn sync(self: &Rc<Self>, api: Option<&GraphicsAPI>) {
         let mut st = self.st.borrow_mut();
-        let same = match (&st.want, &st.bound) {
-            (Some(a), Some(b)) => Rc::ptr_eq(a, b),
-            (None, None) => true,
-            _ => false,
-        };
-        if same {
-            return;
+        for p in std::mem::take(&mut st.removing) {
+            drop(p.take_render());
         }
-        let cleared = st.sw;
-        if let Some(old) = st.bound.take() {
-            drop(old.take_render());
-        }
-        st.sw = false;
-        if let Some(p) = st.want.clone() {
+        let mut sw_added = false;
+        for p in std::mem::take(&mut st.adding) {
             let made = match (self.mode, api) {
                 (DrawMode::OpenGl, Some(GraphicsAPI::NativeOpenGL { get_proc_address })) => create_gl(&p, *get_proc_address).or_else(|e| {
-                    eprintln!("mpv OpenGL drawing failed ({e}); drawing this video in software");
+                    eprintln!("mpv OpenGL drawing failed ({e}); drawing video {} in software", p.inst());
                     create_sw(&p)
                 }),
                 _ => create_sw(&p),
             };
             match made {
                 Ok((rc, sw)) => {
-                    st.sw = sw;
                     unsafe { (p.mpv().render_context_set_update_callback)(rc.raw(), Some(on_update), self.wake as *const Wake as *mut c_void) };
                     p.set_render(rc); // starts a load that waited for it
+                    sw_added |= sw && st.wanted(&p);
+                    st.bound.push(Bound { p, sw });
                 }
-                Err(e) => eprintln!("video {} cannot be drawn: {e}", p.inst()),
+                Err(e) => {
+                    eprintln!("video {} cannot be drawn: {e}", p.inst());
+                    p.fail(format!("The video cannot be shown: {e}"));
+                }
             }
-            st.bound = Some(p);
         }
         drop(st);
-        if cleared {
-            // Not inside the notifier: let Slint finish this frame first.
-            let s = self.clone();
-            slint::Timer::single_shot(Duration::ZERO, move || {
-                if !s.st.borrow().sw {
-                    (s.on_frame)(None)
-                }
-            });
+        if sw_added {
+            self.changed();
         }
     }
 
     /// mpv has something new.
     fn woken(self: &Rc<Self>) {
-        if self.st.borrow().sw {
-            self.sw_frame();
-        } else {
+        self.skip_undrawn(true);
+        self.show_sw(false);
+        if self.mode == DrawMode::OpenGl {
             (self.redraw)();
+        }
+    }
+
+    /// Lets players that are not drawn move on: mpv waits for each frame to be
+    /// rendered, so their frames are consumed without drawing (`sw`: software
+    /// contexts, anywhere; otherwise OpenGL contexts, with GL current).
+    fn skip_undrawn(&self, sw: bool) {
+        let st = self.st.borrow();
+        for b in st.bound.iter().filter(|b| b.sw == sw && !st.wanted(&b.p)) {
+            let Some(rc) = b.p.render_raw() else { continue };
+            let mpv = b.p.mpv();
+            if unsafe { (mpv.render_context_update)(rc) } & UPDATE_FRAME != 0 {
+                let (mut skip, mut block): (c_int, c_int) = (1, 0);
+                let mut params = [
+                    mpv_render_param { kind: PARAM_SKIP_RENDERING, data: &mut skip as *mut _ as *mut c_void },
+                    mpv_render_param { kind: PARAM_BLOCK_FOR_TARGET_TIME, data: &mut block as *mut _ as *mut c_void },
+                    mpv_render_param { kind: PARAM_INVALID, data: std::ptr::null_mut() },
+                ];
+                unsafe { (mpv.render_context_render)(rc, params.as_mut_ptr()) };
+            }
         }
     }
 
@@ -242,18 +328,23 @@ impl VideoSurface {
                 if let (Some(f), Some(size)) = (self.probe.borrow_mut().as_mut(), (self.size)()) {
                     f(gl, size);
                 }
-                if let (false, Some(p)) = (st.sw, st.bound.as_ref()) {
-                    if let Some(rc) = p.render_raw() {
-                        unsafe { (p.mpv().render_context_report_swap)(rc) };
-                    }
+                if let Some((p, rc)) = st.drawn(false) {
+                    unsafe { (p.mpv().render_context_report_swap)(rc) };
                 }
             }
             RenderingState::RenderingTeardown => {
+                // GL is current here. Players keep their place: a new GL context
+                // gets new render contexts, and `set_render` turns video back on.
                 let mut st = self.st.borrow_mut();
-                if let Some(p) = st.bound.take() {
-                    drop(p.take_render()); // GL is current here
+                for p in std::mem::take(&mut st.removing) {
+                    drop(p.take_render());
                 }
-                st.sw = false;
+                let (gl, keep): (Vec<_>, Vec<_>) = std::mem::take(&mut st.bound).into_iter().partition(|b| !b.sw);
+                st.bound = keep;
+                for b in gl {
+                    drop(b.p.take_render());
+                    st.adding.push(b.p);
+                }
                 st.gl = None;
             }
             _ => {}
@@ -266,41 +357,47 @@ impl VideoSurface {
         let saved = {
             let st = self.st.borrow();
             let Some(gl) = st.gl.as_ref() else { return };
-            if st.want.is_none() && st.bound.is_none() {
+            if st.bound.is_empty() && st.adding.is_empty() && st.removing.is_empty() {
                 return;
             }
             unsafe { save_gl(gl) }
         };
         self.sync(Some(api));
+        self.skip_undrawn(false);
         let st = self.st.borrow();
         let Some(gl) = st.gl.as_ref() else { return };
-        if let (false, Some(p)) = (st.sw, st.bound.as_ref()) {
-            if let Some(rc) = p.render_raw() {
-                let mpv = p.mpv();
-                let mut fbo = mpv_opengl_fbo { fbo: saved.draw_fbo, w: size.width as c_int, h: size.height as c_int, internal_format: 0 };
-                let (mut flip, mut block): (c_int, c_int) = (1, 0);
-                let mut params = [
-                    mpv_render_param { kind: PARAM_OPENGL_FBO, data: &mut fbo as *mut _ as *mut c_void },
-                    mpv_render_param { kind: PARAM_FLIP_Y, data: &mut flip as *mut _ as *mut c_void },
-                    mpv_render_param { kind: PARAM_BLOCK_FOR_TARGET_TIME, data: &mut block as *mut _ as *mut c_void },
-                    mpv_render_param { kind: PARAM_INVALID, data: std::ptr::null_mut() },
-                ];
-                unsafe {
-                    (mpv.render_context_update)(rc);
-                    (mpv.render_context_render)(rc, params.as_mut_ptr());
-                }
+        if let Some((p, rc)) = st.drawn(false) {
+            let mpv = p.mpv();
+            let mut fbo = mpv_opengl_fbo { fbo: saved.draw_fbo, w: size.width as c_int, h: size.height as c_int, internal_format: 0 };
+            let (mut flip, mut block): (c_int, c_int) = (1, 0);
+            let mut params = [
+                mpv_render_param { kind: PARAM_OPENGL_FBO, data: &mut fbo as *mut _ as *mut c_void },
+                mpv_render_param { kind: PARAM_FLIP_Y, data: &mut flip as *mut _ as *mut c_void },
+                mpv_render_param { kind: PARAM_BLOCK_FOR_TARGET_TIME, data: &mut block as *mut _ as *mut c_void },
+                mpv_render_param { kind: PARAM_INVALID, data: std::ptr::null_mut() },
+            ];
+            unsafe {
+                (mpv.render_context_update)(rc);
+                (mpv.render_context_render)(rc, params.as_mut_ptr());
             }
         }
         unsafe { restore_gl(gl, &saved) };
     }
 
-    /// Software: renders a new mpv frame and hands it out as an image.
-    fn sw_frame(&self) {
+    /// Software: hands out the drawn player's new frame (`force`: its current one
+    /// even if mpv has nothing new), or `None` once nothing is drawn in software.
+    fn show_sw(&self, force: bool) {
         let img = {
             let mut st = self.st.borrow_mut();
-            let Some((p, rc)) = st.bound.as_ref().and_then(|p| p.render_raw().map(|rc| (p.clone(), rc))) else { return };
+            let Some((p, rc)) = st.drawn(true) else {
+                if !std::mem::replace(&mut st.shown, false) {
+                    return;
+                }
+                drop(st);
+                return (self.on_frame)(None);
+            };
             let mpv = p.mpv();
-            if unsafe { (mpv.render_context_update)(rc) } & UPDATE_FRAME == 0 {
+            if unsafe { (mpv.render_context_update)(rc) } & UPDATE_FRAME == 0 && !force {
                 return;
             }
             let Some(size) = (self.size)() else { return };
@@ -335,6 +432,7 @@ impl VideoSurface {
             for (d, s) in pb.make_mut_slice().iter_mut().zip(src.chunks_exact(4)) {
                 *d = slint::Rgb8Pixel { r: s[0], g: s[1], b: s[2] };
             }
+            st.shown = true;
             slint::Image::from_rgb8(pb)
         };
         (self.on_frame)(Some(img));
@@ -343,8 +441,13 @@ impl VideoSurface {
 
 impl Drop for VideoSurface {
     fn drop(&mut self) {
-        // Normally already done in RenderingTeardown; a context must not outlive its callback target.
-        if let Some(p) = self.st.get_mut().bound.take() {
+        // OpenGL contexts are normally already freed in RenderingTeardown; a context
+        // must not outlive its callback target.
+        let st = self.st.get_mut();
+        for b in std::mem::take(&mut st.bound) {
+            drop(b.p.take_render());
+        }
+        for p in std::mem::take(&mut st.removing) {
             drop(p.take_render());
         }
     }

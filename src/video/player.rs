@@ -132,6 +132,10 @@ pub struct Player {
     /// `vo=libmpv`: `loadfile` waits for the render context, or mpv drops the video track.
     deferred: bool,
     pending: RefCell<Option<(PathBuf, f64)>>,
+    /// The last file sent to mpv.
+    loaded: RefCell<Option<PathBuf>>,
+    /// File and position when the render context was taken out (mpv then turns video off).
+    lost: RefCell<Option<(PathBuf, f64)>>,
 }
 
 impl Player {
@@ -182,7 +186,7 @@ impl Player {
             Err(e) => return Err(format!("The video player could not start: {e}")),
         };
         let deferred = opts.vo == "libmpv";
-        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None) })
+        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None), loaded: RefCell::new(None), lost: RefCell::new(None) })
     }
 
     pub fn inst(&self) -> u64 {
@@ -196,12 +200,22 @@ impl Player {
         let pending = self.pending.borrow_mut().take();
         if let Some((path, start)) = pending {
             self.load(&path, start);
+        } else if let Some((path, at)) = self.lost.take() {
+            // mpv turned video off for good when the old context was freed; reload where it was.
+            self.load(&path, at);
         }
     }
 
-    /// Takes the render context out, to free it with its GL context current.
+    /// Takes the render context out, to free it with its GL context current. Freeing
+    /// it while a file plays turns video off for good (or fails the file), so the
+    /// file is stopped quietly here and `set_render` reloads it where it was.
     pub fn take_render(&self) -> Option<RenderContext> {
-        self.render.borrow_mut().take()
+        let rc = self.render.borrow_mut().take();
+        if let (true, Some(path)) = (rc.is_some(), self.loaded.borrow_mut().take()) {
+            *self.lost.borrow_mut() = Some((path, self.position()));
+            let _ = unsafe { self.core.mpv.command(self.core.h, &["stop"]) };
+        }
+        rc
     }
 
     pub fn has_render(&self) -> bool {
@@ -221,6 +235,7 @@ impl Player {
     /// `vo=libmpv` this waits until a render context is attached.
     pub fn load(&self, path: &Path, start: f64) {
         if self.deferred && !self.has_render() {
+            *self.lost.borrow_mut() = None;
             *self.pending.borrow_mut() = Some((path.to_path_buf(), start));
             return;
         }
@@ -229,9 +244,15 @@ impl Player {
         *self.name.lock().unwrap_or_else(|e| e.into_inner()) = name;
         let (mpv, h) = (&self.core.mpv, self.core.h);
         let r = unsafe { mpv.set_property(h, "start", &format!("{}", start.max(0.0))).and_then(|_| mpv.command(h, &["loadfile", &file])) };
+        *self.loaded.borrow_mut() = Some(path.to_path_buf());
         if let Err(e) = r {
-            let _ = self.tx.send(PlayerReport { inst: self.inst, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(e) });
+            self.fail(e);
         }
+    }
+
+    /// Reports an error for this instance (e.g. it cannot be drawn).
+    pub fn fail(&self, error: String) {
+        let _ = self.tx.send(PlayerReport { inst: self.inst, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(error) });
     }
 
     pub fn set_paused(&self, paused: bool) {
@@ -550,6 +571,55 @@ mod tests {
         let (v, playing) = until(&rx, 5.0, |r| r.state == PlayState::Playing);
         assert!(playing, "{v:?}");
         assert_ne!(unsafe { mpv.get_string(p.handle(), "vid") }.as_deref(), Some("no"));
+        drop(p.take_render());
+    }
+
+    /// Frames `rc` draws (in software, 64x64) within `secs`.
+    fn frames(p: &Player, rc: *mut mpv_render_context, secs: f64) -> usize {
+        let mpv = &p.core.mpv;
+        let mut buf = vec![0u8; 64 * 64 * 4 + 64];
+        let off = buf.as_ptr().align_offset(64);
+        let (mut n, end) = (0, Instant::now() + Duration::from_secs_f64(secs));
+        while Instant::now() < end {
+            if unsafe { (mpv.render_context_update)(rc) } & UPDATE_FRAME != 0 {
+                let mut sz: [c_int; 2] = [64, 64];
+                let mut stride: usize = 256;
+                let mut params = [
+                    mpv_render_param { kind: PARAM_API_TYPE, data: RENDER_API_TYPE_SW.as_ptr() as *mut _ },
+                    mpv_render_param { kind: PARAM_SW_SIZE, data: sz.as_mut_ptr() as *mut _ },
+                    mpv_render_param { kind: PARAM_SW_FORMAT, data: c"rgb0".as_ptr() as *mut _ },
+                    mpv_render_param { kind: PARAM_SW_STRIDE, data: &mut stride as *mut _ as *mut _ },
+                    mpv_render_param { kind: PARAM_SW_POINTER, data: unsafe { buf.as_mut_ptr().add(off) } as *mut _ },
+                    mpv_render_param { kind: PARAM_INVALID, data: std::ptr::null_mut() },
+                ];
+                if unsafe { (mpv.render_context_render)(rc, params.as_mut_ptr()) } >= 0 {
+                    n += 1;
+                }
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        n
+    }
+
+    #[test]
+    fn reattached_render_context_draws_again() {
+        let Some(mpv) = mpv() else { return };
+        let (tx, rx) = channel();
+        let p = Player::with_options(mpv, Role::Background, 14, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
+        p.set_render(sw_render(&p));
+        assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
+        assert!(frames(&p, p.render_raw().unwrap(), 1.0) > 10);
+        // Freeing the context while the file plays makes mpv drop the video track.
+        let at = p.position();
+        drop(p.take_render());
+        std::thread::sleep(Duration::from_millis(300));
+        p.set_render(sw_render(&p));
+        let n = frames(&p, p.render_raw().unwrap(), 1.5);
+        assert!(n > 10, "{n} frames after re-attaching");
+        assert!(p.position() > at, "carries on from {at}, not from the start: {}", p.position());
+        let (v, _) = until(&rx, 0.2, |_| false);
+        assert!(v.iter().all(|r| r.state != PlayState::Error), "{v:?}");
         drop(p.take_render());
     }
 
