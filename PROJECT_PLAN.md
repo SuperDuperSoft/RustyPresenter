@@ -1,7 +1,7 @@
 # RustyPresenter — shared project plan
 
-**Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 is in `src/` and `web/`; the earlier experiment is in `experiment-archive/`.
-**Updated:** October 29, 2026 (spec revision 3, implementation v0.2)
+**Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 (Tauri) is in `src/` and `web/`; the native Slint app is being built beside it (Plan 1 done, Plan 2 next). The earlier experiment is in `experiment-archive/`.
+**Updated:** November 1, 2026 (native Slint selected; Plan 1 foundation finished)
 **Collaborators:** User, Codex, and Claude
 **Purpose:** A Rust-based presentation application for this church's personal use during live services.
 
@@ -27,8 +27,8 @@ No tasks have been dispatched to Claude through this plan. The ownership split b
 User decisions (October 29, 2026 design review):
 
 - Church currently uses **EasyWorship**, not ProPresenter. Goal is to save money.
-- **v1 is Windows only.** Mac/Linux remain long-term goals.
-- **Architecture: Tauri 2** (Rust core + WebView2 windows). Selected.
+- ~~v1 is Windows only~~ → **Superseded October 29–30:** the user asked for a **native app on Windows, macOS and Linux**, no browser.
+- ~~Architecture: Tauri 2~~ → **Superseded:** native **Slint** UI (user holds the Slint Royalty-Free License v2.0), video through **libmpv**, PowerPoint import through PowerPoint on Windows or LibreOffice everywhere. Design: `docs/superpowers/specs/2026-10-29-native-slint-design.md`, which overrides the v1 spec's platform sections. The Tauri app keeps working until the native app reaches parity.
 - **Phone remote: browser page** for v1.
 - Displays: operator laptop screen, room output, optional **foldback** monitor.
 - Backgrounds: color, image, looping video. **Video items with audio**, still-image items, and **audio items**.
@@ -91,11 +91,26 @@ Detailed v1 behavior is in the spec: layers and clears (§6), navigation and key
 
 Statuses: Ready – Full offline, Ready – Prepared offline, Needs setup, Unavailable (spec §8.5). An Unavailable translation does not satisfy R6 unless the user records an exception here.
 
+### Native app checks (C1–C5)
+
+Full results and gotchas: `docs/superpowers/checks/2026-native-checks.md`. F1 and F6 above were Tauri-era checks; C1 and C2 replace them for the native app.
+
+| ID | Check | Windows | macOS / Linux |
+| --- | --- | --- | --- |
+| C1 | libmpv video under Slint text (OpenGL), 1080p30 | **Pass** (≈30 fps, text stays readable, CPU 30–52% of one core) | Not run |
+| C1 fallback | mpv software render into a Slint image | **Pass** (30 fps, CPU 65–77% of one core) | Not run |
+| C2 | Monitor list + borderless fullscreen | **Pass** on one monitor; second monitor still to check on the church laptop | Not run |
+| C3 | Files dropped onto a Slint window | Not run (needs a person to drag a file) | Not run |
+| C4 | Slint testing backend, headless | **Pass** | In CI |
+| C5 | LibreOffice → PDF → pdfium slide images | **Pass** (warm conversion ≈ 2 s with a persistent private profile) | Not run |
+
 ## 4. Architecture
 
-**Selected:** Tauri 2. Rust core (state, serialized command queue, generations, persistence, importers, Bible, LAN server for the remote). WebView2 windows: operator and foldback in one environment, room output in its own environment (pending F1). Content-addressed asset store. See spec §4–§5 and §11.
+**Selected (October 29–30):** native Slint app, one process plus a small supervisor for crash recovery. Rust core unchanged (`model`, `live`, `bible`, `songselect`, `slides`, `store`); `App` and its dispatcher live in `src/app.rs` with no axum or Tauri types; one typed `Update` stream feeds the native UI and the phone remote's SSE; slides are drawn by the Rust compositor in `src/render/` (cosmic-text + tiny-skia, golden-image tests); video and audio through libmpv loaded at runtime; the phone remote stays a web page served by `server.rs`. Full design: `docs/superpowers/specs/2026-10-29-native-slint-design.md`.
 
-Shared interfaces to define in the implementation plan: command and event types, cue IDs, generation messages, `BibleSource`, asset store API, remote allowlist.
+Plans: Plan 1 foundation (`docs/superpowers/plans/2026-10-29-native-foundation.md`, done); Plan 2 video, room output, stage (`docs/superpowers/plans/2026-11-01-native-video-room-stage.md`); Plan 3 operator window and dialogs; Plan 4 imports, crash recovery, packaging, Tauri removal.
+
+*Previous:* Tauri 2 with WebView2 windows (v0.2, still the working app until the native one replaces it).
 
 ## 5. Delivery sequence (v1)
 
@@ -144,6 +159,10 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | BUILD-01 | v0.2 implementation: live engine, operator/room/stage/phone, songs, KJV, decks, media conversion, backups | Claude | Needs review | Windows build runs; 27 core unit tests pass on Windows. Windows runtime partly verified; see spec §19. |
 | F1–F6, FEAS-01 | Feasibility checks (§3) | See §3 | Planning | October 29: user chose Tauri 2 over the v0.2 Edge app windows. F1 checked on this PC: room window has its own WebView2 data folder and browser process; a killed room renderer is reloaded in about 8 s. |
 | AUDIT-01 | Decide what to reuse from the early experiment | Claude | Done | Rewritten. Reused ideas: SongSelect parsing, KJV source (book codes fixed: all 31,102 verses load). Old code kept in `experiment-archive/`. |
+| NATIVE-P1 | Plan 1 foundation: git + CI, checks C1–C5, `App` out of HTTP, typed updates, Rust slide compositor + cache | Claude | Done (Windows) | Branch `native-foundation`. Release build and `cargo test` on Windows (see handoff Nov 1). C1/C2/C5 on macOS/Linux, C3 and the second-monitor case still need real machines or a person. |
+| NATIVE-P2 | Plan 2: `video` module (libmpv), room output window, stage window | Claude | Ready | `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`. |
+| NATIVE-P3 | Plan 3: operator window and dialogs | Claude | Planning | Write after Plan 2. |
+| NATIVE-P4 | Plan 4: LibreOffice/pdfium import, supervisor + crash recovery, packaging for three platforms, remove Tauri | Claude | Planning | Write after Plan 3. |
 
 ## 9. Current workspace handoff
 
@@ -265,3 +284,12 @@ For the next handoff, append the collaborator name, task IDs, decisions made, fi
 - Still needs hands on the PC or a phone, so not done here: full screen on a real second monitor, PowerPoint export, pairing from a real phone, Sunday rehearsal.
 - Codex still owes a review of spec revision 3 and the v0.2 code.
 - `.rp-src.tgz` is a stray empty file; safe to delete.
+
+### November 1, 2026 — Claude (native Plan 1 finished)
+
+- Tasks: NATIVE-P1 done on Windows; NATIVE-P2 planned.
+- Found two review-fix branches from an earlier run that had not been merged (`worktree-wf_b135fd26-fd1-2`: CSS-style color parsing, empty/zero theme values like `render.js`, bundled-only fonts for reference images, faster local shadow blur, script coverage tests; `worktree-wf_b135fd26-fd1-3`: SSE updates serialized once, exact Linux CI libraries). Merged both into `native-foundation`.
+- Recorded checks C1–C5 above. Architecture and §0 now describe the native Slint decision; the Tauri rows are kept as history.
+- Wrote Plan 2 (video, room output, stage) from the C1 results: `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`.
+- Still needs hands: second monitor on the church laptop, C3 drag-and-drop, macOS/Linux runs of C1/C2/C5.
+- Next: carry out Plan 2.
