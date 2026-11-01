@@ -22,6 +22,9 @@ const MANIFEST: &str = r#"<assembly xmlns="urn:schemas-microsoft-com:asm.v1" man
 </assembly>"#;
 
 fn main() {
+    // Element ids stay in the generated code so the testing backend can find elements by id (check C4).
+    let slint = slint_build::CompilerConfiguration::new().with_debug_info(true);
+    slint_build::compile_with_config("ui/app.slint", slint).expect("slint build failed");
     let windows = tauri_build::WindowsAttributes::new().app_manifest(MANIFEST);
     tauri_build::try_build(tauri_build::Attributes::new().windows_attributes(windows)).expect("tauri build setup failed");
 }

@@ -1,0 +1,144 @@
+// The stage screen for the people on the platform (same content as `web/stage.html`).
+// Sizes follow the web page's vh/vw units, so the screen scales with the monitor.
+
+export component StageWindow inherits Window {
+    title: "RustyPresenter — Stage";
+    background: #07080a;
+    preferred-width: 1280px;
+    preferred-height: 720px;
+
+    in property <bool> connected;
+    in property <string> item-title: "Waiting for the service…";
+    in property <string> clock;
+    /// Time left on the playing video or audio, `−m:ss`; empty hides it.
+    in property <string> timer;
+    in property <string> now;
+    in property <bool> now-dim;
+    in property <string> notes;
+    in property <string> next: "End of service";
+    /// The current slide's font size in % of the window height. Rust lowers it until `now-fits`.
+    in property <float> now-size: 9;
+    out property <bool> now-fits: now-t.preferred-height <= now-box.height && now-t.min-width <= now-box.width;
+    /// The window or the box for the current slide changed size: fit the text again.
+    callback refit();
+
+    property <length> vh: root.height / 100;
+    property <length> vw: root.width / 100;
+
+    changed width => { root.refit(); }
+    changed height => { root.refit(); }
+
+    TouchArea { mouse-cursor: none; }
+
+    // Placed explicitly (x, y), so the window does not take its size constraints from text sized by the window.
+    VerticalLayout {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        padding-top: 2.2 * vh;
+        padding-bottom: 2.2 * vh;
+        padding-left: 3 * vw;
+        padding-right: 3 * vw;
+        spacing: 1.6 * vh;
+
+        HorizontalLayout {
+            alignment: space-between;
+            HorizontalLayout {
+                spacing: 0.8 * vw;
+                dot := Rectangle {
+                    y: (parent.height - self.height) / 2;
+                    width: 1.4 * vh;
+                    height: 1.4 * vh;
+                    border-radius: self.width / 2;
+                    background: root.connected ? #3ccf91 : #3a3f4b;
+                }
+                title-t := Text {
+                    text: root.item-title;
+                    color: #9aa3b5;
+                    font-size: 3 * vh;
+                    vertical-alignment: center;
+                }
+            }
+            HorizontalLayout {
+                spacing: 1.2 * vw;
+                timer-t := Text {
+                    text: root.timer;
+                    color: #ff6b6b;
+                    font-size: 3 * vh;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+                clock-t := Text {
+                    text: root.clock;
+                    color: #fff;
+                    font-size: 6 * vh;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        now-box := Rectangle {
+            vertical-stretch: 1;
+            clip: true;
+            now-t := Text {
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                text: root.now;
+                color: #fff;
+                opacity: root.now-dim ? 0.35 : 1;
+                font-size: root.now-size * vh;
+                font-weight: 650;
+                wrap: word-wrap;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        if root.notes != "": Rectangle {
+            background: #12151b;
+            border-radius: 1 * vh;
+            VerticalLayout {
+                padding-top: 1.2 * vh;
+                padding-bottom: 1.2 * vh;
+                padding-left: 1.6 * vw;
+                padding-right: 1.6 * vw;
+                notes-t := Text {
+                    text: root.notes;
+                    color: #cfe3ff;
+                    font-size: 3.2 * vh;
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        Rectangle {
+            height: 2px;
+            background: #22262f;
+        }
+
+        next-box := Rectangle {
+            max-height: 22 * vh;
+            clip: true;
+            VerticalLayout {
+                alignment: start;
+                spacing: 0.6 * vh;
+                Text {
+                    text: "NEXT";
+                    color: #8b93a7;
+                    font-size: 2.2 * vh;
+                    letter-spacing: 0.12 * 2.2 * vh;
+                }
+                next-t := Text {
+                    text: root.next;
+                    color: #f5c66b;
+                    font-size: 4.4 * vh;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}
