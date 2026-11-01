@@ -104,7 +104,7 @@ pub enum Change {
 
 /// Watches the monitors that room and stage windows are on. Pure: feed it `list()` with `step`.
 #[derive(Default)]
-pub struct Watcher { watched: Vec<(String, MonitorId, bool)> }
+pub struct Watcher { watched: Vec<(String, MonitorId, bool)>, seen: Vec<MonitorId> }
 
 impl Watcher {
     /// `role`'s window is on `id`; replaces an earlier watch for that role.
@@ -116,11 +116,15 @@ impl Watcher {
     /// The operator closed `role`'s window: stop watching for its monitor.
     pub fn unwatch(&mut self, role: &str) { self.watched.retain(|(r, _, _)| r != role); }
 
-    /// Compare with the monitors connected now; each change is reported once.
+    /// Compare with the monitors connected now; each change is reported once. A monitor found by
+    /// name alone counts only when it is the one new monitor with that name: a twin that was
+    /// already connected (often the operator's) is never taken for the watched one.
     pub fn step(&mut self, monitors: &[MonitorId]) -> Vec<Change> {
         let mut out = vec![];
+        let seen = std::mem::replace(&mut self.seen, monitors.to_vec());
         for (role, id, present) in &mut self.watched {
-            let found = monitors.iter().find(|m| *m == id).or_else(|| monitors.iter().find(|m| m.name == id.name));
+            let fresh: Vec<_> = monitors.iter().filter(|m| m.name == id.name && !seen.contains(m)).collect();
+            let found = monitors.iter().find(|m| *m == id).or(match fresh[..] { [only] => Some(only), _ => None });
             match (found, *present) {
                 (None, true) => { *present = false; out.push(Change::Gone(role.clone())); }
                 (Some(m), false) => { *present = true; *id = m.clone(); out.push(Change::Back(role.clone(), m.clone())); }
@@ -212,6 +216,22 @@ mod tests {
         w.unwatch("room");
         assert_eq!(w.step(&[laptop()]), vec![]);
         assert_eq!(w.step(&[]), vec![Change::Gone("stage".into())]);
+    }
+
+    #[test]
+    fn watcher_never_swaps_to_a_twin() {
+        // Identical models share a name (macOS/Linux); the operator is on one, the room on the other.
+        let (ops, room) = (mon("DELL U2414H", 1920, 1080, 0, 0), mon("DELL U2414H", 1920, 1080, 1920, 0));
+        let mut w = Watcher::default();
+        w.watch("room", room.clone());
+        assert_eq!(w.step(&[ops.clone(), room.clone()]), vec![]);
+        assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())], "the operator's twin is not the room's monitor");
+        assert_eq!(w.step(&[ops.clone()]), vec![]);
+        assert_eq!(w.step(&[ops.clone(), room.clone()]), vec![Change::Back("room".into(), room.clone())]);
+        // Plugged back somewhere new: the twin that appeared is the one, not the operator's.
+        assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())]);
+        let moved = mon("DELL U2414H", 2560, 1440, 3840, 0);
+        assert_eq!(w.step(&[ops.clone(), moved.clone()]), vec![Change::Back("room".into(), moved)]);
     }
 
     #[test]
