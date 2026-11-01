@@ -10,3 +10,4 @@ pub mod sha256;
 pub mod slides;
 pub mod songselect;
 pub mod store;
+pub mod video;
