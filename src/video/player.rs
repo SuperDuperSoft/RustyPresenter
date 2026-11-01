@@ -55,18 +55,47 @@ impl From<PlayerReport> for RoomEvent {
     }
 }
 
-/// An mpv render context. It must be freed before its player's handle, so it lives
-/// in [`Player::render`] and the drawing code takes it out (and frees it) first.
-pub struct RenderContext {
+/// One mpv core, shared by its player, event thread and render context. libmpv
+/// requires the render context freed before the core is destroyed; holding the
+/// core keeps it alive until the last of them is gone.
+struct Core {
     mpv: Arc<Mpv>,
+    h: *mut mpv_handle,
+}
+// The client API is thread-safe; the handle is destroyed only when the last owner drops.
+unsafe impl Send for Core {}
+unsafe impl Sync for Core {}
+
+impl Drop for Core {
+    fn drop(&mut self) {
+        // Shutting the core down can take a moment; never on the caller's (UI) thread.
+        let (mpv, h) = (self.mpv.clone(), Handle(self.h));
+        let destroy = move || {
+            let h = h;
+            unsafe { (mpv.terminate_destroy)(h.0) }
+        };
+        let _ = std::thread::Builder::new().name("mpv-destroy".into()).spawn(destroy);
+    }
+}
+
+struct Handle(*mut mpv_handle);
+unsafe impl Send for Handle {}
+
+/// An mpv render context. It keeps its player's core alive, so the core is never
+/// destroyed before the context is freed. Free it (drop it) in `RenderingTeardown`,
+/// on the thread that owns its GL context, with that context current.
+pub struct RenderContext {
+    core: Arc<Core>,
     ctx: *mut mpv_render_context,
 }
 
 impl RenderContext {
     /// # Safety
-    /// `ctx` must come from `mpv.render_context_create` and not be freed elsewhere.
-    pub unsafe fn from_raw(mpv: Arc<Mpv>, ctx: *mut mpv_render_context) -> Self {
-        RenderContext { mpv, ctx }
+    /// `ctx` must come from `render_context_create` on `player.handle()` and not be
+    /// freed elsewhere. The value must be dropped on the thread that owns the GL
+    /// context it was created with, while that context is current.
+    pub unsafe fn from_raw(player: &Player, ctx: *mut mpv_render_context) -> Self {
+        RenderContext { core: player.core.clone(), ctx }
     }
 
     pub fn raw(&self) -> *mut mpv_render_context {
@@ -76,7 +105,8 @@ impl RenderContext {
 
 impl Drop for RenderContext {
     fn drop(&mut self) {
-        unsafe { (self.mpv.render_context_free)(self.ctx) }
+        // Runs before `core` is released, so the core is still alive here.
+        unsafe { (self.core.mpv.render_context_free)(self.ctx) }
     }
 }
 
@@ -88,22 +118,17 @@ const OBS_EOF: u64 = 4;
 /// Position reports at most this often (as the web room); state changes go out at once.
 const TICK: Duration = Duration::from_millis(500);
 
-struct Handle(*mut mpv_handle);
-// The client API is thread-safe; the handle outlives the event thread (joined in Drop).
-unsafe impl Send for Handle {}
-
 /// A libmpv instance playing one video/audio instance, with a thread turning its
 /// events into [`PlayerReport`]s.
 pub struct Player {
-    mpv: Arc<Mpv>,
-    h: *mut mpv_handle,
+    core: Arc<Core>,
     inst: u64,
     tx: Sender<PlayerReport>,
     name: Arc<Mutex<String>>,
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
-    /// Filled by the drawing code; dropped before the handle is destroyed.
-    pub render: RefCell<Option<RenderContext>>,
+    /// Filled by the drawing code, which takes it out again in `RenderingTeardown`.
+    render: RefCell<Option<RenderContext>>,
 }
 
 impl Player {
@@ -116,10 +141,8 @@ impl Player {
         if h.is_null() {
             return Err("The video player could not start.".into());
         }
-        let fail = |e: String| {
-            unsafe { (mpv.terminate_destroy)(h) };
-            Err(e)
-        };
+        // Dropping `core` on an early return destroys the handle.
+        let core = Arc::new(Core { mpv: mpv.clone(), h });
         let lp = |on: bool| if on { "inf" } else { "no" };
         let mut set = vec![("vo", opts.vo), ("hwdec", "auto-safe"), ("idle", "yes"), ("input-default-bindings", "no"), ("terminal", "no"), ("keep-open-pause", "no")];
         if !opts.ao.is_empty() {
@@ -135,27 +158,27 @@ impl Player {
         }
         for (k, v) in set {
             if let Err(e) = unsafe { mpv.set_option(h, k, v) } {
-                return fail(e);
+                return Err(e);
             }
         }
         let _ = unsafe { mpv.set_option(h, "osc", "no") }; // only exists in builds with Lua
         let r = unsafe { (mpv.initialize)(h) };
         if r < 0 {
-            return fail(format!("The video player could not start: {}", mpv.err(r)));
+            return Err(format!("The video player could not start: {}", mpv.err(r)));
         }
         for (id, name, f) in [(OBS_PAUSE, "pause", FORMAT_FLAG), (OBS_TIME, "time-pos", FORMAT_DOUBLE), (OBS_DURATION, "duration", FORMAT_DOUBLE), (OBS_EOF, "eof-reached", FORMAT_FLAG)] {
             if let Err(e) = unsafe { mpv.observe(h, id, name, f) } {
-                return fail(e);
+                return Err(e);
             }
         }
         let name = Arc::new(Mutex::new(String::new()));
         let stop = Arc::new(AtomicBool::new(false));
-        let w = Watch { mpv: mpv.clone(), h: Handle(h), inst, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
+        let w = Watch { core: core.clone(), inst, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
         let thread = match std::thread::Builder::new().name(format!("mpv-events-{inst}")).spawn(move || w.run()) {
             Ok(t) => t,
-            Err(e) => return fail(format!("The video player could not start: {e}")),
+            Err(e) => return Err(format!("The video player could not start: {e}")),
         };
-        Ok(Player { mpv, h, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None) })
+        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None) })
     }
 
     pub fn inst(&self) -> u64 {
@@ -163,52 +186,62 @@ impl Player {
     }
 
     /// Starts `path` at `start` seconds, replacing whatever was loaded.
+    /// Stores the drawing code's render context with this player.
+    pub fn set_render(&self, rc: RenderContext) {
+        *self.render.borrow_mut() = Some(rc);
+    }
+
+    /// Takes the render context out, to free it with its GL context current.
+    pub fn take_render(&self) -> Option<RenderContext> {
+        self.render.borrow_mut().take()
+    }
+
+    pub fn has_render(&self) -> bool {
+        self.render.borrow().is_some()
+    }
+
     pub fn load(&self, path: &Path, start: f64) {
         let file = path.to_string_lossy();
         let name = path.file_name().map_or_else(|| file.to_string(), |n| n.to_string_lossy().into_owned());
         *self.name.lock().unwrap_or_else(|e| e.into_inner()) = name;
-        let r = unsafe { self.mpv.set_property(self.h, "start", &format!("{}", start.max(0.0))).and_then(|_| self.mpv.command(self.h, &["loadfile", &file])) };
+        let (mpv, h) = (&self.core.mpv, self.core.h);
+        let r = unsafe { mpv.set_property(h, "start", &format!("{}", start.max(0.0))).and_then(|_| mpv.command(h, &["loadfile", &file])) };
         if let Err(e) = r {
             let _ = self.tx.send(PlayerReport { inst: self.inst, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(e) });
         }
     }
 
     pub fn set_paused(&self, paused: bool) {
-        let _ = unsafe { self.mpv.set_property(self.h, "pause", if paused { "yes" } else { "no" }) };
+        let _ = unsafe { self.core.mpv.set_property(self.core.h, "pause", if paused { "yes" } else { "no" }) };
     }
 
     /// Current playback position in seconds (0 when nothing is playing).
     pub fn position(&self) -> f64 {
-        unsafe { self.mpv.get_double(self.h, "time-pos") }.unwrap_or(0.0)
+        unsafe { self.core.mpv.get_double(self.core.h, "time-pos") }.unwrap_or(0.0)
     }
 
     pub fn handle(&self) -> *mut mpv_handle {
-        self.h
+        self.core.h
     }
 }
 
 impl Drop for Player {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::Release);
-        unsafe { (self.mpv.wakeup)(self.h) };
+        unsafe { (self.core.mpv.wakeup)(self.core.h) };
         if let Some(t) = self.thread.take() {
             let _ = t.join();
         }
+        // A context left in the slot is freed here, on the dropping thread; the
+        // drawing code should have taken it out in `RenderingTeardown`.
         drop(self.render.get_mut().take());
-        // Shutting the core down can take a moment; never on the caller's (UI) thread.
-        let (mpv, h) = (self.mpv.clone(), Handle(self.h));
-        let destroy = move || {
-            let h = h;
-            unsafe { (mpv.terminate_destroy)(h.0) }
-        };
-        let _ = std::thread::Builder::new().name("mpv-destroy".into()).spawn(destroy);
+        // The core (and its handle) goes once no render context holds it.
     }
 }
 
 /// The event thread's view of one player.
 struct Watch {
-    mpv: Arc<Mpv>,
-    h: Handle,
+    core: Arc<Core>,
     inst: u64,
     tx: Sender<PlayerReport>,
     name: Arc<Mutex<String>>,
@@ -224,7 +257,7 @@ struct Watch {
 impl Watch {
     fn run(mut self) {
         loop {
-            let ev = unsafe { &*(self.mpv.wait_event)(self.h.0, -1.0) };
+            let ev = unsafe { &*(self.core.mpv.wait_event)(self.core.h, -1.0) };
             if self.stop.load(Ordering::Acquire) || ev.event_id == EVENT_SHUTDOWN {
                 return;
             }
@@ -241,7 +274,7 @@ impl Watch {
                         END_FILE_EOF => self.state(PlayState::Ended, None),
                         END_FILE_ERROR => {
                             let name = self.name.lock().unwrap_or_else(|e| e.into_inner()).clone();
-                            self.state(PlayState::Error, Some(format!("{name} could not be played ({})", self.mpv.err(end.error))));
+                            self.state(PlayState::Error, Some(format!("{name} could not be played ({})", self.core.mpv.err(end.error))));
                         }
                         _ => {}
                     }
@@ -439,6 +472,46 @@ mod tests {
         while rx.try_recv().is_ok() {}
         // The event thread is gone (its sender dropped), so nothing more can arrive.
         assert_eq!(rx.recv_timeout(Duration::from_millis(100)), Err(RecvTimeoutError::Disconnected));
+    }
+
+    /// A software render context on `p` (no GL needed).
+    fn sw_render(p: &Player) -> RenderContext {
+        let mpv = &p.core.mpv;
+        let mut params = [
+            mpv_render_param { kind: PARAM_API_TYPE, data: RENDER_API_TYPE_SW.as_ptr() as *mut _ },
+            mpv_render_param { kind: PARAM_INVALID, data: std::ptr::null_mut() },
+        ];
+        let mut ctx = std::ptr::null_mut();
+        let r = unsafe { (mpv.render_context_create)(&mut ctx, p.handle(), params.as_mut_ptr()) };
+        assert!(r >= 0 && !ctx.is_null(), "{}", mpv.err(r));
+        unsafe { RenderContext::from_raw(p, ctx) }
+    }
+
+    #[test]
+    fn render_context_keeps_the_core_alive_after_its_player_drops() {
+        let Some(mpv) = mpv() else { return };
+        let (tx, _rx) = channel();
+        let p = Player::with_options(mpv.clone(), Role::Background, 11, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        p.set_render(sw_render(&p));
+        assert!(p.has_render());
+        let rc = p.take_render().expect("render context");
+        assert!(!p.has_render());
+        drop(p);
+        // The player is gone but the context still holds the core, so the handle is live.
+        assert_eq!(Arc::strong_count(&rc.core), 1);
+        assert!(unsafe { mpv.get_string(rc.core.h, "mpv-version") }.is_some());
+        drop(rc); // frees the context, then destroys the core
+    }
+
+    #[test]
+    fn player_drop_frees_a_render_context_left_in_its_slot() {
+        let Some(mpv) = mpv() else { return };
+        let (tx, _rx) = channel();
+        let p = Player::with_options(mpv, Role::Background, 12, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        p.set_render(sw_render(&p));
+        let core = Arc::downgrade(&p.core);
+        drop(p);
+        assert!(core.upgrade().is_none(), "core released once the context is freed");
     }
 
     #[test]
