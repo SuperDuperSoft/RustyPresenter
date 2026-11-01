@@ -5,7 +5,7 @@ use crate::live::{PlayState, RoomEvent};
 use crate::model::EndAction;
 use std::cell::RefCell;
 use std::ffi::c_int;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
@@ -129,6 +129,9 @@ pub struct Player {
     thread: Option<JoinHandle<()>>,
     /// Filled by the drawing code, which takes it out again in `RenderingTeardown`.
     render: RefCell<Option<RenderContext>>,
+    /// `vo=libmpv`: `loadfile` waits for the render context, or mpv drops the video track.
+    deferred: bool,
+    pending: RefCell<Option<(PathBuf, f64)>>,
 }
 
 impl Player {
@@ -178,17 +181,22 @@ impl Player {
             Ok(t) => t,
             Err(e) => return Err(format!("The video player could not start: {e}")),
         };
-        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None) })
+        let deferred = opts.vo == "libmpv";
+        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None) })
     }
 
     pub fn inst(&self) -> u64 {
         self.inst
     }
 
-    /// Starts `path` at `start` seconds, replacing whatever was loaded.
-    /// Stores the drawing code's render context with this player.
+    /// Stores the drawing code's render context with this player and starts a
+    /// load that was waiting for it.
     pub fn set_render(&self, rc: RenderContext) {
         *self.render.borrow_mut() = Some(rc);
+        let pending = self.pending.borrow_mut().take();
+        if let Some((path, start)) = pending {
+            self.load(&path, start);
+        }
     }
 
     /// Takes the render context out, to free it with its GL context current.
@@ -200,7 +208,22 @@ impl Player {
         self.render.borrow().is_some()
     }
 
+    /// The attached render context, if any (valid until it is taken out).
+    pub fn render_raw(&self) -> Option<*mut mpv_render_context> {
+        self.render.borrow().as_ref().map(RenderContext::raw)
+    }
+
+    pub fn mpv(&self) -> &Arc<Mpv> {
+        &self.core.mpv
+    }
+
+    /// Starts `path` at `start` seconds, replacing whatever was loaded. With
+    /// `vo=libmpv` this waits until a render context is attached.
     pub fn load(&self, path: &Path, start: f64) {
+        if self.deferred && !self.has_render() {
+            *self.pending.borrow_mut() = Some((path.to_path_buf(), start));
+            return;
+        }
         let file = path.to_string_lossy();
         let name = path.file_name().map_or_else(|| file.to_string(), |n| n.to_string_lossy().into_owned());
         *self.name.lock().unwrap_or_else(|e| e.into_inner()) = name;
@@ -512,6 +535,22 @@ mod tests {
         let core = Arc::downgrade(&p.core);
         drop(p);
         assert!(core.upgrade().is_none(), "core released once the context is freed");
+    }
+
+    #[test]
+    fn libmpv_output_loads_once_a_render_context_exists() {
+        let Some(mpv) = mpv() else { return };
+        let (tx, rx) = channel();
+        let p = Player::with_options(mpv.clone(), Role::Background, 13, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
+        // Loading before the render context exists would deselect the video track.
+        let (early, _) = until(&rx, 0.5, |_| true);
+        assert!(early.is_empty(), "{early:?}");
+        p.set_render(sw_render(&p));
+        let (v, playing) = until(&rx, 5.0, |r| r.state == PlayState::Playing);
+        assert!(playing, "{v:?}");
+        assert_ne!(unsafe { mpv.get_string(p.handle(), "vid") }.as_deref(), Some("no"));
+        drop(p.take_render());
     }
 
     #[test]
