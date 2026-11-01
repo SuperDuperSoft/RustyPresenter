@@ -5,6 +5,7 @@ pub mod live;
 pub mod media;
 pub mod model;
 pub mod render;
+pub mod room;
 pub mod server;
 pub mod sha256;
 pub mod slides;

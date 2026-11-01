@@ -214,7 +214,7 @@ impl App {
         out
     }
 
-    pub(crate) fn room_event(&self, ev: RoomEvent) {
+    pub fn room_event(&self, ev: RoomEvent) {
         let changed = self.live.lock().unwrap().report(ev);
         if changed { self.broadcast_live(); }
     }
