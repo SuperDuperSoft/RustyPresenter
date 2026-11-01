@@ -1,5 +1,8 @@
 //! Slide rendering against stored reference images. Run with `UPDATE_GOLDENS=1` to rewrite them
 //! after an intended change, then look at every changed PNG before committing.
+//!
+//! Every reference render uses `Fonts::bundled_only()`, so installed fonts (a system "Noto Sans"
+//! of another version, say) cannot change the pixels.
 use rustypresenter::model::Theme;
 use rustypresenter::render::{Fonts, Rendered, TextSlide, parse_color, render_text};
 use std::path::PathBuf;
@@ -8,7 +11,7 @@ fn theme() -> Theme { Theme { font: "Noto Sans".into(), ..Theme::default() } }
 
 fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
 
-fn render_at(text: &str, canvas: (u32, u32)) -> Rendered { render_text(&mut Fonts::new(), &slide(text), &theme(), canvas) }
+fn render_at(text: &str, canvas: (u32, u32)) -> Rendered { render_text(&mut Fonts::bundled_only(), &slide(text), &theme(), canvas) }
 
 fn render(text: &str) -> Rendered { render_at(text, (1920, 1080)) }
 
@@ -55,27 +58,31 @@ fn golden_scripture_with_reference() {
         reference: Some("John 3:16 KJV"),
         scripture: true,
     };
-    check_golden("scripture_with_reference", &render_text(&mut Fonts::new(), &s, &theme(), (1920, 1080)));
+    check_golden("scripture_with_reference", &render_text(&mut Fonts::bundled_only(), &s, &theme(), (1920, 1080)));
 }
 
 #[test]
 fn golden_lower_third() {
     let t = Theme { position: "lower".into(), ..theme() };
     let s = TextSlide { text: "Welcome to Grace First", footer: Some("Service starts at 10:30"), reference: None, scripture: false };
-    check_golden("lower_third", &render_text(&mut Fonts::new(), &s, &t, (1920, 1080)));
+    check_golden("lower_third", &render_text(&mut Fonts::bundled_only(), &s, &t, (1920, 1080)));
 }
 
 #[test]
 fn golden_uppercase_no_shadow() {
     let t = Theme { uppercase: true, shadow: false, color: "#ffd84a".into(), ..theme() };
-    check_golden("uppercase_no_shadow", &render_text(&mut Fonts::new(), &slide("Be thou my vision"), &t, (1920, 1080)));
+    check_golden("uppercase_no_shadow", &render_text(&mut Fonts::bundled_only(), &slide("Be thou my vision"), &t, (1920, 1080)));
 }
 
 #[test]
 fn empty_slide_is_fully_transparent() { assert!(render(" \n ").rgba_premul.iter().all(|&b| b == 0)); }
 
 #[test]
-fn non_latin_text_draws_pixels() { assert!(render("Sublime gracia del Señor 놀라운 은혜 🙏").rgba_premul.chunks(4).any(|p| p[3] > 0)); }
+fn non_latin_text_draws_pixels() {
+    // System fonts on purpose: this is about falling back to installed faces for other scripts.
+    let r = render_text(&mut Fonts::new(), &slide("Sublime gracia del Señor 놀라운 은혜 🙏"), &theme(), (1920, 1080));
+    assert!(r.rgba_premul.chunks(4).any(|p| p[3] > 0));
+}
 
 #[test]
 fn bad_colors_fall_back_to_white() {
@@ -93,5 +100,27 @@ fn zero_and_huge_canvases_do_not_panic() {
     for c in [(0, 0), (0, 1080), (1920, 0), (100_000, 10)] {
         let r = render_at("Amazing grace", c);
         assert_eq!(r.rgba_premul.len(), (r.width * r.height * 4) as usize, "{c:?}");
+    }
+}
+
+/// Prints how long a shadowed full-HD slide takes. Run with
+/// `cargo test --release --test render_golden -- --ignored --nocapture bench_`.
+#[test]
+#[ignore]
+fn bench_1080p_render_ms() {
+    let mut fonts = Fonts::bundled_only();
+    let lyric = slide("Amazing grace, how sweet the sound\nThat saved a wretch like me");
+    let scripture = TextSlide {
+        text: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+        footer: None,
+        reference: Some("John 3:16 KJV"),
+        scripture: true,
+    };
+    for (name, s) in [("lyric", &lyric), ("scripture", &scripture)] {
+        render_text(&mut fonts, s, &theme(), (1920, 1080)); // warm the shaping and glyph caches
+        let n = 10;
+        let start = std::time::Instant::now();
+        for _ in 0..n { std::hint::black_box(render_text(&mut fonts, s, &theme(), (1920, 1080))); }
+        println!("bench {name}: {:.1} ms per 1080p render", start.elapsed().as_secs_f64() * 1000.0 / n as f64);
     }
 }

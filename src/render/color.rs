@@ -1,26 +1,210 @@
-//! Theme colors as the operator types them: `#rgb`, `#rrggbb`, `#rrggbbaa` or a basic CSS name.
+//! Theme colors as an operator might type them, read the way CSS reads them: `#rgb`, `#rgba`,
+//! `#rrggbb`, `#rrggbbaa`, `rgb()`/`rgba()`, `hsl()`/`hsla()` (comma or space syntax, with an optional
+//! alpha as 0–1 or a percentage) and every CSS named color. Values out of range clamp like CSS.
+//!
+//! Anything unreadable is white, so slide text stays visible. `transparent` is valid CSS but would
+//! make the slide text invisible, which is never what an operator means: it is white too.
 
 const WHITE: [u8; 4] = [255, 255, 255, 255];
 
-/// The 16 basic CSS color names.
-const NAMES: [(&str, [u8; 3]); 16] = [
-    ("black", [0, 0, 0]), ("silver", [192, 192, 192]), ("gray", [128, 128, 128]), ("white", [255, 255, 255]),
-    ("maroon", [128, 0, 0]), ("red", [255, 0, 0]), ("purple", [128, 0, 128]), ("fuchsia", [255, 0, 255]),
-    ("green", [0, 128, 0]), ("lime", [0, 255, 0]), ("olive", [128, 128, 0]), ("yellow", [255, 255, 0]),
-    ("navy", [0, 0, 128]), ("blue", [0, 0, 255]), ("teal", [0, 128, 128]), ("aqua", [0, 255, 255]),
+/// The CSS named colors (CSS Color 4: 148 names, `grey` spellings included), sorted, as 0xRRGGBB.
+const NAMES: [(&str, u32); 148] = [
+    ("aliceblue", 0xF0F8FF), ("antiquewhite", 0xFAEBD7), ("aqua", 0x00FFFF), ("aquamarine", 0x7FFFD4),
+    ("azure", 0xF0FFFF), ("beige", 0xF5F5DC), ("bisque", 0xFFE4C4), ("black", 0x000000),
+    ("blanchedalmond", 0xFFEBCD), ("blue", 0x0000FF), ("blueviolet", 0x8A2BE2), ("brown", 0xA52A2A),
+    ("burlywood", 0xDEB887), ("cadetblue", 0x5F9EA0), ("chartreuse", 0x7FFF00), ("chocolate", 0xD2691E),
+    ("coral", 0xFF7F50), ("cornflowerblue", 0x6495ED), ("cornsilk", 0xFFF8DC), ("crimson", 0xDC143C),
+    ("cyan", 0x00FFFF), ("darkblue", 0x00008B), ("darkcyan", 0x008B8B), ("darkgoldenrod", 0xB8860B),
+    ("darkgray", 0xA9A9A9), ("darkgreen", 0x006400), ("darkgrey", 0xA9A9A9), ("darkkhaki", 0xBDB76B),
+    ("darkmagenta", 0x8B008B), ("darkolivegreen", 0x556B2F), ("darkorange", 0xFF8C00), ("darkorchid", 0x9932CC),
+    ("darkred", 0x8B0000), ("darksalmon", 0xE9967A), ("darkseagreen", 0x8FBC8F), ("darkslateblue", 0x483D8B),
+    ("darkslategray", 0x2F4F4F), ("darkslategrey", 0x2F4F4F), ("darkturquoise", 0x00CED1), ("darkviolet", 0x9400D3),
+    ("deeppink", 0xFF1493), ("deepskyblue", 0x00BFFF), ("dimgray", 0x696969), ("dimgrey", 0x696969),
+    ("dodgerblue", 0x1E90FF), ("firebrick", 0xB22222), ("floralwhite", 0xFFFAF0), ("forestgreen", 0x228B22),
+    ("fuchsia", 0xFF00FF), ("gainsboro", 0xDCDCDC), ("ghostwhite", 0xF8F8FF), ("gold", 0xFFD700),
+    ("goldenrod", 0xDAA520), ("gray", 0x808080), ("green", 0x008000), ("greenyellow", 0xADFF2F), ("grey", 0x808080),
+    ("honeydew", 0xF0FFF0), ("hotpink", 0xFF69B4), ("indianred", 0xCD5C5C), ("indigo", 0x4B0082),
+    ("ivory", 0xFFFFF0), ("khaki", 0xF0E68C), ("lavender", 0xE6E6FA), ("lavenderblush", 0xFFF0F5),
+    ("lawngreen", 0x7CFC00), ("lemonchiffon", 0xFFFACD), ("lightblue", 0xADD8E6), ("lightcoral", 0xF08080),
+    ("lightcyan", 0xE0FFFF), ("lightgoldenrodyellow", 0xFAFAD2), ("lightgray", 0xD3D3D3), ("lightgreen", 0x90EE90),
+    ("lightgrey", 0xD3D3D3), ("lightpink", 0xFFB6C1), ("lightsalmon", 0xFFA07A), ("lightseagreen", 0x20B2AA),
+    ("lightskyblue", 0x87CEFA), ("lightslategray", 0x778899), ("lightslategrey", 0x778899),
+    ("lightsteelblue", 0xB0C4DE), ("lightyellow", 0xFFFFE0), ("lime", 0x00FF00), ("limegreen", 0x32CD32),
+    ("linen", 0xFAF0E6), ("magenta", 0xFF00FF), ("maroon", 0x800000), ("mediumaquamarine", 0x66CDAA),
+    ("mediumblue", 0x0000CD), ("mediumorchid", 0xBA55D3), ("mediumpurple", 0x9370DB), ("mediumseagreen", 0x3CB371),
+    ("mediumslateblue", 0x7B68EE), ("mediumspringgreen", 0x00FA9A), ("mediumturquoise", 0x48D1CC),
+    ("mediumvioletred", 0xC71585), ("midnightblue", 0x191970), ("mintcream", 0xF5FFFA), ("mistyrose", 0xFFE4E1),
+    ("moccasin", 0xFFE4B5), ("navajowhite", 0xFFDEAD), ("navy", 0x000080), ("oldlace", 0xFDF5E6),
+    ("olive", 0x808000), ("olivedrab", 0x6B8E23), ("orange", 0xFFA500), ("orangered", 0xFF4500),
+    ("orchid", 0xDA70D6), ("palegoldenrod", 0xEEE8AA), ("palegreen", 0x98FB98), ("paleturquoise", 0xAFEEEE),
+    ("palevioletred", 0xDB7093), ("papayawhip", 0xFFEFD5), ("peachpuff", 0xFFDAB9), ("peru", 0xCD853F),
+    ("pink", 0xFFC0CB), ("plum", 0xDDA0DD), ("powderblue", 0xB0E0E6), ("purple", 0x800080),
+    ("rebeccapurple", 0x663399), ("red", 0xFF0000), ("rosybrown", 0xBC8F8F), ("royalblue", 0x4169E1),
+    ("saddlebrown", 0x8B4513), ("salmon", 0xFA8072), ("sandybrown", 0xF4A460), ("seagreen", 0x2E8B57),
+    ("seashell", 0xFFF5EE), ("sienna", 0xA0522D), ("silver", 0xC0C0C0), ("skyblue", 0x87CEEB),
+    ("slateblue", 0x6A5ACD), ("slategray", 0x708090), ("slategrey", 0x708090), ("snow", 0xFFFAFA),
+    ("springgreen", 0x00FF7F), ("steelblue", 0x4682B4), ("tan", 0xD2B48C), ("teal", 0x008080), ("thistle", 0xD8BFD8),
+    ("tomato", 0xFF6347), ("turquoise", 0x40E0D0), ("violet", 0xEE82EE), ("wheat", 0xF5DEB3), ("white", 0xFFFFFF),
+    ("whitesmoke", 0xF5F5F5), ("yellow", 0xFFFF00), ("yellowgreen", 0x9ACD32),
 ];
 
-/// Parse a color to straight (not premultiplied) RGBA. Anything unreadable is white, so text stays visible.
-pub fn parse_color(s: &str) -> [u8; 4] {
-    let s = s.trim();
-    if let Some(hex) = s.strip_prefix('#') {
-        let digits: Option<Vec<u8>> = hex.chars().map(|c| c.to_digit(16).map(|d| d as u8)).collect();
-        return match (digits.as_deref(), hex.len()) {
-            (Some(&[r, g, b]), 3) => [r * 17, g * 17, b * 17, 255],
-            (Some(d), 6) => [d[0] * 16 + d[1], d[2] * 16 + d[3], d[4] * 16 + d[5], 255],
-            (Some(d), 8) => [d[0] * 16 + d[1], d[2] * 16 + d[3], d[4] * 16 + d[5], d[6] * 16 + d[7]],
-            _ => WHITE,
+/// Parse a color to straight (not premultiplied) RGBA.
+pub fn parse_color(s: &str) -> [u8; 4] { parse(s.trim()).unwrap_or(WHITE) }
+
+fn parse(s: &str) -> Option<[u8; 4]> {
+    if let Some(hex) = s.strip_prefix('#') { return parse_hex(hex); }
+    if let Some((name, args)) = function(s) {
+        return match name.to_ascii_lowercase().as_str() {
+            "rgb" | "rgba" => parse_rgb(&args),
+            "hsl" | "hsla" => parse_hsl(&args),
+            _ => None,
         };
     }
-    NAMES.iter().find(|(n, _)| n.eq_ignore_ascii_case(s)).map(|(_, [r, g, b])| [*r, *g, *b, 255]).unwrap_or(WHITE)
+    if s.eq_ignore_ascii_case("transparent") { return Some(WHITE); }
+    let i = NAMES.binary_search_by(|(n, _)| cmp_ignore_case(n, s)).ok()?;
+    let v = NAMES[i].1;
+    Some([(v >> 16) as u8, (v >> 8) as u8, v as u8, 255])
+}
+
+fn cmp_ignore_case(a: &str, b: &str) -> std::cmp::Ordering {
+    a.bytes().map(|c| c.to_ascii_lowercase()).cmp(b.bytes().map(|c| c.to_ascii_lowercase()))
+}
+
+fn parse_hex(hex: &str) -> Option<[u8; 4]> {
+    let d: Vec<u8> = hex.chars().map(|c| c.to_digit(16).map(|d| d as u8)).collect::<Option<_>>()?;
+    let pair = |i: usize| d[i] * 16 + d[i + 1];
+    match d.len() {
+        3 | 4 => Some([d[0] * 17, d[1] * 17, d[2] * 17, d.get(3).map_or(255, |a| a * 17)]),
+        6 | 8 => Some([pair(0), pair(2), pair(4), if d.len() == 8 { pair(6) } else { 255 }]),
+        _ => None,
+    }
+}
+
+/// `name(args)` split into the name and its 3 or 4 arguments. Accepts the legacy comma syntax
+/// `rgb(1, 2, 3, 0.5)` and the CSS Color 4 space syntax `rgb(1 2 3 / 50%)`.
+fn function(s: &str) -> Option<(&str, Vec<&str>)> {
+    let (name, rest) = s.split_once('(')?;
+    let inner = rest.strip_suffix(')')?;
+    let args: Vec<&str> = if inner.contains(',') {
+        if inner.contains('/') { return None; }
+        inner.split(',').map(str::trim).collect()
+    } else {
+        let (main, alpha) = match inner.split_once('/') { Some((m, a)) => (m, Some(a.trim())), None => (inner, None) };
+        let mut args: Vec<&str> = main.split_whitespace().collect();
+        if args.len() != 3 { return None; }
+        args.extend(alpha);
+        args
+    };
+    let ok = (3..=4).contains(&args.len()) && args.iter().all(|a| !a.is_empty() && !a.contains(char::is_whitespace));
+    ok.then_some((name.trim(), args))
+}
+
+/// A finite CSS number (`inf` and `NaN`, which Rust would accept, are not CSS).
+fn number(s: &str) -> Option<f32> { s.parse::<f32>().ok().filter(|v| v.is_finite()) }
+
+/// A number, or a percentage scaled so that 100% is `full`.
+fn number_or_percent(s: &str, full: f32) -> Option<f32> {
+    match s.strip_suffix('%') { Some(p) => Some(number(p)? / 100.0 * full), None => number(s) }
+}
+
+fn to_byte(v: f32) -> u8 { v.clamp(0.0, 255.0).round() as u8 }
+
+/// The optional fourth argument: 0–1 or a percentage, as 0–255.
+fn alpha(args: &[&str]) -> Option<u8> {
+    args.get(3).map_or(Some(255), |a| Some(to_byte(number_or_percent(a, 1.0)?.clamp(0.0, 1.0) * 255.0)))
+}
+
+fn parse_rgb(args: &[&str]) -> Option<[u8; 4]> {
+    let c = |i: usize| number_or_percent(args[i], 255.0).map(to_byte);
+    Some([c(0)?, c(1)?, c(2)?, alpha(args)?])
+}
+
+fn parse_hsl(args: &[&str]) -> Option<[u8; 4]> {
+    let hue = args[0];
+    let deg = if let Some(v) = hue.strip_suffix("deg") { number(v)? }
+        else if let Some(v) = hue.strip_suffix("grad") { number(v)? * 0.9 }
+        else if let Some(v) = hue.strip_suffix("rad") { number(v)?.to_degrees() }
+        else if let Some(v) = hue.strip_suffix("turn") { number(v)? * 360.0 }
+        else { number(hue)? };
+    // Saturation and lightness are percentages; CSS Color 4 also takes bare numbers meaning the same.
+    let pct = |s: &str| Some((s.strip_suffix('%').map_or_else(|| number(s), number)? / 100.0).clamp(0.0, 1.0));
+    let (s, l) = (pct(args[1])?, pct(args[2])?);
+    // CSS Color 4, "Converting HSL colors to sRGB".
+    let f = |n: f32| {
+        let k = (n + deg.rem_euclid(360.0) / 30.0) % 12.0;
+        let a = s * l.min(1.0 - l);
+        to_byte((l - a * (k - 3.0).min(9.0 - k).clamp(-1.0, 1.0)) * 255.0)
+    };
+    Some([f(0.0), f(8.0), f(4.0), alpha(args)?])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hex_forms() {
+        assert_eq!(parse_color("#0f0"), [0, 255, 0, 255]);
+        assert_eq!(parse_color("#f008"), [255, 0, 0, 136]);
+        assert_eq!(parse_color("#FFD84A"), [255, 216, 74, 255]);
+        assert_eq!(parse_color("#11223344"), [17, 34, 51, 68]);
+        assert_eq!(parse_color("  #fff  "), WHITE);
+    }
+
+    #[test]
+    fn rgb_functions() {
+        assert_eq!(parse_color("rgb(255, 128, 0)"), [255, 128, 0, 255]);
+        assert_eq!(parse_color("RGB( 10 , 20 , 30 )"), [10, 20, 30, 255]);
+        assert_eq!(parse_color("rgba(0, 0, 0, 0.5)"), [0, 0, 0, 128]);
+        assert_eq!(parse_color("rgba(0,0,0,50%)"), [0, 0, 0, 128]);
+        assert_eq!(parse_color("rgba(1, 2, 3)"), [1, 2, 3, 255]);
+        assert_eq!(parse_color("rgb(255, 0, 0, .25)"), [255, 0, 0, 64]);
+        assert_eq!(parse_color("rgb(100%, 50%, 0%)"), [255, 128, 0, 255]);
+        // CSS Color 4 space-separated syntax.
+        assert_eq!(parse_color("rgb(255 0 0 / 25%)"), [255, 0, 0, 64]);
+        assert_eq!(parse_color("rgb(12.4 0 0)"), [12, 0, 0, 255]);
+    }
+
+    #[test]
+    fn out_of_range_values_clamp_like_css() {
+        assert_eq!(parse_color("rgb(300, -5, 0)"), [255, 0, 0, 255]);
+        assert_eq!(parse_color("rgba(1, 2, 3, 2)"), [1, 2, 3, 255]);
+        assert_eq!(parse_color("rgba(1, 2, 3, -1)"), [1, 2, 3, 0]);
+    }
+
+    #[test]
+    fn hsl_functions() {
+        assert_eq!(parse_color("hsl(120, 100%, 50%)"), [0, 255, 0, 255]);
+        assert_eq!(parse_color("hsla(0, 100%, 50%, 0.5)"), [255, 0, 0, 128]);
+        assert_eq!(parse_color("hsl(240deg 100% 25%)"), [0, 0, 128, 255]);
+        assert_eq!(parse_color("hsl(0, 0%, 100%)"), WHITE);
+    }
+
+    #[test]
+    fn every_css_named_color() {
+        assert_eq!(NAMES.len(), 148);
+        assert_eq!(parse_color("orange"), [255, 165, 0, 255]);
+        assert_eq!(parse_color("rebeccapurple"), [102, 51, 153, 255]);
+        assert_eq!(parse_color("lightgoldenrodyellow"), [250, 250, 210, 255]);
+        assert_eq!(parse_color("DarkSlateGrey"), [47, 79, 79, 255]);
+        assert_eq!(parse_color("cornflowerblue"), [100, 149, 237, 255]);
+        assert_eq!(parse_color(" gold "), [255, 215, 0, 255]);
+        let mut names: Vec<&str> = NAMES.iter().map(|(n, _)| *n).collect();
+        names.sort();
+        names.dedup();
+        assert_eq!(names.len(), 148, "no duplicate names");
+    }
+
+    /// CSS `transparent` is valid, but invisible slide text is never what an operator wants.
+    #[test]
+    fn transparent_is_white() { assert_eq!(parse_color("transparent"), WHITE); }
+
+    #[test]
+    fn unreadable_is_white() {
+        for bad in ["", "#zz", "#12345", "#1234567", "rgb(1, 2)", "rgb(1, 2, 3, 4, 5)", "rgb(a, b, c)", "rgb(1, 2, 3",
+                    "rgb(1 2 3, 4)", "rgb(1, 2, 3 / 4)", "rgb(inf, 0, 0)", "rgb(NaN, 0, 0)", "rgb(, 2, 3)", "hsl(0, 0%)",
+                    "notacolor", "currentcolor", "rgb()", "foo(1, 2, 3)", "#ffffff ff"] {
+            assert_eq!(parse_color(bad), WHITE, "{bad:?}");
+        }
+    }
 }
