@@ -67,10 +67,11 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
     [(Kind::Background, bg), (Kind::Media, media), (Kind::Slide, slide), (Kind::Logo, logo)]
 }
 
-/// The playback instance of the video the room draws: the foreground video, else the background video.
-pub fn drawn_video(frame: &Frame) -> Option<u64> {
-    let fg = frame.media.as_ref().filter(|m| matches!(m.v, MediaLayer::Video { .. })).map(|m| m.inst);
-    fg.or_else(|| frame.background.as_ref().filter(|b| matches!(b.v, Background::Video { .. })).map(|b| b.inst))
+/// The playback instance of the video the room draws: the foreground video, else the background video. The flag is
+/// true for the background video, which the room crops to fill the screen (`panscan=1.0`) rather than letterboxes.
+pub fn drawn_video(frame: &Frame) -> Option<(u64, bool)> {
+    let fg = frame.media.as_ref().filter(|m| matches!(m.v, MediaLayer::Video { .. })).map(|m| (m.inst, false));
+    fg.or_else(|| frame.background.as_ref().filter(|b| matches!(b.v, Background::Video { .. })).map(|b| (b.inst, true)))
 }
 
 /// The monitor's `bg-visible`: false while a foreground video is live, as in the room (spec §5).
@@ -212,13 +213,13 @@ mod tests {
         assert_eq!(drawn_video(&f), None);
         f.media = video(5);
         assert!(!background_visible(&f), "a foreground video covers the background, as in the room");
-        assert_eq!(drawn_video(&f), Some(5));
+        assert_eq!(drawn_video(&f), Some((5, false)));
         let s = sources(&f, &Theme::default(), None, (448, 252));
         assert_eq!(s[1], (Kind::Media, Source::Hidden), "the video is drawn under the layers, not as one");
         assert!(matches!(&s[2], (Kind::Slide, Source::Text(k)) if k.canvas == (448, 252) && k.text == "Amazing grace"));
         // A background video is the drawn one while no foreground video plays, and the background stays visible.
         let bgv = Frame { background: Some(Inst { inst: 9, v: Background::Video { asset: "bg.mp4".into() } }), ..Default::default() };
-        assert_eq!((drawn_video(&bgv), background_visible(&bgv)), (Some(9), true));
+        assert_eq!((drawn_video(&bgv), background_visible(&bgv)), (Some((9, true)), true));
         assert_eq!(sources(&bgv, &Theme::default(), None, (64, 36))[0], (Kind::Background, Source::Hidden));
     }
 

@@ -25,6 +25,7 @@ export component LiveColumn inherits Rectangle {
     in property <Layer> monitor-logo;
     in property <bool> monitor-video;
     in property <image> monitor-video-frame;
+    in property <bool> monitor-video-cover;
     in property <float> monitor-black;
     in property <bool> monitor-room-off;
     out property <length> monitor-width: monitor.width;
@@ -102,6 +103,7 @@ export component LiveColumn inherits Rectangle {
                 logo: root.monitor-logo;
                 video: root.monitor-video;
                 video-frame: root.monitor-video-frame;
+                video-cover: root.monitor-video-cover;
                 black: root.monitor-black;
                 room-off: root.monitor-room-off;
             }

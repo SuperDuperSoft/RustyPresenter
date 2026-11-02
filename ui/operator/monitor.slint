@@ -12,6 +12,9 @@ export component LiveMonitor inherits Rectangle {
     in property <Layer> logo;
     in property <bool> video;
     in property <image> video-frame;
+    /// The drawn video is the background one: it fills the box and is cropped (`object-fit: cover`, the room's
+    /// `panscan=1.0`). A foreground video is letterboxed on black (`object-fit: contain`), as mpv does in the room.
+    in property <bool> video-cover;
     in property <float> black;
     /// A video is live but the room screen is not open, so there is no frame to show.
     in property <bool> room-off;
@@ -37,7 +40,8 @@ export component LiveMonitor inherits Rectangle {
             width: parent.width;
             height: parent.height;
             source: root.video-frame;
-            image-fit: fill;
+            // The grab keeps the video's own shape, so it is fitted here rather than stretched to 16:9.
+            image-fit: root.video-cover ? ImageFit.cover : ImageFit.contain;
             visible: root.video;
         }
         FadeLayer {

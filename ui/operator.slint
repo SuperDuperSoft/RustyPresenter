@@ -84,6 +84,7 @@ export component OperatorWindow inherits Window {
     in property <Layer> monitor-logo;
     in property <bool> monitor-video;
     in property <image> monitor-video-frame;
+    in property <bool> monitor-video-cover;
     in property <float> monitor-black;
     in property <bool> monitor-room-off;
     out property <length> monitor-width: live.monitor-width;
@@ -187,6 +188,7 @@ export component OperatorWindow inherits Window {
                     monitor-logo: root.monitor-logo;
                     monitor-video: root.monitor-video;
                     monitor-video-frame: root.monitor-video-frame;
+                    monitor-video-cover: root.monitor-video-cover;
                     monitor-black: root.monitor-black;
                     monitor-room-off: root.monitor-room-off;
                     next => { root.live-next(); }

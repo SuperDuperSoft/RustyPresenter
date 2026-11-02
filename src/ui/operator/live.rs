@@ -8,7 +8,7 @@ use crate::{
     room::Kind,
     ui::{Layer, OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, room::put, thumbs},
 };
-use slint::{ComponentHandle, Image, ModelRc, Timer, TimerMode, VecModel};
+use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
 use std::{rc::{Rc, Weak}, time::Duration};
 
 /// How often the preview asks the room's player for a frame (4 Hz).
@@ -19,6 +19,9 @@ const GRAB_EVERY: Duration = Duration::from_millis(250);
 pub(super) struct LiveState {
     /// The transport rows shown (a click names one by index).
     rows: Vec<TransportRow>,
+    /// The model behind them. It is kept and changed row by row, never replaced: a new model drops every button,
+    /// and the player's time updates (2-4 a second) would eat a click whose press and release straddle one.
+    cells: Rc<VecModel<TransportCell>>,
     /// The instance of the video the preview follows, with a count bumped whenever it changes, so a frame grabbed
     /// for an older video is dropped.
     video: Option<u64>,
@@ -43,8 +46,10 @@ impl Operator {
         let cells: Vec<TransportCell> = rows.iter().map(|r| TransportCell {
             video: r.kind == TransportKind::Video, label: r.label.as_str().into(), paused: r.paused, percent: r.percent, time: r.time.as_str().into(),
         }).collect();
-        ui.set_transport(ModelRc::new(VecModel::from(cells)));
-        self.live.borrow_mut().rows = rows;
+        let mut st = self.live.borrow_mut();
+        put_cells(&st.cells, cells);
+        st.rows = rows;
+        drop(st);
         self.render_monitor(v);
     }
 
@@ -77,8 +82,10 @@ impl Operator {
 
     /// Starts or stops the 4 Hz grab when the drawn video changes. With the room closed there is nothing to grab:
     /// the monitor stays black and says so.
-    fn follow_video(&self, video: Option<u64>) {
+    fn follow_video(&self, drawn: Option<(u64, bool)>) {
+        let video = drawn.map(|(inst, _)| inst);
         self.ui.set_monitor_video(video.is_some());
+        self.ui.set_monitor_video_cover(drawn.is_some_and(|(_, background)| background));
         self.mark_room_off();
         let mut st = self.live.borrow_mut();
         if st.video == video { return }
@@ -141,6 +148,15 @@ impl Operator {
     }
 }
 
+/// Puts `cells` in `model` in place: rows that changed get their new data, and only a different number of rows
+/// resets it (the web rebuilds the rows every time, `renderTransport()`).
+fn put_cells(model: &VecModel<TransportCell>, cells: Vec<TransportCell>) {
+    if model.row_count() != cells.len() { return model.set_vec(cells) }
+    for (i, cell) in cells.into_iter().enumerate() {
+        if model.row_data(i).as_ref() != Some(&cell) { model.set_row_data(i, cell) }
+    }
+}
+
 /// The web's `data-cmd` of a clear button.
 fn clear_command(name: &str) -> Option<Command> {
     Some(match name {
@@ -156,6 +172,7 @@ fn clear_command(name: &str) -> Option<Command> {
 /// Connects the column's callbacks. Each holds a `Weak`, so the window does not keep itself alive.
 pub(super) fn wire(op: &Rc<Operator>) {
     let ui = &op.ui;
+    ui.set_transport(ModelRc::from(op.live.borrow().cells.clone()));
     let me: Weak<Operator> = Rc::downgrade(op);
     ui.on_live_next(move || if let Some(op) = me.upgrade() { op.step(true) });
     let me = Rc::downgrade(op);
@@ -180,7 +197,7 @@ mod tests {
         ui::{operator::{view, window::testing::{find, open, refresh}}, screens::NativeScreens, ops::Ops, ui_test_init},
         platform::monitors::MonitorId,
     };
-    use slint::platform::PointerEventButton;
+    use slint::platform::{PointerEventButton, WindowEvent};
     use std::sync::Arc;
     use uuid::Uuid;
 
@@ -391,6 +408,42 @@ mod tests {
         click(&op, "LiveColumn::transport-video");
         assert!(!paused());
         assert_eq!(tip(), "Pause");
+    }
+
+    #[test]
+    fn transport_click_survives_a_live_update_mid_press() {
+        let app = test_app();
+        let id = add_video(&app);
+        let op = opened(&app);
+        run(&op, Command::Show { item_id: id, slide: 0 });
+        let btn = find(&op, "LiveColumn::transport-video").unwrap();
+        let (p, s) = (btn.absolute_position(), btn.size());
+        let at = slint::LogicalPosition::new(p.x + s.width / 2.0, p.y + s.height / 2.0);
+        let w = op.window();
+        w.dispatch_event(WindowEvent::PointerMoved { position: at });
+        w.dispatch_event(WindowEvent::PointerPressed { position: at, button: PointerEventButton::Left });
+        // The player reports its time (every 500 ms while it plays) between the press and the release.
+        live(&op);
+        w.dispatch_event(WindowEvent::PointerReleased { position: at, button: PointerEventButton::Left });
+        let paused = matches!(app.live_view().frame.media.map(|m| m.v), Some(crate::live::MediaLayer::Video { paused: true, .. }));
+        assert!(paused, "the click lands although the live view changed under the mouse");
+    }
+
+    #[test]
+    fn monitor_fits_a_foreground_video_and_crops_a_background_video() {
+        let app = test_app();
+        let id = add_video(&app);
+        let op = opened(&app);
+        run(&op, Command::Show { item_id: id, slide: 0 });
+        assert!(op.ui.get_monitor_video());
+        assert!(!op.ui.get_monitor_video_cover(), "a foreground video is letterboxed like the room (object-fit: contain)");
+        let mut v = app.live_view();
+        v.frame.media = None;
+        v.frame.background = Some(crate::live::Inst { inst: 99, v: crate::model::Background::Video { asset: "bg.mp4".into() } });
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v));
+        assert!(op.ui.get_monitor_video());
+        assert!(op.ui.get_monitor_video_cover(), "a background video fills and crops, as the room's panscan does (object-fit: cover)");
     }
 
     #[test]
