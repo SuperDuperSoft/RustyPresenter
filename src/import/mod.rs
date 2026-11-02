@@ -5,5 +5,6 @@ pub mod easyworship;
 pub mod openlp;
 pub mod openlyrics;
 pub mod opensong;
+pub mod propresenter;
 
 pub use common::{classify, Dedupe, ImportReport};

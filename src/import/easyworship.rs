@@ -287,6 +287,13 @@ pub fn rtf_to_lyrics(rtf: &str) -> String {
     words_to_lyrics(rtf).0
 }
 
+/// The text an RTF document shows, one entry per paragraph or line break; hidden text is left out. For
+/// importers that keep one slide's words as RTF (ProPresenter), where there are no labels to find.
+pub(crate) fn rtf_text(rtf: &str) -> Vec<String> {
+    Rtf::new().parse(rtf).events.into_iter()
+        .filter_map(|e| match e { Event::Line { text, hidden: false } => Some(text), _ => None }).collect()
+}
+
 /// Lyrics plus the arrangement: empty unless a section comes back later (Chorus, Verse, Chorus).
 fn words_to_lyrics(rtf: &str) -> (String, Vec<String>) {
     let (events, structured) = if rtf.trim_start().starts_with("{\\rtf") {
