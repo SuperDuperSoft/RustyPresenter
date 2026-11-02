@@ -63,3 +63,7 @@ pub const PRESERVICE_LOCKED: &str = "Change it in the Pre-service tab";
 pub const COUNTDOWN_ENDED_NOTHING_ELSE: &str =
     "Countdown ended — nothing else changed because the service has started.";
 pub const RESTART_FOR_NEW_TIME: &str = "Restart the countdown to use the new time.";
+
+pub const SERVICE_START_NAME: &str = "Service start";
+pub const SERMON_NAME: &str = "Sermon";
+pub const STOPWATCH_NAME: &str = "Stopwatch";
