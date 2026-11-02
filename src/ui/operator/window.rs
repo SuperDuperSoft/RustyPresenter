@@ -519,7 +519,7 @@ mod tests {
         let app = test_app();
         let media = add_video(&app);
         let job = Uuid::new_v4();
-        app.jobs.lock().unwrap().push(crate::app::Job { id: job, label: "Importing slides".into(), percent: 0, error: None });
+        app.jobs.lock().unwrap().push(crate::app::Job { id: job, label: "Importing slides".into(), ..Default::default() });
         let feed = Feed::new(app.clone(), false);
         feed.read_all();
         feed.take();
