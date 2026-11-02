@@ -1,6 +1,15 @@
 //! Keep the screen on and the computer awake while a presentation runs: no screen saver, no
 //! dimming, no sleep. Hold a `KeepAwake` for as long as the room is showing; dropping it lets
 //! the computer rest again. Each guard is independent, so holding two is fine.
+//!
+//! How each system is asked:
+//! - Windows: `SetThreadExecutionState` from a small thread of our own.
+//! - macOS: the `caffeinate` helper.
+//! - Linux: two requests side by side. `org.freedesktop.ScreenSaver.Inhibit` over the session
+//!   D-Bus stops screen blanking on KDE, XFCE, Cinnamon, MATE and others; a helper process
+//!   (`gnome-session-inhibit`, else `systemd-inhibit`) keeps the computer from sleeping, and on
+//!   GNOME also keeps the screen on. Either one working counts as held. None of the Linux paths
+//!   has been tried on a real Linux desktop yet: they compile and their pure parts are tested.
 
 /// Keeps the display on and the system from sleeping while it lives. Never fails hard: when the
 /// system will not listen, the guard does nothing and `is_active` says so.
@@ -104,13 +113,44 @@ impl Inner {
     }
 }
 
-/// macOS and Linux: a helper process holds the request while it runs.
+/// Linux holds two requests at once; the guard is held if either was granted. Both failing is
+/// an error that says why each failed; one failing is only logged.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+fn either<A, B>(a: Result<A, String>, b: Result<B, String>) -> Result<(Option<A>, Option<B>), String> {
+    match (a, b) {
+        (Err(a), Err(b)) => Err(format!("{a}; {b}")),
+        (a, b) => {
+            if let Err(e) = &a { eprintln!("keep awake: {e}") }
+            if let Err(e) = &b { eprintln!("keep awake: {e}") }
+            Ok((a.ok(), b.ok()))
+        }
+    }
+}
+
+/// macOS and Linux: a helper process holds the request while it runs. On Linux a D-Bus screen
+/// saver request is held next to it.
 #[cfg(unix)]
-struct Inner { child: std::process::Child }
+struct Inner {
+    child: Option<std::process::Child>,
+    #[cfg(target_os = "linux")]
+    screensaver: Option<screensaver::Hold>,
+}
 
 #[cfg(unix)]
 impl Inner {
+    #[cfg(target_os = "linux")]
     fn start(reason: &str) -> Result<Inner, String> {
+        let screensaver = screensaver::Hold::start(reason);
+        let (child, screensaver) = either(Self::start_helper(reason), screensaver)?;
+        Ok(Inner { child, screensaver })
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    fn start(reason: &str) -> Result<Inner, String> {
+        Ok(Inner { child: Some(Self::start_helper(reason)?) })
+    }
+
+    fn start_helper(reason: &str) -> Result<std::process::Child, String> {
         let helpers: &[Helper] = if cfg!(target_os = "macos") { &[Helper::Caffeinate] }
             else { &[Helper::GnomeSessionInhibit, Helper::SystemdInhibit] };
         let mut errors = Vec::new();
@@ -123,7 +163,7 @@ impl Inner {
         Err(errors.join("; "))
     }
 
-    fn spawn(helper: Helper, reason: &str) -> Result<Inner, String> {
+    fn spawn(helper: Helper, reason: &str) -> Result<std::process::Child, String> {
         use std::os::unix::process::CommandExt;
         use std::process::{Command, Stdio};
         use std::time::{Duration, Instant};
@@ -142,12 +182,91 @@ impl Inner {
                 Err(e) => { let _ = child.kill(); let _ = child.wait(); return Err(format!("{program}: {e}")) }
             }
         }
-        Ok(Inner { child })
+        Ok(child)
     }
 
-    fn stop(mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
+    fn stop(self) {
+        if let Some(mut child) = self.child {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+        #[cfg(target_os = "linux")]
+        if let Some(hold) = self.screensaver { hold.stop() }
+    }
+}
+
+/// The freedesktop screen saver interface: `Inhibit(app, reason) -> cookie` and
+/// `UnInhibit(cookie)`. Most desktops serve it at the first path; some older ones only at the second.
+#[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+mod screensaver_names {
+    pub const SERVICE: &str = "org.freedesktop.ScreenSaver";
+    pub const INTERFACE: &str = "org.freedesktop.ScreenSaver";
+    pub const PATHS: [&str; 2] = ["/org/freedesktop/ScreenSaver", "/ScreenSaver"];
+    pub const APP: &str = "RustyPresenter";
+}
+
+/// Linux: a thread owns a session D-Bus connection holding `Inhibit` until the guard drops, then
+/// sends `UnInhibit`. The desktop also lifts the request when the connection closes, so a crash
+/// never leaves the screen stuck on. Untested on a real desktop.
+#[cfg(target_os = "linux")]
+mod screensaver {
+    use super::screensaver_names::{APP, INTERFACE, PATHS, SERVICE};
+    use std::sync::mpsc;
+    use std::time::Duration;
+    use zbus::blocking::Connection;
+
+    /// How long to wait for the desktop to answer before going on without it.
+    const ANSWER_WITHIN: Duration = Duration::from_secs(3);
+
+    pub struct Hold { stop: mpsc::Sender<()>, thread: std::thread::JoinHandle<()> }
+
+    /// Connect and ask at each path in turn. Returns the connection, the path that answered and the cookie.
+    fn inhibit(reason: &str) -> Result<(Connection, &'static str, u32), String> {
+        let connection = Connection::session().map_err(|e| format!("session D-Bus: {e}"))?;
+        let mut errors = Vec::new();
+        for path in PATHS {
+            let cookie = connection.call_method(Some(SERVICE), path, Some(INTERFACE), "Inhibit", &(APP, reason))
+                .and_then(|reply| reply.body().deserialize::<u32>());
+            match cookie {
+                Ok(cookie) => return Ok((connection, path, cookie)),
+                Err(e) => errors.push(format!("{path}: {e}")),
+            }
+        }
+        Err(format!("{SERVICE}.Inhibit: {}", errors.join("; ")))
+    }
+
+    impl Hold {
+        pub fn start(reason: &str) -> Result<Hold, String> {
+            let reason = reason.to_owned();
+            let (stop, wait) = mpsc::channel::<()>();
+            let (ready, started) = mpsc::channel::<Result<(), String>>();
+            let thread = std::thread::Builder::new().name("keep-awake-dbus".into()).spawn(move || {
+                let (connection, path, cookie) = match inhibit(&reason) {
+                    Ok(held) => held,
+                    Err(e) => { let _ = ready.send(Err(e)); return }
+                };
+                let _ = ready.send(Ok(()));
+                // A message or a dropped sender both mean the guard is gone (or we gave up waiting).
+                let _ = wait.recv();
+                if let Err(e) = connection.call_method(Some(SERVICE), path, Some(INTERFACE), "UnInhibit", &(cookie,)) {
+                    // Closing the connection below lifts it anyway.
+                    eprintln!("keep awake: {SERVICE}.UnInhibit: {e}");
+                }
+            }).map_err(|e| e.to_string())?;
+            match started.recv_timeout(ANSWER_WITHIN) {
+                Ok(Ok(())) => Ok(Hold { stop, thread }),
+                Ok(Err(e)) => { let _ = thread.join(); Err(e) }
+                // Slow bus: leave the thread behind. `stop` drops here, so if the request is
+                // granted later the thread lifts it straight away.
+                Err(mpsc::RecvTimeoutError::Timeout) => Err(format!("{SERVICE}: no answer within {ANSWER_WITHIN:?}")),
+                Err(mpsc::RecvTimeoutError::Disconnected) => { let _ = thread.join(); Err(format!("{SERVICE}: thread ended")) }
+            }
+        }
+
+        pub fn stop(self) {
+            let _ = self.stop.send(());
+            let _ = self.thread.join();
+        }
     }
 }
 
@@ -194,6 +313,23 @@ mod tests {
         let back = std::thread::spawn(move || { let a = guard.is_active(); drop(guard); a }).join().unwrap();
         assert_eq!(back, active);
         if HOLDS_HERE { assert!(back) }
+    }
+
+    #[test]
+    fn either_holds_if_one_side_did() {
+        assert_eq!(either::<u8, u8>(Ok(1), Ok(2)), Ok((Some(1), Some(2))));
+        assert_eq!(either::<u8, u8>(Ok(1), Err("no bus".into())), Ok((Some(1), None)));
+        assert_eq!(either::<u8, u8>(Err("no helper".into()), Ok(2)), Ok((None, Some(2))));
+        assert_eq!(either::<u8, u8>(Err("no helper".into()), Err("no bus".into())), Err("no helper; no bus".to_string()));
+    }
+
+    #[test]
+    fn screensaver_asks_the_freedesktop_paths_in_order() {
+        use screensaver_names::*;
+        assert_eq!(SERVICE, "org.freedesktop.ScreenSaver");
+        assert_eq!(INTERFACE, "org.freedesktop.ScreenSaver");
+        assert_eq!(PATHS, ["/org/freedesktop/ScreenSaver", "/ScreenSaver"]);
+        assert_eq!(APP, "RustyPresenter");
     }
 
     #[test]
