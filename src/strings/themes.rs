@@ -64,6 +64,11 @@ pub fn overlay_failed(name: &str, reason: &str) -> String {
     format!("Couldn't show the overlay “{name}”: {reason}")
 }
 
+/// The phone's name for an overlay that is still on screen but was deleted from the library.
+pub fn deleted_overlay(name: &str) -> String {
+    format!("(deleted) {name}")
+}
+
 pub fn own_backgrounds(n: usize) -> String {
     if n == 1 {
         "1 item has its own background. Use the theme's background for it too?".into()

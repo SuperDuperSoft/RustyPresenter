@@ -10,6 +10,8 @@ use crate::model::AssetId;
 use crate::theme::richtext::{self, StyleSpan};
 use crate::theme::strings;
 
+pub mod slots;
+
 /// `"saved:<uuid>"`, `"timer:<uuid>"` (FEAT-2) or `"message"` (FEAT-2).
 pub type SlotKey = String;
 
@@ -18,7 +20,8 @@ pub const OVERLAY_FADE_MS: u32 = 400;
 /// How many saved overlays may be on at once.
 pub const MAX_SAVED_ON: usize = 8;
 
-const SAVED_PREFIX: &str = "saved:";
+/// The key prefix of saved overlays.
+pub const SAVED_PREFIX: &str = "saved:";
 
 /// The slot key of a saved overlay.
 pub fn saved_key(id: Uuid) -> SlotKey {

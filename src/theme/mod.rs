@@ -1,6 +1,7 @@
 //! FEAT-1: themes, backgrounds, rich text and overlays (core, Part A).
 #[path = "../strings/themes.rs"]
 pub mod strings;
+pub mod assets;
 pub mod backgrounds;
 pub mod overlay;
 pub mod rich_edit;
