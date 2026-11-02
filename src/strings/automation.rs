@@ -12,3 +12,8 @@ pub fn time_passed(at: &str) -> String { format!("That time ({at}) has passed.")
 
 pub const TIMER_NEEDS_NEWER: &str = "This timer needs a newer RustyPresenter.";
 pub const CANT_PAUSE_TO_TIME: &str = "A countdown to a time can't be paused.";
+
+/// *(plan copy)*
+pub const DURATION_RANGE: &str = "Choose a length from 1 second to 23:59:59.";
+/// *(plan copy)*
+pub const SET_NOW_WRONG_KIND: &str = "This timer can't be set that way.";

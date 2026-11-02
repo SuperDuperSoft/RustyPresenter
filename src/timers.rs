@@ -279,6 +279,15 @@ pub struct TimerRun {
     pub seen_clear: u64,
 }
 
+/// A "set for now" change: it applies to the current run only, never to the saved timer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SetNow {
+    /// A new length for a countdown of a length.
+    Secs(u32),
+    /// A new time for a running countdown to a time.
+    At(TimeOfDay),
+}
+
 /// What starting a timer needs to know.
 pub struct StartCtx<'a, Tz: TimeZone> {
     pub now: DateTime<Utc>,
@@ -343,6 +352,42 @@ impl TimerRun {
         self.zero_fired = false;
         self.seen_clear = ctx.clear_epoch;
         Ok(())
+    }
+
+    /// "Set for now": a new length (countdown of a length) or a new time (a running countdown to a
+    /// time) for this run only. The definition is never changed; on `Err` nothing changes.
+    pub fn set_now<Tz: TimeZone>(&mut self, def: &TimerDef, change: SetNow, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        use crate::automation::strings;
+        match (def.kind.known(), change, &self.state) {
+            (Some(TimerKind::Duration { .. }), SetNow::Secs(s), _) => {
+                if !(1..=86_399).contains(&s) { return Err(strings::DURATION_RANGE.into()) }
+                self.length_for_now = Some(s);
+            }
+            (Some(TimerKind::UntilTime { .. }), SetNow::At(at), RunState::RunningTo { .. }) => {
+                let target = until_target(&TimeTarget::Fixed { at }, ctx.starts_at, ctx.now, ctx.tz)?;
+                self.state = RunState::RunningTo { target };
+            }
+            _ => return Err(strings::SET_NOW_WRONG_KIND.into()),
+        }
+        Ok(())
+    }
+
+    /// True once per run, when a running countdown reaches zero. `Overrun::Stop` also finishes it;
+    /// `Overrun::CountUp` keeps it running past zero. Paused, stopped and count-up timers never fire.
+    pub fn check_zero(&mut self, def: &TimerDef, now: DateTime<Utc>) -> bool {
+        if self.zero_fired { return false }
+        let elapsed = i64::try_from(self.elapsed_ms(now)).unwrap_or(i64::MAX);
+        let raw = match (&self.state, def.kind.known()) {
+            (RunState::Running { .. }, Some(TimerKind::Duration { secs })) => {
+                i64::from(self.length_for_now.unwrap_or(*secs)) * 1000 - elapsed
+            }
+            (RunState::RunningTo { target }, Some(TimerKind::UntilTime { .. })) => (*target - now).num_milliseconds(),
+            _ => return false,
+        };
+        if raw > 0 { return false }
+        self.zero_fired = true;
+        if def.overrun == Overrun::Stop { self.state = RunState::Finished }
+        true
     }
 
     /// Time counted so far. A clock that went backwards counts as no time (Review Focus 1).
@@ -735,5 +780,116 @@ mod tests {
         r.start(&def, &ctx(at(10_000))).unwrap();
         assert_eq!(r.elapsed_ms(at(0)), 0);
         assert_eq!(r.snapshot(&def, at(0), &Utc, None).unwrap().value_ms, 60_000);
+    }
+
+    // ---- Task A6: "set for now" and firing at zero ----
+
+    #[test]
+    fn set_for_now_does_not_change_definition() {
+        let def = dur(1800, Overrun::Stop);
+        let saved = def.clone();
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.set_now(&def, SetNow::Secs(1500), &ctx(at(60_000))).unwrap();
+        assert_eq!(text(r.snapshot(&def, at(60_000), &Utc, None).unwrap().value_ms), "24:00");
+        assert_eq!(def, saved);
+        r.reset();
+        assert_eq!(r.length_for_now, None);
+        let s = r.snapshot(&def, at(70_000), &Utc, None).unwrap();
+        assert_eq!(s.state, TimerState::Stopped);
+        assert_eq!(text(s.value_ms), "30:00");
+    }
+
+    #[test]
+    fn reset_clears_zero_fired_and_set_for_now() {
+        let def = dur(10, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.set_now(&def, SetNow::Secs(5), &ctx(at(0))).unwrap();
+        assert!(r.check_zero(&def, at(5_000)));
+        assert!(r.zero_fired);
+        r.reset();
+        assert!(!r.zero_fired);
+        assert_eq!(r.run, 1);
+        assert_eq!(r.length_for_now, None);
+    }
+
+    #[test]
+    fn set_now_moves_until_time_target_only_while_running() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT
+        let c = StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 };
+        let def = until(fixed(11, 0), Overrun::Stop);
+        let saved = def.clone();
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c),
+            Err(crate::automation::strings::SET_NOW_WRONG_KIND.into()));
+        assert_eq!(r, TimerRun::default());
+        r.start(&def, &c).unwrap();
+        r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 30) });
+        assert_eq!(def, saved);
+        // A refused time leaves the target alone.
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(10, 15)), &c), Err("That time (10:15 AM) has passed.".into()));
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 30) });
+        // A length is the wrong kind of change for a countdown to a time.
+        assert_eq!(r.set_now(&def, SetNow::Secs(60), &c), Err(crate::automation::strings::SET_NOW_WRONG_KIND.into()));
+    }
+
+    #[test]
+    fn set_now_rejects_out_of_range_and_wrong_kind() {
+        use crate::automation::strings::{DURATION_RANGE, SET_NOW_WRONG_KIND};
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&def, SetNow::Secs(0), &ctx(at(0))), Err(DURATION_RANGE.into()));
+        assert_eq!(r.set_now(&def, SetNow::Secs(86_400), &ctx(at(0))), Err(DURATION_RANGE.into()));
+        assert_eq!(r.length_for_now, None);
+        r.set_now(&def, SetNow::Secs(86_399), &ctx(at(0))).unwrap();
+        assert_eq!(r.length_for_now, Some(86_399));
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 0)), &ctx(at(0))), Err(SET_NOW_WRONG_KIND.into()));
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&count_up(), SetNow::Secs(5), &ctx(at(0))), Err(SET_NOW_WRONG_KIND.into()));
+        assert_eq!(r, TimerRun::default());
+    }
+
+    #[test]
+    fn at_zero_fires_once() {
+        let def = dur(10, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert!(!r.check_zero(&def, at(9_000)));
+        assert!(r.check_zero(&def, at(10_000)));
+        assert_eq!(r.state, RunState::Finished);
+        assert!(!r.check_zero(&def, at(11_000)));
+        r.restart(&def, &ctx(at(20_000))).unwrap();
+        assert!(!r.check_zero(&def, at(29_000)));
+        assert!(r.check_zero(&def, at(30_000)));
+    }
+
+    #[test]
+    fn count_up_overrun_fires_once_and_keeps_running() {
+        let def = dur(10, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert!(r.check_zero(&def, at(10_000)));
+        assert!(matches!(r.state, RunState::Running { .. }));
+        assert!(!r.check_zero(&def, at(12_000)));
+        assert!(matches!(r.state, RunState::Running { .. }));
+    }
+
+    #[test]
+    fn paused_countdown_never_fires() {
+        let def = dur(10, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.pause(at(5_000)).unwrap();
+        assert!(!r.check_zero(&def, at(60_000)));
+        assert!(!r.zero_fired);
+        assert_eq!(r.state, RunState::Paused { elapsed_ms: 5_000 });
+        // A count-up timer and a stopped countdown never fire either.
+        let mut c = TimerRun::default();
+        c.start(&count_up(), &ctx(at(0))).unwrap();
+        assert!(!c.check_zero(&count_up(), at(60_000)));
+        assert!(!TimerRun::default().check_zero(&def, at(60_000)));
     }
 }
