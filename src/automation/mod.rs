@@ -5,3 +5,5 @@
 //! `#[path]` line below into `pub use crate::strings::automation as strings;`.
 #[path = "../strings/automation.rs"]
 pub mod strings;
+
+pub mod messages;
