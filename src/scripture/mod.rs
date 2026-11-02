@@ -5,6 +5,7 @@ pub mod breaks;
 pub mod cache;
 pub mod fetch;
 pub mod input;
+pub mod planning;
 pub mod search;
 pub mod sources;
 pub mod types;

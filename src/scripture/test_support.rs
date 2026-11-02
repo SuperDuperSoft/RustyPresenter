@@ -1,6 +1,7 @@
 //! Test-only helpers shared by the FEAT-5 test modules. Later tasks add their own helpers here.
 #![allow(dead_code)]
-use super::VerseId;
+use super::planning::{CharMeasure, PlanTheme, PlannedScripture, ScriptureInput, SecondInput};
+use super::{ParallelLayout, VerseBreaks, VerseId};
 use super::cache::TextCache;
 use super::fetch::{BibleReaders, Fetcher, Lookup};
 use super::input::{label_of, verse_id_of};
@@ -104,3 +105,39 @@ pub(crate) fn fetcher_with_fake() -> (Fetcher, Arc<FakeReaders>) {
     let f = Fetcher { readers: fake.clone(), cache: Arc::new(TextCache::new(root.clone())), root };
     (f, fake)
 }
+
+/// The only theme facts planning needs, for tests.
+#[derive(Clone, Hash, PartialEq, Eq, Debug, Default)]
+pub(crate) struct TestTheme {
+    pub(crate) size: u32,
+    pub(crate) lower: bool,
+}
+
+impl PlanTheme for TestTheme {
+    fn scripture_size(&self) -> u32 { self.size }
+    fn is_lower_third(&self) -> bool { self.lower }
+}
+
+pub(crate) fn v(reference: &str, text: &str) -> VerseText { VerseText { reference: reference.into(), text: text.into() } }
+
+/// A KJV item with no notices, automatic grouping, side by side, no marks, default theme, 1080p.
+pub(crate) fn input(main: &[VerseText], second: Option<(&str, &[VerseText])>) -> ScriptureInput<TestTheme> {
+    ScriptureInput {
+        main: main.to_vec(),
+        main_code: "KJV".into(),
+        main_notice: None,
+        second: second.map(|(code, vs)| SecondInput { code: code.into(), verses: vs.to_vec(), notice: None }),
+        per_slide: 0,
+        layout: ParallelLayout::SideBySide,
+        breaks: VerseBreaks::default(),
+        theme: TestTheme::default(),
+        canvas: (1920, 1080),
+    }
+}
+
+pub(crate) fn labels(p: &PlannedScripture) -> Vec<String> { p.slides.iter().map(|s| s.label.clone()).collect() }
+
+pub(crate) fn cm() -> CharMeasure { CharMeasure::with_limits(60, 120) }
+
+/// A 10-character verse text.
+pub(crate) fn short(n: u16) -> String { format!("verse{n:05}") }
