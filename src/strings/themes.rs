@@ -127,6 +127,31 @@ pub fn theme_chip(name: &str) -> String {
     format!("Theme: {name}")
 }
 
+/// A Formatting chip under the rich text box: "Gold, Large: ‘Pancake breakfast’". Parts go Bold, Italic,
+/// Underline, colour, size; `text` is already cut to length.
+pub fn range_chip(style: &crate::theme::richtext::RunStyle, text: &str) -> String {
+    let mut parts: Vec<&str> = Vec::new();
+    for (on, name) in [(style.bold, "Bold"), (style.italic, "Italic"), (style.underline, "Underline")] {
+        if on {
+            parts.push(name);
+        }
+    }
+    if let Some(c) = &style.color {
+        parts.push(match c.to_ascii_lowercase().as_str() {
+            "#f5b94a" => "Gold",
+            "#ff4f55" => "Red",
+            _ => "Color",
+        });
+    }
+    match style.size {
+        75 => parts.push("Small"),
+        125 => parts.push("Large"),
+        150 => parts.push("Huge"),
+        _ => {}
+    }
+    format!("{}: ‘{text}’", parts.join(", "))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -175,5 +200,16 @@ mod tests {
         assert_eq!(make_default_question("Easter"), "Make “Easter” the church default? Everything without its own theme will use it. You can switch back any time.");
         assert_eq!(now_default("Easter"), "“Easter” is now the church default");
         assert_eq!(theme_chip(CHURCH_DEFAULT), "Theme: Church default");
+    }
+
+    #[test]
+    fn range_chip_names_gold_and_large() {
+        use crate::theme::richtext::RunStyle;
+        let st = RunStyle { color: Some("#f5b94a".into()), size: 125, ..Default::default() };
+        assert_eq!(range_chip(&st, "Pancake breakfast"), "Gold, Large: ‘Pancake breakfast’");
+        let st = RunStyle { bold: true, italic: true, underline: true, color: Some("#123456".into()), size: 75, ..Default::default() };
+        assert_eq!(range_chip(&st, "x"), "Bold, Italic, Underline, Color, Small: ‘x’");
+        let st = RunStyle { color: Some("#FF4F55".into()), size: 150, ..Default::default() };
+        assert_eq!(range_chip(&st, "y"), "Red, Huge: ‘y’");
     }
 }

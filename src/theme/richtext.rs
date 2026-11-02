@@ -230,6 +230,65 @@ pub fn style_at(spans: &[StyleSpan], pos: usize) -> RunStyle {
     spans.iter().find(|s| s.start <= p && p < s.end).map(|s| s.style.clone()).unwrap_or_default()
 }
 
+/// What one edit changed between `old` and `new`, as (start, removed, inserted) in bytes: the common
+/// prefix, then the common suffix that does not overlap it, both snapped back to char boundaries.
+pub fn diff_edit(old: &str, new: &str) -> (usize, usize, usize) {
+    let (a, b) = (old.as_bytes(), new.as_bytes());
+    let mut prefix = a.iter().zip(b).take_while(|(x, y)| x == y).count();
+    while !old.is_char_boundary(prefix) || !new.is_char_boundary(prefix) {
+        prefix -= 1;
+    }
+    let max = a.len().min(b.len()) - prefix;
+    let mut suffix = a.iter().rev().zip(b.iter().rev()).take(max).take_while(|(x, y)| x == y).count();
+    while !old.is_char_boundary(old.len() - suffix) || !new.is_char_boundary(new.len() - suffix) {
+        suffix -= 1;
+    }
+    (prefix, old.len() - suffix - prefix, new.len() - suffix - prefix)
+}
+
+/// Moves tidy `spans` through one edit: `start..start + removed` is cut out, spans after it shift by
+/// `inserted − removed`, and the inserted bytes get `inherit` (`None` = plain text).
+pub fn adjust(spans: &[StyleSpan], start: usize, removed: usize, inserted: usize, inherit: Option<&RunStyle>) -> Vec<StyleSpan> {
+    let (start, cut_end) = (start as u32, (start + removed) as u32);
+    let (removed, inserted) = (removed as u32, inserted as u32);
+    let mut out = Vec::with_capacity(spans.len() + 2);
+    for s in spans {
+        // The part before the edit stays where it is.
+        if s.start < start {
+            out.push(StyleSpan { start: s.start, end: s.end.min(start), style: s.style.clone() });
+        }
+        // The part after the removed bytes moves past the inserted ones.
+        if s.end > cut_end {
+            let from = s.start.max(cut_end);
+            out.push(StyleSpan { start: from - removed + inserted, end: s.end - removed + inserted, style: s.style.clone() });
+        }
+    }
+    if let Some(style) = inherit {
+        out.push(StyleSpan { start, end: start + inserted, style: style.clone() });
+    }
+    tidy(out)
+}
+
+/// Longest label text in a Formatting chip, in characters, before "…".
+const RANGE_LABEL_CHARS: usize = 24;
+
+/// One entry per formatted range, for the Formatting chips: the range, its style and its text, cut at
+/// 24 characters with "…".
+pub fn ranges(text: &str, spans: &[StyleSpan]) -> Vec<(Range<usize>, RunStyle, String)> {
+    normalize(text, spans.to_vec())
+        .into_iter()
+        .map(|s| {
+            let r = s.start as usize..s.end as usize;
+            let words = &text[r.clone()];
+            let label = match words.char_indices().nth(RANGE_LABEL_CHARS) {
+                Some((cut, _)) => format!("{}…", &words[..cut]),
+                None => words.to_string(),
+            };
+            (r, s.style, label)
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -337,5 +396,47 @@ mod tests {
         let back: StyleSpan = serde_json::from_str(r##"{"start":1,"end":2,"color":"#ff4f55","size":125}"##).unwrap();
         assert_eq!(back, sp(1, 2, |s| { s.color = Some("#ff4f55".into()); s.size = 125; }));
         assert_eq!(SIZES[1], (0, "Normal"));
+    }
+
+    #[test]
+    fn diff_edit_finds_middle_insert() {
+        assert_eq!(diff_edit("Sunday 10am", "Sunday at 10am"), (7, 0, 3));
+        assert_eq!(diff_edit("abc", "abc"), (3, 0, 0));
+        assert_eq!(diff_edit("aaa", "aaaa"), (3, 0, 1)); // suffix never overlaps the prefix
+        assert_eq!(diff_edit("Sunday", "Sun"), (3, 3, 0));
+        // "é" (c3 a9) → "è" (c3 a8) shares a first byte, but the edit starts at the char
+        assert_eq!(diff_edit("café", "cafè"), (3, 2, 2));
+    }
+
+    #[test]
+    fn typing_inside_span_extends_it() {
+        let spans = [sp(0, 6, bold)];
+        assert_eq!(adjust(&spans, 3, 0, 2, Some(&style_at(&spans, 3))), vec![sp(0, 8, bold)]);
+    }
+
+    #[test]
+    fn typing_at_span_end_inherits_style() {
+        let spans = [sp(0, 6, bold)];
+        assert_eq!(adjust(&spans, 6, 0, 1, Some(&style_at(&spans, 6))), vec![sp(0, 7, bold)]);
+        // plain typing at the end leaves the span alone
+        assert_eq!(adjust(&spans, 6, 0, 1, None), vec![sp(0, 6, bold)]);
+        // plain typing inside a span splits it
+        assert_eq!(adjust(&spans, 3, 0, 1, None), vec![sp(0, 3, bold), sp(4, 7, bold)]);
+    }
+
+    #[test]
+    fn delete_across_spans_shrinks_both() {
+        assert_eq!(adjust(&[sp(0, 4, bold), sp(4, 8, italic)], 2, 4, 0, None), vec![sp(0, 2, bold), sp(2, 4, italic)]);
+        // deleting a whole span drops it; spans after the edit move left
+        assert_eq!(adjust(&[sp(2, 4, bold), sp(6, 8, italic)], 1, 4, 0, None), vec![sp(2, 4, italic)]);
+    }
+
+    #[test]
+    fn ranges_label_cuts_long_text() {
+        let t = "Pancake breakfast this Saturday morning";
+        let r = ranges(t, &[sp(0, t.len() as u32, |s| s.bold = true)]);
+        assert_eq!(r[0].2, "Pancake breakfast this S…");
+        let r = ranges("Sunday 10am", &[sp(0, 6, bold), sp(7, 11, italic)]);
+        assert_eq!(r, vec![(0..6, sp(0, 0, bold).style, "Sunday".to_string()), (7..11, sp(0, 0, italic).style, "10am".to_string())]);
     }
 }

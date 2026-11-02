@@ -2,6 +2,7 @@
 #[path = "../strings/themes.rs"]
 pub mod strings;
 pub mod backgrounds;
+pub mod rich_edit;
 pub mod richtext;
 pub mod saved;
 pub mod style;
