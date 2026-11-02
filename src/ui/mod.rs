@@ -4,6 +4,8 @@ slint::include_modules!();
 pub mod stage;
 pub mod room;
 pub mod screens;
+pub mod operator;
+pub mod ops;
 
 /// Installs the testing backend on this thread once. Slint's platform slot is thread-local and cargo runs each test
 /// on its own thread, so the guard is per thread too (a process-wide `Once` would leave later threads without one).

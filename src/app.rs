@@ -280,7 +280,10 @@ impl App {
 
     pub fn close_window(&self, role: &str) { if let Some(s) = self.screens.get() { s.close(role); } }
 
-    fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
+    pub(crate) fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
+
+    /// Roles with an open window (`state_json`'s `windows`).
+    pub(crate) fn open_roles(&self) -> Vec<String> { self.screens.get().map(|s| s.open_roles()).unwrap_or_default() }
 
     /// The standard list plus any other Bible the church imported.
     pub fn translations(&self) -> Vec<String> {
@@ -351,7 +354,7 @@ impl App {
             let (title, kind, slides) = build_item(&data, i);
             json!({ "id": i.id, "title": title, "kind": kind, "slides": slides, "item": i })
         }).collect()).unwrap_or_default();
-        let windows: Vec<String> = self.screens.get().map(|s| s.open_roles()).unwrap_or_default();
+        let windows = self.open_roles();
         json!({
             "data": *data,
             "service_id": data.service().map(|s| s.id),
