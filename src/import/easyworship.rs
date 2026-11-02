@@ -5,13 +5,13 @@
 //! The whole library is read into one `ImportReport`; the caller saves all of it in one step or none of it.
 //! Table layout comes from the OpenLP/FreeShow importers: `song` (rowid, title, author, copyright,
 //! administrator, reference_number, vendor_id …) and `word` (song_id → song.rowid, words = one RTF document).
+use super::common::{check_sqlite, columns, find_file, label_line, numbered_label, section_name, snapshot, value_int, value_text};
+pub use super::common::{classify, Dedupe, ImportReport};
 use crate::{model::Song, slides::section_label};
 use encoding_rs::Encoding;
-use rusqlite::{backup::{Backup, StepResult}, types::ValueRef, Connection, OpenFlags};
+use rusqlite::Connection;
 use std::collections::HashMap;
-use std::io::Read;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
 use uuid::Uuid;
 
 /// One `song` row joined with its `word` row, as read from the databases.
@@ -25,18 +25,6 @@ pub struct EwSong {
     pub vendor_id: Option<i64>,
     pub words: Option<String>,
 }
-
-#[derive(Debug, Default)]
-pub struct ImportReport {
-    pub songs: Vec<Song>,
-    /// (title, reason) for every row that did not become a song.
-    pub skipped: Vec<(String, String)>,
-}
-
-/// How an imported song relates to the library (spec §9.2: a duplicate CCLI # asks update or keep both).
-/// Songs with no CCLI # fall back to the title, so importing the same library twice doesn't double every hymn.
-#[derive(Debug, Clone, PartialEq)]
-pub enum Dedupe { New, DuplicateCcli { existing: Uuid }, DuplicateTitle { existing: Uuid } }
 
 // ---------- RTF → lyrics ----------
 
@@ -284,20 +272,6 @@ fn clean_label(label: &str) -> String {
     l.to_string()
 }
 
-/// Label line in the app's lyric format: as-is when `section_label` knows it, else `[bracketed]`.
-/// Cut to fit `section_label`'s 40-byte limit, or the label would read back as a lyric line.
-fn label_line(label: &str) -> String {
-    let mut l = String::new();
-    for c in label.chars() { if l.len() + c.len_utf8() > 38 { break; } l.push(c); }
-    let l = l.trim_end();
-    if section_label(l).is_some() { l.to_string() } else { format!("[{l}]") }
-}
-
-/// The name `parse_sections` gives a label, which is what `arrangement` must list.
-fn section_name(label: Option<&str>) -> String {
-    label.map(|l| section_label(&label_line(l)).unwrap_or_default()).unwrap_or_else(|| "Part 1".into())
-}
-
 /// Plain (EW2009-style) slide heading: "Verse 1", "Chorus (x2)", "Verse1" — not "Verse after verse".
 fn plain_label(line: &str) -> bool {
     let base = match line.rfind('(') { Some(p) if line.ends_with(')') => line[..p].trim(), _ => line };
@@ -311,6 +285,13 @@ fn plain_label(line: &str) -> bool {
 /// line between slides, the same shape SongSelect import produces.
 pub fn rtf_to_lyrics(rtf: &str) -> String {
     words_to_lyrics(rtf).0
+}
+
+/// The text an RTF document shows, one entry per paragraph or line break; hidden text is left out. For
+/// importers that keep one slide's words as RTF (ProPresenter), where there are no labels to find.
+pub(crate) fn rtf_text(rtf: &str) -> Vec<String> {
+    Rtf::new().parse(rtf).events.into_iter()
+        .filter_map(|e| match e { Event::Line { text, hidden: false } => Some(text), _ => None }).collect()
 }
 
 /// Lyrics plus the arrangement: empty unless a section comes back later (Chorus, Verse, Chorus).
@@ -370,7 +351,7 @@ fn words_to_lyrics(rtf: &str) -> (String, Vec<String>) {
             if earlier.1 == groups { order.push(section_name(earlier.0.as_deref())); repeats = true; continue; }
             let base = label.clone().unwrap_or_else(|| name.clone());
             let taken = |n: &str| kept.iter().any(|k| section_name(k.0.as_deref()).eq_ignore_ascii_case(n));
-            label = (2..).map(|n| format!("{base} ({n})")).find(|l| !taken(&section_name(Some(l))));
+            label = Some(numbered_label(&base, taken));
         }
         order.push(section_name(label.as_deref()));
         kept.push((label, groups));
@@ -430,44 +411,14 @@ fn display_title(row: &EwSong) -> String {
     if t.is_empty() { "Untitled song".into() } else { t.to_string() }
 }
 
-// ---------- duplicates ----------
-
-/// "Amazing  Grace!" and "amazing grace" match.
-fn title_key(title: &str) -> String {
-    title.split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()).map(str::to_lowercase).collect::<Vec<_>>().join(" ")
-}
-
-/// One entry per imported song. Matches the library first, then earlier songs in the same import.
-/// By CCLI # when the song has one; by title only when it has none (two songs can share a title).
-pub fn classify(existing: &[Song], imported: &[Song]) -> Vec<Dedupe> {
-    let mut by_ccli: HashMap<String, Uuid> = HashMap::new();
-    let mut by_title: HashMap<String, Uuid> = HashMap::new();
-    for s in existing {
-        if !s.ccli.trim().is_empty() { by_ccli.entry(s.ccli.trim().to_string()).or_insert(s.id); }
-        by_title.entry(title_key(&s.title)).or_insert(s.id);
-    }
-    imported.iter().map(|s| {
-        let c = s.ccli.trim();
-        let t = title_key(&s.title);
-        let found = if c.is_empty() {
-            by_title.get(&t).map(|&existing| Dedupe::DuplicateTitle { existing })
-        } else {
-            by_ccli.get(c).map(|&existing| Dedupe::DuplicateCcli { existing })
-        };
-        if !c.is_empty() { by_ccli.entry(c.to_string()).or_insert(s.id); }
-        by_title.entry(t).or_insert(s.id);
-        found.unwrap_or(Dedupe::New)
-    }).collect()
-}
-
 // ---------- reader ----------
 
 /// Reads a whole EW6/7 library. `folder` may be the Easyworship folder, a profile folder, its `Databases\Data`,
 /// or Songs.db itself.
 pub fn read_library(folder: &Path) -> Result<ImportReport, String> {
     let (songs_path, words_path) = find_databases(folder)?;
-    let (songs_db, words_db) = snapshot_library(&songs_path, &words_path)?;
-    let rows = read_rows(&songs_db, &words_db)?;
+    let dbs = snapshot(&[&songs_path, &words_path], "EasyWorship")?;
+    let rows = read_rows(&dbs[0], &dbs[1])?;
     let mut report = ImportReport::default();
     for row in &rows {
         match to_song(row) { Ok(s) => report.songs.push(s), Err(why) => report.skipped.push((display_title(row), why)) }
@@ -483,139 +434,13 @@ fn find_databases(path: &Path) -> Result<(PathBuf, PathBuf), String> {
     let dirs = [data(root.clone()), data(root.join("v6.1")), data(root.join("Default").join("v6.1")), root.join("Data"), root.clone()];
     for dir in dirs {
         let Some(songs) = find_file(&dir, &["Songs.db", "Songs.dat"]) else { continue };
-        check_sqlite(&songs)?;
+        check_sqlite(&songs, "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported.")?;
         let words = find_file(&dir, &["SongWords.db", "SongWords.dat"])
             .ok_or_else(|| format!("Found Songs.db but not SongWords.db next to it in {}.", dir.display()))?;
         return Ok((songs, words));
     }
     Err("No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder \
         (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data).".into())
-}
-
-fn find_file(dir: &Path, names: &[&str]) -> Option<PathBuf> {
-    std::fs::read_dir(dir).ok()?.flatten().map(|e| e.path())
-        .find(|p| p.is_file() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| names.iter().any(|x| n.eq_ignore_ascii_case(x))))
-}
-
-fn check_sqlite(path: &Path) -> Result<(), String> {
-    let mut head = Vec::new();
-    std::fs::File::open(path).and_then(|f| f.take(16).read_to_end(&mut head)).map_err(|e| format!("Couldn't read {}: {e}.", path.display()))?;
-    if head == b"SQLite format 3\0" { return Ok(()); }
-    if head.len() < 16 { return Err(format!("{} is empty or damaged, so there is nothing to import.", path.display())); }
-    Err("This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported.".into())
-}
-
-/// How long to wait for EasyWorship to finish a save: `STABLE_TRIES` × `STABLE_PAUSE`.
-const STABLE_TRIES: usize = 40;
-const STABLE_PAUSE: Duration = Duration::from_millis(125);
-
-/// The files SQLite needs for one database: the file, its WAL, and a rollback journal (a save in progress
-/// in the old journal mode; SQLite rolls it back on our copy). `-shm` is only an index SQLite rebuilds.
-fn database_files(db: &Path) -> Vec<PathBuf> {
-    let name = db.file_name().unwrap_or_default().to_string_lossy().into_owned();
-    vec![db.to_path_buf(), db.with_file_name(format!("{name}-wal")), db.with_file_name(format!("{name}-journal"))]
-}
-
-/// Reads every file until two reads in a row match, so a save can't tear the copy, and every file is from
-/// the same moment (a song and its words are never split between two saves). A missing file is None.
-fn read_stable(paths: &[PathBuf], tries: usize, pause: Duration) -> Result<Vec<Option<Vec<u8>>>, String> {
-    let read_all = || -> Result<Vec<Option<Vec<u8>>>, String> {
-        paths.iter().map(|p| match std::fs::read(p) {
-            Ok(b) => Ok(Some(b)),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
-            Err(e) => Err(format!("Couldn't read {}: {e}.", p.display())),
-        }).collect()
-    };
-    let mut last = read_all()?;
-    for _ in 0..tries {
-        std::thread::sleep(pause);
-        let now = read_all()?;
-        if now == last { return Ok(now); }
-        last = now;
-    }
-    Err("EasyWorship kept saving changes while the library was being read. Close EasyWorship and try again.".into())
-}
-
-/// A private temp folder, removed on drop. Retries because Windows can hold a just-closed file for a moment.
-struct TempDir(PathBuf);
-
-impl TempDir {
-    fn new() -> std::io::Result<Self> {
-        let d = std::env::temp_dir().join(format!("rp-ew-{}", Uuid::new_v4()));
-        std::fs::create_dir_all(&d)?;
-        Ok(Self(d))
-    }
-}
-
-impl Drop for TempDir {
-    fn drop(&mut self) {
-        for _ in 0..20 {
-            if std::fs::remove_dir_all(&self.0).is_ok() || !self.0.exists() { return; }
-            std::thread::sleep(Duration::from_millis(50));
-        }
-    }
-}
-
-/// Consistent in-memory copies of both databases, from a quiescent copy of their files. SQLite never opens
-/// EasyWorship's own files, so nothing (`-wal`, `-shm`, `-journal`) is created or changed next to them.
-fn snapshot_library(songs: &Path, words: &Path) -> Result<(Connection, Connection), String> {
-    let paths: Vec<PathBuf> = database_files(songs).into_iter().chain(database_files(words)).collect();
-    let files = read_stable(&paths, STABLE_TRIES, STABLE_PAUSE)?;
-    let tmp = TempDir::new().map_err(|e| format!("Couldn't make a temporary folder: {e}."))?;
-    for (p, bytes) in paths.iter().zip(&files) {
-        let Some(bytes) = bytes else { continue };
-        std::fs::write(tmp.0.join(p.file_name().unwrap_or_default()), bytes).map_err(|e| format!("Couldn't copy {}: {e}.", p.display()))?;
-    }
-    let open = |p: &Path| backup_into_memory(&tmp.0.join(p.file_name().unwrap_or_default()))
-        .map_err(|e| format!("Couldn't open {}: {e}.", p.display()));
-    Ok((open(songs)?, open(words)?))
-}
-
-/// How often to retry a backup step that finds the database locked: `BUSY_TRIES` × `BUSY_PAUSE`.
-const BUSY_TRIES: u32 = 40;
-const BUSY_PAUSE: Duration = Duration::from_millis(50);
-
-/// Copies a database into memory in one step (one read lock, so one snapshot). Gives up with SQLITE_BUSY
-/// when the file stays locked, instead of spinning forever.
-fn backup_into_memory(path: &Path) -> rusqlite::Result<Connection> {
-    let src = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX)?;
-    let mut dst = Connection::open_in_memory()?;
-    {
-        let backup = Backup::new(&src, &mut dst)?;
-        let mut busy = 0;
-        loop {
-            match backup.step(-1)? {
-                StepResult::Done => break,
-                StepResult::More => {}
-                _ => {
-                    busy += 1;
-                    if busy > BUSY_TRIES {
-                        return Err(rusqlite::Error::SqliteFailure(rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_BUSY),
-                            Some("the database stayed locked".into())));
-                    }
-                    std::thread::sleep(BUSY_PAUSE);
-                }
-            }
-        }
-    }
-    Ok(dst)
-}
-
-fn value_text(v: ValueRef) -> String {
-    match v {
-        ValueRef::Null => String::new(),
-        ValueRef::Integer(i) => i.to_string(),
-        ValueRef::Real(f) => f.to_string(),
-        ValueRef::Text(b) | ValueRef::Blob(b) => String::from_utf8_lossy(b).into_owned(),
-    }
-}
-
-fn value_int(v: ValueRef) -> Option<i64> {
-    match v { ValueRef::Integer(i) => Some(i), ValueRef::Text(b) => std::str::from_utf8(b).ok()?.trim().parse().ok(), _ => None }
-}
-
-fn columns(db: &Connection, table: &str) -> rusqlite::Result<Vec<String>> {
-    db.prepare(&format!("PRAGMA table_info({table})"))?.query_map([], |r| r.get::<_, String>(1))?.collect()
 }
 
 /// Builds the SELECT from the columns that exist: EasyWorship builds differ.
@@ -656,7 +481,9 @@ fn read_rows(songs: &Connection, words: &Connection) -> Result<Vec<EwSong>, Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::common::{backup_into_memory, read_stable, TempDir};
     use crate::slides::parse_sections;
+    use std::time::Duration;
     use rusqlite::Connection;
     use std::path::PathBuf;
 
@@ -1064,12 +891,12 @@ mod tests {
             while !s.load(std::sync::atomic::Ordering::Relaxed) { n += 1; std::fs::write(&path, n.to_string()).ok(); std::thread::sleep(Duration::from_millis(2)); }
         });
         while std::fs::read(&f).unwrap_or_default() == b"0" { std::thread::sleep(Duration::from_millis(1)); }
-        let got = read_stable(&[f.clone()], 5, Duration::from_millis(20));
+        let got = read_stable(&[f.clone()], 5, Duration::from_millis(20), "EasyWorship");
         stop.store(true, std::sync::atomic::Ordering::Relaxed);
         writer.join().unwrap();
         assert!(got.unwrap_err().contains("kept saving"));
         // Quiet again: the copy goes through, and a missing -wal is just None.
-        let got = read_stable(&[f.clone(), dir.join("Songs.db-wal")], 5, Duration::from_millis(5)).unwrap();
+        let got = read_stable(&[f.clone(), dir.join("Songs.db-wal")], 5, Duration::from_millis(5), "EasyWorship").unwrap();
         assert!(got[0].is_some() && got[1].is_none());
         std::fs::remove_dir_all(&dir).ok();
     }

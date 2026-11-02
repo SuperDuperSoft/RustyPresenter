@@ -5577,6 +5577,7 @@ dependencies = [
  "qrcode",
  "quick-xml 0.38.4",
  "reqwest",
+ "roxmltree 0.21.2",
  "rusqlite",
  "rustls",
  "serde",

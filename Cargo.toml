@@ -36,6 +36,8 @@ reqwest = { version = "0.13", default-features = false, features = ["json", "que
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
+# OpenLP song lyrics are XML. Already in Cargo.lock; refuses DTDs, so no entity expansion.
+roxmltree = "=0.21.2"
 
 [build-dependencies]
 tauri-build = "2"
