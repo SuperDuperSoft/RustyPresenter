@@ -28,6 +28,8 @@ pub const FROM_THEME: &str = "From theme";
 pub const STANDARD_BACKGROUND: &str = "Standard background";
 pub const CURRENT_NOT_IN_LIBRARY: &str = "Current (not in your backgrounds)";
 pub const COULDNT_CONVERT: &str = "Couldn't convert";
+/// Name for an imported background whose file name has no usable stem.
+pub const UNNAMED_BACKGROUND: &str = "Background";
 pub const DARKEN_HELP: &str = "Makes text easier to read";
 
 // Overlays and logo
