@@ -1,5 +1,5 @@
 // The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
-// status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in Rust (Task 11).
+// status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in `src/ui/operator/bible.rs`.
 import { Theme, OperatorState } from "../theme.slint";
 import { Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
 
@@ -208,13 +208,18 @@ export component TopBar inherits Rectangle {
                             spacing: 3px;
                             for chip[i] in root.translations: VerticalLayout {
                                 alignment: center;
-                                Rectangle {
+                                translation-chip := Rectangle {
+                                    // The web `title` (`operator.js:100`): its own name, or how to connect it.
+                                    property <string> tip: chip.off
+                                        ? @tr("{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.", chip.name)
+                                        : chip.name;
                                     border-radius: 6px;
                                     background: chip.on ? Theme.accent : transparent;
                                     opacity: chip.off ? 0.4 : 1;
                                     accessible-role: button;
                                     accessible-label: chip.name;
                                     accessible-checked: chip.on;
+                                    accessible-description: self.tip;
                                     HorizontalLayout {
                                         padding-top: 5px;
                                         padding-bottom: 5px;
@@ -231,7 +236,14 @@ export component TopBar inherits Rectangle {
                                     }
                                     TouchArea {
                                         mouse-cursor: pointer;
-                                        clicked => { root.pick-translation(i); }
+                                        // The web refocuses the input after a pick (`operator.js:101`).
+                                        clicked => {
+                                            bible-input.focus();
+                                            root.pick-translation(i);
+                                        }
+                                    }
+                                    Tooltip {
+                                        TipBox { text: translation-chip.tip; }
                                     }
                                 }
                             }

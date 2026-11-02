@@ -67,3 +67,6 @@ pub const FILTER_POWERPOINT: &str = "PowerPoint";
 pub const FILTER_LYRICS: &str = "SongSelect lyric files";
 pub const FILTER_PICTURES: &str = "Pictures";
 pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
+
+/// The toast after the Bible box adds a passage (`operator.js:336`).
+pub fn bible_added(label: &str) -> String { format!("{label} added — press Enter to show it") }
