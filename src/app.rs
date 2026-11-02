@@ -351,7 +351,7 @@ impl App {
             Ok(json!({}))
         }
         "song/import-txt" => {
-            let Imported::Song { id, title, duplicate_of } = tryr!(app.import_song_txt(&String::from_utf8_lossy(body))) else { unreachable!() };
+            let (id, title, duplicate_of) = tryr!(app.import_song_txt(&String::from_utf8_lossy(body)));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
@@ -644,10 +644,11 @@ impl App {
 
         match purpose {
             ImportPurpose::Lyrics => {
-                let bytes = std::fs::read(&tmp);
-                let _ = std::fs::remove_file(&tmp);
+                let bytes = tokio::fs::read(&tmp).await;
+                let _ = tokio::fs::remove_file(&tmp).await;
                 let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
-                return app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad);
+                let (id, title, duplicate_of) = app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad)?;
+                return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => {
                 let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
@@ -700,12 +701,13 @@ impl App {
     }
 
     /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
-    fn import_song_txt(&self, text: &str) -> Result<Imported, String> {
+    /// Returns the new song's id and title, and `duplicate_of`.
+    fn import_song_txt(&self, text: &str) -> Result<(Uuid, String, Option<Uuid>), String> {
         let song = songselect::import_txt(text)?;
         let duplicate_of = self.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
         let (id, title) = (song.id, song.title.clone());
         self.edit(|d| { d.songs.push(song); Ok(()) })?;
-        Ok(Imported::Song { id, title, duplicate_of })
+        Ok((id, title, duplicate_of))
     }
 }
 

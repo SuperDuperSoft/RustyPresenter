@@ -184,12 +184,13 @@ async fn upload(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<Sock
     drop(file);
     let sha = hex(&hasher.finalize());
 
-    let purpose = match q.purpose.as_str() { "powerpoint" => ImportPurpose::PowerPoint, "asset" => ImportPurpose::Asset, "lyrics" => ImportPurpose::Lyrics, _ => ImportPurpose::Media };
+    let purpose = match q.purpose.as_str() { "powerpoint" => ImportPurpose::PowerPoint, "asset" => ImportPurpose::Asset, _ => ImportPurpose::Media };
     match app.import_staged(tmp, &q.name, &sha, purpose).await {
         Ok(Imported::Media(m)) => ok(json!({ "media": m })),
         Ok(Imported::Asset(asset)) => ok(json!({ "asset": asset })),
         Ok(Imported::Job(job)) => ok(json!({ "job": job })),
-        Ok(Imported::Song { id, title, duplicate_of }) => ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of })),
+        // Uploads never use `ImportPurpose::Lyrics`: the web sends lyrics through the `song/import-txt` action.
+        Ok(Imported::Song { .. }) => bad("Lyrics are imported with song/import-txt."),
         Err(e) => bad(e.message),
     }
 }
