@@ -1,7 +1,7 @@
 //! HTTP host with live updates over Server-Sent Events. Operator, room and stage pages are served only to this
 //! computer (loopback). The LAN only sees the phone remote, behind PIN pairing.
-use crate::app::{App, DataPlan, LiveUpdate, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token, spawn_conversion};
-use crate::{live::*, media, model::*, slides::build_item};
+use crate::app::{App, DataPlan, ImportPurpose, Imported, LiveUpdate, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token};
+use crate::{live::*, model::*, slides::build_item};
 use axum::{
     Json, Router,
     body::{Body, Bytes},
@@ -170,9 +170,6 @@ struct UploadQuery { name: String, #[serde(default)] purpose: String }
 
 async fn upload(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Query(q): Query<UploadQuery>, body: Body) -> Response {
     if !local_ok(&app, &addr, &headers) || headers.get("x-rp").is_none() { return forbidden(); }
-    let ext = crate::store::sanitize_ext(q.name.rsplit('.').next().unwrap_or(""));
-    let base_name = q.name.rsplit(['/', '\\']).next().unwrap_or(&q.name);
-    let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
     // Stream to a temp file while hashing.
     let tmp = app.store.tmp().join(format!("{}.part", Uuid::new_v4()));
     let mut file = match tokio::fs::File::create(&tmp).await { Ok(f) => f, Err(e) => return bad(e.to_string()) };
@@ -187,52 +184,15 @@ async fn upload(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<Sock
     drop(file);
     let sha = hex(&hasher.finalize());
 
-    if q.purpose == "powerpoint" {
-        let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
-        let _ = std::fs::create_dir_all(&dir);
-        let input = dir.join(format!("input.{ext}"));
-        if std::fs::rename(&tmp, &input).is_err() { return bad("Could not stage the presentation."); }
-        let job = app.job_start(&format!("Importing “{display}” from PowerPoint"));
-        let app2 = app.clone();
-        tokio::spawn(async move {
-            let result = async {
-                let pngs = media::export_powerpoint(&input, &dir.join("out")).await?;
-                let mut assets = vec![];
-                for (i, p) in pngs.iter().enumerate() {
-                    assets.push(app2.store.import_file(p, "png").map_err(|e| e.to_string())?);
-                    app2.job_progress(job, ((i + 1) * 100 / pngs.len()) as u8);
-                }
-                app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
-            }.await;
-            let _ = std::fs::remove_dir_all(&dir);
-            app2.job_end(job, result.err());
-        });
-        return ok(json!({ "job": job }));
+    let purpose = match q.purpose.as_str() { "powerpoint" => ImportPurpose::PowerPoint, "asset" => ImportPurpose::Asset, _ => ImportPurpose::Media };
+    match app.import_staged(tmp, &q.name, &sha, purpose).await {
+        Ok(Imported::Media(m)) => ok(json!({ "media": m })),
+        Ok(Imported::Asset(asset)) => ok(json!({ "asset": asset })),
+        Ok(Imported::Job(job)) => ok(json!({ "job": job })),
+        // Uploads never use `ImportPurpose::Lyrics`: the web sends lyrics through the `song/import-txt` action.
+        Ok(Imported::Song { .. }) => bad("Lyrics are imported with song/import-txt."),
+        Err(e) => bad(e.message),
     }
-
-    let asset = match app.store.publish(&tmp, &sha, &ext) { Ok(a) => a, Err(e) => return bad(e.to_string()) };
-    if q.purpose == "asset" { return ok(json!({ "asset": asset })); }
-
-    let kind = if media::IMAGE.contains(&ext.as_str()) { MediaKind::Image }
-        else if media::VIDEO.contains(&ext.as_str()) && !(ext == "webm" && display.to_lowercase().contains("audio")) { MediaKind::Video }
-        else if media::AUDIO.contains(&ext.as_str()) { MediaKind::Audio }
-        else { return bad(format!("RustyPresenter doesn't know how to show .{ext} files.")); };
-    let path = app.store.asset_path(&asset);
-    let plan = match kind {
-        MediaKind::Image => media::Plan::Ready,
-        MediaKind::Video => media::plan_video(&path, &ext).await,
-        MediaKind::Audio => media::plan_audio(&path, &ext).await,
-    };
-    let status = match &plan {
-        media::Plan::Ready => MediaStatus::Ready,
-        media::Plan::Unknown(r) => MediaStatus::Unconverted { reason: r.clone() },
-        _ => MediaStatus::Converting { percent: 0 },
-    };
-    let id = Uuid::new_v4();
-    let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None };
-    if let Err(e) = app.edit(|d| { d.media.push(m.clone()); Ok(()) }) { return bad(e); }
-    if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
-    ok(json!({ "media": m }))
 }
 
 
@@ -493,6 +453,31 @@ mod tests {
         assert!(matches!(map(&app, Some(&Update::Convert { id: other, percent: 1 })), Ok(None)));
         assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))));
         assert!(matches!(map(&app, None), Ok(Some(_))));
+    }
+
+    async fn post_upload(app: &Arc<App>, name: &str, purpose: &str, bytes: Vec<u8>) -> (StatusCode, Value) {
+        let mut headers = HeaderMap::new();
+        headers.insert(header::HOST, HeaderValue::from_str(&format!("127.0.0.1:{}", app.port)).unwrap());
+        headers.insert("x-rp", HeaderValue::from_static("1"));
+        let addr: SocketAddr = "127.0.0.1:50000".parse().unwrap();
+        let q = UploadQuery { name: name.into(), purpose: purpose.into() };
+        let r = upload(State(app.clone()), ConnectInfo(addr), headers, Query(q), Body::from(bytes)).await;
+        let status = r.status();
+        (status, serde_json::from_slice(&axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap()).unwrap())
+    }
+
+    #[tokio::test]
+    async fn http_upload_goes_through_the_shared_import() {
+        let app = test_app();
+        let mut png = std::io::Cursor::new(vec![]);
+        image::RgbaImage::new(2, 2).write_to(&mut png, image::ImageFormat::Png).unwrap();
+        let (s, v) = post_upload(&app, "Sunrise.png", "", png.get_ref().clone()).await;
+        assert_eq!((s, v["media"]["name"].as_str(), v["media"]["kind"].as_str()), (StatusCode::OK, Some("Sunrise"), Some("image")));
+        let (s, v) = post_upload(&app, "logo.png", "asset", png.into_inner()).await;
+        assert!(s == StatusCode::OK && v["asset"].as_str().unwrap().ends_with(".png"));
+        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        let (s, v) = post_upload(&app, "notes.xyz", "", b"x".to_vec()).await;
+        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some("RustyPresenter doesn't know how to show .xyz files.")));
     }
 
     #[test]

@@ -93,9 +93,11 @@ function renderTop() {
   const svc = S.data.services.find(s => s.id === S.service_id);
   $('#serviceName').textContent = svc ? svc.name : 'Service';
   const tr = $('#translations');
+  // A remembered translation may be an imported Bible that has since been removed.
+  if (!S.translations.includes(translation)) { translation = S.available_translations[0] || 'KJV'; try { localStorage.setItem('rp.translation', translation); } catch {} }
   tr.replaceChildren(...S.translations.map(t => h('button', {
     type: 'button', class: (t === translation ? 'on' : '') + (S.available_translations.includes(t) ? '' : ' off'),
-    title: S.available_translations.includes(t) ? t : `${t} needs a licensed text source (Settings → Bible)`,
+    title: S.available_translations.includes(t) ? t : `${t} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.`,
     onclick: () => { translation = t; localStorage.setItem('rp.translation', t); renderTop(); $('#bibleInput').focus(); },
   }, t)));
   const pill = (on, label, title, warn) => h('div', { class: 'pill' + (on ? ' on' : warn ? ' warn' : ''), title }, h('i'), h('span', {}, label));
@@ -432,9 +434,22 @@ function addScripture() {
   });
   input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
   setTimeout(() => input.focus(), 30);
+  // For a translation with no source here (e.g. HCSB): verses copied from the church's own Bible. Publishers allow
+  // churches to project a limited number of verses (Holman: up to 1,000 HCSB verses) with the translation named.
+  const text = h('textarea', { rows: 6, placeholder: '16 For God so loved the world… 17 For God did not send…', style: 'width:100%' });
+  const paste = h('div', { hidden: true, style: 'margin-top:12px' },
+    h('div', { class: 'field' }, h('label', {}, `Verses (${translation}) — keep the verse numbers so each verse gets its own slide`), text),
+    h('button', { class: 'btn primary', onclick: guard(async () => {
+      const found = await api('bible/paste', { reference: input.value, translation, text: text.value });
+      await addItem({ kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses, per_slide: 0 }, { quiet: true });
+      toast(`${found.label} added`);
+      closeDialog();
+    }) }, svg(I.plus), 'Add pasted verses'));
   return h('div', {},
     h('div', { class: 'field' }, h('label', {}, `Reference (${translation})`), input),
-    h('div', { style: 'display:flex;gap:8px' }, h('button', { class: 'btn primary', onclick: go }, svg(I.plus), 'Add verses')),
+    h('div', { style: 'display:flex;gap:8px' }, h('button', { class: 'btn primary', onclick: go }, svg(I.plus), 'Add verses'),
+      S.available_translations.includes(translation) ? null : h('button', { class: 'btn', onclick: () => { paste.hidden = false; text.focus(); } }, 'Paste the verses instead')),
+    paste,
     result,
     h('div', { class: 'note', style: 'margin-top:14px' }, h('b', {}, 'Tip: '), 'you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it.'));
 }
@@ -904,10 +919,58 @@ function openSettings(tab = 'look') {
       h('div', { class: 'field' }, h('label', {}, 'Lines per slide'), seg([[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6']], () => st.lines_per_slide, v => st.lines_per_slide = v)),
       h('div', { class: 'field' }, h('label', {}, 'Song credits'), seg([['first', 'On first slide'], ['last', 'On last slide'], ['none', 'Off']], () => st.credits, v => st.credits = v)),
       h('div', { class: 'field' }, h('label', {}, 'Church CCLI license #'), h('input', { type: 'text', value: st.church_ccli, oninput: e => st.church_ccli = e.target.value }))),
-    bible: () => h('div', {},
-      h('div', { class: 'note' }, h('b', {}, 'KJV is built in and works offline. '), 'NIV, ESV, CSB, HCSB and NLT are copyrighted. Each needs a licensed text source (an API key or a licensed download) before it can be turned on. Those sources are being checked as part of the project plan (F5).'),
-      h('div', { class: 'list' }, ...S.translations.map(t => h('div', { class: 'row' }, h('div', { class: 'main' }, h('div', { class: 't' }, t)),
-        h('span', { class: 'status-chip ' + (S.available_translations.includes(t) ? 'ok' : 'warn') }, S.available_translations.includes(t) ? 'Ready — offline' : 'Needs a licensed source'))))),
+    bible: () => {
+      const CHIP = { offline: ['ok', 'Ready — offline'], online: ['ok', 'Ready — online'], needs_key: ['warn', 'Needs a free key'], unavailable: ['warn', 'No source yet'] };
+      const redraw = () => content.replaceChildren(pages.bible());
+      const hint = b => b.status === 'needs_key' ? 'Connect ' + (b.providers || []).map(id => S.bible_providers.find(p => p.id === id)?.label).filter(Boolean).join(' or ') + ' below'
+        : b.status === 'unavailable' ? 'No online source offers this one. Import a licensed file, or paste verses when you add them.' : b.provider;
+      const service = p => {
+        const input = h('input', { type: 'password', placeholder: p.key_set ? 'Key saved — paste a new one to replace it' : 'Paste the key here', style: 'flex:1;min-width:0' });
+        const save = guard(async () => {
+          const key = input.value.trim();
+          await api('bible/key', { provider: p.id, key });
+          await refresh(); redraw();
+          toast(key ? `${p.label} connected` : `${p.label} disconnected`);
+        });
+        return h('div', { class: 'row', style: 'display:block' },
+          h('div', { style: 'display:flex;align-items:center;gap:8px' },
+            h('div', { class: 'main' }, h('div', { class: 't' }, p.label), h('div', { class: 's' }, 'For ' + p.translations.join(', '))),
+            h('span', { class: 'status-chip ' + (p.key_set ? 'ok' : 'warn') }, p.key_set ? 'Connected' : 'Not connected')),
+          h('div', { class: 's', style: 'margin:8px 0 6px;color:var(--muted);white-space:normal;line-height:1.5' },
+            '1. Sign up free at ', h('span', { class: 'copy' }, p.signup_url), ' ',
+            h('button', { class: 'btn small', onclick: () => { navigator.clipboard.writeText(p.signup_url); toast('Link copied — paste it into your browser'); } }, svg(I.copy), 'Copy link'),
+            h('br'), '2. ', p.note, h('br'), '3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only.'),
+          h('div', { style: 'display:flex;gap:8px' }, input,
+            h('button', { class: 'btn small primary', onclick: save }, 'Save key'),
+            p.key_set ? h('button', { class: 'btn small', onclick: () => { input.value = ''; save(); } }, 'Disconnect') : null));
+      };
+      const short = h('input', { type: 'text', placeholder: 'Short name, e.g. HCSB (optional)', style: 'width:220px', maxlength: 10 });
+      const importFile = () => pickFiles('.xml,.usx,.osis,.zef', guard(async files => {
+        for (const f of files) {
+          const name = short.value.trim().toUpperCase() || '-';
+          const r = await fetch('/api/do/bible/import/' + encodeURIComponent(name), { method: 'POST', headers: { 'x-rp': '1' }, body: f });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(j.error || 'Import failed.');
+          toast(`Added ${j.abbreviation} (${j.verses.toLocaleString()} verses)`);
+        }
+        await refresh(); redraw();
+      }));
+      const credits = S.bible_sources.filter(b => (b.status === 'online' || b.imported) && b.copyright);
+      return h('div', {},
+        h('div', { class: 'note' }, h('b', {}, 'KJV, WEB and BSB are built in and work offline. '), 'The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.'),
+        h('div', { class: 'lbl', style: 'margin:4px 0 8px' }, 'Translations'),
+        h('div', { class: 'list' }, ...S.bible_sources.map(b => h('div', { class: 'row' },
+          h('div', { class: 'main' }, h('div', { class: 't' }, b.translation), h('div', { class: 's' }, hint(b))),
+          b.imported ? h('button', { class: 'btn small', onclick: guard(async () => { await api('bible/import-remove', { translation: b.translation }); await refresh(); redraw(); toast(`${b.translation} removed`); }) }, 'Remove') : null,
+          h('span', { class: 'status-chip ' + CHIP[b.status][0] }, CHIP[b.status][1])))),
+        h('div', { class: 'lbl', style: 'margin:16px 0 8px' }, 'Online services'),
+        h('div', { class: 'list' }, ...S.bible_providers.map(service)),
+        h('div', { class: 'lbl', style: 'margin:16px 0 8px' }, 'Bible files'),
+        h('div', { class: 'note' }, 'Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). ', h('b', {}, 'Only import Bibles that are public domain or that your church is licensed to use. '),
+          'Give it the short name of a translation above (like HCSB) to use the file for that translation.'),
+        h('div', { style: 'display:flex;gap:8px;align-items:center' }, short, h('button', { class: 'btn small', onclick: importFile }, svg(I.upload), 'Import a Bible file')),
+        credits.length ? h('div', { class: 'note', style: 'margin-top:16px;font-size:12.5px' }, ...credits.map(b => h('div', { style: 'margin-bottom:6px' }, b.copyright))) : null);
+    },
     video: () => h('div', {},
       h('div', { class: 'note' }, S.ffmpeg
         ? [h('b', {}, '✓ Video converter installed. '), 'Any video you add (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG…) is converted once so it plays smoothly.']

@@ -1,12 +1,14 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
 use crate::{bible, live::*, media, model::*, slides::build_item, songselect, store::Store};
-use crate::sha256::digest_hex;
+use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
     collections::HashMap,
+    io::{Read, Write},
     net::IpAddr,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
@@ -280,8 +282,58 @@ impl App {
 
     fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
 
-    /// Translations whose text is bundled; the others need a licensed source.
-    pub fn available_translations(&self) -> Vec<&'static str> { vec!["KJV"] }
+    /// The standard list plus any other Bible the church imported.
+    pub fn translations(&self) -> Vec<String> {
+        let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
+        for b in bible::import::all(&self.store.root) { if !out.contains(&b.abbreviation) { out.push(b.abbreviation.clone()); } }
+        out
+    }
+
+    /// Translations that can be looked up now: built in, imported, or a licensed source whose key is saved.
+    pub fn available_translations(&self) -> Vec<String> {
+        self.bible_sources().into_iter().filter(|s| s["status"] != "needs_key" && s["status"] != "unavailable")
+            .filter_map(|s| s["translation"].as_str().map(String::from)).collect()
+    }
+
+    /// Per-translation source details for Settings → Bible. Never includes the keys themselves.
+    fn bible_sources(&self) -> Vec<Value> {
+        use bible::sources::{Secrets, source_with};
+        let root = &self.store.root;
+        let secrets = Secrets::load(root);
+        self.translations().iter().map(|t| {
+            if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
+                return json!({ "translation": t, "status": "offline", "provider": format!("{name} — built in, public domain") });
+            }
+            if let Some(b) = bible::import::get(root, t) {
+                return json!({ "translation": t, "status": "offline", "imported": true, "provider": format!("{} — imported file", b.name), "copyright": b.copyright });
+            }
+            match source_with(t, &secrets) {
+                Some(s) => json!({
+                    "translation": t,
+                    "status": if secrets.key(s.provider).is_some() { "online" } else { "needs_key" },
+                    "provider": s.provider.label(),
+                    "providers": bible::sources::sources(t).map(|s| s.provider.key_name()).collect::<Vec<_>>(),
+                    // API.Bible sends its own notice with each passage; show it once one has been fetched.
+                    "copyright": (s.provider == bible::sources::Provider::ApiBible).then(|| bible::api_bible::copyright(t)).flatten()
+                        .unwrap_or_else(|| s.copyright.to_string()),
+                }),
+                None => json!({ "translation": t, "status": "unavailable" }),
+            }
+        }).collect()
+    }
+
+    /// The online services a church can connect, for Settings → Bible.
+    fn bible_providers(&self) -> Vec<Value> {
+        let secrets = bible::sources::Secrets::load(&self.store.root);
+        bible::sources::PROVIDERS.iter().map(|p| json!({
+            "id": p.key_name(),
+            "label": p.label(),
+            "signup_url": p.signup_url(),
+            "note": p.setup_note(),
+            "key_set": secrets.key(*p).is_some(),
+            "translations": bible::sources::SOURCES.iter().filter(|s| s.provider == *p).map(|s| s.translation).collect::<Vec<_>>(),
+        })).collect()
+    }
 
     fn conns(&self, role: &str) -> Option<&AtomicUsize> {
         match role { "room" => Some(&self.room_conns), "stage" => Some(&self.stage_conns), _ => None }
@@ -308,8 +360,10 @@ impl App {
             "windows": windows,
             "ffmpeg": media::ffmpeg().is_some(),
             "lan_url": self.lan_url,
-            "translations": bible::TRANSLATIONS,
+            "translations": self.translations(),
             "available_translations": self.available_translations(),
+            "bible_sources": self.bible_sources(),
+            "bible_providers": self.bible_providers(),
             "backups": self.store.backups(),
             "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name })).collect::<Vec<_>>(),
             "jobs": *self.jobs.lock().unwrap(),
@@ -349,13 +403,8 @@ impl App {
             Ok(json!({}))
         }
         "song/import-txt" => {
-            let text = String::from_utf8_lossy(body);
-            let song = tryr!(songselect::import_txt(&text));
-            let dup = app.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
-            let id = song.id;
-            let title = song.title.clone();
-            tryr!(app.edit(|d| { d.songs.push(song); Ok(()) }));
-            Ok(json!({ "id": id, "title": title, "duplicate_of": dup }))
+            let (id, title, duplicate_of) = tryr!(app.import_song_txt(&String::from_utf8_lossy(body)));
+            Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
         "service/add" => {
@@ -440,11 +489,43 @@ impl App {
         "bible/lookup" => {
             #[derive(Deserialize)] struct L { reference: String, translation: String }
             let L { reference, translation } = parse(body)?;
-            if translation != "KJV" {
-                return Err(ActionError::bad(format!("{translation} isn't set up yet. It needs a licensed text source; KJV works now.")));
-            }
-            let (label, verses) = tryr!(bible::kjv().lookup(&reference));
+            // Built in, then a file the church imported (works offline, wins over any online source), then online.
+            let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
+                else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
+                else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
             Ok(json!({ "label": label, "verses": verses, "translation": translation }))
+        }
+        "bible/paste" => {
+            // Verses typed or pasted from the church's own Bible, for a translation with no source here (e.g. HCSB).
+            #[derive(Deserialize)] struct P { reference: String, translation: String, text: String }
+            let P { reference, translation, text } = parse(body)?;
+            let (label, verses) = tryr!(bible::pasted(&reference, &text));
+            Ok(json!({ "label": label, "verses": verses, "translation": translation.trim().to_uppercase() }))
+        }
+        "bible/key" => {
+            // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
+            #[derive(Deserialize)] struct K { provider: String, key: String }
+            let K { provider, key } = parse(body)?;
+            let p = bible::sources::Provider::from_key_name(&provider).ok_or_else(|| ActionError::bad("Unknown Bible service."))?;
+            tryr!(bible::sources::set_key(&app.store.root, p, &key).await);
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        // The body is the raw file. `bible/import/-` keeps the file's own short name.
+        a if a.starts_with("bible/import/") => {
+            let abbr = a["bible/import/".len()..].trim_matches('-').to_string();
+            let (root, bytes) = (app.store.root.clone(), body.to_vec());
+            let b = tokio::task::spawn_blocking(move || bible::import::import(&root, &bytes, &abbr)).await.map_err(|e| ActionError::bad(e.to_string()))?;
+            let b = tryr!(b);
+            app.broadcast_data();
+            Ok(json!({ "abbreviation": b.abbreviation, "name": b.name, "copyright": b.copyright, "verses": b.len() }))
+        }
+        "bible/import-remove" => {
+            #[derive(Deserialize)] struct R { translation: String }
+            let R { translation } = parse(body)?;
+            tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string()));
+            app.broadcast_data();
+            Ok(json!({}))
         }
         // ---- media & decks ----
         "media/rename" => {
@@ -518,7 +599,7 @@ impl App {
         "settings/translation" => {
             #[derive(Deserialize)] struct T { translation: String }
             let T { translation } = parse(body)?;
-            if !bible::TRANSLATIONS.contains(&translation.as_str()) { return Err(ActionError::bad("Unknown translation.")); }
+            if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
             tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
             Ok(json!({}))
         }
@@ -549,7 +630,9 @@ impl App {
             let data = app.data.lock().unwrap().clone();
             // Copies every asset: keep it off the runtime's worker threads.
             let a = app.clone();
-            let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await.map_err(|e| ActionError::bad(e.to_string()))?;
+            let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await
+                // Only a panic inside the backup lands here: a server fault, not the user's.
+                .map_err(|_| ActionError { status: 500, message: "Backup failed.".into() })?;
             let name = tryr!(name.map_err(|e| e.to_string()));
             app.broadcast_data();
             Ok(json!({ "name": name }))
@@ -586,6 +669,130 @@ impl App {
         _ => Err(ActionError { status: 404, message: "unknown action".into() }),
     }
 }
+}
+
+/// What a file is being imported for. Picks what `App::import_staged` does with it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics }
+
+/// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
+#[derive(Clone, Debug)]
+pub enum Imported {
+    Media(MediaFile),
+    Asset(AssetId),
+    Job(Uuid),
+    Song { id: Uuid, title: String, duplicate_of: Option<Uuid> },
+}
+
+impl App {
+    /// Import a file from this computer (native file dialog or desktop drop). The file is copied into the
+    /// store's tmp, never moved: it is the user's file. `progress` gets 0..=100 as bytes are copied and hashed.
+    pub async fn import_path(self: &Arc<Self>, path: &Path, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static) -> Result<Imported, ActionError> {
+        let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        let tmp = self.store.tmp().join(format!("{}.part", Uuid::new_v4()));
+        let (src, dst, shown) = (path.to_path_buf(), tmp.clone(), name.clone());
+        let sha = tokio::task::spawn_blocking(move || -> Result<String, String> {
+            let disk_full = |_| "Could not save the file (disk full?).".to_string();
+            let mut input = std::fs::File::open(&src).map_err(|e| format!("Could not open “{shown}”: {e}"))?;
+            let total = input.metadata().map(|m| m.len()).unwrap_or(0);
+            let mut out = std::fs::File::create(&dst).map_err(disk_full)?;
+            let (mut hasher, mut buf, mut done, mut last) = (Sha256::new(), vec![0u8; 1 << 16], 0u64, 0u8);
+            progress(0);
+            let copied = (|| -> Result<(), String> {
+                loop {
+                    let n = input.read(&mut buf).map_err(|e| format!("Could not read “{shown}”: {e}"))?;
+                    if n == 0 { return Ok(()); }
+                    hasher.update(&buf[..n]);
+                    out.write_all(&buf[..n]).map_err(disk_full)?;
+                    done += n as u64;
+                    // 100 is sent once, after the copy is complete.
+                    let p = (done * 99 / total.max(done).max(1)) as u8;
+                    if p > last { last = p; progress(p); }
+                }
+            })();
+            drop(out);
+            if let Err(e) = copied { let _ = std::fs::remove_file(&dst); return Err(e); }
+            progress(100);
+            Ok(hex(&hasher.finalize()))
+        }).await.map_err(|e| ActionError::bad(e.to_string()))?.map_err(ActionError::bad)?;
+        self.import_staged(tmp, &name, &sha, purpose).await
+    }
+
+    /// Finish an import from a file already in the store's tmp (copied by `import_path`, or streamed there by
+    /// the HTTP upload). `name` is the original file name and `sha` the file's hash. Takes ownership of `tmp`.
+    pub async fn import_staged(self: &Arc<Self>, tmp: PathBuf, name: &str, sha: &str, purpose: ImportPurpose) -> Result<Imported, ActionError> {
+        let app = self;
+        let ext = crate::store::sanitize_ext(name.rsplit('.').next().unwrap_or(""));
+        let base_name = name.rsplit(['/', '\\']).next().unwrap_or(name);
+        let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
+
+        match purpose {
+            ImportPurpose::Lyrics => {
+                let bytes = tokio::fs::read(&tmp).await;
+                let _ = tokio::fs::remove_file(&tmp).await;
+                let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
+                let (id, title, duplicate_of) = app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad)?;
+                return Ok(Imported::Song { id, title, duplicate_of });
+            }
+            ImportPurpose::PowerPoint => {
+                let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
+                let _ = std::fs::create_dir_all(&dir);
+                let input = dir.join(format!("input.{ext}"));
+                if std::fs::rename(&tmp, &input).is_err() { let _ = std::fs::remove_file(&tmp); return Err(ActionError::bad("Could not stage the presentation.")); }
+                let job = app.job_start(&format!("Importing “{display}” from PowerPoint"));
+                let app2 = app.clone();
+                tokio::spawn(async move {
+                    let result = async {
+                        let pngs = media::export_powerpoint(&input, &dir.join("out")).await?;
+                        let mut assets = vec![];
+                        for (i, p) in pngs.iter().enumerate() {
+                            assets.push(app2.store.import_file(p, "png").map_err(|e| e.to_string())?);
+                            app2.job_progress(job, ((i + 1) * 100 / pngs.len()) as u8);
+                        }
+                        app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
+                    }.await;
+                    let _ = std::fs::remove_dir_all(&dir);
+                    app2.job_end(job, result.err());
+                });
+                return Ok(Imported::Job(job));
+            }
+            ImportPurpose::Asset | ImportPurpose::Media => {}
+        }
+
+        let asset = app.store.publish(&tmp, sha, &ext).map_err(|e| ActionError::bad(e.to_string()))?;
+        if purpose == ImportPurpose::Asset { return Ok(Imported::Asset(asset)); }
+
+        let kind = if media::IMAGE.contains(&ext.as_str()) { MediaKind::Image }
+            else if media::VIDEO.contains(&ext.as_str()) && !(ext == "webm" && display.to_lowercase().contains("audio")) { MediaKind::Video }
+            else if media::AUDIO.contains(&ext.as_str()) { MediaKind::Audio }
+            else { return Err(ActionError::bad(format!("RustyPresenter doesn't know how to show .{ext} files."))); };
+        let path = app.store.asset_path(&asset);
+        let plan = match kind {
+            MediaKind::Image => media::Plan::Ready,
+            MediaKind::Video => media::plan_video(&path, &ext).await,
+            MediaKind::Audio => media::plan_audio(&path, &ext).await,
+        };
+        let status = match &plan {
+            media::Plan::Ready => MediaStatus::Ready,
+            media::Plan::Unknown(r) => MediaStatus::Unconverted { reason: r.clone() },
+            _ => MediaStatus::Converting { percent: 0 },
+        };
+        let id = Uuid::new_v4();
+        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None };
+        tryr!(app.edit(|d| { d.media.push(m.clone()); Ok(()) }));
+        if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
+        Ok(Imported::Media(m))
+    }
+
+    /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
+    /// Returns the new song's id and title, and `duplicate_of`.
+    fn import_song_txt(&self, text: &str) -> Result<(Uuid, String, Option<Uuid>), String> {
+        let song = songselect::import_txt(text)?;
+        let duplicate_of = self.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
+        let (id, title) = (song.id, song.title.clone());
+        self.edit(|d| { d.songs.push(song); Ok(()) })?;
+        Ok((id, title, duplicate_of))
+    }
 }
 
 pub(crate) fn hash_token(t: &str) -> String { digest_hex(t.as_bytes()) }
@@ -702,6 +909,67 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bible_lookup_built_in_and_needs_key() {
+        let app = test_app();
+        let v = app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"BSB"}"#).await.unwrap();
+        assert!(v["verses"][0]["text"].as_str().unwrap().starts_with("For God so loved"));
+        let err = app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"ESV"}"#).await.unwrap_err();
+        assert!(err.message.contains("Settings → Bible"), "{}", err.message);
+        let s = app.state_json();
+        assert_eq!(s["available_translations"], json!(["KJV", "WEB", "BSB"]));
+        let esv = s["bible_sources"].as_array().unwrap().iter().find(|b| b["translation"] == "ESV").unwrap();
+        assert_eq!(esv["status"], "needs_key");
+    }
+
+    #[tokio::test]
+    async fn saved_keys_never_reach_the_state() {
+        let app = test_app();
+        let mut s = bible::sources::Secrets::default();
+        s.keys.insert("esv".into(), "secret-key-123".into());
+        s.save(&app.store.root).unwrap();
+        let state = app.state_json();
+        assert!(!state.to_string().contains("secret-key-123"));
+        assert!(state["available_translations"].as_array().unwrap().contains(&json!("ESV")));
+        let esv = state["bible_providers"].as_array().unwrap().iter().find(|p| p["id"] == "esv").unwrap();
+        assert_eq!(esv["key_set"], true);
+        assert!(!app.store.data_path().exists() || !std::fs::read_to_string(app.store.data_path()).unwrap().contains("secret-key-123"));
+    }
+
+    #[tokio::test]
+    async fn bible_key_rejects_unknown_service_and_empty_key_removes() {
+        let app = test_app();
+        assert_eq!(app.do_action("bible/key", br#"{"provider":"nope","key":"x"}"#).await.unwrap_err().message, "Unknown Bible service.");
+        let mut s = bible::sources::Secrets::default();
+        s.keys.insert("esv".into(), "k".into());
+        s.save(&app.store.root).unwrap();
+        app.do_action("bible/key", br#"{"provider":"esv","key":"  "}"#).await.unwrap();
+        assert!(bible::sources::Secrets::load(&app.store.root).keys.is_empty());
+    }
+
+    #[tokio::test]
+    async fn imported_bible_is_looked_up_offline_and_removed() {
+        let app = test_app();
+        let file = br#"<?xml version="1.0"?><XMLBIBLE biblename="Test"><INFORMATION><title>Holman Test</title><identifier>HCSB</identifier><rights>(c) Holman</rights></INFORMATION>
+            <BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">For God loved.</VERS><VERS vnumber="17">For God sent.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#;
+        let v = app.do_action("bible/import/HCSB", file).await.unwrap();
+        assert_eq!(v["abbreviation"], "HCSB");
+        let v = app.do_action("bible/lookup", br#"{"reference":"John 3:16-17","translation":"HCSB"}"#).await.unwrap();
+        assert_eq!(v["verses"][1]["text"], "For God sent.");
+        let hcsb = app.state_json()["bible_sources"].as_array().unwrap().iter().find(|b| b["translation"] == "HCSB").unwrap().clone();
+        assert_eq!((hcsb["status"].as_str(), hcsb["imported"].as_bool()), (Some("offline"), Some(true)));
+        assert!(app.do_action("bible/import/KJV", file).await.unwrap_err().message.contains("already built in"));
+        app.do_action("bible/import-remove", br#"{"translation":"HCSB"}"#).await.unwrap();
+        assert!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"HCSB"}"#).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn bible_paste_splits_verses() {
+        let v = test_app().do_action("bible/paste", br#"{"reference":"John 3:16-17","translation":"hcsb","text":"16 For God loved. 17 For God sent."}"#).await.unwrap();
+        assert_eq!(v["translation"], "HCSB");
+        assert_eq!(v["verses"].as_array().unwrap().len(), 2);
+    }
+
+    #[tokio::test]
     async fn settings_translation_saves_and_rejects_unknown() {
         let app = test_app();
         app.do_action("settings/translation", br#"{"translation":"NIV"}"#).await.unwrap();
@@ -727,8 +995,8 @@ mod tests {
     #[test]
     fn available_translations_are_the_bundled_ones() {
         let app = test_app();
-        assert_eq!(app.available_translations(), ["KJV"]);
-        assert_eq!(app.state_json()["available_translations"], json!(["KJV"]));
+        assert_eq!(app.available_translations(), ["KJV", "WEB", "BSB"]);
+        assert_eq!(app.state_json()["available_translations"], json!(["KJV", "WEB", "BSB"]));
     }
 
     #[test]
@@ -743,6 +1011,69 @@ mod tests {
         assert_eq!(app.state_json()["stage_connected"], true);
         drop(g);
         assert_eq!(app.state_json()["stage_connected"], false);
+    }
+
+    #[tokio::test]
+    async fn import_path_adds_a_picture_to_the_media_library() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(4, 4).save(&png).unwrap();
+        let Imported::Media(m) = app.import_path(&png, ImportPurpose::Media, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((m.kind, m.status.clone()), (MediaKind::Image, MediaStatus::Ready));
+        assert!(png.exists(), "the user's file is copied, never moved");
+        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        assert!(app.store.asset_path(&m.asset).exists());
+    }
+
+    #[tokio::test]
+    async fn import_path_rejects_unknown_extensions_with_the_web_message() {
+        let p = std::env::temp_dir().join(format!("{}.xyz", Uuid::new_v4()));
+        std::fs::write(&p, b"x").unwrap();
+        let e = test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err();
+        assert_eq!(e.message, "RustyPresenter doesn't know how to show .xyz files.");
+    }
+
+    #[tokio::test]
+    async fn import_path_lyrics_imports_a_songselect_song() {
+        let app = test_app();
+        let p = std::env::temp_dir().join(format!("{}.txt", Uuid::new_v4()));
+        std::fs::write(&p, "A Test Song\r\n\r\nVerse 1\r\nOriginal test line one\r\nOriginal test line two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
+        let Imported::Song { id, title, duplicate_of } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((title.as_str(), duplicate_of), ("A Test Song", None));
+        assert_eq!(app.data.lock().unwrap().songs[0].id, id);
+        // The same song again is flagged as a duplicate of the first.
+        let Imported::Song { duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!(duplicate_of, Some(id));
+        assert!(p.exists());
+    }
+
+    #[tokio::test]
+    async fn import_path_asset_returns_the_stored_asset() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(2, 2).save(&png).unwrap();
+        let Imported::Asset(a) = app.import_path(&png, ImportPurpose::Asset, |_| {}).await.unwrap() else { panic!() };
+        assert!(a.ends_with(".png") && app.store.asset_path(&a).exists());
+        assert!(app.data.lock().unwrap().media.is_empty(), "an asset is not a media library entry");
+    }
+
+    #[tokio::test]
+    async fn import_path_reports_progress_up_to_100() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(600, 600).save(&png).unwrap();
+        let seen = Arc::new(Mutex::new(Vec::<u8>::new()));
+        let s = seen.clone();
+        app.import_path(&png, ImportPurpose::Media, move |p| s.lock().unwrap().push(p)).await.unwrap();
+        let seen = seen.lock().unwrap();
+        assert_eq!(seen.last(), Some(&100));
+        assert!(seen.windows(2).all(|w| w[0] <= w[1]), "progress only goes up: {seen:?}");
+    }
+
+    #[tokio::test]
+    async fn import_path_missing_file_is_an_error() {
+        let p = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        assert_eq!(test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err().status, 400);
     }
 
     #[tokio::test]
