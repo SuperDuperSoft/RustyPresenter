@@ -1,0 +1,311 @@
+// Item edit (`openItemEdit`, `operator.js:720-796`): the sections for the item's kind, the stage notes, and
+// Remove / Cancel / Save. Rust (`src/ui/dialogs/item_edit.rs`) fills `ItemEdit` when the dialog opens and reads it on
+// Save; nothing here is redrawn by a data update, so what the user typed stays.
+import { Theme, OperatorState } from "../theme.slint";
+import { Btn, Chip, Segmented, Field } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { BackgroundPicker, BgChoice } from "background-picker.slint";
+
+export { BgChoice }
+
+/// What the open Item edit shows and what the user changed.
+export global ItemEdit {
+    /// The row's kind: song, scripture, text, video, image, audio or deck.
+    in property <string> kind;
+    /// Song: the library still has the song.
+    in property <bool> song-exists;
+    /// Scripture: 0 = Automatic, else verses per slide.
+    in-out property <int> per-slide;
+    /// Announcement.
+    in-out property <string> title;
+    in-out property <string> body;
+    /// Video: 0 = Clear the screen, 1 = Stay on last frame, 2 = Play again (loop).
+    in-out property <bool> autoplay;
+    in-out property <int> end-index;
+    /// Audio.
+    in-out property <bool> looped;
+    /// Media ("Name in library") and slides ("Name"): the name field is there.
+    in property <bool> has-name;
+    in-out property <string> name;
+    /// Media that is not ready: its status chip and reason.
+    in property <bool> not-ready;
+    in property <string> status-text;
+    in property <string> status-state;
+    in property <string> status-reason;
+    /// Song, scripture and announcement items have a background.
+    in property <bool> has-background;
+    in property <[BgChoice]> choices;
+    in property <[color]> palette;
+    in-out property <string> notes;
+
+    callback edit-song();
+    callback save();
+    callback remove();
+    callback pick-background(int);
+    callback custom-color(color);
+    callback custom-hex(string);
+    callback upload();
+}
+
+/// `.field input[type=text]` / `.field textarea`: 1.5 px line, accent when focused, 9 × 11 padding. A test (or a
+/// screen reader) can type into it through its accessible value.
+component TextBox inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    in property <bool> multi;
+    in property <length> min-lines: 120px;
+    in property <string> label;
+    background: Theme.bg;
+    border-width: 1.5px;
+    border-radius: 9px;
+    border-color: input.has-focus ? Theme.accent : Theme.line;
+    min-height: root.multi ? max(root.min-lines, input.preferred-height + 20px) : 38px;
+    accessible-role: text-input;
+    accessible-label: root.label;
+    accessible-value: root.text;
+    accessible-placeholder-text: root.placeholder;
+    accessible-action-set-value(v) => { root.text = v; }
+
+    TouchArea {
+        mouse-cursor: MouseCursor.text;
+        clicked => { input.focus(); }
+    }
+    if root.text == "" && root.placeholder != "": Text {
+        x: 12px;
+        y: root.multi ? 10px : 0px;
+        width: root.width - 24px;
+        height: root.multi ? self.preferred-height : root.height;
+        text: root.placeholder;
+        color: Theme.faint;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        vertical-alignment: center;
+    }
+    input := TextInput {
+        x: 12px;
+        y: root.multi ? 10px : (root.height - self.height) / 2;
+        width: root.width - 24px;
+        height: root.multi ? root.height - 20px : self.preferred-height;
+        text <=> root.text;
+        single-line: !root.multi;
+        wrap: root.multi ? word-wrap : no-wrap;
+        color: Theme.text;
+        selection-background-color: Theme.accent;
+        selection-foreground-color: Theme.accent-ink;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+    }
+}
+
+/// `.switch`: an 18 px checkbox in the accent colour and its label.
+component Switch inherits HorizontalLayout {
+    in-out property <bool> checked;
+    in property <string> text;
+    spacing: 10px;
+    padding-bottom: 10px;
+    accessible-role: checkbox;
+    accessible-label: root.text;
+    accessible-checked: root.checked;
+    accessible-action-default => { root.checked = !root.checked; }
+    VerticalLayout {
+        alignment: center;
+        Rectangle {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border-width: root.checked ? 0px : 1.5px;
+            border-color: Theme.muted;
+            background: root.checked ? Theme.accent : Theme.bg;
+            if root.checked: Path {
+                width: 18px;
+                height: 18px;
+                viewbox-width: 18;
+                viewbox-height: 18;
+                commands: "M4.5 9.5l3 3 6-7";
+                stroke: Theme.accent-ink;
+                stroke-width: 2px;
+                fill: transparent;
+            }
+        }
+    }
+    Text {
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        vertical-alignment: center;
+        horizontal-stretch: 1;
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.checked = !root.checked; }
+    }
+}
+
+/// `.note`: a quiet box of explanation.
+component Note inherits Rectangle {
+    background: Theme.panel-2;
+    border-radius: 10px;
+    HorizontalLayout {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 8px;
+        @children
+    }
+}
+
+component NoteText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    wrap: word-wrap;
+    vertical-alignment: center;
+}
+
+/// The dialog's body and footer, inside `DialogShell`.
+export component ItemEditDialog inherits VerticalLayout {
+    callback close();
+
+    DialogBody {
+        if ItemEdit.kind == "song": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                NoteText {
+                    horizontal-stretch: 1;
+                    text: ItemEdit.song-exists
+                        ? @tr("Lyrics, order and credits belong to the song in your library.")
+                        : @tr("Lyrics, order and credits belong to the song in your library. This song was deleted from the library.");
+                }
+                if ItemEdit.song-exists: VerticalLayout {
+                    alignment: center;
+                    edit-song := Btn {
+                        small: true;
+                        icon: "edit";
+                        text: @tr("Edit song");
+                        clicked => { ItemEdit.edit-song(); }
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Verses per slide");
+            HorizontalLayout {
+                alignment: start;
+                per-slide := Segmented {
+                    labels: [@tr("Automatic"), @tr("1 verse"), @tr("2 verses"), @tr("3 verses"), @tr("4 verses")];
+                    index <=> ItemEdit.per-slide;
+                }
+            }
+        }
+        if ItemEdit.kind == "text": Field {
+            label: @tr("Title");
+            title-box := TextBox {
+                label: @tr("Title");
+                text <=> ItemEdit.title;
+            }
+        }
+        if ItemEdit.kind == "text": Field {
+            label: @tr("Text");
+            help: @tr("— an empty line starts a new slide");
+            body-box := TextBox {
+                label: @tr("Text");
+                multi: true;
+                text <=> ItemEdit.body;
+            }
+        }
+        if ItemEdit.kind == "video": autoplay := Switch {
+            text: @tr("Start playing as soon as it is shown");
+            checked <=> ItemEdit.autoplay;
+        }
+        if ItemEdit.kind == "video": Field {
+            label: @tr("When the video ends");
+            HorizontalLayout {
+                alignment: start;
+                end := Segmented {
+                    labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)")];
+                    index <=> ItemEdit.end-index;
+                }
+            }
+        }
+        if ItemEdit.kind == "audio": looped := Switch {
+            text: @tr("Repeat until stopped");
+            checked <=> ItemEdit.looped;
+        }
+        if ItemEdit.kind == "audio": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                NoteText {
+                    horizontal-stretch: 1;
+                    text: @tr("Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All.");
+                }
+            }
+        }
+        if ItemEdit.has-name: Field {
+            label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+            name-box := TextBox {
+                label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+                text <=> ItemEdit.name;
+            }
+        }
+        if ItemEdit.not-ready: VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                VerticalLayout {
+                    alignment: center;
+                    Chip {
+                        text: ItemEdit.status-text;
+                        state: ItemEdit.status-state;
+                        tooltip: ItemEdit.status-reason;
+                    }
+                }
+                NoteText {
+                    horizontal-stretch: 1;
+                    text: ItemEdit.status-reason;
+                }
+            }
+        }
+        if ItemEdit.has-background: Field {
+            label: @tr("Background");
+            picker := BackgroundPicker {
+                choices: ItemEdit.choices;
+                palette: ItemEdit.palette;
+                pick(i) => { ItemEdit.pick-background(i); }
+                custom-color(c) => { ItemEdit.custom-color(c); }
+                custom-hex(t) => { ItemEdit.custom-hex(t); }
+                upload => { ItemEdit.upload(); }
+            }
+        }
+        Field {
+            label: @tr("Stage notes");
+            notes-box := TextBox {
+                label: @tr("Stage notes");
+                multi: true;
+                min-lines: 64px;
+                placeholder: @tr("Shown on the stage display only");
+                text <=> ItemEdit.notes;
+            }
+        }
+    }
+    DialogFoot {
+        remove := Btn {
+            danger: true;
+            icon: "trash";
+            text: @tr("Remove from service");
+            clicked => { ItemEdit.remove(); }
+        }
+        // `margin-right: auto` on the danger button.
+        Rectangle { horizontal-stretch: 1; }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { root.close(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { ItemEdit.save(); }
+        }
+    }
+}

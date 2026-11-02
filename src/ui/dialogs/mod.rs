@@ -2,6 +2,8 @@
 //! 1.18 has no modal or owner-window API (native spec §6). One dialog at a time, swapped in place like the web's
 //! single `<dialog>`; confirm and prompt questions (`ask`) stack above it, or above the bare window.
 pub mod ask;
+pub mod background;
+pub mod item_edit;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
 
