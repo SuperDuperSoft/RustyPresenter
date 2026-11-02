@@ -91,7 +91,9 @@ export component OperatorWindow inherits Window {
 
     /// `operator.css:239`: at 1250 px or less the top bar drops the brand word and labels. Set from a change handler,
     /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
+    /// `changed` fires only on a change, so `init` sets it for a window whose first width is already its last.
     out property <bool> narrow;
+    init => { root.narrow = root.width <= 1250px; }
     changed width => { root.narrow = root.width <= 1250px; }
 
     // Top bar (see `TopBar`).

@@ -148,6 +148,8 @@ impl Operator {
 
 impl Drop for Operator {
     fn drop(&mut self) {
+        // The follower thread sits in `blocking_recv`, so it sees `closed` and exits (dropping its `Arc<App>`) at the
+        // next core update after this, not at once. Harmless: the window lives as long as the app.
         if let Some(feed) = &self.feed { feed.close(); }
         let _ = self.ui.hide();
     }
@@ -392,6 +394,19 @@ mod tests {
         resize(1200.0);
         assert!(op.ui.get_narrow());
         assert!(find(&op, "TopBar::brand-word").is_none());
+    }
+
+    #[test]
+    fn narrow_matches_the_first_width() {
+        // `changed width` fires only when the width changes, so a window whose first width is already narrow and
+        // never changes would keep `narrow` false (the wide top bar). The testing backend's window starts 800 px
+        // wide, and nothing resizes it before `show`.
+        ui_test_init();
+        let ui = OperatorWindow::new().unwrap();
+        let width = ui.window().size().to_logical(ui.window().scale_factor()).width;
+        assert!(width <= 1250.0, "the test needs a narrow first width, got {width}");
+        slint::platform::update_timers_and_animations();
+        assert!(ui.get_narrow());
     }
 
     #[test]
