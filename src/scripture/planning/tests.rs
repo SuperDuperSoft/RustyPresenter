@@ -143,3 +143,68 @@ fn union_orders_by_id_and_keeps_unlabelled_after_previous() {
     );
     assert!(plan_scripture(&i, &mut cm()).auto_at.iter().all(|a| !a));
 }
+
+fn composed(p: &PlannedScripture) -> String { p.slides.iter().map(|s| s.text.as_str()).collect::<Vec<_>>().join(" ") }
+
+#[test]
+fn join_too_long_splits_inside_verse_with_cont_label() {
+    let a = "word ".repeat(14).trim_end().to_string(); // 69 chars
+    let mut i = input(&[v("John 3:16", &a), v("John 3:17", &a)], None); // composed 145 chars > 120
+    i.breaks.join.insert(VerseId(42, 3, 17));
+    let p = plan_scripture(&i, &mut cm());
+    assert!(p.slides.len() >= 3);
+    assert_eq!((p.slides[0].label.as_str(), p.slides[1].label.as_str()), ("John 3:16–17", "John 3:16–17 (cont.)"));
+    assert_eq!(p.slides[1].reference, "John 3:16–17 (cont.) (KJV)");
+    assert!(p.slides.iter().all(|s| s.split));
+    assert_eq!(p.slides.iter().map(|s| s.source.unwrap().part).collect::<Vec<_>>(), (0..p.slides.len() as u8).collect::<Vec<_>>());
+    assert_eq!(composed(&p), format!("¹⁶{T}{a} ¹⁷{T}{a}")); // words and the ¹⁷ superscript kept in order
+    assert!(p.slides.iter().all(|s| s.text.chars().count() <= 60));
+}
+
+#[test]
+fn parallel_long_verse_splits_both_into_same_part_count() {
+    let k = "alpha ".repeat(25).trim_end().to_string(); // 149 chars
+    let n = "beta ".repeat(20).trim_end().to_string(); // 99 chars
+    let i = input(&[v("John 3:16", &k)], Some(("NIV", &[v("John 3:16", &n)])));
+    let p = plan_scripture(&i, &mut cm());
+    assert!(p.slides.len() >= 2);
+    assert!(p.slides.iter().all(|s| s.split && s.second.is_some()));
+    assert_eq!(composed(&p), format!("¹⁶{T}{k}"));
+    let second: Vec<_> = p.slides.iter().map(|s| s.second.as_ref().unwrap().text.clone()).collect();
+    assert_eq!(second.join(" "), format!("¹⁶{T}{n}"));
+    assert!(second.iter().all(|t| !t.is_empty()));
+}
+
+#[test]
+fn single_word_too_long_group_is_one_part_and_flagged() {
+    let tok = "x".repeat(500);
+    let i = input(&[v("John 3:16", &tok)], None); // composed 504 > max 400, W = 1
+    let p = plan_scripture(&i, &mut CharMeasure::with_limits(60, 400));
+    assert_eq!(p.slides.len(), 1);
+    assert_eq!(p.slides[0].text, format!("¹⁶{T}{tok}"));
+    assert!(p.slides[0].split); // TooLong chip still shows
+    assert_eq!(p.slides[0].label, "John 3:16"); // no "(cont.)" on part 0
+}
+
+#[test]
+fn two_huge_words_stop_at_word_count() {
+    let i = input(&[v("John 3:16", &format!("{} {}", "x".repeat(300), "y".repeat(300)))], None);
+    let p = plan_scripture(&i, &mut CharMeasure::with_limits(60, 120));
+    assert_eq!(p.slides.len(), 2); // n = W = 2, both parts still TooLong, no panic
+}
+
+#[test]
+fn auto_gaps_ignore_join_marks() {
+    let mut i = input(&[v("John 3:16", &"a".repeat(40)), v("John 3:17", &"b".repeat(40))], None);
+    i.breaks.join.insert(VerseId(42, 3, 17));
+    let p = plan_scripture(&i, &mut cm());
+    assert_eq!(p.slides.len(), 1);
+    assert_eq!((p.auto_gaps.iter().copied().collect::<Vec<_>>(), p.auto_at.clone()), (vec![VerseId(42, 3, 17)], vec![false, true]));
+}
+
+#[test]
+fn scripture_slides_have_no_split_flag_when_they_fit() {
+    let i = input(&[v("John 3:16", &short(1)), v("John 3:17", &short(2))], None);
+    let p = plan_scripture(&i, &mut cm());
+    assert!(p.slides.iter().all(|s| !s.split && s.source.unwrap().part == 0));
+}

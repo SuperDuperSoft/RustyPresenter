@@ -2,6 +2,7 @@
 //! by manual marks, `per_slide` or measured fit, and each slide's text, labels and footer.
 pub mod measure;
 pub mod refs;
+pub mod split;
 
 pub use measure::{CharMeasure, DEFAULT_SCRIPTURE_SIZE, Fit, MIN_PX, Measure, PlanTheme, readable_px};
 pub use refs::join_refs;
@@ -95,9 +96,33 @@ pub fn union<T: PlanTheme>(input: &ScriptureInput<T>) -> Vec<UnionVerse> {
     out
 }
 
-/// Spec §5.4 steps 1–5. A `TooLong` group is emitted whole (Task A10 splits it).
+/// Spec §5.4 steps 1–5: group the union verses, split each `TooLong` group into even parts,
+/// and record where the automatic plan (`join` ignored) would start slides.
 pub fn plan_scripture<T: PlanTheme>(input: &ScriptureInput<T>, m: &mut dyn Measure) -> PlannedScripture {
     let verses = union(input);
+    let mut slides = vec![];
+    for g in group_verses(input, &verses, m, true) {
+        let (main, second) = compose(input, &verses, &g);
+        if m.fits(&main, second.as_ref()) == Fit::TooLong {
+            let parts = split::split_slide(&main, second.as_ref(), m);
+            for (part, (text, second)) in parts.into_iter().enumerate() {
+                slides.push(slide(input, &verses, &g, text, second, part, true));
+            }
+        } else {
+            slides.push(slide(input, &verses, &g, main, second, 0, false));
+        }
+    }
+    let mut auto_at = vec![false; verses.len()];
+    for g in group_verses(input, &verses, m, false).iter().skip(1) {
+        auto_at[g[0]] = true;
+    }
+    let auto_gaps = verses.iter().zip(&auto_at).filter(|(_, at)| **at).filter_map(|(u, _)| u.id).collect();
+    PlannedScripture { slides, notes: missing_notes(input, &verses), auto_gaps, auto_at }
+}
+
+/// Spec §5.4 steps 1–3: `before` starts a new slide, `join` (when `honor_join`) appends, else
+/// `per_slide` counts or the measured `Comfortable` test decides. Returns union indices.
+fn group_verses<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], m: &mut dyn Measure, honor_join: bool) -> Vec<Vec<usize>> {
     let mut groups: Vec<Vec<usize>> = vec![];
     let mut group: Vec<usize> = vec![];
     for (i, u) in verses.iter().enumerate() {
@@ -105,13 +130,13 @@ pub fn plan_scripture<T: PlanTheme>(input: &ScriptureInput<T>, m: &mut dyn Measu
             let marked = |set: &BTreeSet<VerseId>| u.id.is_some_and(|id| set.contains(&id));
             let new_slide = if marked(&input.breaks.before) {
                 true
-            } else if marked(&input.breaks.join) {
+            } else if honor_join && marked(&input.breaks.join) {
                 false
             } else if input.per_slide > 0 {
                 group.len() >= input.per_slide as usize
             } else {
                 let probe: Vec<usize> = group.iter().copied().chain([i]).collect();
-                let (main, second) = compose(input, &verses, &probe);
+                let (main, second) = compose(input, verses, &probe);
                 m.fits(&main, second.as_ref()) != Fit::Comfortable
             };
             if new_slide {
@@ -123,19 +148,25 @@ pub fn plan_scripture<T: PlanTheme>(input: &ScriptureInput<T>, m: &mut dyn Measu
     if !group.is_empty() {
         groups.push(group);
     }
-    PlannedScripture {
-        slides: groups.iter().map(|g| slide(input, &verses, g)).collect(),
-        notes: missing_notes(input, &verses),
-        auto_gaps: BTreeSet::new(),
-        auto_at: vec![false; verses.len()],
-    }
+    groups
 }
 
-/// One planned slide for the union verses at `group`.
-fn slide<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], group: &[usize]) -> PlannedSlide {
-    let (text, second) = compose(input, verses, group);
+/// Part `part` of the planned slide for the union verses at `group`, with its composed `text`
+/// and second column. Parts after the first get " (cont.)" after the refs.
+fn slide<T: PlanTheme>(
+    input: &ScriptureInput<T>,
+    verses: &[UnionVerse],
+    group: &[usize],
+    text: String,
+    second: Option<ParallelText>,
+    part: usize,
+    split: bool,
+) -> PlannedSlide {
     let shown: Vec<&VerseText> = group.iter().filter_map(|&i| verses[i].main.as_ref().or(verses[i].second.as_ref())).collect();
-    let label = join_refs(&shown);
+    let mut label = join_refs(&shown);
+    if part > 0 {
+        label.push_str(" (cont.)");
+    }
     let reference = match &input.second {
         Some(s) => format!("{label} ({} · {})", input.main_code, s.code),
         None => format!("{label} ({})", input.main_code),
@@ -143,8 +174,9 @@ fn slide<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], group: 
     let notices = [input.main_notice.as_deref(), input.second.as_ref().and_then(|s| s.notice.as_deref())];
     let footer = notices.into_iter().flatten().filter(|n| !n.trim().is_empty()).collect::<Vec<_>>().join(" · ");
     let ids: Vec<VerseId> = group.iter().filter_map(|&i| verses[i].id).collect();
-    let source = ids.first().zip(ids.last()).map(|(&first, &last)| SlideSource { first, last, part: 0 });
-    PlannedSlide { label, text, reference, footer: (!footer.is_empty()).then_some(footer), second, source, split: false }
+    let part = u8::try_from(part).unwrap_or(u8::MAX);
+    let source = ids.first().zip(ids.last()).map(|(&first, &last)| SlideSource { first, last, part });
+    PlannedSlide { label, text, reference, footer: (!footer.is_empty()).then_some(footer), second, source, split }
 }
 
 /// The main slide text and, in parallel mode, the second column for the union verses at `group`.
