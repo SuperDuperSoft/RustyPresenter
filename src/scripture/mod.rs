@@ -4,6 +4,7 @@
 pub mod cache;
 pub mod fetch;
 pub mod input;
+pub mod search;
 pub mod sources;
 pub mod types;
 // FEAT-5 B1: switch to crate::strings::scripture once src/strings/mod.rs exists
