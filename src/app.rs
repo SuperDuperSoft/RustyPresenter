@@ -1,12 +1,14 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
 use crate::{bible, live::*, media, model::*, slides::build_item, songselect, store::Store};
-use crate::sha256::digest_hex;
+use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
     collections::HashMap,
+    io::{Read, Write},
     net::IpAddr,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
@@ -349,13 +351,8 @@ impl App {
             Ok(json!({}))
         }
         "song/import-txt" => {
-            let text = String::from_utf8_lossy(body);
-            let song = tryr!(songselect::import_txt(&text));
-            let dup = app.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
-            let id = song.id;
-            let title = song.title.clone();
-            tryr!(app.edit(|d| { d.songs.push(song); Ok(()) }));
-            Ok(json!({ "id": id, "title": title, "duplicate_of": dup }))
+            let Imported::Song { id, title, duplicate_of } = tryr!(app.import_song_txt(&String::from_utf8_lossy(body))) else { unreachable!() };
+            Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
         "service/add" => {
@@ -590,6 +587,128 @@ impl App {
 }
 }
 
+/// What a file is being imported for. Picks what `App::import_staged` does with it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics }
+
+/// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
+#[derive(Clone, Debug)]
+pub enum Imported {
+    Media(MediaFile),
+    Asset(AssetId),
+    Job(Uuid),
+    Song { id: Uuid, title: String, duplicate_of: Option<Uuid> },
+}
+
+impl App {
+    /// Import a file from this computer (native file dialog or desktop drop). The file is copied into the
+    /// store's tmp, never moved: it is the user's file. `progress` gets 0..=100 as bytes are copied and hashed.
+    pub async fn import_path(self: &Arc<Self>, path: &Path, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static) -> Result<Imported, ActionError> {
+        let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        let tmp = self.store.tmp().join(format!("{}.part", Uuid::new_v4()));
+        let (src, dst, shown) = (path.to_path_buf(), tmp.clone(), name.clone());
+        let sha = tokio::task::spawn_blocking(move || -> Result<String, String> {
+            let disk_full = |_| "Could not save the file (disk full?).".to_string();
+            let mut input = std::fs::File::open(&src).map_err(|e| format!("Could not open “{shown}”: {e}"))?;
+            let total = input.metadata().map(|m| m.len()).unwrap_or(0);
+            let mut out = std::fs::File::create(&dst).map_err(disk_full)?;
+            let (mut hasher, mut buf, mut done, mut last) = (Sha256::new(), vec![0u8; 1 << 16], 0u64, 0u8);
+            progress(0);
+            let copied = (|| -> Result<(), String> {
+                loop {
+                    let n = input.read(&mut buf).map_err(|e| format!("Could not read “{shown}”: {e}"))?;
+                    if n == 0 { return Ok(()); }
+                    hasher.update(&buf[..n]);
+                    out.write_all(&buf[..n]).map_err(disk_full)?;
+                    done += n as u64;
+                    // 100 is sent once, after the copy is complete.
+                    let p = (done * 99 / total.max(done).max(1)) as u8;
+                    if p > last { last = p; progress(p); }
+                }
+            })();
+            drop(out);
+            if let Err(e) = copied { let _ = std::fs::remove_file(&dst); return Err(e); }
+            progress(100);
+            Ok(hex(&hasher.finalize()))
+        }).await.map_err(|e| ActionError::bad(e.to_string()))?.map_err(ActionError::bad)?;
+        self.import_staged(tmp, &name, &sha, purpose).await
+    }
+
+    /// Finish an import from a file already in the store's tmp (copied by `import_path`, or streamed there by
+    /// the HTTP upload). `name` is the original file name and `sha` the file's hash. Takes ownership of `tmp`.
+    pub async fn import_staged(self: &Arc<Self>, tmp: PathBuf, name: &str, sha: &str, purpose: ImportPurpose) -> Result<Imported, ActionError> {
+        let app = self;
+        let ext = crate::store::sanitize_ext(name.rsplit('.').next().unwrap_or(""));
+        let base_name = name.rsplit(['/', '\\']).next().unwrap_or(name);
+        let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
+
+        match purpose {
+            ImportPurpose::Lyrics => {
+                let bytes = std::fs::read(&tmp);
+                let _ = std::fs::remove_file(&tmp);
+                let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
+                return app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad);
+            }
+            ImportPurpose::PowerPoint => {
+                let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
+                let _ = std::fs::create_dir_all(&dir);
+                let input = dir.join(format!("input.{ext}"));
+                if std::fs::rename(&tmp, &input).is_err() { let _ = std::fs::remove_file(&tmp); return Err(ActionError::bad("Could not stage the presentation.")); }
+                let job = app.job_start(&format!("Importing “{display}” from PowerPoint"));
+                let app2 = app.clone();
+                tokio::spawn(async move {
+                    let result = async {
+                        let pngs = media::export_powerpoint(&input, &dir.join("out")).await?;
+                        let mut assets = vec![];
+                        for (i, p) in pngs.iter().enumerate() {
+                            assets.push(app2.store.import_file(p, "png").map_err(|e| e.to_string())?);
+                            app2.job_progress(job, ((i + 1) * 100 / pngs.len()) as u8);
+                        }
+                        app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
+                    }.await;
+                    let _ = std::fs::remove_dir_all(&dir);
+                    app2.job_end(job, result.err());
+                });
+                return Ok(Imported::Job(job));
+            }
+            ImportPurpose::Asset | ImportPurpose::Media => {}
+        }
+
+        let asset = app.store.publish(&tmp, sha, &ext).map_err(|e| ActionError::bad(e.to_string()))?;
+        if purpose == ImportPurpose::Asset { return Ok(Imported::Asset(asset)); }
+
+        let kind = if media::IMAGE.contains(&ext.as_str()) { MediaKind::Image }
+            else if media::VIDEO.contains(&ext.as_str()) && !(ext == "webm" && display.to_lowercase().contains("audio")) { MediaKind::Video }
+            else if media::AUDIO.contains(&ext.as_str()) { MediaKind::Audio }
+            else { return Err(ActionError::bad(format!("RustyPresenter doesn't know how to show .{ext} files."))); };
+        let path = app.store.asset_path(&asset);
+        let plan = match kind {
+            MediaKind::Image => media::Plan::Ready,
+            MediaKind::Video => media::plan_video(&path, &ext).await,
+            MediaKind::Audio => media::plan_audio(&path, &ext).await,
+        };
+        let status = match &plan {
+            media::Plan::Ready => MediaStatus::Ready,
+            media::Plan::Unknown(r) => MediaStatus::Unconverted { reason: r.clone() },
+            _ => MediaStatus::Converting { percent: 0 },
+        };
+        let id = Uuid::new_v4();
+        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None };
+        tryr!(app.edit(|d| { d.media.push(m.clone()); Ok(()) }));
+        if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
+        Ok(Imported::Media(m))
+    }
+
+    /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
+    fn import_song_txt(&self, text: &str) -> Result<Imported, String> {
+        let song = songselect::import_txt(text)?;
+        let duplicate_of = self.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
+        let (id, title) = (song.id, song.title.clone());
+        self.edit(|d| { d.songs.push(song); Ok(()) })?;
+        Ok(Imported::Song { id, title, duplicate_of })
+    }
+}
+
 pub(crate) fn hash_token(t: &str) -> String { digest_hex(t.as_bytes()) }
 
 /// 256 bits from the OS random generator (via two v4 UUIDs, 244 random bits).
@@ -745,6 +864,69 @@ mod tests {
         assert_eq!(app.state_json()["stage_connected"], true);
         drop(g);
         assert_eq!(app.state_json()["stage_connected"], false);
+    }
+
+    #[tokio::test]
+    async fn import_path_adds_a_picture_to_the_media_library() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(4, 4).save(&png).unwrap();
+        let Imported::Media(m) = app.import_path(&png, ImportPurpose::Media, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((m.kind, m.status.clone()), (MediaKind::Image, MediaStatus::Ready));
+        assert!(png.exists(), "the user's file is copied, never moved");
+        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        assert!(app.store.asset_path(&m.asset).exists());
+    }
+
+    #[tokio::test]
+    async fn import_path_rejects_unknown_extensions_with_the_web_message() {
+        let p = std::env::temp_dir().join(format!("{}.xyz", Uuid::new_v4()));
+        std::fs::write(&p, b"x").unwrap();
+        let e = test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err();
+        assert_eq!(e.message, "RustyPresenter doesn't know how to show .xyz files.");
+    }
+
+    #[tokio::test]
+    async fn import_path_lyrics_imports_a_songselect_song() {
+        let app = test_app();
+        let p = std::env::temp_dir().join(format!("{}.txt", Uuid::new_v4()));
+        std::fs::write(&p, "A Test Song\r\n\r\nVerse 1\r\nOriginal test line one\r\nOriginal test line two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
+        let Imported::Song { id, title, duplicate_of } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((title.as_str(), duplicate_of), ("A Test Song", None));
+        assert_eq!(app.data.lock().unwrap().songs[0].id, id);
+        // The same song again is flagged as a duplicate of the first.
+        let Imported::Song { duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!(duplicate_of, Some(id));
+        assert!(p.exists());
+    }
+
+    #[tokio::test]
+    async fn import_path_asset_returns_the_stored_asset() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(2, 2).save(&png).unwrap();
+        let Imported::Asset(a) = app.import_path(&png, ImportPurpose::Asset, |_| {}).await.unwrap() else { panic!() };
+        assert!(a.ends_with(".png") && app.store.asset_path(&a).exists());
+        assert!(app.data.lock().unwrap().media.is_empty(), "an asset is not a media library entry");
+    }
+
+    #[tokio::test]
+    async fn import_path_reports_progress_up_to_100() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(600, 600).save(&png).unwrap();
+        let seen = Arc::new(Mutex::new(Vec::<u8>::new()));
+        let s = seen.clone();
+        app.import_path(&png, ImportPurpose::Media, move |p| s.lock().unwrap().push(p)).await.unwrap();
+        let seen = seen.lock().unwrap();
+        assert_eq!(seen.last(), Some(&100));
+        assert!(seen.windows(2).all(|w| w[0] <= w[1]), "progress only goes up: {seen:?}");
+    }
+
+    #[tokio::test]
+    async fn import_path_missing_file_is_an_error() {
+        let p = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        assert_eq!(test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err().status, 400);
     }
 
     #[tokio::test]
