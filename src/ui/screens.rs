@@ -203,7 +203,7 @@ impl NativeScreens {
 
 impl OperatorScreens for NativeScreens {
     fn video_info(&self) -> VideoInfo {
-        let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string() });
+        let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string(), versions: m.versions().cloned() });
         VideoInfo { draw_mode: crate::video::drawing(), mpv }
     }
 

@@ -1,0 +1,30 @@
+===============================================================================
+Software that ships beside RustyPresenter
+===============================================================================
+
+These are not Rust crates, so they are not in the list above.
+
+libmpv
+  Video and audio playback. Loaded at run time from a separate file; it can be
+  replaced with another compatible build.
+  License: GNU Lesser General Public License, version 2.1 or later.
+  Built with -Dgpl=false, so no GPL-only code is included.
+  Project and source: https://mpv.io  https://github.com/mpv-player/mpv
+  License text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+
+FFmpeg libraries
+  Decoding, as used by libmpv. Configured without --enable-gpl, --enable-version3
+  and --enable-nonfree.
+  License: GNU Lesser General Public License, version 2.1 or later.
+  Project and source: https://ffmpeg.org
+  License text: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+
+pdfium
+  PDF pages to pictures.
+  License: BSD 3-Clause and Apache License 2.0.
+  Project and source: https://pdfium.googlesource.com/pdfium
+
+Noto Sans
+  The font used when a chosen font is not installed.
+  License: SIL Open Font License 1.1 (https://openfontlicense.org).
+  Project: https://fonts.google.com/noto

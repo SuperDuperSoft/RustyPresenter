@@ -4,7 +4,7 @@
 #![allow(non_camel_case_types)]
 use std::ffi::{CStr, CString, c_char, c_int, c_ulong, c_void};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 pub const MISSING: &str = "The video player is missing. Reinstall RustyPresenter.";
 
@@ -228,6 +228,7 @@ pub struct Mpv {
     pub render_context_report_swap: unsafe extern "C" fn(*mut mpv_render_context),
     pub render_context_free: unsafe extern "C" fn(*mut mpv_render_context),
     path: PathBuf,
+    versions: OnceLock<(String, String)>,
     _lib: libloading::Library,
 }
 
@@ -294,6 +295,7 @@ impl Mpv {
                 render_context_report_swap: sym!("mpv_render_context_report_swap"),
                 render_context_free: sym!("mpv_render_context_free"),
                 path: path.to_path_buf(),
+                versions: OnceLock::new(),
                 _lib: lib,
             }
         };
@@ -301,7 +303,28 @@ impl Mpv {
         if major != 2 {
             return Err(format!("This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."));
         }
-        Ok(Arc::new(mpv))
+        let mpv = Arc::new(mpv);
+        // A throwaway core takes a moment to start, and `Mpv::load` can run on the UI thread.
+        let reader = Arc::downgrade(&mpv);
+        std::thread::spawn(move || { if let Some(m) = reader.upgrade() { m.versions.get_or_init(|| m.read_versions()); } });
+        Ok(mpv)
+    }
+
+    /// `mpv-version` and `ffmpeg-version` for Settings → About. `None` until read, once, just after loading.
+    pub fn versions(&self) -> Option<&(String, String)> { self.versions.get().filter(|(m, f)| !m.is_empty() || !f.is_empty()) }
+
+    fn read_versions(&self) -> (String, String) {
+        unsafe {
+            let h = (self.create)();
+            if h.is_null() { return Default::default() }
+            let got = if self.set_option(h, "vo", "null").is_ok() && self.set_option(h, "ao", "null").is_ok() && (self.initialize)(h) >= 0 {
+                (self.get_string(h, "mpv-version").unwrap_or_default(), self.get_string(h, "ffmpeg-version").unwrap_or_default())
+            } else {
+                Default::default()
+            };
+            (self.terminate_destroy)(h);
+            got
+        }
     }
 
     /// Client API version as (major, minor).
@@ -462,6 +485,13 @@ mod tests {
             assert_eq!(mpv.get_string(h, "pause").as_deref(), Some("yes"));
             (mpv.terminate_destroy)(h);
         }
+        let started = std::time::Instant::now();
+        while mpv.versions().is_none() && started.elapsed().as_secs() < 5 {
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        let (version, ffmpeg) = mpv.versions().expect("versions read after loading");
+        assert!(version.starts_with("mpv"), "{version}");
+        assert!(!ffmpeg.is_empty());
     }
 
     #[test]

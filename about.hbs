@@ -1,0 +1,14 @@
+RustyPresenter is built with these Rust crates.
+{{#each licenses}}
+
+===============================================================================
+{{name}}
+===============================================================================
+
+Used by:
+{{#each used_by}}
+  {{crate.name}} {{crate.version}}
+{{/each}}
+
+{{text}}
+{{/each}}

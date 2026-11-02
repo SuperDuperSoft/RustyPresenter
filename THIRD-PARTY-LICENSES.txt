@@ -1,0 +1,2 @@
+NOT THE RELEASE LIST. This placeholder stands in until `cargo about generate about.hbs -o THIRD-PARTY-LICENSES.txt`
+has been run (Plan 3 Task 21). RustyPresenter is built with Slint and many other Rust crates.

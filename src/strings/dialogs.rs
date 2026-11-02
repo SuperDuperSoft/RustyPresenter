@@ -51,3 +51,15 @@ pub const HELP_KEYS: &[(&str, &str)] = &[
     ("Alt + 1–6", "Bible translation (in the Bible box)"),
 ];
 pub const HELP_TIP: &str = "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.";
+
+// Settings → About (Plan 3 Task 21). New text, from the plan; the web has no About tab.
+pub const ABOUT_VIDEO_GPU: &str = "Video: GPU (OpenGL)";
+pub const ABOUT_VIDEO_SOFTWARE: &str = "Video: software drawing";
+pub const ABOUT_VIDEO_MISSING: &str = "Video player missing";
+pub fn about_versions(mpv: &str, ffmpeg: &str) -> String { format!("{mpv} · FFmpeg {ffmpeg}") }
+/// Where the LGPL sources are. The upstream projects until releases have their own page (Plan 4).
+pub const VIDEO_SOURCE_URL: &str = "https://github.com/mpv-player/mpv";
+pub fn about_video_credit() -> String { format!("Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {VIDEO_SOURCE_URL}") }
+
+// Services. `operator.js:789`.
+pub fn default_service_name(date: &str) -> String { format!("Service {date}") }

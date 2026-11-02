@@ -1,0 +1,15 @@
+# `cargo about generate about.hbs -o THIRD-PARTY-LICENSES.txt`. Check the Slint id against its output once.
+accepted = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "MPL-2.0",
+    "OFL-1.1",
+    "BSL-1.0",
+    "CC0-1.0",
+    "LicenseRef-Slint-Royalty-free-2.0",
+]

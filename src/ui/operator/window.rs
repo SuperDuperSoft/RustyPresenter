@@ -17,9 +17,9 @@ use uuid::Uuid;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VideoInfo { pub draw_mode: DrawMode, pub mpv: Option<MpvInfo> }
 
-/// The libmpv that loaded: its client API version and the file it came from.
+/// The libmpv that loaded: its client API version, the file it came from, and its `mpv-version` and `ffmpeg-version`.
 #[derive(Clone, Debug, PartialEq)]
-pub struct MpvInfo { pub api: (u32, u32), pub path: String }
+pub struct MpvInfo { pub api: (u32, u32), pub path: String, pub versions: Option<(String, String)> }
 
 impl VideoInfo {
     /// No libmpv: video and audio items say "The video player is missing" (native spec §5).
@@ -334,7 +334,7 @@ pub(super) mod testing {
 
     impl OperatorScreens for FakeScreens {
         fn video_info(&self) -> VideoInfo {
-            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into() }) }
+            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into(), versions: None }) }
         }
 
         fn preview_grabber(&self) -> Option<FrameGrabber> { None }

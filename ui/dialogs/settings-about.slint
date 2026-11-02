@@ -1,0 +1,87 @@
+// Settings → About (Plan 3 Task 21): the Slint notice, the version, where the data lives, how video is drawn, and the
+// licences. The Settings tabs (Task 20) put `SettingsAbout` in the About tab.
+import { AboutSlint, Palette, TextEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Btn, CopyText } from "../widgets.slint";
+
+export component SettingsAbout inherits VerticalLayout {
+    in property <string> version;
+    in property <string> data-folder;
+    in property <string> video;
+    in property <string> mpv;
+    in property <string> credit;
+    in property <string> licenses;
+    in-out property <bool> show-licenses;
+
+    spacing: 10px;
+    alignment: start;
+
+    // The std widgets follow the system by default; here the notice's small print and the licences sit on dark panels.
+    init => { Palette.color-scheme = ColorScheme.dark; }
+
+    slint-notice := AboutSlint {
+        height: 170px;
+    }
+    version-text := Text {
+        text: @tr("RustyPresenter {}", root.version);
+        color: Theme.text;
+        font-weight: 700;
+        font-size: Theme.base-size;
+    }
+    HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        Text {
+            text: @tr("Your data: ");
+            color: Theme.muted;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+        data-text := CopyText { text: root.data-folder; }
+    }
+    video-text := Text {
+        text: root.video;
+        color: Theme.muted;
+        font-size: Theme.base-size;
+    }
+    if root.mpv != "": mpv-text := Text {
+        text: root.mpv;
+        color: Theme.muted;
+        font-size: Theme.base-size;
+        wrap: word-wrap;
+    }
+    credit-text := Text {
+        text: root.credit;
+        color: Theme.muted;
+        font-size: Theme.base-size;
+        wrap: word-wrap;
+    }
+    HorizontalLayout {
+        alignment: start;
+        licenses-btn := Btn {
+            text: @tr("Show licenses");
+            clicked => { root.show-licenses = true; }
+        }
+    }
+    if root.show-licenses: licenses-text := TextEdit {
+        text: root.licenses;
+        read-only: true;
+        wrap: no-wrap;
+        min-height: 320px;
+    }
+}
+
+/// `SettingsAbout` on its own, for tests until the Settings dialog (Task 20) holds it.
+export component SettingsAboutWindow inherits Window {
+    in property <string> version <=> tab.version;
+    in property <string> data-folder <=> tab.data-folder;
+    in property <string> video <=> tab.video;
+    in property <string> mpv <=> tab.mpv;
+    in property <string> credit <=> tab.credit;
+    in-out property <string> licenses <=> tab.licenses;
+
+    width: 720px;
+    height: 700px;
+    background: Theme.panel;
+    tab := SettingsAbout { }
+}

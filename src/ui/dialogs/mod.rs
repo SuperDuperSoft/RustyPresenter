@@ -1,9 +1,11 @@
 //! The operator's dialogs (Plan 3 Tasks 13–21), which are overlays inside the operator window. So far this holds
-//! only the logic that needs no window; the `.slint` files and glue arrive with those tasks.
+//! mostly the logic that needs no window; most `.slint` files and glue arrive with those tasks.
+pub mod about;
 pub mod add;
 pub mod add_media;
 pub mod background;
 pub mod screens;
+pub mod services;
 pub mod settings;
 pub mod song_editor;
 #[path = "../../strings/dialogs.rs"]
