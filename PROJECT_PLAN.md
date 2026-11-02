@@ -1,7 +1,7 @@
 # RustyPresenter — shared project plan
 
-**Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 (Tauri) is in `src/` and `web/`; the native Slint app is being built beside it (Plan 1 done, Plan 2 next). The earlier experiment is in `experiment-archive/`.
-**Updated:** November 1, 2026 (native Slint selected; Plan 1 foundation finished)
+**Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 (Tauri) is in `src/` and `web/`; the native Slint app is being built beside it (Plans 1 and 2 done on Windows, Plan 3 next). The earlier experiment is in `experiment-archive/`.
+**Updated:** November 1, 2026 (native Plan 2 finished: video, room output and stage windows)
 **Collaborators:** User, Codex, and Claude
 **Purpose:** A Rust-based presentation application for this church's personal use during live services.
 
@@ -108,7 +108,7 @@ Full results and gotchas: `docs/superpowers/checks/2026-native-checks.md`. F1 an
 
 **Selected (October 29–30):** native Slint app, one process plus a small supervisor for crash recovery. Rust core unchanged (`model`, `live`, `bible`, `songselect`, `slides`, `store`); `App` and its dispatcher live in `src/app.rs` with no axum or Tauri types; one typed `Update` stream feeds the native UI and the phone remote's SSE; slides are drawn by the Rust compositor in `src/render/` (cosmic-text + tiny-skia, golden-image tests); video and audio through libmpv loaded at runtime; the phone remote stays a web page served by `server.rs`. Full design: `docs/superpowers/specs/2026-10-29-native-slint-design.md`.
 
-Plans: Plan 1 foundation (`docs/superpowers/plans/2026-10-29-native-foundation.md`, done); Plan 2 video, room output, stage (`docs/superpowers/plans/2026-11-01-native-video-room-stage.md`); Plan 3 operator window and dialogs; Plan 4 imports, crash recovery, packaging, Tauri removal.
+Plans: Plan 1 foundation (`docs/superpowers/plans/2026-10-29-native-foundation.md`, done); Plan 2 video, room output, stage (`docs/superpowers/plans/2026-11-01-native-video-room-stage.md`, done on Windows); Plan 3 operator window and dialogs (`docs/superpowers/plans/2026-11-01-native-operator.md`); Plan 4 imports, crash recovery, packaging, Tauri removal (`docs/superpowers/plans/2026-11-01-native-imports-recovery-packaging.md`).
 
 *Previous:* Tauri 2 with WebView2 windows (v0.2, still the working app until the native one replaces it).
 
@@ -160,9 +160,9 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | F1–F6, FEAS-01 | Feasibility checks (§3) | See §3 | Planning | October 29: user chose Tauri 2 over the v0.2 Edge app windows. F1 checked on this PC: room window has its own WebView2 data folder and browser process; a killed room renderer is reloaded in about 8 s. |
 | AUDIT-01 | Decide what to reuse from the early experiment | Claude | Done | Rewritten. Reused ideas: SongSelect parsing, KJV source (book codes fixed: all 31,102 verses load). Old code kept in `experiment-archive/`. |
 | NATIVE-P1 | Plan 1 foundation: git + CI, checks C1–C5, `App` out of HTTP, typed updates, Rust slide compositor + cache | Claude | Done (Windows) | Branch `native-foundation`. Release build and `cargo test` on Windows (see handoff Nov 1). C1/C2/C5 on macOS/Linux, C3 and the second-monitor case still need real machines or a person. |
-| NATIVE-P2 | Plan 2: `video` module (libmpv), room output window, stage window | Claude | Ready | `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`. |
-| NATIVE-P3 | Plan 3: operator window and dialogs | Claude | Planning | Write after Plan 2. |
-| NATIVE-P4 | Plan 4: LibreOffice/pdfium import, supervisor + crash recovery, packaging for three platforms, remove Tauri | Claude | Planning | Write after Plan 3. |
+| NATIVE-P2 | Plan 2: `video` module (libmpv), room output window, stage window | Claude | Done (Windows) | `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`. Branch `native-foundation`, binary `rustypresenter-native`. Release build, `cargo test` and the libmpv-gated video tests pass on Windows; driven check of the native room/stage recorded in the checks doc (see handoff Nov 1, Plan 2). CI not yet run on the branch (not pushed). Monitor unplug, macOS/Linux video and a by-eye look still need real machines or a person. |
+| NATIVE-P3 | Plan 3: operator window and dialogs | Claude | Ready | `docs/superpowers/plans/2026-11-01-native-operator.md`. |
+| NATIVE-P4 | Plan 4: LibreOffice/pdfium import, supervisor + crash recovery, packaging for three platforms, remove Tauri | Claude | Planning | `docs/superpowers/plans/2026-11-01-native-imports-recovery-packaging.md`; after Plan 3. |
 
 ## 9. Current workspace handoff
 
@@ -293,3 +293,12 @@ For the next handoff, append the collaborator name, task IDs, decisions made, fi
 - Wrote Plan 2 (video, room output, stage) from the C1 results: `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`.
 - Still needs hands: second monitor on the church laptop, C3 drag-and-drop, macOS/Linux runs of C1/C2/C5.
 - Next: carry out Plan 2.
+
+### November 1, 2026 — Claude (native Plan 2 finished)
+
+- Tasks: NATIVE-P2 done on Windows; NATIVE-P3 ready to start.
+- Built on branch `native-foundation` (Tasks 1–8 committed with a review-fix commit after most): `src/video/` (libmpv loaded at run time, lookup `RP_LIBMPV` → exe dir → `<data>/deps/mpv/` → system names; players reporting by instance; `VideoSurface` drawing mpv under Slint with OpenGL or software), `src/room.rs` (which layers change and when a version is committed, like `web/output.js`), `src/platform/monitors.rs` (monitor ids, choice, unplug watch), `ui/room.slint` + `src/ui/room.rs`, `ui/stage.slint` + `src/ui/stage.rs`, `src/ui/screens.rs`, and the second binary `rustypresenter-native` (`src/bin/native.rs`) that runs the same `App` and phone server and serves the web operator page until Plan 3. The Tauri app still builds and runs.
+- Evidence (this PC): `cargo test --locked --release` 135 + 1 + 10 passed; the same with `RP_VIDEO_TESTS=1` and a real libmpv-2.dll (client API 2.x) also passes; `cargo build --locked --release --bins --examples` builds both binaries. C1 rebuilt on `video::surface`: 29.99 (OpenGL) and 29.91–29.96 (software) distinct frames/s for 1080p30 with Slint text stable over the video. Native binary driven through the operator/phone HTTP API: 27 of 27 steps (slides, scripture, still, background and foreground video, pause, audio, clears, logo, phone remote, full screen on the one monitor). Without libmpv, slides work and media items report "The video player is missing. Reinstall RustyPresenter." Details in `docs/superpowers/checks/2026-native-checks.md`.
+- CI (`.github/workflows/ci.yml`): Linux adds `libfontconfig-dev` (Slint's text layout probes fontconfig at build time; wayland, xkbcommon and GL are loaded at run time, so their `-dev` packages are not needed); every OS now also builds `--bins --examples`. Not pushed in this run, so CI has **not** run on these changes yet; gated video tests are skipped in CI (no libmpv there).
+- Still needs hands: picture and sound checked by eye/ear on a projector, monitor unplug/replug on the church laptop, macOS/Linux runs of video and monitors.
+- Next: push `native-foundation` and confirm CI on all three OSes; then carry out Plan 3 (operator window).
