@@ -49,3 +49,18 @@ pub const ROOM_STARTING: &str = "Room screen is starting…";
 pub const ROOM_OFF: &str = "Room screen is not open — click Screens";
 
 pub fn open_failed(e: impl std::fmt::Display) -> String { format!("Could not open the operator window: {e}") }
+
+/// The title a deck from pictures gets when its name prompt is cancelled or left blank (`operator.js:591`).
+pub const DEFAULT_DECK_TITLE: &str = "Slides";
+
+/// The confirm for several pictures dropped at once, and its two buttons (the native wording of OK/Cancel, `operator.js:610`).
+pub fn pictures_to_deck(n: usize) -> String { format!("Make {n} pictures into one set of slides?") }
+pub const ONE_SLIDE_SET: &str = "One slide set";
+pub const SEPARATE_PICTURES: &str = "Separate pictures";
+
+/// File picker filter names. The web `accept` lists have none, so these are new.
+pub const FILTER_MEDIA: &str = "Videos, pictures and music";
+pub const FILTER_POWERPOINT: &str = "PowerPoint";
+pub const FILTER_LYRICS: &str = "SongSelect lyric files";
+pub const FILTER_PICTURES: &str = "Pictures";
+pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
