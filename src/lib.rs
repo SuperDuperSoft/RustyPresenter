@@ -15,6 +15,7 @@ pub mod sha256;
 pub mod slides;
 pub mod songselect;
 pub mod startup;
+pub mod timers;
 pub mod store;
 pub mod ui;
 pub mod video;
