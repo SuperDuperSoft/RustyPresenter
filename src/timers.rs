@@ -1,7 +1,7 @@
 //! FEAT-2 timers: the stored definitions, times of day and the clock. Every stored type loads
 //! leniently (spec §4.1): unknown kinds stay as raw JSON, unknown names load as the default.
 use crate::lenient::Lenient;
-use chrono::{DateTime, TimeDelta, Utc};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Offset, TimeDelta, TimeZone, Utc};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::sync::Mutex;
 use uuid::Uuid;
@@ -213,6 +213,88 @@ pub fn display_ms(raw_ms: i64, countdown: bool) -> i64 {
     }
 }
 
+/// `at` on `date` in `tz`, as an instant (spec §5.1 DST rule). An ambiguous (fall-back) time
+/// uses the earlier instant; a time in the spring-forward gap uses the first valid minute after it.
+pub fn resolve_local<Tz: TimeZone>(tz: &Tz, date: NaiveDate, at: TimeOfDay) -> DateTime<Utc> {
+    let time = NaiveTime::from_hms_opt(at.hour.min(23).into(), at.minute.min(59).into(), 0).unwrap_or(NaiveTime::MIN);
+    let start = NaiveDateTime::new(date, time);
+    let mut naive = start;
+    for _ in 0..=180 {
+        if let Some(t) = tz.from_local_datetime(&naive).earliest() { return t.with_timezone(&Utc) }
+        naive += TimeDelta::minutes(1);
+    }
+    // No zone has a gap this long; read the time with the offset in force at that moment.
+    let offset = tz.offset_from_utc_datetime(&start).fix().local_minus_utc();
+    start.and_utc() - TimeDelta::seconds(offset.into())
+}
+
+/// When a countdown-to-a-time should reach zero, or the message to show instead (spec §5.1).
+/// A fixed time that passed under an hour ago is refused; one longer ago means tomorrow.
+pub fn until_target<Tz: TimeZone>(target: &TimeTarget, starts_at: Option<TimeOfDay>, now: DateTime<Utc>, tz: &Tz)
+    -> Result<DateTime<Utc>, String> {
+    use crate::automation::strings;
+    let today = now.with_timezone(tz).date_naive();
+    match target {
+        TimeTarget::ServiceStart => {
+            let at = starts_at.ok_or_else(|| strings::NO_START_TIME.to_string())?;
+            let t = resolve_local(tz, today, at);
+            if t <= now { Err(strings::service_start_passed(&at.label())) } else { Ok(t) }
+        }
+        TimeTarget::Fixed { at } => {
+            let t = resolve_local(tz, today, *at);
+            if t > now {
+                Ok(t)
+            } else if now - t < TimeDelta::minutes(60) {
+                Err(strings::time_passed(&at.label()))
+            } else {
+                Ok(resolve_local(tz, today.succ_opt().unwrap_or(today), *at))
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_zone {
+    //! America/Chicago for 2026 only, so tests need no time zone database (replaces `chrono-tz`).
+    use chrono::{FixedOffset, MappedLocalTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
+
+    #[derive(Clone, Copy, Debug)]
+    pub struct Chicago2026;
+
+    fn cdt() -> FixedOffset { FixedOffset::west_opt(5 * 3600).unwrap() }
+    fn cst() -> FixedOffset { FixedOffset::west_opt(6 * 3600).unwrap() }
+
+    impl TimeZone for Chicago2026 {
+        type Offset = FixedOffset;
+
+        fn from_offset(_: &FixedOffset) -> Self { Chicago2026 }
+
+        fn offset_from_local_date(&self, local: &NaiveDate) -> MappedLocalTime<FixedOffset> {
+            self.offset_from_local_datetime(&local.and_hms_opt(0, 0, 0).unwrap())
+        }
+
+        fn offset_from_local_datetime(&self, local: &NaiveDateTime) -> MappedLocalTime<FixedOffset> {
+            let fits = |o: FixedOffset| self.offset_from_utc_datetime(&(*local - o)) == o;
+            match (fits(cdt()), fits(cst())) {
+                (true, true) => MappedLocalTime::Ambiguous(cdt(), cst()),
+                (true, false) => MappedLocalTime::Single(cdt()),
+                (false, true) => MappedLocalTime::Single(cst()),
+                (false, false) => MappedLocalTime::None,
+            }
+        }
+
+        fn offset_from_utc_date(&self, utc: &NaiveDate) -> FixedOffset {
+            self.offset_from_utc_datetime(&utc.and_hms_opt(0, 0, 0).unwrap())
+        }
+
+        fn offset_from_utc_datetime(&self, utc: &NaiveDateTime) -> FixedOffset {
+            let begins = Utc.with_ymd_and_hms(2026, 3, 8, 8, 0, 0).unwrap().naive_utc();
+            let ends = Utc.with_ymd_and_hms(2026, 11, 1, 7, 0, 0).unwrap().naive_utc();
+            if (begins..ends).contains(utc) { cdt() } else { cst() }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -310,5 +392,41 @@ mod tests {
         assert_eq!(display_ms(0, true), 0);
         assert_eq!(display_ms(1999, false), 1000);
         assert_eq!(display_ms(-1999, true), -1000);
+    }
+
+    fn utc(y: i32, m: u32, d: u32, h: u32, mi: u32) -> chrono::DateTime<Utc> {
+        Utc.with_ymd_and_hms(y, m, d, h, mi, 0).unwrap()
+    }
+
+    fn fixed(h: u8, m: u8) -> TimeTarget { TimeTarget::Fixed { at: TimeOfDay::new(h, m) } }
+
+    #[test]
+    fn service_start_without_time_errors() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        assert_eq!(until_target(&TimeTarget::ServiceStart, None, now, &chi),
+            Err(crate::automation::strings::NO_START_TIME.into()));
+    }
+
+    #[test]
+    fn start_after_target_runs_at_zero_or_refuses() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT, a Sunday
+        assert_eq!(until_target(&TimeTarget::ServiceStart, Some(TimeOfDay::new(10, 30)), now, &chi),
+            Err("The service start time (10:30 AM) has passed.".into()));
+        assert_eq!(until_target(&fixed(10, 15), None, now, &chi), Err("That time (10:15 AM) has passed.".into()));
+        assert_eq!(until_target(&fixed(7, 45), None, now, &chi), Ok(utc(2026, 6, 8, 12, 45)));
+        assert_eq!(until_target(&fixed(11, 0), None, now, &chi), Ok(utc(2026, 6, 7, 16, 0)));
+    }
+
+    #[test]
+    fn until_time_across_dst_change() {
+        let chi = test_zone::Chicago2026;
+        let march = utc(2026, 3, 8, 7, 0); // 1:00 CST
+        assert_eq!(until_target(&fixed(2, 30), None, march, &chi), Ok(utc(2026, 3, 8, 8, 0)));
+        assert_eq!(until_target(&fixed(10, 30), None, march, &chi), Ok(utc(2026, 3, 8, 15, 30)));
+        let november = utc(2026, 11, 1, 5, 30); // 0:30 CDT
+        assert_eq!(until_target(&fixed(1, 30), None, november, &chi), Ok(utc(2026, 11, 1, 6, 30)));
+        assert_eq!(until_target(&fixed(10, 30), None, november, &chi), Ok(utc(2026, 11, 1, 16, 30)));
     }
 }

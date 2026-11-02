@@ -3,3 +3,9 @@
 
 pub const STALE_TRY_AGAIN: &str = "The screen changed — try again.";
 pub const CLEARED_TRY_AGAIN: &str = "The screen was cleared — try again.";
+
+pub const NO_START_TIME: &str = "Set a start time for this service first (Services → Starts at).";
+
+pub fn service_start_passed(at: &str) -> String { format!("The service start time ({at}) has passed.") }
+
+pub fn time_passed(at: &str) -> String { format!("That time ({at}) has passed.") }
