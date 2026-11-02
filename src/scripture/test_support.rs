@@ -1,12 +1,18 @@
 //! Test-only helpers shared by the FEAT-5 test modules. Later tasks add their own helpers here.
 #![allow(dead_code)]
 use super::VerseId;
+use super::cache::TextCache;
+use super::fetch::{BibleReaders, Fetcher, Lookup};
 use super::input::{label_of, verse_id_of};
 use super::sources::{SourceInfo, Sources};
 use crate::model::VerseText;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
+use std::future::Future;
 use std::ops::RangeInclusive;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::pin::Pin;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
 
 /// A fresh, empty directory under the system temp dir.
 pub(crate) fn tmp_root() -> PathBuf {
@@ -41,3 +47,60 @@ pub(crate) fn rows(pairs: &[(&str, &str)]) -> Sources {
 pub(crate) fn ids(xs: &[(u8, u16, u16)]) -> Vec<VerseId> { xs.iter().map(|&(b, c, v)| VerseId(b, c, v)).collect() }
 
 pub(crate) fn set(xs: &[(u8, u16, u16)]) -> BTreeSet<VerseId> { xs.iter().map(|&(b, c, v)| VerseId(b, c, v)).collect() }
+
+/// Readers that count calls per path and serve `"t{b}-{c}-{v}"` texts for any parseable reference.
+#[derive(Default)]
+pub(crate) struct FakeReaders {
+    local: AtomicUsize,
+    online: AtomicUsize,
+    len: Mutex<Option<usize>>,
+    local_errors: Mutex<HashMap<String, String>>,
+    online_errors: Mutex<HashMap<String, String>>,
+}
+
+impl FakeReaders {
+    pub(crate) fn local_calls(&self) -> usize { self.local.load(Ordering::SeqCst) }
+    pub(crate) fn online_calls(&self) -> usize { self.online.load(Ordering::SeqCst) }
+    /// Makes every `local` lookup in `tr` fail with `msg`.
+    pub(crate) fn fail_local(&self, tr: &str, msg: &str) { self.local_errors.lock().unwrap().insert(tr.into(), msg.into()); }
+    /// Makes every `online` lookup in `tr` fail with `msg`.
+    pub(crate) fn fail_online(&self, tr: &str, msg: &str) { self.online_errors.lock().unwrap().insert(tr.into(), msg.into()); }
+    /// Makes every lookup return `n` synthetic verses from Psalm 119:1, wrapping into later chapters.
+    pub(crate) fn set_len(&self, n: usize) { *self.len.lock().unwrap() = Some(n); }
+
+    fn serve(&self, errors: &Mutex<HashMap<String, String>>, tr: &str, input: &str) -> Lookup {
+        if let Some(msg) = errors.lock().unwrap().get(tr) {
+            return Err(msg.clone());
+        }
+        if let Some(n) = *self.len.lock().unwrap() {
+            let vs = (0..n).map(|i| fake_verse(VerseId(18, 119 + (i / 176) as u16, (i % 176) as u16 + 1))).collect();
+            return Ok((input.trim().to_string(), vs));
+        }
+        let (label, vs) = crate::bible::kjv().lookup(input)?;
+        Ok((label, vs.into_iter().map(|v| verse_id_of(&v.reference).map_or(v, fake_verse)).collect()))
+    }
+}
+
+fn fake_verse(id: VerseId) -> VerseText {
+    VerseText { reference: label_of(id), text: format!("t{}-{}-{}", id.book(), id.chapter(), id.verse()) }
+}
+
+impl BibleReaders for FakeReaders {
+    fn local(&self, tr: &str, input: &str) -> Lookup {
+        self.local.fetch_add(1, Ordering::SeqCst);
+        self.serve(&self.local_errors, tr, input)
+    }
+
+    fn online<'a>(&'a self, _root: &'a Path, tr: &'a str, input: &'a str) -> Pin<Box<dyn Future<Output = Lookup> + Send + 'a>> {
+        self.online.fetch_add(1, Ordering::SeqCst);
+        Box::pin(async move { self.serve(&self.online_errors, tr, input) })
+    }
+}
+
+/// A fetcher on a fresh `tmp_root()` backed by a shared [`FakeReaders`].
+pub(crate) fn fetcher_with_fake() -> (Fetcher, Arc<FakeReaders>) {
+    let fake = Arc::new(FakeReaders::default());
+    let root = tmp_root();
+    let f = Fetcher { readers: fake.clone(), cache: Arc::new(TextCache::new(root.clone())), root };
+    (f, fake)
+}

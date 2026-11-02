@@ -2,6 +2,7 @@
 //! Pure and unit-tested; Part B wires it into the app, slides and render.
 
 pub mod cache;
+pub mod fetch;
 pub mod input;
 pub mod sources;
 pub mod types;
@@ -11,4 +12,5 @@ pub mod strings;
 #[cfg(test)]
 pub(crate) mod test_support;
 
+pub use fetch::fetch;
 pub use types::*;
