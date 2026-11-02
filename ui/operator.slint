@@ -9,6 +9,9 @@ import { Layer } from "room.slint";
 import { ToastStack, JobsBox, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell, DialogBody } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
+import { ServicesDialog } from "dialogs/services.slint";
+import { ScreensDialog } from "dialogs/screens.slint";
+import { PhoneDialog } from "dialogs/phone.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -273,7 +276,10 @@ export component OperatorWindow inherits Window {
             wide: root.dialog-wide;
             focus-serial: root.dialog-focus-serial;
             close => { root.dialog-close(); }
-            DialogBody {}
+            if root.dialog-kind == "services": ServicesDialog {}
+            if root.dialog-kind == "screens": ScreensDialog {}
+            if root.dialog-kind == "phone": PhoneDialog {}
+            if root.dialog-kind != "services" && root.dialog-kind != "screens" && root.dialog-kind != "phone": DialogBody {}
         }
 
         for a in root.ask: AskOverlay {
