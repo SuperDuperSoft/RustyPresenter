@@ -1,11 +1,11 @@
 // Shared controls of the operator and its dialogs, sized and coloured as their `web/operator.css` rules
 // (named beside each component). Every colour, radius and font comes from `Theme`.
-import { Theme, OperatorState } from "theme.slint";
+import { Theme } from "theme.slint";
 import { Icon } from "icons.slint";
-import { Tip } from "tip.slint";
+import { TipBox } from "tip.slint";
 import { ScrollBox } from "scroll.slint";
 
-export { Icon, Tip, ScrollBox }
+export { Icon, TipBox, ScrollBox }
 
 /// `.btn` (`.primary`, `.danger`, `.small`, `:disabled`): an optional icon and a label.
 export component Btn inherits Rectangle {
@@ -57,11 +57,8 @@ export component Btn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    Tip {
-        x: 0;
-        y: root.height + 4px;
-        text: root.tooltip;
-        hover: ta.has-hover;
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }
 
@@ -69,8 +66,10 @@ export component Btn inherits Rectangle {
 export component TopBtn inherits Rectangle {
     in property <string> icon;
     in property <string> text;
-    /// Only the icon (the Settings button, and Screens/Phone in a narrow window).
+    /// `.icon-only`: only the icon, 8 px padding all round (the Settings button).
     in property <bool> icon-only;
+    /// A narrow window (`operator.css:180`): the label hides but the 8×10 padding stays (Screens and Phone).
+    in property <bool> narrow;
     in property <string> tooltip;
     callback clicked();
 
@@ -93,7 +92,7 @@ export component TopBtn inherits Rectangle {
                 color: root.ink;
             }
         }
-        if !root.icon-only: Text {
+        if !root.icon-only && !root.narrow: Text {
             text: root.text;
             color: root.ink;
             font-family: Theme.font;
@@ -108,11 +107,8 @@ export component TopBtn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    Tip {
-        x: 0;
-        y: root.height + 4px;
-        text: root.tooltip;
-        hover: ta.has-hover;
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }
 
@@ -157,11 +153,8 @@ export component Pill inherits Rectangle {
 
     ta := TouchArea { }
 
-    Tip {
-        x: 0;
-        y: root.height + 4px;
-        text: root.tooltip;
-        hover: ta.has-hover;
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }
 
@@ -214,11 +207,8 @@ export component Chip inherits Rectangle {
 
     ta := TouchArea { }
 
-    Tip {
-        x: 0;
-        y: root.height + 4px;
-        text: root.tooltip;
-        hover: ta.has-hover;
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }
 
@@ -317,9 +307,11 @@ export component PanelHead inherits HorizontalLayout {
     @children
 }
 
-/// `.transport .bar` / `.job .bar`: progress 0–100, the fill sliding in 500 ms.
+/// `.transport .bar` / `.job .bar`: progress 0–100. The fill slides in 500 ms (`.transport .bar i`); a job bar sets
+/// `animated: false`, as `.job .bar i` has no transition.
 export component Bar inherits Rectangle {
     in property <float> progress;
+    in property <bool> animated: true;
     height: 6px;
     background: Theme.line;
     border-radius: self.height / 2;
@@ -329,7 +321,7 @@ export component Bar inherits Rectangle {
         height: parent.height;
         width: parent.width * clamp(root.progress, 0, 100) / 100;
         background: Theme.accent;
-        animate width { duration: 500ms; easing: linear; }
+        animate width { duration: root.animated ? 500ms : 0ms; easing: linear; }
     }
 }
 
@@ -361,7 +353,9 @@ export component Field inherits VerticalLayout {
     @children
 }
 
-/// `.copy`: text the user can select and copy (an address or a code), read-only, in the monospace font.
+/// `.copy`: text the user can select and copy (an address or a code), read-only, in the monospace font. One click
+/// selects all of it (`user-select: all`). Like the web `<span>`, it does not count as a text field for the operator
+/// keys, so it leaves `OperatorState.focus-in-text` alone.
 export component CopyText inherits Rectangle {
     in property <string> text;
     background: Theme.bg;
@@ -383,7 +377,13 @@ export component CopyText inherits Rectangle {
             font-family: Theme.mono;
             font-size: Theme.base-size;
             vertical-alignment: center;
-            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+        }
+    }
+    TouchArea {
+        mouse-cursor: MouseCursor.text;
+        clicked => {
+            input.focus();
+            input.select-all();
         }
     }
 }

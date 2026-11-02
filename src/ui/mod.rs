@@ -40,4 +40,62 @@ mod tests {
         assert_eq!(slint::Model::row_count(&w.get_icons()), 24);
         w.hide().unwrap();
     }
+
+    #[test]
+    fn tooltip_does_not_swallow_the_click() {
+        // An operator rests on a button until its tooltip shows, then clicks without moving: the click must land.
+        use i_slint_backend_testing::{mock_elapsed_time, ElementHandle};
+        use slint::platform::{PointerEventButton, WindowEvent};
+        use slint::{ComponentHandle, LogicalPosition};
+        use std::time::Duration;
+        ui_test_init();
+        let w = crate::ui::WidgetGallery::new().unwrap();
+        w.show().unwrap();
+        let btn = ElementHandle::find_by_element_id(&w, "WidgetGallery::tip-btn").next().expect("tooltip button");
+        let (p, s) = (btn.absolute_position(), btn.size());
+        let at = LogicalPosition::new(p.x + s.width / 2.0, p.y + s.height / 2.0);
+        let tip_shown = || ElementHandle::find_by_accessible_label(&w, "A tooltip").next().is_some();
+        w.window().dispatch_event(WindowEvent::PointerMoved { position: at });
+        mock_elapsed_time(Duration::from_millis(700));
+        assert!(tip_shown(), "the tooltip shows after resting on the button");
+        w.window().dispatch_event(WindowEvent::PointerPressed { position: at, button: PointerEventButton::Left });
+        w.window().dispatch_event(WindowEvent::PointerReleased { position: at, button: PointerEventButton::Left });
+        assert_eq!(w.get_tip_clicks(), 1, "the click reached the button");
+        // A second rest-and-click works too (the tooltip closed on the press and reopens after the delay).
+        w.window().dispatch_event(WindowEvent::PointerMoved { position: LogicalPosition::new(at.x + 1.0, at.y) });
+        mock_elapsed_time(Duration::from_millis(700));
+        w.window().dispatch_event(WindowEvent::PointerPressed { position: at, button: PointerEventButton::Left });
+        w.window().dispatch_event(WindowEvent::PointerReleased { position: at, button: PointerEventButton::Left });
+        assert_eq!(w.get_tip_clicks(), 2);
+        w.hide().unwrap();
+    }
+
+    #[test]
+    fn narrow_top_button_keeps_its_side_padding() {
+        // `operator.css:180` hides the label of Screens/Phone but keeps their 8×10 padding; `.icon-only` is 8 all round.
+        use i_slint_backend_testing::ElementHandle;
+        use slint::ComponentHandle;
+        ui_test_init();
+        let w = crate::ui::WidgetGallery::new().unwrap();
+        w.show().unwrap();
+        let width = |id: &str| ElementHandle::find_by_element_id(&w, id).next().expect(id).size().width;
+        assert_eq!(width("WidgetGallery::narrow-btn"), 18.0 + 2.0 * 10.0);
+        assert_eq!(width("WidgetGallery::icon-btn"), 18.0 + 2.0 * 8.0);
+        w.hide().unwrap();
+    }
+
+    #[test]
+    fn copy_text_is_not_a_typing_field() {
+        // The web `.copy` is a `<span>`: clicking it must not make the operator keys think a text field has focus.
+        use i_slint_backend_testing::ElementHandle;
+        use slint::platform::PointerEventButton;
+        use slint::ComponentHandle;
+        ui_test_init();
+        let w = crate::ui::WidgetGallery::new().unwrap();
+        w.show().unwrap();
+        let copy = ElementHandle::find_by_element_id(&w, "WidgetGallery::copy").next().expect("copy text");
+        copy.mock_single_click(PointerEventButton::Left);
+        assert!(!w.global::<crate::ui::OperatorState>().get_focus_in_text());
+        w.hide().unwrap();
+    }
 }
