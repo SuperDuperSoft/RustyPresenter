@@ -6,6 +6,7 @@ import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
 import { LiveColumn, TransportCell } from "operator/live.slint";
 import { Layer } from "room.slint";
+import { ToastStack, JobsBox, ToastRow, JobRow } from "operator/overlays.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -94,6 +95,11 @@ export component OperatorWindow inherits Window {
     callback live-clear(string);
     callback transport-toggle(int);
     callback monitor-resized(length);
+
+    // Toasts and the jobs box (see `overlays.slint`).
+    in property <[ToastRow]> toasts;
+    in property <[JobRow]> jobs;
+    callback job-dismiss(string);
 
     callback services();
     callback screens();
@@ -239,5 +245,22 @@ export component OperatorWindow inherits Window {
                 }
             }
         }
+    }
+
+    // Over the columns: the jobs box (`z-index: 40`), then the toasts (`z-index: 50`).
+    JobsBox {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+        jobs: root.jobs;
+        dismiss(id) => { root.job-dismiss(id); }
+    }
+    ToastStack {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+        toasts: root.toasts;
     }
 }

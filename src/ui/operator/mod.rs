@@ -7,6 +7,7 @@ pub mod files;
 pub mod strings;
 pub mod keys;
 pub mod live;
+pub mod overlays;
 pub mod service;
 pub mod slides;
 pub mod view;

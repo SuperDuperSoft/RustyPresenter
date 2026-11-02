@@ -1,0 +1,175 @@
+// The toasts and the jobs box that float over the operator (`operator.html:65-66`, `operator.css:217-226`).
+import { Theme } from "../theme.slint";
+import { Icon, Bar } from "../widgets.slint";
+
+/// One toast (`toast()` in `operator.js:56-60`); `id` lets Rust remove it when its time is up.
+export struct ToastRow { id: int, text: string, err: bool }
+
+/// One card of the jobs box (`renderJobs()` in `operator.js:281-290`): a client upload or a server job.
+/// `error` is empty while the job runs; percent is 0–100.
+export struct JobRow { id: string, label: string, percent: int, error: string }
+
+/// `.toast` (`.err`): pops in with an 8 px rise and a fade over 180 ms (`@keyframes pop`). The card is drawn
+/// apart from the toast's layout slot so it can rise into it.
+component ToastCard inherits Rectangle {
+    in property <string> text;
+    in property <bool> err;
+    in property <length> max-text-width;
+    property <bool> up;
+    init => { self.up = true; }
+
+    preferred-width: min(label.preferred-width, root.max-text-width) + 34px;
+    preferred-height: label.preferred-height + 20px;
+    accessible-role: AccessibleRole.text;
+    accessible-label: root.text;
+    accessible-value: root.err ? "err" : "";
+
+    Rectangle {
+        x: 0px;
+        y: root.up ? 0px : 8px;
+        width: root.width;
+        height: root.height;
+        opacity: root.up ? 1 : 0;
+        animate y, opacity { duration: 180ms; easing: ease; }
+        background: root.err ? Theme.toast-err-bg : Theme.toast-bg;
+        border-width: 1px;
+        border-color: root.err ? Theme.toast-err-border : Theme.dash;
+        border-radius: 10px;
+        drop-shadow-blur: 30px;
+        drop-shadow-offset-y: 10px;
+        drop-shadow-color: Theme.shadow-toast;
+        label := Text {
+            x: 17px;
+            y: 10px;
+            width: parent.width - 34px;
+            height: parent.height - 20px;
+            text: root.text;
+            color: root.err ? Theme.toast-err-text : Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            wrap: word-wrap;
+            vertical-alignment: center;
+        }
+    }
+}
+
+/// `.toasts`: centred, 18 px from the bottom, 8 px apart, newest at the bottom. It covers the window, but holds
+/// no touch area, so clicks pass through (`pointer-events: none`).
+export component ToastStack inherits Rectangle {
+    in property <[ToastRow]> toasts;
+
+    VerticalLayout {
+        padding-bottom: 18px;
+        spacing: 8px;
+        alignment: end;
+        for t in root.toasts: HorizontalLayout {
+            alignment: center;
+            toast := ToastCard {
+                text: t.text;
+                err: t.err;
+                // `max-width: 70vw`, less the padding.
+                max-text-width: root.width * 0.7 - 34px;
+            }
+        }
+    }
+}
+
+/// `.dlg-close` as the job error card uses it: a muted ✕ that lights up on hover.
+component CloseBtn inherits Rectangle {
+    callback clicked();
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: @tr("Close");
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        name: "close";
+        color: ta.has-hover ? Theme.text : Theme.muted;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `.job` (`.err`): the label, and either a progress bar or the error with a close button.
+component JobCard inherits Rectangle {
+    in property <JobRow> job;
+    callback dismiss();
+
+    background: Theme.panel-2;
+    border-width: 1px;
+    border-color: root.job.error != "" ? Theme.toast-err-border : Theme.line;
+    border-radius: 10px;
+    drop-shadow-blur: 30px;
+    drop-shadow-offset-y: 10px;
+    drop-shadow-color: Theme.shadow-job;
+    accessible-role: progress-indicator;
+    accessible-label: root.job.label;
+    accessible-value: root.job.error != "" ? root.job.error : "\{root.job.percent}";
+
+    VerticalLayout {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 13px;
+        padding-right: 13px;
+        HorizontalLayout {
+            spacing: 8px;
+            VerticalLayout {
+                horizontal-stretch: 1;
+                Text {
+                    text: root.job.label;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+                if root.job.error != "": Text {
+                    text: root.job.error;
+                    color: Theme.clear-all-text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                }
+            }
+            if root.job.error != "": VerticalLayout {
+                alignment: start;
+                close := CloseBtn { clicked => { root.dismiss(); } }
+            }
+        }
+        if root.job.error == "": VerticalLayout {
+            padding-top: 7px;
+            Bar {
+                height: 5px;
+                border-radius: 3px;
+                progress: root.job.percent;
+                animated: false;
+            }
+        }
+    }
+}
+
+/// `.jobs`: bottom right, 18 px in, 320 px wide, 8 px apart; client uploads first, then server jobs. It covers the
+/// window; only the cards' close buttons take clicks.
+export component JobsBox inherits Rectangle {
+    in property <[JobRow]> jobs;
+    callback dismiss(string);
+
+    HorizontalLayout {
+        padding-right: 18px;
+        padding-bottom: 18px;
+        alignment: end;
+        VerticalLayout {
+            width: 320px;
+            spacing: 8px;
+            alignment: end;
+            for j in root.jobs: job := JobCard {
+                job: j;
+                dismiss => { root.dismiss(j.id); }
+            }
+        }
+    }
+}
