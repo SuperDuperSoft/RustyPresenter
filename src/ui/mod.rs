@@ -6,6 +6,21 @@ pub mod room;
 pub mod screens;
 pub mod operator;
 pub mod ops;
+pub mod thumbs;
+
+/// Runs a future on this (plain) thread, e.g. a `Renderer` reply, which needs no runtime.
+pub(crate) fn block_on<F: std::future::Future>(f: F) -> F::Output {
+    use std::{sync::Arc, task::{Context, Poll, Wake, Waker}};
+    struct Unpark(std::thread::Thread);
+    impl Wake for Unpark { fn wake(self: Arc<Self>) { self.0.unpark() } }
+    let waker = Waker::from(Arc::new(Unpark(std::thread::current())));
+    let mut cx = Context::from_waker(&waker);
+    let mut f = std::pin::pin!(f);
+    loop {
+        if let Poll::Ready(v) = f.as_mut().poll(&mut cx) { return v }
+        std::thread::park();
+    }
+}
 
 /// Installs the testing backend on this thread once. Slint's platform slot is thread-local and cargo runs each test
 /// on its own thread, so the guard is per thread too (a process-wide `Once` would leave later threads without one).

@@ -1,0 +1,351 @@
+// The slides column (`web/operator.html:33-38`, `operator.css:80-106`, `operator.js:156-210`): the selected item's
+// header, its slides as 16:9 thumbnails in rows, and the empty states. The rows are built in Rust (`slides.rs`).
+import { Theme } from "../theme.slint";
+import { Icon, Btn, ScrollBox } from "../widgets.slint";
+
+/// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool }
+/// One row of the grid (`columns()` cells; the last may have fewer).
+export struct SlideRowCells { cells: [SlideCell] }
+
+/// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
+component Welcome inherits VerticalLayout {
+    padding-left: 16px;
+    padding-right: 16px;
+    alignment: start;
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            max-width: 520px;
+            spacing: 8px;
+            Text {
+                text: @tr("Let’s build this Sunday’s service");
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 26px;
+                font-weight: 600;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            Text {
+                text: @tr("Everything you add shows up on the left. Click a slide to put it on the screen.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                alignment: center;
+                padding-top: 16px;
+                VerticalLayout {
+                    spacing: 10px;
+                    for step[i] in [
+                        @tr("Click “Screens” and choose the projector or TV."),
+                        @tr("Click “Add to service” for songs, videos and slides — or drag files in."),
+                        @tr("Type a verse like “John 3:16” in the Bible box and press Enter."),
+                        @tr("Use the big Next button (or the → key) during the service."),
+                    ]: HorizontalLayout {
+                        spacing: 12px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 26px;
+                                height: 26px;
+                                border-radius: 13px;
+                                background: Theme.raise;
+                                Text {
+                                    text: i + 1;
+                                    color: Theme.accent;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    font-weight: 700;
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                        Text {
+                            text: step;
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `.thumb`: a 16:9 screen with an outline, the LIVE badge and the play overlay, and a caption under it.
+component Thumb inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+
+    /// The caption row: 6 px padding over one 12.5 px line.
+    out property <length> caption-h: 23px;
+    property <length> outline: root.cell.live ? 3px : 2px;
+
+    height: root.width * 9 / 16 + root.caption-h;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+
+    // CSS `outline` (offset 0) sits outside the screen's edge; a Slint border is drawn inside, so it is a ring
+    // around the screen.
+    Rectangle {
+        x: -root.outline;
+        y: -root.outline;
+        width: root.width + 2 * root.outline;
+        height: screen.height + 2 * root.outline;
+        border-radius: 9px + root.outline;
+        border-width: root.outline;
+        border-color: root.cell.live ? Theme.live : ta.has-hover ? Theme.thumb-hover : Theme.line;
+    }
+
+    screen := Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.width * 9 / 16;
+        border-radius: 9px;
+        clip: true;
+        background: Theme.black;
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.cell.image;
+            image-fit: fill;
+        }
+        // `.thumb .play`: a 54 px dimmed circle with a filled 24 px play glyph.
+        if root.cell.play: Rectangle {
+            width: 54px;
+            height: 54px;
+            border-radius: 27px;
+            background: Theme.play-bg;
+            Icon {
+                width: 24px;
+                height: 24px;
+                name: "play";
+                color: Theme.white;
+            }
+        }
+        if root.cell.live: badge := Rectangle {
+            x: 8px;
+            y: 8px;
+            width: self.preferred-width;
+            height: self.preferred-height;
+            border-radius: 5px;
+            background: Theme.live;
+            HorizontalLayout {
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-left: 6px;
+                padding-right: 6px;
+                Text {
+                    text: @tr("LIVE");
+                    color: Theme.white;
+                    font-family: Theme.font;
+                    font-size: 10px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                }
+            }
+        }
+    }
+
+    // `.cap`: the slide number (faint) and its label; red and bold while live.
+    HorizontalLayout {
+        y: screen.height;
+        height: root.caption-h;
+        padding-top: 6px;
+        padding-left: 2px;
+        padding-right: 2px;
+        spacing: 6px;
+        Text {
+            text: root.cell.idx + 1;
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            font-weight: root.cell.live ? 700 : 400;
+            vertical-alignment: center;
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: root.cell.label;
+            color: root.cell.live ? Theme.live : Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            font-weight: root.cell.live ? 700 : 400;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `.empty` in the grid: an optional bold line over muted text, 8vh down (`.grid .empty`).
+component Empty inherits VerticalLayout {
+    in property <string> title;
+    in property <string> text;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    padding-left: 18px + 16px;
+    padding-right: 18px + 16px;
+    spacing: 4px;
+    alignment: start;
+    if root.title != "": empty-title := Text {
+        text: root.title;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 15px;
+        font-weight: 700;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+    }
+    empty-text := Text {
+        text: root.text;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+    }
+}
+
+export component SlidesPanel inherits VerticalLayout {
+    /// The selected item's title, "Pick an item on the left" or "Welcome" (set from Rust).
+    in property <string> title: @tr("Nothing selected");
+    /// The selected item's icon name, or "" with nothing selected.
+    in property <string> kind;
+    in property <bool> has-selection;
+    in property <int> slide-count;
+    in property <[SlideRowCells]> rows;
+    /// Cells per row, from `slides::columns(grid-width)`.
+    in property <int> columns: 1;
+    /// The first state read has arrived; until then the grid is empty with no Welcome.
+    in property <bool> loaded;
+    in property <int> item-count;
+    /// The window's height, for the `vh` margins of the empty states.
+    in property <length> window-height;
+    out property <length> grid-width: grid.width;
+
+    callback show(int);
+    callback edit();
+    /// The grid's width changed (Rust works out the columns and the thumbnail size).
+    callback grid-resized(length);
+
+    /// `.grid`: 16 px side padding and 14 px gaps; cells share the width like `repeat(auto-fill, minmax(230px, 1fr))`.
+    property <length> cell-w: max(1px, (grid.width - 32px - 14px * (root.columns - 1)) / max(1, root.columns));
+    property <length> row-h: root.cell-w * 9 / 16 + 23px;
+
+    init => { root.grid-resized(root.grid-width); }
+    changed grid-width => { root.grid-resized(root.grid-width); }
+
+    /// Scrolls the grid so row `row` is in view, moving as little as possible (`scrollIntoView({block: 'nearest'})`).
+    public function scroll-to-row(row: int) {
+        // The live outline (3 px) is part of what must show.
+        let top = 4px + row * (root.row-h + 14px) - 3px;
+        let bottom = top + root.row-h + 6px;
+        if top < -grid.content-y {
+            grid.content-y = -top;
+        } else if bottom > -grid.content-y + grid.height {
+            grid.content-y = min(0px, -(bottom - grid.height));
+        }
+    }
+
+    /// Back to the top (another item was selected).
+    public function scroll-to-top() {
+        grid.content-y = 0;
+    }
+
+    // `.panel-head` with `.item-title` (icon in accent, 19 px display title) and `.head-actions`.
+    HorizontalLayout {
+        padding-top: 14px;
+        padding-bottom: 10px;
+        padding-left: 16px;
+        padding-right: 16px;
+        spacing: 10px;
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            min-width: 0px;
+            spacing: 10px;
+            if root.kind != "": VerticalLayout {
+                alignment: center;
+                Icon {
+                    name: root.kind;
+                    color: Theme.accent;
+                }
+            }
+            slides-title := Text {
+                horizontal-stretch: 1;
+                text: root.title;
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 19px;
+                font-weight: 600;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        if root.has-selection: slides-edit := Btn {
+            small: true;
+            icon: "edit";
+            text: @tr("Edit");
+            clicked => { root.edit(); }
+        }
+    }
+
+    Rectangle {
+        vertical-stretch: 1;
+        grid := ScrollBox {
+            width: parent.width;
+            height: parent.height;
+            VerticalLayout {
+                padding-top: 4px;
+                padding-bottom: 20px;
+                padding-left: 16px;
+                padding-right: 16px;
+                spacing: 14px;
+                alignment: start;
+                for row in root.rows: HorizontalLayout {
+                    spacing: 14px;
+                    alignment: start;
+                    for cell in row.cells: thumb := Thumb {
+                        width: root.cell-w;
+                        cell: cell;
+                        clicked => { root.show(cell.idx); }
+                    }
+                }
+            }
+        }
+
+        if root.loaded && root.item-count == 0: welcome := Welcome {
+            y: root.window-height * 9%;
+            width: parent.width;
+            height: self.preferred-height;
+        }
+        if root.loaded && root.item-count > 0 && !root.has-selection: choose := Empty {
+            y: root.window-height * 8%;
+            width: parent.width;
+            height: self.preferred-height;
+            text: @tr("Choose something from the service list.");
+        }
+        if root.loaded && root.has-selection && root.slide-count == 0: nothing := Empty {
+            y: root.window-height * 8%;
+            width: parent.width;
+            height: self.preferred-height;
+            title: @tr("Nothing to show");
+            text: @tr("This item has no slides yet. Click Edit to add some.");
+        }
+    }
+}

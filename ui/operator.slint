@@ -1,84 +1,12 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
-// The slides and live columns are placeholder panels until Tasks 7–9 fill them.
+// The live column is a placeholder panel until Task 9 fills it.
 import { Theme } from "theme.slint";
 import { Panel } from "widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
+import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
 
-export { TranslationChip, ServiceRow }
-
-/// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
-component Welcome inherits VerticalLayout {
-    // `margin-top: 9vh` is the `y` the slides column gives it (a padding from the height would be a binding loop).
-    padding-left: 16px;
-    padding-right: 16px;
-    alignment: start;
-    HorizontalLayout {
-        alignment: center;
-        VerticalLayout {
-            max-width: 520px;
-            spacing: 8px;
-            Text {
-                text: @tr("Let’s build this Sunday’s service");
-                color: Theme.text;
-                font-family: Theme.display;
-                font-size: 26px;
-                font-weight: 600;
-                horizontal-alignment: center;
-                wrap: word-wrap;
-            }
-            Text {
-                text: @tr("Everything you add shows up on the left. Click a slide to put it on the screen.");
-                color: Theme.muted;
-                font-family: Theme.font;
-                font-size: Theme.base-size;
-                horizontal-alignment: center;
-                wrap: word-wrap;
-            }
-            HorizontalLayout {
-                alignment: center;
-                padding-top: 16px;
-                VerticalLayout {
-                    spacing: 10px;
-                    for step[i] in [
-                        @tr("Click “Screens” and choose the projector or TV."),
-                        @tr("Click “Add to service” for songs, videos and slides — or drag files in."),
-                        @tr("Type a verse like “John 3:16” in the Bible box and press Enter."),
-                        @tr("Use the big Next button (or the → key) during the service."),
-                    ]: HorizontalLayout {
-                        spacing: 12px;
-                        VerticalLayout {
-                            alignment: center;
-                            Rectangle {
-                                width: 26px;
-                                height: 26px;
-                                border-radius: 13px;
-                                background: Theme.raise;
-                                Text {
-                                    text: i + 1;
-                                    color: Theme.accent;
-                                    font-family: Theme.font;
-                                    font-size: Theme.base-size;
-                                    font-weight: 700;
-                                    horizontal-alignment: center;
-                                    vertical-alignment: center;
-                                }
-                            }
-                        }
-                        Text {
-                            text: step;
-                            color: Theme.muted;
-                            font-family: Theme.font;
-                            font-size: Theme.base-size;
-                            vertical-alignment: center;
-                            wrap: word-wrap;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+export { TranslationChip, ServiceRow, SlideCell, SlideRowCells }
 
 export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
@@ -125,6 +53,20 @@ export component OperatorWindow inherits Window {
     callback service-drag-finished();
     pure callback service-drag-data(string) -> data-transfer;
     pure callback service-drag-id(data-transfer) -> string;
+
+    // Slides column (see `SlidesPanel`).
+    in property <string> slides-title: @tr("Nothing selected");
+    in property <string> slides-kind;
+    in property <bool> has-selection;
+    in property <int> slide-count;
+    in property <[SlideRowCells]> slide-rows;
+    in property <int> slide-columns: 1;
+    out property <length> slides-grid-width: slides.grid-width;
+    callback slides-show(int);
+    callback slides-edit();
+    callback slides-grid-resized(length);
+    public function slides-scroll-to-row(row: int) { slides.scroll-to-row(row); }
+    public function slides-scroll-to-top() { slides.scroll-to-top(); }
 
     callback services();
     callback screens();
@@ -183,13 +125,20 @@ export component OperatorWindow inherits Window {
             slides-col := Panel {
                 horizontal-stretch: 1;
                 min-width: 0px;
-                Rectangle {
+                slides := SlidesPanel {
                     vertical-stretch: 1;
-                    if root.loaded && root.item-count == 0: welcome := Welcome {
-                        y: root.height * 9%;
-                        width: parent.width;
-                        height: self.preferred-height;
-                    }
+                    title: root.slides-title;
+                    kind: root.slides-kind;
+                    has-selection: root.has-selection;
+                    slide-count: root.slide-count;
+                    rows: root.slide-rows;
+                    columns: root.slide-columns;
+                    loaded: root.loaded;
+                    item-count: root.item-count;
+                    window-height: root.height;
+                    show(idx) => { root.slides-show(idx); }
+                    edit => { root.slides-edit(); }
+                    grid-resized(w) => { root.slides-grid-resized(w); }
                 }
             }
             live-col := Panel {

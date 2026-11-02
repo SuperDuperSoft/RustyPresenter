@@ -38,6 +38,9 @@ pub const END_OF_SERVICE: &str = "End of service";
 pub const START_OF_SERVICE: &str = "Start of service";
 pub const NOTHING: &str = "—";
 pub const SERVICE: &str = "Service";
+/// The slides column's title with nothing selected (`operator.js:162`).
+pub const PICK_AN_ITEM: &str = "Pick an item on the left";
+pub const WELCOME: &str = "Welcome";
 
 /// The core call never finished (its task panicked or the runtime is shutting down). The web's generic
 /// failure text (`operator.js:48`).

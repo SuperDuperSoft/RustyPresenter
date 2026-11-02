@@ -5,7 +5,8 @@ use crate::{app::App, live::{Frame, MediaLayer, SlideLayer}, model::{Background,
 use crate::room::{Kind, Want};
 use crate::video::{Player, Players, Role};
 use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
-use std::{future::Future, path::{Path, PathBuf}, sync::Arc, task::{Context, Poll, Wake, Waker}};
+use crate::ui::block_on;
+use std::{path::{Path, PathBuf}, sync::Arc};
 
 /// Pixels made off the UI thread (an `Image` is not `Send`).
 pub(super) enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
@@ -122,17 +123,4 @@ fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Result<Px, String> {
         image::imageops::resize(&img, size(iw), size(ih), image::imageops::FilterType::Triangle)
     } else { img };
     Ok(Px::Straight(SharedPixelBuffer::clone_from_slice(img.as_raw(), img.width(), img.height())))
-}
-
-/// Runs a future on this (plain) thread: the renderer's reply needs no runtime.
-fn block_on<F: Future>(f: F) -> F::Output {
-    struct Unpark(std::thread::Thread);
-    impl Wake for Unpark { fn wake(self: Arc<Self>) { self.0.unpark() } }
-    let waker = Waker::from(Arc::new(Unpark(std::thread::current())));
-    let mut cx = Context::from_waker(&waker);
-    let mut f = std::pin::pin!(f);
-    loop {
-        if let Poll::Ready(v) = f.as_mut().poll(&mut cx) { return v }
-        std::thread::park();
-    }
 }

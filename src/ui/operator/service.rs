@@ -87,6 +87,7 @@ impl Operator {
             st.armed = None;
         }
         self.mark_service();
+        self.render_slides();
     }
 
     /// A double-click: show the item's first slide, if it has one (`operator.js:135`).

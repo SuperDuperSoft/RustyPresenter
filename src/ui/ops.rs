@@ -28,6 +28,9 @@ impl Ops {
 
     pub fn app(&self) -> &Arc<App> { &self.app }
 
+    /// Made by `inline` (tests): everything runs at once on the calling thread.
+    pub fn is_inline(&self) -> bool { self.rt.is_none() }
+
     fn run<R: Send + 'static>(&self, work: impl Future<Output = R> + Send + 'static, done: impl FnOnce(Result<R, String>) + 'static) {
         match &self.rt {
             Some(rt) => {

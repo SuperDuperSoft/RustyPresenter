@@ -1,11 +1,11 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
-//! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`; the other
-//! columns, keys and dialogs come in later tasks.
-use super::{service, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+//! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
+//! column in `slides`; the live column, keys and dialogs come in later tasks.
+use super::{service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
-    ui::{OperatorWindow, ServiceRow, TranslationChip, ops::Ops},
+    ui::{OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, thumbs::Thumbs},
     video::DrawMode,
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
@@ -64,6 +64,12 @@ pub struct Operator {
     pub(super) state: RefCell<OpState>,
     /// The service list's rows; one model for the window's life (see `service`).
     pub(super) service_rows: Rc<VecModel<ServiceRow>>,
+    /// The slide grid's rows; one model for the window's life (see `slides`).
+    pub(super) slide_rows: Rc<VecModel<SlideRowCells>>,
+    pub(super) slides: RefCell<SlidesState>,
+    pub(super) thumbs: Thumbs,
+    /// This window, for callbacks that outlive a call (thumbnails arrive later).
+    pub(super) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
     feed: Option<Arc<Feed>>,
 }
@@ -78,9 +84,15 @@ impl Operator {
         let rx = app.subscribe();
         let op = Rc::new_cyclic(|me: &Weak<Operator>| {
             let listening = listen(me.clone(), feed.clone());
-            Operator { ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), feed: listening.then(|| feed.clone()) }
+            // Tests (inline actions, no event loop) draw thumbnails inline too.
+            let thumbs = if ops.is_inline() { Thumbs::inline(app.store.root.clone()) } else { Thumbs::new(app.store.root.clone()) };
+            Operator {
+                ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
+                slides: RefCell::default(), thumbs, me: me.clone(), feed: listening.then(|| feed.clone()),
+            }
         });
         service::wire(&op);
+        slides::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -119,6 +131,7 @@ impl Operator {
         drop(st);
         self.render_top(&s);
         self.render_service();
+        self.render_slides();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
     }
@@ -131,6 +144,7 @@ impl Operator {
             st.live = Some(v);
         }
         self.mark_service();
+        self.mark_slides();
     }
 
     /// The item the live cursor is on (`L.cursor.item_id`), if any.
@@ -444,12 +458,12 @@ mod tests {
     fn before_first_snapshot_shows_no_welcome() {
         let app = test_app();
         let op = open(&app);
-        assert!(find(&op, "OperatorWindow::welcome").is_none());
+        assert!(find(&op, "SlidesPanel::welcome").is_none());
         refresh(&op);
-        assert!(find(&op, "OperatorWindow::welcome").is_some(), "an empty service shows the Welcome panel");
+        assert!(find(&op, "SlidesPanel::welcome").is_some(), "an empty service shows the Welcome panel");
         add_video(&app);
         refresh(&op);
-        assert!(find(&op, "OperatorWindow::welcome").is_none());
+        assert!(find(&op, "SlidesPanel::welcome").is_none());
     }
 
     #[test]

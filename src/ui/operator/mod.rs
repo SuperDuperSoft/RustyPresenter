@@ -6,5 +6,6 @@ pub mod files;
 pub mod strings;
 pub mod keys;
 pub mod service;
+pub mod slides;
 pub mod view;
 pub mod window;
