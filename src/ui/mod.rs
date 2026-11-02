@@ -5,6 +5,7 @@ pub mod stage;
 pub mod room;
 pub mod screens;
 pub mod operator;
+pub mod dialogs;
 pub mod ops;
 
 /// Installs the testing backend on this thread once. Slint's platform slot is thread-local and cargo runs each test
