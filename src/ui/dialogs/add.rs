@@ -1,16 +1,16 @@
 //! Add to service (`openAdd()` and its tabs, `operator.js:378-511`): five tiles above the current tab. The Song,
 //! Bible and Announcement tabs are here; Video & media and Slides are in `add_media`. The dialog's fields and lists
 //! live in the `AddState` global (`ui/dialogs/add-list.slint`).
-use super::{AddTab, DialogKind, add_strings as tr, pending};
+use super::{AddTab, DialogKind, add_strings as tr, pending, song_editor::open_song_editor};
 use crate::{
     model::Song,
     slides::section_label,
-    ui::{AddRow, AddState, operator::{add_item::add_item, file_input::Filter, window::Operator}},
+    ui::{AddRow, AddState, operator::{add_item::add_item, file_input::Filter, window::Operator}, thumbs::Thumbs},
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
 use slint::{ComponentHandle, FilterModel, Model, ModelRc, VecModel};
-use std::{cell::RefCell, rc::{Rc, Weak}};
+use std::{cell::{OnceCell, RefCell}, rc::{Rc, Weak}};
 use uuid::Uuid;
 
 type Rows = FilterModel<Rc<VecModel<AddRow>>, Box<dyn Fn(&AddRow) -> bool>>;
@@ -21,6 +21,8 @@ pub(crate) struct AddCtx {
     pub(crate) all: Rc<VecModel<AddRow>>,
     term: Rc<RefCell<String>>,
     shown: Rc<Rows>,
+    /// The Media and Slides rows' pictures, made on first use.
+    thumbs: OnceCell<Thumbs>,
 }
 
 impl AddCtx {
@@ -31,7 +33,15 @@ impl AddCtx {
         // `JSON.stringify(x).toLowerCase().includes(term)` (product decision 5): `key` is the row's JSON, lowercased.
         let filter: Box<dyn Fn(&AddRow) -> bool> = Box::new(move |r| { let t = t.borrow(); t.is_empty() || r.key.contains(t.as_str()) });
         let shown = Rc::new(FilterModel::new(all.clone(), filter));
-        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown })
+        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new() })
+    }
+
+    /// Draws the rows' pictures on a worker thread, or at once in tests.
+    pub(crate) fn thumbs(&self, op: &Operator) -> &Thumbs {
+        self.thumbs.get_or_init(|| {
+            let root = op.app().store.root.clone();
+            if op.ops().is_inline() { Thumbs::inline(root) } else { Thumbs::new(root) }
+        })
     }
 }
 
@@ -77,17 +87,20 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
     let st = op.ui.global::<AddState>();
     st.set_translation(snap.translation.as_str().into());
     st.set_can_paste(!snap.available.contains(&snap.translation));
-    let (rows, placeholder) = match tab {
+    let (rows, placeholder, pictures) = match tab {
         AddTab::Song => {
             let mut songs: Vec<&Song> = snap.data.songs.iter().collect();
             songs.sort_by_cached_key(|s| s.title.to_lowercase());
-            (songs.into_iter().map(song_row).collect(), tr::search_songs(snap.data.songs.len()))
+            (songs.into_iter().map(song_row).collect(), tr::search_songs(snap.data.songs.len()), Vec::new())
         }
-        AddTab::Media | AddTab::Deck | AddTab::Scripture | AddTab::Text => (Vec::new(), String::new()),
+        AddTab::Media | AddTab::Deck => super::add_media::rows(&snap, tab),
+        AddTab::Scripture | AddTab::Text => (Vec::new(), String::new(), Vec::new()),
     };
     ctx.all.set_vec(rows);
     st.set_placeholder(placeholder.into());
     show_empty(op, ctx);
+    // Once the rows are in the model, so a picture drawn at once finds its row.
+    super::add_media::request_pictures(op, ctx, pictures);
 }
 
 /// "Nothing matches." while searching, "Nothing here yet." otherwise, when no row is shown.
@@ -180,11 +193,6 @@ fn add_row(op: &Rc<Operator>, id: Uuid) {
     add_item(op, item, false, |op, _| op.close_dialog());
 }
 
-/// The song editor (Task 17).
-fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) {
-    op.open_dialog(DialogKind::SongEditor { song_id, add_after });
-}
-
 /// Points `AddState`'s callbacks at this dialog. Set on each open; they hold the context and a `Weak` window.
 fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     let st = op.ui.global::<AddState>();
@@ -210,6 +218,7 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_bible_add(with(|op, _| add_verses(op, false)));
     st.on_bible_paste(with(|op, _| add_verses(op, true)));
     st.on_text_add(with(|op, _| add_text(op)));
+    super::add_media::wire(op, ctx);
 }
 
 /// The service column's "Add to service" opens the dialog on the Song tab (`operator.js:348`).

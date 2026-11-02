@@ -5,6 +5,7 @@ import { Btn, Field, Icon } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
 import { TextArea, TextField } from "inputs.slint";
 import { AddRow, AddState, AddList } from "add-list.slint";
+import { AddMediaTab, AddDeckTab } from "add-media.slint";
 
 export { AddRow, AddState }
 
@@ -235,5 +236,7 @@ export component AddDialog inherits DialogBody {
     }
     if AddState.tab == 0: AddSongTab { list-height: root.list-height; }
     if AddState.tab == 1: AddBibleTab {}
+    if AddState.tab == 2: AddMediaTab { list-height: root.list-height; }
+    if AddState.tab == 3: AddDeckTab { list-height: root.list-height; }
     if AddState.tab == 4: AddTextTab {}
 }
