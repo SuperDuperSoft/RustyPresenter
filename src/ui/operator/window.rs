@@ -2,7 +2,7 @@
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
 //! column in `slides`, the live column in `live`, the keyboard in `keys`, the Bible box in `bible`, toasts and jobs
 //! in `overlays`; the dialogs come in later tasks.
-use super::{bible, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+use super::{bible, files::FilesState, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
@@ -81,6 +81,8 @@ pub struct Operator {
     pub(super) preview: Preview,
     /// The toasts and the jobs box (see `overlays`).
     pub(super) overlays: Overlays,
+    /// Adding files: PowerPoint imports waiting for their deck (see `files`).
+    pub(super) files: FilesState,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -102,7 +104,7 @@ impl Operator {
                 else { (Thumbs::new(app.store.root.clone()), Preview::new(app.store.root.clone())) };
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
             }
         });
         service::wire(&op);
@@ -158,6 +160,7 @@ impl Operator {
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
         if data_changed { self.dialog_refresh(); }
+        self.watch_decks();
     }
 
     /// A new live view. An older one (a full read that raced a newer `Live`) is ignored.

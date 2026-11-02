@@ -70,3 +70,15 @@ pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
 
 /// The toast after the Bible box adds a passage (`operator.js:336`).
 pub fn bible_added(label: &str) -> String { format!("{label} added — press Enter to show it") }
+
+/// Adding files (`uploadFiles`, `imagesToDeck` and `addItem` in `operator.js:369-375, 536-598`).
+pub const ADDED_TO_SERVICE: &str = "Added to the service";
+pub fn uploading(name: &str) -> String { format!("Uploading {name}") }
+pub fn uploading_pictures(n: usize) -> String { format!("Uploading {n} picture{}", if n > 1 { "s" } else { "" }) }
+pub fn media_added(name: &str) -> String { format!("{name} added") }
+pub fn media_added_converting(name: &str) -> String { format!("{name} added — converting so it plays smoothly…") }
+pub fn song_imported(title: &str) -> String { format!("Imported “{title}”") }
+pub fn song_duplicate(title: &str) -> String { format!("“{title}” was already in the library — added a second copy.") }
+pub fn deck_ready(title: &str) -> String { format!("“{title}” is ready") }
+pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
+pub const NAME_THESE_SLIDES: &str = "Name these slides";

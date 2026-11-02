@@ -1,11 +1,23 @@
-//! Which import a dropped or picked file takes, and the pure steps of "Make slides from pictures"
-//! (`web/operator.js:535-598`). The steps that need the window arrive with Task 14's `add_files` and `images_to_deck`.
-use super::strings as tr;
-use crate::{app::ImportPurpose, media};
-use std::{
-    cmp::Ordering,
-    path::{Path, PathBuf},
+//! Adding files to the service (`uploadFiles`, `watchDeckJob`, `imagesToDeck` and `addItem` in
+//! `web/operator.js:369-375, 536-598`): which import a dropped or picked file takes, the window glue that runs the
+//! imports one after another as client jobs, and the pure steps it is built from.
+use super::{overlays::JobHandle, strings as tr, view, window::Operator};
+use crate::{
+    app::{ImportPurpose, Imported},
+    media,
+    model::{AssetId, Deck, MediaStatus},
+    ui::dialogs,
 };
+use serde::Deserialize;
+use serde_json::{Value, json};
+use std::{
+    cell::RefCell,
+    cmp::Ordering,
+    collections::{HashSet, VecDeque},
+    path::{Path, PathBuf},
+    rc::Rc,
+};
+use uuid::Uuid;
 
 const DECK: &[&str] = &["ppt", "pptx", "pps", "ppsx", "odp"];
 
@@ -93,6 +105,213 @@ pub fn deck_title(answer: Option<&str>) -> String {
         Some(a) if !a.trim().is_empty() => a.to_string(),
         _ => tr::DEFAULT_DECK_TITLE.to_string(),
     }
+}
+
+/// What the window keeps for adding files: the PowerPoint imports waiting for their deck.
+#[derive(Default)]
+pub struct FilesState {
+    watches: RefCell<Vec<DeckWatch>>,
+}
+
+/// A PowerPoint import whose deck is added to the service when its job ends (`watchDeckJob`).
+#[derive(Clone, Debug)]
+pub struct DeckWatch {
+    pub job: Uuid,
+    /// The decks there were when the upload started.
+    pub before: HashSet<Uuid>,
+    /// The job has been seen in a snapshot. Until then a missing job may just be a read from before it started.
+    pub seen: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum DeckWatchStep {
+    Wait,
+    /// The job failed: its error card says so, and nothing is added.
+    Failed,
+    /// The job ended: these new decks (id, title) go into the service.
+    Ready(Vec<(Uuid, String)>),
+}
+
+impl DeckWatch {
+    /// One look at a new snapshot (the web looks every 700 ms; here every `Data` update does).
+    pub fn step(&mut self, jobs: &[view::JobRow], decks: &[Deck]) -> DeckWatchStep {
+        if let Some(j) = jobs.iter().find(|j| j.id == self.job) {
+            if j.error.is_some() { return DeckWatchStep::Failed }
+            self.seen = true;
+            return DeckWatchStep::Wait;
+        }
+        let fresh: Vec<(Uuid, String)> = decks.iter().filter(|d| !self.before.contains(&d.id)).map(|d| (d.id, d.title.clone())).collect();
+        if fresh.is_empty() && !self.seen { DeckWatchStep::Wait } else { DeckWatchStep::Ready(fresh) }
+    }
+}
+
+/// `service/add`'s and `deck/from-images`'s answer.
+#[derive(Deserialize)]
+struct Added { id: Uuid }
+
+/// The name a file's toasts and job card use.
+fn file_name(path: &Path) -> String { path.file_name().unwrap_or(path.as_os_str()).to_string_lossy().into_owned() }
+
+/// `addItem` (`operator.js:369-375`): `service/add` at the end, select the new item, then "Added to the service"
+/// unless `quiet`. `done` gets the new id or the core's error; this does not toast an error itself.
+pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(Result<Uuid, String>) + 'static) {
+    let me = Rc::downgrade(op);
+    op.ops.call::<Added>("service/add", json!({ "item": item, "position": null }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        let r = r.map(|Added { id }| id);
+        if let Ok(id) = r {
+            op.state.borrow_mut().selected = Some(id);
+            // The core's `Data` update may already have been applied with the old selection.
+            op.mark_service();
+            op.render_slides();
+            if !quiet { op.toast(tr::ADDED_TO_SERVICE, false); }
+        }
+        done(r);
+    });
+}
+
+/// `uploadFiles(files, {add: true})`: each file in turn, as a client job "Uploading `<name>`", then into the
+/// service. A song or media file is added quietly with its own toast; a PowerPoint is added when its job ends. A
+/// failure toasts "`<file>`: `<error>`" and the next file goes on. The open dialog is redrawn at the end.
+pub fn add_files(op: &Rc<Operator>, paths: Vec<PathBuf>) { next_file(op, paths.into()); }
+
+fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
+    let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
+    let name = file_name(&path);
+    let before: HashSet<Uuid> = op.state.borrow().snap.as_ref().map(|s| s.data.decks.iter().map(|d| d.id).collect()).unwrap_or_default();
+    let job = op.client_job(tr::uploading(&name));
+    let progress = job.progress();
+    let me = Rc::downgrade(op);
+    op.ops.import(path.clone(), route(&path).purpose(), progress, move |r| {
+        drop(job);
+        let Some(op) = me.upgrade() else { return };
+        let shown = name.clone();
+        // Each file ends with its toast (none for a PowerPoint, whose deck comes later), then the next file starts.
+        let then = move |op: &Rc<Operator>, r: Result<Option<String>, String>| {
+            match r {
+                Ok(text) => if let Some(text) = text { op.toast(text, false) },
+                Err(e) => op.toast(tr::file_failed(&name, &e), true),
+            }
+            next_file(op, rest);
+        };
+        match r {
+            Err(e) => then(&op, Err(e)),
+            Ok(Imported::Media(m)) => {
+                let converting = matches!(m.status, MediaStatus::Converting { .. });
+                let item = json!({ "kind": "media", "media_id": m.id, "autoplay": true, "end": "stop", "looped": false });
+                let me = Rc::downgrade(&op);
+                add_item(&op, item, true, move |r| {
+                    let Some(op) = me.upgrade() else { return };
+                    then(&op, r.map(|_| Some(if converting { tr::media_added_converting(&shown) } else { tr::media_added(&shown) })));
+                });
+            }
+            Ok(Imported::Song { id, title, duplicate_of }) => {
+                if duplicate_of.is_some() { op.toast(tr::song_duplicate(&title), false); }
+                let me = Rc::downgrade(&op);
+                add_item(&op, json!({ "kind": "song", "song_id": id }), true, move |r| {
+                    if let Some(op) = me.upgrade() { then(&op, r.map(|_| Some(tr::song_imported(&title)))); }
+                });
+            }
+            Ok(Imported::Job(job)) => {
+                op.files.watches.borrow_mut().push(DeckWatch { job, before, seen: false });
+                op.watch_decks();
+                then(&op, Ok(None));
+            }
+            // A media, lyrics or PowerPoint import never answers with a bare asset.
+            Ok(Imported::Asset(_)) => then(&op, Err(tr::ACTION_STOPPED.into())),
+        }
+    });
+}
+
+impl Operator {
+    /// Looks at each PowerPoint import waiting for its deck; called by `apply_snapshot`.
+    pub(super) fn watch_decks(&self) {
+        let Some(op) = self.me.upgrade() else { return };
+        let Some(s) = self.state.borrow().snap.clone() else { return };
+        let mut ready = Vec::new();
+        self.files.watches.borrow_mut().retain_mut(|w| match w.step(&s.jobs, &s.data.decks) {
+            DeckWatchStep::Wait => true,
+            DeckWatchStep::Failed => false,
+            DeckWatchStep::Ready(decks) => { ready.push(decks); false }
+        });
+        for decks in ready { add_decks(&op, decks.into(), None); }
+    }
+}
+
+/// Adds the decks a PowerPoint made, one after another, then toasts "“T” is ready" with the first one's title.
+fn add_decks(op: &Rc<Operator>, mut rest: VecDeque<(Uuid, String)>, first: Option<String>) {
+    let Some((id, title)) = rest.pop_front() else {
+        if let Some(t) = first { op.toast(tr::deck_ready(&t), false); }
+        return;
+    };
+    let first = first.or(Some(title));
+    let me = Rc::downgrade(op);
+    add_item(op, json!({ "kind": "deck", "deck_id": id }), true, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(_) => add_decks(&op, rest, first),
+            Err(e) => op.toast(e, true),
+        }
+    });
+}
+
+/// `imagesToDeck` (`operator.js:580-598`): upload the pictures in file-name order as one client job, ask for a
+/// name, make the deck, add it to the service (with its toast) and close the dialog. The job card stays until the
+/// end; any error is an error toast with the core's text.
+pub fn images_to_deck(op: &Rc<Operator>, mut paths: Vec<PathBuf>) {
+    if paths.is_empty() { return }
+    sort_by_name(&mut paths);
+    let job = op.client_job(tr::uploading_pictures(paths.len()));
+    let first = suggested_title(&paths[0]);
+    let total = paths.len();
+    next_picture(op, Pictures { rest: paths.into(), assets: Vec::new(), total, job, first });
+}
+
+/// `imagesToDeck`'s progress between uploads.
+struct Pictures { rest: VecDeque<PathBuf>, assets: Vec<AssetId>, total: usize, job: JobHandle, first: String }
+
+fn next_picture(op: &Rc<Operator>, mut p: Pictures) {
+    let Some(path) = p.rest.pop_front() else { return name_deck(op, p) };
+    let me = Rc::downgrade(op);
+    op.ops.import(path, ImportPurpose::Asset, |_| {}, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(Imported::Asset(a)) => {
+                p.assets.push(a);
+                p.job.set_percent((p.assets.len() as f64 * 100.0 / p.total as f64).round() as u8);
+                next_picture(&op, p);
+            }
+            Ok(_) => op.toast(tr::ACTION_STOPPED, true),
+            Err(e) => op.toast(e, true),
+        }
+    });
+}
+
+fn name_deck(op: &Rc<Operator>, p: Pictures) {
+    let me = Rc::downgrade(op);
+    let first = p.first.clone();
+    dialogs::prompt(op, tr::NAME_THESE_SLIDES, &first, move |answer| {
+        let Some(op) = me.upgrade() else { return };
+        let Pictures { assets, job, .. } = p;
+        let me = Rc::downgrade(&op);
+        op.ops.call::<Added>("deck/from-images", json!({ "title": deck_title(answer.as_deref()), "assets": assets }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            match r {
+                Ok(Added { id }) => {
+                    let me = Rc::downgrade(&op);
+                    add_item(&op, json!({ "kind": "deck", "deck_id": id }), false, move |r| {
+                        let Some(op) = me.upgrade() else { return };
+                        match r {
+                            Ok(_) => op.close_dialog(),
+                            Err(e) => op.toast(e, true),
+                        }
+                        drop(job);
+                    });
+                }
+                Err(e) => { op.toast(e, true); drop(job); }
+            }
+        });
+    });
 }
 
 #[cfg(test)]
@@ -188,4 +407,167 @@ mod tests {
 
     #[test]
     fn deck_title_keeps_what_was_typed() { assert_eq!(deck_title(Some("Easter Sunday")), "Easter Sunday"); }
+}
+
+#[cfg(test)]
+mod window_tests {
+    use super::*;
+    use crate::{
+        app::{App, test_app},
+        model::ItemKind,
+        ui::{dialogs::{AddTab, DialogKind, ask}, operator::window::testing::{open, refresh}},
+    };
+    use slint::Model;
+    use std::sync::Arc;
+
+    /// A folder of its own for one test's files.
+    fn folder() -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("rp-files-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    /// A `size`-pixel square PNG; different sizes give different files (assets are named by their hash).
+    fn png(dir: &Path, name: &str, size: u32) -> PathBuf {
+        let p = dir.join(name);
+        image::RgbaImage::from_pixel(size, size, image::Rgba([10, 20, 30, 255])).save(&p).unwrap();
+        p
+    }
+
+    fn items(app: &App) -> Vec<ItemKind> { app.data.lock().unwrap().services[0].items.iter().map(|i| i.kind.clone()).collect() }
+
+    fn toasts(op: &Operator) -> Vec<(String, bool)> { op.state.borrow().toasts.clone() }
+
+    /// The job cards (these tests start no server jobs, so these are the uploads).
+    fn cards(op: &Operator) -> Vec<(String, i32)> { op.ui.get_jobs().iter().map(|j| (j.label.to_string(), j.percent)).collect() }
+
+    fn opened(app: &Arc<App>) -> Rc<Operator> {
+        let op = open(app);
+        refresh(&op);
+        op
+    }
+
+    #[test]
+    fn add_files_media_adds_to_service_quietly() {
+        let app = test_app();
+        let op = opened(&app);
+        let pic = png(&folder(), "pic.png", 4);
+        add_files(&op, vec![pic]);
+        let items = items(&app);
+        assert_eq!(items.len(), 1);
+        let ItemKind::Media { media_id, autoplay, looped, .. } = &items[0] else { panic!("{items:?}") };
+        assert!(*autoplay && !*looped);
+        assert!(app.data.lock().unwrap().media.iter().any(|m| m.id == *media_id));
+        assert_eq!(toasts(&op), [("pic.png added".to_string(), false)], "no \"Added to the service\"");
+        refresh(&op);
+        let added = app.data.lock().unwrap().services[0].items[0].id;
+        assert_eq!(op.state.borrow().selected, Some(added), "the new item is selected");
+        assert!(cards(&op).is_empty(), "the upload card is gone");
+    }
+
+    #[test]
+    fn add_txt_imports_song_and_adds_it() {
+        let app = test_app();
+        let op = opened(&app);
+        let txt = folder().join("song.txt");
+        std::fs::write(&txt, "A Test Song\r\n\r\nVerse 1\r\nLine one\r\nLine two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
+        add_files(&op, vec![txt.clone()]);
+        let ItemKind::Song { song_id } = items(&app)[0].clone() else { panic!() };
+        assert!(app.data.lock().unwrap().songs.iter().any(|s| s.id == song_id && s.title == "A Test Song"));
+        assert_eq!(toasts(&op), [("Imported “A Test Song”".to_string(), false)]);
+        // The same CCLI number again: a second copy, said so, and added too.
+        add_files(&op, vec![txt]);
+        assert_eq!(items(&app).len(), 2);
+        assert_eq!(toasts(&op)[1..], [
+            ("“A Test Song” was already in the library — added a second copy.".to_string(), false),
+            ("Imported “A Test Song”".to_string(), false),
+        ]);
+    }
+
+    #[test]
+    fn a_failed_file_toasts_its_name_and_the_next_goes_on() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        let missing = dir.join("gone.mp4");
+        add_files(&op, vec![missing, png(&dir, "ok.png", 4)]);
+        let t = toasts(&op);
+        assert_eq!(t.len(), 2);
+        assert!(t[0].1 && t[0].0.starts_with("gone.mp4: "), "{t:?}");
+        assert_eq!(t[1], ("ok.png added".to_string(), false));
+        assert_eq!(items(&app).len(), 1);
+    }
+
+    #[test]
+    fn images_to_deck_cancel_still_makes_slides() {
+        let app = test_app();
+        let op = opened(&app);
+        op.open_dialog(DialogKind::Add(AddTab::Deck));
+        let dir = folder();
+        images_to_deck(&op, vec![png(&dir, "Easter.png", 4), png(&dir, "b.png", 5)]);
+        assert_eq!(op.state.borrow().asks, 1, "the name prompt is up");
+        assert_eq!(cards(&op), [("Uploading 2 pictures".to_string(), 100)], "the card stays while asking");
+        ask::answer(&op, false, String::new());
+        let ItemKind::Deck { deck_id } = items(&app)[0].clone() else { panic!() };
+        assert_eq!(app.data.lock().unwrap().decks.iter().find(|d| d.id == deck_id).unwrap().title, "Slides");
+        assert_eq!(toasts(&op), [("Added to the service".to_string(), false)]);
+        assert_eq!(op.dialog(), None, "the dialog closed");
+        assert!(cards(&op).is_empty());
+    }
+
+    #[test]
+    fn images_to_deck_prompt_starts_with_the_first_name_and_keeps_the_answer() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        images_to_deck(&op, vec![png(&dir, "b.png", 5), png(&dir, "a.png", 4)]);
+        assert_eq!(op.ui.get_ask().row_data(0).unwrap().value, "a");
+        ask::answer(&op, true, "Easter".into());
+        assert_eq!(app.data.lock().unwrap().decks[0].title, "Easter");
+    }
+
+    #[test]
+    fn images_to_deck_sorts_numerically() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        images_to_deck(&op, vec![png(&dir, "10.png", 10), png(&dir, "2.png", 2)]);
+        ask::answer(&op, true, "Pictures".into());
+        let deck = app.data.lock().unwrap().decks[0].clone();
+        let sizes: Vec<u32> = deck.slides.iter().map(|a| image::image_dimensions(app.store.asset_path(a)).unwrap().0).collect();
+        assert_eq!(sizes, [2, 10]);
+    }
+
+    #[test]
+    fn deck_watch_waits_for_the_job_then_adds_new_decks() {
+        let job = Uuid::new_v4();
+        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![] };
+        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] };
+        let running = view::JobRow { id: job, label: "Importing".into(), percent: 10, error: None };
+        let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
+        assert_eq!(w.step(&[], std::slice::from_ref(&old)), DeckWatchStep::Wait, "a read from before the job started");
+        assert_eq!(w.step(std::slice::from_ref(&running), std::slice::from_ref(&old)), DeckWatchStep::Wait);
+        assert_eq!(w.step(&[], &[old.clone(), new.clone()]), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]));
+        let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
+        assert_eq!(w.step(&[], &[old.clone(), new.clone()]), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]), "a job that ended before any read");
+        let failed = view::JobRow { error: Some("PowerPoint is not installed.".into()), ..running };
+        assert_eq!(w.step(&[failed], &[old]), DeckWatchStep::Failed);
+    }
+
+    #[test]
+    fn finished_powerpoint_job_adds_its_deck_and_says_ready() {
+        let app = test_app();
+        let op = opened(&app);
+        let job = app.job_start("Importing “Talk” from PowerPoint");
+        op.files.watches.borrow_mut().push(DeckWatch { job, before: HashSet::new(), seen: false });
+        refresh(&op);
+        assert!(items(&app).is_empty(), "still converting");
+        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] }); Ok(()) }).unwrap();
+        app.job_end(job, None);
+        refresh(&op);
+        assert!(matches!(items(&app)[..], [ItemKind::Deck { .. }]));
+        assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false)]);
+        refresh(&op);
+        assert_eq!(items(&app).len(), 1, "added once");
+    }
 }
