@@ -5441,6 +5441,7 @@ dependencies = [
  "image",
  "libloading 0.8.9",
  "qrcode",
+ "roxmltree 0.21.2",
  "rusqlite",
  "serde",
  "serde_json",

@@ -1,0 +1,520 @@
+//! OpenLP 2.x/3.x song database (`songs.sqlite`) → Songs.
+//! Never writes to OpenLP data and never opens it with SQLite: like the EasyWorship reader, the database files
+//! are copied once they stop changing and SQLite reads only that copy (`common::snapshot`).
+//! Written from the database layout (facts, not code): `songs` (id, title, lyrics, verse_order, copyright,
+//! ccli_number, temporary …), `authors` (id, display_name, first_name, last_name), `authors_songs` (author_id,
+//! song_id, author_type in 2.2+), `song_books`/`songs_songbooks`, `topics`/`songs_topics`. The lyrics column is
+//! XML: `<song version="1.0"><lyrics><verse type="v" label="1"><![CDATA[…]]></verse>…</lyrics></song>`, and
+//! `verse_order` lists verse tags in performance order ("v1 c1 v2 c1"). Song books and topics have no place
+//! in the app's Song, so they are not read.
+use super::common::{check_sqlite, columns, find_file, label_line, section_name, snapshot, value_int, value_text, ImportReport};
+use crate::model::Song;
+use rusqlite::Connection;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use uuid::Uuid;
+
+/// One `songs` row with its authors, as read from the database.
+#[derive(Clone, Debug, Default)]
+pub struct OlpSong {
+    pub title: String,
+    /// Display names in the order they were linked; the same person twice (words, music) is listed once.
+    pub authors: Vec<String>,
+    pub copyright: String,
+    pub ccli_number: String,
+    pub lyrics: String,
+    pub verse_order: String,
+    /// OpenLP keeps a temporary copy of every song in a loaded service file.
+    pub temporary: bool,
+}
+
+/// One `<verse>` of the lyrics XML: type code ("v", "c" …), label ("1", "2a"), text.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Verse { pub kind: String, pub label: String, pub text: String }
+
+/// Lyrics bigger than this are not a song (a stray document pasted in); skipped instead of parsed.
+const MAX_LYRICS: usize = 1_000_000;
+
+// ---------- lyrics XML → lyrics ----------
+
+/// The `<verse>` elements of OpenLP's lyrics XML, in document order. DTDs are refused (no entity tricks).
+pub fn parse_verses(xml: &str) -> Result<Vec<Verse>, String> {
+    let doc = roxmltree::Document::parse(xml.trim_start_matches('\u{feff}')).map_err(|e| format!("the lyrics are not valid XML ({e})"))?;
+    Ok(doc.descendants().filter(|n| n.is_element() && n.tag_name().name().eq_ignore_ascii_case("verse")).map(|n| {
+        let text: String = n.descendants().filter(|d| d.is_text()).filter_map(|d| d.text()).collect();
+        let (mut kind, mut label) = (n.attribute("type").unwrap_or("").trim().to_string(), n.attribute("label").unwrap_or("").trim().to_string());
+        // OpenLyrics style `name="v1"` when there is no type.
+        if kind.is_empty() {
+            let name = n.attribute("name").unwrap_or("").trim();
+            if let Some(c) = name.chars().next() { kind = c.to_string(); label = name[c.len_utf8()..].trim().to_string(); }
+        }
+        Verse { kind, label, text }
+    }).collect())
+}
+
+/// OpenLP's verse types by their one-letter code. Anything else (including no type) is "Other".
+fn kind_code(kind: &str) -> char {
+    match kind.chars().next().map(|c| c.to_ascii_lowercase()) {
+        Some(c @ ('v' | 'c' | 'b' | 'p' | 'i' | 'e')) => c,
+        _ => 'o',
+    }
+}
+
+fn kind_name(code: char) -> &'static str {
+    match code { 'v' => "Verse", 'c' => "Chorus", 'b' => "Bridge", 'p' => "Pre-Chorus", 'i' => "Intro", 'e' => "Ending", _ => "Other" }
+}
+
+/// `[G]`, `[D/F#]`, `[Am7]`, `[Csus4]`: an inline chord (OpenLP 3), not lyrics. `[Ending]` is not one.
+fn is_chord(s: &str) -> bool {
+    fn chord_part(s: &str) -> bool {
+        let mut rest = match s.chars().next() { Some('A'..='G') => &s[1..], _ => return false };
+        rest = rest.strip_prefix(['#', 'b']).unwrap_or(rest);
+        'next: while !rest.is_empty() {
+            for t in ["maj", "min", "sus", "dim", "aug", "add", "m", "M", "+", "-", "#", "b", "(", ")", "°", "ø"] {
+                if let Some(r) = rest.strip_prefix(t) { rest = r; continue 'next; }
+            }
+            let digits = rest.len() - rest.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+            if digits == 0 { return false; }
+            rest = &rest[digits..];
+        }
+        true
+    }
+    let mut parts = s.splitn(2, '/');
+    s.len() <= 16 && parts.next().is_some_and(chord_part) && parts.next().is_none_or(chord_part)
+}
+
+/// Removes `{r}…{/r}` formatting tags (`{br}` is a line break) and inline chords.
+fn strip_markup(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(i) = rest.find(['{', '[']) {
+        out.push_str(&rest[..i]);
+        let tail = &rest[i..];
+        let close = if tail.starts_with('{') { '}' } else { ']' };
+        match tail[1..].find(close).filter(|&e| e <= 20) {
+            Some(e) => {
+                let inner = &tail[1..1 + e];
+                let tag = inner.strip_prefix('/').unwrap_or(inner);
+                let is_tag = close == '}' && !tag.is_empty() && tag.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-');
+                if is_tag {
+                    if inner.eq_ignore_ascii_case("br") { out.push('\n'); }
+                } else if !(close == ']' && is_chord(inner)) {
+                    out.push_str(&tail[..e + 2]);
+                }
+                rest = &tail[e + 2..];
+            }
+            None => { out.push_str(&tail[..1]); rest = &tail[1..]; }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Verse text → slides (groups of lines). `[---]` (optional split) and blank lines start a new slide.
+fn verse_groups(text: &str) -> Vec<Vec<String>> {
+    let text = text.replace("\r\n", "\n").replace('\r', "\n").replace("[--}{--]", "\n\n").replace("[---]", "\n\n");
+    let mut groups: Vec<Vec<String>> = vec![vec![]];
+    for line in strip_markup(&text).lines() {
+        let t = line.replace('\t', " ").trim().to_string();
+        if t.is_empty() {
+            if groups.last().is_some_and(|g| !g.is_empty()) { groups.push(vec![]); }
+        } else if let Some(g) = groups.last_mut() { g.push(t); }
+    }
+    groups.retain(|g| !g.is_empty());
+    groups
+}
+
+fn join_groups(groups: &[Vec<String>]) -> String {
+    groups.iter().map(|g| g.join("\n")).collect::<Vec<_>>().join("\n\n")
+}
+
+/// OpenLP lyrics (XML, or plain text from very old databases) plus `verse_order` → lyrics in the app's format
+/// (label lines, blank line between slides) and the arrangement: section names in `verse_order` order, empty
+/// when that is just the written order. Err is why the lyrics can't be used.
+pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<String>), String> {
+    let trimmed = xml.trim_start_matches('\u{feff}').trim();
+    if trimmed.len() > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
+    if !trimmed.starts_with('<') {
+        let out = join_groups(&verse_groups(trimmed));
+        return if out.is_empty() { Err("the lyrics are empty".into()) } else { Ok((out, vec![])) };
+    }
+    let verses: Vec<(Verse, Vec<Vec<String>>)> = parse_verses(trimmed)?.into_iter()
+        .map(|v| { let g = verse_groups(&v.text); (v, g) }).filter(|(_, g)| !g.is_empty()).collect();
+    if verses.is_empty() { return Err("the lyrics have no verses".into()); }
+
+    // Section labels. A lone "c1" is just "Chorus"; verses keep their number ("Verse 1").
+    let count = |code: char| verses.iter().filter(|(v, _)| kind_code(&v.kind) == code).count();
+    let mut names: Vec<String> = Vec::new();
+    for (v, _) in &verses {
+        let code = kind_code(&v.kind);
+        let base = kind_name(code);
+        let mut label = if v.label.is_empty() || (code != 'v' && v.label == "1" && count(code) == 1) { base.to_string() }
+            else { format!("{base} {}", v.label) };
+        // The app finds sections by name, so the same tag twice gets "(2)".
+        let taken = |l: &str| names.iter().any(|n| section_name(Some(n)).eq_ignore_ascii_case(&section_name(Some(l))));
+        if taken(&label) { label = (2..).map(|n| format!("{label} ({n})")).find(|l| !taken(l)).unwrap_or(label); }
+        names.push(label);
+    }
+
+    let mut out: Vec<String> = Vec::new();
+    for ((_, groups), name) in verses.iter().zip(&names) {
+        if !out.is_empty() { out.push(String::new()); }
+        out.push(label_line(name));
+        out.push(join_groups(groups));
+    }
+
+    // verse_order: "v1 c1 v2 c1". A tag without a number ("c") is the first verse of that type; unknown tags are dropped.
+    let mut order: Vec<String> = Vec::new();
+    for tag in verse_order.split_whitespace() {
+        let code = kind_code(tag);
+        let num = tag.char_indices().nth(1).map(|(i, _)| &tag[i..]).unwrap_or("").trim();
+        let of_kind = |v: &Verse| kind_code(&v.kind) == code;
+        let found = verses.iter().position(|(v, _)| of_kind(v) && (num.is_empty() || v.label.eq_ignore_ascii_case(num)))
+            .or_else(|| if num == "1" { verses.iter().position(|(v, _)| of_kind(v) && v.label.is_empty()) } else { None });
+        if let Some(i) = found { order.push(section_name(Some(&names[i]))); }
+    }
+    let written: Vec<String> = names.iter().map(|n| section_name(Some(n))).collect();
+    if order == written { order.clear(); }
+    Ok((out.join("\n"), order))
+}
+
+// ---------- row → Song ----------
+
+/// OpenLP's CCLI field is free text: kept only when it is a number ("#1234567" → "1234567").
+fn ccli(raw: &str) -> String {
+    let t = raw.trim().trim_start_matches('#').trim().trim_start_matches('0');
+    if !t.is_empty() && t.chars().all(|c| c.is_ascii_digit()) { t.to_string() } else { String::new() }
+}
+
+fn display_title(row: &OlpSong) -> String {
+    let t = row.title.trim();
+    if t.is_empty() { "Untitled song".into() } else { t.to_string() }
+}
+
+/// Err is the reason the row is skipped.
+pub fn to_song(row: &OlpSong) -> Result<Song, String> {
+    if row.temporary { return Err("a temporary copy OpenLP keeps for a service file".into()); }
+    if row.lyrics.trim().is_empty() { return Err("no lyrics".into()); }
+    let (lyrics, arrangement) = lyrics_from_xml(&row.lyrics, &row.verse_order)?;
+    let writers = row.authors.iter().map(|a| a.trim()).filter(|a| !a.is_empty()).collect::<Vec<_>>().join(" | ");
+    Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers, ccli: ccli(&row.ccli_number), copyright: row.copyright.trim().to_string(),
+        lyrics, arrangement })
+}
+
+// ---------- reader ----------
+
+/// Reads a whole OpenLP song database. `path` may be songs.sqlite itself (any name), its `songs` folder, OpenLP's
+/// data folder, or the folder above that.
+pub fn read_library(path: &Path) -> Result<ImportReport, String> {
+    let db_path = find_database(path)?;
+    check_sqlite(&db_path, "This file isn't an OpenLP song database (songs.sqlite).")?;
+    let db = snapshot(&[&db_path], "OpenLP")?.pop().ok_or("Couldn't open the OpenLP database.")?;
+    let rows = read_rows(&db)?;
+    let mut report = ImportReport::default();
+    for row in &rows {
+        match to_song(row) { Ok(s) => report.songs.push(s), Err(why) => report.skipped.push((display_title(row), why)) }
+    }
+    Ok(report)
+}
+
+fn find_database(path: &Path) -> Result<PathBuf, String> {
+    if path.is_file() { return Ok(path.to_path_buf()); }
+    let dirs = [path.to_path_buf(), path.join("songs"), path.join("data").join("songs"), path.join("Data").join("songs")];
+    dirs.iter().find_map(|d| find_file(d, &["songs.sqlite"])).ok_or_else(|| "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder \
+        (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp).".into())
+}
+
+fn has(cols: &[String], c: &str) -> bool { cols.iter().any(|x| x.eq_ignore_ascii_case(c)) }
+
+/// Builds the SELECTs from the columns that exist: 2.0 has no `temporary` or `author_type`.
+fn read_rows(db: &Connection) -> Result<Vec<OlpSong>, String> {
+    let err = |e: rusqlite::Error| format!("Couldn't read the OpenLP database: {e}");
+    let cols = columns(db, "songs").map_err(err)?;
+    if !has(&cols, "title") || !has(&cols, "lyrics") { return Err("This isn't an OpenLP song database: it has no songs table.".into()); }
+    let pick = |c: &str| if has(&cols, c) { format!("\"{c}\"") } else { "NULL".into() };
+
+    // Authors per song, in the order they were linked, each person once.
+    let mut authors: HashMap<i64, Vec<String>> = HashMap::new();
+    let acols = columns(db, "authors").map_err(err)?;
+    let lcols = columns(db, "authors_songs").map_err(err)?;
+    if has(&acols, "id") && has(&lcols, "author_id") && has(&lcols, "song_id") {
+        let apick = |c: &str| if has(&acols, c) { format!("a.\"{c}\"") } else { "NULL".into() };
+        let sql = format!("SELECT l.song_id, {}, {}, {} FROM authors_songs l JOIN authors a ON a.id = l.author_id ORDER BY l.rowid",
+            apick("display_name"), apick("first_name"), apick("last_name"));
+        let mut stmt = db.prepare(&sql).map_err(err)?;
+        let mut q = stmt.query([]).map_err(err)?;
+        while let Some(r) = q.next().map_err(err)? {
+            let Some(song) = value_int(r.get_ref(0).map_err(err)?) else { continue };
+            let t = |i: usize| r.get_ref(i).map(value_text).map(|s| s.trim().to_string()).map_err(err);
+            let mut name = t(1)?;
+            if name.is_empty() { name = format!("{} {}", t(2)?, t(3)?).trim().to_string(); }
+            let list = authors.entry(song).or_default();
+            if !name.is_empty() && !list.contains(&name) { list.push(name); }
+        }
+    }
+
+    let sql = format!("SELECT {}, {}, {}, {}, {}, {}, {} FROM songs ORDER BY {}", if has(&cols, "id") { "\"id\"" } else { "rowid" },
+        pick("title"), pick("lyrics"), pick("verse_order"), pick("copyright"), pick("ccli_number"), pick("temporary"),
+        if has(&cols, "id") { "\"id\"" } else { "rowid" });
+    let mut out = Vec::new();
+    let mut stmt = db.prepare(&sql).map_err(err)?;
+    let mut q = stmt.query([]).map_err(err)?;
+    while let Some(r) = q.next().map_err(err)? {
+        let t = |i: usize| r.get_ref(i).map(value_text).map_err(err);
+        let id = value_int(r.get_ref(0).map_err(err)?);
+        out.push(OlpSong { title: t(1)?, lyrics: t(2)?, verse_order: t(3)?, copyright: t(4)?, ccli_number: t(5)?,
+            temporary: value_int(r.get_ref(6).map_err(err)?).is_some_and(|v| v != 0),
+            authors: id.and_then(|i| authors.remove(&i)).unwrap_or_default() });
+    }
+    Ok(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::slides::{parse_sections, song_order};
+    use rusqlite::Connection;
+    use std::path::PathBuf;
+
+    // Amazing Grace (John Newton, 1779): public domain.
+    const GRACE: &str = r#"<?xml version='1.0' encoding='UTF-8'?>
+<song version="1.0"><lyrics language="en"><verse type="v" label="1"><![CDATA[Amazing grace! how sweet the sound
+That saved a wretch like me!
+I once was lost, but now am found,
+Was blind, but now I see.]]></verse><verse type="v" label="2"><![CDATA['Twas grace that taught my heart to fear,
+And grace my fears relieved;
+How precious did that grace appear
+The hour I first believed!]]></verse></lyrics></song>"#;
+
+    // Invented text, exercising chorus, bridge, optional splits, formatting tags and chords.
+    const INVENTED: &str = r#"<song version="1.0"><lyrics><verse type="v" label="1"><![CDATA[{r}Morning{/r} light on the hill
+Rivers run & the fields are still]]></verse><verse type="c" label="1"><![CDATA[Sing [G]out, sing [D/F#]out
+[---]
+Sing it all the day]]></verse><verse type="v" label="2"><![CDATA[Evening comes{br}the lamps are lit]]></verse><verse type="b" label="1"><![CDATA[Over and over]]></verse></lyrics></song>"#;
+
+    #[test]
+    fn verses_come_out_of_the_xml_in_order() {
+        let v = parse_verses(GRACE).unwrap();
+        assert_eq!(v.len(), 2);
+        assert_eq!((v[0].kind.as_str(), v[0].label.as_str()), ("v", "1"));
+        assert!(v[0].text.starts_with("Amazing grace! how sweet the sound\nThat saved"));
+        assert_eq!(v[1].label, "2");
+    }
+
+    #[test]
+    fn hymn_becomes_labelled_sections() {
+        let (lyrics, order) = lyrics_from_xml(GRACE, "").unwrap();
+        assert!(lyrics.starts_with("Verse 1\nAmazing grace! how sweet the sound\n"));
+        assert!(lyrics.contains("Was blind, but now I see.\n\nVerse 2\n'Twas grace"));
+        assert!(order.is_empty());
+        let labels: Vec<_> = parse_sections(&lyrics).into_iter().map(|s| s.label).collect();
+        assert_eq!(labels, ["Verse 1", "Verse 2"]);
+    }
+
+    #[test]
+    fn tags_chords_and_splits_are_cleaned() {
+        let (lyrics, _) = lyrics_from_xml(INVENTED, "").unwrap();
+        assert_eq!(lyrics, "Verse 1\nMorning light on the hill\nRivers run & the fields are still\n\n\
+            Chorus\nSing out, sing out\n\nSing it all the day\n\nVerse 2\nEvening comes\nthe lamps are lit\n\nBridge\nOver and over");
+        let secs = parse_sections(&lyrics);
+        assert_eq!(secs[1].groups, vec![vec!["Sing out, sing out".to_string()], vec!["Sing it all the day".to_string()]]);
+    }
+
+    #[test]
+    fn verse_order_becomes_the_arrangement() {
+        let (lyrics, order) = lyrics_from_xml(INVENTED, "v1 c1 v2 C1 b1 c x9").unwrap();
+        assert_eq!(order, ["Verse 1", "Chorus", "Verse 2", "Chorus", "Bridge", "Chorus"]);
+        let song = Song { lyrics, arrangement: order.clone(), ..Default::default() };
+        let secs = parse_sections(&song.lyrics);
+        let got: Vec<_> = song_order(&song, &secs).into_iter().map(|i| secs[i].label.clone()).collect();
+        assert_eq!(got, order);
+        // Order that is just the written order adds nothing.
+        assert!(lyrics_from_xml(INVENTED, "v1 c1 v2 b1").unwrap().1.is_empty());
+    }
+
+    #[test]
+    fn every_verse_type_has_a_label_the_app_reads() {
+        let xml = r#"<song><lyrics><verse type="p" label="1">a</verse><verse type="i" label="1">b</verse><verse type="e" label="1">c</verse><verse type="o" label="1">d</verse><verse type="o" label="2">e</verse><verse type="c" label="1">f</verse><verse type="c" label="2">g</verse><verse type="Verse" label="3">h</verse><verse type="z">i</verse></lyrics></song>"#;
+        let (lyrics, _) = lyrics_from_xml(xml, "").unwrap();
+        let labels: Vec<_> = parse_sections(&lyrics).into_iter().map(|s| s.label).collect();
+        assert_eq!(labels, ["Pre-Chorus", "Intro", "Ending", "Other 1", "Other 2", "Chorus 1", "Chorus 2", "Verse 3", "Other"]);
+    }
+
+    #[test]
+    fn same_tag_twice_keeps_both_verses() {
+        let xml = r#"<song><lyrics><verse type="v" label="1">first</verse><verse type="v" label="1">second</verse></lyrics></song>"#;
+        let (lyrics, _) = lyrics_from_xml(xml, "").unwrap();
+        let secs = parse_sections(&lyrics);
+        assert_eq!(secs.len(), 2);
+        assert_ne!(secs[0].label, secs[1].label);
+    }
+
+    #[test]
+    fn plain_text_lyrics_are_kept() {
+        let (lyrics, _) = lyrics_from_xml("Line one\r\nLine two\r\n\r\n\r\nLine three", "").unwrap();
+        assert_eq!(lyrics, "Line one\nLine two\n\nLine three");
+    }
+
+    #[test]
+    fn malformed_xml_is_an_error_not_a_panic() {
+        for bad in ["<song><lyrics><verse type=\"v\">x", "<song><lyrics></lyrics></song>", "<song>", "<?xml version='1.0'?>",
+            "<!DOCTYPE x [<!ENTITY a \"aaaa\">]><song><lyrics><verse>&a;</verse></lyrics></song>", "<song><lyrics><verse type=\"v\" label=\"1\">   </verse></lyrics></song>"] {
+            assert!(lyrics_from_xml(bad, "v1").is_err(), "{bad}");
+        }
+    }
+
+    fn row(title: &str, lyrics: &str) -> OlpSong {
+        OlpSong { title: title.into(), lyrics: lyrics.into(), ..Default::default() }
+    }
+
+    #[test]
+    fn row_maps_to_song() {
+        let r = OlpSong { authors: vec!["John Newton".into(), "Ann Lee".into()], copyright: "Public Domain".into(),
+            ccli_number: " 22025 ".into(), verse_order: "v1 v2 v1".into(), ..row(" Amazing Grace ", GRACE) };
+        let s = to_song(&r).unwrap();
+        assert_eq!(s.title, "Amazing Grace");
+        assert_eq!(s.writers, "John Newton | Ann Lee");
+        assert_eq!(s.copyright, "Public Domain");
+        assert_eq!(s.ccli, "22025");
+        assert_eq!(s.arrangement, ["Verse 1", "Verse 2", "Verse 1"]);
+        assert!(s.lyrics.starts_with("Verse 1\nAmazing grace!"));
+    }
+
+    #[test]
+    fn ccli_number_must_be_a_number() {
+        let s = |c: &str| to_song(&OlpSong { ccli_number: c.into(), ..row("T", GRACE) }).unwrap().ccli;
+        assert_eq!(s("#1234567"), "1234567");
+        assert_eq!(s("0"), "");
+        assert_eq!(s("see book"), "");
+        assert_eq!(s(""), "");
+    }
+
+    #[test]
+    fn rows_that_are_not_songs_are_skipped_with_a_reason() {
+        assert!(to_song(&row("Empty", "")).unwrap_err().contains("no lyrics"));
+        assert!(to_song(&row("Broken", "<song><lyrics><verse>")).unwrap_err().contains("XML"));
+        assert!(to_song(&OlpSong { temporary: true, ..row("Temp", GRACE) }).unwrap_err().contains("service"));
+        assert_eq!(to_song(&row("  ", GRACE)).unwrap().title, "Untitled song");
+    }
+
+    // ---------- reader, against SQLite fixtures shaped like OpenLP's ----------
+
+    fn temp_folder() -> PathBuf {
+        let d = std::env::temp_dir().join(format!("rp-olp-test-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    /// OpenLP 2.2+/3.x layout.
+    const SCHEMA: &str = "
+        CREATE TABLE metadata (key VARCHAR(64) PRIMARY KEY, value TEXT);
+        INSERT INTO metadata VALUES ('version', '7');
+        CREATE TABLE authors (id INTEGER PRIMARY KEY, first_name VARCHAR(128), last_name VARCHAR(128), display_name VARCHAR(255) NOT NULL);
+        CREATE TABLE song_books (id INTEGER PRIMARY KEY, name VARCHAR(128) NOT NULL, publisher VARCHAR(128));
+        CREATE TABLE topics (id INTEGER PRIMARY KEY, name VARCHAR(128) NOT NULL);
+        CREATE TABLE songs (id INTEGER PRIMARY KEY, title VARCHAR(255) NOT NULL, alternate_title VARCHAR(255), lyrics TEXT NOT NULL,
+            verse_order VARCHAR(128), copyright VARCHAR(255), comments TEXT, ccli_number VARCHAR(64), theme_name VARCHAR(128),
+            search_title VARCHAR(255) NOT NULL, search_lyrics TEXT NOT NULL, create_date DATETIME, last_modified DATETIME,
+            temporary BOOLEAN, is_favourite BOOLEAN);
+        CREATE TABLE authors_songs (author_id INTEGER NOT NULL, song_id INTEGER NOT NULL, author_type VARCHAR(255) NOT NULL DEFAULT '',
+            PRIMARY KEY (author_id, song_id, author_type));
+        CREATE TABLE songs_songbooks (songbook_id INTEGER, song_id INTEGER, entry VARCHAR(255), PRIMARY KEY (songbook_id, song_id, entry));
+        CREATE TABLE songs_topics (song_id INTEGER, topic_id INTEGER, PRIMARY KEY (song_id, topic_id));";
+
+    fn write_db(path: &Path) {
+        let c = Connection::open(path).unwrap();
+        c.execute_batch(SCHEMA).unwrap();
+        c.execute_batch("INSERT INTO authors VALUES (1, 'John', 'Newton', 'John Newton'), (2, 'Ann', 'Lee', ''), (3, NULL, NULL, 'Bob Ray');
+            INSERT INTO song_books VALUES (1, 'Hymns Old', NULL); INSERT INTO topics VALUES (1, 'Grace');").unwrap();
+        let ins = |id: i64, title: &str, lyrics: &str, order: &str, ccli: &str, temp: bool| {
+            c.execute("INSERT INTO songs (id, title, lyrics, verse_order, copyright, ccli_number, search_title, search_lyrics, temporary)
+                VALUES (?1, ?2, ?3, ?4, 'Public Domain', ?5, '', '', ?6)", rusqlite::params![id, title, lyrics, order, ccli, temp]).unwrap();
+        };
+        ins(1, "Amazing Grace", GRACE, "v1 v2", "22025", false);
+        ins(2, "Morning Song", INVENTED, "v1 c1 v2 c1 b1", "", false);
+        ins(3, "Broken", "<song><lyrics>", "", "", false);
+        ins(4, "From a service", GRACE, "", "", true);
+        c.execute_batch("INSERT INTO authors_songs VALUES (1, 1, 'words'), (1, 1, 'music'), (2, 1, ''), (3, 2, 'words');
+            INSERT INTO songs_songbooks VALUES (1, 1, '12'); INSERT INTO songs_topics VALUES (1, 1);").unwrap();
+    }
+
+    fn listing(dir: &Path) -> Vec<(String, Vec<u8>)> {
+        let mut v: Vec<_> = std::fs::read_dir(dir).unwrap().flatten()
+            .map(|e| (e.file_name().to_string_lossy().into_owned(), std::fs::read(e.path()).unwrap_or_default())).collect();
+        v.sort();
+        v
+    }
+
+    #[test]
+    fn reader_reads_songs_authors_and_reports_skips() {
+        let root = temp_folder();
+        let songs = root.join("data").join("songs");
+        std::fs::create_dir_all(&songs).unwrap();
+        write_db(&songs.join("songs.sqlite"));
+        let before = listing(&songs);
+        for p in [root.clone(), root.join("data"), songs.clone(), songs.join("songs.sqlite")] {
+            let report = read_library(&p).unwrap();
+            assert_eq!(report.songs.iter().map(|s| s.title.as_str()).collect::<Vec<_>>(), ["Amazing Grace", "Morning Song"]);
+            let grace = &report.songs[0];
+            assert_eq!(grace.writers, "John Newton | Ann Lee");
+            assert_eq!(grace.ccli, "22025");
+            assert_eq!(grace.copyright, "Public Domain");
+            assert!(grace.arrangement.is_empty());
+            assert_eq!(report.songs[1].writers, "Bob Ray");
+            assert_eq!(report.songs[1].arrangement, ["Verse 1", "Chorus", "Verse 2", "Chorus", "Bridge"]);
+            assert_eq!(report.skipped.iter().map(|(t, _)| t.as_str()).collect::<Vec<_>>(), ["Broken", "From a service"]);
+        }
+        // Never write to OpenLP data.
+        assert_eq!(listing(&songs), before);
+        std::fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn reader_copes_with_the_openlp_2_0_layout() {
+        // 2.0: no author_type, no temporary column; song book on the song row.
+        let dir = temp_folder();
+        let c = Connection::open(dir.join("songs.sqlite")).unwrap();
+        c.execute_batch("CREATE TABLE authors (id INTEGER PRIMARY KEY, first_name TEXT, last_name TEXT, display_name TEXT);
+            CREATE TABLE songs (id INTEGER PRIMARY KEY, song_book_id INTEGER, title TEXT, alternate_title TEXT, lyrics TEXT, verse_order TEXT,
+                copyright TEXT, comments TEXT, ccli_number TEXT, song_number TEXT, theme_name TEXT, search_title TEXT, search_lyrics TEXT);
+            CREATE TABLE authors_songs (author_id INTEGER, song_id INTEGER);
+            INSERT INTO authors VALUES (1, 'John', 'Newton', NULL);
+            INSERT INTO authors_songs VALUES (1, 1);").unwrap();
+        c.execute("INSERT INTO songs (id, title, lyrics, verse_order, ccli_number) VALUES (1, 'Amazing Grace', ?1, NULL, NULL)", [GRACE]).unwrap();
+        drop(c);
+        let report = read_library(&dir).unwrap();
+        assert_eq!(report.songs.len(), 1);
+        assert_eq!(report.songs[0].writers, "John Newton");
+        assert_eq!(report.songs[0].ccli, "");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn reader_sees_uncommitted_wal_while_openlp_is_open() {
+        let dir = temp_folder();
+        write_db(&dir.join("songs.sqlite"));
+        let olp = Connection::open(dir.join("songs.sqlite")).unwrap();
+        olp.execute_batch("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;").unwrap();
+        olp.execute("INSERT INTO songs (title, lyrics, search_title, search_lyrics) VALUES ('Later', ?1, '', '')", [GRACE]).unwrap();
+        let before = listing(&dir);
+        let report = read_library(&dir).unwrap();
+        assert!(report.songs.iter().any(|s| s.title == "Later"));
+        assert_eq!(listing(&dir), before);
+        drop(olp);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn reader_errors_are_clear() {
+        let dir = temp_folder();
+        assert!(read_library(&dir).unwrap_err().contains("songs.sqlite"));
+        std::fs::write(dir.join("songs.sqlite"), b"").unwrap();
+        assert!(read_library(&dir).unwrap_err().contains("empty or damaged"));
+        std::fs::write(dir.join("songs.sqlite"), b"this is not a database, just text").unwrap();
+        assert!(read_library(&dir).unwrap_err().contains("OpenLP"));
+        std::fs::remove_file(dir.join("songs.sqlite")).unwrap();
+        Connection::open(dir.join("songs.sqlite")).unwrap().execute_batch("CREATE TABLE other (x)").unwrap();
+        assert!(read_library(&dir).unwrap_err().contains("OpenLP"));
+        std::fs::remove_dir_all(&dir).ok();
+    }
+}
