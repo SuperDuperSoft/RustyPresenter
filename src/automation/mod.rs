@@ -6,4 +6,5 @@
 #[path = "../strings/automation.rs"]
 pub mod strings;
 
+pub mod macros;
 pub mod messages;

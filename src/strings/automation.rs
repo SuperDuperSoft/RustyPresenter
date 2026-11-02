@@ -31,3 +31,23 @@ pub const VEHICLE_NAME: &str = "Vehicle";
 pub const VEHICLE_TEXT: &str = "Vehicle {Plate}: your lights are on.";
 pub const CUSTOM_NAME: &str = "Custom";
 pub const CUSTOM_TEXT: &str = "{Message}";
+
+pub fn cant_run_deleted(name: &str, n: usize, thing: &str) -> String {
+    format!("Couldn't run “{name}”: step {n}'s {thing} was deleted. Edit the macro.")
+}
+pub fn cant_run_newer(name: &str, n: usize) -> String {
+    format!("Couldn't run “{name}”: step {n} needs a newer RustyPresenter.")
+}
+pub fn ran(name: &str) -> String { format!("Ran “{name}”") }
+pub fn ran_but_step_failed(name: &str, n: usize, reason: &str) -> String {
+    format!("Ran “{name}”, but step {n} didn't work: {reason}")
+}
+pub fn ran_but_skipped_shows(name: &str) -> String {
+    format!("Ran “{name}”, but skipped showing things because the screen was cleared.")
+}
+pub fn at_zero_changes_slides(timer: &str, name: &str) -> String {
+    format!("“{timer}” reached zero, but “{name}” changes slides, so it didn't run.")
+}
+pub fn at_zero_skipped_shows(timer: &str, name: &str) -> String {
+    format!("“{timer}” reached zero, but “{name}” didn't show anything because the screen was cleared.")
+}
