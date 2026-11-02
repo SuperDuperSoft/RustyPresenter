@@ -1,7 +1,9 @@
 pub mod app;
+pub mod automation;
 pub mod bible;
 pub mod displays;
 pub mod import;
+pub mod lenient;
 pub mod live;
 pub mod media;
 pub mod model;
