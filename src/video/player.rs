@@ -941,15 +941,35 @@ mod tests {
         drop(p.take_render());
     }
 
+    /// Measured on Windows (libmpv 2.x): a software render context serves `screenshot-raw` without a render
+    /// call (as does `vo=null`), so this cannot show the 500 ms timeout; it only shows a grab never waits past
+    /// it. Whether an OpenGL context waits for the room to draw is checked by hand (C6).
     #[test]
-    fn grab_without_render_times_out_with_none() {
+    fn grab_without_render_answers_within_the_timeout() {
         let Some(mpv) = mpv() else { return };
         let (p, rx) = sw_player(mpv, 16);
         assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
         let at = Instant::now();
-        assert!(p.grabber().grab(160).is_none());
+        let _ = p.grabber().grab(160);
         assert!(at.elapsed() < Duration::from_millis(600), "{:?}", at.elapsed());
         drop(p.take_render());
+    }
+
+    /// Plan 4's thumbnails take frames from a windowless player.
+    #[test]
+    fn grab_works_with_vo_null() {
+        let Some(mpv) = mpv() else { return };
+        let (p, rx) = start(&mpv, Role::Background, 18, "av://lavfi:testsrc2=size=320x240:rate=30");
+        assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
+        let g = p.grabber();
+        let end = Instant::now() + Duration::from_secs(3);
+        let pb = loop {
+            if let Some(pb) = g.grab(160) { break pb }
+            assert!(Instant::now() < end, "no frame from vo=null");
+        };
+        assert_eq!((pb.width(), pb.height()), (160, 120));
+        let first = pb.as_slice()[0];
+        assert!(pb.as_slice().iter().any(|px| *px != first), "testsrc2 is not one flat colour");
     }
 
     #[test]
