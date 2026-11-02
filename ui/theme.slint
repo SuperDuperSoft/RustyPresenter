@@ -1,5 +1,6 @@
 // Shared look for every native screen: the dark palette of today's web pages (`web/operator.css`)
-// and the room's timings (`web/output.html`).
+// and the room's timings (`web/output.html`). Every colour hard-coded in `operator.css` has a token here,
+// so the operator and dialog files hold no hex literals.
 
 export global Theme {
     out property <color> bg: #0d0f13;
@@ -15,7 +16,62 @@ export global Theme {
     out property <color> live: #ff4f55;
     out property <color> ok: #3ccf91;
     out property <color> blue: #6aa8ff;
+
+    // The literals of `operator.css`, named by where they are used.
+    /// `.add-btn` dashed border, `.toast` border.
+    out property <color> dash: #3a4150;
+    out property <color> btn-hover: #3c4352;
+    out property <color> thumb-hover: #59627a;
+    out property <color> nav-hover: #444c5c;
+    out property <color> clear-hover: #4a5262;
+    out property <color> tile-hover: #49505f;
+    out property <color> danger-text: #ff8f93;
+    out property <color> notice-text: #ffc1c3;
+    out property <color> notice-bg: #ff4f551f;
+    out property <color> notice-border: #ff4f5566;
+    out property <color> clear-all-bg: #2a1517;
+    out property <color> clear-all-border: #ff4f5573;
+    out property <color> clear-all-text: #ffb0b3;
+    out property <color> monitor-outline: #ff4f558c;
+    out property <color> upnext-text: #f2d08f;
+    out property <color> focus-ring: #f5b94a24;
+    out property <color> add-hover: #f5b94a14;
+    out property <color> tile-on-bg: #f5b94a12;
+    out property <color> kbd-bg: #ffffff0f;
+    /// `.seg button.on` inset highlight.
+    out property <color> seg-inset: #ffffff0d;
+    out property <color> play-bg: #0000008c;
+    /// `.bg-choice span` caption strip.
+    out property <color> caption-bg: #00000099;
+    out property <color> scroll-thumb: #2c323d;
+    out property <color> toast-bg: #2a2f3a;
+    out property <color> toast-err-bg: #3a1b1d;
+    out property <color> toast-err-border: #6b2b2f;
+    out property <color> toast-err-text: #ffd3d5;
+    out property <color> drop-scrim: #0d0f13d1;
+    out property <color> dialog-scrim: #050608b3;
+    /// Box shadows: dialogs (.6), toasts (.5), jobs (.45).
+    out property <color> shadow-dialog: #00000099;
+    out property <color> shadow-toast: #00000080;
+    out property <color> shadow-job: #00000073;
+    /// The LIVE badge text, the play glyph and the QR code's card.
+    out property <color> white: #fff;
+    /// Thumbnails, the monitor and media boxes where nothing is drawn yet.
+    out property <color> black: #000;
+
     out property <length> radius: 12px;
+    /// Missing fonts fall back to Slint's default (the bundled Noto Sans where Segoe is not installed).
+    out property <string> font: "Segoe UI Variable Text";
+    out property <string> display: "Segoe UI Variable Display";
+    out property <string> mono: "Consolas";
+    out property <length> base-size: 14px;
+
     /// What the room shows where nothing is drawn.
     out property <color> room-black: #000;
+}
+
+/// Operator UI state shared across files. Each text field sets `focus-in-text` while it has focus, so the
+/// window's key scope can leave typing keys to the field (Task 10).
+export global OperatorState {
+    in-out property <bool> focus-in-text;
 }

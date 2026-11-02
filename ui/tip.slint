@@ -1,0 +1,49 @@
+// The hover tooltip shared by the operator widgets (`widgets.slint`).
+import { Theme } from "theme.slint";
+
+/// A hover tooltip (the web `title` attribute): shown below its position after the pointer rests for 600 ms.
+/// Place it at the bottom-left of the control and bind `hover` to the control's `TouchArea`.
+export component Tip {
+    in property <string> text;
+    in property <bool> hover;
+    property <bool> up;
+    width: 0;
+    height: 0;
+
+    popup := PopupWindow {
+        close-policy: no-auto-close;
+        Rectangle {
+            background: Theme.toast-bg;
+            border-color: Theme.dash;
+            border-width: 1px;
+            border-radius: 6px;
+            HorizontalLayout {
+                padding: 4px;
+                padding-left: 8px;
+                padding-right: 8px;
+                Text {
+                    text: root.text;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                }
+            }
+        }
+    }
+
+    Timer {
+        interval: 600ms;
+        running: root.hover && root.text != "" && !root.up;
+        triggered => {
+            root.up = true;
+            popup.show();
+        }
+    }
+
+    changed hover => {
+        if !self.hover && self.up {
+            self.up = false;
+            popup.close();
+        }
+    }
+}

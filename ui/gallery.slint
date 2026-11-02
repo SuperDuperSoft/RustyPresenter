@@ -1,0 +1,109 @@
+// Every shared widget in each state, for a person to compare against the web operator (`cargo run --example widgets`).
+import { Theme } from "theme.slint";
+import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText } from "widgets.slint";
+
+export component WidgetGallery inherits Window {
+    title: @tr("RustyPresenter — widgets");
+    background: Theme.bg;
+    preferred-width: 1100px;
+    preferred-height: 760px;
+
+    in property <[string]> icons: [
+        "song", "scripture", "video", "image", "audio", "deck", "text", "edit", "trash", "play", "pause", "close",
+        "plus", "upload", "restart", "dots", "phone", "copy", "chevron-down", "chevron-left", "chevron-right",
+        "monitor", "gear", "book",
+    ];
+    property <float> progress: 35;
+
+    Panel {
+        x: 10px;
+        y: 10px;
+        width: root.width - 20px;
+        height: root.height - 20px;
+        PanelHead {
+            title: @tr("Widgets");
+            count: @tr("13 kinds");
+            Btn { text: @tr("Head action"); small: true; }
+        }
+        ScrollBox {
+            VerticalLayout {
+                padding: 16px;
+                spacing: 14px;
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    for name in root.icons: Icon { name: name; color: Theme.text; }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    Icon { name: "song"; color: Theme.accent; width: 28px; height: 28px; weight: 1.8; }
+                    Icon { name: "chevron-right"; color: Theme.accent; width: 22px; height: 22px; weight: 2.6; }
+                    Icon { name: "play"; color: Theme.white; width: 24px; height: 24px; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+                    Btn { text: @tr("Normal"); tooltip: @tr("A tooltip"); }
+                    Btn { text: @tr("Primary"); primary: true; }
+                    Btn { text: @tr("Danger"); danger: true; icon: "trash"; }
+                    Btn { text: @tr("Small"); small: true; icon: "edit"; }
+                    Btn { text: @tr("Disabled"); enabled: false; }
+                    Btn { text: @tr("Primary small"); primary: true; small: true; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+                    TopBtn { icon: "monitor"; text: @tr("Screens"); }
+                    TopBtn { icon: "phone"; text: @tr("Phone"); }
+                    TopBtn { icon: "phone"; text: @tr("Phone"); icon-only: true; tooltip: @tr("Phone"); }
+                    TopBtn { icon: "gear"; icon-only: true; tooltip: @tr("Settings"); }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Pill { label: @tr("Room off"); state: "off"; }
+                    Pill { label: @tr("Room on"); state: "on"; tooltip: @tr("Room screen is showing"); }
+                    Pill { label: @tr("Warning"); state: "warn"; }
+                    Pill { label: @tr("Narrow"); state: "on"; narrow: true; }
+                    Kbd { text: @tr("Ctrl B"); }
+                    Kbd { text: @tr("F1"); }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Chip { text: @tr("Plain"); }
+                    Chip { text: @tr("Ready"); state: "ok"; }
+                    Chip { text: @tr("Converting"); state: "warn"; }
+                    Chip { text: @tr("Failed"); state: "bad"; tooltip: @tr("Why it failed"); }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    Segmented {
+                        labels: [@tr("1"), @tr("2"), @tr("3"), @tr("4"), @tr("5"), @tr("6")];
+                        index: 3;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Bar { progress: root.progress; horizontal-stretch: 1; }
+                    Btn {
+                        text: @tr("+20");
+                        small: true;
+                        clicked => { root.progress = mod(root.progress + 20, 120); }
+                    }
+                }
+                Field {
+                    label: @tr("Address");
+                    help: @tr("Open this on the phone.");
+                    CopyText { text: @tr("http://192.168.1.20:7878/phone"); }
+                }
+                for i in 12: Text {
+                    text: @tr("Row {} (scroll to see the styled scrollbar)", i + 1);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                }
+            }
+        }
+    }
+}
