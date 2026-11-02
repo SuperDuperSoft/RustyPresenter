@@ -9,3 +9,6 @@ pub const NO_START_TIME: &str = "Set a start time for this service first (Servic
 pub fn service_start_passed(at: &str) -> String { format!("The service start time ({at}) has passed.") }
 
 pub fn time_passed(at: &str) -> String { format!("That time ({at}) has passed.") }
+
+pub const TIMER_NEEDS_NEWER: &str = "This timer needs a newer RustyPresenter.";
+pub const CANT_PAUSE_TO_TIME: &str = "A countdown to a time can't be paused.";

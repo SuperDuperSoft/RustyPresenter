@@ -253,6 +253,143 @@ pub fn until_target<Tz: TimeZone>(target: &TimeTarget, starts_at: Option<TimeOfD
     }
 }
 
+/// Where a timer's current run is. Lives only in memory; nothing here is saved.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub enum RunState {
+    #[default]
+    Stopped,
+    /// Counting from `since`, plus time carried over from before a pause.
+    Running { since: DateTime<Utc>, carried_ms: u64 },
+    /// Counting down to an instant fixed when it started (spec §5.1).
+    RunningTo { target: DateTime<Utc> },
+    Paused { elapsed_ms: u64 },
+    Finished,
+}
+
+/// One timer's runtime: its state, which run this is, and what that run has seen.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct TimerRun {
+    pub state: RunState,
+    /// Bumped by reset and restart, so a stale at-zero or overlay can tell runs apart.
+    pub run: u64,
+    pub zero_fired: bool,
+    /// "Set for now": a length for this run only; the saved definition is never changed.
+    pub length_for_now: Option<u32>,
+    /// The live engine's clear epoch when this run started.
+    pub seen_clear: u64,
+}
+
+/// What starting a timer needs to know.
+pub struct StartCtx<'a, Tz: TimeZone> {
+    pub now: DateTime<Utc>,
+    pub tz: &'a Tz,
+    pub starts_at: Option<TimeOfDay>,
+    pub clear_epoch: u64,
+}
+
+impl TimerRun {
+    /// The state a new run begins in. Refuses an unknown kind or a target that can't be used.
+    fn fresh<Tz: TimeZone>(def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<RunState, String> {
+        use crate::automation::strings;
+        match def.kind.known().ok_or_else(|| strings::TIMER_NEEDS_NEWER.to_string())? {
+            TimerKind::Duration { .. } | TimerKind::CountUp => Ok(RunState::Running { since: ctx.now, carried_ms: 0 }),
+            TimerKind::UntilTime { target } => {
+                Ok(RunState::RunningTo { target: until_target(target, ctx.starts_at, ctx.now, ctx.tz)? })
+            }
+        }
+    }
+
+    /// Starts or resumes. Already running is a no-op; on `Err` nothing changes.
+    pub fn start<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        if def.kind.known().is_none() { return Err(crate::automation::strings::TIMER_NEEDS_NEWER.into()) }
+        match self.state {
+            RunState::Running { .. } | RunState::RunningTo { .. } => {}
+            RunState::Paused { elapsed_ms } => self.state = RunState::Running { since: ctx.now, carried_ms: elapsed_ms },
+            RunState::Stopped | RunState::Finished => {
+                let state = Self::fresh(def, ctx)?;
+                if self.state == RunState::Finished {
+                    self.run += 1;
+                    self.zero_fired = false;
+                }
+                self.state = state;
+                self.seen_clear = ctx.clear_epoch;
+            }
+        }
+        Ok(())
+    }
+
+    /// Pauses a running timer. A countdown to a time can't pause; anything else is a no-op.
+    pub fn pause(&mut self, now: DateTime<Utc>) -> Result<(), String> {
+        match self.state {
+            RunState::Running { .. } => self.state = RunState::Paused { elapsed_ms: self.elapsed_ms(now) },
+            RunState::RunningTo { .. } => return Err(crate::automation::strings::CANT_PAUSE_TO_TIME.into()),
+            _ => {}
+        }
+        Ok(())
+    }
+
+    /// Back to the start value, dropping any "set for now" length.
+    pub fn reset(&mut self) {
+        self.state = RunState::Stopped;
+        self.run += 1;
+        self.zero_fired = false;
+        self.length_for_now = None;
+    }
+
+    /// Starts a new run from the beginning, whatever the state. On `Err` nothing changes.
+    pub fn restart<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        self.state = Self::fresh(def, ctx)?;
+        self.run += 1;
+        self.zero_fired = false;
+        self.seen_clear = ctx.clear_epoch;
+        Ok(())
+    }
+
+    /// Time counted so far. A clock that went backwards counts as no time (Review Focus 1).
+    pub fn elapsed_ms(&self, now: DateTime<Utc>) -> u64 {
+        match self.state {
+            RunState::Running { since, carried_ms } => {
+                carried_ms.saturating_add(u64::try_from((now - since).num_milliseconds()).unwrap_or(0))
+            }
+            RunState::Paused { elapsed_ms } => elapsed_ms,
+            _ => 0,
+        }
+    }
+
+    /// The readout at `now`, quantised to whole seconds. `None` for a kind from a newer version.
+    pub fn snapshot<Tz: TimeZone>(&self, def: &TimerDef, now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>)
+        -> Option<TimerSnapshot> {
+        let kind = def.kind.known()?;
+        let elapsed = i64::try_from(self.elapsed_ms(now)).unwrap_or(i64::MAX);
+        let raw = match (&self.state, kind) {
+            (RunState::Finished, _) => 0,
+            (_, TimerKind::Duration { secs }) => i64::from(self.length_for_now.unwrap_or(*secs)) * 1000 - elapsed,
+            (_, TimerKind::CountUp) => elapsed,
+            (RunState::RunningTo { target }, TimerKind::UntilTime { .. }) => (*target - now).num_milliseconds(),
+            (RunState::Stopped, TimerKind::UntilTime { target }) => until_target(target, starts_at, now, tz)
+                .map_or(0, |t| (t - now).num_milliseconds()),
+            (_, TimerKind::UntilTime { .. }) => 0,
+        };
+        let raw = if def.overrun == Overrun::Stop { raw.max(0) } else { raw };
+        let state = match self.state {
+            RunState::Stopped => TimerState::Stopped,
+            RunState::Running { .. } | RunState::RunningTo { .. } => TimerState::Running,
+            RunState::Paused { .. } => TimerState::Paused,
+            RunState::Finished => TimerState::Finished,
+        };
+        Some(TimerSnapshot {
+            id: def.id,
+            name: def.name.clone(),
+            kind: kind.clone(),
+            state,
+            value_ms: display_ms(raw, kind.is_countdown()),
+            overrun: raw < 0,
+            on_stage: def.on_stage,
+            on_remote: def.on_remote,
+        })
+    }
+}
+
 #[cfg(test)]
 mod test_zone {
     //! America/Chicago for 2026 only, so tests need no time zone database (replaces `chrono-tz`).
@@ -428,5 +565,175 @@ mod tests {
         let november = utc(2026, 11, 1, 5, 30); // 0:30 CDT
         assert_eq!(until_target(&fixed(1, 30), None, november, &chi), Ok(utc(2026, 11, 1, 6, 30)));
         assert_eq!(until_target(&fixed(10, 30), None, november, &chi), Ok(utc(2026, 11, 1, 16, 30)));
+    }
+
+    // ---- Task A5: state machine and snapshots ----
+
+    fn t0() -> chrono::DateTime<Utc> { utc(2026, 6, 7, 15, 0) }
+
+    fn at(ms: i64) -> chrono::DateTime<Utc> { t0() + TimeDelta::milliseconds(ms) }
+
+    fn dur(secs: u32, overrun: Overrun) -> TimerDef {
+        TimerDef { kind: Lenient::Known(TimerKind::Duration { secs }), overrun, ..TimerDef::default() }
+    }
+
+    fn ctx(now: chrono::DateTime<Utc>) -> StartCtx<'static, Utc> { StartCtx { now, tz: &Utc, starts_at: None, clear_epoch: 0 } }
+
+    fn until(target: TimeTarget, overrun: Overrun) -> TimerDef {
+        TimerDef { kind: Lenient::Known(TimerKind::UntilTime { target }), overrun, ..TimerDef::default() }
+    }
+
+    fn count_up() -> TimerDef { TimerDef { kind: Lenient::Known(TimerKind::CountUp), ..TimerDef::default() } }
+
+    #[test]
+    fn countdown_rounds_up_and_stops_at_zero() {
+        let def = dur(30, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        let v = |r: &TimerRun, ms| text(r.snapshot(&def, at(ms), &Utc, None).unwrap().value_ms);
+        assert_eq!(v(&r, 500), "0:30");
+        assert_eq!(v(&r, 29_001), "0:01");
+        assert_eq!(v(&r, 31_000), "0:00"); // Stop clamps even before the ticker marks it Finished
+    }
+
+    #[test]
+    fn countdown_overrun_counts_up_with_plus() {
+        let def = dur(30, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        let s = r.snapshot(&def, at(31_500), &Utc, None).unwrap();
+        assert_eq!(s.value_ms, -1000);
+        assert_eq!(text(s.value_ms), "+0:01");
+        assert!(s.overrun);
+        assert_eq!(s.state, TimerState::Running);
+    }
+
+    #[test]
+    fn count_up_formats_hours() {
+        let def = count_up();
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert_eq!(text(r.snapshot(&def, at(3_725_400), &Utc, None).unwrap().value_ms), "1:02:05");
+    }
+
+    #[test]
+    fn pause_and_resume_carry_elapsed() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.pause(at(10_000)).unwrap();
+        assert_eq!(r.state, RunState::Paused { elapsed_ms: 10_000 });
+        assert_eq!(r.snapshot(&def, at(50_000), &Utc, None).unwrap().state, TimerState::Paused);
+        r.start(&def, &ctx(at(100_000))).unwrap();
+        assert_eq!(r.snapshot(&def, at(105_000), &Utc, None).unwrap().value_ms, 45_000);
+    }
+
+    #[test]
+    fn stopped_shows_start_value() {
+        let r = TimerRun::default();
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT
+        let v = |def: &TimerDef| text(r.snapshot(def, now, &chi, None).unwrap().value_ms);
+        assert_eq!(v(&dur(1800, Overrun::Stop)), "30:00");
+        assert_eq!(v(&count_up()), "0:00");
+        assert_eq!(v(&until(fixed(11, 0), Overrun::Stop)), "15:00");
+        assert_eq!(r.snapshot(&count_up(), now, &chi, None).unwrap().state, TimerState::Stopped);
+    }
+
+    #[test]
+    fn until_time_target_fixed_at_start() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let mut r = TimerRun::default();
+        r.start(&until(fixed(11, 0), Overrun::Stop), &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+    }
+
+    #[test]
+    fn editing_starts_at_does_not_move_running_timer() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let def = until(TimeTarget::ServiceStart, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now, tz: &chi, starts_at: Some(TimeOfDay::new(11, 0)), clear_epoch: 0 }).unwrap();
+        let s = r.snapshot(&def, now, &chi, Some(TimeOfDay::new(11, 30))).unwrap();
+        assert_eq!(text(s.value_ms), "15:00");
+    }
+
+    #[test]
+    fn until_time_overrun_past_60_min_keeps_counting_up() {
+        let chi = test_zone::Chicago2026;
+        let def = until(fixed(11, 0), Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now: utc(2026, 6, 7, 15, 45), tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        let s = r.snapshot(&def, utc(2026, 6, 7, 17, 5), &chi, None).unwrap();
+        assert_eq!(text(s.value_ms), "+1:05:00");
+        assert!(s.overrun);
+    }
+
+    #[test]
+    fn until_time_refuses_pause() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let mut r = TimerRun::default();
+        r.start(&until(fixed(11, 0), Overrun::Stop), &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        let before = r.clone();
+        assert_eq!(r.pause(now + TimeDelta::minutes(1)), Err(crate::automation::strings::CANT_PAUSE_TO_TIME.into()));
+        assert_eq!(r, before);
+    }
+
+    #[test]
+    fn unknown_timer_kind_loads_and_cannot_start() {
+        let def = TimerDef { kind: Lenient::Unknown(serde_json::json!({"type":"lap_timer"})), ..TimerDef::default() };
+        let mut r = TimerRun::default();
+        assert_eq!(r.start(&def, &ctx(at(0))), Err(crate::automation::strings::TIMER_NEEDS_NEWER.into()));
+        assert_eq!(r, TimerRun::default());
+        assert_eq!(r.snapshot(&def, at(0), &Utc, None), None);
+    }
+
+    #[test]
+    fn restart_bumps_run_and_captures_seen_clear() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.restart(&def, &StartCtx { clear_epoch: 7, ..ctx(at(20_000)) }).unwrap();
+        assert_eq!(r.run, 1);
+        assert_eq!(r.seen_clear, 7);
+        assert_eq!(r.snapshot(&def, at(20_000), &Utc, None).unwrap().value_ms, 60_000);
+    }
+
+    #[test]
+    fn resume_keeps_seen_clear() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { clear_epoch: 1, ..ctx(at(0)) }).unwrap();
+        r.pause(at(5_000)).unwrap();
+        r.start(&def, &StartCtx { clear_epoch: 5, ..ctx(at(9_000)) }).unwrap();
+        assert_eq!(r.seen_clear, 1);
+    }
+
+    #[test]
+    fn refused_restart_keeps_state() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let def = until(TimeTarget::ServiceStart, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now, tz: &chi, starts_at: Some(TimeOfDay::new(11, 0)), clear_epoch: 3 }).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+        assert_eq!(r.run, 0);
+        let res = r.restart(&def, &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 9 });
+        assert_eq!(res, Err(crate::automation::strings::NO_START_TIME.into()));
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+        assert_eq!(r.run, 0);
+        assert_eq!(r.seen_clear, 3);
+    }
+
+    #[test]
+    fn clock_going_backwards_never_exceeds_full_length() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(10_000))).unwrap();
+        assert_eq!(r.elapsed_ms(at(0)), 0);
+        assert_eq!(r.snapshot(&def, at(0), &Utc, None).unwrap().value_ms, 60_000);
     }
 }
