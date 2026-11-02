@@ -10,9 +10,9 @@ use crate::render::Renderer;
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
 use crate::video::{self, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
-use slint::{ComponentHandle, Timer};
-use std::{cell::RefCell, collections::{HashSet, VecDeque}, rc::{Rc, Weak}, time::Duration};
-use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
+use slint::{ComponentHandle, Timer, TimerMode};
+use std::{cell::RefCell, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
+use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}, mpsc::Sender};
 use tokio::sync::broadcast::error::RecvError;
 
 /// Crossfade (`.layer` in `web/output.html`) and each half of a fade through black.
@@ -64,8 +64,10 @@ struct Shared {
     inbox: Mutex<VecDeque<Msg>>,
     /// Only the newest live view is applied.
     latest: Mutex<Option<LiveUpdate>>,
-    /// Instances on air: their reports go straight to the live engine.
-    started: Mutex<HashSet<u64>>,
+    /// Instances on air, with their layer: their reports go straight to the live engine.
+    started: Mutex<HashMap<u64, Kind>>,
+    /// To the live engine, in order, off the UI thread (`App::room_event` waits for saves).
+    events: Sender<RoomEvent>,
     queued: AtomicBool,
     closed: AtomicBool,
     /// Asks the UI thread to `pump` (coalesced by `queued`).
@@ -79,21 +81,26 @@ impl Shared {
         if m.is_none() { self.wake() }
     }
     fn wake(&self) { if !self.queued.swap(true, Ordering::AcqRel) { (self.wake)() } }
+    fn emit(&self, ev: RoomEvent) { let _ = self.events.send(ev); }
+    /// For a report from an instance on air: whether the live engine wants it. Like
+    /// `web/output.js`, the background only speaks up when it fails.
+    fn on_air(&self, r: &PlayerReport) -> Option<bool> {
+        self.started.lock().unwrap().get(&r.inst).map(|k| *k != Kind::Background || r.state == PlayState::Error)
+    }
 }
 
 /// What a prepared layer shows.
 enum Got { Pic(Side), Play(Rc<Player>) }
 
-/// The newest plan while its layers are prepared.
-struct Prep { plan: Plan, frame: Frame, pause: Vec<(u64, bool)>, waiting: Vec<Kind>, got: Vec<(Kind, Got)>, heard: HashSet<u64> }
+/// The newest plan while its layers are prepared. `heard`: what players not made yet reported, by
+/// serial (`Some` = failed); readiness is per player, as an older plan's player may share the instance.
+struct Prep { plan: Plan, frame: Frame, pause: Vec<(u64, bool)>, waiting: Vec<Kind>, got: Vec<(Kind, Got)>, heard: HashMap<u64, Option<String>> }
 
 impl Prep {
-    fn has(&self, kind: Kind) -> bool { self.got.iter().any(|(k, _)| *k == kind) }
     fn done(&mut self, kind: Kind) { self.waiting.retain(|k| *k != kind) }
 }
 
 struct Inner {
-    app: Arc<App>,
     ui: RoomWindow,
     surface: Rc<VideoSurface>,
     monitor: Option<MonitorId>,
@@ -103,8 +110,10 @@ struct Inner {
     prep: RefCell<Option<Prep>>,
     /// Players on air, by slot.
     players: RefCell<[Option<Rc<Player>>; 3]>,
-    /// A swap waiting for the screen to turn black.
-    deferred: RefCell<Option<(Prep, RoomEvent)>>,
+    /// A swap waiting for the screen to turn black, with its commit unless already sent.
+    deferred: RefCell<Option<(Prep, Option<RoomEvent>)>>,
+    /// Ends the half for `deferred` (restarted by each swap, so it is always the newest's).
+    fade: Timer,
     me: Weak<Inner>,
 }
 
@@ -145,7 +154,7 @@ impl Inner {
             Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, what) });
         }
         let waiting = wants.iter().map(|w| w.kind).collect();
-        *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashSet::new() });
+        *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new() });
         if !wants.is_empty() {
             let job = Job { token, wants, frame: view.frame.clone(), theme: view.theme.clone(), logo: view.logo.clone(), canvas: self.canvas() };
             let (work, shared) = (self.work.clone(), self.shared.clone());
@@ -171,10 +180,13 @@ impl Inner {
             Ok(Made::Player(Fresh(player))) => {
                 let player = Rc::new(player);
                 if kind != Kind::Audio { self.surface.add(player.clone()) } // a render context, so it loads undrawn
-                if let Some(p) = self.prep.borrow_mut().as_mut() {
-                    if p.heard.contains(&player.inst()) { p.done(kind) }
+                let heard = self.prep.borrow_mut().as_mut().and_then(|p| {
+                    let h = p.heard.remove(&player.serial());
+                    if h == Some(None) { p.done(kind) }
                     p.got.push((kind, Got::Play(player)));
-                }
+                    h.flatten()
+                });
+                if let Some(reason) = heard { return self.fail(token, reason) }
             }
         }
         self.check();
@@ -182,19 +194,20 @@ impl Inner {
 
     /// A player report: forwarded once its instance is on air, else it tells whether a prepared player is ready.
     fn report(&self, r: PlayerReport) {
-        if self.shared.started.lock().unwrap().contains(&r.inst) { return self.app.room_event(r.into()) }
+        match self.shared.on_air(&r) { Some(true) => return self.shared.emit(r.into()), Some(false) => return, None => {} }
         let failed = {
             let mut prep = self.prep.borrow_mut();
             let Some(p) = prep.as_mut() else { return };
             let Some(kind) = p.plan.prepare.iter().find(|w| inst(&w.key) == Some(r.inst)).map(|w| w.kind) else { return };
             if !p.waiting.contains(&kind) { return }
-            match r.state {
-                PlayState::Error => Some((p.plan.token, r.error.unwrap_or_else(|| "the file could not be played".into()))),
-                _ => {
-                    p.heard.insert(r.inst);
-                    if p.has(kind) { p.done(kind) }
-                    None
-                }
+            let error = (r.state == PlayState::Error).then(|| r.error.unwrap_or_else(|| "the file could not be played".into()));
+            // Only this plan's player counts (or the report that none could be made); any other
+            // waits for its `Made`, which a disposed player never gets.
+            let ours = r.player == 0 || p.got.iter().any(|(k, g)| *k == kind && matches!(g, Got::Play(pl) if pl.serial() == r.player));
+            match (ours, error) {
+                (true, Some(e)) => Some((p.plan.token, e)),
+                (true, None) => { p.done(kind); None }
+                (false, e) => { let h = p.heard.entry(r.player).or_default(); if e.is_some() { *h = e } None }
             }
         };
         match failed { Some((token, reason)) => self.fail(token, reason), None => self.check() }
@@ -205,8 +218,12 @@ impl Inner {
         let prep = self.prep.borrow_mut().take_if(|p| p.plan.token == token);
         let Some(prep) = prep else { return };
         self.dispose(prep);
+        // A swap waiting for black is already shown as far as `state` goes: commit it first,
+        // or the engine would go back past it. The screen still swaps only once black.
+        let commit = self.deferred.borrow_mut().as_mut().and_then(|d| d.1.take());
+        if let Some(c) = commit { self.shared.emit(c) }
         let ev = self.state.borrow_mut().failed(token, reason);
-        if let Some(ev) = ev { self.app.room_event(ev) }
+        if let Some(ev) = ev { self.shared.emit(ev) }
     }
 
     fn check(&self) {
@@ -218,11 +235,11 @@ impl Inner {
 
     fn swap(&self, prep: Prep, commit: RoomEvent) {
         self.flush();
-        if !prep.plan.fade_through_black { return self.apply(prep, commit) }
+        if !prep.plan.fade_through_black { return self.apply(prep, Some(commit)) }
         self.ui.set_black(1.0);
-        *self.deferred.borrow_mut() = Some((prep, commit));
+        *self.deferred.borrow_mut() = Some((prep, Some(commit)));
         let me = self.me.clone();
-        Timer::single_shot(HALF, move || if let Some(i) = me.upgrade() { i.flush() });
+        self.fade.start(TimerMode::SingleShot, HALF, move || if let Some(i) = me.upgrade() { i.flush() });
     }
 
     /// Applies a swap that waited for black, and fades back in.
@@ -231,7 +248,7 @@ impl Inner {
         if let Some((prep, commit)) = d { self.apply(prep, commit); self.ui.set_black(0.0) }
     }
 
-    fn apply(&self, prep: Prep, commit: RoomEvent) {
+    fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
         let mut players = self.players.borrow_mut();
         for kind in &prep.plan.remove {
             self.layer(*kind, |l| l.shown = false);
@@ -243,7 +260,7 @@ impl Inner {
                 Got::Pic(side) => self.layer(kind, |l| put(l, side)),
                 Got::Play(p) => {
                     self.layer(kind, |l| l.shown = false); // video is drawn under the scene; audio has no layer
-                    self.shared.started.lock().unwrap().insert(p.inst());
+                    self.shared.started.lock().unwrap().insert(p.inst(), kind);
                     if let Some(s) = slot(kind) { players[s] = Some(p) }
                 }
             }
@@ -256,7 +273,7 @@ impl Inner {
         self.ui.set_video(self.surface.active());
         self.ui.set_bg_visible(room::draw_background(&prep.frame));
         self.sync_pause(&prep.pause);
-        self.app.room_event(commit);
+        if let Some(c) = commit { self.shared.emit(c) }
     }
 
     /// Takes a player off air: silent at once, freed after the fade.
@@ -329,13 +346,16 @@ impl Room {
         let work = Arc::new(Work { app: app.clone(), renderer, video: video::players(mpv, tx), audio });
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
-        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
+        let (events, rx) = std::sync::mpsc::channel();
+        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
+        let to_live = app.clone();
+        let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { to_live.room_event(ev) });
         let inner = Rc::new_cyclic(|me: &Weak<Inner>| {
             let me2 = me.clone();
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
-                app: app.clone(), ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, shared: shared.clone(), state: RefCell::default(),
-                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), me: me.clone(),
+                ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, shared: shared.clone(), state: RefCell::default(),
+                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -343,7 +363,7 @@ impl Room {
         if let Some(m) = &monitor { monitors::fullscreen_on(&ui, m)? }
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();
-        forward(app.clone(), reports, shared.clone());
+        forward(reports, shared.clone());
         follow(app.clone(), rx, shared);
         room.inner.view(&app.live_view());
         Ok(room)
@@ -360,11 +380,11 @@ impl Drop for Room {
 }
 
 /// Player reports: straight to the live engine for instances on air, else to the room (preparing).
-fn forward(app: Arc<App>, reports: std::sync::mpsc::Receiver<PlayerReport>, shared: Arc<Shared>) {
+fn forward(reports: std::sync::mpsc::Receiver<PlayerReport>, shared: Arc<Shared>) {
     let _ = std::thread::Builder::new().name("room-reports".into()).spawn(move || {
         for r in reports {
             if shared.closed.load(Ordering::Relaxed) { return }
-            if shared.started.lock().unwrap().contains(&r.inst) { app.room_event(r.into()) } else { shared.send(Msg::Report(r)) }
+            match shared.on_air(&r) { Some(true) => shared.emit(r.into()), Some(false) => {}, None => shared.send(Msg::Report(r)) }
         }
     });
 }
@@ -387,7 +407,7 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, share
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{app::test_app, live::*, model::*};
+    use crate::{app::test_app, live::*, model::*, room::Plan};
     use std::time::{Duration, Instant};
     use uuid::Uuid;
 
@@ -449,13 +469,99 @@ mod tests {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
         let room = open(&app);
-        let report = || PlayerReport { inst: 99, state: PlayState::Playing, position: 0.0, duration: 0.0, error: None };
+        let report = || PlayerReport { inst: 99, player: 1, state: PlayState::Playing, position: 0.0, duration: 0.0, error: None };
         room.inner.shared.inbox.lock().unwrap().push_back(Msg::Report(report()));
         let shared = room.inner.shared.clone();
         drop(room);
         assert!(shared.inbox.lock().unwrap().is_empty(), "close drains the inbox");
         shared.send(Msg::Report(report()));
         assert!(shared.inbox.lock().unwrap().is_empty(), "nothing is queued once closed");
+    }
+
+    fn prep(plan: Plan, frame: Frame) -> Prep { Prep { plan, frame, pause: vec![], waiting: vec![], got: vec![], heard: Default::default() } }
+
+    #[test]
+    fn a_failure_while_fading_through_black_commits_the_swap_first() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let (one, two, three) = (scripture(&app), scripture(&app), scripture(&app));
+        let v = show(&app, one);
+        let room = open(&app);
+        assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
+        let i = &room.inner;
+        // `two` swaps in through black by hand, so its commit waits for the screen to turn black.
+        show(&app, two);
+        let view = app.live_view();
+        let mut plan = i.state.borrow_mut().plan(&view).unwrap();
+        plan.fade_through_black = true;
+        let Ready::Swap { commit } = i.state.borrow_mut().ready(plan.token) else { panic!("stale") };
+        i.swap(prep(plan, view.frame.clone()), commit);
+        // `three` fails meanwhile: the engine goes back to what the room shows (`two`), not `one`.
+        show(&app, three);
+        let plan = i.state.borrow_mut().plan(&app.live_view()).unwrap();
+        let token = plan.token;
+        *i.prep.borrow_mut() = Some(prep(plan, Frame::default()));
+        i.fail(token, "it broke".into());
+        // Only the commit went early: the layers still wait for the screen to be black.
+        assert!(i.deferred.borrow().as_ref().is_some_and(|d| d.1.is_none()) && i.ui.get_black() == 1.0, "the swap is shown before black");
+        assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()));
+        assert_eq!(app.live_view().item.map(|s| s.item_id), Some(two));
+        i.flush();
+        assert!(i.deferred.borrow().is_none() && i.ui.get_black() == 0.0);
+    }
+
+    #[test]
+    fn each_fade_through_black_waits_its_own_half() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let room = open(&app);
+        let i = &room.inner;
+        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true }, Frame::default()), RoomEvent::Committed { version: 0 });
+        swap(100);
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
+        swap(101);
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(100)); // the first half is over
+        assert!(i.deferred.borrow().is_some() && i.ui.get_black() == 1.0, "the second swap is applied before the screen is black");
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
+        assert!(i.deferred.borrow().is_none() && i.ui.get_black() == 0.0);
+    }
+
+    #[test]
+    fn background_reports_stay_in_the_room_unless_they_fail() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let v = show(&app, scripture(&app));
+        let room = open(&app);
+        assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
+        let inst = app.live_view().frame.background.expect("the theme background").inst;
+        room.inner.shared.started.lock().unwrap().insert(inst, Kind::Background);
+        let mut rx = app.subscribe();
+        let report = |state, error| PlayerReport { inst, player: 1, state, position: 1.0, duration: 9.0, error };
+        room.inner.report(report(PlayState::Playing, None));
+        std::thread::sleep(Duration::from_millis(300));
+        assert!(rx.try_recv().is_err(), "a playing background is not news to the live engine");
+        room.inner.report(report(PlayState::Error, Some("it broke".into())));
+        assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()));
+    }
+
+    #[test]
+    fn a_slow_save_does_not_stall_the_room() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let v = show(&app, scripture(&app));
+        let room = open(&app);
+        // Everything is prepared but not pumped yet.
+        let wanted = room.inner.prep.borrow().as_ref().map_or(0, |p| p.waiting.len());
+        let end = Instant::now() + Duration::from_secs(15);
+        while room.inner.shared.inbox.lock().unwrap().len() < wanted && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)) }
+        let ((tx, locked), held) = (std::sync::mpsc::channel(), app.clone());
+        let saver = std::thread::spawn(move || { let _data = held.data.lock().unwrap(); tx.send(()).unwrap(); std::thread::sleep(Duration::from_secs(1)) });
+        locked.recv().unwrap();
+        let t = Instant::now();
+        room.pump(); // swaps and commits
+        assert!(t.elapsed() < Duration::from_millis(500), "the room waited {:?} for the data lock", t.elapsed());
+        saver.join().unwrap();
+        assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
     }
 
     #[test]
@@ -594,8 +700,47 @@ mod tests {
         let v = show(&app, text);
         assert!(pump_until(&room, 10.0, || app.live_view().committed == v));
         assert!(room.inner.players.borrow()[MEDIA].is_none() && !ui.get_video() && ui.get_bg_visible());
-        assert!(!room.inner.shared.started.lock().unwrap().contains(&inst));
+        assert!(!room.inner.shared.started.lock().unwrap().contains_key(&inst));
         assert!(pump_until(&room, 2.0, || ui.get_video_frame().size().width == 0), "the last frame is cleared");
+    }
+
+    #[test]
+    fn a_disposed_players_late_report_does_not_ready_its_successor() {
+        if std::env::var("RP_VIDEO_TESTS").as_deref() != Ok("1") { return }
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let file = std::fs::File::create(app.store.asset_path("still.gif")).unwrap();
+        let frame = image::Frame::new(image::RgbaImage::from_pixel(64, 36, image::Rgba([0, 90, 200, 255])));
+        image::codecs::gif::GifEncoder::new(file).encode_frames([frame]).unwrap();
+        let clip = media(&app, MediaKind::Video, "still.gif");
+        let mpv = crate::video::ffi::Mpv::load().expect("libmpv (set RP_LIBMPV)");
+        let room = Room::open(app.clone(), Renderer::new(), Some(mpv), None).unwrap();
+        let i = &room.inner;
+        let wait = |what: &str, f: &dyn Fn() -> bool| {
+            let end = Instant::now() + Duration::from_secs(10);
+            while !f() && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)) }
+            assert!(f(), "{what}");
+        };
+        let queued = || i.shared.latest.lock().unwrap().is_some();
+        let made = || i.shared.inbox.lock().unwrap().iter().any(|m| matches!(m, Msg::Made { made: Ok(Made::Player(_)), .. }));
+        let player = || i.prep.borrow().as_ref().and_then(|p| p.got.iter().find_map(|(_, g)| match g { Got::Play(p) => Some(p.serial()), _ => None }));
+        show(&app, clip);
+        let inst = app.live_view().frame.media.as_ref().unwrap().inst;
+        wait("the view is queued", &queued);
+        room.pump();
+        wait("the first player is made", &made);
+        room.pump();
+        let first = player().expect("the first player is preparing");
+        // Pausing before the commit re-prepares the instance with a new player.
+        let v = run(&app, Command::MediaPause { inst, paused: true });
+        wait("the pause is queued", &queued);
+        room.pump();
+        i.report(PlayerReport { inst, player: first, state: PlayState::Paused, position: 0.0, duration: 1.0, error: None });
+        wait("the second player is made", &made);
+        room.pump();
+        assert_ne!(player(), Some(first));
+        assert!(i.prep.borrow().as_ref().is_some_and(|p| p.waiting.contains(&Kind::Media)), "the new player is ready before it has loaded");
+        assert!(pump_until(&room, 10.0, || app.live_view().committed == v), "notice {:?}", app.live_view().notice);
     }
 
     #[test]

@@ -465,6 +465,9 @@ impl Drop for VideoSurface {
 }
 
 /// An OpenGL render context; `gpa` is only valid during this call, which is all mpv needs.
+// Synchronous mpv calls (set_property, command) on the UI/render thread are only safe because
+// MPV_RENDER_PARAM_ADVANCED_CONTROL is not enabled: with it, mpv's core may wait on the render
+// thread, so those calls would first have to move off the render thread.
 fn create_gl(p: &Player, gpa: &dyn Fn(&CStr) -> *const c_void) -> Result<(RenderContext, bool), String> {
     let mut init = mpv_opengl_init_params { get_proc_address: Some(gl_proc), get_proc_address_ctx: &gpa as *const _ as *mut c_void };
     let mut params = [

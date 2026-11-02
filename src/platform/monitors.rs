@@ -33,17 +33,14 @@ impl MonitorId {
 
 /// The monitor for a room or stage window. The saved choice wins, exactly first, then by name
 /// (the same monitor at a new resolution or place). With nothing saved, the first monitor that is
-/// not the operator's. Never the operator's monitor unless it was the saved one.
+/// not the operator's. Never the operator's monitor unless it was the saved one exactly.
 pub fn pick(monitors: &[MonitorId], saved: Option<&str>, operator: Option<&MonitorId>) -> Option<MonitorId> {
     let Some(saved) = saved else { return monitors.iter().find(|m| Some(*m) != operator).cloned() };
     if let Some(m) = monitors.iter().find(|m| m.matches_saved(saved)) { return Some(m.clone()) }
     let id = MonitorId::parse(saved)?;
     let named: Vec<_> = monitors.iter().filter(|m| m.name == id.name).collect();
-    // Twins share a name: the operator's monitor counts as the saved one moved only when it is the only one.
-    match named[..] {
-        [only] => Some(only.clone()),
-        _ => named.into_iter().find(|m| Some(*m) != operator).cloned(),
-    }
+    // Twins share a name: by name alone, the operator's monitor is never taken for the saved one.
+    named.into_iter().find(|m| Some(*m) != operator).cloned()
 }
 
 /// The web operator's Screens dialog shape, numbered left to right like `displays::monitors`.
@@ -93,6 +90,9 @@ pub fn primary(window: &slint::Window) -> Option<MonitorId> { window.with_winit_
 /// The monitor `window` is on (the operator's, for `pick`).
 pub fn current(window: &slint::Window) -> Option<MonitorId> { window.with_winit_window(|w| id_of(w, w.current_monitor())).flatten() }
 
+/// Fullscreen again on `id` when the window already exists (it does nothing before then).
+pub fn refullscreen(window: &slint::Window, id: &MonitorId) -> Result<(), String> { borderless(window, id).unwrap_or(Ok(())) }
+
 /// Borderless fullscreen on `id` (no video mode change), found exactly or by name.
 pub fn fullscreen_on<C: ComponentHandle + 'static>(ui: &C, id: &MonitorId) -> Result<(), String> {
     if let Some(r) = borderless(ui.window(), id) { return r }
@@ -138,26 +138,34 @@ pub enum Change {
 }
 
 /// Watches the monitors that room and stage windows are on. Pure: feed it `list()` with `step`.
+/// Each watch is (role, its monitor, connected, the monitors seen at the last look).
 #[derive(Default)]
-pub struct Watcher { watched: Vec<(String, MonitorId, bool)>, seen: Vec<MonitorId> }
+pub struct Watcher { watched: Vec<(String, MonitorId, bool, Vec<MonitorId>)> }
 
 impl Watcher {
-    /// `role`'s window is on `id`; replaces an earlier watch for that role.
-    pub fn watch(&mut self, role: &str, id: MonitorId) {
+    /// `role`'s window is on `id`, with `now` connected; replaces an earlier watch for that role.
+    pub fn watch(&mut self, role: &str, id: MonitorId, now: &[MonitorId]) {
         self.unwatch(role);
-        self.watched.push((role.into(), id, true));
+        self.watched.push((role.into(), id, true, now.to_vec()));
     }
 
     /// The operator closed `role`'s window: stop watching for its monitor.
-    pub fn unwatch(&mut self, role: &str) { self.watched.retain(|(r, _, _)| r != role); }
+    pub fn unwatch(&mut self, role: &str) { self.watched.retain(|(r, ..)| r != role); }
+
+    /// The monitor `role`'s window belongs on, when it is connected but the window is `on` another
+    /// (Windows moves it to the operator's when its monitor drops out and back between two looks).
+    pub fn misplaced(&self, role: &str, on: Option<&MonitorId>) -> Option<MonitorId> {
+        let (_, id, present, _) = self.watched.iter().find(|(r, ..)| r == role)?;
+        (*present && on.is_some_and(|on| on != id)).then(|| id.clone())
+    }
 
     /// Compare with the monitors connected now; each change is reported once. A monitor found by
     /// name alone counts only when it is the one new monitor with that name: a twin that was
     /// already connected (often the operator's) is never taken for the watched one.
     pub fn step(&mut self, monitors: &[MonitorId]) -> Vec<Change> {
         let mut out = vec![];
-        let seen = std::mem::replace(&mut self.seen, monitors.to_vec());
-        for (role, id, present) in &mut self.watched {
+        for (role, id, present, seen) in &mut self.watched {
+            let seen = std::mem::replace(seen, monitors.to_vec());
             let fresh: Vec<_> = monitors.iter().filter(|m| m.name == id.name && !seen.contains(m)).collect();
             let found = monitors.iter().find(|m| *m == id).or(match fresh[..] { [only] => Some(only), _ => None });
             match (found, *present) {
@@ -211,6 +219,8 @@ mod tests {
         // The saved twin moved: name-only never lands on the operator's twin.
         let moved = mon("DELL U2414H", 1920, 1080, 3840, 0);
         assert_eq!(pick(&[twin.clone(), moved.clone()], Some(&other.key()), Some(&twin)), Some(moved));
+        // The saved twin is gone: the operator's twin, the only one left with that name, is not it.
+        assert_eq!(pick(&[twin.clone()], Some(&other.key()), Some(&twin)), None);
     }
 
     #[test]
@@ -239,8 +249,8 @@ mod tests {
     #[test]
     fn watcher_reports_gone_and_back() {
         let mut w = Watcher::default();
-        w.watch("room", projector());
-        w.watch("stage", laptop());
+        w.watch("room", projector(), &[laptop(), projector()]);
+        w.watch("stage", laptop(), &[laptop(), projector()]);
         assert_eq!(w.step(&[laptop(), projector()]), vec![]);
         assert_eq!(w.step(&[laptop()]), vec![Change::Gone("room".into())]);
         assert_eq!(w.step(&[laptop()]), vec![], "gone is reported once");
@@ -258,7 +268,7 @@ mod tests {
         // Identical models share a name (macOS/Linux); the operator is on one, the room on the other.
         let (ops, room) = (mon("DELL U2414H", 1920, 1080, 0, 0), mon("DELL U2414H", 1920, 1080, 1920, 0));
         let mut w = Watcher::default();
-        w.watch("room", room.clone());
+        w.watch("room", room.clone(), &[ops.clone(), room.clone()]);
         assert_eq!(w.step(&[ops.clone(), room.clone()]), vec![]);
         assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())], "the operator's twin is not the room's monitor");
         assert_eq!(w.step(&[ops.clone()]), vec![]);
@@ -267,6 +277,30 @@ mod tests {
         assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())]);
         let moved = mon("DELL U2414H", 2560, 1440, 3840, 0);
         assert_eq!(w.step(&[ops.clone(), moved.clone()]), vec![Change::Back("room".into(), moved)]);
+    }
+
+    #[test]
+    fn watcher_first_step_never_takes_a_twin_already_there() {
+        // The room's monitor is gone before the first look; the operator's twin was there all along.
+        let (ops, room) = (mon("DELL U2414H", 1920, 1080, 0, 0), mon("DELL U2414H", 1920, 1080, 1920, 0));
+        let mut w = Watcher::default();
+        w.watch("room", room.clone(), &[ops.clone()]);
+        assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())]);
+        assert_eq!(w.step(&[ops.clone(), room.clone()]), vec![Change::Back("room".into(), room)]);
+    }
+
+    #[test]
+    fn watcher_finds_a_window_moved_off_its_monitor() {
+        // Unplugged and back within one look: the list is the same, but Windows moved the window.
+        let mut w = Watcher::default();
+        w.watch("room", projector(), &[laptop(), projector()]);
+        assert_eq!(w.step(&[laptop(), projector()]), vec![]);
+        assert_eq!(w.misplaced("room", Some(&laptop())), Some(projector()));
+        assert_eq!(w.misplaced("room", Some(&projector())), None);
+        assert_eq!(w.misplaced("room", None), None, "no answer, no move");
+        assert_eq!(w.misplaced("stage", Some(&laptop())), None);
+        assert_eq!(w.step(&[laptop()]), vec![Change::Gone("room".into())]);
+        assert_eq!(w.misplaced("room", Some(&laptop())), None, "a gone monitor is not moved to");
     }
 
     fn overlap(a: ((i32, i32), (u32, u32)), m: &MonitorId) -> i64 {
