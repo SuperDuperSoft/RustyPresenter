@@ -110,8 +110,8 @@ struct Inner {
     prep: RefCell<Option<Prep>>,
     /// Players on air, by slot.
     players: RefCell<[Option<Rc<Player>>; 3]>,
-    /// A swap waiting for the screen to turn black.
-    deferred: RefCell<Option<(Prep, RoomEvent)>>,
+    /// A swap waiting for the screen to turn black, with its commit unless already sent.
+    deferred: RefCell<Option<(Prep, Option<RoomEvent>)>>,
     /// Ends the half for `deferred` (restarted by each swap, so it is always the newest's).
     fade: Timer,
     me: Weak<Inner>,
@@ -219,8 +219,9 @@ impl Inner {
         let Some(prep) = prep else { return };
         self.dispose(prep);
         // A swap waiting for black is already shown as far as `state` goes: commit it first,
-        // or the engine would go back past it.
-        self.flush();
+        // or the engine would go back past it. The screen still swaps only once black.
+        let commit = self.deferred.borrow_mut().as_mut().and_then(|d| d.1.take());
+        if let Some(c) = commit { self.shared.emit(c) }
         let ev = self.state.borrow_mut().failed(token, reason);
         if let Some(ev) = ev { self.shared.emit(ev) }
     }
@@ -234,9 +235,9 @@ impl Inner {
 
     fn swap(&self, prep: Prep, commit: RoomEvent) {
         self.flush();
-        if !prep.plan.fade_through_black { return self.apply(prep, commit) }
+        if !prep.plan.fade_through_black { return self.apply(prep, Some(commit)) }
         self.ui.set_black(1.0);
-        *self.deferred.borrow_mut() = Some((prep, commit));
+        *self.deferred.borrow_mut() = Some((prep, Some(commit)));
         let me = self.me.clone();
         self.fade.start(TimerMode::SingleShot, HALF, move || if let Some(i) = me.upgrade() { i.flush() });
     }
@@ -247,7 +248,7 @@ impl Inner {
         if let Some((prep, commit)) = d { self.apply(prep, commit); self.ui.set_black(0.0) }
     }
 
-    fn apply(&self, prep: Prep, commit: RoomEvent) {
+    fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
         let mut players = self.players.borrow_mut();
         for kind in &prep.plan.remove {
             self.layer(*kind, |l| l.shown = false);
@@ -272,7 +273,7 @@ impl Inner {
         self.ui.set_video(self.surface.active());
         self.ui.set_bg_visible(room::draw_background(&prep.frame));
         self.sync_pause(&prep.pause);
-        self.shared.emit(commit);
+        if let Some(c) = commit { self.shared.emit(c) }
     }
 
     /// Takes a player off air: silent at once, freed after the fade.
@@ -501,8 +502,12 @@ mod tests {
         let token = plan.token;
         *i.prep.borrow_mut() = Some(prep(plan, Frame::default()));
         i.fail(token, "it broke".into());
+        // Only the commit went early: the layers still wait for the screen to be black.
+        assert!(i.deferred.borrow().as_ref().is_some_and(|d| d.1.is_none()) && i.ui.get_black() == 1.0, "the swap is shown before black");
         assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()));
         assert_eq!(app.live_view().item.map(|s| s.item_id), Some(two));
+        i.flush();
+        assert!(i.deferred.borrow().is_none() && i.ui.get_black() == 0.0);
     }
 
     #[test]
