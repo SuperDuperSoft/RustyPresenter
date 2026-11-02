@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, live::*, media, model::*, slides::build_item, songselect, store::Store};
+use crate::{bible, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -9,7 +9,7 @@ use std::{
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
+    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicU64, AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
@@ -144,6 +144,11 @@ pub struct App {
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
+    state_writer: Mutex<Option<StateWriter>>,
+    /// Numbers saved states, newest highest.
+    state_seq: AtomicU64,
+    /// Where restored players start, by playback instance.
+    resume: Mutex<HashMap<u64, f64>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -171,6 +176,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
     }
 
@@ -225,9 +231,42 @@ impl App {
         out
     }
 
+    pub fn set_state_writer(&self, w: StateWriter) { *self.state_writer.lock().unwrap() = Some(w); }
+
+    /// Writes what is waiting and ends the writer. For a normal quit.
+    pub fn stop_state_writer(&self) {
+        if let Some(w) = self.state_writer.lock().unwrap().take() { w.flush_and_stop(); }
+    }
+
+    /// Hands the frame on air to the state writer, with where its players are now.
+    pub fn save_live_state(&self) {
+        let windows = self.screens.get().map(|s| s.open_roles()).unwrap_or_default();
+        let writer = self.state_writer.lock().unwrap();
+        let Some(writer) = writer.as_ref() else { return };
+        let seq = self.state_seq.fetch_add(1, Ordering::Relaxed) + 1;
+        let snapshot = state::snapshot(&self.live.lock().unwrap(), windows, seq);
+        if let Some(s) = snapshot { writer.submit(s); }
+    }
+
+    /// Where the restored players should start, in seconds.
+    pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
+
+    /// Used up by the player that takes it, so a later retrigger starts from the beginning.
+    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().remove(&inst) }
+
+    pub fn set_notice(&self, text: &str) {
+        self.live.lock().unwrap().notice = Some(text.into());
+        self.broadcast_live();
+    }
+
     pub fn room_event(&self, ev: RoomEvent) {
-        let changed = self.live.lock().unwrap().report(ev);
+        let (changed, committed) = {
+            let mut live = self.live.lock().unwrap();
+            let before = live.committed_version;
+            (live.report(ev), live.committed_version != before)
+        };
         if changed { self.broadcast_live(); }
+        if committed { self.save_live_state(); }
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
@@ -879,6 +918,114 @@ mod tests {
     async fn do_action_rejects_untitled_song_with_400() {
         let err = test_app().do_action("song/save", br#"{"id":"00000000-0000-0000-0000-000000000000","title":" ","lyrics":""}"#).await.unwrap_err();
         assert_eq!((err.status, err.message.as_str()), (400, "Give the song a title."));
+    }
+
+    fn on_air(app: &App) {
+        let id = Uuid::new_v4();
+        let mut live = app.live.lock().unwrap();
+        struct One(Uuid);
+        impl Plan for One {
+            fn order(&self) -> Vec<Uuid> { vec![self.0] }
+            fn build(&self, id: Uuid) -> Option<LiveItem> {
+                Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
+                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None }, notes: String::new() }] })
+            }
+        }
+        live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));
+    }
+
+    fn wait_for_state(root: &std::path::Path, seq: u64) -> state::LiveState {
+        for _ in 0..200 {
+            if let Some(s) = state::load(root) && s.seq >= seq { return s; }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        panic!("no saved state with seq {seq}");
+    }
+
+    #[test]
+    fn app_writes_state_after_commit() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        assert_eq!(state::load(&app.store.root), None, "nothing is on air yet");
+        app.room_event(RoomEvent::Committed { version });
+        let s = wait_for_state(&app.store.root, 1);
+        assert!(matches!(s.frame.slide, Some(crate::live::SlideLayer::Text { ref text, .. }) if text == "hello"));
+        assert!(s.saved_at.len() > 8);
+    }
+
+    #[test]
+    fn a_report_that_commits_nothing_saves_nothing() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.room_event(RoomEvent::Committed { version: 99 });
+        app.room_event(RoomEvent::Committed { version });
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root).unwrap().seq, 1);
+    }
+
+    #[test]
+    fn saving_records_the_open_windows_and_a_newer_seq() {
+        struct Roles;
+        impl Screens for Roles {
+            fn open(&self, _: &str, _: Option<&str>) -> Result<(), String> { Ok(()) }
+            fn close(&self, _: &str) {}
+            fn open_roles(&self) -> Vec<String> { vec!["room".into(), "stage".into()] }
+            fn monitors(&self) -> Vec<Monitor> { vec![] }
+        }
+        let app = test_app();
+        app.set_screens(Arc::new(Roles));
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        let first = wait_for_state(&app.store.root, 1);
+        app.save_live_state();
+        let second = wait_for_state(&app.store.root, first.seq + 1);
+        assert_eq!(second.windows, ["room", "stage"]);
+    }
+
+    #[test]
+    fn saving_with_nothing_committed_writes_nothing() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        app.save_live_state();
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None);
+    }
+
+    #[test]
+    fn saving_without_a_writer_does_nothing() {
+        let app = test_app();
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.save_live_state();
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None);
+    }
+
+    #[test]
+    fn resume_position_is_consumed_once() {
+        let app = test_app();
+        app.set_resume(&[(4, 12.5), (5, 3.0)]);
+        assert_eq!(app.resume_position(4), Some(12.5));
+        assert_eq!(app.resume_position(4), None);
+        assert_eq!(app.resume_position(6), None);
+        assert_eq!(app.resume_position(5), Some(3.0));
+    }
+
+    #[tokio::test]
+    async fn set_notice_shows_on_the_live_view() {
+        let app = test_app();
+        let mut rx = app.subscribe();
+        app.set_notice("RustyPresenter restarted after a problem.");
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
+        assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
     }
 
     #[tokio::test]

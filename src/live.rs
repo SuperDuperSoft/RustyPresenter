@@ -13,7 +13,7 @@
 //! * Every playing video/audio gets a fresh playback instance id. Reports from
 //!   the room are accepted while their instance is in the requested frame or
 //!   the committed frame (still on air), and ignored once retired.
-use crate::model::*;
+use crate::{model::*, recovery::state::LiveState};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use uuid::Uuid;
@@ -58,7 +58,7 @@ pub struct Frame {
 }
 
 impl Frame {
-    fn instances(&self) -> impl Iterator<Item = u64> + '_ {
+    pub(crate) fn instances(&self) -> impl Iterator<Item = u64> + '_ {
         self.background.iter().map(|b| b.inst).chain(self.media.iter().map(|m| m.inst)).chain(self.audio.iter().map(|a| a.inst))
     }
     fn retire(&mut self, inst: u64) -> bool {
@@ -71,7 +71,7 @@ impl Frame {
 }
 
 /// Snapshot of the live item, taken when it goes live (spec §7.2).
-#[derive(Serialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct LiveItem {
     pub item_id: Uuid,
     pub title: String,
@@ -80,7 +80,7 @@ pub struct LiveItem {
     pub background: Background,
 }
 
-#[derive(Serialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Cursor {
     pub item_id: Uuid,
     /// Position of the item in the service when it went live (for removed items).
@@ -218,6 +218,28 @@ impl Live {
     }
 
     pub fn pending(&self) -> bool { self.committed_version < self.version }
+
+    /// What is on air, as the room last confirmed it. `None` until something has been committed.
+    pub fn committed(&self) -> Option<(Frame, Option<Cursor>, Option<LiveItem>)> {
+        if self.committed_version == 0 { return None; }
+        let s = self.history.iter().find(|s| s.version == self.committed_version)?;
+        Some((s.frame.clone(), s.cursor.clone(), s.item.clone()))
+    }
+
+    /// Puts a saved frame back after a crash, as a new version for the room to commit.
+    /// `with_media` false leaves out everything that plays: this state may be what crashed.
+    pub fn restore(&mut self, s: &LiveState, with_media: bool) {
+        self.frame = s.frame.clone();
+        self.cursor = s.cursor.clone();
+        self.item = s.item.clone();
+        self.next_inst = s.frame.instances().max().map_or(self.next_inst, |i| self.next_inst.max(i + 1));
+        if !with_media {
+            if self.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) { self.frame.media = None; }
+            self.frame.audio = None;
+            if self.frame.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. })) { self.frame.background = None; }
+        }
+        self.bump();
+    }
 
     pub fn apply(&mut self, env: Envelope, plan: &dyn Plan) -> Outcome {
         if let Some((_, o)) = self.seen.iter().find(|(id, _)| *id == env.id) {
@@ -474,6 +496,7 @@ impl Live {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::recovery::state;
     use std::collections::HashMap;
 
     struct TestPlan { order: Vec<Uuid>, items: HashMap<Uuid, LiveItem> }
@@ -508,6 +531,139 @@ mod tests {
     fn next(l: &mut Live, p: &TestPlan) -> Outcome { let b = l.version; l.apply(env(Command::Next, Some(b)), p) }
     fn shown(l: &Live) -> Option<String> { match &l.frame.slide { Some(SlideLayer::Text { text, .. }) => Some(text.clone()), _ => None } }
     fn commit(l: &mut Live) { let v = l.version; l.report(RoomEvent::Committed { version: v }); }
+
+    fn saved(l: &Live) -> LiveState { state::snapshot(l, vec![], 1).expect("something was committed") }
+
+    #[test]
+    fn committed_is_none_until_something_commits() {
+        let p = plan(vec![("A", vec![text("a1")])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        assert_eq!(l.committed(), None);
+        commit(&mut l);
+        assert!(l.committed().is_some());
+    }
+
+    #[test]
+    fn snapshot_uses_committed_frame_not_requested() {
+        let p = plan(vec![("A", vec![text("a1"), text("a2")])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        commit(&mut l);
+        next(&mut l, &p); // requested, not yet on air
+        let s = saved(&l);
+        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false }));
+        assert_eq!(s.cursor.unwrap().slide, 0);
+        assert_eq!(s.v, 1);
+    }
+
+    #[test]
+    fn snapshot_positions_are_only_for_instances_in_the_committed_frame() {
+        let p = plan(vec![("V", vec![video("v.mp4", EndAction::Stop)]), ("A", vec![audio("a.mp3")])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        commit(&mut l);
+        let inst = l.frame.media.as_ref().unwrap().inst;
+        l.report(RoomEvent::Media { inst, state: PlayState::Playing, position: 12.5, duration: 60.0, error: None });
+        l.audio_status = Some(PlayStatus { inst: 999, state: PlayState::Playing, position: 3.0, duration: 9.0 });
+        assert_eq!(saved(&l).positions, [(inst, 12.5)]);
+    }
+
+    #[test]
+    fn saved_state_survives_json() {
+        let p = plan(vec![("V", vec![text("a1"), video("v.mp4", EndAction::Hold)])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        next(&mut l, &p);
+        commit(&mut l);
+        let s = saved(&l);
+        assert_eq!(serde_json::from_slice::<LiveState>(&serde_json::to_vec(&s).unwrap()).unwrap(), s);
+    }
+
+    #[test]
+    fn restore_reissues_instances_above_saved() {
+        let p = plan(vec![("V", vec![video("a.mp4", EndAction::Stop), video("b.mp4", EndAction::Stop)])]);
+        let mut old = Live::new();
+        next(&mut old, &p);
+        next(&mut old, &p);
+        commit(&mut old);
+        let s = saved(&old);
+        let high = s.frame.instances().max().unwrap();
+
+        let mut l = Live::new();
+        l.restore(&s, true);
+        assert_eq!(l.frame, s.frame);
+        assert_eq!(l.cursor, s.cursor);
+        assert_eq!(l.item, s.item);
+        assert_eq!((l.version, l.committed_version), (1, 0), "the room has to commit it");
+        l.apply(env(Command::Show { item_id: p.order[0], slide: 0 }, None), &p);
+        assert!(l.frame.media.as_ref().unwrap().inst > high);
+    }
+
+    #[test]
+    fn restore_commits_like_any_other_version() {
+        let p = plan(vec![("A", vec![text("a1"), text("a2")])]);
+        let mut old = Live::new();
+        next(&mut old, &p);
+        commit(&mut old);
+        let mut l = Live::new();
+        l.restore(&saved(&old), true);
+        assert!(l.pending());
+        commit(&mut l);
+        assert_eq!(l.committed().unwrap().0.slide, old.frame.slide);
+        next(&mut l, &p); // the service goes on from the restored slide
+        assert_eq!(shown(&l).as_deref(), Some("a2"));
+    }
+
+    fn with_layers(l: &mut Live) -> LiveState {
+        let p = plan(vec![("A", vec![text("a1")])]);
+        next(l, &p);
+        commit(l);
+        let mut s = saved(l);
+        s.frame.background = Some(Inst { inst: 1, v: black() });
+        s.frame.media = Some(Inst { inst: 2, v: MediaLayer::Video { asset: "v.mp4".into(), end: EndAction::Stop, paused: false } });
+        s.frame.audio = Some(Inst { inst: 3, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: false } });
+        s
+    }
+
+    #[test]
+    fn restore_without_media_keeps_slide_and_colour_background() {
+        let s = with_layers(&mut Live::new());
+        let mut l = Live::new();
+        l.restore(&s, false);
+        assert_eq!(l.frame.media, None);
+        assert_eq!(l.frame.audio, None);
+        assert_eq!(l.frame.background, s.frame.background);
+        assert_eq!(l.frame.slide, s.frame.slide);
+    }
+
+    #[test]
+    fn restore_without_media_keeps_a_still_and_an_image_background() {
+        let mut s = with_layers(&mut Live::new());
+        s.frame.media = Some(Inst { inst: 2, v: MediaLayer::Still { asset: "p.png".into() } });
+        s.frame.background = Some(Inst { inst: 1, v: Background::Image { asset: "b.png".into() } });
+        let mut l = Live::new();
+        l.restore(&s, false);
+        assert_eq!(l.frame.media, s.frame.media);
+        assert_eq!(l.frame.background, s.frame.background);
+    }
+
+    #[test]
+    fn restore_without_media_drops_a_video_background() {
+        let mut s = with_layers(&mut Live::new());
+        s.frame.background = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into() } });
+        let mut l = Live::new();
+        l.restore(&s, false);
+        assert_eq!(l.frame.background, None);
+    }
+
+    #[test]
+    fn restore_with_media_keeps_every_layer() {
+        let s = with_layers(&mut Live::new());
+        let mut l = Live::new();
+        l.restore(&s, true);
+        assert_eq!(l.frame, s.frame);
+    }
 
     #[test]
     fn next_walks_slides_and_crosses_items() {
