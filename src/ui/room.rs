@@ -340,7 +340,7 @@ impl Room {
         });
         let room = Rc::new(Room { inner });
         ui.show().map_err(|e| format!("Could not open the room screen: {e}"))?;
-        if let Some(m) = &monitor { monitors::fullscreen_on(ui.window(), m)? }
+        if let Some(m) = &monitor { monitors::fullscreen_on(&ui, m)? }
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();
         forward(app.clone(), reports, shared.clone());

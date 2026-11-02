@@ -2,6 +2,7 @@
 //! monitor, borderless fullscreen through Slint's winit backend, and an unplug watch.
 use crate::app::Monitor;
 use serde::{Deserialize, Serialize};
+use slint::ComponentHandle;
 use slint::winit_030::{WinitWindowAccessor, winit::{self, monitor::MonitorHandle, window::Fullscreen}};
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
@@ -93,22 +94,39 @@ pub fn primary(window: &slint::Window) -> Option<MonitorId> { window.with_winit_
 pub fn current(window: &slint::Window) -> Option<MonitorId> { window.with_winit_window(|w| id_of(w, w.current_monitor())).flatten() }
 
 /// Borderless fullscreen on `id` (no video mode change), found exactly or by name.
-pub fn fullscreen_on(window: &slint::Window, id: &MonitorId) -> Result<(), String> {
-    let exact = window.with_winit_window(|w| {
+pub fn fullscreen_on<C: ComponentHandle + 'static>(ui: &C, id: &MonitorId) -> Result<(), String> {
+    if let Some(r) = borderless(ui.window(), id) { return r }
+    // Slint creates the winit window on the event loop's next turn after `show`. Until then, cover
+    // exactly that monitor, so whatever winit takes for "the window's monitor" is it, and ask for
+    // fullscreen; then name the monitor itself as soon as the winit window exists.
+    let ((x, y), (w, h)) = placement(id);
+    let window = ui.window();
+    window.set_position(slint::PhysicalPosition::new(x, y));
+    window.set_size(slint::PhysicalSize::new(w, h));
+    window.set_fullscreen(true);
+    retry(ui.as_weak(), id.clone(), 100);
+    Ok(())
+}
+
+/// Where a window waiting for fullscreen on `id` goes: the monitor's own rectangle, wholly on it.
+fn placement(id: &MonitorId) -> ((i32, i32), (u32, u32)) { (id.position, id.size) }
+
+/// `Borderless(Some(monitor))` through the winit window; `None` while there is none yet.
+fn borderless(window: &slint::Window, id: &MonitorId) -> Option<Result<(), String>> {
+    window.with_winit_window(|w| {
         let all = handles(w);
         let (m, _) = all.iter().find(|(_, m)| m == id).or_else(|| all.iter().find(|(_, m)| m.name == id.name))
             .ok_or("That screen is not connected right now.")?;
         w.set_fullscreen(Some(Fullscreen::Borderless(Some(m.clone()))));
         Ok(())
+    })
+}
+
+fn retry<C: ComponentHandle + 'static>(ui: slint::Weak<C>, id: MonitorId, tries: u32) {
+    slint::Timer::single_shot(Duration::from_millis(10), move || {
+        let Some(c) = ui.upgrade() else { return };
+        if borderless(c.window(), &id).is_none() && tries > 0 { retry(ui, id, tries - 1) }
     });
-    if let Some(r) = exact { return r }
-    // Slint creates the winit window on the event loop's next turn after `show`. Until then, place the
-    // window inside that monitor (aiming at its middle, so mixed scaling still lands on it) and ask for
-    // borderless fullscreen on the monitor the window is on.
-    let (x, y) = (id.position.0 + id.size.0 as i32 / 4, id.position.1 + id.size.1 as i32 / 4);
-    window.set_position(slint::PhysicalPosition::new(x, y));
-    window.set_fullscreen(true);
-    Ok(())
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -249,6 +267,23 @@ mod tests {
         assert_eq!(w.step(&[ops.clone()]), vec![Change::Gone("room".into())]);
         let moved = mon("DELL U2414H", 2560, 1440, 3840, 0);
         assert_eq!(w.step(&[ops.clone(), moved.clone()]), vec![Change::Back("room".into(), moved)]);
+    }
+
+    fn overlap(a: ((i32, i32), (u32, u32)), m: &MonitorId) -> i64 {
+        let ((ax, ay), (aw, ah)) = a;
+        let w = (ax + aw as i32).min(m.position.0 + m.size.0 as i32) - ax.max(m.position.0);
+        let h = (ay + ah as i32).min(m.position.1 + m.size.1 as i32) - ay.max(m.position.1);
+        w.max(0) as i64 * h.max(0) as i64
+    }
+
+    #[test]
+    fn placement_lies_wholly_on_a_small_projector() {
+        // winit's fallback takes the monitor with the largest overlap, so none may lie on the laptop.
+        for p in [mon(r"\.\DISPLAY2", 1024, 768, -1024, 0), mon(r"\.\DISPLAY2", 1024, 768, 0, -768), projector()] {
+            let at = placement(&p);
+            assert_eq!(overlap(at, &p), p.size.0 as i64 * p.size.1 as i64);
+            assert_eq!(overlap(at, &laptop()), 0);
+        }
     }
 
     #[test]

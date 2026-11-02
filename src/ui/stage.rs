@@ -87,7 +87,7 @@ impl Stage {
         ui.set_connected(true);
         ui.show().map_err(|e| format!("Could not open the stage screen: {e}"))?;
         if let Some(m) = &monitor {
-            if let Err(e) = monitors::fullscreen_on(ui.window(), m) { let _ = ui.hide(); return Err(e); }
+            if let Err(e) = monitors::fullscreen_on(&ui, m) { let _ = ui.hide(); return Err(e); }
         }
         let closed = Arc::new(AtomicBool::new(false));
         follow(app, rx, ui.as_weak(), closed.clone());
