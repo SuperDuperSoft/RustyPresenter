@@ -299,7 +299,7 @@ impl App {
     }
 
     /// Per-translation source details for Settings → Bible. Never includes the keys themselves.
-    fn bible_sources(&self) -> Vec<Value> {
+    pub(crate) fn bible_sources(&self) -> Vec<Value> {
         use bible::sources::{Secrets, source_with};
         let root = &self.store.root;
         let secrets = Secrets::load(root);
@@ -326,7 +326,7 @@ impl App {
     }
 
     /// The online services a church can connect, for Settings → Bible.
-    fn bible_providers(&self) -> Vec<Value> {
+    pub(crate) fn bible_providers(&self) -> Vec<Value> {
         let secrets = bible::sources::Secrets::load(&self.store.root);
         bible::sources::PROVIDERS.iter().map(|p| json!({
             "id": p.key_name(),

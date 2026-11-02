@@ -39,8 +39,9 @@ pub const START_OF_SERVICE: &str = "Start of service";
 pub const NOTHING: &str = "—";
 pub const SERVICE: &str = "Service";
 
-/// The core call never finished (its task panicked or the runtime is shutting down).
-pub const ACTION_STOPPED: &str = "That did not finish. Try again.";
+/// The core call never finished (its task panicked or the runtime is shutting down). The web's generic
+/// failure text (`operator.js:48`).
+pub const ACTION_STOPPED: &str = "Something went wrong.";
 
 /// The room pill's tooltip (`operator.js:104`).
 pub const ROOM_SHOWING: &str = "Room screen is showing";

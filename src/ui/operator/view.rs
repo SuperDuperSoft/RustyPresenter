@@ -22,6 +22,32 @@ pub enum RoomStatus { Showing, Starting, Off }
 #[derive(Clone, Debug, PartialEq)]
 pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error: Option<String> }
 
+/// One translation's source for Settings → Bible (`App::bible_sources`; never carries a key).
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+#[serde(default)]
+pub struct BibleSource {
+    pub translation: String,
+    /// "offline", "online", "needs_key" or "unavailable".
+    pub status: String,
+    pub provider: Option<String>,
+    pub imported: bool,
+    pub copyright: Option<String>,
+    /// Key names of the services that can supply this translation.
+    pub providers: Vec<String>,
+}
+
+/// An online Bible service a church can connect (`App::bible_providers`).
+#[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
+#[serde(default)]
+pub struct BibleProvider {
+    pub id: String,
+    pub label: String,
+    pub signup_url: String,
+    pub note: String,
+    pub key_set: bool,
+    pub translations: Vec<String>,
+}
+
 /// Everything `state_json` holds, typed. Built off the Slint thread (see `read`) and sent to it whole.
 #[derive(Clone, Debug)]
 pub struct OperatorSnapshot {
@@ -31,6 +57,8 @@ pub struct OperatorSnapshot {
     pub translations: Vec<String>,
     pub available: Vec<String>,
     pub translation: String,
+    pub bible_sources: Vec<BibleSource>,
+    pub bible_providers: Vec<BibleProvider>,
     pub room: RoomStatus,
     pub stage_connected: bool,
     pub stage_configured: bool,
@@ -77,6 +105,8 @@ impl OperatorSnapshot {
             translations,
             available,
             translation,
+            bible_sources: typed(app.bible_sources()),
+            bible_providers: typed(app.bible_providers()),
             room,
             stage_connected: app.stage_conns.load(Ordering::Relaxed) > 0,
             stage_configured: data.settings.displays.stage.is_some(),
@@ -109,6 +139,11 @@ impl OperatorSnapshot {
     pub fn refresh_subtitles(&mut self) {
         for row in &mut self.items { row.subtitle = subtitle(row, &self.data.media, self.player_missing); }
     }
+}
+
+/// Parses `state_json`-shaped rows; a row that does not fit is dropped rather than failing the whole read.
+fn typed<T: serde::de::DeserializeOwned>(rows: Vec<serde_json::Value>) -> Vec<T> {
+    rows.into_iter().filter_map(|v| serde_json::from_value(v).ok()).collect()
 }
 
 /// The stage pill is shown when a stage screen is chosen or one is connected; `Some(on)` (`operator.js:105`).
@@ -474,5 +509,20 @@ mod tests {
         let s = OperatorSnapshot::read(&app);
         assert_eq!((s.items[0].title.as_str(), s.items[0].kind.as_str(), s.items[0].subtitle.as_str()), ("Welcome", "text", "Announcement · 1 slide"));
         assert_eq!(s.translation, s.available[0], "a removed translation falls back to the first available");
+    }
+
+    #[test]
+    fn snapshot_carries_bible_sources_and_providers_like_state_json() {
+        let app = crate::app::test_app();
+        let s = OperatorSnapshot::read(&app);
+        let state = app.state_json();
+        assert_eq!(s.bible_sources.len(), state["bible_sources"].as_array().unwrap().len());
+        assert_eq!(s.bible_providers.len(), state["bible_providers"].as_array().unwrap().len());
+        let kjv = s.bible_sources.iter().find(|b| b.translation == "KJV").unwrap();
+        assert_eq!(kjv.status, "offline");
+        let esv = s.bible_sources.iter().find(|b| b.translation == "ESV").unwrap();
+        assert_eq!((esv.status.as_str(), esv.providers.contains(&"esv".to_string())), ("needs_key", true));
+        let p = s.bible_providers.iter().find(|p| p.id == "esv").unwrap();
+        assert!(!p.key_set && p.translations.contains(&"ESV".to_string()) && !p.label.is_empty());
     }
 }

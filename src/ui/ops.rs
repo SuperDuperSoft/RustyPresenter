@@ -134,5 +134,7 @@ mod tests {
         ops.cmd(Command::Next, Some(outs[1].version), move |r| *o2.borrow_mut() = Some(r));
         let r = o.borrow_mut().take().unwrap();
         assert!(!r.ok);
+        assert_eq!(r.error.as_deref(), Some(tr::END_OF_SERVICE));
+        assert_eq!(outcome_toast(&r), Some(("End of service".into(), false)));
     }
 }
