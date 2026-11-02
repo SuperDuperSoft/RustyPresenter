@@ -1,0 +1,198 @@
+// Settings (`operator.js:877-1007`): the tabs, the Songs, Video, Backups and Help pages, and the footer. Look and
+// Bible have files of their own. Everything shown comes from the `SettingsDlg` global (`settings-state.slint`).
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented, CopyText, Kbd } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Tabs, Note, Lbl, ListRow, RowMain } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { SettingsLook } from "settings-look.slint";
+import { SettingsBible } from "settings-bible.slint";
+
+export { SettingsDlg }
+
+component SettingsSongs inherits VerticalLayout {
+    Field {
+        label: @tr("Lines per slide");
+        HorizontalLayout {
+            alignment: start;
+            lines := Segmented {
+                labels: ["1", "2", "3", "4", "5", "6"];
+                index <=> SettingsDlg.lines;
+            }
+        }
+    }
+    Field {
+        label: @tr("Song credits");
+        HorizontalLayout {
+            alignment: start;
+            credits := Segmented {
+                labels: [@tr("On first slide"), @tr("On last slide"), @tr("Off")];
+                index <=> SettingsDlg.credits;
+            }
+        }
+    }
+    Field {
+        label: @tr("Church CCLI license #");
+        ccli := TextField { text <=> SettingsDlg.ccli; }
+    }
+}
+
+component SettingsVideo inherits VerticalLayout {
+    if SettingsDlg.ffmpeg: found := Note {
+        bold: @tr("✓ Video converter installed.");
+        text: @tr("Any video you add (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG…) is converted once so it plays smoothly.");
+    }
+    if !SettingsDlg.ffmpeg: VerticalLayout {
+        missing := Note {
+            bold: @tr("Install the free video converter (FFmpeg) so every video format works.");
+            text: @tr("MP4 and WebM videos already play without it.");
+        }
+        Rectangle { height: 12px; }
+        Text {
+            text: @tr("1. Click Start, type PowerShell, open it, and paste this line:");
+            color: Theme.text;
+            wrap: word-wrap;
+        }
+        Rectangle { height: 8px; }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            CopyText { text: SettingsDlg.winget; }
+            copy := Btn {
+                small: true;
+                icon: "copy";
+                text: @tr("Copy");
+                clicked => { SettingsDlg.copy-winget(); }
+            }
+        }
+        Rectangle { height: 10px; }
+        Text {
+            text: @tr("2. When it finishes, close RustyPresenter and open it again.");
+            color: Theme.text;
+            wrap: word-wrap;
+        }
+        Rectangle { height: 8px; }
+        HorizontalLayout {
+            alignment: start;
+            check-again := Btn {
+                icon: "restart";
+                text: @tr("Check again");
+                clicked => { SettingsDlg.check-again(); }
+            }
+        }
+    }
+}
+
+component SettingsBackups inherits VerticalLayout {
+    Note {
+        text: @tr("A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in");
+        HorizontalLayout {
+            alignment: start;
+            padding-top: 4px;
+            spacing: 2px;
+            folder := CopyText { text: SettingsDlg.backups-folder; }
+            Text {
+                text: ".";
+                color: Theme.muted;
+                vertical-alignment: center;
+            }
+        }
+    }
+    Rectangle { height: 12px; }
+    HorizontalLayout {
+        alignment: start;
+        backup-now := Btn {
+            primary: true;
+            text: @tr("Back up now");
+            clicked => { SettingsDlg.backup-now(); }
+        }
+    }
+    Rectangle { height: 12px; }
+    VerticalLayout {
+        spacing: 4px;
+        for b[i] in SettingsDlg.backups: backup-row := ListRow {
+            accessible-role: list-item;
+            accessible-label: b.label;
+            accessible-value: b.counts;
+            RowMain {
+                title: b.label;
+                sub: b.counts;
+            }
+            restore := Btn {
+                small: true;
+                text: @tr("Restore");
+                clicked => { SettingsDlg.restore(i); }
+            }
+        }
+        if SettingsDlg.backups.length == 0: no-backups := Text {
+            text: @tr("No backups yet.");
+            color: Theme.muted;
+        }
+    }
+}
+
+component SettingsHelp inherits HorizontalLayout {
+    spacing: 14px;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        Lbl { label: @tr("Keyboard"); }
+        Rectangle { height: 8px; }
+        for row in SettingsDlg.help: help-row := Rectangle {
+            accessible-role: list-item;
+            accessible-label: row.keys;
+            accessible-value: row.what;
+            HorizontalLayout {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                Kbd { text: row.keys; }
+                Rectangle { horizontal-stretch: 1; }
+                Text {
+                    text: row.what;
+                    color: Theme.text;
+                    vertical-alignment: center;
+                }
+            }
+            Rectangle {
+                y: parent.height - 1px;
+                height: 1px;
+                background: Theme.line;
+            }
+        }
+    }
+    VerticalLayout {
+        horizontal-stretch: 1;
+        alignment: start;
+        Note {
+            text: @tr("Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.");
+        }
+    }
+}
+
+/// The Settings dialog's content: put inside a `DialogShell`.
+export component SettingsDialog inherits VerticalLayout {
+    DialogBody {
+        tabs := Tabs {
+            labels: [@tr("Look"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Backups"), @tr("Help")];
+            index <=> SettingsDlg.tab;
+            changed(i) => { SettingsDlg.tab-changed(i); }
+        }
+        Rectangle { height: 14px; }
+        if SettingsDlg.tab == 0: look := SettingsLook {}
+        if SettingsDlg.tab == 1: songs := SettingsSongs {}
+        if SettingsDlg.tab == 2: bible := SettingsBible {}
+        if SettingsDlg.tab == 3: video := SettingsVideo {}
+        if SettingsDlg.tab == 4: backups := SettingsBackups {}
+        if SettingsDlg.tab == 5: help := SettingsHelp {}
+    }
+    DialogFoot {
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { SettingsDlg.cancel(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save settings");
+            clicked => { SettingsDlg.save(); }
+        }
+    }
+}

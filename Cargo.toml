@@ -28,6 +28,8 @@ libloading = "0.8"
 slint = { version = "1.18", features = ["unstable-winit-030"] }
 glow = "0.18"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
+# Settings → Video: the Copy button (Slint 1.18 has no public clipboard-write API).
+arboard = { version = "=3.7.0", default-features = false }
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp"] }
 # Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
 reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls-no-provider"] }

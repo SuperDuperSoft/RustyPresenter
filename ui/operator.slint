@@ -9,6 +9,7 @@ import { Layer } from "room.slint";
 import { ToastStack, JobsBox, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell, DialogBody } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
+import { SettingsDialog } from "dialogs/settings.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -273,7 +274,8 @@ export component OperatorWindow inherits Window {
             wide: root.dialog-wide;
             focus-serial: root.dialog-focus-serial;
             close => { root.dialog-close(); }
-            DialogBody {}
+            if root.dialog-kind != "settings": DialogBody {}
+            if root.dialog-kind == "settings": SettingsDialog {}
         }
 
         for a in root.ask: AskOverlay {

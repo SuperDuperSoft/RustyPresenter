@@ -5506,6 +5506,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 name = "rustypresenter"
 version = "0.2.0"
 dependencies = [
+ "arboard",
  "axum",
  "chrono",
  "cosmic-text",
