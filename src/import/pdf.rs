@@ -115,12 +115,18 @@ impl PdfRenderer {
             return Err(PDFIUM_STUCK.to_string());
         }
         let (reply, mut replies) = mpsc::unbounded_channel();
+        let queued = cancel.clone();
         if self.jobs.send(Job { pdf, out_dir, expected_ratio, cancel, reply }).is_err() {
             return self.stuck();
         }
         let mut begun = false;
         loop {
-            match tokio::time::timeout(self.page_timeout, replies.recv()).await {
+            let reply = tokio::select! {
+                reply = tokio::time::timeout(self.page_timeout, replies.recv()) => reply,
+                // The thread sees the same token when it reaches this job, and skips it.
+                _ = queued.cancelled(), if !begun => return Err(CANCELLED.to_string()),
+            };
+            match reply {
                 Ok(Some(Reply::Begun)) => begun = true,
                 Ok(Some(Reply::Page { done, total })) => progress(done, total),
                 Ok(Some(Reply::Done(result))) => return result,
@@ -190,7 +196,7 @@ impl PdfDoc for PdfDocument<'_> {
     }
 
     fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), String> {
-        let config = PdfRenderConfig::new().set_target_width(size.0 as i32).set_maximum_height(size.1 as i32).render_form_data(true).set_clear_color(PdfColor::WHITE).use_lcd_text_rendering(false);
+        let config = PdfRenderConfig::new().set_target_size(size.0 as i32, size.1 as i32).render_form_data(true).set_clear_color(PdfColor::WHITE).use_lcd_text_rendering(false);
         let page = self.pages().get(index as _).map_err(|e| e.to_string())?;
         let image = page.render_with_config(&config).map_err(|e| e.to_string())?.as_image().to_rgb8();
         let file = BufWriter::new(File::create(out).map_err(|e| e.to_string())?);
@@ -396,6 +402,30 @@ mod tests {
         assert_eq!(rendered.lock().unwrap().len(), 1);
     }
 
+    /// Cancel on a queued import answers at once, however long the one in front takes.
+    #[tokio::test]
+    async fn a_queued_render_can_be_cancelled() {
+        let dir = Dir::new();
+        std::fs::write(dir.0.join("in.pdf"), "%PDF-1.7").unwrap();
+        let mut fake = Fake::new(1);
+        fake.stuck_on = Some(0);
+        let r = Arc::new(PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(30)));
+        let first = r.clone();
+        let (pdf, out) = (dir.0.join("in.pdf"), dir.0.join("out"));
+        let front = tokio::spawn(async move { first.render(pdf, out, None, Box::new(|_, _| ()), CancellationToken::new()).await });
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        let cancel = CancellationToken::new();
+        let hit = cancel.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+            hit.cancel();
+        });
+        let start = std::time::Instant::now();
+        assert_eq!(run(&r, &dir, cancel).await, Err(CANCELLED.to_string()));
+        assert!(start.elapsed() < Duration::from_secs(2));
+        front.abort();
+    }
+
     #[tokio::test]
     async fn cancel_after_the_last_page_still_cancels() {
         let dir = Dir::new();
@@ -454,14 +484,18 @@ mod tests {
         assert_eq!(b.unwrap().len(), 4);
     }
 
-    /// Three pages of red, green and blue, with a proper cross-reference table.
     fn three_page_pdf() -> Vec<u8> {
+        pdf_with_heights([540, 540, 540])
+    }
+
+    /// Three pages of red, green and blue, with a proper cross-reference table.
+    fn pdf_with_heights(heights: [u32; 3]) -> Vec<u8> {
         let mut objects: Vec<String> = vec![
             "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
             "<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R] /Count 3 >>".to_string(),
         ];
-        for page in 0..3 {
-            objects.push(format!("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Contents {} 0 R >>", 6 + page));
+        for (page, height) in heights.iter().enumerate() {
+            objects.push(format!("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 {height}] /Contents {} 0 R >>", 6 + page));
         }
         for fill in ["1 0 0", "0 1 0", "0 0 1"] {
             let stream = format!("{fill} rg 0 0 960 540 re f");
@@ -480,6 +514,21 @@ mod tests {
         }
         pdf += &format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n", objects.len() + 1);
         pdf.into_bytes()
+    }
+
+    /// Pages within the 1% slack still give images of one size, because every slide image must match.
+    #[tokio::test]
+    async fn slightly_different_pages_make_images_of_one_size() {
+        if std::env::var_os("RP_PDFIUM").is_none() {
+            return;
+        }
+        let dir = Dir::new();
+        std::fs::write(dir.0.join("in.pdf"), pdf_with_heights([540, 544, 537])).unwrap();
+        let r = PdfRenderer::start(&dir.0).unwrap();
+        let pages = run(&r, &dir, CancellationToken::new()).await.unwrap();
+        for page in &pages {
+            assert_eq!(image::open(page).unwrap().to_rgb8().dimensions(), (1920, 1080), "{page:?}");
+        }
     }
 
     /// Real pdfium: `RP_PDFIUM=<library>`.

@@ -89,7 +89,7 @@ impl LibreOffice {
                 return Ok(pdf);
             }
             let said = std::fs::read(&log).unwrap_or_default();
-            if !String::from_utf8_lossy(&said).contains(PROFILE_FAILED) {
+            if !String::from_utf8_lossy(&said).to_lowercase().contains(PROFILE_FAILED) {
                 break;
             }
             let _ = std::fs::remove_dir_all(&self.profile);
@@ -478,6 +478,14 @@ mod tests {
         fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await.unwrap();
         assert_eq!(times(&fx.mark, "start").len(), 2);
         assert!(!keep.exists());
+    }
+
+    /// LibreOffice's own text starts with a capital (`libmergedlo`: "User installation could not be completed.").
+    #[tokio::test]
+    async fn broken_profile_is_noticed_in_any_case() {
+        let fx = fixture("once:User installation could not be completed.,pdf", false);
+        fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await.unwrap();
+        assert_eq!(times(&fx.mark, "start").len(), 2);
     }
 
     #[tokio::test]
