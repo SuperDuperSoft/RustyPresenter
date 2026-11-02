@@ -27,6 +27,8 @@ pub const FORMAT_FLAG: mpv_format = 3;
 pub const FORMAT_INT64: mpv_format = 4;
 pub const FORMAT_DOUBLE: mpv_format = 5;
 pub const FORMAT_NODE: mpv_format = 6;
+pub const FORMAT_NODE_MAP: mpv_format = 8;
+pub const FORMAT_BYTE_ARRAY: mpv_format = 9;
 
 pub const EVENT_NONE: c_int = 0;
 pub const EVENT_SHUTDOWN: c_int = 1;
@@ -111,6 +113,90 @@ pub struct mpv_event_end_file {
     pub playlist_entry_id: i64,
     pub playlist_insert_id: i64,
     pub playlist_insert_num_entries: c_int,
+}
+
+/// `mpv_node`: `format` says which member of `u` is valid.
+#[repr(C)]
+pub struct mpv_node {
+    pub u: mpv_node_value,
+    pub format: mpv_format,
+}
+
+#[repr(C)]
+pub union mpv_node_value {
+    pub string: *mut c_char,
+    pub flag: c_int,
+    pub int64: i64,
+    pub double: f64,
+    pub list: *mut mpv_node_list,
+    pub ba: *mut mpv_byte_array,
+}
+
+#[repr(C)]
+pub struct mpv_node_list {
+    pub num: c_int,
+    pub values: *mut mpv_node,
+    pub keys: *mut *mut c_char,
+}
+
+#[repr(C)]
+pub struct mpv_byte_array {
+    pub data: *mut c_void,
+    pub size: usize,
+}
+
+/// `mpv_event.data` of `EVENT_COMMAND_REPLY`. mpv owns the result: it stays valid only
+/// until the next `wait_event` and must not be passed to `mpv_free_node_contents`.
+#[repr(C)]
+pub struct mpv_event_command {
+    pub result: mpv_node,
+}
+
+impl mpv_node {
+    /// The value under `key` of a map node.
+    ///
+    /// # Safety
+    /// The node must be a valid node from libmpv (or laid out the same way).
+    pub unsafe fn get(&self, key: &str) -> Option<&mpv_node> {
+        if self.format != FORMAT_NODE_MAP {
+            return None;
+        }
+        unsafe {
+            let list = self.u.list.as_ref()?;
+            let n = usize::try_from(list.num).ok()?;
+            (0..n).find(|&i| CStr::from_ptr(*list.keys.add(i)).to_bytes() == key.as_bytes()).map(|i| &*list.values.add(i))
+        }
+    }
+
+    /// # Safety
+    /// As for [`mpv_node::get`].
+    pub unsafe fn int64(&self) -> Option<i64> {
+        (self.format == FORMAT_INT64).then(|| unsafe { self.u.int64 })
+    }
+
+    /// # Safety
+    /// As for [`mpv_node::get`].
+    pub unsafe fn string(&self) -> Option<&CStr> {
+        if self.format != FORMAT_STRING {
+            return None;
+        }
+        unsafe { self.u.string.as_ref().map(|p| CStr::from_ptr(p)) }
+    }
+
+    /// # Safety
+    /// As for [`mpv_node::get`].
+    pub unsafe fn bytes(&self) -> Option<&[u8]> {
+        if self.format != FORMAT_BYTE_ARRAY {
+            return None;
+        }
+        unsafe {
+            let ba = self.u.ba.as_ref()?;
+            if ba.data.is_null() {
+                return None;
+            }
+            Some(std::slice::from_raw_parts(ba.data as *const u8, ba.size))
+        }
+    }
 }
 
 pub type UpdateCb = unsafe extern "C" fn(*mut c_void);
@@ -390,5 +476,9 @@ mod tests {
         assert_eq!(std::mem::size_of::<mpv_event>(), 24);
         assert_eq!(std::mem::size_of::<mpv_event_end_file>(), 32);
         assert_eq!(std::mem::size_of::<mpv_event_property>(), 24);
+        assert_eq!(std::mem::size_of::<mpv_node>(), 16);
+        assert_eq!(std::mem::size_of::<mpv_node_list>(), 24);
+        assert_eq!(std::mem::size_of::<mpv_byte_array>(), 16);
+        assert_eq!(std::mem::size_of::<mpv_event_command>(), 16);
     }
 }
