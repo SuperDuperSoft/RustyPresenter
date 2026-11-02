@@ -1,6 +1,6 @@
 // The toasts and the jobs box that float over the operator (`operator.html:65-66`, `operator.css:217-226`).
 import { Theme } from "../theme.slint";
-import { Icon, Bar } from "../widgets.slint";
+import { Bar, CloseButton } from "../widgets.slint";
 
 /// One toast (`toast()` in `operator.js:56-60`); `id` lets Rust remove it when its time is up.
 export struct ToastRow { id: int, text: string, err: bool }
@@ -76,25 +76,6 @@ export component ToastStack inherits Rectangle {
 }
 
 /// `.dlg-close` as the job error card uses it: a muted ✕ that lights up on hover.
-component CloseBtn inherits Rectangle {
-    callback clicked();
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: ta.has-hover ? Theme.raise : transparent;
-    accessible-role: button;
-    accessible-label: @tr("Close");
-    accessible-action-default => { root.clicked(); }
-    Icon {
-        name: "close";
-        color: ta.has-hover ? Theme.text : Theme.muted;
-    }
-    ta := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
-    }
-}
-
 /// `.job` (`.err`): the label, and either a progress bar or the error with a close button.
 component JobCard inherits Rectangle {
     in property <JobRow> job;
@@ -137,7 +118,7 @@ component JobCard inherits Rectangle {
             }
             if root.job.error != "": VerticalLayout {
                 alignment: start;
-                close := CloseBtn { clicked => { root.dismiss(); } }
+                close := CloseButton { size: 30px; clicked => { root.dismiss(); } }
             }
         }
         if root.job.error == "": VerticalLayout {

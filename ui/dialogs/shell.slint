@@ -2,7 +2,7 @@
 // Slint 1.18 has no modal or owner-window API (native spec §6). Every dialog is a `DialogShell` holding a
 // `DialogBody` and, when it has buttons, a `DialogFoot`.
 import { Theme } from "../theme.slint";
-import { Icon, ScrollBox } from "../widgets.slint";
+import { CloseButton, ScrollBox } from "../widgets.slint";
 
 /// The scrim, the card with its head (title and X) and its own key scope. Esc closes it; F1–F5 still reach the
 /// window first (its `capture-key-pressed`), and every other key the dialog leaves alone stops at the window.
@@ -73,23 +73,7 @@ export component DialogShell inherits Rectangle {
                         overflow: elide;
                     }
                     // `.dlg-close`
-                    close-btn := Rectangle {
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 8px;
-                        background: close-ta.has-hover ? Theme.raise : transparent;
-                        accessible-role: button;
-                        accessible-label: @tr("Close");
-                        accessible-action-default => { root.close(); }
-                        Icon {
-                            name: "close";
-                            color: close-ta.has-hover ? Theme.text : Theme.muted;
-                        }
-                        close-ta := TouchArea {
-                            mouse-cursor: pointer;
-                            clicked => { root.close(); }
-                        }
-                    }
+                    close-btn := CloseButton { clicked => { root.close(); } }
                 }
                 @children
             }
