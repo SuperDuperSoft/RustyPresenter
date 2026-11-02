@@ -1,6 +1,6 @@
 // The toasts and the jobs box that float over the operator (`operator.html:65-66`, `operator.css:217-226`).
 import { Theme } from "../theme.slint";
-import { Bar, CloseButton } from "../widgets.slint";
+import { Bar, CloseButton, DashedOutline } from "../widgets.slint";
 
 /// One toast (`toast()` in `operator.js:56-60`); `id` lets Rust remove it when its time is up.
 export struct ToastRow { id: int, text: string, err: bool }
@@ -151,6 +151,51 @@ export component JobsBox inherits Rectangle {
                 job: j;
                 dismiss => { root.dismiss(j.id); }
             }
+        }
+    }
+}
+
+/// `.drop-hint` (`operator.html:64`, `operator.css:227-230`): shown while files are dragged over the window. It
+/// covers the window over everything else (`z-index: 60`) and holds no touch area (`pointer-events: none`).
+export component DropHint inherits Rectangle {
+    background: Theme.drop-scrim;
+
+    box := Rectangle {
+        width: content.preferred-width + 140px;
+        height: content.preferred-height + 100px;
+        accessible-role: AccessibleRole.text;
+        accessible-label: title.text;
+        accessible-description: note.text;
+
+        content := VerticalLayout {
+            x: 70px;
+            y: 50px;
+            width: parent.width - 140px;
+            height: parent.height - 100px;
+            spacing: 8px;
+            title := Text {
+                text: @tr("Drop to add to the service");
+                color: Theme.accent;
+                font-family: Theme.display;
+                font-size: 26px;
+                font-weight: 700;
+                horizontal-alignment: center;
+            }
+            note := Text {
+                text: @tr("Videos, pictures, music, PowerPoint, SongSelect lyric files");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 15px;
+                horizontal-alignment: center;
+            }
+        }
+        DashedOutline {
+            width: parent.width;
+            height: parent.height;
+            line-color: Theme.accent;
+            thickness: 3px;
+            radius: 22px;
+            dash: 9px;
         }
     }
 }

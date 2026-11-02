@@ -1,13 +1,19 @@
 //! Adding files to the service (`uploadFiles`, `watchDeckJob`, `imagesToDeck` and `addItem` in
 //! `web/operator.js:369-375, 536-598`): which import a dropped or picked file takes, the window glue that runs the
-//! imports one after another as client jobs, and the pure steps it is built from.
-use super::{overlays::JobHandle, strings as tr, view, window::Operator};
+//! imports one after another as client jobs, and the pure steps it is built from. Files arrive from the native
+//! file picker (`pick`) or a desktop drop (`wire`, through the window's winit event filter).
+use super::{
+    file_input::{DropBatch, DropEvent, DropPlan, Filter, drop_plan},
+    overlays::JobHandle, strings as tr, view, window::Operator,
+};
 use crate::{
     app::{ImportPurpose, Imported},
     media,
     model::{AssetId, Deck, MediaStatus},
+    platform::winit_events::{self, Dispatcher, WindowEvent},
     ui::dialogs,
 };
+use slint::Timer;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{
@@ -16,6 +22,7 @@ use std::{
     collections::{HashSet, VecDeque},
     path::{Path, PathBuf},
     rc::Rc,
+    time::Duration,
 };
 use uuid::Uuid;
 
@@ -107,10 +114,14 @@ pub fn deck_title(answer: Option<&str>) -> String {
     }
 }
 
-/// What the window keeps for adding files: the PowerPoint imports waiting for their deck.
+/// What the window keeps for adding files: the PowerPoint imports waiting for their deck, the desktop drop in
+/// progress, the folder the picker last opened, and the window's one winit event filter.
 #[derive(Default)]
 pub struct FilesState {
     watches: RefCell<Vec<DeckWatch>>,
+    drop: RefCell<DropBatch>,
+    last_folder: RefCell<Option<PathBuf>>,
+    events: Dispatcher<WindowEvent>,
 }
 
 /// A PowerPoint import whose deck is added to the service when its job ends (`watchDeckJob`).
@@ -314,6 +325,78 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
     });
 }
 
+/// Installs the operator window's one event filter and its desktop drop handler (`operator.js:601-612`).
+pub(super) fn wire(op: &Rc<Operator>) {
+    winit_events::attach(op.window(), op.files.events.clone());
+    let me = Rc::downgrade(op);
+    op.files.events.add(move |e| {
+        if let (Some(op), Some(event)) = (me.upgrade(), drop_event(e)) { on_drop_event(&op, event) }
+    });
+}
+
+/// The drop events among the window's events.
+pub fn drop_event(e: &WindowEvent) -> Option<DropEvent> {
+    match e {
+        WindowEvent::HoveredFile(_) => Some(DropEvent::Hovered),
+        WindowEvent::HoveredFileCancelled => Some(DropEvent::Cancelled),
+        WindowEvent::DroppedFile(p) => Some(DropEvent::Dropped(p.clone())),
+        _ => None,
+    }
+}
+
+/// One drop event: shows or hides the "Drop to add" hint, and on the first file of a batch starts the zero timer
+/// that handles every file winit sent in that turn together.
+pub fn on_drop_event(op: &Rc<Operator>, event: DropEvent) {
+    let step = op.files.drop.borrow_mut().on_event(event);
+    if let Some(on) = step.hint { op.ui.set_drop_hint(on); }
+    if step.start_timer {
+        let me = Rc::downgrade(op);
+        Timer::single_shot(Duration::ZERO, move || {
+            let Some(op) = me.upgrade() else { return };
+            let paths = op.files.drop.borrow_mut().take();
+            handle_drop(&op, paths);
+        });
+    }
+}
+
+/// A finished drop: several pictures ask once whether they make one set of slides; anything else is added.
+pub fn handle_drop(op: &Rc<Operator>, paths: Vec<PathBuf>) {
+    match drop_plan(paths) {
+        None => {}
+        Some(DropPlan::AddFiles(paths)) => add_files(op, paths),
+        Some(DropPlan::AskOneDeck(paths)) => {
+            let me = Rc::downgrade(op);
+            let question = tr::pictures_to_deck(paths.len());
+            dialogs::confirm(op, &question, tr::ONE_SLIDE_SET, tr::SEPARATE_PICTURES, false, move |one| {
+                let Some(op) = me.upgrade() else { return };
+                if one { images_to_deck(&op, paths) } else { add_files(&op, paths) }
+            });
+        }
+    }
+}
+
+/// The native file picker (`pickFiles`, `operator.js:516-521`) over the operator window, starting in the folder
+/// last picked from this session. `done` runs only when files were picked.
+pub fn pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
+    let mut dialog = rfd::AsyncFileDialog::new().add_filter(filter.name(), &filter.extensions()).set_parent(&op.window().window_handle());
+    if let Some(dir) = op.files.last_folder.borrow().as_ref() { dialog = dialog.set_directory(dir); }
+    let me = Rc::downgrade(op);
+    let picking = async move {
+        let picked: Vec<PathBuf> = if multi { dialog.pick_files().await.unwrap_or_default() } else { dialog.pick_file().await.into_iter().collect() }
+            .into_iter().map(|f| f.path().to_path_buf()).collect();
+        let Some(op) = me.upgrade() else { return };
+        let Some(dir) = picked.first().and_then(|p| p.parent()) else { return };
+        *op.files.last_folder.borrow_mut() = Some(dir.to_path_buf());
+        done(picked);
+    };
+    if let Err(e) = slint::spawn_local(picking) { op.toast(e.to_string(), true) }
+}
+
+impl Operator {
+    /// The window's event filter, for anything else that needs raw window events (Slint allows one filter).
+    pub fn window_events(&self) -> &Dispatcher<WindowEvent> { &self.files.events }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -415,8 +498,9 @@ mod window_tests {
     use crate::{
         app::{App, test_app},
         model::ItemKind,
-        ui::{dialogs::{AddTab, DialogKind, ask}, operator::window::testing::{open, refresh}},
+        ui::{dialogs::{AddTab, DialogKind, ask}, operator::window::testing::{find, open, refresh}},
     };
+    use i_slint_backend_testing::mock_elapsed_time;
     use slint::Model;
     use std::sync::Arc;
 
@@ -569,5 +653,94 @@ mod window_tests {
         assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false)]);
         refresh(&op);
         assert_eq!(items(&app).len(), 1, "added once");
+    }
+
+    fn hint_shown(op: &Operator) -> bool { find(op, "DropHint::box").is_some() }
+
+    /// What winit sends for a drop of `files`: one hover per file, then one drop per file.
+    fn drag_and_drop(op: &Operator, files: &[PathBuf]) {
+        for f in files { op.window_events().dispatch(&WindowEvent::HoveredFile(f.clone())); }
+        for f in files { op.window_events().dispatch(&WindowEvent::DroppedFile(f.clone())); }
+    }
+
+    #[test]
+    fn winit_drop_events_map_to_drop_events() {
+        let p = PathBuf::from("a.png");
+        assert_eq!(drop_event(&WindowEvent::HoveredFile(p.clone())), Some(DropEvent::Hovered));
+        assert_eq!(drop_event(&WindowEvent::HoveredFileCancelled), Some(DropEvent::Cancelled));
+        assert_eq!(drop_event(&WindowEvent::DroppedFile(p.clone())), Some(DropEvent::Dropped(p)));
+        assert_eq!(drop_event(&WindowEvent::Focused(true)), None);
+    }
+
+    #[test]
+    fn hovering_files_shows_the_drop_hint_until_cancelled() {
+        let app = test_app();
+        let op = opened(&app);
+        assert!(!hint_shown(&op));
+        op.window_events().dispatch(&WindowEvent::HoveredFile("a.mp4".into()));
+        let hint = find(&op, "DropHint::box").expect("the drop hint");
+        assert_eq!(hint.accessible_label().unwrap_or_default(), "Drop to add to the service");
+        assert_eq!(hint.accessible_description().unwrap_or_default(), "Videos, pictures, music, PowerPoint, SongSelect lyric files");
+        op.window_events().dispatch(&WindowEvent::HoveredFileCancelled);
+        assert!(!hint_shown(&op));
+    }
+
+    #[test]
+    fn dropped_pictures_ask_once_then_make_one_deck() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        let files = [png(&dir, "1.png", 1), png(&dir, "2.png", 2), png(&dir, "3.png", 3)];
+        drag_and_drop(&op, &files);
+        assert!(!hint_shown(&op), "a drop hides the hint");
+        assert_eq!(op.state.borrow().asks, 0, "the batch waits for the end of the turn");
+        mock_elapsed_time(Duration::from_millis(1));
+        assert_eq!(op.state.borrow().asks, 1, "asked once for the three files");
+        let q = op.ui.get_ask().row_data(0).unwrap();
+        assert_eq!((q.text.as_str(), q.ok_label.as_str(), q.cancel_label.as_str()), ("Make 3 pictures into one set of slides?", "One slide set", "Separate pictures"));
+        ask::answer(&op, true, String::new());
+        assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "Name these slides");
+        ask::answer(&op, true, "Easter".into());
+        assert!(matches!(items(&app)[..], [ItemKind::Deck { .. }]));
+        assert_eq!(app.data.lock().unwrap().decks[0].slides.len(), 3);
+    }
+
+    #[test]
+    fn separate_pictures_adds_each_one() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        drag_and_drop(&op, &[png(&dir, "1.png", 1), png(&dir, "2.png", 2)]);
+        mock_elapsed_time(Duration::from_millis(1));
+        ask::answer(&op, false, String::new());
+        assert_eq!(op.state.borrow().asks, 0);
+        assert!(matches!(items(&app)[..], [ItemKind::Media { .. }, ItemKind::Media { .. }]));
+        assert_eq!(toasts(&op), [("1.png added".to_string(), false), ("2.png added".to_string(), false)]);
+    }
+
+    #[test]
+    fn a_mixed_drop_is_added_without_asking() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        let txt = dir.join("song.txt");
+        std::fs::write(&txt, "A Test Song\r\n\r\nVerse 1\r\nLine one\r\n\r\nTest Writer\r\nCCLI Song # 777\r\n© 2026 Test Music\r\nCCLI License # 1").unwrap();
+        drag_and_drop(&op, &[png(&dir, "1.png", 1), txt]);
+        mock_elapsed_time(Duration::from_millis(1));
+        assert_eq!(op.state.borrow().asks, 0);
+        assert!(matches!(items(&app)[..], [ItemKind::Media { .. }, ItemKind::Song { .. }]));
+    }
+
+    #[test]
+    fn two_drops_are_two_batches() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        drag_and_drop(&op, &[png(&dir, "1.png", 1)]);
+        mock_elapsed_time(Duration::from_millis(1));
+        drag_and_drop(&op, &[png(&dir, "2.png", 2)]);
+        mock_elapsed_time(Duration::from_millis(1));
+        assert_eq!(op.state.borrow().asks, 0, "one picture at a time is just added");
+        assert_eq!(items(&app).len(), 2);
     }
 }
