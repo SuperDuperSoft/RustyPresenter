@@ -68,7 +68,7 @@
 - `backup/now` runs `store.backup` in `tokio::task::spawn_blocking`.
 - `display/close` rejects roles other than room, stage and operator with "Unknown screen.".
 - `app::Job` fields become `pub(crate)` (today private, `app.rs:118`), so `ui::operator` can read jobs.
-- `pub struct ScreenGuard` + `pub fn App::screen_guard(&self, role: &str) -> ScreenGuard`. It increments `room_conns` or `stage_conns` and decrements them on drop. `NativeScreens` (Plan 2 Task 8, `src/ui/screens.rs`) takes a guard when a native room or stage window opens and drops it when the window closes, so `room_connected`/`stage_connected` are true for native windows.
+- `pub struct ScreenGuard` + `pub fn App::screen_guard(self: &Arc<Self>, role: &str) -> ScreenGuard` (called on an `Arc<App>`: the guard keeps a `Weak<App>` to lower the count on drop). It increments `room_conns` or `stage_conns` and decrements them on drop. `NativeScreens` (Plan 2 Task 8, `src/ui/screens.rs`) takes a guard when a native room or stage window opens and drops it when the window closes, so `room_connected`/`stage_connected` are true for native windows.
 - `bible.rs` `lookup`: inside the verse walk, when `last_verse(book, c)` is `None`, return `Err("{Book} {c} does not exist.")`.
 
 - [ ] **Step 1: Write the failing tests**

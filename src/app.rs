@@ -549,7 +549,9 @@ impl App {
             let data = app.data.lock().unwrap().clone();
             // Copies every asset: keep it off the runtime's worker threads.
             let a = app.clone();
-            let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await.map_err(|e| ActionError::bad(e.to_string()))?;
+            let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await
+                // Only a panic inside the backup lands here: a server fault, not the user's.
+                .map_err(|_| ActionError { status: 500, message: "Backup failed.".into() })?;
             let name = tryr!(name.map_err(|e| e.to_string()));
             app.broadcast_data();
             Ok(json!({ "name": name }))
