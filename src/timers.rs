@@ -167,6 +167,52 @@ impl Clock for FakeClock {
     fn now(&self) -> DateTime<Utc> { *self.0.lock().unwrap_or_else(|e| e.into_inner()) }
 }
 
+/// Where a timer is in its run (spec §4.4).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub enum TimerState { Stopped, Running, Paused, Finished }
+
+/// One timer's readout, the FEAT-3 contract (spec §4.4).
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct TimerSnapshot {
+    pub id: Uuid,
+    pub name: String,
+    pub kind: TimerKind,
+    pub state: TimerState,
+    /// Time left for countdowns, time gone for count-up; negative is overrun. Always whole
+    /// seconds (Plan decision 2), so `text` needs no rounding of its own.
+    pub value_ms: i64,
+    pub overrun: bool,
+    pub on_stage: bool,
+    pub on_remote: bool,
+}
+
+/// The auto-advance readout: seconds to the next slide, and whether it is paused.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+pub struct AutoReadout { pub next_in_secs: u32, pub paused: bool }
+
+/// Everything a tick publishes: timers in Timers-tab order (unknown kinds left out) and auto-advance.
+#[derive(Clone, Debug, PartialEq, Default, Serialize)]
+pub struct TimersView { pub timers: Vec<TimerSnapshot>, pub auto: Option<AutoReadout> }
+
+/// The shared formatter: `m:ss` under an hour, `h:mm:ss` from an hour, `+` for overrun.
+/// Truncates to whole seconds, so callers pass a `display_ms` value.
+pub fn text(value_ms: i64) -> String {
+    let s = value_ms.unsigned_abs() / 1000;
+    let sign = if value_ms < 0 && s > 0 { "+" } else { "" };
+    let (h, m, s) = (s / 3600, s / 60 % 60, s % 60);
+    if h > 0 { format!("{sign}{h}:{m:02}:{s:02}") } else { format!("{sign}{m}:{s:02}") }
+}
+
+/// Quantises a raw value to whole seconds (Plan decision 2): a countdown with time left rounds
+/// up, so it reads 0:00 only at zero; anything else rounds toward zero and keeps its sign.
+pub fn display_ms(raw_ms: i64, countdown: bool) -> i64 {
+    if countdown && raw_ms > 0 {
+        raw_ms.saturating_add(999) / 1000 * 1000
+    } else {
+        raw_ms / 1000 * 1000
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -250,5 +296,19 @@ mod tests {
         let t1 = t0 + TimeDelta::hours(1);
         c.set(t1);
         assert_eq!(c.now(), t1);
+    }
+
+    #[test]
+    fn timer_text_shared_formatter() {
+        for (ms, s) in [(0, "0:00"), (59_000, "0:59"), (60_000, "1:00"), (3_599_000, "59:59"), (3_600_000, "1:00:00"),
+                        (-72_000, "+1:12"), (-3_900_000, "+1:05:00"), (-400, "0:00")] {
+            assert_eq!(text(ms), s, "{ms}");
+        }
+        assert_eq!(display_ms(1, true), 1000);
+        assert_eq!(display_ms(1500, true), 2000);
+        assert_eq!(display_ms(2000, true), 2000);
+        assert_eq!(display_ms(0, true), 0);
+        assert_eq!(display_ms(1999, false), 1000);
+        assert_eq!(display_ms(-1999, true), -1000);
     }
 }
