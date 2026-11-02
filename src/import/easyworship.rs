@@ -1,11 +1,13 @@
 //! EasyWorship 6/7 song library (`Songs.db` + `SongWords.db`) → Songs. See spec §9.3.
-//! Never writes to EasyWorship data: each database is opened read-only and copied into memory
-//! with the SQLite backup API (a consistent snapshot that includes any `-wal`), and only the copy is read.
+//! Never writes to EasyWorship data, and never opens it with SQLite: the files (`.db`, `-wal`, `-journal`)
+//! of both databases are read as bytes until two reads in a row match (a quiescent copy, not one torn by a
+//! save in progress), written to a private temp folder, and SQLite reads only that copy.
 //! The whole library is read into one `ImportReport`; the caller saves all of it in one step or none of it.
 //! Table layout comes from the OpenLP/FreeShow importers: `song` (rowid, title, author, copyright,
 //! administrator, reference_number, vendor_id …) and `word` (song_id → song.rowid, words = one RTF document).
 use crate::{model::Song, slides::section_label};
-use rusqlite::{backup::Backup, types::ValueRef, Connection, OpenFlags};
+use encoding_rs::Encoding;
+use rusqlite::{backup::{Backup, StepResult}, types::ValueRef, Connection, OpenFlags};
 use std::collections::HashMap;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -32,8 +34,9 @@ pub struct ImportReport {
 }
 
 /// How an imported song relates to the library (spec §9.2: a duplicate CCLI # asks update or keep both).
+/// Songs with no CCLI # fall back to the title, so importing the same library twice doesn't double every hymn.
 #[derive(Debug, Clone, PartialEq)]
-pub enum Dedupe { New, DuplicateCcli { existing: Uuid } }
+pub enum Dedupe { New, DuplicateCcli { existing: Uuid }, DuplicateTitle { existing: Uuid } }
 
 // ---------- RTF → lyrics ----------
 
@@ -52,7 +55,7 @@ struct Rtf {
     group: Group,
     stack: Vec<Group>,
     line: String,
-    /// Consecutive `\'xx` bytes, decoded together in the active code page.
+    /// Consecutive `\'xx` bytes, decoded together in the active code page (two-byte code pages need the pair).
     bytes: Vec<u8>,
     high_surrogate: Option<u32>,
     /// `\ucN` fallback characters still to skip after a `\uN`.
@@ -60,6 +63,8 @@ struct Rtf {
     /// After `\sdlistlevel\-1` the `1` would otherwise leak into the label as text.
     eat_level: bool,
     ansi_cp: u32,
+    /// `\deffN`: the font used where no `\fN` is given.
+    deff: Option<i32>,
     font_cp: HashMap<i32, u32>,
     defining_font: Option<i32>,
     /// EW6/7 `\sd` markup seen: labels and slide breaks are explicit.
@@ -70,14 +75,31 @@ struct Rtf {
 impl Rtf {
     fn new() -> Self {
         Self { group: Group { skip: false, font_table: false, hidden: false, uc: 1, font: None }, stack: vec![], line: String::new(), bytes: vec![],
-            high_surrogate: None, fallback: 0, eat_level: false, ansi_cp: 1252, font_cp: HashMap::new(), defining_font: None, structured: false, events: vec![] }
+            high_surrogate: None, fallback: 0, eat_level: false, ansi_cp: 1252, deff: None, font_cp: HashMap::new(), defining_font: None,
+            structured: false, events: vec![] }
+    }
+
+    fn encoding(&self) -> &'static Encoding {
+        code_page(self.group.font.or(self.deff).and_then(|f| self.font_cp.get(&f).copied()).unwrap_or(self.ansi_cp))
     }
 
     fn flush_bytes(&mut self) {
         if self.bytes.is_empty() { return; }
-        let cp = self.group.font.and_then(|f| self.font_cp.get(&f).copied()).unwrap_or(self.ansi_cp);
         let bytes = std::mem::take(&mut self.bytes);
-        self.line.extend(bytes.into_iter().map(|b| decode_byte(b, cp)));
+        self.line.push_str(&self.encoding().decode_without_bom_handling(&bytes).0);
+    }
+
+    /// The buffered bytes end with the first half of a two-byte character. Writers put a trail byte in the
+    /// ASCII range as a plain letter (`\'83A` is Shift-JIS "ア"), so the next character belongs to it.
+    fn awaiting_trail(&self) -> bool {
+        if self.bytes.is_empty() { return false; }
+        let enc = self.encoding();
+        let lead: fn(u8) -> bool = if enc == encoding_rs::SHIFT_JIS { |b| matches!(b, 0x81..=0x9F | 0xE0..=0xFC) }
+            else if [encoding_rs::GBK, encoding_rs::EUC_KR, encoding_rs::BIG5].contains(&enc) { |b| matches!(b, 0x81..=0xFE) }
+            else { return false };
+        let mut i = 0;
+        while i < self.bytes.len() { i += if lead(self.bytes[i]) { 2 } else { 1 }; }
+        i > self.bytes.len()
     }
 
     fn text(&mut self, c: char) {
@@ -109,10 +131,11 @@ impl Rtf {
     fn word(&mut self, name: &str, param: Option<i32>) {
         self.eat_level = name == "sdlistlevel" && param.is_none();
         if self.group.font_table {
-            // Inside the font table only the font → charset map matters.
+            // Inside the font table only the font → code page map matters.
             match name {
                 "f" => self.defining_font = param,
                 "fcharset" => if let (Some(f), Some(cp)) = (self.defining_font, param.and_then(charset_cp)) { self.font_cp.insert(f, cp); },
+                "cpg" => if let (Some(f), Some(cp)) = (self.defining_font, param) { self.font_cp.insert(f, cp as u32); },
                 _ => {}
             }
             return;
@@ -132,6 +155,7 @@ impl Rtf {
             "u" => if let Some(n) = param { self.unicode(n); self.fallback = self.group.uc; },
             "uc" => self.group.uc = param.unwrap_or(1).max(0) as usize,
             "ansicpg" => if let Some(cp) = param { self.ansi_cp = cp as u32; },
+            "deff" => self.deff = param,
             "f" => self.group.font = param,
             "tab" => self.text(' '),
             "emdash" => self.text('\u{2014}'),
@@ -181,6 +205,11 @@ impl Rtf {
                 if let Ok(b) = u8::from_str_radix(&hex.iter().collect::<String>(), 16) { if !self.group.skip { self.bytes.push(b); } }
                 continue;
             }
+            if self.fallback == 0 && c.is_ascii_graphic() && !matches!(c, '\\' | '{' | '}') && self.awaiting_trail() {
+                self.bytes.push(c as u8);
+                i += 1;
+                continue;
+            }
             self.flush_bytes();
             match c {
                 '{' | '}' => {
@@ -228,33 +257,45 @@ impl Rtf {
     }
 }
 
-/// RTF `\fcharsetN` → Windows code page. 0 (ANSI) and unknown charsets use `\ansicpg`.
+/// RTF `\fcharsetN` → Windows code page. 0 (ANSI), 1 (default) and unknown charsets use `\ansicpg`.
 fn charset_cp(charset: i32) -> Option<u32> {
-    match charset { 204 => Some(1251), 238 => Some(1250), 161 => Some(1253), 162 => Some(1254), 186 => Some(1257), _ => None }
+    Some(match charset {
+        77 => 10000, 128 => 932, 129 => 949, 134 => 936, 136 => 950, 161 => 1253, 162 => 1254, 163 => 1258, 177 => 1255,
+        178 => 1256, 186 => 1257, 204 => 1251, 222 => 874, 238 => 1250,
+        _ => return None,
+    })
 }
 
-/// One byte → char. cp1252 and cp1251 are mapped exactly; other code pages fall back to cp1252.
-fn decode_byte(b: u8, cp: u32) -> char {
-    const CP1252: [u16; 32] = [0x20AC, 0xFFFD, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0xFFFD, 0x017D, 0xFFFD,
-        0xFFFD, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0xFFFD, 0x017E, 0x0178];
-    const CP1251: [u16; 64] = [0x0402, 0x0403, 0x201A, 0x0453, 0x201E, 0x2026, 0x2020, 0x2021, 0x20AC, 0x2030, 0x0409, 0x2039, 0x040A, 0x040C, 0x040B, 0x040F,
-        0x0452, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0xFFFD, 0x2122, 0x0459, 0x203A, 0x045A, 0x045C, 0x045B, 0x045F,
-        0x00A0, 0x040E, 0x045E, 0x0408, 0x00A4, 0x0490, 0x00A6, 0x00A7, 0x0401, 0x00A9, 0x0404, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x0407,
-        0x00B0, 0x00B1, 0x0406, 0x0456, 0x0491, 0x00B5, 0x00B6, 0x00B7, 0x0451, 0x2116, 0x0454, 0x00BB, 0x0458, 0x0405, 0x0455, 0x0457];
-    let u = match (cp, b) {
-        (_, 0..=0x7F) => b as u32,
-        (1251, 0x80..=0xBF) => CP1251[(b - 0x80) as usize] as u32,
-        (1251, _) => 0x0410 + (b - 0xC0) as u32,
-        (_, 0x80..=0x9F) => CP1252[(b - 0x80) as usize] as u32,
-        _ => b as u32,
-    };
-    char::from_u32(u).unwrap_or('\u{FFFD}')
+/// Windows code page → decoder. Anything unknown reads as cp1252, the EasyWorship default.
+fn code_page(cp: u32) -> &'static Encoding {
+    use encoding_rs::*;
+    match cp {
+        874 => WINDOWS_874, 932 => SHIFT_JIS, 936 => GBK, 949 => EUC_KR, 950 => BIG5, 1250 => WINDOWS_1250, 1251 => WINDOWS_1251,
+        1253 => WINDOWS_1253, 1254 => WINDOWS_1254, 1255 => WINDOWS_1255, 1256 => WINDOWS_1256, 1257 => WINDOWS_1257, 1258 => WINDOWS_1258,
+        10000 => MACINTOSH, 20866 => KOI8_R, 65001 => UTF_8,
+        _ => WINDOWS_1252,
+    }
+}
+
+/// "[Chorus (x2)]" → "Chorus": brackets and a trailing repeat note go, like OpenLP.
+fn clean_label(label: &str) -> String {
+    let l = label.trim().trim_matches(['[', ']']).trim();
+    let l = match l.rfind('(') { Some(p) if p > 0 && l.ends_with(')') => l[..p].trim(), _ => l };
+    l.to_string()
 }
 
 /// Label line in the app's lyric format: as-is when `section_label` knows it, else `[bracketed]`.
+/// Cut to fit `section_label`'s 40-byte limit, or the label would read back as a lyric line.
 fn label_line(label: &str) -> String {
-    let l: String = label.trim_matches(['[', ']']).trim().chars().take(38).collect();
-    if section_label(&l).is_some() { l } else { format!("[{l}]") }
+    let mut l = String::new();
+    for c in label.chars() { if l.len() + c.len_utf8() > 38 { break; } l.push(c); }
+    let l = l.trim_end();
+    if section_label(l).is_some() { l.to_string() } else { format!("[{l}]") }
+}
+
+/// The name `parse_sections` gives a label, which is what `arrangement` must list.
+fn section_name(label: Option<&str>) -> String {
+    label.map(|l| section_label(&label_line(l)).unwrap_or_default()).unwrap_or_else(|| "Part 1".into())
 }
 
 /// Plain (EW2009-style) slide heading: "Verse 1", "Chorus (x2)", "Verse1" — not "Verse after verse".
@@ -269,6 +310,11 @@ fn plain_label(line: &str) -> bool {
 /// EasyWorship `words` (RTF, or plain text) → lyrics with section labels on their own lines and a blank
 /// line between slides, the same shape SongSelect import produces.
 pub fn rtf_to_lyrics(rtf: &str) -> String {
+    words_to_lyrics(rtf).0
+}
+
+/// Lyrics plus the arrangement: empty unless a section comes back later (Chorus, Verse, Chorus).
+fn words_to_lyrics(rtf: &str) -> (String, Vec<String>) {
     let (events, structured) = if rtf.trim_start().starts_with("{\\rtf") {
         let p = Rtf::new().parse(rtf);
         (p.events, p.structured)
@@ -278,8 +324,9 @@ pub fn rtf_to_lyrics(rtf: &str) -> String {
     // Slides as (label, lines).
     let mut slides: Vec<(Option<String>, Vec<String>)> = vec![(None, vec![])];
     for e in events {
-        let cur = slides.last_mut().expect("never empty");
-        let started = cur.0.is_some() || !cur.1.is_empty();
+        let (has_label, has_lines) = slides.last().map(|s| (s.0.is_some(), !s.1.is_empty())).expect("never empty");
+        let started = has_label || has_lines;
+        let cur = slides.len() - 1;
         match e {
             Event::Break => if started { slides.push((None, vec![])); },
             Event::Line { text, hidden } => {
@@ -287,24 +334,54 @@ pub fn rtf_to_lyrics(rtf: &str) -> String {
                 if t.is_empty() {
                     // Plain layout: a blank line starts the next slide. Structured: spacing only.
                     if !structured && started { slides.push((None, vec![])); }
+                } else if hidden && has_lines {
+                    // A label after lyric lines with no slide marker between: it names the next slide, not these lines.
+                    slides.push((Some(t), vec![]));
                 } else if hidden || (!structured && !started && plain_label(&t)) {
-                    cur.0 = Some(t);
+                    slides[cur].0 = Some(t);
                 } else {
-                    cur.1.push(t);
+                    slides[cur].1.push(t);
                 }
             }
         }
     }
-    let mut out: Vec<String> = Vec::new();
-    let mut prev_label: Option<String> = None;
+    // Sections as (label, slide groups). EW labels every slide; a repeated label just continues the section,
+    // and an unlabeled slide continues the one before. A label-only slide has nothing to show, so its label
+    // passes to the next slide when that one has none.
+    let mut sections: Vec<(Option<String>, Vec<Vec<String>>)> = Vec::new();
+    let mut pending: Option<String> = None;
     for (label, lines) in slides {
-        if lines.is_empty() { continue; }
-        if !out.is_empty() { out.push(String::new()); }
-        // EW labels every slide; a repeated label just continues the section.
-        if let Some(l) = label { if prev_label.as_deref() != Some(l.as_str()) { out.push(label_line(&l)); prev_label = Some(l); } }
-        out.extend(lines);
+        if lines.is_empty() { if label.is_some() { pending = label; } continue; }
+        let label = label.or(pending.take()).map(|l| clean_label(&l)).filter(|l| !l.is_empty());
+        pending = None;
+        match sections.last_mut() {
+            Some(s) if label.is_none() || s.0 == label => s.1.push(lines),
+            _ => sections.push((label, vec![lines])),
+        }
     }
-    out.join("\n")
+    // The app finds sections by label, so a label used again later (Chorus, Verse 2, Chorus) can't be a second
+    // section: the same words become an arrangement entry, different words get their own name ("Verse 1 (2)").
+    let mut kept: Vec<(Option<String>, Vec<Vec<String>>)> = Vec::new();
+    let mut order: Vec<String> = Vec::new();
+    let mut repeats = false;
+    for (mut label, groups) in sections {
+        let name = section_name(label.as_deref());
+        if let Some(earlier) = kept.iter().find(|k| section_name(k.0.as_deref()).eq_ignore_ascii_case(&name)) {
+            if earlier.1 == groups { order.push(section_name(earlier.0.as_deref())); repeats = true; continue; }
+            let base = label.clone().unwrap_or_else(|| name.clone());
+            let taken = |n: &str| kept.iter().any(|k| section_name(k.0.as_deref()).eq_ignore_ascii_case(n));
+            label = (2..).map(|n| format!("{base} ({n})")).find(|l| !taken(&section_name(Some(l))));
+        }
+        order.push(section_name(label.as_deref()));
+        kept.push((label, groups));
+    }
+    let mut out: Vec<String> = Vec::new();
+    for (label, groups) in kept {
+        if !out.is_empty() { out.push(String::new()); }
+        if let Some(l) = label { out.push(label_line(&l)); }
+        out.extend(groups.join(&String::new()));
+    }
+    (out.join("\n"), if repeats { order } else { vec![] })
 }
 
 // ---------- rows → Song ----------
@@ -324,17 +401,19 @@ pub fn split_writers(author: &str) -> String {
     }).filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" | ")
 }
 
-/// CCLI song #: `reference_number` when it is all digits (FreeShow), else `vendor_id` (OpenLP).
+/// CCLI song #: `vendor_id` (filled in from SongSelect), else `reference_number` when it looks like one.
+/// `reference_number` is the "Song Number" box, where churches often type hymnal numbers ("123"), so it
+/// needs at least 4 digits.
 pub fn ccli_number(reference: &str, vendor: Option<i64>) -> String {
-    let r = reference.trim();
-    if !r.is_empty() && r.chars().all(|c| c.is_ascii_digit()) && !r.trim_start_matches('0').is_empty() { return r.to_string(); }
-    vendor.filter(|&v| v > 0).map(|v| v.to_string()).unwrap_or_default()
+    if let Some(v) = vendor.filter(|&v| v > 0) { return v.to_string(); }
+    let r = reference.trim().trim_start_matches('0');
+    if r.len() >= 4 && r.chars().all(|c| c.is_ascii_digit()) { r.to_string() } else { String::new() }
 }
 
 /// Err is the reason the row is skipped.
 pub fn to_song(row: &EwSong) -> Result<Song, String> {
     let words = row.words.as_deref().filter(|w| !w.trim().is_empty()).ok_or("no lyrics (probably a video or announcement item)")?;
-    let lyrics = rtf_to_lyrics(words);
+    let (lyrics, arrangement) = words_to_lyrics(words);
     if lyrics.trim().is_empty() { return Err("the lyrics are empty".into()); }
     let admin = row.administrator.trim();
     let mut copyright = row.copyright.trim().to_string();
@@ -343,7 +422,7 @@ pub fn to_song(row: &EwSong) -> Result<Song, String> {
         copyright.push_str(&format!("Administered by {admin}"));
     }
     Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers: split_writers(&row.author), ccli: ccli_number(&row.reference_number, row.vendor_id),
-        copyright, lyrics, arrangement: vec![] })
+        copyright, lyrics, arrangement })
 }
 
 fn display_title(row: &EwSong) -> String {
@@ -353,28 +432,41 @@ fn display_title(row: &EwSong) -> String {
 
 // ---------- duplicates ----------
 
+/// "Amazing  Grace!" and "amazing grace" match.
+fn title_key(title: &str) -> String {
+    title.split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()).map(str::to_lowercase).collect::<Vec<_>>().join(" ")
+}
+
 /// One entry per imported song. Matches the library first, then earlier songs in the same import.
-/// Songs without a CCLI # are always New.
+/// By CCLI # when the song has one; by title only when it has none (two songs can share a title).
 pub fn classify(existing: &[Song], imported: &[Song]) -> Vec<Dedupe> {
-    let mut seen: HashMap<String, Uuid> = HashMap::new();
-    for s in existing { if !s.ccli.trim().is_empty() { seen.entry(s.ccli.trim().to_string()).or_insert(s.id); } }
+    let mut by_ccli: HashMap<String, Uuid> = HashMap::new();
+    let mut by_title: HashMap<String, Uuid> = HashMap::new();
+    for s in existing {
+        if !s.ccli.trim().is_empty() { by_ccli.entry(s.ccli.trim().to_string()).or_insert(s.id); }
+        by_title.entry(title_key(&s.title)).or_insert(s.id);
+    }
     imported.iter().map(|s| {
         let c = s.ccli.trim();
-        if c.is_empty() { return Dedupe::New; }
-        match seen.get(c) {
-            Some(&existing) => Dedupe::DuplicateCcli { existing },
-            None => { seen.insert(c.to_string(), s.id); Dedupe::New }
-        }
+        let t = title_key(&s.title);
+        let found = if c.is_empty() {
+            by_title.get(&t).map(|&existing| Dedupe::DuplicateTitle { existing })
+        } else {
+            by_ccli.get(c).map(|&existing| Dedupe::DuplicateCcli { existing })
+        };
+        if !c.is_empty() { by_ccli.entry(c.to_string()).or_insert(s.id); }
+        by_title.entry(t).or_insert(s.id);
+        found.unwrap_or(Dedupe::New)
     }).collect()
 }
 
 // ---------- reader ----------
 
-/// Reads a whole EW6/7 library. `folder` may be the profile folder, its `Databases\Data`, or Songs.db itself.
+/// Reads a whole EW6/7 library. `folder` may be the Easyworship folder, a profile folder, its `Databases\Data`,
+/// or Songs.db itself.
 pub fn read_library(folder: &Path) -> Result<ImportReport, String> {
     let (songs_path, words_path) = find_databases(folder)?;
-    let songs_db = snapshot(&songs_path)?;
-    let words_db = snapshot(&words_path)?;
+    let (songs_db, words_db) = snapshot_library(&songs_path, &words_path)?;
     let rows = read_rows(&songs_db, &words_db)?;
     let mut report = ImportReport::default();
     for row in &rows {
@@ -383,59 +475,129 @@ pub fn read_library(folder: &Path) -> Result<ImportReport, String> {
     Ok(report)
 }
 
-/// Same search as OpenLP: `<root>/Databases/Data`, `<root>/Data`, `<root>`. File names match case-insensitively.
+/// OpenLP's search (`<root>/Databases/Data`, `<root>/Data`, `<root>`) plus the EW7 layouts under a profile
+/// (`Default\v6.1\Databases\Data`). File names match case-insensitively.
 fn find_databases(path: &Path) -> Result<(PathBuf, PathBuf), String> {
     let root = if path.is_file() { path.parent().unwrap_or(path).to_path_buf() } else { path.to_path_buf() };
-    for dir in [root.join("Databases").join("Data"), root.join("Data"), root.clone()] {
-        let Some(songs) = find_file(&dir, "Songs.db") else { continue };
-        if !is_sqlite(&songs) {
-            return Err("This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported.".into());
-        }
-        let words = find_file(&dir, "SongWords.db").ok_or_else(|| format!("Found Songs.db but not SongWords.db next to it in {}.", dir.display()))?;
+    let data = |p: PathBuf| p.join("Databases").join("Data");
+    let dirs = [data(root.clone()), data(root.join("v6.1")), data(root.join("Default").join("v6.1")), root.join("Data"), root.clone()];
+    for dir in dirs {
+        let Some(songs) = find_file(&dir, &["Songs.db", "Songs.dat"]) else { continue };
+        check_sqlite(&songs)?;
+        let words = find_file(&dir, &["SongWords.db", "SongWords.dat"])
+            .ok_or_else(|| format!("Found Songs.db but not SongWords.db next to it in {}.", dir.display()))?;
         return Ok((songs, words));
     }
     Err("No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder \
         (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data).".into())
 }
 
-fn find_file(dir: &Path, name: &str) -> Option<PathBuf> {
+fn find_file(dir: &Path, names: &[&str]) -> Option<PathBuf> {
     std::fs::read_dir(dir).ok()?.flatten().map(|e| e.path())
-        .find(|p| p.is_file() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.eq_ignore_ascii_case(name)))
+        .find(|p| p.is_file() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| names.iter().any(|x| n.eq_ignore_ascii_case(x))))
 }
 
-fn is_sqlite(path: &Path) -> bool {
-    let mut head = [0u8; 16];
-    std::fs::File::open(path).and_then(|mut f| f.read_exact(&mut head)).is_ok() && &head == b"SQLite format 3\0"
+fn check_sqlite(path: &Path) -> Result<(), String> {
+    let mut head = Vec::new();
+    std::fs::File::open(path).and_then(|f| f.take(16).read_to_end(&mut head)).map_err(|e| format!("Couldn't read {}: {e}.", path.display()))?;
+    if head == b"SQLite format 3\0" { return Ok(()); }
+    if head.len() < 16 { return Err(format!("{} is empty or damaged, so there is nothing to import.", path.display())); }
+    Err("This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported.".into())
 }
 
-/// A consistent in-memory copy. First choice: read-only connection + backup API (includes committed WAL
-/// pages even while EasyWorship is open). Fallback: copy the file and its `-wal` into a private temp folder
-/// and back up from that. The `-shm` index is not copied: SQLite rebuilds it from the `-wal`, and a copy
-/// taken mid-write could be stale.
-fn snapshot(path: &Path) -> Result<Connection, String> {
-    let first = match backup_into_memory(path, OpenFlags::SQLITE_OPEN_READ_ONLY) { Ok(c) => return Ok(c), Err(e) => e };
-    let name = path.file_name().unwrap_or_default().to_string_lossy().into_owned();
-    let tmp = std::env::temp_dir().join(format!("rp-ew-{}", Uuid::new_v4()));
-    let copied = (|| -> std::io::Result<()> {
-        std::fs::create_dir_all(&tmp)?;
-        std::fs::copy(path, tmp.join(&name))?;
-        let wal = path.with_file_name(format!("{name}-wal"));
-        if wal.exists() { std::fs::copy(&wal, tmp.join(format!("{name}-wal")))?; }
-        Ok(())
-    })();
-    let result = match copied {
-        Ok(()) => backup_into_memory(&tmp.join(&name), OpenFlags::SQLITE_OPEN_READ_WRITE).map_err(|e| e.to_string()),
-        Err(e) => Err(e.to_string()),
+/// How long to wait for EasyWorship to finish a save: `STABLE_TRIES` × `STABLE_PAUSE`.
+const STABLE_TRIES: usize = 40;
+const STABLE_PAUSE: Duration = Duration::from_millis(125);
+
+/// The files SQLite needs for one database: the file, its WAL, and a rollback journal (a save in progress
+/// in the old journal mode; SQLite rolls it back on our copy). `-shm` is only an index SQLite rebuilds.
+fn database_files(db: &Path) -> Vec<PathBuf> {
+    let name = db.file_name().unwrap_or_default().to_string_lossy().into_owned();
+    vec![db.to_path_buf(), db.with_file_name(format!("{name}-wal")), db.with_file_name(format!("{name}-journal"))]
+}
+
+/// Reads every file until two reads in a row match, so a save can't tear the copy, and every file is from
+/// the same moment (a song and its words are never split between two saves). A missing file is None.
+fn read_stable(paths: &[PathBuf], tries: usize, pause: Duration) -> Result<Vec<Option<Vec<u8>>>, String> {
+    let read_all = || -> Result<Vec<Option<Vec<u8>>>, String> {
+        paths.iter().map(|p| match std::fs::read(p) {
+            Ok(b) => Ok(Some(b)),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(e) => Err(format!("Couldn't read {}: {e}.", p.display())),
+        }).collect()
     };
-    std::fs::remove_dir_all(&tmp).ok();
-    result.map_err(|e| format!("Couldn't open {} ({first}; copying it also failed: {e}).", path.display()))
+    let mut last = read_all()?;
+    for _ in 0..tries {
+        std::thread::sleep(pause);
+        let now = read_all()?;
+        if now == last { return Ok(now); }
+        last = now;
+    }
+    Err("EasyWorship kept saving changes while the library was being read. Close EasyWorship and try again.".into())
 }
 
-fn backup_into_memory(path: &Path, mode: OpenFlags) -> rusqlite::Result<Connection> {
-    let src = Connection::open_with_flags(path, mode | OpenFlags::SQLITE_OPEN_NO_MUTEX)?;
-    src.busy_timeout(Duration::from_secs(5))?;
+/// A private temp folder, removed on drop. Retries because Windows can hold a just-closed file for a moment.
+struct TempDir(PathBuf);
+
+impl TempDir {
+    fn new() -> std::io::Result<Self> {
+        let d = std::env::temp_dir().join(format!("rp-ew-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&d)?;
+        Ok(Self(d))
+    }
+}
+
+impl Drop for TempDir {
+    fn drop(&mut self) {
+        for _ in 0..20 {
+            if std::fs::remove_dir_all(&self.0).is_ok() || !self.0.exists() { return; }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+    }
+}
+
+/// Consistent in-memory copies of both databases, from a quiescent copy of their files. SQLite never opens
+/// EasyWorship's own files, so nothing (`-wal`, `-shm`, `-journal`) is created or changed next to them.
+fn snapshot_library(songs: &Path, words: &Path) -> Result<(Connection, Connection), String> {
+    let paths: Vec<PathBuf> = database_files(songs).into_iter().chain(database_files(words)).collect();
+    let files = read_stable(&paths, STABLE_TRIES, STABLE_PAUSE)?;
+    let tmp = TempDir::new().map_err(|e| format!("Couldn't make a temporary folder: {e}."))?;
+    for (p, bytes) in paths.iter().zip(&files) {
+        let Some(bytes) = bytes else { continue };
+        std::fs::write(tmp.0.join(p.file_name().unwrap_or_default()), bytes).map_err(|e| format!("Couldn't copy {}: {e}.", p.display()))?;
+    }
+    let open = |p: &Path| backup_into_memory(&tmp.0.join(p.file_name().unwrap_or_default()))
+        .map_err(|e| format!("Couldn't open {}: {e}.", p.display()));
+    Ok((open(songs)?, open(words)?))
+}
+
+/// How often to retry a backup step that finds the database locked: `BUSY_TRIES` × `BUSY_PAUSE`.
+const BUSY_TRIES: u32 = 40;
+const BUSY_PAUSE: Duration = Duration::from_millis(50);
+
+/// Copies a database into memory in one step (one read lock, so one snapshot). Gives up with SQLITE_BUSY
+/// when the file stays locked, instead of spinning forever.
+fn backup_into_memory(path: &Path) -> rusqlite::Result<Connection> {
+    let src = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX)?;
     let mut dst = Connection::open_in_memory()?;
-    Backup::new(&src, &mut dst)?.run_to_completion(i32::MAX, Duration::ZERO, None)?;
+    {
+        let backup = Backup::new(&src, &mut dst)?;
+        let mut busy = 0;
+        loop {
+            match backup.step(-1)? {
+                StepResult::Done => break,
+                StepResult::More => {}
+                _ => {
+                    busy += 1;
+                    if busy > BUSY_TRIES {
+                        return Err(rusqlite::Error::SqliteFailure(rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_BUSY),
+                            Some("the database stayed locked".into())));
+                    }
+                    std::thread::sleep(BUSY_PAUSE);
+                }
+            }
+        }
+    }
     Ok(dst)
 }
 
@@ -548,9 +710,9 @@ mod tests {
     #[test]
     fn plain_rtf_splits_on_blank_lines_and_finds_labels() {
         assert_eq!(rtf_to_lyrics(PLAIN),
-            "Verse 1\nFirst verse line\nSecond verse line\n\n[Chorus (x2)]\nChorus line\n\nPre-Chorus 2\nPre line\n\nMore pre line\n\nTag\nTag line\nSame slide");
+            "Verse 1\nFirst verse line\nSecond verse line\n\nChorus\nChorus line\n\nPre-Chorus 2\nPre line\n\nMore pre line\n\nTag\nTag line\nSame slide");
         let labels: Vec<_> = parse_sections(&rtf_to_lyrics(PLAIN)).into_iter().map(|s| s.label).collect();
-        assert_eq!(labels, ["Verse 1", "Chorus (x2)", "Pre-Chorus 2", "Tag"]);
+        assert_eq!(labels, ["Verse 1", "Chorus", "Pre-Chorus 2", "Tag"]);
     }
 
     #[test]
@@ -584,8 +746,9 @@ mod tests {
     }
 
     #[test]
-    fn ccli_from_reference_number_then_vendor_id() {
-        assert_eq!(ccli_number(" 12345 ", Some(999)), "12345");
+    fn ccli_from_vendor_id_then_reference_number() {
+        assert_eq!(ccli_number(" 12345 ", Some(999)), "999");
+        assert_eq!(ccli_number(" 012345 ", None), "12345");
         assert_eq!(ccli_number("", Some(777)), "777");
         assert_eq!(ccli_number("Hymn 12", Some(777)), "777");
         assert_eq!(ccli_number("", Some(0)), "");
@@ -622,7 +785,7 @@ mod tests {
         let existing = vec![song("Old", "111")];
         let imported = vec![song("A", "111"), song("B", "222"), song("B again", "222"), song("No number", ""), song("No number", "")];
         let got = classify(&existing, &imported);
-        assert_eq!(got, vec![Dedupe::DuplicateCcli { existing: existing[0].id }, Dedupe::New, Dedupe::DuplicateCcli { existing: imported[1].id }, Dedupe::New, Dedupe::New]);
+        assert_eq!(got, vec![Dedupe::DuplicateCcli { existing: existing[0].id }, Dedupe::New, Dedupe::DuplicateCcli { existing: imported[1].id }, Dedupe::New, Dedupe::DuplicateTitle { existing: imported[3].id }]);
     }
 
     // ---------- reader, against SQLite fixtures shaped like EW6/7 ----------
@@ -722,5 +885,216 @@ mod tests {
         assert!(read_library(&old).unwrap_err().contains("2009"));
         std::fs::remove_dir_all(&dir).ok();
         std::fs::remove_dir_all(&old).ok();
+    }
+
+    // ---------- review findings ----------
+
+    /// Runs `f` on a thread; fails the test instead of hanging when it takes longer than `secs`.
+    fn within<T: Send + 'static>(secs: u64, f: impl FnOnce() -> T + Send + 'static) -> T {
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || { tx.send(f()).ok(); });
+        rx.recv_timeout(Duration::from_secs(secs)).expect("timed out: the import hung")
+    }
+
+    fn listing(dir: &Path) -> Vec<(String, Vec<u8>)> {
+        let mut v: Vec<_> = std::fs::read_dir(dir).unwrap().flatten()
+            .map(|e| (e.file_name().to_string_lossy().into_owned(), std::fs::read(e.path()).unwrap_or_default())).collect();
+        v.sort();
+        v
+    }
+
+    #[test]
+    fn writer_holding_a_lock_mid_save_does_not_hang_the_import() {
+        let dir = temp_folder();
+        write_library(&dir, "Songs.db", &[("Committed", "", "", None, Some(PLAIN))]);
+        // EasyWorship mid-save in the old journal mode, holding the lock: Songs.db-journal is hot.
+        let ew = Connection::open(dir.join("Songs.db")).unwrap();
+        ew.execute_batch("PRAGMA journal_mode=DELETE; PRAGMA locking_mode=EXCLUSIVE; BEGIN EXCLUSIVE;
+            INSERT INTO song (title) VALUES ('Uncommitted');").unwrap();
+        assert!(dir.join("Songs.db-journal").exists());
+        let before = listing(&dir);
+        let d = dir.clone();
+        let report = within(60, move || read_library(&d)).unwrap();
+        assert_eq!(report.songs.iter().map(|s| s.title.as_str()).collect::<Vec<_>>(), ["Committed"]);
+        assert_eq!(listing(&dir), before);
+        drop(ew);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn reading_a_wal_library_leaves_the_easyworship_folder_untouched() {
+        let dir = temp_folder();
+        write_library(&dir, "Songs.db", &[("First", "", "", None, Some(PLAIN))]);
+        let ew = Connection::open(dir.join("Songs.db")).unwrap();
+        ew.execute_batch("PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0;").unwrap();
+        ew.execute("INSERT INTO song (title) VALUES ('Second')", []).unwrap();
+        // EasyWorship open: -wal and -shm exist and belong to it.
+        let before = listing(&dir);
+        assert_eq!(read_library(&dir).unwrap().songs.len(), 1);
+        assert_eq!(listing(&dir), before);
+        // EasyWorship closed: a WAL-mode database with no -wal or -shm next to it.
+        drop(ew);
+        let before = listing(&dir);
+        assert_eq!(before.len(), 2, "{:?}", before.iter().map(|f| &f.0).collect::<Vec<_>>());
+        assert_eq!(read_library(&dir).unwrap().songs.len(), 1);
+        assert_eq!(listing(&dir), before);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn central_european_greek_turkish_hebrew_and_japanese_code_pages() {
+        // \fcharset238 = cp1250 (Polish), reached through \deff when no \f is given.
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi\deff1{\fonttbl{\f0 Arial;}{\f1\fcharset238 Arial;}}Za\'bf\'f3\'b3\'e6\par}"), "Za\u{17c}\u{f3}\u{142}\u{107}");
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi\ansicpg1253{\fonttbl{\f0\fcharset0 Arial;}}\'e1\'e3\'e1\'f0\'e7\par}"), "\u{3b1}\u{3b3}\u{3b1}\u{3c0}\u{3b7}");
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi{\fonttbl{\f0\fcharset162 Arial;}}\f0 \'f0\'fd\par}"), "\u{11f}\u{131}");
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi{\fonttbl{\f0\fcharset177 Arial;}}\f0 \'f9\'ec\'e5\'ed\par}"), "\u{5e9}\u{5dc}\u{5d5}\u{5dd}");
+        // Shift-JIS: two-byte characters, one with an ASCII trail byte written as a plain letter.
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi{\fonttbl{\f0\fcharset128 MS Gothic;}}\f0 \'82\'a0\'82\'a2\'83A\par}"), "\u{3042}\u{3044}\u{30a2}");
+    }
+
+    #[test]
+    fn hymnal_number_is_not_taken_as_the_ccli_number() {
+        assert_eq!(ccli_number("123", Some(22025)), "22025");
+        assert_eq!(ccli_number("123", None), "");
+        assert_eq!(ccli_number("4567", None), "4567");
+    }
+
+    #[test]
+    fn hidden_label_after_lines_starts_a_new_slide() {
+        let rtf = r"{\rtf1\ansi{\pard\sdparawysiwghidden Verse 1\par}{\pard Line one\par}{\pard\sdparawysiwghidden Chorus\par}{\pard Line two\par}}";
+        assert_eq!(rtf_to_lyrics(rtf), "Verse 1\nLine one\n\nChorus\nLine two");
+    }
+
+    #[test]
+    fn repeated_chorus_becomes_an_arrangement() {
+        let slide = |label: &str, line: &str| format!(r"{{\pard\sdslidemarker\plain}}{{\pard\sdparawysiwghidden {label}\par}}{{\pard {line}\par}}");
+        let rtf = format!(r"{{\rtf1\ansi{}{}{}{}{}}}", slide("Chorus", "Same chorus"), slide("Verse 1", "Verse text"),
+            slide("Chorus", "Same chorus"), slide("Verse 2", "More text"), slide("Verse 1", "Different words"));
+        let row = EwSong { title: "Repeats".into(), words: Some(rtf), ..Default::default() };
+        let s = to_song(&row).unwrap();
+        assert_eq!(s.lyrics, "Chorus\nSame chorus\n\nVerse 1\nVerse text\n\nVerse 2\nMore text\n\n[Verse 1 (2)]\nDifferent words");
+        assert_eq!(s.arrangement, ["Chorus", "Verse 1", "Chorus", "Verse 2", "Verse 1 (2)"]);
+        let secs = parse_sections(&s.lyrics);
+        let order: Vec<_> = crate::slides::song_order(&s, &secs).into_iter().map(|i| secs[i].label.clone()).collect();
+        assert_eq!(order, s.arrangement);
+        // No repeats: no arrangement, as from SongSelect.
+        assert!(to_song(&EwSong { words: Some(STRUCTURED.into()), ..Default::default() }).unwrap().arrangement.is_empty());
+    }
+
+    #[test]
+    fn label_only_slide_names_the_next_unlabeled_slide() {
+        let rtf = r"{\rtf1\ansi{\pard\sdparawysiwghidden Verse 1\par}{\pard A\par}{\pard\sdslidemarker\plain}{\pard\sdparawysiwghidden Bridge\par}{\pard\sdslidemarker\plain}{\pard B\par}}";
+        assert_eq!(rtf_to_lyrics(rtf), "Verse 1\nA\n\nBridge\nB");
+    }
+
+    #[test]
+    fn repeat_notes_are_dropped_from_labels() {
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi Chorus (x2)\par Line\par}"), "Chorus\nLine");
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi{\pard\sdparawysiwghidden Verse 1 (repeat)\par}{\pard Line\par}}"), "Verse 1\nLine");
+    }
+
+    #[test]
+    fn uc_skip_counts_and_their_restore_at_group_end() {
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi\uc0\u20320 x\par}"), "\u{4f60}x");
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi{\uc2\u20320\'a0\'a0}\u20320?y\par}"), "\u{4f60}\u{4f60}y");
+    }
+
+    #[test]
+    fn malformed_rtf_does_not_panic() {
+        for rtf in [r"{\rtf1\ansi {\b bold\par", r"{\rtf1\ansi x}}}} y\par", r"{\rtf1\ansi z\'4", r"{\rtf1\ansi\u", r"{\rtf1\ansi\u-99999999999 q\par}", r"{\rtf1\ansi\'zz w\par}"] {
+            let _ = rtf_to_lyrics(rtf);
+        }
+        assert_eq!(rtf_to_lyrics(r"{\rtf1\ansi {\b bold\par"), "bold");
+    }
+
+    #[test]
+    fn profile_folder_with_the_v6_1_layout_is_found() {
+        let root = temp_folder();
+        let data = root.join("Default").join("v6.1").join("Databases").join("Data");
+        std::fs::create_dir_all(&data).unwrap();
+        write_library(&data, "Songs.db", &[("Found", "", "", None, Some(PLAIN))]);
+        assert_eq!(read_library(&root.join("Default")).unwrap().songs.len(), 1);
+        assert_eq!(read_library(&root).unwrap().songs.len(), 1);
+        std::fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn empty_songs_db_is_not_called_easyworship_2009() {
+        let dir = temp_folder();
+        std::fs::write(dir.join("Songs.db"), b"").unwrap();
+        std::fs::write(dir.join("SongWords.db"), b"").unwrap();
+        let e = read_library(&dir).unwrap_err();
+        assert!(!e.contains("2009") && e.contains("empty or damaged"), "{e}");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn hymnal_numbers_and_shared_ccli_through_the_reader() {
+        let dir = temp_folder();
+        write_library(&dir, "Songs.db", &[
+            ("Hymn A", "", "123", Some(1111), Some(PLAIN)),
+            ("Hymn B", "", "123", Some(2222), Some(PLAIN)),
+            ("Same Song", "", "", Some(1111), Some(PLAIN)),
+        ]);
+        let report = read_library(&dir).unwrap();
+        assert_eq!(report.songs.iter().map(|s| s.ccli.as_str()).collect::<Vec<_>>(), ["1111", "2222", "1111"]);
+        let got = classify(&[], &report.songs);
+        assert_eq!(got, vec![Dedupe::New, Dedupe::New, Dedupe::DuplicateCcli { existing: report.songs[0].id }]);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn songs_without_a_ccli_number_match_by_title() {
+        let song = |t: &str, c: &str| Song { id: Uuid::new_v4(), title: t.into(), ccli: c.into(), lyrics: "x".into(), ..Default::default() };
+        let existing = vec![song("Amazing Grace", "22025"), song("Holy, Holy, Holy", "")];
+        let imported = vec![song("amazing  grace", ""), song("Holy Holy Holy!", ""), song("Holy Holy Holy", "1234567"), song("New Hymn", ""), song("New hymn", "")];
+        assert_eq!(classify(&existing, &imported), vec![Dedupe::DuplicateTitle { existing: existing[0].id }, Dedupe::DuplicateTitle { existing: existing[1].id },
+            Dedupe::New, Dedupe::New, Dedupe::DuplicateTitle { existing: imported[3].id }]);
+    }
+
+    #[test]
+    fn copy_gives_up_while_a_file_keeps_changing() {
+        let dir = temp_folder();
+        let f = dir.join("Songs.db");
+        std::fs::write(&f, b"0").unwrap();
+        let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let (s, path) = (stop.clone(), f.clone());
+        let writer = std::thread::spawn(move || {
+            let mut n = 0u64;
+            while !s.load(std::sync::atomic::Ordering::Relaxed) { n += 1; std::fs::write(&path, n.to_string()).ok(); std::thread::sleep(Duration::from_millis(2)); }
+        });
+        while std::fs::read(&f).unwrap_or_default() == b"0" { std::thread::sleep(Duration::from_millis(1)); }
+        let got = read_stable(&[f.clone()], 5, Duration::from_millis(20));
+        stop.store(true, std::sync::atomic::Ordering::Relaxed);
+        writer.join().unwrap();
+        assert!(got.unwrap_err().contains("kept saving"));
+        // Quiet again: the copy goes through, and a missing -wal is just None.
+        let got = read_stable(&[f.clone(), dir.join("Songs.db-wal")], 5, Duration::from_millis(5)).unwrap();
+        assert!(got[0].is_some() && got[1].is_none());
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn backup_gives_up_when_the_database_stays_locked() {
+        let dir = temp_folder();
+        let path = dir.join("Locked.db");
+        let w = Connection::open(&path).unwrap();
+        w.execute_batch("CREATE TABLE t (x); PRAGMA locking_mode=EXCLUSIVE; BEGIN EXCLUSIVE; INSERT INTO t VALUES (1);").unwrap();
+        let p = path.clone();
+        assert!(within(60, move || backup_into_memory(&p).map(|_| ())).is_err());
+        drop(w);
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn temp_copy_is_removed() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.0.clone();
+        std::fs::write(path.join("Songs.db"), b"lyrics").unwrap();
+        let open = std::fs::File::open(path.join("Songs.db")).unwrap();
+        let closer = std::thread::spawn(move || { std::thread::sleep(Duration::from_millis(100)); drop(open); });
+        drop(tmp);
+        closer.join().unwrap();
+        assert!(!path.exists());
     }
 }
