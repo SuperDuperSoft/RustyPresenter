@@ -7,6 +7,7 @@ import { TextField, Tabs, Note, Lbl, ListRow, RowMain } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { SettingsLook } from "settings-look.slint";
 import { SettingsBible } from "settings-bible.slint";
+import { SettingsAbout } from "settings-about.slint";
 
 export { SettingsDlg }
 
@@ -172,7 +173,7 @@ component SettingsHelp inherits HorizontalLayout {
 export component SettingsDialog inherits VerticalLayout {
     DialogBody {
         tabs := Tabs {
-            labels: [@tr("Look"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Backups"), @tr("Help")];
+            labels: [@tr("Look"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Backups"), @tr("Help"), @tr("About")];
             index <=> SettingsDlg.tab;
             changed(i) => { SettingsDlg.tab-changed(i); }
         }
@@ -183,6 +184,7 @@ export component SettingsDialog inherits VerticalLayout {
         if SettingsDlg.tab == 3: video := SettingsVideo {}
         if SettingsDlg.tab == 4: backups := SettingsBackups {}
         if SettingsDlg.tab == 5: help := SettingsHelp {}
+        if SettingsDlg.tab == 6: about := SettingsAbout {}
     }
     DialogFoot {
         cancel := Btn {

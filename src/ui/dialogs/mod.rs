@@ -1,6 +1,7 @@
 //! The operator's dialogs (`operator.js:353-1000`) as overlays inside the operator window (`ui/dialogs/`): Slint
 //! 1.18 has no modal or owner-window API (native spec §6). One dialog at a time, swapped in place like the web's
 //! single `<dialog>`; confirm and prompt questions (`ask`) stack above it, or above the bare window.
+pub mod about;
 pub mod ask;
 pub mod settings;
 pub mod settings_bible;

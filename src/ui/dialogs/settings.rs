@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, confirm, settings_bible, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, confirm, settings_bible, settings_look, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -81,6 +81,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     let g = op.ui.global::<SettingsDlg>();
     fill_form(&g, &edit.settings.borrow());
     g.set_tab(tab_index(tab));
+    about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
@@ -120,6 +121,7 @@ pub(crate) fn fill_pages(op: &Operator, edit: &Edit, snap: &OperatorSnapshot) {
     *edit.backups.borrow_mut() = snap.backups.clone();
     let help: Vec<SettingsHelpRow> = help_rows().iter().map(|r| SettingsHelpRow { keys: r.keys.into(), what: r.what.into() }).collect();
     g.set_help(ModelRc::new(VecModel::from(help)));
+    about::fill(op, snap);
 }
 
 /// Redraws the state pages once the next read arrives (the web's `await refresh(); redraw()`).
@@ -167,6 +169,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_check_again(with(check_again));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
+    let me = Rc::downgrade(op);
+    g.on_show_licences(move |show| if let Some(op) = me.upgrade() { about::show_licences(&op, show) });
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
 }
