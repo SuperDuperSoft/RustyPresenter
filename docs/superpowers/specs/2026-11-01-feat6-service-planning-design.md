@@ -25,7 +25,7 @@ Who: non-technical volunteers on any Windows/macOS/Linux computer, often an old 
 
 | Part | Contents | Needs |
 | --- | --- | --- |
-| **FEAT-6a** Planning | service dates, Copy last week, templates, blanks, format guard | Plan 3 |
+| **FEAT-6a** Planning | service dates, Copy last week, templates, blanks, data format 3 step | Plan 3 (FEAT-1's migration chain when present) |
 | **FEAT-6b** Print | Print dialog; HTML through the shared `src/report_page.rs` (open in browser to print, or save). **6b-2** (follow-up): "Save PDF…" via `krilla` | 6a (blanks print) |
 | **FEAT-6c** Practice | practice engine, routing, followers, strip | Plan 3; FEAT-2 rules apply when FEAT-2 exists |
 
@@ -39,6 +39,8 @@ Who: non-technical volunteers on any Windows/macOS/Linux computer, often an old 
 
 **Rows** are sorted by date, newest first; undated services (all made before FEAT-6) come after dated ones in stored order. Each row: the date in the computer's date order (§5.2, e.g. "Sun 11/8/2026" in the US, "Sun 8/11/2026" in the UK) or "No date" in `muted`; the name; the `Open` chip on the current service; "N item(s)"; a `warn` chip "2 blanks" if any. Actions: **Open**, **Rename**, **Date…**, **Print…**, **Save as template**, trash (only with more than one service). Only the 8 newest rows show; **Show N older services** expands the rest while the dialog is open.
 
+**Fits 1366×768 (FEAT-1 §7.2 budget):** the Services dialog body scrolls (button row fixed at the top), so the rows and the Templates section fit in 768 px height.
+
 **Templates section** below: each row shows name, day ("Sundays", "Any day"), "N parts, M blanks", with **Edit**, **Rename**, trash. Empty: "No templates yet. Use “Save as template” on a service to make one." No built-in template is created.
 
 ### 3.2 Copy last week
@@ -50,7 +52,7 @@ Who: non-technical volunteers on any Windows/macOS/Linux computer, often an old 
 
 ### 3.3 Templates
 
-**Save as template** opens the **Template editor** (`ui/dialogs/template-editor.slint`) prefilled from the service: name = service name with its trailing date removed, day = the service's weekday (Sunday if undated), one row per item. Each row has icon, title and a **Keep** / **Blank** switch: songs and scripture default to **Blank**, everything else **Keep**. A blank row has a label field (default by kind, §5.3) and shows the kind it asks for. Rows move (up/down and drag, same drag code as the service column) and can be removed. **Add a blank** offers Song, Bible reading, Media, Slides, Announcement, Anything. A **Look** row appears once FEAT-1 exists. **Save** runs `template/save`; toast "Template “Sunday Service” saved".
+**Save as template** opens the **Template editor** (`ui/dialogs/template-editor.slint`) prefilled from the service: name = service name with its trailing date removed, day = the service's weekday (Sunday if undated), one row per item. Each row has icon, title and a **Keep** / **Blank** switch: songs and scripture default to **Blank**, everything else **Keep**. A blank row has a label field (default by kind, §5.3) and shows the kind it asks for. Rows move (up/down and drag, same drag code as the service column) and can be removed. **Add a blank** offers Song, Bible reading, Media, Slides, Announcement, Anything. A **Theme** row (the template's `theme`) appears once FEAT-1 exists. **Save** runs `template/save`; toast "Template “Sunday Service” saved".
 
 **Edit** reopens the editor; **Rename** prompts "Rename template"; trash confirms "Delete the template “N”? (Services made from it stay.)".
 
@@ -76,27 +78,27 @@ Who: non-technical volunteers on any Windows/macOS/Linux computer, often an old 
 - **Buttons:** **Print…** (primary), **Save web page…**, **Close**; 6b-2 adds **Save PDF…**.
 - **Print…** writes the page with `report_page::write_and_open` into the data folder's `reports/` and opens it in the default browser. Toast "Opened in your web browser — use Print there (you can also save as PDF from the print window)".
 - **Save web page…** / **Save PDF…** open a native save dialog (`rfd`), default name "`<service name>` – order and lyrics.html" ("– order" / "– lyrics" when only one is chosen). Toast "Saved `<file name>`".
-- Options are remembered in `Settings.print`.
+- Options are remembered in `Settings.print`, saved with `settings/save { print }` only. This relies on FEAT-1's merge-by-key rule: a missing key keeps the stored value, and the Settings dialog sends only the fields its tabs edit, so it never overwrites `print`.
 
 ### 3.7 Practice mode (FEAT-6c)
 
 **Start:**
 
-1. Top bar **Practice** button (`TopBtn`, icon `practice`; icon-only when `narrow`), tooltip "Run the service here without changing the room screen". No keyboard shortcut.
+1. Top bar **Practice** button (`TopBtn`, icon `practice`; icon-only below 1500 px wide, per FEAT-1 §7.2), tooltip "Run the service here without changing the room screen". No keyboard shortcut.
 2. If the room is **showing something** — `frame.slide || frame.media || frame.background || !frame.overlays.is_empty()` (overlays after FEAT-1) — the **Start practice** overlay (`ui/dialogs/practice.slint`) opens:
    - "The room screen is showing “Amazing Grace” (slide 3). It will stay like that while you practice."
    - **Still running in the room:** one line per running thing, e.g. "Announcement loop", "Countdown", "Music", "Video — at the end it will stop instead of going to the next item". (Lines come from the real engine and FEAT-2 runtime.)
-   - Buttons: **Show the logo, then practice** (primary; reads **Clear the screen, then practice** when no logo is set), **Leave it and practice**, **Cancel**. When a countdown or message shows, a note under the first button says "This also hides the countdown." Music is never stopped; when audio plays the overlay says "Music keeps playing."
+   - Buttons: **Show the logo, then practice** (primary; reads **Clear the screen, then practice** when no logo is set), **Leave it and practice**, **Cancel**. Notes under the first button follow FEAT-1 §5.2's clear table (Logo removes timer overlays and keeps the message overlay): when a timer overlay is up, "This also hides the countdown."; when a message is up, "The message stays on the room screen." (both lines when both are up). Music is never stopped; when audio plays the overlay says "Music keeps playing."
 3. Otherwise (nothing, logo, or audio only) practice starts at once.
-4. `practice/start` runs. A strip appears under the top bar in `Theme.practice`: a small **room monitor** (a 160×90 thumbnail of the room's committed picture, Plan 3 `Preview`), "**Practice mode** — the room screen is not changing. Room shows: Logo · Music playing.", buttons **Room: Logo**, **Room: Clear all**, **End practice and show this**, **End practice**.
+4. `practice/start` runs. A strip appears under the top bar in `Theme.practice`: a small **room monitor** (the room's committed picture, rendered at 160×90 and drawn at 64×36, Plan 3 `Preview`), "**Practice mode** — the room screen is not changing. Room shows: Logo · Music playing.", buttons **Room: Logo**, **Room: Clear all**, **End practice and show this**, **End practice**. **Fits 1366×768:** the strip is one 44 px row counted in FEAT-1 §7.2's budget; the Live column's "Up next" list gives up that height first. Below 1500 px wide the room text truncates with a tooltip and the two Room buttons fold into one **Room ▾** menu.
 
 **While practising:**
 
-- Service column, slides grid, Preview, Take Live, arrows, Space, Enter, thumbnail clicks, Bible box and FEAT-2 controls (messages, timers shown, macros) work as normal but drive the **practice engine**. The Live column header reads **PRACTICE** in `Theme.practice`; live outlines on thumbnails use `Theme.practice`.
+- Service column, slides grid, Preview, Take Live, arrows, Space, Enter, FEAT-4 section jumps, thumbnail clicks, Bible box, FEAT-1 overlay chips (turning on) and FEAT-2 controls (show message, show timer, macros, auto-advance on) work as normal but drive the **practice engine** (full list in §5.5). The Live column header reads **PRACTICE** in `Theme.practice`; live outlines on thumbnails use `Theme.practice`.
 - Video and audio slides do not play: the Live monitor shows the item's thumbnail with "Not played in practice"; transport buttons are disabled. Next moves on as usual.
-- **F1–F5 act on practice only.** The room changes only through the strip's labelled **Room: Logo** / **Room: Clear all** buttons.
-- The stage screen (native and web) follows practice with a **PRACTICE** tag top-right.
-- Paired phones follow practice with a banner "Practice — the room screen is not changing". Their buttons (including clears) drive practice; the allowlist is unchanged.
+- **F1–F6 clear the room and practice.** A clear always reaches the room (v1 live safety): F1–F6, the clear buttons, every off or hide command (overlay off, hide message, hide timer, auto-advance off), from the operator, the phone or a macro clear step, act on both engines. Nothing else practice does changes the room; the strip's **Room: Logo** / **Room: Clear all** buttons act on the room only.
+- The stage screen (native and web) follows practice with a **PRACTICE** tag top-right (FEAT-3's `practice` property, §7).
+- Paired phones follow practice with a banner "Practice — the room screen is not changing". Their buttons drive practice, except clears, which reach the room and practice. The allowlist is FEAT-2 §5.11's table; FEAT-6 adds nothing to it.
 - Real-room notices (room failed, video error) appear as error toasts and in the strip.
 - Editing songs, items and the service works as usual; the practice "Up next", titles and phone list update immediately.
 - **Forgotten practice guard:** a sticky warning "Practice is still on — the room screen is not changing." with **End practice** appears when the current service's `starts_at` (FEAT-2) is within 15 minutes, or when no practice command has been sent for 60 minutes. **Keep practising** hides it for 30 minutes (the start-time warning returns at the start time itself).
@@ -108,8 +110,7 @@ Who: non-technical volunteers on any Windows/macOS/Linux computer, often an old 
 All new fields have serde defaults. Field-copy rules for every operation are in §5.6.
 
 ```rust
-// src/model.rs
-pub const CURRENT_FORMAT: u32 = 2;
+// src/model.rs  (format number: store.rs `SUPPORTED_FORMAT` = 3, see below)
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[serde(rename_all = "snake_case")]
@@ -129,7 +130,7 @@ pub struct Service {
     /* id, name, items */
     #[serde(default, skip_serializing_if = "Option::is_none")] pub date: Option<chrono::NaiveDate>, // "2026-11-08"
     #[serde(default, skip_serializing_if = "Option::is_none")] pub template: Option<Uuid>,          // info only; may dangle
-    // FEAT-1 theme, FEAT-2 starts_at: owned by those specs
+    // FEAT-1 theme, FEAT-2 starts_at, FEAT-7 planning_center: owned by those specs
 }
 impl Service { pub fn new(name: &str, date: Option<NaiveDate>) -> Self }  // no clock inside
 
@@ -139,7 +140,10 @@ pub struct ServiceTemplate {
     pub name: String,
     #[serde(default = "sunday")] pub day: Option<Day>,   // None = any day
     pub items: Vec<ServiceItem>,                         // kept items + ItemKind::Blank rows
-    // FEAT-1: #[serde(default)] theme; FEAT-2: #[serde(default)] starts_at
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<theme::ThemeId>,                   // FEAT-1 type; declared here by FEAT-6
+    #[serde(default, deserialize_with = "lenient_time", skip_serializing_if = "Option::is_none")]
+    pub starts_at: Option<TimeOfDay>,                    // FEAT-2 type; declared here by FEAT-6
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -158,9 +162,10 @@ pub struct Settings { /* existing, #[serde(default)] */ pub print: PrintSettings
 pub struct Data     { /* existing */ #[serde(default)] pub templates: Vec<ServiceTemplate> }
 ```
 
-- **`Data::default()`** sets `format: CURRENT_FORMAT` and its first service `Service::new(.., None)`. `Store::load` on a missing file builds `Data::default()` and then sets the first service's date to today (the only clock read, in the store/app layer).
-- **Format guard (two-step load):** `Store::load` and `Store::restore` first parse `#[derive(Deserialize)] struct Head { #[serde(default)] format: u32 }` (unknown fields ignored). `format > CURRENT_FORMAT` → error "This data was saved by a newer RustyPresenter. Please update the app." and the file is not touched. Only then is `Data` deserialized. `format` 0/1/2 load; every save writes `CURRENT_FORMAT`.
-- **Old-build safety:** an older build ignores unknown fields, so it can load a format-2 file without blanks and then save over it, dropping templates and dates. Mitigation: the first time a file loaded as format < 2 is saved, the store first copies `data.json` to `backups/data-before-format-2.json` (once; never overwritten). Documented in the release notes and §11.
+- **Dates and time library:** `chrono` is the only time crate (no `jiff`). Persisted calendar dates (`Service.date`) are `chrono::NaiveDate`, serialized "YYYY-MM-DD"; persisted instants are `chrono::DateTime<Utc>` (RFC 3339); times of day are FEAT-2's `TimeOfDay` (`chrono::NaiveTime` at runtime).
+- **`Data::default()`** sets `format: SUPPORTED_FORMAT` and its first service `Service::new(.., None)`. `Store::load` on a missing file builds `Data::default()` and then sets the first service's date to today (the only clock read, in the store/app layer).
+- **Data format 3 (FEAT-1 migration chain):** store.rs `SUPPORTED_FORMAT` is the only format constant. FEAT-1 sets format 2 and owns the migration chain in `store::load` (each step takes a "before-update" backup) and the newer-data guard (newer data opens read-only with FEAT-1's banner, file untouched). FEAT-6 adds the step 2 → 3 and sets `SUPPORTED_FORMAT = 3`, because `ItemKind::Blank` would not parse in a format-2 build. The 2 → 3 step changes no data (new fields have serde defaults); it exists so a format-2 build opens FEAT-6 data read-only instead of failing on a blank or saving over templates and dates. FEAT-6 adds no load hook of its own; any fix-up goes in `Data::after_load` (FEAT-1).
+- **Merge rule:** `service/update` merges by key (FEAT-1): a missing key keeps the stored value, an explicit `null` clears an optional field. This covers `date`, `template` and every other new Service/ServiceItem field.
 - **`referenced_assets`** also walks `templates[*].items[*].background` (and FEAT-1 theme assets), so template backgrounds survive cleanup and are backed up.
 - **Delete guards** (`song/delete`, `media/delete`, `deck/delete`) also check templates: "This is in the template “N”. Remove it from the template first." (service messages are checked first).
 - `slides::build_item` returns `("<label> (blank)" or "Blank", "blank", vec![])` for a blank.
@@ -184,9 +189,9 @@ New code: `src/planning.rs` (pure), `src/print/` (pure document + HTML/PDF write
 | `practice/stop` | `{take?: bool}` | `{shown: bool}` | — (idempotent) |
 | `practice/room` | `{what: "logo" \| "clear_all"}` | `Outcome` | "Practice is not on." |
 
-`service/new` (existing) dates the new service today and, with `copy_from`, copies `template`, FEAT-1 theme and FEAT-2 `starts_at`.
+`service/new` (existing) dates the new service today and, with `copy_from`, copies `template`, FEAT-1 theme and FEAT-2 `starts_at` and drops FEAT-7 `planning_center` (item rules: §5.6, "Copy this service" column).
 
-`print/write` runs on `spawn_blocking`. With no `path`: `report_page::write_and_open(store, stem, html)` (HTML only). With a path: `write_atomic` to that path. `format: "pdf"` exists only from 6b-2 and requires `path`.
+`print/write` first awaits `scripture::fetch` for any reading with no stored or cached text (§6.3), then renders on `spawn_blocking`. With no `path`: `report_page::write_and_open(store, stem, html)` (HTML only). With a path: `write_atomic` to that path. `format: "pdf"` exists only from 6b-2 and requires `path`.
 
 ### 5.2 Copy last week (pure: `planning`)
 
@@ -196,7 +201,8 @@ pub fn next_week_date(source: Option<NaiveDate>, today: NaiveDate) -> NaiveDate;
 pub fn dated_name(name: &str, old: Option<NaiveDate>, new: NaiveDate, order: DateOrder) -> String;
 pub fn format_date(d: NaiveDate, order: DateOrder) -> String;           // 11/8/2026, 8/11/2026, 2026-11-08
 pub fn region_defaults(locale: Option<&str>) -> (DateOrder, Paper);
-pub fn copy_items(items: &[ServiceItem], blanks: bool) -> (Vec<ServiceItem>, usize);
+pub enum CopyMode { LastWeek { blanks: bool }, ThisService }   // arrangement rule differs (§5.6)
+pub fn copy_items(items: &[ServiceItem], mode: CopyMode, layouts: &HashSet<Uuid>) -> (Vec<ServiceItem>, usize);
 pub fn find_on_date(services: &[Service], date: NaiveDate) -> Option<Uuid>;
 ```
 
@@ -205,13 +211,13 @@ pub fn find_on_date(services: &[Service], date: NaiveDate) -> Option<Uuid>;
 - **Date order and paper** (`region_defaults`): from the OS locale (`sys-locale`) region. Mdy: US, PH, FM, MH, PW; Ymd: CA, CN, JP, KR, TW, HU, LT, MN, IR; otherwise Dmy. Paper Letter for US, CA, MX, PH, CL, CO, VE, else A4. No locale → ISO (Ymd) and Letter. `Settings.date_order` / `print.paper` override.
 - **Name:** `dated_name` strips one trailing date token (with a separating space, dash or en dash) **only if** it parses — as M/D/Y, D/M/Y, Y-M-D, 2- or 4-digit years — to exactly `old`. With `old == None` (pre-FEAT-6 services), it strips a token that parses in the computer's order or ISO. Then it appends `format_date(new, order)`. So a UK church's "Service 8/11/2026" with date 2026-11-08 becomes "Service 15/11/2026"; "Sunday Morning" → "Sunday Morning 15/11/2026".
 - **Items:** `copy_items` per §5.6.
-- The new service is appended, made current, and copies `template`, FEAT-1 theme and FEAT-2 `starts_at` (same time of day).
+- The new service is appended, made current, and copies `template`, FEAT-1 theme and FEAT-2 `starts_at` (same time of day); FEAT-7 `planning_center` is dropped (§5.6).
 - The UI checks `find_on_date` first (§3.2); the core does not refuse a duplicate date.
 
 ### 5.3 Templates (pure: `planning`)
 
 - `template_from_service(service, keep: &[Uuid], labels: &HashMap<Uuid, String>) -> ServiceTemplate`: kept items copied; others become blanks of the item's kind (Song, Scripture, Media, Deck, Text; Blank stays) per §5.6. Fresh ids.
-- `service_from_template(t, name, date)`: items with fresh ids, all fields kept; `template = Some(t.id)`; theme and `starts_at` from the template.
+- `service_from_template(t, name, date, layouts)`: items with fresh ids, fields per §5.6; `template = Some(t.id)`; theme and `starts_at` from the template; an item `stage_layout` whose layout is gone becomes `None`.
 - `default_date(day: Option<Day>, today)`: next date with that weekday, today included; None → today.
 - Default labels: Song "Song", Scripture "Bible reading", Media "Media", Deck "Slides", Text "Announcement", Any "Something".
 
@@ -246,28 +252,34 @@ pub fn with_engine<T>(&self, id: EngineId, f: impl FnOnce(&mut Live) -> T) -> Re
 
 **Updates.** `Update` gains `Practice(Option<LiveUpdate>)` (`None` = practice ended). `Update::Live` keeps carrying only the real engine. `LiveView` gains `practice: bool` (`skip_serializing_if = "Not::not"`, so today's JSON is byte-for-byte unchanged) and `room: Option<String>` (set only on practice views). `broadcast_live()` sends `Update::Live(real)` and then, when practice is on, `Update::Practice(Some(practice_view))` — so every data edit (`App::edit`), `room_event` and `room_recovered` refreshes practice's "Up next", titles, phone list and the strip's room text, and followers end on the practice view.
 
-**Command routing while practice is on** (`App::command`; `env.cmd` from operator or phone):
+**Command routing while practice is on** (`App::command`; `env.cmd` from the operator, the phone or a macro step). This table lists every command; it is the contract for FEAT-1, FEAT-2, FEAT-3, FEAT-4 and FEAT-7 commands in practice. **Rule: a clear always reaches the room** (v1 live safety).
 
 | Command | Goes to | Notes |
 | --- | --- | --- |
-| `Next`, `Prev`, `Show` | practice | base checked against practice version |
-| `ClearAll`, `ClearSlide`, `ClearMedia`, `ClearAudio`, `Logo` (F1–F5, phone) | practice only | room clears use `practice/room` |
+| v1 `Show`, `Next`, `Prev`, `GoToCue`, `TakeLive` | practice | base checked against practice version |
+| FEAT-4 `Jump`, `Refresh` | practice | Jump uses the practice base |
+| FEAT-1 `Overlay { id, on: true }` | practice | overlay lives in the practice frame |
+| FEAT-2 `ShowMessage` | practice | message lives in its overlay slot in the practice frame |
+| FEAT-2 timer show | practice | timer overlay in the practice frame; timers themselves are global |
+| FEAT-2 action `auto/set { on: true }` | practice | — |
+| `ClearAll`, `ClearSlide`, `ClearMedia`, `ClearAudio`, `Logo`, FEAT-1 `ClearOverlays` (F1–F6, clear buttons, phone) | **both engines** | real engine first (id as sent), then practice (id `<id>#practice`); each engine applies FEAT-1 §5.2's clear table |
+| Every off or hide command: FEAT-1 `Overlay { id, on: false }`, FEAT-2 `HideMessage`, timer hide, action `auto/set { on: false }` | **both engines** | a no-op where nothing is shown |
+| FEAT-3 `stage/message/*`, `stage/layout/*` | stage state (not an engine) | unchanged by practice |
+| FEAT-2 `RunMacro` | per step | `apply_batch` per engine: clear/logo and off/hide steps reach both engines (real first); every other step runs on practice only; media/audio steps go into the practice frame unplayed; a step that only makes sense on the room (e.g. FEAT-7 ScreenView) is refused: "`<macro>`: step N — not available in practice." |
+| FEAT-7 `SetScreenView` | real engine only | an output setting, not slide content |
 | `MediaPause`, `AudioPause` | practice | "Not played in practice." |
-| FEAT-2 `ShowMessage`, `HideMessage`, `ShowTimer`, `HideTimer` | practice only | overlays live in the practice frame |
-| FEAT-2 `RunMacro` | practice only | `apply_batch` on practice; media/audio steps go into the practice frame unplayed; any future step that targets the room by name is refused: "`<macro>`: step N — not available in practice." |
-| FEAT-2 `SetAutoAdvance` | the engine on screen (practice) | — |
-| FEAT-2 internal `AutoNext`, `AutoHideMessage` | the `EngineId` stored in their run state | dropped if that engine has ended |
+| FEAT-2 internal `AutoNext`, `AutoHideMessage` | the `EngineId` of their run | dropped if that engine has ended |
 | FEAT-2 `TimerAtZero` | each engine whose frame shows that timer (id, `id#practice`) | timers are global |
 | `practice/room` | real engine, fresh id `room-<uuid>` | explicit, labelled |
 | `RoomEvent` (`App::room_event`) | real engine | — |
 
-After every accepted practice command the core calls `practice.live.report(RoomEvent::Committed { version })` (no room, so requested = committed; `pending` never shows) and sets `last_command`.
+A two-engine command reports the real engine's `Outcome` to the sender; a stale base never blocks a clear (clears carry no base, or FEAT-2's `seen_clear` epoch, per FEAT-2 §5.11). After every accepted practice command the core calls `practice.live.report(RoomEvent::Committed { version })` (no room, so requested = committed; `pending` never shows) and sets `last_command`.
 
-**Automation is bound to its engine.** FEAT-2's `AutoRun` and `ShownMessage` gain `engine: EngineId`; the runtime holds at most one `AutoRun` per engine. A loop or auto-advance started on the room before practice keeps running on the real engine during practice (the room keeps cycling); one started during practice runs on practice. Nothing moves between engines on start or stop; stop drops practice-bound runs. The ticker calls `with_engine(run.engine, …)`.
+**Automation is bound to its engine.** The app keeps one `AutoRun` per engine (`HashMap<EngineId, AutoRun>`), and FEAT-2 reconciles every engine through `with_engine(id)` (there is no "active engine" helper). Shown messages are tracked by their overlay slot in each engine's frame (no separate shown-message record). A loop or auto-advance started on the room before practice keeps running on the real engine during practice (the room keeps cycling); one started during practice runs on practice. Nothing moves between engines on start or stop; stop drops the practice entry. `auto/set { on: false }` and clears stop runs on both engines, like every off command.
 
 **Real video end action during practice.** While practice is on, a real `EndAction::Next` is treated as `Stop` (the room never advances unseen, and never into another service after a service switch). The start overlay says so (§3.7).
 
-**Start (`practice/start`).** If `logo_first`: apply `Command::Logo` to the real engine (id `practice-logo-<uuid>`); under FEAT-2 rules this also hides room overlays such as the countdown. Then create the practice engine with nothing live and broadcast `Update::Practice(Some(view))`.
+**Start (`practice/start`).** If `logo_first`: apply `Command::Logo` to the real engine (id `practice-logo-<uuid>`); per FEAT-1 §5.2's clear table this removes timer overlays and keeps the message overlay (the start overlay's notes, §3.7). Then create the practice engine with nothing live and broadcast `Update::Practice(Some(view))`.
 
 **Stop (`practice/stop`).** Remember the practice cursor `(item_id, slide)`; drop the engine; set `practice_floor`; broadcast `Practice(None)` then `Live(real)`. With `take: true` and a cursor whose item is still in the current service, apply `Command::Show { item, slide }` to the real engine with `base = real.version` and id `practice-take-<uuid>`; result `shown: true`. Otherwise `shown: false` and toast "That slide isn't in the service any more."
 
@@ -275,7 +287,7 @@ After every accepted practice command the core calls `practice.live.report(RoomE
 
 - `ui::room` (native) matches only `Update::Live`; on `Lagged` it reads `live_view()`.
 - `server::event_stream` gets a **per-role map**: `room` → `Update::Live` JSON, `Update::Practice` skipped, Lagged → `live_view()`. `stage`/`operator` → `Practice(Some)` JSON; `Practice(None)` skipped (the real `Live` follows); `Live` skipped while `practice_active()`; Lagged and first message → `display_view()`.
-- `remote_view(app)` locks data → live → practice and reads the **active engine** (practice `Live` when on, else `app.live`) for `version`, `cursor`, `current`, `next`, `on_air`, `media`, `notice`; it adds `"practice": true` and `"room": "<summary>"` (both omitted when off). `remote_map` already sends a fresh `remote_view` for every non-job update and on Lagged; this now explicitly includes `Update::Practice`.
+- `remote_view(app)` locks data → live → practice and reads the **active engine** (practice `Live` when on, else `app.live`) for `version`, `cursor`, `current`, `next`, `on_air`, `media`, `notice`; it adds `"practice": true` and `"room": "<summary>"` (both omitted when off). Per FEAT-2's phone stream rule, `remote_map` sends `Update::Timers` only as `{type:"timers"}`; `Update::Live`, `Data`, `Stage` and `Practice` resend `remote_view`, as does Lagged. The phone's practice banner is the first thing on the Control tab (FEAT-2's tab order).
 - The practice engine never produces a `room::Plan`.
 
 **Followers:**
@@ -284,7 +296,7 @@ After every accepted practice command the core calls `practice.live.report(RoomE
 | --- | --- | --- |
 | Room (native `ui::room`, web `output.html`) | real only | real |
 | Livestream (FEAT-7) | real room's committed picture, like the room | real |
-| Stage (native `ui::stage`, web `stage.html`) | practice view + PRACTICE tag; first `show()` and Lagged use `display_view()` | real |
+| Stage (native `ui::stage`, web `stage.html`) | reads `App::display_view()`; listens to `Update::Practice` and `Update::Live`; PRACTICE tag via FEAT-3's `practice` property; first `show()` and Lagged use `display_view()`; the for-now layout clears on a live-item change of the displayed engine | real |
 | Operator | Live column = practice; strip = room monitor + `room` text; real notices → toasts | real |
 | Phone remote | `remote_view` of practice engine, `practice: true` → banner | real |
 
@@ -292,17 +304,26 @@ After every accepted practice command the core calls `practice.live.report(RoomE
 
 ### 5.6 What each copy keeps
 
-| Field | Copy last week / Copy this service | Template from service (kept / blanked row) | Service from template | Fill a blank |
-| --- | --- | --- | --- | --- |
-| `id` | new | new / new | new | blank's id |
-| `kind` (incl. FEAT-4 `arrangement`, FEAT-5 `second`) | kept; with blanks on, Song/Scripture → Blank | kept / Blank | kept | chosen |
-| `notes` | kept | kept / kept | kept | blank's, then chosen's after a blank line |
-| `background` | kept | kept / kept | kept | `chosen.or(blank)` |
-| FEAT-2 `advance` | kept | kept / kept | kept | `chosen.or(blank)` |
-| FEAT-3 `stage_layout` | kept | kept / kept | kept | `chosen.or(blank)` |
-| FEAT-3 `slide_notes` | kept; dropped when blanked | kept / dropped | kept | chosen's |
-| Service `date`, `template` | new date; source's template | — | given date; template id | — |
-| Service FEAT-1 `theme`, FEAT-2 `starts_at` | kept (same time of day) | → template | from template | — |
+Every Service and ServiceItem field has a row. "Dropped" means the default (`None`/empty).
+
+| Field | Copy last week | Copy this service | Template from service (kept / blanked row) | Service from template | Fill a blank |
+| --- | --- | --- | --- | --- | --- |
+| `id` | new | new | new / new | new | blank's id |
+| `kind` (incl. FEAT-5 `second`) | kept; with blanks on, Song/Scripture → Blank | kept | kept / Blank | kept | chosen |
+| FEAT-4 `ItemKind::Song.arrangement` | dropped (FEAT-4 D16) | kept | dropped / — | — (never stored) | chosen's |
+| Scripture verse text | reference and translation kept; stored text kept only for offline-status translations (FEAT-5 Bible storage rule) | same | same / — | same | chosen's, same rule |
+| `notes` | kept | kept | kept / kept | kept | blank's, then chosen's after a blank line |
+| `background` | kept | kept | kept / kept | kept | `chosen.or(blank)` |
+| FEAT-1 `ServiceItem.theme` | kept | kept | kept / kept | kept | `chosen.or(blank)` |
+| FEAT-2 `advance` | kept | kept | kept / kept | kept | `chosen.or(blank)` |
+| FEAT-3 `stage_layout` | kept; `None` if the layout is gone | same | kept / kept (template refs are kept and reported, FEAT-3 §5.6) | kept; `None` if the layout is gone | `chosen.or(blank)` |
+| FEAT-3 `slide_notes` | kept; dropped when blanked | kept | kept / dropped | kept | chosen's |
+| FEAT-7 `ServiceItem.pco_item_id` | dropped | dropped | dropped / dropped | — (never stored) | chosen's (normally none) |
+| Service `date`, `template` | new date; source's template | today; source's template | — | given date; template id | — |
+| Service FEAT-1 `theme`, FEAT-2 `starts_at` | kept (same time of day) | kept | → template | from template | — |
+| Service FEAT-7 `planning_center` | dropped | dropped | — (never stored) | — | — |
+
+Online or keyed Bible text is never written to `data.json`, backups, copies or templates; a copied or template-made Scripture item fetches its text through `scripture::fetch` when the service opens (FEAT-5).
 
 ### 5.7 Edge cases
 
@@ -324,7 +345,7 @@ src/print/mod.rs   // pub fn html(data, req) -> String;  (6b-2) pub fn pdf(data,
 src/print/doc.rs   // PrintDoc builders (pure)
 src/print/html.rs  // PrintDoc → self-contained HTML
 src/print/pdf.rs   // (6b-2) PrintDoc → PDF via cosmic-text + krilla
-src/print/text.rs  // every user-visible print string
+src/strings/print.rs // every user-visible print string (strings convention, FEAT-4 §7)
 src/report_page.rs // shared with FEAT-7: write_and_open(store, stem, html) -> Result<PathBuf, String>
 ```
 
@@ -354,7 +375,7 @@ With **notes** on, item notes print under the row in italic. FEAT-3 `slide_notes
 
 ### 6.3 Lyrics
 
-For each song item in service order: `Heading(title)`, `Credit` lines (writers; "© …"; "CCLI Song # x"), `Order(…)` from the item's `arrangement` override, else the song's arrangement, else natural order (labels joined " · "), then each distinct section once in first-appearance order (`slides::parse_sections` + `slides::song_order`), lines as written. With **scripture** on, each scripture item adds `Heading(reference + " (" + code + ")")`, its verses as one paragraph with verse numbers (via `bible::source(code)?.passage(&r)`), and, when FEAT-5 `second: Option<SecondText>` is set, a second paragraph headed with `second.translation`. A copyright line prints only when `TranslationSource::copyright()` exists (cross-spec request to FEAT-5: `fn copyright(&self) -> &str { "" }` default method); until then the code alone is printed. **Song per page** inserts `PageBreak` before each song after the first. Blanks are skipped. No songs or readings → "No songs or Bible readings in this service." **Both** = order, `PageBreak`, lyrics.
+For each song item in service order: `Heading(title)`, `Credit` lines (writers; "© …"; "CCLI Song # x"), `Order(…)` from the item's `arrangement` override, else the song's arrangement, else natural order (labels joined " · "), then each distinct section once in first-appearance order (`slides::parse_sections` + `slides::song_order`), lines as written. With **scripture** on, each scripture item adds `Heading(reference + " (" + code + ")")`, its verses as one paragraph with verse numbers, and, when FEAT-5 `second: Option<SecondText>` is set, a second paragraph headed with `second.translation`. Verse text comes from the item's stored text (offline translations) or the per-translation cache; only on a miss does print call FEAT-5's `scripture::fetch(root, translation, input)` (on the print worker thread). If that fails, the reading prints its reference with "(couldn't get the text — check the internet)". A copyright line prints from `bible_sources[].copyright` when it is set; otherwise the code alone is printed. **Song per page** inserts `PageBreak` before each song after the first. Blanks are skipped. No songs or readings → "No songs or Bible readings in this service." **Both** = order, `PageBreak`, lyrics.
 
 ### 6.4 HTML (6b)
 
@@ -376,18 +397,20 @@ The operator Live monitor (`src/ui/preview.rs`) and stage render the practice `F
 - `ui/dialogs/template-editor.slint` — `TemplateEditor` (wide `DialogShell`): name, day `ComboBox`, rows `[TemplateRow { icon, title, keep, label, want }]`; callbacks `toggle`, `label-edited`, `move`, `remove`, `add-blank`, `save`.
 - `ui/dialogs/template-pick.slint` — chooser for **New from template…**.
 - `ui/dialogs/print.slint` — `PrintDialog`: what `Segmented`, three `CheckBox`es, paper `Segmented`, buttons; `in property <bool> busy`, `in property <bool> pdf` (6b-2 shows Save PDF).
-- `ui/dialogs/practice.slint` — `StartPractice`: `room-text`, `[string] running`, `has-logo`, `hides-countdown`, `music`; three buttons.
+- `ui/dialogs/practice.slint` — `StartPractice`: `room-text`, `[string] running`, `has-logo`, `hides-countdown` (a timer overlay is up), `message-stays` (a message is up), `music`; three buttons.
 - `ui/operator/practice-strip.slint` — `PracticeStrip { in property <image> room; in property <string> room-text; in property <bool> warn; callback room-logo(); callback room-clear(); callback end(); callback end-and-show(); callback keep(); }`.
 
-**Changed:** `ui/theme.slint` (`practice: #4aa3ff`, `practice-ink: #06121f`, `practice-strip-bg: #4aa3ff26`); `ui/icons.slint` (`practice`, `template`, `print`, `calendar`, `blank`); `ui/operator.slint` (`practice`, strip under top bar); `ui/operator/topbar.slint` (Practice `TopBtn`); `ui/operator/service.slint` (blank rows, "N blanks"); `ui/operator/slides.slint` (Choose… button, Print…); `ui/operator/live.slint` (PRACTICE header/outline, caption); `ui/dialogs/services.slint` + `src/ui/dialogs/services.rs` (§3.1); `ui/dialogs/add.slint`, `src/ui/dialogs/add.rs`, `add_media.rs` (`fill: Option<Uuid>` mode); `ui/stage.slint` + `src/ui/stage.rs` (PRACTICE tag; `display_view()` on first show and Lagged; handles `Update::Practice`); `src/server.rs` (per-role map, `remote_view`); `web/stage.html` (PRACTICE tag from `view.practice`); `web/output.html` (no change in behaviour; covered by the room map test); `web/remote.html`/`remote.js` (banner from `practice`, room text, blanks greyed).
+**Changed:** `ui/theme.slint` (`practice: #4aa3ff`, `practice-ink: #06121f`, `practice-strip-bg: #4aa3ff26`); `ui/icons.slint` (`practice`, `template`, `print`, `calendar`, `blank`); `ui/operator.slint` (`practice`, strip under top bar); `ui/operator/topbar.slint` (Practice `TopBtn`); `ui/operator/service.slint` (blank rows, "N blanks"); `ui/operator/slides.slint` (Choose… button, Print…); `ui/operator/live.slint` (PRACTICE header/outline, caption); `ui/dialogs/services.slint` + `src/ui/dialogs/services.rs` (§3.1); `ui/dialogs/add.slint`, `src/ui/dialogs/add.rs`, `add_media.rs` (`fill: Option<Uuid>` mode); `src/ui/stage.rs` (reads `display_view()` on first show and Lagged; handles `Update::Practice` as well as `Update::Live`; sets FEAT-3's `practice: bool` property on `ui/stage.slint`, which draws the PRACTICE tag top-right in every layout as window chrome — FEAT-6 does not edit `stage.slint`); `src/server.rs` (per-role map, `remote_view`); `web/stage.html` (PRACTICE tag from `view.practice`); `web/output.html` (no change in behaviour; covered by the room map test); `web/remote.html`/`remote.js` (banner from `practice`, room text, blanks greyed).
 
 **New Rust glue:** `src/ui/dialogs/copy_week.rs`, `template_editor.rs`, `print.rs`, `practice.rs`; `src/ui/operator/practice.rs` (strip, room monitor, warning timer). `DialogKind` gains `TemplateEditor(TemplateDraft)` and `Print(Uuid)`; copy-week, template-pick and practice are ask-level overlays (`OpState.asks`).
 
 **Operator follower (Plan 3 Task 5):** `Update::Practice` → `PracticeSnap`. `OpState` gains `practice: Option<LiveUpdate>`; `apply_live` draws practice when `Some`, else real; the room monitor draws the real view. Bases come from the drawn view. On Lagged it reads both `live_view()` and `practice_view()`.
 
-**Keys:** no new shortcuts. In practice F1–F5 act on practice (§5.5).
+**Keys:** FEAT-6 adds no keys; the only key table is FEAT-1 §7. In practice F1–F6 clear the room and practice (§5.5).
 
-**Strings:** `src/planning_text.rs` (services, templates, practice, toasts, core errors) and `src/print/text.rs`. Plain wording ("blank", "practice").
+**Layout (FEAT-1 §7.2 budget at 1366×768):** the practice strip is one 44 px row under the top bar, counted in the budget (§3.7); the Practice top-bar button is icon-only below 1500 px wide; the Services dialog scrolls (§3.1); the template editor and Print dialog scroll inside `DialogShell` and fit in 768 px.
+
+**Strings:** `src/strings/planning.rs` (services, templates, practice, toasts, core errors) and `src/strings/print.rs`. Plain wording ("blank", "practice", "theme", "overlay").
 
 **Cargo.toml changes** (exact versions pinned at implementation to a release at least two weeks old; licences checked against MIT OR Apache-2.0):
 
@@ -414,7 +437,8 @@ The operator Live monitor (`src/ui/preview.rs`) and stage render the practice `F
 | `practice/start` while on | "Practice is already on." |
 | End and show, item gone | "That slide isn't in the service any more." (practice still ends) |
 | Phone command stale across start/stop | Normal stale handling; phone resyncs |
-| Data from a newer app | Startup error "This data was saved by a newer RustyPresenter. Please update the app."; file untouched (also on restore) |
+| Data from a newer app | Opens read-only with FEAT-1's banner; file untouched (FEAT-1 owns the guard and wording) |
+| Bible text can't be fetched for print | The reading prints its reference with "(couldn't get the text — check the internet)" |
 
 Print runs off the UI thread and never affects output. Practice has no room path.
 
@@ -422,45 +446,45 @@ Print runs off the UI thread and never affects output. Practice has no room path
 
 ### 9.1 Core unit tests
 
-`src/planning.rs` (6a): `week_source_prefers_latest_past_date`, `week_source_ignores_future_dated_services`, `week_source_future_only_falls_back_to_current`, `week_source_ties_take_later_service`, `week_source_falls_back_to_current_when_undated`, `next_week_adds_seven_days`, `next_week_skips_to_future_same_weekday`, `next_week_undated_is_next_sunday`, `next_week_on_sunday_undated_is_today`, `dated_name_replaces_us_date`, `dated_name_replaces_uk_date_matching_old`, `dated_name_keeps_non_matching_date_text`, `dated_name_replaces_iso_date`, `dated_name_appends_when_no_date`, `dated_name_strips_en_dash`, `region_defaults_us_gb_jp_unknown`, `copy_items_new_ids_keep_all_fields`, `copy_items_blanks_keep_notes_background_advance_layout_drop_slide_notes`, `copy_items_keeps_existing_blanks`, `template_from_service_keep_and_blank`, `template_blank_labels_default_by_kind`, `service_from_template_fresh_ids_and_template_id`, `default_date_next_weekday_includes_today`, `default_date_any_day_is_today`.
+`src/planning.rs` (6a): `week_source_prefers_latest_past_date`, `week_source_ignores_future_dated_services`, `week_source_future_only_falls_back_to_current`, `week_source_ties_take_later_service`, `week_source_falls_back_to_current_when_undated`, `next_week_adds_seven_days`, `next_week_skips_to_future_same_weekday`, `next_week_undated_is_next_sunday`, `next_week_on_sunday_undated_is_today`, `dated_name_replaces_us_date`, `dated_name_replaces_uk_date_matching_old`, `dated_name_keeps_non_matching_date_text`, `dated_name_replaces_iso_date`, `dated_name_appends_when_no_date`, `dated_name_strips_en_dash`, `region_defaults_us_gb_jp_unknown`, `copy_items_new_ids_keep_all_fields`, `copy_items_blanks_keep_notes_background_advance_layout_drop_slide_notes`, `copy_items_keeps_existing_blanks`, `copy_last_week_drops_arrangement`, `copy_this_service_keeps_arrangement`, `copies_drop_pco_item_id_and_planning_center`, `copies_keep_item_theme`, `copy_gone_stage_layout_becomes_none`, `online_scripture_copy_has_no_verse_text`, `offline_scripture_copy_keeps_verse_text`, `template_drops_arrangement_and_online_verse_text`, `template_from_service_keep_and_blank`, `template_blank_labels_default_by_kind`, `service_from_template_fresh_ids_and_template_id`, `service_from_template_gone_layout_is_none`, `default_date_next_weekday_includes_today`, `default_date_any_day_is_today`.
 
-`src/model.rs` / `src/store.rs` (6a): `old_data_json_loads_with_no_templates_and_no_dates`, `blank_item_round_trips`, `service_date_serializes_iso`, `print_settings_default`, `data_default_is_current_format`, `format_3_is_refused_and_file_untouched`, `restore_refuses_newer_format`, `first_format_2_save_copies_old_file_once`, `referenced_assets_include_template_backgrounds`, `media_delete_blocked_by_template`, `song_delete_blocked_by_template`, `deck_delete_blocked_by_template`.
+`src/model.rs` / `src/store.rs` (6a): `old_data_json_loads_with_no_templates_and_no_dates`, `blank_item_round_trips`, `service_date_serializes_iso`, `print_settings_default`, `settings_save_without_print_keeps_print`, `template_theme_and_starts_at_round_trip`, `data_default_is_supported_format`, `migrate_2_to_3_takes_before_update_backup`, `format_4_opens_read_only_and_file_untouched`, `referenced_assets_include_template_backgrounds`, `media_delete_blocked_by_template`, `song_delete_blocked_by_template`, `deck_delete_blocked_by_template`.
 
 `src/live.rs` / `src/app.rs` (6a): `next_skips_blank_items`, `prev_skips_blank_items`, `next_preview_skips_blanks`, `show_blank_says_choose_first`, `fill_replaces_blank_in_place_keeps_id_and_notes`, `fill_keeps_blank_background_when_choice_has_none`, `fill_refuses_non_blank`, `copy_week_action_selects_new_service_and_reports_blanks`, `copy_week_copies_starts_at_and_theme`, `from_template_action_uses_template_day`.
 
-`src/practice.rs` / `src/app.rs` (6c): `practice_versions_start_above_gap`, `second_practice_session_rejects_first_session_base`, `practice_next_does_not_change_real_engine`, `practice_commands_commit_immediately`, `practice_f1_does_not_touch_room`, `practice_f2_to_f5_do_not_touch_room`, `practice_room_logo_changes_real_engine_only`, `practice_resend_same_id_is_duplicate`, `real_base_is_stale_in_practice`, `practice_base_is_stale_after_stop`, `start_with_logo_first_puts_logo_on_room`, `stop_broadcasts_practice_none_then_real_live`, `stop_take_shows_practice_slide_on_room`, `stop_take_missing_item_only_stops`, `room_event_during_practice_goes_to_real_engine`, `edit_during_practice_rebroadcasts_practice_view`, `media_pause_in_practice_errors`, `real_loop_keeps_running_on_room_during_practice`, `practice_auto_advance_dropped_on_stop`, `message_in_practice_stays_in_practice_frame`, `macro_in_practice_runs_on_practice_only`, `real_video_end_next_during_practice_does_not_follow_service_switch`, `live_view_json_unchanged_when_not_practising`, `display_view_is_practice_while_on`.
+`src/practice.rs` / `src/app.rs` (6c): `practice_versions_start_above_gap`, `second_practice_session_rejects_first_session_base`, `practice_next_does_not_change_real_engine`, `practice_commands_commit_immediately`, `practice_f1_clears_room_and_practice`, `practice_f2_to_f6_reach_room_and_practice`, `practice_off_and_hide_commands_reach_both_engines`, `practice_overlay_on_and_show_message_stay_in_practice`, `practice_jump_and_refresh_use_practice_engine`, `practice_set_screen_view_goes_to_real_engine`, `macro_clear_step_in_practice_reaches_room`, `practice_room_logo_changes_real_engine_only`, `practice_resend_same_id_is_duplicate`, `real_base_is_stale_in_practice`, `practice_base_is_stale_after_stop`, `start_with_logo_first_puts_logo_on_room`, `logo_first_hides_timer_keeps_message`, `auto_runs_keyed_per_engine`, `stop_broadcasts_practice_none_then_real_live`, `stop_take_shows_practice_slide_on_room`, `stop_take_missing_item_only_stops`, `room_event_during_practice_goes_to_real_engine`, `edit_during_practice_rebroadcasts_practice_view`, `media_pause_in_practice_errors`, `real_loop_keeps_running_on_room_during_practice`, `practice_auto_advance_dropped_on_stop`, `message_in_practice_stays_in_practice_frame`, `macro_in_practice_runs_on_practice_only`, `real_video_end_next_during_practice_does_not_follow_service_switch`, `live_view_json_unchanged_when_not_practising`, `display_view_is_practice_while_on`.
 
-`src/server.rs` (6c): `web_room_stream_ignores_practice`, `web_stage_stream_follows_practice_with_flag`, `remote_view_uses_practice_engine_and_version`, `remote_json_has_practice_and_room_only_while_on`, `phone_next_during_practice_advances_practice_not_room`, `remote_allowlist_unchanged`.
+`src/server.rs` (6c): `web_room_stream_ignores_practice`, `web_stage_stream_follows_practice_with_flag`, `remote_view_uses_practice_engine_and_version`, `remote_json_has_practice_and_room_only_while_on`, `phone_next_during_practice_advances_practice_not_room`, `phone_clear_during_practice_reaches_room`, `remote_timers_update_sends_timers_only`, `remote_allowlist_matches_feat2_table`.
 
-`src/ui/stage.rs` (6c): `stage_lagged_resync_uses_display_view`.
+`src/ui/stage.rs` (6c): `stage_lagged_resync_uses_display_view`, `stage_follows_practice_and_live_updates`, `stage_for_now_layout_clears_on_displayed_engine_item_change`.
 
-`src/print/` (6b): `order_rows_for_every_kind`, `order_uses_item_arrangement_override`, `order_marks_blanks`, `order_includes_notes_only_when_asked`, `order_never_prints_slide_notes`, `lyrics_print_each_section_once_with_order_line`, `lyrics_print_second_translation`, `lyrics_skip_blanks`, `lyrics_scripture_optional`, `lyrics_song_per_page_inserts_breaks`, `lyrics_empty_service_message`, `html_escapes_text`, `html_has_no_script_or_remote_urls`, `html_page_size_from_paper`, `report_page_writes_to_reports_and_cleans_old`. 6b-2: `pdf_has_page_count`, `pdf_letter_and_a4_media_boxes`, `pdf_embeds_fixture_font_for_hangul` (a small OFL Hangul subset font in `tests/fixtures/fonts/` loaded into `Fonts`; no system font needed).
+`src/print/` (6b): `order_rows_for_every_kind`, `order_uses_item_arrangement_override`, `order_marks_blanks`, `order_includes_notes_only_when_asked`, `order_never_prints_slide_notes`, `lyrics_print_each_section_once_with_order_line`, `lyrics_print_second_translation`, `lyrics_use_stored_or_cached_text_before_fetch`, `lyrics_fetch_failure_prints_reference_only`, `lyrics_copyright_from_bible_sources`, `lyrics_skip_blanks`, `lyrics_scripture_optional`, `lyrics_song_per_page_inserts_breaks`, `lyrics_empty_service_message`, `html_escapes_text`, `html_has_no_script_or_remote_urls`, `html_page_size_from_paper`, `report_page_writes_to_reports_and_cleans_old`. 6b-2: `pdf_has_page_count`, `pdf_letter_and_a4_media_boxes`, `pdf_embeds_fixture_font_for_hangul` (a small OFL Hangul subset font in `tests/fixtures/fonts/` loaded into `Fonts`; no system font needed).
 
 ### 9.2 UI tests (Slint testing backend, `Ops::inline`, `tests/ui_operator_flows.rs` style)
 
 6a: `copy_last_week_creates_dated_service_and_opens_it`, `copy_last_week_existing_date_offers_open`, `copy_last_week_blanks_checkbox_makes_blanks`, `services_sorted_by_date_undated_last`, `older_services_collapse_after_eight`, `save_as_template_defaults_songs_to_blank`, `template_editor_add_blank_and_reorder`, `new_from_template_disabled_without_templates`, `blank_row_shows_choose_button_and_opens_add_in_fill_mode`, `fill_mode_use_this_replaces_blank`, `enter_on_blank_toasts_choose_first`.
 6b: `print_dialog_remembers_options`, `print_save_html_writes_file` (`Ops` receives the path directly).
-6c: `practice_button_starts_without_prompt_when_room_empty`, `practice_prompt_when_room_showing_slide`, `practice_prompt_lists_running_loop`, `practice_prompt_says_clear_when_no_logo`, `practice_strip_shows_room_text_and_end_button`, `practice_strip_room_logo_button`, `practice_live_header_says_practice`, `practice_f1_clears_practice_only`, `practice_warning_after_idle_hour`, `end_practice_and_show_this_takes_slide_live`, `practice_video_slide_shows_not_played_caption`, `end_practice_restores_real_live_view`, `stage_shows_practice_tag`.
+6c: `practice_button_starts_without_prompt_when_room_empty`, `practice_prompt_when_room_showing_slide`, `practice_prompt_lists_running_loop`, `practice_prompt_says_clear_when_no_logo`, `practice_strip_shows_room_text_and_end_button`, `practice_strip_room_logo_button`, `practice_prompt_notes_timer_and_message`, `practice_live_header_says_practice`, `practice_f1_clears_room_and_practice`, `practice_strip_fits_1366x768`, `services_dialog_scrolls_at_768`, `practice_warning_after_idle_hour`, `end_practice_and_show_this_takes_slide_live`, `practice_video_slide_shows_not_played_caption`, `end_practice_restores_real_live_view`, `stage_shows_practice_tag`.
 
 ### 9.3 Manual checks (church laptop + an old laptop; Windows, macOS, Linux once each)
 
 1. Copy last week on real data with a future service present; names/dates right; undated services still listed. Repeat with the OS region set to UK.
 2. Template from last Sunday → next Sunday → fill every blank.
 3. Print Both on Letter and A4 from Edge/Safari/Firefox; page breaks sane; a Spanish song prints. A Korean song prints where the computer has a Korean font (skip otherwise).
-4. Practice with the projector on and the walk-in loop running: room keeps looping; F1 in practice leaves the room alone; **Room: Logo** changes it; stage shows PRACTICE; a phone shows the banner, its Next and Clear drive practice only.
+4. Practice with the projector on and the walk-in loop running: room keeps looping; Next in practice leaves the room alone; F1 in practice clears the room and practice; **Room: Logo** changes the room only; stage shows PRACTICE; a phone shows the banner, its Next drives practice only and its Clear reaches the room too.
 5. End practice and show this: the practised slide appears in the room. End practice: room unchanged, phone resyncs.
 6. Kill the app during practice; restart in normal mode with the real room content.
-7. Old build opened on a FEAT-6 data file (developer check): `backups/data-before-format-2.json` exists.
+7. A format-2 build (FEAT-1 only) opened on a FEAT-6 data file (developer check): it opens read-only with FEAT-1's banner, and the FEAT-6 build's 2 → 3 "before-update" backup exists.
 
 ## 10. Dependencies on other FEAT specs
 
 - **Plan 3 (required):** Services and Add dialogs, DialogShell/ask overlays, `Ops`, `Theme`, `Thumbs`, `Preview`, follower thread.
-- **FEAT-1:** `Service.theme`/`ServiceTemplate.theme` copied per §5.6; template editor Look row; practice frames render through the overlay layer; "showing something" includes overlays. Not required to ship.
-- **FEAT-2:** copy rules for `starts_at` and `advance` (§5.6); **requests to FEAT-2:** add `engine: EngineId` to `AutoRun` and `ShownMessage`, hold one `AutoRun` per engine, route through `App::with_engine`, and extend its lock order to data → live → practice → automation; the routing table in §5.5 is the contract for its commands in practice. `practice/*` are not macro steps. `starts_at` feeds the forgotten-practice warning. FEAT-2 uses `jiff` for timestamps; FEAT-6 dates stay `chrono::NaiveDate` (already a dependency); both serialize as "YYYY-MM-DD", so a later switch is a type change only.
-- **FEAT-3:** stage follows `display_view()` and keeps a PRACTICE tag in every layout. **Request:** `stage/layout/delete` also clears `templates[*].items[*].stage_layout`. `slide_notes` are not printed and are dropped when blanking.
-- **FEAT-4:** print uses `ItemKind::Song.arrangement`, then the song's arrangement; section colours not printed.
-- **FEAT-5:** print uses `bible::source(code)`, `TranslationSource::passage`, `SecondText`; **request:** a default method `fn copyright(&self) -> &str { "" }` on `TranslationSource`.
-- **FEAT-7:** **requests:** the livestream follows the room's committed picture during practice (drop `stream_blank_in_practice_mode`; replace with `stream_ignores_practice_engine`); the usage log ignores practice-engine commits (real room commits during practice still count). `src/report_page.rs` is shared (`reports/`, 30-day cleanup). Planning Center import creates dated `Service`s and may use `ItemKind::Blank` for unmatched songs.
+- **FEAT-1:** owns the data format, the migration chain, the newer-data read-only banner and `Data::after_load` (FEAT-6 adds the 2 → 3 step, §4); owns the merge-by-key rule for `settings/save` and `service/update` (`Settings.print` relies on it); owns the clear table (§5.2: Logo removes timer overlays, keeps the message overlay), the key table (§7) and the 1366×768 layout budget (§7.2). `Service.theme`, `ServiceItem.theme` and `ServiceTemplate.theme` (declared by FEAT-6 with FEAT-1's `ThemeId`) are copied per §5.6; template editor **Theme** row; practice frames render through the overlay layer; "showing something" includes overlays. Not required to ship, but `ServiceTemplate.theme` needs FEAT-1's type.
+- **FEAT-2:** copy rules for `starts_at` and `advance` (§5.6); `ServiceTemplate.starts_at` is declared by FEAT-6 with FEAT-2's `TimeOfDay`. FEAT-2 keeps one `AutoRun` per engine (`HashMap<EngineId, AutoRun>`), reconciles every engine through `App::with_engine(id)`, tracks shown messages by overlay slot in each engine's frame, and extends its lock order to data → live → practice → automation; the routing table in §5.5 is the contract for its commands in practice. FEAT-2 §5.11 holds the phone allowlist table (FEAT-6 adds nothing) and the phone stream rule (§5.5). `practice/*` are not macro steps. `starts_at` feeds the forgotten-practice warning. FEAT-2 uses `chrono`; there is one time crate (§4).
+- **FEAT-3:** stage follows `display_view()` and listens to `Update::Practice` and `Update::Live`; FEAT-3's `ui/stage.slint` has a `practice: bool` property that draws the PRACTICE tag top-right in every layout as window chrome (FEAT-6 only sets it). FEAT-3 does not pre-declare `LayoutRef::Template`: FEAT-6 adds the variant `Template { template, name }` and its `layout_refs` arm when it lands. Layout deletes go only through `stage/layouts/replace`; template refs are kept and reported, and a service made from a template gets `stage_layout: None` when the id is gone. `slide_notes` are not printed and are dropped when blanking.
+- **FEAT-4:** print uses `ItemKind::Song.arrangement`, then the song's arrangement; section colours not printed. Copy rule for `arrangement` follows FEAT-4 D16 (§5.6). `Jump`/`Refresh` route to practice (§5.5). Strings convention (`src/strings/<area>.rs`).
+- **FEAT-5:** print and copies use FEAT-5's `scripture::fetch(root, translation, input)` and `SecondText`; copyright comes from `bible_sources[].copyright`. FEAT-6 uses nothing under `src/bible*` directly. Online or keyed verse text is never stored on items, copies or templates (§5.6); print uses stored or cached text and fetches only on a miss (§6.3).
+- **FEAT-7:** **requests:** the livestream follows the room's committed picture during practice (drop `stream_blank_in_practice_mode`; replace with `stream_ignores_practice_engine`); the usage log ignores practice-engine commits (real room commits during practice still count); `SetScreenView` goes to the real engine only. Copies and templates drop `Service.planning_center` and `ServiceItem.pco_item_id`. `src/report_page.rs` is shared (`reports/`, 30-day cleanup). Planning Center import creates dated `Service`s and may use `ItemKind::Blank` for unmatched songs.
 
 ## 11. Decisions for Jake to review
 
@@ -481,7 +505,7 @@ Print runs off the UI thread and never affects output. Practice has no room path
 | 13 | Lyrics print **each section once with an "Order:" line** | Full performance order with repeats |
 | 14 | Print sheets **black and white**; FEAT-3 slide notes **not printed** | Colour sheets; print slide notes |
 | 15 | Practice start: **room keeps what it shows**; if it shows something, ask "Show the logo, then practice" (default) / "Leave it", listing what still runs in the room | Always clear the room to the logo |
-| 16 | Practice: **F1–F5 and phone clears act on practice only**; the room has its own **Room: Logo / Room: Clear all** buttons in the strip | F1 also clears the room as an emergency key |
+| 16 | *(Reversed Nov 1)* Practice: **F1–F6, clear buttons, phone clears and every off/hide command reach the room and practice** (a clear always reaches the room); the strip also keeps room-only **Room: Logo / Room: Clear all** buttons | Clears act on practice only (the earlier choice) |
 | 17 | Practice: **stage follows practice** with a PRACTICE tag | Stage keeps the real room |
 | 18 | Practice: **phones follow and drive practice** with a banner | Phones locked out |
 | 19 | Practice: **videos/audio do not play** (thumbnail + "Not played in practice") | Play on the laptop's speakers |
@@ -491,11 +515,28 @@ Print runs off the UI thread and never affects output. Practice has no room path
 | 23 | Practice: **livestream follows the real room**, not practice (request to FEAT-7) | Stream blank in practice (FEAT-7's earlier choice) |
 | 24 | Practice is **never remembered**; app always starts normal; not startable from phone or macro | Remember across restarts; allow in macros |
 | 25 | Practice colour **blue** (`#4aa3ff`); no keyboard shortcut | Purple/grey; Ctrl+Shift+P |
-| 26 | Old-build safety: **copy of the old data file** on first format-2 save | Full backup with assets; or nothing |
+| 26 | *(Changed Nov 1)* Old-build safety: **data format 3** through FEAT-1's migration chain (a "before-update" backup at the step; format-2 builds open FEAT-6 data read-only) | The earlier one-off `data-before-format-2.json` copy |
 | 27 | Planning Center/online planning stays in FEAT-7; FEAT-6 is local only | — |
 
 ## Review notes
 
 - Locale date order: used the OS locale region (`sys-locale`) plus a small region table instead of reading each OS's short-date pattern, because the pattern APIs differ per OS and Linux has no reliable one; a Settings override covers the rest. Fallback is ISO as asked.
-- F1 as an emergency key that also clears the room (optional in the finding) was not adopted: one key with two effects is what the finding warned against; the strip's room buttons are one click away. Kept as the alternative in Decision 16.
-- Old-build mitigation copies only `data.json` (assets are content-addressed and are not removed by the format change), which is cheap on old laptops.
+- F1 clearing the room during practice was first not adopted; the Nov 1 cross-spec ruling reversed this (v1 live safety wins for clears), see Decision 16.
+- The one-off old-build copy was replaced by FEAT-1's migration chain and read-only guard (Decision 26).
+
+## Cross-spec alignment (Nov 1)
+
+- **Logo and overlays:** FEAT-1 §5.2's clear table is cited for Logo (removes timer overlays, keeps the message overlay; F1 and F6 remove both; Clear Slide/Media/Audio keep both). The "Show the logo, then practice" note reads "This also hides the countdown." only when a timer is up, and "The message stays on the room screen." when a message is up (§3.7, §5.5, `message-stays` property in §7).
+- **Time:** `chrono` only (no `jiff`); `NaiveDate` as YYYY-MM-DD, `DateTime<Utc>` as RFC 3339, `TimeOfDay` for times of day (§4, §10).
+- **Practice routing:** §5.5 lists every command (v1, FEAT-1, FEAT-2, FEAT-3, FEAT-4, FEAT-7). Clears, Logo, `ClearOverlays` (F1–F6) and every off/hide command reach both engines, including from the phone and macro clear steps; `SetScreenView` is real only. `SetAutoAdvance` became `auto/set`. One `AutoRun` per engine (`HashMap<EngineId, AutoRun>`) through `with_engine(id)`; `ShownMessage` is dropped (messages tracked by overlay slot). Decision 16 reversed; tests and manual check 4 updated.
+- **Stage:** follows `display_view()`, listens to `Update::Practice` and `Update::Live`, for-now layout clears on a live-item change of the displayed engine; the PRACTICE tag is FEAT-3's `practice` property (FEAT-6 no longer edits `stage.slint`).
+- **Data format:** `CURRENT_FORMAT`, the `Head` guard, the startup error and `backups/data-before-format-2.json` are gone; FEAT-6 adds the 2 → 3 step to FEAT-1's chain and sets `SUPPORTED_FORMAT = 3`; newer data opens read-only (§4, §8, §9, Decision 26).
+- **Words:** template editor "Look" row → "Theme" row.
+- **Merge rule:** `Settings.print` and new Service/ServiceItem fields rely on FEAT-1's merge-by-key `settings/save` / `service/update`.
+- **Copy rules:** §5.6 now has a column per operation and a row for every field (item `theme`, `arrangement` per FEAT-4 D16, `stage_layout` gone → `None`, `pco_item_id` / `planning_center` dropped, Scripture verse text per the Bible storage rule). FEAT-6 declares `ServiceTemplate.theme` and `starts_at`. `copy_items` takes a `CopyMode`.
+- **Stage layout refs:** dropped the `stage/layout/delete` request; FEAT-6 adds `LayoutRef::Template` and keeps refs.
+- **Strings:** `src/strings/planning.rs` and `src/strings/print.rs`.
+- **Phone:** `Update::Timers` goes as `{type:"timers"}` only; other updates resend `remote_view`; allowlist is FEAT-2 §5.11's table (test renamed `remote_allowlist_matches_feat2_table`).
+- **Keys:** "F1–F6" wording; FEAT-1 §7 is the only key table; FEAT-6 adds no keys.
+- **Layout budget:** practice strip counted in FEAT-1 §7.2 (one 44 px row, 64×36 monitor, Room ▾ menu below 1500 px); Practice button icon-only below 1500 px; Services dialog scrolls.
+- **Bible:** dropped `bible::source` / `TranslationSource` / the copyright request; print uses stored or cached text, then `scripture::fetch` on a miss; copyright from `bible_sources[].copyright`; copies of online/keyed readings carry reference and translation only.

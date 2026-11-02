@@ -2,7 +2,7 @@
 
 **Status:** Design (November 1, 2026), revised after review the same day. Written while Jake was asleep; every product choice made without him is listed in §11.
 **Roadmap:** `PROJECT_PLAN.md` §10b, FEAT-4. Depends on Plan 3 (native operator window). Can be built before FEAT-1..3.
-**Controls:** the v1 spec (`2026-10-29-rustypresenter-v1-design.md`) still controls live behaviour: layers and clear matrix (§6), command ids and base versions (§5.4), cues and navigation (§7), phone remote allowlist (§12.3). This spec adds to them and **amends exactly one rule**, the v1 §7.2 row "Live item edited in library" (§5.7). Nothing else in v1 changes.
+**Controls:** the v1 spec (`2026-10-29-rustypresenter-v1-design.md`) still controls live behaviour: layers and clear matrix (§6), command ids and base versions (§5.4), cues and navigation (§7), phone remote allowlist (§12.3, now kept as the single table in FEAT-2 §5.11). This spec adds to them and **amends exactly one rule**, the v1 §7.2 row "Live item edited in library" (§5.7). Nothing else in v1 changes. Version bump classes (`Change { None, Silent, Overlay, Visual }`, `commit_change`) are owned by FEAT-2; the keyboard table, Settings tab table and operator layout budget are owned by FEAT-1 §7.
 
 ---
 
@@ -23,12 +23,12 @@ This feature is for the volunteer at the laptop (often a teenager or a retiree, 
 
 - Section kind detection from existing labels; a fixed colour per kind; section info on every song slide.
 - Jump command in the core (`Command::Jump`), operator keys (with a Settings switch), section bar, phone chips, phone allowlist entry.
-- Live-item reconciliation after any change to library or service data: quiet adoption of new slides when the screen is unaffected, a "changed" banner plus an explicit **Update screen** command when it is.
+- Live-item reconciliation after any change to library or service data, **for every item kind** (FEAT-4 is the only reconciler; FEAT-1 themes, FEAT-3 stage notes and FEAT-5 scripture all go through it): quiet adoption of new slides when the screen is unaffected, a "changed" banner plus an explicit **Update screen** command when it is.
 - "Edit words" from the live column, with the cursor at the live section; **Save and show now**.
 - Arrangement strip widget (drag, keyboard move, add, remove, reset) in the song editor and in Item edit (per-service order override, with a visible "Custom order" badge).
 - Persistence of the per-service order with serde defaults.
 
-Build order inside FEAT-4 (each step ships on its own): (a) sections, colours, jump keys, phone chips; (b) reconcile, Refresh, Edit words; (c) drag-reorder of the song's usual order; (d) per-service override. Step (d) is behind decision D10: if Jake says no, it is dropped without touching (a)–(c).
+Build order inside FEAT-4 (each step ships on its own): (a) sections, colours, jump keys, phone chips; (b) reconcile, Refresh, Edit words; (c) drag-reorder of the song's usual order, plus the `ItemKind::Song.arrangement` field and `slides::item_order` (FEAT-7's Planning Center import writes that field); (d) per-service override editing (Item edit strip, "Custom order" badge, copy rule). Step (d) is behind decision D10: if Jake says no, it is dropped without touching (a)–(c), and the field stays for FEAT-7.
 
 **Out (not in this spec):**
 
@@ -49,7 +49,7 @@ Build order inside FEAT-4 (each step ships on its own): (a) sections, colours, j
   - When the selected item **is the live item**, the chips come from the live snapshot (`LiveView.sections`, §4.2), the live occurrence is outlined in `Theme.live`, the tooltip is "Verse 2 — press 2" (only when Section keys are on), and a click sends `Jump { occurrence }` (it walks the same slides Next walks).
   - When the selected item is **not** live, the chips come from the library build, no key hints are shown, the tooltip is "Click to show this part", and a click takes the first slide of that occurrence live (`Show`, the same as clicking that thumbnail, Plan 3 Task 7).
 - **Live column.** Under the live preview, the current section name and colour: "Chorus · slide 2 of 3". Up next shows the next cue's section chip too.
-- **Service list.** A song item with a per-service order shows a small "Custom order" badge (`Chip`, no colour state) after its title; the slide header shows "Custom order for this service" in `Theme.muted`.
+- **Service list.** A song item with a per-service order shows a small "Custom order" badge (`Chip`, no colour state) after its title; the slide header shows "Custom order for this service" in `Theme.muted` (below 1500 px wide it moves into the header's ⋯ menu with Choose/Print and Slide breaks, FEAT-1 §7.2).
 - **Phone.** Under the current-slide text, a scrollable row of chips for the live song's occurrences (from the snapshot), the live one highlighted.
 - **Stage display.** The stage view model gets the current and next section (label + colour). The default stage layout shows the label above the current text in the section colour (FEAT-3 owns where; until FEAT-3 lands, `ui/stage.slint` adds one label line).
 
@@ -69,7 +69,7 @@ Keys work only when focus is not in a text field and no dialog or ask overlay is
 | `E` | Ending / Outro / End / Coda |
 | `L` | Interlude / Instrumental / Turnaround / Vamp |
 
-Upper- and lower-case are the same (Shift and Caps Lock do not matter). A key with Ctrl, Cmd or Alt held is not a jump key. `0` and the other letters do nothing (they stay reserved, §10).
+Upper- and lower-case are the same (Shift and Caps Lock do not matter). A key with Ctrl, Cmd or Alt held is not a jump key. `0` and the other letters do nothing (they stay reserved). These keys are listed in FEAT-1 §7's single key table (presentation scope), which is the authority for every binding.
 
 **Every successful key jump shows a toast** naming the effect: "Jumped to Chorus (C)", "Jumped to Verse 2 (2)". This is the safety net for stray typing: Plan 3 returns focus to the window after every click, so a volunteer who starts typing a song title without clicking the search box would otherwise move the room screen with no sign on the laptop. A non-song live item ignores the keys with the toast "Section keys work on songs." and the room never changes.
 
@@ -93,14 +93,14 @@ The phone shows the live song's section chips (§3.1). Tapping one sends a Jump 
 ### 3.4 Fixing words while a song is live
 
 1. The live column has an **Edit words** button (pencil icon) whenever the live item is a song. It opens the song editor (Plan 3 Task 17) with the Lyrics box focused, caret at the first lyric line of the live section.
-2. **Whatever opened the editor** (Edit words, the library, the service list, a second service item using the same song), if `song.id == live.song_id` the editor shows a yellow banner: "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen." and offers **Save and show now**.
+2. **Whatever opened the editor** (Edit words, the library, the service list, a second service item using the same song), if `song.id == live.song.id` (`LiveItem.song`, §4.2) the editor shows a yellow banner: "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen." and offers **Save and show now**.
 3. The operator fixes the typo. The room shows the old words the whole time.
 4. The footer has **Cancel**, **Save** and, while the song is live, **Save and show now** (primary).
    - **Save** saves the song. The core reconciles (§5.4): if the slide on screen is unaffected, the live song quietly uses the new words from the next slide on and nothing changes on screen. Otherwise the live column shows a banner (§8) with an **Update screen** button.
    - **Save and show now** saves, then sends `Command::Refresh` for the live item. The screen shows the corrected words at the same place in the song (unless the text is cleared; §5.5).
 5. **Update screen** (live column banner) sends the same `Refresh`. The banner disappears when the live item matches the library again (after Refresh, after the edit is undone by hand, or when another item goes live).
 6. The banner also says what else shows the new words: "…Update screen shows it now. Clicking a slide also shows the new version." (Clicking a thumbnail sends `Show`, which builds the item from the library, so it applies the edit too.) Next, Back, keys and section chips keep walking the old words until then.
-7. The same applies to any other change that reaches the live song: Item edit's order override, a re-import updating the song, a background change, a Settings change to lines per slide, credits or the default background, a backup restore.
+7. The same applies to any other change that reaches the live item, of any kind: Item edit's order override, a re-import updating the song, a background change, a FEAT-1 theme change, FEAT-5 scripture break or translation changes, a Settings change to lines per slide, credits or the default background, a backup restore. A change to stage notes only is taken in silently (it never shows in the room).
 
 ### 3.5 Reordering an arrangement
 
@@ -173,7 +173,7 @@ pub fn heading_offset(lyrics: &str, label: &str, nth: usize) -> Option<usize>;
 
 `from_label` rules (lower-cased first word, same word list as `slides::section_label`): verse→Verse; chorus, refrain→Chorus; pre-chorus, prechorus, "pre chorus"→PreChorus; bridge→Bridge; tag→Tag; intro→Intro; ending, end, outro, coda→Ending; interlude, instrumental, turnaround, vamp→Interlude; post-chorus, misc, "Part N" (unlabelled songs), and any bracketed custom label → Other. The number is the first all-digit suffix word (≤ 2 digits, 1–99); letters like `2a` give no number.
 
-`model.rs` changes (all with serde defaults; old `data.json` loads unchanged):
+`model.rs` changes (all with serde defaults; old `data.json` loads unchanged). This is the **one** `Slide` listing for all roadmap specs:
 
 ```rust
 pub struct Slide {
@@ -182,10 +182,12 @@ pub struct Slide {
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub notes: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub section: Option<SectionRef>,          // NEW. Some for song slides only.
+    pub section: Option<SectionRef>,          // NEW (FEAT-4). Some for song slides only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<SlideSource>,          // FEAT-5. Some for scripture slides (verse range).
 }
 impl Slide {
-    pub fn new(label: impl Into<String>, content: SlideContent) -> Self; // notes empty, section None
+    pub fn new(label: impl Into<String>, content: SlideContent) -> Self; // notes empty, section None, source None
 }
 
 pub enum ItemKind {
@@ -203,6 +205,8 @@ pub struct Settings {
     pub section_keys: bool,                   // NEW. Settings → Presenting → Section keys.
 }
 ```
+
+There is no `Slide.key`. FEAT-3 derives stage-note keys with `notes::key_of(&Slide) -> Option<NoteKey>`: for song slides `NoteKey::Song { section: SectionRef.label lower-cased, occurrence: ordinal + 1, page: page + 1, pages }`, for scripture `NoteKey::Verse(VerseId)` from FEAT-5's `source` (`VerseId` with a 0-based book index). FEAT-4 only guarantees that `SectionRef` carries those fields.
 
 Every existing `Slide { label, content, notes }` struct literal (`slides.rs` builders, `bible.rs`, `live.rs` and `room.rs` tests, `app.rs` tests) becomes `Slide::new(label, content)` (plus `notes` set where it was non-empty), so later fields never break them again. Every `ItemKind::Song { song_id }` pattern gains `..` (`app.rs` song/delete check, `slides::build_item`; the web operator JSON is unaffected because the field is optional).
 
@@ -225,8 +229,10 @@ impl Command { fn relative(&self) -> bool { matches!(self, Command::Next | Comma
 
 pub struct LiveItem {
     // existing: item_id, title, kind, slides, background
-    pub song_id: Option<Uuid>,                // NEW. Some for song items; never changes for an item.
+    pub theme: ResolvedTheme,                 // FEAT-1: the resolved theme, part of the snapshot.
+    pub song: Option<SongRef>,                // NEW. Filled by DataPlan::build for song items; never changes for an item.
 }
+pub struct SongRef { pub id: Uuid, pub title: String, pub ccli: Option<String>, pub writers: String, pub copyright: String }
 
 pub struct Live {
     // existing fields…
@@ -241,7 +247,9 @@ pub enum ChangeReason { WordsOnScreen, LookOnScreen, PlaceLost, NoSlides }
 
 `Snapshot` (the revert history) also stores `changed`, so a revert after a failed prepare restores the matching banner.
 
-`app.rs` `LiveView` gains (and `LiveItemSummary` gains `song_id`):
+`Live.notice` is not used for edits: it holds only short-lived notices (FEAT-1 overlay failure, FEAT-2) and is cleared on every Visual change. `Live.changed` is the one "live item differs from the library" state for every item kind.
+
+`app.rs` `LiveView` gains (and `LiveItemSummary` gains `song_id`, derived from `LiveItem.song`):
 
 ```rust
 pub sections: Vec<OccurrenceView>,   // ALWAYS sections::occurrences(&live.item.slides): the snapshot, never the library
@@ -263,7 +271,7 @@ Unknown arrangement entries are skipped, as today. If every entry is unknown, th
 
 `Live::run` for `Command::Jump { item_id, kind, number, occurrence }`:
 
-1. Base check as for Next (required; stale → "stale: the screen changed before this arrived").
+1. Base check as for Next (required; any base other than the current version is stale, v1 §5.4 → "The screen changed — try again.").
 2. No cursor → `Err("Nothing is live yet.")`. Cursor item ≠ `item_id` → `Err("The live song changed — try again.")` (protects a phone tap that raced a Take Live; the base check normally catches it first).
 3. Resolve against the **live snapshot** (`self.item.slides`), the same slides Next walks (v1 §7.2). If no slide has `section` → `Err("Section keys work on songs.")`.
 4. If `occurrence` is `Some(o)` (phone chip, or a section-bar click on the live item): target = first slide of occurrence `o`; no such occurrence → `Err("The song changed — try again.")`; occurrence `o` has a kind other than `kind` → the same error (the phone's chip list was out of date). Otherwise `sections::jump_target` applies the jump rule in §3.2. `V` sends `kind: Verse, number: None`; a digit sends `kind: Verse, number: Some(d)`; digit matching uses `number`, or `verse_nth` when no verse in the song has a number.
@@ -273,30 +281,32 @@ A jump to the slide that is already live still calls `go` (new version; the room
 
 ### 5.3 Phone allowlist
 
-`server.rs remote_command`: add `Command::Jump { .. }` to `allowed`, and require `env.base.is_some()` for it (the core also requires it). `Command::Refresh` is **not** allowed from the phone. The v1 §12.3 allowlist line becomes: "`Next`, `Prev`, `GoToCue`, `Jump` (section of the live song), `TakeLive`…". The phone's chips always send `occurrence` and its kind, never a bare kind, so a tap means exactly the chip it hit.
+`server.rs remote_command`: add `Command::Jump { .. }` to `allowed`, and require `env.base.is_some()` for it (the core also requires it). `Command::Refresh` is **not** allowed from the phone. FEAT-2 §5.11 holds the only phone allowlist table; FEAT-4's row there is `Jump` with base column **base** (needs a fresh base). This spec does not rewrite the v1 §12.3 line. The phone's chips always send `occurrence` and its kind, never a bare kind, so a tap means exactly the chip it hit.
 
 ### 5.4 Reconciling the live item
 
-New `Live::reconcile(&mut self, plan: &dyn Plan) -> bool` (returns whether live state changed). Lock order is always data → live (the same as `live_view`). It runs:
+New `Live::reconcile(&mut self, plan: &dyn Plan) -> bool` (returns whether live state changed). FEAT-4 is the **only** reconciler, for every item kind (songs, scripture, media, custom); no other spec adds its own live-edit check. Lock order is always data → live (the same as `live_view`). It runs:
 
 1. in `App::edit` after the mutation, **whether or not the save succeeded** (memory has already changed), before the error is returned;
-2. in `backup/restore` after `*app.data` is replaced;
-3. in `App::room_event` right after `Live::report` reverts to a committed snapshot on `RoomEvent::Failed` (the reverted snapshot may predate a quiet adoption, so it must be re-checked against the library). `room_event` therefore takes the data lock before the live lock.
+2. on `Update::PlansReady` (FEAT-5 scripture plans finishing in the background);
+3. in `backup/restore` after `*app.data` is replaced;
+4. in `App::room_event` right after `Live::report` reverts to a committed snapshot on `RoomEvent::Failed` (the reverted snapshot may predate a quiet adoption, so it must be re-checked against the library). `room_event` therefore takes the data lock before the live lock.
 
-Each caller broadcasts live afterwards when it returns true.
+Each caller broadcasts live afterwards when it returns true. The snapshot never changes the room screen unasked (v1 §7.2 stays safe).
 
 Algorithm, with `old = self.item` (the snapshot) and `new = plan.build(old.item_id)`:
 
-1. Nothing live → return false. `new` is `None` (item removed from the service, or `service/select` switched services): clear `changed` if it named this item and return whether it was set. The v1 removed-item rule for navigation continues.
-2. `new.slides == old.slides` (full `PartialEq`) and backgrounds equal → clear `changed` if set; done.
+1. Nothing live → return false. The live item is scripture whose plan is still pending → return false (skip; `PlansReady` runs reconcile again). `new` is `None` (item removed from the service, or `service/select` switched services): clear `changed` if it named this item and return whether it was set. The v1 removed-item rule for navigation continues.
+2. `new.slides == old.slides` (full `PartialEq`), backgrounds equal and themes equal (`LiveItem.theme`, FEAT-1) → clear `changed` if set; done.
 3. `new.slides` empty → `changed = NoSlides`. Keep the snapshot.
-4. `m = sections::map_position(&old.slides, cursor.slide, &new.slides)`.
-   - `Exact(i)` or `Moved(i)`, **and** `same_on_screen(&new.slides[i], &old.slides[cursor.slide])`, **and** backgrounds equal → **quiet adoption** (§5.7): `self.item.slides = new.slides` (only `slides`; every other snapshot field, including FEAT-2 `advance` and any FEAT-1 theme, is kept), `cursor.slide = i`, `changed = None`, remap FEAT-2 auto-advance (below), `bump()`. The frame is not touched. The bump makes any in-flight Next/Jump stale, so nobody advances through slides they did not see.
+4. **Notes only:** same length, and every slide equal to the old one except `notes`, backgrounds and themes equal → `self.item.slides = new.slides`, `commit_change(Change::None)` (no version bump; the cursor index is unchanged, so in-flight commands stay valid), clear `changed` if set.
+5. `m = sections::map_position(&old.slides, cursor.slide, &new.slides)` (songs by `SectionRef`; scripture by FEAT-5's `slides::index_for_source`, called as a core mapper; other items by index).
+   - `Exact(i)` or `Moved(i)`, **and** `same_on_screen(&new.slides[i], &old.slides[cursor.slide])`, **and** backgrounds equal, **and** themes equal → **quiet adoption** (§5.7): `self.item.slides = new.slides` (only `slides`; every other snapshot field, including FEAT-2 `advance` and the FEAT-1 theme, is kept), `cursor.slide = i`, `changed = None`, call FEAT-2's `Automation::on_adopt(item_id, map)` with the old→new index map, then `commit_change(Change::Silent)`. The frame is not touched. A Silent change bumps only `version`, so by v1 §5.4 (any base other than the current version is stale) every in-flight Next/Jump becomes stale and nobody advances through slides they did not see.
    - `Lost` → `changed = PlaceLost`.
-   - Otherwise pick the reason, first match wins: (a) the live slide's text and reference differ **and** the song's words are not the same when every slide's text is joined and whitespace is collapsed → `WordsOnScreen`; (b) anything else (same words split differently by lines per slide, footer/credit/CCLI line, background) → `LookOnScreen`.
+   - Otherwise pick the reason, first match wins: (a) the live slide's text and reference differ **and** the item's words are not the same when every slide's text is joined and whitespace is collapsed → `WordsOnScreen`; (b) anything else (same words split differently by lines per slide, footer/credit/CCLI line, background, a theme difference from `LiveItem.theme`) → `LookOnScreen`.
    - In both banner cases the snapshot, frame and version are unchanged; Next/Prev/Jump keep walking the old slides until Refresh or a Show.
 
-**FEAT-2 auto-advance during adoption.** If an auto-advance run is active for this item, adoption keeps its due time, rewrites any stored `from_slide` from the old to the new cursor index, and leaves `waiting_for` alone; FEAT-2 treats "committed ≥ waiting_for" as satisfied, so the adoption's own commit cannot stall it. A pending `AutoNext { from_slide: old }` that arrives after adoption is matched against the remapped index (the core keeps `last_adopt: Option<(old, new)>` for the current version and translates `from_slide` once).
+**FEAT-2 auto-advance during adoption.** FEAT-2 owns this through `Automation::on_adopt(item_id, map)`: it rewrites `AutoRun.slide` with the map and checks any pending `AutoNext.from_slide` against the remapped slide. FEAT-2 re-arms timers only when `visual_version` changes, so a Silent adoption keeps the due time, and it matches commits with `committed >= waiting_for`, so the adoption's own commit cannot stall it. FEAT-4 keeps no adoption history of its own.
 
 **Room after adoption.** The new version has an identical frame; `room.rs` compares layer keys (built from `SlideLayer`, not from `Slide`, so labels and `section` never reach them), prepares nothing, and reports `Committed`; `pending()` becomes false.
 
@@ -314,11 +324,13 @@ Example: order `C V1 C V2 C`, live on the second chorus. Removing the first `C` 
 
 `Command::Refresh { item_id }` (no base; operator only; an explicit operator action, equivalent to re-taking the item at the same place):
 
+Refresh works for every item kind (the banner can appear for any kind, §5.4); the texts below say "song" because songs are the common case.
+
 1. Live cursor item ≠ `item_id` → `Err("That song is no longer live.")`.
 2. `new = plan.build(item_id)`; missing or no slides → `Err("That song has no slides now. The screen keeps the old words.")`; `changed` stays.
-3. Position = `map_position(...)`; `Lost` → slide 0 (v1 §7.2 "falls back to slide 1").
-4. Slide layer **up** (`frame.slide.is_some()`): `self.go(new, cursor.item_index, position)`; `changed = None`. The room shows the new words with the normal transition. Same background → keeps playing (existing `set_background` rule).
-5. Slide layer **down** (Clear Slide, Clear All or Logo is in effect): replace the whole snapshot with `new`, set `cursor.slide = position`, `changed = None`, `bump()`, and **leave the frame alone**. A clear is only undone by a show or navigation action; the next Next, Jump or click shows the new words. The toast "Saved. The new words show when you bring the text back." tells the operator why nothing moved.
+3. Position = `map_position(...)` (songs by `SectionRef`, scripture by `slides::index_for_source`, others by index); `Lost` → slide 0 (v1 §7.2 "falls back to slide 1").
+4. Slide layer **up** (`frame.slide.is_some()`): `self.go(new, cursor.item_index, position)` as `commit_change(Change::Visual)` with origin User (sets `visual_version` and `manual_version`, clears `notice`); `changed = None`. The room shows the new words with the normal transition. Same background → keeps playing (existing `set_background` rule).
+5. Slide layer **down** (Clear Slide, Clear All or Logo is in effect): replace the whole snapshot with `new`, set `cursor.slide = position`, `changed = None`, `commit_change(Change::Silent)`, and **leave the frame alone**. A clear is only undone by a show or navigation action; the next Next, Jump or click shows the new words. The toast "Saved. The new words show when you bring the text back." tells the operator why nothing moved.
 6. A prepare failure reverts to the committed snapshot (v1 §5.2), then `room_event` reconciles (§5.4), which puts the banner back.
 
 Refresh replaces the whole snapshot (not only `slides`), because it is an explicit operator choice like Take Live: a new FEAT-2 interval or FEAT-1 theme in the item takes effect.
@@ -339,14 +351,14 @@ Refresh replaces the whole snapshot (not only `slides`), because it is an explic
 
 v1 says live navigation uses the snapshot taken at Take Live until the operator re-takes it. The row now reads:
 
-> Live navigation uses the snapshot taken at Take Live. After any data change the core compares the snapshot with the library. If the slide on screen and the background would look exactly the same (`same_on_screen`), the core copies **only the new `slides`** into the snapshot and moves the cursor to the same place, without changing the frame (quiet adoption). No other snapshot field (title, background, FEAT-2 `advance`, FEAT-1 theme) is copied. Otherwise the snapshot is kept and the operator sees a banner; only `Refresh`, Take Live or a Show applies the change.
+> Live navigation uses the snapshot taken at Take Live. After any data change the core compares the snapshot with the library, for every item kind. A change to slide notes only is copied in with no version change. If the slide on screen, the background and the theme would look exactly the same (`same_on_screen`), the core copies **only the new `slides`** into the snapshot and moves the cursor to the same place, without changing the frame (quiet adoption, a Silent version bump). No other snapshot field (title, background, FEAT-2 `advance`, FEAT-1 theme) is copied. Otherwise the snapshot is kept and the operator sees a banner; only `Refresh`, Take Live or a Show applies the change.
 
-Consequences for other specs (to be updated by their owners; recorded in §10): FEAT-3's line "Live song editing changes the snapshot only through FEAT-4's explicit update" becomes "…through FEAT-4's explicit update, or FEAT-4 quiet adoption of slides when the screen is unaffected". FEAT-2 §5.4 "editing the item's interval while it's live takes effect the next time it's taken live" stays true (adoption never copies `advance`), with "or Update screen" added.
+Consequences for other specs (to be updated by their owners; recorded in §10): FEAT-3's line "Live song editing changes the snapshot only through FEAT-4's explicit update" becomes "…through FEAT-4's explicit update, or FEAT-4 adoption of slides when the screen is unaffected" (FEAT-3's own `live_notes` is dropped). FEAT-1's `theme_stale` line and FEAT-5's `live.notice` edit notice and UI re-take are dropped in favour of this mechanism. FEAT-2 §5.4 "editing the item's interval while it's live takes effect the next time it's taken live" stays true (adoption never copies `advance`), with "or Update screen" added.
 
 ## 6. Rendering
 
 - The room output and the compositor (`src/render/`) do not change. Section colours never reach the room. Room layer keys are built from `SlideLayer` (text, footer, reference), so `Slide.section`, labels and notes cannot cause a redraw.
-- **Theme today:** `LiveView.theme` is read from `data.settings.theme` and the room re-plans as soon as it changes (`room.rs` compares `last.theme`). The theme is outside the snapshot and outside reconcile, and a theme edit reaches the room immediately. FEAT-4 does not change that; FEAT-1 owns the rule (§10).
+- **Theme:** FEAT-1 snapshots the resolved theme into `LiveItem.theme` at Take Live/Show, so a theme edit no longer reaches the room on its own. Reconcile compares it (§5.4): a difference is `LookOnScreen`, the operator sees the change banner, and **Update screen** (`Command::Refresh`) applies it. Quiet adoption never copies the theme.
 - Thumbnails: the colour band and chip are Slint elements over the thumbnail image, so `ThumbKey` (Plan 3 Task 7) is unchanged and thumbnails are not re-rendered when only the arrangement changes.
 - Stage (`ui/stage.slint`, until FEAT-3 replaces the layout): a label line above the current text, text = `SectionRef.label` (plus " (2/3)" when `pages > 1`), colour = `SectionKind::color()` passed in as a `color` property from Rust (stage files keep their literals per Plan 3, so the colour comes from data, not `Theme`).
 - Phone (`web/remote.js`, `remote.html`): chip row from `LiveView.sections`; colours come from `OccurrenceView.color`, so the web page has no palette of its own.
@@ -377,19 +389,19 @@ All `.slint` colours come from `Theme`; no hex literals in operator/dialog files
 
 **New `ui/operator/section-bar.slint`**: `SectionBar { in property <[SectionBarChip]> chips; callback pick(int /*occurrence*/); }`, `export struct SectionBarChip { occurrence: int, short: string, label: string, kind: string, live: bool, tooltip: string }`. Horizontal `Flickable` when it overflows. `accessible-id: "section-bar"`, chips `sec-<n>`.
 
-**`ui/operator/slides.slint`** (Plan 3 Task 7): `SlideThumb` gains `section-kind: string`, `section-short: string`; draws the band and the chip. `SectionBar` sits between the header and the grid, hidden when `chips` is empty. The header shows "Custom order for this service" when the item has an override.
+**`ui/operator/slides.slint`** (Plan 3 Task 7): `SlideThumb` gains `section-kind: string`, `section-short: string`; draws the band and the chip. `SectionBar` sits between the header and the grid, hidden when `chips` is empty. The header shows "Custom order for this service" when the item has an override. Below 1500 px window width, the header's Choose/Print, Slide breaks (FEAT-5) and Custom order controls collapse into one ⋯ menu (FEAT-1 §7.2 layout budget).
 
 **`ui/operator/services.slint`** (Plan 3 Task 6): the row gains `in property <bool> custom-order` → a `Chip` "Custom order" (`accessible-id: "custom-order-<n>"`).
 
-**`ui/operator/live.slint`** (Plan 3 Task 9): section line under the preview; **Edit words** `Btn small` (visible when the live kind is song); the change banner (`Theme.notice-bg`/`notice-border`, text by `ChangeReason` from strings) with **Update screen** `Btn primary small` (hidden for `NoSlides`). Accessible ids `live-edit-words`, `live-changed`, `live-update-screen`.
+**`ui/operator/live.slint`** (Plan 3 Task 9): section line under the preview; **Edit words** `Btn small` (visible when the live kind is song); the change banner (`Theme.notice-bg`/`notice-border`, text by `ChangeReason` from strings) with **Update screen** `Btn primary small` (hidden for `NoSlides`). Accessible ids `live-edit-words`, `live-changed`, `live-update-screen`. Placement follows FEAT-1 §7.2's live-column budget at 1366×768: monitor, preview, **FEAT-4 section line** (with Edit words at its right end), **FEAT-4 change banner** (only while `changed` is set), then FEAT-1 Overlays strip, FEAT-2 automation strip, FEAT-3 Stage strip, Up next. The section line is one row; the banner wraps to at most two lines.
 
-**`ui/dialogs/settings.slint`** (Plan 3): a `CheckBox` "Section keys (C, B, 1–9…)" in Presenting, `accessible-id: "settings-section-keys"`, with the hint "Turn off if letters typed by mistake move the screen."
+**`ui/dialogs/settings.slint`** (Plan 3): a `CheckBox` "Section keys (C, B, 1–9…)" inside the existing Presenting tab (listed in FEAT-1 §7's single Settings tab table; FEAT-4 adds no tab), `accessible-id: "settings-section-keys"`, with the hint "Turn off if letters typed by mistake move the screen."
 
 **New `ui/dialogs/arrangement.slint`**: `ArrangementStrip { in property <[ArrChip]> chips; in property <[ArrAdd]> adds; in property <bool> written-order; in-out property <int> selected; callback move(int from, int to); callback remove(int); callback add(string label); callback reset(); }`. Drag uses `DragArea` with data `arr:<index>` and a `DropArea` per chip accepting only `arr:` data from another index (the Plan 3 service-list pattern), plus an end drop zone (`to = len`). Its own `FocusScope` handles Ctrl+←/→, ←/→ and Delete/Backspace while a chip is selected. `ArrChip { label: string, short: string, kind: string, missing: bool, faded: bool }`.
 
 **`ui/dialogs/song-editor.slint`** (Plan 3 Task 17): replace the Order `LineEdit` and the `+ label` chips with `ArrangementStrip`; add `in property <bool> live-song` (banner + **Save and show now** button); `callback save-and-show()`.
 
-**`ui/dialogs/item-edit.slint`** (Plan 3 Task 18): for kind song, an "Order for this service" `Field` with a `CheckBox` "Use the song's usual order" and the `ArrangementStrip` (disabled while checked), plus the **Make this the song's usual order** link button.
+**`ui/dialogs/item-edit.slint`** (Plan 3 Task 18): Item edit is scrollable with sections Words, Theme, Automation, Stage and Bible (FEAT-1 §7.2) and fits in 768 px; the order strip sits in **Words**. For kind song, an "Order for this service" `Field` with a `CheckBox` "Use the song's usual order" and the `ArrangementStrip` (disabled while checked), plus the **Make this the song's usual order** link button.
 
 **Rust glue:**
 
@@ -397,8 +409,8 @@ All `.slint` colours come from `Theme`; no hex literals in operator/dialog files
 - New `src/ui/operator/sections.rs`: `pub fn bar_chips(snap, selected: Option<Uuid>, live: &LiveView, keys_on: bool) -> Vec<SectionBarChip>`: when `selected == live item`, from `live.sections` with the live mark and key hints; otherwise from the selected item's library build (`slides::build_item`, off the UI thread in `OperatorSnapshot`) with no hints. `pick(o)`: live item → `Jump { occurrence: Some(o), kind }` with `base = live.version` (a stale result toasts "The screen changed — try again."); other item → `Show { item_id, slide: first_slide(o) }` (operator Show, no base, Plan 3 rule).
 - `src/ui/operator/live.rs`: Edit words opens `DialogKind::SongEditor { song_id, add_after: false, caret_section: Some(occurrence) }`; Update screen sends `Command::Refresh`.
 - New `src/ui/dialogs/arrangement.rs` (pure, unit-tested): `move_entry(&mut Vec<String>, from, to)`, `remove(&mut Vec<String>, i)`, `chips(lyrics: &str, arrangement: &[String]) -> (Vec<ArrChipData>, Vec<String> /*adds*/, bool /*written*/)`, `materialise_written(lyrics) -> Vec<String>`.
-- `src/ui/dialogs/song_editor.rs`: `live-song = (song.id == live.song_id)`, recomputed on every live update while open; caret placement with `TextEdit.set-selection-offsets(o, o)` at `sections::heading_offset(lyrics, label, nth)`; "Save and show now" = `song/save` then `Ops::cmd(Refresh)`; `order_warnings` is replaced by `ArrChip.missing`.
-- `src/ui/dialogs/item_edit.rs`: override on/off and strip; save goes through the existing `service/update` (the full `ServiceItem`, now carrying `arrangement`). "Make this the song's usual order" = `song/save` with the strip, then `service/update` with `arrangement: None`.
+- `src/ui/dialogs/song_editor.rs`: `live-song = (Some(song.id) == live.song.as_ref().map(|s| s.id))`, recomputed on every live update while open; caret placement with `TextEdit.set-selection-offsets(o, o)` at `sections::heading_offset(lyrics, label, nth)`; "Save and show now" = `song/save` then `Ops::cmd(Refresh)`; `order_warnings` is replaced by `ArrChip.missing`.
+- `src/ui/dialogs/item_edit.rs`: override on/off and strip; save goes through `service/update`, which merges by key (FEAT-1 rule): it sends `arrangement` as a list for an override, or an explicit `null` to clear it; a missing key keeps the stored value, so fields edited elsewhere (theme, advance, stage_layout, slide_notes, second, layout, breaks, pco_item_id…) are never overwritten. "Make this the song's usual order" = `song/save` with the strip, then `service/update` with `arrangement: null`.
 
 **Strings.** Shared convention for all roadmap specs: core and operator strings for an area live in `src/strings/<area>.rs` as `pub const` items, with `src/strings/mod.rs` declaring the modules. FEAT-4 uses `src/strings/song.rs` (it creates `mod.rs` if no other FEAT has yet). The core's new error texts are taken from there too. The phone's strings sit in one `const STR = {…}` object at the top of `web/remote.js`. Wording follows `web/operator.js` tone: short, plain, no jargon.
 
@@ -410,10 +422,10 @@ All `.slint` colours come from `Theme`; no hex literals in operator/dialog files
 | Jump key, live item not a song | Toast "Section keys work on songs." | Unchanged |
 | Jump, section not in song | Toast "This song has no Bridge." / "This song has no Verse 4." | Unchanged |
 | Jump with occurrence out of date (phone or chip) | "The song changed — try again." | Unchanged |
-| Jump/Next stale (phone or a raced key) | Phone: "The screen changed — try again." Operator key: none (Plan 3 `outcome_toast` hides stale for keys); chip click: same toast as phone | Unchanged |
+| Jump/Next stale (phone, a raced key, or one that crossed a quiet adoption) | Phone: "The screen changed — try again." Operator key: none (Plan 3 `outcome_toast` hides stale for keys); chip click: same toast as phone | Unchanged |
 | Save fails (disk) | Error toast with the core message; editor stays open; reconcile still runs on the changed memory | Unchanged |
 | Words on the slide on screen changed | Banner "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version." + Update screen | Unchanged until Update screen |
-| Same words, different look (split, footer, credits, background) | Banner "The live song looks different now. Update screen to show it." + Update screen | Unchanged until Update screen |
+| Same words, different look (split, footer, credits, background, theme) | Banner "The live song looks different now. Update screen to show it." + Update screen | Unchanged until Update screen |
 | Place in song lost (section removed) | Banner "The part of the song on screen was removed. Update screen starts the song from the top." + Update screen | Unchanged until Update screen |
 | Song now has no slides | Banner "This song has no words now. The screen keeps the old words." No Update button | Unchanged |
 | Refresh but song no longer live | Toast "That song is no longer live." | Unchanged |
@@ -443,17 +455,22 @@ All `.slint` colours come from `Theme`; no hex literals in operator/dialog files
 
 `src/live.rs`:
 - `jump_requires_base`, `jump_queued_before_clear_all_is_stale`, `jump_after_clear_slide_brings_text_back`, `jump_on_non_song_errors_and_keeps_version`, `jump_wrong_item_id_errors`, `duplicate_jump_id_applies_once`.
-- `edit_other_section_adopts_quietly_frame_unchanged` (frame equal, version +1, `next_preview` shows the new words).
-- `adoption_copies_only_slides` (snapshot title, background and an `advance` stub stay as taken).
-- `label_only_change_adopts_quietly`, `notes_only_change_adopts_quietly`, `occurrence_shift_adopts_quietly`.
+- `edit_other_section_adopts_quietly_frame_unchanged` (frame equal, `version` +1, `visual_version` and `manual_version` unchanged, `next_preview` shows the new words).
+- `adoption_makes_in_flight_next_stale` (Next with the pre-adoption base → stale "The screen changed — try again.").
+- `adoption_copies_only_slides` (snapshot title, background, theme and an `advance` stub stay as taken).
+- `label_only_change_adopts_quietly`, `occurrence_shift_adopts_quietly`.
+- `notes_only_change_adopts_with_no_version_change` (`Change::None`: version unchanged, snapshot notes updated).
+- `theme_change_gives_look_reason` (FEAT-1 `LiveItem.theme` differs → `LookOnScreen`; Refresh applies it).
+- `scripture_edit_reconciles_by_source` (FEAT-5 slide breaks changed off the live verse → quiet adoption via `index_for_source`), `pending_scripture_plan_skips_reconcile`, `plans_ready_reconciles`.
+- `media_item_edit_reconciles_by_index`.
 - `edit_live_slide_sets_words_on_screen_and_keeps_frame_and_version`.
 - `lines_per_slide_change_gives_look_reason`, `footer_change_gives_look_reason`, `background_change_gives_look_reason`.
 - `arrangement_change_while_live_keeps_position` (insert a chorus before the live verse → cursor index moves, frame unchanged, `changed` None).
-- `refresh_shows_new_words_at_same_position`, `refresh_lost_place_goes_to_slide_zero`, `refresh_with_no_slides_errors_and_keeps_changed`, `refresh_wrong_item_errors`.
-- `refresh_while_cleared_keeps_clear` (Clear Slide, then Refresh → frame unchanged, `changed` None, version +1; Next shows the new words), `refresh_while_logo_keeps_logo`.
+- `refresh_shows_new_words_at_same_position` (Visual/User: `visual_version` and `manual_version` set, `notice` cleared), `refresh_lost_place_goes_to_slide_zero`, `refresh_with_no_slides_errors_and_keeps_changed`, `refresh_wrong_item_errors`.
+- `refresh_while_cleared_keeps_clear` (Clear Slide, then Refresh → frame unchanged, `changed` None, Silent: `version` +1 only; Next shows the new words), `refresh_while_logo_keeps_logo`.
 - `failed_refresh_prepare_reverts_snapshot_and_banner`.
 - `failed_prepare_after_adoption_rechecks_library` (adopt, then a Failed for a later version reverts; `room_event` reconcile adopts again or sets the banner, never leaves a silent mismatch).
-- `quiet_adoption_keeps_auto_advance_running` (due time unchanged; an `AutoNext` with the old `from_slide` advances from the new index).
+- `quiet_adoption_calls_on_adopt` (`Automation::on_adopt` receives the old→new map; due time unchanged because `visual_version` did not change).
 - `unchanged_frame_commit_clears_pending` (after adoption, `report(Committed{new version})` → `pending()` false).
 - `take_live_other_item_clears_changed`, `removed_live_item_has_no_banner`, `service_switch_clears_banner`.
 
@@ -498,13 +515,13 @@ Window-level (`tests/ui_operator_flows.rs`): `c_key_jumps_live_song_to_chorus_an
 ## 10. Dependencies on other FEAT specs
 
 - **Plan 3 (required):** operator window, `Ops`, key routing, song editor, Item edit, Settings, service-list drag pattern, `Theme`. FEAT-4 changes those files; it must start after Plan 3 Tasks 6, 7, 9, 10, 17, 18 are merged.
-- **Shared key rule (all FEATs):** in the operator's presentation scope (no text field, no dialog), **bare letters A–Z and digits 0–9, with or without Shift, belong to FEAT-4 section jumps** (used now: 1–9, V C P B T I E L; the rest reserved). Other features use Ctrl/Alt combinations or F-keys.
-- **FEAT-1 (Looks/themes):** today the theme lives outside the snapshot (`LiveView.theme` from settings; the room re-plans when it changes), so theme edits apply live at once, and FEAT-4's reconcile ignores them. Contract: if FEAT-1 keeps the resolved theme outside `LiveItem`, that stays FEAT-1's rule. If FEAT-1 moves the resolved theme into `LiveItem`, then (a) quiet adoption never copies it (§5.7), (b) reconcile treats a theme difference as `LookOnScreen`, and (c) Refresh applies it. FEAT-1's PROPS/OVERLAY layer is untouched by Jump/Refresh (slide transitions; overlays persist per FEAT-1). Rich text runs in song slides (if FEAT-1 adds them) must be part of `SlideContent` so `same_on_screen` sees them.
-- **FEAT-2 (automation):** must not bind bare letters or digits (shared key rule). Macros may not contain `Jump` (it depends on what is live) or `Refresh` (it needs a fresh human look). A Jump restarts the slide timer like any slide change. Quiet adoption keeps an auto-advance run going (§5.4): FEAT-2 must compare `committed ≥ waiting_for` and accept FEAT-4's `from_slide` remap. FEAT-2 §5.4's "takes effect the next time it's taken live" gains "or when the operator chooses Update screen".
-- **FEAT-3 (stage):** **must change** its Decision 14 bare **N** (stage note) to **Alt+N** under the shared key rule (right-click stays). The SectionName element calls `sections::color_for_label(label) -> Option<&'static str>` (replacing the `songs::section_color` name in FEAT-3). Its dependency line becomes "Live song editing changes the snapshot only through FEAT-4's explicit update or FEAT-4 quiet adoption (slides only, screen unaffected)". Stage-note edits (`Slide.notes`) adopt quietly (notes are not on the room screen). FEAT-4 provides a minimal label line until FEAT-3 lands.
-- **FEAT-5 (Bible):** scripture slides have `section: None`; jump keys toast "Section keys work on songs." Scripture break editing is FEAT-5's and does not use `SectionRef`.
-- **FEAT-6 (service planning):** "Copy last week" and templates **drop** `ItemKind::Song.arrangement` (set `None`); "Copy this service" keeps it. Print/export lists each song's played order with short names using `slides::item_order(item, song)` + `slides::song_order(order, sections)` (the new signature), so print follows the override. Practice mode: jump keys and Refresh work unchanged (only the room output is suppressed).
-- **FEAT-7 (reporting):** CCLI usage counts a song once per service regardless of jumps or refreshes. Planning Center import (FEAT-7 as written): a new song's valid PCO `sequence` becomes `Song.arrangement`; existing library songs are never modified; FEAT-4 adds nothing and requires nothing more. (A later option to put the PCO sequence into the item override instead is left to FEAT-7 D22.)
+- **Keys (all FEATs):** FEAT-1 §7 holds the single keyboard table; FEAT-4's rows are the presentation-scope bare `1`–`9` and section letters (V C P B T I E L; other bare letters and `0` reserved). Every binding there is checked against FEAT-3's `OS_RESERVED`. Clear keys are F1–F6.
+- **FEAT-1 (themes/overlays):** FEAT-1 snapshots the resolved theme into `LiveItem.theme`. (a) Quiet adoption never copies it (§5.7), (b) reconcile treats a theme difference as `LookOnScreen`, and (c) Refresh applies it via the FEAT-4 banner; FEAT-1's `theme_stale` line is dropped. FEAT-1's overlay layer is untouched by Jump/Refresh (slide transitions; overlays persist per FEAT-1). Rich text runs in song slides (if FEAT-1 adds them) must be part of `SlideContent` so `same_on_screen` sees them. FEAT-1 also owns the Settings tab table, the operator layout budget (§7.2) and the merge-by-key rule for `settings/save` and `service/update` that Item edit relies on.
+- **FEAT-2 (automation):** owns `Change { None, Silent, Overlay, Visual }` and `commit_change`; FEAT-4 uses None (notes-only adoption), Silent (adoption, Refresh while cleared) and Visual/User (Refresh while visible). FEAT-2 adds `Automation::on_adopt(item_id, map)`, which rewrites `AutoRun.slide` and checks `AutoNext.from_slide` against the remapped slide; timers re-arm only when `visual_version` changes; commits match with `committed >= waiting_for`. Macros may not contain `Jump` (it depends on what is live) or `Refresh` (it needs a fresh human look). A Jump restarts the slide timer like any slide change. FEAT-2 §5.4's "takes effect the next time it's taken live" gains "or when the operator chooses Update screen". FEAT-2 §5.11 holds the phone allowlist table, with FEAT-4's `Jump` row (base).
+- **FEAT-3 (stage):** stage note is **Alt+N** (FEAT-1 key table; right-click stays). The SectionName element calls `sections::color_for_label(label) -> Option<&'static str>`; the classic stage layout includes a section label line in the section colour. Note keys come from `notes::key_of(&Slide)`, derived from `SectionRef` (§4.1); there is no `Slide.key`. FEAT-3's `live_notes` is dropped: stage-note edits (`Slide.notes`) are adopted by FEAT-4 with `Change::None`. Its dependency line becomes "Live editing changes the snapshot only through FEAT-4's explicit update or FEAT-4 adoption (slides only, screen unaffected)". FEAT-4 provides a minimal label line until FEAT-3 lands.
+- **FEAT-5 (Bible):** scripture slides have `section: None` and `source: Some(SlideSource)`; jump keys toast "Section keys work on songs." Scripture break editing is FEAT-5's and does not use `SectionRef`. FEAT-4 reconciles live scripture too, mapping the position with FEAT-5's `slides::index_for_source` (a core mapper), running on `Update::PlansReady` and skipping while a plan is pending; FEAT-5's `live.notice` edit notice and UI re-take are dropped.
+- **FEAT-6 (service planning):** "Copy last week" and templates **drop** `ItemKind::Song.arrangement` (set `None`); "Copy this service" keeps it. Print/export lists each song's played order with short names using `slides::item_order(item, song)` + `slides::song_order(order, sections)` (the new signature), so print follows the override. Practice mode: `Jump` and `Refresh` act on the **practice engine** (FEAT-6 §5.5 routing table); clears always reach the room as well.
+- **FEAT-7 (reporting):** CCLI usage counts a song once per service regardless of jumps or refreshes. Planning Center import: the PCO sequence becomes the imported service item's `ItemKind::Song.arrangement`, for new and existing songs; `Song.arrangement` in the library is untouched. This is FEAT-7's rule and does not depend on FEAT-4 step (d): the field `ItemKind::Song.arrangement` and `slides::item_order` ship with step (c) whatever D10 decides; step (d) adds only Item edit's strip, the badge and the copy rule. FEAT-7's room screen-view change is a Silent bump and does not affect FEAT-4.
 - **Strings (all FEATs):** `src/strings/<area>.rs`. FEAT-2 (`src/automation/strings.rs`), FEAT-3 (`src/stage/strings.rs`) and FEAT-6/7 (`text.rs`) should move to this path.
 
 ## 11. Decisions for Jake to review
@@ -516,11 +533,11 @@ Window-level (`tests/ui_operator_flows.rs`): `c_key_jumps_live_song_to_chorus_an
 | D3 | Which chorus `C` goes to | Restart current chorus if inside one; else next chorus ahead; else last one before | Always the next chorus ahead (pressing `C` twice skips forward) |
 | D4 | Section colours | Fixed palette per kind (§6.1); chorus is magenta because red means "live" | Colours editable in Settings |
 | D5 | Section colours on the room screen | Never shown to the congregation | Optional small section label for the band (lower corner) |
-| D6 | Live edit when the slide on screen is not affected | Quiet adoption of the new slides only (amends v1 §7.2, §5.7); nothing changes on screen | Always show the banner and require Update screen for any change to the live song |
+| D6 | Live edit when the slide on screen is not affected | Quiet adoption of the new slides only, for every item kind (amends v1 §7.2, §5.7); nothing changes on screen; notes-only changes adopt with no version change; any in-flight Next/Jump from before the adoption is rejected as stale ("The screen changed — try again.") | Always show the banner and require Update screen for any change to the live item |
 | D7 | Where live fixes are made | The full song editor, opened at the live section | Edit the text of one slide in place on its thumbnail |
 | D8 | Save button while live | Two buttons: **Save** and **Save and show now** (primary) | Only Save, then always Update screen |
 | D9 | Undo for song edits | None beyond Cancel in the editor | An undo of the last saved edit |
-| D10 | Per-service order | Supported (built last, step d): Item edit overrides the order for this service only, with a "Custom order" badge | One order per song only (simpler, but a short version for one week changes it everywhere) |
+| D10 | Per-service order | Supported (built last, step d): Item edit overrides the order for this service only, with a "Custom order" badge. The stored field is kept either way, because Planning Center import puts the PCO song order there (FEAT-7) | One order per song only in the UI (simpler, but a short version for one week changes it everywhere) |
 | D11 | Arrangement editing style | Draggable chips + `+ section` buttons + keyboard; the comma text box is removed | Keep the text box beside the chips for power users |
 | D12 | Phone section chips | Shown for the live song, tap jumps, no confirm (like Next) | Hidden behind a "Sections" button, or confirm before jumping |
 | D13 | After Lost place on Update screen | Start the song from slide 1 (v1 §7.2) | Stay on the nearest remaining section |
@@ -530,10 +547,24 @@ Window-level (`tests/ui_operator_flows.rs`): `c_key_jumps_live_song_to_chorus_an
 | D17 | Downgrade to an older build | Accepted: an older build that saves drops per-service orders | Bump `Data.format` so older builds refuse to open the file |
 | D18 | Update screen while the text is cleared | Takes the new words but keeps the clear; they show on the next Next/click | Show the words immediately (undoes the clear) |
 | D19 | Unnumbered verses and digit keys | `n` = the nth Verse section as written, when no verse has a number | Digits do nothing; only `V` works |
-| D20 | Interlude key and short name | `L` / "Int" (bare `N` stays free; FEAT-3's stage note moves to Alt+N) | `U`, or no Interlude key |
-| D21 | Different look, same words (lines per slide, credits, background) | "The live song looks different now" banner with Update screen | Adopt such changes quietly at the next slide |
+| D20 | Interlude key and short name | `L` / "Int" (bare `N` stays free; FEAT-3's stage note is Alt+N in FEAT-1's key table) | `U`, or no Interlude key |
+| D21 | Different look, same words (lines per slide, credits, background, a theme change) | "The live song looks different now" banner with Update screen; a theme edit no longer reaches the room on its own | Adopt such changes quietly at the next slide |
 
 ## Review notes
 
 - The P3 scope finding (ship drag-reorder first, override later) is taken as a build order (§2 steps a–d) rather than removing the override from the spec, so the badge and copy rule are designed now and D10 can still drop it.
-- The finding "resolve the N-key conflict in both specs" is resolved here by moving Interlude to `L` and stating the shared key rule; FEAT-3's own file is changed by its owner (§10 says what to change), since this pass edits only FEAT-4.
+- The finding "resolve the N-key conflict in both specs" is resolved by moving Interlude to `L`; FEAT-3's stage note is Alt+N in FEAT-1's single key table.
+
+## Cross-spec alignment (Nov 1)
+
+- Adoption uses FEAT-2's `commit_change`: notes-only = `Change::None`, quiet adoption = `Silent`, Refresh while cleared = `Silent`, Refresh while visible = `Visual`/User. Adoption calls `Automation::on_adopt(item_id, map)`; `last_adopt` and the `from_slide` remap text are gone (§5.4, §5.5, §10, tests).
+- Base freshness: any base other than the current version is stale (v1 §5.4); adoption's Silent bump makes in-flight Next/Jump stale; stale text is "The screen changed — try again." (§5.2, §5.4, §8, D6).
+- Reconcile covers every item kind, also runs on `Update::PlansReady`, skips pending scripture plans, and maps scripture with FEAT-5's `index_for_source`. A difference from FEAT-1's `LiveItem.theme` is `LookOnScreen`. FEAT-1 `theme_stale`, FEAT-5 `live.notice`/re-take and FEAT-3 `live_notes` are dropped; `live.notice` is for short-lived notices only (§2, §3.4, §4.2, §5.4, §5.7, §6, §10, D21).
+- §4.1 lists the full `Slide` (with FEAT-5 `source`); FEAT-3 derives note keys from `SectionRef`; no `Slide.key`.
+- `LiveItem.song: Option<SongRef>` replaces `song_id`; `LiveItem` lists `theme` (§4.2, §3.4, §7).
+- Phone allowlist: references FEAT-2 §5.11 instead of rewriting the v1 line (§5.3).
+- Keys: references FEAT-1 §7's single key table; the "shared key rule" is removed (§3.2, §10, D20).
+- Settings: Section keys sits inside Presenting in FEAT-1's tab table. Item edit sends `arrangement` through merge-by-key `service/update` (null clears) (§7).
+- Layout: live-column order and the slides header ⋯ menu below 1500 px follow FEAT-1 §7.2 (§3.1, §7).
+- Practice: Jump/Refresh act on the practice engine (§10). FEAT-1 is "themes/overlays" (no Looks/PROPS).
+- Planning Center: the PCO sequence becomes the service item's `ItemKind::Song.arrangement` for new and existing songs; the field ships with step (c) so it does not depend on step (d) (§2, §10, D10).
