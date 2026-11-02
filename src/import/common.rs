@@ -60,6 +60,29 @@ pub(crate) fn label_line(label: &str) -> String {
     if section_label(l).is_some() { l.to_string() } else { format!("[{l}]") }
 }
 
+/// "Chorus (2)", "Chorus (3)", …: the first numbered form of `base` whose section name isn't `taken`. The
+/// base is shortened so the number always survives `label_line`'s cut (a long name would otherwise give the
+/// same section name for every number, and the search would never end). Bounded; falls back to `base`.
+pub(crate) fn numbered_label(base: &str, taken: impl Fn(&str) -> bool) -> String {
+    for n in 2..=100_000usize {
+        let suffix = format!(" ({n})");
+        let mut cut = String::new();
+        for c in base.chars() { if cut.len() + c.len_utf8() + suffix.len() > 38 { break; } cut.push(c); }
+        let label = format!("{}{suffix}", cut.trim_end());
+        if !taken(&section_name(Some(&label))) { return label; }
+    }
+    base.to_string()
+}
+
+/// A lyric line as written into the app's format: one `section_label` would read as a label ("Instrumental",
+/// "Tag", "[Repeat]", common placeholder slides) is put in parentheses so it stays words on the slide.
+pub(crate) fn lyric_line(line: &str) -> String {
+    if section_label(line).is_none() { return line.to_string(); }
+    let t = line.trim();
+    let inner = if t.starts_with('[') && t.ends_with(']') { t.trim_matches(['[', ']']).trim() } else { t };
+    format!("({inner})")
+}
+
 /// The name `parse_sections` gives a label, which is what `arrangement` must list.
 pub(crate) fn section_name(label: Option<&str>) -> String {
     label.map(|l| section_label(&label_line(l)).unwrap_or_default()).unwrap_or_else(|| "Part 1".into())

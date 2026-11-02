@@ -13,7 +13,7 @@
 //!
 //! ProPresenter 7 `.pro` files are protobuf, not XML, and aren't supported yet: they are reported with a clear
 //! reason. `.pro6x` bundles are zip files holding a `.pro6`. Files are only read, never written.
-use super::common::{find_files, label_line, section_name, ImportReport};
+use super::common::{find_files, label_line, lyric_line, numbered_label, section_name, ImportReport};
 use super::easyworship::{rtf_text, split_writers};
 use super::openlyrics::{ccli_number, decode_xml, parse_xml, title_or};
 use crate::model::Song;
@@ -88,16 +88,18 @@ fn split_lines(text: &str) -> Vec<String> {
         .collect()
 }
 
-/// A Windows XAML FlowDocument's lines: one per `<Paragraph>`, split again at `<LineBreak/>`.
+/// A Windows XAML FlowDocument's lines: one per `<Paragraph>`, split again at `<LineBreak/>`. Text in any
+/// inline element (Run, Span, Bold, Italic, Underline, Hyperlink) counts; line breaks inside the XML text are
+/// only indentation, so they become spaces.
 fn flow_text(xaml: &str) -> Vec<String> {
+    const INLINE: &[&str] = &["Run", "Span", "Paragraph", "Bold", "Italic", "Underline", "Hyperlink"];
     let Ok(doc) = parse_xml(xaml) else { return vec![] };
     let mut text = String::new();
+    let push = |text: &mut String, t: &str| text.extend(t.chars().map(|c| if c.is_whitespace() { ' ' } else { c }));
     for n in doc.root_element().descendants() {
         if is(n, "Paragraph") || is(n, "LineBreak") { text.push('\n'); }
-        else if is(n, "Run") { if let Some(t) = attr(n, "Text") { text.push_str(t); } }
-        else if n.is_text() && n.parent().is_some_and(|p| is(p, "Run") || is(p, "Span") || is(p, "Paragraph")) {
-            text.push_str(n.text().unwrap_or(""));
-        }
+        else if is(n, "Run") { if let Some(t) = attr(n, "Text") { push(&mut text, t); } }
+        else if n.is_text() && n.parent().is_some_and(|p| INLINE.iter().any(|i| is(p, i))) { push(&mut text, n.text().unwrap_or("")); }
     }
     split_lines(&text)
 }
@@ -151,7 +153,9 @@ fn read_groups(root: Node) -> Result<Vec<Group>, String> {
     let mut read = |slides: Vec<Node>| -> Result<Vec<Vec<String>>, String> {
         slides_seen += slides.len();
         if slides_seen > MAX_SLIDES { return Err(format!("the song has too many slides (more than {MAX_SLIDES})")); }
-        let out: Vec<Vec<String>> = slides.into_iter().map(slide_lines).filter(|l| !l.is_empty()).collect();
+        // A disabled slide is hidden in ProPresenter, so it isn't part of the song.
+        let out: Vec<Vec<String>> = slides.into_iter().filter(|s| !attr(*s, "enabled").is_some_and(|v| v.trim().eq_ignore_ascii_case("false")))
+            .map(slide_lines).filter(|l| !l.is_empty()).collect();
         words += out.iter().flatten().map(String::len).sum::<usize>();
         if words > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
         Ok(out)
@@ -175,8 +179,10 @@ fn arrangement_ids(root: Node) -> Vec<String> {
     let chosen = selected.and_then(|s| arrangements.iter().find(|a| attr(**a, "uuid").is_some_and(|u| u.trim().eq_ignore_ascii_case(s))))
         .or(arrangements.first());
     let Some(a) = chosen else { return vec![] };
-    a.descendants().filter(|n| is(*n, "NSString")).filter_map(|n| n.text()).map(|t| t.trim().to_string())
-        .filter(|t| !t.is_empty()).take(MAX_ORDER).collect()
+    // ProPresenter 6 writes `<NSString>uuid</NSString>`; ProPresenter 5 `<NSMutableString serialization-native-value="uuid"/>`.
+    a.descendants().filter(|n| is(*n, "NSString") || is(*n, "NSMutableString"))
+        .filter_map(|n| n.text().filter(|t| !t.trim().is_empty()).or_else(|| attr(n, "serialization-native-value")))
+        .map(|t| t.trim().to_string()).filter(|t| !t.is_empty()).take(MAX_ORDER).collect()
 }
 
 /// Groups → lyrics in the app's format and the arrangement (empty when it is just the written order).
@@ -193,7 +199,7 @@ fn lyrics_of(groups: Vec<Group>, order_ids: &[String]) -> Result<(String, Vec<St
         let mut label = base.clone();
         if let Some(earlier) = kept.iter().find(|k| section_name(Some(&k.0)).eq_ignore_ascii_case(&name)) {
             if earlier.1 == g.slides { name_of.push(Some(section_name(Some(&earlier.0)))); merged = true; continue; }
-            label = (2..).map(|n| format!("{base} ({n})")).find(|l| !taken(&section_name(Some(l)))).unwrap_or_else(|| base.clone());
+            label = numbered_label(&base, taken);
         }
         name_of.push(Some(section_name(Some(&label))));
         kept.push((label, g.slides.clone()));
@@ -204,11 +210,14 @@ fn lyrics_of(groups: Vec<Group>, order_ids: &[String]) -> Result<(String, Vec<St
     for (label, slides) in &kept {
         if !out.is_empty() { out.push(String::new()); }
         out.push(label_line(label));
-        out.push(slides.iter().map(|s| s.join("\n")).collect::<Vec<_>>().join("\n\n"));
+        out.push(slides.iter().map(|s| s.iter().map(|l| lyric_line(l)).collect::<Vec<_>>().join("\n")).collect::<Vec<_>>().join("\n\n"));
     }
     let written: Vec<String> = kept.iter().map(|k| section_name(Some(&k.0))).collect();
-    let by_id: HashMap<&str, &str> = groups.iter().zip(&name_of)
-        .filter_map(|(g, n)| Some((g.id.as_str(), n.as_deref()?))).filter(|(id, _)| !id.is_empty()).collect();
+    // A uuid shared by two groups (copied between songs) means the first of them.
+    let mut by_id: HashMap<&str, &str> = HashMap::new();
+    for (g, n) in groups.iter().zip(&name_of) {
+        if let (false, Some(n)) = (g.id.is_empty(), n.as_deref()) { by_id.entry(g.id.as_str()).or_insert(n); }
+    }
     let mut order: Vec<String> = order_ids.iter().filter_map(|id| by_id.get(id.as_str()).map(|n| n.to_string())).collect();
     if order.is_empty() && merged { order = name_of.into_iter().flatten().collect(); }
     if order == written { order.clear(); }
@@ -220,9 +229,14 @@ fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -> (String, 
     let root = doc.root_element();
     let get = |name: &str| attr(root, name).unwrap_or("").trim().to_string();
     let title = title_or(&get("CCLISongTitle"), fallback);
+    // Writers: ProPresenter 6's CCLIAuthor, else the older `author`, else the artist credits.
+    let writers = ["CCLIAuthor", "author", "CCLIArtistCredits", "artist"].iter().map(|n| get(n)).find(|w| !w.is_empty()).unwrap_or_default();
+    // Copyright: ProPresenter 6's year + publisher, else ProPresenter 4/5's single CCLICopyrightInfo.
+    let mut rights = copyright(&get("CCLICopyrightYear"), &get("CCLIPublisher"));
+    if rights.is_empty() { rights = copyright("", &get("CCLICopyrightInfo")); }
     let song = read_groups(root).and_then(|groups| lyrics_of(groups, &arrangement_ids(root))).map(|(lyrics, arrangement)| Song {
-        id: Uuid::new_v4(), title: title.clone(), writers: split_writers(&get("CCLIAuthor")), ccli: ccli_number(&get("CCLISongNumber")),
-        copyright: copyright(&get("CCLICopyrightYear"), &get("CCLIPublisher")), lyrics, arrangement,
+        id: Uuid::new_v4(), title: title.clone(), writers: split_writers(&writers), ccli: ccli_number(&get("CCLISongNumber")),
+        copyright: rights, lyrics, arrangement,
     });
     (title, song)
 }
@@ -284,8 +298,8 @@ fn read_file(p: &Path, report: &mut ImportReport) {
     }
 }
 
-/// Reads one ProPresenter song file (any name), or every `.pro6`/`.pro5` in a folder and its subfolders (the
-/// ProPresenter 6 library is a folder of them). ProPresenter 7 `.pro` files and `.pro6x` bundles found in a
+/// Reads one ProPresenter song file (any name), or every `.pro6`/`.pro5`/`.pro4` in a folder and its subfolders
+/// (the ProPresenter 6 library is a folder of them). ProPresenter 7 `.pro` files and `.pro6x` bundles found in a
 /// folder are listed as skipped with the reason; other files are left out.
 pub fn read_propresenter(path: &Path) -> Result<ImportReport, String> {
     let mut report = ImportReport::default();
@@ -389,6 +403,91 @@ Verse 2\n\u{2018}Twas grace that taught my heart to fear,\nAnd grace my fears re
     }
 
     #[test]
+    fn long_duplicate_names_do_not_hang() {
+        // 40 bytes: label_line cuts labels to 38, so a " (2)" suffix must be made to fit.
+        let name = "Chorus with key change to D all sing now";
+        assert_eq!(name.len(), 40);
+        let d = doc("", &[group(name, "a", &["One"]), group(name, "b", &["Two"]), group(name, "c", &["Three"])], &[]);
+        let s = parse_str(&d).unwrap();
+        let l = labels(&s);
+        assert_eq!(l.len(), 3, "{l:?}");
+        assert!(l[1].ends_with(" (2)") && l[2].ends_with(" (3)"), "{l:?}");
+        assert!(l.iter().all(|x| x.len() <= 40));
+        // Many 35-byte names: every one still gets its own section.
+        let name = "Verse that goes on for a long while";
+        let groups: Vec<String> = (0..12).map(|i| group(name, &format!("g{i}"), &[&format!("Words {i}")])).collect();
+        let s = parse_str(&doc("", &groups, &[])).unwrap();
+        let mut l = labels(&s);
+        l.sort();
+        l.dedup();
+        assert_eq!(l.len(), 12, "{l:?}");
+    }
+
+    #[test]
+    fn review_label_like_slide_text_stays_a_lyric() {
+        let d = doc("", &[group("Verse 1", "a", &["Amazing grace"]), group("Bridge", "b", &["Instrumental"]),
+            group("Chorus", "c", &["[Repeat]", "Tag", "Sing"])], &["a", "b", "c", "b"]);
+        let s = parse_str(&d).unwrap();
+        assert_eq!(s.lyrics, "Verse 1\nAmazing grace\n\nBridge\n(Instrumental)\n\nChorus\n(Repeat)\n\n(Tag)\n\nSing");
+        assert_eq!(labels(&s), ["Verse 1", "Bridge", "Chorus"]);
+        assert_eq!(s.arrangement, ["Verse 1", "Bridge", "Chorus", "Bridge"]);
+    }
+
+    #[test]
+    fn review_pro5_metadata_and_mutable_string_arrangement() {
+        let d = format!("<RVPresentationDocument versionNumber=\"500\" CCLISongTitle=\"Old Hymn\" author=\"Ann Writer; Bob Writer\" CCLICopyrightInfo=\"1779 Public Domain\" selectedArrangementID=\"x2\"><array rvXMLIvarName=\"groups\">{}{}</array><array rvXMLIvarName=\"arrangements\"><RVSongArrangement uuid=\"x2\"><array rvXMLIvarName=\"groupIDs\"><NSMutableString serialization-native-value=\"b\"/><NSMutableString serialization-native-value=\"a\"/><NSMutableString serialization-native-value=\"b\"/></array></RVSongArrangement></array></RVPresentationDocument>",
+            group("Verse 1", "a", &["One"]), group("Chorus", "b", &["Sing"]));
+        let s = parse_str(&d).unwrap();
+        assert_eq!(s.writers, "Ann Writer | Bob Writer");
+        assert_eq!(s.copyright, "© 1779 Public Domain");
+        assert_eq!(s.arrangement, ["Chorus", "Verse 1", "Chorus"]);
+        // Artist credits when there is no author; ProPresenter 6 year + publisher win over CCLICopyrightInfo.
+        let d = doc("CCLIArtistCredits=\"Cy Singer\" CCLICopyrightYear=\"2001\" CCLIPublisher=\"Hymns Ltd\" CCLICopyrightInfo=\"old\"", &[group("V", "a", &["x"])], &[]);
+        let s = parse_str(&d).unwrap();
+        assert_eq!(s.writers, "Cy Singer");
+        assert_eq!(s.copyright, "© 2001 Hymns Ltd");
+    }
+
+    #[test]
+    fn review_unknown_selected_arrangement_falls_back_to_first() {
+        let d = doc("selectedArrangementID=\"nope\"", &[group("Verse 1", "a", &["One"]), group("Chorus", "b", &["Sing"])], &["b", "a"]);
+        assert_eq!(parse_str(&d).unwrap().arrangement, ["Chorus", "Verse 1"]);
+    }
+
+    #[test]
+    fn review_shared_uuid_keeps_the_first_group() {
+        let d = doc("", &[group("Verse 1", "a", &["One"]), group("Chorus", "a", &["Sing"])], &["a", "a"]);
+        assert_eq!(parse_str(&d).unwrap().arrangement, ["Verse 1", "Verse 1"]);
+    }
+
+    #[test]
+    fn review_win_flow_inline_formatting_and_indentation() {
+        let x = "<FlowDocument xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\">\n  <Paragraph>\n    <Bold>Amazing</Bold> grace, <Italic>how</Italic> <Underline>sweet</Underline>\n    <Run Text=\"the\"/>\n    <Run>sound</Run>\n  </Paragraph>\n  <Paragraph><Hyperlink>That saved</Hyperlink><LineBreak/>a wretch</Paragraph>\n</FlowDocument>";
+        assert_eq!(flow_text(x), ["Amazing grace, how sweet the sound", "That saved", "a wretch"]);
+    }
+
+    #[test]
+    fn review_disabled_slides_are_left_out() {
+        let d = doc("", &[group("Verse 1", "a", &["One", "Hidden"])], &[]).replacen(
+            &slide("Hidden"), &slide("Hidden").replace("enabled=\"true\"", "enabled=\"false\""), 1);
+        assert_eq!(parse_str(&d).unwrap().lyrics, "Verse 1\nOne");
+    }
+
+    #[test]
+    fn review_bom_utf16_and_non_ascii_parse() {
+        let d = doc("CCLISongTitle=\"Señor\"", &[group("Verse 1", "a", &["Ünïcödé — 主 🎵"])], &[]);
+        let mut bom = b"\xEF\xBB\xBF".to_vec();
+        bom.extend_from_slice(d.as_bytes());
+        let le: Vec<u8> = [0xFF, 0xFE].into_iter().chain(d.encode_utf16().flat_map(u16::to_le_bytes)).collect();
+        let be_no_bom: Vec<u8> = d.encode_utf16().flat_map(u16::to_be_bytes).collect();
+        for bytes in [bom, le, be_no_bom] {
+            let s = parse_bytes(&bytes).unwrap();
+            assert_eq!(s.title, "Señor");
+            assert_eq!(s.lyrics, "Verse 1\nÜnïcödé — 主 🎵");
+        }
+    }
+
+    #[test]
     fn slide_text_is_cleaned() {
         let d = doc("", &[group("Verse 1", "a", &["  Line\tone \r\n\r\n\u{2029}Line two\u{0b}three  ", "", "   "])], &[]);
         assert_eq!(parse_str(&d).unwrap().lyrics, "Verse 1\nLine one\nLine two\nthree");
@@ -468,11 +567,12 @@ Verse 2\n\u{2018}Twas grace that taught my heart to fear,\nAnd grace my fears re
         std::fs::write(d.join("Blank.pro6"), doc("CCLISongTitle=\"Blank Song\"", &[group("Verse", "a", &[""])], &[])).unwrap();
         std::fs::write(d.join("Sunday.pro6plx"), "<RVPlaylistDocument/>").unwrap();
         std::fs::write(d.join("notes.txt"), "not a song").unwrap();
+        std::fs::write(d.join("Older.pro4"), doc("CCLISongTitle=\"Older Song\"", &[group("Verse 1", "a", &["Old words"])], &[])).unwrap();
 
         let r = read_propresenter(&d).unwrap();
         let mut titles: Vec<_> = r.songs.iter().map(|s| s.title.as_str()).collect();
         titles.sort();
-        assert_eq!(titles, ["Amazing Grace", "Morning Light"]);
+        assert_eq!(titles, ["Amazing Grace", "Morning Light", "Older Song"]);
         let mut skipped: Vec<_> = r.skipped.iter().map(|(t, w)| (t.as_str(), w.as_str())).collect();
         skipped.sort();
         assert_eq!(skipped.len(), 4, "{skipped:?}");

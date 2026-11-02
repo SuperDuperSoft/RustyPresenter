@@ -5,7 +5,7 @@
 //! The whole library is read into one `ImportReport`; the caller saves all of it in one step or none of it.
 //! Table layout comes from the OpenLP/FreeShow importers: `song` (rowid, title, author, copyright,
 //! administrator, reference_number, vendor_id …) and `word` (song_id → song.rowid, words = one RTF document).
-use super::common::{check_sqlite, columns, find_file, label_line, section_name, snapshot, value_int, value_text};
+use super::common::{check_sqlite, columns, find_file, label_line, numbered_label, section_name, snapshot, value_int, value_text};
 pub use super::common::{classify, Dedupe, ImportReport};
 use crate::{model::Song, slides::section_label};
 use encoding_rs::Encoding;
@@ -351,7 +351,7 @@ fn words_to_lyrics(rtf: &str) -> (String, Vec<String>) {
             if earlier.1 == groups { order.push(section_name(earlier.0.as_deref())); repeats = true; continue; }
             let base = label.clone().unwrap_or_else(|| name.clone());
             let taken = |n: &str| kept.iter().any(|k| section_name(k.0.as_deref()).eq_ignore_ascii_case(n));
-            label = (2..).map(|n| format!("{base} ({n})")).find(|l| !taken(&section_name(Some(l))));
+            label = Some(numbered_label(&base, taken));
         }
         order.push(section_name(label.as_deref()));
         kept.push((label, groups));
