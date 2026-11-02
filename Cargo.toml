@@ -34,13 +34,19 @@ reqwest = { version = "0.13", default-features = false, features = ["json", "que
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
+# Plan 4: file addresses for LibreOffice, cancelling converters.
+url = "2.5"
+tokio-util = "0.7"
 
 [build-dependencies]
 tauri-build = "2"
 slint-build = "1.18"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_System_JobObjects", "Win32_System_Registry", "Win32_System_Threading"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [profile.release]
 lto = "thin"
