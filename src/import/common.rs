@@ -180,6 +180,31 @@ pub(crate) fn find_file(dir: &Path, names: &[&str]) -> Option<PathBuf> {
         .find(|p| p.is_file() && p.file_name().and_then(|n| n.to_str()).is_some_and(|n| names.iter().any(|x| n.eq_ignore_ascii_case(x))))
 }
 
+/// Files under `dir` that `keep` accepts, sorted, not following links (so a link loop can't trap the walk), at
+/// most `max_depth` folders down. The bool says the walk stopped after `max` entries.
+pub(crate) fn find_files(dir: &Path, max: usize, max_depth: usize, keep: impl Fn(&Path) -> bool) -> (Vec<PathBuf>, bool) {
+    let mut out = Vec::new();
+    let mut stack = vec![(dir.to_path_buf(), 0usize)];
+    let mut seen = 0usize;
+    while let Some((d, depth)) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&d) else { continue };
+        let mut entries: Vec<_> = rd.flatten().collect();
+        entries.sort_by_key(|e| e.file_name());
+        let mut subdirs = Vec::new();
+        for e in entries {
+            seen += 1;
+            if seen > max { return (out, true); }
+            let Ok(ft) = e.file_type() else { continue };
+            let p = e.path();
+            // macOS leaves "._name" resource-fork files next to the real ones on shared drives.
+            if e.file_name().to_string_lossy().starts_with("._") { continue; }
+            if ft.is_dir() && depth < max_depth { subdirs.push((p, depth + 1)); } else if ft.is_file() && keep(&p) { out.push(p); }
+        }
+        stack.extend(subdirs.into_iter().rev());
+    }
+    (out, false)
+}
+
 pub(crate) fn value_text(v: rusqlite::types::ValueRef) -> String {
     use rusqlite::types::ValueRef;
     match v {

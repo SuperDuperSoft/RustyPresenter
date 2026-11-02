@@ -9,13 +9,13 @@
 //! as are `#` comment lines, tab/grid/abc/lilypond/svg blocks, and directives or sections meant for one instrument
 //! (`{start_of_verse-guitar}`). Chords (`[G]`) and formatting tags (`<b>`) inside lyric lines are removed. Text
 //! outside any section is split at blank lines into verses. Files are only read, never written.
-use super::common::{label_line, section_name, ImportReport};
+use super::common::{find_files, label_line, section_name, ImportReport};
 use super::easyworship::split_writers;
 use crate::model::Song;
 use crate::slides::section_label;
 use encoding_rs::{UTF_16BE, UTF_16LE, WINDOWS_1252};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use uuid::Uuid;
 
 /// File extensions picked up when a folder is imported (a single file is read whatever its name).
@@ -474,31 +474,6 @@ fn has_extension(p: &Path) -> bool {
     p.extension().and_then(|e| e.to_str()).is_some_and(|e| EXTENSIONS.iter().any(|x| e.eq_ignore_ascii_case(x)))
 }
 
-/// ChordPro files under `dir`, sorted, not following links (so a link loop can't trap the walk).
-/// The bool says the walk stopped after `max` entries.
-fn find_files(dir: &Path, max: usize) -> (Vec<PathBuf>, bool) {
-    let mut out = Vec::new();
-    let mut stack = vec![(dir.to_path_buf(), 0usize)];
-    let mut seen = 0usize;
-    while let Some((d, depth)) = stack.pop() {
-        let Ok(rd) = std::fs::read_dir(&d) else { continue };
-        let mut entries: Vec<_> = rd.flatten().collect();
-        entries.sort_by_key(|e| e.file_name());
-        let mut subdirs = Vec::new();
-        for e in entries {
-            seen += 1;
-            if seen > max { return (out, true); }
-            let Ok(ft) = e.file_type() else { continue };
-            let p = e.path();
-            // macOS leaves "._name" resource-fork files next to the real ones on shared drives.
-            if e.file_name().to_string_lossy().starts_with("._") { continue; }
-            if ft.is_dir() && depth < MAX_DEPTH { subdirs.push((p, depth + 1)); } else if ft.is_file() && has_extension(&p) { out.push(p); }
-        }
-        stack.extend(subdirs.into_iter().rev());
-    }
-    (out, false)
-}
-
 fn file_label(p: &Path) -> String { p.file_name().unwrap_or_default().to_string_lossy().into_owned() }
 
 /// One file's songs added to `report`; problems become skipped entries named after the file.
@@ -532,7 +507,7 @@ pub fn read_chordpro(path: &Path) -> Result<ImportReport, String> {
         return Ok(report);
     }
     if !path.is_dir() { return Err(format!("Couldn't find {}.", path.display())); }
-    let (files, cut_short) = find_files(path, MAX_FILES);
+    let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, has_extension);
     if files.is_empty() {
         return Err(format!("No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {}.", path.display()));
     }
@@ -760,10 +735,10 @@ And grace my fears relieved;
     fn folder_limit_is_reported() {
         let tmp = TempDir::new().unwrap();
         for i in 0..5 { std::fs::write(tmp.0.join(format!("s{i}.cho")), "{t: S}\nx\n").unwrap(); }
-        let (files, cut) = find_files(&tmp.0, 3);
+        let (files, cut) = find_files(&tmp.0, 3, MAX_DEPTH, has_extension);
         assert_eq!(files.len(), 3);
         assert!(cut);
-        assert!(!find_files(&tmp.0, 50).1);
+        assert!(!find_files(&tmp.0, 50, MAX_DEPTH, has_extension).1);
     }
 
     #[test]

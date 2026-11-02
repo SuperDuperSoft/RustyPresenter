@@ -28,9 +28,11 @@ pub struct OlpSong {
     pub temporary: bool,
 }
 
-/// One `<verse>` of the lyrics XML: type code ("v", "c" …), label ("1", "2a"), text.
+/// One `<verse>` of the lyrics XML: type code ("v", "c" …), label ("1", "2a"), text. `name` is a section name of
+/// its own (OpenSong's `[Coda]`, an OpenLyrics `name="Outro"`) used instead of one made from kind and label;
+/// OpenLP's own verses have none.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Verse { pub kind: String, pub label: String, pub text: String }
+pub struct Verse { pub kind: String, pub label: String, pub text: String, pub name: String }
 
 /// Lyrics bigger than this are not a song (a stray document pasted in); skipped instead of parsed.
 const MAX_LYRICS: usize = 1_000_000;
@@ -48,7 +50,7 @@ fn is_bom_or_space(c: char) -> bool { c.is_whitespace() || c == '\u{feff}' }
 /// hold `<lines>` (each one a slide) whose line breaks are `<br/>` (or one `<line>` per line), and whose
 /// whitespace, newlines included, is only spacing; `<comment>`s are not lyrics. Walked without recursion, so
 /// deep nesting can't overflow the stack, and each element is entered and left once.
-fn verse_text(verse: roxmltree::Node) -> String {
+pub(crate) fn verse_text(verse: roxmltree::Node) -> String {
     let mut out = String::new();
     let (mut in_lines, mut in_comment) = (0usize, 0usize);
     // Open elements, innermost last: the ancestors of the node being visited (descendants() is document order).
@@ -95,14 +97,14 @@ pub fn parse_verses(xml: &str) -> Result<Vec<Verse>, String> {
             let name = n.attribute("name").unwrap_or("").trim();
             if let Some(c) = name.chars().next() { kind = c.to_string(); label = name[c.len_utf8()..].trim().to_string(); }
         }
-        Verse { kind, label, text: verse_text(n) }
+        Verse { kind, label, text: verse_text(n), name: String::new() }
     }).collect())
 }
 
 /// OpenLP's verse types by their one-letter code (also how `verse_order` tags start). Anything else is "Other".
 fn letter_code(c: Option<char>) -> char {
     match c.map(|c| c.to_ascii_lowercase()) {
-        Some(c @ ('v' | 'c' | 'b' | 'p' | 'i' | 'e')) => c,
+        Some(c @ ('v' | 'c' | 'b' | 'p' | 'i' | 'e' | 't')) => c,
         _ => 'o',
     }
 }
@@ -119,13 +121,14 @@ fn kind_code(kind: &str) -> char {
         "pre-chorus" | "prechorus" | "pre chorus" | "pre-refrain" | "vorrefrain" | "pre-coro" => 'p',
         "intro" | "introduction" | "einleitung" | "introducción" => 'i',
         "ending" | "end" | "outro" | "coda" | "schluss" | "final" => 'e',
+        "tag" => 't',
         "other" | "andere" | "otro" => 'o',
         _ => letter_code(k.chars().next()),
     }
 }
 
 fn kind_name(code: char) -> &'static str {
-    match code { 'v' => "Verse", 'c' => "Chorus", 'b' => "Bridge", 'p' => "Pre-Chorus", 'i' => "Intro", 'e' => "Ending", _ => "Other" }
+    match code { 'v' => "Verse", 'c' => "Chorus", 'b' => "Bridge", 'p' => "Pre-Chorus", 'i' => "Intro", 'e' => "Ending", 't' => "Tag", _ => "Other" }
 }
 
 /// `[G]`, `[D/F#]`, `[Am7]`, `[Csus4]`, `[B♭]`, `[H7]`, `[Fis]`, `[Do]`, `[em]`: an inline chord (OpenLP 3), not
@@ -222,7 +225,15 @@ pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<Stri
         let out = join_groups(&verse_groups(trimmed));
         return if out.is_empty() { Err("the lyrics are empty".into()) } else { Ok((out, vec![])) };
     }
-    let verses: Vec<(Verse, Vec<Vec<String>>)> = parse_verses(trimmed)?.into_iter()
+    lyrics_from_verses(parse_verses(trimmed)?, verse_order)
+}
+
+/// Verses (from OpenLP, OpenLyrics or OpenSong) plus a verse order ("v1 c1 v2 c1") → lyrics and arrangement, as
+/// `lyrics_from_xml` describes.
+pub(crate) fn lyrics_from_verses(verses: Vec<Verse>, verse_order: &str) -> Result<(String, Vec<String>), String> {
+    if verses.len() > MAX_VERSES { return Err(format!("the lyrics have too many verses (more than {MAX_VERSES})")); }
+    if verses.iter().map(|v| v.text.len()).sum::<usize>() > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
+    let verses: Vec<(Verse, Vec<Vec<String>>)> = verses.into_iter()
         .map(|v| { let g = verse_groups(&v.text); (v, g) }).filter(|(_, g)| !g.is_empty()).collect();
     if verses.is_empty() { return Err("the lyrics have no verses".into()); }
     let codes: Vec<char> = verses.iter().map(|(v, _)| kind_code(&v.kind)).collect();
@@ -238,7 +249,9 @@ pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<Stri
         let base = kind_name(code);
         // Kept short so a "(2)" suffix still fits on the label line and keeps names apart.
         let short: String = v.label.chars().take(20).collect();
-        let label = if short.is_empty() || (code != 'v' && short == "1" && count[&code] == 1) { base.to_string() }
+        let own: String = v.name.trim().chars().take(30).collect();
+        let label = if !own.trim().is_empty() { own.trim().to_string() }
+            else if short.is_empty() || (code != 'v' && short == "1" && count[&code] == 1) { base.to_string() }
             else { format!("{base} {short}") };
         // The app finds sections by name, so the same tag twice gets "(2)".
         let mut name = label.clone();
