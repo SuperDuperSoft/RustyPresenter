@@ -140,9 +140,17 @@ struct Inner {
 impl Inner {
     #[cfg(target_os = "linux")]
     fn start(reason: &str) -> Result<Inner, String> {
-        let screensaver = screensaver::Hold::start(reason);
-        let (child, screensaver) = either(Self::start_helper(reason), screensaver)?;
-        Ok(Inner { child, screensaver })
+        // Ask the bus and start the helper side by side, so the caller waits for the slower one only.
+        let asking = screensaver::Hold::ask(reason);
+        let helper = Self::start_helper(reason);
+        let screensaver = match asking.and_then(screensaver::Asking::answer) {
+            Ok(hold) => Ok(Some(hold)),
+            // GNOME has no ScreenSaver.Inhibit; the helper covers it, so say nothing.
+            Err(e) if e.not_offered && helper.is_ok() => Ok(None),
+            Err(e) => Err(e.message),
+        };
+        let (child, screensaver) = either(helper, screensaver)?;
+        Ok(Inner { child, screensaver: screensaver.flatten() })
     }
 
     #[cfg(not(target_os = "linux"))]
@@ -213,33 +221,59 @@ mod screensaver {
     use super::screensaver_names::{APP, INTERFACE, PATHS, SERVICE};
     use std::sync::mpsc;
     use std::time::Duration;
-    use zbus::blocking::Connection;
+    use zbus::blocking::{Connection, connection::Builder};
 
-    /// How long to wait for the desktop to answer before going on without it.
-    const ANSWER_WITHIN: Duration = Duration::from_secs(3);
+    /// How long the caller waits for the desktop to grant the request before going on without it,
+    /// and how long any one call on the bus may take. Bounding the calls keeps a hung desktop from
+    /// hanging the guard's drop on `UnInhibit`.
+    const ANSWER_WITHIN: Duration = Duration::from_secs(1);
 
-    pub struct Hold { stop: mpsc::Sender<()>, thread: std::thread::JoinHandle<()> }
+    /// Errors from D-Bus that mean the desktop simply does not offer the interface (GNOME, for one).
+    const NOT_OFFERED: [&str; 4] = [
+        "org.freedesktop.DBus.Error.ServiceUnknown", "org.freedesktop.DBus.Error.UnknownObject",
+        "org.freedesktop.DBus.Error.UnknownInterface", "org.freedesktop.DBus.Error.UnknownMethod",
+    ];
+
+    /// Why the request was not held. `not_offered` is true when the desktop has no such interface,
+    /// which is expected and not worth logging when something else holds the screen on.
+    pub struct Failure { pub message: String, pub not_offered: bool }
+
+    impl Failure {
+        fn other(message: String) -> Failure { Failure { message, not_offered: false } }
+    }
+
+    fn not_offered(e: &zbus::Error) -> bool {
+        matches!(e, zbus::Error::MethodError(name, _, _) if NOT_OFFERED.contains(&name.as_str()))
+    }
 
     /// Connect and ask at each path in turn. Returns the connection, the path that answered and the cookie.
-    fn inhibit(reason: &str) -> Result<(Connection, &'static str, u32), String> {
-        let connection = Connection::session().map_err(|e| format!("session D-Bus: {e}"))?;
+    fn inhibit(reason: &str) -> Result<(Connection, &'static str, u32), Failure> {
+        let connection = Builder::session().and_then(|b| b.method_timeout(ANSWER_WITHIN).build())
+            .map_err(|e| Failure::other(format!("session D-Bus: {e}")))?;
         let mut errors = Vec::new();
+        let mut all_not_offered = true;
         for path in PATHS {
             let cookie = connection.call_method(Some(SERVICE), path, Some(INTERFACE), "Inhibit", &(APP, reason))
                 .and_then(|reply| reply.body().deserialize::<u32>());
             match cookie {
                 Ok(cookie) => return Ok((connection, path, cookie)),
-                Err(e) => errors.push(format!("{path}: {e}")),
+                Err(e) => { all_not_offered &= not_offered(&e); errors.push(format!("{path}: {e}")) }
             }
         }
-        Err(format!("{SERVICE}.Inhibit: {}", errors.join("; ")))
+        Err(Failure { message: format!("{SERVICE}.Inhibit: {}", errors.join("; ")), not_offered: all_not_offered })
     }
 
+    pub struct Hold { stop: mpsc::Sender<()>, thread: std::thread::JoinHandle<()> }
+
+    /// A request on its way: the thread is asking, and `answer` waits for it.
+    pub struct Asking { hold: Hold, started: mpsc::Receiver<Result<(), Failure>> }
+
     impl Hold {
-        pub fn start(reason: &str) -> Result<Hold, String> {
+        /// Start asking without waiting for the answer.
+        pub fn ask(reason: &str) -> Result<Asking, Failure> {
             let reason = reason.to_owned();
             let (stop, wait) = mpsc::channel::<()>();
-            let (ready, started) = mpsc::channel::<Result<(), String>>();
+            let (ready, started) = mpsc::channel::<Result<(), Failure>>();
             let thread = std::thread::Builder::new().name("keep-awake-dbus".into()).spawn(move || {
                 let (connection, path, cookie) = match inhibit(&reason) {
                     Ok(held) => held,
@@ -248,24 +282,35 @@ mod screensaver {
                 let _ = ready.send(Ok(()));
                 // A message or a dropped sender both mean the guard is gone (or we gave up waiting).
                 let _ = wait.recv();
+                // Bounded by the method timeout; closing the connection below lifts it anyway.
                 if let Err(e) = connection.call_method(Some(SERVICE), path, Some(INTERFACE), "UnInhibit", &(cookie,)) {
-                    // Closing the connection below lifts it anyway.
                     eprintln!("keep awake: {SERVICE}.UnInhibit: {e}");
                 }
-            }).map_err(|e| e.to_string())?;
-            match started.recv_timeout(ANSWER_WITHIN) {
-                Ok(Ok(())) => Ok(Hold { stop, thread }),
-                Ok(Err(e)) => { let _ = thread.join(); Err(e) }
-                // Slow bus: leave the thread behind. `stop` drops here, so if the request is
-                // granted later the thread lifts it straight away.
-                Err(mpsc::RecvTimeoutError::Timeout) => Err(format!("{SERVICE}: no answer within {ANSWER_WITHIN:?}")),
-                Err(mpsc::RecvTimeoutError::Disconnected) => { let _ = thread.join(); Err(format!("{SERVICE}: thread ended")) }
-            }
+            }).map_err(|e| Failure::other(e.to_string()))?;
+            Ok(Asking { hold: Hold { stop, thread }, started })
         }
 
         pub fn stop(self) {
             let _ = self.stop.send(());
             let _ = self.thread.join();
+        }
+    }
+
+    impl Asking {
+        /// Wait up to `ANSWER_WITHIN` for the desktop to grant the request.
+        pub fn answer(self) -> Result<Hold, Failure> {
+            let Asking { hold, started } = self;
+            match started.recv_timeout(ANSWER_WITHIN) {
+                Ok(Ok(())) => Ok(hold),
+                Ok(Err(e)) => { let _ = hold.thread.join(); Err(e) }
+                // Slow bus: leave the thread behind; dropping `hold.stop` tells it the guard is
+                // gone. If the request is granted later the thread lifts it at once. Calls are
+                // bounded by the method timeout, but connecting is not: a session bus that never
+                // finishes the handshake (a stale address under ssh or sudo) keeps that one
+                // thread parked for the life of the app. Rare, and it holds nothing.
+                Err(mpsc::RecvTimeoutError::Timeout) => Err(Failure::other(format!("{SERVICE}: no answer within {ANSWER_WITHIN:?}"))),
+                Err(mpsc::RecvTimeoutError::Disconnected) => { let _ = hold.thread.join(); Err(Failure::other(format!("{SERVICE}: thread ended"))) }
+            }
         }
     }
 }

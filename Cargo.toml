@@ -40,7 +40,8 @@ windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Found
 
 # Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, over D-Bus.
 [target.'cfg(target_os = "linux")'.dependencies]
-zbus = { version = "=5.19.0", default-features = false, features = ["blocking-api", "async-io"] }
+# Not pinned exactly: slint pulls zbus too, and Cargo.lock already fixes the version.
+zbus = { version = "5.19", default-features = false, features = ["blocking-api", "async-io"] }
 
 [profile.release]
 lto = "thin"
