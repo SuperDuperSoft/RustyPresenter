@@ -9,7 +9,7 @@ use std::{
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
+    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicU64, AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
@@ -144,6 +144,11 @@ pub struct App {
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
+    /// Saves the committed frame for crash recovery (set by the native binary).
+    state_writer: OnceLock<crate::recovery::state::StateWriter>,
+    state_seq: AtomicU64,
+    /// Restored playback instance → where to start it, taken once by the room.
+    resume: Mutex<HashMap<u64, f64>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -171,6 +176,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
+            state_writer: OnceLock::new(), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
     }
 
@@ -226,8 +232,35 @@ impl App {
     }
 
     pub fn room_event(&self, ev: RoomEvent) {
-        let changed = self.live.lock().unwrap().report(ev);
+        let (changed, committed) = {
+            let mut live = self.live.lock().unwrap();
+            let before = live.committed_version;
+            (live.report(ev), live.committed_version > before)
+        };
         if changed { self.broadcast_live(); }
+        if committed { self.save_live_state(); }
+    }
+
+    pub fn set_state_writer(&self, w: crate::recovery::state::StateWriter) { let _ = self.state_writer.set(w); }
+
+    /// Hands the committed frame and current media positions to the state writer (never waits for the disk).
+    pub fn save_live_state(&self) {
+        let Some(w) = self.state_writer.get() else { return };
+        let windows = self.open_roles().into_iter().filter(|r| r == "room" || r == "stage").collect();
+        // Numbered and submitted under the live lock, so a newer frame never loses to an older one.
+        let live = self.live.lock().unwrap();
+        let seq = self.state_seq.fetch_add(1, Ordering::Relaxed) + 1;
+        if let Some(s) = crate::recovery::state::snapshot(&live, windows, seq) { w.submit(s); }
+    }
+
+    pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
+
+    /// Where a restored playback instance starts; later replays start from the beginning.
+    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().remove(&inst) }
+
+    pub fn set_notice(&self, text: &str) {
+        self.live.lock().unwrap().notice = Some(text.into());
+        self.broadcast_live();
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).

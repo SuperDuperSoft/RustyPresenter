@@ -71,7 +71,7 @@ impl Frame {
 }
 
 /// Snapshot of the live item, taken when it goes live (spec §7.2).
-#[derive(Serialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct LiveItem {
     pub item_id: Uuid,
     pub title: String,
@@ -80,7 +80,7 @@ pub struct LiveItem {
     pub background: Background,
 }
 
-#[derive(Serialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Cursor {
     pub item_id: Uuid,
     /// Position of the item in the service when it went live (for removed items).
@@ -210,6 +210,30 @@ impl Live {
 
     fn committed_frame(&self) -> Option<&Frame> {
         self.history.iter().find(|s| s.version == self.committed_version).map(|s| &s.frame)
+    }
+
+    /// What is on air: the committed snapshot, never the requested `frame`/`cursor`/`item`.
+    /// `None` until the room has committed something.
+    pub fn committed(&self) -> Option<(Frame, Option<Cursor>, Option<LiveItem>)> {
+        if self.committed_version == 0 { return None; }
+        self.history.iter().find(|s| s.version == self.committed_version).map(|s| (s.frame.clone(), s.cursor.clone(), s.item.clone()))
+    }
+
+    /// Puts a saved state back after a crash, as a new version for the room to commit.
+    /// Without media, video and audio stay off; slides, stills, colour and image backgrounds return.
+    pub fn restore(&mut self, s: &crate::recovery::state::LiveState, with_media: bool) {
+        let mut frame = s.frame.clone();
+        if !with_media {
+            if frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) { frame.media = None; }
+            if frame.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. })) { frame.background = None; }
+            frame.audio = None;
+        }
+        // New playbacks never reuse a saved instance, whose reports could still be in flight.
+        self.next_inst = self.next_inst.max(s.frame.instances().max().unwrap_or(0) + 1);
+        self.frame = frame;
+        self.cursor = s.cursor.clone();
+        self.item = s.item.clone();
+        self.bump();
     }
 
     /// Is a report for this playback instance still authoritative?
