@@ -1,12 +1,12 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
-//! column in `slides`; the live column, keys and dialogs come in later tasks.
-use super::{service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+//! column in `slides`, the live column in `live`; the keys and dialogs come in later tasks.
+use super::{live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
-    ui::{OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, thumbs::Thumbs},
-    video::DrawMode,
+    ui::{OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, preview::Preview, thumbs::Thumbs},
+    video::{DrawMode, FrameGrabber},
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}, sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}};
@@ -27,14 +27,18 @@ impl VideoInfo {
 }
 
 /// What the operator needs from the windowing layer. `NativeScreens` implements it; tests pass a fake, so no
-/// room window or mpv is needed. (The live preview's frame grabber joins it with Task 8.)
+/// room window or mpv is needed.
 pub trait OperatorScreens {
     fn video_info(&self) -> VideoInfo;
+    /// The grabber of the video the room is drawing, for the live preview; `None` when the room is closed or draws
+    /// no video. Called on the Slint thread.
+    fn preview_grabber(&self) -> Option<FrameGrabber>;
 }
 
 /// `NativeScreens` lives in an `Arc`: `Rc::new(screens.clone())` is then an `Rc<dyn OperatorScreens>`.
 impl<T: OperatorScreens + ?Sized> OperatorScreens for Arc<T> {
     fn video_info(&self) -> VideoInfo { (**self).video_info() }
+    fn preview_grabber(&self) -> Option<FrameGrabber> { (**self).preview_grabber() }
 }
 
 /// The dialogs of the web operator (`operator.js:353-1000`); one at a time.
@@ -68,6 +72,9 @@ pub struct Operator {
     pub(super) slide_rows: Rc<VecModel<SlideRowCells>>,
     pub(super) slides: RefCell<SlidesState>,
     pub(super) thumbs: Thumbs,
+    /// The live column between updates (see `live`), and its monitor's drawing.
+    pub(super) live: RefCell<LiveState>,
+    pub(super) preview: Preview,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(super) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -84,15 +91,17 @@ impl Operator {
         let rx = app.subscribe();
         let op = Rc::new_cyclic(|me: &Weak<Operator>| {
             let listening = listen(me.clone(), feed.clone());
-            // Tests (inline actions, no event loop) draw thumbnails inline too.
-            let thumbs = if ops.is_inline() { Thumbs::inline(app.store.root.clone()) } else { Thumbs::new(app.store.root.clone()) };
+            // Tests (inline actions, no event loop) draw thumbnails and the live monitor inline too.
+            let (thumbs, preview) = if ops.is_inline() { (Thumbs::inline(app.store.root.clone()), Preview::inline(app.store.root.clone())) }
+                else { (Thumbs::new(app.store.root.clone()), Preview::new(app.store.root.clone())) };
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
-                slides: RefCell::default(), thumbs, me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, me: me.clone(), feed: listening.then(|| feed.clone()),
             }
         });
         service::wire(&op);
         slides::wire(&op);
+        live::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -132,6 +141,7 @@ impl Operator {
         self.render_top(&s);
         self.render_service();
         self.render_slides();
+        self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
     }
@@ -145,6 +155,7 @@ impl Operator {
         }
         self.mark_service();
         self.mark_slides();
+        self.render_live();
     }
 
     /// The item the live cursor is on (`L.cursor.item_id`), if any.
@@ -325,6 +336,8 @@ pub(super) mod testing {
         fn video_info(&self) -> VideoInfo {
             VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into() }) }
         }
+
+        fn preview_grabber(&self) -> Option<FrameGrabber> { None }
     }
 
     pub fn open(app: &Arc<App>) -> Rc<Operator> {

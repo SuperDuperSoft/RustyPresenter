@@ -1,0 +1,157 @@
+// The live column's buttons (`operator.css:115-136`): play/pause, Back/Next and the clears.
+import { Theme } from "../theme.slint";
+import { Icon, Kbd, TipBox } from "../widgets.slint";
+
+/// `.transport button`: play while paused, else pause.
+export component TransportBtn inherits Rectangle {
+    in property <bool> paused;
+    callback clicked();
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: Theme.raise;
+    accessible-role: button;
+    accessible-label: root.paused ? @tr("Play") : @tr("Pause");
+    accessible-description: self.accessible-label;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        name: root.paused ? "play" : "pause";
+        color: Theme.text;
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Tooltip {
+        TipBox { text: root.paused ? @tr("Play") : @tr("Pause"); }
+    }
+}
+
+/// `.nav-btn` (`.next`): Back or Next, 64 px tall, the chevron before (Back) or after (Next) the word.
+export component NavBtn inherits Rectangle {
+    in property <string> text;
+    in property <bool> next;
+    in property <string> tooltip;
+    callback clicked();
+
+    property <brush> ink: root.next ? Theme.accent-ink : Theme.text;
+
+    height: 64px;
+    border-radius: 12px;
+    border-width: 1px;
+    background: root.next ? Theme.accent : Theme.raise;
+    border-color: root.next ? Theme.accent : ta.has-hover ? Theme.nav-hover : Theme.line;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-description: root.tooltip;
+    accessible-action-default => { root.clicked(); }
+
+    HorizontalLayout {
+        // `:active` moves it down 1 px.
+        y: ta.pressed ? 1px : 0px;
+        alignment: center;
+        spacing: 8px;
+        if !root.next: VerticalLayout {
+            alignment: center;
+            Icon { width: 22px; height: 22px; weight: 2.6; name: "chevron-left"; color: root.ink; }
+        }
+        Text {
+            text: root.text;
+            color: root.ink;
+            font-family: Theme.display;
+            font-size: 17px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        if root.next: VerticalLayout {
+            alignment: center;
+            Icon { width: 22px; height: 22px; weight: 2.6; name: "chevron-right"; color: root.ink; }
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Tooltip {
+        TipBox { text: root.tooltip; }
+    }
+}
+
+/// `.clear`: a label over its F-key; `.on` (the Logo while it shows) turns it accent.
+export component ClearBtn inherits Rectangle {
+    in property <string> text;
+    in property <string> key;
+    in property <bool> on;
+    callback clicked();
+
+    border-radius: 10px;
+    border-width: 1px;
+    background: Theme.panel-2;
+    border-color: root.on ? Theme.accent : ta.has-hover ? Theme.clear-hover : Theme.line;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-checked: root.on;
+    accessible-action-default => { root.clicked(); }
+
+    VerticalLayout {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 4px;
+        padding-right: 4px;
+        spacing: 6px;
+        alignment: center;
+        Text {
+            text: root.text;
+            color: root.on ? Theme.accent : Theme.text;
+            font-family: Theme.font;
+            font-size: 13px;
+            font-weight: 650;
+            horizontal-alignment: center;
+        }
+        HorizontalLayout {
+            alignment: center;
+            Kbd { text: root.key; }
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `.clear.big`: Clear All across the column, label and key side by side, in red.
+export component ClearAllBtn inherits Rectangle {
+    in property <string> text;
+    in property <string> key;
+    callback clicked();
+
+    border-radius: 10px;
+    border-width: 1px;
+    background: Theme.clear-all-bg;
+    border-color: Theme.clear-all-border;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+
+    HorizontalLayout {
+        padding: 12px;
+        spacing: 10px;
+        alignment: center;
+        Text {
+            text: root.text;
+            color: Theme.clear-all-text;
+            font-family: Theme.font;
+            font-size: 15px;
+            font-weight: 650;
+            vertical-alignment: center;
+        }
+        VerticalLayout {
+            alignment: center;
+            Kbd { text: root.key; }
+        }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}

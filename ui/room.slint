@@ -25,7 +25,8 @@ component Face inherits Rectangle {
     }
 }
 
-component FadeLayer {
+/// A layer with its two faces crossfading; the operator's live monitor uses it too.
+export component FadeLayer {
     in property <Layer> layer;
     in property <ImageFit> fit: contain;
     in property <float> scale: 1;

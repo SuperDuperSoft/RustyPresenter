@@ -5,7 +5,7 @@ use super::{operator::window::{MpvInfo, OperatorScreens, VideoInfo}, room::Room,
 use crate::app::{App, Monitor, ScreenGuard, Screens};
 use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
 use crate::render::Renderer;
-use crate::video::ffi::Mpv;
+use crate::video::{FrameGrabber, ffi::Mpv};
 use slint::{CloseRequestResponse, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
 use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, mpsc}, thread::ThreadId, time::Duration};
 
@@ -91,7 +91,7 @@ impl NativeScreens {
 
     /// Takes in the monitors connected now and acts on unplugs and returns, and puts back a window
     /// that Windows moved off its monitor (unplugged and back between two looks).
-    fn look_at(&self, list: Vec<MonitorId>, main: Option<MonitorId>) {
+    pub(crate) fn look_at(&self, list: Vec<MonitorId>, main: Option<MonitorId>) {
         let changes = DESK.with(|d| d.borrow_mut().watcher.step(&list));
         *self.seen.lock().unwrap() = (list, main);
         for c in changes { self.changed(c) }
@@ -205,6 +205,12 @@ impl OperatorScreens for NativeScreens {
     fn video_info(&self) -> VideoInfo {
         let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string() });
         VideoInfo { draw_mode: crate::video::drawing(), mpv }
+    }
+
+    /// The room's drawn player, when the room window is open (the operator calls this on the Slint thread, where
+    /// the windows live; from any other thread there is none).
+    fn preview_grabber(&self) -> Option<FrameGrabber> {
+        DESK.with(|d| d.borrow().wins.iter().find_map(|(_, _, w, _)| match w { Win::Room(r) => r.drawn_grabber(), Win::Stage(_) => None }))
     }
 }
 

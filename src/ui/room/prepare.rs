@@ -9,10 +9,10 @@ use crate::ui::block_on;
 use std::{path::{Path, PathBuf}, sync::Arc};
 
 /// Pixels made off the UI thread (an `Image` is not `Send`).
-pub(super) enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
+pub enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
 
 impl Px {
-    pub(super) fn image(self) -> Image {
+    pub fn image(self) -> Image {
         match self { Px::Straight(b) => Image::from_rgba8(b), Px::Premul(b) => Image::from_rgba8_premultiplied(b) }
     }
 }
@@ -38,9 +38,9 @@ enum Source {
     Player { role: Role, inst: u64, path: PathBuf },
 }
 
-const BLACK: Color = Color::from_argb_u8(255, 0, 0, 0);
+pub(in crate::ui) const BLACK: Color = Color::from_argb_u8(255, 0, 0, 0);
 
-fn color(s: &str) -> Color { let [r, g, b, a] = parse_color(s); Color::from_argb_u8(a, r, g, b) }
+pub(in crate::ui) fn color(s: &str) -> Color { let [r, g, b, a] = parse_color(s); Color::from_argb_u8(a, r, g, b) }
 
 fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
     let (f, asset) = (&job.frame, |a: &str| app.store.asset_path(a));
@@ -113,7 +113,7 @@ pub(super) fn prepare(work: &Work, job: Job, send: impl Fn(Msg)) {
 fn unreadable<E>(_: E) -> String { "picture could not be loaded".into() }
 
 /// Decodes a picture (by its content, not its name) and shrinks it to fit (`cover`: to fill) `w`×`h`.
-fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Result<Px, String> {
+pub(in crate::ui) fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Result<Px, String> {
     let img = image::ImageReader::open(path).map_err(unreadable)?.with_guessed_format().map_err(unreadable)?.decode().map_err(unreadable)?.into_rgba8();
     let (iw, ih) = img.dimensions();
     let (sx, sy) = (w.max(1) as f32 / iw as f32, h.max(1) as f32 / ih as f32);

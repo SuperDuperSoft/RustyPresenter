@@ -3,5 +3,5 @@ pub mod ffi;
 pub mod player;
 pub mod surface;
 
-pub use player::{Options, Player, PlayerReport, Players, Role, players};
+pub use player::{FrameGrabber, Options, Player, PlayerReport, Players, Role, players};
 pub use surface::{DrawMode, VideoSurface, choose_backend, drawing};

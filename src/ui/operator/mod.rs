@@ -5,6 +5,7 @@ pub mod files;
 #[path = "../../strings/operator.rs"]
 pub mod strings;
 pub mod keys;
+pub mod live;
 pub mod service;
 pub mod slides;
 pub mod view;

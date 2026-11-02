@@ -1,0 +1,281 @@
+// The live column (`web/operator.html:41-61`, `operator.css:108-142`, `operator.js:212-261`): what is live, the
+// monitor, the transport, the notice, Back/Next, the clears and Up next. The rows and texts come from Rust (`live.rs`).
+import { Theme } from "../theme.slint";
+import { Bar, ScrollBox } from "../widgets.slint";
+import { Layer } from "../room.slint";
+import { LiveMonitor } from "monitor.slint";
+import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
+
+/// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
+export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
+
+export component LiveColumn inherits Rectangle {
+    in property <bool> pending;
+    in property <string> live-what;
+    in property <string> notice;
+    in property <bool> logo-on;
+    in property <string> up-next-title;
+    in property <string> up-next-body: @tr("—");
+    in property <[TransportCell]> transport;
+
+    in property <Layer> monitor-bg;
+    in property <bool> monitor-bg-visible: true;
+    in property <Layer> monitor-media;
+    in property <Layer> monitor-slide;
+    in property <Layer> monitor-logo;
+    in property <bool> monitor-video;
+    in property <image> monitor-video-frame;
+    in property <float> monitor-black;
+    in property <bool> monitor-room-off;
+    out property <length> monitor-width: monitor.width;
+
+    callback next();
+    callback prev();
+    /// `clear_all`, `clear_slide`, `clear_media`, `clear_audio` or `logo` (the web's `data-cmd`).
+    callback clear(string);
+    callback transport-toggle(int);
+    /// The monitor's width changed (Rust redraws the preview at the new size).
+    callback monitor-resized(length);
+
+    init => { root.monitor-resized(root.monitor-width); }
+    changed monitor-width => { root.monitor-resized(root.monitor-width); }
+
+    // `.live-panel`: 14 px padding, 12 px gaps, scrolls when the window is short.
+    ScrollBox {
+        width: parent.width;
+        height: parent.height;
+        VerticalLayout {
+            padding: 14px;
+            spacing: 12px;
+            alignment: start;
+
+            // `.monitor-label`
+            HorizontalLayout {
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 9px;
+                        height: 9px;
+                        border-radius: 4.5px;
+                        background: Theme.live;
+                        drop-shadow-blur: 10px;
+                        drop-shadow-color: Theme.live;
+                    }
+                }
+                Text {
+                    text: @tr("LIVE");
+                    color: Theme.live;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    font-weight: 800;
+                    letter-spacing: 1.68px;
+                    vertical-alignment: center;
+                }
+                if root.pending: pending := Text {
+                    text: @tr("updating…");
+                    color: Theme.accent;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+                Rectangle { horizontal-stretch: 1; }
+                live-what := Text {
+                    max-width: root.width * 60%;
+                    text: root.live-what;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    font-weight: 600;
+                    horizontal-alignment: right;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+
+            monitor := LiveMonitor {
+                bg: root.monitor-bg;
+                bg-visible: root.monitor-bg-visible;
+                media: root.monitor-media;
+                slide: root.monitor-slide;
+                logo: root.monitor-logo;
+                video: root.monitor-video;
+                video-frame: root.monitor-video-frame;
+                black: root.monitor-black;
+                room-off: root.monitor-room-off;
+            }
+
+            // `.transport`: one box holding a row per playing video or audio.
+            if root.transport.length > 0: Rectangle {
+                background: Theme.panel-2;
+                border-radius: 10px;
+                VerticalLayout {
+                    padding-top: 8px;
+                    padding-bottom: 8px;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    spacing: 10px;
+                    for row[i] in root.transport: HorizontalLayout {
+                        spacing: 10px;
+                        if row.video: transport-video := TransportBtn {
+                            paused: row.paused;
+                            clicked => { root.transport-toggle(i); }
+                        }
+                        if !row.video: transport-audio := TransportBtn {
+                            paused: row.paused;
+                            clicked => { root.transport-toggle(i); }
+                        }
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            alignment: center;
+                            spacing: 5px;
+                            Text {
+                                text: row.label;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                overflow: elide;
+                            }
+                            Bar { progress: row.percent; }
+                        }
+                        Text {
+                            min-width: 92px;
+                            text: row.time;
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            if root.notice != "": notice := Rectangle {
+                accessible-role: text;
+                accessible-label: root.notice;
+                background: Theme.notice-bg;
+                border-color: Theme.notice-border;
+                border-width: 1px;
+                border-radius: 10px;
+                HorizontalLayout {
+                    padding-top: 9px;
+                    padding-bottom: 9px;
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    Text {
+                        text: root.notice;
+                        color: Theme.notice-text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                    }
+                }
+            }
+
+            // `.nav`: 1fr 1.6fr.
+            HorizontalLayout {
+                spacing: 10px;
+                prev-btn := NavBtn {
+                    horizontal-stretch: 1;
+                    text: @tr("Back");
+                    tooltip: @tr("Back (← or Page Up)");
+                    clicked => { root.prev(); }
+                }
+                next-btn := NavBtn {
+                    horizontal-stretch: 1.6;
+                    next: true;
+                    text: @tr("Next");
+                    tooltip: @tr("Next (→, Space or Page Down)");
+                    clicked => { root.next(); }
+                }
+            }
+
+            // `.clears`: Clear All across the width, then four in a row.
+            VerticalLayout {
+                spacing: 8px;
+                clear-all := ClearAllBtn {
+                    text: @tr("Clear All");
+                    key: "F1";
+                    clicked => { root.clear("clear_all"); }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    clear-text := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Text");
+                        key: "F2";
+                        clicked => { root.clear("clear_slide"); }
+                    }
+                    clear-media := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Media");
+                        key: "F3";
+                        clicked => { root.clear("clear_media"); }
+                    }
+                    clear-audio := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Audio");
+                        key: "F4";
+                        clicked => { root.clear("clear_audio"); }
+                    }
+                    clear-logo := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Logo");
+                        key: "F5";
+                        on: root.logo-on;
+                        clicked => { root.clear("logo"); }
+                    }
+                }
+            }
+
+            // `.next-up`: min 70 px, the body clipped at 110 px.
+            up-next := Rectangle {
+                min-height: 70px;
+                background: Theme.panel-2;
+                border-radius: 10px;
+                accessible-role: text;
+                accessible-label: root.up-next-body;
+                accessible-description: root.up-next-title;
+                VerticalLayout {
+                    padding-top: 10px;
+                    padding-bottom: 10px;
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    spacing: 4px;
+                    Text {
+                        text: @tr("Up next").to-uppercase();
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        font-weight: 700;
+                        letter-spacing: 1.32px;
+                    }
+                    Rectangle {
+                        max-height: 110px;
+                        clip: true;
+                        VerticalLayout {
+                            alignment: start;
+                            if root.up-next-title != "": Text {
+                                text: root.up-next-title;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 11.25px;
+                                wrap: word-wrap;
+                            }
+                            Text {
+                                text: root.up-next-body;
+                                color: Theme.upnext-text;
+                                font-family: Theme.font;
+                                font-size: 13.5px;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

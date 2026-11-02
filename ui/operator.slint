@@ -1,12 +1,13 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
-// The live column is a placeholder panel until Task 9 fills it.
 import { Theme } from "theme.slint";
 import { Panel } from "widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
+import { LiveColumn, TransportCell } from "operator/live.slint";
+import { Layer } from "room.slint";
 
-export { TranslationChip, ServiceRow, SlideCell, SlideRowCells }
+export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
 export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
@@ -67,6 +68,30 @@ export component OperatorWindow inherits Window {
     callback slides-grid-resized(length);
     public function slides-scroll-to-row(row: int) { slides.scroll-to-row(row); }
     public function slides-scroll-to-top() { slides.scroll-to-top(); }
+
+    // Live column (see `LiveColumn`).
+    in property <bool> live-pending;
+    in property <string> live-what;
+    in property <string> live-notice;
+    in property <bool> logo-on;
+    in property <string> up-next-title;
+    in property <string> up-next-body: @tr("—");
+    in property <[TransportCell]> transport;
+    in property <Layer> monitor-bg;
+    in property <bool> monitor-bg-visible: true;
+    in property <Layer> monitor-media;
+    in property <Layer> monitor-slide;
+    in property <Layer> monitor-logo;
+    in property <bool> monitor-video;
+    in property <image> monitor-video-frame;
+    in property <float> monitor-black;
+    in property <bool> monitor-room-off;
+    out property <length> monitor-width: live.monitor-width;
+    callback live-next();
+    callback live-prev();
+    callback live-clear(string);
+    callback transport-toggle(int);
+    callback monitor-resized(length);
 
     callback services();
     callback screens();
@@ -146,7 +171,30 @@ export component OperatorWindow inherits Window {
                 preferred-width: 440px;
                 max-width: 440px;
                 horizontal-stretch: 0;
-                Rectangle { vertical-stretch: 1; }
+                live := LiveColumn {
+                    vertical-stretch: 1;
+                    pending: root.live-pending;
+                    live-what: root.live-what;
+                    notice: root.live-notice;
+                    logo-on: root.logo-on;
+                    up-next-title: root.up-next-title;
+                    up-next-body: root.up-next-body;
+                    transport: root.transport;
+                    monitor-bg: root.monitor-bg;
+                    monitor-bg-visible: root.monitor-bg-visible;
+                    monitor-media: root.monitor-media;
+                    monitor-slide: root.monitor-slide;
+                    monitor-logo: root.monitor-logo;
+                    monitor-video: root.monitor-video;
+                    monitor-video-frame: root.monitor-video-frame;
+                    monitor-black: root.monitor-black;
+                    monitor-room-off: root.monitor-room-off;
+                    next => { root.live-next(); }
+                    prev => { root.live-prev(); }
+                    clear(cmd) => { root.live-clear(cmd); }
+                    transport-toggle(i) => { root.transport-toggle(i); }
+                    monitor-resized(w) => { root.monitor-resized(w); }
+                }
             }
         }
     }

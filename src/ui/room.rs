@@ -1,6 +1,7 @@
 //! The room output window: each new live view is prepared off the UI thread (`prepare`), swapped in
 //! with a crossfade once every new layer is ready, then reported as committed (as `web/output.js`).
-mod prepare;
+/// Shared with the operator's live monitor (`ui::preview`), which draws the same layers small.
+pub mod prepare;
 
 use super::{Layer, RoomWindow, Side};
 use crate::app::{App, LiveUpdate, LiveView, Update};
@@ -8,7 +9,7 @@ use crate::live::{Frame, MediaLayer, PlayState, RoomEvent};
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::Renderer;
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
-use crate::video::{self, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
+use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
 use slint::{ComponentHandle, Timer, TimerMode};
 use std::{cell::RefCell, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
@@ -50,7 +51,7 @@ fn what(kind: Kind, f: &Frame) -> &'static str {
 fn front(l: &Layer) -> &Side { if l.b_top { &l.b } else { &l.a } }
 
 /// Puts `side` on the face that is not showing and makes it current, so it fades in over the old one.
-fn put(l: &mut Layer, side: Side) {
+pub(super) fn put(l: &mut Layer, side: Side) {
     if l.shown { l.b_top = !l.b_top }
     if l.b_top { l.b = side } else { l.a = side }
     l.shown = true;
@@ -370,6 +371,13 @@ impl Room {
     }
 
     pub fn window(&self) -> &slint::Window { self.inner.ui.window() }
+
+    /// The frame grabber of the player being drawn (the foreground video, else the background video), for the
+    /// operator's live preview; `None` while no video is drawn.
+    pub fn drawn_grabber(&self) -> Option<FrameGrabber> {
+        let players = self.inner.players.borrow();
+        players[MEDIA].as_ref().or(players[BG].as_ref()).map(|p| p.grabber())
+    }
 
     #[cfg(test)]
     fn pump(&self) { self.inner.pump() }
@@ -696,10 +704,14 @@ mod tests {
         assert!(pump_until(&room, 5.0, || ui.get_video_frame().size().width > 0), "software frames reach the window");
         let playing = || app.live_view().media.is_some_and(|s| s.inst == inst && s.state == PlayState::Playing);
         assert!(pump_until(&room, 5.0, playing), "{:?}", app.live_view().media);
+        // The operator's live preview takes its frames from the drawn player.
+        let grabber = room.drawn_grabber().expect("the drawn video's grabber");
+        assert!(pump_until(&room, 3.0, || grabber.grab(64).is_some()), "the preview gets a frame");
         // Moving on retires the instance: off air at once, so its reports stop reaching the engine.
         let v = show(&app, text);
         assert!(pump_until(&room, 10.0, || app.live_view().committed == v));
         assert!(room.inner.players.borrow()[MEDIA].is_none() && !ui.get_video() && ui.get_bg_visible());
+        assert!(room.drawn_grabber().is_none(), "no video drawn, nothing for the preview");
         assert!(!room.inner.shared.started.lock().unwrap().contains_key(&inst));
         assert!(pump_until(&room, 2.0, || ui.get_video_frame().size().width == 0), "the last frame is cleared");
     }

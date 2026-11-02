@@ -1,0 +1,81 @@
+// The live column's monitor (`.monitor`, `operator.css:113`). It takes the room's inputs (`ui/room.slint`) so the
+// two screens stay in step; Rust prepares its layers off the UI thread (`src/ui/preview.rs`).
+import { Theme } from "../theme.slint";
+import { FadeLayer, Layer } from "../room.slint";
+
+/// `.monitor`: the live frame, 16:9, with the room's layers (background, media, slide, logo) over the video frame.
+export component LiveMonitor inherits Rectangle {
+    in property <Layer> bg;
+    in property <bool> bg-visible: true;
+    in property <Layer> media;
+    in property <Layer> slide;
+    in property <Layer> logo;
+    in property <bool> video;
+    in property <image> video-frame;
+    in property <float> black;
+    /// A video is live but the room screen is not open, so there is no frame to show.
+    in property <bool> room-off;
+
+    height: self.width * 9 / 16;
+
+    // `outline: 2px solid` sits outside the box; a Slint border is drawn inside, so it is a ring around it.
+    Rectangle {
+        x: -2px;
+        y: -2px;
+        width: root.width + 4px;
+        height: root.height + 4px;
+        border-radius: 12px;
+        border-width: 2px;
+        border-color: Theme.monitor-outline;
+    }
+
+    Rectangle {
+        border-radius: 10px;
+        clip: true;
+        background: Theme.black;
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.video-frame;
+            image-fit: fill;
+            visible: root.video;
+        }
+        FadeLayer {
+            width: parent.width;
+            height: parent.height;
+            layer: root.bg;
+            fit: cover;
+            visible: root.bg-visible;
+        }
+        FadeLayer {
+            width: parent.width;
+            height: parent.height;
+            layer: root.media;
+        }
+        FadeLayer {
+            width: parent.width;
+            height: parent.height;
+            layer: root.slide;
+        }
+        FadeLayer {
+            width: parent.width;
+            height: parent.height;
+            layer: root.logo;
+            scale: 0.7;
+        }
+        Rectangle {
+            background: Theme.black;
+            opacity: root.black;
+            animate opacity { duration: 200ms; }
+        }
+        if root.video && root.room-off: room-off := Text {
+            text: @tr("Room screen is off");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}
