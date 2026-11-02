@@ -75,13 +75,15 @@ impl Kjv {
             let mut c = sc;
             let mut v = sv.unwrap_or(1);
             loop {
+                // A range can run past the book's last chapter (Jude 1:1-3:1).
+                let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
                 match self.verses.get(&(r.book, c, v)) {
                     Some(t) => out.push(VerseText { reference: format!("{display} {c}:{v}"), text: t.clone() }),
                     None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
                     None => {}
                 }
                 if c == ec && v >= ev_resolved { break; }
-                if self.last_verse(r.book, c).is_some_and(|last| v >= last) { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
+                if v >= last { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
                 if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
             }
             if ev.is_some() && !out.iter().any(|x| x.reference == format!("{display} {ec}:{ev_resolved}")) {
@@ -215,6 +217,12 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
         assert!(k.lookup("John 99").is_err());
         assert!(k.lookup("Hezekiah 1:1").is_err());
         assert!(k.lookup("Tobit 1:1").is_err());
+    }
+
+    #[test]
+    fn range_past_the_last_chapter_of_a_short_book_is_an_error_not_a_hang() {
+        let err = kjv().lookup("Jude 1:1-3:1").unwrap_err();
+        assert_eq!(err, "Jude 2 does not exist.");
     }
 
     #[test]

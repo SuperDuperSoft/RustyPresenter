@@ -7,7 +7,7 @@ use serde_json::{Value, json};
 use std::{
     collections::HashMap,
     net::IpAddr,
-    sync::{Arc, Mutex, OnceLock, atomic::{AtomicUsize, Ordering}},
+    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
@@ -115,7 +115,16 @@ pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crat
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
 
 #[derive(Serialize, Clone)]
-pub struct Job { id: Uuid, label: String, percent: u8, error: Option<String> }
+pub struct Job { pub(crate) id: Uuid, pub(crate) label: String, pub(crate) percent: u8, pub(crate) error: Option<String> }
+
+/// Counts a native room or stage window as a connected screen while it is held (like a web page's socket).
+pub struct ScreenGuard { app: Weak<App>, role: String }
+
+impl Drop for ScreenGuard {
+    fn drop(&mut self) {
+        if let Some(app) = self.app.upgrade() && let Some(c) = app.conns(&self.role) { c.fetch_sub(1, Ordering::Relaxed); }
+    }
+}
 
 pub struct App {
     pub store: Store,
@@ -271,6 +280,19 @@ impl App {
 
     fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
 
+    /// Translations whose text is bundled; the others need a licensed source.
+    pub fn available_translations(&self) -> Vec<&'static str> { vec!["KJV"] }
+
+    fn conns(&self, role: &str) -> Option<&AtomicUsize> {
+        match role { "room" => Some(&self.room_conns), "stage" => Some(&self.stage_conns), _ => None }
+    }
+
+    /// Marks `role` ("room" or "stage") connected until the guard is dropped. Other roles count nothing.
+    pub fn screen_guard(self: &Arc<Self>, role: &str) -> ScreenGuard {
+        if let Some(c) = self.conns(role) { c.fetch_add(1, Ordering::Relaxed); }
+        ScreenGuard { app: Arc::downgrade(self), role: role.into() }
+    }
+
     pub fn state_json(&self) -> Value {
         let data = self.data.lock().unwrap();
         let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
@@ -287,7 +309,7 @@ impl App {
             "ffmpeg": media::ffmpeg().is_some(),
             "lan_url": self.lan_url,
             "translations": bible::TRANSLATIONS,
-            "available_translations": ["KJV"],
+            "available_translations": self.available_translations(),
             "backups": self.store.backups(),
             "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name })).collect::<Vec<_>>(),
             "jobs": *self.jobs.lock().unwrap(),
@@ -493,6 +515,13 @@ impl App {
             tryr!(app.edit(|d| { d.settings = s; Ok(()) }));
             Ok(json!({}))
         }
+        "settings/translation" => {
+            #[derive(Deserialize)] struct T { translation: String }
+            let T { translation } = parse(body)?;
+            if !bible::TRANSLATIONS.contains(&translation.as_str()) { return Err(ActionError::bad("Unknown translation.")); }
+            tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
+            Ok(json!({}))
+        }
         // ---- displays ----
         "display/open" => {
             #[derive(Deserialize)] struct O { role: String, monitor: Option<String> }
@@ -510,6 +539,7 @@ impl App {
         "display/close" => {
             #[derive(Deserialize)] struct C { role: String }
             let C { role } = parse(body)?;
+            if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
             app.close_window(&role);
             app.broadcast_data();
             Ok(json!({}))
@@ -517,7 +547,10 @@ impl App {
         // ---- backups ----
         "backup/now" => {
             let data = app.data.lock().unwrap().clone();
-            let name = tryr!(app.store.backup(&data).map_err(|e| e.to_string()));
+            // Copies every asset: keep it off the runtime's worker threads.
+            let a = app.clone();
+            let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await.map_err(|e| ActionError::bad(e.to_string()))?;
+            let name = tryr!(name.map_err(|e| e.to_string()));
             app.broadcast_data();
             Ok(json!({ "name": name }))
         }
@@ -666,6 +699,50 @@ mod tests {
         for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
             assert!(v.get(k).is_some(), "{k}");
         }
+    }
+
+    #[tokio::test]
+    async fn settings_translation_saves_and_rejects_unknown() {
+        let app = test_app();
+        app.do_action("settings/translation", br#"{"translation":"NIV"}"#).await.unwrap();
+        assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+        assert_eq!(app.store.load().unwrap().settings.translation, "NIV", "saved to disk");
+        assert_eq!(app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err().message, "Unknown translation.");
+        assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+    }
+
+    #[tokio::test]
+    async fn display_close_rejects_unknown_role() {
+        let err = test_app().do_action("display/close", br#"{"role":"projector"}"#).await.unwrap_err();
+        assert_eq!((err.status, err.message.as_str()), (400, "Unknown screen."));
+    }
+
+    #[tokio::test]
+    async fn backup_now_writes_a_backup() {
+        let app = test_app();
+        let v = app.do_action("backup/now", b"{}").await.unwrap();
+        assert!(app.store.backups().iter().any(|b| b.name == v["name"].as_str().unwrap()));
+    }
+
+    #[test]
+    fn available_translations_are_the_bundled_ones() {
+        let app = test_app();
+        assert_eq!(app.available_translations(), ["KJV"]);
+        assert_eq!(app.state_json()["available_translations"], json!(["KJV"]));
+    }
+
+    #[test]
+    fn screen_guard_marks_room_connected_until_dropped() {
+        let app = test_app();
+        let g = app.screen_guard("room");
+        assert_eq!(app.state_json()["room_connected"], true);
+        assert_eq!(app.state_json()["stage_connected"], false);
+        drop(g);
+        assert_eq!(app.state_json()["room_connected"], false);
+        let g = app.screen_guard("stage");
+        assert_eq!(app.state_json()["stage_connected"], true);
+        drop(g);
+        assert_eq!(app.state_json()["stage_connected"], false);
     }
 
     #[tokio::test]
