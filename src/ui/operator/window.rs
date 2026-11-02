@@ -42,20 +42,20 @@ impl<T: OperatorScreens + ?Sized> OperatorScreens for Arc<T> {
     fn preview_grabber(&self) -> Option<FrameGrabber> { (**self).preview_grabber() }
 }
 
-/// The dialogs of the web operator (`operator.js:353-1000`); one at a time.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DialogKind { Add, ItemEdit, Services, Screens, Phone, Settings }
+pub use crate::ui::dialogs::DialogKind;
 
 /// The window's state between updates (the web's `S`, `L`, `selectedId` and `bibleArmed`, `operator.js:62-68`).
 #[derive(Default)]
-pub(super) struct OpState {
-    pub(super) snap: Option<Arc<OperatorSnapshot>>,
+pub(crate) struct OpState {
+    pub(crate) snap: Option<Arc<OperatorSnapshot>>,
     pub(super) live: Option<LiveUpdate>,
     pub(super) selected: Option<Uuid>,
     pub(super) armed: Option<Uuid>,
     /// The open dialog, and how many confirm/prompt overlays are up; either one blocks the operator keys.
-    pub(super) dialog: Option<DialogKind>,
-    pub(super) asks: usize,
+    pub(crate) dialog: Option<DialogKind>,
+    pub(crate) asks: usize,
+    /// The open dialog's hooks and the questions waiting (see `ui::dialogs`).
+    pub(crate) dialogs: crate::ui::dialogs::DialogHooks,
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
     pub(super) dragging: bool,
     pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
@@ -65,11 +65,11 @@ pub(super) struct OpState {
 }
 
 pub struct Operator {
-    pub(super) ui: OperatorWindow,
+    pub(crate) ui: OperatorWindow,
     app: Arc<App>,
     pub(super) ops: Ops,
     screens: Rc<dyn OperatorScreens>,
-    pub(super) state: RefCell<OpState>,
+    pub(crate) state: RefCell<OpState>,
     /// The service list's rows; one model for the window's life (see `service`).
     pub(super) service_rows: Rc<VecModel<ServiceRow>>,
     /// The slide grid's rows; one model for the window's life (see `slides`).
@@ -82,7 +82,7 @@ pub struct Operator {
     /// The toasts and the jobs box (see `overlays`).
     pub(super) overlays: Overlays,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
-    pub(super) me: Weak<Operator>,
+    pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
     feed: Option<Arc<Feed>>,
 }
@@ -111,6 +111,7 @@ impl Operator {
         keys::wire(&op);
         bible::wire(&op);
         overlays::wire(&op);
+        crate::ui::dialogs::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -145,6 +146,8 @@ impl Operator {
         let mut st = self.state.borrow_mut();
         if st.dragging { st.held_snapshot = Some(s); return; }
         st.selected = view::reselect(st.selected, &s.items, live_item);
+        // Only a new read or a conversion changes `data`; a job's progress patch shares it.
+        let data_changed = st.snap.as_ref().is_none_or(|old| !Arc::ptr_eq(&old.data, &s.data));
         st.snap = Some(s.clone());
         drop(st);
         self.render_top(&s);
@@ -154,6 +157,7 @@ impl Operator {
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
+        if data_changed { self.dialog_refresh(); }
     }
 
     /// A new live view. An older one (a full read that raced a newer `Live`) is ignored.
@@ -329,7 +333,7 @@ fn follow(feed: Arc<Feed>, mut rx: Receiver<Update>) {
 
 /// What the operator's tests share: a window on the testing backend with a fake `OperatorScreens`.
 #[cfg(test)]
-pub(super) mod testing {
+pub(crate) mod testing {
     use super::*;
     use crate::ui::ui_test_init;
     use i_slint_backend_testing::ElementHandle;
