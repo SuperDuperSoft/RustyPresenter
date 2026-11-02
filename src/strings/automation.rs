@@ -55,3 +55,11 @@ pub fn at_zero_skipped_shows(timer: &str, name: &str) -> String {
 /// *(plan copy)*
 pub const ADVANCE_RANGE: &str = "Choose 2 to 600 seconds.";
 pub const NEEDS_TWO_SLIDES: &str = "Needs at least two slides.";
+
+pub const SERVICE_STARTS_IN: &str = "Service starts in";
+pub const PRE_SERVICE_TIMER_NAME: &str = "Pre-service";
+pub const START_COUNTDOWN: &str = "Start countdown";
+pub const PRESERVICE_LOCKED: &str = "Change it in the Pre-service tab";
+pub const COUNTDOWN_ENDED_NOTHING_ELSE: &str =
+    "Countdown ended — nothing else changed because the service has started.";
+pub const RESTART_FOR_NEW_TIME: &str = "Restart the countdown to use the new time.";
