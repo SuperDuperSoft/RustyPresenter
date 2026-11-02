@@ -1,5 +1,5 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
-import { Theme } from "theme.slint";
+import { Theme, OperatorState } from "theme.slint";
 import { Panel } from "widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
@@ -18,6 +18,7 @@ export component OperatorWindow inherits Window {
     background: Theme.bg;
     default-font-family: Theme.font;
     default-font-size: Theme.base-size;
+    forward-focus: keys;
 
     /// `operator.css:239`: at 1250 px or less the top bar drops the brand word and labels. Set from a change handler,
     /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
@@ -101,101 +102,140 @@ export component OperatorWindow inherits Window {
     callback bible-submit(string);
     callback pick-translation(int);
 
-    VerticalLayout {
-        TopBar {
-            narrow: root.narrow;
-            service-name: root.service-name;
-            translations: root.translations;
-            bible-text <=> root.bible-text;
-            room-on: root.room-on;
-            room-state: root.room-state;
-            room-tip: root.room-tip;
-            stage-shown: root.stage-shown;
-            stage-on: root.stage-on;
-            phones-label: root.phones-label;
-            services => { root.services(); }
-            screens => { root.screens(); }
-            phone => { root.phone(); }
-            settings => { root.settings(); }
-            bible-submit(text) => { root.bible-submit(text); }
-            pick-translation(i) => { root.pick-translation(i); }
+    /// One key press, for `keys::route` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, whether a text field
+    /// has focus and whether that field is the Bible box. True when the key was used.
+    callback key(string, bool, bool, bool, bool) -> bool;
+
+    /// Gives the keyboard back to the window's keys, as the web's `blur()` does. A dialog calls this when it
+    /// closes: a field destroyed while focused never runs its `changed has-focus`, so the flag is cleared here.
+    public function focus-keys() {
+        keys.focus();
+        OperatorState.focus-in-text = false;
+    }
+
+    public function focus-bible() { top.focus-bible(); }
+
+    /// Keys taken before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere, and
+    /// Alt+1…6 in the Bible box, where the field would otherwise type the digit.
+    pure function captured(e: KeyEvent) -> bool {
+        return e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
+            || (e.modifiers.control && (e.text == "b" || e.text == "B"))
+            || (e.modifiers.alt && top.bible-focused
+                && (e.text == "1" || e.text == "2" || e.text == "3" || e.text == "4" || e.text == "5" || e.text == "6"));
+    }
+
+    function send-key(e: KeyEvent) -> bool {
+        return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
+    }
+
+    // The window's key scope (`operator.js:305-320`). Everything else reaches it only when the focused field
+    // leaves the key alone (`key-pressed` bubbles), so a text field keeps its arrows, Space and Enter.
+    keys := FocusScope {
+        capture-key-pressed(event) => {
+            if root.captured(event) && root.send-key(event) { return accept; }
+            reject
+        }
+        key-pressed(event) => {
+            if root.send-key(event) { return accept; }
+            reject
         }
 
-        // `.layout`: minmax(250px, 300px) 1fr minmax(360px, 440px), 10 px gap and padding.
-        HorizontalLayout {
-            vertical-stretch: 1;
-            padding: 10px;
-            spacing: 10px;
-            service-col := Panel {
-                min-width: 250px;
-                preferred-width: 300px;
-                max-width: 300px;
-                horizontal-stretch: 0;
-                ServiceColumn {
-                    vertical-stretch: 1;
-                    rows: root.service-rows;
-                    count: root.service-count;
-                    loaded: root.loaded;
-                    select(id) => { root.service-select(id); }
-                    show-first(id) => { root.service-show-first(id); }
-                    edit(id) => { root.service-edit(id); }
-                    remove(id) => { root.service-remove(id); }
-                    add => { root.service-add(); }
-                    move(id, to) => { root.service-move(id, to); }
-                    drag-started => { root.service-drag-started(); }
-                    drag-finished => { root.service-drag-finished(); }
-                    drag-data(id) => { return root.service-drag-data(id); }
-                    drag-id(data) => { return root.service-drag-id(data); }
-                }
+        VerticalLayout {
+            top := TopBar {
+                narrow: root.narrow;
+                service-name: root.service-name;
+                translations: root.translations;
+                bible-text <=> root.bible-text;
+                room-on: root.room-on;
+                room-state: root.room-state;
+                room-tip: root.room-tip;
+                stage-shown: root.stage-shown;
+                stage-on: root.stage-on;
+                phones-label: root.phones-label;
+                services => { root.focus-keys(); root.services(); }
+                screens => { root.focus-keys(); root.screens(); }
+                phone => { root.focus-keys(); root.phone(); }
+                settings => { root.focus-keys(); root.settings(); }
+                bible-submit(text) => { root.bible-submit(text); }
+                pick-translation(i) => { root.pick-translation(i); }
             }
-            slides-col := Panel {
-                horizontal-stretch: 1;
-                min-width: 0px;
-                slides := SlidesPanel {
-                    vertical-stretch: 1;
-                    title: root.slides-title;
-                    kind: root.slides-kind;
-                    has-selection: root.has-selection;
-                    slide-count: root.slide-count;
-                    rows: root.slide-rows;
-                    columns: root.slide-columns;
-                    loaded: root.loaded;
-                    item-count: root.item-count;
-                    window-height: root.height;
-                    show(idx) => { root.slides-show(idx); }
-                    edit => { root.slides-edit(); }
-                    grid-resized(w) => { root.slides-grid-resized(w); }
+
+            // `.layout`: minmax(250px, 300px) 1fr minmax(360px, 440px), 10 px gap and padding.
+            HorizontalLayout {
+                vertical-stretch: 1;
+                padding: 10px;
+                spacing: 10px;
+                service-col := Panel {
+                    min-width: 250px;
+                    preferred-width: 300px;
+                    max-width: 300px;
+                    horizontal-stretch: 0;
+                    ServiceColumn {
+                        vertical-stretch: 1;
+                        rows: root.service-rows;
+                        count: root.service-count;
+                        loaded: root.loaded;
+                        select(id) => { root.focus-keys(); root.service-select(id); }
+                        show-first(id) => { root.focus-keys(); root.service-show-first(id); }
+                        edit(id) => { root.focus-keys(); root.service-edit(id); }
+                        remove(id) => { root.focus-keys(); root.service-remove(id); }
+                        add => { root.focus-keys(); root.service-add(); }
+                        move(id, to) => { root.service-move(id, to); }
+                        drag-started => { root.service-drag-started(); }
+                        drag-finished => { root.service-drag-finished(); }
+                        drag-data(id) => { return root.service-drag-data(id); }
+                        drag-id(data) => { return root.service-drag-id(data); }
+                    }
                 }
-            }
-            live-col := Panel {
-                min-width: 360px;
-                preferred-width: 440px;
-                max-width: 440px;
-                horizontal-stretch: 0;
-                live := LiveColumn {
-                    vertical-stretch: 1;
-                    pending: root.live-pending;
-                    live-what: root.live-what;
-                    notice: root.live-notice;
-                    logo-on: root.logo-on;
-                    up-next-title: root.up-next-title;
-                    up-next-body: root.up-next-body;
-                    transport: root.transport;
-                    monitor-bg: root.monitor-bg;
-                    monitor-bg-visible: root.monitor-bg-visible;
-                    monitor-media: root.monitor-media;
-                    monitor-slide: root.monitor-slide;
-                    monitor-logo: root.monitor-logo;
-                    monitor-video: root.monitor-video;
-                    monitor-video-frame: root.monitor-video-frame;
-                    monitor-video-cover: root.monitor-video-cover;
-                    monitor-black: root.monitor-black;
-                    monitor-room-off: root.monitor-room-off;
-                    next => { root.live-next(); }
-                    prev => { root.live-prev(); }
-                    clear(cmd) => { root.live-clear(cmd); }
-                    transport-toggle(i) => { root.transport-toggle(i); }
-                    monitor-resized(w) => { root.monitor-resized(w); }
+                slides-col := Panel {
+                    horizontal-stretch: 1;
+                    min-width: 0px;
+                    slides := SlidesPanel {
+                        vertical-stretch: 1;
+                        title: root.slides-title;
+                        kind: root.slides-kind;
+                        has-selection: root.has-selection;
+                        slide-count: root.slide-count;
+                        rows: root.slide-rows;
+                        columns: root.slide-columns;
+                        loaded: root.loaded;
+                        item-count: root.item-count;
+                        window-height: root.height;
+                        show(idx) => { root.focus-keys(); root.slides-show(idx); }
+                        edit => { root.focus-keys(); root.slides-edit(); }
+                        grid-resized(w) => { root.slides-grid-resized(w); }
+                    }
+                }
+                live-col := Panel {
+                    min-width: 360px;
+                    preferred-width: 440px;
+                    max-width: 440px;
+                    horizontal-stretch: 0;
+                    live := LiveColumn {
+                        vertical-stretch: 1;
+                        pending: root.live-pending;
+                        live-what: root.live-what;
+                        notice: root.live-notice;
+                        logo-on: root.logo-on;
+                        up-next-title: root.up-next-title;
+                        up-next-body: root.up-next-body;
+                        transport: root.transport;
+                        monitor-bg: root.monitor-bg;
+                        monitor-bg-visible: root.monitor-bg-visible;
+                        monitor-media: root.monitor-media;
+                        monitor-slide: root.monitor-slide;
+                        monitor-logo: root.monitor-logo;
+                        monitor-video: root.monitor-video;
+                        monitor-video-frame: root.monitor-video-frame;
+                        monitor-video-cover: root.monitor-video-cover;
+                        monitor-black: root.monitor-black;
+                        monitor-room-off: root.monitor-room-off;
+                        next => { root.focus-keys(); root.live-next(); }
+                        prev => { root.focus-keys(); root.live-prev(); }
+                        clear(cmd) => { root.focus-keys(); root.live-clear(cmd); }
+                        transport-toggle(i) => { root.focus-keys(); root.transport-toggle(i); }
+                        monitor-resized(w) => { root.monitor-resized(w); }
+                    }
                 }
             }
         }

@@ -1,6 +1,9 @@
-//! Operator keyboard shortcuts: which key does what, as pure functions (`operator.js:305-320`).
+//! Operator keyboard shortcuts (`operator.js:305-320`): which key does what, as pure functions, and the glue that
+//! runs it for the window's key scope (`keys` in `ui/operator.slint`).
+use super::window::Operator;
 use crate::live::Command;
 use slint::platform::Key;
+use std::rc::{Rc, Weak};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum KeyAction {
@@ -80,6 +83,45 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
         "Enter" => KeyAction::TakeArmedOrSelected,
         _ => KeyAction::None,
     }
+}
+
+impl Operator {
+    /// One key press from the window's key scope; true when it was used (the scope then accepts it).
+    fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, in_text_field: bool, in_bible_box: bool) -> bool {
+        let dialog_open = { let st = self.state.borrow(); st.dialog.is_some() || st.asks > 0 };
+        let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open };
+        match route(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, ctx) {
+            KeyAction::Clear(cmd) => self.command(cmd, None),
+            KeyAction::FocusBible => self.ui.invoke_focus_bible(),
+            // Only the keys drop the Bible arm; the Back/Next buttons keep it (`operator.js:314-315, 343-344`).
+            action @ (KeyAction::Next | KeyAction::Prev) => {
+                self.state.borrow_mut().armed = None;
+                self.step(action == KeyAction::Next);
+            }
+            KeyAction::TakeArmedOrSelected => self.take_armed_or_selected(),
+            KeyAction::Blur => self.ui.invoke_focus_keys(),
+            KeyAction::PickTranslation(i) => self.ui.invoke_pick_translation(i as i32),
+            KeyAction::None => return false,
+        }
+        true
+    }
+
+    /// Enter: the armed Bible passage, else the selected item, goes live at its first slide. The arm is used up
+    /// even when its item is gone (`operator.js:316-320`).
+    fn take_armed_or_selected(self: &Rc<Self>) {
+        let target = {
+            let mut st = self.state.borrow_mut();
+            let id = st.armed.take().or(st.selected);
+            id.filter(|id| st.snap.as_ref().is_some_and(|s| s.items.iter().any(|i| i.id == *id && !i.slides.is_empty())))
+        };
+        if let Some(item_id) = target { self.command(Command::Show { item_id, slide: 0 }, None) }
+    }
+}
+
+/// Connects the window's key scope. The callback holds a `Weak`, so the window does not keep itself alive.
+pub(super) fn wire(op: &Rc<Operator>) {
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_key(move |text, ctrl, alt, in_text, in_bible| me.upgrade().is_some_and(|op| op.key(&text, ctrl, alt, in_text, in_bible)));
 }
 
 #[cfg(test)]
@@ -212,5 +254,265 @@ mod tests {
         assert_eq!(key_name("1"), None);
         assert_eq!(key_name(""), None);
         assert_eq!(key_name(&String::from(char::from(Key::Home))), None);
+    }
+}
+
+/// The key scope in a real window: key events on the testing backend, actions run inline.
+#[cfg(test)]
+mod window_tests {
+    use crate::{
+        app::{App, LiveUpdate, test_app},
+        live::Command,
+        model::{ItemKind, ServiceItem},
+        ui::operator::window::{DialogKind, Operator, testing::{find, open, refresh}},
+    };
+    use slint::{ComponentHandle, SharedString, platform::{Key, PointerEventButton, WindowEvent}};
+    use std::{cell::Cell, rc::Rc, sync::Arc};
+    use uuid::Uuid;
+
+    fn add_text(app: &App, title: &str, body: &str) -> Uuid {
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new() };
+        app.data.lock().unwrap().services[0].items.push(item.clone());
+        item.id
+    }
+
+    fn opened(app: &Arc<App>) -> Rc<Operator> {
+        let op = open(app);
+        op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        refresh(&op);
+        live(&op);
+        op
+    }
+
+    /// Hands the operator the core's live view (no follower in tests).
+    fn live(op: &Operator) { op.apply_live(LiveUpdate::new(op.app().live_view())); }
+
+    fn show(op: &Operator, item_id: Uuid, slide: usize) {
+        op.ops().cmd(Command::Show { item_id, slide }, None, |o| assert!(o.ok, "{o:?}"));
+        live(op);
+    }
+
+    fn cursor(app: &App) -> Option<(Uuid, usize)> { app.live_view().cursor.map(|c| (c.item_id, c.slide)) }
+
+    fn press(op: &Operator, text: impl Into<SharedString>) {
+        let text = text.into();
+        op.window().dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+        op.window().dispatch_event(WindowEvent::KeyReleased { text });
+    }
+
+    fn key(op: &Operator, k: Key) { press(op, char::from(k)) }
+
+    /// `text` while `modifier` is held down.
+    fn chord(op: &Operator, modifier: Key, text: &str) {
+        op.window().dispatch_event(WindowEvent::KeyPressed { text: char::from(modifier).into() });
+        press(op, text);
+        op.window().dispatch_event(WindowEvent::KeyReleased { text: char::from(modifier).into() });
+    }
+
+    fn type_text(op: &Operator, text: &str) { for c in text.chars() { press(op, c) } }
+
+    fn click_bible_box(op: &Operator) {
+        find(op, "TopBar::bible-input").expect("Bible input").mock_single_click(PointerEventButton::Left);
+    }
+
+    #[test]
+    fn arrow_keys_step_from_the_start() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        key(&op, Key::RightArrow);
+        assert_eq!(cursor(&app), Some((id, 1)), "the window's key scope has focus from the start");
+        live(&op);
+        key(&op, Key::PageUp);
+        assert_eq!(cursor(&app), Some((id, 0)));
+    }
+
+    #[test]
+    fn f1_in_bible_box_clears_and_types_nothing() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1");
+        let op = opened(&app);
+        show(&op, id, 0);
+        click_bible_box(&op);
+        type_text(&op, "John");
+        key(&op, Key::F1);
+        assert!(app.live_view().frame.slide.is_none(), "F1 cleared the screen");
+        assert_eq!(op.ui.get_bible_text(), "John");
+    }
+
+    #[test]
+    fn arrows_in_bible_box_go_to_the_box() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        click_bible_box(&op);
+        type_text(&op, "Jn");
+        key(&op, Key::LeftArrow);
+        key(&op, Key::RightArrow);
+        type_text(&op, " ");
+        assert_eq!(cursor(&app), Some((id, 0)), "the slide did not move");
+        assert_eq!(op.ui.get_bible_text(), "Jn ");
+    }
+
+    #[test]
+    fn alt_2_in_bible_box_picks_translation_and_types_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        let picked = Rc::new(Cell::new(None));
+        let p = picked.clone();
+        op.ui.on_pick_translation(move |i| p.set(Some(i)));
+        click_bible_box(&op);
+        type_text(&op, "Ps 23");
+        chord(&op, Key::Alt, "2");
+        assert_eq!(picked.get(), Some(1));
+        assert_eq!(op.ui.get_bible_text(), "Ps 23");
+    }
+
+    #[test]
+    fn alt_2_outside_the_bible_box_picks_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        let picked = Rc::new(Cell::new(None));
+        let p = picked.clone();
+        op.ui.on_pick_translation(move |i| p.set(Some(i)));
+        chord(&op, Key::Alt, "2");
+        assert_eq!(picked.get(), None);
+    }
+
+    #[test]
+    fn ctrl_b_focuses_and_selects_bible_text() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        click_bible_box(&op);
+        type_text(&op, "John");
+        key(&op, Key::Escape);
+        key(&op, Key::RightArrow);
+        assert_eq!(cursor(&app), Some((id, 1)), "Esc left the box, so the arrow is Next again");
+        chord(&op, Key::Control, "b");
+        type_text(&op, "Mark");
+        assert_eq!(op.ui.get_bible_text(), "Mark", "the whole text was selected, so typing replaced it");
+        assert_eq!(cursor(&app), Some((id, 1)));
+    }
+
+    #[test]
+    fn ctrl_b_with_dialog_open_leaves_bible_box_alone() {
+        let app = test_app();
+        let op = opened(&app);
+        op.state.borrow_mut().dialog = Some(DialogKind::Settings);
+        chord(&op, Key::Control, "b");
+        type_text(&op, "x");
+        assert_eq!(op.ui.get_bible_text(), "", "the Bible box did not take focus");
+    }
+
+    #[test]
+    fn two_nexts_from_same_base_advance_once() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2\n\na3");
+        let op = opened(&app);
+        show(&op, id, 0);
+        let version = app.live_view().version;
+        // Both presses come before the first live update reaches the window, so both carry the same base.
+        key(&op, Key::RightArrow);
+        key(&op, Key::RightArrow);
+        assert_eq!(app.live_view().version, version + 1);
+        assert_eq!(cursor(&app), Some((id, 1)), "the room advanced once");
+        assert!(op.state.borrow().toasts.is_empty(), "the stale second Next is silent: {:?}", op.state.borrow().toasts);
+    }
+
+    #[test]
+    fn right_arrow_with_dialog_open_does_nothing() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        op.state.borrow_mut().dialog = Some(DialogKind::Add);
+        for k in [Key::RightArrow, Key::Space, Key::Return] { key(&op, k) }
+        assert_eq!(cursor(&app), Some((id, 0)));
+        // The F-keys still work.
+        key(&op, Key::F1);
+        assert!(app.live_view().frame.slide.is_none());
+    }
+
+    #[test]
+    fn right_arrow_with_a_question_open_does_nothing() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        op.state.borrow_mut().asks = 1;
+        key(&op, Key::RightArrow);
+        assert_eq!(cursor(&app), Some((id, 0)), "a confirm or prompt with no dialog under it blocks the keys too");
+        op.state.borrow_mut().asks = 0;
+        key(&op, Key::RightArrow);
+        assert_eq!(cursor(&app), Some((id, 1)));
+    }
+
+    #[test]
+    fn enter_shows_the_armed_item_then_the_selected_one() {
+        let app = test_app();
+        let selected = add_text(&app, "A", "a1");
+        let armed = add_text(&app, "B", "b1");
+        let op = opened(&app);
+        {
+            let mut st = op.state.borrow_mut();
+            st.selected = Some(selected);
+            st.armed = Some(armed);
+        }
+        key(&op, Key::Return);
+        assert_eq!(cursor(&app), Some((armed, 0)));
+        assert_eq!(op.state.borrow().armed, None, "Enter used the arm up");
+        live(&op);
+        key(&op, Key::Return);
+        assert_eq!(cursor(&app), Some((selected, 0)));
+    }
+
+    #[test]
+    fn enter_on_an_armed_item_that_is_gone_does_nothing() {
+        let app = test_app();
+        let selected = add_text(&app, "A", "a1");
+        let op = opened(&app);
+        {
+            let mut st = op.state.borrow_mut();
+            st.selected = Some(selected);
+            st.armed = Some(Uuid::new_v4());
+        }
+        key(&op, Key::Return);
+        assert_eq!(cursor(&app), None, "like the web, a missing armed item does not fall back to the selection");
+        assert_eq!(op.state.borrow().armed, None);
+    }
+
+    #[test]
+    fn next_and_prev_keys_clear_the_arm() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2");
+        let op = opened(&app);
+        show(&op, id, 0);
+        op.state.borrow_mut().armed = Some(id);
+        key(&op, Key::DownArrow);
+        assert_eq!(op.state.borrow().armed, None);
+        live(&op);
+        op.state.borrow_mut().armed = Some(id);
+        key(&op, Key::UpArrow);
+        assert_eq!(op.state.borrow().armed, None);
+        assert_eq!(cursor(&app), Some((id, 0)));
+    }
+
+    #[test]
+    fn clicking_a_button_returns_focus_to_the_keys() {
+        let app = test_app();
+        let id = add_text(&app, "A", "a1\n\na2\n\na3");
+        let op = opened(&app);
+        show(&op, id, 0);
+        click_bible_box(&op);
+        find(&op, "LiveColumn::next-btn").unwrap().mock_single_click(PointerEventButton::Left);
+        live(&op);
+        assert_eq!(cursor(&app), Some((id, 1)));
+        key(&op, Key::RightArrow);
+        assert_eq!(cursor(&app), Some((id, 2)), "the Bible box lost focus to the click, as in the web");
+        assert!(!op.ui.global::<crate::ui::OperatorState>().get_focus_in_text());
     }
 }

@@ -1,7 +1,7 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
-//! column in `slides`, the live column in `live`; the keys and dialogs come in later tasks.
-use super::{live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+//! column in `slides`, the live column in `live`, the keyboard in `keys`; the dialogs come in later tasks.
+use super::{keys, live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
@@ -47,17 +47,20 @@ pub enum DialogKind { Add, ItemEdit, Services, Screens, Phone, Settings }
 
 /// The window's state between updates (the web's `S`, `L`, `selectedId` and `bibleArmed`, `operator.js:62-68`).
 #[derive(Default)]
-#[allow(dead_code)] // `dialog` and `asks` are used by the keys and dialogs (Tasks 10–13).
 pub(super) struct OpState {
     pub(super) snap: Option<Arc<OperatorSnapshot>>,
     pub(super) live: Option<LiveUpdate>,
     pub(super) selected: Option<Uuid>,
     pub(super) armed: Option<Uuid>,
+    /// The open dialog, and how many confirm/prompt overlays are up; either one blocks the operator keys.
     pub(super) dialog: Option<DialogKind>,
     pub(super) asks: usize,
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
     pub(super) dragging: bool,
     pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
+    /// Every toast shown, for tests (the toast stack comes in Task 12).
+    #[cfg(test)]
+    pub(super) toasts: Vec<(String, bool)>,
 }
 
 pub struct Operator {
@@ -102,6 +105,7 @@ impl Operator {
         service::wire(&op);
         slides::wire(&op);
         live::wire(&op);
+        keys::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -166,6 +170,8 @@ impl Operator {
     /// A short message at the bottom of the window: 2.6 s, or 6 s for an error. Until the toast stack exists
     /// (Task 12) it goes to stderr, so no failure is silent.
     pub(super) fn toast(&self, msg: &str, err: bool) {
+        #[cfg(test)]
+        self.state.borrow_mut().toasts.push((msg.to_string(), err));
         eprintln!("{} {msg}", if err { "Operator error:" } else { "Operator:" });
     }
 

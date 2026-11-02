@@ -28,6 +28,15 @@ export component TopBar inherits Rectangle {
     callback bible-submit(string);
     callback pick-translation(int);
 
+    /// The Bible box has the keyboard focus (the window's keys then leave typing keys to it).
+    out property <bool> bible-focused: bible-input.has-focus;
+
+    /// Ctrl+B: focus the Bible box with its whole text selected (`operator.js:308`).
+    public function focus-bible() {
+        bible-input.focus();
+        bible-input.select-all();
+    }
+
     height: 60px;
     background: Theme.panel;
 
