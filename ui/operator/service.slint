@@ -1,0 +1,273 @@
+// The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
+// drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
+import { Theme } from "../theme.slint";
+import { Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+
+/// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`).
+export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool }
+
+/// An `.item .acts` button: an icon, a line-coloured square on hover, and a tooltip.
+component RowAct inherits Rectangle {
+    in property <string> icon;
+    in property <string> tooltip;
+    callback clicked();
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.line : transparent;
+    accessible-role: button;
+    accessible-label: root.tooltip;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        x: 5px;
+        y: 5px;
+        name: root.icon;
+        color: ta.has-hover ? Theme.text : Theme.muted;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Tooltip {
+        TipBox { text: root.tooltip; }
+    }
+}
+
+export component ServiceColumn inherits VerticalLayout {
+    in property <[ServiceRow]> rows;
+    /// "3 items", or empty.
+    in property <string> count;
+    /// The first state read has arrived; until then the list is empty with no empty-state text.
+    in property <bool> loaded;
+
+    callback select(string);
+    callback show-first(string);
+    callback edit(string);
+    callback remove(string);
+    callback add();
+    /// Drop on row `to` (by item id, so a rebuilt list cannot move the wrong item).
+    callback move(string, int);
+    callback drag-started();
+    callback drag-finished();
+    /// The drag payload for a row: plain text `svc:<id>` (`data-transfer` is opaque in Slint).
+    pure callback drag-data(string) -> data-transfer;
+    /// The item id in a drag payload, or "" when it is not a service row (files, text from elsewhere).
+    pure callback drag-id(data-transfer) -> string;
+
+    PanelHead {
+        title: @tr("Service");
+        count: root.count;
+    }
+
+    // `.items`: padding 0 8px, rows 2 px apart.
+    ScrollBox {
+        vertical-stretch: 1;
+        VerticalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            spacing: 2px;
+            alignment: start;
+
+            for it[i] in root.rows: row := Rectangle {
+                accessible-role: list-item;
+                accessible-label: it.title;
+                accessible-description: it.subtitle;
+                accessible-item-selected: it.selected;
+                accessible-item-index: i;
+                accessible-item-count: root.rows.length;
+
+                // `.item.drag-over` squares the row and draws a 2 px accent top border.
+                border-radius: drop.has-drag ? 0 : 10px;
+                border-width: 1.5px;
+                border-color: it.selected ? Theme.line : transparent;
+                background: it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                opacity: drag.dragging ? 0.4 : 1;
+
+                // `.item.live::before`: a 4 px bar in the list's left padding.
+                if it.live: Rectangle {
+                    x: -8px;
+                    y: 8px;
+                    width: 4px;
+                    height: parent.height - 16px;
+                    background: Theme.live;
+                    border-top-right-radius: 4px;
+                    border-bottom-right-radius: 4px;
+                }
+
+                // The CSS padding sits inside the 1.5 px border; a Slint layout's starts at the outer edge.
+                HorizontalLayout {
+                    padding-top: 9px + 1.5px;
+                    padding-bottom: 9px + 1.5px;
+                    padding-left: 10px + 1.5px;
+                    padding-right: 10px + 1.5px;
+                    spacing: 10px;
+                    Text {
+                        width: 18px;
+                        text: it.num;
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        horizontal-alignment: right;
+                        vertical-alignment: center;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 8px;
+                            background: Theme.panel-2;
+                            Icon {
+                                name: it.kind;
+                                color: it.live ? Theme.live : Theme.muted;
+                            }
+                        }
+                    }
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        min-width: 0px;
+                        alignment: center;
+                        Text {
+                            text: it.title;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            font-weight: 600;
+                            overflow: elide;
+                        }
+                        Text {
+                            text: it.subtitle;
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: 12px;
+                            overflow: elide;
+                        }
+                    }
+                    // Room for `.acts` (two 28 px buttons, 2 px apart) while they show.
+                    if row-ta.has-hover: Rectangle { width: 58px; }
+                }
+
+                if drop.has-drag: Rectangle {
+                    y: 0;
+                    height: 2px;
+                    background: Theme.accent;
+                }
+
+                // `ondragover`/`ondrop`: only another service row may be dropped here.
+                drop := DropArea {
+                    can-drop(e) => {
+                        let id = root.drag-id(e.data);
+                        return id != "" && id != it.id ? DragAction.move : DragAction.none;
+                    }
+                    dropped(e) => {
+                        let id = root.drag-id(e.data);
+                        if id != "" && id != it.id {
+                            root.move(id, i);
+                        }
+                        return e.proposed-action;
+                    }
+                }
+
+                drag := DragArea {
+                    allow-move: true;
+                    data: root.drag-data(it.id);
+                    changed dragging => {
+                        if self.dragging {
+                            root.drag-started();
+                        }
+                    }
+                    drag-finished => { root.drag-finished(); }
+
+                    row-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.select(it.id); }
+                        double-clicked => { root.show-first(it.id); }
+
+                        // `.item:hover .acts`
+                        if self.has-hover: HorizontalLayout {
+                            x: parent.width - self.width - 10px - 1.5px;
+                            y: (parent.height - self.height) / 2;
+                            spacing: 2px;
+                            edit := RowAct {
+                                icon: "edit";
+                                tooltip: @tr("Edit");
+                                clicked => { root.edit(it.id); }
+                            }
+                            trash := RowAct {
+                                icon: "trash";
+                                tooltip: @tr("Remove from service");
+                                clicked => { root.remove(it.id); }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if root.loaded && root.rows.length == 0: empty := VerticalLayout {
+                // `.empty`: padding 28px 18px, line-height 1.6; the `<b>` is a 15 px block 4 px above the text.
+                padding-top: 28px;
+                padding-bottom: 28px;
+                padding-left: 18px - 8px;
+                padding-right: 18px - 8px;
+                spacing: 4px;
+                empty-title := Text {
+                    text: @tr("Your service is empty");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 15px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                empty-text := Text {
+                    text: @tr("Click “Add to service” below, type a Bible verse up top, or drag files onto this window.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+
+    // `.add-btn`: margin 8, padding 13, dashed border, accent text.
+    HorizontalLayout {
+        padding: 8px;
+        add-btn := Rectangle {
+            border-radius: 10px;
+            background: add-ta.has-hover ? Theme.add-hover : transparent;
+            accessible-role: button;
+            accessible-label: @tr("Add to service");
+            accessible-action-default => { root.add(); }
+            HorizontalLayout {
+                padding: 13px;
+                spacing: 8px;
+                alignment: center;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        name: "plus";
+                        color: Theme.accent;
+                    }
+                }
+                Text {
+                    text: @tr("Add to service");
+                    color: Theme.accent;
+                    font-family: Theme.font;
+                    font-size: 14.5px;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+            }
+            DashedOutline {
+                line-color: add-ta.has-hover ? Theme.accent : Theme.dash;
+                radius: 10px;
+            }
+            add-ta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.add(); }
+            }
+        }
+    }
+}

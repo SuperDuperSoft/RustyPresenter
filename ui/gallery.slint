@@ -1,7 +1,7 @@
 // Every shared widget in each state, for a person to compare against the web operator (`cargo run --example widgets`).
 // A development aid only: its strings are plain literals (no `@tr`) so they stay out of the translation catalog.
 import { Theme } from "theme.slint";
-import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText } from "widgets.slint";
+import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText, DashedOutline } from "widgets.slint";
 
 export component WidgetGallery inherits Window {
     title: "RustyPresenter — widgets";
@@ -25,7 +25,7 @@ export component WidgetGallery inherits Window {
         height: root.height - 20px;
         PanelHead {
             title: "Widgets";
-            count: "13 kinds";
+            count: "14 kinds";
             Btn { text: "Head action"; small: true; }
         }
         ScrollBox {
@@ -105,6 +105,22 @@ export component WidgetGallery inherits Window {
                     label: "Address";
                     help: "Open this on the phone.";
                     copy := CopyText { text: "http://192.168.1.20:7878/phone"; }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    Rectangle {
+                        width: 260px;
+                        height: 48px;
+                        Text {
+                            text: "Dashed outline";
+                            color: Theme.accent;
+                            font-family: Theme.font;
+                        }
+                        DashedOutline {
+                            line-color: Theme.dash;
+                            radius: 10px;
+                        }
+                    }
                 }
                 for i in 12: Text {
                     text: "Row \{i + 1} (scroll to see the styled scrollbar)";

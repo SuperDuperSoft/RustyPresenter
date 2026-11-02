@@ -14,6 +14,9 @@ export component ScrollBox inherits Rectangle {
     property <length> travel: fl.content-height - fl.height;
 
     fl := Flickable {
+        // A web page never pans with a mouse drag (only the wheel and the scrollbar), and a pan would steal
+        // the drag from a `DragArea` inside (the service rows).
+        mouse-drag-pan-enabled: false;
         x: 0;
         y: 0;
         width: root.width;

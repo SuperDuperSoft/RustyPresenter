@@ -1,10 +1,11 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
-// The columns are placeholder panels until Tasks 6–9 fill them.
+// The slides and live columns are placeholder panels until Tasks 7–9 fill them.
 import { Theme } from "theme.slint";
-import { Panel, PanelHead } from "widgets.slint";
+import { Panel } from "widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
+import { ServiceColumn, ServiceRow } from "operator/service.slint";
 
-export { TranslationChip }
+export { TranslationChip, ServiceRow }
 
 /// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
 component Welcome inherits VerticalLayout {
@@ -111,6 +112,20 @@ export component OperatorWindow inherits Window {
     in property <bool> loaded;
     in property <int> item-count;
 
+    // Service column (see `ServiceColumn`).
+    in property <[ServiceRow]> service-rows;
+    in property <string> service-count;
+    callback service-select(string);
+    callback service-show-first(string);
+    callback service-edit(string);
+    callback service-remove(string);
+    callback service-add();
+    callback service-move(string, int);
+    callback service-drag-started();
+    callback service-drag-finished();
+    pure callback service-drag-data(string) -> data-transfer;
+    pure callback service-drag-id(data-transfer) -> string;
+
     callback services();
     callback screens();
     callback phone();
@@ -148,8 +163,22 @@ export component OperatorWindow inherits Window {
                 preferred-width: 300px;
                 max-width: 300px;
                 horizontal-stretch: 0;
-                PanelHead { title: @tr("Service"); }
-                Rectangle { vertical-stretch: 1; }
+                ServiceColumn {
+                    vertical-stretch: 1;
+                    rows: root.service-rows;
+                    count: root.service-count;
+                    loaded: root.loaded;
+                    select(id) => { root.service-select(id); }
+                    show-first(id) => { root.service-show-first(id); }
+                    edit(id) => { root.service-edit(id); }
+                    remove(id) => { root.service-remove(id); }
+                    add => { root.service-add(); }
+                    move(id, to) => { root.service-move(id, to); }
+                    drag-started => { root.service-drag-started(); }
+                    drag-finished => { root.service-drag-finished(); }
+                    drag-data(id) => { return root.service-drag-data(id); }
+                    drag-id(data) => { return root.service-drag-id(data); }
+                }
             }
             slides-col := Panel {
                 horizontal-stretch: 1;

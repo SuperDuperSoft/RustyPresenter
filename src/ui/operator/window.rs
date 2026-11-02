@@ -1,10 +1,11 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
-//! into snapshots for the Slint thread (`operator.js:292-302`). The columns, keys and dialogs come in later tasks.
-use super::{strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+//! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`; the other
+//! columns, keys and dialogs come in later tasks.
+use super::{service, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
-    ui::{OperatorWindow, TranslationChip, ops::Ops},
+    ui::{OperatorWindow, ServiceRow, TranslationChip, ops::Ops},
     video::DrawMode,
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
@@ -42,24 +43,27 @@ pub enum DialogKind { Add, ItemEdit, Services, Screens, Phone, Settings }
 
 /// The window's state between updates (the web's `S`, `L`, `selectedId` and `bibleArmed`, `operator.js:62-68`).
 #[derive(Default)]
-#[allow(dead_code)] // `armed`, `dialog`, `asks` and `dragging` are used by the columns, keys and dialogs (Tasks 6–13).
-struct OpState {
-    snap: Option<Arc<OperatorSnapshot>>,
-    live: Option<LiveUpdate>,
-    selected: Option<Uuid>,
-    armed: Option<Uuid>,
-    dialog: Option<DialogKind>,
-    asks: usize,
-    dragging: bool,
-    held_snapshot: Option<Arc<OperatorSnapshot>>,
+#[allow(dead_code)] // `dialog` and `asks` are used by the keys and dialogs (Tasks 10–13).
+pub(super) struct OpState {
+    pub(super) snap: Option<Arc<OperatorSnapshot>>,
+    pub(super) live: Option<LiveUpdate>,
+    pub(super) selected: Option<Uuid>,
+    pub(super) armed: Option<Uuid>,
+    pub(super) dialog: Option<DialogKind>,
+    pub(super) asks: usize,
+    /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
+    pub(super) dragging: bool,
+    pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
 }
 
 pub struct Operator {
-    ui: OperatorWindow,
+    pub(super) ui: OperatorWindow,
     app: Arc<App>,
-    ops: Ops,
+    pub(super) ops: Ops,
     screens: Rc<dyn OperatorScreens>,
-    state: RefCell<OpState>,
+    pub(super) state: RefCell<OpState>,
+    /// The service list's rows; one model for the window's life (see `service`).
+    pub(super) service_rows: Rc<VecModel<ServiceRow>>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
     feed: Option<Arc<Feed>>,
 }
@@ -74,8 +78,9 @@ impl Operator {
         let rx = app.subscribe();
         let op = Rc::new_cyclic(|me: &Weak<Operator>| {
             let listening = listen(me.clone(), feed.clone());
-            Operator { ui, app, ops, screens, state: RefCell::default(), feed: listening.then(|| feed.clone()) }
+            Operator { ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), feed: listening.then(|| feed.clone()) }
         });
+        service::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -103,24 +108,40 @@ impl Operator {
         let _ = std::thread::Builder::new().name("operator-refresh".into()).spawn(move || feed.read_all());
     }
 
-    /// A new state read (`refresh()` in `operator.js:69-74`). Held while a service row is being dragged (Task 6).
+    /// A new state read (`refresh()` in `operator.js:69-74`). Held while a service row is being dragged, and
+    /// applied when the drag ends.
     pub fn apply_snapshot(&self, s: Arc<OperatorSnapshot>) {
+        let live_item = self.live_item();
         let mut st = self.state.borrow_mut();
         if st.dragging { st.held_snapshot = Some(s); return; }
-        let live_item = st.live.as_ref().and_then(|l| l.view().cursor.as_ref().map(|c| c.item_id));
         st.selected = view::reselect(st.selected, &s.items, live_item);
         st.snap = Some(s.clone());
         drop(st);
         self.render_top(&s);
+        self.render_service();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
     }
 
     /// A new live view. An older one (a full read that raced a newer `Live`) is ignored.
     pub fn apply_live(&self, v: LiveUpdate) {
-        let mut st = self.state.borrow_mut();
-        if st.live.as_ref().is_some_and(|l| l.view().version > v.view().version) { return; }
-        st.live = Some(v);
+        {
+            let mut st = self.state.borrow_mut();
+            if st.live.as_ref().is_some_and(|l| l.view().version > v.view().version) { return; }
+            st.live = Some(v);
+        }
+        self.mark_service();
+    }
+
+    /// The item the live cursor is on (`L.cursor.item_id`), if any.
+    pub(super) fn live_item(&self) -> Option<Uuid> {
+        self.state.borrow().live.as_ref().and_then(|l| l.view().cursor.as_ref().map(|c| c.item_id))
+    }
+
+    /// A short message at the bottom of the window: 2.6 s, or 6 s for an error. Until the toast stack exists
+    /// (Task 12) it goes to stderr, so no failure is silent.
+    pub(super) fn toast(&self, msg: &str, err: bool) {
+        eprintln!("{} {msg}", if err { "Operator error:" } else { "Operator:" });
     }
 
     /// `renderTop()` (`operator.js:93-107`).
@@ -277,17 +298,14 @@ fn follow(feed: Arc<Feed>, mut rx: Receiver<Update>) {
     });
 }
 
+/// What the operator's tests share: a window on the testing backend with a fake `OperatorScreens`.
 #[cfg(test)]
-mod tests {
+pub(super) mod testing {
     use super::*;
-    use crate::{
-        app::test_app,
-        model::{EndAction, ItemKind, MediaFile, MediaKind, ServiceItem},
-        ui::ui_test_init,
-    };
+    use crate::ui::ui_test_init;
     use i_slint_backend_testing::ElementHandle;
 
-    struct FakeScreens { missing: bool }
+    pub struct FakeScreens { pub missing: bool }
 
     impl OperatorScreens for FakeScreens {
         fn video_info(&self) -> VideoInfo {
@@ -295,15 +313,28 @@ mod tests {
         }
     }
 
-    fn open(app: &Arc<App>) -> Rc<Operator> {
+    pub fn open(app: &Arc<App>) -> Rc<Operator> {
         ui_test_init();
         Operator::open(app.clone(), Ops::inline(app.clone()), Rc::new(FakeScreens { missing: false })).unwrap()
     }
 
     /// The follower's read, done here because the testing backend has no event loop to deliver it.
-    fn refresh(op: &Operator) { op.apply_snapshot(Arc::new(OperatorSnapshot::read(&op.app))); }
+    pub fn refresh(op: &Operator) { op.apply_snapshot(Arc::new(OperatorSnapshot::read(&op.app))); }
 
-    fn find(op: &Operator, id: &str) -> Option<ElementHandle> { ElementHandle::find_by_element_id(&op.ui, id).next() }
+    pub fn find(op: &Operator, id: &str) -> Option<ElementHandle> { ElementHandle::find_by_element_id(&op.ui, id).next() }
+
+    pub fn find_all(op: &Operator, id: &str) -> Vec<ElementHandle> { ElementHandle::find_by_element_id(&op.ui, id).collect() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::testing::{open, refresh, find};
+    use crate::{
+        app::test_app,
+        model::{EndAction, ItemKind, MediaFile, MediaKind, ServiceItem},
+        ui::ui_test_init,
+    };
 
     /// A video item in the current service; returns its media id.
     fn add_video(app: &App) -> Uuid {
