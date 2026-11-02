@@ -44,15 +44,18 @@ pub fn parse(book: u8, r: &Response) -> Result<Vec<Verse>, FetchError> {
     for (range, text) in r.parsed.iter().zip(&r.passages) {
         let Some(&start) = range.first() else { continue };
         if start / 1_000_000 != book as u32 + 1 { return Err(FetchError::Other("the ESV service returned a different book".into())); }
-        out.extend(split_verses(text, (start / 1000 % 1000) as u16));
+        out.extend(split_verses(text, (start / 1000 % 1000) as u16, book == PSALMS));
     }
     if out.is_empty() { return Err(FetchError::NotFound); }
     Ok(out)
 }
 
+const PSALMS: u8 = 18;
+
 /// `[16] For God… [17] For God did not…`. A `[C:V]` marker names its chapter; a plain number lower
-/// than the one before it means the passage crossed into the next chapter.
-pub fn split_verses(text: &str, first_chapter: u16) -> Vec<Verse> {
+/// than the one before it means the passage crossed into the next chapter. In `psalms`, the paragraph
+/// before a new chapter's first marker is that psalm's superscription, not the last verse's text.
+pub fn split_verses(text: &str, first_chapter: u16, psalms: bool) -> Vec<Verse> {
     let mut out: Vec<Verse> = Vec::new();
     let (mut chapter, mut last) = (first_chapter, 0u16);
     let mut rest = text;
@@ -71,6 +74,8 @@ pub fn split_verses(text: &str, first_chapter: u16) -> Vec<Verse> {
         match (parsed, marker) {
             (Some((c, v)), Some(m)) => {
                 body.push_str(&rest[..open]);
+                let cut = if psalms && c != chapter && current.is_some() { body.trim_end().rfind("\n\n") } else { None };
+                if let Some(i) = cut { body.truncate(i); }
                 flush(current, &mut body, &mut out);
                 (chapter, last) = (c, v);
                 current = Some((c, v));
@@ -90,25 +95,41 @@ mod tests {
 
     #[test]
     fn splits_verse_markers() {
-        let v = split_verses("  [16] For God so loved the world,\n    that he gave   his only Son.  [17] For God did not send his Son.\n\n", 3);
+        let v = split_verses("  [16] For God so loved the world,\n    that he gave   his only Son.  [17] For God did not send his Son.\n\n", 3, false);
         assert_eq!(v, vec![(3, 16, "For God so loved the world, that he gave his only Son.".into()), (3, 17, "For God did not send his Son.".into())]);
     }
 
     #[test]
     fn crossing_a_chapter_with_plain_numbers() {
-        let v = split_verses("[51] a [1] b [2] c", 1);
+        let v = split_verses("[51] a [1] b [2] c", 1, false);
         assert_eq!(v.iter().map(|x| (x.0, x.1)).collect::<Vec<_>>(), vec![(1, 51), (2, 1), (2, 2)]);
     }
 
     #[test]
     fn crossing_a_chapter_with_chapter_markers() {
-        let v = split_verses("[51] a [2:1] b [2] c", 1);
+        let v = split_verses("[51] a [2:1] b [2] c", 1, false);
         assert_eq!(v.iter().map(|x| (x.0, x.1)).collect::<Vec<_>>(), vec![(1, 51), (2, 1), (2, 2)]);
     }
 
     #[test]
+    fn psalm_superscription_is_not_the_last_verse_of_the_previous_psalm() {
+        let text = "[5] You prepare a table.\n\n[6] Surely goodness and mercy\nshall follow me\nforever.\n\nA Psalm of David.\n\n[1] The earth is the LORD's\n\n";
+        let v = split_verses(text, 23, true);
+        assert_eq!(v, vec![(23, 5, "You prepare a table.".into()), (23, 6, "Surely goodness and mercy shall follow me forever.".into()),
+            (24, 1, "The earth is the LORD's".into())]);
+        // Same with a chapter marker, and a psalm with no superscription keeps its last verse whole.
+        let v = split_verses("[6] forever.\n\nA Psalm of David.\n\n[24:1] The earth", 23, true);
+        assert_eq!(v[0].2, "forever.");
+        let v = split_verses("[6] they will perish.\n\n[1] Why do the nations", 1, true);
+        assert_eq!(v[0].2, "they will perish.");
+        // Other books keep text across a chapter break.
+        let v = split_verses("[51] a\n\nb [1] c", 1, false);
+        assert_eq!(v[0].2, "a b");
+    }
+
+    #[test]
     fn keeps_brackets_that_are_not_markers() {
-        let v = split_verses("[1] Blessed is the man [who walks] not. [2] But his delight", 1);
+        let v = split_verses("[1] Blessed is the man [who walks] not. [2] But his delight", 1, false);
         assert_eq!(v[0].2, "Blessed is the man [who walks] not.");
         assert_eq!(v[1].2, "But his delight");
     }

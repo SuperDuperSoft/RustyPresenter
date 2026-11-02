@@ -30,14 +30,7 @@ const OSIS: [&str; 66] = [
     "1Tim", "2Tim", "Titus", "Phlm", "Heb", "Jas", "1Pet", "2Pet", "1John", "2John", "3John", "Jude", "Rev",
 ];
 
-/// USFM/USX book codes in `BOOKS` order (https://ubsicap.github.io/usx/vocabularies.html, bookCode).
-const USFM: [&str; 66] = [
-    "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "1KI", "2KI", "1CH", "2CH", "EZR", "NEH", "EST",
-    "JOB", "PSA", "PRO", "ECC", "SNG", "ISA", "JER", "LAM", "EZK", "DAN", "HOS", "JOL", "AMO", "OBA", "JON", "MIC", "NAM",
-    "HAB", "ZEP", "HAG", "ZEC", "MAL",
-    "MAT", "MRK", "LUK", "JHN", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP", "COL", "1TH", "2TH", "1TI", "2TI", "TIT",
-    "PHM", "HEB", "JAS", "1PE", "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
-];
+use super::USFM;
 
 /// Elements that separate words; their edges become a space so "line one</para><para>line two" stays readable.
 const BLOCK: &[&str] = &["br", "lb", "l", "lg", "p", "para", "div", "row", "cell", "table", "item", "list"];
@@ -69,15 +62,15 @@ pub fn sanitize_abbr(s: &str) -> Option<String> {
     ((2..=10).contains(&a.len()) && !device).then_some(a)
 }
 
-/// Adds `new` to an earlier import with the same abbreviation: a file with only new books (USX is one book per
-/// file) is merged in; a file that repeats any book replaces the old one.
+/// Adds `new` to an earlier import with the same abbreviation, book by book: each book in `new` (USX is one book
+/// per file) replaces that whole book; other old books stay. A non-empty new name or copyright wins.
 pub fn combine(old: Option<ImportedBible>, new: ImportedBible) -> ImportedBible {
     let Some(mut old) = old else { return new };
-    let books = |v: &Verses| v.keys().map(|k| k.0).collect::<BTreeSet<u8>>();
-    if !books(&old.verses).is_disjoint(&books(&new.verses)) { return new; }
+    let books: BTreeSet<u8> = new.verses.keys().map(|k| k.0).collect();
+    old.verses.retain(|k, _| !books.contains(&k.0));
     old.verses.extend(new.verses);
-    if old.name.is_empty() { old.name = new.name; }
-    if old.copyright.is_empty() { old.copyright = new.copyright; }
+    if !new.name.is_empty() { old.name = new.name; }
+    if !new.copyright.is_empty() { old.copyright = new.copyright; }
     old
 }
 
@@ -171,14 +164,17 @@ fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
     })
 }
 
-/// Deletes `root/bibles/{ABBR}.json`; already gone is fine.
+/// Deletes `root/bibles/{ABBR}.json`; already gone is fine. Holds `LOADED` throughout so no reader can reload the
+/// file between the delete and the eviction.
 pub fn remove(root: &Path, abbr: &str) -> io::Result<()> {
     let abbr = sanitize_abbr(abbr).ok_or_else(bad_abbr)?;
-    forget(root);
-    match fs::remove_file(root.join("bibles").join(format!("{abbr}.json"))) {
+    let mut all = LOADED.lock().unwrap();
+    let r = match fs::remove_file(root.join("bibles").join(format!("{abbr}.json"))) {
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
         r => r,
-    }
+    };
+    all.remove(root);
+    r
 }
 
 // ---- loaded Bibles ----
@@ -195,8 +191,6 @@ fn loaded(root: &Path) -> Arc<Loaded> {
         .clone()
 }
 
-fn forget(root: &Path) { LOADED.lock().unwrap().remove(root); }
-
 /// The imported Bible with this abbreviation, if any.
 pub fn get(root: &Path, abbr: &str) -> Option<Arc<ImportedBible>> { loaded(root).get(abbr).cloned() }
 
@@ -212,16 +206,33 @@ pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible
     let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(|| bad_abbr().to_string())?;
     if super::built_in(&abbr).is_some() { return Err(format!("{abbr} is already built in. Give this Bible another short name.")); }
     b.abbreviation = abbr.clone();
+    let mut b = combine(load(root, &abbr), b);
     if b.name.is_empty() { b.name = abbr.clone(); }
-    let b = combine(load(root, &abbr), b);
     save(root, &b).map_err(|e| e.to_string())?;
-    forget(root);
-    get(root, &abbr).ok_or_else(|| "The Bible was saved but could not be read back.".into())
+    // Patch the cache in place; a cold cache stays cold and reads the saved file when first needed.
+    let b = Arc::new(b);
+    if let Some(m) = LOADED.lock().unwrap().get_mut(root) {
+        let mut next = (**m).clone();
+        next.insert(abbr, b.clone());
+        *m = Arc::new(next);
+    }
+    Ok(b)
 }
 
 // ---- XML plumbing ----
 
-/// UTF-8 (with or without BOM), UTF-16 with BOM, else Windows-1252 (older Zefania files are often Latin-1).
+/// The lowercase `encoding` of the XML declaration in the first 200 bytes, if any.
+fn declared_encoding(bytes: &[u8]) -> Option<String> {
+    let head: String = bytes.iter().take(200).map(|&b| b.to_ascii_lowercase() as char).collect();
+    let decl = &head[head.find("<?xml")?..];
+    let decl = &decl[..decl.find("?>")?];
+    let rest = decl[decl.find("encoding")? + 8..].trim_start().strip_prefix('=')?.trim_start();
+    let q = rest.chars().next().filter(|c| *c == '"' || *c == '\'')?;
+    Some(rest[1..].split(q).next()?.trim().to_string())
+}
+
+/// UTF-16 with BOM; Windows-1252 when the XML declaration names a single-byte Latin encoding (older Zefania
+/// files); otherwise UTF-8, where only invalid bytes become U+FFFD.
 fn decode(bytes: &[u8]) -> String {
     const CP1252: [char; 32] = [
         '€', '\u{81}', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', '\u{8D}', 'Ž', '\u{8F}',
@@ -232,9 +243,10 @@ fn decode(bytes: &[u8]) -> String {
         [0xEF, 0xBB, 0xBF, rest @ ..] => String::from_utf8_lossy(rest).into_owned(),
         [0xFF, 0xFE, rest @ ..] => utf16(rest, u16::from_le_bytes),
         [0xFE, 0xFF, rest @ ..] => utf16(rest, u16::from_be_bytes),
-        _ => match std::str::from_utf8(bytes) {
-            Ok(s) => s.to_owned(),
-            Err(_) => bytes.iter().map(|&b| if (0x80..0xA0).contains(&b) { CP1252[(b - 0x80) as usize] } else { b as char }).collect(),
+        _ => match declared_encoding(bytes).as_deref() {
+            Some("windows-1252" | "cp1252" | "iso-8859-1" | "iso8859-1" | "latin1" | "latin-1" | "us-ascii" | "ascii") =>
+                bytes.iter().map(|&b| if (0x80..0xA0).contains(&b) { CP1252[(b - 0x80) as usize] } else { b as char }).collect(),
+            _ => String::from_utf8_lossy(bytes).into_owned(),
         },
     }
 }
@@ -418,8 +430,10 @@ fn osis(src: &str) -> Result<ImportedBible, String> {
                 "verse" => {
                     if attr(el, "eID").is_some() { acc.end(); return; }
                     acc.end();
-                    let id = attr(el, "sID").filter(|_| empty).or_else(|| attr(el, "osisID"));
-                    if let Some(k) = id.as_deref().and_then(osis_ref) { acc.start(k); }
+                    // osisID names the verse; sID is often an opaque id ("v1"), so it is only a fallback on milestones.
+                    let k = attr(el, "osisID").as_deref().and_then(osis_ref)
+                        .or_else(|| attr(el, "sID").filter(|_| empty).as_deref().and_then(osis_ref));
+                    if let Some(k) = k { acc.start(k); }
                 }
                 "chapter" if attr(el, "eID").is_some() => acc.end(),
                 "note" if !empty => acc.skip = 1,
@@ -659,8 +673,63 @@ mod tests {
         let mut utf16 = vec![0xFF, 0xFE];
         utf16.extend(ZEFANIA.encode_utf16().flat_map(u16::to_le_bytes));
         assert_eq!(parse(&utf16).unwrap().len(), 2);
-        let latin = b"<bible><b n=\"John\"><c n=\"3\"><v n=\"16\">\x93God\x94 caf\xe9</v></c></b></bible>";
+        let latin = b"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><bible><b n=\"John\"><c n=\"3\"><v n=\"16\">\x93God\x94 caf\xe9</v></c></b></bible>";
         assert_eq!(parse(latin).unwrap().verses[&(42, 3, 16)], "“God” café");
+        assert_eq!(decode(b"<?xml version='1.0' encoding = 'windows-1252' ?><a>\xe9</a>"), "<?xml version='1.0' encoding = 'windows-1252' ?><a>é</a>");
+    }
+
+    #[test]
+    fn one_bad_byte_stays_utf8() {
+        let mut src = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a>café “x” ".as_bytes().to_vec();
+        src.extend(b"\xff</a>");
+        assert_eq!(decode(&src), "<?xml version=\"1.0\" encoding=\"UTF-8\"?><a>café “x” \u{FFFD}</a>");
+        let mut bare = "<a>café".as_bytes().to_vec();
+        bare.extend(b"\x93</a>");
+        assert_eq!(decode(&bare), "<a>café\u{FFFD}</a>");
+        assert_eq!(declared_encoding(b"<a encoding=\"latin1\"/>"), None);
+    }
+
+    #[test]
+    fn osis_milestone_keys_by_osis_id() {
+        let src = r#"<osis><osisText osisIDWork="WEB"><div type="book" osisID="John"><chapter osisID="John.3" sID="c3"/>
+<verse osisID="John.3.16" sID="v1"/>For God so loved the world.<verse eID="v1"/><chapter eID="c3"/></div></osisText></osis>"#;
+        let b = parse(src.as_bytes()).unwrap();
+        assert_eq!(keys(&b), vec![(42, 3, 16)]);
+        assert_eq!(b.verses[&(42, 3, 16)], "For God so loved the world.");
+    }
+
+    fn temp_root(tag: &str) -> PathBuf {
+        let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
+        std::env::temp_dir().join(format!("rp-import-{tag}-{stamp}"))
+    }
+
+    #[test]
+    fn remove_evicts_cache() {
+        let root = temp_root("evict");
+        let mut b = sample();
+        b.abbreviation = "TSTA".into();
+        save(&root, &b).unwrap();
+        assert!(get(&root, "TSTA").is_some());
+        remove(&root, "TSTA").unwrap();
+        assert!(get(&root, "TSTA").is_none());
+        assert!(all(&root).is_empty());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn import_updates_loaded_cache_in_place() {
+        let root = temp_root("cache");
+        assert!(all(&root).is_empty()); // warm, empty cache
+        let john = import(&root, USX.as_bytes(), "tstb").unwrap();
+        assert_eq!(john.len(), 2);
+        assert_eq!(get(&root, "TSTB").unwrap().len(), 2);
+        let psalm = r#"<usx version="2.0"><book code="PSA" style="id"/><chapter number="23" style="c"/><para style="q1"><verse number="1" style="v"/>The LORD</para></usx>"#;
+        assert_eq!(import(&root, psalm.as_bytes(), "tstb").unwrap().len(), 3);
+        let cached = get(&root, "TSTB").unwrap();
+        assert_eq!(keys(&cached), vec![(18, 23, 1), (42, 3, 16), (42, 3, 17)]);
+        assert_eq!(cached.name, "TSTB");
+        assert_eq!(load(&root, "TSTB").unwrap(), *cached);
+        let _ = fs::remove_dir_all(&root);
     }
 
     #[test]
@@ -747,7 +816,21 @@ mod tests {
         let one = |b: u8| ImportedBible { verses: [((b, 1, 1), "x".to_string())].into(), ..Default::default() };
         let merged = combine(Some(one(0)), one(1));
         assert_eq!(merged.len(), 2);
-        assert_eq!(combine(Some(merged), one(1)).len(), 1);
+        // A repeated book replaces only that book: John had 1:1 and 1:2, the new John has only 1:1.
+        let mut old = merged.clone();
+        old.verses.insert((1, 1, 2), "old".into());
+        old.name = "Old".into();
+        old.copyright = "C".into();
+        let mut new = one(1);
+        new.verses.insert((1, 1, 1), "new".into());
+        new.name = "New".into();
+        let c = combine(Some(old), new);
+        assert_eq!(keys(&c), vec![(0, 1, 1), (1, 1, 1)]);
+        assert_eq!(c.verses[&(1, 1, 1)], "new");
+        assert_eq!((c.name.as_str(), c.copyright.as_str()), ("New", "C"));
+        // A whole re-import replaces every book it contains.
+        let whole = ImportedBible { verses: [((0, 1, 1), "a".to_string()), ((1, 1, 1), "b".to_string())].into(), ..Default::default() };
+        assert_eq!(combine(Some(c), whole.clone()).verses, whole.verses);
         assert_eq!(combine(None, one(3)).len(), 1);
     }
 }

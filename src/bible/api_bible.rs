@@ -2,25 +2,18 @@
 //! The free Starter plan is non-commercial, 5,000 calls a month and up to 3 copyrighted Bibles, which the church
 //! picks under Plan in its API.Bible dashboard. Terms: stored text must be re-checked within 30 days and kept
 //! protected (`CachePolicy { max_age_days: Some(30), .. }`); every passage shown links to its full copyright
-//! notice (`copyright()`); each fetched passage's `fumsToken` is reported to FUMS (`report_fums`).
-use super::{Part, sources::{FetchError, Verse, tidy}};
+//! notice (`copyright()`); each passage's `fumsToken` is returned (and cached) so `sources::lookup` reports it to
+//! FUMS (`report_fums`) every time the passage is shown, fetched or cached.
+use super::{Part, sources::{FetchError, Fetched, Verse, tidy}};
 use serde::Deserialize;
-use std::{collections::BTreeMap, sync::{Mutex, OnceLock}};
+use std::{collections::BTreeMap, path::Path, sync::{Mutex, OnceLock}};
 
 /// Current base (docs.api.bible/quick-start/authentication). The old `api.scripture.api.bible/v1` host is legacy.
 const URL: &str = "https://rest.api.bible/v1";
 /// Manual FUMS report endpoint for non-browser apps (docs.api.bible/guides/fair-use).
 const FUMS: &str = "https://fums.api.bible/f3";
 
-/// USFM book ids API.Bible uses in verse ids (`JHN.3.16`), in `BOOKS` order. Several differ from the
-/// eBible-style codes there (SOL→SNG, EZE→EZK, JOE→JOL, NAH→NAM, MAR→MRK, JOH→JHN, PHI→PHP, JAM→JAS, 1JO→1JN…).
-pub const USFM: [&str; 66] = [
-    "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "1KI", "2KI", "1CH", "2CH", "EZR", "NEH",
-    "EST", "JOB", "PSA", "PRO", "ECC", "SNG", "ISA", "JER", "LAM", "EZK", "DAN", "HOS", "JOL", "AMO", "OBA", "JON",
-    "MIC", "NAM", "HAB", "ZEP", "HAG", "ZEC", "MAL",
-    "MAT", "MRK", "LUK", "JHN", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP", "COL", "1TH", "2TH", "1TI", "2TI",
-    "TIT", "PHM", "HEB", "JAS", "1PE", "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
-];
+use super::USFM;
 
 // ---------- responses ----------
 
@@ -99,13 +92,16 @@ pub fn copyright(translation: &str) -> Option<String> { COPYRIGHTS.lock().unwrap
 
 // ---------- fetch ----------
 
-pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book: u8, part: &Part) -> Result<Vec<Verse>, FetchError> {
+/// The passage and its FUMS tokens (one per request), which the caller reports.
+pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book: u8, part: &Part) -> Result<Fetched, FetchError> {
     let id = bible_id(client, key, translation).await?;
     let code = USFM[book as usize];
+    let mut fums = Vec::new();
     let verses = match (part.start, part.end) {
         // A verse range, possibly across chapters: one passage request (at most 200 verses come back).
         ((c, Some(v)), (e, Some(w))) => {
             let r = get(client, key, translation, &format!("{URL}/bibles/{id}/passages/{}", passage_id(code, (c, v), (e, w)))).await?;
+            fums.extend(r.meta.fums_token.clone());
             let out = parse(code, &r)?;
             if out.last().is_some_and(|l| (l.0, l.1) < (e, w)) && out.len() >= 200 {
                 return Err(FetchError::Other("API.Bible sends at most 200 verses at a time; choose a shorter passage".into()));
@@ -117,6 +113,7 @@ pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book:
             let mut out = Vec::new();
             for ch in c..=e {
                 let r = get(client, key, translation, &format!("{URL}/bibles/{id}/chapters/{code}.{ch}")).await?;
+                fums.extend(r.meta.fums_token.clone());
                 out.extend(parse(code, &r)?);
             }
             out.retain(|x| (x.0, x.1) >= (c, v.unwrap_or(0)) && (x.0, x.1) <= (e, w.unwrap_or(u16::MAX)));
@@ -124,10 +121,10 @@ pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book:
         }
     };
     if verses.is_empty() { return Err(FetchError::NotFound); }
-    Ok(verses)
+    Ok(Fetched { verses, fums })
 }
 
-/// One content request; records the copyright and reports the FUMS token.
+/// One content request; records the copyright.
 async fn get(client: &reqwest::Client, key: &str, translation: &str, url: &str) -> Result<Response, FetchError> {
     let res = client.get(url)
         .header("api-key", key)
@@ -149,7 +146,6 @@ async fn get(client: &reqwest::Client, key: &str, translation: &str, url: &str) 
     if !r.data.copyright.trim().is_empty() {
         COPYRIGHTS.lock().unwrap().insert(translation.to_uppercase(), tidy(&r.data.copyright));
     }
-    if let Some(t) = &r.meta.fums_token { report_fums(client, std::slice::from_ref(t)); }
     Ok(r)
 }
 
@@ -204,39 +200,63 @@ pub fn parse_verse_id(code: &str, id: &str) -> Option<(u16, u16)> {
 /// Collects every text leaf under its `verseId`. Titles, verse numbers and notes carry none (or are skipped),
 /// so only Scripture text survives; chapter boundaries come straight from the ids.
 pub fn parse(code: &str, r: &Response) -> Result<Vec<Verse>, FetchError> {
-    let mut out: Vec<Verse> = Vec::new();
-    let mut wrong_book = false;
-    walk(code, &r.data.content, None, &mut out, &mut wrong_book);
-    if wrong_book { return Err(FetchError::Other("API.Bible returned a different book".into())); }
+    let mut w = Walk { code, out: Vec::new(), gap: false, wrong_book: false };
+    w.walk(&r.data.content, None, false);
+    if w.wrong_book { return Err(FetchError::Other("API.Bible returned a different book".into())); }
+    let mut out = w.out;
     for v in &mut out { v.2 = tidy(&v.2); }
     out.retain(|v| !v.2.is_empty());
     Ok(out)
 }
 
-fn walk(code: &str, nodes: &[Node], inherited: Option<&str>, out: &mut Vec<Verse>, wrong_book: &mut bool) {
-    for n in nodes {
-        if matches!(n.name.as_str(), "note" | "verse" | "chapter") || n.attrs.style.as_deref() == Some("v") { continue; }
-        let id = n.attrs.verse_id.as_deref().or(inherited);
-        if n.kind == "text" {
-            let Some(id) = id else { continue };
-            let Some((c, v)) = parse_verse_id(code, id) else { *wrong_book |= !id.starts_with(&format!("{code}.")); continue };
-            match out.iter_mut().rev().find(|x| (x.0, x.1) == (c, v)) {
-                Some(x) => { x.2.push(' '); x.2.push_str(&n.text); }
-                None => out.push((c, v, n.text.clone())),
+/// Leaves join as they come (their own spaces are the source's); a new `para` (p, q1, q2…) adds one space
+/// so poetry lines don't run together.
+struct Walk<'a> { code: &'a str, out: Vec<Verse>, gap: bool, wrong_book: bool }
+
+impl Walk<'_> {
+    /// `upper` is set under the divine name (`char` style `nd`), shown as LORD like the printed small caps.
+    fn walk<'n>(&mut self, nodes: &'n [Node], inherited: Option<&'n str>, upper: bool) {
+        for n in nodes {
+            if matches!(n.name.as_str(), "note" | "verse" | "chapter") || n.attrs.style.as_deref() == Some("v") { continue; }
+            let id = n.attrs.verse_id.as_deref().or(inherited);
+            if n.kind == "text" {
+                let Some(id) = id else { continue };
+                let Some((c, v)) = parse_verse_id(self.code, id) else { self.wrong_book |= !id.starts_with(&format!("{}.", self.code)); continue };
+                let text = if upper { n.text.to_uppercase() } else { n.text.clone() };
+                match self.out.iter_mut().rev().find(|x| (x.0, x.1) == (c, v)) {
+                    Some(x) => { if self.gap { x.2.push(' '); } x.2.push_str(&text); }
+                    None => self.out.push((c, v, text)),
+                }
+                self.gap = false;
+            } else {
+                if n.name == "para" { self.gap = true; }
+                self.walk(&n.items, id, upper || n.attrs.style.as_deref() == Some("nd"));
             }
-        } else {
-            walk(code, &n.items, id, out, wrong_book);
         }
     }
 }
 
 // ---------- FUMS ----------
 
-/// Device id for FUMS: anonymous and constant per install. The app may set one it keeps on disk;
-/// otherwise a random one is made per run.
+/// Device id for FUMS: anonymous and constant per install (`init_device_id`); a random one per run if never set.
 static DEVICE_ID: OnceLock<String> = OnceLock::new();
 
 pub fn set_device_id(id: &str) { let _ = DEVICE_ID.set(id.to_string()); }
+
+/// Loads the install's device id once per run (see `device_id`).
+pub fn init_device_id(root: &Path) { DEVICE_ID.get_or_init(|| device_id(root)); }
+
+/// The id kept in `root/bible-device-id`, made on first use; a fresh one (this run only) if it can't be saved.
+pub fn device_id(root: &Path) -> String {
+    let path = root.join("bible-device-id");
+    if let Ok(s) = std::fs::read_to_string(&path) {
+        let s = s.trim();
+        if s.len() == 32 && s.chars().all(|c| c.is_ascii_hexdigit()) { return s.to_string(); }
+    }
+    let id = uuid::Uuid::new_v4().simple().to_string();
+    let _ = crate::store::write_atomic(&path, id.as_bytes());
+    id
+}
 
 /// FUMS is required of web apps and native apps report by GET to the f3 endpoint (docs.api.bible/guides/fair-use).
 /// Fire and forget: a failed report never blocks Scripture.
@@ -326,7 +346,7 @@ mod tests {
           {"name":"para","type":"tag","attrs":{"style":"s1"},"items":[{"text":"God's Love","type":"text"}]},
           {"name":"para","type":"tag","attrs":{"style":"p"},"items":[
             {"name":"verse","type":"tag","attrs":{"number":"16","style":"v","sid":"JHN 3:16"},"items":[{"text":"16","type":"text"}]},
-            {"text":"For God loved the world in this way:","type":"text","attrs":{"verseId":"JHN.3.16","verseOrgIds":["JHN.3.16"]}},
+            {"text":"For God loved the world in this way: ","type":"text","attrs":{"verseId":"JHN.3.16","verseOrgIds":["JHN.3.16"]}},
             {"name":"char","type":"tag","attrs":{"style":"wj"},"items":[{"text":"he gave his one and only Son.","type":"text","attrs":{"verseId":"JHN.3.16","verseOrgIds":["JHN.3.16"]}}]},
             {"name":"note","type":"tag","attrs":{"style":"f"},"items":[{"text":"Or loved","type":"text","attrs":{"verseId":"JHN.3.16"}}]},
             {"name":"verse","type":"tag","attrs":{"number":"17","style":"v","sid":"JHN 3:17"},"items":[{"text":"17","type":"text"}]},
@@ -344,6 +364,41 @@ mod tests {
         ]);
         assert_eq!(r.meta.fums_token.as_deref(), Some("G0wBgBwHbqxlyoOg"));
         assert!(r.data.copyright.contains("Holman"));
+    }
+
+    #[test]
+    fn joins_leaves_without_extra_spaces() {
+        let r: Response = serde_json::from_str(r#"{"data":{"content":[{"name":"para","type":"tag","attrs":{"style":"p"},"items":[
+            {"text":"I rejoiced with those who said to me, “Let us go to the ","type":"text","attrs":{"verseId":"PSA.122.1"}},
+            {"name":"char","type":"tag","attrs":{"style":"nd"},"items":[{"text":"Lord","type":"text","attrs":{"verseId":"PSA.122.1"}}]},
+            {"text":"’s house.”","type":"text","attrs":{"verseId":"PSA.122.1"}}]}]}}"#).unwrap();
+        assert_eq!(parse("PSA", &r).unwrap(), vec![(122, 1, "I rejoiced with those who said to me, “Let us go to the LORD’s house.”".into())]);
+        let r: Response = serde_json::from_str(r#"{"data":{"content":[{"name":"para","type":"tag","attrs":{"style":"p"},"items":[
+            {"text":"he gave his one and only ","type":"text","attrs":{"verseId":"JHN.3.16"}},
+            {"name":"char","type":"tag","attrs":{"style":"wj"},"items":[{"text":"Son","type":"text","attrs":{"verseId":"JHN.3.16"}}]},
+            {"text":", so that","type":"text","attrs":{"verseId":"JHN.3.16"}}]}]}}"#).unwrap();
+        assert_eq!(parse("JHN", &r).unwrap()[0].2, "he gave his one and only Son, so that");
+    }
+
+    #[test]
+    fn poetry_lines_get_a_space() {
+        let r: Response = serde_json::from_str(r#"{"data":{"content":[
+            {"name":"para","type":"tag","attrs":{"style":"q1"},"items":[{"text":"The Lord is my shepherd;","type":"text","attrs":{"verseId":"PSA.23.1"}}]},
+            {"name":"para","type":"tag","attrs":{"style":"q2"},"items":[{"text":"I have what I need.","type":"text","attrs":{"verseId":"PSA.23.1"}}]}]}}"#).unwrap();
+        assert_eq!(parse("PSA", &r).unwrap()[0].2, "The Lord is my shepherd; I have what I need.");
+    }
+
+    #[test]
+    fn device_id_is_kept_on_disk() {
+        let root = crate::store::test_dir();
+        let id = device_id(&root);
+        assert_eq!(id.len(), 32);
+        assert!(id.chars().all(|c| c.is_ascii_hexdigit()));
+        assert_eq!(device_id(&root), id, "same id next launch");
+        std::fs::write(root.join("bible-device-id"), "junk").unwrap();
+        let fresh = device_id(&root);
+        assert_ne!(fresh, id);
+        assert_eq!(device_id(&root), fresh);
     }
 
     #[test]

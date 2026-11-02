@@ -31,7 +31,17 @@ pub const BOOKS: &[(&str, &str, &str)] = &[
     ("2JO", "2 John", "2jn 2jo 2jhn"), ("3JO", "3 John", "3jn 3jo 3jhn"), ("JUD", "Jude", "jude jud"), ("REV", "Revelation", "rev re rv revelations"),
 ];
 
-pub const TRANSLATIONS: &[&str] = &["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV", "WEB", "BSB"];
+/// Standard USFM/USX book ids in `BOOKS` order (API.Bible, YouVersion and USX files use them). Several differ from
+/// the eBible-style codes above (SOL→SNG, EZE→EZK, JOE→JOL, NAH→NAM, MAR→MRK, JOH→JHN, PHI→PHP, JAM→JAS, 1JO→1JN…).
+pub const USFM: [&str; 66] = [
+    "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "1KI", "2KI", "1CH", "2CH", "EZR", "NEH",
+    "EST", "JOB", "PSA", "PRO", "ECC", "SNG", "ISA", "JER", "LAM", "EZK", "DAN", "HOS", "JOL", "AMO", "OBA", "JON",
+    "MIC", "NAM", "HAB", "ZEP", "HAG", "ZEC", "MAL",
+    "MAT", "MRK", "LUK", "JHN", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP", "COL", "1TH", "2TH", "1TI", "2TI",
+    "TIT", "PHM", "HEB", "JAS", "1PE", "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
+];
+
+pub const TRANSLATIONS: &[&str] =&["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV", "WEB", "BSB"];
 
 /// Public-domain texts in the app (eBible.org verse-per-line files, see assets/bibles/SOURCE.html): they work offline with no setup.
 pub const BUILT_IN: &[(&str, &str)] = &[("KJV", "King James Version"), ("WEB", "World English Bible"), ("BSB", "Berean Standard Bible")];
@@ -188,23 +198,34 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
 
 /// Verses the operator pasted from a Bible they own (each publisher's free quotation allowance, e.g. Holman's
 /// 1,000 HCSB verses). Numbers in the text that continue the count — `16 For God… 17 For God…`, `[16]`, `3:16` —
-/// start new verses; `1` after the first chapter's verses moves to the next chapter. Text with no numbers is one slide.
+/// start new verses, as does the first verse of the next requested part (`Ps 23:1,4-6`); `1` moves to the next
+/// chapter when the reference reaches it. A leading chapter drop-cap (`3 There was a man`) is verse 1.
+/// Other numbers are text. Text with no numbers is one slide.
 pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), String> {
     let r = parse_reference(input)?;
     let display = display_name(r.book);
     let first = &r.parts[0];
-    let (mut c, mut v) = (first.start.0, first.start.1.unwrap_or(1));
+    let first_v = first.start.1.unwrap_or(1);
+    let (mut c, mut v) = (first.start.0, first_v);
+    let inside = |cv: (u16, u16)| r.parts.iter().any(|p| (p.start.0, p.start.1.unwrap_or(1)) <= cv && cv <= (p.end.0, p.end.1.unwrap_or(u16::MAX)));
     let mut out: Vec<(u16, u16, String)> = Vec::new();
     let mut started = false;
     for word in text.split_whitespace() {
         let n = word.trim_matches(|ch: char| matches!(ch, '[' | ']' | '(' | ')' | '.' | ','));
-        let last_chapter = r.parts.last().map_or(c, |p| p.end.0);
         let cv = n.split_once(':').and_then(|(a, b)| Some((a.parse::<u16>().ok()?, b.parse::<u16>().ok()?)))
-            .filter(|(a, _)| (first.start.0..=last_chapter).contains(a));
+            .filter(|&cv| inside(cv));
+        // Start of the next requested part after where we are.
+        let part_start = r.parts.iter().map(|p| (p.start.0, p.start.1.unwrap_or(1))).find(|&p| p > (c, v));
         let next = match (cv, n.parse::<u16>()) {
             (Some(cv), _) => Some(cv),
-            (None, Ok(1)) if started => Some((c + 1, 1)),
-            (None, Ok(x)) if !started || x == v + 1 => Some((c, x)),
+            (None, Ok(x)) if !started => {
+                if x == first_v { Some((c, x)) }
+                else if x == c && first_v == 1 { Some((c, 1)) } // chapter drop-cap
+                else { Some((c, x)).filter(|&cv| inside(cv)) }
+            }
+            (None, Ok(1)) if inside((c.saturating_add(1), 1)) => Some((c.saturating_add(1), 1)),
+            (None, Ok(x)) if Some(x) == v.checked_add(1) => Some((c, x)),
+            (None, Ok(x)) => part_start.filter(|p| p.1 == x),
             _ => None,
         };
         match next {
@@ -334,6 +355,48 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
         let (_, v) = pasted("Ps 23:1-2", "23:1 The LORD is my shepherd, see 3:1. 23:2 He makes me").unwrap();
         assert_eq!(v.iter().map(|x| x.reference.as_str()).collect::<Vec<_>>(), vec!["Psalm 23:1", "Psalm 23:2"]);
         assert_eq!(v[0].text, "The LORD is my shepherd, see 3:1.");
+    }
+
+    fn refs(v: &[VerseText]) -> Vec<&str> { v.iter().map(|x| x.reference.as_str()).collect() }
+
+    #[test]
+    fn pasted_parts_after_the_first_start_new_verses() {
+        let (_, v) = pasted("Ps 23:1,4-6", "1 The LORD 4 Even though 5 You prepare 6 Only goodness").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:4", "Psalm 23:5", "Psalm 23:6"]);
+        assert_eq!(v[1].text, "Even though");
+        // A number inside a later range that isn't its start stays text.
+        let (_, v) = pasted("Ps 23:1,4-6", "1 The LORD fed 5 people 4 Even though").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:4"]);
+        assert_eq!(v[0].text, "The LORD fed 5 people");
+        let (_, v) = pasted("Ps 23:6, 25:1", "6 Surely 1 To you").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:6", "Psalm 25:1"]);
+    }
+
+    #[test]
+    fn pasted_chapter_drop_cap_is_verse_one() {
+        let (_, v) = pasted("John 3:1-2", "3 There was a man 2 This man came").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:1", "John 3:2"]);
+        assert_eq!(v[0].text, "There was a man");
+        let (_, v) = pasted("Psalm 23", "23 The LORD is my shepherd 2 He makes me").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:2"]);
+        // A leading number outside the reference is text.
+        let (_, v) = pasted("Gen 7:4", "40 days and 40 nights").unwrap();
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].text, "40 days and 40 nights");
+        let (_, v) = pasted("John 3:16-17", "17 For God did not send").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:17"]);
+    }
+
+    #[test]
+    fn pasted_next_chapter_only_inside_the_reference() {
+        let (_, v) = pasted("John 3:16-17", "16 For God so loved 1 world 17 For God").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:16", "John 3:17"]);
+        assert_eq!(v[0].text, "For God so loved 1 world");
+        let (_, v) = pasted("John 3:16-17", "16 For God, see 3:20 and 4:1, 17 For God").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:16", "John 3:17"]);
+        assert_eq!(v[0].text, "For God, see 3:20 and 4:1,");
+        let (_, v) = pasted("Ps 23-24", "23 The LORD 2 He makes 1 The earth").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:2", "Psalm 24:1"]);
     }
 
     #[test]

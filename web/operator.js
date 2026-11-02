@@ -93,6 +93,8 @@ function renderTop() {
   const svc = S.data.services.find(s => s.id === S.service_id);
   $('#serviceName').textContent = svc ? svc.name : 'Service';
   const tr = $('#translations');
+  // A remembered translation may be an imported Bible that has since been removed.
+  if (!S.translations.includes(translation)) { translation = S.available_translations[0] || 'KJV'; try { localStorage.setItem('rp.translation', translation); } catch {} }
   tr.replaceChildren(...S.translations.map(t => h('button', {
     type: 'button', class: (t === translation ? 'on' : '') + (S.available_translations.includes(t) ? '' : ' off'),
     title: S.available_translations.includes(t) ? t : `${t} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.`,

@@ -302,7 +302,9 @@ impl App {
                     "status": if secrets.key(s.provider).is_some() { "online" } else { "needs_key" },
                     "provider": s.provider.label(),
                     "providers": bible::sources::sources(t).map(|s| s.provider.key_name()).collect::<Vec<_>>(),
-                    "copyright": s.copyright,
+                    // API.Bible sends its own notice with each passage; show it once one has been fetched.
+                    "copyright": (s.provider == bible::sources::Provider::ApiBible).then(|| bible::api_bible::copyright(t)).flatten()
+                        .unwrap_or_else(|| s.copyright.to_string()),
                 }),
                 None => json!({ "translation": t, "status": "unavailable" }),
             }

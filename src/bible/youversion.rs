@@ -24,14 +24,7 @@ pub fn version_id(translation: &str) -> Option<u32> {
         .or_else(|| translation.trim().parse().ok())
 }
 
-/// USFM book ids in `BOOKS` order (Genesis..Revelation). Same list YouVersion returns for BSB's `books`.
-const USFM: [&str; 66] = [
-    "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "1KI", "2KI", "1CH", "2CH", "EZR", "NEH",
-    "EST", "JOB", "PSA", "PRO", "ECC", "SNG", "ISA", "JER", "LAM", "EZK", "DAN", "HOS", "JOL", "AMO", "OBA", "JON",
-    "MIC", "NAM", "HAB", "ZEP", "HAG", "ZEC", "MAL",
-    "MAT", "MRK", "LUK", "JHN", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP", "COL", "1TH", "2TH", "1TI", "2TI",
-    "TIT", "PHM", "HEB", "JAS", "1PE", "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
-];
+use super::USFM;
 
 /// `GET /v1/bibles/{id}/passages/{usfm}`: `{"id": "JHN.3.16", "content": "...", "reference": "John 3:16"}`.
 #[derive(Deserialize, Debug, Default)]
@@ -116,6 +109,8 @@ pub fn split_verses(html: &str) -> Vec<(u16, String)> {
     let (mut body, mut current) = (String::new(), None::<u16>);
     // One entry per open element: true inside a label, heading or note.
     let mut skip: Vec<bool> = Vec::new();
+    // Parallel to `skip`: true inside the divine name (`nd`) or small caps (`sc`), shown as LORD.
+    let mut caps: Vec<bool> = Vec::new();
     let flush = |cur: Option<u16>, body: &mut String, out: &mut Vec<(u16, String)>| {
         if let Some(v) = cur { let t = tidy(&decode(body)); if !t.is_empty() { out.push((v, t)); } }
         body.clear();
@@ -123,7 +118,11 @@ pub fn split_verses(html: &str) -> Vec<(u16, String)> {
     let mut rest = html;
     loop {
         let lt = rest.find('<').unwrap_or(rest.len());
-        if !skip.contains(&true) { body.push_str(&rest[..lt]); }
+        if !skip.contains(&true) {
+            // Body is decoded at flush, so re-escape `&` after uppercasing the decoded text.
+            if caps.contains(&true) { body.push_str(&decode(&rest[..lt]).to_uppercase().replace('&', "&amp;")); }
+            else { body.push_str(&rest[..lt]); }
+        }
         rest = &rest[lt..];
         let Some(gt) = rest.find('>') else { break };
         let tag = &rest[1..gt];
@@ -133,6 +132,7 @@ pub fn split_verses(html: &str) -> Vec<(u16, String)> {
         let block = matches!(name.as_str(), "div" | "p" | "br" | "li" | "tr" | "td" | "table");
         if tag.starts_with('/') {
             skip.pop();
+            caps.pop();
             if block { body.push(' '); }
             continue;
         }
@@ -147,6 +147,7 @@ pub fn split_verses(html: &str) -> Vec<(u16, String)> {
         }
         if tag.ends_with('/') || matches!(name.as_str(), "br" | "hr" | "img" | "wbr") { continue; }
         skip.push(classes.split_whitespace().any(|c| matches!(c, "yv-vlbl" | "yv-h" | "yv-n")));
+        caps.push(classes.split_whitespace().any(|c| matches!(c, "nd" | "sc")));
     }
     flush(current, &mut body, &mut out);
     out
@@ -239,6 +240,12 @@ mod tests {
             (7, "Seven starts, and seven \u{201c}continues\u{201d}.".into()),
             (8, "Eight has red letters & more.".into()),
         ]);
+    }
+
+    #[test]
+    fn divine_name_is_uppercased() {
+        let v = split_verses(r#"<div class="q1"><span class="yv-v" v="1"></span><span class="yv-vlbl">1</span>The <span class="nd">Lord</span> is my shepherd; <span class="sc">Lord&nbsp;God</span> &amp; <span class="nd">R&amp;d</span> me.</div><div class="q2"><span class="yv-v" v="2"></span><span class="yv-vlbl">2</span>He makes</div>"#);
+        assert_eq!(v, vec![(1, "The LORD is my shepherd; LORD GOD & R&D me.".into()), (2, "He makes".into())]);
     }
 
     #[test]
