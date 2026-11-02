@@ -3,3 +3,4 @@ slint::include_modules!();
 
 pub mod stage;
 pub mod room;
+pub mod screens;

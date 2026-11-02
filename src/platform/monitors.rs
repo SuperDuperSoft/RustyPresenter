@@ -59,8 +59,10 @@ pub fn to_monitors(ids: &[MonitorId], primary: Option<&MonitorId>) -> Vec<Monito
     }).collect()
 }
 
-fn handles(w: &winit::window::Window) -> Vec<(MonitorHandle, MonitorId)> {
-    w.available_monitors().enumerate().map(|(i, m)| {
+fn handles(w: &winit::window::Window) -> Vec<(MonitorHandle, MonitorId)> { ids(w.available_monitors()) }
+
+fn ids(all: impl Iterator<Item = MonitorHandle>) -> Vec<(MonitorHandle, MonitorId)> {
+    all.enumerate().map(|(i, m)| {
         let (s, p) = (m.size(), m.position());
         let id = MonitorId { name: m.name().unwrap_or_else(|| format!("Screen {}", i + 1)), size: (s.width, s.height), position: (p.x, p.y) };
         (m, id)
@@ -77,6 +79,13 @@ pub fn list(window: &slint::Window) -> Vec<MonitorId> {
     window.with_winit_window(|w| handles(w).into_iter().map(|(_, id)| id).collect()).unwrap_or_default()
 }
 
+/// Connected monitors and the main one, without a window (from `slint::winit_030::invoke_from_active_event_loop`).
+pub fn on_event_loop(el: &winit::event_loop::ActiveEventLoop) -> (Vec<MonitorId>, Option<MonitorId>) {
+    let all = ids(el.available_monitors());
+    let main = el.primary_monitor().and_then(|p| all.iter().find(|(h, _)| *h == p).map(|(_, id)| id.clone()));
+    (all.into_iter().map(|(_, id)| id).collect(), main)
+}
+
 /// The system's main monitor.
 pub fn primary(window: &slint::Window) -> Option<MonitorId> { window.with_winit_window(|w| id_of(w, w.primary_monitor())).flatten() }
 
@@ -85,13 +94,21 @@ pub fn current(window: &slint::Window) -> Option<MonitorId> { window.with_winit_
 
 /// Borderless fullscreen on `id` (no video mode change), found exactly or by name.
 pub fn fullscreen_on(window: &slint::Window, id: &MonitorId) -> Result<(), String> {
-    window.with_winit_window(|w| {
+    let exact = window.with_winit_window(|w| {
         let all = handles(w);
         let (m, _) = all.iter().find(|(_, m)| m == id).or_else(|| all.iter().find(|(_, m)| m.name == id.name))
             .ok_or("That screen is not connected right now.")?;
         w.set_fullscreen(Some(Fullscreen::Borderless(Some(m.clone()))));
         Ok(())
-    }).unwrap_or_else(|| Err("This window cannot go full screen.".into()))
+    });
+    if let Some(r) = exact { return r }
+    // Slint creates the winit window on the event loop's next turn after `show`. Until then, place the
+    // window inside that monitor (aiming at its middle, so mixed scaling still lands on it) and ask for
+    // borderless fullscreen on the monitor the window is on.
+    let (x, y) = (id.position.0 + id.size.0 as i32 / 4, id.position.1 + id.size.1 as i32 / 4);
+    window.set_position(slint::PhysicalPosition::new(x, y));
+    window.set_fullscreen(true);
+    Ok(())
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

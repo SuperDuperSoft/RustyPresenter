@@ -18,7 +18,8 @@ where dlltool >> build.log 2>&1
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" ("%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -products * -property displayName >> build.log 2>&1) else (echo NO VSWHERE >> build.log)
 reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}" /v pv >> build.log 2>&1
 where ffmpeg >> build.log 2>&1
-cargo build --release >> build.log 2>&1
+rem Both binaries: the Tauri app (rustypresenter) and the native preview (rustypresenter-native).
+cargo build --release --bins >> build.log 2>&1
 echo BUILD EXIT %ERRORLEVEL% >> build.log
 cargo test --release >> build.log 2>&1
 echo TEST EXIT %ERRORLEVEL% >> build.log

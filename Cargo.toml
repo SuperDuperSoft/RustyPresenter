@@ -4,6 +4,12 @@ version = "0.2.0"
 edition = "2024"
 description = "Church presentation app: lyrics, scripture, slides, video, phone remote"
 publish = false
+# `cargo run` starts the Tauri app; the native app is `--bin rustypresenter-native`.
+default-run = "rustypresenter"
+
+[[bin]]
+name = "rustypresenter-native"
+path = "src/bin/native.rs"
 
 [dependencies]
 axum = "0.8"
