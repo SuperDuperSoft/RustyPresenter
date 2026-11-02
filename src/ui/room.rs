@@ -73,7 +73,11 @@ struct Shared {
 }
 
 impl Shared {
-    fn send(&self, m: Msg) { self.inbox.lock().unwrap().push_back(m); self.wake(); }
+    /// Queues `m` for the UI thread; once closed it is dropped (a player in it is freed here).
+    fn send(&self, m: Msg) {
+        let m = { let mut q = self.inbox.lock().unwrap(); if self.closed.load(Ordering::Acquire) { Some(m) } else { q.push_back(m); None } };
+        if m.is_none() { self.wake() }
+    }
     fn wake(&self) { if !self.queued.swap(true, Ordering::AcqRel) { (self.wake)() } }
 }
 
@@ -292,7 +296,10 @@ impl Inner {
     }
 
     fn close(&self) {
-        self.shared.closed.store(true, Ordering::Relaxed);
+        // Under the inbox lock, so nothing is queued after the drain: a queued player holds the
+        // reports sender, which would keep `forward` (and so `Shared`) alive for good.
+        let inbox = { let mut q = self.shared.inbox.lock().unwrap(); self.shared.closed.store(true, Ordering::Release); std::mem::take(&mut *q) };
+        drop(inbox);
         let prep = self.prep.borrow_mut().take();
         if let Some(p) = prep { self.dispose(p) }
         let deferred = self.deferred.borrow_mut().take();
@@ -438,6 +445,20 @@ mod tests {
     }
 
     #[test]
+    fn closing_drains_the_inbox_and_stops_queueing() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let room = open(&app);
+        let report = || PlayerReport { inst: 99, state: PlayState::Playing, position: 0.0, duration: 0.0, error: None };
+        room.inner.shared.inbox.lock().unwrap().push_back(Msg::Report(report()));
+        let shared = room.inner.shared.clone();
+        drop(room);
+        assert!(shared.inbox.lock().unwrap().is_empty(), "close drains the inbox");
+        shared.send(Msg::Report(report()));
+        assert!(shared.inbox.lock().unwrap().is_empty(), "nothing is queued once closed");
+    }
+
+    #[test]
     fn clear_all_hides_layers_and_commits() {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
@@ -575,5 +596,33 @@ mod tests {
         assert!(room.inner.players.borrow()[MEDIA].is_none() && !ui.get_video() && ui.get_bg_visible());
         assert!(!room.inner.shared.started.lock().unwrap().contains(&inst));
         assert!(pump_until(&room, 2.0, || ui.get_video_frame().size().width == 0), "the last frame is cleared");
+    }
+
+    #[test]
+    fn dropping_with_a_video_queued_frees_everything() {
+        if std::env::var("RP_VIDEO_TESTS").as_deref() != Ok("1") { return }
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let file = std::fs::File::create(app.store.asset_path("still.gif")).unwrap();
+        let frame = image::Frame::new(image::RgbaImage::from_pixel(64, 36, image::Rgba([0, 90, 200, 255])));
+        image::codecs::gif::GifEncoder::new(file).encode_frames([frame]).unwrap();
+        let clip = media(&app, MediaKind::Video, "still.gif");
+        let mpv = crate::video::ffi::Mpv::load().expect("libmpv (set RP_LIBMPV)");
+        let room = Room::open(app.clone(), Renderer::new(), Some(mpv), None).unwrap();
+        show(&app, clip);
+        let queued = || room.inner.shared.latest.lock().unwrap().is_some();
+        let end = Instant::now() + Duration::from_secs(5);
+        while !queued() && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)) }
+        room.pump(); // preparing starts; the player is queued but never pumped
+        let made = || room.inner.shared.inbox.lock().unwrap().iter().any(|m| matches!(m, Msg::Made { made: Ok(Made::Player(_)), .. }));
+        let end = Instant::now() + Duration::from_secs(10);
+        while !made() && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)) }
+        assert!(made(), "the prepared player is waiting in the inbox");
+        let weak = Arc::downgrade(&room.inner.shared);
+        drop(room);
+        run(&app, Command::ClearAll); // lets the update thread see `closed`
+        let end = Instant::now() + Duration::from_secs(5);
+        while weak.strong_count() > 0 && Instant::now() < end { std::thread::sleep(Duration::from_millis(10)) }
+        assert_eq!(weak.strong_count(), 0, "the room's threads and the queued player are freed");
     }
 }
