@@ -37,6 +37,8 @@ quick-xml = "0.38.4"
 # Plan 4: file addresses for LibreOffice, cancelling converters.
 url = "2.5"
 tokio-util = "0.7"
+# Plan 4: PDF pages to slide images. pdfium itself is loaded at run time.
+pdfium-render = "0.8.37"
 
 [build-dependencies]
 tauri-build = "2"

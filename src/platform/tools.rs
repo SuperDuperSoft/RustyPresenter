@@ -151,10 +151,14 @@ pub fn pdfium_candidates(data_dir: &Path) -> Vec<PathBuf> {
 /// A `file://` address, for LibreOffice's `-env:UserInstallation`. `canonicalize` gives `\\?\C:\…` on Windows,
 /// which `Url` refuses and LibreOffice cannot read (check C5).
 pub fn file_url(path: &Path, dir: bool) -> Result<String, String> {
-    let plain = path.to_str().map(strip_verbatim).map(PathBuf::from);
-    let plain = plain.as_deref().unwrap_or(path);
-    let url = if dir { url::Url::from_directory_path(plain) } else { url::Url::from_file_path(plain) };
+    let plain = plain_path(path);
+    let url = if dir { url::Url::from_directory_path(&plain) } else { url::Url::from_file_path(&plain) };
     url.map(String::from).map_err(|()| strings::file_url_failed(&path.display().to_string()))
+}
+
+/// `path` without Windows' `\\?\` prefix, which LibreOffice cannot read (check C5, gotcha 3).
+pub(crate) fn plain_path(path: &Path) -> PathBuf {
+    path.to_str().map_or_else(|| path.to_path_buf(), |p| PathBuf::from(strip_verbatim(p)))
 }
 
 fn strip_verbatim(path: &str) -> String {
