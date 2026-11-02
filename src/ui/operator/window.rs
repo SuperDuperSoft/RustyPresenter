@@ -1,7 +1,7 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
 //! column in `slides`, the live column in `live`, the keyboard in `keys`; the dialogs come in later tasks.
-use super::{keys, live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+use super::{bible, keys, live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
@@ -106,6 +106,7 @@ impl Operator {
         slides::wire(&op);
         live::wire(&op);
         keys::wire(&op);
+        bible::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
