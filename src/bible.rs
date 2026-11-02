@@ -186,6 +186,46 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     Ok(Reference { book, parts })
 }
 
+/// Verses the operator pasted from a Bible they own (each publisher's free quotation allowance, e.g. Holman's
+/// 1,000 HCSB verses). Numbers in the text that continue the count — `16 For God… 17 For God…`, `[16]`, `3:16` —
+/// start new verses; `1` after the first chapter's verses moves to the next chapter. Text with no numbers is one slide.
+pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), String> {
+    let r = parse_reference(input)?;
+    let display = display_name(r.book);
+    let first = &r.parts[0];
+    let (mut c, mut v) = (first.start.0, first.start.1.unwrap_or(1));
+    let mut out: Vec<(u16, u16, String)> = Vec::new();
+    let mut started = false;
+    for word in text.split_whitespace() {
+        let n = word.trim_matches(|ch: char| matches!(ch, '[' | ']' | '(' | ')' | '.' | ','));
+        let last_chapter = r.parts.last().map_or(c, |p| p.end.0);
+        let cv = n.split_once(':').and_then(|(a, b)| Some((a.parse::<u16>().ok()?, b.parse::<u16>().ok()?)))
+            .filter(|(a, _)| (first.start.0..=last_chapter).contains(a));
+        let next = match (cv, n.parse::<u16>()) {
+            (Some(cv), _) => Some(cv),
+            (None, Ok(1)) if started => Some((c + 1, 1)),
+            (None, Ok(x)) if !started || x == v + 1 => Some((c, x)),
+            _ => None,
+        };
+        match next {
+            Some((nc, nv)) if !started || (nc, nv) > (c, v) => { (c, v) = (nc, nv); started = true; out.push((c, v, String::new())); }
+            _ => {
+                if out.is_empty() { out.push((c, v, String::new())); started = true; }
+                let t = &mut out.last_mut().unwrap().2;
+                if !t.is_empty() { t.push(' '); }
+                t.push_str(word);
+            }
+        }
+    }
+    out.retain(|x| !x.2.is_empty());
+    if out.is_empty() { return Err("Paste the verse text first.".into()); }
+    if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+    let label = canonical(&r, display);
+    // One unnumbered block keeps the whole reference as its label.
+    let one = out.len() == 1 && !text.split_whitespace().next().is_some_and(|w| w.trim_matches(['[', ']']).chars().all(|ch| ch.is_ascii_digit() || ch == ':'));
+    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text }).collect()))
+}
+
 /// Book name as shown in a reference ("Psalm 23", not "Psalms 23").
 pub fn display_name(book: u8) -> &'static str {
     let name = BOOKS[book as usize].1;
@@ -281,6 +321,27 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
     fn full_bundled_kjv_has_the_protestant_canon() {
         let k = kjv();
         if k.len() > 1000 { assert_eq!(k.len(), 31102); }
+    }
+
+    #[test]
+    fn pasted_verses_split_on_their_numbers() {
+        let (label, v) = pasted("John 3:16-17", "16 For God loved the world 3 times. 17 For God did not send").unwrap();
+        assert_eq!(label, "John 3:16–17");
+        assert_eq!(v.iter().map(|x| (x.reference.as_str(), x.text.as_str())).collect::<Vec<_>>(),
+            vec![("John 3:16", "For God loved the world 3 times."), ("John 3:17", "For God did not send")]);
+        let (_, v) = pasted("John 1:51-2:2", "[51] a [1] b [2] c").unwrap();
+        assert_eq!(v.iter().map(|x| x.reference.as_str()).collect::<Vec<_>>(), vec!["John 1:51", "John 2:1", "John 2:2"]);
+        let (_, v) = pasted("Ps 23:1-2", "23:1 The LORD is my shepherd, see 3:1. 23:2 He makes me").unwrap();
+        assert_eq!(v.iter().map(|x| x.reference.as_str()).collect::<Vec<_>>(), vec!["Psalm 23:1", "Psalm 23:2"]);
+        assert_eq!(v[0].text, "The LORD is my shepherd, see 3:1.");
+    }
+
+    #[test]
+    fn pasted_text_without_numbers_is_one_slide() {
+        let (_, v) = pasted("Romans 8:28", "And we know that all things work together").unwrap();
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].reference, "Romans 8:28");
+        assert!(pasted("Romans 8:28", "   ").is_err());
     }
 
     #[test]

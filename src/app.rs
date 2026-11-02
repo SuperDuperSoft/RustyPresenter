@@ -477,6 +477,13 @@ impl App {
                 else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
             Ok(json!({ "label": label, "verses": verses, "translation": translation }))
         }
+        "bible/paste" => {
+            // Verses typed or pasted from the church's own Bible, for a translation with no source here (e.g. HCSB).
+            #[derive(Deserialize)] struct P { reference: String, translation: String, text: String }
+            let P { reference, translation, text } = parse(body)?;
+            let (label, verses) = tryr!(bible::pasted(&reference, &text));
+            Ok(json!({ "label": label, "verses": verses, "translation": translation.trim().to_uppercase() }))
+        }
         "bible/key" => {
             // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
             #[derive(Deserialize)] struct K { provider: String, key: String }
@@ -744,6 +751,67 @@ mod tests {
         for k in ["version", "committed", "pending", "frame", "cursor", "item", "slide", "next", "media", "audio", "notice", "theme", "logo"] {
             assert!(v.get(k).is_some(), "{k}");
         }
+    }
+
+    #[tokio::test]
+    async fn bible_lookup_built_in_and_needs_key() {
+        let app = test_app();
+        let v = app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"BSB"}"#).await.unwrap();
+        assert!(v["verses"][0]["text"].as_str().unwrap().starts_with("For God so loved"));
+        let err = app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"ESV"}"#).await.unwrap_err();
+        assert!(err.message.contains("Settings → Bible"), "{}", err.message);
+        let s = app.state_json();
+        assert_eq!(s["available_translations"], json!(["KJV", "WEB", "BSB"]));
+        let esv = s["bible_sources"].as_array().unwrap().iter().find(|b| b["translation"] == "ESV").unwrap();
+        assert_eq!(esv["status"], "needs_key");
+    }
+
+    #[tokio::test]
+    async fn saved_keys_never_reach_the_state() {
+        let app = test_app();
+        let mut s = bible::sources::Secrets::default();
+        s.keys.insert("esv".into(), "secret-key-123".into());
+        s.save(&app.store.root).unwrap();
+        let state = app.state_json();
+        assert!(!state.to_string().contains("secret-key-123"));
+        assert!(state["available_translations"].as_array().unwrap().contains(&json!("ESV")));
+        let esv = state["bible_providers"].as_array().unwrap().iter().find(|p| p["id"] == "esv").unwrap();
+        assert_eq!(esv["key_set"], true);
+        assert!(!app.store.data_path().exists() || !std::fs::read_to_string(app.store.data_path()).unwrap().contains("secret-key-123"));
+    }
+
+    #[tokio::test]
+    async fn bible_key_rejects_unknown_service_and_empty_key_removes() {
+        let app = test_app();
+        assert_eq!(app.do_action("bible/key", br#"{"provider":"nope","key":"x"}"#).await.unwrap_err().message, "Unknown Bible service.");
+        let mut s = bible::sources::Secrets::default();
+        s.keys.insert("esv".into(), "k".into());
+        s.save(&app.store.root).unwrap();
+        app.do_action("bible/key", br#"{"provider":"esv","key":"  "}"#).await.unwrap();
+        assert!(bible::sources::Secrets::load(&app.store.root).keys.is_empty());
+    }
+
+    #[tokio::test]
+    async fn imported_bible_is_looked_up_offline_and_removed() {
+        let app = test_app();
+        let file = br#"<?xml version="1.0"?><XMLBIBLE biblename="Test"><INFORMATION><title>Holman Test</title><identifier>HCSB</identifier><rights>(c) Holman</rights></INFORMATION>
+            <BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">For God loved.</VERS><VERS vnumber="17">For God sent.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#;
+        let v = app.do_action("bible/import/HCSB", file).await.unwrap();
+        assert_eq!(v["abbreviation"], "HCSB");
+        let v = app.do_action("bible/lookup", br#"{"reference":"John 3:16-17","translation":"HCSB"}"#).await.unwrap();
+        assert_eq!(v["verses"][1]["text"], "For God sent.");
+        let hcsb = app.state_json()["bible_sources"].as_array().unwrap().iter().find(|b| b["translation"] == "HCSB").unwrap().clone();
+        assert_eq!((hcsb["status"].as_str(), hcsb["imported"].as_bool()), (Some("offline"), Some(true)));
+        assert!(app.do_action("bible/import/KJV", file).await.unwrap_err().message.contains("already built in"));
+        app.do_action("bible/import-remove", br#"{"translation":"HCSB"}"#).await.unwrap();
+        assert!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"HCSB"}"#).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn bible_paste_splits_verses() {
+        let v = test_app().do_action("bible/paste", br#"{"reference":"John 3:16-17","translation":"hcsb","text":"16 For God loved. 17 For God sent."}"#).await.unwrap();
+        assert_eq!(v["translation"], "HCSB");
+        assert_eq!(v["verses"].as_array().unwrap().len(), 2);
     }
 
     #[tokio::test]

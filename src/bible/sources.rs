@@ -269,10 +269,10 @@ impl Cache {
 pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(String, Vec<VerseText>), String> {
     let secrets = Secrets::load(root);
     let src = source_with(translation, &secrets)
-        .ok_or_else(|| format!("{translation} has no licensed source. Import a Bible file you're licensed to use in Settings → Bible."))?;
+        .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
     let r: Reference = parse_reference(input)?;
     let key = secrets.key(src.provider).map(str::to_string)
-        .ok_or_else(|| format!("{translation} needs a free key from {}. Add it in Settings → Bible.", src.provider.label()))?;
+        .ok_or_else(|| format!("{translation} needs a free key from {}. Add it in Settings → Bible, or paste the verses with Add → Bible.", src.provider.label()))?;
     let policy = src.provider.cache_policy();
     let book_len = kjv().book_len(r.book);
     let display = display_name(r.book);
