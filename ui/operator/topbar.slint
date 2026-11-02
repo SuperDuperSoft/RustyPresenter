@@ -1,0 +1,303 @@
+// The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
+// status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in Rust (Task 11).
+import { Theme, OperatorState } from "../theme.slint";
+import { Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
+
+/// One translation button in the Bible box: `on` is the chosen one, `off` is not connected yet.
+export struct TranslationChip { name: string, on: bool, off: bool }
+
+export component TopBar inherits Rectangle {
+    /// Window width ≤ 1250 px: no brand word, Screens/Phone as icons, pills as dots (`operator.css:239`).
+    in property <bool> narrow;
+    in property <string> service-name;
+    in property <[TranslationChip]> translations;
+    in-out property <string> bible-text;
+    in property <bool> room-on;
+    /// "on" or "warn".
+    in property <string> room-state: "warn";
+    in property <string> room-tip;
+    in property <bool> stage-shown;
+    in property <bool> stage-on;
+    /// "1 phone", "2 phones"; empty hides the pill.
+    in property <string> phones-label;
+
+    callback services();
+    callback screens();
+    callback phone();
+    callback settings();
+    callback bible-submit(string);
+    callback pick-translation(int);
+
+    height: 60px;
+    background: Theme.panel;
+
+    // `border-bottom: 1px solid var(--line)`
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        background: Theme.line;
+    }
+
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 10px;
+
+        // `.brand`
+        HorizontalLayout {
+            horizontal-stretch: 0;
+            spacing: 9px;
+            padding-right: 4px;
+            VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 8px;
+                    background: Theme.accent;
+                    // The logo mark: a glyph, not text to translate.
+                    Text {
+                        text: "R";
+                        color: Theme.accent-ink;
+                        font-family: Theme.display;
+                        font-size: 16px;
+                        font-weight: 800;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+            if !root.narrow: brand-word := Text {
+                text: @tr("RustyPresenter");
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 15px;
+                font-weight: 600;
+                letter-spacing: 0.15px;
+                vertical-alignment: center;
+            }
+        }
+
+        // `.service-pick`
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            service-pick := Rectangle {
+                max-width: 220px;
+                background: Theme.raise;
+                border-width: 1px;
+                border-color: Theme.line;
+                border-radius: 9px;
+                accessible-role: button;
+                accessible-label: root.service-name;
+                HorizontalLayout {
+                    padding-top: 7px;
+                    padding-bottom: 7px;
+                    padding-left: 12px;
+                    padding-right: 10px;
+                    spacing: 6px;
+                    Text {
+                        text: root.service-name;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        font-weight: 600;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            name: "chevron-down";
+                            color: Theme.text;
+                        }
+                    }
+                }
+                TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.services(); }
+                }
+                Tooltip {
+                    TipBox { text: @tr("Switch or create services"); }
+                }
+            }
+        }
+
+        // `.bible`: up to 760 px wide, centred in the space left (`margin: 0 auto`).
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            alignment: center;
+            VerticalLayout {
+                alignment: center;
+                horizontal-stretch: 1;
+                max-width: 760px;
+                preferred-width: 760px;
+                form := Rectangle {
+                    property <bool> focused: bible-input.has-focus;
+                    height: 42px;
+                    min-width: 260px;
+                    background: Theme.bg;
+                    border-width: 1.5px;
+                    border-radius: 11px;
+                    border-color: self.focused ? Theme.accent : Theme.line;
+                    animate border-color { duration: 150ms; }
+
+                    // `.bible:focus-within` box-shadow: a 4 px ring outside the border.
+                    Rectangle {
+                        x: -4px;
+                        y: -4px;
+                        width: parent.width + 8px;
+                        height: parent.height + 8px;
+                        border-radius: 15px;
+                        border-width: 4px;
+                        border-color: form.focused ? Theme.focus-ring : transparent;
+                        animate border-color { duration: 150ms; }
+                    }
+
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-right: 8px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Icon {
+                                name: "book";
+                                color: Theme.accent;
+                            }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            min-width: 120px;
+                            if bible-input.text == "": Text {
+                                width: parent.width;
+                                height: parent.height;
+                                text: @tr("Bible verse — type John 3:16 and press Enter");
+                                color: Theme.faint;
+                                font-family: Theme.font;
+                                font-size: 15px;
+                                overflow: elide;
+                                vertical-alignment: center;
+                            }
+                            bible-input := TextInput {
+                                width: parent.width;
+                                height: parent.height;
+                                text <=> root.bible-text;
+                                single-line: true;
+                                color: Theme.text;
+                                selection-background-color: Theme.accent;
+                                selection-foreground-color: Theme.accent-ink;
+                                font-family: Theme.font;
+                                font-size: 15px;
+                                vertical-alignment: center;
+                                accessible-placeholder-text: @tr("Bible verse — type John 3:16 and press Enter");
+                                changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                                accepted => { root.bible-submit(self.text); }
+                            }
+                        }
+                        // `.translations`
+                        HorizontalLayout {
+                            spacing: 3px;
+                            for chip[i] in root.translations: VerticalLayout {
+                                alignment: center;
+                                Rectangle {
+                                    border-radius: 6px;
+                                    background: chip.on ? Theme.accent : transparent;
+                                    opacity: chip.off ? 0.4 : 1;
+                                    accessible-role: button;
+                                    accessible-label: chip.name;
+                                    accessible-checked: chip.on;
+                                    HorizontalLayout {
+                                        padding-top: 5px;
+                                        padding-bottom: 5px;
+                                        padding-left: 7px;
+                                        padding-right: 7px;
+                                        Text {
+                                            text: chip.name;
+                                            color: chip.on ? Theme.accent-ink : Theme.muted;
+                                            font-family: Theme.font;
+                                            font-size: 11.5px;
+                                            font-weight: 700;
+                                            vertical-alignment: center;
+                                        }
+                                    }
+                                    TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { root.pick-translation(i); }
+                                    }
+                                }
+                            }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            Kbd { text: @tr("Ctrl B"); }
+                        }
+                    }
+                }
+            }
+        }
+
+        // `.status`
+        HorizontalLayout {
+            horizontal-stretch: 0;
+            spacing: 6px;
+            VerticalLayout {
+                alignment: center;
+                status-room := Pill {
+                    label: @tr("Room");
+                    state: root.room-state;
+                    tooltip: root.room-tip;
+                    narrow: root.narrow;
+                }
+            }
+            if root.stage-shown: VerticalLayout {
+                alignment: center;
+                status-stage := Pill {
+                    label: @tr("Stage");
+                    state: root.stage-on ? "on" : "off";
+                    tooltip: @tr("Stage display");
+                    narrow: root.narrow;
+                }
+            }
+            if root.phones-label != "": VerticalLayout {
+                alignment: center;
+                status-phones := Pill {
+                    label: root.phones-label;
+                    state: "on";
+                    tooltip: @tr("Phone remotes connected");
+                    narrow: root.narrow;
+                }
+            }
+        }
+
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            screens-btn := TopBtn {
+                icon: "monitor";
+                text: @tr("Screens");
+                narrow: root.narrow;
+                clicked => { root.screens(); }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            phone-btn := TopBtn {
+                icon: "phone";
+                text: @tr("Phone");
+                narrow: root.narrow;
+                clicked => { root.phone(); }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            settings-btn := TopBtn {
+                icon: "gear";
+                icon-only: true;
+                tooltip: @tr("Settings");
+                clicked => { root.settings(); }
+            }
+        }
+    }
+}

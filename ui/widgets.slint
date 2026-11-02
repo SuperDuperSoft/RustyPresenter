@@ -120,6 +120,12 @@ export component Pill inherits Rectangle {
     /// A narrow window shows only the dot (`operator.css:239`).
     in property <bool> narrow;
 
+    // Read by tests and screen readers: the label, the tooltip and the state.
+    accessible-role: text;
+    accessible-label: root.label;
+    accessible-description: root.tooltip;
+    accessible-value: root.state;
+
     border-radius: self.height / 2;
     border-width: 1px;
     border-color: Theme.line;

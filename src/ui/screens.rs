@@ -1,7 +1,7 @@
 //! The native windowing layer (`Screens`): room and stage windows live on the Slint thread and are
 //! opened and closed from any thread through it. They reopen from settings at start, close when
 //! their monitor is unplugged and come back on it when it returns.
-use super::{room::Room, stage::Stage};
+use super::{operator::window::{MpvInfo, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
 use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
 use crate::render::Renderer;
@@ -198,6 +198,13 @@ impl NativeScreens {
 
     fn sync_roles(&self) {
         *self.roles.lock().unwrap() = DESK.with(|d| d.borrow().wins.iter().map(|(r, _, _, _)| r.clone()).collect());
+    }
+}
+
+impl OperatorScreens for NativeScreens {
+    fn video_info(&self) -> VideoInfo {
+        let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string() });
+        VideoInfo { draw_mode: crate::video::drawing(), mpv }
     }
 }
 

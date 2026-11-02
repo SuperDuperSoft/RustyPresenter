@@ -1,3 +1,173 @@
-// The native operator window (`web/operator.html`). A placeholder until Plan 3 Task 5 builds the layout.
+// The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
+// The columns are placeholder panels until Tasks 6–9 fill them.
+import { Theme } from "theme.slint";
+import { Panel, PanelHead } from "widgets.slint";
+import { TopBar, TranslationChip } from "operator/topbar.slint";
 
-export component OperatorWindow inherits Window {}
+export { TranslationChip }
+
+/// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
+component Welcome inherits VerticalLayout {
+    // `margin-top: 9vh` is the `y` the slides column gives it (a padding from the height would be a binding loop).
+    padding-left: 16px;
+    padding-right: 16px;
+    alignment: start;
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            max-width: 520px;
+            spacing: 8px;
+            Text {
+                text: @tr("Let’s build this Sunday’s service");
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 26px;
+                font-weight: 600;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            Text {
+                text: @tr("Everything you add shows up on the left. Click a slide to put it on the screen.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                alignment: center;
+                padding-top: 16px;
+                VerticalLayout {
+                    spacing: 10px;
+                    for step[i] in [
+                        @tr("Click “Screens” and choose the projector or TV."),
+                        @tr("Click “Add to service” for songs, videos and slides — or drag files in."),
+                        @tr("Type a verse like “John 3:16” in the Bible box and press Enter."),
+                        @tr("Use the big Next button (or the → key) during the service."),
+                    ]: HorizontalLayout {
+                        spacing: 12px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 26px;
+                                height: 26px;
+                                border-radius: 13px;
+                                background: Theme.raise;
+                                Text {
+                                    text: i + 1;
+                                    color: Theme.accent;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    font-weight: 700;
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                        Text {
+                            text: step;
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+export component OperatorWindow inherits Window {
+    title: @tr("RustyPresenter");
+    min-width: 1024px;
+    min-height: 640px;
+    preferred-width: 1440px;
+    preferred-height: 900px;
+    background: Theme.bg;
+    default-font-family: Theme.font;
+    default-font-size: Theme.base-size;
+
+    /// `operator.css:239`: at 1250 px or less the top bar drops the brand word and labels. Set from a change handler,
+    /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
+    out property <bool> narrow;
+    changed width => { root.narrow = root.width <= 1250px; }
+
+    // Top bar (see `TopBar`).
+    in property <string> service-name: @tr("Service");
+    in property <[TranslationChip]> translations;
+    in-out property <string> bible-text;
+    in property <bool> room-on;
+    in property <string> room-state: "warn";
+    in property <string> room-tip;
+    in property <bool> stage-shown;
+    in property <bool> stage-on;
+    in property <string> phones-label;
+
+    /// The first state read has arrived (the web `onopen`); until then the columns stay empty, with no Welcome.
+    in property <bool> loaded;
+    in property <int> item-count;
+
+    callback services();
+    callback screens();
+    callback phone();
+    callback settings();
+    callback bible-submit(string);
+    callback pick-translation(int);
+
+    VerticalLayout {
+        TopBar {
+            narrow: root.narrow;
+            service-name: root.service-name;
+            translations: root.translations;
+            bible-text <=> root.bible-text;
+            room-on: root.room-on;
+            room-state: root.room-state;
+            room-tip: root.room-tip;
+            stage-shown: root.stage-shown;
+            stage-on: root.stage-on;
+            phones-label: root.phones-label;
+            services => { root.services(); }
+            screens => { root.screens(); }
+            phone => { root.phone(); }
+            settings => { root.settings(); }
+            bible-submit(text) => { root.bible-submit(text); }
+            pick-translation(i) => { root.pick-translation(i); }
+        }
+
+        // `.layout`: minmax(250px, 300px) 1fr minmax(360px, 440px), 10 px gap and padding.
+        HorizontalLayout {
+            vertical-stretch: 1;
+            padding: 10px;
+            spacing: 10px;
+            service-col := Panel {
+                min-width: 250px;
+                preferred-width: 300px;
+                max-width: 300px;
+                horizontal-stretch: 0;
+                PanelHead { title: @tr("Service"); }
+                Rectangle { vertical-stretch: 1; }
+            }
+            slides-col := Panel {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                Rectangle {
+                    vertical-stretch: 1;
+                    if root.loaded && root.item-count == 0: welcome := Welcome {
+                        y: root.height * 9%;
+                        width: parent.width;
+                        height: self.preferred-height;
+                    }
+                }
+            }
+            live-col := Panel {
+                min-width: 360px;
+                preferred-width: 440px;
+                max-width: 440px;
+                horizontal-stretch: 0;
+                Rectangle { vertical-stretch: 1; }
+            }
+        }
+    }
+}

@@ -41,3 +41,10 @@ pub const SERVICE: &str = "Service";
 
 /// The core call never finished (its task panicked or the runtime is shutting down).
 pub const ACTION_STOPPED: &str = "That did not finish. Try again.";
+
+/// The room pill's tooltip (`operator.js:104`).
+pub const ROOM_SHOWING: &str = "Room screen is showing";
+pub const ROOM_STARTING: &str = "Room screen is starting…";
+pub const ROOM_OFF: &str = "Room screen is not open — click Screens";
+
+pub fn open_failed(e: impl std::fmt::Display) -> String { format!("Could not open the operator window: {e}") }
