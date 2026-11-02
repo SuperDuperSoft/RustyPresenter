@@ -1,9 +1,13 @@
 //! The operator's dialogs (`operator.js:353-1000`) as overlays inside the operator window (`ui/dialogs/`): Slint
 //! 1.18 has no modal or owner-window API (native spec §6). One dialog at a time, swapped in place like the web's
 //! single `<dialog>`; confirm and prompt questions (`ask`) stack above it, or above the bare window.
+pub mod add;
 pub mod ask;
+pub(crate) mod pending;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
+#[path = "../../strings/add.rs"]
+pub mod add_strings;
 
 use crate::ui::operator::window::Operator;
 use std::rc::{Rc, Weak};
@@ -144,6 +148,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     op.ui.on_dialog_close(move || if let Some(op) = me.upgrade() { op.close_dialog() });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { ask::answer(&op, ok, text.into()) });
+    add::wire_add_button(op);
 }
 
 #[cfg(test)]

@@ -1,0 +1,239 @@
+// Add to service (`operator.js:378-511`, `operator.css:154-173`): five tiles above the current tab. The logic is in
+// Rust (`src/ui/dialogs/add.rs`), which talks to this dialog through `AddState`.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Icon } from "../widgets.slint";
+import { DialogBody } from "shell.slint";
+import { TextArea, TextField } from "inputs.slint";
+import { AddRow, AddState, AddList } from "add-list.slint";
+
+export { AddRow, AddState }
+
+/// `.tile` (`.on`): an accent icon, a label and a muted line under it.
+component Tile inherits Rectangle {
+    in property <string> icon;
+    in property <string> label;
+    in property <string> sub;
+    in property <bool> on;
+    callback clicked();
+    border-radius: 12px;
+    border-width: 1.5px;
+    border-color: root.on ? Theme.accent : ta.has-hover ? Theme.tile-hover : Theme.line;
+    background: root.on ? Theme.tile-on-bg : Theme.panel-2;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-checked: root.on;
+    accessible-action-default => { root.clicked(); }
+    VerticalLayout {
+        padding-top: 18px;
+        padding-bottom: 14px;
+        padding-left: 8px;
+        padding-right: 8px;
+        spacing: 9px;
+        alignment: center;
+        HorizontalLayout {
+            alignment: center;
+            Icon {
+                width: 28px;
+                height: 28px;
+                name: root.icon;
+                color: Theme.accent;
+                weight: 1.8;
+            }
+        }
+        Text {
+            text: root.label;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 650;
+            horizontal-alignment: center;
+        }
+        Text {
+            text: root.sub;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 11.5px;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `addSong()`: New song, Import SongSelect lyrics, and the library.
+component AddSongTab inherits VerticalLayout {
+    in property <length> list-height;
+    HorizontalLayout {
+        spacing: 8px;
+        padding-bottom: 12px;
+        alignment: start;
+        new-song := Btn {
+            text: @tr("New song");
+            icon: "plus";
+            primary: true;
+            clicked => { AddState.new-song(); }
+        }
+        import := Btn {
+            text: @tr("Import SongSelect lyrics (.txt)");
+            icon: "upload";
+            clicked => { AddState.import-lyrics(); }
+        }
+    }
+    AddList { max-list-height: root.list-height; }
+}
+
+/// `addScripture()`: a reference, Add verses, and pasting verses for a translation with no source here.
+component AddBibleTab inherits VerticalLayout {
+    Field {
+        label: @tr("Reference ({})", AddState.translation);
+        reference := TextField {
+            text <=> AddState.reference;
+            placeholder: @tr("e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39");
+            font-size: 16px;
+            init => { self.focus(); }
+            accepted => { AddState.bible-add(); }
+        }
+    }
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        add := Btn {
+            text: @tr("Add verses");
+            icon: "plus";
+            primary: true;
+            clicked => { AddState.bible-add(); }
+        }
+        if AddState.can-paste: paste-instead := Btn {
+            text: @tr("Paste the verses instead");
+            clicked => {
+                AddState.paste-open = true;
+            }
+        }
+    }
+    if AddState.paste-open: VerticalLayout {
+        padding-top: 12px;
+        Field {
+            label: @tr("Verses ({}) — keep the verse numbers so each verse gets its own slide", AddState.translation);
+            pasted := TextArea {
+                text <=> AddState.pasted;
+                placeholder: @tr("16 For God so loved the world… 17 For God did not send…");
+                init => { self.focus(); }
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            add-pasted := Btn {
+                text: @tr("Add pasted verses");
+                icon: "plus";
+                primary: true;
+                clicked => { AddState.bible-paste(); }
+            }
+        }
+    }
+    // `.note`, 14 px above.
+    VerticalLayout {
+        padding-top: 26px;
+        Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            VerticalLayout {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                padding-left: 14px;
+                padding-right: 14px;
+                tip := Text {
+                    text: @tr("Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}
+
+/// `addText()`: a title and the text of an announcement.
+component AddTextTab inherits VerticalLayout {
+    Field {
+        label: @tr("Title");
+        title := TextField {
+            text <=> AddState.text-title;
+            placeholder: @tr("e.g. Welcome, Announcements, Offering");
+            init => { self.focus(); }
+        }
+    }
+    Field {
+        label: @tr("Text");
+        body := TextArea {
+            text <=> AddState.text-body;
+            placeholder: @tr("Type your text. Leave an empty line to start a new slide.");
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+        add := Btn {
+            text: @tr("Add announcement");
+            icon: "plus";
+            primary: true;
+            clicked => { AddState.text-add(); }
+        }
+    }
+}
+
+/// The dialog's body: `.tiles` (five columns, 10 px apart, 14 px below), then the current tab. `window-height`
+/// sizes the lists (`max-height: 46vh`).
+export component AddDialog inherits DialogBody {
+    in property <length> window-height;
+    property <length> list-height: root.window-height * 0.46;
+    HorizontalLayout {
+        spacing: 10px;
+        padding-bottom: 14px;
+        song-tile := Tile {
+            horizontal-stretch: 1;
+            icon: "song";
+            label: @tr("Song");
+            sub: @tr("Lyrics");
+            on: AddState.tab == 0;
+            clicked => { AddState.pick-tab(0); }
+        }
+        bible-tile := Tile {
+            horizontal-stretch: 1;
+            icon: "scripture";
+            label: @tr("Bible");
+            sub: @tr("Verses");
+            on: AddState.tab == 1;
+            clicked => { AddState.pick-tab(1); }
+        }
+        media-tile := Tile {
+            horizontal-stretch: 1;
+            icon: "video";
+            label: @tr("Video & media");
+            sub: @tr("Videos, pictures, music");
+            on: AddState.tab == 2;
+            clicked => { AddState.pick-tab(2); }
+        }
+        deck-tile := Tile {
+            horizontal-stretch: 1;
+            icon: "deck";
+            label: @tr("Slides");
+            sub: @tr("PowerPoint, pictures");
+            on: AddState.tab == 3;
+            clicked => { AddState.pick-tab(3); }
+        }
+        text-tile := Tile {
+            horizontal-stretch: 1;
+            icon: "text";
+            label: @tr("Announcement");
+            sub: @tr("Your own text");
+            on: AddState.tab == 4;
+            clicked => { AddState.pick-tab(4); }
+        }
+    }
+    if AddState.tab == 0: AddSongTab { list-height: root.list-height; }
+    if AddState.tab == 1: AddBibleTab {}
+    if AddState.tab == 4: AddTextTab {}
+}
