@@ -1,7 +1,7 @@
 # RustyPresenter — shared project plan
 
 **Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 (Tauri) is in `src/` and `web/`; the native Slint app is being built beside it (Plans 1 and 2 done on Windows, Plan 3 next). The earlier experiment is in `experiment-archive/`.
-**Updated:** November 1, 2026 (native Plan 2 finished: video, room output and stage windows)
+**Updated:** November 1, 2026 (feature roadmap FEAT-1..7 added in §10b)
 **Collaborators:** User, Codex, and Claude
 **Purpose:** A Rust-based presentation application for this church's personal use during live services.
 
@@ -50,7 +50,7 @@ User decisions (October 29, 2026 design review):
 | R6 | NIV, ESV, CSB, HCSB, NLT, KJV (CSB ≠ HCSB) | All six Ready for release, unless the user approves an exception | Same |
 | R7 | PowerPoint import | Slide images via installed PowerPoint | Animations, embedded media, editable text, LibreOffice |
 | R8 | Google Slides import | Slide images via system-browser sign-in + Picker | Same plus fidelity upgrades |
-| R9 | Personal church use | No public distribution, subscriptions, or cloud hosting | Same |
+| R9 | ~~Personal church use~~ → **Free for every church** (user decision, November 1, 2026: "free to use for all churches, easy to use for all and works on any computer") | Free, open source, no subscriptions or cloud hosting; built for non-technical volunteers | Any church, any Windows/macOS/Linux computer |
 | R10 | Foldback / stage display | Optional second output: current/next text, notes, clock, stage messages | Layouts, timers |
 | R11 | Media | Background color/image/video; video with audio; images; audio items | Livestream output/NDI |
 
@@ -163,6 +163,8 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | NATIVE-P2 | Plan 2: `video` module (libmpv), room output window, stage window | Claude | Done (Windows) | `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`. Branch `native-foundation`, binary `rustypresenter-native`. Release build, `cargo test` and the libmpv-gated video tests pass on Windows; driven check of the native room/stage recorded in the checks doc (see handoff Nov 1, Plan 2). CI not yet run on the branch (not pushed). Monitor unplug, macOS/Linux video and a by-eye look still need real machines or a person. |
 | NATIVE-P3 | Plan 3: operator window and dialogs | Claude | Ready | `docs/superpowers/plans/2026-11-01-native-operator.md`. |
 | NATIVE-P4 | Plan 4: LibreOffice/pdfium import, supervisor + crash recovery, packaging for three platforms, remove Tauri | Claude | Planning | `docs/superpowers/plans/2026-11-01-native-imports-recovery-packaging.md`; after Plan 3. |
+| FEAT-1 | Looks and themes (§10b) | Claude | Planning | Brainstorm started November 1. Spec next, then plan. |
+| FEAT-2 – FEAT-7 | Service automation, stage display, song workflow, Bible extras, service planning, livestream/reporting (§10b) | Unassigned | Planning | Each gets its own spec and plan, in §10b order. |
 
 ## 9. Current workspace handoff
 
@@ -189,7 +191,25 @@ Still open:
 
 1. CCLI partner access for direct login (long-term).
 2. Bible source choices and costs (F5); any translation exception is the user's decision.
-3. Service planning integration (e.g., Planning Center): not requested; local service plans only for v1.
+3. Service planning integration (e.g., Planning Center): not requested; local service plans only for v1. Now part of FEAT-7 (§10b).
+
+## 10b. Feature roadmap (after native parity)
+
+**User decision, November 1, 2026:** the user wants the missing features from both EasyWorship and ProPresenter ("we want it all") and approved this breakdown and order. Each project gets its own brainstorm → written spec → plan → build, after Plans 3 and 4. Earlier projects come first because later ones depend on them.
+
+| ID | Project | Contains | Depends on |
+| --- | --- | --- | --- |
+| FEAT-1 | **Looks and themes** | Theme per song/item (not one global theme); formatting on text slides (bold, colour, size); background library with thumbnails; props (overlays that stay up while slides change, e.g. a corner logo); looks (which layers each screen shows) | Plan 3 |
+| FEAT-2 | **Service automation** | Timers (count down to a time of day, count down a length, count up) shown in the room and/or on stage; messages with fill-in fields (nursery alerts); macros (one button runs several steps); slide timers and announcement loops; pre-service countdown | FEAT-1 |
+| FEAT-3 | **Stage display** | Foldback layouts; timers, notes, current and next slide on stage; stage message box | FEAT-2 |
+| FEAT-4 | **Song workflow** | Coloured song sections with a jump key per section (e.g. `C` for chorus); editing a song while it is live; arrangement drag-to-reorder | Plan 3 (can move earlier) |
+| FEAT-5 | **Bible extras** | Keyword search; two translations side by side; choosing where a passage breaks across slides. Translation licensing (F5) continues alongside | Plan 3 |
+| FEAT-6 | **Service planning** | Service templates and "copy last week"; print/export the service order; practice mode (run a service without the room screen) | Plan 3 |
+| FEAT-7 | **Livestream and reporting** | Livestream output with lower-thirds (uses FEAT-1 looks); CCLI usage reports; Planning Center | FEAT-1 |
+
+Left out unless the user asks: live camera input, recording or streaming from the app, MIDI, DMX lighting, timecode, custom clear groups.
+
+Plan 3 stays a 1:1 port of the web operator. Lyric search already exists there (the Add dialog search matches any field, lyrics included), so only the FEAT-4 items are new.
 
 ## 11. Research starting points
 

@@ -2,7 +2,7 @@
 //! opened and closed from any thread through it. They reopen from settings at start, close when
 //! their monitor is unplugged and come back on it when it returns.
 use super::{room::Room, stage::Stage};
-use crate::app::{App, Monitor, Screens};
+use crate::app::{App, Monitor, ScreenGuard, Screens};
 use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
 use crate::render::Renderer;
 use crate::video::ffi::Mpv;
@@ -25,9 +25,10 @@ impl Win {
     fn window(&self) -> &slint::Window { match self { Win::Room(r) => r.window(), Win::Stage(s) => s.window() } }
 }
 
-/// The Slint thread's side: open windows (role, opening number, window), the unplug watch and its timer.
+/// The Slint thread's side: open windows (role, opening number, window, the guard that marks the
+/// role connected while it is open), the unplug watch and its timer.
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win)>, watcher: Watcher, poll: Option<Timer>, seq: u64 }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64 }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -141,6 +142,7 @@ impl NativeScreens {
     fn show(&self, role: &str, mon: Option<MonitorId>) -> Result<(), String> {
         let app = self.app.upgrade().ok_or("RustyPresenter is closing.")?;
         drop(self.take(role, None)); // the old window's players and GL context go first
+        let guard = app.screen_guard(role);
         let win = match role {
             "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
             "stage" => Win::Stage(Stage::open(app, mon.clone())?),
@@ -161,7 +163,7 @@ impl NativeScreens {
         });
         DESK.with(|d| {
             let mut d = d.borrow_mut();
-            d.wins.push((role.into(), id, win));
+            d.wins.push((role.into(), id, win, guard));
             match mon { Some(m) => d.watcher.watch(role, m), None => d.watcher.unwatch(role) }
         });
         self.sync_roles();
@@ -173,16 +175,17 @@ impl NativeScreens {
     fn take(&self, role: &str, id: Option<u64>) -> Vec<Win> {
         let out = DESK.with(|d| {
             let wins = &mut d.borrow_mut().wins;
-            let (out, keep) = std::mem::take(wins).into_iter().partition(|(r, i, _)| r == role && id.is_none_or(|id| id == *i));
+            let (out, keep) = std::mem::take(wins).into_iter().partition(|(r, i, _, _)| r == role && id.is_none_or(|id| id == *i));
             *wins = keep;
             out
         });
         self.sync_roles();
-        out.into_iter().map(|(_, _, w)| w).collect()
+        // The guards drop here: the role is no longer connected once its window is out.
+        out.into_iter().map(|(_, _, w, _)| w).collect()
     }
 
     fn sync_roles(&self) {
-        *self.roles.lock().unwrap() = DESK.with(|d| d.borrow().wins.iter().map(|(r, _, _)| r.clone()).collect());
+        *self.roles.lock().unwrap() = DESK.with(|d| d.borrow().wins.iter().map(|(r, _, _, _)| r.clone()).collect());
     }
 }
 
@@ -255,6 +258,21 @@ mod tests {
         assert!(s.open("projector", None).is_err());
         s.shutdown();
         assert!(s.open_roles().is_empty());
+    }
+
+    #[test]
+    fn open_native_windows_count_as_connected_screens() {
+        let app = test_app();
+        let s = screens(&app);
+        s.open("room", None).unwrap();
+        s.open("stage", None).unwrap();
+        s.open("room", None).unwrap(); // a replaced window does not count twice
+        assert_eq!((app.state_json()["room_connected"].clone(), app.state_json()["stage_connected"].clone()), (true.into(), true.into()));
+        s.close("room");
+        assert_eq!(app.state_json()["room_connected"], false);
+        assert_eq!(app.room_conns.load(std::sync::atomic::Ordering::Relaxed), 0);
+        s.shutdown();
+        assert_eq!(app.state_json()["stage_connected"], false);
     }
 
     #[test]
