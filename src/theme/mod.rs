@@ -3,6 +3,7 @@
 pub mod strings;
 pub mod assets;
 pub mod backgrounds;
+pub mod merge;
 pub mod overlay;
 pub mod paint;
 pub mod rich_edit;
