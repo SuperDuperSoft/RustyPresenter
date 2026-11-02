@@ -405,8 +405,15 @@ impl App {
             }));
             Ok(json!({}))
         }
+        "song/import" => {
+            #[derive(Deserialize)] struct Import { text: String, mode: SongImportMode }
+            let Import { text, mode } = parse(body)?;
+            let (id, title, duplicate_of) = tryr!(app.import_song(&text, mode));
+            Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
+        }
+        // The web operator's raw-body import; it always keeps both.
         "song/import-txt" => {
-            let (id, title, duplicate_of) = tryr!(app.import_song_txt(&String::from_utf8_lossy(body)));
+            let (id, title, duplicate_of) = tryr!(app.import_song(&String::from_utf8_lossy(body), SongImportMode::KeepBoth));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
@@ -678,13 +685,25 @@ impl App {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics }
 
+/// What to do when an imported song has the same CCLI # as one in the library.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SongImportMode {
+    /// Save nothing and report the match, so the operator can choose.
+    Ask,
+    /// Replace the existing song's words and credits. It keeps its id, so service items still point at it.
+    Update,
+    KeepBoth,
+}
+
 /// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
+/// A song with no `id` was not saved: it matches `duplicate_of` and the operator has to choose.
 #[derive(Clone, Debug)]
 pub enum Imported {
     Media(MediaFile),
     Asset(AssetId),
     Job(Uuid),
-    Song { id: Uuid, title: String, duplicate_of: Option<Uuid> },
+    Song { id: Option<Uuid>, title: String, duplicate_of: Option<Uuid> },
 }
 
 impl App {
@@ -734,7 +753,7 @@ impl App {
                 let bytes = tokio::fs::read(&tmp).await;
                 let _ = tokio::fs::remove_file(&tmp).await;
                 let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
-                let (id, title, duplicate_of) = app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad)?;
+                let (id, title, duplicate_of) = app.import_song(&String::from_utf8_lossy(&bytes), SongImportMode::Ask).map_err(ActionError::bad)?;
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => {
@@ -789,11 +808,26 @@ impl App {
 
     /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
     /// Returns the new song's id and title, and `duplicate_of`.
-    fn import_song_txt(&self, text: &str) -> Result<(Uuid, String, Option<Uuid>), String> {
+    /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
+    /// and the library song with the same CCLI #. `Update` with no match adds the song: the old one may have
+    /// been deleted while the question was open.
+    fn import_song(&self, text: &str, mode: SongImportMode) -> Result<(Option<Uuid>, String, Option<Uuid>), String> {
         let song = songselect::import_txt(text)?;
-        let duplicate_of = self.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
-        let (id, title) = (song.id, song.title.clone());
-        self.edit(|d| { d.songs.push(song); Ok(()) })?;
+        let title = song.title.clone();
+        let (id, duplicate_of) = self.edit(|d| {
+            let existing = d.songs.iter_mut().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli);
+            let duplicate_of = existing.as_ref().map(|s| s.id);
+            let id = match (mode, existing) {
+                (SongImportMode::Ask, Some(_)) => None,
+                (SongImportMode::Update, Some(s)) => {
+                    let Song { title, writers, ccli, copyright, lyrics, .. } = song;
+                    (s.title, s.writers, s.ccli, s.copyright, s.lyrics) = (title, writers, ccli, copyright, lyrics);
+                    Some(s.id)
+                }
+                _ => { let id = song.id; d.songs.push(song); Some(id) }
+            };
+            Ok((id, duplicate_of))
+        })?;
         Ok((id, title, duplicate_of))
     }
 }
@@ -1043,11 +1077,112 @@ mod tests {
         std::fs::write(&p, "A Test Song\r\n\r\nVerse 1\r\nOriginal test line one\r\nOriginal test line two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
         let Imported::Song { id, title, duplicate_of } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
         assert_eq!((title.as_str(), duplicate_of), ("A Test Song", None));
+        let id = id.unwrap();
         assert_eq!(app.data.lock().unwrap().songs[0].id, id);
-        // The same song again is flagged as a duplicate of the first.
-        let Imported::Song { duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
-        assert_eq!(duplicate_of, Some(id));
+        // The same song again saves nothing: the operator asks what to do.
+        let Imported::Song { id: second, duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((second, duplicate_of), (None, Some(id)));
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
         assert!(p.exists());
+    }
+
+    const SONG_V1: &str = "A Test Song\n\nVerse 1\nOriginal test line one\n\nChorus\nOriginal test chorus\n\nTest Writer\nCCLI Song # 12345\n© 2026 Test Music\nCCLI License # 98765";
+    const SONG_V2: &str = "A Test Song (New Key)\n\nVerse 1\nChanged test line one\n\nNew Writer\nCCLI Song # 12345\n© 2027 Test Music\nCCLI License # 98765";
+
+    fn song_import_body(text: &str, mode: &str) -> Vec<u8> { json!({ "text": text, "mode": mode }).to_string().into_bytes() }
+
+    #[tokio::test]
+    async fn import_ask_without_duplicate_saves() {
+        let app = test_app();
+        let v = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let songs = app.data.lock().unwrap().songs.clone();
+        assert_eq!(songs.len(), 1);
+        assert_eq!(v, json!({ "id": songs[0].id, "title": "A Test Song", "duplicate_of": null }));
+    }
+
+    #[tokio::test]
+    async fn import_ask_with_duplicate_saves_nothing() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "ask")).await.unwrap();
+        assert_eq!(v, json!({ "id": null, "title": "A Test Song (New Key)", "duplicate_of": first["id"] }));
+        let songs = app.data.lock().unwrap().songs.clone();
+        assert_eq!(songs.len(), 1);
+        assert_eq!(songs[0].title, "A Test Song");
+    }
+
+    #[tokio::test]
+    async fn import_ask_never_matches_on_an_empty_ccli_number() {
+        let app = test_app();
+        let text = "No Number\n\nVerse 1\nA line";
+        app.do_action("song/import", &song_import_body(text, "ask")).await.unwrap();
+        let v = app.do_action("song/import", &song_import_body(text, "ask")).await.unwrap();
+        assert!(v["id"].is_string());
+        assert_eq!(v["duplicate_of"], Value::Null);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn import_update_keeps_song_id_and_service_items() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let id: Uuid = serde_json::from_value(first["id"].clone()).unwrap();
+        app.edit(|d| {
+            let song = d.songs.iter_mut().find(|s| s.id == id).unwrap();
+            song.arrangement = vec!["Chorus".into(), "Verse 1".into()];
+            let service = d.service_mut().ok_or("no service")?;
+            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new() });
+            Ok(())
+        }).unwrap();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "update")).await.unwrap();
+        assert_eq!(v["id"], first["id"]);
+        let d = app.data.lock().unwrap();
+        assert_eq!(d.songs.len(), 1);
+        let song = &d.songs[0];
+        assert_eq!((song.id, song.title.as_str(), song.ccli.as_str()), (id, "A Test Song (New Key)", "12345"));
+        assert_eq!(song.writers, "New Writer");
+        assert!(song.copyright.contains("2027"));
+        assert_eq!(song.arrangement, vec!["Chorus".to_string(), "Verse 1".to_string()]);
+        let item_song = match d.service().unwrap().items[0].kind { ItemKind::Song { song_id } => song_id, _ => panic!() };
+        let shown = d.songs.iter().find(|s| s.id == item_song).unwrap();
+        let settings = Settings { credits: "none".into(), ..Default::default() };
+        let texts: Vec<_> = crate::slides::song_slides(shown, &settings).into_iter().map(|s| match s.content { SlideContent::Text { text, .. } => text, _ => panic!() }).collect();
+        // "Chorus" is no longer a section, so the core drops that name from the order.
+        assert_eq!(texts, vec!["Changed test line one"]);
+    }
+
+    #[tokio::test]
+    async fn import_update_of_a_song_deleted_meanwhile_adds_it() {
+        let app = test_app();
+        let v = app.do_action("song/import", &song_import_body(SONG_V1, "update")).await.unwrap();
+        assert!(v["id"].is_string());
+        assert_eq!(v["duplicate_of"], Value::Null);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn import_keep_both_adds_second_song() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "keep_both")).await.unwrap();
+        assert_ne!(v["id"], first["id"]);
+        assert_eq!(v["duplicate_of"], first["id"]);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn song_import_rejects_an_unknown_mode() {
+        let e = test_app().do_action("song/import", &song_import_body(SONG_V1, "replace")).await.unwrap_err();
+        assert_eq!(e.status, 400);
+    }
+
+    #[tokio::test]
+    async fn import_txt_action_still_keeps_both_for_the_web_operator() {
+        let app = test_app();
+        let first = app.do_action("song/import-txt", SONG_V1.as_bytes()).await.unwrap();
+        let v = app.do_action("song/import-txt", SONG_V2.as_bytes()).await.unwrap();
+        assert_eq!(v["duplicate_of"], first["id"]);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
     }
 
     #[tokio::test]
