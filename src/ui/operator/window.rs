@@ -1,7 +1,8 @@
 //! The operator window: opening it, the top bar (`operator.js:93-107`) and the follower that turns core updates
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
-//! column in `slides`, the live column in `live`, the keyboard in `keys`; the dialogs come in later tasks.
-use super::{keys, live::{self, LiveState}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+//! column in `slides`, the live column in `live`, the keyboard in `keys`, toasts and jobs in `overlays`; the dialogs
+//! come in later tasks.
+use super::{keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
@@ -58,7 +59,7 @@ pub(super) struct OpState {
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
     pub(super) dragging: bool,
     pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
-    /// Every toast shown, for tests (the toast stack comes in Task 12).
+    /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
     pub(super) toasts: Vec<(String, bool)>,
 }
@@ -78,6 +79,8 @@ pub struct Operator {
     /// The live column between updates (see `live`), and its monitor's drawing.
     pub(super) live: RefCell<LiveState>,
     pub(super) preview: Preview,
+    /// The toasts and the jobs box (see `overlays`).
+    pub(super) overlays: Overlays,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(super) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -99,13 +102,14 @@ impl Operator {
                 else { (Thumbs::new(app.store.root.clone()), Preview::new(app.store.root.clone())) };
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
             }
         });
         service::wire(&op);
         slides::wire(&op);
         live::wire(&op);
         keys::wire(&op);
+        overlays::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -145,6 +149,7 @@ impl Operator {
         self.render_top(&s);
         self.render_service();
         self.render_slides();
+        self.render_jobs();
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
@@ -165,14 +170,6 @@ impl Operator {
     /// The item the live cursor is on (`L.cursor.item_id`), if any.
     pub(super) fn live_item(&self) -> Option<Uuid> {
         self.state.borrow().live.as_ref().and_then(|l| l.view().cursor.as_ref().map(|c| c.item_id))
-    }
-
-    /// A short message at the bottom of the window: 2.6 s, or 6 s for an error. Until the toast stack exists
-    /// (Task 12) it goes to stderr, so no failure is silent.
-    pub(super) fn toast(&self, msg: &str, err: bool) {
-        #[cfg(test)]
-        self.state.borrow_mut().toasts.push((msg.to_string(), err));
-        eprintln!("{} {msg}", if err { "Operator error:" } else { "Operator:" });
     }
 
     /// `renderTop()` (`operator.js:93-107`).
