@@ -51,3 +51,7 @@ pub fn at_zero_changes_slides(timer: &str, name: &str) -> String {
 pub fn at_zero_skipped_shows(timer: &str, name: &str) -> String {
     format!("“{timer}” reached zero, but “{name}” didn't show anything because the screen was cleared.")
 }
+
+/// *(plan copy)*
+pub const ADVANCE_RANGE: &str = "Choose 2 to 600 seconds.";
+pub const NEEDS_TWO_SLIDES: &str = "Needs at least two slides.";
