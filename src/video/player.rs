@@ -3,12 +3,13 @@
 use super::ffi::{self, *};
 use crate::live::{PlayState, RoomEvent};
 use crate::model::EndAction;
+use slint::{Rgb8Pixel, SharedPixelBuffer};
 use std::cell::RefCell;
 use std::ffi::c_int;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{Receiver, Sender, channel};
+use std::sync::{Arc, Mutex, Weak};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
@@ -63,6 +64,7 @@ impl From<PlayerReport> for RoomEvent {
 struct Core {
     mpv: Arc<Mpv>,
     h: *mut mpv_handle,
+    grabs: Grabs,
 }
 // The client API is thread-safe; the handle is destroyed only when the last owner drops.
 unsafe impl Send for Core {}
@@ -82,6 +84,145 @@ impl Drop for Core {
 
 struct Handle(*mut mpv_handle);
 unsafe impl Send for Handle {}
+
+/// How long a grab waits for mpv. With `vo=libmpv` the screenshot is taken on the render
+/// thread (the room's Slint render), so a room that is not drawing never answers.
+const GRAB_TIMEOUT: Duration = Duration::from_millis(500);
+
+/// A screenshot copied out of mpv's reply on the event thread.
+#[derive(Debug)]
+struct RawFrame {
+    w: u32,
+    h: u32,
+    stride: usize,
+    bgrx: Vec<u8>,
+}
+
+impl RawFrame {
+    /// Reads the `screenshot-raw` result `{w, h, stride, format, data}`.
+    ///
+    /// # Safety
+    /// `n` must be a valid node from libmpv.
+    unsafe fn from_node(n: &mpv_node) -> Option<RawFrame> {
+        unsafe {
+            if n.get("format")?.string()?.to_bytes() != b"bgr0" {
+                return None;
+            }
+            let dim = |key| n.get(key).and_then(|v| v.int64()).and_then(|v| u32::try_from(v).ok()).filter(|&v| v > 0);
+            let (w, h) = (dim("w")?, dim("h")?);
+            // A flipped image would have a negative stride; `dim` turns that into a missing frame.
+            let stride = dim("stride")? as usize;
+            let need = stride.checked_mul(h as usize)?;
+            let data = n.get("data")?.bytes()?;
+            if stride < w as usize * 4 || data.len() < need {
+                return None;
+            }
+            Some(RawFrame { w, h, stride, bgrx: data[..need].to_vec() })
+        }
+    }
+
+    /// RGB at `max_w` pixels wide or less, keeping the shape. Never enlarges.
+    fn to_rgb(&self, max_w: u32) -> Option<image::RgbImage> {
+        let mut rgb = Vec::with_capacity(self.w as usize * self.h as usize * 3);
+        for row in self.bgrx.chunks_exact(self.stride) {
+            for px in row[..self.w as usize * 4].chunks_exact(4) {
+                rgb.extend_from_slice(&[px[2], px[1], px[0]]);
+            }
+        }
+        let img = image::RgbImage::from_raw(self.w, self.h, rgb)?;
+        if max_w == 0 || self.w <= max_w {
+            return Some(img);
+        }
+        let h = (self.h as u64 * max_w as u64 / self.w as u64).max(1) as u32;
+        Some(image::imageops::resize(&img, max_w, h, image::imageops::FilterType::Triangle))
+    }
+}
+
+/// The screenshot request mpv owes an answer to. There is only ever one: mpv answers every
+/// async command in the end, so a request that timed out keeps the slot until its late reply
+/// comes, and a room that is not drawing cannot pile up requests at 4 Hz.
+#[derive(Default)]
+struct Grabs(Mutex<GrabSlot>);
+
+#[derive(Default)]
+struct GrabSlot {
+    next_id: u64,
+    waiting: Option<(u64, Sender<Option<RawFrame>>)>,
+    closed: bool,
+}
+
+impl Grabs {
+    fn slot(&self) -> std::sync::MutexGuard<'_, GrabSlot> {
+        self.0.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// Reserves the slot: the reply id and where the frame will arrive. `None` while an answer
+    /// is still owed, or once the event thread has stopped.
+    fn begin(&self) -> Option<(u64, Receiver<Option<RawFrame>>)> {
+        let mut s = self.slot();
+        if s.closed || s.waiting.is_some() {
+            return None;
+        }
+        s.next_id += 1;
+        let id = s.next_id;
+        let (tx, rx) = channel();
+        s.waiting = Some((id, tx));
+        Some((id, rx))
+    }
+
+    /// Hands over the reply to request `id`. `read` runs only for the waiting request, because
+    /// the reply's data is gone by the next `wait_event`.
+    fn finish(&self, id: u64, read: impl FnOnce() -> Option<RawFrame>) {
+        let mut s = self.slot();
+        if s.waiting.as_ref().is_some_and(|w| w.0 == id) {
+            if let Some((_, tx)) = s.waiting.take() {
+                let _ = tx.send(read()); // fails when the grab already timed out
+            }
+        }
+    }
+
+    /// The command never reached mpv, so no reply will come.
+    fn abandon(&self, id: u64) {
+        self.finish(id, || None);
+    }
+
+    /// The event thread stopped: wakes a waiting grab and refuses new ones.
+    fn close(&self) {
+        let mut s = self.slot();
+        s.closed = true;
+        s.waiting = None;
+    }
+}
+
+/// Takes frames of a playing video for the operator's live preview, without a second player.
+/// It does not keep the player alive. One grab runs at a time; a second one meanwhile gets `None`.
+#[derive(Clone)]
+pub struct FrameGrabber {
+    core: Weak<Core>,
+}
+
+impl FrameGrabber {
+    /// The current frame, at most `max_w` pixels wide. `None` when there is none within 500 ms,
+    /// mpv refuses, or the player is gone. Blocks, so never call it on the UI thread.
+    pub fn grab(&self, max_w: u32) -> Option<SharedPixelBuffer<Rgb8Pixel>> {
+        // While `core` is held `Core::drop` cannot run, so the handle stays valid for the command.
+        let core = self.core.upgrade()?;
+        let (id, rx) = core.grabs.begin()?;
+        // Asynchronous, because a synchronous screenshot would wait for the room to redraw.
+        if unsafe { core.mpv.command_async(core.h, id, &["screenshot-raw", "video"]) }.is_err() {
+            core.grabs.abandon(id);
+            return None;
+        }
+        let frame = rx.recv_timeout(GRAB_TIMEOUT).ok().flatten();
+        drop(core);
+        let img = frame?.to_rgb(max_w)?;
+        let mut pb = SharedPixelBuffer::<Rgb8Pixel>::new(img.width(), img.height());
+        for (d, s) in pb.make_mut_slice().iter_mut().zip(img.as_raw().chunks_exact(3)) {
+            *d = Rgb8Pixel { r: s[0], g: s[1], b: s[2] };
+        }
+        Some(pb)
+    }
+}
 
 /// An mpv render context. It keeps its player's core alive, so the core is never
 /// destroyed before the context is freed. Free it (drop it) in `RenderingTeardown`,
@@ -155,7 +296,7 @@ impl Player {
             return Err("The video player could not start.".into());
         }
         // Dropping `core` on an early return destroys the handle.
-        let core = Arc::new(Core { mpv: mpv.clone(), h });
+        let core = Arc::new(Core { mpv: mpv.clone(), h, grabs: Grabs::default() });
         let lp = |on: bool| if on { "inf" } else { "no" };
         let mut set = vec![("vo", opts.vo), ("hwdec", "auto-safe"), ("idle", "yes"), ("input-default-bindings", "no"), ("terminal", "no"), ("keep-open-pause", "no")];
         if !opts.ao.is_empty() {
@@ -279,6 +420,11 @@ impl Player {
     pub fn handle(&self) -> *mut mpv_handle {
         self.core.h
     }
+
+    /// A frame grabber for this player's live preview; it may outlive the player.
+    pub fn grabber(&self) -> FrameGrabber {
+        FrameGrabber { core: Arc::downgrade(&self.core) }
+    }
 }
 
 impl Drop for Player {
@@ -313,6 +459,11 @@ struct Watch {
 
 impl Watch {
     fn run(mut self) {
+        self.events();
+        self.core.grabs.close();
+    }
+
+    fn events(&mut self) {
         loop {
             let ev = unsafe { &*(self.core.mpv.wait_event)(self.core.h, -1.0) };
             if self.stop.load(Ordering::Acquire) || ev.event_id == EVENT_SHUTDOWN {
@@ -336,6 +487,12 @@ impl Watch {
                         _ => {}
                     }
                 }
+                EVENT_COMMAND_REPLY => self.core.grabs.finish(ev.reply_userdata, || {
+                    if ev.error < 0 || ev.data.is_null() {
+                        return None;
+                    }
+                    unsafe { RawFrame::from_node(&(*(ev.data as *const mpv_event_command)).result) }
+                }),
                 EVENT_PROPERTY_CHANGE if !ev.data.is_null() => self.property(ev.reply_userdata, unsafe { &*(ev.data as *const mpv_event_property) }),
                 _ => {}
             }
@@ -412,7 +569,8 @@ impl Players {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::mpsc::{Receiver, RecvTimeoutError, channel};
+    use std::ffi::CStr;
+    use std::sync::mpsc::RecvTimeoutError;
     use std::time::{Duration, Instant};
 
     fn mpv() -> Option<Arc<Mpv>> {
@@ -634,6 +792,189 @@ mod tests {
         let (v, _) = until(&rx, 0.2, |_| false);
         assert!(v.iter().all(|r| r.state != PlayState::Error), "{v:?}");
         drop(p.take_render());
+    }
+
+    /// A `screenshot-raw` result, as a tree of nodes that `read` can look at.
+    fn with_node<R>(w: i64, h: i64, stride: i64, format: &CStr, data: &mut [u8], read: impl FnOnce(&mpv_node) -> R) -> R {
+        let int = |v| mpv_node { u: mpv_node_value { int64: v }, format: FORMAT_INT64 };
+        let mut ba = mpv_byte_array { data: data.as_mut_ptr() as *mut _, size: data.len() };
+        let mut values = [
+            int(w),
+            int(h),
+            int(stride),
+            mpv_node { u: mpv_node_value { string: format.as_ptr() as *mut _ }, format: FORMAT_STRING },
+            mpv_node { u: mpv_node_value { ba: &mut ba }, format: FORMAT_BYTE_ARRAY },
+        ];
+        let mut keys = [c"w", c"h", c"stride", c"format", c"data"].map(|k| k.as_ptr() as *mut std::ffi::c_char);
+        let mut list = mpv_node_list { num: values.len() as c_int, values: values.as_mut_ptr(), keys: keys.as_mut_ptr() };
+        read(&mpv_node { u: mpv_node_value { list: &mut list }, format: FORMAT_NODE_MAP })
+    }
+
+    fn raw(w: u32, h: u32, stride: usize, bgrx: Vec<u8>) -> RawFrame {
+        RawFrame { w, h, stride, bgrx }
+    }
+
+    #[test]
+    fn frame_is_read_from_the_reply_node() {
+        let mut data = [1, 2, 3, 0, 9, 9, 9, 9, 4, 5, 6, 0, 9, 9, 9, 9];
+        let f = with_node(1, 2, 8, c"bgr0", &mut data, |n| unsafe { RawFrame::from_node(n) }).expect("frame");
+        assert_eq!((f.w, f.h, f.stride, f.bgrx.len()), (1, 2, 8, 16));
+    }
+
+    #[test]
+    fn frame_with_bad_fields_is_refused() {
+        let mut data = [0u8; 16];
+        for (w, h, stride, format) in [
+            (2, 2, 8, c"rgba"), // another pixel format
+            (2, 2, -8, c"bgr0"), // flipped
+            (0, 2, 8, c"bgr0"),
+            (2, 0, 8, c"bgr0"),
+            (3, 2, 8, c"bgr0"), // stride shorter than a row
+            (2, 3, 8, c"bgr0"), // less data than the rows need
+        ] {
+            let f = with_node(w, h, stride, format, &mut data, |n| unsafe { RawFrame::from_node(n) });
+            assert!(f.is_none(), "{w}x{h} stride {stride}");
+        }
+        let not_a_map = mpv_node { u: mpv_node_value { int64: 1 }, format: FORMAT_INT64 };
+        assert!(unsafe { RawFrame::from_node(&not_a_map) }.is_none());
+    }
+
+    #[test]
+    fn bgrx_becomes_rgb_and_skips_row_padding() {
+        let f = raw(2, 2, 12, vec![1, 2, 3, 0, 4, 5, 6, 0, 99, 99, 99, 99, 7, 8, 9, 0, 10, 11, 12, 0, 99, 99, 99, 99]);
+        assert_eq!(f.to_rgb(100).unwrap().into_raw(), [3, 2, 1, 6, 5, 4, 9, 8, 7, 12, 11, 10]);
+    }
+
+    #[test]
+    fn large_frame_shrinks_to_max_width_keeping_its_shape() {
+        let f = raw(1920, 1080, 1920 * 4, vec![200; 1920 * 1080 * 4]);
+        let img = f.to_rgb(480).unwrap();
+        assert_eq!((img.width(), img.height()), (480, 270));
+        assert_eq!(img.get_pixel(240, 135).0, [200, 200, 200]);
+    }
+
+    #[test]
+    fn small_frame_is_not_enlarged_and_a_thin_one_keeps_a_row() {
+        assert_eq!(raw(2, 1, 8, vec![0; 8]).to_rgb(480).unwrap().width(), 2);
+        let thin = raw(1000, 1, 4000, vec![0; 4000]).to_rgb(10).unwrap();
+        assert_eq!((thin.width(), thin.height()), (10, 1));
+    }
+
+    fn frame() -> Option<RawFrame> {
+        Some(raw(1, 1, 4, vec![0; 4]))
+    }
+
+    #[test]
+    fn grab_reply_reaches_the_waiting_request_only() {
+        let g = Grabs::default();
+        let (id, rx) = g.begin().unwrap();
+        g.finish(id + 1, || panic!("not this request's reply"));
+        assert!(rx.try_recv().is_err());
+        g.finish(id, frame);
+        assert!(rx.try_recv().unwrap().is_some());
+    }
+
+    #[test]
+    fn no_second_request_until_the_late_reply_comes() {
+        let g = Grabs::default();
+        let (id, rx) = g.begin().unwrap();
+        drop(rx); // the grab timed out
+        assert!(g.begin().is_none(), "a room that does not draw must not collect requests");
+        g.finish(id, frame); // mpv answers late; nobody listens and nothing breaks
+        let (next, _rx) = g.begin().expect("free again");
+        assert_ne!(next, id);
+    }
+
+    #[test]
+    fn abandoned_request_frees_the_slot() {
+        let g = Grabs::default();
+        let (id, rx) = g.begin().unwrap();
+        g.abandon(id);
+        assert!(rx.try_recv().unwrap().is_none());
+        assert!(g.begin().is_some());
+    }
+
+    #[test]
+    fn closing_wakes_the_waiting_grab_and_refuses_new_ones() {
+        let g = Grabs::default();
+        let (_, rx) = g.begin().unwrap();
+        g.close();
+        assert_eq!(rx.recv_timeout(Duration::from_secs(1)).map(|f| f.is_some()), Err(RecvTimeoutError::Disconnected));
+        assert!(g.begin().is_none());
+    }
+
+    #[test]
+    fn grabber_is_send_and_sync() {
+        fn check<T: Send + Sync>() {}
+        check::<FrameGrabber>();
+    }
+
+    /// Plays `testsrc2` into a software render context.
+    fn sw_player(mpv: Arc<Mpv>, inst: u64) -> (Player, Receiver<PlayerReport>) {
+        let (tx, rx) = channel();
+        let p = Player::with_options(mpv, Role::Background, inst, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
+        p.set_render(sw_render(&p));
+        (p, rx)
+    }
+
+    #[test]
+    fn grabber_returns_frame_of_playing_testsrc() {
+        let Some(mpv) = mpv() else { return };
+        let (p, rx) = sw_player(mpv, 15);
+        assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
+        let g = p.grabber();
+        let grabs = std::thread::spawn(move || {
+            let end = Instant::now() + Duration::from_secs(3);
+            while Instant::now() < end {
+                if let Some(pb) = g.grab(160) {
+                    return Some(pb);
+                }
+            }
+            None
+        });
+        frames(&p, p.render_raw().unwrap(), 3.0); // the screenshot is served by this render loop
+        let pb = grabs.join().unwrap().expect("a frame");
+        assert_eq!(pb.width(), 160);
+        let first = pb.as_slice()[0];
+        assert!(pb.as_slice().iter().any(|px| *px != first), "testsrc2 is not one flat colour");
+        drop(p.take_render());
+    }
+
+    #[test]
+    fn grab_without_render_times_out_with_none() {
+        let Some(mpv) = mpv() else { return };
+        let (p, rx) = sw_player(mpv, 16);
+        assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
+        let at = Instant::now();
+        assert!(p.grabber().grab(160).is_none());
+        assert!(at.elapsed() < Duration::from_millis(600), "{:?}", at.elapsed());
+        drop(p.take_render());
+    }
+
+    #[test]
+    fn grab_returns_none_once_the_core_is_gone() {
+        let Some(mpv) = mpv() else { return };
+        let (p, rx) = sw_player(mpv, 17);
+        assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
+        let g = p.grabber();
+        let loops = {
+            let g = g.clone();
+            std::thread::spawn(move || {
+                let end = Instant::now() + Duration::from_secs(1);
+                while Instant::now() < end {
+                    let _ = g.grab(160);
+                }
+            })
+        };
+        drop(p.take_render());
+        drop(p);
+        loops.join().unwrap();
+        let core_gone = Instant::now() + Duration::from_secs(2);
+        while g.core.upgrade().is_some() && Instant::now() < core_gone {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        assert!(g.grab(160).is_none());
     }
 
     #[test]
