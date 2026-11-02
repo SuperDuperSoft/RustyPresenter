@@ -48,41 +48,63 @@ fn is_bom_or_space(c: char) -> bool { c.is_whitespace() || c == '\u{feff}' }
 
 /// The text of one `<verse>`. OpenLP's own format is a CDATA block with real newlines. OpenLyrics-style verses
 /// hold `<lines>` (each one a slide) whose line breaks are `<br/>` (or one `<line>` per line), and whose
-/// whitespace, newlines included, is only spacing; `<comment>`s are not lyrics. Walked without recursion, so
-/// deep nesting can't overflow the stack, and each element is entered and left once.
+/// whitespace, newlines included, is only spacing; `<comment>`s are not lyrics. Only a new `<lines>` starts a
+/// new slide: a line left empty inside one (a comment or chord alone, `<br/><br/>`, an empty `<line/>`) is
+/// dropped. `repeat` and `part` are not shown: the words are projected once, without the singers' part.
+/// Walked without recursion, so deep nesting can't overflow the stack, and each element is entered and left once.
 pub(crate) fn verse_text(verse: roxmltree::Node) -> String {
-    let mut out = String::new();
-    let (mut in_lines, mut in_comment) = (0usize, 0usize);
-    // Open elements, innermost last: the ancestors of the node being visited (descendants() is document order).
-    let mut open: Vec<roxmltree::Node> = Vec::new();
-    let close = |n: roxmltree::Node, out: &mut String, in_lines: &mut usize, in_comment: &mut usize| {
-        match n.tag_name().name().to_ascii_lowercase().as_str() {
-            "line" => out.push('\n'),
-            "lines" => { *in_lines = in_lines.saturating_sub(1); out.push_str("\n\n"); }
-            "comment" => *in_comment = in_comment.saturating_sub(1),
-            _ => {}
+    /// `out` is the verse so far; `block` the `<lines>` being read, kept apart until it ends.
+    struct Walk { out: String, block: String, in_lines: usize, in_comment: usize }
+    impl Walk {
+        fn dst(&mut self) -> &mut String { if self.in_lines > 0 { &mut self.block } else { &mut self.out } }
+        /// Ends the slide being read: its non-empty lines, with blank lines around them (a slide break).
+        fn flush(&mut self) {
+            let lines: Vec<&str> = self.block.split('\n').filter(|l| !l.trim().is_empty()).collect();
+            if !lines.is_empty() {
+                let text = lines.join("\n");
+                self.out.push_str("\n\n");
+                self.out.push_str(&text);
+                self.out.push_str("\n\n");
+            }
+            self.block.clear();
         }
-    };
-    for n in verse.descendants().skip(1) {
-        while open.last().is_some_and(|o| Some(*o) != n.parent()) {
-            if let Some(o) = open.pop() { close(o, &mut out, &mut in_lines, &mut in_comment); }
-        }
-        if n.is_text() {
-            if in_comment > 0 { continue; }
-            let t = n.text().unwrap_or("");
-            if in_lines > 0 { out.extend(t.chars().map(|c| if c.is_whitespace() { ' ' } else { c })); } else { out.push_str(t); }
-        } else if n.is_element() {
-            match n.tag_name().name().to_ascii_lowercase().as_str() {
-                "br" => out.push('\n'),
-                "lines" => { in_lines += 1; out.push_str("\n\n"); }
-                "comment" => in_comment += 1,
+        fn enter(&mut self, name: &str) {
+            match name {
+                "br" => self.dst().push('\n'),
+                "lines" => { self.flush(); self.in_lines += 1; }
+                "comment" => self.in_comment += 1,
                 _ => {}
             }
+        }
+        fn leave(&mut self, name: &str) {
+            match name {
+                "line" => self.dst().push('\n'),
+                "lines" => { self.flush(); self.in_lines = self.in_lines.saturating_sub(1); }
+                "comment" => self.in_comment = self.in_comment.saturating_sub(1),
+                _ => {}
+            }
+        }
+    }
+    let name = |n: roxmltree::Node| n.tag_name().name().to_ascii_lowercase();
+    let mut w = Walk { out: String::new(), block: String::new(), in_lines: 0, in_comment: 0 };
+    // Open elements, innermost last: the ancestors of the node being visited (descendants() is document order).
+    let mut open: Vec<roxmltree::Node> = Vec::new();
+    for n in verse.descendants().skip(1) {
+        while open.last().is_some_and(|o| Some(*o) != n.parent()) {
+            if let Some(o) = open.pop() { w.leave(&name(o)); }
+        }
+        if n.is_text() {
+            if w.in_comment > 0 { continue; }
+            let t = n.text().unwrap_or("");
+            if w.in_lines > 0 { w.block.extend(t.chars().map(|c| if c.is_whitespace() { ' ' } else { c })); } else { w.out.push_str(t); }
+        } else if n.is_element() {
+            w.enter(&name(n));
             open.push(n);
         }
     }
-    while let Some(o) = open.pop() { close(o, &mut out, &mut in_lines, &mut in_comment); }
-    out
+    while let Some(o) = open.pop() { w.leave(&name(o)); }
+    w.flush();
+    w.out
 }
 
 /// The `<verse>` elements of OpenLP's lyrics XML, in document order. DTDs are refused (no entity tricks).
@@ -275,23 +297,31 @@ pub(crate) fn lyrics_from_verses(verses: Vec<Verse>, verse_order: &str) -> Resul
         out.push(join_groups(groups));
     }
 
-    // verse_order: "v1 c1 v2 c1". A tag without a number ("c") is the first verse of that type; unknown tags are
-    // dropped. Verses sharing a tag are all played where the tag is, so none becomes unreachable.
-    let mut by_tag: HashMap<(char, String), Vec<usize>> = HashMap::new();
-    let mut first_of_kind: HashMap<char, usize> = HashMap::new();
-    for (i, ((v, _), &code)) in verses.iter().zip(&codes).enumerate() {
-        by_tag.entry((code, v.label.to_lowercase())).or_default().push(i);
-        first_of_kind.entry(code).or_insert(i);
+    // verse_order: "v1 c1 v2 c1". A section with a name of its own ("Outro") is found by that name; otherwise a
+    // tag is a kind letter and number, and one without a number ("c") is the first verse of that type. Unknown
+    // tags are dropped. Verses sharing a tag are all played where the tag is, so none becomes unreachable.
+    let tag_of = |i: usize| (codes[i], verses[i].0.label.to_lowercase(), verses[i].0.name.trim().to_lowercase());
+    let mut by_tag: HashMap<(char, String, String), Vec<usize>> = HashMap::new();
+    let mut by_name: HashMap<String, usize> = HashMap::new();
+    let (mut first_of_kind, mut first_unnamed): (HashMap<char, usize>, HashMap<char, usize>) = (HashMap::new(), HashMap::new());
+    for i in 0..verses.len() {
+        let t = tag_of(i);
+        if t.2.is_empty() { first_unnamed.entry(t.0).or_insert(i); } else { by_name.entry(t.2.clone()).or_insert(i); }
+        first_of_kind.entry(t.0).or_insert(i);
+        by_tag.entry(t).or_default().push(i);
     }
     let mut order: Vec<String> = Vec::new();
     for tag in verse_order.split_whitespace().take(MAX_ORDER_TAGS) {
         let code = letter_code(tag.chars().next());
         let num = tag.char_indices().nth(1).map(|(i, _)| &tag[i..]).unwrap_or("").trim().to_lowercase();
-        let found = if num.is_empty() { first_of_kind.get(&code).copied() } else {
-            by_tag.get(&(code, num.clone())).or_else(|| if num == "1" { by_tag.get(&(code, String::new())) } else { None }).map(|v| v[0])
-        };
+        let unnamed = |label: &str| by_tag.get(&(code, label.to_string(), String::new())).map(|v| v[0]);
+        let found = by_name.get(&tag.to_lowercase()).copied().or_else(|| if num.is_empty() {
+            first_unnamed.get(&code).or_else(|| first_of_kind.get(&code)).copied()
+        } else {
+            unnamed(&num).or_else(|| if num == "1" { unnamed("") } else { None })
+        });
         let Some(i) = found else { continue };
-        for &j in &by_tag[&(codes[i], verses[i].0.label.to_lowercase())] {
+        for &j in &by_tag[&tag_of(i)] {
             if order.len() < MAX_ORDER { order.push(written[j].clone()); }
         }
     }
