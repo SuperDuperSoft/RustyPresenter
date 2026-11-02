@@ -6,7 +6,7 @@ use crate::model::EndAction;
 use std::cell::RefCell;
 use std::ffi::c_int;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
@@ -43,6 +43,8 @@ impl Default for Options {
 #[derive(Clone, Debug, PartialEq)]
 pub struct PlayerReport {
     pub inst: u64,
+    /// The [`Player`] that sent it (unique in the process); 0 when none could be made.
+    pub player: u64,
     pub state: PlayState,
     pub position: f64,
     pub duration: f64,
@@ -118,11 +120,15 @@ const OBS_EOF: u64 = 4;
 /// Position reports at most this often (as the web room); state changes go out at once.
 const TICK: Duration = Duration::from_millis(500);
 
+/// Serials for [`Player::serial`]; 0 is never handed out.
+static SERIAL: AtomicU64 = AtomicU64::new(1);
+
 /// A libmpv instance playing one video/audio instance, with a thread turning its
 /// events into [`PlayerReport`]s.
 pub struct Player {
     core: Arc<Core>,
     inst: u64,
+    serial: u64,
     tx: Sender<PlayerReport>,
     name: Arc<Mutex<String>>,
     stop: Arc<AtomicBool>,
@@ -180,17 +186,23 @@ impl Player {
         }
         let name = Arc::new(Mutex::new(String::new()));
         let stop = Arc::new(AtomicBool::new(false));
-        let w = Watch { core: core.clone(), inst, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
+        let serial = SERIAL.fetch_add(1, Ordering::Relaxed);
+        let w = Watch { core: core.clone(), inst, serial, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
         let thread = match std::thread::Builder::new().name(format!("mpv-events-{inst}")).spawn(move || w.run()) {
             Ok(t) => t,
             Err(e) => return Err(format!("The video player could not start: {e}")),
         };
         let deferred = opts.vo == "libmpv";
-        Ok(Player { core, inst, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None), loaded: RefCell::new(None), lost: RefCell::new(None) })
+        Ok(Player { core, inst, serial, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None), loaded: RefCell::new(None), lost: RefCell::new(None) })
     }
 
     pub fn inst(&self) -> u64 {
         self.inst
+    }
+
+    /// Tells this player's reports from those of another player for the same instance.
+    pub fn serial(&self) -> u64 {
+        self.serial
     }
 
     /// Stores the drawing code's render context with this player and starts a
@@ -252,7 +264,7 @@ impl Player {
 
     /// Reports an error for this instance (e.g. it cannot be drawn).
     pub fn fail(&self, error: String) {
-        let _ = self.tx.send(PlayerReport { inst: self.inst, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(error) });
+        let _ = self.tx.send(PlayerReport { inst: self.inst, player: self.serial, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(error) });
     }
 
     pub fn set_paused(&self, paused: bool) {
@@ -287,6 +299,7 @@ impl Drop for Player {
 struct Watch {
     core: Arc<Core>,
     inst: u64,
+    serial: u64,
     tx: Sender<PlayerReport>,
     name: Arc<Mutex<String>>,
     stop: Arc<AtomicBool>,
@@ -367,7 +380,7 @@ impl Watch {
 
     fn send(&mut self, state: PlayState, error: Option<String>) {
         self.last_at = Instant::now();
-        let _ = self.tx.send(PlayerReport { inst: self.inst, state, position: self.position, duration: self.duration, error });
+        let _ = self.tx.send(PlayerReport { inst: self.inst, player: self.serial, state, position: self.position, duration: self.duration, error });
     }
 }
 
@@ -390,7 +403,7 @@ impl Players {
             None => Err(ffi::MISSING.into()),
         };
         r.map_err(|e| {
-            let _ = self.reports.send(PlayerReport { inst, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(e) });
+            let _ = self.reports.send(PlayerReport { inst, player: 0, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(e) });
         })
         .ok()
     }
@@ -633,7 +646,7 @@ mod tests {
 
     #[test]
     fn report_converts_to_room_event() {
-        let r = PlayerReport { inst: 9, state: PlayState::Paused, position: 1.5, duration: 30.0, error: None };
+        let r = PlayerReport { inst: 9, player: 1, state: PlayState::Paused, position: 1.5, duration: 30.0, error: None };
         match RoomEvent::from(r) {
             RoomEvent::Media { inst: 9, state: PlayState::Paused, position, duration, error: None } => assert_eq!((position, duration), (1.5, 30.0)),
             e => panic!("{e:?}"),
