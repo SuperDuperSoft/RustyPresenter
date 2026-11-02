@@ -19,6 +19,7 @@ pub fn gone_notice(role: &str) -> String {
     format!("The {} was unplugged. It comes back by itself when that screen is plugged in again.", named(role))
 }
 
+#[derive(Clone)]
 enum Win { Room(Rc<Room>), Stage(Rc<Stage>) }
 
 impl Win {
@@ -88,11 +89,22 @@ impl NativeScreens {
         self.look_at(list, main);
     }
 
-    /// Takes in the monitors connected now and acts on unplugs and returns.
+    /// Takes in the monitors connected now and acts on unplugs and returns, and puts back a window
+    /// that Windows moved off its monitor (unplugged and back between two looks).
     fn look_at(&self, list: Vec<MonitorId>, main: Option<MonitorId>) {
         let changes = DESK.with(|d| d.borrow_mut().watcher.step(&list));
         *self.seen.lock().unwrap() = (list, main);
         for c in changes { self.changed(c) }
+        let moved: Vec<_> = DESK.with(|d| {
+            let d = d.borrow();
+            d.wins.iter().filter_map(|(role, _, win, _)| {
+                let m = d.watcher.misplaced(role, monitors::current(win.window()).as_ref())?;
+                Some((role.clone(), win.clone(), m))
+            }).collect()
+        });
+        for (role, win, m) in moved {
+            if let Err(e) = monitors::refullscreen(win.window(), &m) { eprintln!("Could not put the {} back: {e}", named(&role)) }
+        }
     }
 
     /// Reopen room and stage from settings, never on the operator's (main) monitor by itself.
@@ -164,7 +176,7 @@ impl NativeScreens {
         DESK.with(|d| {
             let mut d = d.borrow_mut();
             d.wins.push((role.into(), id, win, guard));
-            match mon { Some(m) => d.watcher.watch(role, m), None => d.watcher.unwatch(role) }
+            match mon { Some(m) => d.watcher.watch(role, m, &self.seen.lock().unwrap().0), None => d.watcher.unwatch(role) }
         });
         self.sync_roles();
         Ok(())
