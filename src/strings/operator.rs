@@ -41,3 +41,6 @@ pub const SERVICE: &str = "Service";
 
 /// The core call never finished (its task panicked or the runtime is shutting down).
 pub const ACTION_STOPPED: &str = "That did not finish. Try again.";
+
+/// The title a deck from pictures gets when its name prompt is cancelled or left blank (`operator.js:591`).
+pub const DEFAULT_DECK_TITLE: &str = "Slides";
