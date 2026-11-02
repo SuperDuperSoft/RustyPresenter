@@ -6,6 +6,8 @@ import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
 import { LiveColumn, TransportCell } from "operator/live.slint";
 import { Layer } from "room.slint";
+import { DialogShell, DialogBody } from "dialogs/shell.slint";
+import { AskOverlay, AskRow } from "dialogs/ask.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -114,6 +116,22 @@ export component OperatorWindow inherits Window {
     }
 
     public function focus-bible() { top.focus-bible(); }
+
+    // The dialog layer (see `src/ui/dialogs`): one dialog at a time, swapped in place like the web `<dialog>`.
+    in property <bool> dialog-open;
+    in property <string> dialog-kind;
+    in property <string> dialog-title;
+    in property <bool> dialog-wide;
+    property <int> dialog-focus-serial;
+    callback dialog-close();
+    /// Gives the keyboard back to the open dialog (a question over it was answered).
+    public function focus-dialog() {
+        root.dialog-focus-serial += 1;
+        OperatorState.focus-in-text = false;
+    }
+    /// The question on top (none or one row): a confirm or prompt over the dialog or the bare window.
+    in property <[AskRow]> ask;
+    callback ask-answer(bool, string);
 
     /// Keys taken before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere, and
     /// Alt+1…6 in the Bible box, where the field would otherwise type the digit.
@@ -238,6 +256,27 @@ export component OperatorWindow inherits Window {
                     }
                 }
             }
+        }
+
+        if root.dialog-open: DialogShell {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
+            title: root.dialog-title;
+            wide: root.dialog-wide;
+            focus-serial: root.dialog-focus-serial;
+            close => { root.dialog-close(); }
+            DialogBody {}
+        }
+
+        for a in root.ask: AskOverlay {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
+            ask: a;
+            answer(ok, text) => { root.ask-answer(ok, text); }
         }
     }
 }

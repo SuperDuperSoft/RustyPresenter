@@ -402,7 +402,7 @@ mod window_tests {
     fn ctrl_b_with_dialog_open_leaves_bible_box_alone() {
         let app = test_app();
         let op = opened(&app);
-        op.state.borrow_mut().dialog = Some(DialogKind::Settings);
+        op.state.borrow_mut().dialog = Some(DialogKind::Settings(crate::ui::dialogs::SettingsTab::Look));
         chord(&op, Key::Control, "b");
         type_text(&op, "x");
         assert_eq!(op.ui.get_bible_text(), "", "the Bible box did not take focus");
@@ -429,7 +429,7 @@ mod window_tests {
         let id = add_text(&app, "A", "a1\n\na2");
         let op = opened(&app);
         show(&op, id, 0);
-        op.state.borrow_mut().dialog = Some(DialogKind::Add);
+        op.state.borrow_mut().dialog = Some(DialogKind::Add(crate::ui::dialogs::AddTab::Song));
         for k in [Key::RightArrow, Key::Space, Key::Return] { key(&op, k) }
         assert_eq!(cursor(&app), Some((id, 0)));
         // The F-keys still work.

@@ -1,0 +1,136 @@
+// The web operator's single `<dialog>` (`operator.css:145-153`, `operator.js:356-366`) as an in-window overlay:
+// Slint 1.18 has no modal or owner-window API (native spec §6). Every dialog is a `DialogShell` holding a
+// `DialogBody` and, when it has buttons, a `DialogFoot`.
+import { Theme } from "../theme.slint";
+import { Icon, ScrollBox } from "../widgets.slint";
+
+/// The scrim, the card with its head (title and X) and its own key scope. Esc closes it; F1–F5 still reach the
+/// window first (its `capture-key-pressed`), and every other key the dialog leaves alone stops at the window.
+/// The children go under the head: a `DialogBody` and an optional `DialogFoot`.
+export component DialogShell inherits Rectangle {
+    in property <string> title;
+    /// `min(1180px, 96vw)` instead of `min(920px, 94vw)`.
+    in property <bool> wide;
+    /// Bumped by the window to give the keyboard back to the dialog (a question over it was answered).
+    in property <int> focus-serial;
+    callback close();
+    changed focus-serial => { scope.focus(); }
+
+    background: Theme.dialog-scrim;
+
+    // The backdrop takes every click, so nothing under the dialog can be used.
+    TouchArea {}
+
+    scope := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        init => { self.focus(); }
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                root.close();
+                return accept;
+            }
+            reject
+        }
+
+        card := Rectangle {
+            width: root.wide ? min(1180px, root.width * 0.96) : min(920px, root.width * 0.94);
+            height: min(lay.preferred-height, root.height * 0.88);
+            x: (root.width - self.width) / 2;
+            y: (root.height - self.height) / 2;
+            background: Theme.panel;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 16px;
+            drop-shadow-blur: 80px;
+            drop-shadow-offset-y: 30px;
+            drop-shadow-color: Theme.shadow-dialog;
+            clip: true;
+            accessible-role: groupbox;
+            accessible-label: root.title;
+
+            // A click on the card's empty parts must not fall through to the backdrop's swallowing area only.
+            TouchArea {}
+
+            lay := VerticalLayout {
+                // `.dlg-head`
+                HorizontalLayout {
+                    padding-top: 18px;
+                    padding-bottom: 10px;
+                    padding-left: 22px;
+                    padding-right: 22px;
+                    spacing: 12px;
+                    title := Text {
+                        horizontal-stretch: 1;
+                        text: root.title;
+                        color: Theme.text;
+                        font-family: Theme.display;
+                        font-size: 20px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    // `.dlg-close`
+                    close-btn := Rectangle {
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 8px;
+                        background: close-ta.has-hover ? Theme.raise : transparent;
+                        accessible-role: button;
+                        accessible-label: @tr("Close");
+                        accessible-action-default => { root.close(); }
+                        Icon {
+                            name: "close";
+                            color: close-ta.has-hover ? Theme.text : Theme.muted;
+                        }
+                        close-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.close(); }
+                        }
+                    }
+                }
+                @children
+            }
+        }
+    }
+}
+
+/// `.dlg-body`: the scrolling part of a dialog, 8 22 18 padding.
+export component DialogBody inherits Rectangle {
+    in property <length> spacing: 0px;
+    vertical-stretch: 1;
+    min-height: 0px;
+    preferred-height: inner.preferred-height;
+    ScrollBox {
+        width: root.width;
+        height: root.height;
+        inner := VerticalLayout {
+            padding-top: 8px;
+            padding-bottom: 18px;
+            padding-left: 22px;
+            padding-right: 22px;
+            spacing: root.spacing;
+            @children
+        }
+    }
+}
+
+/// `.dlg-foot`: buttons on the right, a line above, 12 22 18 padding, 8 px gap.
+export component DialogFoot inherits VerticalLayout {
+    vertical-stretch: 0;
+    Rectangle {
+        height: 1px;
+        background: Theme.line;
+    }
+    HorizontalLayout {
+        padding-top: 12px;
+        padding-bottom: 18px;
+        padding-left: 22px;
+        padding-right: 22px;
+        spacing: 8px;
+        alignment: end;
+        @children
+    }
+}
