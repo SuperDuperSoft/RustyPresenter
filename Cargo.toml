@@ -29,6 +29,11 @@ slint = { version = "1.18", features = ["unstable-winit-030"] }
 glow = "0.18"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp"] }
+# Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
+reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls-no-provider"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+# Imported Bible files (Zefania, OSIS, USX, OpenSong).
+quick-xml = "0.38.4"
 
 [build-dependencies]
 tauri-build = "2"

@@ -271,6 +271,57 @@ impl App {
 
     fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
 
+    /// The standard list plus any other Bible the church imported.
+    pub fn translations(&self) -> Vec<String> {
+        let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
+        for b in bible::import::all(&self.store.root) { if !out.contains(&b.abbreviation) { out.push(b.abbreviation.clone()); } }
+        out
+    }
+
+    /// Translations that can be looked up now: built in, imported, or a licensed source whose key is saved.
+    pub fn available_translations(&self) -> Vec<String> {
+        self.bible_sources().into_iter().filter(|s| s["status"] != "needs_key" && s["status"] != "unavailable")
+            .filter_map(|s| s["translation"].as_str().map(String::from)).collect()
+    }
+
+    /// Per-translation source details for Settings → Bible. Never includes the keys themselves.
+    fn bible_sources(&self) -> Vec<Value> {
+        use bible::sources::{Secrets, source_with};
+        let root = &self.store.root;
+        let secrets = Secrets::load(root);
+        self.translations().iter().map(|t| {
+            if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
+                return json!({ "translation": t, "status": "offline", "provider": format!("{name} — built in, public domain") });
+            }
+            if let Some(b) = bible::import::get(root, t) {
+                return json!({ "translation": t, "status": "offline", "imported": true, "provider": format!("{} — imported file", b.name), "copyright": b.copyright });
+            }
+            match source_with(t, &secrets) {
+                Some(s) => json!({
+                    "translation": t,
+                    "status": if secrets.key(s.provider).is_some() { "online" } else { "needs_key" },
+                    "provider": s.provider.label(),
+                    "providers": bible::sources::sources(t).map(|s| s.provider.key_name()).collect::<Vec<_>>(),
+                    "copyright": s.copyright,
+                }),
+                None => json!({ "translation": t, "status": "unavailable" }),
+            }
+        }).collect()
+    }
+
+    /// The online services a church can connect, for Settings → Bible.
+    fn bible_providers(&self) -> Vec<Value> {
+        let secrets = bible::sources::Secrets::load(&self.store.root);
+        bible::sources::PROVIDERS.iter().map(|p| json!({
+            "id": p.key_name(),
+            "label": p.label(),
+            "signup_url": p.signup_url(),
+            "note": p.setup_note(),
+            "key_set": secrets.key(*p).is_some(),
+            "translations": bible::sources::SOURCES.iter().filter(|s| s.provider == *p).map(|s| s.translation).collect::<Vec<_>>(),
+        })).collect()
+    }
+
     pub fn state_json(&self) -> Value {
         let data = self.data.lock().unwrap();
         let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
@@ -286,8 +337,10 @@ impl App {
             "windows": windows,
             "ffmpeg": media::ffmpeg().is_some(),
             "lan_url": self.lan_url,
-            "translations": bible::TRANSLATIONS,
-            "available_translations": ["KJV"],
+            "translations": self.translations(),
+            "available_translations": self.available_translations(),
+            "bible_sources": self.bible_sources(),
+            "bible_providers": self.bible_providers(),
             "backups": self.store.backups(),
             "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name })).collect::<Vec<_>>(),
             "jobs": *self.jobs.lock().unwrap(),
@@ -418,11 +471,36 @@ impl App {
         "bible/lookup" => {
             #[derive(Deserialize)] struct L { reference: String, translation: String }
             let L { reference, translation } = parse(body)?;
-            if translation != "KJV" {
-                return Err(ActionError::bad(format!("{translation} isn't set up yet. It needs a licensed text source; KJV works now.")));
-            }
-            let (label, verses) = tryr!(bible::kjv().lookup(&reference));
+            // Built in, then a file the church imported (works offline, wins over any online source), then online.
+            let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
+                else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
+                else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
             Ok(json!({ "label": label, "verses": verses, "translation": translation }))
+        }
+        "bible/key" => {
+            // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
+            #[derive(Deserialize)] struct K { provider: String, key: String }
+            let K { provider, key } = parse(body)?;
+            let p = bible::sources::Provider::from_key_name(&provider).ok_or_else(|| ActionError::bad("Unknown Bible service."))?;
+            tryr!(bible::sources::set_key(&app.store.root, p, &key).await);
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        // The body is the raw file. `bible/import/-` keeps the file's own short name.
+        a if a.starts_with("bible/import/") => {
+            let abbr = a["bible/import/".len()..].trim_matches('-').to_string();
+            let (root, bytes) = (app.store.root.clone(), body.to_vec());
+            let b = tokio::task::spawn_blocking(move || bible::import::import(&root, &bytes, &abbr)).await.map_err(|e| ActionError::bad(e.to_string()))?;
+            let b = tryr!(b);
+            app.broadcast_data();
+            Ok(json!({ "abbreviation": b.abbreviation, "name": b.name, "copyright": b.copyright, "verses": b.len() }))
+        }
+        "bible/import-remove" => {
+            #[derive(Deserialize)] struct R { translation: String }
+            let R { translation } = parse(body)?;
+            tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string()));
+            app.broadcast_data();
+            Ok(json!({}))
         }
         // ---- media & decks ----
         "media/rename" => {

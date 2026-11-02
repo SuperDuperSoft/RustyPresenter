@@ -904,10 +904,30 @@ function openSettings(tab = 'look') {
       h('div', { class: 'field' }, h('label', {}, 'Lines per slide'), seg([[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6']], () => st.lines_per_slide, v => st.lines_per_slide = v)),
       h('div', { class: 'field' }, h('label', {}, 'Song credits'), seg([['first', 'On first slide'], ['last', 'On last slide'], ['none', 'Off']], () => st.credits, v => st.credits = v)),
       h('div', { class: 'field' }, h('label', {}, 'Church CCLI license #'), h('input', { type: 'text', value: st.church_ccli, oninput: e => st.church_ccli = e.target.value }))),
-    bible: () => h('div', {},
-      h('div', { class: 'note' }, h('b', {}, 'KJV is built in and works offline. '), 'NIV, ESV, CSB, HCSB and NLT are copyrighted. Each needs a licensed text source (an API key or a licensed download) before it can be turned on. Those sources are being checked as part of the project plan (F5).'),
-      h('div', { class: 'list' }, ...S.translations.map(t => h('div', { class: 'row' }, h('div', { class: 'main' }, h('div', { class: 't' }, t)),
-        h('span', { class: 'status-chip ' + (S.available_translations.includes(t) ? 'ok' : 'warn') }, S.available_translations.includes(t) ? 'Ready — offline' : 'Needs a licensed source'))))),
+    bible: () => {
+      const CHIP = { offline: ['ok', 'Ready — offline'], online: ['ok', 'Ready — online'], needs_key: ['warn', 'Needs a free key'], unavailable: ['warn', 'No source yet'] };
+      const redraw = () => content.replaceChildren(pages.bible());
+      const keyRow = b => {
+        const input = h('input', { type: 'password', placeholder: b.status === 'online' ? 'Key saved — paste a new one to replace it' : 'Paste the key here', style: 'flex:1;min-width:0' });
+        const save = guard(async () => { await api('bible/key', { translation: b.translation, key: input.value }); await refresh(); redraw(); toast(input.value.trim() ? `${b.translation} is ready` : `${b.translation} key removed`); });
+        return h('div', { style: 'padding:4px 12px 12px' },
+          h('div', { class: 's', style: 'margin-bottom:6px;color:var(--muted)' }, '1. Make a free account and an “application” at ',
+            h('span', { class: 'copy' }, b.signup_url), ' ',
+            h('button', { class: 'btn small', onclick: () => { navigator.clipboard.writeText(b.signup_url); toast('Link copied — paste it into your browser'); } }, svg(I.copy), 'Copy link'),
+            h('br'), '2. Paste the key it gives you here. RustyPresenter checks it with one lookup, then keeps it on this computer only.'),
+          h('div', { style: 'display:flex;gap:8px' }, input,
+            h('button', { class: 'btn small primary', onclick: save }, 'Save key'),
+            b.status === 'online' ? h('button', { class: 'btn small', onclick: () => { input.value = ''; save(); } }, 'Remove') : null));
+      };
+      const credits = S.bible_sources.filter(b => b.status === 'online' && b.copyright);
+      return h('div', {},
+        h('div', { class: 'note' }, h('b', {}, 'KJV, WEB and BSB are built in and work offline. '), 'The other translations are copyrighted. Each one comes from its publisher’s free service with a key your church makes once. Passages you add to a service are saved with the service, so they still show if the internet drops.'),
+        h('div', { class: 'list' }, ...S.bible_sources.map(b => h('div', {},
+          h('div', { class: 'row' }, h('div', { class: 'main' }, h('div', { class: 't' }, b.translation), h('div', { class: 's' }, b.provider || 'No licensed source available yet')),
+            h('span', { class: 'status-chip ' + CHIP[b.status][0] }, CHIP[b.status][1])),
+          b.signup_url ? keyRow(b) : null))),
+        credits.length ? h('div', { class: 'note', style: 'margin-top:12px;font-size:12.5px' }, ...credits.map(b => h('div', { style: 'margin-bottom:6px' }, b.copyright))) : null);
+    },
     video: () => h('div', {},
       h('div', { class: 'note' }, S.ffmpeg
         ? [h('b', {}, '✓ Video converter installed. '), 'Any video you add (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG…) is converted once so it plays smoothly.']

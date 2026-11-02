@@ -1,6 +1,13 @@
 //! Bible references and the bundled King James Version.
-//! Other translations need a licensed source (spec §8.5) and report "not set up".
+//! Copyrighted translations come from licensed online sources (`sources`, spec §8.5).
 use crate::model::VerseText;
+
+pub mod api_bible;
+pub mod esv;
+pub mod import;
+pub mod nlt;
+pub mod sources;
+pub mod youversion;
 use std::{collections::BTreeMap, sync::OnceLock};
 
 /// (code in the eBible KJV source, display name, extra aliases)
@@ -24,16 +31,31 @@ pub const BOOKS: &[(&str, &str, &str)] = &[
     ("2JO", "2 John", "2jn 2jo 2jhn"), ("3JO", "3 John", "3jn 3jo 3jhn"), ("JUD", "Jude", "jude jud"), ("REV", "Revelation", "rev re rv revelations"),
 ];
 
-pub const TRANSLATIONS: &[&str] = &["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV"];
+pub const TRANSLATIONS: &[&str] = &["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV", "WEB", "BSB"];
+
+/// Public-domain texts in the app (eBible.org verse-per-line files, see assets/bibles/SOURCE.html): they work offline with no setup.
+pub const BUILT_IN: &[(&str, &str)] = &[("KJV", "King James Version"), ("WEB", "World English Bible"), ("BSB", "Berean Standard Bible")];
 
 pub struct Kjv {
     verses: BTreeMap<(u8, u16, u16), String>,
 }
 
 static KJV: OnceLock<Kjv> = OnceLock::new();
+static WEB: OnceLock<Kjv> = OnceLock::new();
+static BSB: OnceLock<Kjv> = OnceLock::new();
 
 pub fn kjv() -> &'static Kjv {
     KJV.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/kjv.txt")))
+}
+
+/// A bundled public-domain translation, parsed on first use.
+pub fn built_in(translation: &str) -> Option<&'static Kjv> {
+    match translation {
+        "KJV" => Some(kjv()),
+        "WEB" => Some(WEB.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/web.txt")))),
+        "BSB" => Some(BSB.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/bsb.txt")))),
+        _ => None,
+    }
 }
 
 /// Remove source markup: paragraph marks and the brackets around supplied words.
@@ -58,14 +80,18 @@ impl Kjv {
     pub fn len(&self) -> usize { self.verses.len() }
     pub fn is_empty(&self) -> bool { self.verses.is_empty() }
 
+    /// Verses in a book (KJV versification); used for the "half a book" storage limits.
+    pub fn book_len(&self, book: u8) -> usize {
+        self.verses.range((book, 0, 0)..=(book, u16::MAX, u16::MAX)).count()
+    }
+
     fn last_verse(&self, book: u8, chapter: u16) -> Option<u16> {
         self.verses.range((book, chapter, 0)..=(book, chapter, u16::MAX)).next_back().map(|(k, _)| k.2)
     }
 
     pub fn lookup(&self, input: &str) -> Result<(String, Vec<VerseText>), String> {
         let r = parse_reference(input)?;
-        let name = BOOKS[r.book as usize].1;
-        let display = if name == "Psalms" { "Psalm" } else { name };
+        let display = display_name(r.book);
         let mut out = Vec::new();
         for part in &r.parts {
             let (sc, sv) = part.start;
@@ -75,13 +101,15 @@ impl Kjv {
             let mut c = sc;
             let mut v = sv.unwrap_or(1);
             loop {
+                // A range can run past the book's last chapter (Jude 1:1-3:1).
+                let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
                 match self.verses.get(&(r.book, c, v)) {
                     Some(t) => out.push(VerseText { reference: format!("{display} {c}:{v}"), text: t.clone() }),
                     None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
                     None => {}
                 }
                 if c == ec && v >= ev_resolved { break; }
-                if self.last_verse(r.book, c).is_some_and(|last| v >= last) { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
+                if v >= last { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
                 if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
             }
             if ev.is_some() && !out.iter().any(|x| x.reference == format!("{display} {ec}:{ev_resolved}")) {
@@ -158,7 +186,13 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     Ok(Reference { book, parts })
 }
 
-fn canonical(r: &Reference, display: &str) -> String {
+/// Book name as shown in a reference ("Psalm 23", not "Psalms 23").
+pub fn display_name(book: u8) -> &'static str {
+    let name = BOOKS[book as usize].1;
+    if name == "Psalms" { "Psalm" } else { name }
+}
+
+pub fn canonical(r: &Reference, display: &str) -> String {
     let mut out = String::new();
     let mut chapter = 0;
     for (i, p) in r.parts.iter().enumerate() {
@@ -218,6 +252,12 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
     }
 
     #[test]
+    fn range_past_the_last_chapter_of_a_short_book_is_an_error_not_a_hang() {
+        let err = kjv().lookup("Jude 1:1-3:1").unwrap_err();
+        assert_eq!(err, "Jude 2 does not exist.");
+    }
+
+    #[test]
     fn cleans_markup() {
         let k = Kjv::parse(SAMPLE);
         assert_eq!(k.lookup("Ps 23:1").unwrap().1[0].text, "The LORD is my shepherd; I shall not want.");
@@ -241,5 +281,17 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
     fn full_bundled_kjv_has_the_protestant_canon() {
         let k = kjv();
         if k.len() > 1000 { assert_eq!(k.len(), 31102); }
+    }
+
+    #[test]
+    fn web_and_bsb_are_built_in() {
+        for t in ["WEB", "BSB"] {
+            let b = built_in(t).unwrap();
+            assert!(b.len() > 31_000, "{t} has {} verses", b.len());
+            let (label, v) = b.lookup("John 3:16").unwrap();
+            assert_eq!(label, "John 3:16");
+            assert!(v[0].text.starts_with("For God so loved the world"), "{t}: {}", v[0].text);
+        }
+        assert!(built_in("ESV").is_none());
     }
 }
