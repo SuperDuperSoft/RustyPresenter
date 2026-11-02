@@ -7,7 +7,8 @@
 pub struct KeepAwake { inner: Option<Inner> }
 
 impl KeepAwake {
-    /// Ask the system to stay awake; `reason` is shown where the system lists who is keeping it awake.
+    /// Ask the system to stay awake. On Linux `reason` is shown where the desktop lists who is
+    /// keeping it awake; Windows and macOS have no place for it and ignore it.
     pub fn acquire(reason: &str) -> KeepAwake {
         let inner = Inner::start(reason).map_err(|e| eprintln!("could not keep the screen awake: {e}")).ok();
         KeepAwake { inner }
@@ -24,7 +25,7 @@ impl Drop for KeepAwake {
 /// The helper programs that hold the request on macOS and Linux.
 #[derive(Clone, Copy)]
 #[cfg_attr(not(unix), allow(dead_code))]
-enum Helper { Caffeinate, SystemdInhibit }
+enum Helper { Caffeinate, GnomeSessionInhibit, SystemdInhibit }
 
 /// The helper's program and arguments. Both end by themselves once `pid` (ours) is gone, so a
 /// crash never leaves the computer stuck awake.
@@ -33,15 +34,28 @@ fn command_line(helper: Helper, reason: &str, pid: u32) -> (String, Vec<String>)
     match helper {
         // -d keeps the display on, -i stops idle sleep, -w exits when our process does.
         Helper::Caffeinate => ("/usr/bin/caffeinate".into(), ["-d", "-i", "-w"].map(String::from).into_iter().chain([pid.to_string()]).collect()),
-        // An idle inhibitor through logind, which GNOME and KDE honour for blanking and dimming too.
-        // The lock lasts while the shell runs: until we exit, or until systemd-inhibit itself (the
-        // shell's parent) is killed when the guard drops. The reason is its own argument, never shell text.
+        // GNOME blanks the screen on its own session-manager inhibitors, not logind's, so on GNOME
+        // this is the one that keeps the screen on (idle) and the computer up (suspend). Elsewhere
+        // it is missing or exits at once, and we fall back to systemd-inhibit. Not yet tried on a
+        // real GNOME machine.
+        Helper::GnomeSessionInhibit => ("gnome-session-inhibit".into(), vec![
+            "--inhibit".into(), "idle:suspend".into(), "--app-id".into(), "RustyPresenter".into(),
+            "--reason".into(), reason.into(), "sh".into(), "-c".into(), watch_script(pid),
+        ]),
+        // An idle and sleep inhibitor through logind. KDE honours it for blanking and dimming too;
+        // GNOME only for sleep, hence the helper above. The reason is its own argument, never shell text.
         Helper::SystemdInhibit => ("systemd-inhibit".into(), vec![
             "--what=idle:sleep".into(), "--who=RustyPresenter".into(), format!("--why={reason}"), "--mode=block".into(),
-            "sh".into(), "-c".into(),
-            format!("while kill -0 {pid} 2>/dev/null && kill -0 $PPID 2>/dev/null; do sleep 5; done"),
+            "sh".into(), "-c".into(), watch_script(pid),
         ]),
     }
+}
+
+/// The command the Linux helpers hold their lock around. It runs until we exit, or until the
+/// helper itself (the shell's parent) is killed when the guard drops.
+#[cfg_attr(not(unix), allow(dead_code))]
+fn watch_script(pid: u32) -> String {
+    format!("while kill -0 {pid} 2>/dev/null && kill -0 $PPID 2>/dev/null; do sleep 5; done")
 }
 
 /// Windows: the request belongs to the thread that made it, so a small thread makes it, waits
@@ -97,12 +111,37 @@ struct Inner { child: std::process::Child }
 #[cfg(unix)]
 impl Inner {
     fn start(reason: &str) -> Result<Inner, String> {
+        let helpers: &[Helper] = if cfg!(target_os = "macos") { &[Helper::Caffeinate] }
+            else { &[Helper::GnomeSessionInhibit, Helper::SystemdInhibit] };
+        let mut errors = Vec::new();
+        for &helper in helpers {
+            match Self::spawn(helper, reason) {
+                Ok(inner) => return Ok(inner),
+                Err(e) => errors.push(e),
+            }
+        }
+        Err(errors.join("; "))
+    }
+
+    fn spawn(helper: Helper, reason: &str) -> Result<Inner, String> {
+        use std::os::unix::process::CommandExt;
         use std::process::{Command, Stdio};
-        let helper = if cfg!(target_os = "macos") { Helper::Caffeinate } else { Helper::SystemdInhibit };
+        use std::time::{Duration, Instant};
         let (program, args) = command_line(helper, reason, std::process::id());
-        // Missing (no systemd here) is the usual failure; the guard then does nothing.
-        let child = Command::new(&program).args(&args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null())
-            .spawn().map_err(|e| format!("{program}: {e}"))?;
+        // Missing (no systemd here) is the usual failure; the guard then does nothing. Its own
+        // process group keeps Ctrl-C in a terminal from ending the hold behind the app's back.
+        let mut child = Command::new(&program).args(&args).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null())
+            .process_group(0).spawn().map_err(|e| format!("{program}: {e}"))?;
+        // Started is not holding: with no logind or D-Bus, or when the session may not inhibit
+        // (SSH, an inactive seat), the helper exits straight away. Give it a moment to refuse.
+        let deadline = Instant::now() + Duration::from_millis(150);
+        while Instant::now() < deadline {
+            match child.try_wait() {
+                Ok(Some(status)) => return Err(format!("{program} exited at once ({status})")),
+                Ok(None) => std::thread::sleep(Duration::from_millis(15)),
+                Err(e) => { let _ = child.kill(); let _ = child.wait(); return Err(format!("{program}: {e}")) }
+            }
+        }
         Ok(Inner { child })
     }
 
@@ -128,18 +167,22 @@ mod tests {
 
     fn assert_send<T: Send>() {}
 
+    /// Systems where the request always works: Windows always answers, and macOS always ships
+    /// caffeinate. Linux depends on the desktop (CI runners often have no logind), so it is not asserted.
+    const HOLDS_HERE: bool = cfg!(any(windows, target_os = "macos"));
+
     #[test]
     fn acquire_and_drop() {
         assert_send::<KeepAwake>();
         let guard = KeepAwake::acquire("test");
-        if cfg!(windows) { assert!(guard.is_active()) }
+        if HOLDS_HERE { assert!(guard.is_active()) }
         drop(guard);
     }
 
     #[test]
     fn two_guards_at_once() {
         let (a, b) = (KeepAwake::acquire("one"), KeepAwake::acquire("two"));
-        if cfg!(windows) { assert!(a.is_active() && b.is_active()) }
+        if HOLDS_HERE { assert!(a.is_active() && b.is_active()) }
         drop(a);
         drop(b);
     }
@@ -150,7 +193,7 @@ mod tests {
         let active = guard.is_active();
         let back = std::thread::spawn(move || { let a = guard.is_active(); drop(guard); a }).join().unwrap();
         assert_eq!(back, active);
-        if cfg!(windows) { assert!(back) }
+        if HOLDS_HERE { assert!(back) }
     }
 
     #[test]
@@ -169,6 +212,18 @@ mod tests {
         // The reason is its own argument, never part of the shell script.
         assert!(!args[6].contains("Sunday"));
         assert!(args[6].contains("kill -0 4242"));
+        // Also ends when systemd-inhibit itself is killed.
+        assert!(args[6].contains("kill -0 $PPID"));
         assert_eq!(args.len(), 7);
+    }
+
+    #[test]
+    fn gnome_command_inhibits_idle_and_suspend_until_we_exit() {
+        let (program, args) = command_line(Helper::GnomeSessionInhibit, "Presenting \"Sunday\"; rm -rf", 4242);
+        assert_eq!(program, "gnome-session-inhibit");
+        assert_eq!(&args[..8], ["--inhibit", "idle:suspend", "--app-id", "RustyPresenter", "--reason", "Presenting \"Sunday\"; rm -rf", "sh", "-c"]);
+        assert!(!args[8].contains("Sunday"));
+        assert!(args[8].contains("kill -0 4242") && args[8].contains("kill -0 $PPID"));
+        assert_eq!(args.len(), 9);
     }
 }
