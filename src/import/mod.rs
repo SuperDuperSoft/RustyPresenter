@@ -1,8 +1,12 @@
 //! Importing decks and media (Plan 4). Imports work in a private folder under `store.tmp()` and publish only
 //! when every asset is in the store, so a failed or cancelled import adds nothing.
+use crate::{app::App, platform::tools};
+use std::future::Future;
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
+pub mod deck;
 pub mod libreoffice;
 pub mod media;
 pub mod pdf;
@@ -12,6 +16,26 @@ pub mod sniff;
 
 #[path = "../strings/import.rs"]
 pub mod strings;
+
+/// At start-up of either binary: finds the converters and hands them to `App`. The returned future does what can
+/// wait, and is for the runtime to run: it clears away a LibreOffice left by a dead app, then warms up a new one.
+pub fn init(app: &Arc<App>) -> impl Future<Output = ()> + Send + 'static {
+    let root = app.store.root.clone();
+    let pdf = match pdf::PdfRenderer::start(&root) {
+        Ok(pdf) => Some(Arc::new(pdf)),
+        Err(e) => { eprintln!("Presentations will not import: {e}"); None }
+    };
+    let powerpoint = tools::powerpoint_installed().then(powerpoint::PowerPoint::new);
+    let converters = Arc::new(deck::Converters::new(Box::new(tools::find_soffice), pdf, powerpoint, root.clone()));
+    app.set_converters(converters.clone());
+    async move {
+        let deps = root.join("deps");
+        let _ = tokio::task::spawn_blocking(move || libreoffice::kill_leftover(&deps)).await;
+        if let Some(lo) = converters.libreoffice() {
+            lo.warm_up().await;
+        }
+    }
+}
 
 /// What a cancelled import reports. No toast is shown for it.
 pub const CANCELLED: &str = "Cancelled.";

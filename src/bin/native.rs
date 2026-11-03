@@ -45,6 +45,7 @@ fn main() {
     println!("  Video drawing: {}{}\n", if mode == video::DrawMode::OpenGl { "GPU (OpenGL)" } else { "software" }, if mpv.is_none() { ", video player missing" } else { "" });
 
     rustypresenter::import::media::at_start(&app, mpv.clone(), rt.handle());
+    rt.spawn(rustypresenter::import::init(&app));
 
     let native = NativeScreens::new(&app, Renderer::new(), mpv);
     app.set_screens(native.clone());

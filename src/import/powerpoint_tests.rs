@@ -73,6 +73,15 @@ impl Fx {
     }
 }
 
+/// A `PowerPoint` that runs the stand-in, for other modules' tests.
+pub(crate) fn fake(steps: &str, dir: &Path) -> PowerPoint {
+    let mut ppt = PowerPoint::new();
+    ppt.program = std::env::current_exe().unwrap();
+    ppt.extra_env = vec![(FAKE.into(), steps.into()), (MARK.into(), dir.join("ppt-mark").display().to_string()), (CLEAN.into(), String::new())];
+    ppt.prefix_args = ["--exact", NAME, "--nocapture", "--"].map(OsString::from).to_vec();
+    ppt
+}
+
 fn fixture_with(steps: &str, clean: &str) -> Fx {
     let dir = std::env::temp_dir().join(format!("rp-ppt-{}", uuid::Uuid::new_v4()));
     let out = dir.join("slides");
@@ -92,7 +101,7 @@ fn fixture(steps: &str) -> Fx {
 }
 
 /// A whole good run of `n` slides at 16:9.
-fn good(n: usize) -> String {
+pub(crate) fn good(n: usize) -> String {
     let mut s = format!("say:COUNT+{n},say:SIZE+960+540");
     for i in 1..=n {
         s += &format!(",png:{i}:1920:1080,say:SLIDE+{i}+{n}");

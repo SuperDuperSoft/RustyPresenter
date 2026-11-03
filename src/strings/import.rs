@@ -38,3 +38,20 @@ pub const WAITING_FOR_FILE: &str = "Waiting for another file…";
 pub fn adding(name: &str) -> String {
     format!("Adding “{name}”")
 }
+
+// Importing a presentation (Plan 4 Task 6c).
+pub fn importing(name: &str) -> String {
+    format!("Importing “{name}”")
+}
+pub const KEYNOTE_PACKAGE: &str = "Save the Keynote file as a single file and import again.";
+pub const WAITING_FOR_LIBREOFFICE: &str = "Waiting for LibreOffice…";
+pub const WAITING_FOR_POWERPOINT: &str = "Waiting for PowerPoint…";
+/// `App::job_note` keeps this one beside any other note.
+pub const FALLBACK_NOTE: &str = "PowerPoint couldn't open it; used LibreOffice.";
+pub const LIBREOFFICE_NOTE: &str = "Imported with LibreOffice — check the slides.";
+pub fn slide_count_differs(expected: usize, imported: usize) -> String {
+    format!("{expected} slides were expected but {imported} were imported.")
+}
+pub fn install_libreoffice(hint: &str) -> String {
+    format!("To import presentations, install LibreOffice. {hint}")
+}

@@ -341,4 +341,4 @@ fn finished(heard: &Heard, out: &Path) -> Result<Vec<PathBuf>, String> {
 
 #[cfg(test)]
 #[path = "powerpoint_tests.rs"]
-mod tests;
+pub(crate) mod tests;

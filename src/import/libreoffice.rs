@@ -51,6 +51,11 @@ impl LibreOffice {
         })
     }
 
+    /// A Snap LibreOffice is found, but cannot read files outside its box.
+    pub fn is_snap(&self) -> bool {
+        self.soffice.snap
+    }
+
     pub fn args(&self, input: &Path, out_dir: &Path) -> Result<Vec<OsString>, String> {
         let mut args = self.common_args()?;
         args.push("--convert-to".into());
@@ -260,7 +265,7 @@ fn leads_libreoffice(pid: i32) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
@@ -340,6 +345,16 @@ mod tests {
         fn drop(&mut self) {
             let _ = std::fs::remove_dir_all(&self.dir);
         }
+    }
+
+    /// A `LibreOffice` that runs the stand-in, for other modules' tests. Its marks go to `dir/mark`.
+    pub(crate) fn fake(steps: &str, dir: &Path) -> Arc<LibreOffice> {
+        let mut lo = LibreOffice::new(Soffice { path: std::env::current_exe().unwrap(), snap: false }, dir);
+        let m = Arc::get_mut(&mut lo).unwrap();
+        let profile = m.profile.display().to_string();
+        m.extra_env = vec![(FAKE.into(), steps.into()), (MARK.into(), dir.join("mark").display().to_string()), (PROFILE.into(), profile)];
+        m.prefix_args = ["--exact", NAME, "--nocapture", "--"].map(OsString::from).to_vec();
+        lo
     }
 
     fn fixture(steps: &str, snap: bool) -> Fx {

@@ -117,8 +117,7 @@ pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crat
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
 
-/// Says a PowerPoint import fell back to LibreOffice. `App::job_note` keeps it beside a later note.
-pub(crate) const FALLBACK_NOTE: &str = "PowerPoint couldn't open it; used LibreOffice.";
+use crate::import::strings::FALLBACK_NOTE;
 
 /// A background job. The fields added for Plan 4 are left out of the JSON when unset, so the web operator's
 /// `jobs` stay as they were for an ordinary job.
@@ -183,6 +182,8 @@ pub struct App {
     resume: Mutex<HashMap<u64, f64>>,
     /// The player that probes use; set once at start-up. Holds `None` when libmpv is missing.
     probe_mpv: OnceLock<Option<Arc<crate::video::ffi::Mpv>>>,
+    /// The deck converters; set once at start-up by `import::init`.
+    converters: OnceLock<Arc<import::deck::Converters>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -210,7 +211,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
         })
     }
 
@@ -343,6 +344,15 @@ impl App {
         self.probe_mpv.get().cloned().flatten()
     }
 
+    pub fn set_converters(&self, converters: Arc<import::deck::Converters>) {
+        let _ = self.converters.set(converters);
+    }
+    pub fn converters(&self) -> Option<Arc<import::deck::Converters>> {
+        self.converters.get().cloned()
+    }
+
+    /// A job with no Cancel button. Every real import has one, so only tests start these.
+    #[cfg(test)]
     pub(crate) fn job_start(&self, label: &str) -> Uuid {
         let id = Uuid::new_v4();
         self.jobs.lock().unwrap().push(Job { id, label: label.into(), ..Job::default() });
@@ -864,6 +874,10 @@ impl App {
     /// store's tmp, never moved: it is the user's file. `progress` gets 0..=100 as bytes are copied and hashed.
     pub async fn import_path(self: &Arc<Self>, path: &Path, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static) -> Result<Imported, ActionError> {
         let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        // A Keynote package is a folder. There is nothing to copy, and `start` says what to do about it.
+        if purpose == ImportPurpose::PowerPoint && path.is_dir() {
+            return Ok(Imported::Job(import::deck::start(self.clone(), path.to_path_buf(), name)));
+        }
         let tmp = self.store.tmp().join(format!("{}.part", Uuid::new_v4()));
         let (src, dst, shown) = (path.to_path_buf(), tmp.clone(), name.clone());
         let sha = tokio::task::spawn_blocking(move || -> Result<String, String> {
@@ -911,28 +925,7 @@ impl App {
                 let (id, title, duplicate_of) = app.import_song(&String::from_utf8_lossy(&bytes), SongImportMode::Ask).map_err(ActionError::bad)?;
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
-            ImportPurpose::PowerPoint => {
-                let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
-                let _ = std::fs::create_dir_all(&dir);
-                let input = dir.join(format!("input.{ext}"));
-                if std::fs::rename(&tmp, &input).is_err() { let _ = std::fs::remove_file(&tmp); return Err(ActionError::bad("Could not stage the presentation.")); }
-                let job = app.job_start(&format!("Importing “{display}” from PowerPoint"));
-                let app2 = app.clone();
-                tokio::spawn(async move {
-                    let result = async {
-                        let pngs = media::export_powerpoint(&input, &dir.join("out")).await?;
-                        let mut assets = vec![];
-                        for (i, p) in pngs.iter().enumerate() {
-                            assets.push(app2.store.import_file(p, "png").map_err(|e| e.to_string())?);
-                            app2.job_progress(job, ((i + 1) * 100 / pngs.len()) as u8);
-                        }
-                        app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
-                    }.await;
-                    let _ = std::fs::remove_dir_all(&dir);
-                    app2.job_end(job, result.err());
-                });
-                return Ok(Imported::Job(job));
-            }
+            ImportPurpose::PowerPoint => return Ok(Imported::Job(import::deck::start(app.clone(), tmp, display))),
             ImportPurpose::Asset | ImportPurpose::Media => {}
         }
 
