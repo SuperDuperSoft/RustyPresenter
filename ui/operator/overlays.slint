@@ -6,8 +6,9 @@ import { Bar, CloseButton, DashedOutline } from "../widgets.slint";
 export struct ToastRow { id: int, text: string, err: bool }
 
 /// One card of the jobs box (`renderJobs()` in `operator.js:281-290`): a client upload or a server job.
-/// `error` is empty while the job runs; percent is 0–100.
-export struct JobRow { id: string, label: string, percent: int, error: string }
+/// `error` is empty while the job runs; percent is 0–100. `done` is a job that ended well and is listed only for its
+/// `note`. A client upload is never `cancellable`.
+export struct JobRow { id: string, label: string, percent: int, error: string, note: string, cancellable: bool, done: bool }
 
 /// `.toast` (`.err`): pops in with an 8 px rise and a fade over 180 ms (`@keyframes pop`). The card is drawn
 /// apart from the toast's layout slot so it can rise into it.
@@ -76,21 +77,25 @@ export component ToastStack inherits Rectangle {
 }
 
 /// `.dlg-close` as the job error card uses it: a muted ✕ that lights up on hover.
-/// `.job` (`.err`): the label, and either a progress bar or the error with a close button.
+/// `.job` (`.err`): the label, and either a progress bar or the error with a close button. A note reads like the
+/// error but is not red; once the job is done it has a close button too. A running cancellable job has a Cancel (×).
 component JobCard inherits Rectangle {
     in property <JobRow> job;
     callback dismiss();
+    callback cancel();
+    property <bool> failed: root.job.error != "";
+    property <bool> over: root.failed || root.job.done;
 
     background: Theme.panel-2;
     border-width: 1px;
-    border-color: root.job.error != "" ? Theme.toast-err-border : Theme.line;
+    border-color: root.failed ? Theme.toast-err-border : Theme.line;
     border-radius: 10px;
     drop-shadow-blur: 30px;
     drop-shadow-offset-y: 10px;
     drop-shadow-color: Theme.shadow-job;
     accessible-role: progress-indicator;
     accessible-label: root.job.label;
-    accessible-value: root.job.error != "" ? root.job.error : "\{root.job.percent}";
+    accessible-value: root.failed ? root.job.error : root.job.done ? root.job.note : "\{root.job.percent}";
 
     VerticalLayout {
         padding-top: 10px;
@@ -108,22 +113,38 @@ component JobCard inherits Rectangle {
                     font-size: Theme.base-size;
                     wrap: word-wrap;
                 }
-                if root.job.error != "": Text {
+                if root.failed: Text {
                     text: root.job.error;
                     color: Theme.clear-all-text;
                     font-family: Theme.font;
                     font-size: 12.5px;
                     wrap: word-wrap;
                 }
+                if !root.failed && root.job.note != "": note := Text {
+                    text: root.job.note;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                }
             }
-            if root.job.error != "": VerticalLayout {
+            if root.over: VerticalLayout {
                 alignment: start;
                 close := CloseButton { size: 30px; clicked => { root.dismiss(); } }
             }
+            if !root.over && root.job.cancellable: VerticalLayout {
+                alignment: start;
+                cancel := CloseButton {
+                    size: 30px;
+                    label: @tr("Cancel");
+                    tooltip: @tr("Cancel");
+                    clicked => { root.cancel(); }
+                }
+            }
         }
-        if root.job.error == "": VerticalLayout {
+        if !root.over: VerticalLayout {
             padding-top: 7px;
-            Bar {
+            bar := Bar {
                 height: 5px;
                 border-radius: 3px;
                 progress: root.job.percent;
@@ -134,10 +155,11 @@ component JobCard inherits Rectangle {
 }
 
 /// `.jobs`: bottom right, 18 px in, 320 px wide, 8 px apart; client uploads first, then server jobs. It covers the
-/// window; only the cards' close buttons take clicks.
+/// window; only the cards' close and Cancel buttons take clicks.
 export component JobsBox inherits Rectangle {
     in property <[JobRow]> jobs;
     callback dismiss(string);
+    callback cancel(string);
 
     HorizontalLayout {
         padding-right: 18px;
@@ -150,6 +172,7 @@ export component JobsBox inherits Rectangle {
             for j in root.jobs: job := JobCard {
                 job: j;
                 dismiss => { root.dismiss(j.id); }
+                cancel => { root.cancel(j.id); }
             }
         }
     }

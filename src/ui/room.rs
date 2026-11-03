@@ -544,6 +544,9 @@ mod tests {
         let inst = app.live_view().frame.background.expect("the theme background").inst;
         room.inner.shared.started.lock().unwrap().insert(inst, Kind::Background);
         let mut rx = app.subscribe();
+        // The commit's own update can still be on its way when `committed` already reads `v`.
+        std::thread::sleep(Duration::from_millis(100));
+        while rx.try_recv().is_ok() {}
         let report = |state, error| PlayerReport { inst, player: 1, state, position: 1.0, duration: 9.0, error };
         room.inner.report(report(PlayState::Playing, None));
         std::thread::sleep(Duration::from_millis(300));

@@ -535,13 +535,15 @@ export component DashedOutline inherits Rectangle {
 /// `.dlg-close`: the X in a dialog's head (32 px) and on a failed job card (30 px).
 export component CloseButton inherits Rectangle {
     in property <length> size: 32px;
+    in property <string> label: @tr("Close");
+    in property <string> tooltip;
     callback clicked();
     width: root.size;
     height: root.size;
     border-radius: 8px;
     background: ta.has-hover ? Theme.raise : transparent;
     accessible-role: button;
-    accessible-label: @tr("Close");
+    accessible-label: root.label;
     accessible-action-default => { root.clicked(); }
     Icon {
         name: "close";
@@ -550,5 +552,8 @@ export component CloseButton inherits Rectangle {
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+    }
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }

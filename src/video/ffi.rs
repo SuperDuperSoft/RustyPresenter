@@ -2,6 +2,7 @@
 //! libmpv is LGPL and is only loaded with `libloading`, never linked. A missing
 //! library is not fatal: callers report [`MISSING`] for video/audio items.
 #![allow(non_camel_case_types)]
+use crate::platform::resources::{current_exe, native_candidates};
 use std::ffi::{CStr, CString, c_char, c_int, c_ulong, c_void};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
@@ -27,6 +28,7 @@ pub const FORMAT_FLAG: mpv_format = 3;
 pub const FORMAT_INT64: mpv_format = 4;
 pub const FORMAT_DOUBLE: mpv_format = 5;
 pub const FORMAT_NODE: mpv_format = 6;
+pub const FORMAT_NODE_ARRAY: mpv_format = 7;
 pub const FORMAT_NODE_MAP: mpv_format = 8;
 pub const FORMAT_BYTE_ARRAY: mpv_format = 9;
 
@@ -54,6 +56,7 @@ pub const END_FILE_REDIRECT: c_int = 5;
 
 pub const ERROR_SUCCESS: c_int = 0;
 pub const ERROR_INVALID_PARAMETER: c_int = -4;
+pub const ERROR_OPTION_NOT_FOUND: c_int = -5;
 
 pub const PARAM_INVALID: c_int = 0;
 pub const PARAM_API_TYPE: c_int = 1;
@@ -152,49 +155,67 @@ pub struct mpv_event_command {
     pub result: mpv_node,
 }
 
-impl mpv_node {
-    /// The value under `key` of a map node.
+/// An `mpv_node` copied out of libmpv, so it stays valid after the original is freed.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Node {
+    None,
+    Str(String),
+    Flag(bool),
+    Int(i64),
+    Double(f64),
+    Array(Vec<Node>),
+    Map(Vec<(String, Node)>),
+    Bytes(Vec<u8>),
+}
+
+impl Node {
+    /// The value under `key` of a map.
+    pub fn get(&self, key: &str) -> Option<&Node> {
+        let Node::Map(entries) = self else { return None };
+        entries.iter().find(|(k, _)| k == key).map(|(_, v)| v)
+    }
+
+    pub fn as_f64(&self) -> Option<f64> {
+        match *self {
+            Node::Double(v) => Some(v),
+            Node::Int(v) => Some(v as f64),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(&self) -> Option<&str> {
+        if let Node::Str(s) = self { Some(s) } else { None }
+    }
+
+    pub fn as_bool(&self) -> Option<bool> {
+        if let Node::Flag(b) = *self { Some(b) } else { None }
+    }
+
+    /// Deep copy of a node.
     ///
     /// # Safety
-    /// The node must be a valid node from libmpv (or laid out the same way).
-    pub unsafe fn get(&self, key: &str) -> Option<&mpv_node> {
-        if self.format != FORMAT_NODE_MAP {
-            return None;
-        }
+    /// `n` must be a valid node from libmpv (or laid out the same way).
+    pub unsafe fn from_raw(n: *const mpv_node) -> Node {
         unsafe {
-            let list = self.u.list.as_ref()?;
-            let n = usize::try_from(list.num).ok()?;
-            (0..n).find(|&i| CStr::from_ptr(*list.keys.add(i)).to_bytes() == key.as_bytes()).map(|i| &*list.values.add(i))
-        }
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn int64(&self) -> Option<i64> {
-        (self.format == FORMAT_INT64).then(|| unsafe { self.u.int64 })
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn string(&self) -> Option<&CStr> {
-        if self.format != FORMAT_STRING {
-            return None;
-        }
-        unsafe { self.u.string.as_ref().map(|p| CStr::from_ptr(p)) }
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn bytes(&self) -> Option<&[u8]> {
-        if self.format != FORMAT_BYTE_ARRAY {
-            return None;
-        }
-        unsafe {
-            let ba = self.u.ba.as_ref()?;
-            if ba.data.is_null() {
-                return None;
+            let n = &*n;
+            let text = |p: *const c_char| if p.is_null() { String::new() } else { CStr::from_ptr(p).to_string_lossy().into_owned() };
+            let values = |l: &mpv_node_list| (0..l.num.max(0) as usize).map(|i| Node::from_raw(l.values.add(i))).collect::<Vec<_>>();
+            match n.format {
+                FORMAT_STRING | FORMAT_OSD_STRING => Node::Str(text(n.u.string)),
+                FORMAT_FLAG => Node::Flag(n.u.flag != 0),
+                FORMAT_INT64 => Node::Int(n.u.int64),
+                FORMAT_DOUBLE => Node::Double(n.u.double),
+                FORMAT_NODE_ARRAY => n.u.list.as_ref().map_or(Node::None, |l| Node::Array(values(l))),
+                FORMAT_NODE_MAP => n.u.list.as_ref().map_or(Node::None, |l| {
+                    let keys = (0..l.num.max(0) as usize).map(|i| text(*l.keys.add(i)));
+                    Node::Map(keys.zip(values(l)).collect())
+                }),
+                FORMAT_BYTE_ARRAY => match n.u.ba.as_ref() {
+                    Some(ba) if !ba.data.is_null() => Node::Bytes(std::slice::from_raw_parts(ba.data as *const u8, ba.size).to_vec()),
+                    _ => Node::None,
+                },
+                _ => Node::None,
             }
-            Some(std::slice::from_raw_parts(ba.data as *const u8, ba.size))
         }
     }
 }
@@ -211,6 +232,9 @@ pub struct Mpv {
     pub set_option_string: unsafe extern "C" fn(*mut mpv_handle, *const c_char, *const c_char) -> c_int,
     pub command: unsafe extern "C" fn(*mut mpv_handle, *mut *const c_char) -> c_int,
     pub command_async: unsafe extern "C" fn(*mut mpv_handle, u64, *mut *const c_char) -> c_int,
+    pub command_ret: unsafe extern "C" fn(*mut mpv_handle, *mut *const c_char, *mut mpv_node) -> c_int,
+    pub free_node_contents: unsafe extern "C" fn(*mut mpv_node),
+    pub request_log_messages_raw: unsafe extern "C" fn(*mut mpv_handle, *const c_char) -> c_int,
     pub set_property_string: unsafe extern "C" fn(*mut mpv_handle, *const c_char, *const c_char) -> c_int,
     pub get_property: unsafe extern "C" fn(*mut mpv_handle, *const c_char, mpv_format, *mut c_void) -> c_int,
     pub get_property_string: unsafe extern "C" fn(*mut mpv_handle, *const c_char) -> *mut c_char,
@@ -234,7 +258,7 @@ pub struct Mpv {
 }
 
 impl Mpv {
-    /// Finds and loads libmpv: `RP_LIBMPV` → next to the executable → `<data dir>/deps/mpv/` → system.
+    /// Finds and loads libmpv: see `platform::resources::native_candidates` for where it looks.
     /// The first library that loads decides; a too-old one is an error, not skipped.
     pub fn load() -> Result<Arc<Mpv>, String> {
         let data = crate::server::data_dir().unwrap_or_default();
@@ -260,8 +284,7 @@ impl Mpv {
 
     /// Where `load` looks, in order.
     pub fn candidates(data_dir: &Path) -> Vec<PathBuf> {
-        let exe = std::env::current_exe().ok();
-        candidates_from(std::env::var_os("RP_LIBMPV").map(PathBuf::from), exe.as_deref().and_then(Path::parent), data_dir)
+        native_candidates(SYSTEM_NAMES, "RP_LIBMPV", &current_exe(), data_dir, "mpv", &|k| std::env::var_os(k))
     }
 
     pub fn load_from(path: &Path) -> Result<Arc<Mpv>, String> {
@@ -281,6 +304,9 @@ impl Mpv {
                 set_option_string: sym!("mpv_set_option_string"),
                 command: sym!("mpv_command"),
                 command_async: sym!("mpv_command_async"),
+                command_ret: sym!("mpv_command_ret"),
+                free_node_contents: sym!("mpv_free_node_contents"),
+                request_log_messages_raw: sym!("mpv_request_log_messages"),
                 set_property_string: sym!("mpv_set_property_string"),
                 get_property: sym!("mpv_get_property"),
                 get_property_string: sym!("mpv_get_property_string"),
@@ -366,6 +392,37 @@ impl Mpv {
         self.check(r).map_err(|e| format!("mpv {}: {e}", args.first().unwrap_or(&"")))
     }
 
+    /// Runs a command, waits for it, and returns a copy of its result (e.g. `["screenshot-raw", "video"]`).
+    pub unsafe fn command_node(&self, h: *mut mpv_handle, args: &[&str]) -> Result<Node, String> {
+        let mut raw = mpv_node { u: mpv_node_value { int64: 0 }, format: FORMAT_NONE };
+        let r = with_argv(args, |argv| unsafe { (self.command_ret)(h, argv, &mut raw) });
+        self.check(r).map_err(|e| format!("mpv {}: {e}", args.first().unwrap_or(&"")))?;
+        unsafe {
+            let copy = Node::from_raw(&raw);
+            (self.free_node_contents)(&mut raw);
+            Ok(copy)
+        }
+    }
+
+    /// A copy of a property as a node (`track-list`, for one).
+    pub unsafe fn get_node(&self, h: *mut mpv_handle, name: &str) -> Option<Node> {
+        let mut raw = mpv_node { u: mpv_node_value { int64: 0 }, format: FORMAT_NONE };
+        if !unsafe { self.get_raw(h, name, FORMAT_NODE, &mut raw as *mut mpv_node as *mut c_void) } {
+            return None;
+        }
+        unsafe {
+            let copy = Node::from_raw(&raw);
+            (self.free_node_contents)(&mut raw);
+            Some(copy)
+        }
+    }
+
+    /// Asks for `EVENT_LOG_MESSAGE` events at `level` and above (`"error"`, `"no"` to stop).
+    pub unsafe fn request_log_messages(&self, h: *mut mpv_handle, level: &str) -> Result<(), String> {
+        let Ok(l) = CString::new(level) else { return Err(format!("bad log level {level}")) };
+        self.check(unsafe { (self.request_log_messages_raw)(h, l.as_ptr()) }).map_err(|e| format!("mpv log level {level}: {e}"))
+    }
+
     pub unsafe fn observe(&self, h: *mut mpv_handle, reply: u64, name: &str, format: mpv_format) -> Result<(), String> {
         let Ok(n) = CString::new(name) else { return Err(format!("bad property {name}")) };
         self.check(unsafe { (self.observe_property)(h, reply, n.as_ptr(), format) }).map_err(|e| format!("mpv observe {name}: {e}"))
@@ -411,16 +468,6 @@ fn with_argv(args: &[&str], f: impl FnOnce(*mut *const c_char) -> c_int) -> c_in
     f(ptrs.as_mut_ptr())
 }
 
-fn candidates_from(env: Option<PathBuf>, exe_dir: Option<&Path>, data_dir: &Path) -> Vec<PathBuf> {
-    let mut v: Vec<PathBuf> = env.into_iter().collect();
-    let deps = data_dir.join("deps").join("mpv");
-    for dir in exe_dir.into_iter().chain([deps.as_path()]) {
-        v.extend(SYSTEM_NAMES.iter().map(|n| dir.join(n)));
-    }
-    v.extend(SYSTEM_NAMES.iter().map(PathBuf::from));
-    v
-}
-
 /// On Windows a full path loads with its own folder first in the DLL search, so libraries
 /// shipped next to libmpv are found.
 #[cfg(windows)]
@@ -438,18 +485,46 @@ fn open(path: &Path) -> Result<libloading::Library, libloading::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn node_from_nested_map_and_bytes() {
+        let string = |p: &CStr| mpv_node { u: mpv_node_value { string: p.as_ptr() as *mut _ }, format: FORMAT_STRING };
+        let int = |v| mpv_node { u: mpv_node_value { int64: v }, format: FORMAT_INT64 };
+        let mut array = [string(c"video"), mpv_node { u: mpv_node_value { flag: 1 }, format: FORMAT_FLAG }, mpv_node { u: mpv_node_value { double: 1.5 }, format: FORMAT_DOUBLE }, mpv_node { u: mpv_node_value { int64: 0 }, format: FORMAT_NONE }];
+        let mut array_list = mpv_node_list { num: array.len() as c_int, values: array.as_mut_ptr(), keys: std::ptr::null_mut() };
+        let mut bytes = [1u8, 2, 3];
+        let mut ba = mpv_byte_array { data: bytes.as_mut_ptr() as *mut c_void, size: 3 };
+        let mut keys = [c"tracks".as_ptr() as *mut c_char, c"data".as_ptr() as *mut c_char, c"w".as_ptr() as *mut c_char];
+        let mut values = [
+            mpv_node { u: mpv_node_value { list: &mut array_list }, format: FORMAT_NODE_ARRAY },
+            mpv_node { u: mpv_node_value { ba: &mut ba }, format: FORMAT_BYTE_ARRAY },
+            int(7),
+        ];
+        let mut map = mpv_node_list { num: values.len() as c_int, values: values.as_mut_ptr(), keys: keys.as_mut_ptr() };
+        let root = mpv_node { u: mpv_node_value { list: &mut map }, format: FORMAT_NODE_MAP };
+        let n = unsafe { Node::from_raw(&root) };
+        assert_eq!(n.get("tracks"), Some(&Node::Array(vec![Node::Str("video".into()), Node::Flag(true), Node::Double(1.5), Node::None])));
+        assert_eq!(n.get("data"), Some(&Node::Bytes(vec![1, 2, 3])));
+        assert_eq!(n.get("w").and_then(Node::as_f64), Some(7.0));
+        assert_eq!(n.get("missing"), None);
+        assert_eq!(Node::Str("x".into()).as_str(), Some("x"));
+        assert_eq!(Node::Int(3).get("w"), None);
+    }
     use std::path::{Path, PathBuf};
+
+    fn candidates_with(env: Option<&'static str>) -> Vec<PathBuf> {
+        let var = move |k: &str| env.filter(|_| k == "RP_LIBMPV").map(std::ffi::OsString::from);
+        native_candidates(SYSTEM_NAMES, "RP_LIBMPV", Path::new("/app/rp"), Path::new("/data"), "mpv", &var)
+    }
 
     #[test]
     fn candidates_start_with_env_override() {
-        let env = PathBuf::from("D:/custom/libmpv-2.dll");
-        let c = candidates_from(Some(env.clone()), None, Path::new("/data"));
-        assert_eq!(c[0], env);
+        assert_eq!(candidates_with(Some("D:/custom/libmpv-2.dll"))[0], Path::new("D:/custom/libmpv-2.dll"));
     }
 
     #[test]
     fn candidates_include_exe_dir_and_data_dir() {
-        let c = candidates_from(None, Some(Path::new("/app")), Path::new("/data"));
+        let c = candidates_with(None);
         let n = SYSTEM_NAMES[0];
         let exe = c.iter().position(|p| *p == Path::new("/app").join(n)).expect("exe dir");
         let data = c.iter().position(|p| *p == Path::new("/data/deps/mpv").join(n)).expect("data dir");

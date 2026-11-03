@@ -1,9 +1,11 @@
 //! `rustypresenter-native`: the same core and phone/web server as the Tauri app, with the operator,
 //! room and stage windows drawn natively (Slint + libmpv). No browser opens; the phone remote is
 //! still the `/remote` web page, and the web operator page is still served for the Tauri app.
-use rustypresenter::{displays, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+//!
+//! With no `--app` the executable is the supervisor, which runs itself with `--app`.
+use rustypresenter::{displays, recovery::{self, exitcode, panic, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
 use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
-use std::{cell::RefCell, fs::OpenOptions, io::Write, path::{Path, PathBuf}, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 thread_local! {
     /// The operator window, kept open on the Slint thread until the event loop ends.
@@ -12,37 +14,27 @@ thread_local! {
 
 fn fail(msg: &str) -> ! {
     displays::error_box(msg);
-    std::process::exit(1);
-}
-
-/// `<data>/logs/native-YYYYMMDD.log` for `date`.
-fn log_path(root: &Path, date: chrono::NaiveDate) -> PathBuf {
-    root.join("logs").join(format!("native-{}.log", date.format("%Y%m%d")))
-}
-
-/// Panics are written to the day's log with a backtrace, then reported as usual.
-fn log_panics(root: PathBuf) {
-    let report = std::panic::take_hook();
-    std::panic::set_hook(Box::new(move |info| {
-        let now = chrono::Local::now();
-        let path = log_path(&root, now.date_naive());
-        let _ = std::fs::create_dir_all(path.parent().unwrap_or(&root));
-        if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&path) {
-            let thread = std::thread::current().name().unwrap_or("unnamed").to_string();
-            let _ = writeln!(f, "[{}] panic on thread '{thread}': {info}\n{}\n", now.format("%Y-%m-%d %H:%M:%S"), std::backtrace::Backtrace::force_capture());
-        }
-        report(info);
-    }));
+    std::process::exit(exitcode::CONFIG);
 }
 
 fn main() {
+    let args = supervisor::parse_args(std::env::args_os().skip(1));
+    supervisor::quiet_crash_dialogs();
+    if !args.app {
+        let exe = std::env::current_exe().unwrap_or_else(|e| fail(&format!("RustyPresenter could not start: {e}")));
+        let passthrough: Vec<_> = std::env::args_os().skip(1).collect();
+        std::process::exit(supervisor::run(&exe, &recovery::todays_log(), &passthrough));
+    }
+    panic::install(recovery::todays_log());
+    panic::mark_critical();
+    panic::test_crash_point("startup");
+
     // `--no-browser` (from when the operator was the web page) is accepted and ignored for one release.
     let started = match startup::start(true) {
         Ok(Some(s)) => s,
-        Ok(None) => { println!("RustyPresenter is already running."); return; }
+        Ok(None) => { println!("RustyPresenter is already running."); std::process::exit(exitcode::ALREADY_RUNNING); }
         Err(e) => fail(&e),
     };
-    log_panics(started.root.clone());
     startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.", false);
     let startup::Started { app, listener, .. } = started;
 
@@ -71,7 +63,8 @@ fn main() {
             Err(e) => fail(&e),
         };
         screens.place_operator(operator.window());
-        // Closing the operator asks nothing and quits; the room and stage close with it below.
+        // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
+        // and stage close with it below.
         operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });
         screens.set_operator(Rc::downgrade(&operator));
         OPERATOR.with(|o| *o.borrow_mut() = Some(operator));
@@ -84,15 +77,4 @@ fn main() {
     native.shutdown();
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
     if let Err(e) = result { fail(&format!("RustyPresenter could not run its windows: {e}")); }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn log_file_is_per_day_in_the_logs_folder() {
-        let d = chrono::NaiveDate::from_ymd_opt(2026, 11, 1).unwrap();
-        assert_eq!(log_path(Path::new("data"), d), Path::new("data").join("logs").join("native-20261101.log"));
-    }
 }

@@ -1,9 +1,10 @@
 //! The toasts and the jobs box over the operator (`toast()` and `renderJobs()` in `operator.js:56-60, 281-290`).
 //! A toast leaves after 2.6 s, or 6 s for an error. The jobs box lists this window's own uploads (client jobs)
-//! first, then the core's jobs from the snapshot; a failed job has a close button that sends `job/dismiss`.
+//! first, then the core's jobs from the snapshot. A failed job, or a finished one with a note, has a close button that
+//! sends `job/dismiss`; a running cancellable job has a Cancel button that sends `job/cancel`.
 use super::window::Operator;
 use crate::ui::{JobRow, ToastRow};
-use slint::{Model, ModelRc, SharedString, Timer, TimerMode, VecModel};
+use slint::{Model, ModelRc, Timer, TimerMode, VecModel};
 use std::{cell::{Cell, RefCell}, rc::{Rc, Weak}, sync::{Arc, atomic::{AtomicU8, Ordering}}, time::Duration};
 use uuid::Uuid;
 
@@ -57,7 +58,7 @@ impl Drop for JobHandle {
     }
 }
 
-/// Hands the models to the window and wires the error cards' close button.
+/// Hands the models to the window and wires the cards' close and Cancel buttons.
 pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.set_toasts(ModelRc::from(op.overlays.toasts.clone()));
     op.ui.set_jobs(ModelRc::from(op.overlays.jobs.clone()));
@@ -66,6 +67,14 @@ pub(super) fn wire(op: &Rc<Operator>) {
         let Some(op) = me.upgrade() else { return };
         let me = me.clone();
         op.ops.call::<serde_json::Value>("job/dismiss", serde_json::json!({ "id": id.as_str() }), move |r| {
+            if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(e, true); }
+        });
+    });
+    let me = Rc::downgrade(op);
+    op.ui.on_job_cancel(move |id| {
+        let Some(op) = me.upgrade() else { return };
+        let me = me.clone();
+        op.ops.call::<serde_json::Value>("job/cancel", serde_json::json!({ "id": id.as_str() }), move |r| {
             if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(e, true); }
         });
     });
@@ -107,12 +116,13 @@ impl Operator {
     /// keeps its hover while a bar moves.
     pub(super) fn render_jobs(&self) {
         let mut rows: Vec<JobRow> = self.overlays.client.borrow().iter().map(|j| JobRow {
-            id: j.id.to_string().into(), label: j.label.as_str().into(), percent: j.percent.load(Ordering::Relaxed) as i32, error: SharedString::new(),
+            id: j.id.to_string().into(), label: j.label.as_str().into(), percent: j.percent.load(Ordering::Relaxed) as i32, ..JobRow::default()
         }).collect();
         if let Some(s) = self.state.borrow().snap.as_ref() {
             rows.extend(s.jobs.iter().map(|j| JobRow {
                 id: j.id.to_string().into(), label: j.label.as_str().into(), percent: j.percent as i32,
-                error: j.error.as_deref().unwrap_or_default().into(),
+                error: j.error.as_deref().unwrap_or_default().into(), note: j.note.as_deref().unwrap_or_default().into(),
+                cancellable: j.cancellable, done: j.done,
             }));
         }
         let model = &self.overlays.jobs;
@@ -164,8 +174,8 @@ mod tests {
         let app = test_app();
         let (running, failed) = (Uuid::new_v4(), Uuid::new_v4());
         app.jobs.lock().unwrap().extend([
-            Job { id: running, label: "Importing slides".into(), percent: 30, error: None },
-            Job { id: failed, label: "Importing talk.pptx".into(), percent: 0, error: Some("PowerPoint is not installed.".into()) },
+            Job { id: running, label: "Importing slides".into(), percent: 30, ..Job::default() },
+            Job { id: failed, label: "Importing talk.pptx".into(), error: Some("PowerPoint is not installed.".into()), ..Job::default() },
         ]);
         let op = open(&app);
         refresh(&op);
@@ -180,9 +190,56 @@ mod tests {
     }
 
     #[test]
+    fn running_cancellable_job_shows_cancel_button() {
+        let app = test_app();
+        app.job_start("Waiting for an old job");
+        let (id, token) = app.job_start_cancellable("Importing talk.pptx");
+        let op = open(&app);
+        refresh(&op);
+        let cancel = find_all(&op, "JobCard::cancel");
+        assert_eq!(cancel.len(), 1, "only the cancellable job has one");
+        assert_eq!(cancel[0].accessible_label().unwrap_or_default(), "Cancel");
+        assert!(find(&op, "JobCard::close").is_none());
+        assert_eq!(find_all(&op, "JobCard::bar").len(), 2);
+        cancel[0].mock_single_click(PointerEventButton::Left);
+        assert!(token.is_cancelled());
+        app.job_end_cancelled(id);
+        refresh(&op);
+        assert!(find(&op, "JobCard::cancel").is_none());
+    }
+
+    #[test]
+    fn finished_job_note_shows_and_dismisses() {
+        let app = test_app();
+        let (id, _) = app.job_start_cancellable("Importing talk.pptx");
+        app.job_note(id, "Imported with LibreOffice — check the slides.".into());
+        let op = open(&app);
+        refresh(&op);
+        assert_eq!(find_all(&op, "JobCard::note").len(), 1, "a note shows while the job runs too");
+        assert!(find(&op, "JobCard::close").is_none(), "a running job cannot be dismissed");
+        app.job_end(id, None);
+        refresh(&op);
+        assert_eq!(cards(&op), [("Importing talk.pptx".into(), "Imported with LibreOffice — check the slides.".into())]);
+        assert!(find(&op, "JobCard::cancel").is_none());
+        assert!(find(&op, "JobCard::bar").is_none(), "a finished job has no bar");
+        find(&op, "JobCard::close").unwrap().mock_single_click(PointerEventButton::Left);
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn client_upload_job_has_no_cancel() {
+        let app = test_app();
+        let op = open(&app);
+        let _job = op.client_job("Uploading talk.pptx");
+        assert_eq!(cards(&op).len(), 1);
+        assert!(find(&op, "JobCard::cancel").is_none());
+        assert!(find(&op, "JobCard::close").is_none());
+    }
+
+    #[test]
     fn client_job_shows_progress_and_goes_away() {
         let app = test_app();
-        app.jobs.lock().unwrap().push(Job { id: Uuid::new_v4(), label: "Importing slides".into(), percent: 10, error: None });
+        app.jobs.lock().unwrap().push(Job { id: Uuid::new_v4(), label: "Importing slides".into(), percent: 10, ..Job::default() });
         let op = open(&app);
         refresh(&op);
         let job = op.client_job("Uploading talk.pptx");
