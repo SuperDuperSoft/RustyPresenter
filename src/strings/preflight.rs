@@ -5,6 +5,8 @@ pub const NO_ROOM: &str = "No room screen is chosen. Choose one in Screens.";
 pub const ROOM_GONE: &str = "The room screen is not connected. Check its cable, or choose another in Screens.";
 pub const STAGE_GONE: &str = "The stage screen is not connected. The service can run without it.";
 pub const AUDIO_GONE: &str = "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video.";
+/// On the live column, when the output goes away during the service (spec §6.4).
+pub const SOUND_GONE: &str = "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play.";
 pub const LOGO_MISSING: &str = "The logo's file is missing. Choose it again in Settings.";
 pub const BACKGROUND_MISSING: &str = "The default background's file is missing. Choose it again in Settings.";
 pub const SONG_MISSING: &str = "the song is no longer in the library";

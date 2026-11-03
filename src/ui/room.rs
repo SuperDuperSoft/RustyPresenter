@@ -92,7 +92,7 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(String) }
 
 /// What the room's threads share.
 struct Shared {
@@ -176,6 +176,7 @@ impl Inner {
             match m {
                 Some(Msg::Made { token, kind, made }) => self.made(token, kind, made),
                 Some(Msg::Report(r)) => self.report(r),
+                Some(Msg::Device(d)) => self.sync_device(&d),
                 None => break,
             }
         }
@@ -341,6 +342,13 @@ impl Inner {
         }
     }
 
+    /// Moves what is on air to the sound output just chosen, so one chosen after a device went away is heard.
+    /// New players read it from the settings.
+    fn sync_device(&self, device: &str) {
+        let players = self.players.borrow();
+        for p in [&players[MEDIA], &players[AUDIO]].into_iter().flatten() { p.set_audio_device(device) }
+    }
+
     fn sync_pause(&self, pairs: &[(u64, bool)]) {
         let players = self.players.borrow();
         for (inst, paused) in pairs {
@@ -486,9 +494,19 @@ fn forward(reports: std::sync::mpsc::Receiver<PlayerReport>, shared: Arc<Shared>
 
 /// Live updates from a plain thread; only the newest view is applied.
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, shared: Arc<Shared>) {
+    let sound = move |app: &App| app.data.lock().unwrap().settings.audio_device.clone();
+    let mut device = sound(&app);
     let _ = std::thread::Builder::new().name("room-updates".into()).spawn(move || loop {
         let update = match rx.blocking_recv() {
             Ok(Update::Live(u)) => u,
+            Ok(Update::Data) => {
+                let now = sound(&app);
+                if now != device {
+                    device = now.clone();
+                    shared.send(Msg::Device(now));
+                }
+                continue;
+            }
             Ok(_) => continue,
             Err(RecvError::Lagged(_)) => LiveUpdate::new(app.live_view()),
             Err(RecvError::Closed) => return,
@@ -585,6 +603,22 @@ mod tests {
         assert!(!shown(&room, Kind::Media) && !shown(&room, Kind::Logo) && !ui.get_video());
         // The crossfade runs on the room's own timer and ends fully in.
         assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0 && !room.inner.fader.running()));
+    }
+
+    #[test]
+    fn a_changed_sound_output_reaches_the_room_once() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let room = open(&app);
+        let sent = || room.inner.shared.inbox.lock().unwrap().iter().filter(|m| matches!(m, Msg::Device(d) if d == "wasapi/{b}")).count();
+        app.data.lock().unwrap().settings.audio_device = "wasapi/{b}".into();
+        app.broadcast_data();
+        let end = Instant::now() + Duration::from_secs(5);
+        while sent() == 0 && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)); }
+        assert_eq!(sent(), 1);
+        app.broadcast_data();
+        std::thread::sleep(Duration::from_millis(50));
+        assert_eq!(sent(), 1, "the same output again is not news");
     }
 
     #[test]

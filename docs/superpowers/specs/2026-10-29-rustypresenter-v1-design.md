@@ -8,7 +8,7 @@
 - §6.4 FFmpeg conversion and the Ready/Converting/Needs converter library states: replaced by mpv playback and probing; no conversion.
 - §9.4 PowerPoint-only export: replaced by PowerPoint, LibreOffice or pdfium (native §9).
 - §16 items "LibreOffice conversion", "macOS and Linux" and "ffmpeg auto-transcode": the first two are written, not yet checked on real machines; the third is dropped.
-- §13 Preflight: built as the **Check** button on the service panel (a report, no separate dialog). §12.2 stage message: the top bar's message button, shown when a stage screen is set. §6.4 audio device: Settings → Video → Sound goes to; "pause and alert when the device goes away while playing" is not built, only Check and the list flag it. None of the three has run on Windows.
+- §13 Preflight: built as the **Check** button on the service panel (a report, no separate dialog). §12.2 stage message: the top bar's message button, shown when a stage screen is set. §6.4 audio device: Settings → Video → Sound goes to; going away while playing pauses what can be heard and shows a notice (`src/sound.rs`, looked at every 3 s while something plays; the background video is muted and plays on), and a new choice moves what is on air to it. None of the three has run on Windows.
 - §9.3 EasyWorship: built (Add → Song → Import from EasyWorship), not yet run against a real library. Duplicates are skipped and listed in the end report, not asked about one by one. §9.5 Google Slides: **still not built**.
 **Authority:** This spec controls **v1 behavior**. `PROJECT_PLAN.md` holds long-term requirements, collaboration rules, and the work board.
 **Backups:** revision 1 `2026-10-29-rustypresenter-v1-design.rev1.bak.md`, revision 2 `2026-10-29-rustypresenter-v1-design.rev2.bak.md`

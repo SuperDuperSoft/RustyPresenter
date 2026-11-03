@@ -35,6 +35,17 @@ pub fn banner(s: &Started, quit: &str) {
     println!("\n  {quit}\n");
 }
 
+/// Spec §6.4: pauses what can be heard when the chosen sound output goes away.
+pub async fn watch_sound(app: Arc<App>) {
+    let mut every = tokio::time::interval(WATCH_SOUND_EVERY);
+    every.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    loop {
+        every.tick().await;
+        let app = app.clone();
+        let _ = tokio::task::spawn_blocking(move || app.watch_sound()).await;
+    }
+}
+
 /// The operator page, phone remote and room/stage pages. Runs on a tokio runtime.
 pub async fn serve(app: Arc<App>, listener: TcpListener) {
     let svc = server::router(app).into_make_service_with_connect_info::<SocketAddr>();
@@ -45,6 +56,9 @@ pub async fn serve(app: Arc<App>, listener: TcpListener) {
 const BACKUP_EVERY: Duration = Duration::from_secs(24 * 3600);
 /// While something plays, its position is saved this often: the room's reports alone don't save it.
 const SAVE_PLAYING_EVERY: Duration = Duration::from_secs(5);
+/// How long a video can play on with its sound output gone. Each look starts a small mpv, but only while something
+/// can be heard and a sound output is chosen.
+const WATCH_SOUND_EVERY: Duration = Duration::from_secs(3);
 
 /// A complete backup at every start, then daily. A restart after a crash (`restored`) waits the full day:
 /// another copy of the same data each time would push older good backups out of the ten kept.

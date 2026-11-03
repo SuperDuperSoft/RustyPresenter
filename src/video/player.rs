@@ -415,6 +415,12 @@ impl Player {
         let _ = unsafe { self.core.mpv.set_property(self.core.h, "pause", if paused { "yes" } else { "no" }) };
     }
 
+    /// Moves this player to another sound output. Empty is the system default, as in `Options`.
+    pub fn set_audio_device(&self, name: &str) {
+        let name = if name.is_empty() { "auto" } else { name };
+        let _ = unsafe { self.core.mpv.set_property(self.core.h, "audio-device", name) };
+    }
+
     /// Current playback position in seconds (0 when nothing is playing).
     pub fn position(&self) -> f64 {
         unsafe { self.core.mpv.get_double(self.core.h, "time-pos") }.unwrap_or(0.0)

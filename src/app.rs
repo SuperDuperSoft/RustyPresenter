@@ -466,6 +466,27 @@ impl App {
 
     pub fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { self.screens.get().map(|s| s.audio_devices()).unwrap_or_default() }
 
+    /// One look at the chosen sound output. Asks the system, so never call it on the UI thread.
+    pub fn watch_sound(&self) {
+        use crate::{preflight::strings::SOUND_GONE, sound};
+        let chosen = self.data.lock().unwrap().settings.audio_device.clone();
+        let told = || self.live.lock().unwrap().notice.as_deref() == Some(SOUND_GONE);
+        let heard = || sound::pauses(&self.live.lock().unwrap().frame);
+        if !told() && (chosen.is_empty() || heard().is_empty()) { return }
+        let found = if chosen.is_empty() { vec![] } else { self.audio_devices() };
+        if !chosen.is_empty() && found.is_empty() { return } // The list could not be read: nothing has changed.
+        if !sound::missing(&chosen, &found) {
+            let cleared = self.live.lock().unwrap().notice.take_if(|n| n == SOUND_GONE).is_some();
+            if cleared { self.broadcast_live(); }
+            return;
+        }
+        // Read again: the list takes a moment, and what plays may have changed. A stale pause is refused anyway.
+        let pauses = heard();
+        if pauses.is_empty() { return }
+        for cmd in pauses { self.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd }); }
+        self.set_notice(SOUND_GONE);
+    }
+
     pub(crate) fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
 
     /// Roles with an open window (`state_json`'s `windows`).

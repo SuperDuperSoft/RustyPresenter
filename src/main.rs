@@ -79,6 +79,7 @@ fn main() {
     rt.spawn(startup::backups(app.clone(), args.restore));
     rt.spawn(startup::serve(app.clone(), listener));
     rt.spawn(startup::save_playing(app.clone()));
+    rt.spawn(startup::watch_sound(app.clone()));
     rt.spawn(rustypresenter::import::init(&app));
     if headless_mode() {
         run_headless(&app, &rt);
