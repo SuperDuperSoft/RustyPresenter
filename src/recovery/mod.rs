@@ -1,6 +1,7 @@
 //! Crash recovery: the committed frame kept on disk, the supervisor that restarts a crashed app,
 //! and the panic log.
 pub mod exitcode;
+pub mod headless;
 pub mod panic;
 pub mod state;
 pub mod supervisor;

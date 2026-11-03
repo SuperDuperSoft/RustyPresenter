@@ -58,6 +58,12 @@ pub struct Frame {
 }
 
 impl Frame {
+    /// Is there video or audio here, rather than only slides and pictures?
+    pub fn plays(&self) -> bool {
+        self.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. }))
+            || self.audio.is_some()
+            || self.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. }))
+    }
     pub(crate) fn instances(&self) -> impl Iterator<Item = u64> + '_ {
         self.background.iter().map(|b| b.inst).chain(self.media.iter().map(|m| m.inst)).chain(self.audio.iter().map(|a| a.inst))
     }
@@ -172,6 +178,8 @@ pub struct Live {
     pub media_status: Option<PlayStatus>,
     pub audio_status: Option<PlayStatus>,
     pub notice: Option<String>,
+    /// The version `restore` made, once there has been one.
+    pub restored_version: Option<u64>,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -187,7 +195,7 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            audio_status: None, notice: None, restored_version: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -229,6 +237,7 @@ impl Live {
     /// Puts a saved frame back after a crash, as a new version for the room to commit.
     /// `with_media` false leaves out everything that plays: this state may be what crashed.
     pub fn restore(&mut self, s: &LiveState, with_media: bool) {
+        if with_media { crate::recovery::panic::test_crash_point("restore-media"); }
         self.frame = s.frame.clone();
         self.cursor = s.cursor.clone();
         self.item = s.item.clone();
@@ -239,6 +248,7 @@ impl Live {
             if self.frame.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. })) { self.frame.background = None; }
         }
         self.bump();
+        self.restored_version = Some(self.version);
     }
 
     pub fn apply(&mut self, env: Envelope, plan: &dyn Plan) -> Outcome {
@@ -655,6 +665,24 @@ mod tests {
         let mut l = Live::new();
         l.restore(&s, false);
         assert_eq!(l.frame.background, None);
+    }
+
+    #[test]
+    fn only_video_and_audio_count_as_playing() {
+        assert!(!Frame::default().plays());
+        let still = Frame { media: Some(Inst { inst: 1, v: MediaLayer::Still { asset: "s.png".into() } }), background: Some(Inst { inst: 2, v: Background::Image { asset: "b.png".into() } }), ..Frame::default() };
+        assert!(!still.plays());
+        assert!(Frame { media: Some(Inst { inst: 1, v: MediaLayer::Video { asset: "v.mp4".into(), end: EndAction::Stop, paused: false } }), ..Frame::default() }.plays());
+        assert!(Frame { background: Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into() } }), ..Frame::default() }.plays());
+        assert!(Frame { audio: Some(Inst { inst: 1, v: AudioLayer { asset: "a.mp3".into(), title: "a".into(), looped: false, paused: false } }), ..Frame::default() }.plays());
+    }
+
+    #[test]
+    fn restore_marks_its_version() {
+        let mut l = Live::new();
+        assert_eq!(l.restored_version, None);
+        l.restore(&with_layers(&mut Live::new()), true);
+        assert_eq!(l.restored_version, Some(l.version));
     }
 
     #[test]
