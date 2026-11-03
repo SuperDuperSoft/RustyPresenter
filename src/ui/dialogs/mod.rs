@@ -4,6 +4,8 @@
 pub mod add;
 pub mod add_media;
 pub mod ask;
+pub mod background;
+pub mod item_edit;
 pub(crate) mod pending;
 pub mod song_editor;
 #[path = "../../strings/dialogs.rs"]
