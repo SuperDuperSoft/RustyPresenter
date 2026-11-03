@@ -1,0 +1,86 @@
+// The Services dialog (`operator.js:776-790`): make, copy, rename, delete and open services.
+import { Theme } from "../theme.slint";
+import { Btn, Chip } from "../widgets.slint";
+import { DialogBody } from "shell.slint";
+import { DialogRow, RowMain } from "rows.slint";
+
+/// One service: its name, "N item(s)" and whether it is the one open.
+export struct ServiceListRow { id: string, name: string, count: string, current: bool }
+
+/// Set and answered by `src/ui/dialogs/services.rs`.
+export global ServicesDialogState {
+    in property <[ServiceListRow]> rows;
+    /// The trash button shows only with more than one service.
+    in property <bool> can-delete;
+    callback new-service();
+    callback copy-service();
+    callback rename(string);
+    callback delete(string);
+    callback open(string);
+}
+
+export component ServicesDialog inherits VerticalLayout {
+    DialogBody {
+        HorizontalLayout {
+            spacing: 8px;
+            padding-bottom: 12px;
+            alignment: start;
+            new-btn := Btn {
+                primary: true;
+                icon: "plus";
+                text: @tr("New empty service");
+                clicked => { ServicesDialogState.new-service(); }
+            }
+            copy-btn := Btn {
+                icon: "copy";
+                text: @tr("Copy this service");
+                clicked => { ServicesDialogState.copy-service(); }
+            }
+        }
+        VerticalLayout {
+            spacing: 4px;
+            for s in ServicesDialogState.rows: row := DialogRow {
+                accessible-role: list-item;
+                accessible-label: s.name;
+                RowMain {
+                    title: s.name;
+                    sub: s.count;
+                    if s.current: VerticalLayout {
+                        alignment: center;
+                        open-chip := Chip {
+                            text: @tr("Open");
+                            state: "ok";
+                        }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    rename-btn := Btn {
+                        small: true;
+                        text: @tr("Rename");
+                        clicked => { ServicesDialogState.rename(s.id); }
+                    }
+                }
+                if ServicesDialogState.can-delete: VerticalLayout {
+                    alignment: center;
+                    delete-btn := Btn {
+                        small: true;
+                        icon: "trash";
+                        accessible-role: button;
+                        accessible-label: @tr("Delete");
+                        clicked => { ServicesDialogState.delete(s.id); }
+                    }
+                }
+                if !s.current: VerticalLayout {
+                    alignment: center;
+                    open-btn := Btn {
+                        small: true;
+                        primary: true;
+                        text: @tr("Open");
+                        clicked => { ServicesDialogState.open(s.id); }
+                    }
+                }
+            }
+        }
+    }
+}

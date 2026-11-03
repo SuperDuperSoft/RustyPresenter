@@ -1,0 +1,81 @@
+// The web's dialog lists (`operator.css:165-170`): `.list` of `.row`s, and the `.note` box (`:192`).
+import { Theme } from "../theme.slint";
+
+/// `.row`: a raised line with its content (the children) laid out left to right; the border shows on hover.
+export component DialogRow inherits Rectangle {
+    background: Theme.panel-2;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: ta.has-hover ? Theme.line : transparent;
+
+    ta := TouchArea {}
+
+    HorizontalLayout {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 12px;
+        @children
+    }
+}
+
+/// `.row .t` over an optional `.row .s`, taking the row's free width (`.main`).
+export component RowMain inherits VerticalLayout {
+    in property <string> title;
+    in property <string> sub;
+    horizontal-stretch: 1;
+    alignment: center;
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+        @children
+    }
+    if root.sub != "": Text {
+        text: root.sub;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        overflow: elide;
+    }
+}
+
+/// `.note`: a muted box of help text; the children follow the text.
+export component Note inherits Rectangle {
+    in property <string> text;
+    background: Theme.panel-2;
+    border-radius: 10px;
+    VerticalLayout {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 6px;
+        Text {
+            text: root.text;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+        }
+        @children
+    }
+}
+
+/// `.lbl`: a small uppercase section label.
+export component SectionLabel inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.48px;
+}
