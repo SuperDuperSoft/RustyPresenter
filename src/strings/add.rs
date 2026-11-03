@@ -15,6 +15,28 @@ pub fn search_files(n: usize) -> String { format!("Search {}…", plural(n, "fil
 pub const SEARCH_SLIDES: &str = "Search slides…";
 pub const INSTALL_LIBREOFFICE: &str = "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.";
 pub const COPIED: &str = "Copied";
+
+/// The end of an EasyWorship import (spec §9.3): how many came in, and every song that did not, with why.
+pub fn library_report(report: &crate::app::LibraryImport) -> String {
+    const SHOWN: usize = 10;
+    let more = |n: usize| if n > SHOWN { format!("…and {} more.", n - SHOWN) } else { String::new() };
+    let mut text = format!("Imported {}.", plural(report.added, "song", "songs"));
+    let duplicates = report.duplicates.len();
+    if duplicates > 0 {
+        text += &format!("\n\n{duplicates} already in the library: {}", report.duplicates[..duplicates.min(SHOWN)].join(", "));
+        if duplicates > SHOWN { text += &format!(" {}", more(duplicates)) }
+    }
+    if !report.skipped.is_empty() {
+        text += "\n\nNot imported:";
+        for (title, why) in report.skipped.iter().take(SHOWN) { text += &format!("\n{title}: {why}") }
+        if report.skipped.len() > SHOWN { text += &format!("\n{}", more(report.skipped.len())) }
+    }
+    text
+}
+
+/// Where EasyWorship keeps its libraries unless someone moved them. The folder picker starts here.
+pub const EASYWORSHIP_FOLDER: &str = r"C:\Users\Public\Documents\Softouch\Easyworship";
+pub const READING_EASYWORSHIP: &str = "Reading the EasyWorship library…";
 pub const LIBREOFFICE_FOUND: &str = "LibreOffice found!";
 pub const LIBREOFFICE_NOT_FOUND: &str = "Not found yet — finish installing, then click Check again.";
 

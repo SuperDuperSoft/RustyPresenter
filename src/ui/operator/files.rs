@@ -380,6 +380,23 @@ pub fn pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Ve
     native_pick(op, filter, multi, done);
 }
 
+/// The native folder picker, starting in `start` when that folder exists. `done` runs only when one was picked.
+/// Tests take the next path queued with `testing::will_pick`.
+pub fn pick_folder(op: &Rc<Operator>, start: &Path, done: impl FnOnce(PathBuf) + 'static) {
+    #[cfg(test)]
+    {
+        let _ = (op, start);
+        if let Some(p) = testing::PICKS.with(|p| p.borrow_mut().pop_front()).and_then(|p| p.into_iter().next()) { done(p) }
+    }
+    #[cfg(not(test))]
+    {
+        let mut dialog = rfd::AsyncFileDialog::new().set_parent(&op.window().window_handle());
+        if start.is_dir() { dialog = dialog.set_directory(start); }
+        let picking = async move { if let Some(f) = dialog.pick_folder().await { done(f.path().to_path_buf()) } };
+        if let Err(e) = slint::spawn_local(picking) { op.toast(e.to_string(), true) }
+    }
+}
+
 #[cfg(not(test))]
 fn native_pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
     let mut dialog = rfd::AsyncFileDialog::new().add_filter(filter.name(), &filter.extensions()).set_parent(&op.window().window_handle());

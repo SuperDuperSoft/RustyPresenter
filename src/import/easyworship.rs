@@ -479,7 +479,7 @@ fn read_rows(songs: &Connection, words: &Connection) -> Result<Vec<EwSong>, Stri
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use super::super::common::{backup_into_memory, read_stable, TempDir};
     use crate::slides::parse_sections;
@@ -627,7 +627,7 @@ mod tests {
     const WORD_TABLE: &str = "CREATE TABLE word (song_id INTEGER, words TEXT, slide_uids TEXT)";
 
     /// Writes Songs.db + SongWords.db. Each song: (title, author, reference_number, vendor_id, words).
-    fn write_library(dir: &Path, songs_name: &str, songs: &[(&str, &str, &str, Option<i64>, Option<&str>)]) {
+    pub(crate) fn write_library(dir: &Path, songs_name: &str, songs: &[(&str, &str, &str, Option<i64>, Option<&str>)]) {
         let s = Connection::open(dir.join(songs_name)).unwrap();
         s.execute_batch(SONG_TABLE).unwrap();
         let w = Connection::open(dir.join("SongWords.db")).unwrap();
@@ -637,6 +637,43 @@ mod tests {
                 rusqlite::params![title, author, refno, vendor]).unwrap();
             if let Some(words) = words { w.execute("INSERT INTO word (song_id, words) VALUES (?1, ?2)", rusqlite::params![s.last_insert_rowid(), words]).unwrap(); }
         }
+    }
+
+    fn block_on<F: std::future::Future>(f: F) -> F::Output {
+        tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(f)
+    }
+
+    #[test]
+    fn library_saves_new_songs_once_and_reports_the_rest() {
+        let dir = temp_folder();
+        write_library(&dir, "Songs.db", &[
+            ("One", "A", "111", None, Some(PLAIN)),
+            ("Two", "B", "", None, Some(PLAIN)),
+            ("Video Item", "", "", None, None),
+        ]);
+        let app = crate::app::test_app();
+        let first = block_on(app.import_easyworship(dir.clone())).unwrap();
+        assert_eq!(first.added, 2);
+        assert!(first.duplicates.is_empty());
+        assert_eq!(first.skipped.iter().map(|(t, _)| t.as_str()).collect::<Vec<_>>(), ["Video Item"]);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+
+        let saved = app.data.lock().unwrap().songs[0].lyrics.clone();
+        app.data.lock().unwrap().songs[0].lyrics = "Changed here".into();
+        let again = block_on(app.import_easyworship(dir)).unwrap();
+        assert_eq!(again.added, 0);
+        assert_eq!(again.duplicates, ["One", "Two"]);
+        let data = app.data.lock().unwrap();
+        assert_eq!(data.songs.len(), 2, "importing twice doubles nothing");
+        assert_eq!(data.songs[0].lyrics, "Changed here", "a song already here is left alone, not {saved}");
+    }
+
+    #[test]
+    fn library_that_cannot_be_read_adds_nothing() {
+        let app = crate::app::test_app();
+        let e = block_on(app.import_easyworship(temp_folder())).unwrap_err();
+        assert!(e.contains("No EasyWorship Songs.db"), "{e}");
+        assert!(app.data.lock().unwrap().songs.is_empty());
     }
 
     #[test]

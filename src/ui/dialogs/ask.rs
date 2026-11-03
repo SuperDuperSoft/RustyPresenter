@@ -25,6 +25,11 @@ pub fn confirm(op: &Rc<Operator>, text: &str, ok_label: &str, cancel_label: &str
     push(op, Ask { row, done: Done::Confirm(Box::new(done)) });
 }
 
+/// Shows a report with one button; nothing depends on the answer.
+pub fn notice(op: &Rc<Operator>, text: &str) {
+    confirm(op, text, super::strings::OK, "", false, |_| {});
+}
+
 /// Asks which of two things to do, with Cancel as the way out of both. `done(Some(true))` on `first` or Enter,
 /// `done(Some(false))` on `second`, `done(None)` on Cancel or Esc.
 pub fn choose(op: &Rc<Operator>, text: &str, first: &str, second: &str, done: impl FnOnce(Option<bool>) + 'static) {

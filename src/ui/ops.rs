@@ -3,7 +3,7 @@
 //! and may hold `Rc` and `RefCell` state. `Ops::inline` runs everything at once for tests on the testing
 //! backend, which has no event loop.
 use crate::{
-    app::{App, ImportPurpose, Imported},
+    app::{App, ImportPurpose, Imported, LibraryImport},
     import::deck::{ConverterInfo, ConverterStatus},
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
@@ -97,6 +97,13 @@ impl Ops {
             let v = app.do_action("song/import", body.to_string().as_bytes()).await.map_err(|e| e.message)?;
             serde_json::from_value::<T>(v).map_err(|e| e.to_string())
         };
+        self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
+    /// `App::import_easyworship`, off the UI thread.
+    pub fn import_easyworship(&self, folder: PathBuf, done: impl FnOnce(Result<LibraryImport, String>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { app.import_easyworship(folder).await };
         self.run(work, |r| done(r.and_then(|r| r)));
     }
 

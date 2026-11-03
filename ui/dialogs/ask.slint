@@ -122,7 +122,7 @@ export component AskOverlay inherits Rectangle {
                 HorizontalLayout {
                     spacing: 8px;
                     alignment: end;
-                    cancel := Btn {
+                    if root.ask.cancel-label != "": cancel := Btn {
                         text: root.ask.cancel-label;
                         clicked => { root.answer(false, ""); }
                     }

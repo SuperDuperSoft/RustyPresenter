@@ -214,12 +214,31 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
         let me = Rc::downgrade(op);
         files::pick(op, Filter::Lyrics, true, move |paths| if let Some(op) = me.upgrade() { files::add_files(&op, paths) });
     }));
+    st.on_import_easyworship(with(|op, _| import_easyworship(op)));
     st.on_edit_song(with_id(|op, _, id| open_song_editor(op, Some(id), false)));
     st.on_add_row(with_id(|op, _, id| add_row(op, id)));
     st.on_bible_add(with(|op, _| add_verses(op, false)));
     st.on_bible_paste(with(|op, _| add_verses(op, true)));
     st.on_text_add(with(|op, _| add_text(op)));
     super::add_media::wire(op, ctx);
+}
+
+/// Asks where the library is, imports it, and says what came in. The picker has no file filter, as the folder
+/// is what `read_library` wants. EasyWorship's own files are only read.
+fn import_easyworship(op: &Rc<Operator>) {
+    let me = Rc::downgrade(op);
+    files::pick_folder(op, std::path::Path::new(tr::EASYWORSHIP_FOLDER), move |folder| {
+        let Some(op) = me.upgrade() else { return };
+        op.toast(tr::READING_EASYWORSHIP, false);
+        let me = Rc::downgrade(&op);
+        op.ops().import_easyworship(folder, move |done| {
+            let Some(op) = me.upgrade() else { return };
+            match done {
+                Ok(report) => super::ask::notice(&op, &tr::library_report(&report)),
+                Err(e) => op.toast(e, true),
+            }
+        });
+    });
 }
 
 /// The service column's "Add to service" opens the dialog on the Song tab (`operator.js:348`).
@@ -282,6 +301,73 @@ pub(crate) mod tests {
     pub(crate) fn last_toast(op: &Operator) -> Option<(String, bool)> { op.toast_log().last().cloned() }
 
     const TILES: [&str; 5] = ["AddDialog::song-tile", "AddDialog::bible-tile", "AddDialog::media-tile", "AddDialog::deck-tile", "AddDialog::text-tile"];
+
+    #[test]
+    fn easyworship_button_imports_the_picked_folder_and_reports() {
+        let dir = std::env::temp_dir().join(format!("rp-ew-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        crate::import::easyworship::tests::write_library(&dir, "Songs.db", &[
+            ("Imported One", "A", "111", None, Some(r"{\rtf1\ansi Verse 1\par Line\par}")),
+            ("Video Item", "", "", None, None),
+        ]);
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Song);
+        settle(&op);
+        files::testing::will_pick(vec![dir]);
+        click(&op, "AddSongTab::import-easyworship");
+        settle(&op);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        let ask = op.ui.get_ask().row_data(0).expect("the report is up");
+        assert!(ask.text.contains("Imported 1 song."), "{}", ask.text);
+        assert!(ask.text.contains("Video Item"), "{}", ask.text);
+        assert_eq!(ask.cancel_label, "", "a report has one button");
+        refresh(&op);
+        settle(&op);
+        assert_eq!(titles(&op), ["Imported One"], "the list shows the new song");
+    }
+
+    #[test]
+    fn easyworship_button_cancelled_does_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Song);
+        settle(&op);
+        click(&op, "AddSongTab::import-easyworship");
+        settle(&op);
+        assert!(app.data.lock().unwrap().songs.is_empty());
+        assert_eq!(op.ui.get_ask().row_count(), 0);
+        assert!(op.toast_log().is_empty());
+    }
+
+    #[test]
+    fn easyworship_folder_that_fails_shows_why() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Song);
+        settle(&op);
+        let dir = std::env::temp_dir().join(format!("rp-ew-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        files::testing::will_pick(vec![dir]);
+        click(&op, "AddSongTab::import-easyworship");
+        settle(&op);
+        let (text, err) = last_toast(&op).expect("a toast");
+        assert!(err && text.contains("No EasyWorship Songs.db"), "{text}");
+    }
+
+    #[test]
+    fn library_report_names_what_did_not_come_in() {
+        use crate::app::LibraryImport;
+        let all = LibraryImport { added: 2, ..Default::default() };
+        assert_eq!(tr::library_report(&all), "Imported 2 songs.");
+        let one = LibraryImport { added: 1, duplicates: vec!["Dup".into()], skipped: vec![("Video".into(), "no lyrics".into())] };
+        assert_eq!(tr::library_report(&one), "Imported 1 song.\n\n1 already in the library: Dup\n\nNot imported:\nVideo: no lyrics");
+        let many = LibraryImport { added: 0, duplicates: vec![], skipped: (0..14).map(|i| (format!("S{i}"), "why".into())).collect() };
+        let text = tr::library_report(&many);
+        assert!(text.starts_with("Imported 0 songs."), "{text}");
+        assert!(text.contains("S9: why") && !text.contains("S10: why"), "{text}");
+        assert!(text.ends_with("…and 4 more."), "{text}");
+    }
 
     #[test]
     fn add_dialog_opens_on_song_tab_from_add_button() {

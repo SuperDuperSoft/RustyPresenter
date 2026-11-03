@@ -876,6 +876,16 @@ pub enum SongImportMode {
     KeepBoth,
 }
 
+/// What importing another program's song library did.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct LibraryImport {
+    pub added: usize,
+    /// Titles of the songs already in the library, which were left as they are.
+    pub duplicates: Vec<String>,
+    /// (title, reason) for what could not become a song.
+    pub skipped: Vec<(String, String)>,
+}
+
 /// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
 /// A song with no `id` was not saved: it matches `duplicate_of` and the operator has to choose.
 #[derive(Clone, Debug)]
@@ -954,6 +964,20 @@ impl App {
             return Ok(Imported::Asset(app.store.publish(&tmp, sha, &ext).map_err(|e| ActionError::bad(e.to_string()))?));
         }
         import::media::import_media(app, &tmp, sha, &ext, display).await.map(Imported::Media).map_err(ActionError::bad)
+    }
+
+    /// Reads an EasyWorship library and saves its new songs in one step (spec §9.3).
+    pub async fn import_easyworship(&self, folder: PathBuf) -> Result<LibraryImport, String> {
+        let read = tokio::task::spawn_blocking(move || crate::import::easyworship::read_library(&folder));
+        let crate::import::ImportReport { songs, skipped } = read.await.map_err(|e| e.to_string())??;
+        self.edit(|d| {
+            let marks = crate::import::classify(&d.songs, &songs);
+            let mut done = LibraryImport { skipped, ..Default::default() };
+            for (song, mark) in songs.into_iter().zip(marks) {
+                if mark == crate::import::Dedupe::New { d.songs.push(song); done.added += 1 } else { done.duplicates.push(song.title) }
+            }
+            Ok(done)
+        })
     }
 
     /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
