@@ -251,8 +251,17 @@ impl App {
     /// Where the restored players should start, in seconds.
     pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
 
-    /// Used up by the player that takes it, so a later retrigger starts from the beginning.
-    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().remove(&inst) }
+    /// Kept until the instance goes on air, as a newer plan may prepare it again first; after that a retrigger
+    /// starts from the beginning.
+    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().get(&inst).copied() }
+
+    /// Forgets the resume positions of the instances the room just committed.
+    fn resume_on_air(&self) {
+        if self.resume.lock().unwrap().is_empty() { return }
+        let Some((frame, ..)) = self.live.lock().unwrap().committed() else { return };
+        let on_air: Vec<u64> = frame.instances().collect();
+        self.resume.lock().unwrap().retain(|inst, _| !on_air.contains(inst));
+    }
 
     pub fn set_notice(&self, text: &str) {
         self.live.lock().unwrap().notice = Some(text.into());
@@ -266,7 +275,7 @@ impl App {
             (live.report(ev), live.committed_version != before)
         };
         if changed { self.broadcast_live(); }
-        if committed { self.save_live_state(); }
+        if committed { self.resume_on_air(); self.save_live_state(); }
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
@@ -1010,13 +1019,36 @@ mod tests {
     }
 
     #[test]
-    fn resume_position_is_consumed_once() {
+    fn resume_position_lasts_until_on_air() {
         let app = test_app();
-        app.set_resume(&[(4, 12.5), (5, 3.0)]);
-        assert_eq!(app.resume_position(4), Some(12.5));
-        assert_eq!(app.resume_position(4), None);
-        assert_eq!(app.resume_position(6), None);
-        assert_eq!(app.resume_position(5), Some(3.0));
+        on_air(&app);
+        let (version, inst) = {
+            let live = app.live.lock().unwrap();
+            (live.version, live.frame.instances().next().expect("the shown frame has an instance"))
+        };
+        app.set_resume(&[(inst, 12.5), (inst + 100, 3.0)]);
+        assert_eq!(app.resume_position(inst), Some(12.5));
+        // A newer plan may prepare the same instance again before the first one went on air.
+        assert_eq!(app.resume_position(inst), Some(12.5));
+        assert_eq!(app.resume_position(inst + 1000), None);
+        app.room_event(RoomEvent::Committed { version });
+        assert_eq!(app.resume_position(inst), None, "a later replay starts from the beginning");
+        assert_eq!(app.resume_position(inst + 100), Some(3.0), "only what went on air is forgotten");
+    }
+
+    #[test]
+    fn a_stopped_writer_saves_nothing_more() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None, "a requested frame is not saved");
+        // A clean quit stops the writer, then clears: a later commit must not bring the file back.
+        state::clear(&app.store.root);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.stop_state_writer();
+        assert!(!state::path(&app.store.root).exists());
     }
 
     #[tokio::test]
