@@ -498,8 +498,12 @@ mod tests {
         let fx = fixture("hangfirst,pdf", false);
         let cancel = CancellationToken::new();
         let later = cancel.clone();
+        // Cancel once the first run is hanging; a cancel before the fake reaches `hangfirst` would leave it for the second run.
+        let hung = PathBuf::from(format!("{}.hung", fx.mark.display()));
         tokio::spawn(async move {
-            tokio::time::sleep(Duration::from_millis(300)).await;
+            while !hung.exists() {
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
             later.cancel();
         });
         let began = Instant::now();
