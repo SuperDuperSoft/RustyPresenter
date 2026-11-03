@@ -148,7 +148,8 @@ pub enum DeckWatchStep {
 impl DeckWatch {
     /// One look at a new snapshot (the web looks every 700 ms; here every `Data` update does).
     pub fn step(&mut self, jobs: &[view::JobRow], decks: &[Deck]) -> DeckWatchStep {
-        if let Some(j) = jobs.iter().find(|j| j.id == self.job) {
+        // An ended job can stay on the list for its note; its deck is ready then.
+        if let Some(j) = jobs.iter().find(|j| j.id == self.job && !j.done) {
             if j.error.is_some() { return DeckWatchStep::Failed }
             self.seen = true;
             return DeckWatchStep::Wait;
@@ -169,6 +170,14 @@ fn file_name(path: &Path) -> String { path.file_name().unwrap_or(path.as_os_str(
 /// service. A song or media file is added quietly with its own toast; a PowerPoint is added when its job ends. A
 /// failure toasts "`<file>`: `<error>`" and the next file goes on. The open dialog is redrawn at the end.
 pub fn add_files(op: &Rc<Operator>, paths: Vec<PathBuf>) { next_file(op, paths.into()); }
+
+/// Adds an imported song to the service; `toast` ends that file.
+fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Operator>, Result<Option<String>, String>) + 'static) {
+    let me = Rc::downgrade(op);
+    add_item(op, json!({ "kind": "song", "song_id": id }), true, move |r| {
+        if let Some(op) = me.upgrade() { then(&op, r.map(|_| Some(toast))); }
+    });
+}
 
 fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
     let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
@@ -200,11 +209,22 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
                     then(&op, r.map(|_| Some(if converting { tr::media_added_converting(&shown) } else { tr::media_added(&shown) })));
                 });
             }
-            Ok(Imported::Song { id, title, duplicate_of }) => {
-                if duplicate_of.is_some() { op.toast(tr::song_duplicate(&title), false); }
+            Ok(Imported::Song { id: Some(id), title, .. }) => add_song(&op, id, tr::song_imported(&title), then),
+            // Saved nothing: a song with this CCLI # is in the library. Asked one file at a time, like the rest.
+            Ok(Imported::Song { id: None, title, .. }) => {
                 let me = Rc::downgrade(&op);
-                add_item(&op, json!({ "kind": "song", "song_id": id }), true, move |r| {
-                    if let Some(op) = me.upgrade() { then(&op, r.map(|_| Some(tr::song_imported(&title)))); }
+                dialogs::choose(&op, &tr::song_in_library(&title), tr::UPDATE_EXISTING, tr::KEEP_BOTH, move |answer| {
+                    let Some(op) = me.upgrade() else { return };
+                    let Some(update) = answer else { return then(&op, Ok(None)) };
+                    let (mode, toast) = if update { ("update", tr::song_updated(&title)) } else { ("keep_both", tr::song_imported(&title)) };
+                    let me = Rc::downgrade(&op);
+                    op.ops.import_song::<Added>(path, mode, move |r| {
+                        let Some(op) = me.upgrade() else { return };
+                        match r {
+                            Ok(a) => add_song(&op, a.id, toast, then),
+                            Err(e) => then(&op, Err(e)),
+                        }
+                    });
                 });
             }
             Ok(Imported::Job(job)) => {
@@ -568,6 +588,90 @@ mod window_tests {
         assert!(cards(&op).is_empty(), "the upload card is gone");
     }
 
+    const SONG: &str = "A Test Song\r\n\r\nVerse 1\r\nLine one\r\nLine two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765";
+
+    /// A song is imported, then its file comes back with new words.
+    fn song_again(app: &Arc<App>, op: &Rc<Operator>) -> (Uuid, PathBuf) {
+        let txt = folder().join("song.txt");
+        std::fs::write(&txt, SONG).unwrap();
+        add_files(op, vec![txt.clone()]);
+        let ItemKind::Song { song_id } = items(app)[0].clone() else { panic!() };
+        std::fs::write(&txt, SONG.replace("Line one", "New words")).unwrap();
+        add_files(op, vec![txt.clone()]);
+        assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "“A Test Song” is already in the library.");
+        assert_eq!((items(app).len(), app.data.lock().unwrap().songs.len()), (1, 1), "nothing happens before the answer");
+        (song_id, txt)
+    }
+
+    fn lyrics(app: &App, id: Uuid) -> String { app.data.lock().unwrap().songs.iter().find(|s| s.id == id).unwrap().lyrics.clone() }
+
+    #[test]
+    fn duplicate_song_file_asks_update_or_keep_both() {
+        let app = test_app();
+        let op = opened(&app);
+        let (id, _) = song_again(&app, &op);
+        ask::answer(&op, true, String::new());
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        assert!(lyrics(&app, id).contains("New words"), "{}", lyrics(&app, id));
+        assert!(matches!(items(&app)[1], ItemKind::Song { song_id } if song_id == id), "the same song is added");
+        assert_eq!(toasts(&op).last().unwrap().0, "Updated “A Test Song”");
+
+        let app = test_app();
+        let op = opened(&app);
+        let (id, _) = song_again(&app, &op);
+        ask::answer_other(&op);
+        let songs = app.data.lock().unwrap().songs.clone();
+        assert_eq!(songs.len(), 2);
+        assert!(!lyrics(&app, id).contains("New words"));
+        let ItemKind::Song { song_id } = items(&app)[1].clone() else { panic!() };
+        assert_ne!(song_id, id);
+        assert!(lyrics(&app, song_id).contains("New words"));
+        assert_eq!(toasts(&op).last().unwrap().0, "Imported “A Test Song”");
+    }
+
+    #[test]
+    fn closing_duplicate_confirm_adds_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        song_again(&app, &op);
+        ask::answer(&op, false, String::new());
+        assert_eq!((items(&app).len(), app.data.lock().unwrap().songs.len()), (1, 1));
+    }
+
+    #[test]
+    fn a_duplicate_song_holds_back_the_next_file() {
+        let app = test_app();
+        let op = opened(&app);
+        let (_, txt) = song_again(&app, &op);
+        ask::answer(&op, false, String::new());
+        let dir = txt.parent().unwrap().to_path_buf();
+        add_files(&op, vec![txt, png(&dir, "next.png", 4)]);
+        assert_eq!(items(&app).len(), 1, "the picture waits for the question");
+        ask::answer(&op, false, String::new());
+        assert_eq!(items(&app).len(), 2);
+    }
+
+    #[test]
+    fn duplicate_answer_with_the_file_gone_says_so_and_goes_on() {
+        let app = test_app();
+        let op = opened(&app);
+        let (_, txt) = song_again(&app, &op);
+        std::fs::remove_file(&txt).unwrap();
+        ask::answer(&op, true, String::new());
+        let (text, err) = toasts(&op).last().unwrap().clone();
+        assert!(err && text.starts_with("song.txt: "), "{text}");
+        assert_eq!(items(&app).len(), 1);
+    }
+
+    #[test]
+    fn deck_watch_ends_on_a_finished_job_that_stays_for_its_note() {
+        let job = Uuid::new_v4();
+        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] };
+        let finished = view::JobRow { id: job, label: "Importing".into(), percent: 100, error: None, note: Some("Check the slides.".into()), cancellable: false, done: true };
+        let mut w = DeckWatch { job, before: HashSet::new(), seen: false };
+        assert_eq!(w.step(std::slice::from_ref(&finished), std::slice::from_ref(&new)), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]));
+    }
+
     #[test]
     fn add_txt_imports_song_and_adds_it() {
         let app = test_app();
@@ -578,13 +682,6 @@ mod window_tests {
         let ItemKind::Song { song_id } = items(&app)[0].clone() else { panic!() };
         assert!(app.data.lock().unwrap().songs.iter().any(|s| s.id == song_id && s.title == "A Test Song"));
         assert_eq!(toasts(&op), [("Imported “A Test Song”".to_string(), false)]);
-        // The same CCLI number again: a second copy, said so, and added too.
-        add_files(&op, vec![txt]);
-        assert_eq!(items(&app).len(), 2);
-        assert_eq!(toasts(&op)[1..], [
-            ("“A Test Song” was already in the library — added a second copy.".to_string(), false),
-            ("Imported “A Test Song”".to_string(), false),
-        ]);
     }
 
     #[test]
@@ -646,7 +743,7 @@ mod window_tests {
         let job = Uuid::new_v4();
         let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![] };
         let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] };
-        let running = view::JobRow { id: job, label: "Importing".into(), percent: 10, error: None };
+        let running = view::JobRow { id: job, label: "Importing".into(), percent: 10, error: None, note: None, cancellable: false, done: false };
         let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
         assert_eq!(w.step(&[], std::slice::from_ref(&old)), DeckWatchStep::Wait, "a read from before the job started");
         assert_eq!(w.step(std::slice::from_ref(&running), std::slice::from_ref(&old)), DeckWatchStep::Wait);

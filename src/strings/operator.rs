@@ -79,7 +79,10 @@ pub fn uploading_pictures(n: usize) -> String { format!("Uploading {n} picture{}
 pub fn media_added(name: &str) -> String { format!("{name} added") }
 pub fn media_added_converting(name: &str) -> String { format!("{name} added — converting so it plays smoothly…") }
 pub fn song_imported(title: &str) -> String { format!("Imported “{title}”") }
-pub fn song_duplicate(title: &str) -> String { format!("“{title}” was already in the library — added a second copy.") }
+pub fn song_in_library(title: &str) -> String { format!("“{title}” is already in the library.") }
+pub fn song_updated(title: &str) -> String { format!("Updated “{title}”") }
+pub const UPDATE_EXISTING: &str = "Update existing";
+pub const KEEP_BOTH: &str = "Keep both";
 pub fn deck_ready(title: &str) -> String { format!("“{title}” is ready") }
 pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
 pub const NAME_THESE_SLIDES: &str = "Name these slides";

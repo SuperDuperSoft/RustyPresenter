@@ -9,6 +9,8 @@ export struct AskRow {
     value: string,
     ok-label: string,
     cancel-label: string,
+    /// A second answer beside OK (`ask::choose`). Empty for none.
+    other-label: string,
     danger: bool,
 }
 
@@ -17,6 +19,8 @@ export component AskOverlay inherits Rectangle {
     in property <AskRow> ask;
     /// OK or Cancel, with the prompt's text.
     callback answer(bool, string);
+    /// The `other-label` button.
+    callback other();
 
     property <string> typed: root.ask.value;
 
@@ -121,6 +125,10 @@ export component AskOverlay inherits Rectangle {
                     cancel := Btn {
                         text: root.ask.cancel-label;
                         clicked => { root.answer(false, ""); }
+                    }
+                    if root.ask.other-label != "": other := Btn {
+                        text: root.ask.other-label;
+                        clicked => { root.other(); }
                     }
                     ok := Btn {
                         text: root.ask.ok-label;
