@@ -8,6 +8,9 @@ pub(crate) mod pending;
 pub mod song_editor;
 pub mod background;
 pub mod item_edit;
+pub mod phone;
+pub mod screens;
+pub mod services;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
 #[path = "../../strings/add.rs"]
@@ -153,6 +156,9 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { ask::answer(&op, ok, text.into()) });
     add::wire_add_button(op);
+    services::wire(op);
+    screens::wire(op);
+    phone::wire(op);
 }
 
 #[cfg(test)]

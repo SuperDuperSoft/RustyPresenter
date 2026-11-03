@@ -137,8 +137,15 @@ impl Operator {
     }
 
     /// Asks the follower for a fresh full read (monitors included), e.g. when the Screens dialog opens.
+    /// Without a follower (tests on the testing backend, `Ops::inline`) the read is done and applied at once.
     pub fn request_refresh(&self) {
-        let Some(feed) = self.feed.clone() else { return };
+        let Some(feed) = self.feed.clone() else {
+            if self.ops.is_inline() {
+                let player_missing = self.screens.video_info().player_missing();
+                self.apply_snapshot(Arc::new(OperatorSnapshot::read(&self.app).with_player_missing(player_missing)));
+            }
+            return
+        };
         let _ = std::thread::Builder::new().name("operator-refresh".into()).spawn(move || feed.read_all());
     }
 
