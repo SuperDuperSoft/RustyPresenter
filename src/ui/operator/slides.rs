@@ -221,6 +221,12 @@ pub(super) fn wire(op: &Rc<Operator>) {
     });
     // Edit opens Item edit (Task 18).
     let me = Rc::downgrade(op);
+    ui.on_slides_edit(move || {
+        let Some(op) = me.upgrade() else { return };
+        let selected = op.state.borrow().selected;
+        if let Some(id) = selected { crate::ui::dialogs::item_edit::open(&op, id) }
+    });
+    let me = Rc::downgrade(op);
     ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() { op.grid_resized(w) });
 }
 

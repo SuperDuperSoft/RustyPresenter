@@ -11,6 +11,7 @@ import { DialogShell, DialogBody } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
 import { AddDialog } from "dialogs/add.slint";
 import { SongEditor } from "dialogs/song-editor.slint";
+import { ItemEditDialog } from "dialogs/item-edit.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -279,7 +280,8 @@ export component OperatorWindow inherits Window {
             close => { root.dialog-close(); }
             if root.dialog-kind == "add": AddDialog { window-height: root.height; }
             if root.dialog-kind == "song-editor": SongEditor { window-height: root.height; }
-            if root.dialog-kind != "add" && root.dialog-kind != "song-editor": DialogBody {}
+            if root.dialog-kind == "item-edit": ItemEditDialog { close => { root.dialog-close(); } }
+            if root.dialog-kind != "add" && root.dialog-kind != "song-editor" && root.dialog-kind != "item-edit": DialogBody {}
         }
 
         for a in root.ask: AskOverlay {
