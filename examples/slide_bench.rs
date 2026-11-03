@@ -12,7 +12,10 @@
 //!   build with `--features renderer-wgpu`), skia-opengl, skia, skia-vulkan, skia-software (`--features
 //!   renderer-skia`, which on Windows needs the MSVC toolchain: rust-skia has no MinGW binaries) or software;
 //! * `RP_BENCH_WINDOWS`: 3 (operator + room + stage, the default) or 1 (operator only);
-//! * `RP_BENCH_CHANGES` (40), `RP_BENCH_INTERVAL_MS` (250), `RP_BENCH_ROOM` (room window size, `1280x720` pixels).
+//! * `RP_BENCH_CHANGES` (40), `RP_BENCH_INTERVAL_MS` (250), `RP_BENCH_ROOM` (room window size, `1280x720` pixels);
+//! * `RP_BENCH_ROOM_MONITOR`, `RP_BENCH_STAGE_MONITOR`: put the room / stage full screen on monitor n (1-based, as
+//!   listed at start), the way the app does, instead of a plain window on the operator's monitor. With two
+//!   monitors, `RP_BENCH_ROOM_MONITOR=2` is the setup that lags in church.
 //!
 //! One run prints a `BENCH,...` line. `--matrix [runs]` runs every renderer with 1 and 3 windows, `runs` times each
 //! (default 3), as child processes, and prints a table of medians. Build and run (release only):
@@ -27,6 +30,7 @@ use rustypresenter::{
     app::{App, Update},
     live::{Command, Envelope},
     model::{ItemKind, ServiceItem, Song},
+    platform::monitors,
     render::Renderer,
     store::Store,
     ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, room::Room, screens::NativeScreens, stage::Stage},
@@ -104,7 +108,11 @@ impl Frames {
 /// What the UI thread keeps while the windows are open.
 struct Open { _op: Rc<Operator>, _room: Option<Rc<Room>>, _stage: Option<Rc<Stage>>, frames: Vec<(&'static str, Frames)>, _stall_timer: Timer }
 
-thread_local! { static OPEN: RefCell<Option<Open>> = const { RefCell::new(None) }; }
+thread_local! {
+    static OPEN: RefCell<Option<Open>> = const { RefCell::new(None) };
+    /// Opens the windows, given the connected monitors (run once the event loop is active).
+    static SETUP: RefCell<Option<Box<dyn FnOnce(Vec<monitors::MonitorId>)>>> = const { RefCell::new(None) };
+}
 
 /// Lyrics of ten sections (ten slides), four long lines each.
 fn lyrics(n: usize) -> String {
@@ -192,16 +200,23 @@ fn run() {
 
     let (app2, handle) = (app.clone(), rt.handle().clone());
     let (stalls2, measuring2, last2) = (stalls.clone(), measuring.clone(), last_tick.clone());
-    let setup = move || {
+    let setup = move |mons: Vec<monitors::MonitorId>| {
         let ops = Ops::new(app2.clone(), handle);
         let op = Operator::open(app2.clone(), ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>).expect("operator window");
         op.window().set_maximized(true);
         let mut frames = vec![("operator", Frames::watch(op.window()))];
         let (mut room, mut stage) = (None, None);
         if windows > 1 {
-            let r = Room::open(app2.clone(), renderer.clone(), mpv.clone(), None).expect("room window");
-            r.window().set_position(PhysicalPosition::new(160, 80));
-            r.window().set_size(PhysicalSize::new(room_w, room_h));
+            // RP_BENCH_ROOM_MONITOR / RP_BENCH_STAGE_MONITOR = n: full screen on the n-th monitor (1-based), as
+            // the app puts them; otherwise a plain window on the operator's monitor.
+            for (i, m) in mons.iter().enumerate() { eprintln!("monitor {}: {} {}x{} at {:?}", i + 1, m.name, m.size.0, m.size.1, m.position) }
+            let on = |var: &str| std::env::var(var).ok().and_then(|n| n.parse::<usize>().ok()).and_then(|n| mons.get(n.wrapping_sub(1)).cloned());
+            let (room_mon, stage_mon) = (on("RP_BENCH_ROOM_MONITOR"), on("RP_BENCH_STAGE_MONITOR"));
+            let r = Room::open(app2.clone(), renderer.clone(), mpv.clone(), room_mon.clone()).expect("room window");
+            if room_mon.is_none() {
+                r.window().set_position(PhysicalPosition::new(160, 80));
+                r.window().set_size(PhysicalSize::new(room_w, room_h));
+            }
             // In OpenGL mode the video surface holds the notifier; its probe runs after each frame.
             let f = if mode == video::DrawMode::OpenGl {
                 let f = Frames::default();
@@ -213,9 +228,11 @@ fn run() {
                 Frames::watch(r.window())
             };
             frames.push(("room", f));
-            let s = Stage::open(app2.clone(), None).expect("stage window");
-            s.window().set_position(PhysicalPosition::new(40, 420));
-            s.window().set_size(PhysicalSize::new(640, 360));
+            let s = Stage::open(app2.clone(), stage_mon.clone()).expect("stage window");
+            if stage_mon.is_none() {
+                s.window().set_position(PhysicalPosition::new(40, 420));
+                s.window().set_size(PhysicalSize::new(640, 360));
+            }
             frames.push(("stage", Frames::watch(s.window())));
             room = Some(r);
             stage = Some(s);
@@ -228,7 +245,12 @@ fn run() {
         });
         OPEN.with(|o| *o.borrow_mut() = Some(Open { _op: op, _room: room, _stage: stage, frames, _stall_timer: timer }));
     };
-    Timer::single_shot(Duration::ZERO, setup);
+    // As the app opens its operator: from the active event loop, which also lists the monitors.
+    SETUP.with(|s| *s.borrow_mut() = Some(Box::new(setup)));
+    slint::winit_030::invoke_from_active_event_loop(|el| {
+        let (mons, _) = monitors::on_event_loop(el);
+        if let Some(f) = SETUP.with(|s| s.borrow_mut().take()) { f(mons) }
+    }).expect("event loop");
 
     // The driver: show the first slide, warm up, then `Next` every `interval` from a plain thread (as the phone
     // remote or the operator's actions do, off the UI thread).
