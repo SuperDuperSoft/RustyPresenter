@@ -21,6 +21,8 @@ pub struct LibreOffice {
     /// One permit: two LibreOffices cannot share a profile.
     gate: Semaphore,
     warmed: AtomicBool,
+    /// A conversion has held the gate, so the profile is already set up and a warm-up would only add a wait.
+    converted: AtomicBool,
     #[cfg(test)]
     extra_env: Vec<(String, String)>,
     #[cfg(test)]
@@ -39,6 +41,7 @@ impl LibreOffice {
             deps,
             gate: Semaphore::new(1),
             warmed: AtomicBool::new(false),
+            converted: AtomicBool::new(false),
             #[cfg(test)]
             extra_env: Vec::new(),
             #[cfg(test)]
@@ -85,6 +88,7 @@ impl LibreOffice {
             return Err(strings::LO_SNAP.to_string());
         }
         let _permit = self.enter(waiting, cancel).await?;
+        self.converted.store(true, Ordering::Relaxed);
         let out_dir = work.join("pdf");
         std::fs::create_dir_all(&out_dir).map_err(|e| Run::NotStarted(e.to_string()).message())?;
         let pdf = out_dir.join(input.file_stem().unwrap_or_default()).with_extension("pdf");
@@ -106,12 +110,16 @@ impl LibreOffice {
     }
 
     /// Starts LibreOffice once in the background, so the first import is not the slow one.
-    /// Holds the gate, so an import started meanwhile waits and never shares the profile.
+    /// Holds the gate, so an import started meanwhile waits and never shares the profile. Skipped when an import
+    /// got LibreOffice first, which has done the same job.
     pub async fn warm_up(self: Arc<Self>) {
         if self.soffice.snap || self.warmed.swap(true, Ordering::Relaxed) {
             return;
         }
         let Ok(_permit) = self.gate.acquire().await else { return };
+        if self.converted.load(Ordering::Relaxed) {
+            return;
+        }
         let Ok(mut args) = self.common_args() else { return };
         args.push("--terminate_after_init".into());
         let log = self.deps.join("libreoffice-warm-up.log");
@@ -463,6 +471,22 @@ mod tests {
         assert_eq!(*seen.lock().unwrap(), vec![true, false]);
         let (starts, ends) = (times(&fx.mark, "start"), times(&fx.mark, "end"));
         assert!(starts[1] >= ends[0], "{starts:?} {ends:?}");
+    }
+
+    /// An import that got LibreOffice first set the profile up, so warm-up does not start a second LibreOffice
+    /// that an import queued behind it would wait for.
+    #[tokio::test]
+    async fn warm_up_after_an_import_is_skipped() {
+        let fx = fixture("sleep:500,pdf", false);
+        let cancel = CancellationToken::new();
+        let import = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &cancel);
+        let warm = async {
+            tokio::time::sleep(Duration::from_millis(100)).await;
+            fx.lo.clone().warm_up().await;
+        };
+        let (pdf, ()) = tokio::join!(import, warm);
+        pdf.unwrap();
+        assert_eq!(times(&fx.mark, "start").len(), 1, "warm-up started LibreOffice again");
     }
 
     #[tokio::test]

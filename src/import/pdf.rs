@@ -3,8 +3,8 @@ use super::{CANCELLED, strings::*};
 use crate::platform::tools;
 use image::codecs::png::{CompressionType, FilterType, PngEncoder};
 use pdfium_render::prelude::{PdfColor, PdfDocument, PdfRenderConfig, Pdfium, PdfiumError};
-use std::{fs::File, io::{BufWriter, Read}, path::{Path, PathBuf}, sync::atomic::{AtomicBool, Ordering}, time::Duration};
-use tokio::sync::mpsc;
+use std::{fs::File, io::{BufWriter, Read}, path::{Path, PathBuf}, time::Duration};
+use tokio::sync::{mpsc, watch};
 use tokio_util::sync::CancellationToken;
 
 const PAGE_TIMEOUT: Duration = Duration::from_secs(5);
@@ -86,8 +86,9 @@ enum Reply {
 
 pub struct PdfRenderer {
     jobs: std::sync::mpsc::Sender<Job>,
-    /// A pdfium call cannot be interrupted, so a stuck thread stays stuck until the app restarts.
-    dead: AtomicBool,
+    /// A pdfium call cannot be interrupted, so a stuck thread stays stuck until the app restarts. Renders queued
+    /// behind the stuck one watch this, so they fail as soon as it is set rather than when their own wait runs out.
+    dead: watch::Sender<bool>,
     page_timeout: Duration,
 }
 
@@ -107,7 +108,7 @@ impl PdfRenderer {
         });
         thread.map_err(|_| PDFIUM_MISSING.to_string())?;
         ready.recv().map_err(|_| PDFIUM_MISSING.to_string())??;
-        Ok(PdfRenderer { jobs, dead: AtomicBool::new(false), page_timeout: PAGE_TIMEOUT })
+        Ok(PdfRenderer { jobs, dead: watch::Sender::new(false), page_timeout: PAGE_TIMEOUT })
     }
 
     /// Runs `backend` on the renderer's thread, with this time limit per page. For fakes.
@@ -115,17 +116,18 @@ impl PdfRenderer {
         let (jobs, queue) = std::sync::mpsc::channel();
         let thread = std::thread::Builder::new().name("pdfium".to_string()).spawn(move || serve(backend, queue));
         drop(thread);
-        PdfRenderer { jobs, dead: AtomicBool::new(false), page_timeout }
+        PdfRenderer { jobs, dead: watch::Sender::new(false), page_timeout }
     }
 
     fn stuck(&self) -> Result<Vec<PathBuf>, String> {
-        self.dead.store(true, Ordering::Relaxed);
+        self.dead.send_replace(true);
         Err(PDFIUM_STUCK.to_string())
     }
 
     /// Renders every page to `out_dir/slide-001.png`…, in order. `progress(done, total)` follows each page.
     pub async fn render(&self, pdf: PathBuf, out_dir: PathBuf, expected_ratio: Option<f32>, progress: Box<dyn Fn(usize, usize) + Send>, cancel: CancellationToken) -> Result<Vec<PathBuf>, String> {
-        if self.dead.load(Ordering::Relaxed) {
+        let mut died = self.dead.subscribe();
+        if *died.borrow_and_update() {
             return Err(PDFIUM_STUCK.to_string());
         }
         let (reply, mut replies) = mpsc::unbounded_channel();
@@ -140,6 +142,8 @@ impl PdfRenderer {
                 reply = tokio::time::timeout(wait, replies.recv()) => reply,
                 // The thread sees the same token when it reaches this job, and skips it.
                 _ = queued.cancelled(), if !begun => return Err(CANCELLED.to_string()),
+                // The render in front got stuck, so this one will never start.
+                _ = async { let _ = died.wait_for(|dead| *dead).await; }, if !begun => return Err(PDFIUM_STUCK.to_string()),
             };
             match reply {
                 Ok(Some(Reply::Begun)) => begun = true,
@@ -147,7 +151,7 @@ impl PdfRenderer {
                 Ok(Some(Reply::Page { done, total })) => progress(done, total),
                 Ok(Some(Reply::Done(result))) => return result,
                 Ok(None) => return self.stuck(),
-                Err(_) if !begun && !self.dead.load(Ordering::Relaxed) => {}
+                Err(_) if !begun && !*self.dead.borrow() => {}
                 Err(_) => return self.stuck(),
             }
         }
@@ -156,6 +160,11 @@ impl PdfRenderer {
 
 fn serve(mut backend: Box<dyn PdfBackend>, queue: std::sync::mpsc::Receiver<Job>) {
     for job in queue {
+        // Cancelled while it waited, or its caller gave up on the renderer: do not open the file or make its folder.
+        if job.cancel.is_cancelled() || job.reply.is_closed() {
+            let _ = job.reply.send(Reply::Done(Err(CANCELLED.to_string())));
+            continue;
+        }
         let _ = job.reply.send(Reply::Begun);
         let result = render_job(backend.as_mut(), &job);
         let _ = job.reply.send(Reply::Done(result));
@@ -530,6 +539,62 @@ mod tests {
         let (a, b) = tokio::join!(run(&r, &dir, CancellationToken::new()), run(&r, &dir, CancellationToken::new()));
         assert_eq!(a, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
         assert_eq!(b, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
+    }
+
+    /// Review Focus 21: a queued render hears at once that the one in front got stuck, not after its own wait.
+    #[tokio::test]
+    async fn a_queued_render_fails_as_soon_as_the_one_in_front_gets_stuck() {
+        let dir = Dir::new();
+        let mut fake = Fake::new(1);
+        fake.stuck_on = Some(0);
+        let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(1));
+        let start = std::time::Instant::now();
+        let queued = async {
+            let result = run(&r, &dir, CancellationToken::new()).await;
+            (result, start.elapsed())
+        };
+        let (a, (b, b_took)) = tokio::join!(run(&r, &dir, CancellationToken::new()), queued);
+        assert_eq!(a, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
+        assert_eq!(b, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
+        assert!(b_took < Duration::from_secs(4), "the queued render waited {b_took:?}, not the stuck one's 1 s");
+    }
+
+    /// A render cancelled while queued is skipped when the thread reaches it: the file is not opened, and its folder
+    /// (which the caller has already removed) is not made again.
+    #[tokio::test]
+    async fn a_cancelled_queued_render_is_skipped_by_the_thread() {
+        struct Counting(Fake, Arc<Mutex<usize>>);
+        impl PdfBackend for Counting {
+            fn open<'a>(&'a mut self, pdf: &Path) -> Result<Box<dyn PdfDoc + 'a>, String> {
+                *self.1.lock().unwrap() += 1;
+                if *self.1.lock().unwrap() == 1 {
+                    std::thread::sleep(Duration::from_millis(400));
+                }
+                self.0.open(pdf)
+            }
+        }
+        let dir = Dir::new();
+        let opens = Arc::new(Mutex::new(0));
+        let r = PdfRenderer::with_backend(Box::new(Counting(Fake::new(1), opens.clone())), Duration::from_secs(5));
+        let (pdf, front_out, queued_out) = (dir.0.join("in.pdf"), dir.0.join("front"), dir.0.join("queued"));
+        let cancel = CancellationToken::new();
+        let hit = cancel.clone();
+        let queued = async {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+            let pending = r.render(pdf.clone(), queued_out.clone(), None, Box::new(|_, _| ()), cancel);
+            tokio::spawn(async move {
+                tokio::time::sleep(Duration::from_millis(50)).await;
+                hit.cancel();
+            });
+            pending.await
+        };
+        let (front, queued) = tokio::join!(r.render(pdf.clone(), front_out, None, Box::new(|_, _| ()), CancellationToken::new()), queued);
+        assert_eq!(front.unwrap().len(), 1);
+        assert_eq!(queued, Err("Cancelled.".to_string()));
+        // A third render runs only after the thread has passed the cancelled one.
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await.unwrap().len(), 1);
+        assert_eq!(*opens.lock().unwrap(), 2, "the cancelled render was not opened");
+        assert!(!queued_out.exists(), "the cancelled render's folder was not made");
     }
 
     #[tokio::test]

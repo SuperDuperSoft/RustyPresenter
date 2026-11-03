@@ -122,15 +122,29 @@ fn append(log: &Path) -> io::Result<fs::File> {
     fs::OpenOptions::new().create(true).append(true).open(log)
 }
 
+/// The app's output goes to the log. Logging is best effort: a log that cannot be opened (a read-only or missing
+/// data folder) must not stop the app, which then explains the folder problem itself.
+fn app_output(log: &Path) -> (Stdio, Stdio) {
+    match append(log).and_then(|out| Ok((out.try_clone()?, out))) {
+        Ok((out, err)) => (out.into(), err.into()),
+        Err(e) => {
+            eprintln!("RustyPresenter could not open its log {}: {e}", log.display());
+            (Stdio::null(), Stdio::null())
+        }
+    }
+}
+
 struct Real<'a> { exe: &'a Path, log: &'a Path }
 
 impl Host for Real<'_> {
     fn launch(&mut self, args: &[OsString]) -> io::Result<ExitStatus> {
-        let out = append(self.log)?;
+        let (stdout, stderr) = app_output(self.log);
         let mut child = Command::new(self.exe).arg("--app").args(args).env("RUSTYPRESENTER_SUPERVISED", "1")
-            .stdin(Stdio::null()).stdout(out.try_clone()?).stderr(out).spawn()?;
+            .stdin(Stdio::null()).stdout(stdout).stderr(stderr).spawn()?;
         forward_to(&child);
-        child.wait()
+        let status = child.wait();
+        forget_child();
+        status
     }
 
     fn log(&mut self, line: &str) {
@@ -170,14 +184,28 @@ fn watch_signals() {
     }
 }
 
+/// Publishes the new app's pid for the signal handler. A signal that came just before then reached only the
+/// old app, so the new one is stopped here.
 #[cfg(unix)]
-fn forward_to(child: &Child) { CHILD.store(child.id() as i32, std::sync::atomic::Ordering::SeqCst); }
+fn forward_to(child: &Child) {
+    use std::sync::atomic::Ordering;
+    let pid = child.id() as i32;
+    CHILD.store(pid, Ordering::SeqCst);
+    if STOPPING.load(Ordering::SeqCst) { unsafe { libc::kill(pid, libc::SIGTERM); } }
+}
+
+/// The app has been waited for, so its pid may be reused: never signal it again.
+#[cfg(unix)]
+fn forget_child() { CHILD.store(0, std::sync::atomic::Ordering::SeqCst); }
 
 #[cfg(not(unix))]
 fn watch_signals() {}
 
 #[cfg(not(unix))]
 fn forward_to(_child: &Child) {}
+
+#[cfg(not(unix))]
+fn forget_child() {}
 
 #[cfg(windows)]
 pub fn shutting_down() -> bool {
@@ -205,7 +233,8 @@ fn give_up_text(log: &Path) -> String {
 }
 
 /// Tells the operator the app will not come back. Waits for them on Windows; elsewhere it only
-/// prints until a dialog crate is in the build.
+/// prints until a dialog crate is in the build (Plan 3 Task 15 adds `rfd`; then use `rfd::MessageDialog` there).
+/// The gap is on the Plan 4 Task 17 checklist.
 pub fn give_up_dialog(log: &Path) {
     if std::env::var_os("RUSTYPRESENTER_HEADLESS").is_some_and(|v| v == "1") { return; }
     let text = give_up_text(log);
@@ -397,6 +426,19 @@ mod tests {
         f.down_after = Some(1);
         assert_eq!(go(&mut f, &[]), exitcode::OK);
         assert_eq!(f.launched.len(), 1);
+    }
+
+    /// A log that cannot be opened must not stop the app: here the log's path is a folder.
+    #[test]
+    fn the_app_starts_when_its_log_cannot_be_opened() {
+        let dir = std::env::temp_dir().join(format!("rp-supervisor-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir).unwrap();
+        assert!(append(&dir).is_err());
+        // This test binary stands in for the app: it refuses `--app` and exits, which shows it was started.
+        let exe = std::env::current_exe().unwrap();
+        let status = Real { exe: &exe, log: &dir }.launch(&os(&["--list"]));
+        fs::remove_dir_all(&dir).unwrap();
+        assert!(status.is_ok(), "{status:?}");
     }
 
     #[test]

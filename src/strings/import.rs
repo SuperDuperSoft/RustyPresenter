@@ -11,6 +11,11 @@ pub const LO_SNAP: &str = "LibreOffice from Snap can't read RustyPresenter's fil
 pub const LO_NOT_STARTED: &str = "LibreOffice could not be started. Reinstall it and try again.";
 pub const NOT_PDF: &str = "This doesn't look like a PDF file.";
 
+// Media probes (Plan 4 Task 7). The raw mpv error goes to the log, never to the operator.
+pub const CANT_PLAY: &str = "This file can't be played.";
+pub const TOO_SLOW: &str = "This file took too long to open.";
+pub const BAD_PICTURE: &str = "This picture can't be opened. Save it as PNG or JPEG and try again.";
+
 pub const PDF_NO_SLIDES: &str = "This presentation has no slides.";
 pub const PDF_MIXED_SIZES: &str = "This presentation mixes slide sizes, which RustyPresenter can't show.";
 pub const PDFIUM_MISSING: &str = "The slide converter (pdfium) is missing. Reinstall RustyPresenter.";

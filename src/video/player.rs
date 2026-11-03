@@ -89,9 +89,9 @@ unsafe impl Send for Handle {}
 /// thread (the room's Slint render), so a room that is not drawing never answers.
 const GRAB_TIMEOUT: Duration = Duration::from_millis(500);
 
-/// A screenshot copied out of mpv's reply on the event thread.
+/// A `screenshot-raw` result, copied out of mpv. The live preview and import probes both read frames this way.
 #[derive(Debug)]
-struct RawFrame {
+pub(crate) struct RawFrame {
     w: u32,
     h: u32,
     stride: usize,
@@ -99,30 +99,33 @@ struct RawFrame {
 }
 
 impl RawFrame {
-    /// Reads the `screenshot-raw` result `{w, h, stride, format, data}`.
-    ///
-    /// # Safety
-    /// `n` must be a valid node from libmpv.
-    unsafe fn from_node(n: &mpv_node) -> Option<RawFrame> {
-        unsafe {
-            if n.get("format")?.string()?.to_bytes() != b"bgr0" {
-                return None;
-            }
-            let dim = |key| n.get(key).and_then(|v| v.int64()).and_then(|v| u32::try_from(v).ok()).filter(|&v| v > 0);
-            let (w, h) = (dim("w")?, dim("h")?);
-            // A flipped image would have a negative stride; `dim` turns that into a missing frame.
-            let stride = dim("stride")? as usize;
-            let need = stride.checked_mul(h as usize)?;
-            let data = n.get("data")?.bytes()?;
-            if stride < w as usize * 4 || data.len() < need {
-                return None;
-            }
-            Some(RawFrame { w, h, stride, bgrx: data[..need].to_vec() })
+    /// Reads the `screenshot-raw` result `{w, h, stride, format, data}`, keeping its pixels without another copy.
+    pub(crate) fn from_node(n: Node) -> Option<RawFrame> {
+        if n.get("format")?.as_str()? != "bgr0" {
+            return None;
         }
+        let dim = |key| match n.get(key)? {
+            Node::Int(v) => u32::try_from(*v).ok().filter(|&v| v > 0),
+            _ => None,
+        };
+        let (w, h) = (dim("w")?, dim("h")?);
+        // A flipped image would have a negative stride; `dim` turns that into a missing frame.
+        let stride = dim("stride")? as usize;
+        let need = stride.checked_mul(h as usize)?;
+        let Node::Map(entries) = n else { return None };
+        let mut bgrx = entries.into_iter().find_map(|(k, v)| match v {
+            Node::Bytes(data) if k == "data" => Some(data),
+            _ => None,
+        })?;
+        if stride < w as usize * 4 || bgrx.len() < need {
+            return None;
+        }
+        bgrx.truncate(need);
+        Some(RawFrame { w, h, stride, bgrx })
     }
 
-    /// RGB at `max_w` pixels wide or less, keeping the shape. Never enlarges.
-    fn to_rgb(&self, max_w: u32) -> Option<image::RgbImage> {
+    /// RGB at `max_w` pixels wide or less (0: any width), keeping the shape. Never enlarges.
+    pub(crate) fn to_rgb(&self, max_w: u32) -> Option<image::RgbImage> {
         let mut rgb = Vec::with_capacity(self.w as usize * self.h as usize * 3);
         for row in self.bgrx.chunks_exact(self.stride) {
             for px in row[..self.w as usize * 4].chunks_exact(4) {
@@ -491,7 +494,8 @@ impl Watch {
                     if ev.error < 0 || ev.data.is_null() {
                         return None;
                     }
-                    unsafe { RawFrame::from_node(&(*(ev.data as *const mpv_event_command)).result) }
+                    // mpv owns the reply and frees it at the next `wait_event`, so it is copied, never freed.
+                    RawFrame::from_node(unsafe { Node::from_raw(&(*(ev.data as *const mpv_event_command)).result) })
                 }),
                 EVENT_PROPERTY_CHANGE if !ev.data.is_null() => self.property(ev.reply_userdata, unsafe { &*(ev.data as *const mpv_event_property) }),
                 _ => {}
@@ -817,7 +821,7 @@ mod tests {
     #[test]
     fn frame_is_read_from_the_reply_node() {
         let mut data = [1, 2, 3, 0, 9, 9, 9, 9, 4, 5, 6, 0, 9, 9, 9, 9];
-        let f = with_node(1, 2, 8, c"bgr0", &mut data, |n| unsafe { RawFrame::from_node(n) }).expect("frame");
+        let f = with_node(1, 2, 8, c"bgr0", &mut data, |n| RawFrame::from_node(unsafe { Node::from_raw(n) })).expect("frame");
         assert_eq!((f.w, f.h, f.stride, f.bgrx.len()), (1, 2, 8, 16));
     }
 
@@ -832,11 +836,11 @@ mod tests {
             (3, 2, 8, c"bgr0"), // stride shorter than a row
             (2, 3, 8, c"bgr0"), // less data than the rows need
         ] {
-            let f = with_node(w, h, stride, format, &mut data, |n| unsafe { RawFrame::from_node(n) });
+            let f = with_node(w, h, stride, format, &mut data, |n| RawFrame::from_node(unsafe { Node::from_raw(n) }));
             assert!(f.is_none(), "{w}x{h} stride {stride}");
         }
         let not_a_map = mpv_node { u: mpv_node_value { int64: 1 }, format: FORMAT_INT64 };
-        assert!(unsafe { RawFrame::from_node(&not_a_map) }.is_none());
+        assert!(RawFrame::from_node(unsafe { Node::from_raw(&not_a_map) }).is_none());
     }
 
     #[test]

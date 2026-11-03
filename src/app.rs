@@ -139,6 +139,12 @@ pub struct Job {
     /// The job ended well and is only still listed for its note.
     #[serde(skip)]
     pub(crate) done: bool,
+    /// `FALLBACK_NOTE` was given; `note` starts with it.
+    #[serde(skip)]
+    pub(crate) fell_back: bool,
+    /// The latest note other than `FALLBACK_NOTE`.
+    #[serde(skip)]
+    pub(crate) other_note: Option<String>,
 }
 
 /// Counts a native room or stage window as a connected screen while it is held (like a web page's socket).
@@ -349,11 +355,12 @@ impl App {
     /// fallback first. So the deck pipeline sends "Imported with LibreOffice" only when it did not fall back.
     pub(crate) fn job_note(&self, id: Uuid, note: String) {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) {
-            j.note = Some(match j.note.take() {
-                Some(old) if old == FALLBACK_NOTE && note != FALLBACK_NOTE => format!("{old} {note}"),
-                Some(old) if note == FALLBACK_NOTE && old != FALLBACK_NOTE => format!("{note} {old}"),
-                _ => note,
-            });
+            if note == FALLBACK_NOTE { j.fell_back = true } else { j.other_note = Some(note) }
+            j.note = match (j.fell_back, &j.other_note) {
+                (true, Some(other)) => Some(format!("{FALLBACK_NOTE} {other}")),
+                (true, None) => Some(FALLBACK_NOTE.into()),
+                (false, other) => other.clone(),
+            };
         }
         self.broadcast_data();
     }
@@ -931,14 +938,19 @@ impl App {
         Ok(Imported::Media(m))
     }
 
-    /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
-    /// Returns the new song's id and title, and `duplicate_of`.
     /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
     /// and the library song with the same CCLI #. `Update` with no match adds the song: the old one may have
     /// been deleted while the question was open.
     fn import_song(&self, text: &str, mode: SongImportMode) -> Result<(Option<Uuid>, String, Option<Uuid>), String> {
         let song = songselect::import_txt(text)?;
         let title = song.title.clone();
+        // A question saves nothing, so it neither writes data.json nor tells the screens.
+        if mode == SongImportMode::Ask {
+            let data = self.data.lock().unwrap();
+            if let Some(s) = data.songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli) {
+                return Ok((None, title, Some(s.id)));
+            }
+        }
         let (id, duplicate_of) = self.edit(|d| {
             let existing = d.songs.iter_mut().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli);
             let duplicate_of = existing.as_ref().map(|s| s.id);
@@ -1360,8 +1372,10 @@ mod tests {
     async fn import_ask_with_duplicate_saves_nothing() {
         let app = test_app();
         let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let mut rx = app.subscribe();
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "ask")).await.unwrap();
         assert_eq!(v, json!({ "id": null, "title": "A Test Song (New Key)", "duplicate_of": first["id"] }));
+        assert!(matches!(rx.try_recv(), Err(broadcast::error::TryRecvError::Empty)), "the screens were told of a change");
         let songs = app.data.lock().unwrap().songs.clone();
         assert_eq!(songs.len(), 1);
         assert_eq!(songs[0].title, "A Test Song");
@@ -1573,6 +1587,21 @@ mod tests {
         app.job_note(id, FALLBACK_NOTE.into());
         app.job_note(id, FALLBACK_NOTE.into());
         assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(FALLBACK_NOTE), "not doubled");
+    }
+
+    #[test]
+    fn fallback_note_survives_later_notes_and_is_never_doubled() {
+        let count = "12 slides were expected but 11 were imported.";
+        let other = "Imported with LibreOffice — check the slides.";
+        let note = |notes: &[&str]| {
+            let app = test_app();
+            let id = app.job_start("Importing");
+            for n in notes { app.job_note(id, (*n).into()); }
+            app.jobs.lock().unwrap()[0].note.clone().unwrap()
+        };
+        assert_eq!(note(&[FALLBACK_NOTE, count, other]), format!("{FALLBACK_NOTE} {other}"));
+        assert_eq!(note(&[FALLBACK_NOTE, count, FALLBACK_NOTE]), format!("{FALLBACK_NOTE} {count}"));
+        assert_eq!(note(&[count, FALLBACK_NOTE, other]), format!("{FALLBACK_NOTE} {other}"));
     }
 
     #[test]

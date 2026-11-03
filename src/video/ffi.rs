@@ -155,53 +155,6 @@ pub struct mpv_event_command {
     pub result: mpv_node,
 }
 
-impl mpv_node {
-    /// The value under `key` of a map node.
-    ///
-    /// # Safety
-    /// The node must be a valid node from libmpv (or laid out the same way).
-    pub unsafe fn get(&self, key: &str) -> Option<&mpv_node> {
-        if self.format != FORMAT_NODE_MAP {
-            return None;
-        }
-        unsafe {
-            let list = self.u.list.as_ref()?;
-            let n = usize::try_from(list.num).ok()?;
-            (0..n).find(|&i| CStr::from_ptr(*list.keys.add(i)).to_bytes() == key.as_bytes()).map(|i| &*list.values.add(i))
-        }
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn int64(&self) -> Option<i64> {
-        (self.format == FORMAT_INT64).then(|| unsafe { self.u.int64 })
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn string(&self) -> Option<&CStr> {
-        if self.format != FORMAT_STRING {
-            return None;
-        }
-        unsafe { self.u.string.as_ref().map(|p| CStr::from_ptr(p)) }
-    }
-
-    /// # Safety
-    /// As for [`mpv_node::get`].
-    pub unsafe fn bytes(&self) -> Option<&[u8]> {
-        if self.format != FORMAT_BYTE_ARRAY {
-            return None;
-        }
-        unsafe {
-            let ba = self.u.ba.as_ref()?;
-            if ba.data.is_null() {
-                return None;
-            }
-            Some(std::slice::from_raw_parts(ba.data as *const u8, ba.size))
-        }
-    }
-}
-
 /// An `mpv_node` copied out of libmpv, so it stays valid after the original is freed.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Node {
@@ -257,7 +210,10 @@ impl Node {
                     let keys = (0..l.num.max(0) as usize).map(|i| text(*l.keys.add(i)));
                     Node::Map(keys.zip(values(l)).collect())
                 }),
-                FORMAT_BYTE_ARRAY => n.bytes().map_or(Node::None, |b| Node::Bytes(b.to_vec())),
+                FORMAT_BYTE_ARRAY => match n.u.ba.as_ref() {
+                    Some(ba) if !ba.data.is_null() => Node::Bytes(std::slice::from_raw_parts(ba.data as *const u8, ba.size).to_vec()),
+                    _ => Node::None,
+                },
                 _ => Node::None,
             }
         }

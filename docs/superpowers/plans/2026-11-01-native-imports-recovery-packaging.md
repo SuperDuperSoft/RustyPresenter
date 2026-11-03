@@ -1012,6 +1012,7 @@ Plan 3 Task 16 already created `about.toml`, `about.hbs`, the committed root `TH
   - Keynote and PDF decks.
   - Software video forced with `RP_FORCE_SOFTWARE=1`.
   - Crash restore by killing the app.
+  - Three crashes in a minute: the give-up dialog with the log path appears. On macOS and Linux it is only printed to stderr until `rfd` (Plan 3 Task 15) is in the build; then switch `recovery::supervisor::give_up_dialog` to `rfd::MessageDialog` there and check it.
   - Logout with the app open.
   - Uninstall keeps the data folder.
   - About shows the LGPL libmpv and opens the licences.

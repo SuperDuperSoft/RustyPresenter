@@ -282,10 +282,16 @@ function renderJobs() {
   const box = $('#jobs');
   const rows = [];
   for (const j of clientJobs.values()) rows.push(h('div', { class: 'job' }, h('div', {}, j.label), h('div', { class: 'bar' }, h('i', { style: `width:${j.percent}%` }))));
-  for (const j of (S ? S.jobs : [])) rows.push(h('div', { class: 'job' + (j.error ? ' err' : ''), 'data-job': j.id },
-    h('div', { style: 'display:flex;gap:8px;align-items:start' }, h('div', { style: 'flex:1' }, j.label, j.error ? h('div', { style: 'color:#ffb0b3;font-size:12.5px;margin-top:4px' }, j.error) : null),
-      j.error ? h('button', { class: 'dlg-close', onclick: () => guard(api)('job/dismiss', { id: j.id }) }, svg(I.close)) : null),
-    j.error ? null : h('div', { class: 'bar' }, h('i', { style: `width:${j.percent}%` }))));
+  for (const j of (S ? S.jobs : [])) {
+    // A job that ended with a note stays until dismissed, like one that failed.
+    const ended = j.error || (j.note && j.percent >= 100);
+    const msg = j.error ? h('div', { style: 'color:#ffb0b3;font-size:12.5px;margin-top:4px' }, j.error)
+      : j.note ? h('div', { style: 'color:var(--muted);font-size:12.5px;margin-top:4px' }, j.note) : null;
+    rows.push(h('div', { class: 'job' + (j.error ? ' err' : ''), 'data-job': j.id },
+      h('div', { style: 'display:flex;gap:8px;align-items:start' }, h('div', { style: 'flex:1' }, j.label, msg),
+        ended ? h('button', { class: 'dlg-close', onclick: () => guard(api)('job/dismiss', { id: j.id }) }, svg(I.close)) : null),
+      ended ? null : h('div', { class: 'bar' }, h('i', { style: `width:${j.percent}%` }))));
+  }
   box.replaceChildren(...rows);
 }
 

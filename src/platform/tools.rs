@@ -145,7 +145,20 @@ pub fn pdfium_candidates(data_dir: &Path) -> Vec<PathBuf> {
         Os::MacOs => "libpdfium.dylib",
         Os::Linux => "libpdfium.so",
     };
-    resources::native_candidates(&[NAME], "RP_PDFIUM", &resources::current_exe(), data_dir, "pdfium", &|k| std::env::var_os(k))
+    // The pdfium-binaries archive keeps the library in `bin/` (Windows) or `lib/` (macOS, Linux), so an archive
+    // unpacked into deps/pdfium is found as it is, as well as a flattened one.
+    const ARCHIVE_SUB: &str = match OS {
+        Os::Windows => "bin",
+        _ => "lib",
+    };
+    let mut out = resources::native_candidates(&[NAME], "RP_PDFIUM", &resources::current_exe(), data_dir, "pdfium", &|k| std::env::var_os(k));
+    let flat = data_dir.join("deps").join("pdfium").join(NAME);
+    let nested = data_dir.join("deps").join("pdfium").join(ARCHIVE_SUB).join(NAME);
+    let at = out.iter().position(|p| *p == flat).map_or(out.len(), |i| i + 1);
+    if !out.contains(&nested) {
+        out.insert(at, nested);
+    }
+    out
 }
 
 /// A `file://` address, for LibreOffice's `-env:UserInstallation`. `canonicalize` gives `\\?\C:\…` on Windows,
@@ -436,6 +449,10 @@ mod tests {
     fn pdfium_candidates_look_in_deps() {
         let c = pdfium_candidates(Path::new("/data"));
         assert!(c.iter().any(|p| p.starts_with("/data/deps/pdfium")), "{c:?}");
+        let sub = if OS == Os::Windows { "bin" } else { "lib" };
+        let flat = c.iter().position(|p| p.parent() == Some(Path::new("/data/deps/pdfium")));
+        let nested = c.iter().position(|p| p.parent() == Some(&Path::new("/data/deps/pdfium").join(sub)));
+        assert!(matches!((flat, nested), (Some(f), Some(n)) if n == f + 1), "the archive's {sub}/ folder is looked in too: {c:?}");
         assert!(c.last().is_some_and(|p| p.components().count() == 1), "{c:?}");
     }
 }

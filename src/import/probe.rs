@@ -3,6 +3,7 @@
 use super::CANCELLED;
 use crate::model::MediaKind;
 use crate::video::ffi::{self, ERROR_OPTION_NOT_FOUND, Mpv, Node, mpv_event_end_file, mpv_handle};
+use crate::video::player::RawFrame;
 use std::ffi::{CString, c_int};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -10,9 +11,7 @@ use std::time::{Duration, Instant};
 use tokio::sync::{Semaphore, SemaphorePermit};
 use tokio_util::sync::CancellationToken;
 
-pub const CANT_PLAY: &str = "This file can't be played.";
-pub const TOO_SLOW: &str = "This file took too long to open.";
-pub const BAD_PICTURE: &str = "This picture can't be opened. Save it as PNG or JPEG and try again.";
+pub use super::strings::{BAD_PICTURE, CANT_PLAY, TOO_SLOW};
 
 /// A probe's time limit, from opening the file to the thumbnail.
 const DEADLINE: Duration = Duration::from_secs(20);
@@ -53,6 +52,8 @@ pub struct Probe {
     pub duration: Option<f64>,
     pub size: Option<(u32, u32)>,
     pub thumb: Option<image::RgbImage>,
+    /// mpv's `track-list`, for the C6 check (`examples/probe.rs`). `Node::None` for pictures.
+    pub tracks: Node,
 }
 
 /// The kind of file a `track-list` describes. Cover art does not make an audio file a video.
@@ -74,20 +75,6 @@ pub fn thumb_time(duration: Option<f64>) -> f64 {
     duration.filter(|d| d.is_finite() && *d > 0.0).map_or(0.0, |d| (d * 0.1).min(1.0))
 }
 
-/// Rows of `bgr0` pixels, each `stride` bytes long, to RGB. Rows missing from `data` stay black.
-pub fn bgr0_to_rgb(w: u32, h: u32, stride: usize, data: &[u8]) -> image::RgbImage {
-    let mut img = image::RgbImage::new(w, h);
-    if stride < w as usize * 4 {
-        return img;
-    }
-    for (y, row) in data.chunks(stride).take(h as usize).enumerate() {
-        for (x, px) in row.chunks_exact(4).take(w as usize).enumerate() {
-            img.put_pixel(x as u32, y as u32, image::Rgb([px[2], px[1], px[0]]));
-        }
-    }
-    img
-}
-
 /// A 320 px wide JPEG.
 pub fn thumb_jpeg(img: &image::RgbImage) -> Vec<u8> {
     let (w, h) = img.dimensions();
@@ -103,12 +90,18 @@ pub fn probe_image(path: &Path) -> Result<Probe, String> {
     let reader = image::ImageReader::open(path).map_err(|_| BAD_PICTURE.to_string())?;
     let picture = reader.with_guessed_format().map_err(|_| BAD_PICTURE.to_string())?.decode().map_err(|_| BAD_PICTURE.to_string())?;
     let thumb = picture.to_rgb8();
-    Ok(Probe { kind: MediaKind::Image, duration: None, size: Some(thumb.dimensions()), thumb: Some(thumb) })
+    Ok(Probe { kind: MediaKind::Image, duration: None, size: Some(thumb.dimensions()), thumb: Some(thumb), tracks: Node::None })
 }
 
 /// True for an option error a probe can ignore.
 fn may_ignore(option: &str, code: c_int) -> bool {
     code == ERROR_OPTION_NOT_FOUND && LUA_OPTIONS.contains(&option)
+}
+
+/// The operator sees "This file can't be played."; what went wrong goes to the log.
+fn cant_play(what: &str, e: impl std::fmt::Display) -> String {
+    eprintln!("probe: {what}: {e}");
+    CANT_PLAY.to_string()
 }
 
 /// One mpv core, destroyed on drop.
@@ -128,29 +121,24 @@ impl Core {
         }
         let core = Core { mpv: mpv.clone(), h };
         for (k, v) in OPTIONS {
-            let (key, value) = (CString::new(*k).map_err(|e| e.to_string())?, CString::new(*v).map_err(|e| e.to_string())?);
+            let option = || format!("mpv option {k}={v}");
+            let (key, value) = (CString::new(*k).map_err(|e| cant_play(&option(), e))?, CString::new(*v).map_err(|e| cant_play(&option(), e))?);
             let code = unsafe { (mpv.set_option_string)(h, key.as_ptr(), value.as_ptr()) };
             if code < 0 && !may_ignore(k, code) {
-                return Err(format!("mpv option {k}={v}: {}", mpv.err(code)));
+                return Err(cant_play(&option(), mpv.err(code)));
             }
         }
         let code = unsafe { (mpv.initialize)(h) };
         if code < 0 {
-            return Err(format!("mpv start: {}", mpv.err(code)));
+            return Err(cant_play("mpv start", mpv.err(code)));
         }
         Ok(core)
     }
 
-    /// The picture on screen, if mpv can give one.
+    /// The picture on screen, if mpv can give a whole one: a broken frame gives no thumbnail, not a black one.
     fn grab(&self) -> Option<image::RgbImage> {
         let frame = unsafe { self.mpv.command_node(self.h, &["screenshot-raw", "video"]) }.ok()?;
-        if frame.get("format")?.as_str()? != "bgr0" {
-            return None;
-        }
-        let int = |key| frame.get(key).and_then(Node::as_f64).filter(|v| *v > 0.0);
-        let (w, h, stride) = (int("w")? as u32, int("h")? as u32, int("stride")? as usize);
-        let Node::Bytes(data) = frame.get("data")? else { return None };
-        Some(bgr0_to_rgb(w, h, stride, data))
+        RawFrame::from_node(frame)?.to_rgb(0)
     }
 }
 
@@ -169,13 +157,27 @@ enum Stage {
 
 /// Ask a headless mpv what `path` is. `Err` is a message for the operator (or [`CANCELLED`]).
 pub fn probe_blocking(mpv: &Arc<Mpv>, path: &Path, deadline: Duration, cancel: &CancellationToken) -> Result<Probe, String> {
+    probe_holding(mpv, path, deadline, cancel, None)
+}
+
+/// As `probe_blocking`, holding `slot` (a place among the probes that may run at once) until the core is gone.
+fn probe_holding(mpv: &Arc<Mpv>, path: &Path, deadline: Duration, cancel: &CancellationToken, slot: Option<SemaphorePermit<'static>>) -> Result<Probe, String> {
     let core = Core::new(mpv)?;
     let result = run(&core, path, deadline, cancel);
     // A file stuck in opening can hold mpv's shutdown for good, so a probe that gave up never waits for it.
     if matches!(&result, Err(e) if e == TOO_SLOW || e == CANCELLED) {
-        std::thread::spawn(move || drop(core));
+        drop_later(core, slot);
     }
     result
+}
+
+/// Drops `core` on its own thread. The slot goes with it, so a core that never shuts down keeps its slot and
+/// stuck files cannot pile up live mpv cores beside the room.
+fn drop_later<T: Send + 'static>(core: T, slot: Option<SemaphorePermit<'static>>) {
+    std::thread::spawn(move || {
+        drop(core);
+        drop(slot);
+    });
 }
 
 fn run(core: &Core, path: &Path, deadline: Duration, cancel: &CancellationToken) -> Result<Probe, String> {
@@ -233,8 +235,10 @@ fn loaded(core: &Core) -> Result<Probe, String> {
     let (mpv, h) = (&core.mpv, core.h);
     let tracks = unsafe { mpv.get_node(h, "track-list") }.ok_or(CANT_PLAY)?;
     let kind = classify(&tracks).ok_or(CANT_PLAY)?;
+    // Read once, here: a source that states no length (lavfi while paused) reports only the part demuxed so far
+    // later on (0.17 s of a 3 s clip, check C6), which is worse than no duration.
     let duration = unsafe { mpv.get_double(h, "duration") }.filter(|d| d.is_finite() && *d > 0.0);
-    Ok(Probe { kind, duration, size: None, thumb: None })
+    Ok(Probe { kind, duration, size: None, thumb: None, tracks })
 }
 
 /// Adds the thumbnail and the size as shown, when mpv has them.
@@ -264,13 +268,17 @@ async fn permit<'a>(gate: &'a Semaphore, cancel: &CancellationToken) -> Result<S
 
 /// Probe a file off the async threads.
 pub async fn probe(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: CancellationToken) -> Result<Probe, String> {
-    let joined = |e: tokio::task::JoinError| e.to_string();
     if is_picture(&path) {
+        let joined = |e: tokio::task::JoinError| {
+            eprintln!("probe: picture thread: {e}");
+            BAD_PICTURE.to_string()
+        };
         return tokio::task::spawn_blocking(move || probe_image(&path)).await.map_err(joined)?;
     }
     let mpv = mpv.ok_or(ffi::MISSING)?;
-    let _permit = permit(&PROBES, &cancel).await?;
-    tokio::task::spawn_blocking(move || probe_blocking(&mpv, &path, DEADLINE, &cancel)).await.map_err(joined)?
+    let slot = permit(&PROBES, &cancel).await?;
+    let probing = tokio::task::spawn_blocking(move || probe_holding(&mpv, &path, DEADLINE, &cancel, Some(slot)));
+    probing.await.map_err(|e| cant_play("probe thread", e))?
 }
 
 #[cfg(test)]
@@ -308,19 +316,26 @@ mod tests {
         assert_eq!(thumb_time(Some(3600.0)), 1.0);
     }
 
+    /// A probe that gave up keeps its slot until its mpv core is really gone, however long that takes.
     #[test]
-    fn bgr0_to_rgb_respects_stride() {
-        // 2×2, each row with 4 bytes of padding that must not be read as pixels.
-        let data = [1, 2, 3, 0, 4, 5, 6, 0, 9, 9, 9, 9, 7, 8, 9, 0, 10, 11, 12, 0, 9, 9, 9, 9];
-        let img = bgr0_to_rgb(2, 2, 12, &data);
-        assert_eq!(img.into_raw(), vec![3, 2, 1, 6, 5, 4, 9, 8, 7, 12, 11, 10]);
-    }
-
-    #[test]
-    fn bgr0_to_rgb_leaves_missing_rows_black() {
-        let img = bgr0_to_rgb(1, 2, 4, &[1, 2, 3, 0]);
-        assert_eq!(img.into_raw(), vec![3, 2, 1, 0, 0, 0]);
-        assert_eq!(bgr0_to_rgb(2, 1, 4, &[1, 2, 3, 0]).into_raw(), vec![0; 6]);
+    fn a_core_dropped_later_keeps_its_slot_until_it_is_gone() {
+        struct Stuck(std::sync::mpsc::Receiver<()>);
+        impl Drop for Stuck {
+            fn drop(&mut self) {
+                let _ = self.0.recv();
+            }
+        }
+        static GATE: Semaphore = Semaphore::const_new(1);
+        let (release, held) = std::sync::mpsc::channel();
+        drop_later(Stuck(held), Some(GATE.try_acquire().unwrap()));
+        std::thread::sleep(Duration::from_millis(100));
+        assert!(GATE.try_acquire().is_err(), "the slot came back while the core was still shutting down");
+        release.send(()).unwrap();
+        let free = Instant::now();
+        while GATE.try_acquire().is_err() {
+            assert!(free.elapsed() < Duration::from_secs(5), "the slot never came back");
+            std::thread::sleep(Duration::from_millis(10));
+        }
     }
 
     #[test]
@@ -438,17 +453,59 @@ mod tests {
         p
     }
 
+    fn media(name: &str) -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("experiments").join("media").join(name)
+    }
+
+    fn uniform(thumb: &image::RgbImage) -> bool {
+        let first = *thumb.get_pixel(0, 0);
+        thumb.pixels().all(|p| *p == first)
+    }
+
+    /// lavfi states no length while paused, so only the size and thumbnail are checked here (check C6).
     #[test]
-    fn probes_lavfi_video_duration_and_nonuniform_thumb() {
+    fn probes_lavfi_video_size_and_nonuniform_thumb() {
         let Some(mpv) = real_mpv() else { return };
         let path = lavfi("testsrc2=size=640x360:rate=30:duration=3");
         let probe = probe_blocking(&mpv, &path, Duration::from_secs(10), &CancellationToken::new()).unwrap();
         assert_eq!(probe.kind, MediaKind::Video);
-        assert!((probe.duration.unwrap() - 3.0).abs() < 0.2, "{:?}", probe.duration);
         assert_eq!(probe.size, Some((640, 360)));
-        let thumb = probe.thumb.unwrap();
-        let first = *thumb.get_pixel(0, 0);
-        assert!(thumb.pixels().any(|p| *p != first));
+        assert!(!uniform(&probe.thumb.unwrap()));
+    }
+
+    /// `testsrc2-3s.mp4`: 3 s of testsrc2 at 320x180, H.264, made with ffmpeg (check C6).
+    #[test]
+    fn probes_mp4_duration_and_nonuniform_thumb() {
+        let Some(mpv) = real_mpv() else { return };
+        let probe = probe_blocking(&mpv, &media("testsrc2-3s.mp4"), Duration::from_secs(10), &CancellationToken::new()).unwrap();
+        assert_eq!(probe.kind, MediaKind::Video);
+        assert!((probe.duration.unwrap() - 3.0).abs() < 0.2, "{:?}", probe.duration);
+        assert_eq!(probe.size, Some((320, 180)));
+        assert!(!uniform(&probe.thumb.unwrap()));
+    }
+
+    /// `rotated-phone.mp4`: the same clip with a phone's 90 degree display rotation. Size and thumbnail are as shown.
+    #[test]
+    fn a_rotated_phone_video_is_probed_upright() {
+        let Some(mpv) = real_mpv() else { return };
+        let probe = probe_blocking(&mpv, &media("rotated-phone.mp4"), Duration::from_secs(10), &CancellationToken::new()).unwrap();
+        assert_eq!(probe.size, Some((180, 320)));
+        assert_eq!(probe.thumb.unwrap().dimensions(), (180, 320));
+    }
+
+    /// The packaged libmpv is the LGPL build without Lua, which has no `osc`, `ytdl` or `load-scripts` options.
+    /// A probe must work there, and on a build with Lua.
+    #[test]
+    fn probe_works_on_lgpl_build_without_lua() {
+        let Some(mpv) = real_mpv() else { return };
+        let h = unsafe { (mpv.create)() };
+        assert!(!h.is_null());
+        let lua = unsafe { (mpv.set_option_string)(h, c"osc".as_ptr(), c"no".as_ptr()) } != ERROR_OPTION_NOT_FOUND;
+        unsafe { (mpv.terminate_destroy)(h) };
+        eprintln!("libmpv {} has Lua: {lua}", mpv.path().display());
+        let probe = probe_blocking(&mpv, &media("testsrc2-3s.mp4"), Duration::from_secs(10), &CancellationToken::new()).unwrap();
+        assert_eq!(probe.kind, MediaKind::Video);
+        assert!(probe.thumb.is_some());
     }
 
     #[test]
