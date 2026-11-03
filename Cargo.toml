@@ -47,14 +47,18 @@ tauri-build = "2"
 slint-build = "1.18"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_System_JobObjects", "Win32_System_Registry", "Win32_System_Threading"] }
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_System_Diagnostics_Debug", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_System_JobObjects", "Win32_System_Registry", "Win32_System_Threading"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+# Plan 4's `signal-hook` is a thin layer over this, which tokio already brings in.
+signal-hook-registry = "1.4"
 
 [profile.release]
 lto = "thin"
-strip = true
+# Release backtraces keep their names. No `split-debuginfo`: the local MinGW toolchain rejects it.
+debug = "line-tables-only"
+strip = "debuginfo"
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
