@@ -3,10 +3,15 @@
 use std::io;
 use std::path::{Path, PathBuf};
 
+pub mod libreoffice;
+pub mod pdf;
 pub mod sniff;
 
 #[path = "../strings/import.rs"]
 pub mod strings;
+
+/// What a cancelled import reports. No toast is shown for it.
+pub const CANCELLED: &str = "Cancelled.";
 
 /// A work folder for one import. Dropping it removes the folder and everything in it.
 pub struct WorkDir(PathBuf);
