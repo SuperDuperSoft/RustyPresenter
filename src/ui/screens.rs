@@ -4,13 +4,15 @@
 //! the binary; this layer only knows it to bring it forward and to place it away from the room.
 use super::{operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
-use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
+use crate::platform::{awake::KeepAwake, monitors::{self, Change, MonitorId, Watcher, pick, to_monitors}};
 use crate::render::Renderer;
 use crate::video::{FrameGrabber, ffi::Mpv};
 use slint::{CloseRequestResponse, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
 use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, atomic::{AtomicBool, Ordering}, mpsc}, thread::ThreadId, time::Duration};
 
 const NOT_CONNECTED: &str = "That screen is not connected right now.";
+/// Shown where a Linux desktop lists who is keeping it awake.
+const STAYING_AWAKE: &str = "A presentation is on screen";
 
 /// How the operator hears about a role's window.
 fn named(role: &str) -> &'static str { if role == "room" { "room screen" } else { "stage display" } }
@@ -36,10 +38,10 @@ impl Win {
 }
 
 /// The Slint thread's side: open windows (role, opening number, window, the guard that marks the
-/// role connected while it is open), the unplug watch and its timer, and the operator window (weak:
-/// the operator holds these screens).
+/// role connected while it is open), the unplug watch and its timer, the operator window (weak:
+/// the operator holds these screens), and the hold that keeps the computer awake while a window is open.
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>> }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>>, awake: Option<KeepAwake> }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -82,6 +84,9 @@ impl NativeScreens {
         let me = self.me.clone();
         let _ = invoke_from_active_event_loop(move |el| if let Some(s) = me.upgrade() { s.look(el); s.reopen() });
     }
+
+    #[cfg(test)]
+    fn keeps_awake(&self) -> bool { DESK.with(|d| d.borrow().awake.is_some()) }
 
     /// The first reopen brings back these roles, instead of what settings say. Call before `start`.
     pub fn set_restored(&self, roles: Vec<String>) { *self.restored.lock().unwrap() = Some(roles); }
@@ -267,8 +272,14 @@ impl NativeScreens {
         out.into_iter().map(|(_, _, w, _)| w).collect()
     }
 
+    /// Publishes the open roles. An open room or stage window also keeps the screens on: when Windows turns the
+    /// display off for being idle, every monitor goes dark, the projector included.
     fn sync_roles(&self) {
-        *self.roles.lock().unwrap() = DESK.with(|d| d.borrow().wins.iter().map(|(r, _, _, _)| r.clone()).collect());
+        *self.roles.lock().unwrap() = DESK.with(|d| {
+            let mut d = d.borrow_mut();
+            if d.wins.is_empty() { d.awake = None } else if d.awake.is_none() { d.awake = Some(KeepAwake::acquire(STAYING_AWAKE)) }
+            d.wins.iter().map(|(r, _, _, _)| r.clone()).collect()
+        });
     }
 }
 
@@ -446,6 +457,23 @@ mod tests {
         s.open("room", Some(&laptop.key())).unwrap();
         assert!(s.room_should_be_on_top(), "the room saved on the main monitor: the operator goes to the other one");
         s.shutdown();
+    }
+
+    #[test]
+    fn stays_awake_while_a_screen_is_open() {
+        let app = test_app();
+        let s = screens(&app);
+        assert!(!s.keeps_awake(), "nothing is showing");
+        s.open("room", None).unwrap();
+        assert!(s.keeps_awake(), "the room is up");
+        s.open("stage", None).unwrap();
+        s.close("room");
+        assert!(s.keeps_awake(), "the stage screen is still up");
+        s.close("stage");
+        assert!(!s.keeps_awake(), "the computer can rest again");
+        s.open("room", None).unwrap();
+        s.shutdown();
+        assert!(!s.keeps_awake());
     }
 
     #[test]
