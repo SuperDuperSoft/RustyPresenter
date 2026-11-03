@@ -25,11 +25,15 @@ chrono = { version = "0.4", default-features = false, features = ["clock"] }
 arboard = { version = "=3.7.0", default-features = false }
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp"] }
 pdfium-render = "0.8.37"
+rusqlite = { version = "=0.32.1", features = ["bundled", "backup"] }
+encoding_rs = "=0.8.35"
 # Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
 reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
+# OpenLP song lyrics are XML. Already in Cargo.lock; refuses DTDs, so no entity expansion.
+roxmltree = "=0.21.2"
 # Native file dialogs for the operator. 0.17 has no `tokio` feature: its xdg portal (Linux) runs on its own executor.
 rfd = { version = "=0.17.2", default-features = false, features = ["xdg-portal", "wayland", "common-controls-v6"] }
 # Plan 4: file addresses for LibreOffice, cancelling converters.
@@ -60,6 +64,11 @@ windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Found
 libc = "0.2"
 # Plan 4's `signal-hook` is a thin layer over this, which tokio already brings in.
 signal-hook-registry = "1.4"
+
+# Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, over D-Bus.
+[target.'cfg(target_os = "linux")'.dependencies]
+# Not pinned exactly: slint pulls zbus too, and Cargo.lock already fixes the version.
+zbus = { version = "5.19", default-features = false, features = ["blocking-api", "async-io"] }
 
 [profile.release]
 lto = "thin"

@@ -1,4 +1,4 @@
-//! Importing decks and media (Plan 4). Imports work in a private folder under `store.tmp()` and publish only
+//! Importing decks and media (Plan 4), and reading other programs' song libraries. Deck imports work in a private folder under `store.tmp()` and publish only
 //! when every asset is in the store, so a failed or cancelled import adds nothing.
 use crate::{app::App, platform::tools};
 use std::future::Future;
@@ -6,16 +6,25 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+pub mod chordpro;
+pub mod common;
 pub mod deck;
+pub mod easyworship;
 pub mod libreoffice;
 pub mod media;
+pub mod openlp;
+pub mod openlyrics;
+pub mod opensong;
 pub mod pdf;
 pub mod powerpoint;
 pub mod probe;
+pub mod propresenter;
 pub mod sniff;
 
 #[path = "../strings/import.rs"]
 pub mod strings;
+
+pub use common::{classify, Dedupe, ImportReport};
 
 /// At start-up of either binary: finds the converters and hands them to `App`. The returned future does what can
 /// wait, and is for the runtime to run: it clears away a LibreOffice left by a dead app, then warms up a new one.
