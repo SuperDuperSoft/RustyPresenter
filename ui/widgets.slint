@@ -313,8 +313,10 @@ export component PanelHead inherits HorizontalLayout {
     @children
 }
 
-/// `.transport .bar` / `.job .bar`: progress 0–100. The fill slides in 500 ms (`.transport .bar i`); a job bar sets
-/// `animated: false`, as `.job .bar i` has no transition.
+/// `.transport .bar` / `.job .bar`: progress 0–100. The fill steps to each new value: `.transport .bar i` slides in
+/// 500 ms on the web, but a Slint `animate` here would keep every window redrawing during playback (the animation
+/// flag is global in Slint 1.18). Position reports come twice a second, so the steps are small. `animated` is kept
+/// for the callers and the gallery; it no longer changes anything.
 export component Bar inherits Rectangle {
     in property <float> progress;
     in property <bool> animated: true;
@@ -327,7 +329,6 @@ export component Bar inherits Rectangle {
         height: parent.height;
         width: parent.width * clamp(root.progress, 0, 100) / 100;
         background: Theme.accent;
-        animate width { duration: root.animated ? 500ms : 0ms; easing: linear; }
     }
 }
 

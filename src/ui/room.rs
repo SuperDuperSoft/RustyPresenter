@@ -3,7 +3,7 @@
 /// Shared with the operator's live monitor (`ui::preview`), which draws the same layers small.
 pub mod prepare;
 
-use super::{Layer, RoomWindow, Side};
+use super::{RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent};
 use crate::platform::monitors::{self, MonitorId};
@@ -46,15 +46,49 @@ fn what(kind: Kind, f: &Frame) -> &'static str {
     }
 }
 
-/// The face that is current (shown, or fading out once the layer is hidden).
-#[cfg(test)]
-fn front(l: &Layer) -> &Side { if l.b_top { &l.b } else { &l.a } }
+/// A layer's two faces as Rust keeps them. `b_top`: face b is the current one; `shown`: the current face is
+/// visible. The window gets each face's picture and opacity as separate properties, so a change writes only the
+/// face it touches (writing one struct for the whole layer dirtied both pictures).
+#[derive(Clone, Default)]
+struct Faces { a: Side, b: Side, b_top: bool, shown: bool }
 
-/// Puts `side` on the face that is not showing and makes it current, so it fades in over the old one.
-pub(super) fn put(l: &mut Layer, side: Side) {
-    if l.shown { l.b_top = !l.b_top }
-    if l.b_top { l.b = side } else { l.a = side }
-    l.shown = true;
+impl Faces {
+    /// The face that is current (shown, or fading out once the layer is hidden).
+    #[cfg(test)]
+    fn front(&self) -> &Side { if self.b_top { &self.b } else { &self.a } }
+
+    /// Puts `side` on the face that is not showing and makes it current, so it fades in over the old one.
+    /// True when that is face b.
+    fn put(&mut self, side: Side) -> bool {
+        if self.shown { self.b_top = !self.b_top }
+        if self.b_top { self.b = side } else { self.a = side }
+        self.shown = true;
+        self.b_top
+    }
+
+    /// Where the opacities of faces a and b are heading.
+    fn ops(&self) -> (f32, f32) {
+        let on = |b: bool| if self.shown && self.b_top == b { 1.0 } else { 0.0 };
+        (on(false), on(true))
+    }
+}
+
+/// The room's picture layers, bottom to top, as indices into `Inner::faces`.
+const LAYERS: [Kind; 4] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo];
+
+fn index(kind: Kind) -> Option<usize> { LAYERS.iter().position(|k| *k == kind) }
+
+type SetSide = fn(&RoomWindow, Side);
+type SetOp = fn(&RoomWindow, f32);
+
+/// The window's setters for a layer's faces: picture a, picture b, opacity a, opacity b.
+fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
+    match LAYERS[i] {
+        Kind::Background => (RoomWindow::set_bg_a, RoomWindow::set_bg_b, RoomWindow::set_bg_a_op, RoomWindow::set_bg_b_op),
+        Kind::Media => (RoomWindow::set_media_a, RoomWindow::set_media_b, RoomWindow::set_media_a_op, RoomWindow::set_media_b_op),
+        Kind::Slide => (RoomWindow::set_slide_a, RoomWindow::set_slide_b, RoomWindow::set_slide_a_op, RoomWindow::set_slide_b_op),
+        _ => (RoomWindow::set_logo_a, RoomWindow::set_logo_b, RoomWindow::set_logo_a_op, RoomWindow::set_logo_b_op),
+    }
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
@@ -115,6 +149,13 @@ struct Inner {
     deferred: RefCell<Option<(Prep, Option<RoomEvent>)>>,
     /// Ends the half for `deferred` (restarted by each swap, so it is always the newest's).
     fade: Timer,
+    /// The picture layers' faces, by `index`.
+    faces: RefCell<[Faces; 4]>,
+    /// Drives the faces' opacities and the black overlay, redrawing only this window.
+    fader: Fader,
+    /// Each layer's (face a, face b) opacity, by `index`.
+    face_ops: [(Chan, Chan); 4],
+    black: Chan,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
     swap_probe: RefCell<Option<Box<dyn Fn()>>>,
     me: Weak<Inner>,
@@ -239,7 +280,7 @@ impl Inner {
     fn swap(&self, prep: Prep, commit: RoomEvent) {
         self.flush();
         if !prep.plan.fade_through_black { return self.apply(prep, Some(commit)) }
-        self.ui.set_black(1.0);
+        self.fader.fade(self.black, 1.0, HALF);
         *self.deferred.borrow_mut() = Some((prep, Some(commit)));
         let me = self.me.clone();
         self.fade.start(TimerMode::SingleShot, HALF, move || if let Some(i) = me.upgrade() { i.flush() });
@@ -248,21 +289,21 @@ impl Inner {
     /// Applies a swap that waited for black, and fades back in.
     fn flush(&self) {
         let d = self.deferred.borrow_mut().take();
-        if let Some((prep, commit)) = d { self.apply(prep, commit); self.ui.set_black(0.0) }
+        if let Some((prep, commit)) = d { self.apply(prep, commit); self.fader.fade(self.black, 0.0, HALF) }
     }
 
     fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
         let mut players = self.players.borrow_mut();
         for kind in &prep.plan.remove {
-            self.layer(*kind, |l| l.shown = false);
+            self.hide(*kind);
             if let Some(s) = slot(*kind) { self.retire(players[s].take()) }
         }
         for (kind, got) in prep.got {
             let old = slot(kind).and_then(|s| players[s].take());
             match got {
-                Got::Pic(side) => self.layer(kind, |l| put(l, side)),
+                Got::Pic(side) => self.put(kind, side),
                 Got::Play(p) => {
-                    self.layer(kind, |l| l.shown = false); // video is drawn under the scene; audio has no layer
+                    self.hide(kind); // video is drawn under the scene; audio has no layer
                     self.shared.started.lock().unwrap().insert(p.inst(), kind);
                     if let Some(s) = slot(kind) { players[s] = Some(p) }
                 }
@@ -303,17 +344,26 @@ impl Inner {
         }
     }
 
-    fn layer(&self, kind: Kind, f: impl FnOnce(&mut Layer)) {
-        let (get, set): (fn(&RoomWindow) -> Layer, fn(&RoomWindow, Layer)) = match kind {
-            Kind::Background => (RoomWindow::get_bg, RoomWindow::set_bg),
-            Kind::Media => (RoomWindow::get_media, RoomWindow::set_media),
-            Kind::Slide => (RoomWindow::get_slide, RoomWindow::set_slide),
-            Kind::Logo => (RoomWindow::get_logo, RoomWindow::set_logo),
-            Kind::Audio => return,
-        };
-        let mut l = get(&self.ui);
-        f(&mut l);
-        set(&self.ui, l);
+    /// Puts `side` on `kind`'s hidden face (only that face's picture is written) and crossfades to it.
+    fn put(&self, kind: Kind, side: Side) {
+        let Some(i) = index(kind) else { return };
+        let (on_b, ops) = { let mut f = self.faces.borrow_mut(); let on_b = f[i].put(side.clone()); (on_b, f[i].ops()) };
+        let (set_a, set_b, _, _) = setters(i);
+        if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
+        self.fade_to(i, ops);
+    }
+
+    /// Fades `kind` out (its pictures stay, for a later crossfade).
+    fn hide(&self, kind: Kind) {
+        let Some(i) = index(kind) else { return };
+        let ops = { let mut f = self.faces.borrow_mut(); f[i].shown = false; f[i].ops() };
+        self.fade_to(i, ops);
+    }
+
+    fn fade_to(&self, i: usize, (a, b): (f32, f32)) {
+        let (ca, cb) = self.face_ops[i];
+        self.fader.fade(ca, a, FADE);
+        self.fader.fade(cb, b, FADE);
     }
 
     fn close(&self) {
@@ -354,12 +404,18 @@ impl Room {
         let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
         let to_live = app.clone();
         let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { to_live.room_event(ev) });
+        // The faces' opacities and the black overlay, each written straight to this window.
+        let fader = Fader::new();
+        let op = |set: SetOp| { let w = ui.as_weak(); fader.channel(0.0, move |v| if let Some(ui) = w.upgrade() { set(&ui, v) }) };
+        let face_ops: [(Chan, Chan); 4] = std::array::from_fn(|i| { let (_, _, a, b) = setters(i); (op(a), op(b)) });
+        let black = op(RoomWindow::set_black);
         let inner = Rc::new_cyclic(|me: &Weak<Inner>| {
             let me2 = me.clone();
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, shared: shared.clone(), state: RefCell::default(),
-                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(), swap_probe: RefCell::default(), me: me.clone(),
+                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
+                faces: RefCell::default(), fader, face_ops, black, swap_probe: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -467,7 +523,33 @@ mod tests {
         }
         false
     }
-    fn size(l: &Layer) -> (u32, u32) { let s = front(l).image.size(); (s.width, s.height) }
+    /// The current face of `kind` as the window has it.
+    fn face(room: &Room, kind: Kind) -> Side {
+        let i = &room.inner;
+        let f = i.faces.borrow()[index(kind).unwrap()].clone();
+        let get: fn(&RoomWindow) -> Side = match (kind, f.b_top) {
+            (Kind::Background, false) => RoomWindow::get_bg_a, (Kind::Background, true) => RoomWindow::get_bg_b,
+            (Kind::Media, false) => RoomWindow::get_media_a, (Kind::Media, true) => RoomWindow::get_media_b,
+            (Kind::Slide, false) => RoomWindow::get_slide_a, (Kind::Slide, true) => RoomWindow::get_slide_b,
+            (_, false) => RoomWindow::get_logo_a, (_, true) => RoomWindow::get_logo_b,
+        };
+        let side = get(&i.ui);
+        assert_eq!(side.image.size(), f.front().image.size(), "the window has the face Rust put there");
+        side
+    }
+    fn size(room: &Room, kind: Kind) -> (u32, u32) { let s = face(room, kind).image.size(); (s.width, s.height) }
+    /// Whether `kind` is shown: its current face is fading in or fully in (the other one is heading out).
+    fn shown(room: &Room, kind: Kind) -> bool {
+        let i = &room.inner;
+        let idx = index(kind).unwrap();
+        let f = i.faces.borrow()[idx].clone();
+        let (a, b) = i.face_ops[idx];
+        let (front, back) = if f.b_top { (b, a) } else { (a, b) };
+        assert_eq!(i.fader.target(back), 0.0, "the other face fades out");
+        assert_eq!(f.shown, i.fader.target(front) == 1.0);
+        f.shown
+    }
+    fn black(room: &Room) -> f32 { room.inner.fader.target(room.inner.black) }
     fn open(app: &Arc<App>) -> Rc<Room> { Room::open(app.clone(), Renderer::new(), None, None).unwrap() }
 
     #[test]
@@ -477,12 +559,14 @@ mod tests {
         let v = show(&app, scripture(&app));
         let room = open(&app);
         let ui = &room.inner.ui;
-        assert!(pump_until(&room, 15.0, || size(&ui.get_slide()).0 > 0 && app.live_view().committed == v), "slide {:?}, committed {}", size(&ui.get_slide()), app.live_view().committed);
-        assert!(ui.get_slide().shown);
+        assert!(pump_until(&room, 15.0, || size(&room, Kind::Slide).0 > 0 && app.live_view().committed == v), "slide {:?}, committed {}", size(&room, Kind::Slide), app.live_view().committed);
+        assert!(shown(&room, Kind::Slide));
         // Drawn at the room's size, not scaled up from a thumbnail.
-        assert!(size(&ui.get_slide()).0 >= 1280, "{:?}", size(&ui.get_slide()));
-        assert!(ui.get_bg().shown, "the theme background is up");
-        assert!(!ui.get_media().shown && !ui.get_logo().shown && !ui.get_video());
+        assert!(size(&room, Kind::Slide).0 >= 1280, "{:?}", size(&room, Kind::Slide));
+        assert!(shown(&room, Kind::Background), "the theme background is up");
+        assert!(!shown(&room, Kind::Media) && !shown(&room, Kind::Logo) && !ui.get_video());
+        // The crossfade runs on the room's own timer and ends fully in.
+        assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0 && !room.inner.fader.running()));
     }
 
     #[test]
@@ -524,11 +608,11 @@ mod tests {
         *i.prep.borrow_mut() = Some(prep(plan, Frame::default()));
         i.fail(token, "it broke".into());
         // Only the commit went early: the layers still wait for the screen to be black.
-        assert!(i.deferred.borrow().as_ref().is_some_and(|d| d.1.is_none()) && i.ui.get_black() == 1.0, "the swap is shown before black");
+        assert!(i.deferred.borrow().as_ref().is_some_and(|d| d.1.is_none()) && black(&room) == 1.0, "the swap is shown before black");
         assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()));
         assert_eq!(app.live_view().item.map(|s| s.item_id), Some(two));
         i.flush();
-        assert!(i.deferred.borrow().is_none() && i.ui.get_black() == 0.0);
+        assert!(i.deferred.borrow().is_none() && black(&room) == 0.0);
     }
 
     #[test]
@@ -542,9 +626,9 @@ mod tests {
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
         swap(101);
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(100)); // the first half is over
-        assert!(i.deferred.borrow().is_some() && i.ui.get_black() == 1.0, "the second swap is applied before the screen is black");
+        assert!(i.deferred.borrow().is_some() && black(&room) == 1.0, "the second swap is applied before the screen is black");
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
-        assert!(i.deferred.borrow().is_none() && i.ui.get_black() == 0.0);
+        assert!(i.deferred.borrow().is_none() && black(&room) == 0.0);
     }
 
     #[test]
@@ -593,9 +677,10 @@ mod tests {
         let room = open(&app);
         assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
         let v = run(&app, Command::ClearAll);
-        let ui = &room.inner.ui;
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
-        assert!(!ui.get_slide().shown && !ui.get_bg().shown && !ui.get_media().shown && !ui.get_logo().shown);
+        assert!(LAYERS.iter().all(|k| !shown(&room, *k)));
+        let ui = &room.inner.ui;
+        assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() + ui.get_bg_a_op() + ui.get_bg_b_op() == 0.0), "faded out");
     }
 
     #[test]
@@ -606,9 +691,8 @@ mod tests {
         let still = media(&app, MediaKind::Image, "missing.png");
         let v = show(&app, text);
         let room = open(&app);
-        let ui = &room.inner.ui;
         assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
-        let before = size(&ui.get_slide());
+        let before = size(&room, Kind::Slide);
         show(&app, still);
         assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()), "no failure reported");
         let notice = app.live_view().notice.unwrap();
@@ -616,8 +700,8 @@ mod tests {
         // The engine goes back to what is on air, and the room commits that without changes.
         assert!(pump_until(&room, 5.0, || { let l = app.live_view(); !l.pending && l.committed > v }));
         assert!(app.live_view().frame.slide.is_some());
-        assert!(ui.get_slide().shown && size(&ui.get_slide()) == before);
-        assert!(!ui.get_media().shown);
+        assert!(shown(&room, Kind::Slide) && size(&room, Kind::Slide) == before);
+        assert!(!shown(&room, Kind::Media));
     }
 
     #[test]
@@ -627,14 +711,13 @@ mod tests {
         image::RgbaImage::from_pixel(64, 32, image::Rgba([200, 0, 0, 255])).save(app.store.asset_path("logo.png")).unwrap();
         app.data.lock().unwrap().settings.logo = Some("logo.png".into());
         let room = open(&app);
-        let ui = &room.inner.ui;
         let v = run(&app, Command::Logo);
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
-        assert!(ui.get_logo().shown);
-        assert_eq!(size(&ui.get_logo()), (64, 32));
+        assert!(shown(&room, Kind::Logo));
+        assert_eq!(size(&room, Kind::Logo), (64, 32));
         let v = run(&app, Command::ClearAll);
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
-        assert!(!ui.get_logo().shown);
+        assert!(!shown(&room, Kind::Logo));
     }
 
     #[test]
@@ -709,10 +792,11 @@ mod tests {
         let ui = &room.inner.ui;
         let v = show(&app, clip);
         let inst = app.live_view().frame.media.as_ref().unwrap().inst;
-        assert!(pump_until(&room, 10.0, || ui.get_black() > 0.5 || app.live_view().committed == v), "notice {:?}", app.live_view().notice);
-        assert!(ui.get_black() > 0.5, "starting a video fades through black");
+        assert!(pump_until(&room, 10.0, || black(&room) > 0.5 || app.live_view().committed == v), "notice {:?}", app.live_view().notice);
+        assert!(black(&room) > 0.5, "starting a video fades through black");
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
-        assert_eq!(ui.get_black(), 0.0);
+        assert_eq!(black(&room), 0.0);
+        assert!(pump_until(&room, 2.0, || ui.get_black() == 0.0), "the black overlay fades away");
         assert!(ui.get_video() && !ui.get_bg_visible());
         assert!(pump_until(&room, 5.0, || ui.get_video_frame().size().width > 0), "software frames reach the window");
         let playing = || app.live_view().media.is_some_and(|s| s.inst == inst && s.state == PlayState::Playing);

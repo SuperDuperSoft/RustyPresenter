@@ -6,7 +6,7 @@ use crate::{
     app::LiveView,
     live::Command,
     room::Kind,
-    ui::{Layer, OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, room::put, thumbs},
+    ui::{OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, thumbs},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
 use std::{rc::{Rc, Weak}, time::Duration};
@@ -62,21 +62,22 @@ impl Operator {
         self.follow_video(preview::drawn_video(&v.frame));
     }
 
+    /// The monitor cuts straight to each new layer (no crossfade): a fade here would redraw the operator window
+    /// for 400 ms on every slide change, while the room does its own crossfade.
     fn monitor_drawn(&self, layers: Vec<(Kind, Drawn)>) {
         for (kind, drawn) in layers {
-            let (get, set): (fn(&OperatorWindow) -> Layer, fn(&OperatorWindow, Layer)) = match kind {
-                Kind::Background => (OperatorWindow::get_monitor_bg, OperatorWindow::set_monitor_bg),
-                Kind::Media => (OperatorWindow::get_monitor_media, OperatorWindow::set_monitor_media),
-                Kind::Slide => (OperatorWindow::get_monitor_slide, OperatorWindow::set_monitor_slide),
-                Kind::Logo => (OperatorWindow::get_monitor_logo, OperatorWindow::set_monitor_logo),
+            let set: fn(&OperatorWindow, Side) = match kind {
+                Kind::Background => OperatorWindow::set_monitor_bg,
+                Kind::Media => OperatorWindow::set_monitor_media,
+                Kind::Slide => OperatorWindow::set_monitor_slide,
+                Kind::Logo => OperatorWindow::set_monitor_logo,
                 Kind::Audio => continue,
             };
-            let mut l = get(&self.ui);
-            match drawn {
-                Drawn::Pic(px, color) => put(&mut l, Side { image: px.map(|p| p.image()).unwrap_or_default(), color }),
-                Drawn::Hidden => l.shown = false,
-            }
-            set(&self.ui, l);
+            let side = match drawn {
+                Drawn::Pic(px, color) => Side { image: px.map(|p| p.image()).unwrap_or_default(), color },
+                Drawn::Hidden => Side::default(),
+            };
+            set(&self.ui, side);
         }
     }
 
@@ -471,12 +472,10 @@ mod tests {
         let id = add_text(&app, "A", "Amazing grace");
         let op = opened(&app);
         run(&op, Command::Show { item_id: id, slide: 0 });
-        let slide = op.ui.get_monitor_slide();
-        assert!(slide.shown);
-        let face = if slide.b_top { slide.b } else { slide.a };
-        assert!(face.image.size().width > 0, "the slide text is drawn");
-        assert!(op.ui.get_monitor_bg().shown, "the settings background is drawn");
+        assert!(op.ui.get_monitor_slide().image.size().width > 0, "the slide text is drawn");
+        assert!(op.ui.get_monitor_bg().color.alpha() > 0, "the settings background is drawn");
         click(&op, "LiveColumn::clear-all");
-        assert!(!op.ui.get_monitor_slide().shown);
+        let slide = op.ui.get_monitor_slide();
+        assert!(slide.image.size().width == 0 && slide.color.alpha() == 0, "cleared at once, with no fade");
     }
 }
