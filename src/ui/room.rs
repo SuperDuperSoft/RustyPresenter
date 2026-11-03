@@ -12,7 +12,7 @@ use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
 use slint::{ComponentHandle, Timer, TimerMode};
-use std::{cell::RefCell, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
+use std::{cell::{Cell, RefCell}, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}, mpsc::Sender};
 use tokio::sync::broadcast::error::RecvError;
 
@@ -158,6 +158,8 @@ struct Inner {
     /// Each layer's (face a, face b) opacity, by `index`.
     face_ops: [(Chan, Chan); 4],
     black: Chan,
+    /// The window level last set (`Room::set_on_top`); `None` until the window exists.
+    on_top: Cell<Option<bool>>,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
     swap_probe: RefCell<Option<Box<dyn Fn()>>>,
     me: Weak<Inner>,
@@ -420,7 +422,7 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, black, swap_probe: RefCell::default(), me: me.clone(),
+                faces: RefCell::default(), fader, face_ops, black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -435,6 +437,17 @@ impl Room {
     }
 
     pub fn window(&self) -> &slint::Window { self.inner.ui.window() }
+
+    /// Keeps the room window above other windows, or lets it go back to normal. Windows hands out paints top
+    /// window first, so on top the room's frames are no longer queued behind the operator's (`NativeScreens`
+    /// decides when: only full screen on a monitor of its own). Until the window exists nothing happens, and the
+    /// next call tries again.
+    pub fn set_on_top(&self, on: bool) {
+        use slint::winit_030::{WinitWindowAccessor, winit::window::WindowLevel};
+        if self.inner.on_top.get() == Some(on) { return }
+        let level = if on { WindowLevel::AlwaysOnTop } else { WindowLevel::Normal };
+        if self.window().with_winit_window(|w| w.set_window_level(level)).is_some() { self.inner.on_top.set(Some(on)) }
+    }
 
     /// The frame grabber of the player being drawn (the foreground video, else the background video), for the
     /// operator's live preview; `None` while no video is drawn.

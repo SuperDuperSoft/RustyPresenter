@@ -72,11 +72,14 @@ fn save_settings_round_trips_theme_and_lines() {
     f.set_lines(3);
     f.set_credits(2);
     f.set_ccli("12345".into());
+    assert!(f.get_room_on_top(), "on by default");
+    f.set_room_on_top(false);
     click(&op, "SettingsDialog::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
     assert_eq!((s.theme.color.as_str(), s.theme.position.as_str(), s.theme.shadow, s.theme.uppercase), ("#ffcc00", "lower", false, true));
     assert_eq!((s.lines_per_slide, s.credits.as_str(), s.church_ccli.as_str()), (4, "none", "12345"));
+    assert!(!s.room_on_top, "Settings → Video can let the room screen go behind other windows");
     assert_eq!(op.dialog(), None, "Save closes the dialog");
     assert!(toasts(&op).contains(&"Settings saved".to_string()));
 
