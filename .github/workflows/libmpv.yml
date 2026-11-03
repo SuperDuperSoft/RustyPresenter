@@ -1,0 +1,115 @@
+name: LGPL libmpv
+
+# Builds the LGPL libmpv that the installers bundle (packaging/libmpv/, pins in
+# packaging/pins.env). Publishing is manual: download the artifacts of a green run,
+# create release `libmpv-r<N>` with the three zips and libmpv-sources-r<N>.tar.xz, then
+# put the zips' sha256 values into packaging/pins.env.
+on:
+  workflow_dispatch:
+    inputs:
+      rev:
+        description: "Build revision N (libmpv-r<N>); empty uses LIBMPV_REV from packaging/pins.env"
+        required: false
+        default: ""
+  push:
+    paths:
+      - "packaging/libmpv/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            script: build-windows.sh
+          # Apple silicon only; Intel Macs are not supported (Plan 4 product question 4).
+          - os: macos-15
+            script: build-macos.sh
+          # Oldest glibc we support for the AppImage.
+          - os: ubuntu-22.04
+            script: build-linux.sh
+    runs-on: ${{ matrix.os }}
+    env:
+      BUILD_REV: ${{ inputs.rev }}
+      LIBMPV_WORK: ${{ github.workspace }}/packaging/out/libmpv
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      # A finished build is reused while the scripts and pins are unchanged.
+      - name: Cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: packaging/out/libmpv/artifacts
+          key: libmpv-${{ matrix.os }}-r${{ inputs.rev }}-${{ hashFiles('packaging/libmpv/**', 'packaging/pins.env') }}
+
+      # Toolchain only. Never MSYS2's ffmpeg or mpv packages.
+      - name: MSYS2 UCRT64
+        if: runner.os == 'Windows' && steps.cache.outputs.cache-hit != 'true'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            git
+            make
+            diffutils
+            zip
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-nasm
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-python
+
+      # Build tools only. Never Homebrew's ffmpeg or mpv.
+      - name: Homebrew tools
+        if: runner.os == 'macOS' && steps.cache.outputs.cache-hit != 'true'
+        run: brew install meson ninja nasm pkgconf
+
+      - name: Ubuntu packages
+        if: runner.os == 'Linux' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          # System libraries libmpv may link (all LGPL/MIT-compatible). No libav*-dev, no libmpv-dev.
+          sudo apt-get install -y build-essential nasm pkg-config zip xz-utils python3-pip \
+            zlib1g-dev libfontconfig-dev libasound2-dev libpulse-dev libva-dev libdrm-dev \
+            libegl-dev libgl-dev libx11-dev libxext-dev libxpresent-dev libxrandr-dev libxss-dev \
+            libxinerama-dev libxkbcommon-dev libwayland-dev wayland-protocols
+          # Ubuntu 22.04's meson is too old for mpv 0.41.
+          python3 -m pip install --user "meson>=1.3" ninja
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows' && steps.cache.outputs.cache-hit != 'true'
+        shell: msys2 {0}
+        run: packaging/libmpv/${{ matrix.script }}
+
+      - name: Build
+        if: runner.os != 'Windows' && steps.cache.outputs.cache-hit != 'true'
+        run: packaging/libmpv/${{ matrix.script }}
+
+      - name: Upload libmpv
+        uses: actions/upload-artifact@v4
+        with:
+          name: libmpv-${{ matrix.os }}
+          path: packaging/out/libmpv/artifacts/libmpv-*-r*.zip
+          if-no-files-found: error
+
+      # The sources are the same on every OS; one copy goes on the release.
+      - name: Upload sources
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: libmpv-sources
+          path: packaging/out/libmpv/artifacts/libmpv-sources-r*.tar.xz
+          if-no-files-found: error

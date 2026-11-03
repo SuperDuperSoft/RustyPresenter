@@ -1,0 +1,123 @@
+name: Packages
+
+# Installers for Windows (NSIS), macOS (app + dmg, Apple silicon) and Linux (AppImage +
+# deb), built with cargo-packager from Packager.toml after packaging/stage.sh. A `v*` tag
+# also publishes them on a GitHub Release, together with THIRD-PARTY-LICENSES.txt and the
+# libmpv source tarball (LGPL-2.1 §6(d): the source sits next to the download).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            stage: windows
+            formats: nsis
+          - os: macos-14
+            stage: macos
+            formats: app,dmg
+          - os: ubuntu-22.04
+            stage: linux
+            formats: appimage,deb
+    runs-on: ${{ matrix.os }}
+    env:
+      # Ignored off macOS. The Rust binary and libmpv both target macOS 12.
+      MACOSX_DEPLOYMENT_TARGET: "12.0"
+      # linuxdeploy is itself an AppImage; FUSE is not available on the runner.
+      APPIMAGE_EXTRACT_AND_RUN: "1"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Pins
+        run: grep -E '^[A-Z0-9_]+=' packaging/pins.env >> "$GITHUB_ENV"
+
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # Build: Slint's text layout needs fontconfig (see ci.yml; this assumes Plan 4 Task 12
+          # has removed Tauri and its webkit/gtk packages). Package: the AppImage's
+          # libmpv pulls in the same system libraries it was built against (libmpv.yml).
+          sudo apt-get install -y pkg-config libfontconfig-dev libxkbcommon0 \
+            libasound2 libpulse0 libva2 libva-drm2 libdrm2 libegl1 libgl1 libx11-6 libxext6 \
+            libxpresent1 libxrandr2 libxss1 libxinerama1 libwayland-client0 libwayland-cursor0 libwayland-egl1
+
+      - name: macOS tools
+        if: runner.os == 'macOS'
+        run: brew install dylibbundler
+
+      - name: cargo-packager
+        run: cargo install cargo-packager --locked --version "$CARGO_PACKAGER_VERSION"
+
+      # Downloads the pinned libmpv release and pdfium archive, checks their sha256 and stages them.
+      - name: Stage native libraries
+        run: packaging/stage.sh ${{ matrix.stage }}
+
+      # The AppImage bundles libmpv from /usr/lib* (Packager.toml appimage.libs).
+      - name: Install LGPL libmpv for the AppImage
+        if: runner.os == 'Linux'
+        run: |
+          sudo install -m 0644 packaging/out/libmpv-linux/libmpv.so.2 /usr/lib/x86_64-linux-gnu/
+          sudo ldconfig
+
+      - name: Package
+        run: cargo packager --release -c Packager.toml -f ${{ matrix.formats }}
+
+      - name: Verify the app signature
+        if: runner.os == 'macOS'
+        run: codesign --verify --deep --strict -v dist/RustyPresenter.app
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.stage }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pins
+        run: grep -E '^[A-Z0-9_]+=' packaging/pins.env >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: packages-*
+          path: release
+          merge-multiple: true
+
+      - name: libmpv sources
+        run: |
+          gh release download "libmpv-r$LIBMPV_REV" --repo "$LIBMPV_REPO" \
+            --pattern "libmpv-sources-r$LIBMPV_REV.tar.xz" --dir release
+          cp THIRD-PARTY-LICENSES.txt release/
+
+      - name: Release
+        run: |
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
+            --title "RustyPresenter ${GITHUB_REF_NAME#v}" --generate-notes release/*
