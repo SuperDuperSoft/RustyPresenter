@@ -13,6 +13,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
+use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
 /// Why an action failed. `status` follows HTTP (400 bad input, 403 not allowed, 404 unknown action).
@@ -116,8 +117,29 @@ pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crat
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
 
-#[derive(Serialize, Clone)]
-pub struct Job { pub(crate) id: Uuid, pub(crate) label: String, pub(crate) percent: u8, pub(crate) error: Option<String> }
+/// Says a PowerPoint import fell back to LibreOffice. `App::job_note` keeps it beside a later note.
+pub(crate) const FALLBACK_NOTE: &str = "PowerPoint couldn't open it; used LibreOffice.";
+
+/// A background job. The fields added for Plan 4 are left out of the JSON when unset, so the web operator's
+/// `jobs` stay as they were for an ordinary job.
+#[derive(Serialize, Clone, Default)]
+pub struct Job {
+    pub(crate) id: Uuid,
+    pub(crate) label: String,
+    pub(crate) percent: u8,
+    pub(crate) error: Option<String>,
+    /// Shown like `error`, but not red. A finished job with a note stays until it is dismissed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) note: Option<String>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) cancellable: bool,
+    /// The id of what the job made, e.g. the new deck.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) result: Option<Uuid>,
+    /// The job ended well and is only still listed for its note.
+    #[serde(skip)]
+    pub(crate) done: bool,
+}
 
 /// Counts a native room or stage window as a connected screen while it is held (like a web page's socket).
 pub struct ScreenGuard { app: Weak<App>, role: String }
@@ -141,6 +163,8 @@ pub struct App {
     pub(crate) phones: Mutex<Vec<Phone>>,
     pub(crate) attempts: Mutex<HashMap<IpAddr, Instant>>,
     pub(crate) jobs: Mutex<Vec<Job>>,
+    /// The cancel token of each running cancellable job; dropped when the job ends.
+    cancels: Mutex<HashMap<Uuid, CancellationToken>>,
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
@@ -174,7 +198,7 @@ impl App {
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
-            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]),
+            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
@@ -299,21 +323,69 @@ impl App {
 
     pub(crate) fn job_start(&self, label: &str) -> Uuid {
         let id = Uuid::new_v4();
-        self.jobs.lock().unwrap().push(Job { id, label: label.into(), percent: 0, error: None });
+        self.jobs.lock().unwrap().push(Job { id, label: label.into(), ..Job::default() });
         self.broadcast_data();
         id
+    }
+    /// `job_start` for a job with a Cancel button. The work watches the token and, once it has stopped, calls
+    /// `job_end_cancelled`.
+    pub(crate) fn job_start_cancellable(&self, label: &str) -> (Uuid, CancellationToken) {
+        let (id, token) = (Uuid::new_v4(), CancellationToken::new());
+        self.cancels.lock().unwrap().insert(id, token.clone());
+        self.jobs.lock().unwrap().push(Job { id, label: label.into(), cancellable: true, ..Job::default() });
+        self.broadcast_data();
+        (id, token)
+    }
+    /// Asks a job to stop. Unknown or finished ids are ignored.
+    pub fn job_cancel(&self, id: Uuid) {
+        if let Some(token) = self.cancels.lock().unwrap().get(&id) { token.cancel(); }
+    }
+    /// Changes a running job's label, e.g. to "Waiting for LibreOffice…" and back.
+    pub(crate) fn job_label(&self, id: Uuid, label: &str) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.label = label.into(); }
+        self.broadcast_data();
+    }
+    /// Sets the job's note. The last one wins, except that `FALLBACK_NOTE` and any other note are both kept, the
+    /// fallback first. So the deck pipeline sends "Imported with LibreOffice" only when it did not fall back.
+    pub(crate) fn job_note(&self, id: Uuid, note: String) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) {
+            j.note = Some(match j.note.take() {
+                Some(old) if old == FALLBACK_NOTE && note != FALLBACK_NOTE => format!("{old} {note}"),
+                Some(old) if note == FALLBACK_NOTE && old != FALLBACK_NOTE => format!("{note} {old}"),
+                _ => note,
+            });
+        }
+        self.broadcast_data();
+    }
+    pub(crate) fn job_result(&self, id: Uuid, made: Uuid) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.result = Some(made); }
     }
     pub(crate) fn job_progress(&self, id: Uuid, p: u8) {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { if j.percent == p { return; } j.percent = p; }
         let _ = self.tx.send(Update::Job { id, percent: p });
     }
+    /// Ends a job. One that ended well goes away, unless it has a note: then it stays, at 100%, until `job/dismiss`.
+    /// A failed one stays with its error.
     pub(crate) fn job_end(&self, id: Uuid, error: Option<String>) {
+        self.cancels.lock().unwrap().remove(&id);
         let mut jobs = self.jobs.lock().unwrap();
-        match error {
-            None => jobs.retain(|j| j.id != id),
-            Some(e) => if let Some(j) = jobs.iter_mut().find(|j| j.id == id) { j.error = Some(e); j.percent = 100; },
+        if let Some(j) = jobs.iter_mut().find(|j| j.id == id) {
+            if error.is_none() && j.note.is_none() {
+                jobs.retain(|j| j.id != id);
+            } else {
+                j.done = error.is_none();
+                j.error = error;
+                j.percent = 100;
+                j.cancellable = false;
+            }
         }
         drop(jobs);
+        self.broadcast_data();
+    }
+    /// Ends a job that stopped because it was cancelled: it leaves no error and no note.
+    pub(crate) fn job_end_cancelled(&self, id: Uuid) {
+        self.cancels.lock().unwrap().remove(&id);
+        self.jobs.lock().unwrap().retain(|j| j.id != id);
         self.broadcast_data();
     }
 
@@ -630,6 +702,11 @@ impl App {
                 d.decks.retain(|x| x.id != id);
                 Ok(())
             }));
+            Ok(json!({}))
+        }
+        "job/cancel" => {
+            let Id { id } = parse(body)?;
+            app.job_cancel(id);
             Ok(json!({}))
         }
         "job/dismiss" => {
@@ -1256,6 +1333,129 @@ mod tests {
     async fn import_path_missing_file_is_an_error() {
         let p = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
         assert_eq!(test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err().status, 400);
+    }
+
+    #[test]
+    fn note_survives_job_end_until_dismissed() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_note(id, "Imported with LibreOffice — check the slides.".into());
+        app.job_end(id, None);
+        {
+            let jobs = app.jobs.lock().unwrap();
+            assert_eq!(jobs.len(), 1);
+            assert_eq!(jobs[0].note.as_deref(), Some("Imported with LibreOffice — check the slides."));
+            assert_eq!(jobs[0].percent, 100);
+            assert!(jobs[0].done && !jobs[0].cancellable);
+        }
+        do_dismiss(&app, id);
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    fn do_dismiss(app: &Arc<App>, id: Uuid) {
+        tokio::runtime::Runtime::new().unwrap().block_on(app.do_action("job/dismiss", json!({ "id": id }).to_string().as_bytes())).unwrap();
+    }
+
+    #[test]
+    fn job_without_note_is_removed_on_end() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_end(id, None);
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn cancel_token_fires_and_job_disappears() {
+        let app = test_app();
+        let (id, token) = app.job_start_cancellable("Importing");
+        assert!(app.jobs.lock().unwrap()[0].cancellable);
+        assert!(!token.is_cancelled());
+        app.job_cancel(id);
+        assert!(token.is_cancelled());
+        assert_eq!(app.jobs.lock().unwrap().len(), 1, "the job stays until the work has stopped");
+        app.job_note(id, "A note from before the cancel.".into());
+        app.job_end_cancelled(id);
+        assert!(app.jobs.lock().unwrap().is_empty(), "no error and no note left behind");
+        assert!(app.cancels.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn every_end_drops_the_cancel_token() {
+        let app = test_app();
+        let (ok, _) = app.job_start_cancellable("a");
+        let (failed, _) = app.job_start_cancellable("b");
+        let (noted, _) = app.job_start_cancellable("c");
+        app.job_note(noted, "Note".into());
+        app.job_end(ok, None);
+        app.job_end(failed, Some("Nope".into()));
+        app.job_end(noted, None);
+        assert!(app.cancels.lock().unwrap().is_empty());
+        assert!(app.jobs.lock().unwrap().iter().all(|j| !j.cancellable), "nothing left to cancel");
+    }
+
+    #[tokio::test]
+    async fn job_cancel_action_is_wired() {
+        let app = test_app();
+        let (id, token) = app.job_start_cancellable("Importing");
+        app.do_action("job/cancel", json!({ "id": Uuid::new_v4() }).to_string().as_bytes()).await.expect("an unknown id is ignored");
+        assert!(!token.is_cancelled());
+        app.do_action("job/cancel", json!({ "id": id }).to_string().as_bytes()).await.unwrap();
+        assert!(token.is_cancelled());
+    }
+
+    #[test]
+    fn job_label_broadcasts() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        let mut rx = app.tx.subscribe();
+        app.job_label(id, "Waiting for LibreOffice…");
+        assert_eq!(app.jobs.lock().unwrap()[0].label, "Waiting for LibreOffice…");
+        assert!(matches!(rx.try_recv(), Ok(Update::Data)));
+    }
+
+    #[test]
+    fn job_note_broadcasts_and_the_last_one_wins() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        let mut rx = app.tx.subscribe();
+        app.job_note(id, "First".into());
+        assert!(matches!(rx.try_recv(), Ok(Update::Data)));
+        app.job_note(id, "Second".into());
+        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some("Second"));
+    }
+
+    #[test]
+    fn fallback_note_and_another_are_joined_fallback_first() {
+        let count = "12 slides were expected but 11 were imported.";
+        for notes in [[FALLBACK_NOTE, count], [count, FALLBACK_NOTE]] {
+            let app = test_app();
+            let id = app.job_start("Importing");
+            for n in notes { app.job_note(id, n.into()); }
+            assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(format!("{FALLBACK_NOTE} {count}").as_str()));
+        }
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_note(id, FALLBACK_NOTE.into());
+        app.job_note(id, FALLBACK_NOTE.into());
+        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(FALLBACK_NOTE), "not doubled");
+    }
+
+    #[test]
+    fn job_result_is_kept() {
+        let app = test_app();
+        let (id, deck) = (app.job_start("Importing"), Uuid::new_v4());
+        app.job_result(id, deck);
+        assert_eq!(app.jobs.lock().unwrap()[0].result, Some(deck));
+    }
+
+    #[test]
+    fn job_json_unchanged_without_new_fields() {
+        let app = test_app();
+        app.job_start("Importing");
+        let job = serde_json::to_value(&app.jobs.lock().unwrap()[0]).unwrap();
+        let mut keys: Vec<_> = job.as_object().unwrap().keys().map(String::as_str).collect();
+        keys.sort();
+        assert_eq!(keys, ["error", "id", "label", "percent"]);
     }
 
     #[tokio::test]

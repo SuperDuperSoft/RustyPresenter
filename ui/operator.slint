@@ -102,6 +102,7 @@ export component OperatorWindow inherits Window {
     in property <[ToastRow]> toasts;
     in property <[JobRow]> jobs;
     callback job-dismiss(string);
+    callback job-cancel(string);
 
     callback services();
     callback screens();
@@ -294,6 +295,7 @@ export component OperatorWindow inherits Window {
         height: root.height;
         jobs: root.jobs;
         dismiss(id) => { root.job-dismiss(id); }
+        cancel(id) => { root.job-cancel(id); }
     }
     ToastStack {
         x: 0px;
