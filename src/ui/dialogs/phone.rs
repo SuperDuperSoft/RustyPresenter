@@ -8,16 +8,17 @@ use crate::ui::{PairedPhone, PhoneDialogState, operator::window::Operator};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use slint::{ComponentHandle, ModelRc, Timer, TimerMode, VecModel};
-use std::{cell::Cell, rc::{Rc, Weak}, time::Duration};
+use std::{cell::{Cell, RefCell}, rc::{Rc, Weak}, time::Duration};
 use uuid::Uuid;
 
 /// `pair/start`'s answer. `qr` is an SVG, or null without a network address.
 #[derive(Deserialize)]
 struct Pairing { pin: String, qr: Option<String>, seconds: i64 }
 
-/// The open dialog's pairing: the countdown and whether a code is showing (then updates do not redraw).
+/// The open dialog's pairing: the countdown, whether a code is showing (then updates do not redraw) and the paired
+/// phones when it started (a new one means a phone just paired, which closes pairing).
 #[derive(Default)]
-struct PairState { timer: Timer, left: Cell<i64>, showing: Cell<bool> }
+struct PairState { timer: Timer, left: Cell<i64>, showing: Cell<bool>, phones: RefCell<Vec<Uuid>> }
 
 impl PairState {
     fn stop(&self) {
@@ -37,13 +38,21 @@ pub fn open(op: &Rc<Operator>) {
     let (me, st) = (Rc::downgrade(op), state.clone());
     g.on_remove(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { revoke(&op, &st, id) });
     let st = state.clone();
-    op.on_dialog_refresh(move |op| if !st.showing.get() { draw(op) });
+    op.on_dialog_refresh(move |op| {
+        // A phone that pairs (by QR code or PIN) closes pairing on the computer: show it in the list right away.
+        if st.showing.get() && phone_ids(op) != *st.phones.borrow() { st.stop() }
+        if !st.showing.get() { draw(op) }
+    });
     let st = state;
     op.on_dialog_close(move |op| {
         st.stop();
         op.ops().call::<Value>("pair/stop", json!({}), |_| {});
     });
     draw(op);
+}
+
+fn phone_ids(op: &Operator) -> Vec<Uuid> {
+    op.state.borrow().snap.as_ref().map(|s| s.phones_list.iter().map(|(id, _)| *id).collect()).unwrap_or_default()
 }
 
 /// Draws the note, the empty pairing area and the paired phones (`draw()`, `operator.js:833-843`).
@@ -59,7 +68,8 @@ fn draw(op: &Operator) {
     g.set_phones(ModelRc::new(VecModel::from(phones)));
 }
 
-/// Pair a phone (`startPair`, `operator.js:844-857`): the QR code, the PIN and a countdown ticking each second.
+/// Pair a phone (`startPair`, `operator.js:844-857`): the QR code (which pairs on its own: it carries a one-time
+/// secret), the PIN for typing instead, and a countdown ticking each second.
 fn start(op: &Rc<Operator>, state: &Rc<PairState>) {
     let (me, st) = (Rc::downgrade(op), Rc::downgrade(state));
     op.ops().call::<Pairing>("pair/start", json!({}), move |r| {
@@ -74,6 +84,7 @@ fn start(op: &Rc<Operator>, state: &Rc<PairState>) {
         g.set_qr(qr.unwrap_or_default());
         g.set_pin(p.pin.as_str().into());
         state.showing.set(true);
+        *state.phones.borrow_mut() = phone_ids(&op);
         state.left.set(p.seconds);
         tick(&op, &state);
         let (me, st) = (Rc::downgrade(&op), Rc::downgrade(&state));
@@ -123,7 +134,7 @@ mod tests {
         let root = std::env::temp_dir().join(format!("rp-test-{}", Uuid::new_v4()));
         let store = Store::open(root).unwrap();
         let data = store.load().unwrap();
-        App::new(store, data, 0, Some("http://192.168.1.20:7878".into()))
+        App::new(store, data, 0, Some("http://192.168.1.20:7878/remote".into()))
     }
 
     fn open_phone(app: &Arc<App>) -> Rc<Operator> {
@@ -142,7 +153,7 @@ mod tests {
         let op = open_phone(&app);
         assert_eq!(op.ui.get_dialog_title(), "Phone remote");
         assert_eq!(label(&op, "PhoneDialog::note"), "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer.");
-        assert_eq!(label(&op, "PhoneDialog::address"), "http://192.168.1.20:7878");
+        assert_eq!(label(&op, "PhoneDialog::address"), "http://192.168.1.20:7878/remote");
         assert!(find(&op, "PhoneDialog::none-yet").is_some(), "None yet.");
         assert!(find(&op, "PhoneDialog::pin").is_none(), "no code until Pair a phone");
 
@@ -166,10 +177,40 @@ mod tests {
         assert!(g.get_qr().size().width > 0);
         assert_eq!(find(&op, "PhoneDialog::qr").and_then(|e| e.accessible_value()).unwrap_or_default(), "qr");
         assert_eq!(label(&op, "PhoneDialog::countdown"), "Code works for 120 more seconds");
+        assert_eq!(label(&op, "PhoneDialog::scan"), "Scan this with your phone's camera. That's it.");
+        assert_eq!(label(&op, "PhoneDialog::or-type"), "Or open http://192.168.1.20:7878/remote and type");
         // An update while the code shows does not redraw (it would wipe the code).
         refresh(&op);
         settle(&op);
         assert!(find(&op, "PhoneDialog::pin").is_some());
+    }
+
+    #[test]
+    fn without_a_network_the_pin_steps_stay() {
+        let app = test_app();
+        let op = open_phone(&app);
+        click(&op, "PhoneDialog::pair-btn", 0);
+        assert_eq!(label(&op, "PhoneDialog::pin").len(), 6);
+        assert!(!op.ui.global::<PhoneDialogState>().get_has_qr());
+        assert!(find(&op, "PhoneDialog::scan").is_none());
+        assert!(find(&op, "PhoneDialog::or-type").is_none());
+    }
+
+    #[test]
+    fn a_phone_that_pairs_shows_in_the_list_right_away() {
+        let app = app_with_lan();
+        let op = open_phone(&app);
+        click(&op, "PhoneDialog::pair-btn", 0);
+        assert!(find(&op, "PhoneDialog::none-yet").is_some());
+        // What a successful /remote/pair does: close pairing, add the phone, broadcast.
+        *app.pairing.lock().unwrap() = None;
+        app.phones.lock().unwrap().push(Phone { id: Uuid::new_v4(), name: "iPhone".into(), hash: String::new(), last_seen: 0 });
+        refresh(&op);
+        settle(&op);
+        assert_eq!(label(&op, "PhoneDialog::phone-row"), "iPhone");
+        assert!(find(&op, "PhoneDialog::pin").is_none(), "the used code goes away");
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(3));
+        assert!(find(&op, "PhoneDialog::pin").is_none(), "and the countdown stopped");
     }
 
     #[test]

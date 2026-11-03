@@ -849,7 +849,7 @@ function openScreens() {
 }
 
 // ----- phone -----
-let pairTimer = null;
+let pairTimer = null, pairedAt = '';
 function openPhone() {
   const box = h('div');
   const draw = () => box.replaceChildren(
@@ -865,9 +865,15 @@ function openPhone() {
     let left = r.seconds;
     const area = box.querySelector('#pairArea');
     const count = h('div', { style: 'color:var(--muted)' });
+    pairedAt = S.phones.map(p => p.id).join();
+    // With a QR code, scanning is all it takes (it carries a one-time secret); the PIN is the smaller fallback.
     area.replaceChildren(h('div', { class: 'pair' },
       h('div', { class: 'qr', html: r.qr || '' }),
-      h('div', {},
+      r.qr ? h('div', {},
+        h('div', { style: 'font-size:18px;font-weight:700' }, 'Scan this with your phone’s camera. That’s it.'),
+        h('div', { style: 'color:var(--muted);margin-top:14px' }, `Or open ${r.url} and type`),
+        h('div', { class: 'pin', style: 'font-size:24px' }, r.pin), count)
+      : h('div', {},
         h('div', { style: 'font-size:15px' }, '1. On the phone, open the camera and scan the code (or type the address).'),
         h('div', { style: 'font-size:15px;margin-top:10px' }, '2. Enter this code on the phone:'),
         h('div', { class: 'pin' }, r.pin), count)));
@@ -877,7 +883,13 @@ function openPhone() {
   }
   draw();
   dialog('Phone remote', box, null, { onClose: () => { clearInterval(pairTimer); api('pair/stop').catch(() => {}); } });
-  dialogRefresh = () => { const area = box.querySelector('#pairArea'); if (!area || !area.children.length) draw(); };
+  // A phone that pairs closes pairing: show it in the list right away.
+  dialogRefresh = () => {
+    const area = box.querySelector('#pairArea');
+    if (area && area.children.length && S.phones.map(p => p.id).join() !== pairedAt) clearInterval(pairTimer);
+    else if (area && area.children.length) return;
+    draw();
+  };
 }
 
 // ----- settings -----
