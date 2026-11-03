@@ -267,7 +267,7 @@ fn run() {
     let app = App::new(store, data, 4397, None);
     let clip = (scenario == Scenario::Playback).then(|| {
         write_clip(&app.store.asset_path("bench-clip.gif"));
-        let media = MediaFile { id: Uuid::new_v4(), name: "Bench clip".into(), kind: MediaKind::Video, asset: "bench-clip.gif".into(), status: MediaStatus::Ready, original_asset: None };
+        let media = MediaFile { id: Uuid::new_v4(), name: "Bench clip".into(), kind: MediaKind::Video, asset: "bench-clip.gif".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: true }, background: None, notes: String::new() };
         let id = item.id;
         let mut data = app.data.lock().unwrap();
