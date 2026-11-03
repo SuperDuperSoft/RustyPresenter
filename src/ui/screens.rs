@@ -45,6 +45,8 @@ pub struct NativeScreens {
     /// Monitors as last seen (every 2 s), and the main one, where the operator works.
     seen: Mutex<(Vec<MonitorId>, Option<MonitorId>)>,
     roles: Mutex<Vec<String>>,
+    /// After a crash: the roles that were open, for the first reopen (`restore_roles`).
+    restored: Mutex<Option<Vec<String>>>,
 }
 
 impl NativeScreens {
@@ -54,7 +56,7 @@ impl NativeScreens {
         if let Some(m) = mpv.clone() { let _ = std::thread::Builder::new().name("mpv-versions".into()).spawn(move || { m.versions(); }); }
         Arc::new_cyclic(|me| NativeScreens {
             app: Arc::downgrade(app), renderer, mpv, ui: std::thread::current().id(), me: me.clone(),
-            seen: Mutex::default(), roles: Mutex::default(),
+            seen: Mutex::default(), roles: Mutex::default(), restored: Mutex::default(),
         })
     }
 
@@ -128,14 +130,28 @@ impl NativeScreens {
         }
     }
 
-    /// Reopen room and stage from settings, never on the operator's (main) monitor by itself.
+    /// After a crash, the next start reopens exactly `roles` (the windows that were open) instead of what
+    /// settings say. Call before `start`.
+    pub fn restore_roles(&self, roles: Vec<String>) { *self.restored.lock().unwrap() = Some(roles); }
+
+    /// Reopen room and stage on their saved monitors. From settings, never on the operator's (main) monitor
+    /// by itself; after a crash, the roles that were open, wherever `pick` finds their monitor (an operator
+    /// who put one on the main monitor did it on purpose), or as a plain window when none was saved.
     fn reopen(&self) {
         let Some(app) = self.app.upgrade() else { return };
         let saved = app.data.lock().unwrap().settings.displays.clone();
         let (list, main) = self.seen.lock().unwrap().clone();
+        let restored = self.restored.lock().unwrap().take();
         for (role, id) in [("room", saved.room), ("stage", saved.stage)] {
-            let Some(m) = id.and_then(|id| pick(&list, Some(&id), main.as_ref())).filter(|m| Some(m) != main.as_ref()) else { continue };
-            if let Err(e) = self.show(role, Some(m)) { eprintln!("Could not reopen the {}: {e}", named(role)) }
+            // `None`: stays closed; `Some(None)`: a plain window.
+            let open: Option<Option<MonitorId>> = match (&restored, id) {
+                (Some(roles), _) if !roles.iter().any(|r| r == role) => None,
+                (Some(_), None) => Some(None),
+                (Some(_), Some(id)) => pick(&list, Some(&id), main.as_ref()).map(Some),
+                (None, id) => id.and_then(|id| pick(&list, Some(&id), main.as_ref())).filter(|m| Some(m) != main.as_ref()).map(Some),
+            };
+            let Some(mon) = open else { continue };
+            if let Err(e) = self.show(role, mon) { eprintln!("Could not reopen the {}: {e}", named(role)) }
         }
         app.broadcast_data();
     }
@@ -403,6 +419,53 @@ mod tests {
         s.look_at(vec![laptop.clone(), projector], Some(laptop));
         assert_eq!(s.open_roles(), ["room"]);
         assert_eq!(app.live_view().notice.as_deref(), Some("The room screen restarted."));
+        s.shutdown();
+    }
+
+    /// Room saved on the projector, stage saved on the laptop (the operator's monitor).
+    fn saved_on_both(app: &Arc<App>) -> (Arc<NativeScreens>, MonitorId, MonitorId) {
+        let s = screens(app);
+        let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 1280, 1920));
+        s.look_at(vec![laptop.clone(), projector.clone()], Some(laptop.clone()));
+        let mut data = app.data.lock().unwrap();
+        (data.settings.displays.room, data.settings.displays.stage) = (Some(projector.key()), Some(laptop.key()));
+        drop(data);
+        (s, laptop, projector)
+    }
+
+    #[test]
+    fn start_reopens_saved_roles_away_from_the_operator() {
+        let app = test_app();
+        let (s, ..) = saved_on_both(&app);
+        s.reopen();
+        assert_eq!(s.open_roles(), ["room"], "never on the operator's monitor by itself");
+        s.shutdown();
+    }
+
+    #[test]
+    fn restore_reopens_exactly_the_roles_that_were_open() {
+        let app = test_app();
+        let (s, ..) = saved_on_both(&app);
+        // The stage was open on the laptop on purpose, and the room had been closed.
+        s.restore_roles(vec!["stage".into()]);
+        s.reopen();
+        assert_eq!(s.open_roles(), ["stage"]);
+        s.shutdown();
+        // Only the first start after a crash restores.
+        s.reopen();
+        assert_eq!(s.open_roles(), ["room"]);
+        s.shutdown();
+    }
+
+    #[test]
+    fn restore_reopens_a_window_with_no_saved_monitor_as_a_plain_window() {
+        let app = test_app();
+        let s = screens(&app);
+        s.reopen();
+        assert!(s.open_roles().is_empty(), "nothing saved: a normal start opens nothing");
+        s.restore_roles(vec!["room".into()]);
+        s.reopen();
+        assert_eq!(s.open_roles(), ["room"]);
         s.shutdown();
     }
 

@@ -1,6 +1,6 @@
 //! A room with no window and no player, for the recovery tests (`RUSTYPRESENTER_HEADLESS=1`). It commits
 //! the newest version it is sent, and a restored one before it, and logs what a restore put back, so a test
-//! can read it from the log.
+//! can read it from the log. `Screens` stands in for the windows.
 use crate::{app::{App, Update}, live::{MediaLayer, RoomEvent}, model::{Background, SlideContent}};
 use std::{io::Write, sync::{Arc, Weak}, thread::JoinHandle};
 use tokio::sync::broadcast::error::RecvError;
@@ -43,6 +43,31 @@ fn commit_latest(app: &Weak<App>, logged: &mut bool, log: &mut impl Write) -> bo
 
 fn commit(app: &App, version: u64) {
     if version > app.live.lock().unwrap().committed_version { app.room_event(RoomEvent::Committed { version }); }
+}
+
+/// The windowing layer with no windows. It answers a second launch's request for the operator, so that
+/// launch exits as it would with a real operator window, and keeps the roles it was asked to open.
+#[derive(Default)]
+pub struct Screens { roles: std::sync::Mutex<Vec<String>> }
+
+impl crate::app::Screens for Screens {
+    fn open(&self, role: &str, _monitor: Option<&str>) -> Result<(), String> {
+        match role {
+            "operator" => Ok(()),
+            "room" | "stage" => {
+                let mut roles = self.roles.lock().unwrap();
+                if !roles.iter().any(|r| r == role) { roles.push(role.into()) }
+                Ok(())
+            }
+            _ => Err("unknown window".into()),
+        }
+    }
+
+    fn close(&self, role: &str) { self.roles.lock().unwrap().retain(|r| r != role) }
+
+    fn open_roles(&self) -> Vec<String> { self.roles.lock().unwrap().clone() }
+
+    fn monitors(&self) -> Vec<crate::app::Monitor> { vec![] }
 }
 
 /// `restored version={v} slide={json} media={bool}` once the restored frame is committed, or
@@ -247,6 +272,21 @@ mod tests {
         assert_eq!(with.status.code(), Some(101), "{with:?}");
         assert!(left_early(&with), "the hook exits before the harness reports");
         assert!(log.contains("PANIC thread=") && log.contains("test crash at restore-media"), "{log}");
+    }
+
+    #[test]
+    fn headless_screens_answer_a_second_launch_and_keep_roles() {
+        use crate::app::Screens as _;
+        let s = Screens::default();
+        assert_eq!(s.open("operator", None), Ok(()), "a second launch's focus request succeeds");
+        s.open("stage", None).unwrap();
+        s.open("room", Some("x")).unwrap();
+        s.open("room", None).unwrap();
+        assert_eq!(s.open_roles(), ["stage", "room"]);
+        s.close("stage");
+        assert_eq!(s.open_roles(), ["room"]);
+        assert!(s.open("projector", None).is_err());
+        assert!(s.monitors().is_empty());
     }
 
     #[test]
