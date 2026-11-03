@@ -5,7 +5,7 @@
 use super::{
     add_item::add_item,
     file_input::{DropBatch, DropEvent, DropPlan, Filter, drop_plan},
-    overlays::JobHandle, strings as tr, view, window::Operator,
+    overlays::JobHandle, strings as tr, window::Operator,
 };
 use crate::{
     app::{ImportPurpose, Imported},
@@ -735,10 +735,10 @@ mod window_tests {
         app.job_end(failed, Some("No.".into()));
         app.job_end(noted, None);
         app.job_end_cancelled(cancelled);
-        let ends = view::OperatorSnapshot::read(&app).job_ends;
+        let ends = crate::ui::operator::view::OperatorSnapshot::read(&app).job_ends;
         assert_eq!(ends, [(well, Some(deck)), (failed, None), (noted, Some(deck)), (cancelled, None)]);
         for _ in 0..100 { let j = app.job_start("x"); app.job_end(j, None); }
-        assert_eq!(view::OperatorSnapshot::read(&app).job_ends.len(), 64, "the list has an end");
+        assert_eq!(crate::ui::operator::view::OperatorSnapshot::read(&app).job_ends.len(), 64, "the list has an end");
     }
 
     #[test]

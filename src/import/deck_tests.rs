@@ -372,7 +372,7 @@ async fn cancelling_powerpoint_does_not_start_libreoffice() {
     let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(1), Some(powerpoint::tests::fake("sleep:30000", &d))));
     let file = staged(&app, &pptx(1, 0));
     let id = start(app.clone(), file, "Talk".into());
-    until("the fake to start", || std::fs::read_to_string(d.join("ppt-mark")).is_ok_and(|m| m.contains("export"))).await;
+    until("the fake to start", || std::fs::read_to_string(d.join("ppt-mark")).is_ok_and(|m| m.contains("start"))).await;
     app.job_cancel(id);
     until("the job to go", || job(&app, id).is_none()).await;
     assert_eq!(decks(&app), 0);
