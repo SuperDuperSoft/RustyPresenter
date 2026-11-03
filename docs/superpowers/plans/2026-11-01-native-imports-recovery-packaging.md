@@ -915,12 +915,14 @@ Plan 3 Task 16 already created `about.toml`, `about.hbs`, the committed root `TH
   - The SmartScreen warning appears; click More info → Run anyway.
   - About shows libmpv (LGPL build), pdfium and the licences.
   - Play a video with sound and import a deck through LibreOffice.
+  - The program installs to `%LOCALAPPDATA%\Programs\RustyPresenter` (`packaging/windows/installer.nsi`), which differs from the data folder shown in Settings → About.
+  - The install's `licenses\` folder holds `THIRD-PARTY-LICENSES.txt` and the `libmpv-*` and `pdfium-*` notices.
   - Uninstall removes the program folder and keeps the data folder.
 - [ ] **Step 3: Manual check on macOS (needs a Mac):**
   - `cargo packager --release -f app,dmg` and `codesign --verify --deep --strict -v RustyPresenter.app`.
   - If ad-hoc signing through cargo-packager fails: package with `-f app`, run `codesign --force --deep -s - RustyPresenter.app`, then `hdiutil create -volname RustyPresenter -srcfolder RustyPresenter.app -ov -format UDZO RustyPresenter.dmg`. Put that in `stage.sh mac-finish`.
   - Install from the dmg, then System Settings → Privacy & Security → Open Anyway.
-  - Video plays, and the room shows on a second display.
+  - About shows libmpv (LGPL build) and pdfium found (the hardened runtime needs `packaging/macos/entitlements.plist` to load them), video plays, and the room shows on a second display.
 - [ ] **Step 4: Manual check on Linux (needs a Linux PC; Ubuntu 24.04):**
   - The AppImage runs after `chmod +x`. Check with `--appimage-extract` that `usr/lib` holds `libmpv.so.2` and its dependencies.
   - `sudo apt install ./rustypresenter_*.deb` pulls in `libmpv2`.
