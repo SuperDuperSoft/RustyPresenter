@@ -1,6 +1,6 @@
 @echo off
-rem Starts the native preview (room and stage drawn natively, operator still in the browser).
-rem The first start builds the app (a few minutes); later starts are quick. Quit with Ctrl+C here.
+rem Starts the native preview (operator, room and stage all drawn natively).
+rem The first start builds the app (a few minutes); later starts are quick. Quit by closing the operator window, or with Ctrl+C here.
 setlocal EnableDelayedExpansion
 cd /d "%~dp0"
 if exist "%~dp0.tools\cargo\bin\cargo.exe" (

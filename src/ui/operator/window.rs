@@ -62,6 +62,9 @@ pub(crate) struct OpState {
     /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
     pub(super) toasts: Vec<(String, bool)>,
+    /// How many times `raise` ran.
+    #[cfg(test)]
+    pub(crate) raises: u32,
     /// Test hook: stops `request_refresh` doing its inline read, so a test can decide what the next read says.
     #[cfg(test)]
     pub(crate) hold_inline_reads: bool,
@@ -133,6 +136,8 @@ impl Operator {
 
     /// Brings the window forward: shown, not minimised, focused (a second launch asks for this).
     pub fn raise(&self) {
+        #[cfg(test)]
+        { self.state.borrow_mut().raises += 1; }
         let _ = self.ui.show();
         self.ui.window().set_minimized(false);
         use slint::winit_030::WinitWindowAccessor;

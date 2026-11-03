@@ -43,6 +43,11 @@ pub fn pick(monitors: &[MonitorId], saved: Option<&str>, operator: Option<&Monit
     named.into_iter().find(|m| Some(*m) != operator).cloned()
 }
 
+/// The monitor the operator window opens on: the main one, or the first other one when the room is on the main one.
+pub fn operator_monitor(monitors: &[MonitorId], main: Option<&MonitorId>, room: Option<&MonitorId>) -> Option<MonitorId> {
+    main.filter(|m| Some(*m) != room).or_else(|| monitors.iter().find(|m| Some(*m) != room)).or(main).cloned()
+}
+
 /// The web operator's Screens dialog shape, numbered left to right like `displays::monitors`.
 pub fn to_monitors(ids: &[MonitorId], primary: Option<&MonitorId>) -> Vec<Monitor> {
     let mut ids: Vec<_> = ids.iter().collect();
@@ -198,6 +203,17 @@ mod tests {
     fn mon(name: &str, w: u32, h: u32, x: i32, y: i32) -> MonitorId { MonitorId { name: name.into(), size: (w, h), position: (x, y) } }
     fn laptop() -> MonitorId { mon(r"\.\DISPLAY1", 1920, 1080, 0, 0) }
     fn projector() -> MonitorId { mon(r"\.\DISPLAY2", 1280, 720, 1920, 0) }
+
+    #[test]
+    fn operator_avoids_room_monitor() {
+        let both = [laptop(), projector()];
+        assert_eq!(operator_monitor(&both, Some(&laptop()), None), Some(laptop()), "the main monitor by default");
+        assert_eq!(operator_monitor(&both, Some(&laptop()), Some(&projector())), Some(laptop()));
+        assert_eq!(operator_monitor(&both, Some(&laptop()), Some(&laptop())), Some(projector()), "the room took the main one");
+        assert_eq!(operator_monitor(&[laptop()], Some(&laptop()), Some(&laptop())), Some(laptop()), "one screen is shared");
+        assert_eq!(operator_monitor(&both, None, Some(&laptop())), Some(projector()), "no main monitor reported");
+        assert_eq!(operator_monitor(&[], None, None), None);
+    }
 
     #[test]
     fn windows_device_name_matches_saved_choice() {

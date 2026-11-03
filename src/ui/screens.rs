@@ -1,13 +1,13 @@
 //! The native windowing layer (`Screens`): room and stage windows live on the Slint thread and are
 //! opened and closed from any thread through it. They reopen from settings at start, close when
 //! their monitor is unplugged and come back on it when it returns.
-use super::{operator::window::{MpvInfo, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
+use super::{operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
-use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
+use crate::platform::monitors::{self, Change, MonitorId, Watcher, operator_monitor, pick, to_monitors};
 use crate::render::Renderer;
 use crate::video::{FrameGrabber, ffi::Mpv};
 use slint::{CloseRequestResponse, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
-use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, mpsc}, thread::ThreadId, time::Duration};
+use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, Mutex, Weak, mpsc}, thread::ThreadId, time::Duration};
 
 const NOT_CONNECTED: &str = "That screen is not connected right now.";
 
@@ -27,9 +27,10 @@ impl Win {
 }
 
 /// The Slint thread's side: open windows (role, opening number, window, the guard that marks the
-/// role connected while it is open), the unplug watch and its timer.
+/// role connected while it is open), the unplug watch and its timer, and the operator window, which holds these
+/// screens (so a `Weak`, and here because an `Rc` cannot sit in `NativeScreens`, which is shared across threads).
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64 }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: rc::Weak<Operator> }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -65,6 +66,28 @@ impl NativeScreens {
         DESK.with(|d| d.borrow_mut().poll = Some(timer));
         let me = self.me.clone();
         let _ = invoke_from_active_event_loop(move |el| if let Some(s) = me.upgrade() { s.look(el); s.reopen() });
+    }
+
+    /// Says which window `open("operator")` raises. Call on the Slint thread.
+    pub fn set_operator(&self, operator: rc::Weak<Operator>) { DESK.with(|d| d.borrow_mut().operator = operator) }
+
+    /// Once the event loop runs and after room and stage have reopened (call after `start`): the operator goes on
+    /// its monitor, maximised, and in front of them.
+    pub fn place_operator(&self) {
+        let me = self.me.clone();
+        let _ = invoke_from_active_event_loop(move |_| if let Some(s) = me.upgrade() { s.place() });
+    }
+
+    fn place(&self) {
+        let Some(op) = DESK.with(|d| d.borrow().operator.upgrade()) else { return };
+        let (list, main) = self.seen.lock().unwrap().clone();
+        let saved = self.app.upgrade().and_then(|app| app.data.lock().unwrap().settings.displays.room.clone());
+        let room = saved.and_then(|id| pick(&list, Some(&id), main.as_ref()));
+        if let Some(m) = operator_monitor(&list, main.as_ref(), room.as_ref()) {
+            op.window().set_position(slint::PhysicalPosition::new(m.position.0 + 40, m.position.1 + 40));
+        }
+        op.window().set_maximized(true);
+        op.raise();
     }
 
     /// Closes every window (frees players and GL contexts) and stops the watch. Call on the Slint thread.
@@ -217,8 +240,10 @@ impl OperatorScreens for NativeScreens {
 impl Screens for NativeScreens {
     fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
         match role {
-            // The operator is the web page until the native operator window exists (Plan 3).
-            "operator" => { if let Some(app) = self.app.upgrade() { open_browser(&format!("http://127.0.0.1:{}/", app.port)) } Ok(()) }
+            // A second launch asking for the first one (spec §8.4).
+            "operator" => self.on_ui(|_| {
+                if let Some(op) = DESK.with(|d| d.borrow().operator.upgrade()) { op.raise() }
+            }),
             "room" | "stage" => {
                 let (role, monitor) = (role.to_string(), monitor.map(str::to_string));
                 self.on_ui(move |s| s.open_here(&role, monitor.as_deref()))?
@@ -242,21 +267,6 @@ impl Screens for NativeScreens {
     }
 }
 
-/// Opens `url` in the system browser.
-pub fn open_browser(url: &str) {
-    use std::process::Command;
-    #[cfg(windows)]
-    let child = { use std::os::windows::process::CommandExt; Command::new("cmd").args(["/C", "start", "", url]).creation_flags(0x0800_0000).spawn() };
-    #[cfg(target_os = "macos")]
-    let child = Command::new("open").arg(url).spawn();
-    #[cfg(all(unix, not(target_os = "macos")))]
-    let child = Command::new("xdg-open").arg(url).spawn();
-    match child {
-        Ok(mut c) => { let _ = std::thread::Builder::new().name("browser".into()).spawn(move || c.wait()); }
-        Err(e) => eprintln!("Could not open {url} in the browser: {e}"),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -267,6 +277,19 @@ mod tests {
     fn screens(app: &Arc<App>) -> Arc<NativeScreens> {
         i_slint_backend_testing::init_no_event_loop();
         NativeScreens::new(app, Renderer::new(), None)
+    }
+
+    #[test]
+    fn display_open_operator_raises_window() {
+        let app = test_app();
+        let s = screens(&app);
+        s.open("operator", None).expect("no operator yet is not an error");
+        let screens: Rc<dyn OperatorScreens> = Rc::new(s.clone());
+        let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), screens).unwrap();
+        s.set_operator(Rc::downgrade(&op));
+        s.open("operator", None).unwrap();
+        assert_eq!(op.state.borrow().raises, 1);
+        assert!(s.open_roles().is_empty(), "the operator is not a screen role");
     }
 
     #[test]
