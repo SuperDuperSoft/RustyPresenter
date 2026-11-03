@@ -216,6 +216,30 @@ fn plain(path: &Path) -> OsString {
     path.to_str().map_or_else(|| path.into(), |p| tools::strip_verbatim(p).into())
 }
 
+/// Recovery tests only: this executable acts as LibreOffice when `RP_FAKE_SOFFICE` is set and the first argument is
+/// `--headless`, which the app and the supervisor never get. `hang` never ends a conversion; `pdf:<file>` copies that
+/// file to where the PDF goes. Called first in `main`, and a no-op otherwise.
+pub fn fake_soffice_main() {
+    let Some(mode) = std::env::var_os("RP_FAKE_SOFFICE") else { return };
+    let args: Vec<OsString> = std::env::args_os().skip(1).collect();
+    if args.first().is_none_or(|a| a != "--headless") {
+        return;
+    }
+    if args.iter().any(|a| a == "--terminate_after_init") {
+        std::process::exit(0);
+    }
+    let mode = mode.to_string_lossy();
+    let Some(fixture) = mode.strip_prefix("pdf:") else {
+        loop {
+            std::thread::sleep(Duration::from_secs(60));
+        }
+    };
+    let out_dir = args.iter().position(|a| a == "--outdir").and_then(|at| args.get(at + 1));
+    let (Some(out_dir), Some(input)) = (out_dir, args.last()) else { std::process::exit(1) };
+    let out = Path::new(out_dir).join(Path::new(input).file_stem().unwrap_or_default()).with_extension("pdf");
+    std::process::exit(if std::fs::copy(fixture, out).is_ok() { 0 } else { 1 });
+}
+
 /// Kills a LibreOffice left by an app that died on Unix. A process group does not die with its parent.
 /// Windows has nothing to do: the Job Object died with the old app.
 #[cfg(not(unix))]

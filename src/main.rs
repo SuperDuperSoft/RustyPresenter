@@ -45,6 +45,7 @@ fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
 }
 
 fn main() {
+    rustypresenter::import::libreoffice::fake_soffice_main();
     let args = supervisor::parse_args(std::env::args_os().skip(1));
     supervisor::quiet_crash_dialogs();
     if !args.app {
@@ -78,6 +79,7 @@ fn main() {
     rt.spawn(startup::backups(app.clone(), args.restore));
     rt.spawn(startup::serve(app.clone(), listener));
     rt.spawn(startup::save_playing(app.clone()));
+    rt.spawn(rustypresenter::import::init(&app));
     if headless_mode() {
         run_headless(&app, &rt);
         forget_live_state(&app, &root);
@@ -94,7 +96,6 @@ fn main() {
     println!("  Video drawing: {}{}\n", if mode == video::DrawMode::OpenGl { "GPU (OpenGL)" } else { "software" }, if mpv.is_none() { ", video player missing" } else { "" });
 
     rustypresenter::import::media::at_start(&app, mpv.clone(), rt.handle());
-    rt.spawn(rustypresenter::import::init(&app));
 
     let native = NativeScreens::new(&app, Renderer::new(), mpv);
     app.set_screens(native.clone());

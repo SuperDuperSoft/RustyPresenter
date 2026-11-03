@@ -41,10 +41,34 @@ impl Rig {
     fn start(&mut self, args: &[&str], env: &[(&str, &str)]) { self.sup = Some(self.supervisor(args, env)); }
 
     /// Starts and waits until the server answers.
-    fn up(&mut self) {
-        self.start(&[], &[]);
+    fn up(&mut self) { self.up_with(&[]) }
+
+    fn up_with(&mut self, env: &[(&str, &str)]) {
+        self.start(&[], env);
         until(10.0, "the app to answer", || self.pid().is_some() && self.try_get("/remote/status").is_some());
     }
+
+    /// Stops the supervisor and then the app, as if the computer had been switched off.
+    fn stop(&mut self) {
+        if let Some(mut s) = self.sup.take() { let _ = s.kill(); let _ = s.wait(); }
+        if let Some(pid) = self.pid() { kill(pid); }
+        let _ = fs::remove_file(self.data.join("app.pid"));
+        until(5.0, "the port to come free", || TcpStream::connect((Ipv4Addr::LOCALHOST, self.port)).is_err());
+    }
+
+    fn import_deck(&self, path: &Path) {
+        let body = serde_json::json!({ "path": path, "purpose": "powerpoint" }).to_string();
+        self.request("POST", "/api/do/import/path", &body).expect("import/path");
+    }
+
+    /// The slide counts of the decks on disk.
+    fn decks(&self) -> Vec<usize> {
+        let data: serde_json::Value = serde_json::from_slice(&fs::read(self.data.join("data.json")).unwrap()).unwrap();
+        data["decks"].as_array().unwrap().iter().map(|d| d["slides"].as_array().unwrap().len()).collect()
+    }
+
+    /// Everything in `tmp/`.
+    fn tmp(&self) -> Vec<PathBuf> { fs::read_dir(self.data.join("tmp")).map(|d| d.flatten().map(|e| e.path()).collect()).unwrap_or_default() }
 
     fn pid(&self) -> Option<u32> { fs::read_to_string(self.data.join("app.pid")).ok()?.trim().parse().ok() }
 
@@ -223,3 +247,68 @@ fn normal_start_clears_old_state() {
     assert!(!state::path(&rig.data).exists());
     assert!(!rig.log().contains("restored version="), "{}", rig.log());
 }
+
+/// A Keynote package with one slide. `route` sends Keynote to LibreOffice, even on a PC with PowerPoint.
+fn keynote(path: &Path) {
+    let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
+    for name in ["Index/Document.iwa", "Index/Slide.iwa"] {
+        zip.start_file(name, zip::write::SimpleFileOptions::default()).unwrap();
+        zip.write_all(b"iwa").unwrap();
+    }
+    zip.finish().unwrap();
+}
+
+/// One blank page, with no cross-reference table: pdfium rebuilds it.
+const ONE_PAGE_PDF: &str = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 320 180]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+
+/// The app's own executable as LibreOffice. On Unix a link named `soffice`, as `kill_leftover` only touches a group
+/// that LibreOffice leads.
+fn fake_soffice(dir: &Path) -> PathBuf {
+    #[cfg(unix)]
+    {
+        let link = dir.join("soffice");
+        std::os::unix::fs::symlink(EXE, &link).unwrap();
+        link
+    }
+    #[cfg(not(unix))]
+    { let _ = dir; PathBuf::from(EXE) }
+}
+
+/// v1 §14.2. Needs pdfium, as without it an import stops before LibreOffice starts.
+#[test]
+fn killed_import_publishes_nothing() {
+    let Ok(pdfium) = std::env::var("RP_PDFIUM") else { return eprintln!("skipped: RP_PDFIUM is not set") };
+    let mut rig = Rig::new();
+    let files = rig.data.join("files");
+    fs::create_dir_all(&files).unwrap();
+    let (input, fixture) = (files.join("Talk.key"), files.join("one.pdf"));
+    keynote(&input);
+    fs::write(&fixture, ONE_PAGE_PDF).unwrap();
+    let soffice = fake_soffice(&files);
+    let soffice = soffice.to_str().unwrap();
+
+    rig.up_with(&[("RP_SOFFICE", soffice), ("RP_FAKE_SOFFICE", "hang"), ("RP_PDFIUM", &pdfium)]);
+    rig.import_deck(&input);
+    until(10.0, "LibreOffice to start", || rig.tmp().iter().any(|d| d.join("pdf").is_dir()) && has_group(&rig));
+    #[cfg(unix)]
+    let group: i32 = fs::read_to_string(rig.data.join("deps").join("libreoffice.pgid")).unwrap().split_whitespace().next().unwrap().parse().unwrap();
+
+    let first = rig.pid().unwrap();
+    kill(first);
+    until(5.0, "the restart", || rig.pid().is_some_and(|p| p != first) && rig.try_get("/remote/status").is_some());
+    until(5.0, "the work folder to go", || rig.tmp().is_empty());
+    assert_eq!(rig.decks(), Vec::<usize>::new());
+    // SAFETY: signal 0 only asks whether the group exists.
+    #[cfg(unix)]
+    until(5.0, "the fake LibreOffice to die", || unsafe { libc::kill(-group, 0) } != 0);
+
+    rig.stop();
+    let pdf = format!("pdf:{}", fixture.display());
+    rig.up_with(&[("RP_SOFFICE", soffice), ("RP_FAKE_SOFFICE", &pdf), ("RP_PDFIUM", &pdfium)]);
+    rig.import_deck(&input);
+    until(15.0, "the second import", || rig.decks() == [1]);
+    assert!(rig.tmp().is_empty(), "{:?}", rig.tmp());
+}
+
+/// The group is written just after the fake starts. Windows has a Job Object instead, with nothing to wait for.
+fn has_group(rig: &Rig) -> bool { cfg!(not(unix)) || rig.data.join("deps").join("libreoffice.pgid").exists() }

@@ -723,6 +723,24 @@ impl App {
             import::media::reprobe(app.clone(), vec![id]);
             Ok(json!({}))
         }
+        // Local automation and tests. Never on the phone's list (`server::remote_command`).
+        "import/path" => {
+            #[derive(Deserialize)] struct P { path: PathBuf, purpose: String }
+            let P { path, purpose } = parse(body)?;
+            let purpose = match purpose.as_str() {
+                "media" => ImportPurpose::Media,
+                "asset" => ImportPurpose::Asset,
+                "powerpoint" => ImportPurpose::PowerPoint,
+                "lyrics" => ImportPurpose::Lyrics,
+                other => return Err(ActionError::bad(format!("Bad request: unknown purpose {other}"))),
+            };
+            Ok(match app.import_path(&path, purpose, |_| {}).await? {
+                Imported::Media(m) => json!({ "media": m }),
+                Imported::Asset(asset) => json!({ "asset": asset }),
+                Imported::Job(job) => json!({ "job": job }),
+                Imported::Song { id, title, duplicate_of } => json!({ "id": id, "title": title, "duplicate_of": duplicate_of }),
+            })
+        }
         "deck/from-images" => {
             #[derive(Deserialize)] struct D { title: String, assets: Vec<AssetId> }
             let D { title, assets } = parse(body)?;
@@ -1454,6 +1472,19 @@ mod tests {
     async fn song_import_rejects_an_unknown_mode() {
         let e = test_app().do_action("song/import", &song_import_body(SONG_V1, "replace")).await.unwrap_err();
         assert_eq!(e.status, 400);
+    }
+
+    #[tokio::test]
+    async fn import_path_action_imports_a_file_on_this_computer() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(2, 2).save(&png).unwrap();
+        let body = json!({ "path": png, "purpose": "media" }).to_string();
+        let v = app.do_action("import/path", body.as_bytes()).await.unwrap();
+        assert!(v["media"]["asset"].is_string(), "{v}");
+        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        let body = json!({ "path": png, "purpose": "other" }).to_string();
+        assert_eq!(app.do_action("import/path", body.as_bytes()).await.unwrap_err().status, 400);
     }
 
     #[tokio::test]
