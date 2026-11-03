@@ -4,7 +4,7 @@
 //! Unix: a process group, which does not outlive a crashed app on its own (Plan 4 Task 5 records the group id).
 use std::process::ExitStatus;
 use std::time::Duration;
-use tokio::process::{Child, ChildStdout, Command};
+use tokio::process::{Child, ChildStdin, ChildStdout, Command};
 use tokio_util::sync::CancellationToken;
 
 /// How long `wait` lets a killed child take to be collected.
@@ -100,6 +100,10 @@ impl Tree {
 
     pub fn stdout(&mut self) -> Option<ChildStdout> {
         self.child.stdout.take()
+    }
+
+    pub fn stdin(&mut self) -> Option<ChildStdin> {
+        self.child.stdin.take()
     }
 }
 
