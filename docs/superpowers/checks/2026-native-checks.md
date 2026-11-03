@@ -29,3 +29,34 @@ Slint version used: 1.18.1.
 | PowerPoint: open your own deck while an import exports | Windows with PowerPoint | Not run (Protected View case automated) | With PowerPoint closed, start an import and open one of your own presentations (normally, and once from an e-mail attachment, which opens in Protected View) while it exports. When the import ends, and again after cancelling a second one, your presentation stays open. The Protected View case is the gated test `a_deck_opened_in_protected_view_during_the_export_stays_open`; the quit guard now also needs `ProtectedViewWindows.Count -eq 0` and a PowerPoint that is not visible. |
 | PowerPoint: password-protected .pptx | Windows with PowerPoint | Not run | Import a `.pptx` saved with an open password. Expected: "PowerPoint couldn't open this presentation." (or the password message once Task 6c's sniffing sees it) and no password prompt. |
 | PowerPoint: .pptm with an `Auto_Open` macro | Windows with PowerPoint | Not run | Import a `.pptm` whose `Auto_Open` writes a marker file: no marker appears, no macro runs and no security bar shows. The planned `pptm_macro_does_not_run` test was not built: a `.pptm` needs a binary `vbaProject.bin`, and making one through PowerPoint needs "Trust access to the VBA project object model", a security setting tests must not change. `AutomationSecurity = 3` before `Open` is checked by string test only. |
+
+## Per-platform release checklist (Plan 4 Task 17)
+
+Each column needs a person on that OS; Windows also needs the church laptop with a projector. Blank means not done. Nothing here has been done yet. Write the date and the result in each cell. Audio and asset rows record what actually happened, because there is no audio device picker.
+
+| Check | Windows | macOS | Linux |
+| --- | --- | --- | --- |
+| Install from the release | | | |
+| First-launch warning steps match the README | | | |
+| Firewall "allow on private networks" prompt on first run, before phone pairing | | n/a | n/a |
+| Second launch focuses the running operator window (AppImage and `.deb` especially) | | | |
+| Closing the operator ends the app and the supervisor; nothing restarts | | | |
+| Room on a second monitor; unplug and replug | | | |
+| With sound: H.264, HEVC, VP9, ProRes, WMV, MP3, AAC | | | |
+| Phone HEVC portrait/VFR, AV1, 4K, no audio: play, loop, stop | | | |
+| Corrupt file: operator error at import, never black on air | | | |
+| Sound to HDMI, unplug and replug while playing | | | |
+| Sound to a USB interface, unplug and replug while playing | | | |
+| Restore a backup into a clean data folder and play its media | | | |
+| Delete a library entry while it is live; output stays valid | | | |
+| Phone pairing from a real phone | | | |
+| PowerPoint through PowerPoint | | n/a | n/a |
+| PowerPoint through LibreOffice | | | |
+| Keynote deck | | | |
+| PDF deck | | | |
+| Software video with `RP_FORCE_SOFTWARE=1` | | | |
+| Crash restore by killing the app | | | |
+| Crashing 3 times shows the give-up dialog | | | |
+| Logout with the app open | | | |
+| Uninstall keeps the data folder | | | |
+| About shows the LGPL libmpv and opens the licences | | | |

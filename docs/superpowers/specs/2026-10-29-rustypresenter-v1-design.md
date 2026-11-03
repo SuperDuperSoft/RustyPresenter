@@ -3,6 +3,12 @@
 **Date:** 2026-10-29 (revision 3)
 **Author:** Claude, with the user
 **Status:** Revision 3 answers the Codex re-review (`docs/superpowers/reviews/2026-10-29-rustypresenter-v1-codex-review-rev2.md`, R2-01 to R2-04 and the small corrections). The user approved the design and asked for the app to be built (October 29). A first implementation (v0.2) exists; see §19 for what is built, what is verified, and two architecture changes that need the user's confirmation.
+**Superseded in part (November 2026):** Platform sections are superseded by the native app (`2026-10-29-native-slint-design.md`); the v0.2 Tauri app was removed in November 2026 (on branch `plan4-finish`, not yet on the main line). So the acceptance matrix below is not all covered by what is built:
+- §4.2–4.3 recovery: replaced by native §8.3 (supervisor restart; media resumes).
+- §6.4 FFmpeg conversion and the Ready/Converting/Needs converter library states: replaced by mpv playback and probing; no conversion.
+- §9.4 PowerPoint-only export: replaced by PowerPoint, LibreOffice or pdfium (native §9).
+- §16 items "LibreOffice conversion", "macOS and Linux" and "ffmpeg auto-transcode": the first two are written, not yet checked on real machines; the third is dropped.
+- §9.3 EasyWorship and §9.5 Google Slides: **still not built**.
 **Authority:** This spec controls **v1 behavior**. `PROJECT_PLAN.md` holds long-term requirements, collaboration rules, and the work board.
 **Backups:** revision 1 `2026-10-29-rustypresenter-v1-design.rev1.bak.md`, revision 2 `2026-10-29-rustypresenter-v1-design.rev2.bak.md`
 
@@ -431,6 +437,8 @@ User decisions taken in this revision: Next at last slide → next item; Bible s
 | Small correction 3: plan error summary and optional foldback | `PROJECT_PLAN.md` §2, §14.2 Displays | — | — |
 
 ## 19. Implementation status (v0.2, October 29)
+
+*Note, November 3, 2026: architecture changes 1 and 2 below (Tauri windows, FFmpeg conversion) are replaced by the native app and mpv playback. The rest is kept as history.*
 
 The user approved the design and asked for the app to be built. What exists now:
 
