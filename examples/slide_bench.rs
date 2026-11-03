@@ -41,7 +41,7 @@ use rustypresenter::{
     platform::monitors,
     render::Renderer,
     store::Store,
-    ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, room::Room, screens::NativeScreens, stage::Stage},
+    ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, pacing, room::Room, screens::NativeScreens, stage::Stage},
     video,
 };
 use slint::{LogicalPosition, PhysicalPosition, PhysicalSize, RenderingState, Timer, TimerMode, platform::WindowEvent};
@@ -90,20 +90,26 @@ impl Frames {
     fn tick(&self) { if self.counting.get() { self.times.borrow_mut().push(Instant::now()) } }
     fn count(&self) -> usize { self.times.borrow().len() }
 
-    /// Counts `window`'s frames through its rendering notifier.
-    fn watch(window: &slint::Window) -> Frames {
-        let f = Frames::default();
-        let g = f.clone();
-        let set = window.set_rendering_notifier(move |state, api| match state {
+    /// Takes in one rendering-notifier event.
+    fn heard(&self, state: &RenderingState, api: &slint::GraphicsAPI) {
+        match state {
             RenderingState::RenderingSetup => {
+                self.supported.set(true);
                 // `NativeOpenGL { .. }`, `WGPU30 { .. }`, ... (with or without the `GraphicsAPI::` path).
                 let name = format!("{api:?}");
                 let head = name.split(['{', '(', ' ']).next().unwrap_or("");
-                *g.api.borrow_mut() = head.rsplit("::").next().unwrap_or("").to_string();
+                *self.api.borrow_mut() = head.rsplit("::").next().unwrap_or("").to_string();
             }
-            RenderingState::AfterRendering => g.tick(),
+            RenderingState::AfterRendering => self.tick(),
             _ => {}
-        });
+        }
+    }
+
+    /// Counts `window`'s frames through its rendering notifier (a window the app gave none).
+    fn watch(window: &slint::Window) -> Frames {
+        let f = Frames::default();
+        let g = f.clone();
+        let set = window.set_rendering_notifier(move |state, api| g.heard(&state, api));
         match set {
             Ok(()) => f.supported.set(true),
             Err(e) => eprintln!("frames not counted ({e:?})"),
@@ -271,9 +277,15 @@ fn run() {
     let (swaps2, measuring3) = (swaps.clone(), measuring.clone());
     let setup = move |mons: Vec<monitors::MonitorId>| {
         let ops = Ops::new(app2.clone(), handle);
+        // The operator and stage (and the room, in OpenGL mode) have the app's own rendering notifier
+        // (`ui::pacing`); their frames are counted through its probe.
+        let paced: Vec<(&'static str, Frames)> = ["operator", "room", "stage"].map(|l| (l, Frames::default())).into();
+        let heard = paced.clone();
+        pacing::set_probe(move |label, state, api| if let Some((_, f)) = heard.iter().find(|(l, _)| *l == label) { f.heard(state, api) });
+        let paced_frames = |label: &str| paced.iter().find(|(l, _)| *l == label).map(|(_, f)| f.clone()).unwrap_or_default();
         let op = Operator::open(app2.clone(), ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>).expect("operator window");
         op.window().set_maximized(true);
-        let mut frames = vec![("operator", Frames::watch(op.window()))];
+        let mut frames = vec![("operator", paced_frames("operator"))];
         let (mut room, mut stage) = (None, None);
         if windows > 1 {
             // RP_BENCH_ROOM_MONITOR / RP_BENCH_STAGE_MONITOR = n: full screen on the n-th monitor (1-based), as
@@ -288,23 +300,15 @@ fn run() {
                 r.window().set_position(PhysicalPosition::new(160, 80));
                 r.window().set_size(PhysicalSize::new(room_w, room_h));
             }
-            // In OpenGL mode the video surface holds the notifier; its probe runs after each frame.
-            let f = if mode == video::DrawMode::OpenGl {
-                let f = Frames::default();
-                f.supported.set(true);
-                let g = f.clone();
-                r.surface().set_gl_probe(move |_, _| g.tick());
-                f
-            } else {
-                Frames::watch(r.window())
-            };
+            // In OpenGL mode the video surface holds the notifier and reports to the pacing probe.
+            let f = if mode == video::DrawMode::OpenGl { paced_frames("room") } else { Frames::watch(r.window()) };
             frames.push(("room", f));
             let s = Stage::open(app2.clone(), stage_mon.clone()).expect("stage window");
             if stage_mon.is_none() {
                 s.window().set_position(PhysicalPosition::new(40, 420));
                 s.window().set_size(PhysicalSize::new(640, 360));
             }
-            frames.push(("stage", Frames::watch(s.window())));
+            frames.push(("stage", paced_frames("stage")));
             room = Some(r);
             stage = Some(s);
         }

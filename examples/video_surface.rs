@@ -135,7 +135,7 @@ fn main() {
     let stats: Rc<RefCell<Stats>> = Rc::default();
     let weak = stage.as_weak();
     let st = stats.clone();
-    let surface = VideoSurface::attach(&stage, mode, move |img| {
+    let surface = VideoSurface::attach(&stage, mode, true, move |img| {
         let Some(stage) = weak.upgrade() else { return };
         if let Some(pb) = img.as_ref().and_then(|i| i.to_rgb8()) {
             let (w, h) = (pb.width() as usize, pb.height() as usize);

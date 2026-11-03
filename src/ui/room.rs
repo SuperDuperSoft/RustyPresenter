@@ -393,7 +393,8 @@ impl Room {
     pub fn open(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>) -> Result<Rc<Room>, String> {
         let ui = RoomWindow::new().map_err(|e| format!("Could not open the room screen: {e}"))?;
         let weak = ui.as_weak();
-        let surface = VideoSurface::attach(&ui, video::drawing(), move |img| if let Some(ui) = weak.upgrade() { ui.set_video_frame(img.unwrap_or_default()) });
+        // The room is the one window that waits for its monitor's refresh: the projector never tears.
+        let surface = VideoSurface::attach(&ui, video::drawing(), true, move |img| if let Some(ui) = weak.upgrade() { ui.set_video_frame(img.unwrap_or_default()) });
         let (tx, reports) = std::sync::mpsc::channel();
         let mut audio = video::players(mpv.clone(), tx.clone());
         audio.options = Options { vo: "null", ..Options::default() };
