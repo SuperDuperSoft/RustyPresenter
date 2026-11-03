@@ -1,8 +1,18 @@
 //! A stand-in for the room in recovery tests: it commits every version it sees, with no Slint and
 //! no mpv. Used only when `RUSTYPRESENTER_HEADLESS=1`, but compiled in every build.
-use crate::{app::App, live::{Live, RoomEvent, SlideLayer}};
+use crate::{app::{App, Monitor, Screens}, live::{Live, RoomEvent, SlideLayer}};
 use std::{io::Write, sync::Arc, thread::JoinHandle};
 use tokio::sync::broadcast::error::RecvError;
+
+/// No windows. Asking for the operator succeeds, so a second launch finds a running copy.
+pub struct NoScreens;
+
+impl Screens for NoScreens {
+    fn open(&self, _role: &str, _monitor: Option<&str>) -> Result<(), String> { Ok(()) }
+    fn close(&self, _role: &str) {}
+    fn open_roles(&self) -> Vec<String> { vec![] }
+    fn monitors(&self) -> Vec<Monitor> { vec![] }
+}
 
 /// Follows the live state on a thread of its own. Subscribes before the thread starts and looks at
 /// the state before the first wait, so a restore made before this call is still seen.

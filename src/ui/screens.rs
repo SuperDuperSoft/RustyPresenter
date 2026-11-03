@@ -19,6 +19,14 @@ pub fn gone_notice(role: &str) -> String {
     format!("The {} was unplugged. It comes back by itself when that screen is plugged in again.", named(role))
 }
 
+/// Where a role's window reopens at start: `None` to leave it closed, `Some(None)` for a plain window. A normal
+/// start never opens one on the operator's (main) monitor by itself; after a crash a role that was open comes back
+/// where it was, the main monitor included, since it was already there.
+fn reopen_target(saved: Option<&str>, list: &[MonitorId], main: Option<&MonitorId>, restored: bool) -> Option<Option<MonitorId>> {
+    if restored { return match saved { Some(id) => pick(list, Some(id), main).map(Some), None => Some(None) } }
+    pick(list, Some(saved?), main).filter(|m| Some(m) != main).map(Some)
+}
+
 #[derive(Clone)]
 enum Win { Room(Rc<Room>), Stage(Rc<Stage>) }
 
@@ -44,6 +52,8 @@ pub struct NativeScreens {
     /// Monitors as last seen (every 2 s), and the main one, where the operator works.
     seen: Mutex<(Vec<MonitorId>, Option<MonitorId>)>,
     roles: Mutex<Vec<String>>,
+    /// After a crash: the roles that were open. They reopen instead of what settings say.
+    restored: Mutex<Option<Vec<String>>>,
 }
 
 impl NativeScreens {
@@ -51,7 +61,7 @@ impl NativeScreens {
     pub fn new(app: &Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>) -> Arc<Self> {
         Arc::new_cyclic(|me| NativeScreens {
             app: Arc::downgrade(app), renderer, mpv, ui: std::thread::current().id(), me: me.clone(),
-            seen: Mutex::default(), roles: Mutex::default(),
+            seen: Mutex::default(), roles: Mutex::default(), restored: Mutex::default(),
         })
     }
 
@@ -67,6 +77,9 @@ impl NativeScreens {
         let me = self.me.clone();
         let _ = invoke_from_active_event_loop(move |el| if let Some(s) = me.upgrade() { s.look(el); s.reopen() });
     }
+
+    /// The first reopen brings back these roles, instead of what settings say. Call before `start`.
+    pub fn set_restored(&self, roles: Vec<String>) { *self.restored.lock().unwrap() = Some(roles); }
 
     /// Says which window `open("operator")` raises. Call on the Slint thread.
     pub fn set_operator(&self, operator: rc::Weak<Operator>) { DESK.with(|d| d.borrow_mut().operator = operator) }
@@ -130,14 +143,16 @@ impl NativeScreens {
         }
     }
 
-    /// Reopen room and stage from settings, never on the operator's (main) monitor by itself.
+    /// Reopen room and stage: what was open before a crash, otherwise what settings say.
     fn reopen(&self) {
         let Some(app) = self.app.upgrade() else { return };
         let saved = app.data.lock().unwrap().settings.displays.clone();
         let (list, main) = self.seen.lock().unwrap().clone();
+        let restored = self.restored.lock().unwrap().take();
         for (role, id) in [("room", saved.room), ("stage", saved.stage)] {
-            let Some(m) = id.and_then(|id| pick(&list, Some(&id), main.as_ref())).filter(|m| Some(m) != main.as_ref()) else { continue };
-            if let Err(e) = self.show(role, Some(m)) { eprintln!("Could not reopen the {}: {e}", named(role)) }
+            if restored.as_ref().is_some_and(|roles| !roles.iter().any(|r| r == role)) { continue }
+            let Some(m) = reopen_target(id.as_deref(), &list, main.as_ref(), restored.is_some()) else { continue };
+            if let Err(e) = self.show(role, m) { eprintln!("Could not reopen the {}: {e}", named(role)) }
         }
         app.broadcast_data();
     }
@@ -269,6 +284,44 @@ impl Screens for NativeScreens {
 
 #[cfg(test)]
 mod tests {
+
+    mod reopening {
+        use super::super::reopen_target;
+        use crate::platform::monitors::MonitorId;
+
+        fn mon(name: &str, x: i32) -> MonitorId { MonitorId { name: name.into(), size: (1920, 1080), position: (x, 0) } }
+
+        #[test]
+        fn normal_start_skips_the_main_monitor() {
+            let (a, b) = (mon("A", 0), mon("B", 1920));
+            assert_eq!(reopen_target(Some(&a.key()), &[a.clone(), b.clone()], Some(&a), false), None);
+            assert_eq!(reopen_target(Some(&b.key()), &[a.clone(), b.clone()], Some(&a), false), Some(Some(b)));
+        }
+
+        #[test]
+        fn normal_start_with_nothing_saved_stays_closed() {
+            let a = mon("A", 0);
+            assert_eq!(reopen_target(None, &[a.clone()], Some(&a), false), None);
+        }
+
+        #[test]
+        fn restored_role_returns_to_the_main_monitor() {
+            let a = mon("A", 0);
+            assert_eq!(reopen_target(Some(&a.key()), &[a.clone()], Some(&a), true), Some(Some(a)));
+        }
+
+        #[test]
+        fn restored_role_with_no_monitor_was_a_plain_window() {
+            let a = mon("A", 0);
+            assert_eq!(reopen_target(None, &[a.clone()], Some(&a), true), Some(None));
+        }
+
+        #[test]
+        fn restored_role_on_an_unplugged_monitor_stays_closed() {
+            let (a, b) = (mon("A", 0), mon("B", 1920));
+            assert_eq!(reopen_target(Some(&b.key()), &[a.clone()], Some(&a), true), None);
+        }
+    }
     use super::*;
     use crate::app::test_app;
 
