@@ -2,7 +2,8 @@
 import { Theme, OperatorState } from "../theme.slint";
 import { Btn, EditMenu } from "../widgets.slint";
 
-/// One question: a confirm (OK / Cancel) or a prompt (a text field too).
+/// One question: a confirm (OK / Cancel) or a prompt (a text field too). A confirm with an `other-label` has a
+/// third button between them (`choose` in `ask.rs`).
 export struct AskRow {
     prompt: bool,
     text: string,
@@ -10,6 +11,7 @@ export struct AskRow {
     ok-label: string,
     cancel-label: string,
     danger: bool,
+    other-label: string,
 }
 
 /// Enter = OK, Esc = Cancel. Esc cancels only this question: the dialog under it stays open.
@@ -17,6 +19,8 @@ export component AskOverlay inherits Rectangle {
     in property <AskRow> ask;
     /// OK or Cancel, with the prompt's text.
     callback answer(bool, string);
+    /// The third button.
+    callback other();
 
     property <string> typed: root.ask.value;
 
@@ -121,6 +125,10 @@ export component AskOverlay inherits Rectangle {
                     cancel := Btn {
                         text: root.ask.cancel-label;
                         clicked => { root.answer(false, ""); }
+                    }
+                    if root.ask.other-label != "": other := Btn {
+                        text: root.ask.other-label;
+                        clicked => { root.other(); }
                     }
                     ok := Btn {
                         text: root.ask.ok-label;

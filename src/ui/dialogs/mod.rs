@@ -182,6 +182,8 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     op.ui.on_dialog_close(move || if let Some(op) = me.upgrade() { op.close_dialog() });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { ask::answer(&op, ok, text.into()) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_ask_other(move || if let Some(op) = me.upgrade() { ask::answer_other(&op) });
     add::wire_add_button(op);
     services::wire(op);
     screens::wire(op);

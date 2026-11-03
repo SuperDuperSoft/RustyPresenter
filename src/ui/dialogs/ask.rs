@@ -15,13 +15,28 @@ pub struct Ask {
 enum Done {
     Confirm(Box<dyn FnOnce(bool)>),
     Prompt(Box<dyn FnOnce(Option<String>)>),
+    Choose(Box<dyn FnOnce(Choice)>),
 }
+
+/// The answer to `choose`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Choice { Ok, Other, Cancel }
 
 /// Asks a yes/no question. `done(true)` on OK or Enter, `done(false)` on Cancel or Esc. `danger` draws OK in the
 /// danger colour (a delete).
 pub fn confirm(op: &Rc<Operator>, text: &str, ok_label: &str, cancel_label: &str, danger: bool, done: impl FnOnce(bool) + 'static) {
-    let row = AskRow { prompt: false, text: text.into(), value: "".into(), ok_label: ok_label.into(), cancel_label: cancel_label.into(), danger };
+    let row = AskRow { prompt: false, text: text.into(), value: "".into(), ok_label: ok_label.into(), cancel_label: cancel_label.into(), danger, other_label: "".into() };
     push(op, Ask { row, done: Done::Confirm(Box::new(done)) });
+}
+
+/// A confirm with a third button, `other_label`, between Cancel and OK. `done(Ok)` on OK or Enter, `done(Other)`
+/// on the third button, `done(Cancel)` on Cancel or Esc.
+pub fn choose(op: &Rc<Operator>, text: &str, ok_label: &str, other_label: &str, done: impl FnOnce(Choice) + 'static) {
+    let row = AskRow {
+        prompt: false, text: text.into(), value: "".into(), ok_label: ok_label.into(),
+        cancel_label: super::strings::CANCEL.into(), danger: false, other_label: other_label.into(),
+    };
+    push(op, Ask { row, done: Done::Choose(Box::new(done)) });
 }
 
 /// Asks for a line of text, starting from `initial` (selected, so typing replaces it). `done(Some(text))` on OK
@@ -29,7 +44,7 @@ pub fn confirm(op: &Rc<Operator>, text: &str, ok_label: &str, cancel_label: &str
 pub fn prompt(op: &Rc<Operator>, title: &str, initial: &str, done: impl FnOnce(Option<String>) + 'static) {
     let row = AskRow {
         prompt: true, text: title.into(), value: initial.into(),
-        ok_label: super::strings::OK.into(), cancel_label: super::strings::CANCEL.into(), danger: false,
+        ok_label: super::strings::OK.into(), cancel_label: super::strings::CANCEL.into(), danger: false, other_label: "".into(),
     };
     push(op, Ask { row, done: Done::Prompt(Box::new(done)) });
 }
@@ -46,18 +61,34 @@ fn push(op: &Operator, ask: Ask) {
 /// The answer to the top question (from `AskOverlay`). The question is gone and the keyboard handed back before
 /// `done` runs, so `done` may ask again, open a dialog or close one.
 pub(crate) fn answer(op: &Operator, ok: bool, text: String) {
+    let Some(ask) = pop(op) else { return };
+    match ask.done {
+        Done::Confirm(done) => done(ok),
+        Done::Prompt(done) => done(ok.then_some(text)),
+        Done::Choose(done) => done(if ok { Choice::Ok } else { Choice::Cancel }),
+    }
+}
+
+/// The third button of the top question (from `AskOverlay`); only a `choose` has one.
+pub(crate) fn answer_other(op: &Operator) {
+    let Some(ask) = pop(op) else { return };
+    match ask.done {
+        Done::Choose(done) => done(Choice::Other),
+        Done::Confirm(done) => done(false),
+        Done::Prompt(done) => done(None),
+    }
+}
+
+/// Takes the top question off and shows the one under it.
+fn pop(op: &Operator) -> Option<Ask> {
     let ask = {
         let mut st = op.state.borrow_mut();
         let ask = st.dialogs.asks.pop();
         st.asks = st.dialogs.asks.len();
         ask
     };
-    let Some(ask) = ask else { return };
     show_top(op);
-    match ask.done {
-        Done::Confirm(done) => done(ok),
-        Done::Prompt(done) => done(ok.then_some(text)),
-    }
+    ask
 }
 
 /// Shows the newest waiting question, or gives the keyboard back to the dialog (or the window's keys).
