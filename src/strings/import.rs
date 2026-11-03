@@ -26,3 +26,9 @@ pub fn pdf_page_failed(page: usize) -> String {
 }
 pub const PDF_CANNOT_OPEN: &str = "This PDF can't be opened. If it has a password, remove it and import again.";
 pub const SLIDE_NOT_SAVED: &str = "A slide could not be saved. Check that the disk has free space, then try again.";
+
+// PowerPoint (Plan 4 Task 6b). Task 6c falls back to LibreOffice after any of these.
+pub const PPT_TIMEOUT: &str = "PowerPoint took too long and was stopped.";
+pub const PPT_CANNOT_OPEN: &str = "PowerPoint couldn't open this presentation.";
+/// The raw OS error goes to the log, never to the operator.
+pub const PPT_NOT_STARTED: &str = "PowerPoint could not be started. Check that it opens by itself, then try again.";
