@@ -1,8 +1,14 @@
-//! `rustypresenter-native`: the same core and phone/web server as the Tauri app, with the room and
-//! stage screens drawn natively (Slint + libmpv). Until the native operator window exists (Plan 3),
-//! the operator is today's web page, opened once in the system browser.
-use rustypresenter::{displays, render::Renderer, startup, ui::screens::{self, NativeScreens}, video};
-use std::{fs::OpenOptions, io::Write, path::{Path, PathBuf}};
+//! `rustypresenter-native`: the same core and phone/web server as the Tauri app, with the operator,
+//! room and stage windows drawn natively (Slint + libmpv). No browser opens; the phone remote is
+//! still the `/remote` web page, and the web operator page is still served for the Tauri app.
+use rustypresenter::{displays, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
+use std::{cell::RefCell, fs::OpenOptions, io::Write, path::{Path, PathBuf}, rc::Rc};
+
+thread_local! {
+    /// The operator window, kept open on the Slint thread until the event loop ends.
+    static OPERATOR: RefCell<Option<Rc<Operator>>> = const { RefCell::new(None) };
+}
 
 fn fail(msg: &str) -> ! {
     displays::error_box(msg);
@@ -30,14 +36,14 @@ fn log_panics(root: PathBuf) {
 }
 
 fn main() {
-    let no_browser = std::env::args().any(|a| a == "--no-browser");
-    let started = match startup::start(!no_browser) {
+    // `--no-browser` (from when the operator was the web page) is accepted and ignored for one release.
+    let started = match startup::start(true) {
         Ok(Some(s)) => s,
         Ok(None) => { println!("RustyPresenter is already running."); return; }
         Err(e) => fail(&e),
     };
     log_panics(started.root.clone());
-    startup::banner(&started, "Press Ctrl+C here to quit.");
+    startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.");
     let startup::Started { app, listener, .. } = started;
 
     // Slint runs on this (main) thread; tokio runs the server and backups on its own threads.
@@ -56,10 +62,25 @@ fn main() {
     let native = NativeScreens::new(&app, Renderer::new(), mpv);
     app.set_screens(native.clone());
     native.start();
-    if !no_browser { screens::open_browser(&format!("http://127.0.0.1:{}/", app.port)); }
+    // Queued after `start`'s reopen, so the room and stage are back before the operator picks its monitor.
+    let (screens, handle) = (native.clone(), rt.handle().clone());
+    let queued = invoke_from_active_event_loop(move |_| {
+        let ops = Ops::new(app.clone(), handle);
+        let operator = match Operator::open(app, ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>) {
+            Ok(op) => op,
+            Err(e) => fail(&e),
+        };
+        screens.place_operator(operator.window());
+        // Closing the operator asks nothing and quits; the room and stage close with it below.
+        operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });
+        screens.set_operator(Rc::downgrade(&operator));
+        OPERATOR.with(|o| *o.borrow_mut() = Some(operator));
+    });
+    if let Err(e) = queued { fail(&format!("RustyPresenter could not open its window: {e}")); }
 
-    // The room and stage windows come and go; only Ctrl+C (or closing the console) quits.
+    // The room and stage windows come and go; closing the operator (or Ctrl+C) quits.
     let result = slint::run_event_loop_until_quit();
+    OPERATOR.with(|o| o.borrow_mut().take());
     native.shutdown();
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
     if let Err(e) = result { fail(&format!("RustyPresenter could not run its windows: {e}")); }

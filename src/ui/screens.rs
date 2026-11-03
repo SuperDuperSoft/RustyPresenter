@@ -1,7 +1,8 @@
 //! The native windowing layer (`Screens`): room and stage windows live on the Slint thread and are
 //! opened and closed from any thread through it. They reopen from settings at start, close when
-//! their monitor is unplugged and come back on it when it returns.
-use super::{operator::window::{MpvInfo, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
+//! their monitor is unplugged and come back on it when it returns. The operator window is opened by
+//! the binary; this layer only knows it to bring it forward and to place it away from the room.
+use super::{operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
 use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
 use crate::render::Renderer;
@@ -27,9 +28,10 @@ impl Win {
 }
 
 /// The Slint thread's side: open windows (role, opening number, window, the guard that marks the
-/// role connected while it is open), the unplug watch and its timer.
+/// role connected while it is open), the unplug watch and its timer, and the operator window (weak:
+/// the operator holds these screens).
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64 }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>> }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -72,6 +74,23 @@ impl NativeScreens {
         let desk = DESK.with(|d| std::mem::take(&mut *d.borrow_mut()));
         drop(desk);
         self.roles.lock().unwrap().clear();
+    }
+
+    /// The operator window, for a second launch to bring forward. Call on the Slint thread.
+    pub fn set_operator(&self, operator: std::rc::Weak<Operator>) {
+        DESK.with(|d| d.borrow_mut().operator = Some(operator));
+    }
+
+    /// Puts the operator window on its monitor (see `operator_monitor`), maximised. Call on the Slint
+    /// thread, after the room and stage reopened.
+    pub fn place_operator(&self, window: &slint::Window) {
+        let (list, main) = self.seen.lock().unwrap().clone();
+        let room = DESK.with(|d| d.borrow().watcher.monitor_of("room").cloned());
+        if let Some(m) = operator_monitor(&list, main.as_ref(), room.as_ref()) {
+            // Anywhere on that monitor: maximising fills the monitor the window is on.
+            window.set_position(slint::PhysicalPosition::new(m.position.0 + 40, m.position.1 + 40));
+        }
+        window.set_maximized(true);
     }
 
     /// Runs `f` on the Slint thread and waits for it (never waits when already there).
@@ -217,8 +236,10 @@ impl OperatorScreens for NativeScreens {
 impl Screens for NativeScreens {
     fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
         match role {
-            // The operator is the web page until the native operator window exists (Plan 3).
-            "operator" => { if let Some(app) = self.app.upgrade() { open_browser(&format!("http://127.0.0.1:{}/", app.port)) } Ok(()) }
+            // A second launch asks for this (spec §8.4): bring the operator window forward.
+            "operator" => self.on_ui(|_| {
+                if let Some(op) = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)) { op.raise() }
+            }),
             "room" | "stage" => {
                 let (role, monitor) = (role.to_string(), monitor.map(str::to_string));
                 self.on_ui(move |s| s.open_here(&role, monitor.as_deref()))?
@@ -242,19 +263,12 @@ impl Screens for NativeScreens {
     }
 }
 
-/// Opens `url` in the system browser.
-pub fn open_browser(url: &str) {
-    use std::process::Command;
-    #[cfg(windows)]
-    let child = { use std::os::windows::process::CommandExt; Command::new("cmd").args(["/C", "start", "", url]).creation_flags(0x0800_0000).spawn() };
-    #[cfg(target_os = "macos")]
-    let child = Command::new("open").arg(url).spawn();
-    #[cfg(all(unix, not(target_os = "macos")))]
-    let child = Command::new("xdg-open").arg(url).spawn();
-    match child {
-        Ok(mut c) => { let _ = std::thread::Builder::new().name("browser".into()).spawn(move || c.wait()); }
-        Err(e) => eprintln!("Could not open {url} in the browser: {e}"),
-    }
+/// The operator's monitor: the main one, unless the room is on it (saved there on purpose); then the
+/// first one the room is not on (`pick`'s rule turned round). With one monitor, that one.
+pub fn operator_monitor(monitors: &[MonitorId], main: Option<&MonitorId>, room: Option<&MonitorId>) -> Option<MonitorId> {
+    let main = main.filter(|m| monitors.contains(*m));
+    if let Some(m) = main.filter(|m| Some(*m) != room) { return Some(m.clone()) }
+    monitors.iter().find(|m| Some(*m) != room).or(main).or(monitors.first()).cloned()
 }
 
 #[cfg(test)]
@@ -267,6 +281,31 @@ mod tests {
     fn screens(app: &Arc<App>) -> Arc<NativeScreens> {
         i_slint_backend_testing::init_no_event_loop();
         NativeScreens::new(app, Renderer::new(), None)
+    }
+
+    #[test]
+    fn display_open_operator_raises_window() {
+        let app = test_app();
+        let s = screens(&app);
+        s.open("operator", None).unwrap(); // no operator yet: nothing to raise, and no error
+        let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
+        s.set_operator(Rc::downgrade(&op));
+        s.open("operator", None).unwrap();
+        assert_eq!(op.raises.get(), 1);
+        assert!(s.open_roles().is_empty(), "the operator is not a room or stage window");
+        s.shutdown();
+    }
+
+    #[test]
+    fn operator_avoids_room_monitor() {
+        let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 1280, 1920));
+        let both = [laptop.clone(), projector.clone()];
+        assert_eq!(operator_monitor(&both, Some(&laptop), Some(&projector)), Some(laptop.clone()), "the main monitor");
+        assert_eq!(operator_monitor(&both, Some(&laptop), None), Some(laptop.clone()));
+        assert_eq!(operator_monitor(&both, Some(&laptop), Some(&laptop)), Some(projector.clone()), "the room was saved on the main one");
+        assert_eq!(operator_monitor(&both, None, Some(&laptop)), Some(projector.clone()), "no main known");
+        assert_eq!(operator_monitor(&[laptop.clone()], Some(&laptop), Some(&laptop)), Some(laptop.clone()), "one monitor");
+        assert_eq!(operator_monitor(&[], None, None), None);
     }
 
     #[test]

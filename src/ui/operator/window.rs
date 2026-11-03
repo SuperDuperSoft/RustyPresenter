@@ -87,6 +87,9 @@ pub struct Operator {
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
     feed: Option<Arc<Feed>>,
+    /// How many times `raise` ran, for the second-launch test.
+    #[cfg(test)]
+    pub(crate) raises: std::cell::Cell<usize>,
 }
 
 impl Operator {
@@ -105,6 +108,8 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                #[cfg(test)]
+                raises: Default::default(),
             }
         });
         service::wire(&op);
@@ -130,6 +135,8 @@ impl Operator {
 
     /// Brings the window forward: shown, not minimised, focused (a second launch asks for this).
     pub fn raise(&self) {
+        #[cfg(test)]
+        self.raises.set(self.raises.get() + 1);
         let _ = self.ui.show();
         self.ui.window().set_minimized(false);
         use slint::winit_030::WinitWindowAccessor;
