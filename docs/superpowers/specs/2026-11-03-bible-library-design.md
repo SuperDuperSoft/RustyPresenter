@@ -13,7 +13,8 @@ What it will be like:
 - **Settings → Bibles** gets a search box. Type "Spanish", "Reina", "Greek" or "Korean" and you see every Bible we are allowed to use, grouped by language. Click **Add**. It downloads once (a few megabytes, a few seconds) and then works offline forever, like KJV does today. You can remove one just as easily.
 - **About 1,300 open Bibles in over 1,000 languages** come from eBible.org, a free, long-running Bible library. These are the ones we may legally keep on the computer.
 - **The Hebrew Old Testament (Masoretic text), the Greek New Testament (several editions) and the Septuagint** come from the same place and are free to use. Hebrew shows right to left, as it should.
-- **YouVersion and API.Bible**: if the church has its free key (it already can enter one today), the same search also lists every Bible that key may use, often hundreds more. Those stay online-only, because their publishers do not let apps keep whole Bibles. The app says so on each one.
+- **YouVersion and API.Bible**: if the church has its free key (it already can enter one today), the same search also lists every Bible that key may use, often hundreds more. Those stay online-only, because their publishers do not let apps keep whole Bibles. Each one is marked "Needs internet".
+- **About "as many as we want" with YouVersion**: YouVersion does not give every Bible to every app. Each church makes its own free YouVersion app key, and for many Bibles the church must also accept that publisher's licence on platform.youversion.com. Without a key the YouVersion Bibles don't appear. **Question for you:** should the project apply for one shared RustyPresenter key so churches skip that step? Since the app is open source, anyone could copy a key built into it, so YouVersion might not allow that. Until you decide, each church uses its own key, as it does today.
 - **Two Bibles at once**: when you add a passage you can tick "Also show" and pick a second Bible, for example English and Spanish, or the KJV next to the Greek. One switch chooses side by side or one above the other. The verses always line up; if one Bible has no such verse, that half stays blank instead of sliding out of line. You can set a default in Settings and change it on any passage later.
 - **The three blocked translations never appear** anywhere: not in search, not in downloads, and if someone tries to import a file of one, the app calmly says it cannot be used.
 - **Credits**: each Bible's copyright line appears where the app already shows credits, and both lines show when two Bibles are on screen.
@@ -110,13 +111,16 @@ Hebrew display: cantillation (U+0591-U+05AF) is hidden by default and can be sho
 
 ### 3.3 YouVersion (online, church's own key)
 
-Replace the fixed `VERSIONS` map with the live catalog:
-- `GET https://api.youversion.com/v1/bibles?language_ranges[]=*` with `X-YVP-App-Key`, paged (`page_size` ≤ 99, `page_token`). This is what the key may read.
-- `GET /v1/languages?bibles_available=true` for `localized_name`, `display_names` and `text_direction`.
-- Optionally `all_available=true` to list the rest as "Needs permission at platform.youversion.com" (greyed, no Add).
-- Entry fields kept: `id, abbreviation, localized_abbreviation, title, localized_title, language_tag, copyright, promotional_content`. Credit = `copyright`, else `promotional_content`; if both are empty the text is refused ("This Bible has no copyright line, so it can't be shown").
-- Cached in `bibles/catalog/youversion.json`, refreshed weekly or on Refresh. 429 → wait `Retry-After`, tell the user "YouVersion is busy, try again in a minute".
-- Text cache stays 500 verses / half a book / 30 days. The row says "Online · keeps up to 500 verses offline".
+The live catalog is added next to the fixed `VERSIONS` map, which stays for today's NIV/HCSB/CSB/NLT/BSB routes:
+- `GET https://api.youversion.com/v1/bibles?language_ranges[]=*` with `X-YVP-App-Key`, paged (`page_size=99`, `next_page_token` → `page_token`, at most 60 pages). This is what the key may read. Response: `{data: [...], next_page_token, total_size}` (developers.youversion.com/api/bibles).
+- `GET /v1/languages?bibles_available=true`, paged the same way, for `localized_name` and `text_direction` (`ltr`/`rtl`). `display_names` is left out with `fields[]` (it is large).
+- `all_available=true` is **not** fetched: it doubles the calls against the app's roughly 200 requests an hour. Instead the page says "Don't see a Bible? Accept its licence at platform.youversion.com, then press Refresh list."
+- Entry fields kept: `id, abbreviation, localized_abbreviation, title, localized_title, language_tag, copyright, promotional_content, publisher_url`. Credit = `copyright`, else `promotional_content` (HTML tags removed); if both are empty the Bible can't be added ("This Bible has no copyright line, so it can't be shown"), as YouVersion's own guidance asks.
+- Cached in `bibles/catalog/youversion.json`, refreshed when older than 7 days (only when Settings → Bible is searched) or on **Refresh list**. A changed or removed key deletes the cached list. 429 → "YouVersion is busy. Try again in a minute."
+- Text cache stays 500 verses / half a book / 30 days, unchanged from today. The YouVersion Platform terms are shown only after sign-in, so this rule could not be checked against them; it follows the strictest publisher rule (Biblica) and the 30-day API.Bible rule, and is to be checked when a maintainer signs in.
+- Attribution: every YouVersion Bible's credit line is listed on the credits page, plus "Bible text from the YouVersion Platform (YouVersion.com)". The slide label shows the Bible's abbreviation, as for NIV today.
+- The row tag is **"Needs internet · YouVersion"** (the critic's plain-words change; "keeps up to 500 verses offline" meant nothing to a volunteer). A passage added to a service is saved with it, as today, so a dropped connection never blanks a planned slide.
+- Right-to-left Bibles (`text_direction` = `rtl`) stay hidden until step 3, like the eBible rows.
 
 ### 3.4 API.Bible (online, church's own key)
 
@@ -124,8 +128,17 @@ Replace the fixed `VERSIONS` map with the live catalog:
 - Keep `id` (opaque, the real key), `abbreviation, abbreviationLocal, name, nameLocal, language{id,name,nameLocal,scriptDirection}, copyright`.
 - Resolve by `id`, never by abbreviation (CSB is also a Spanish Bible). `pick_bible`'s `eng` preference stays only for old abbreviation-only items.
 - Copyright persisted with the catalog (today `COPYRIGHTS` is in memory only, `api_bible.rs:88`).
-- Starter plan: visible citation and link to https://api.bible on the credits page; 30-day refresh rule unchanged; FUMS as today.
-- Cached in `bibles/catalog/apibible.json`, refreshed weekly.
+- Starter plan: visible citation and link to https://api.bible on the credits page ("Scripture text from API.Bible, https://api.bible"); 30-day refresh rule unchanged; FUMS as today.
+- Cached in `bibles/catalog/apibible.json`, refreshed when older than 7 days or on Refresh list; deleted when the key changes.
+- Tag "Needs internet · API.Bible". `copyright` has its HTML tags removed. RTL (`scriptDirection` = `RTL`) hidden until step 3.
+
+### 3.3.1 Added online Bibles
+
+An online Bible the operator adds is kept in `bibles/online.json` with its own metadata (id, abbreviation, titles, language, direction, credit line, publisher link), so its credit and name survive a lost or refreshed catalog and a Bible YouVersion later drops. Its translation id is `yv:{id}` or `ab:{id}` (§5.1). Removing one used as the default falls back to KJV; one used in saved services asks first ("Used in N services. Their passages are saved and still show.").
+
+A catalog row that is already one of today's routes (NIV 111, HCSB 72, CSB 1713, NLT 116, BSB 3034 on YouVersion; an English NIV/CSB/NLT on API.Bible) or a built-in Bible (English KJV, WEB, BSB) says "Already in your list" instead of Add, so the chips never show the same Bible twice.
+
+Search runs in the core, off the UI thread: catalog files are parsed once into memory with a pre-normalised search string per row (§4 normalisation), typing is debounced 150 ms, and at most 80 rows (with language headers) come back, with "Type more to narrow the list" when more match. The page never builds thousands of rows.
 
 ### 3.5 Later
 
@@ -136,8 +149,14 @@ Door43/unfoldingWord (CC BY-SA, varied quality) and CrossWire SWORD (accept only
 `src/bible/blocklist.rs`, one function used everywhere:
 
 ```rust
-pub fn blocked(abbr: &str, titles: &[&str], ids: &[&str]) -> bool
+pub fn blocked(abbr: &str, titles: &[&str], notices: &[&str], ids: &[&str]) -> bool
+pub fn blocked_row(lang: &str, abbr: &str, titles: &[&str], notices: &[&str], ids: &[&str]) -> bool
+pub fn blocked_verse(book: u8, chapter: u16, verse: u16, text: &str) -> bool
 ```
+
+`notices` are the copyright, publisher, description and promotional fields of every source (eBible about.htm, YouVersion `copyright`/`promotional_content`, API.Bible `copyright`, import headers): the strongest signal, because the NWT exists in 200+ languages and a title list will always leak. Notice patterns: NWT "Watch Tower", "Watchtower", "Wachtturm", "Torre de Vigía", "Tour de Garde", "jw.org", "Jehovah's Witnesses", "Testigos de Jehová", "Témoins de Jéhovah", "Zeugen Jehovas", "Testemunhas de Jeová"; JST "Herald Publishing House", "Community of Christ", "Reorganized Church of Jesus Christ of Latter Day Saints"; TPT "Passion & Fire Ministries" / "Passion and Fire Ministries", and "BroadStreet" together with "Brian Simmons". The bare word "passion" never blocks. `blocked_row` is `blocked` except that an abbreviation-only hit is ignored when the abbreviation equals the row's language code (eBible `tptNT`, any catalog's Tepehua "TPT").
+
+**Step 2 revision (critic 13-20).** Normalisation adds, after the fold table, the digraph fold `ae`→`a`, `oe`→`o`, `ue`→`u`, so "Neue-Welt-Übersetzung" and "Neue-Welt-Uebersetzung" are one string; fold table also `ħ`→`h`. Every pattern goes through the same function, so patterns with spaces match. Abbreviations blocked (whole value, normalised): `nwt` + digits, `nwtr`, `nwtsty`, `rbi8`, `bi12`, `tnm`, `tmn`, `nwu`/`nwü`, `jst`, `iv`, `hsiv`, `tpt`. Titles: "inspired version" blocks alone (the old "with Holy Scriptures" rule was dead), plus "Joseph Smith's New Translation", "Restoration Edition", "Restoration Scriptures"; TPT book titles "Letters from Heaven", "Poetry on Fire", "La Pasión Traducción", "Traducción de La Pasión"; NWT in Afrikaans, Ukrainian, Greek, Romanian, Czech, Slovak, Hungarian, Swedish, Finnish, Turkish, Indonesian, Tagalog, Swahili, Vietnamese, Arabic and Hindi as well as the languages below. Known ids: `yv:1849` (TPT on YouVersion, from public listings; to verify against the live list with a key). Content fingerprints for online text: each fetched verse is checked (John 1:1 "the Word was a god", "Living Expression", "gospel preached through the Son"; "Jehovah" in Matthew 4:10 or Luke 4:8; Psalm 23:1 "my best friend"; Matthew 7:1 "judge not unrighteously"), and a hit refuses the passage with `bible.blocked`.
 
 Normalisation: Unicode lowercase, NFKD with combining marks removed, then an explicit fold table for letters that have no decomposition (`ł`→`l`, `ø`→`o`, `æ`→`ae`, `œ`→`oe`, `đ`/`ð`→`d`, `ß`→`ss`, `ı`→`i`, `þ`→`th`), then non-alphanumerics removed. The patterns below go through the same `normalise()` in code (built once in a `LazyLock`), so no pattern is ever folded by hand. Each listed language has a unit test using the real native title ("Przekład Nowego Świata", "Ny Verden-oversættelsen", "신세계역 성경", "新世界譯本", ...).
 
@@ -378,10 +397,11 @@ Each step ends with all tests passing and the app fully usable.
 (Right-to-left rows, meaning `textDirection` RTL or script Hebr, Arab, Syrc or Thaa, are hidden from the catalog in step 1, because scripture is still left aligned and no Hebrew font is bundled; they appear in step 3 with RTL layout and the Hebrew font. Greek downloads are offered in step 1 with the theme font, since Noto Sans covers polytonic Greek. The "Original languages" filter appears in step 3.)
 
 ### Step 2 — YouVersion and API.Bible full catalogs
-1. YouVersion catalog client: paged `/v1/bibles?language_ranges[]=*`, `/v1/languages` for names and direction, optional `all_available` greyed rows; cache file; weekly refresh; 429 handling.
+Step 2 was built before step 1's code, so it carries the parts of step 1 it needs: `bible/blocklist.rs` (§4, with the step 2 revision) wired into lookup, paste, import, `settings/translation` and both catalogs; prefixed ids `yv:`/`ab:` kept case-sensitive with file-name encoding for caches; and the search box at the top of Settings → Bible. eBible rows join the same search when step 1 lands.
+1. YouVersion catalog client: paged `/v1/bibles?language_ranges[]=*`, `/v1/languages` for names and direction (no `all_available`, §3.3); cache file; 7-day refresh; 429 handling.
 2. API.Bible catalog client: `/v1/bibles?include-full-details=true`, persisted copyrights, id-based resolution.
 3. Route `yv:{id}` and `ab:{id}` translations through `lookup` and the existing cache rules; cache paths and `clear_cache` cover catalog ids.
-4. Merge both catalogs into the same search, grouped by language, tagged "Online · YouVersion/API.Bible · keeps up to 500 verses offline"; Add = add to installed list (no download).
+4. Merge both catalogs into the same search, grouped by language, tagged "Needs internet · YouVersion/API.Bible"; Add = add to `bibles/online.json` (no download); Remove asks first when services use it.
 5. Credits: YouVersion copyright/promotional fallback and refusal; API.Bible citation link.
 6. Blocklist applied to both catalogs; fill the known-ids table from live listings.
 7. Fixture tests; `RP_NET_TESTS` checks; keep today's NIV/ESV/NLT/CSB/HCSB routes working.
