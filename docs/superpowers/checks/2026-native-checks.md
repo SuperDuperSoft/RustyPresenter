@@ -44,6 +44,7 @@ Each column needs a person on that OS; Windows also needs the church laptop with
 | Room on a second monitor; unplug and replug | | | |
 | Lyrics live, no input for 20+ minutes, on battery and plugged in: every screen stays on, no sleep, no lock screen. Close the room: the computer can sleep again | | | |
 | Import from EasyWorship (Add → Song), against the real library: songs, writers, CCLI #, sections and verse order correct; a second import doubles nothing; EasyWorship still opens its library afterwards | | n/a | n/a |
+| Services → Save to file, on a service with a song, a video and slides, then Open from file on another computer: the service plays there with the same notes and backgrounds; a song edited on one side comes in as a second copy and the report says so; Cancel on the job card leaves no file | | | |
 | Service panel → Check, with a file renamed in the data folder and the room screen unplugged: both are listed; with all well it says so; nothing changes on screen | | | |
 | Message button in the top bar (needs a stage screen): the message shows on the stage only, not in the room or on a phone; an empty one takes it down | | | |
 | Settings → Video → Sound goes to: lists the real outputs (HDMI, USB interface); a video and an audio item play there; after a restart the choice holds; with the device unplugged, Check says so and the list shows it as not connected. Note what is heard: spec §6.4 wants no silent fallback to the laptop speakers, and mpv's behaviour there has not been seen | | | |

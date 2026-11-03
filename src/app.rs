@@ -901,6 +901,14 @@ pub enum SongImportMode {
     KeepBoth,
 }
 
+/// Why a service was not saved to a file.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ExportError {
+    /// One line per thing the service needs that is not on this computer.
+    Missing(Vec<String>),
+    Failed(String),
+}
+
 /// What importing another program's song library did.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct LibraryImport {
@@ -991,6 +999,41 @@ impl App {
         import::media::import_media(app, &tmp, sha, &ext, display).await.map(Imported::Media).map_err(ActionError::bad)
     }
 
+    /// Saves a service and everything it needs to one file (spec §11). Something missing stops it before a job
+    /// starts; a save under way shows as a job with Cancel.
+    pub async fn export_service(self: &Arc<Self>, id: Uuid, dest: PathBuf) -> Result<(), ExportError> {
+        use crate::bundle;
+        let data = self.data.lock().unwrap().clone();
+        let app = self.clone();
+        let check = tokio::task::spawn_blocking(move || bundle::gather(&data, id, &|a| app.store.asset_path(a).is_file()));
+        let (contents, assets) = check.await.map_err(|e| ExportError::Failed(e.to_string()))?.map_err(ExportError::Missing)?;
+        let (job, cancel) = self.job_start_cancellable(bundle::strings::SAVING);
+        let app = self.clone();
+        let work = tokio::task::spawn_blocking(move || bundle::write(&app.store, &contents, &assets, &dest, &cancel, &|p| app.job_progress(job, p)));
+        self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r)).map_err(ExportError::Failed)
+    }
+
+    /// Opens a saved service file, adds what is new to the library, and opens the service (spec §11). A bad file
+    /// adds nothing and its error stays on the job.
+    pub async fn import_service(self: &Arc<Self>, path: PathBuf) -> Result<crate::bundle::Opened, String> {
+        use crate::bundle;
+        let (job, cancel) = self.job_start_cancellable(bundle::strings::OPENING);
+        let app = self.clone();
+        let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &path, &cancel, &|p| app.job_progress(job, p)));
+        let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
+        self.edit(|d| Ok(bundle::merge(d, contents)))
+    }
+
+    /// Ends a job the way its result says.
+    fn job_finished<T>(&self, job: Uuid, r: Result<T, String>) -> Result<T, String> {
+        match &r {
+            Ok(_) => self.job_end(job, None),
+            Err(e) if e == import::CANCELLED => self.job_end_cancelled(job),
+            Err(e) => self.job_end(job, Some(e.clone())),
+        }
+        r
+    }
+
     /// Reads an EasyWorship library and saves its new songs in one step (spec §9.3).
     pub async fn import_easyworship(&self, folder: PathBuf) -> Result<LibraryImport, String> {
         let read = tokio::task::spawn_blocking(move || crate::import::easyworship::read_library(&folder));
@@ -1065,6 +1108,8 @@ pub(crate) fn test_app() -> Arc<App> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn block_on<F: std::future::Future>(f: F) -> F::Output { tokio::runtime::Runtime::new().unwrap().block_on(f) }
 
     #[tokio::test]
     async fn do_action_saves_a_song_and_returns_its_id() {
@@ -1730,6 +1775,42 @@ mod tests {
         assert_eq!(note(&[FALLBACK_NOTE, count, other]), format!("{FALLBACK_NOTE} {other}"));
         assert_eq!(note(&[FALLBACK_NOTE, count, FALLBACK_NOTE]), format!("{FALLBACK_NOTE} {count}"));
         assert_eq!(note(&[count, FALLBACK_NOTE, other]), format!("{FALLBACK_NOTE} {other}"));
+    }
+
+    #[test]
+    fn exporting_a_service_runs_as_a_job_that_goes_away() {
+        let app = test_app();
+        let dest = app.store.root.join("s.rpservice");
+        let id = app.data.lock().unwrap().service().unwrap().id;
+        block_on(app.export_service(id, dest.clone())).unwrap();
+        assert!(dest.exists());
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn importing_a_bad_service_file_leaves_the_error_on_its_job() {
+        let app = test_app();
+        let bad = app.store.root.join("x.rpservice");
+        std::fs::write(&bad, b"no").unwrap();
+        assert_eq!(block_on(app.import_service(bad)).unwrap_err(), crate::bundle::strings::NOT_A_SERVICE_FILE);
+        assert_eq!(app.data.lock().unwrap().services.len(), 1);
+        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::NOT_A_SERVICE_FILE));
+    }
+
+    #[test]
+    fn export_with_something_missing_makes_no_job() {
+        let app = test_app();
+        let dest = app.store.root.join("s.rpservice");
+        let id = {
+            let mut d = app.data.lock().unwrap();
+            let s = d.service_mut().unwrap();
+            s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new() });
+            s.id
+        };
+        let e = block_on(app.export_service(id, dest.clone())).unwrap_err();
+        assert!(matches!(e, ExportError::Missing(ref lines) if lines.len() == 1), "{e:?}");
+        assert!(!dest.exists());
+        assert!(app.jobs.lock().unwrap().is_empty());
     }
 
     #[test]

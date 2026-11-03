@@ -3,8 +3,12 @@
 #[path = "../../strings/services.rs"]
 pub mod strings;
 
-use super::{DialogKind, confirm, prompt, strings as dtr};
-use crate::ui::{ServiceListRow, ServicesDialogState, operator::window::Operator};
+use super::{DialogKind, ask::notice, confirm, prompt, strings as dtr};
+use crate::{
+    app::ExportError,
+    bundle,
+    ui::{ServiceListRow, ServicesDialogState, operator::{file_input::Filter, files, window::Operator}},
+};
 use serde_json::{Value, json};
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::rc::{Rc, Weak};
@@ -119,6 +123,48 @@ fn select(op: &Rc<Operator>, id: Uuid) {
     });
 }
 
+/// The file name a save starts from: the service's name without what Windows refuses in one.
+fn file_name(name: &str) -> String {
+    let clean: String = name.chars().filter(|c| !c.is_control() && !r#"<>:"/\|?*"#.contains(*c)).collect();
+    let clean = clean.trim().trim_matches('.').trim();
+    format!("{}.{}", if clean.is_empty() { "Service" } else { clean }, bundle::EXT)
+}
+
+/// Save to file: the open service and everything it needs, for another computer (spec §11). The dialog closes so
+/// the job card shows, which can take minutes with video in the service.
+fn save_file(op: &Rc<Operator>) {
+    let Some((id, name)) = op.state.borrow().snap.as_ref().and_then(|s| s.service_id.and_then(|id| s.data.services.iter().find(|x| x.id == id)).map(|x| (x.id, x.name.clone()))) else { return };
+    let me = Rc::downgrade(op);
+    files::pick_save(op, Filter::Services, &file_name(&name), move |dest| {
+        let Some(op) = me.upgrade() else { return };
+        op.close_dialog();
+        let me = Rc::downgrade(&op);
+        op.ops().export_service(id, dest, move |r| {
+            let Some(op) = me.upgrade() else { return };
+            match r {
+                Ok(()) => op.toast(bundle::strings::saved(&name), false),
+                Err(ExportError::Missing(lines)) => notice(&op, &bundle::strings::missing_report(&lines)),
+                // The job card shows the error, and a cancel needs no message.
+                Err(ExportError::Failed(_)) => {}
+            }
+        });
+    });
+}
+
+/// Open from file: adds the service, which becomes the open one, and says what came in. A bad file's error is on
+/// its job card.
+fn open_file(op: &Rc<Operator>) {
+    let me = Rc::downgrade(op);
+    files::pick(op, Filter::Services, false, move |picked| {
+        let (Some(op), Some(path)) = (me.upgrade(), picked.into_iter().next()) else { return };
+        op.close_dialog();
+        let me = Rc::downgrade(&op);
+        op.ops().import_service(path, move |r| {
+            if let (Some(op), Ok(opened)) = (me.upgrade(), r) { notice(&op, &bundle::strings::opened_report(&opened)) }
+        });
+    });
+}
+
 /// Connects the top bar's Services button and the dialog's buttons. They hold a `Weak`.
 pub(crate) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -128,6 +174,10 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     g.on_new_service(move || if let Some(op) = me.upgrade() { new_service(&op, false) });
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_copy_service(move || if let Some(op) = me.upgrade() { new_service(&op, true) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_save_file(move || if let Some(op) = me.upgrade() { save_file(&op) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_open_file(move || if let Some(op) = me.upgrade() { open_file(&op) });
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_rename(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { rename(&op, id) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -326,6 +376,100 @@ mod tests {
         assert!(rows[0].current, "the service left is marked open");
         assert!(find(&op, "ServicesDialog::open-chip").is_some(), "it has the Open chip");
         assert!(find(&op, "ServicesDialog::open-btn").is_none(), "and no Open button");
+    }
+
+    /// A service saved on this computer, then opened on it as if it were another: the second service is a copy.
+    fn saved_file(app: &Arc<App>, op: &Rc<Operator>) -> std::path::PathBuf {
+        let dest = app.store.root.join("Sunday.rpservice");
+        settle(op);
+        crate::ui::operator::files::testing::will_pick(vec![dest.clone()]);
+        click(op, "ServicesDialog::save-file-btn", 0);
+        dest
+    }
+
+    #[test]
+    fn save_to_file_writes_the_open_service() {
+        let app = test_app();
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new() });
+        let op = open_services(&app);
+        let dest = saved_file(&app, &op);
+        assert!(dest.exists());
+        assert!(op.toast_log().iter().any(|(t, err)| t.contains("Sunday Service") && !err), "{:?}", op.toast_log());
+        assert_eq!(op.dialog(), None, "the dialog closes so the job card shows");
+    }
+
+    #[test]
+    fn save_to_file_cancelled_does_nothing() {
+        let app = test_app();
+        let op = open_services(&app);
+        click(&op, "ServicesDialog::save-file-btn", 0);
+        assert!(op.toast_log().is_empty());
+        assert_eq!(op.dialog(), Some(DialogKind::Services));
+        assert!(!app.store.root.join("Sunday.rpservice").exists());
+    }
+
+    #[test]
+    fn save_with_a_missing_file_says_what_is_missing() {
+        let app = test_app();
+        let mut d = app.data.lock().unwrap();
+        let id = Uuid::new_v4();
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new() });
+        drop(d);
+        let op = open_services(&app);
+        let dest = saved_file(&app, &op);
+        assert!(!dest.exists());
+        let ask = op.ui.get_ask().row_data(0).expect("the report is up");
+        assert!(ask.text.contains("song"), "{}", ask.text);
+    }
+
+    #[test]
+    fn open_file_adds_the_service_opens_it_and_reports() {
+        let app = test_app();
+        let op = open_services(&app);
+        let dest = saved_file(&app, &op);
+        op.ui.invoke_services();
+        crate::ui::operator::files::testing::will_pick(vec![dest]);
+        click(&op, "ServicesDialog::open-file-btn", 0);
+        assert_eq!(app.data.lock().unwrap().services.len(), 2);
+        assert_eq!(current(&app).1, "Sunday Service (2)");
+        assert_eq!(op.dialog(), None, "the dialog closes on the new service");
+        let ask = op.ui.get_ask().row_data(0).expect("the report is up");
+        assert!(ask.text.contains("Sunday Service (2)"), "{}", ask.text);
+    }
+
+    #[test]
+    fn open_file_that_is_wrong_shows_why() {
+        let app = test_app();
+        let bad = app.store.root.join("x.rpservice");
+        std::fs::write(&bad, b"no").unwrap();
+        let op = open_services(&app);
+        crate::ui::operator::files::testing::will_pick(vec![bad]);
+        click(&op, "ServicesDialog::open-file-btn", 0);
+        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::NOT_A_SERVICE_FILE));
+        assert_eq!(op.ui.get_ask().row_count(), 0, "no report");
+        assert_eq!(app.data.lock().unwrap().services.len(), 1);
+    }
+
+    #[test]
+    fn the_four_buttons_fit_inside_the_dialog() {
+        let app = test_app();
+        let op = open_services(&app);
+        for w in [1024.0, 1366.0] {
+            op.window().set_size(slint::LogicalSize::new(w, 768.0));
+            settle(&op);
+            let e = find(&op, "ServicesDialog::open-file-btn").unwrap();
+            let close = find(&op, "DialogShell::close-btn").unwrap();
+            let (right, edge) = (e.absolute_position().x + e.size().width, close.absolute_position().x + close.size().width);
+            eprintln!("width {w}: buttons end at {right}, dialog at {edge}");
+            assert!(right <= edge, "at {w}: {right} is past {edge}");
+        }
+    }
+
+    #[test]
+    fn file_names_are_safe_on_windows() {
+        assert_eq!(file_name("Easter: 9/10 AM?"), "Easter 910 AM.rpservice");
+        assert_eq!(file_name("   "), "Service.rpservice");
+        assert_eq!(file_name("..."), "Service.rpservice");
     }
 
     #[test]

@@ -3,7 +3,7 @@
 //! and may hold `Rc` and `RefCell` state. `Ops::inline` runs everything at once for tests on the testing
 //! backend, which has no event loop.
 use crate::{
-    app::{App, ImportPurpose, Imported, LibraryImport},
+    app::{App, ExportError, ImportPurpose, Imported, LibraryImport},
     import::deck::{ConverterInfo, ConverterStatus},
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
@@ -118,6 +118,20 @@ impl Ops {
     pub fn import_easyworship(&self, folder: PathBuf, done: impl FnOnce(Result<LibraryImport, String>) + 'static) {
         let app = self.app.clone();
         let work = async move { app.import_easyworship(folder).await };
+        self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
+    /// `App::export_service`, off the UI thread.
+    pub fn export_service(&self, id: Uuid, dest: PathBuf, done: impl FnOnce(Result<(), ExportError>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { app.export_service(id, dest).await };
+        self.run(work, |r| done(r.unwrap_or_else(|e| Err(ExportError::Failed(e)))));
+    }
+
+    /// `App::import_service`, off the UI thread.
+    pub fn import_service(&self, path: PathBuf, done: impl FnOnce(Result<crate::bundle::Opened, String>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { app.import_service(path).await };
         self.run(work, |r| done(r.and_then(|r| r)));
     }
 

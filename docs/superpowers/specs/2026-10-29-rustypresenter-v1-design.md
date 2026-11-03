@@ -322,7 +322,7 @@ Foldback "next" and phone "next" show the cue that Next would produce under this
 - A backup is written to `backup-<time>.partial/` and renamed only after the data, the manifest and a `COMPLETE` marker exist. Partial or unmarked backups are never offered for restore.
 - Made at app start and daily. The last 10 are kept. Backup assets no retained backup references are pruned.
 - **Restore** uses only the backup set: it copies any missing assets from the backup asset store into the working store, keeps a copy of the data being replaced, and then loads the snapshot. It works into an empty data folder with the original working assets gone.
-- **Service bundle export** (zip with assets) for moving a service to another machine.
+- **Service bundle export** (zip with assets) for moving a service to another machine. Built: `src/bundle.rs`, Services → Save to file / Open from file, `.rpservice`. Carries the service and only the library entries it uses, not settings. Opening reuses what the computer already has (songs with the same words, media and decks with the same files). A song with other words comes in as a second copy, so the service shows what was saved and the library's song is untouched.
 - Autosave on every change.
 
 ## 12. Operator, foldback, phone remote

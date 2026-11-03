@@ -66,6 +66,7 @@ pub const FILTER_LYRICS: &str = "SongSelect lyric files";
 pub const FILTER_PICTURES: &str = "Pictures";
 pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
 pub const FILTER_BIBLES: &str = "Bible files";
+pub const FILTER_SERVICES: &str = "Service files";
 
 /// The toast after the Bible box adds a passage (`operator.js:336`).
 pub fn bible_added(label: &str) -> String { format!("{label} added — press Enter to show it") }

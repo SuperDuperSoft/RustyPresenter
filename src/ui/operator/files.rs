@@ -397,6 +397,23 @@ pub fn pick_folder(op: &Rc<Operator>, start: &Path, done: impl FnOnce(PathBuf) +
     }
 }
 
+/// The native save dialog, starting from `name`. `done` runs only when a place was chosen. Tests take the next
+/// path queued with `testing::will_pick`.
+pub fn pick_save(op: &Rc<Operator>, filter: Filter, name: &str, done: impl FnOnce(PathBuf) + 'static) {
+    #[cfg(test)]
+    {
+        let _ = (op, filter, name);
+        if let Some(p) = testing::PICKS.with(|p| p.borrow_mut().pop_front()).and_then(|p| p.into_iter().next()) { done(p) }
+    }
+    #[cfg(not(test))]
+    {
+        let mut dialog = rfd::AsyncFileDialog::new().add_filter(filter.name(), &filter.extensions()).set_file_name(name).set_parent(&op.window().window_handle());
+        if let Some(dir) = op.files.last_folder.borrow().as_ref() { dialog = dialog.set_directory(dir); }
+        let picking = async move { if let Some(f) = dialog.save_file().await { done(f.path().to_path_buf()) } };
+        if let Err(e) = slint::spawn_local(picking) { op.toast(e.to_string(), true) }
+    }
+}
+
 #[cfg(not(test))]
 fn native_pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
     let mut dialog = rfd::AsyncFileDialog::new().add_filter(filter.name(), &filter.extensions()).set_parent(&op.window().window_handle());

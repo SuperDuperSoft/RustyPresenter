@@ -14,6 +14,8 @@ export global ServicesDialogState {
     in property <bool> can-delete;
     callback new-service();
     callback copy-service();
+    callback save-file();
+    callback open-file();
     callback rename(string);
     callback delete(string);
     callback open(string);
@@ -35,6 +37,15 @@ export component ServicesDialog inherits VerticalLayout {
                 icon: "copy";
                 text: @tr("Copy this service");
                 clicked => { ServicesDialogState.copy-service(); }
+            }
+            save-file-btn := Btn {
+                text: @tr("Save to file");
+                tooltip: @tr("Save the open service and all its files, to move it to another computer");
+                clicked => { ServicesDialogState.save-file(); }
+            }
+            open-file-btn := Btn {
+                text: @tr("Open from file");
+                clicked => { ServicesDialogState.open-file(); }
             }
         }
         VerticalLayout {
