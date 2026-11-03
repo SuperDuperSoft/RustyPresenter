@@ -172,6 +172,8 @@ pub struct Live {
     pub media_status: Option<PlayStatus>,
     pub audio_status: Option<PlayStatus>,
     pub notice: Option<String>,
+    /// The version `restore` made, if this run began by putting a saved frame back.
+    pub restored: Option<u64>,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -187,7 +189,7 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            audio_status: None, notice: None, restored: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -229,6 +231,8 @@ impl Live {
     /// Puts a saved frame back after a crash, as a new version for the room to commit.
     /// `with_media` false leaves out everything that plays: this state may be what crashed.
     pub fn restore(&mut self, s: &LiveState, with_media: bool) {
+        // The recovery tests crash here to stand for a saved video or song that crashes the app.
+        if with_media { crate::recovery::panic::test_crash_point("restore-media"); }
         self.frame = s.frame.clone();
         self.cursor = s.cursor.clone();
         self.item = s.item.clone();
@@ -239,6 +243,7 @@ impl Live {
             if self.frame.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. })) { self.frame.background = None; }
         }
         self.bump();
+        self.restored = Some(self.version);
     }
 
     pub fn apply(&mut self, env: Envelope, plan: &dyn Plan) -> Outcome {
