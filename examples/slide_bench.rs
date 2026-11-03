@@ -8,7 +8,11 @@
 //! * frames drawn per window (rendering-notifier `AfterRendering`; the plain `software` renderer has no notifier),
 //!   as fps and as frames per slide change;
 //! * the room's first frame after each swap: from the room putting a new view on screen (the start of its
-//!   crossfade) to the end of the first room frame drawn after it, in ms.
+//!   crossfade) to the end of the first room frame drawn after it, in ms;
+//! * the room's frame time: from `BeforeRendering` to `AfterRendering` on the UI thread (median, ms);
+//! * GL textures in the room's context (OpenGL renderers): after each room frame every texture name up to 4096 is
+//!   checked with `glIsTexture`; a name that was not a texture and now is counts as one texture made (an image
+//!   upload, or a FemtoVG offscreen layer), reported per slide change, with the most alive at once.
 //!
 //! Environment:
 //! * `RP_RENDERER`: femtovg (the app's default, OpenGL), femtovg-wgpu (Direct3D 12 / Vulkan / Metal through wgpu;
@@ -33,7 +37,8 @@
 //!
 //! Each `BENCH` line: renderer, windows, graphics API the operator window got, commit latency p50/p95/max (ms),
 //! stalls over 20 ms (count, longest gap of any size in ms, total ms of stalls), CPU % of one core, fps of operator/room/stage,
-//! room first frame after a swap p50/p95/max (ms), frames per slide change of operator/room/stage.
+//! room first frame after a swap p50/p95/max (ms), frames per slide change of operator/room/stage, room frame time
+//! p50 (ms), room textures made per slide change, most room textures alive.
 use rustypresenter::{
     app::{App, Update},
     live::{Command, Envelope},
@@ -84,10 +89,24 @@ fn main() {
 
 /// Frames drawn by one window while measuring (when each one ended).
 #[derive(Clone, Default)]
-struct Frames { times: Rc<RefCell<Vec<Instant>>>, counting: Rc<Cell<bool>>, supported: Rc<Cell<bool>>, api: Rc<RefCell<String>> }
+struct Frames {
+    times: Rc<RefCell<Vec<Instant>>>,
+    counting: Rc<Cell<bool>>,
+    supported: Rc<Cell<bool>>,
+    api: Rc<RefCell<String>>,
+    /// When the frame being drawn started, and how long each counted frame took (ms).
+    began: Rc<Cell<Option<Instant>>>,
+    took: Rc<RefCell<Vec<f64>>>,
+}
 
 impl Frames {
-    fn tick(&self) { if self.counting.get() { self.times.borrow_mut().push(Instant::now()) } }
+    fn tick(&self) {
+        let now = Instant::now();
+        let began = self.began.take();
+        if !self.counting.get() { return }
+        self.times.borrow_mut().push(now);
+        if let Some(b) = began { self.took.borrow_mut().push((now - b).as_secs_f64() * 1000.0) }
+    }
     fn count(&self) -> usize { self.times.borrow().len() }
 
     /// Takes in one rendering-notifier event.
@@ -100,6 +119,7 @@ impl Frames {
                 let head = name.split(['{', '(', ' ']).next().unwrap_or("");
                 *self.api.borrow_mut() = head.rsplit("::").next().unwrap_or("").to_string();
             }
+            RenderingState::BeforeRendering => self.began.set(Some(Instant::now())),
             RenderingState::AfterRendering => self.tick(),
             _ => {}
         }
@@ -121,6 +141,36 @@ impl Frames {
 
     /// Mean frames per slide change.
     fn per_change(&self, changes: usize) -> Option<f64> { (self.supported.get() && changes > 0).then(|| self.count() as f64 / changes as f64) }
+}
+
+/// GL textures alive in the room's context, checked after each room frame (`VideoSurface::set_gl_probe`).
+#[derive(Clone, Default)]
+struct Textures { live: Rc<RefCell<Vec<bool>>>, made: Rc<Cell<usize>>, most: Rc<Cell<usize>>, seen: Rc<Cell<bool>> }
+
+/// Texture names checked: FemtoVG and mpv use far fewer.
+const TEX_NAMES: u32 = 4096;
+
+impl Textures {
+    /// Checks every name; while `counting`, adds the ones that became textures since the last check.
+    fn check(&self, gl: &glow::Context, counting: bool) {
+        use glow::HasContext;
+        let mut live = self.live.borrow_mut();
+        live.resize(TEX_NAMES as usize + 1, false);
+        let (mut made, mut alive) = (0, 0);
+        for n in 1..=TEX_NAMES {
+            let Some(name) = std::num::NonZeroU32::new(n) else { continue };
+            let now = unsafe { gl.is_texture(glow::NativeTexture(name)) };
+            if now && !live[n as usize] { made += 1 }
+            alive += usize::from(now);
+            live[n as usize] = now;
+        }
+        // The first check only learns what is there.
+        if counting && self.seen.get() {
+            self.made.set(self.made.get() + made);
+            self.most.set(self.most.get().max(alive));
+        }
+        self.seen.set(true);
+    }
 }
 
 /// What is measured besides slide changes.
@@ -161,7 +211,7 @@ fn first_frame_delays(swaps: &[Instant], frames: &[Instant]) -> Vec<f64> {
 }
 
 /// What the UI thread keeps while the windows are open.
-struct Open { _op: Rc<Operator>, _room: Option<Rc<Room>>, _stage: Option<Rc<Stage>>, frames: Vec<(&'static str, Frames)>, _stall_timer: Timer, _hover: Option<Timer> }
+struct Open { _op: Rc<Operator>, _room: Option<Rc<Room>>, _stage: Option<Rc<Stage>>, frames: Vec<(&'static str, Frames)>, textures: Option<Textures>, _stall_timer: Timer, _hover: Option<Timer> }
 
 thread_local! {
     static OPEN: RefCell<Option<Open>> = const { RefCell::new(None) };
@@ -286,7 +336,7 @@ fn run() {
         let op = Operator::open(app2.clone(), ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>).expect("operator window");
         op.window().set_maximized(true);
         let mut frames = vec![("operator", paced_frames("operator"))];
-        let (mut room, mut stage) = (None, None);
+        let (mut room, mut stage, mut textures) = (None, None, None);
         if windows > 1 {
             // RP_BENCH_ROOM_MONITOR / RP_BENCH_STAGE_MONITOR = n: full screen on the n-th monitor (1-based), as
             // the app puts them; otherwise a plain window on the operator's monitor.
@@ -302,6 +352,12 @@ fn run() {
             }
             // In OpenGL mode the video surface holds the notifier and reports to the pacing probe.
             let f = if mode == video::DrawMode::OpenGl { paced_frames("room") } else { Frames::watch(r.window()) };
+            if mode == video::DrawMode::OpenGl {
+                let (t, counting) = (Textures::default(), f.counting.clone());
+                let t2 = t.clone();
+                r.surface().set_gl_probe(move |gl, _| t2.check(gl, counting.get()));
+                textures = Some(t);
+            }
             frames.push(("room", f));
             let s = Stage::open(app2.clone(), stage_mon.clone()).expect("stage window");
             if stage_mon.is_none() {
@@ -332,7 +388,7 @@ fn run() {
             });
             t
         });
-        OPEN.with(|o| *o.borrow_mut() = Some(Open { _op: op, _room: room, _stage: stage, frames, _stall_timer: timer, _hover: hover }));
+        OPEN.with(|o| *o.borrow_mut() = Some(Open { _op: op, _room: room, _stage: stage, frames, textures, _stall_timer: timer, _hover: hover }));
     };
     // As the app opens its operator: from the active event loop, which also lists the monitors.
     SETUP.with(|s| *s.borrow_mut() = Some(Box::new(setup)));
@@ -414,6 +470,12 @@ fn run() {
     let mut first: Vec<f64> = room_frames.map(|r| first_frame_delays(&swaps.borrow(), &r)).unwrap_or_default();
     first.sort_by(f64::total_cmp);
     let ff = |v: f64| if first.is_empty() { "-".to_string() } else { format!("{v:.1}") };
+    let mut room_took: Vec<f64> = OPEN.with(|o| o.borrow().as_ref().and_then(|o| o.frames.iter().find(|(n, _)| *n == "room").map(|(_, f)| f.took.borrow().clone()))).unwrap_or_default();
+    room_took.sort_by(f64::total_cmp);
+    let room_ms = (!room_took.is_empty()).then(|| pct(&room_took, 0.5));
+    let tex = OPEN.with(|o| o.borrow().as_ref().and_then(|o| o.textures.as_ref().map(|t| (t.made.get(), t.most.get()))));
+    let tex_per = tex.and_then(|(m, _)| (!sends.is_empty()).then(|| m as f64 / sends.len() as f64));
+    let tex_most = tex.map(|(_, a)| a as f64);
     let opt = |v: Option<f64>| v.map(|v| format!("{v:.1}")).unwrap_or_else(|| "-".into());
     let committed = |v: f64| if lat.is_empty() { "-".to_string() } else { format!("{v:.0}") };
 
@@ -422,11 +484,13 @@ fn run() {
     eprintln!("UI stalls > 20 ms: {} (total {stall_sum:.0} ms); longest gap {stall_max:.0} ms, mean gap {mean_gap:.1} ms", stall_ms.len());
     eprintln!("CPU: {}% of one core; fps {:?}", opt(cpu_pct), fps);
     eprintln!("room first frame after a swap, ms: median {} p95 {} max {} ({} swaps); frames per change {:?}", ff(pct(&first, 0.5)), ff(pct(&first, 0.95)), ff(pct(&first, 1.0)), swaps.borrow().len(), per_change);
+    eprintln!("room frame time median {} ms; room GL textures made {:?} ({} per change), most alive {}", opt(room_ms), tex.map(|t| t.0), opt(tex_per), opt(tex_most));
     println!(
-        "BENCH,{renderer_name},{windows},{api},{},{},{},{},{:.0},{:.0},{},{},{},{},{},{},{},{},{},{}",
+        "BENCH,{renderer_name},{windows},{api},{},{},{},{},{:.0},{:.0},{},{},{},{},{},{},{},{},{},{},{},{},{}",
         committed(pct(&lat, 0.5)), committed(pct(&lat, 0.95)), committed(pct(&lat, 1.0)),
         stall_ms.len(), stall_max, stall_sum, opt(cpu_pct), opt(fps_of("operator")), opt(fps_of("room")), opt(fps_of("stage")),
         ff(pct(&first, 0.5)), ff(pct(&first, 0.95)), ff(pct(&first, 1.0)), opt(per_of("operator")), opt(per_of("room")), opt(per_of("stage")),
+        opt(room_ms), opt(tex_per), opt(tex_most),
     );
 
     OPEN.with(|o| o.borrow_mut().take());
@@ -438,12 +502,13 @@ fn run() {
 
 // ---------- the matrix ----------
 
-const COLS: [&str; 16] = [
+const COLS: [&str; 19] = [
     "lat p50", "lat p95", "lat max", "stalls", "max gap", "stall sum", "cpu %", "op fps", "room fps", "stage fps",
-    "room 1st p50", "room 1st p95", "room 1st max", "op f/chg", "room f/chg", "stage f/chg",
+    "room 1st p50", "room 1st p95", "room 1st max", "op f/chg", "room f/chg", "stage f/chg", "room ms", "room tex/chg",
+    "room tex max",
 ];
 /// Decimals shown per column.
-const DECIMALS: [usize; 16] = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+const DECIMALS: [usize; 19] = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0];
 
 fn matrix(runs: usize) {
     let exe = std::env::current_exe().expect("own path");
