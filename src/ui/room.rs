@@ -379,6 +379,11 @@ impl Room {
         players[MEDIA].as_ref().or(players[BG].as_ref()).map(|p| p.grabber())
     }
 
+    /// Diagnostics only (`examples/slide_bench.rs`): the video surface, whose OpenGL probe runs after each frame
+    /// (in OpenGL mode it holds the window's rendering notifier).
+    #[doc(hidden)]
+    pub fn surface(&self) -> &Rc<VideoSurface> { &self.inner.surface }
+
     #[cfg(test)]
     fn pump(&self) { self.inner.pump() }
 }

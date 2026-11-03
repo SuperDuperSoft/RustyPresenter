@@ -25,13 +25,22 @@ static CHOSEN: std::sync::OnceLock<DrawMode> = std::sync::OnceLock::new();
 pub fn choose_backend() -> DrawMode {
     let select = |r: &str| slint::BackendSelector::new().backend_name("winit".into()).renderer_name(r.into()).select();
     let mut mode = DrawMode::Software;
+    let mut chosen = false;
     if std::env::var("RP_FORCE_SOFTWARE").as_deref() != Ok("1") {
-        match select("femtovg") {
-            Ok(()) => mode = DrawMode::OpenGl,
-            Err(e) => eprintln!("OpenGL drawing unavailable ({e}); drawing video in software"),
+        // PERF EXPERIMENT: RP_RENDERER picks Slint's renderer (default femtovg). femtovg and skia-opengl draw
+        // video under the scene through OpenGL; any other (femtovg-wgpu, skia, skia-vulkan, skia-software,
+        // software) draws video into an image. Renderers other than femtovg and software need the crate's
+        // `renderer-wgpu` / `renderer-skia` features.
+        let r = std::env::var("RP_RENDERER").ok().filter(|r| !r.is_empty()).unwrap_or_else(|| "femtovg".into());
+        match select(&r) {
+            Ok(()) => {
+                chosen = true;
+                if r == "femtovg" || r == "skia-opengl" { mode = DrawMode::OpenGl }
+            }
+            Err(e) => eprintln!("{r} drawing unavailable ({e}); drawing video in software"),
         }
     }
-    if mode == DrawMode::Software {
+    if !chosen {
         if let Err(e) = select("software") {
             eprintln!("software renderer: {e}");
         }

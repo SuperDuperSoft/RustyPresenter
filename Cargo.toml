@@ -39,6 +39,13 @@ quick-xml = "0.38.4"
 # Native file dialogs for the operator. 0.17 has no `tokio` feature: its xdg portal (Linux) runs on its own executor.
 rfd = { version = "=0.17.2", default-features = false, features = ["xdg-portal", "wayland", "common-controls-v6"] }
 
+[features]
+# PERF EXPERIMENT renderers for RP_RENDERER (see `video::choose_backend`); off by default, the app uses FemtoVG.
+# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain.
+renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
+# Skia: rust-skia has no prebuilt binaries for x86_64-pc-windows-gnu, so on Windows this needs the MSVC toolchain.
+renderer-skia = ["slint/renderer-skia", "slint/renderer-skia-opengl", "slint/renderer-skia-vulkan"]
+
 [build-dependencies]
 tauri-build = "2"
 slint-build = "1.18"
@@ -52,3 +59,7 @@ strip = true
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
+
+# examples/slide_bench.rs reads the process CPU time.
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Threading"] }
