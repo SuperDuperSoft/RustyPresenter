@@ -1,7 +1,7 @@
 // Release builds are a windowed app with no console window behind them.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rustypresenter::{displays, startup};
+use rustypresenter::{displays, import, startup};
 use tauri::Manager;
 
 fn fail(msg: &str) -> ! {
@@ -19,6 +19,7 @@ fn main() {
     };
     startup::banner(&started, "Close the operator window to quit.", true);
     let startup::Started { app, listener, .. } = started;
+    import::init(&app);
 
     let setup_app = app.clone();
     let result = tauri::Builder::default()

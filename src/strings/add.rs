@@ -38,6 +38,10 @@ pub const PLAYER_MISSING: &str = "The video player is missing — reinstall Rust
 /// The Slides tab (`operator.js:494-496`).
 pub fn slide_count(n: usize) -> String { plural(n, "slide", "slides") }
 pub fn delete_deck(title: &str) -> String { format!("Delete “{title}”?") }
+/// The Slides tab without PowerPoint or LibreOffice (Plan 4 Task 6c).
+pub const NEED_LIBREOFFICE: &str = "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.";
+pub const LIBREOFFICE_FOUND: &str = "LibreOffice found!";
+pub const NOT_FOUND_YET: &str = "Not found yet — finish installing, then click Check again.";
 
 /// The question's buttons. The web's `confirm()` has OK and Cancel.
 pub const OK: &str = "OK";

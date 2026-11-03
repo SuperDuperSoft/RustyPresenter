@@ -3,7 +3,7 @@
 //! still the `/remote` web page, and the web operator page is still served for the Tauri app.
 //!
 //! With no `--app` the executable is the supervisor, which runs itself with `--app`.
-use rustypresenter::{displays, recovery::{self, exitcode, panic, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+use rustypresenter::{displays, import, recovery::{self, exitcode, panic, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
 use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
 use std::{cell::RefCell, rc::Rc};
 
@@ -37,6 +37,7 @@ fn main() {
     };
     startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.", false);
     let startup::Started { app, listener, .. } = started;
+    import::init(&app);
 
     // Slint runs on this (main) thread; tokio runs the server and backups on its own threads.
     let rt = match tokio::runtime::Runtime::new() { Ok(rt) => rt, Err(e) => fail(&format!("RustyPresenter could not start: {e}")) };

@@ -93,7 +93,11 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
             songs.sort_by_cached_key(|s| s.title.to_lowercase());
             (songs.into_iter().map(song_row).collect(), tr::search_songs(snap.data.songs.len()), Vec::new())
         }
-        AddTab::Media | AddTab::Deck => super::add_media::rows(&snap, tab),
+        AddTab::Media => super::add_media::rows(&snap, tab),
+        AddTab::Deck => {
+            super::add_media::show_install_hint(op);
+            super::add_media::rows(&snap, tab)
+        }
         AddTab::Scripture | AddTab::Text => (Vec::new(), String::new(), Vec::new()),
     };
     ctx.all.set_vec(rows);

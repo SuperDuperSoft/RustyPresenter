@@ -63,7 +63,7 @@ pub const SEPARATE_PICTURES: &str = "Separate pictures";
 
 /// File picker filter names. The web `accept` lists have none, so these are new.
 pub const FILTER_MEDIA: &str = "Videos, pictures and music";
-pub const FILTER_POWERPOINT: &str = "PowerPoint";
+pub const FILTER_POWERPOINT: &str = "Presentations (PowerPoint, Keynote, PDF)";
 pub const FILTER_LYRICS: &str = "SongSelect lyric files";
 pub const FILTER_PICTURES: &str = "Pictures";
 pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";

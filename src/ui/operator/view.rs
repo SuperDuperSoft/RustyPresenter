@@ -18,9 +18,9 @@ pub struct ItemRow { pub id: Uuid, pub kind: String, pub title: String, pub subt
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RoomStatus { Showing, Starting, Off }
 
-/// A background job (PowerPoint import) as the jobs box shows it.
+/// A background job (a deck import) as the jobs box shows it. `result` is the deck it made.
 #[derive(Clone, Debug, PartialEq)]
-pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error: Option<String>, pub note: Option<String>, pub cancellable: bool, pub done: bool }
+pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error: Option<String>, pub note: Option<String>, pub cancellable: bool, pub done: bool, pub result: Option<Uuid> }
 
 /// One translation's source for Settings → Bible (`App::bible_sources`; never carries a key).
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
@@ -64,6 +64,8 @@ pub struct OperatorSnapshot {
     pub stage_configured: bool,
     pub phones: usize,
     pub jobs: Vec<JobRow>,
+    /// The latest jobs to end and what each made (`App::ended_jobs`): most leave `jobs` as they end.
+    pub ended: Vec<(Uuid, Option<Uuid>)>,
     pub settings: Settings,
     pub data: Arc<Data>,
     pub monitors: Vec<Monitor>,
@@ -120,7 +122,8 @@ impl OperatorSnapshot {
             stage_connected: app.stage_conns.load(Ordering::Relaxed) > 0,
             stage_configured: data.settings.displays.stage.is_some(),
             phones: app.remote_conns.load(Ordering::Relaxed),
-            jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone(), note: j.note.clone(), cancellable: j.cancellable, done: j.done }).collect(),
+            jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone(), note: j.note.clone(), cancellable: j.cancellable, done: j.done, result: j.result }).collect(),
+            ended: app.ended_jobs(),
             settings: data.settings.clone(),
             monitors: app.monitors(),
             windows,

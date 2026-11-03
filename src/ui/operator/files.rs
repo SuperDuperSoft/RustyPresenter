@@ -9,6 +9,7 @@ use super::{
 };
 use crate::{
     app::{ImportPurpose, Imported},
+    import::deck::DECK_EXT,
     media,
     model::{AssetId, Deck, MediaStatus},
     platform::winit_events::{self, Dispatcher, WindowEvent},
@@ -20,14 +21,12 @@ use serde_json::json;
 use std::{
     cell::RefCell,
     cmp::Ordering,
-    collections::{HashSet, VecDeque},
+    collections::VecDeque,
     path::{Path, PathBuf},
     rc::Rc,
     time::Duration,
 };
 use uuid::Uuid;
-
-const DECK: &[&str] = &["ppt", "pptx", "pps", "ppsx", "odp"];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Route { Song, Deck, Media }
@@ -48,7 +47,7 @@ fn ext(path: &Path) -> String {
 
 pub fn route(path: &Path) -> Route {
     let e = ext(path);
-    if e == "txt" { Route::Song } else if DECK.contains(&e.as_str()) { Route::Deck } else { Route::Media }
+    if e == "txt" { Route::Song } else if DECK_EXT.contains(&e.as_str()) { Route::Deck } else { Route::Media }
 }
 
 /// True when there is at least one file and every file is a picture, by extension.
@@ -115,7 +114,7 @@ pub fn deck_title(answer: Option<&str>) -> String {
     }
 }
 
-/// What the window keeps for adding files: the PowerPoint imports waiting for their deck, the desktop drop in
+/// What the window keeps for adding files: the deck imports waiting for their deck, the desktop drop in
 /// progress, the folder the picker last opened, and the window's one winit event filter.
 #[derive(Default)]
 pub struct FilesState {
@@ -126,36 +125,40 @@ pub struct FilesState {
     events: Dispatcher<WindowEvent>,
 }
 
-/// A PowerPoint import whose deck is added to the service when its job ends (`watchDeckJob`).
+/// A deck import whose deck is added to the service when its job ends (`watchDeckJob`). Only the deck the job
+/// itself made (`result`) is added, never "every new deck", so imports that overlap each add their own.
 #[derive(Clone, Debug)]
-pub struct DeckWatch {
-    pub job: Uuid,
-    /// The decks there were when the upload started.
-    pub before: HashSet<Uuid>,
-    /// The job has been seen in a snapshot. Until then a missing job may just be a read from before it started.
-    pub seen: bool,
-}
+pub struct DeckWatch { pub job: Uuid }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DeckWatchStep {
     Wait,
     /// The job failed: its error card says so, and nothing is added.
     Failed,
-    /// The job ended: these new decks (id, title) go into the service.
+    /// The job ended: its deck (id, title) goes into the service. Empty when it made none (cancelled).
     Ready(Vec<(Uuid, String)>),
 }
 
 impl DeckWatch {
-    /// One look at a new snapshot (the web looks every 700 ms; here every `Data` update does).
-    pub fn step(&mut self, jobs: &[view::JobRow], decks: &[Deck]) -> DeckWatchStep {
-        // A job that ended well but has a note stays listed (`done`) until dismissed; it counts as gone.
-        if let Some(j) = jobs.iter().find(|j| j.id == self.job && !j.done) {
-            if j.error.is_some() { return DeckWatchStep::Failed }
-            self.seen = true;
-            return DeckWatchStep::Wait;
+    /// One look at a new snapshot (`Update::Data`). `ended` is the snapshot's `ended`: a job that ends without a
+    /// note leaves `jobs` at once.
+    pub fn step(&self, jobs: &[view::JobRow], ended: &[(Uuid, Option<Uuid>)], decks: &[Deck]) -> DeckWatchStep {
+        // A job that ended well but has a note stays listed (`done`) until dismissed.
+        let made = match jobs.iter().find(|j| j.id == self.job) {
+            Some(j) if j.error.is_some() => return DeckWatchStep::Failed,
+            Some(j) if !j.done => return DeckWatchStep::Wait,
+            Some(j) => j.result,
+            // Not listed and not ended: a read from before the job started.
+            None => match ended.iter().find(|(id, _)| *id == self.job) { Some((_, made)) => *made, None => return DeckWatchStep::Wait },
+        };
+        match made {
+            None => DeckWatchStep::Ready(Vec::new()),
+            Some(id) => match decks.iter().find(|d| d.id == id) {
+                Some(d) => DeckWatchStep::Ready(vec![(d.id, d.title.clone())]),
+                // A read that saw the job end but not the deck it had just added: the next read has both.
+                None => DeckWatchStep::Wait,
+            },
         }
-        let fresh: Vec<(Uuid, String)> = decks.iter().filter(|d| !self.before.contains(&d.id)).map(|d| (d.id, d.title.clone())).collect();
-        if fresh.is_empty() && !self.seen { DeckWatchStep::Wait } else { DeckWatchStep::Ready(fresh) }
     }
 }
 
@@ -174,7 +177,6 @@ pub fn add_files(op: &Rc<Operator>, paths: Vec<PathBuf>) { next_file(op, paths.i
 fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
     let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
     let name = file_name(&path);
-    let before: HashSet<Uuid> = op.state.borrow().snap.as_ref().map(|s| s.data.decks.iter().map(|d| d.id).collect()).unwrap_or_default();
     let job = op.client_job(tr::uploading(&name));
     let progress = job.progress();
     let me = Rc::downgrade(op);
@@ -223,7 +225,7 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
                 });
             }
             Ok(Imported::Job(job)) => {
-                op.files.watches.borrow_mut().push(DeckWatch { job, before, seen: false });
+                op.files.watches.borrow_mut().push(DeckWatch { job });
                 op.watch_decks();
                 then(&op, Ok(None));
             }
@@ -251,19 +253,11 @@ impl Operator {
         let Some(op) = self.me.upgrade() else { return };
         let Some(s) = self.state.borrow().snap.clone() else { return };
         let mut ready = Vec::new();
-        // Imports picked together share their `before`: a deck one of them added is never another's new deck.
-        let mut claimed: HashSet<Uuid> = HashSet::new();
-        let mut watches = self.files.watches.borrow_mut();
-        watches.retain_mut(|w| {
-            w.before.extend(&claimed);
-            match w.step(&s.jobs, &s.data.decks) {
-                DeckWatchStep::Wait => true,
-                DeckWatchStep::Failed => false,
-                DeckWatchStep::Ready(decks) => { claimed.extend(decks.iter().map(|d| d.0)); ready.push(decks); false }
-            }
+        self.files.watches.borrow_mut().retain(|w| match w.step(&s.jobs, &s.ended, &s.data.decks) {
+            DeckWatchStep::Wait => true,
+            DeckWatchStep::Failed => false,
+            DeckWatchStep::Ready(decks) => { ready.push(decks); false }
         });
-        for w in watches.iter_mut() { w.before.extend(&claimed) }
-        drop(watches);
         for decks in ready { add_decks(&op, decks.into(), None); }
     }
 }
@@ -458,8 +452,20 @@ mod tests {
     #[test]
     fn route_by_extension() {
         assert_eq!(route(Path::new("C:/songs/Amazing Grace.txt")), Route::Song);
-        for f in ["a.ppt", "a.pptx", "a.pps", "a.ppsx", "a.odp"] { assert_eq!(route(Path::new(f)), Route::Deck, "{f}"); }
-        for f in ["a.mp4", "a.png", "a.mp3", "a.pdf", "no-extension"] { assert_eq!(route(Path::new(f)), Route::Media, "{f}"); }
+        for f in ["a.ppt", "a.pptx", "a.pps", "a.ppsx", "a.pot", "a.potx", "a.pptm", "a.odp", "a.key", "a.pdf", "Talk.key"] {
+            assert_eq!(route(Path::new(f)), Route::Deck, "{f}");
+        }
+        for f in ["a.mp4", "a.png", "a.mp3", "no-extension"] { assert_eq!(route(Path::new(f)), Route::Media, "{f}"); }
+    }
+
+    #[test]
+    fn deck_filter_matches_router() {
+        let filter = Filter::PowerPoint.extensions();
+        for e in DECK_EXT { assert_eq!(route(Path::new(&format!("a.{e}"))), Route::Deck, "{e}"); }
+        let (mut a, mut b) = (filter.clone(), DECK_EXT.to_vec());
+        a.sort();
+        b.sort();
+        assert_eq!(a, b, "the picker offers exactly the files the router sends to a deck");
     }
 
     #[test]
@@ -723,36 +729,66 @@ mod window_tests {
     }
 
     #[test]
-    fn deck_watch_waits_for_the_job_then_adds_new_decks() {
+    fn deck_watch_waits_for_the_job_then_adds_its_result() {
         let job = Uuid::new_v4();
-        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![] };
+        let other = Deck { id: Uuid::new_v4(), title: "Other".into(), slides: vec![] };
         let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] };
-        let running = view::JobRow { id: job, label: "Importing".into(), percent: 10, error: None, note: None, cancellable: true, done: false };
-        let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
-        assert_eq!(w.step(&[], std::slice::from_ref(&old)), DeckWatchStep::Wait, "a read from before the job started");
-        assert_eq!(w.step(std::slice::from_ref(&running), std::slice::from_ref(&old)), DeckWatchStep::Wait);
-        assert_eq!(w.step(&[], &[old.clone(), new.clone()]), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]));
-        let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
-        assert_eq!(w.step(&[], &[old.clone(), new.clone()]), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]), "a job that ended before any read");
-        let failed = view::JobRow { error: Some("PowerPoint is not installed.".into()), ..running.clone() };
-        assert_eq!(w.step(&[failed], std::slice::from_ref(&old)), DeckWatchStep::Failed);
+        let decks = [other.clone(), new.clone()];
+        let running = view::JobRow { id: job, label: "Importing".into(), percent: 10, error: None, note: None, cancellable: true, done: false, result: None };
+        let w = DeckWatch { job };
+        assert_eq!(w.step(&[], &[], &decks), DeckWatchStep::Wait, "a read from before the job started");
+        assert_eq!(w.step(std::slice::from_ref(&running), &[], &decks), DeckWatchStep::Wait);
+        let talk = DeckWatchStep::Ready(vec![(new.id, "Talk".into())]);
+        assert_eq!(w.step(&[], &[(job, Some(new.id))], &decks), talk, "only its own deck, never the other new one");
+        assert_eq!(w.step(&[], &[(job, Some(new.id))], std::slice::from_ref(&other)), DeckWatchStep::Wait, "the deck is in the next read");
+        assert_eq!(w.step(&[], &[(job, None)], &decks), DeckWatchStep::Ready(vec![]), "cancelled: nothing is added");
+        let failed = view::JobRow { error: Some("PowerPoint couldn't open this presentation.".into()), ..running.clone() };
+        assert_eq!(w.step(&[failed], &[(job, None)], &decks), DeckWatchStep::Failed);
         // A job that ended well with a note stays listed until dismissed; it has still ended.
-        let mut w = DeckWatch { job, before: [old.id].into(), seen: false };
-        assert_eq!(w.step(std::slice::from_ref(&running), std::slice::from_ref(&old)), DeckWatchStep::Wait);
-        let noted = view::JobRow { note: Some("Imported with LibreOffice".into()), cancellable: false, done: true, percent: 100, ..running };
-        assert_eq!(w.step(&[noted], &[old, new.clone()]), DeckWatchStep::Ready(vec![(new.id, "Talk".into())]));
+        let noted = view::JobRow { note: Some("Imported with LibreOffice".into()), cancellable: false, done: true, percent: 100, result: Some(new.id), ..running };
+        assert_eq!(w.step(&[noted], &[], &decks), talk);
+    }
+
+    /// A deck import's job ending as the pipeline ends it: the deck, then its result, then the end.
+    fn finish(app: &App, job: Uuid, title: &str) -> Uuid {
+        let id = Uuid::new_v4();
+        app.job_result(job, id);
+        app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![] }); Ok(()) }).unwrap();
+        app.job_end(job, None);
+        id
+    }
+
+    #[test]
+    fn watch_deck_job_adds_only_its_result() {
+        for flip in [false, true] {
+            let app = test_app();
+            let op = opened(&app);
+            let jobs = [app.job_start("Importing “Talk”"), app.job_start("Importing “Notices”")];
+            for job in jobs { op.files.watches.borrow_mut().push(DeckWatch { job }) }
+            refresh(&op);
+            // A deck from somewhere else appears meanwhile; no import made it.
+            app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Pictures".into(), slides: vec![] }); Ok(()) }).unwrap();
+            refresh(&op);
+            let order = if flip { [(jobs[1], "Notices"), (jobs[0], "Talk")] } else { [(jobs[0], "Talk"), (jobs[1], "Notices")] };
+            // Both end before the window reads again, as two quick imports may.
+            let made = order.map(|(job, title)| finish(&app, job, title));
+            refresh(&op);
+            refresh(&op);
+            let added: Vec<Uuid> = items(&app).iter().filter_map(|k| match k { ItemKind::Deck { deck_id } => Some(*deck_id), _ => None }).collect();
+            assert_eq!(added.len(), 2, "flip {flip}: {added:?}");
+            assert!(made.iter().all(|d| added.contains(d)), "each import's own deck, once");
+        }
     }
 
     #[test]
     fn finished_powerpoint_job_adds_its_deck_and_says_ready() {
         let app = test_app();
         let op = opened(&app);
-        let job = app.job_start("Importing “Talk” from PowerPoint");
-        op.files.watches.borrow_mut().push(DeckWatch { job, before: HashSet::new(), seen: false });
+        let job = app.job_start("Importing “Talk”");
+        op.files.watches.borrow_mut().push(DeckWatch { job });
         refresh(&op);
         assert!(items(&app).is_empty(), "still converting");
-        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] }); Ok(()) }).unwrap();
-        app.job_end(job, None);
+        finish(&app, job, "Talk");
         refresh(&op);
         assert!(matches!(items(&app)[..], [ItemKind::Deck { .. }]));
         assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false)]);
@@ -766,7 +802,7 @@ mod window_tests {
         let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![] };
         app.edit(|d| { d.decks.push(old.clone()); Ok(()) }).unwrap();
         let op = opened(&app);
-        let jobs = [app.job_start("Importing “Talk” from PowerPoint"), app.job_start("Importing “Notices” from PowerPoint")];
+        let jobs = [app.job_start("Importing “Talk”"), app.job_start("Importing “Notices”")];
         for job in jobs { crate::ui::ops::testing::will_import(Ok(Imported::Job(job))) }
         testing::will_pick(vec![PathBuf::from("Talk.pptx"), PathBuf::from("Notices.pptx")]);
         crate::ui::dialogs::add::open_add(&op, AddTab::Deck);
@@ -774,9 +810,7 @@ mod window_tests {
         refresh(&op);
         assert!(items(&app).is_empty(), "both decks are still converting");
         let decks = [("Talk", jobs[0]), ("Notices", jobs[1])].map(|(title, job)| {
-            let id = Uuid::new_v4();
-            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![] }); Ok(()) }).unwrap();
-            app.job_end(job, None);
+            let id = finish(&app, job, title);
             refresh(&op);
             id
         });
@@ -812,7 +846,7 @@ mod window_tests {
         op.window_events().dispatch(&WindowEvent::HoveredFile("a.mp4".into()));
         let hint = find(&op, "DropHint::box").expect("the drop hint");
         assert_eq!(hint.accessible_label().unwrap_or_default(), "Drop to add to the service");
-        assert_eq!(hint.accessible_description().unwrap_or_default(), "Videos, pictures, music, PowerPoint, SongSelect lyric files");
+        assert_eq!(hint.accessible_description().unwrap_or_default(), "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files");
         op.window_events().dispatch(&WindowEvent::HoveredFileCancelled);
         assert!(!hint_shown(&op));
     }

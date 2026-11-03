@@ -249,7 +249,7 @@ pub fn check_pdf(path: &Path) -> Result<(), String> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use std::sync::{Arc, Mutex};
     use std::time::Instant;
@@ -622,7 +622,8 @@ mod tests {
         assert_eq!(b.unwrap().len(), 4);
     }
 
-    fn three_page_pdf() -> Vec<u8> {
+    /// Three 16:9 pages of red, green and blue. Also the deck pipeline's fixture.
+    pub(crate) fn three_page_pdf() -> Vec<u8> {
         pdf_with_heights([540, 540, 540])
     }
 

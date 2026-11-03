@@ -51,6 +51,23 @@ impl LibreOffice {
         })
     }
 
+    /// A LibreOffice from Snap, which cannot read our files.
+    pub fn snap(&self) -> bool {
+        self.soffice.snap
+    }
+
+    /// LibreOffice's stand-in for tests in other modules: this test binary run again as `tests::fake_soffice`, doing
+    /// `steps` and writing its marks to `mark`.
+    #[cfg(test)]
+    pub(crate) fn fake(data_dir: &Path, steps: &str, mark: &Path) -> Arc<Self> {
+        let mut lo = LibreOffice::new(Soffice { path: std::env::current_exe().unwrap(), snap: false }, data_dir);
+        let m = Arc::get_mut(&mut lo).unwrap();
+        let profile = m.profile.display().to_string();
+        m.extra_env = vec![(tests::FAKE.into(), steps.into()), (tests::MARK.into(), mark.display().to_string()), (tests::PROFILE.into(), profile)];
+        m.prefix_args = ["--exact", tests::NAME, "--nocapture", "--"].map(OsString::from).to_vec();
+        lo
+    }
+
     pub fn args(&self, input: &Path, out_dir: &Path) -> Result<Vec<OsString>, String> {
         let mut args = self.common_args()?;
         args.push("--convert-to".into());
@@ -264,10 +281,10 @@ mod tests {
     use super::*;
     use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
-    const NAME: &str = "import::libreoffice::tests::fake_soffice";
-    const FAKE: &str = "RP_FAKE_SOFFICE";
-    const MARK: &str = "RP_FAKE_MARK";
-    const PROFILE: &str = "RP_FAKE_PROFILE";
+    pub(super) const NAME: &str = "import::libreoffice::tests::fake_soffice";
+    pub(super) const FAKE: &str = "RP_FAKE_SOFFICE";
+    pub(super) const MARK: &str = "RP_FAKE_MARK";
+    pub(super) const PROFILE: &str = "RP_FAKE_PROFILE";
 
     fn now_ms() -> u128 {
         SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()
@@ -275,7 +292,8 @@ mod tests {
 
     /// Not a real test: LibreOffice's stand-in, this test binary run again. Steps come from the child's environment,
     /// comma separated: `sleep:<ms>`, `hang`, `hangfirst` (hangs the first run only), `pdf`, `fail`, `say:<text>`,
-    /// `once:<text>` (says it and exits the first run only), `nolock` (fails if the profile's `.lock` is still there).
+    /// `once:<text>` (says it and exits the first run only), `nolock` (fails if the profile's `.lock` is still there),
+    /// `tick:<ms>` (sleeps, adding a `tick` line every 50 ms), `copy:<pdf>` (that file is the output).
     /// Each run adds `start <ms>` and `end <ms>` lines to the file in `RP_FAKE_MARK`.
     #[test]
     fn fake_soffice() {
@@ -291,6 +309,18 @@ mod tests {
             let (kind, value) = step.split_once(':').unwrap_or((step, ""));
             match kind {
                 "sleep" => std::thread::sleep(Duration::from_millis(value.parse().unwrap())),
+                "tick" => {
+                    let until = Instant::now() + Duration::from_millis(value.parse().unwrap());
+                    while Instant::now() < until {
+                        log("tick".to_string());
+                        std::thread::sleep(Duration::from_millis(50));
+                    }
+                }
+                "copy" => {
+                    let at = args.iter().position(|a| a == "--outdir").unwrap();
+                    let stem = Path::new(&args[at + 2]).file_stem().unwrap();
+                    std::fs::copy(value, Path::new(&args[at + 1]).join(stem).with_extension("pdf")).unwrap();
+                }
                 "hang" => std::thread::sleep(Duration::from_secs(60)),
                 "hangfirst" => {
                     let flag = format!("{}.hung", mark.as_deref().unwrap());
@@ -349,11 +379,8 @@ mod tests {
         let input = work.join("input.pptx");
         std::fs::write(&input, "deck").unwrap();
         let mark = dir.join("mark");
-        let mut lo = LibreOffice::new(Soffice { path: std::env::current_exe().unwrap(), snap }, &dir);
-        let m = Arc::get_mut(&mut lo).unwrap();
-        let profile = m.profile.display().to_string();
-        m.extra_env = vec![(FAKE.into(), steps.into()), (MARK.into(), mark.display().to_string()), (PROFILE.into(), profile)];
-        m.prefix_args = ["--exact", NAME, "--nocapture", "--"].map(OsString::from).to_vec();
+        let mut lo = LibreOffice::fake(&dir, steps, &mark);
+        Arc::get_mut(&mut lo).unwrap().soffice.snap = snap;
         Fx { dir, lo, mark, input, work }
     }
 

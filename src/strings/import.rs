@@ -30,3 +30,23 @@ pub fn pdf_page_failed(page: usize) -> String {
 }
 pub const PDF_CANNOT_OPEN: &str = "This PDF can't be opened. If it has a password, remove it and import again.";
 pub const SLIDE_NOT_SAVED: &str = "A slide could not be saved. Check that the disk has free space, then try again.";
+
+// The deck pipeline (Plan 4 Task 6c).
+pub const KEYNOTE_PACKAGE: &str = "Save the Keynote file as a single file and import again.";
+pub fn importing(name: &str) -> String {
+    format!("Importing “{name}”")
+}
+pub const WAITING_LIBREOFFICE: &str = "Waiting for LibreOffice…";
+pub const WAITING_POWERPOINT: &str = "Waiting for PowerPoint…";
+pub const IMPORTED_WITH_LIBREOFFICE: &str = "Imported with LibreOffice — check the slides.";
+pub fn slides_expected(expected: usize, imported: usize) -> String {
+    format!("{expected} slides were expected but {imported} were imported.")
+}
+/// The install hint for this computer follows.
+pub fn install_libreoffice(hint: &str) -> String {
+    format!("To import presentations, install LibreOffice. {hint}")
+}
+/// The raw OS error goes to the log, never to the operator.
+pub fn could_not_open(name: &str) -> String {
+    format!("Could not open “{name}”.")
+}

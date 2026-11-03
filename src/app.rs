@@ -1,11 +1,12 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
 use crate::{bible, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
+use crate::{import::deck::{self, Converters}, video::ffi::Mpv};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
@@ -171,6 +172,12 @@ pub struct App {
     pub(crate) jobs: Mutex<Vec<Job>>,
     /// The cancel token of each running cancellable job; dropped when the job ends.
     cancels: Mutex<HashMap<Uuid, CancellationToken>>,
+    /// The latest jobs to end, with what each made, newest last. A job that ends without a note leaves `jobs` at
+    /// once, so this is how the operator learns which deck its import made.
+    ended: Mutex<VecDeque<(Uuid, Option<Uuid>)>>,
+    /// The slide converters and the probe player, set once by `import::init`.
+    converters: OnceLock<Arc<Converters>>,
+    probe_mpv: OnceLock<Option<Arc<Mpv>>>,
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
@@ -205,6 +212,7 @@ impl App {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
+            ended: Mutex::new(VecDeque::new()), converters: OnceLock::new(), probe_mpv: OnceLock::new(),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
@@ -327,6 +335,8 @@ impl App {
         self.broadcast_live();
     }
 
+    /// A job without a Cancel button. Deck imports are cancellable, so only tests start one today.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn job_start(&self, label: &str) -> Uuid {
         let id = Uuid::new_v4();
         self.jobs.lock().unwrap().push(Job { id, label: label.into(), ..Job::default() });
@@ -377,6 +387,7 @@ impl App {
         self.cancels.lock().unwrap().remove(&id);
         let mut jobs = self.jobs.lock().unwrap();
         if let Some(j) = jobs.iter_mut().find(|j| j.id == id) {
+            self.ended_now(id, j.result);
             if error.is_none() && j.note.is_none() {
                 jobs.retain(|j| j.id != id);
             } else {
@@ -392,9 +403,25 @@ impl App {
     /// Ends a job that stopped because it was cancelled: it leaves no error and no note.
     pub(crate) fn job_end_cancelled(&self, id: Uuid) {
         self.cancels.lock().unwrap().remove(&id);
+        self.ended_now(id, None);
         self.jobs.lock().unwrap().retain(|j| j.id != id);
         self.broadcast_data();
     }
+    /// Records that a job ended and what it made; the oldest records go after 64.
+    fn ended_now(&self, id: Uuid, made: Option<Uuid>) {
+        let mut ended = self.ended.lock().unwrap();
+        if ended.len() >= 64 { ended.pop_front(); }
+        ended.push_back((id, made));
+    }
+    /// The latest jobs to end, with what each made.
+    pub(crate) fn ended_jobs(&self) -> Vec<(Uuid, Option<Uuid>)> { self.ended.lock().unwrap().iter().copied().collect() }
+
+    /// Set once by `import::init`. Without them, imports of decks fail with the reinstall message.
+    pub(crate) fn set_converters(&self, c: Arc<Converters>) { let _ = self.converters.set(c); }
+    pub fn converters(&self) -> Option<Arc<Converters>> { self.converters.get().cloned() }
+    /// Set once by `import::init`; `None` inside when libmpv could not be loaded.
+    pub(crate) fn set_probe_mpv(&self, mpv: Option<Arc<Mpv>>) { let _ = self.probe_mpv.set(mpv); }
+    pub fn probe_mpv(&self) -> Option<Arc<Mpv>> { self.probe_mpv.get().cloned().flatten() }
 
     pub(crate) fn save_phones(&self, phones: &[Phone]) {
         if let Ok(b) = serde_json::to_vec(phones) { let _ = crate::store::write_atomic(&self.store.root.join("phones.json"), &b); }
@@ -843,6 +870,12 @@ impl App {
     /// store's tmp, never moved: it is the user's file. `progress` gets 0..=100 as bytes are copied and hashed.
     pub async fn import_path(self: &Arc<Self>, path: &Path, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static) -> Result<Imported, ActionError> {
         let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        // A deck job copies the file itself, and a Keynote package is a folder that cannot be copied as a file.
+        if purpose == ImportPurpose::PowerPoint {
+            progress(100);
+            let display = name.rsplit_once('.').map_or(name.as_str(), |(stem, _)| stem).to_string();
+            return Ok(Imported::Job(deck::start(self.clone(), path.to_path_buf(), display)));
+        }
         let tmp = self.store.tmp().join(format!("{}.part", Uuid::new_v4()));
         let (src, dst, shown) = (path.to_path_buf(), tmp.clone(), name.clone());
         let sha = tokio::task::spawn_blocking(move || -> Result<String, String> {
@@ -888,30 +921,8 @@ impl App {
                 let (id, title, duplicate_of) = app.import_song(&String::from_utf8_lossy(&bytes), SongImportMode::Ask).map_err(ActionError::bad)?;
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
-            ImportPurpose::PowerPoint => {
-                let dir = app.store.tmp().join(format!("ppt-{}", Uuid::new_v4()));
-                let _ = std::fs::create_dir_all(&dir);
-                let input = dir.join(format!("input.{ext}"));
-                if std::fs::rename(&tmp, &input).is_err() { let _ = std::fs::remove_file(&tmp); return Err(ActionError::bad("Could not stage the presentation.")); }
-                let job = app.job_start(&format!("Importing “{display}” from PowerPoint"));
-                let app2 = app.clone();
-                tokio::spawn(async move {
-                    let result = async {
-                        let pngs = media::export_powerpoint(&input, &dir.join("out")).await?;
-                        let mut assets = vec![];
-                        for (i, p) in pngs.iter().enumerate() {
-                            assets.push(app2.store.import_file(p, "png").map_err(|e| e.to_string())?);
-                            app2.job_progress(job, ((i + 1) * 100 / pngs.len()) as u8);
-                        }
-                        app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
-                    }.await;
-                    if let Err(e) = std::fs::remove_dir_all(&dir) {
-                        eprintln!("PowerPoint import folder {} was not removed: {e}", dir.display());
-                    }
-                    app2.job_end(job, result.err());
-                });
-                return Ok(Imported::Job(job));
-            }
+            // The deck pipeline takes the staged file over; it decides what the file is by its content.
+            ImportPurpose::PowerPoint => return Ok(Imported::Job(deck::start_staged(app.clone(), tmp, display))),
             ImportPurpose::Asset | ImportPurpose::Media => {}
         }
 

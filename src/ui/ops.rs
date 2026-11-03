@@ -84,6 +84,17 @@ impl Ops {
         self.run(work, |r| done(r.unwrap_or_else(|e| Outcome { ok: false, version: 0, error: Some(e), duplicate: false })));
     }
 
+    /// Looks for LibreOffice again (Check again): `done(true)` when one that can import is there now. The search
+    /// reads the disk and the registry, so it runs off the UI thread.
+    pub fn check_libreoffice(&self, done: impl FnOnce(bool) + 'static) {
+        let app = self.app.clone();
+        let work = async move {
+            let found = tokio::task::spawn_blocking(move || app.converters().and_then(|c| c.libreoffice()).is_some_and(|lo| !lo.snap()));
+            found.await.unwrap_or(false)
+        };
+        self.run(work, |r| done(r.unwrap_or(false)));
+    }
+
     /// Copies a file from this computer into the library (`App::import_path`).
     pub fn import(&self, path: PathBuf, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static, done: impl FnOnce(Result<Imported, String>) + 'static) {
         #[cfg(test)]

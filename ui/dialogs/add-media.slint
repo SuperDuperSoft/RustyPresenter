@@ -1,7 +1,7 @@
 // The Add dialog's Video & media and Slides tabs (`addMedia()` and `addDeck()`, `operator.js:470-500`). The rows
 // are `AddRow`s with a thumbnail; the logic is in Rust (`src/ui/dialogs/add_media.rs`).
 import { Theme } from "../theme.slint";
-import { Btn } from "../widgets.slint";
+import { Btn, CopyText } from "../widgets.slint";
 import { AddState, AddList } from "add-list.slint";
 
 /// Upload files, the converting hint, and the media library, newest first.
@@ -29,7 +29,8 @@ export component AddMediaTab inherits VerticalLayout {
     AddList { max-list-height: root.list-height; }
 }
 
-/// Import PowerPoint, Make slides from pictures, the Google Slides note, and the slides library, newest first.
+/// Import presentation, Make slides from pictures, the Google Slides note, the LibreOffice install hint when
+/// nothing can import PowerPoint files, and the slides library, newest first.
 export component AddDeckTab inherits VerticalLayout {
     in property <length> list-height;
     HorizontalLayout {
@@ -37,7 +38,7 @@ export component AddDeckTab inherits VerticalLayout {
         padding-bottom: 12px;
         alignment: start;
         import := Btn {
-            text: @tr("Import PowerPoint");
+            text: @tr("Import presentation");
             icon: "upload";
             primary: true;
             clicked => { AddState.import-powerpoint(); }
@@ -60,12 +61,41 @@ export component AddDeckTab inherits VerticalLayout {
                 padding-left: 14px;
                 padding-right: 14px;
                 note := Text {
-                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx), then import that file here.");
+                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too.");
                     color: Theme.muted;
                     font-family: Theme.font;
                     font-size: Theme.base-size;
                     wrap: word-wrap;
                 }
+            }
+        }
+    }
+    // No PowerPoint and no LibreOffice: how to get LibreOffice, and Check again once it is installed.
+    if AddState.install-note != "": VerticalLayout {
+        padding-bottom: 12px;
+        spacing: 8px;
+        install-note := Text {
+            text: AddState.install-note;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            if AddState.install-command != "": CopyText { text: AddState.install-command; }
+            if AddState.install-command != "": install-copy := Btn {
+                small: true;
+                icon: "copy";
+                text: @tr("Copy");
+                clicked => { AddState.copy-install(); }
+            }
+            check-again := Btn {
+                small: true;
+                icon: "restart";
+                text: @tr("Check again");
+                clicked => { AddState.check-again(); }
             }
         }
     }

@@ -1,8 +1,11 @@
 //! Importing decks and media (Plan 4). Imports work in a private folder under `store.tmp()` and publish only
 //! when every asset is in the store, so a failed or cancelled import adds nothing.
+use crate::{app::App, platform::tools, video::ffi::Mpv};
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
+pub mod deck;
 pub mod libreoffice;
 pub mod pdf;
 pub mod powerpoint;
@@ -14,6 +17,36 @@ pub mod strings;
 
 /// What a cancelled import reports. No toast is shown for it.
 pub const CANCELLED: &str = "Cancelled.";
+
+/// Sets up the converters and the probe player once, right after `App::new`, in both binaries. A converter that is
+/// missing is not an error here: its imports fail with their own message. A LibreOffice left by an app that died is
+/// killed, and then LibreOffice is started once in the background so the first import is not the slow one.
+pub fn init(app: &Arc<App>) {
+    let data_dir = app.store.root.clone();
+    let pdf = match pdf::PdfRenderer::start(&data_dir) {
+        Ok(r) => Some(Arc::new(r)),
+        Err(e) => {
+            eprintln!("Slides from PDF will not import: {e}");
+            None
+        }
+    };
+    let powerpoint = tools::powerpoint_installed().then(powerpoint::PowerPoint::new);
+    let converters = Arc::new(deck::Converters::new(data_dir.clone(), Box::new(tools::find_soffice), pdf, powerpoint));
+    app.set_converters(converters.clone());
+    app.set_probe_mpv(Mpv::load().map_err(|e| eprintln!("Media will not import: {e}")).ok());
+    // Its own thread and runtime, so it works the same under either binary's runtime, or before it exists.
+    let warm = std::thread::Builder::new().name("libreoffice-warm-up".into()).spawn(move || {
+        libreoffice::kill_leftover(&data_dir.join("deps"));
+        let Some(lo) = converters.libreoffice() else { return };
+        match tokio::runtime::Builder::new_current_thread().enable_all().build() {
+            Ok(rt) => rt.block_on(lo.warm_up()),
+            Err(e) => eprintln!("LibreOffice warm-up: {e}"),
+        }
+    });
+    if let Err(e) = warm {
+        eprintln!("LibreOffice warm-up: {e}");
+    }
+}
 
 /// A work folder for one import. Dropping it removes the folder and everything in it.
 pub struct WorkDir(PathBuf);

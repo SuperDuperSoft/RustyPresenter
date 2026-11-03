@@ -1,7 +1,7 @@
 //! How files reach the operator: the desktop drop batch (Task 15) and the file picker's filters. Pure, so it is
 //! tested without a window; the winit filter and `rfd` call these.
 use super::{files::all_images, strings as tr};
-use crate::media;
+use crate::{import::deck::DECK_EXT, media};
 use std::path::PathBuf;
 
 /// What one window event means for the drop, with the winit types left out.
@@ -79,7 +79,7 @@ impl Filter {
     pub fn extensions(self) -> Vec<&'static str> {
         match self {
             Filter::Media => [media::VIDEO, media::AUDIO, media::IMAGE].concat(),
-            Filter::PowerPoint => vec!["pptx", "ppt", "ppsx", "pps", "odp"],
+            Filter::PowerPoint => DECK_EXT.to_vec(),
             Filter::Lyrics => vec!["txt"],
             Filter::Pictures => media::IMAGE.to_vec(),
             Filter::PicturesAndVideos => [media::IMAGE, media::VIDEO].concat(),
@@ -191,7 +191,8 @@ mod tests {
 
     #[test]
     fn exact_filters_match_the_web() {
-        assert_eq!(Filter::PowerPoint.extensions(), ["pptx", "ppt", "ppsx", "pps", "odp"]);
+        // Presentations are the deck pipeline's own list (Plan 4 Task 6c), Keynote and PDF included.
+        assert_eq!(Filter::PowerPoint.extensions(), DECK_EXT);
         assert_eq!(Filter::Lyrics.extensions(), ["txt"]);
         assert_eq!(Filter::Pictures.extensions(), media::IMAGE);
         assert_eq!(Filter::Bibles.extensions(), ["xml", "usx", "osis", "zef"]);

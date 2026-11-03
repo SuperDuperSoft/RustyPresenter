@@ -2,7 +2,9 @@
 //! and slides libraries, newest first, with a small picture of each, and their Upload / Import buttons.
 use super::{AddTab, add::AddCtx, add::search_key, add_strings as tr, confirm};
 use crate::{
+    import::{deck::{ConverterStatus, Lo}, strings as import_strings},
     model::{Background, MediaFile, MediaKind, MediaStatus},
+    platform::tools,
     ui::{
         AddRow, AddState,
         operator::{file_input::Filter, files, strings::kind_name, view::OperatorSnapshot, window::Operator},
@@ -116,7 +118,31 @@ fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
     });
 }
 
-/// Upload files, Import PowerPoint and Make slides from pictures go through the file picker.
+/// The Slides tab's LibreOffice note, its install command and Check again: shown when neither PowerPoint nor
+/// LibreOffice can import PowerPoint files. A Snap LibreOffice gets its own message and no command.
+pub(crate) fn show_install_hint(op: &Operator) {
+    let status = op.ops().app().converters().map(|c| c.status());
+    let (note, command) = match status {
+        Some(ConverterStatus { powerpoint: false, libreoffice: Lo::None, .. }) => (tr::NEED_LIBREOFFICE, tools::install_command(tools::OS).unwrap_or_default()),
+        Some(ConverterStatus { powerpoint: false, libreoffice: Lo::Snap, .. }) => (import_strings::LO_SNAP, ""),
+        _ => ("", ""),
+    };
+    let st = op.ui.global::<AddState>();
+    st.set_install_note(note.into());
+    st.set_install_command(command.into());
+}
+
+/// Check again: looks for LibreOffice off the UI thread, says what it found, and redraws the note.
+fn check_again(op: &Rc<Operator>) {
+    let me = Rc::downgrade(op);
+    op.ops().check_libreoffice(move |found| {
+        let Some(op) = me.upgrade() else { return };
+        op.toast(if found { tr::LIBREOFFICE_FOUND } else { tr::NOT_FOUND_YET }, false);
+        show_install_hint(&op);
+    });
+}
+
+/// Upload files, Import presentation and Make slides from pictures go through the file picker.
 fn pick_then(op: &Rc<Operator>, filter: Filter, multi: bool, then: fn(&Rc<Operator>, Vec<std::path::PathBuf>)) {
     let me = Rc::downgrade(op);
     files::pick(op, filter, multi, move |paths| if let Some(op) = me.upgrade() { then(&op, paths) });
@@ -138,6 +164,12 @@ pub(crate) fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_import_powerpoint(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::PowerPoint, true, files::add_files) });
     let c = ctx.clone();
     st.on_pictures_to_slides(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Pictures, true, files::images_to_deck) });
+    let c = ctx.clone();
+    st.on_copy_install(move || if let (Some(op), Some(cmd)) = (c.op.upgrade(), tools::install_command(tools::OS)) {
+        super::settings::copy(&op, cmd, super::settings::strings::COPIED)
+    });
+    let c = ctx.clone();
+    st.on_check_again(move || if let Some(op) = c.op.upgrade() { check_again(&op) });
 }
 
 #[cfg(test)]
@@ -276,6 +308,79 @@ mod tests {
         assert!(matches!(items(&app)[..], [ItemKind::Media { media_id, autoplay: true, looped: false, .. }] if media_id == id));
         assert_eq!(op.dialog(), None);
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
+    }
+
+    /// Converters with no PowerPoint and no pdfium, and a LibreOffice that is "installed" once `installed` is set.
+    fn converters(app: &App, installed: Arc<std::sync::atomic::AtomicBool>) -> Arc<crate::import::deck::Converters> {
+        use std::sync::atomic::Ordering;
+        let find = Box::new(move || installed.load(Ordering::SeqCst).then(|| tools::Soffice { path: "soffice".into(), snap: false }));
+        let conv = Arc::new(crate::import::deck::Converters::new(app.store.root.clone(), find, None, None));
+        app.set_converters(conv.clone());
+        conv
+    }
+
+    fn label(op: &Operator, id: &str) -> Option<String> {
+        crate::ui::operator::window::testing::find(op, id).map(|e| e.accessible_label().unwrap_or_default().to_string())
+    }
+
+    /// Some text on screen reads exactly `text` (a button's label is its inner text).
+    fn shows(op: &Operator, text: &str) -> bool {
+        i_slint_backend_testing::ElementHandle::find_by_accessible_label(&op.ui, text).next().is_some()
+    }
+
+    #[test]
+    fn slides_tab_button_says_import_presentation() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Deck);
+        settle(&op);
+        assert!(shows(&op, "Import presentation"));
+        assert!(!shows(&op, "Import PowerPoint"));
+        assert!(shows(&op, "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."));
+        assert!(op.ui.global::<AddState>().get_install_note().is_empty(), "no converters known: no hint");
+    }
+
+    #[test]
+    fn slides_tab_shows_install_hint_copy_and_check_again() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let app = test_app();
+        let installed = Arc::new(AtomicBool::new(false));
+        converters(&app, installed.clone());
+        let op = opened(&app);
+        open_add(&op, AddTab::Deck);
+        settle(&op);
+        let st = op.ui.global::<AddState>();
+        assert_eq!(st.get_install_note(), "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.");
+        assert_eq!(st.get_install_note().as_str(), tr::NEED_LIBREOFFICE);
+        assert_eq!(st.get_install_command().as_str(), tools::install_command(tools::OS).unwrap());
+        assert!(shows(&op, tr::NEED_LIBREOFFICE));
+        assert!(label(&op, "AddDeckTab::install-copy").is_some(), "the Copy button");
+        assert!(shows(&op, "Copy") && shows(&op, "Check again"));
+
+        // Not installed yet.
+        click(&op, "AddDeckTab::check-again");
+        assert_eq!(last_toast(&op), Some(("Not found yet — finish installing, then click Check again.".into(), false)));
+        assert!(label(&op, "AddDeckTab::check-again").is_some(), "the hint stays");
+
+        // Installed while the app runs: found without a restart, and the hint goes.
+        installed.store(true, Ordering::SeqCst);
+        click(&op, "AddDeckTab::check-again");
+        assert_eq!(last_toast(&op), Some(("LibreOffice found!".into(), false)));
+        assert_eq!(st.get_install_note(), "");
+        settle(&op);
+        assert!(label(&op, "AddDeckTab::check-again").is_none());
+    }
+
+    #[test]
+    fn slides_tab_has_no_hint_when_libreoffice_is_there() {
+        let app = test_app();
+        let conv = converters(&app, Arc::new(std::sync::atomic::AtomicBool::new(true)));
+        assert!(conv.libreoffice().is_some());
+        let op = opened(&app);
+        open_add(&op, AddTab::Deck);
+        settle(&op);
+        assert_eq!(op.ui.global::<AddState>().get_install_note(), "");
+        assert!(label(&op, "AddDeckTab::check-again").is_none());
     }
 
     #[test]

@@ -1,4 +1,4 @@
-//! Making "any video" playable. PowerPoint → slide images lives in `import::powerpoint`.
+//! Making "any video" playable. Presentations → slide images live in `import::deck`.
 //!
 //! The room output plays H.264/VP8/VP9/AV1 video with AAC/MP3/Opus/Vorbis audio
 //! in MP4/WebM. Anything else (ProRes, HEVC, WMV, AVI, MKV, MPEG-2, DV, ...) is
@@ -141,19 +141,4 @@ pub async fn convert(input: &Path, output: &Path, kind: &str, plan: &Plan, mut p
     }
     progress(100);
     Ok(())
-}
-
-/// Export each visible slide of a PowerPoint file as a PNG using the installed PowerPoint, one import at a time.
-/// The old import path's way into `import::powerpoint`; Plan 4 Task 6c removes it when decks go through `import::deck`.
-pub async fn export_powerpoint(input: &Path, out_dir: &Path) -> Result<Vec<PathBuf>, String> {
-    #[cfg(windows)]
-    {
-        static POWERPOINT: std::sync::LazyLock<crate::import::powerpoint::PowerPoint> = std::sync::LazyLock::new(Default::default);
-        POWERPOINT.export(input, out_dir, &|_| {}, &|_, _| {}, &tokio_util::sync::CancellationToken::new()).await
-    }
-    #[cfg(not(windows))]
-    {
-        let _ = (input, out_dir);
-        Err("PowerPoint import needs Windows with PowerPoint installed.".into())
-    }
 }
