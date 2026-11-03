@@ -74,16 +74,19 @@ impl StateWriter {
         let (s, halt) = (shared.clone(), stop.clone());
         #[cfg(test)]
         let g = gate.clone();
-        let thread = std::thread::Builder::new().name("live-state".into()).spawn(move || loop {
-            let next = {
-                let mut slot = s.1.wait_while(s.0.lock().unwrap(), |v| v.is_none() && !halt.load(Ordering::Acquire)).unwrap();
-                slot.take()
-            };
-            let Some(state) = next else { return }; // stopping, and nothing left to write
-            #[cfg(test)]
-            let _g = g.lock().unwrap();
-            let written = serde_json::to_vec(&state).map_err(io::Error::other).and_then(|b| write_with_retry(&path(&root), &b));
-            if let Err(e) = written { eprintln!("Could not save the live state: {e}") }
+        let thread = std::thread::Builder::new().name("live-state".into()).spawn(move || {
+            super::panic::mark_critical();
+            loop {
+                let next = {
+                    let mut slot = s.1.wait_while(s.0.lock().unwrap(), |v| v.is_none() && !halt.load(Ordering::Acquire)).unwrap();
+                    slot.take()
+                };
+                let Some(state) = next else { return }; // stopping, and nothing left to write
+                #[cfg(test)]
+                let _g = g.lock().unwrap();
+                let written = serde_json::to_vec(&state).map_err(io::Error::other).and_then(|b| write_with_retry(&path(&root), &b));
+                if let Err(e) = written { eprintln!("Could not save the live state: {e}") }
+            }
         }).expect("live-state thread");
         StateWriter { shared, stop, thread: Some(thread), #[cfg(test)] gate }
     }

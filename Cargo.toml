@@ -40,11 +40,18 @@ tauri-build = "2"
 slint-build = "1.18"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_System_Diagnostics_Debug"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+signal-hook = "0.3"
 
 [profile.release]
 lto = "thin"
-strip = true
+# Line tables plus kept symbol names, so crash-log backtraces name their functions. No
+# `split-debuginfo`: rustc rejects it as unstable on the x86_64-pc-windows-gnu toolchain.
+debug = "line-tables-only"
+strip = "debuginfo"
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
