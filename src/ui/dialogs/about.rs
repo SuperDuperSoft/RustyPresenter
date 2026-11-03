@@ -41,7 +41,17 @@ pub(super) fn fill(op: &Operator, snap: &OperatorSnapshot) {
     g.set_about_data_folder(a.data_folder.into());
     g.set_about_video(a.video.into());
     g.set_about_mpv(a.mpv.into());
+    let (player, drawing) = video_lines(&op.screens().video_info());
+    g.set_video_player(player.into());
+    g.set_video_drawing(drawing.into());
     g.set_about_licence(strings::media_licence().into());
+}
+
+/// The Video tab's two lines: which player, and how video is drawn.
+pub fn video_lines(info: &VideoInfo) -> (String, String) {
+    let Some(mpv) = &info.mpv else { return (super::add_strings::PLAYER_MISSING.into(), String::new()) };
+    let drawing = match info.draw_mode { DrawMode::OpenGl => strings::DRAWING_GPU, DrawMode::Software => strings::DRAWING_SOFTWARE };
+    (strings::video_player(&mpv.mpv_version), drawing.into())
 }
 
 /// Show licenses / Back: the licence text replaces the tab's body while shown.

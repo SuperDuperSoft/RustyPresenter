@@ -75,27 +75,26 @@ fn media_row(m: &MediaFile, player_missing: bool) -> AddRow {
         id: m.id.to_string().into(), title: m.name.as_str().into(), subtitle: subtitle.into(),
         thumb_icon: if row_picture(m).is_some() { "" } else { kind }.into(),
         chip: chip.into(), chip_state: state.into(), chip_tip: tip.into(),
-        can_convert: matches!(m.status, MediaStatus::Unconverted { .. } | MediaStatus::Failed { .. }),
+        can_try_again: matches!(m.status, MediaStatus::Failed { .. }),
         can_delete: true, delete_tip: tr::DELETE_FROM_LIBRARY.into(), key: search_key(m), ..Default::default()
     }
 }
 
-/// `statusChip()` (`operator.js:458-464`): the text, its colour and the reason as a tooltip.
+/// The text, its colour and a tooltip. `Converting` and `Unconverted` only come from an old `data.json`, which
+/// `upgrade_media` cleans, so they show as ready.
 pub fn status_chip(s: &MediaStatus) -> (String, &'static str, String) {
     match s {
-        MediaStatus::Ready => (tr::READY.into(), "ok", String::new()),
-        MediaStatus::Converting { percent } => (tr::converting_percent(*percent), "warn", String::new()),
-        MediaStatus::Unconverted { reason } => (tr::NEEDS_CONVERTER.into(), "warn", reason.clone()),
-        MediaStatus::Failed { reason } => (tr::FAILED.into(), "bad", reason.clone()),
+        MediaStatus::Failed { .. } => (tr::FAILED.into(), "bad", tr::CANT_BE_PLAYED.into()),
+        _ => (tr::READY.into(), "ok", String::new()),
     }
 }
 
-/// Convert (`operator.js:482`): `media/convert`, then "Converting…".
-fn convert(op: &Rc<Operator>, id: Uuid) {
+/// Try again: `media/reprobe`, which looks at the file afresh.
+fn try_again(op: &Rc<Operator>, id: Uuid) {
     let me = Rc::downgrade(op);
-    op.ops().call::<Value>("media/convert", json!({ "id": id }), move |r| {
+    op.ops().call::<Value>("media/reprobe", json!({ "id": id }), move |r| {
         let Some(op) = me.upgrade() else { return };
-        match r { Ok(_) => op.toast(tr::CONVERTING, false), Err(e) => op.toast(e, true) }
+        match r { Ok(_) => op.toast(tr::CHECKING_AGAIN, false), Err(e) => op.toast(e, true) }
     });
 }
 
@@ -156,7 +155,7 @@ fn pick_then(op: &Rc<Operator>, filter: Filter, multi: bool, then: fn(&Rc<Operat
 pub(crate) fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     let st = op.ui.global::<AddState>();
     let c = ctx.clone();
-    st.on_convert(move |id| if let (Some(op), Ok(id)) = (c.op.upgrade(), Uuid::parse_str(&id)) { convert(&op, id) });
+    st.on_try_again(move |id| if let (Some(op), Ok(id)) = (c.op.upgrade(), Uuid::parse_str(&id)) { try_again(&op, id) });
     let c = ctx.clone();
     st.on_delete_row(move |id| {
         let (Some(op), Ok(id)) = (c.op.upgrade(), Uuid::parse_str(&id)) else { return };
@@ -218,8 +217,8 @@ mod tests {
 
     fn four(app: &App) {
         media(app, "pic.png", MediaKind::Image, MediaStatus::Ready);
-        media(app, "clip.mp4", MediaKind::Video, MediaStatus::Converting { percent: 40 });
-        media(app, "song.wma", MediaKind::Audio, MediaStatus::Unconverted { reason: "No converter found.".into() });
+        media(app, "clip.mp4", MediaKind::Video, MediaStatus::Ready);
+        media(app, "song.wma", MediaKind::Audio, MediaStatus::Ready);
         media(app, "old.avi", MediaKind::Video, MediaStatus::Failed { reason: "Broken file.".into() });
     }
 
@@ -236,9 +235,9 @@ mod tests {
         let subtitles: Vec<String> = shown(&op).iter().map(|r| r.subtitle.to_string()).collect();
         assert_eq!(subtitles, ["Video", "Audio", "Video", "Picture"]);
         assert_eq!(chips(&op), [
-            ("Failed".into(), "bad".into(), "Broken file.".into()),
-            ("Needs converter".into(), "warn".into(), "No converter found.".into()),
-            ("Converting 40%".into(), "warn".into(), String::new()),
+            ("Failed".into(), "bad".into(), "This file can't be played.".into()),
+            ("Ready".into(), "ok".into(), String::new()),
+            ("Ready".into(), "ok".into(), String::new()),
             ("Ready".into(), "ok".into(), String::new()),
         ]);
         let rows = shown(&op);
@@ -317,15 +316,16 @@ mod tests {
     }
 
     #[test]
-    fn convert_button_only_for_unconverted_or_failed() {
+    fn try_again_button_only_for_failed() {
         let app = test_app();
         four(&app);
         let op = opened(&app);
         open_add(&op, AddTab::Media);
         settle(&op);
-        let can: Vec<bool> = shown(&op).iter().map(|r| r.can_convert).collect();
-        assert_eq!(can, [true, true, false, false], "failed and unconverted only");
-        assert_eq!(find_all(&op, "AddListRow::convert-btn").len(), 2);
+        assert_eq!(find_all(&op, "AddListRow::try-again-btn").len(), 1);
+        assert_eq!(find_all(&op, "AddListRow::convert-btn").len(), 0);
+        let can: Vec<bool> = shown(&op).iter().map(|r| r.can_try_again).collect();
+        assert_eq!(can, [true, false, false, false]);
     }
 
     #[test]

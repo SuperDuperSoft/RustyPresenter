@@ -13,6 +13,4 @@ pub fn video_choice(name: &str) -> String { format!("▶ {name}") }
 pub const UPLOADED: &str = "Added to the media library — pick it here";
 
 /// `statusChip(m)` (`operator.js:464-470`) for media that is not ready.
-pub fn converting(percent: u8) -> String { format!("Converting {percent}%") }
-pub const NEEDS_CONVERTER: &str = "Needs converter";
 pub const FAILED: &str = "Failed";

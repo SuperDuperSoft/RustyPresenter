@@ -16,9 +16,7 @@ pub fn kind_name(kind: &str) -> &'static str {
     }
 }
 
-pub fn converting(kind: &str, percent: u8) -> String { format!("{kind} · converting {percent}%") }
-pub fn needs_converter(kind: &str) -> String { format!("{kind} · may not play — needs converter") }
-pub fn conversion_failed(kind: &str) -> String { format!("{kind} · conversion failed") }
+pub fn cant_be_played(kind: &str) -> String { format!("{kind} · can't be played") }
 pub const LOOPS: &str = " · loops";
 /// Native spec §5: a video or audio item when libmpv could not be loaded.
 pub fn player_missing(kind: &str) -> String { format!("{kind} · The video player is missing — reinstall RustyPresenter") }
@@ -77,7 +75,6 @@ pub const ADDED_TO_SERVICE: &str = "Added to the service";
 pub fn uploading(name: &str) -> String { format!("Uploading {name}") }
 pub fn uploading_pictures(n: usize) -> String { format!("Uploading {n} picture{}", if n > 1 { "s" } else { "" }) }
 pub fn media_added(name: &str) -> String { format!("{name} added") }
-pub fn media_added_converting(name: &str) -> String { format!("{name} added — converting so it plays smoothly…") }
 pub fn song_imported(title: &str) -> String { format!("Imported “{title}”") }
 pub fn song_in_library(title: &str) -> String { format!("“{title}” is already in the library.") }
 pub fn song_updated(title: &str) -> String { format!("Updated “{title}”") }

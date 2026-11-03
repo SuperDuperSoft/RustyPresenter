@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, import, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
+use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -34,7 +34,6 @@ pub enum Update {
     /// Library, service, settings or windows changed: re-read `state_json`.
     Data,
     Job { id: Uuid, percent: u8 },
-    Convert { id: Uuid, percent: u8 },
     /// A paired phone was removed; its remote stream ends.
     Revoked { phone: Uuid },
 }
@@ -530,7 +529,6 @@ impl App {
             "items": items,
             "monitors": self.monitors(),
             "windows": windows,
-            "ffmpeg": media::ffmpeg().is_some(),
             "lan_url": self.lan_url,
             "translations": self.translations(),
             "available_translations": self.available_translations(),
@@ -555,6 +553,8 @@ impl App {
             let env: Envelope = parse(body)?;
             Ok(serde_json::to_value(app.command(env)).unwrap())
         }
+        // What the room shows, for tests and local automation.
+        "live" => Ok(serde_json::to_value(app.live_view()).unwrap()),
         // ---- songs ----
         "song/save" => {
             let mut song: Song = parse(body)?;
@@ -578,11 +578,6 @@ impl App {
             #[derive(Deserialize)] struct Import { text: String, mode: SongImportMode }
             let Import { text, mode } = parse(body)?;
             let (id, title, duplicate_of) = tryr!(app.import_song(&text, mode));
-            Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
-        }
-        // The web operator's raw-body import; it always keeps both.
-        "song/import-txt" => {
-            let (id, title, duplicate_of) = tryr!(app.import_song(&String::from_utf8_lossy(body), SongImportMode::KeepBoth));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
@@ -726,18 +721,6 @@ impl App {
         "media/reprobe" => {
             let Id { id } = parse(body)?;
             import::media::reprobe(app.clone(), vec![id]);
-            Ok(json!({}))
-        }
-        "media/convert" => {
-            let Id { id } = parse(body)?;
-            let m = app.data.lock().unwrap().media.iter().find(|m| m.id == id).cloned().ok_or_else(|| ActionError::bad("That file is gone."))?;
-            let src = m.original_asset.clone().unwrap_or(m.asset.clone());
-            let ext = src.rsplit('.').next().unwrap_or("").to_string();
-            let path = app.store.asset_path(&src);
-            let plan = if m.kind == MediaKind::Audio { media::plan_audio(&path, &ext).await } else { media::plan_video(&path, &ext).await };
-            let plan = if plan == media::Plan::Ready { media::Plan::Transcode } else { plan };
-            if let media::Plan::Unknown(r) = plan { return Err(ActionError::bad(r)); }
-            spawn_conversion(app.clone(), id, src, plan);
             Ok(json!({}))
         }
         "deck/from-images" => {
@@ -1002,44 +985,6 @@ struct Id { id: Uuid }
 
 fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> {
     serde_json::from_slice(body).map_err(|e| ActionError::bad(format!("Bad request: {e}")))
-}
-
-pub(crate) fn spawn_conversion(app: Arc<App>, id: Uuid, src: AssetId, plan: media::Plan) {
-    tokio::spawn(async move {
-        let kind = app.data.lock().unwrap().media.iter().find(|m| m.id == id).map(|m| m.kind);
-        let Some(kind) = kind else { return };
-        let (k, ext) = if kind == MediaKind::Audio { ("audio", "m4a") } else { ("video", "mp4") };
-        let input = app.store.asset_path(&src);
-        let out = app.store.tmp().join(format!("{}.{ext}", Uuid::new_v4()));
-        let set = |app: &App, st: MediaStatus| { if let Some(m) = app.data.lock().unwrap().media.iter_mut().find(|m| m.id == id) { m.status = st; } };
-        set(&app, MediaStatus::Converting { percent: 0 });
-        app.broadcast_data();
-        let mut last = 0u8;
-        let app2 = app.clone();
-        let result = media::convert(&input, &out, k, &plan, |p| {
-            if p >= last + 2 || p == 100 {
-                last = p;
-                set(&app2, MediaStatus::Converting { percent: p });
-                let _ = app2.tx.send(Update::Convert { id, percent: p });
-            }
-        }).await;
-        let final_status = match result {
-            Ok(()) => match app.store.import_file(&out, ext) {
-                Ok(new_asset) => {
-                    let _ = std::fs::remove_file(&out);
-                    let _ = app.edit(|d| {
-                        if let Some(m) = d.media.iter_mut().find(|m| m.id == id) { m.original_asset = Some(src.clone()); m.asset = new_asset; m.status = MediaStatus::Ready; }
-                        Ok(())
-                    });
-                    return;
-                }
-                Err(e) => MediaStatus::Failed { reason: e.to_string() },
-            },
-            Err(e) => MediaStatus::Failed { reason: e },
-        };
-        let _ = std::fs::remove_file(&out);
-        let _ = app.edit(|d| { if let Some(m) = d.media.iter_mut().find(|m| m.id == id) { m.status = final_status; } Ok(()) });
-    });
 }
 
 #[cfg(test)]
@@ -1509,15 +1454,6 @@ mod tests {
     async fn song_import_rejects_an_unknown_mode() {
         let e = test_app().do_action("song/import", &song_import_body(SONG_V1, "replace")).await.unwrap_err();
         assert_eq!(e.status, 400);
-    }
-
-    #[tokio::test]
-    async fn import_txt_action_still_keeps_both_for_the_web_operator() {
-        let app = test_app();
-        let first = app.do_action("song/import-txt", SONG_V1.as_bytes()).await.unwrap();
-        let v = app.do_action("song/import-txt", SONG_V2.as_bytes()).await.unwrap();
-        assert_eq!(v["duplicate_of"], first["id"]);
-        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
     }
 
     #[tokio::test]

@@ -54,8 +54,8 @@ export global SettingsDlg {
     in-out property <string> bible-short;
 
     // ---- Video ----
-    in property <bool> ffmpeg;
-    in property <string> winget;
+    in property <string> video-player;
+    in property <string> video-drawing;
 
     // ---- Backups ----
     in property <string> backups-folder;
@@ -89,8 +89,6 @@ export global SettingsDlg {
     callback copy-link(int);
     callback import-bible();
     callback remove-import(int);
-    callback copy-winget();
-    callback check-again();
     callback backup-now();
     callback restore(int);
     callback show-licences(bool);

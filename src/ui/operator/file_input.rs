@@ -1,7 +1,7 @@
 //! How files reach the operator: the desktop drop batch (Task 15) and the file picker's filters. Pure, so it is
 //! tested without a window; the winit filter and `rfd` call these.
 use super::{files::all_images, strings as tr};
-use crate::media;
+use crate::import::media;
 use std::path::PathBuf;
 
 /// What one window event means for the drop, with the winit types left out.

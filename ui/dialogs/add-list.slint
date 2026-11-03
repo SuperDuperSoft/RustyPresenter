@@ -19,7 +19,7 @@ export struct AddRow {
     chip: string,
     chip-state: string,
     chip-tip: string,
-    can-convert: bool,
+    can-try-again: bool,
     can-edit: bool,
     /// The trash button and its tooltip.
     can-delete: bool,
@@ -57,7 +57,7 @@ export global AddState {
     callback import-lyrics();
     callback edit-song(string);
     callback add-row(string);
-    callback convert(string);
+    callback try-again(string);
     callback delete-row(string);
     callback bible-add();
     callback bible-paste();
@@ -124,12 +124,12 @@ component AddListRow inherits ListRow {
             accessible-description: root.entry.chip-tip;
         }
     }
-    if root.entry.can-convert: VerticalLayout {
+    if root.entry.can-try-again: VerticalLayout {
         alignment: center;
-        convert-btn := Btn {
-            text: @tr("Convert");
+        try-again-btn := Btn {
+            text: @tr("Try again");
             small: true;
-            clicked => { AddState.convert(root.entry.id); }
+            clicked => { AddState.try-again(root.entry.id); }
         }
     }
     if root.entry.can-edit: VerticalLayout {

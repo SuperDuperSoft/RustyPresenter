@@ -5,7 +5,6 @@
 use super::{bible, files::{self, FilesState}, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
-    model::MediaStatus,
     ui::{OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, preview::Preview, thumbs::Thumbs},
     video::{DrawMode, FrameGrabber},
 };
@@ -295,12 +294,6 @@ impl Feed {
                     Some(j) => { j.percent = percent; true }
                     None => false,
                 }),
-                Some(Update::Convert { id, percent }) => self.patch(|s| {
-                    let Some(m) = Arc::make_mut(&mut s.data).media.iter_mut().find(|m| m.id == id) else { return false };
-                    m.status = MediaStatus::Converting { percent };
-                    s.refresh_subtitles();
-                    true
-                }),
                 _ => {}
             }
         }
@@ -391,7 +384,7 @@ mod tests {
     use super::testing::{open, refresh, find};
     use crate::{
         app::test_app,
-        model::{EndAction, ItemKind, MediaFile, MediaKind, ServiceItem},
+        model::{EndAction, ItemKind, MediaFile, MediaKind, MediaStatus, ServiceItem},
         ui::ui_test_init,
     };
 
@@ -539,17 +532,15 @@ mod tests {
     }
 
     #[test]
-    fn follower_patches_conversion_and_job_progress() {
+    fn follower_patches_job_progress() {
         let app = test_app();
-        let media = add_video(&app);
         let job = Uuid::new_v4();
         app.jobs.lock().unwrap().push(crate::app::Job { id: job, label: "Importing slides".into(), ..Default::default() });
         let feed = Feed::new(app.clone(), false);
         feed.read_all();
         feed.take();
-        feed.handle(vec![Some(Update::Convert { id: media, percent: 40 }), Some(Update::Job { id: job, percent: 55 })]);
+        feed.handle(vec![Some(Update::Job { id: job, percent: 55 })]);
         let s = feed.take().snap.expect("patched snapshot");
-        assert_eq!(s.items[0].subtitle, "Video · converting 40%");
         assert_eq!(s.jobs[0].percent, 55);
         // A `Data` in the batch means one full read instead, which shows the core's own state.
         feed.handle(vec![Some(Update::Job { id: job, percent: 60 }), Some(Update::Data)]);

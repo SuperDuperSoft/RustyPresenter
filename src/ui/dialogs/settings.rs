@@ -112,8 +112,6 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     let g = op.ui.global::<SettingsDlg>();
     settings_look::fill_backgrounds(op, edit, snap);
     settings_bible::fill(&g, edit, snap);
-    g.set_ffmpeg(snap.ffmpeg);
-    g.set_winget(strings::WINGET.into());
     g.set_backups_folder(strings::backups_folder(&snap.data_folder).into());
     let rows: Vec<SettingsBackupRow> = snap.backups.iter().map(|b| SettingsBackupRow {
         label: backup_label(&b.created).into(), counts: strings::backup_counts(b.songs, b.services, b.assets).into(),
@@ -191,8 +189,6 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_copy_link(with_i(settings_bible::copy_link));
     g.on_import_bible(with(settings_bible::import));
     g.on_remove_import(with_i(settings_bible::remove_import));
-    g.on_copy_winget(with(|op, _| copy(op, strings::WINGET, strings::COPIED)));
-    g.on_check_again(with(check_again));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
@@ -207,16 +203,6 @@ fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
     settings_look::drop_preview(op, edit);
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
     if tab == 0 { settings_look::render_now(op, edit) }
-}
-
-/// Video → Check again: a fresh read (ffmpeg is looked up on PATH by each read), then the tab and a toast.
-fn check_again(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let edit = edit.clone();
-    op.on_next_read(move |op| {
-        let Some(s) = snap(op) else { return };
-        fill_pages(op, &edit, &s);
-        op.toast(if s.ffmpeg { strings::CONVERTER_FOUND } else { strings::CONVERTER_NOT_FOUND }, false);
-    });
 }
 
 fn backup_now(op: &Rc<Operator>, edit: &Rc<Edit>) {

@@ -48,11 +48,17 @@ fn grouped(n: u64) -> String {
     out
 }
 
-// ---- Video (`operator.js:974-983`) ----
-pub const WINGET: &str = "winget install --id Gyan.FFmpeg -e";
+// ---- Video ----
 pub const COPIED: &str = "Copied";
-pub const CONVERTER_FOUND: &str = "Converter found!";
-pub const CONVERTER_NOT_FOUND: &str = "Not found yet — restart RustyPresenter after installing.";
+/// `mpv` is the `mpv-version` property ("mpv 0.39.0"), which may be empty.
+pub fn video_player(mpv: &str) -> String {
+    match mpv.strip_prefix("mpv ").unwrap_or(mpv) {
+        "" => "Video player: libmpv (LGPL build)".into(),
+        v => format!("Video player: libmpv {v} (LGPL build)"),
+    }
+}
+pub const DRAWING_GPU: &str = "Video drawing: GPU (OpenGL)";
+pub const DRAWING_SOFTWARE: &str = "Video drawing: Software";
 /// Slint 1.18 has no clipboard-write API; `arboard` failed.
 pub fn copy_failed(e: &str) -> String { format!("Could not copy: {e}") }
 

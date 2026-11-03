@@ -71,7 +71,6 @@ pub struct OperatorSnapshot {
     pub monitors: Vec<Monitor>,
     pub windows: Vec<String>,
     pub lan_url: Option<String>,
-    pub ffmpeg: bool,
     pub player_missing: bool,
     pub backups: Vec<BackupInfo>,
     pub phones_list: Vec<(Uuid, String)>,
@@ -91,8 +90,8 @@ pub fn read_number() -> u64 { READS.load(Ordering::SeqCst) }
 const _: fn() = || { fn send<T: Send + Sync>() {} send::<OperatorSnapshot>(); };
 
 impl OperatorSnapshot {
-    /// Reads the same sources as `App::state_json`. **Never call it on the Slint thread:** it parses every backup,
-    /// searches PATH for ffmpeg and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
+    /// Reads the same sources as `App::state_json`. **Never call it on the Slint thread:** it parses every backup
+    /// and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.
     pub fn read(app: &App) -> Self {
         let read = READS.fetch_add(1, Ordering::SeqCst) + 1;
@@ -128,7 +127,6 @@ impl OperatorSnapshot {
             monitors: app.monitors(),
             windows,
             lan_url: app.lan_url.clone(),
-            ffmpeg: crate::media::ffmpeg().is_some(),
             player_missing: false,
             backups: app.store.backups(),
             phones_list: app.phones.lock().unwrap().iter().map(|p| (p.id, p.name.clone())).collect(),
@@ -177,9 +175,8 @@ pub fn subtitle(row: &ItemRow, media: &[MediaFile], player_missing: bool) -> Str
         };
         if player_missing && row.kind != "image" { return tr::player_missing(name); }
         match media.iter().find(|m| Some(m.id) == media_id).map(|m| &m.status) {
-            Some(MediaStatus::Converting { percent }) => return tr::converting(name, *percent),
-            Some(MediaStatus::Unconverted { .. }) => return tr::needs_converter(name),
-            Some(MediaStatus::Failed { .. }) => return tr::conversion_failed(name),
+            Some(MediaStatus::Failed { .. }) => return tr::cant_be_played(name),
+            // `Converting` and `Unconverted` only come from an old `data.json`, and `upgrade_media` removes them.
             _ => {}
         }
         return format!("{name}{}", if end == EndAction::Loop || looped { tr::LOOPS } else { "" });
@@ -318,17 +315,12 @@ mod tests {
 
     #[test]
     fn subtitle_for_each_kind_and_media_state() {
-        let conv = media_file(MediaKind::Video, MediaStatus::Converting { percent: 40 });
-        let unconv = media_file(MediaKind::Video, MediaStatus::Unconverted { reason: "codec".into() });
         let failed = media_file(MediaKind::Video, MediaStatus::Failed { reason: "bad".into() });
         let ready = media_file(MediaKind::Video, MediaStatus::Ready);
         let pic = media_file(MediaKind::Image, MediaStatus::Ready);
         let audio = media_file(MediaKind::Audio, MediaStatus::Ready);
-        let media = vec![conv.clone(), unconv.clone(), failed.clone(), ready.clone(), pic.clone(), audio.clone()];
+        let media = vec![failed.clone(), ready.clone(), pic.clone(), audio.clone()];
         let sub = |r: ItemRow| subtitle(&r, &media, false);
-        assert_eq!(sub(media_row(&conv, "video", EndAction::Stop, false)), "Video · converting 40%");
-        assert_eq!(sub(media_row(&unconv, "video", EndAction::Stop, false)), "Video · may not play — needs converter");
-        assert_eq!(sub(media_row(&failed, "video", EndAction::Stop, false)), "Video · conversion failed");
         assert_eq!(sub(media_row(&ready, "video", EndAction::Loop, false)), "Video · loops");
         assert_eq!(sub(media_row(&ready, "video", EndAction::Stop, false)), "Video");
         assert_eq!(sub(media_row(&pic, "image", EndAction::Stop, false)), "Picture");
@@ -337,6 +329,22 @@ mod tests {
         assert_eq!(sub(row("scripture", 1)), "Scripture · 1 slide");
         assert_eq!(sub(row("deck", 2)), "Slides · 2 slides");
         assert_eq!(sub(row("text", 1)), "Announcement · 1 slide");
+    }
+
+    #[test]
+    fn failed_video_subtitle_says_cant_be_played() {
+        let failed = media_file(MediaKind::Video, MediaStatus::Failed { reason: "bad".into() });
+        let media = vec![failed.clone()];
+        assert_eq!(subtitle(&media_row(&failed, "video", EndAction::Stop, false), &media, false), "Video · can't be played");
+    }
+
+    #[test]
+    fn old_conversion_states_read_like_ready() {
+        for status in [MediaStatus::Converting { percent: 40 }, MediaStatus::Unconverted { reason: "codec".into() }] {
+            let m = media_file(MediaKind::Video, status);
+            let media = vec![m.clone()];
+            assert_eq!(subtitle(&media_row(&m, "video", EndAction::Stop, false), &media, false), "Video");
+        }
     }
 
     #[test]

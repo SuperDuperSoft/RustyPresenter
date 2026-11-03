@@ -1,5 +1,4 @@
 //! Crash recovery end to end (Plan 4 Task 11): the real binary, supervised, with the headless room.
-//! `killed_import_publishes_nothing` comes with Task 6c, which is what starts a killed LibreOffice.
 use rustypresenter::{live::{Command as LiveCommand, Envelope, Inst, AudioLayer}, model::{ItemKind, ServiceItem}, recovery::{exitcode, state}, store::Store};
 use std::{fs, io::{Read, Write}, net::{Ipv4Addr, TcpListener, TcpStream}, path::{Path, PathBuf}, process::{Child, Command, ExitStatus, Stdio}, thread, time::{Duration, Instant}};
 use uuid::Uuid;
@@ -44,7 +43,7 @@ impl Rig {
     /// Starts and waits until the server answers.
     fn up(&mut self) {
         self.start(&[], &[]);
-        until(10.0, "the app to answer", || self.pid().is_some() && self.try_get("/api/state").is_some());
+        until(10.0, "the app to answer", || self.pid().is_some() && self.try_get("/remote/status").is_some());
     }
 
     fn pid(&self) -> Option<u32> { fs::read_to_string(self.data.join("app.pid")).ok()?.trim().parse().ok() }
@@ -62,15 +61,8 @@ impl Rig {
 
     fn try_get(&self, path: &str) -> Option<String> { self.request("GET", path, "") }
 
-    /// The live view: the first thing the event stream sends. The stream stays open, so this stops at the timeout.
-    fn first_event(&self) -> String {
-        let mut s = TcpStream::connect((Ipv4Addr::LOCALHOST, self.port)).unwrap();
-        s.set_read_timeout(Some(Duration::from_millis(500))).unwrap();
-        s.write_all(format!("GET /events?role=operator HTTP/1.1\r\nHost: 127.0.0.1:{}\r\n\r\n", self.port).as_bytes()).unwrap();
-        let mut out = vec![];
-        let _ = s.read_to_end(&mut out);
-        String::from_utf8_lossy(&out).into_owned()
-    }
+    /// The live view.
+    fn live(&self) -> String { self.request("POST", "/api/do/live", "{}").expect("live") }
 
     /// Adds a text item and shows it.
     fn show_text(&self, text: &str) {
@@ -167,7 +159,7 @@ fn second_attempt_restores_without_media() {
     let log = rig.log();
     assert!(log.contains("slide=\"Still here\"") && log.contains("media=false"), "{log}");
     assert!(rig.data.join("live-state.crashed.json").exists());
-    let live = rig.first_event();
+    let live = rig.live();
     assert!(live.contains("RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."), "{live}");
 }
 
@@ -199,7 +191,7 @@ fn second_launch_exits_already_running() {
     };
     assert_eq!(status.code(), Some(exitcode::OK));
     assert_eq!(rig.pid(), Some(first));
-    assert!(rig.try_get("/api/state").is_some(), "the first copy is still there");
+    assert!(rig.try_get("/remote/status").is_some(), "the first copy is still there");
 }
 
 #[test]

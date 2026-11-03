@@ -5,7 +5,7 @@ use crate::{
     ui::{
         block_on,
         dialogs::{DialogKind, SettingsTab, settings_look::PREVIEW_DELAY},
-        operator::{keys::{KeyCtx, route}, view::OperatorSnapshot, window::testing::{find, find_all, open as open_window, refresh}},
+        operator::{keys::{KeyCtx, route}, window::testing::{find, find_all, open as open_window, refresh}},
     },
 };
 use i_slint_backend_testing::mock_elapsed_time;
@@ -276,32 +276,6 @@ fn text_color_from_the_grid_and_its_hex_field() {
 }
 
 #[test]
-fn check_again_toasts_found_or_not() {
-    let app = test_app();
-    let op = opened(&app);
-    let read = |ffmpeg: bool| {
-        let mut s = OperatorSnapshot::read(&app);
-        s.ffmpeg = ffmpeg;
-        op.apply_snapshot(Arc::new(s));
-    };
-    read(false);
-    open(&op, SettingsTab::Video);
-    settle();
-    assert!(find(&op, "SettingsVideo::missing").is_some());
-    assert_eq!(g(&op).get_winget(), "winget install --id Gyan.FFmpeg -e");
-    // Inline `Ops` (tests) read at once when a read is asked for, so the toast follows this machine's own read.
-    click(&op, "SettingsVideo::check-again");
-    let found = g(&op).get_ffmpeg();
-    let said = if found { "Converter found!" } else { "Not found yet — restart RustyPresenter after installing." };
-    assert_eq!(toasts(&op), [said]);
-    assert!(find(&op, if found { "SettingsVideo::found" } else { "SettingsVideo::missing" }).is_some(), "the tab is redrawn");
-
-    g(&op).invoke_check_again();
-    read(true);
-    assert_eq!(toasts(&op).len(), 2, "one toast per click, not one per read");
-}
-
-#[test]
 fn backup_label_formats_like_web() {
     assert_eq!(backup_label("2026-11-01_140512"), "2026-11-01 at 14:05 UTC");
     assert_eq!(backup_label("2026-01-09_000000"), "2026-01-09 at 00:00 UTC");
@@ -444,4 +418,17 @@ fn bible_tab_shows_sources_keys_and_import() {
     refresh(&op);
     assert!(!g(&op).get_bible_sources().iter().any(|r| r.imported));
     assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Bible)), "Bible actions keep Settings open");
+}
+
+#[test]
+fn video_tab_shows_player_status_not_ffmpeg() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "SettingsVideo::player").is_some(), "the player line");
+    assert!(find(&op, "SettingsVideo::drawing").is_some(), "the drawing line");
+    for gone in ["SettingsVideo::missing", "SettingsVideo::found", "SettingsVideo::check-again"] {
+        assert!(find(&op, gone).is_none(), "{gone}");
+    }
 }

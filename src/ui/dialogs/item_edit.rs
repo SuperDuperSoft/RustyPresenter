@@ -64,10 +64,8 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
                 g.set_name(m.name.as_str().into());
                 name = Some(Name::Media { id: m.id, was: m.name.clone() });
                 let chip = match &m.status {
-                    MediaStatus::Ready => None,
-                    MediaStatus::Converting { percent } => Some((strings::converting(*percent), "warn", String::new())),
-                    MediaStatus::Unconverted { reason } => Some((strings::NEEDS_CONVERTER.into(), "warn", reason.clone())),
-                    MediaStatus::Failed { reason } => Some((strings::FAILED.into(), "bad", reason.clone())),
+                    MediaStatus::Failed { reason } => Some((strings::FAILED.to_string(), "bad", reason.clone())),
+                    _ => None,
                 };
                 if let Some((text, state, reason)) = chip {
                     g.set_not_ready(true);
@@ -545,11 +543,11 @@ mod tests {
     fn not_ready_media_shows_its_status() {
         let app = test_app();
         let m = media(&app, "odd.mkv", MediaKind::Video);
-        app.data.lock().unwrap().media[0].status = MediaStatus::Unconverted { reason: "No converter".into() };
+        app.data.lock().unwrap().media[0].status = MediaStatus::Failed { reason: "Broken file".into() };
         let id = push(&app, ItemKind::Media { media_id: m, autoplay: true, end: EndAction::Stop, looped: false });
         let op = opened(&app);
         open(&op, id);
         assert!(g(&op).get_not_ready());
-        assert_eq!((g(&op).get_status_text().as_str(), g(&op).get_status_state().as_str(), g(&op).get_status_reason().as_str()), ("Needs converter", "warn", "No converter"));
+        assert_eq!((g(&op).get_status_text().as_str(), g(&op).get_status_state().as_str(), g(&op).get_status_reason().as_str()), ("Failed", "bad", "Broken file"));
     }
 }

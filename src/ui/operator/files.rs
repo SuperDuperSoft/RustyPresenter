@@ -9,9 +9,8 @@ use super::{
 };
 use crate::{
     app::{ImportPurpose, Imported},
-    import::{CANCELLED, deck::DECK_EXT},
-    media,
-    model::{AssetId, Deck, MediaStatus},
+    import::{CANCELLED, deck::DECK_EXT, media},
+    model::{AssetId, Deck},
     platform::winit_events::{self, Dispatcher, WindowEvent},
     ui::dialogs,
 };
@@ -193,12 +192,11 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
             Err(e) if e == CANCELLED => then(&op, Ok(None)),
             Err(e) => then(&op, Err(e)),
             Ok(Imported::Media(m)) => {
-                let converting = matches!(m.status, MediaStatus::Converting { .. });
                 let item = json!({ "kind": "media", "media_id": m.id, "autoplay": true, "end": "stop", "looped": false });
                 let me = Rc::downgrade(&op);
                 add_item(&op, item, true, move |r| {
                     let Some(op) = me.upgrade() else { return };
-                    then(&op, r.map(|_| Some(if converting { tr::media_added_converting(&shown) } else { tr::media_added(&shown) })));
+                    then(&op, r.map(|_| Some(tr::media_added(&shown))));
                 });
             }
             Ok(Imported::Song { id: Some(id), title, .. }) => add_song(&op, id, tr::song_imported(&title), then),

@@ -35,13 +35,7 @@ A window opens with three columns:
 
 ## Video
 
-MP4 and WebM play right away. For **any other format** (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos…), install the free FFmpeg converter once:
-
-```
-winget install --id Gyan.FFmpeg -e
-```
-
-After that, RustyPresenter converts each unusual video **once when you add it**, so it plays smoothly on Sunday.
+Any video or audio format plays right away: MP4, MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos and more. There is nothing to install or convert.
 
 ## Where your data lives
 

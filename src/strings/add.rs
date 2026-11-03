@@ -28,11 +28,10 @@ pub fn bible_added(label: &str) -> String { format!("{label} added") }
 pub const GIVE_IT_A_TITLE: &str = "Give it a title.";
 
 /// The Media tab (`operator.js:458-467`).
-pub const CONVERTING: &str = "Converting…";
 pub const READY: &str = "Ready";
-pub fn converting_percent(p: u8) -> String { format!("Converting {p}%") }
-pub const NEEDS_CONVERTER: &str = "Needs converter";
 pub const FAILED: &str = "Failed";
+pub const CANT_BE_PLAYED: &str = "This file can't be played.";
+pub const CHECKING_AGAIN: &str = "Checking the file again…";
 /// The trash button's tooltip (`operator.js:484`).
 pub const DELETE_FROM_LIBRARY: &str = "Delete from library";
 pub fn delete_from_library(name: &str) -> String { format!("Delete “{name}” from the library?") }

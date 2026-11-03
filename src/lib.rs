@@ -2,7 +2,6 @@ pub mod app;
 pub mod bible;
 pub mod import;
 pub mod live;
-pub mod media;
 pub mod model;
 pub mod platform;
 pub mod recovery;

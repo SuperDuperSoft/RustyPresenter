@@ -38,3 +38,20 @@ fn old_app_files_are_gone() {
         assert!(!root().join(gone).exists(), "{gone} is still here");
     }
 }
+
+#[test]
+fn no_ffmpeg_left() {
+    // The word itself stays: About reads mpv's `ffmpeg-version` and shows the LGPL notice.
+    let uses = ["find_tool", "Command::new(\"ffmpeg\"", "Command::new(\"ffprobe\"", "media::ffmpeg", "plan_video", "plan_audio", "spawn_conversion", "Update::Convert", "Gyan.FFmpeg"];
+    let found: Vec<String> = text_of(&["src", "ui"]).iter()
+        .flat_map(|(file, text)| uses.iter().filter(move |u| text.contains(**u)).map(move |u| format!("{u} in {}", file.display())))
+        .collect();
+    assert!(found.is_empty(), "{found:#?}");
+}
+
+#[test]
+fn web_folder_has_only_remote() {
+    let mut names: Vec<String> = fs::read_dir(root().join("web")).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
+    names.sort();
+    assert_eq!(names, ["remote.html", "remote.js"]);
+}
