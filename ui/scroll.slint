@@ -3,6 +3,10 @@ import { Theme } from "theme.slint";
 
 /// A scrolling area with the web's scrollbar (`::-webkit-scrollbar`: 10 px, thumb radius 6 with a 2 px border
 /// in the panel colour). The children are the content; a layout child sizes the viewport.
+///
+/// To fill a parent that is not a layout, give it `x: 0; y: 0;` as well as `width: parent.width; height: parent.height;`.
+/// Slint counts a child with a size but no position as fixed at that size, so the parent's minimum and maximum (and
+/// so the window's) would become its current size: the window could not be made smaller.
 export component ScrollBox inherits Rectangle {
     in-out property <length> content-y <=> fl.content-y;
     out property <length> content-height: fl.content-height;

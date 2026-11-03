@@ -41,12 +41,15 @@ pub fn start(focus: bool) -> Result<Option<Started>, String> {
 
 /// The console banner; `quit` says how to quit. `web_operator`: list the browser operator page (the Tauri app);
 /// the native binary leaves it out, because its operator is the native window, never a browser.
-pub fn banner(s: &Started, quit: &str, web_operator: bool) {
-    println!("\n  RustyPresenter {}\n", env!("CARGO_PKG_VERSION"));
-    if web_operator { println!("  Operator:      http://127.0.0.1:{}/", s.app.port); }
-    if let Some(u) = &s.app.lan_url { println!("  Phone remote:  {u}"); }
-    println!("  Your data:     {}", s.root.display());
-    println!("\n  {quit}\n");
+pub fn banner(s: &Started, quit: &str, web_operator: bool) { print!("{}", banner_text(s, quit, web_operator)) }
+
+fn banner_text(s: &Started, quit: &str, web_operator: bool) -> String {
+    let mut t = format!("\n  RustyPresenter {}\n\n", env!("CARGO_PKG_VERSION"));
+    if web_operator { t += &format!("  Operator:      http://127.0.0.1:{}/\n", s.app.port); }
+    if let Some(u) = &s.app.lan_url { t += &format!("  Phone remote:  {u}\n"); }
+    t += &format!("  Your data:     {}\n", s.root.display());
+    t += &format!("\n  {quit}\n\n");
+    t
 }
 
 /// The operator page, phone remote and room/stage pages. Runs on a tokio runtime.
@@ -64,5 +67,31 @@ pub async fn backups(app: Arc<App>) {
             if let Err(e) = app.store.backup(&data) { eprintln!("Backup failed: {e}"); }
         }
         tokio::time::sleep(Duration::from_secs(24 * 3600)).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{app::App, store::Store};
+
+    fn started(lan_url: Option<&str>) -> Started {
+        let root = std::env::temp_dir().join(format!("rp-test-{}", uuid::Uuid::new_v4()));
+        let store = Store::open(root.clone()).unwrap();
+        let data = store.load().unwrap();
+        let listener = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        Started { app: App::new(store, data, 4399, lan_url.map(String::from)), listener, root }
+    }
+
+    #[test]
+    fn native_banner_lists_the_phone_remote_and_data_but_no_operator_page() {
+        let s = started(Some("http://192.168.1.20:4399/remote"));
+        let native = banner_text(&s, "Close the operator window (or press Ctrl+C here) to quit.", false);
+        assert!(!native.contains("Operator:"), "{native}");
+        assert!(!native.contains("127.0.0.1"), "{native}");
+        assert!(native.contains("  Phone remote:  http://192.168.1.20:4399/remote\n"), "{native}");
+        assert!(native.contains(&format!("  Your data:     {}\n", s.root.display())), "{native}");
+        let tauri = banner_text(&s, "Press Ctrl+C to quit.", true);
+        assert!(tauri.contains("  Operator:      http://127.0.0.1:4399/\n"), "the Tauri app still lists its page");
     }
 }

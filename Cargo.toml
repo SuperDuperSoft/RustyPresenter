@@ -66,3 +66,6 @@ strip = "debuginfo"
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
+# The window's layout constraints, which the winit backend turns into the window's minimum size (ui::operator::fit).
+# Internal API, so pinned to the version slint uses.
+i-slint-core = "=1.18.1"

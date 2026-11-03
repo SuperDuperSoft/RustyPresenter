@@ -108,6 +108,21 @@ pub fn fullscreen_on<C: ComponentHandle + 'static>(ui: &C, id: &MonitorId) -> Re
     Ok(())
 }
 
+/// Maximises `ui`'s window through winit as soon as the winit window exists. Slint's own `set_maximized` before then
+/// is lost on Windows: the new window takes the component's preferred size instead (1440 × 900, taller than a
+/// 1920 × 1080 screen at 125 %).
+pub fn maximise<C: ComponentHandle + 'static>(ui: &C) {
+    ui.window().set_maximized(true);
+    if ui.window().with_winit_window(|w| w.set_maximized(true)).is_none() { retry_maximise(ui.as_weak(), 100) }
+}
+
+fn retry_maximise<C: ComponentHandle + 'static>(ui: slint::Weak<C>, tries: u32) {
+    slint::Timer::single_shot(Duration::from_millis(10), move || {
+        let Some(c) = ui.upgrade() else { return };
+        if c.window().with_winit_window(|w| w.set_maximized(true)).is_none() && tries > 0 { retry_maximise(ui, tries - 1) }
+    });
+}
+
 /// Where a window waiting for fullscreen on `id` goes: the monitor's own rectangle, wholly on it.
 fn placement(id: &MonitorId) -> ((i32, i32), (u32, u32)) { (id.position, id.size) }
 
