@@ -335,7 +335,7 @@ $('#bibleForm').addEventListener('submit', guard(async e => {
   if (!reference) return;
   const found = await api('bible/lookup', { reference, translation });
   const position = insertPosition();
-  const { id } = await api('service/add', { position, item: { kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses, per_slide: 0 } });
+  const { id } = await api('service/add', { position, item: { kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses } });
   input.value = '';
   input.blur();
   selectedId = id; bibleArmed = id;
@@ -434,7 +434,7 @@ function addScripture() {
   const result = h('div', { style: 'margin-top:12px' });
   const go = guard(async () => {
     const found = await api('bible/lookup', { reference: input.value, translation });
-    await addItem({ kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses, per_slide: 0 }, { quiet: true });
+    await addItem({ kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses }, { quiet: true });
     toast(`${found.label} added`);
     closeDialog();
   });
@@ -447,7 +447,7 @@ function addScripture() {
     h('div', { class: 'field' }, h('label', {}, `Verses (${translation}) — keep the verse numbers so each verse gets its own slide`), text),
     h('button', { class: 'btn primary', onclick: guard(async () => {
       const found = await api('bible/paste', { reference: input.value, translation, text: text.value });
-      await addItem({ kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses, per_slide: 0 }, { quiet: true });
+      await addItem({ kind: 'scripture', reference: found.label, translation: found.translation, verses: found.verses }, { quiet: true });
       toast(`${found.label} added`);
       closeDialog();
     }) }, svg(I.plus), 'Add pasted verses'));

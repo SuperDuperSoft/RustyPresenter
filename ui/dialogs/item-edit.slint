@@ -4,7 +4,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Chip, Segmented, Field } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, TextArea, Check, Note } from "form.slint";
+import { TextField, TextArea, Check, Note, RangeSlider } from "form.slint";
 import { BackgroundPicker, BgChoice } from "background-picker.slint";
 
 export { BgChoice }
@@ -17,6 +17,9 @@ export global ItemEdit {
     in property <bool> song-exists;
     /// Scripture: 0 = Automatic, else verses per slide.
     in-out property <int> per-slide;
+    /// Scripture text size: 0 = Automatic (Settings → Look), 1 = this passage's own `text-size`.
+    in-out property <int> size-mode;
+    in-out property <int> text-size: 64;
     /// Announcement.
     in-out property <string> title;
     in-out property <string> body;
@@ -92,6 +95,33 @@ export component ItemEditDialog inherits VerticalLayout {
                 per-slide := Segmented {
                     labels: [@tr("Automatic"), @tr("1 verse"), @tr("2 verses"), @tr("3 verses"), @tr("4 verses")];
                     index <=> ItemEdit.per-slide;
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Text size");
+            help: @tr("(biggest; text shrinks automatically when a slide holds more words)");
+            HorizontalLayout {
+                spacing: 14px;
+                size-mode := Segmented {
+                    labels: [@tr("Automatic"), @tr("Choose")];
+                    index <=> ItemEdit.size-mode;
+                }
+                if ItemEdit.size-mode == 0: Text {
+                    text: @tr("Same as Settings → Look");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                if ItemEdit.size-mode == 1: VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    text-size := RangeSlider {
+                        minimum: 36;
+                        maximum: 120;
+                        value <=> ItemEdit.text-size;
+                    }
                 }
             }
         }

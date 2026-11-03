@@ -2,7 +2,7 @@
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
 //! column in `slides`, the live column in `live`, the keyboard in `keys`, the Bible box in `bible`, toasts and jobs
 //! in `overlays`; the dialogs come in later tasks.
-use super::{bible, files::{self, FilesState}, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, view::{self, OperatorSnapshot, RoomStatus}};
+use super::{bible, files::{self, FilesState}, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     model::MediaStatus,
@@ -52,6 +52,8 @@ pub(crate) struct OpState {
     pub(super) live: Option<LiveUpdate>,
     pub(super) selected: Option<Uuid>,
     pub(super) armed: Option<Uuid>,
+    /// Verses per slide picked in the Bible box or Add → Bible this session; `None` follows Settings.
+    pub(crate) bible_per_slide: Option<u8>,
     /// The open dialog, and how many confirm/prompt overlays are up; either one blocks the operator keys.
     pub(crate) dialog: Option<DialogKind>,
     pub(crate) asks: usize,
@@ -115,6 +117,7 @@ impl Operator {
         });
         service::wire(&op);
         slides::wire(&op);
+        text_size::wire(&op);
         live::wire(&op);
         keys::wire(&op);
         bible::wire(&op);
@@ -217,6 +220,7 @@ impl Operator {
             name: t.as_str().into(), on: *t == s.translation, off: !s.available.contains(t),
         }).collect();
         ui.set_translations(ModelRc::new(VecModel::from(chips)));
+        ui.set_bible_per_slide(i32::from(self.state.borrow().bible_per_slide.unwrap_or(s.settings.bible_per_slide).min(4)));
         let (on, tip) = match s.room {
             RoomStatus::Showing => (true, tr::ROOM_SHOWING),
             RoomStatus::Starting => (false, tr::ROOM_STARTING),

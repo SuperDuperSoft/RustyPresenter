@@ -41,15 +41,47 @@ export component SettingsLook inherits HorizontalLayout {
                 changed => { SettingsDlg.look-changed(); }
             }
         }
-        Field {
-            label: @tr("Scripture size");
-            scripture-size := RangeSlider {
-                minimum: 36;
-                maximum: 120;
-                value <=> SettingsDlg.scripture-size;
-                changed => { SettingsDlg.look-changed(); }
+        // Bible verses: how many go on a slide and how big they may be, side by side.
+        bible-group := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            VerticalLayout {
+                padding-top: 12px;
+                padding-left: 12px;
+                padding-right: 12px;
+                Lbl { label: @tr("Bible verses"); }
+                Rectangle { height: 10px; }
+                Field {
+                    label: @tr("Verses per slide");
+                    help: @tr("(for new passages)");
+                    HorizontalLayout {
+                        alignment: start;
+                        bible-per-slide := Segmented {
+                            labels: [@tr("Automatic"), "1", "2", "3", "4"];
+                            index <=> SettingsDlg.bible-per-slide;
+                        }
+                    }
+                }
+                Field {
+                    label: @tr("Scripture text size");
+                    help: @tr("(biggest)");
+                    scripture-size := RangeSlider {
+                        minimum: 36;
+                        maximum: 120;
+                        value <=> SettingsDlg.scripture-size;
+                        changed => { SettingsDlg.look-changed(); }
+                    }
+                    scripture-help := Text {
+                        text: @tr("Text shrinks automatically when a slide holds more words.");
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+                }
             }
         }
+        Rectangle { height: 12px; }
         // `.cols`
         HorizontalLayout {
             spacing: 14px;

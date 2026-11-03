@@ -61,6 +61,7 @@ pub fn open_add(op: &Rc<Operator>, tab: AddTab) {
         clear(&st, "".into());
     }
     st.set_paste_open(false);
+    st.set_per_slide(i32::from(op.bible_per_slide()));
     let ctx = AddCtx::new(op);
     st.set_rows(ModelRc::from(ctx.shown.clone()));
     wire(op, &ctx);
@@ -165,7 +166,7 @@ fn add_verses(op: &Rc<Operator>, pasted: bool) {
     op.ops().call::<Found>(action, body, move |r| {
         let Some(op) = me.upgrade() else { return };
         let Found { label, verses, translation } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
-        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": 0 });
+        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": op.bible_per_slide() });
         add_item_then(&op, item, true, move |op, _| {
             op.toast(tr::bible_added(&label), false);
             op.close_dialog();
@@ -217,6 +218,8 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_add_row(with_id(|op, _, id| add_row(op, id)));
     st.on_bible_add(with(|op, _| add_verses(op, false)));
     st.on_bible_paste(with(|op, _| add_verses(op, true)));
+    let c = ctx.clone();
+    st.on_per_slide_picked(move |i| if let Some(op) = c.op.upgrade() { op.set_bible_per_slide(u8::try_from(i).unwrap_or(0)) });
     st.on_text_add(with(|op, _| add_text(op)));
     super::add_media::wire(op, ctx);
 }
@@ -409,6 +412,26 @@ pub(crate) mod tests {
         assert!(matches!(&it[2], ItemKind::Scripture { reference, .. } if reference == "Genesis 1:1"), "at the end, not after the live item: {:?}", it[2]);
         assert_eq!(last_toast(&op), Some(("Genesis 1:1 added".into(), false)), "quiet add, then the label");
         assert_eq!(op.dialog(), None);
+    }
+
+    #[test]
+    fn bible_tab_adds_with_the_chosen_verses_per_slide() {
+        let app = test_app();
+        app.data.lock().unwrap().settings.bible_per_slide = 3;
+        let op = opened(&app);
+        open_add(&op, AddTab::Scripture);
+        settle(&op);
+        let st = op.ui.global::<AddState>();
+        assert_eq!(st.get_per_slide(), 3, "starts at the Settings choice");
+        assert!(find(&op, "AddBibleTab::per-slide").is_some());
+        st.set_per_slide(1);
+        st.invoke_per_slide_picked(1);
+        st.set_reference("Psalm 23:1-3".into());
+        click(&op, "AddBibleTab::add");
+        assert!(matches!(&items(&app)[0], ItemKind::Scripture { per_slide: 1, .. }), "{:?}", items(&app)[0]);
+        assert_eq!(op.ui.get_bible_per_slide(), 1, "the Bible box remembers the choice too");
+        open_add(&op, AddTab::Scripture);
+        assert_eq!(op.ui.global::<AddState>().get_per_slide(), 1, "remembered for the session");
     }
 
     #[test]

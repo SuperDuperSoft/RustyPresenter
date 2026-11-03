@@ -14,6 +14,8 @@ export component TopBar inherits Rectangle {
     in property <string> service-name;
     in property <[TranslationChip]> translations;
     in-out property <string> bible-text;
+    /// Verses per slide for the next passage: 0 Automatic, else 1–4.
+    in property <int> bible-per-slide;
     in property <bool> room-on;
     /// "on" or "warn".
     in property <string> room-state: "warn";
@@ -29,6 +31,8 @@ export component TopBar inherits Rectangle {
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
+    /// The Verses chip: the next verses-per-slide choice.
+    callback cycle-per-slide();
 
     /// The Bible box has the keyboard focus (the window's keys then leave typing keys to it).
     out property <bool> bible-focused: bible-input.has-focus;
@@ -257,6 +261,45 @@ export component TopBar inherits Rectangle {
                                     Tooltip {
                                         TipBox { text: translation-chip.tip; }
                                     }
+                                }
+                            }
+                        }
+                        // Verses per slide for the next passage; a click moves to the next choice.
+                        VerticalLayout {
+                            alignment: center;
+                            per-slide-chip := Rectangle {
+                                property <string> value: root.bible-per-slide == 0 ? @tr("Auto") : "\{root.bible-per-slide}";
+                                border-radius: 6px;
+                                border-width: 1px;
+                                border-color: per-slide-ta.has-hover ? Theme.accent : Theme.line;
+                                accessible-role: button;
+                                accessible-label: @tr("Verses per slide");
+                                accessible-value: self.value;
+                                accessible-description: @tr("Verses per slide for the next passage. Click to change.");
+                                accessible-action-default => { root.cycle-per-slide(); }
+                                HorizontalLayout {
+                                    padding-top: 4px;
+                                    padding-bottom: 4px;
+                                    padding-left: 7px;
+                                    padding-right: 7px;
+                                    Text {
+                                        text: root.narrow ? per-slide-chip.value : @tr("Verses: {}", per-slide-chip.value);
+                                        color: Theme.muted;
+                                        font-family: Theme.font;
+                                        font-size: 11.5px;
+                                        font-weight: 700;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                                per-slide-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => {
+                                        bible-input.focus();
+                                        root.cycle-per-slide();
+                                    }
+                                }
+                                Tooltip {
+                                    TipBox { text: @tr("Verses per slide for the next passage. Click to change."); }
                                 }
                             }
                         }
