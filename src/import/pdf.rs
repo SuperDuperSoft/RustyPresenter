@@ -2,12 +2,15 @@
 use super::{CANCELLED, strings::*};
 use crate::platform::tools;
 use image::codecs::png::{CompressionType, FilterType, PngEncoder};
-use pdfium_render::prelude::{PdfColor, PdfDocument, PdfRenderConfig, Pdfium};
+use pdfium_render::prelude::{PdfColor, PdfDocument, PdfRenderConfig, Pdfium, PdfiumError};
 use std::{fs::File, io::{BufWriter, Read}, path::{Path, PathBuf}, sync::atomic::{AtomicBool, Ordering}, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
 const PAGE_TIMEOUT: Duration = Duration::from_secs(5);
+/// Opening a document and reading its page sizes gets this many page timeouts: it is not per page, and a false alarm
+/// ends the renderer until the app restarts.
+const OPEN_TIMEOUT_PAGES: u32 = 6;
 const WIDTH: u32 = 1920;
 const MAX_HEIGHT: u32 = 2160;
 const RATIO_SLACK: f32 = 0.01;
@@ -18,7 +21,16 @@ const PAPER_RATIOS: [f32; 4] = [0.707, 0.773, 1.414, 1.294];
 pub trait PdfDoc {
     /// Width and height of each page, in points.
     fn page_sizes(&self) -> Vec<(f32, f32)>;
-    fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), String>;
+    fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), PageError>;
+}
+
+/// Why a page did not become an image. The text is for the log; the operator sees a plain message.
+#[derive(Debug)]
+pub enum PageError {
+    /// pdfium could not draw it.
+    Render(String),
+    /// The image could not be written, which is nearly always a full disk.
+    Save(String),
 }
 
 /// What opens PDFs. It stays on the `pdfium` thread.
@@ -30,7 +42,7 @@ pub trait PdfBackend {
 pub fn output_size(ratio: f32) -> (u32, u32) {
     let even = |n: f32| (n / 2.0).round() as u32 * 2;
     let height = even(WIDTH as f32 / ratio);
-    if height <= MAX_HEIGHT { (WIDTH, height) } else { (((MAX_HEIGHT as f32) * ratio).round() as u32, MAX_HEIGHT) }
+    if height <= MAX_HEIGHT { (WIDTH, height) } else { (even(MAX_HEIGHT as f32 * ratio), MAX_HEIGHT) }
 }
 
 fn near(a: f32, b: f32) -> bool {
@@ -66,6 +78,8 @@ struct Job {
 enum Reply {
     /// The `pdfium` thread reached this job: the time limit starts now, not while it waits behind another job.
     Begun,
+    /// The document is open and its pages check out: from here each page gets one page timeout.
+    Opened,
     Page { done: usize, total: usize },
     Done(Result<Vec<PathBuf>, String>),
 }
@@ -119,15 +133,17 @@ impl PdfRenderer {
         if self.jobs.send(Job { pdf, out_dir, expected_ratio, cancel, reply }).is_err() {
             return self.stuck();
         }
-        let mut begun = false;
+        let (mut begun, mut opened) = (false, false);
         loop {
+            let wait = if opened { self.page_timeout } else { self.page_timeout * OPEN_TIMEOUT_PAGES };
             let reply = tokio::select! {
-                reply = tokio::time::timeout(self.page_timeout, replies.recv()) => reply,
+                reply = tokio::time::timeout(wait, replies.recv()) => reply,
                 // The thread sees the same token when it reaches this job, and skips it.
                 _ = queued.cancelled(), if !begun => return Err(CANCELLED.to_string()),
             };
             match reply {
                 Ok(Some(Reply::Begun)) => begun = true,
+                Ok(Some(Reply::Opened)) => opened = true,
                 Ok(Some(Reply::Page { done, total })) => progress(done, total),
                 Ok(Some(Reply::Done(result))) => return result,
                 Ok(None) => return self.stuck(),
@@ -150,16 +166,26 @@ fn render_job(backend: &mut dyn PdfBackend, job: &Job) -> Result<Vec<PathBuf>, S
     let doc = backend.open(&job.pdf)?;
     let sizes = doc.page_sizes();
     let size = output_size(check_pages(&sizes, job.expected_ratio)?);
-    std::fs::create_dir_all(&job.out_dir).map_err(|_| PDF_CANNOT_OPEN.to_string())?;
+    std::fs::create_dir_all(&job.out_dir).map_err(|e| {
+        eprintln!("pdfium: {}: {e}", job.out_dir.display());
+        SLIDE_NOT_SAVED.to_string()
+    })?;
+    let _ = job.reply.send(Reply::Opened);
     let mut pages = Vec::with_capacity(sizes.len());
     for index in 0..sizes.len() {
         if job.cancel.is_cancelled() {
             return Err(CANCELLED.to_string());
         }
         let out = job.out_dir.join(format!("slide-{:03}.png", index + 1));
-        doc.render_page(index, size, &out).map_err(|e| {
-            eprintln!("pdfium: page {}: {e}", index + 1);
-            pdf_page_failed(index + 1)
+        doc.render_page(index, size, &out).map_err(|e| match e {
+            PageError::Render(e) => {
+                eprintln!("pdfium: page {}: {e}", index + 1);
+                pdf_page_failed(index + 1)
+            }
+            PageError::Save(e) => {
+                eprintln!("pdfium: page {}: {}: {e}", index + 1, out.display());
+                SLIDE_NOT_SAVED.to_string()
+            }
         })?;
         pages.push(out);
         // Nobody is listening once the renderer gave up on this job, so stop writing into its folder.
@@ -195,13 +221,14 @@ impl PdfDoc for PdfDocument<'_> {
         self.pages().iter().map(|page| (page.width().value, page.height().value)).collect()
     }
 
-    fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), String> {
+    fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), PageError> {
+        let render = |e: PdfiumError| PageError::Render(e.to_string());
         let config = PdfRenderConfig::new().set_target_size(size.0 as i32, size.1 as i32).render_form_data(true).set_clear_color(PdfColor::WHITE).use_lcd_text_rendering(false);
-        let page = self.pages().get(index as _).map_err(|e| e.to_string())?;
-        let image = page.render_with_config(&config).map_err(|e| e.to_string())?.as_image().to_rgb8();
-        let file = BufWriter::new(File::create(out).map_err(|e| e.to_string())?);
+        let page = self.pages().get(index as _).map_err(render)?;
+        let image = page.render_with_config(&config).map_err(render)?.as_image().to_rgb8();
+        let file = BufWriter::new(File::create(out).map_err(|e| PageError::Save(e.to_string()))?);
         let encoder = PngEncoder::new_with_quality(file, CompressionType::Fast, FilterType::Adaptive);
-        image.write_with_encoder(encoder).map_err(|e| e.to_string())
+        image.write_with_encoder(encoder).map_err(|e| PageError::Save(e.to_string()))
     }
 }
 
@@ -215,7 +242,6 @@ pub fn check_pdf(path: &Path) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::strings;
     use std::sync::{Arc, Mutex};
     use std::time::Instant;
 
@@ -240,43 +266,45 @@ mod tests {
 
     #[test]
     fn output_size_heights_are_even() {
-        for ratio in [1.3, 1.5, 1.6180339, 2.0, 2.39, 1.91, 1.05, 3.1] {
-            assert_eq!(output_size(ratio).1 % 2, 0, "{ratio}");
+        for ratio in [1.3, 1.5, 1.6180339, 2.0, 2.39, 1.91, 1.05, 3.1, 0.6, 0.77] {
+            let (w, h) = output_size(ratio);
+            assert_eq!((w % 2, h % 2), (0, 0), "{ratio}");
+            assert!(w <= 1920 && h <= 2160, "{ratio}");
         }
     }
 
     #[test]
     fn no_pages_rejected() {
-        assert_eq!(check_pages(&[], None), Err(strings::PDF_NO_SLIDES.to_string()));
+        assert_eq!(check_pages(&[], None), Err("This presentation has no slides.".to_string()));
     }
 
     #[test]
     fn zero_sized_page_rejected() {
-        assert_eq!(check_pages(&[(0.0, 0.0)], None), Err(strings::LO_CANNOT_READ.to_string()));
+        assert_eq!(check_pages(&[(0.0, 0.0)], None), Err("LibreOffice couldn't read this presentation.".to_string()));
     }
 
     #[test]
     fn mixed_page_sizes_rejected() {
-        assert_eq!(check_pages(&[W, (800.0, 600.0)], None), Err(strings::PDF_MIXED_SIZES.to_string()));
+        assert_eq!(check_pages(&[W, (800.0, 600.0)], None), Err("This presentation mixes slide sizes, which RustyPresenter can't show.".to_string()));
         assert_eq!(check_pages(&[W, (960.0, 545.0)], None), Ok(960.0 / 540.0), "under 1% apart");
     }
 
     #[test]
     fn a4_without_expected_ratio_rejected() {
         for size in [(842.0, 595.0), (792.0, 612.0)] {
-            assert_eq!(check_pages(&[size], None), Err(strings::LO_CANNOT_READ.to_string()), "{size:?}");
+            assert_eq!(check_pages(&[size], None), Err("LibreOffice couldn't read this presentation.".to_string()), "{size:?}");
         }
     }
 
     #[test]
     fn portrait_rejected() {
-        assert_eq!(check_pages(&[(595.0, 842.0)], None), Err(strings::LO_CANNOT_READ.to_string()));
-        assert_eq!(check_pages(&[(540.0, 960.0)], None), Err(strings::LO_CANNOT_READ.to_string()));
+        assert_eq!(check_pages(&[(595.0, 842.0)], None), Err("LibreOffice couldn't read this presentation.".to_string()));
+        assert_eq!(check_pages(&[(540.0, 960.0)], None), Err("LibreOffice couldn't read this presentation.".to_string()));
     }
 
     #[test]
     fn ratio_must_match_expected() {
-        assert_eq!(check_pages(&[W], Some(4.0 / 3.0)), Err(strings::LO_CANNOT_READ.to_string()));
+        assert_eq!(check_pages(&[W], Some(4.0 / 3.0)), Err("LibreOffice couldn't read this presentation.".to_string()));
         assert_eq!(check_pages(&[W], Some(16.0 / 9.0)), Ok(960.0 / 540.0));
         assert_eq!(check_pages(&[(842.0, 595.0)], Some(842.0 / 595.0)), Ok(842.0 / 595.0), "an A4 deck was asked for");
     }
@@ -284,6 +312,8 @@ mod tests {
     struct Fake {
         sizes: Vec<(f32, f32)>,
         stuck_on: Option<usize>,
+        panic_on: Option<usize>,
+        unsaved_on: Option<usize>,
         fail_on: Option<usize>,
         cancel_after: Option<(usize, CancellationToken)>,
         rendered: Arc<Mutex<Vec<(usize, (u32, u32))>>>,
@@ -291,7 +321,7 @@ mod tests {
 
     impl Fake {
         fn new(pages: usize) -> Fake {
-            Fake { sizes: vec![W; pages], stuck_on: None, fail_on: None, cancel_after: None, rendered: Arc::default() }
+            Fake { sizes: vec![W; pages], stuck_on: None, panic_on: None, unsaved_on: None, fail_on: None, cancel_after: None, rendered: Arc::default() }
         }
     }
 
@@ -309,12 +339,18 @@ mod tests {
             self.0.sizes.clone()
         }
 
-        fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), String> {
+        fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), PageError> {
+            if self.0.panic_on == Some(index) {
+                panic!("pdfium crashed");
+            }
             if self.0.stuck_on == Some(index) {
                 std::thread::sleep(Duration::from_secs(60));
             }
             if self.0.fail_on == Some(index) {
-                return Err("bad page".to_string());
+                return Err(PageError::Render("bad page".to_string()));
+            }
+            if self.0.unsaved_on == Some(index) {
+                return Err(PageError::Save("disk full".to_string()));
             }
             self.0.rendered.lock().unwrap().push((index, size));
             std::fs::write(out, "png").unwrap();
@@ -368,7 +404,7 @@ mod tests {
         fake.sizes[1] = (800.0, 600.0);
         let rendered = fake.rendered.clone();
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(strings::PDF_MIXED_SIZES.to_string()));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("This presentation mixes slide sizes, which RustyPresenter can't show.".to_string()));
         assert!(rendered.lock().unwrap().is_empty());
     }
 
@@ -378,8 +414,45 @@ mod tests {
         let mut fake = Fake::new(3);
         fake.fail_on = Some(1);
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(strings::pdf_page_failed(2)));
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(strings::pdf_page_failed(2)), "the renderer still works");
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("Slide 2 could not be turned into a picture.".to_string()));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("Slide 2 could not be turned into a picture.".to_string()), "the renderer still works");
+    }
+
+    #[tokio::test]
+    async fn a_slide_that_cannot_be_written_asks_about_disk_space() {
+        let dir = Dir::new();
+        let mut fake = Fake::new(2);
+        fake.unsaved_on = Some(0);
+        let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("A slide could not be saved. Check that the disk has free space, then try again.".to_string()));
+    }
+
+    #[tokio::test]
+    async fn panic_on_the_thread_marks_renderer_dead() {
+        let dir = Dir::new();
+        let mut fake = Fake::new(1);
+        fake.panic_on = Some(0);
+        let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
+        let stopped = Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string());
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, stopped);
+        let began = Instant::now();
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, stopped);
+        assert!(began.elapsed() < Duration::from_millis(100));
+    }
+
+    /// Opening gets longer than one page: a slow open is not a stuck renderer.
+    #[tokio::test]
+    async fn a_slow_open_gets_more_than_one_page_timeout() {
+        struct SlowOpen(Fake);
+        impl PdfBackend for SlowOpen {
+            fn open<'a>(&'a mut self, pdf: &Path) -> Result<Box<dyn PdfDoc + 'a>, String> {
+                std::thread::sleep(Duration::from_millis(500));
+                self.0.open(pdf)
+            }
+        }
+        let dir = Dir::new();
+        let r = PdfRenderer::with_backend(Box::new(SlowOpen(Fake::new(2))), Duration::from_millis(200));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await.unwrap().len(), 2);
     }
 
     #[tokio::test]
@@ -387,7 +460,7 @@ mod tests {
         let dir = Dir::new();
         std::fs::write(dir.0.join("in.pdf"), "nope").unwrap();
         let r = PdfRenderer::with_backend(Box::new(Fake::new(1)), Duration::from_secs(5));
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(NOT_PDF.to_string()));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("This doesn't look like a PDF file.".to_string()));
     }
 
     #[tokio::test]
@@ -398,7 +471,7 @@ mod tests {
         fake.cancel_after = Some((0, cancel.clone()));
         let rendered = fake.rendered.clone();
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
-        assert_eq!(run(&r, &dir, cancel).await, Err(CANCELLED.to_string()));
+        assert_eq!(run(&r, &dir, cancel).await, Err("Cancelled.".to_string()));
         assert_eq!(rendered.lock().unwrap().len(), 1);
     }
 
@@ -421,7 +494,7 @@ mod tests {
             hit.cancel();
         });
         let start = std::time::Instant::now();
-        assert_eq!(run(&r, &dir, cancel).await, Err(CANCELLED.to_string()));
+        assert_eq!(run(&r, &dir, cancel).await, Err("Cancelled.".to_string()));
         assert!(start.elapsed() < Duration::from_secs(2));
         front.abort();
     }
@@ -433,7 +506,7 @@ mod tests {
         let mut fake = Fake::new(1);
         fake.cancel_after = Some((0, cancel.clone()));
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_secs(5));
-        assert_eq!(run(&r, &dir, cancel).await, Err(CANCELLED.to_string()));
+        assert_eq!(run(&r, &dir, cancel).await, Err("Cancelled.".to_string()));
     }
 
     #[tokio::test]
@@ -442,9 +515,9 @@ mod tests {
         let mut fake = Fake::new(2);
         fake.stuck_on = Some(0);
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_millis(200));
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(strings::PDFIUM_STUCK.to_string()));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
         let began = Instant::now();
-        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err(strings::PDFIUM_STUCK.to_string()));
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
         assert!(began.elapsed() < Duration::from_millis(100));
     }
 
@@ -455,8 +528,8 @@ mod tests {
         fake.stuck_on = Some(0);
         let r = PdfRenderer::with_backend(Box::new(fake), Duration::from_millis(300));
         let (a, b) = tokio::join!(run(&r, &dir, CancellationToken::new()), run(&r, &dir, CancellationToken::new()));
-        assert_eq!(a, Err(strings::PDFIUM_STUCK.to_string()));
-        assert_eq!(b, Err(strings::PDFIUM_STUCK.to_string()));
+        assert_eq!(a, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
+        assert_eq!(b, Err("The slide converter stopped responding. Restart RustyPresenter and try again.".to_string()));
     }
 
     #[tokio::test]
@@ -472,7 +545,7 @@ mod tests {
             fn page_sizes(&self) -> Vec<(f32, f32)> {
                 self.0.page_sizes()
             }
-            fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), String> {
+            fn render_page(&self, index: usize, size: (u32, u32), out: &Path) -> Result<(), PageError> {
                 std::thread::sleep(Duration::from_millis(150));
                 self.0.render_page(index, size, out)
             }
@@ -545,10 +618,26 @@ mod tests {
         for (page, want) in pages.iter().zip([[255, 0, 0], [0, 255, 0], [0, 0, 255]]) {
             let img = image::open(page).unwrap().to_rgb8();
             assert_eq!(img.dimensions(), (1920, 1080));
-            for (x, y) in [(0, 0), (159, 159)] {
-                assert_eq!(img.get_pixel(x, y).0, want, "{page:?}");
+            for x in 0..160 {
+                for y in 0..160 {
+                    assert_eq!(img.get_pixel(x, y).0, want, "{page:?} at {x},{y}");
+                }
             }
         }
+    }
+
+    /// Real pdfium: `RP_PDFIUM=<library>`. A file that only starts like a PDF.
+    #[tokio::test]
+    async fn a_broken_pdf_reports_and_the_renderer_lives() {
+        if std::env::var_os("RP_PDFIUM").is_none() {
+            return;
+        }
+        let dir = Dir::new();
+        std::fs::write(dir.0.join("in.pdf"), "%PDF-1.7\nthis is not a pdf").unwrap();
+        let r = PdfRenderer::start(&dir.0).unwrap();
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await, Err("This PDF can't be opened. If it has a password, remove it and import again.".to_string()));
+        std::fs::write(dir.0.join("in.pdf"), three_page_pdf()).unwrap();
+        assert_eq!(run(&r, &dir, CancellationToken::new()).await.unwrap().len(), 3);
     }
 
     #[test]
@@ -560,7 +649,7 @@ mod tests {
         assert_eq!(check_pdf(&good), Ok(()));
         let bad = dir.join("b.pdf");
         std::fs::write(&bad, b"hello").unwrap();
-        assert_eq!(check_pdf(&bad), Err(NOT_PDF.to_string()));
+        assert_eq!(check_pdf(&bad), Err("This doesn't look like a PDF file.".to_string()));
         let short = dir.join("c.pdf");
         std::fs::write(&short, b"%PD").unwrap();
         assert!(check_pdf(&short).is_err());

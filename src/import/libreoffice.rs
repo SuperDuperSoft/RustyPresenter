@@ -25,6 +25,9 @@ pub struct LibreOffice {
     extra_env: Vec<(String, String)>,
     #[cfg(test)]
     prefix_args: Vec<OsString>,
+    /// Replaces `timeout_for` in tests, so a hang stops in milliseconds.
+    #[cfg(test)]
+    test_timeout: std::sync::Mutex<Option<Duration>>,
 }
 
 impl LibreOffice {
@@ -40,6 +43,8 @@ impl LibreOffice {
             extra_env: Vec::new(),
             #[cfg(test)]
             prefix_args: Vec::new(),
+            #[cfg(test)]
+            test_timeout: Default::default(),
         })
     }
 
@@ -65,6 +70,14 @@ impl LibreOffice {
         Duration::from_secs((120 + bytes as u128 * 30 / STEP).min(600) as u64)
     }
 
+    fn timeout(&self, input: &Path) -> Duration {
+        #[cfg(test)]
+        if let Some(timeout) = *self.test_timeout.lock().unwrap() {
+            return timeout;
+        }
+        Self::timeout_for(std::fs::metadata(input).map_or(0, |m| m.len()))
+    }
+
     /// Converts `input` to `work/pdf/<stem>.pdf`. Success means a PDF came out, whatever the exit code says.
     /// `waiting(true)` is called if another conversion holds LibreOffice, and `waiting(false)` when this one gets it.
     pub async fn to_pdf(&self, input: &Path, work: &Path, waiting: &(dyn Fn(bool) + Sync), cancel: &CancellationToken) -> Result<PathBuf, String> {
@@ -73,18 +86,13 @@ impl LibreOffice {
         }
         let _permit = self.enter(waiting, cancel).await?;
         let out_dir = work.join("pdf");
-        std::fs::create_dir_all(&out_dir).map_err(|e| strings::lo_could_not_start(&e.to_string()))?;
+        std::fs::create_dir_all(&out_dir).map_err(|e| Run::NotStarted(e.to_string()).message())?;
         let pdf = out_dir.join(input.file_stem().unwrap_or_default()).with_extension("pdf");
         let log = work.join("soffice.log");
         let args = self.args(input, &out_dir)?;
-        let timeout = Self::timeout_for(std::fs::metadata(input).map_or(0, |m| m.len()));
+        let timeout = self.timeout(input);
         for _ in 0..2 {
-            self.run(&args, Some(&log), timeout, cancel).await.map_err(|stop| match stop {
-                Run::Timeout => strings::LO_TIMEOUT.to_string(),
-                Run::Cancelled => CANCELLED.to_string(),
-                Run::NotStarted(e) => strings::lo_could_not_start(&e),
-                Run::Failed => strings::LO_CANNOT_READ.to_string(),
-            })?;
+            self.run(&args, &log, timeout, cancel).await.map_err(Run::message)?;
             if check_pdf(&pdf).is_ok() {
                 return Ok(pdf);
             }
@@ -106,7 +114,10 @@ impl LibreOffice {
         let Ok(_permit) = self.gate.acquire().await else { return };
         let Ok(mut args) = self.common_args() else { return };
         args.push("--terminate_after_init".into());
-        let _ = self.run(&args, None, WARM_UP_TIMEOUT, &CancellationToken::new()).await;
+        let log = self.deps.join("libreoffice-warm-up.log");
+        if let Err(stop) = self.run(&args, &log, WARM_UP_TIMEOUT, &CancellationToken::new()).await {
+            eprintln!("LibreOffice warm-up: {}", stop.message());
+        }
     }
 
     async fn enter(&self, waiting: &(dyn Fn(bool) + Sync), cancel: &CancellationToken) -> Result<SemaphorePermit<'_>, String> {
@@ -120,7 +131,7 @@ impl LibreOffice {
         let permit = tokio::select! {
             biased;
             _ = cancel.cancelled() => return Err(CANCELLED.to_string()),
-            permit = self.gate.acquire() => permit.map_err(|e| strings::lo_could_not_start(&e.to_string()))?,
+            permit = self.gate.acquire() => permit.map_err(|e| Run::NotStarted(e.to_string()).message())?,
         };
         waiting(false);
         Ok(permit)
@@ -128,8 +139,10 @@ impl LibreOffice {
 
     /// One LibreOffice run. The caller holds the gate. Dropping the tree at the end kills a `soffice.bin` that
     /// outlived its launcher.
-    async fn run(&self, args: &[OsString], log: Option<&Path>, timeout: Duration, cancel: &CancellationToken) -> Result<(), Run> {
-        kill_leftover(&self.deps);
+    async fn run(&self, args: &[OsString], log: &Path, timeout: Duration, cancel: &CancellationToken) -> Result<(), Run> {
+        // It can wait up to two seconds for a group to die, which must not hold up a runtime worker.
+        let deps = self.deps.clone();
+        let _ = tokio::task::spawn_blocking(move || kill_leftover(&deps)).await;
         let _ = std::fs::remove_file(self.profile.join(".lock"));
         std::fs::create_dir_all(&self.deps).map_err(|e| Run::NotStarted(e.to_string()))?;
         let mut cmd = Command::new(&self.soffice.path);
@@ -141,16 +154,9 @@ impl LibreOffice {
         if cfg!(target_os = "linux") {
             cmd.env("SAL_USE_VCLPLUGIN", "svp");
         }
-        match log {
-            Some(path) => {
-                let out = std::fs::File::create(path).map_err(|e| Run::NotStarted(e.to_string()))?;
-                let err = out.try_clone().map_err(|e| Run::NotStarted(e.to_string()))?;
-                cmd.stdout(out).stderr(err);
-            }
-            None => {
-                cmd.stdout(Stdio::null()).stderr(Stdio::null());
-            }
-        }
+        let out = std::fs::File::create(log).map_err(|e| Run::NotStarted(e.to_string()))?;
+        let err = out.try_clone().map_err(|e| Run::NotStarted(e.to_string()))?;
+        cmd.stdout(out).stderr(err);
         let mut tree = spawn_tree(cmd).map_err(|e| Run::NotStarted(e.to_string()))?;
         #[cfg(unix)]
         if let Some(pgid) = tree.pgid() {
@@ -175,6 +181,21 @@ enum Run {
     Cancelled,
     NotStarted(String),
     Failed,
+}
+
+impl Run {
+    /// What the operator sees. The raw OS error of a failed start goes to the log only.
+    fn message(self) -> String {
+        match self {
+            Run::Timeout => strings::LO_TIMEOUT.to_string(),
+            Run::Cancelled => CANCELLED.to_string(),
+            Run::NotStarted(e) => {
+                eprintln!("LibreOffice could not start: {e}");
+                strings::LO_NOT_STARTED.to_string()
+            }
+            Run::Failed => strings::LO_CANNOT_READ.to_string(),
+        }
+    }
 }
 
 /// A path as LibreOffice can read it: `\\?\` confuses it.
@@ -208,7 +229,9 @@ pub fn kill_leftover(deps_dir: &Path) {
 #[cfg(unix)]
 fn group_exists(pgid: i32) -> bool {
     // SAFETY: signal 0 only asks whether the group exists.
-    unsafe { libc::kill(-pgid, 0) == 0 }
+    let ok = unsafe { libc::kill(-pgid, 0) } == 0;
+    // EPERM: the group exists but belongs to someone else.
+    ok || std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM)
 }
 
 #[cfg(target_os = "linux")]
@@ -236,14 +259,16 @@ mod tests {
     const NAME: &str = "import::libreoffice::tests::fake_soffice";
     const FAKE: &str = "RP_FAKE_SOFFICE";
     const MARK: &str = "RP_FAKE_MARK";
+    const PROFILE: &str = "RP_FAKE_PROFILE";
 
     fn now_ms() -> u128 {
         SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()
     }
 
     /// Not a real test: LibreOffice's stand-in, this test binary run again. Steps come from the child's environment,
-    /// comma separated: `sleep:<ms>`, `hang`, `pdf`, `fail`, `say:<text>`, `once:<text>` (says it and exits the first
-    /// run only). Each run adds `start <ms>` and `end <ms>` lines to the file in `RP_FAKE_MARK`.
+    /// comma separated: `sleep:<ms>`, `hang`, `hangfirst` (hangs the first run only), `pdf`, `fail`, `say:<text>`,
+    /// `once:<text>` (says it and exits the first run only), `nolock` (fails if the profile's `.lock` is still there).
+    /// Each run adds `start <ms>` and `end <ms>` lines to the file in `RP_FAKE_MARK`.
     #[test]
     fn fake_soffice() {
         use std::io::Write;
@@ -259,6 +284,18 @@ mod tests {
             match kind {
                 "sleep" => std::thread::sleep(Duration::from_millis(value.parse().unwrap())),
                 "hang" => std::thread::sleep(Duration::from_secs(60)),
+                "hangfirst" => {
+                    let flag = format!("{}.hung", mark.as_deref().unwrap());
+                    if !Path::new(&flag).exists() {
+                        std::fs::write(flag, "").unwrap();
+                        std::thread::sleep(Duration::from_secs(60));
+                    }
+                }
+                "nolock" => {
+                    if Path::new(&std::env::var(PROFILE).unwrap()).join(".lock").exists() {
+                        std::process::exit(1);
+                    }
+                }
                 "say" => println!("{value}"),
                 "once" => {
                     let flag = format!("{}.once", mark.as_deref().unwrap());
@@ -306,7 +343,8 @@ mod tests {
         let mark = dir.join("mark");
         let mut lo = LibreOffice::new(Soffice { path: std::env::current_exe().unwrap(), snap }, &dir);
         let m = Arc::get_mut(&mut lo).unwrap();
-        m.extra_env = vec![(FAKE.into(), steps.into()), (MARK.into(), mark.display().to_string())];
+        let profile = m.profile.display().to_string();
+        m.extra_env = vec![(FAKE.into(), steps.into()), (MARK.into(), mark.display().to_string()), (PROFILE.into(), profile)];
         m.prefix_args = ["--exact", NAME, "--nocapture", "--"].map(OsString::from).to_vec();
         Fx { dir, lo, mark, input, work }
     }
@@ -335,6 +373,19 @@ mod tests {
         assert_eq!(text[text.len() - 3], "--outdir");
         assert_eq!(text[text.len() - 2], fx.work.join("pdf").display().to_string());
         assert_eq!(text[text.len() - 1], fx.input.display().to_string());
+    }
+
+    /// The profile address is written out by hand, so a wrong encoding in `file_url` cannot pass by agreeing with itself.
+    #[test]
+    fn profile_url_is_percent_encoded() {
+        #[cfg(unix)]
+        let (data, want) = ("/data/Jake Smith", "-env:UserInstallation=file:///data/Jake%20Smith/deps/libreoffice-profile/");
+        #[cfg(windows)]
+        let (data, want) = (r"C:\Data\Jake Smith", "-env:UserInstallation=file:///C:/Data/Jake%20Smith/deps/libreoffice-profile/");
+        let lo = LibreOffice::new(Soffice { path: "soffice".into(), snap: false }, Path::new(data));
+        let args = lo.args(Path::new("input.pptx"), Path::new("pdf")).unwrap();
+        let text: Vec<String> = args.iter().map(|a| a.to_string_lossy().into_owned()).collect();
+        assert!(text.iter().any(|a| a == want), "{text:?}");
     }
 
     #[test]
@@ -366,7 +417,8 @@ mod tests {
 
     #[tokio::test]
     async fn stale_lock_removed_before_run() {
-        let fx = fixture("pdf", false);
+        // `nolock` fails the run if the lock is still there when LibreOffice starts.
+        let fx = fixture("nolock,pdf", false);
         let lock = fx.dir.join("deps").join("libreoffice-profile").join(".lock");
         std::fs::create_dir_all(lock.parent().unwrap()).unwrap();
         std::fs::write(&lock, "old").unwrap();
@@ -407,7 +459,7 @@ mod tests {
         let note = |w: bool| seen.lock().unwrap().push(w);
         let r = fx.lo.to_pdf(&fx.input, &fx.work, &note, &CancellationToken::new()).await;
         warm.await.unwrap();
-        assert_eq!(r, Err(strings::LO_CANNOT_READ.to_string()), "this fake writes no PDF");
+        assert_eq!(r, Err("LibreOffice couldn't read this presentation.".to_string()), "this fake writes no PDF");
         assert_eq!(*seen.lock().unwrap(), vec![true, false]);
         let (starts, ends) = (times(&fx.mark, "start"), times(&fx.mark, "end"));
         assert!(starts[1] >= ends[0], "{starts:?} {ends:?}");
@@ -442,8 +494,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn cancel_during_conversion_stops_it() {
-        let fx = fixture("hang", false);
+    async fn cancel_during_conversion_stops_it_and_frees_the_turn() {
+        let fx = fixture("hangfirst,pdf", false);
         let cancel = CancellationToken::new();
         let later = cancel.clone();
         tokio::spawn(async move {
@@ -452,15 +504,24 @@ mod tests {
         });
         let began = Instant::now();
         let r = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &cancel).await;
-        assert_eq!(r, Err(CANCELLED.to_string()));
+        assert_eq!(r, Err("Cancelled.".to_string()));
         assert!(began.elapsed() < Duration::from_secs(10));
+        fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn timeout_stops_the_run_with_the_plain_message() {
+        let fx = fixture("hang", false);
+        *fx.lo.test_timeout.lock().unwrap() = Some(Duration::from_millis(200));
+        let r = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await;
+        assert_eq!(r, Err("LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower.".to_string()));
     }
 
     #[tokio::test]
     async fn missing_pdf_is_an_error_even_with_exit_0() {
         let fx = fixture("say:nothing", false);
         let r = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await;
-        assert_eq!(r, Err(strings::LO_CANNOT_READ.to_string()));
+        assert_eq!(r, Err("LibreOffice couldn't read this presentation.".to_string()));
     }
 
     #[tokio::test]
@@ -492,7 +553,7 @@ mod tests {
     async fn broken_profile_is_tried_only_twice() {
         let fx = fixture("say:user installation could not be completed", false);
         let r = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await;
-        assert_eq!(r, Err(strings::LO_CANNOT_READ.to_string()));
+        assert_eq!(r, Err("LibreOffice couldn't read this presentation.".to_string()));
         assert_eq!(times(&fx.mark, "start").len(), 2);
     }
 
@@ -500,24 +561,42 @@ mod tests {
     async fn snap_soffice_returns_snap_message_without_spawning() {
         let fx = fixture("pdf", true);
         let r = fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await;
-        assert_eq!(r, Err(strings::LO_SNAP.to_string()));
-        assert!(times(&fx.mark, "start").is_empty());
+        assert_eq!(r, Err("LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress).".to_string()));
+        fx.lo.clone().warm_up().await;
+        assert!(times(&fx.mark, "start").is_empty(), "warm-up started a Snap LibreOffice");
     }
 
     #[tokio::test]
-    async fn a_soffice_that_cannot_start_says_so() {
+    async fn a_soffice_that_cannot_start_says_so_plainly() {
         let fx = fixture("pdf", false);
         let lo = LibreOffice::new(Soffice { path: fx.dir.join("nope"), snap: false }, &fx.dir);
         let r = lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await;
-        assert!(r.unwrap_err().starts_with("LibreOffice could not start: "));
+        assert_eq!(r, Err("LibreOffice could not be started. Reinstall it and try again.".to_string()));
+    }
+
+    #[tokio::test]
+    async fn warm_up_output_goes_to_its_log() {
+        let fx = fixture("say:warming", false);
+        fx.lo.clone().warm_up().await;
+        let log = std::fs::read_to_string(fx.dir.join("deps").join("libreoffice-warm-up.log")).unwrap();
+        assert!(log.contains("warming"), "{log}");
     }
 
     #[cfg(unix)]
     #[tokio::test]
-    async fn pgid_file_is_gone_after_a_run() {
-        let fx = fixture("pdf", false);
-        fx.lo.to_pdf(&fx.input, &fx.work, &quiet, &CancellationToken::new()).await.unwrap();
-        assert!(!fx.dir.join("deps").join("libreoffice.pgid").exists());
+    async fn conversion_records_the_group_and_clears_it() {
+        let fx = fixture("sleep:400,pdf", false);
+        let file = fx.dir.join("deps").join("libreoffice.pgid");
+        let (lo, input, work) = (fx.lo.clone(), fx.input.clone(), fx.work.clone());
+        let job = tokio::spawn(async move { lo.to_pdf(&input, &work, &quiet, &CancellationToken::new()).await });
+        tokio::time::sleep(Duration::from_millis(200)).await;
+        let text = std::fs::read_to_string(&file).unwrap();
+        let parts: Vec<&str> = text.split_whitespace().collect();
+        assert_eq!(parts.len(), 2, "{text:?}");
+        assert!(parts[0].parse::<i32>().unwrap() > 1, "{text:?}");
+        parts[1].parse::<u64>().unwrap();
+        job.await.unwrap().unwrap();
+        assert!(!file.exists());
     }
 
     #[cfg(unix)]
@@ -581,6 +660,41 @@ mod tests {
         std::fs::remove_dir_all(dir).unwrap();
     }
 
+    /// Real LibreOffice (`RP_TEST_SOFFICE=1`): the launcher and `soffice.bin` in one group, as a crashed app leaves them.
+    #[cfg(unix)]
+    #[test]
+    fn real_leftover_group_is_killed() {
+        use std::os::unix::process::CommandExt;
+        if std::env::var_os("RP_TEST_SOFFICE").is_none() {
+            return;
+        }
+        let fx = fixture("", false);
+        let soffice = tools::find_soffice().unwrap();
+        let mut child = std::process::Command::new(&soffice.path)
+            .args(fx.lo.common_args().unwrap())
+            .env("SAL_USE_VCLPLUGIN", "svp")
+            .process_group(0)
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn()
+            .unwrap();
+        let pgid = child.id() as i32;
+        let deps = fx.dir.join("deps");
+        std::fs::create_dir_all(&deps).unwrap();
+        std::fs::write(deps.join(PGID_FILE), format!("{pgid} 1")).unwrap();
+        std::thread::sleep(Duration::from_secs(3));
+        assert!(group_exists(pgid) && leads_libreoffice(pgid), "{}", command_line(pgid));
+        let reap = std::thread::spawn(move || child.wait());
+        kill_leftover(&deps);
+        reap.join().unwrap().unwrap();
+        assert!(!pgid_alive(pgid));
+        assert!(!deps.join(PGID_FILE).exists());
+    }
+
+    fn sample_pptx() -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("experiments").join("media").join("sample.pptx")
+    }
+
     /// Real LibreOffice and real pdfium: `RP_TEST_SOFFICE=1` and `RP_PDFIUM=<library>`.
     #[tokio::test]
     async fn sample_pptx_becomes_three_slide_images() {
@@ -591,7 +705,7 @@ mod tests {
         let work = dir.join("work");
         std::fs::create_dir_all(&work).unwrap();
         let input = work.join("input.pptx");
-        std::fs::copy("experiments/media/sample.pptx", &input).unwrap();
+        std::fs::copy(sample_pptx(), &input).unwrap();
         let lo = LibreOffice::new(tools::find_soffice().unwrap(), &dir);
         let pdf = lo.to_pdf(&input, &work, &quiet, &CancellationToken::new()).await.unwrap();
         let renderer = crate::import::pdf::PdfRenderer::start(&dir).unwrap();
@@ -604,18 +718,18 @@ mod tests {
         std::fs::remove_dir_all(dir).unwrap();
     }
 
-    /// Real LibreOffice: `RP_TEST_SOFFICE=1`.
+    /// Real LibreOffice: `RP_TEST_SOFFICE=1`. The data folder has a space and an accent (Review Focus 5).
     #[tokio::test]
     async fn converts_sample_pptx() {
         if std::env::var_os("RP_TEST_SOFFICE").is_none() {
             return;
         }
         let Some(soffice) = tools::find_soffice() else { panic!("no LibreOffice") };
-        let dir = std::env::temp_dir().join(format!("rp-lo-{}", uuid::Uuid::new_v4()));
+        let dir = std::env::temp_dir().join(format!("rp lo é {}", uuid::Uuid::new_v4()));
         let work = dir.join("work");
         std::fs::create_dir_all(&work).unwrap();
         let input = work.join("input.pptx");
-        std::fs::copy("experiments/media/sample.pptx", &input).unwrap();
+        std::fs::copy(sample_pptx(), &input).unwrap();
         let lo = LibreOffice::new(soffice, &dir);
         lo.clone().warm_up().await;
         let pdf = lo.to_pdf(&input, &work, &quiet, &CancellationToken::new()).await.unwrap();
