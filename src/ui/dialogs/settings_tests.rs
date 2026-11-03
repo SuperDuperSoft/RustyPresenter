@@ -253,6 +253,7 @@ fn check_again_toasts_found_or_not() {
         s.ffmpeg = ffmpeg;
         op.apply_snapshot(Arc::new(s));
     };
+    op.state.borrow_mut().hold_inline_reads = true;
     read(false);
     open(&op, SettingsTab::Video);
     settle();

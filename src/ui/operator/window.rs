@@ -62,6 +62,9 @@ pub(crate) struct OpState {
     /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
     pub(super) toasts: Vec<(String, bool)>,
+    /// Test hook: stops `request_refresh` doing its inline read, so a test can decide what the next read says.
+    #[cfg(test)]
+    pub(crate) hold_inline_reads: bool,
 }
 
 pub struct Operator {
@@ -140,6 +143,8 @@ impl Operator {
     /// Without a follower (tests on the testing backend, `Ops::inline`) the read is done and applied at once.
     pub fn request_refresh(&self) {
         let Some(feed) = self.feed.clone() else {
+            #[cfg(test)]
+            if self.state.borrow().hold_inline_reads { return }
             if self.ops.is_inline() {
                 let player_missing = self.screens.video_info().player_missing();
                 self.apply_snapshot(Arc::new(OperatorSnapshot::read(&self.app).with_player_missing(player_missing)));
