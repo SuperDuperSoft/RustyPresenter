@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 pub mod libreoffice;
 pub mod pdf;
+pub mod probe;
 pub mod sniff;
 
 #[path = "../strings/import.rs"]
