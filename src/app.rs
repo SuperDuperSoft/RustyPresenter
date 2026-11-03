@@ -155,6 +155,8 @@ pub struct App {
     pub data: Mutex<Data>,
     pub live: Mutex<Live>,
     pub tx: broadcast::Sender<Update>,
+    /// Held from reading a live view until it is sent, so views go out in the order they were read.
+    live_order: Mutex<()>,
     pub port: u16,
     pub lan_url: Option<String>,
     /// Set once the windowing layer is running; windows can only be opened after that.
@@ -196,7 +198,7 @@ impl App {
         let (tx, _) = broadcast::channel(256);
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
         Arc::new(Self {
-            store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, port, lan_url,
+            store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
@@ -227,7 +229,12 @@ impl App {
 
     pub fn subscribe(&self) -> broadcast::Receiver<Update> { self.tx.subscribe() }
 
-    pub fn broadcast_live(&self) { let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view()))); }
+    /// Two threads can get here at once: the room's commit and an operator's Next. Sent out of order, the older view
+    /// would replace the newer one in the room's `latest`, and the room would never see the slide it was asked for.
+    pub fn broadcast_live(&self) {
+        let _order = self.live_order.lock().unwrap();
+        let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view())));
+    }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.store.save(data).map_err(|e| format!("Could not save: {e}")) }
@@ -1178,6 +1185,35 @@ mod tests {
         app.command(Envelope { id: "c1".into(), base: None, cmd: Command::ClearAll });
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
         assert!(rx.try_recv().is_err());
+    }
+
+    #[test]
+    fn live_views_go_out_in_the_order_they_were_read() {
+        use tokio::sync::broadcast::error::TryRecvError;
+        let app = test_app();
+        let mut rx = app.subscribe();
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let other = {
+            let (app, stop) = (app.clone(), stop.clone());
+            std::thread::spawn(move || while !stop.load(Ordering::Relaxed) { app.broadcast_live() })
+        };
+        let mut newest = 0;
+        for i in 0..2000 {
+            app.command(Envelope { id: format!("c{i}"), base: None, cmd: Command::Logo });
+            loop {
+                match rx.try_recv() {
+                    Ok(Update::Live(u)) => {
+                        assert!(u.version >= newest, "view {} went out after view {newest}", u.version);
+                        newest = u.version;
+                    }
+                    Ok(_) | Err(TryRecvError::Lagged(_)) => {}
+                    Err(_) => break,
+                }
+            }
+        }
+        stop.store(true, Ordering::Relaxed);
+        other.join().unwrap();
+        assert!(newest > 1000, "only reached version {newest}");
     }
 
     #[test]
