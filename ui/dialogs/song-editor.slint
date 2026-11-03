@@ -1,0 +1,237 @@
+// The song editor (`openSongEditor()`, `operator.js:647-710`; `.song-editor` and `.preview-list` in
+// `operator.css:182-186`): the song's fields on the left, its order and a live preview of its slides on the right.
+// The logic is in Rust (`src/ui/dialogs/song_editor.rs`), which talks to it through `SongEditorState`.
+import { Theme } from "../theme.slint";
+import { Btn, Field, ScrollBox } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextArea, TextField } from "inputs.slint";
+
+/// One slide of the preview, as the core makes it: its picture and its label.
+export struct PreviewSlide { image: image, label: string }
+
+/// A row of `+ <label>` buttons under Order.
+export struct SectionChipRow { labels: [string] }
+
+/// What Rust and the editor share. The fields are only ever set when the editor opens, so an update never wipes
+/// what the user typed (the editor is never refreshed).
+export global SongEditorState {
+    in-out property <string> title;
+    in-out property <string> writers;
+    in-out property <string> ccli;
+    in-out property <string> copyright;
+    in-out property <string> lyrics;
+    in-out property <string> order;
+    in property <[SectionChipRow]> chips;
+    in property <[PreviewSlide]> previews;
+    /// "Not in the lyrics: X, Y", or empty.
+    in property <string> warning;
+    /// Editing a song from the library (Delete song shows), not a new one.
+    in property <bool> existing;
+    /// Save and add to service, instead of Save song.
+    in property <bool> add-after;
+    /// The lyrics take the keyboard when the editor opens (editing); else the title (new).
+    in property <bool> focus-lyrics;
+
+    /// A field the preview follows (title, lyrics, order) changed by typing.
+    callback edited();
+    callback chip(string);
+    callback save();
+    callback delete();
+    callback cancel();
+}
+
+/// `.cols`: two equal columns, 14 px apart.
+component Cols inherits HorizontalLayout {
+    spacing: 14px;
+}
+
+/// The body (two columns, 1.15fr and 1fr, 18 px apart) and the footer. `window-height` sizes the lyrics
+/// (`min-height: 46vh`) and the preview (`max-height: 58vh`).
+export component SongEditor inherits VerticalLayout {
+    in property <length> window-height;
+    vertical-stretch: 1;
+    // `setTimeout(() => field.focus(), 30)`: the field's `init` takes the keyboard at once, but an editor that
+    // replaces an open dialog (Edit or New song in Add) has the shell take it back afterwards, so ask again.
+    Timer {
+        interval: 30ms;
+        running: true;
+        triggered => {
+            self.running = false;
+            if SongEditorState.focus-lyrics {
+                lyrics.focus();
+            } else {
+                title.focus();
+            }
+        }
+    }
+    DialogBody {
+        HorizontalLayout {
+            spacing: 18px;
+            VerticalLayout {
+                horizontal-stretch: 115;
+                Cols {
+                    Field {
+                        horizontal-stretch: 1;
+                        label: @tr("Title");
+                        title := TextField {
+                            text <=> SongEditorState.title;
+                            placeholder: @tr("Amazing Grace (My Chains Are Gone)");
+                            init => {
+                                if !SongEditorState.focus-lyrics { self.focus(); }
+                            }
+                            edited => { SongEditorState.edited(); }
+                        }
+                    }
+                    Field {
+                        horizontal-stretch: 1;
+                        label: @tr("Writers");
+                        writers := TextField {
+                            text <=> SongEditorState.writers;
+                            placeholder: @tr("Writers");
+                        }
+                    }
+                }
+                Cols {
+                    Field {
+                        horizontal-stretch: 1;
+                        label: @tr("CCLI song #");
+                        ccli := TextField {
+                            text <=> SongEditorState.ccli;
+                            placeholder: @tr("4768151");
+                        }
+                    }
+                    Field {
+                        horizontal-stretch: 1;
+                        label: @tr("Copyright");
+                        copyright := TextField {
+                            text <=> SongEditorState.copyright;
+                            placeholder: @tr("© 2006 …");
+                        }
+                    }
+                }
+                Field {
+                    label: @tr("Lyrics");
+                    help: @tr("— section names on their own line; an empty line inside a section starts a new slide");
+                    lyrics := TextArea {
+                        min-height: max(120px, root.window-height * 0.46);
+                        font-size: 14.5px;
+                        text <=> SongEditorState.lyrics;
+                        placeholder: @tr("Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…");
+                        init => {
+                            if SongEditorState.focus-lyrics { self.focus(); }
+                        }
+                        edited => { SongEditorState.edited(); }
+                    }
+                }
+            }
+            VerticalLayout {
+                horizontal-stretch: 100;
+                alignment: start;
+                Field {
+                    label: @tr("Order");
+                    help: @tr("(optional)");
+                    order := TextField {
+                        text <=> SongEditorState.order;
+                        placeholder: @tr("Leave empty to use the written order");
+                        edited => { SongEditorState.edited(); }
+                    }
+                    if SongEditorState.warning != "": warning := Text {
+                        text: SongEditorState.warning;
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+                    for row in SongEditorState.chips: HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        for label in row.labels: chip := Btn {
+                            text: "+ " + label;
+                            small: true;
+                            accessible-role: button;
+                            accessible-label: label;
+                            clicked => { SongEditorState.chip(label); }
+                        }
+                    }
+                }
+                // `.lbl`, 8 px above the preview.
+                Text {
+                    text: @tr("Slides").to-uppercase();
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.48px;
+                }
+                Rectangle { height: 8px; }
+                if SongEditorState.previews.length == 0: empty := Text {
+                    text: @tr("Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                    height: self.preferred-height + 56px;
+                    vertical-alignment: center;
+                }
+                if SongEditorState.previews.length > 0: preview-box := ScrollBox {
+                    // `.preview-list`: two columns 8 px apart; each a 16:9 picture and an 11 px label 3 px under it.
+                    property <length> cell-w: (self.width - 18px) / 2;
+                    property <length> cell-h: self.cell-w * 9 / 16 + 18px;
+                    property <int> rows: (SongEditorState.previews.length + 1) / 2;
+                    height: min(self.rows * (self.cell-h + 8px), root.window-height * 0.58);
+                    Rectangle {
+                        height: preview-box.rows * (preview-box.cell-h + 8px);
+                        for p[i] in SongEditorState.previews: preview := Rectangle {
+                            x: mod(i, 2) * (preview-box.cell-w + 8px);
+                            y: floor(i / 2) * (preview-box.cell-h + 8px);
+                            width: preview-box.cell-w;
+                            height: preview-box.cell-h;
+                            accessible-role: image;
+                            accessible-label: p.label;
+                            Rectangle {
+                                y: 0;
+                                height: preview-box.cell-w * 9 / 16;
+                                background: Theme.black;
+                                border-radius: 6px;
+                                clip: true;
+                                Image {
+                                    width: parent.width;
+                                    height: parent.height;
+                                    source: p.image;
+                                    image-fit: fill;
+                                }
+                            }
+                            Text {
+                                y: preview-box.cell-w * 9 / 16 + 3px;
+                                text: p.label;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 11px;
+                                overflow: elide;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    DialogFoot {
+        if SongEditorState.existing: delete := Btn {
+            text: @tr("Delete song");
+            icon: "trash";
+            danger: true;
+            clicked => { SongEditorState.delete(); }
+        }
+        if SongEditorState.existing: Rectangle { horizontal-stretch: 1; }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { SongEditorState.cancel(); }
+        }
+        save := Btn {
+            text: SongEditorState.add-after ? @tr("Save and add to service") : @tr("Save song");
+            primary: true;
+            clicked => { SongEditorState.save(); }
+        }
+    }
+}
