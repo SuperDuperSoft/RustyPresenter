@@ -2,6 +2,7 @@
 //! libmpv is LGPL and is only loaded with `libloading`, never linked. A missing
 //! library is not fatal: callers report [`MISSING`] for video/audio items.
 #![allow(non_camel_case_types)]
+use crate::platform::resources::{current_exe, native_candidates};
 use std::ffi::{CStr, CString, c_char, c_int, c_ulong, c_void};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -232,7 +233,7 @@ pub struct Mpv {
 }
 
 impl Mpv {
-    /// Finds and loads libmpv: `RP_LIBMPV` → next to the executable → `<data dir>/deps/mpv/` → system.
+    /// Finds and loads libmpv: see `platform::resources::native_candidates` for where it looks.
     /// The first library that loads decides; a too-old one is an error, not skipped.
     pub fn load() -> Result<Arc<Mpv>, String> {
         let data = crate::server::data_dir().unwrap_or_default();
@@ -258,8 +259,7 @@ impl Mpv {
 
     /// Where `load` looks, in order.
     pub fn candidates(data_dir: &Path) -> Vec<PathBuf> {
-        let exe = std::env::current_exe().ok();
-        candidates_from(std::env::var_os("RP_LIBMPV").map(PathBuf::from), exe.as_deref().and_then(Path::parent), data_dir)
+        native_candidates(SYSTEM_NAMES, "RP_LIBMPV", &current_exe(), data_dir, "mpv", &|k| std::env::var_os(k))
     }
 
     pub fn load_from(path: &Path) -> Result<Arc<Mpv>, String> {
@@ -388,16 +388,6 @@ fn with_argv(args: &[&str], f: impl FnOnce(*mut *const c_char) -> c_int) -> c_in
     f(ptrs.as_mut_ptr())
 }
 
-fn candidates_from(env: Option<PathBuf>, exe_dir: Option<&Path>, data_dir: &Path) -> Vec<PathBuf> {
-    let mut v: Vec<PathBuf> = env.into_iter().collect();
-    let deps = data_dir.join("deps").join("mpv");
-    for dir in exe_dir.into_iter().chain([deps.as_path()]) {
-        v.extend(SYSTEM_NAMES.iter().map(|n| dir.join(n)));
-    }
-    v.extend(SYSTEM_NAMES.iter().map(PathBuf::from));
-    v
-}
-
 /// On Windows a full path loads with its own folder first in the DLL search, so libraries
 /// shipped next to libmpv are found.
 #[cfg(windows)]
@@ -417,16 +407,19 @@ mod tests {
     use super::*;
     use std::path::{Path, PathBuf};
 
+    fn candidates_with(env: Option<&'static str>) -> Vec<PathBuf> {
+        let var = move |k: &str| env.filter(|_| k == "RP_LIBMPV").map(std::ffi::OsString::from);
+        native_candidates(SYSTEM_NAMES, "RP_LIBMPV", Path::new("/app/rp"), Path::new("/data"), "mpv", &var)
+    }
+
     #[test]
     fn candidates_start_with_env_override() {
-        let env = PathBuf::from("D:/custom/libmpv-2.dll");
-        let c = candidates_from(Some(env.clone()), None, Path::new("/data"));
-        assert_eq!(c[0], env);
+        assert_eq!(candidates_with(Some("D:/custom/libmpv-2.dll"))[0], Path::new("D:/custom/libmpv-2.dll"));
     }
 
     #[test]
     fn candidates_include_exe_dir_and_data_dir() {
-        let c = candidates_from(None, Some(Path::new("/app")), Path::new("/data"));
+        let c = candidates_with(None);
         let n = SYSTEM_NAMES[0];
         let exe = c.iter().position(|p| *p == Path::new("/app").join(n)).expect("exe dir");
         let data = c.iter().position(|p| *p == Path::new("/data/deps/mpv").join(n)).expect("data dir");
