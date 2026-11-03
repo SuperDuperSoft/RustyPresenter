@@ -110,7 +110,7 @@ fn main() {
             Ok(op) => op,
             Err(e) => fail(&e),
         };
-        screens.place_operator(operator.window());
+        screens.place_operator(&operator);
         // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
         // and stage close with it below.
         operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });

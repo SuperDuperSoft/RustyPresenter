@@ -34,12 +34,20 @@ export component OperatorWindow inherits Window {
     /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
     /// `changed` fires only on a change, so `init` sets it for a window whose first width is already its last.
     out property <bool> narrow;
-    init => { root.narrow = root.width <= 1250px; }
-    changed width => { root.narrow = root.width <= 1250px; }
+    /// Below 1400 px the Bible box's translation buttons collapse to the chosen one (`TopBar.compact`), so the top
+    /// bar fits a 1280 px window. Set with `narrow`, for the same reason.
+    out property <bool> compact;
+    init => { root.fit(); }
+    changed width => { root.fit(); }
+    function fit() {
+        root.narrow = root.width <= 1250px;
+        root.compact = root.width < 1400px;
+    }
 
     // Top bar (see `TopBar`).
     in property <string> service-name: @tr("Service");
     in property <[TranslationChip]> translations;
+    in property <string> translation;
     in-out property <string> bible-text;
     in property <bool> room-on;
     in property <string> room-state: "warn";
@@ -184,9 +192,11 @@ export component OperatorWindow inherits Window {
         VerticalLayout {
             top := TopBar {
                 narrow: root.narrow;
+                compact: root.compact;
                 covered: root.covered;
                 service-name: root.service-name;
                 translations: root.translations;
+                translation: root.translation;
                 bible-text <=> root.bible-text;
                 room-on: root.room-on;
                 room-state: root.room-state;

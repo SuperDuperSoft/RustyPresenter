@@ -116,6 +116,8 @@ mod tests {
     fn opened(app: &Arc<App>) -> Rc<Operator> {
         let op = open(app);
         op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        // The window's `changed width` runs here, not in the middle of the first click (it moves the Bible box).
+        slint::platform::update_timers_and_animations();
         refresh(&op);
         live(&op);
         op
@@ -252,6 +254,9 @@ mod tests {
     fn available_chip_tooltip_is_its_name() {
         let app = test_app();
         let op = opened(&app);
+        // Wide enough for every translation's button (narrower, they collapse: `ui::operator::fit`).
+        op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
+        slint::platform::update_timers_and_animations();
         let chips = find_all(&op, "TopBar::translation-chip");
         let tip = |name: &str| chips.iter().find(|c| c.accessible_label().unwrap_or_default() == name)
             .and_then(|c| c.accessible_description()).unwrap_or_default().to_string();
