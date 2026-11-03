@@ -9,6 +9,10 @@ pub const LO_CANNOT_READ: &str = "LibreOffice couldn't read this presentation.";
 pub const LO_SNAP: &str = "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress).";
 /// The raw OS error goes to the log, never to the operator.
 pub const LO_NOT_STARTED: &str = "LibreOffice could not be started. Reinstall it and try again.";
+// PowerPoint on Windows (Plan 4 Task 6b). PowerPoint's own error text goes to the log, never to the operator.
+pub const PPT_TIMEOUT: &str = "PowerPoint took too long and was stopped. Try again.";
+pub const PPT_CANNOT_READ: &str = "PowerPoint couldn't open this presentation.";
+pub const PPT_NOT_STARTED: &str = "PowerPoint could not be started.";
 pub const NOT_PDF: &str = "This doesn't look like a PDF file.";
 
 // Media probes (Plan 4 Task 7). The raw mpv error goes to the log, never to the operator.
@@ -26,12 +30,6 @@ pub fn pdf_page_failed(page: usize) -> String {
 }
 pub const PDF_CANNOT_OPEN: &str = "This PDF can't be opened. If it has a password, remove it and import again.";
 pub const SLIDE_NOT_SAVED: &str = "A slide could not be saved. Check that the disk has free space, then try again.";
-
-// PowerPoint (Plan 4 Task 6b). Task 6c falls back to LibreOffice after any of these.
-pub const PPT_TIMEOUT: &str = "PowerPoint took too long and was stopped.";
-pub const PPT_CANNOT_OPEN: &str = "PowerPoint couldn't open this presentation.";
-/// The raw OS error goes to the log, never to the operator.
-pub const PPT_NOT_STARTED: &str = "PowerPoint could not be started. Check that it opens by itself, then try again.";
 
 // Adding media (Plan 4 Task 8).
 pub const WAITING_FOR_FILE: &str = "Waiting for another file…";

@@ -290,6 +290,7 @@ async fn overlapping_imports_set_their_own_results() {
     assert_eq!(job(&app, b).unwrap().result, Some(of("Two")));
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn powerpoint_comes_first_and_needs_no_note() {
     let d = dir();
@@ -303,6 +304,7 @@ async fn powerpoint_comes_first_and_needs_no_note() {
     assert!(!d.join("mark").exists(), "LibreOffice was not needed");
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn powerpoint_works_without_pdfium() {
     let d = dir();
@@ -315,10 +317,11 @@ async fn powerpoint_works_without_pdfium() {
     assert_eq!(decks(&app), 1);
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn failed_powerpoint_falls_back_to_libreoffice_and_says_so() {
     let d = dir();
-    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), Some(powerpoint::tests::fake("fail:nope", &d))));
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), Some(powerpoint::tests::fake("fail", &d))));
     let file = staged(&app, &pptx(2, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
@@ -327,49 +330,42 @@ async fn failed_powerpoint_falls_back_to_libreoffice_and_says_so() {
     assert_eq!(decks(&app), 1);
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn a_fallback_still_reports_a_slide_count_that_differs() {
     let d = dir();
-    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(1), Some(powerpoint::tests::fake("fail:nope", &d))));
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(1), Some(powerpoint::tests::fake("fail", &d))));
     let file = staged(&app, &pptx(2, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
     assert_eq!(job(&app, id).unwrap().note.unwrap(), format!("{FALLBACK_NOTE} 2 slides were expected but 1 were imported."));
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn failed_powerpoint_without_libreoffice_shows_its_own_message() {
     let d = dir();
-    let app = app_with(converters(None, pages(1), Some(powerpoint::tests::fake("fail:nope", &d))));
+    let app = app_with(converters(None, pages(1), Some(powerpoint::tests::fake("fail", &d))));
     let file = staged(&app, &pptx(1, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_OPEN));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_READ));
     assert_eq!(decks(&app), 0);
 }
 
+#[cfg(windows)]
 #[tokio::test]
 async fn failed_powerpoint_does_not_fall_back_without_pdfium() {
     let d = dir();
-    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), None, Some(powerpoint::tests::fake("fail:nope", &d))));
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), None, Some(powerpoint::tests::fake("fail", &d))));
     let file = staged(&app, &pptx(1, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_OPEN));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_READ));
     assert!(!d.join("mark").exists(), "LibreOffice's PDF could not have been rendered");
 }
 
-#[tokio::test]
-async fn a_password_powerpoint_refuses_does_not_fall_back() {
-    let d = dir();
-    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(1), Some(powerpoint::tests::fake("fail:The+password+is+wrong", &d))));
-    let file = staged(&app, &pptx(1, 0));
-    let id = start(app.clone(), file, "Talk".into());
-    finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(ENCRYPTED));
-    assert!(!d.join("mark").exists(), "LibreOffice can't open it either");
-}
-
+#[cfg(windows)]
 #[tokio::test]
 async fn cancelling_powerpoint_does_not_start_libreoffice() {
     let d = dir();

@@ -1,4 +1,4 @@
-//! Making "any video" playable.
+//! Making "any video" playable. PowerPoint → slide images lives in `import::powerpoint`.
 //!
 //! The room output plays H.264/VP8/VP9/AV1 video with AAC/MP3/Opus/Vorbis audio
 //! in MP4/WebM. Anything else (ProRes, HEVC, WMV, AVI, MKV, MPEG-2, DV, ...) is
