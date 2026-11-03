@@ -148,6 +148,7 @@ export component OperatorWindow inherits Window {
     /// The question on top (none or one row): a confirm or prompt over the dialog or the bare window.
     in property <[AskRow]> ask;
     callback ask-answer(bool, string);
+    callback ask-other();
 
     /// Keys taken before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere, and
     /// Alt+1…6 in the Bible box, where the field would otherwise type the digit.
@@ -300,6 +301,7 @@ export component OperatorWindow inherits Window {
             height: root.height;
             ask: a;
             answer(ok, text) => { root.ask-answer(ok, text); }
+            other => { root.ask-other(); }
         }
     }
 

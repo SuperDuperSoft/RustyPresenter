@@ -24,7 +24,7 @@ use crate::ui::operator::window::Operator;
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
-pub use ask::{confirm, prompt};
+pub use ask::{choose, confirm, prompt};
 
 /// The tiles of Add to service (`operator.js:385-388`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -176,6 +176,8 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     op.ui.on_dialog_close(move || if let Some(op) = me.upgrade() { op.close_dialog() });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { ask::answer(&op, ok, text.into()) });
+    let me = Rc::downgrade(op);
+    op.ui.on_ask_other(move || if let Some(op) = me.upgrade() { ask::answer_other(&op) });
     add::wire_add_button(op);
     services::wire(op);
     screens::wire(op);
@@ -272,6 +274,45 @@ mod tests {
         confirm(op, "Delete “Amazing Grace” from the library?", strings::OK, strings::CANCEL, false, move |ok| got.set(Some(ok)));
         settle(op);
         answer
+    }
+
+    #[test]
+    fn choose_has_two_answers_and_a_way_out() {
+        let app = test_app();
+        let op = opened(&app);
+        let got = Rc::new(Cell::new(None));
+        let ask = |got: &Rc<Cell<Option<Option<bool>>>>| {
+            let got = got.clone();
+            ask::choose(&op, "Which?", "First", "Second", move |a| got.set(Some(a)));
+        };
+        ask(&got);
+        settle(&op);
+        key(&op, Key::Return);
+        assert_eq!(got.take(), Some(Some(true)), "Enter takes the first");
+        ask(&got);
+        settle(&op);
+        find(&op, "AskOverlay::other").unwrap().mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(got.take(), Some(Some(false)));
+        ask(&got);
+        settle(&op);
+        key(&op, Key::Escape);
+        assert_eq!(got.take(), Some(None), "Esc takes neither");
+        ask(&got);
+        settle(&op);
+        find(&op, "AskOverlay::cancel").unwrap().mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(got.take(), Some(None));
+        assert!(!ask_up(&op));
+    }
+
+    #[test]
+    fn a_plain_confirm_has_no_third_button() {
+        let app = test_app();
+        let op = opened(&app);
+        confirm(&op, "Sure?", "OK", "Cancel", false, |_| {});
+        settle(&op);
+        assert!(find(&op, "AskOverlay::other").is_none());
     }
 
     #[test]
