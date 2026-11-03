@@ -8,12 +8,12 @@ libmpv (mpv) — GNU Lesser General Public License, version 2.1 or later (LGPL-2
   change it; you may replace it with your own build of the same interface. Source code:
   https://github.com/mpv-player/mpv
   The exact sources of the build shipped with a release, and its build scripts, are offered with that release at
-  https://github.com/RustyPresenter/RustyPresenter/releases
+  https://github.com/SuperDuperSoft/RustyPresenter/releases
 
 FFmpeg libraries (libavcodec, libavformat, libavutil, libswscale, libswresample, libavfilter) — GNU Lesser General
 Public License, version 2.1 (LGPLv2.1), as built into the shipped libmpv (no GPL or non-free parts enabled).
   Source code: https://ffmpeg.org/download.html, and with each release at
-  https://github.com/RustyPresenter/RustyPresenter/releases
+  https://github.com/SuperDuperSoft/RustyPresenter/releases
 
 pdfium — BSD-3-Clause and Apache-2.0 (with third-party parts under their own permissive licences)
   PDF rendering for slide import, loaded at run time by releases that include it.

@@ -54,7 +54,7 @@ pub mod test_support {
 
     impl OperatorScreens for FakeScreens {
         fn video_info(&self) -> VideoInfo {
-            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into() }) }
+            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into(), ..Default::default() }) }
         }
 
         fn preview_grabber(&self) -> Option<FrameGrabber> { None }

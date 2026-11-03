@@ -703,6 +703,15 @@ mod tests {
     }
 
     #[test]
+    fn versions_are_read_from_a_throwaway_handle() {
+        let Some(mpv) = mpv() else { return };
+        let (v, ff) = mpv.versions();
+        assert!(v.starts_with("mpv "), "{v}");
+        assert!(!ff.is_empty());
+        assert_eq!(mpv.versions(), (v, ff), "read once, then kept");
+    }
+
+    #[test]
     fn render_context_keeps_the_core_alive_after_its_player_drops() {
         let Some(mpv) = mpv() else { return };
         let (tx, _rx) = channel();

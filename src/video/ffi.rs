@@ -4,7 +4,7 @@
 #![allow(non_camel_case_types)]
 use std::ffi::{CStr, CString, c_char, c_int, c_ulong, c_void};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 pub const MISSING: &str = "The video player is missing. Reinstall RustyPresenter.";
 
@@ -228,6 +228,8 @@ pub struct Mpv {
     pub render_context_report_swap: unsafe extern "C" fn(*mut mpv_render_context),
     pub render_context_free: unsafe extern "C" fn(*mut mpv_render_context),
     path: PathBuf,
+    /// `mpv-version` and `ffmpeg-version`, read once by [`Mpv::versions`].
+    versions: OnceLock<(String, String)>,
     _lib: libloading::Library,
 }
 
@@ -294,6 +296,7 @@ impl Mpv {
                 render_context_report_swap: sym!("mpv_render_context_report_swap"),
                 render_context_free: sym!("mpv_render_context_free"),
                 path: path.to_path_buf(),
+                versions: OnceLock::new(),
                 _lib: lib,
             }
         };
@@ -313,6 +316,26 @@ impl Mpv {
     /// The file this library was loaded from (or the bare system name).
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// The `mpv-version` and `ffmpeg-version` properties (e.g. "mpv 0.39.0", "n7.1"), read once on a throwaway
+    /// idle handle that never plays; empty when the handle cannot start.
+    pub fn versions(&self) -> (String, String) {
+        self.versions
+            .get_or_init(|| unsafe {
+                let h = (self.create)();
+                if h.is_null() {
+                    return Default::default();
+                }
+                for (k, v) in [("vo", "null"), ("ao", "null"), ("idle", "yes"), ("terminal", "no"), ("config", "no")] {
+                    let _ = self.set_option(h, k, v);
+                }
+                let read = |name| self.get_string(h, name).unwrap_or_default();
+                let v = if (self.initialize)(h) >= 0 { (read("mpv-version"), read("ffmpeg-version")) } else { Default::default() };
+                (self.terminate_destroy)(h);
+                v
+            })
+            .clone()
     }
 
     pub fn err(&self, code: c_int) -> String {

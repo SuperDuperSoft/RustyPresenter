@@ -17,7 +17,7 @@ fn main() {
         Ok(None) => { println!("RustyPresenter is already running."); return; }
         Err(e) => fail(&e),
     };
-    startup::banner(&started, "Close the operator window to quit.");
+    startup::banner(&started, "Close the operator window to quit.", true);
     let startup::Started { app, listener, .. } = started;
 
     let setup_app = app.clone();

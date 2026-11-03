@@ -454,4 +454,55 @@ pub(crate) mod tests {
         open_add(&op, AddTab::Text);
         assert_eq!(op.ui.global::<AddState>().get_text_title(), "");
     }
+
+    /// Tab and Shift+Tab, `n` times each way, with the given dialog or question open.
+    fn tab_around(op: &Operator, n: usize) {
+        for k in [Key::Tab, Key::Backtab] {
+            for _ in 0..n { press(op, k); settle(op) }
+        }
+    }
+
+    #[test]
+    fn tab_stays_inside_an_open_dialog() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Text);
+        settle(&op);
+        for _ in 0..12 { press(&op, Key::Tab); settle(&op) }
+        type_text(&op, "John 3:16");
+        press(&op, Key::Return);
+        settle(&op);
+        assert_eq!(op.ui.get_bible_text(), "", "Tab never reached the Bible box under the scrim");
+        assert!(items(&app).is_empty(), "nothing was added behind the dialog");
+        tab_around(&op, 7);
+        press(&op, Key::Escape);
+        settle(&op);
+        assert!(op.state.borrow().dialog.is_none(), "Esc still closes the dialog");
+    }
+
+    #[test]
+    fn tab_stays_on_a_question() {
+        let app = test_app();
+        let op = opened(&app);
+        let answer = Rc::new(std::cell::Cell::new(None));
+        let a = answer.clone();
+        super::super::ask::confirm(&op, "Delete?", "Delete", "Cancel", true, move |ok| a.set(Some(ok)));
+        let _ = find(&op, "AskOverlay::ok");
+        settle(&op);
+        tab_around(&op, 5);
+        type_text(&op, "John 3:16");
+        assert_eq!(op.ui.get_bible_text(), "");
+        press(&op, Key::Escape);
+        settle(&op);
+        assert_eq!(answer.get(), Some(false), "Esc still answers the question");
+    }
+
+    #[test]
+    fn a_bible_submit_under_a_dialog_does_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Song);
+        crate::ui::operator::bible::submit(&op, "John 3:16".into());
+        assert!(items(&app).is_empty());
+    }
 }

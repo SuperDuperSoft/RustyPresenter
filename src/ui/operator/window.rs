@@ -18,9 +18,10 @@ use uuid::Uuid;
 #[derive(Clone, Debug, PartialEq)]
 pub struct VideoInfo { pub draw_mode: DrawMode, pub mpv: Option<MpvInfo> }
 
-/// The libmpv that loaded: its client API version and the file it came from.
-#[derive(Clone, Debug, PartialEq)]
-pub struct MpvInfo { pub api: (u32, u32), pub path: String }
+/// The libmpv that loaded: its client API version, the file it came from, and its `mpv-version` and
+/// `ffmpeg-version` (empty when they could not be read).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct MpvInfo { pub api: (u32, u32), pub path: String, pub mpv_version: String, pub ffmpeg_version: String }
 
 impl VideoInfo {
     /// No libmpv: video and audio items say "The video player is missing" (native spec §5).
@@ -139,6 +140,19 @@ impl Operator {
         self.raises.set(self.raises.get() + 1);
         let _ = self.ui.show();
         self.ui.window().set_minimized(false);
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| w.focus_window());
+    }
+
+    /// Whether this is the focused (foreground) window; never on the testing backend.
+    pub fn focused(&self) -> bool {
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| w.has_focus()).unwrap_or(false)
+    }
+
+    /// Takes focus back from a room or stage window that just opened (winit activates every new window), so the
+    /// arrow keys, Space, Enter and F1–F5 keep working without a click.
+    pub fn refocus(&self) {
         use slint::winit_030::WinitWindowAccessor;
         self.ui.window().with_winit_window(|w| w.focus_window());
     }

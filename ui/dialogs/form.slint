@@ -1,7 +1,7 @@
 // Form controls of the dialogs, sized and coloured as their `web/operator.css` rules (named beside each one).
 // Every colour comes from `Theme`. Each text field sets `OperatorState.focus-in-text` while it has focus.
 import { Theme, OperatorState } from "../theme.slint";
-import { Icon, TipBox } from "../widgets.slint";
+import { EditMenu, Icon, TipBox } from "../widgets.slint";
 
 /// `.field input[type=text]`: one line on the page background with a 1.5 px border (accent when focused), radius 9,
 /// 9×11 padding. `search` gives the `.search` look (radius 10, 10×12 padding). A test (or a screen reader) can type
@@ -67,6 +67,15 @@ export component TextField inherits Rectangle {
                 changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
                 edited => { root.edited(self.text); }
                 accepted => { root.accepted(self.text); }
+                EditMenu {
+                    width: 100%;
+                    height: 100%;
+                    has-text: input.text != "";
+                    cut-text => { input.cut(); }
+                    copy-text => { input.copy(); }
+                    paste-text => { input.paste(); }
+                    select-text => { input.select-all(); }
+                }
             }
         }
     }
@@ -132,6 +141,15 @@ export component TextArea inherits Rectangle {
                 } else if p.y + fl.content-y + root.font-size * 1.5 > fl.height {
                     fl.content-y = min(0px, fl.height - p.y - root.font-size * 1.5);
                 }
+            }
+            EditMenu {
+                width: 100%;
+                height: 100%;
+                has-text: input.text != "";
+                cut-text => { input.cut(); }
+                copy-text => { input.copy(); }
+                paste-text => { input.paste(); }
+                select-text => { input.select-all(); }
             }
         }
     }

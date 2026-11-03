@@ -19,7 +19,7 @@ pub mod strings;
 #[path = "../../strings/add.rs"]
 pub mod add_strings;
 
-use crate::ui::operator::window::Operator;
+use crate::ui::operator::{view, window::Operator};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
@@ -74,8 +74,9 @@ pub struct DialogHooks {
     pub(crate) on_close: Option<Box<dyn FnOnce(&Rc<Operator>)>>,
     pub(crate) refresh: Option<Rc<dyn Fn(&Rc<Operator>)>>,
     pub(crate) asks: Vec<ask::Ask>,
-    /// Run once on the next read whose data changed, whatever the dialog (`on_next_read`).
-    pub(crate) next_read: Vec<Box<dyn FnOnce(&Rc<Operator>)>>,
+    /// Run once on the first full read started after they were asked for, whatever the dialog (`on_next_read`):
+    /// the newest read number when each was asked for, and what to run.
+    pub(crate) next_read: Vec<(u64, Box<dyn FnOnce(&Rc<Operator>)>)>,
 }
 
 impl Operator {
@@ -128,24 +129,30 @@ impl Operator {
         if st.dialog.is_some() { st.dialogs.refresh = Some(Rc::new(redraw)); }
     }
 
-    /// Runs `then` once, on the next read whose data changed, while this dialog stays open: the web's
-    /// `await refresh(); redraw()` after an action, for any dialog (Settings is never redrawn by `on_dialog_refresh`).
-    /// Asks the follower for that read, so it comes even when the core's own update was applied first.
+    /// Runs `then` once, on the first full read that starts after this call, while this dialog stays open: the
+    /// web's `await refresh(); redraw()` after an action, for any dialog (Settings is never redrawn by
+    /// `on_dialog_refresh`). Asks the follower for that read, so it comes even when the core's own update was applied
+    /// first. A snapshot from an older read (a conversion's progress patch, the Screens dialog's late redraw) never
+    /// runs it: that would draw the state from before the action.
     pub fn on_next_read(&self, then: impl FnOnce(&Rc<Operator>) + 'static) {
         {
             let mut st = self.state.borrow_mut();
             if st.dialog.is_none() { return }
-            st.dialogs.next_read.push(Box::new(then));
+            st.dialogs.next_read.push((view::read_number(), Box::new(then)));
         }
         self.request_refresh();
     }
 
-    /// Called by `apply_snapshot` when the core's data changed.
+    /// Called by `apply_snapshot` when the core's data changed, and to redraw the open dialog from the newest
+    /// snapshot. Runs the `on_next_read` callbacks that this snapshot's read is new enough for.
     pub fn dialog_refresh(&self) {
         let (next, redraw) = {
             let mut st = self.state.borrow_mut();
             let redraw = st.dialog.filter(DialogKind::refreshes).and_then(|_| st.dialogs.refresh.clone());
-            (std::mem::take(&mut st.dialogs.next_read), redraw)
+            let read = st.snap.as_ref().map_or(0, |s| s.read);
+            let (due, wait) = std::mem::take(&mut st.dialogs.next_read).into_iter().partition(|(after, _)| read > *after);
+            st.dialogs.next_read = wait;
+            (due.into_iter().map(|(_, then)| then).collect::<Vec<Box<dyn FnOnce(&Rc<Operator>)>>>(), redraw)
         };
         let Some(op) = self.me.upgrade() else { return };
         for then in next { then(&op) }
@@ -221,6 +228,28 @@ mod tests {
         assert_eq!(count(DialogKind::Settings(SettingsTab::Look)), 0);
         assert_eq!(count(DialogKind::SongEditor { song_id: None, add_after: true }), 0);
         assert_eq!(count(DialogKind::Services), 0);
+    }
+
+    #[test]
+    fn next_read_waits_for_a_read_started_after_it() {
+        let app = test_app();
+        let op = opened(&app);
+        op.open_dialog(DialogKind::Settings(SettingsTab::Bible));
+        let ran = Rc::new(Cell::new(0));
+        let r = ran.clone();
+        // As `on_next_read` registers it, minus the read it asks for (the follower's read comes later in the app).
+        op.state.borrow_mut().dialogs.next_read.push((view::read_number(), Box::new(move |_| r.set(r.get() + 1))));
+        // A conversion's progress patch: an older read with new `data`.
+        let mut patched = OperatorSnapshot::clone(&op.state.borrow().snap.clone().unwrap());
+        Arc::make_mut(&mut patched.data).songs.clear();
+        op.apply_snapshot(Arc::new(patched));
+        assert_eq!(ran.get(), 0, "a patch of an older read is not the read it waits for");
+        op.dialog_refresh(); // the Screens dialog's late redraw
+        assert_eq!(ran.get(), 0);
+        refresh(&op);
+        assert_eq!(ran.get(), 1, "the next full read runs it");
+        refresh(&op);
+        assert_eq!(ran.get(), 1, "once");
     }
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {

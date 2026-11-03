@@ -135,7 +135,7 @@ pub(crate) fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     let c = ctx.clone();
     st.on_upload_media(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Media, true, files::add_files) });
     let c = ctx.clone();
-    st.on_import_powerpoint(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::PowerPoint, false, files::add_files) });
+    st.on_import_powerpoint(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::PowerPoint, true, files::add_files) });
     let c = ctx.clone();
     st.on_pictures_to_slides(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Pictures, true, files::images_to_deck) });
 }

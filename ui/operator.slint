@@ -148,14 +148,17 @@ export component OperatorWindow inherits Window {
     in property <[AskRow]> ask;
     callback ask-answer(bool, string);
 
-    /// Keys taken before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere, and
-    /// Alt+1…6 in the Bible box, where the field would otherwise type the digit.
+    /// Keys offered to Rust before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere,
+    /// and Alt+key in the Bible box, where the field would otherwise type the digit. Which Alt keys pick a
+    /// translation is decided in Rust (`keys::route`): the number row gives other characters on some layouts.
     pure function captured(e: KeyEvent) -> bool {
         return e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
             || (e.modifiers.control && (e.text == "b" || e.text == "B"))
-            || (e.modifiers.alt && top.bible-focused
-                && (e.text == "1" || e.text == "2" || e.text == "3" || e.text == "4" || e.text == "5" || e.text == "6"));
+            || (e.modifiers.alt && top.bible-focused);
     }
+
+    /// A dialog or question covers the window: Tab must not reach the window's keys or the Bible box under it.
+    property <bool> covered: root.dialog-open || root.ask.length > 0;
 
     function send-key(e: KeyEvent) -> bool {
         return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
@@ -164,6 +167,7 @@ export component OperatorWindow inherits Window {
     // The window's key scope (`operator.js:305-320`). Everything else reaches it only when the focused field
     // leaves the key alone (`key-pressed` bubbles), so a text field keeps its arrows, Space and Enter.
     keys := FocusScope {
+        focus-on-tab-navigation: !root.covered;
         capture-key-pressed(event) => {
             if root.captured(event) && root.send-key(event) { return accept; }
             reject
@@ -176,6 +180,7 @@ export component OperatorWindow inherits Window {
         VerticalLayout {
             top := TopBar {
                 narrow: root.narrow;
+                covered: root.covered;
                 service-name: root.service-name;
                 translations: root.translations;
                 bible-text <=> root.bible-text;

@@ -1,8 +1,6 @@
 //! User-facing strings of the Add dialog and the song editor (Plan 3 Tasks 16–17), copied from `web/operator.js`.
 //! Declared from `src/ui/dialogs/mod.rs` with a `#[path]` line until a shared `src/strings/mod.rs` exists.
 
-/// `addItem()`'s toast (`operator.js:373`).
-
 /// `searchList()` (`operator.js:399-410`).
 pub const NOTHING_MATCHES: &str = "Nothing matches.";
 pub const NOTHING_YET: &str = "Nothing here yet.";

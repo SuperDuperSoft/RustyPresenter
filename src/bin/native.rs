@@ -43,7 +43,7 @@ fn main() {
         Err(e) => fail(&e),
     };
     log_panics(started.root.clone());
-    startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.");
+    startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.", false);
     let startup::Started { app, listener, .. } = started;
 
     // Slint runs on this (main) thread; tokio runs the server and backups on its own threads.

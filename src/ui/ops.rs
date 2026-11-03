@@ -74,6 +74,8 @@ impl Ops {
 
     /// Copies a file from this computer into the library (`App::import_path`).
     pub fn import(&self, path: PathBuf, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static, done: impl FnOnce(Result<Imported, String>) + 'static) {
+        #[cfg(test)]
+        if let Some(r) = testing::IMPORTS.with(|i| i.borrow_mut().pop_front()) { return done(r) }
         let app = self.app.clone();
         let work = async move { app.import_path(&path, purpose, progress).await.map_err(|e| e.message) };
         self.run(work, |r| done(r.and_then(|r| r)));
@@ -87,6 +89,21 @@ pub fn outcome_toast(o: &Outcome) -> Option<(String, bool)> {
     let e = o.error.as_deref()?;
     if e.starts_with("stale") { return None; }
     Some((e.to_string(), !(e == tr::END_OF_SERVICE || e == tr::START_OF_SERVICE)))
+}
+
+#[cfg(test)]
+pub(crate) mod testing {
+    use crate::app::Imported;
+    use std::{cell::RefCell, collections::VecDeque};
+
+    thread_local! {
+        /// What the next `Ops::import` calls answer, in order, without touching the file (a PowerPoint job without
+        /// PowerPoint). Once empty, imports are real again.
+        pub(crate) static IMPORTS: RefCell<VecDeque<Result<Imported, String>>> = RefCell::default();
+    }
+
+    /// Queues the answer of the next import.
+    pub(crate) fn will_import(r: Result<Imported, String>) { IMPORTS.with(|i| i.borrow_mut().push_back(r)) }
 }
 
 #[cfg(test)]

@@ -39,10 +39,11 @@ pub fn start(focus: bool) -> Result<Option<Started>, String> {
     Ok(Some(Started { app: App::new(store, data, port, lan_url), listener, root }))
 }
 
-/// The console banner; `quit` says how to quit.
-pub fn banner(s: &Started, quit: &str) {
+/// The console banner; `quit` says how to quit. `web_operator`: list the browser operator page (the Tauri app);
+/// the native binary leaves it out, because its operator is the native window, never a browser.
+pub fn banner(s: &Started, quit: &str, web_operator: bool) {
     println!("\n  RustyPresenter {}\n", env!("CARGO_PKG_VERSION"));
-    println!("  Operator:      http://127.0.0.1:{}/", s.app.port);
+    if web_operator { println!("  Operator:      http://127.0.0.1:{}/", s.app.port); }
     if let Some(u) = &s.app.lan_url { println!("  Phone remote:  {u}"); }
     println!("  Your data:     {}", s.root.display());
     println!("\n  {quit}\n");

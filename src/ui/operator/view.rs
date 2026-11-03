@@ -7,7 +7,7 @@ use crate::{
     slides::build_item,
     store::BackupInfo,
 };
-use std::sync::{Arc, atomic::Ordering};
+use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
 use uuid::Uuid;
 
 /// One service item as the list and the slide grid show it.
@@ -75,7 +75,15 @@ pub struct OperatorSnapshot {
     pub phones_list: Vec<(Uuid, String)>,
     pub data_folder: String,
     pub version: String,
+    /// Which full read this is (`read_number`); a patch keeps the number of the read it changed.
+    pub read: u64,
 }
+
+/// Full reads, numbered in the order they start.
+static READS: AtomicU64 = AtomicU64::new(0);
+
+/// The number of the newest full read started so far: a snapshot whose `read` is greater began after this call.
+pub fn read_number() -> u64 { READS.load(Ordering::SeqCst) }
 
 // The follower thread builds it and sends it to the Slint thread.
 const _: fn() = || { fn send<T: Send + Sync>() {} send::<OperatorSnapshot>(); };
@@ -85,6 +93,7 @@ impl OperatorSnapshot {
     /// searches PATH for ffmpeg and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.
     pub fn read(app: &App) -> Self {
+        let read = READS.fetch_add(1, Ordering::SeqCst) + 1;
         let data = app.data.lock().unwrap().clone();
         let translations = app.translations();
         let available = app.available_translations();
@@ -123,6 +132,7 @@ impl OperatorSnapshot {
             data_folder: app.store.root.display().to_string(),
             version: env!("CARGO_PKG_VERSION").into(),
             data: Arc::new(data),
+            read,
         };
         snap.refresh_subtitles();
         snap

@@ -137,9 +137,20 @@ pub(crate) fn redraw_on_next_read(op: &Operator, edit: &Rc<Edit>) {
 /// The newest snapshot (the web `S`).
 pub(crate) fn snap(op: &Operator) -> Option<std::sync::Arc<OperatorSnapshot>> { op.state.borrow().snap.clone() }
 
+thread_local! {
+    /// The Slint thread's one clipboard, kept for the window's life: on Linux (X11) the copied text lives only as long
+    /// as the `arboard::Clipboard` that set it, and dropping the last one waits on the UI thread for a clipboard manager.
+    static CLIPBOARD: RefCell<Option<arboard::Clipboard>> = const { RefCell::new(None) };
+}
+
 /// Copies text with `arboard` (Slint 1.18 has no public clipboard-write API) and toasts `done_text`.
 pub(crate) fn copy(op: &Operator, text: &str, done_text: &str) {
-    match arboard::Clipboard::new().and_then(|mut c| c.set_text(text.to_string())) {
+    let set = CLIPBOARD.with(|c| {
+        let mut c = c.borrow_mut();
+        let clipboard = match c.as_mut() { Some(clipboard) => clipboard, None => c.insert(arboard::Clipboard::new()?) };
+        clipboard.set_text(text.to_string())
+    });
+    match set {
         Ok(()) => op.toast(done_text, false),
         Err(e) => op.toast(strings::copy_failed(&e.to_string()), true),
     }

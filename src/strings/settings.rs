@@ -87,9 +87,18 @@ pub fn about_version(version: &str) -> String { format!("RustyPresenter {version
 pub const VIDEO_GPU: &str = "Video: GPU (OpenGL)";
 pub const VIDEO_SOFTWARE: &str = "Video: software drawing";
 pub const VIDEO_MISSING: &str = "Video player missing";
-pub fn mpv_line(api: (u32, u32), path: &str) -> String { format!("libmpv (client API {}.{}) — {path}", api.0, api.1) }
+/// `mpv` and `ffmpeg` are the `mpv-version` and `ffmpeg-version` properties; either may be empty.
+pub fn mpv_line(mpv: &str, ffmpeg: &str, api: (u32, u32), path: &str) -> String {
+    let lib = format!("libmpv (client API {}.{}) — {path}", api.0, api.1);
+    match (mpv.is_empty(), ffmpeg.is_empty()) {
+        (true, true) => lib,
+        (false, true) => format!("{mpv} · {lib}"),
+        (true, false) => format!("FFmpeg {ffmpeg} · {lib}"),
+        (false, false) => format!("{mpv}, FFmpeg {ffmpeg} · {lib}"),
+    }
+}
 /// Where the LGPL sources of the shipped libmpv/FFmpeg build are offered (native spec §13).
-pub const MEDIA_SOURCE_URL: &str = "https://github.com/RustyPresenter/RustyPresenter/releases";
+pub const MEDIA_SOURCE_URL: &str = "https://github.com/SuperDuperSoft/RustyPresenter/releases";
 pub fn media_licence() -> String {
     format!("Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {MEDIA_SOURCE_URL}")
 }

@@ -224,11 +224,19 @@ impl Operator {
         let Some(op) = self.me.upgrade() else { return };
         let Some(s) = self.state.borrow().snap.clone() else { return };
         let mut ready = Vec::new();
-        self.files.watches.borrow_mut().retain_mut(|w| match w.step(&s.jobs, &s.data.decks) {
-            DeckWatchStep::Wait => true,
-            DeckWatchStep::Failed => false,
-            DeckWatchStep::Ready(decks) => { ready.push(decks); false }
+        // Imports picked together share their `before`: a deck one of them added is never another's new deck.
+        let mut claimed: HashSet<Uuid> = HashSet::new();
+        let mut watches = self.files.watches.borrow_mut();
+        watches.retain_mut(|w| {
+            w.before.extend(&claimed);
+            match w.step(&s.jobs, &s.data.decks) {
+                DeckWatchStep::Wait => true,
+                DeckWatchStep::Failed => false,
+                DeckWatchStep::Ready(decks) => { claimed.extend(decks.iter().map(|d| d.0)); ready.push(decks); false }
+            }
         });
+        for w in watches.iter_mut() { w.before.extend(&claimed) }
+        drop(watches);
         for decks in ready { add_decks(&op, decks.into(), None); }
     }
 }
@@ -664,6 +672,33 @@ mod window_tests {
         assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false)]);
         refresh(&op);
         assert_eq!(items(&app).len(), 1, "added once");
+    }
+
+    #[test]
+    fn import_powerpoint_adds_only_the_decks_its_jobs_made() {
+        let app = test_app();
+        let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![] };
+        app.edit(|d| { d.decks.push(old.clone()); Ok(()) }).unwrap();
+        let op = opened(&app);
+        let jobs = [app.job_start("Importing “Talk” from PowerPoint"), app.job_start("Importing “Notices” from PowerPoint")];
+        for job in jobs { crate::ui::ops::testing::will_import(Ok(Imported::Job(job))) }
+        testing::will_pick(vec![PathBuf::from("Talk.pptx"), PathBuf::from("Notices.pptx")]);
+        crate::ui::dialogs::add::open_add(&op, AddTab::Deck);
+        slint::ComponentHandle::global::<crate::ui::AddState>(&op.ui).invoke_import_powerpoint();
+        refresh(&op);
+        assert!(items(&app).is_empty(), "both decks are still converting");
+        let decks = [("Talk", jobs[0]), ("Notices", jobs[1])].map(|(title, job)| {
+            let id = Uuid::new_v4();
+            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![] }); Ok(()) }).unwrap();
+            app.job_end(job, None);
+            refresh(&op);
+            id
+        });
+        let added: Vec<Uuid> = items(&app).iter().filter_map(|k| match k { ItemKind::Deck { deck_id, .. } => Some(*deck_id), _ => None }).collect();
+        assert_eq!(added.len(), 2, "each import added its own deck once, and the old deck stayed out: {added:?}");
+        assert!(!added.contains(&old.id), "the deck from before the upload is not added");
+        assert!(decks.iter().all(|d| added.contains(d)));
+        assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false), ("“Notices” is ready".to_string(), false)]);
     }
 
     fn hint_shown(op: &Operator) -> bool { find(op, "DropHint::box").is_some() }

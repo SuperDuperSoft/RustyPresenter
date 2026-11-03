@@ -17,10 +17,10 @@ struct Added { id: Uuid }
 
 /// Enter in the Bible box (`operator.js:325-336`): look the passage up, add it after the live item (or at the end),
 /// clear the box, give the keys back, and select and arm the new item. A failure is an error toast with the core's
-/// text, and the box keeps what was typed.
+/// text, and the box keeps what was typed. Nothing happens while a dialog or question is open over the box.
 pub fn submit(op: &Rc<Operator>, reference: String) {
     let reference = reference.trim().to_string();
-    if reference.is_empty() { return }
+    if reference.is_empty() || op.covered() { return }
     let translation = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_else(|| "KJV".into());
     let me = Rc::downgrade(op);
     op.ops.call::<Found>("bible/lookup", json!({ "reference": reference, "translation": translation }), move |r| {
@@ -45,7 +45,9 @@ fn add(op: &Rc<Operator>, found: Found) {
         match r {
             Ok(Added { id }) => {
                 op.ui.set_bible_text("".into());
-                op.ui.invoke_focus_keys();
+                // Only the box gives up the keyboard (the web's `input.blur()`): a dialog or question opened while
+                // the lookup ran keeps it.
+                if !op.covered() { op.ui.invoke_focus_keys() }
                 {
                     let mut st = op.state.borrow_mut();
                     st.selected = Some(id);

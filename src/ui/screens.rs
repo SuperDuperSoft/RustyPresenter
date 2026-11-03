@@ -50,6 +50,8 @@ pub struct NativeScreens {
 impl NativeScreens {
     /// Call on the Slint thread. `mpv` is `None` when libmpv is missing.
     pub fn new(app: &Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>) -> Arc<Self> {
+        // About shows the mpv and FFmpeg versions; read them once now, off the Slint thread.
+        if let Some(m) = mpv.clone() { let _ = std::thread::Builder::new().name("mpv-versions".into()).spawn(move || { m.versions(); }); }
         Arc::new_cyclic(|me| NativeScreens {
             app: Arc::downgrade(app), renderer, mpv, ui: std::thread::current().id(), me: me.clone(),
             seen: Mutex::default(), roles: Mutex::default(),
@@ -174,11 +176,19 @@ impl NativeScreens {
         let app = self.app.upgrade().ok_or("RustyPresenter is closing.")?;
         drop(self.take(role, None)); // the old window's players and GL context go first
         let guard = app.screen_guard(role);
+        // winit activates every window it creates, which would leave the operator's keys dead in the new
+        // full-screen window: when the operator had focus, it gets it back (now and once the window settled).
+        let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
         let win = match role {
             "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
             "stage" => Win::Stage(Stage::open(app, mon.clone())?),
             _ => return Err("unknown window".into()),
         };
+        if let Some(op) = operator {
+            op.refocus();
+            let op = Rc::downgrade(&op);
+            Timer::single_shot(Duration::from_millis(150), move || if let Some(op) = op.upgrade() { op.refocus() });
+        }
         let id = DESK.with(|d| { let mut d = d.borrow_mut(); d.seq += 1; d.seq });
         // Closing the window (Alt+F4) closes it for good, as the operator's Close would.
         let (me, r) = (self.me.clone(), role.to_string());
@@ -222,7 +232,10 @@ impl NativeScreens {
 
 impl OperatorScreens for NativeScreens {
     fn video_info(&self) -> VideoInfo {
-        let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string() });
+        let mpv = self.mpv.as_ref().map(|m| {
+            let (mpv_version, ffmpeg_version) = m.versions();
+            MpvInfo { api: m.api_version(), path: m.path().display().to_string(), mpv_version, ffmpeg_version }
+        });
         VideoInfo { draw_mode: crate::video::drawing(), mpv }
     }
 
@@ -290,9 +303,24 @@ mod tests {
         s.open("operator", None).unwrap(); // no operator yet: nothing to raise, and no error
         let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
         s.set_operator(Rc::downgrade(&op));
+        slint::ComponentHandle::hide(&op.ui).unwrap();
+        assert!(!op.window().is_visible());
         s.open("operator", None).unwrap();
         assert_eq!(op.raises.get(), 1);
+        assert!(op.window().is_visible(), "shown again");
+        assert!(!op.window().is_minimized(), "and not minimised");
         assert!(s.open_roles().is_empty(), "the operator is not a room or stage window");
+        s.shutdown();
+    }
+
+    #[test]
+    fn place_operator_maximises_the_window() {
+        let app = test_app();
+        let s = screens(&app);
+        let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
+        assert!(!op.window().is_maximized());
+        s.place_operator(op.window());
+        assert!(op.window().is_maximized());
         s.shutdown();
     }
 
@@ -306,6 +334,7 @@ mod tests {
         assert_eq!(operator_monitor(&both, None, Some(&laptop)), Some(projector.clone()), "no main known");
         assert_eq!(operator_monitor(&[laptop.clone()], Some(&laptop), Some(&laptop)), Some(laptop.clone()), "one monitor");
         assert_eq!(operator_monitor(&[], None, None), None);
+        assert_eq!(operator_monitor(&[projector.clone()], Some(&laptop), None), Some(projector.clone()), "main unplugged");
     }
 
     #[test]

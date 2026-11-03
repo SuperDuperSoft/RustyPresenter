@@ -29,7 +29,7 @@ pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo) -> AboutInfo {
         version: strings::about_version(&snap.version),
         data_folder: snap.data_folder.clone(),
         video: video.into(),
-        mpv: info.mpv.as_ref().map(|m| strings::mpv_line(m.api, &m.path)).unwrap_or_default(),
+        mpv: info.mpv.as_ref().map(|m| strings::mpv_line(&m.mpv_version, &m.ffmpeg_version, m.api, &m.path)).unwrap_or_default(),
     }
 }
 
@@ -93,10 +93,13 @@ mod tests {
     #[test]
     fn about_info_reports_software_mode() {
         let snap = snapshot();
-        let info = VideoInfo { draw_mode: DrawMode::Software, mpv: Some(MpvInfo { api: (2, 5), path: r"C:\deps\libmpv-2.dll".into() }) };
+        let mpv = MpvInfo { api: (2, 5), path: r"C:\deps\libmpv-2.dll".into(), mpv_version: "mpv 0.39.0".into(), ffmpeg_version: "n7.1".into() };
+        let info = VideoInfo { draw_mode: DrawMode::Software, mpv: Some(mpv.clone()) };
         let a = about_info(&snap, &info);
         assert_eq!(a.video, "Video: software drawing");
-        assert_eq!(a.mpv, r"libmpv (client API 2.5) — C:\deps\libmpv-2.dll");
+        assert_eq!(a.mpv, r"mpv 0.39.0, FFmpeg n7.1 · libmpv (client API 2.5) — C:\deps\libmpv-2.dll");
+        let unread = VideoInfo { draw_mode: DrawMode::Software, mpv: Some(MpvInfo { mpv_version: String::new(), ffmpeg_version: String::new(), ..mpv }) };
+        assert_eq!(about_info(&snap, &unread).mpv, r"libmpv (client API 2.5) — C:\deps\libmpv-2.dll", "versions not read");
         assert_eq!(a.version, format!("RustyPresenter {}", snap.version));
         assert_eq!(a.data_folder, snap.data_folder);
         let gpu = about_info(&snap, &VideoInfo { draw_mode: DrawMode::OpenGl, ..info });

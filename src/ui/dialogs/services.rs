@@ -310,6 +310,25 @@ mod tests {
     }
 
     #[test]
+    fn delete_open_service_marks_the_first_left_open() {
+        let app = test_app();
+        let (open_id, _) = current(&app);
+        let other = add_service(&app, "Evening");
+        let op = open_services(&app);
+        assert!(rows(&op)[0].current);
+        click(&op, "ServicesDialog::delete-btn", 0);
+        key(&op, Key::Return);
+        assert!(!app.data.lock().unwrap().services.iter().any(|s| s.id == open_id));
+        assert_eq!(current(&app).0, other, "the core opened the first one left");
+        // No update redraws this dialog: the patch alone must mark the row.
+        let rows = rows(&op);
+        assert_eq!(rows.len(), 1);
+        assert!(rows[0].current, "the service left is marked open");
+        assert!(find(&op, "ServicesDialog::open-chip").is_some(), "it has the Open chip");
+        assert!(find(&op, "ServicesDialog::open-btn").is_none(), "and no Open button");
+    }
+
+    #[test]
     fn delete_last_service_is_hidden() {
         let app = test_app();
         let op = open_services(&app);
