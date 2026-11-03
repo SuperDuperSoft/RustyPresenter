@@ -349,15 +349,7 @@ pub(crate) mod testing {
     use crate::ui::ui_test_init;
     use i_slint_backend_testing::ElementHandle;
 
-    pub struct FakeScreens { pub missing: bool }
-
-    impl OperatorScreens for FakeScreens {
-        fn video_info(&self) -> VideoInfo {
-            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into() }) }
-        }
-
-        fn preview_grabber(&self) -> Option<FrameGrabber> { None }
-    }
+    pub use crate::ui::test_support::FakeScreens;
 
     pub fn open(app: &Arc<App>) -> Rc<Operator> {
         ui_test_init();
