@@ -9,6 +9,10 @@ pub const LO_CANNOT_READ: &str = "LibreOffice couldn't read this presentation.";
 pub const LO_SNAP: &str = "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress).";
 /// The raw OS error goes to the log, never to the operator.
 pub const LO_NOT_STARTED: &str = "LibreOffice could not be started. Reinstall it and try again.";
+// PowerPoint on Windows (Plan 4 Task 6b). PowerPoint's own error text goes to the log, never to the operator.
+pub const PPT_TIMEOUT: &str = "PowerPoint took too long and was stopped. Try again.";
+pub const PPT_CANNOT_READ: &str = "PowerPoint couldn't open this presentation.";
+pub const PPT_NOT_STARTED: &str = "PowerPoint could not be started.";
 pub const NOT_PDF: &str = "This doesn't look like a PDF file.";
 
 // Media probes (Plan 4 Task 7). The raw mpv error goes to the log, never to the operator.

@@ -1,4 +1,4 @@
-//! Making "any video" playable, and PowerPoint → slide images.
+//! Making "any video" playable. PowerPoint → slide images lives in `import::powerpoint`.
 //!
 //! The room output plays H.264/VP8/VP9/AV1 video with AAC/MP3/Opus/Vorbis audio
 //! in MP4/WebM. Anything else (ProRes, HEVC, WMV, AVI, MKV, MPEG-2, DV, ...) is
@@ -143,47 +143,17 @@ pub async fn convert(input: &Path, output: &Path, kind: &str, plan: &Plan, mut p
     Ok(())
 }
 
-const PPT_SCRIPT: &str = r#"
-param([string]$Path, [string]$Out)
-$ErrorActionPreference = 'Stop'
-$ppt = New-Object -ComObject PowerPoint.Application
-$hadOpen = $ppt.Presentations.Count
-# ReadOnly, Untitled, WithWindow = false. Never touches presentations the user has open.
-$pres = $ppt.Presentations.Open($Path, -1, 0, 0)
-try {
-  $w = [int]($pres.PageSetup.SlideWidth); $h = [int]($pres.PageSetup.SlideHeight)
-  $outW = 1920; $outH = [int](1920 * $h / $w)
-  foreach ($s in $pres.Slides) {
-    if ($s.SlideShowTransition.Hidden) { continue }
-    $file = Join-Path $Out ('slide{0:D4}.png' -f $s.SlideIndex)
-    $s.Export($file, 'PNG', $outW, $outH)
-  }
-} finally {
-  $pres.Close()
-  if ($hadOpen -eq 0 -and $ppt.Presentations.Count -eq 0) { $ppt.Quit() }
-}
-"#;
-
-/// Export each visible slide of a PowerPoint file as a PNG using the installed PowerPoint.
+/// Export each visible slide of a PowerPoint file as a PNG using the installed PowerPoint, one import at a time.
+/// The old import path's way into `import::powerpoint`; Plan 4 Task 6c removes it when decks go through `import::deck`.
 pub async fn export_powerpoint(input: &Path, out_dir: &Path) -> Result<Vec<PathBuf>, String> {
-    if !cfg!(windows) { return Err("PowerPoint import needs Windows with PowerPoint installed.".into()); }
-    std::fs::create_dir_all(out_dir).map_err(|e| e.to_string())?;
-    let script = out_dir.join("export.ps1");
-    std::fs::write(&script, PPT_SCRIPT).map_err(|e| e.to_string())?;
-    let run = cmd(Path::new("powershell.exe"))
-        .args(["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File"]).arg(&script)
-        .arg("-Path").arg(input).arg("-Out").arg(out_dir).output();
-    let out = tokio::time::timeout(std::time::Duration::from_secs(600), run).await
-        .map_err(|_| "PowerPoint took too long (over 10 minutes).".to_string())?
-        .map_err(|e| format!("Could not start PowerShell: {e}"))?;
-    if !out.status.success() {
-        let err = String::from_utf8_lossy(&out.stderr);
-        let hint = if err.contains("80040154") || err.contains("ComObject") { " Is Microsoft PowerPoint installed?" } else { "" };
-        return Err(format!("PowerPoint export failed.{hint} {}", err.lines().find(|l| !l.trim().is_empty()).unwrap_or("")));
+    #[cfg(windows)]
+    {
+        static POWERPOINT: std::sync::LazyLock<crate::import::powerpoint::PowerPoint> = std::sync::LazyLock::new(Default::default);
+        POWERPOINT.export(input, out_dir, &|_| {}, &|_, _| {}, &tokio_util::sync::CancellationToken::new()).await
     }
-    let mut files: Vec<PathBuf> = std::fs::read_dir(out_dir).map_err(|e| e.to_string())?.flatten().map(|e| e.path())
-        .filter(|p| p.extension().is_some_and(|x| x.eq_ignore_ascii_case("png"))).collect();
-    files.sort();
-    if files.is_empty() { return Err("That presentation has no visible slides.".into()); }
-    Ok(files)
+    #[cfg(not(windows))]
+    {
+        let _ = (input, out_dir);
+        Err("PowerPoint import needs Windows with PowerPoint installed.".into())
+    }
 }
