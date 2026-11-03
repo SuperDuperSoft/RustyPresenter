@@ -2,6 +2,7 @@
 //! Pure logic that needs no window lives in `view`; the window and its update follower in `window`.
 pub mod add_item;
 pub mod bible;
+pub mod checks;
 pub mod file_input;
 pub mod files;
 #[path = "../../strings/operator.rs"]

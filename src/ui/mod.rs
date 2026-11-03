@@ -92,7 +92,7 @@ mod tests {
         ui_test_init();
         let w = crate::ui::WidgetGallery::new().unwrap();
         w.show().unwrap();
-        assert_eq!(slint::Model::row_count(&w.get_icons()), 24);
+        assert_eq!(slint::Model::row_count(&w.get_icons()), 25);
         w.hide().unwrap();
     }
 

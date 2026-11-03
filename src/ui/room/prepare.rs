@@ -123,7 +123,8 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
             }
             Source::Player { role, inst, path } => {
                 let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };
-                let Some(p) = players.create(role, inst) else { continue };
+                let device = work.app.data.lock().unwrap().settings.audio_device.clone();
+                let Some(p) = players.create(role, inst, &device) else { continue };
                 p.set_paused(true); // starts at the swap, like `startMedia` in `output.js`
                 if role == Role::Background {
                     // Fill the screen like CSS `object-fit: cover`.

@@ -83,3 +83,5 @@ pub const KEEP_BOTH: &str = "Keep both";
 pub fn deck_ready(title: &str) -> String { format!("“{title}” is ready") }
 pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
 pub const NAME_THESE_SLIDES: &str = "Name these slides";
+
+pub const STAGE_MESSAGE_ASK: &str = "Message for the stage screen. Leave it empty to take it down.";

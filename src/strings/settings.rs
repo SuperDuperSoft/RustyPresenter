@@ -124,3 +124,6 @@ mod tests {
         assert_eq!(super::bible_added("X", 1_234_567), "Added X (1,234,567 verses)");
     }
 }
+
+pub const AUDIO_DEFAULT: &str = "This computer's default sound output";
+pub const AUDIO_SAVED_GONE: &str = "The saved sound output (not connected)";

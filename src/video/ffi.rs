@@ -168,6 +168,22 @@ pub enum Node {
     Bytes(Vec<u8>),
 }
 
+/// A place sound can go.
+#[derive(Clone, Debug, PartialEq)]
+pub struct AudioDevice { pub name: String, pub label: String }
+
+/// `audio-device-list` as the operator should see it.
+pub fn audio_devices_from(list: &Node) -> Vec<AudioDevice> {
+    let Node::Array(items) = list else { return vec![] };
+    let all: Vec<AudioDevice> = items.iter().filter_map(|d| {
+        let name = d.get("name")?.as_str()?;
+        let label = d.get("description").and_then(Node::as_str).filter(|l| !l.is_empty()).unwrap_or(name);
+        (name != "auto").then(|| AudioDevice { name: name.into(), label: label.into() })
+    }).collect();
+    // Windows lists each output again under other drivers; WASAPI is the one that names real devices.
+    if all.iter().any(|d| d.name.starts_with("wasapi/")) { all.into_iter().filter(|d| d.name.starts_with("wasapi/")).collect() } else { all }
+}
+
 impl Node {
     /// The value under `key` of a map.
     pub fn get(&self, key: &str) -> Option<&Node> {
@@ -377,6 +393,23 @@ impl Mpv {
                 v
             })
             .clone()
+    }
+
+    /// The sound outputs on this computer now, read on a throwaway idle handle that never plays. Asks the system
+    /// each time, as devices come and go, so never call it on the UI thread.
+    pub fn audio_devices(&self) -> Vec<AudioDevice> {
+        unsafe {
+            let h = (self.create)();
+            if h.is_null() {
+                return vec![];
+            }
+            for (k, v) in [("vo", "null"), ("idle", "yes"), ("terminal", "no"), ("config", "no")] {
+                let _ = self.set_option(h, k, v);
+            }
+            let list = if (self.initialize)(h) >= 0 { self.get_node(h, "audio-device-list") } else { None };
+            (self.terminate_destroy)(h);
+            list.map(|l| audio_devices_from(&l)).unwrap_or_default()
+        }
     }
 
     pub fn err(&self, code: c_int) -> String {
@@ -593,5 +626,44 @@ mod tests {
         assert_eq!(std::mem::size_of::<mpv_node_list>(), 24);
         assert_eq!(std::mem::size_of::<mpv_byte_array>(), 16);
         assert_eq!(std::mem::size_of::<mpv_event_command>(), 16);
+    }
+}
+
+#[cfg(test)]
+mod audio_device_tests {
+    use super::*;
+
+    fn device(name: &str, description: &str) -> Node {
+        Node::Map(vec![("name".into(), Node::Str(name.into())), ("description".into(), Node::Str(description.into()))])
+    }
+
+    #[test]
+    fn the_real_outputs_are_listed_without_autoselect() {
+        let list = Node::Array(vec![device("auto", "Autoselect device"), device("wasapi/{a}", "Speakers (Realtek)"), device("wasapi/{b}", "PA Board (USB Audio)")]);
+        let got = audio_devices_from(&list);
+        assert_eq!(got, [AudioDevice { name: "wasapi/{a}".into(), label: "Speakers (Realtek)".into() }, AudioDevice { name: "wasapi/{b}".into(), label: "PA Board (USB Audio)".into() }]);
+    }
+
+    #[test]
+    fn on_windows_only_wasapi_shows_so_a_device_is_not_listed_twice() {
+        let list = Node::Array(vec![device("wasapi/{a}", "Speakers"), device("openal", "Speakers"), device("sdl", "Default")]);
+        assert_eq!(audio_devices_from(&list).len(), 1);
+    }
+
+    #[test]
+    fn other_systems_keep_what_they_have() {
+        let list = Node::Array(vec![device("auto", "Autoselect device"), device("pipewire", "PipeWire"), device("alsa/hdmi", "HDMI")]);
+        assert_eq!(audio_devices_from(&list).len(), 2);
+    }
+
+    #[test]
+    fn a_device_without_a_description_shows_its_name() {
+        let list = Node::Array(vec![Node::Map(vec![("name".into(), Node::Str("pulse/x".into()))])]);
+        assert_eq!(audio_devices_from(&list)[0].label, "pulse/x");
+    }
+
+    #[test]
+    fn anything_else_is_an_empty_list() {
+        assert_eq!(audio_devices_from(&Node::None), []);
     }
 }

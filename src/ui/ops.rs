@@ -75,6 +75,20 @@ impl Ops {
         self.run(work, |r| done(r.unwrap_or(None)));
     }
 
+    /// `App::preflight`, off the UI thread: it looks at every file the service needs.
+    pub fn preflight(&self, done: impl FnOnce(Vec<String>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { tokio::task::spawn_blocking(move || app.preflight()).await.map_err(|_| tr::ACTION_STOPPED.to_string()) };
+        self.run(work, |r| done(r.and_then(|r| r).unwrap_or_else(|e| vec![e])));
+    }
+
+    /// The sound outputs found (`App::audio_devices`), off the UI thread.
+    pub fn audio_devices(&self, done: impl FnOnce(Vec<crate::video::ffi::AudioDevice>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { tokio::task::spawn_blocking(move || app.audio_devices()).await.unwrap_or_default() };
+        self.run(work, |r| done(r.unwrap_or_default()));
+    }
+
     /// `App::do_action(action, <the file's bytes>)`, for actions whose body is a raw file (`bible/import/{ABBR}`).
     /// The file is read on tokio, never on the UI thread.
     pub fn call_file<T: DeserializeOwned + Send + 'static>(&self, action: String, path: PathBuf, done: impl FnOnce(Result<T, String>) + 'static) {

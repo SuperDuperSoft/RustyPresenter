@@ -74,6 +74,8 @@ fn save_settings_round_trips_theme_and_lines() {
     f.set_ccli("12345".into());
     assert!(f.get_room_on_top(), "on by default");
     f.set_room_on_top(false);
+    assert_eq!(f.get_audio_labels().row_count(), 1, "the default, before a list arrives");
+    assert_eq!(f.get_audio_index(), 0);
     click(&op, "SettingsDialog::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
@@ -434,4 +436,21 @@ fn video_tab_shows_player_status_not_ffmpeg() {
     for gone in ["SettingsVideo::missing", "SettingsVideo::found", "SettingsVideo::check-again"] {
         assert!(find(&op, gone).is_none(), "{gone}");
     }
+}
+
+#[test]
+fn the_sound_output_is_saved_and_shown_again() {
+    let app = test_app();
+    let op = opened(&app);
+    app.data.lock().unwrap().settings.audio_device = "wasapi/{board}".into();
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    assert_eq!(g(&op).get_audio_index(), 1, "kept though no list came");
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.audio_device, "wasapi/{board}");
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    g(&op).set_audio_index(0);
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.audio_device, "");
 }

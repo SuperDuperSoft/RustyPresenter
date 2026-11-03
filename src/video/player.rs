@@ -558,9 +558,11 @@ pub fn players(mpv: Option<Arc<Mpv>>, reports: Sender<PlayerReport>) -> Players 
 }
 
 impl Players {
-    pub fn create(&self, role: Role, inst: u64) -> Option<Player> {
+    /// `audio_device` is `Settings::audio_device` as it is now, so a change applies from the next item.
+    pub fn create(&self, role: Role, inst: u64, audio_device: &str) -> Option<Player> {
+        let opts = Options { audio_device: audio_device.to_string(), ..self.options.clone() };
         let r = match &self.mpv {
-            Some(m) => Player::with_options(m.clone(), role, inst, self.reports.clone(), &self.options),
+            Some(m) => Player::with_options(m.clone(), role, inst, self.reports.clone(), &opts),
             None => Err(ffi::MISSING.into()),
         };
         r.map_err(|e| {
@@ -1014,7 +1016,7 @@ mod tests {
     #[test]
     fn missing_libmpv_reports_error_for_instance() {
         let (tx, rx) = channel();
-        assert!(players(None, tx).create(Role::Audio { looped: false }, 42).is_none());
+        assert!(players(None, tx).create(Role::Audio { looped: false }, 42, "").is_none());
         let r = rx.try_recv().expect("report");
         assert_eq!((r.inst, r.state, r.error.as_deref()), (42, PlayState::Error, Some(ffi::MISSING)));
     }

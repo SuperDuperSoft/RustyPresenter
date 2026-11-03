@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_bible, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_look, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -85,6 +85,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
+    settings_audio::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
     let closing = edit.clone();
     op.on_dialog_close(move |_| closing.look.stop());
@@ -97,6 +98,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_credits(match s.credits.as_str() { "last" => 1, "none" => 2, _ => 0 });
     g.set_ccli(s.church_ccli.as_str().into());
     g.set_room_on_top(s.room_on_top);
+    settings_audio::fill(g, &[], &s.audio_device);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -106,6 +108,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.credits = ["first", "last", "none"][g.get_credits().clamp(0, 2) as usize].into();
     s.church_ccli = g.get_ccli().into();
     s.room_on_top = g.get_room_on_top();
+    s.audio_device = settings_audio::read(g);
 }
 
 /// Draws the pages that show the core's state rather than the form: Bible, Video, Backups and Help. The web

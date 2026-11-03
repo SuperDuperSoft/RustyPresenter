@@ -116,6 +116,8 @@ export component OperatorWindow inherits Window {
     callback services();
     callback screens();
     callback phone();
+    callback stage-message();
+    callback check-service();
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
@@ -195,6 +197,7 @@ export component OperatorWindow inherits Window {
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }
                 phone => { root.focus-keys(); root.phone(); }
+                stage-message => { root.focus-keys(); root.stage-message(); }
                 settings => { root.focus-keys(); root.settings(); }
                 bible-submit(text) => { root.bible-submit(text); }
                 pick-translation(i) => { root.pick-translation(i); }
@@ -220,6 +223,7 @@ export component OperatorWindow inherits Window {
                         edit(id) => { root.focus-keys(); root.service-edit(id); }
                         remove(id) => { root.focus-keys(); root.service-remove(id); }
                         add => { root.focus-keys(); root.service-add(); }
+                        check => { root.focus-keys(); root.check-service(); }
                         move(id, to) => { root.service-move(id, to); }
                         drag-started => { root.service-drag-started(); }
                         drag-finished => { root.service-drag-finished(); }

@@ -26,6 +26,7 @@ export component TopBar inherits Rectangle {
     callback services();
     callback screens();
     callback phone();
+    callback stage-message();
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
@@ -302,6 +303,16 @@ export component TopBar inherits Rectangle {
             }
         }
 
+        if root.stage-shown: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            message-btn := TopBtn {
+                icon: "message";
+                icon-only: true;
+                tooltip: @tr("Show a message on the stage screen");
+                clicked => { root.stage-message(); }
+            }
+        }
         VerticalLayout {
             horizontal-stretch: 0;
             alignment: center;

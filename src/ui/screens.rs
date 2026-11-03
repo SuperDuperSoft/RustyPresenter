@@ -322,6 +322,8 @@ impl Screens for NativeScreens {
 
     fn open_roles(&self) -> Vec<String> { self.roles.lock().unwrap().clone() }
 
+    fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { self.mpv.as_ref().map(|m| m.audio_devices()).unwrap_or_default() }
+
     /// As last seen (at most 2 s old): never waits for the Slint thread, so it is safe under `App`'s locks.
     fn monitors(&self) -> Vec<Monitor> {
         let (list, main) = self.seen.lock().unwrap().clone();

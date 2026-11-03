@@ -59,6 +59,10 @@ export global SettingsDlg {
     // ---- Video ----
     in property <string> video-player;
     in property <string> video-drawing;
+    /// Where sound goes: what the list shows, the device each line means, and the chosen line.
+    in property <[string]> audio-labels;
+    in property <[string]> audio-names;
+    in-out property <int> audio-index;
 
     // ---- Backups ----
     in property <string> backups-folder;

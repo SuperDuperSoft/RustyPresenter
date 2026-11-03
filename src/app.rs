@@ -81,6 +81,9 @@ pub struct LiveView {
     pub notice: Option<String>,
     pub theme: Theme,
     pub logo: Option<AssetId>,
+    /// The operator's message for the stage screen (spec §12.2). Never in the JSON: it goes to the stage and nowhere else.
+    #[serde(skip)]
+    pub stage_message: String,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -109,6 +112,8 @@ pub trait Screens: Send + Sync {
     /// Roles with an open window.
     fn open_roles(&self) -> Vec<String>;
     fn monitors(&self) -> Vec<Monitor>;
+    /// The sound outputs found. Asks the system, so never call it on the UI thread. Empty when that cannot be told.
+    fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { vec![] }
 }
 
 pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crate) failures: u32 }
@@ -179,6 +184,8 @@ pub struct App {
     cancels: Mutex<HashMap<Uuid, CancellationToken>>,
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
+    /// See `LiveView::stage_message`. Gone when the app closes.
+    stage_message: Mutex<String>,
     pub remote_conns: AtomicUsize,
     state_writer: Mutex<Option<StateWriter>>,
     /// Numbers saved states, newest highest.
@@ -215,7 +222,7 @@ impl App {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
-            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
+            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
         })
     }
@@ -238,6 +245,7 @@ impl App {
             notice: live.notice.clone(),
             theme: data.settings.theme.clone(),
             logo: data.settings.logo.clone(),
+            stage_message: self.stage_message.lock().unwrap().clone(),
         }
     }
 
@@ -447,6 +455,16 @@ impl App {
     }
 
     pub fn close_window(&self, role: &str) { if let Some(s) = self.screens.get() { s.close(role); } }
+
+    /// Spec §13, for the current service. Looks at every file it needs, so call it off the UI thread.
+    pub fn preflight(&self) -> Vec<String> {
+        let data = self.data.lock().unwrap().clone();
+        let has_asset = |id: &str| std::fs::metadata(self.store.asset_path(id)).is_ok_and(|m| m.is_file() && m.len() > 0);
+        let audio: Vec<String> = self.audio_devices().into_iter().map(|d| d.name).collect();
+        crate::preflight::check(&data, &self.monitors(), &audio, &has_asset)
+    }
+
+    pub fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { self.screens.get().map(|s| s.audio_devices()).unwrap_or_default() }
 
     pub(crate) fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
 
@@ -813,6 +831,13 @@ impl App {
             if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
             app.close_window(&role);
             app.broadcast_data();
+            Ok(json!({}))
+        }
+        "stage/message" => {
+            #[derive(Deserialize)] struct M { text: String }
+            let M { text } = parse(body)?;
+            *app.stage_message.lock().unwrap() = text.trim().to_string();
+            app.broadcast_live();
             Ok(json!({}))
         }
         // ---- backups ----
@@ -1255,6 +1280,53 @@ mod tests {
         assert!(std::ptr::eq(x.json(), x.json()));
         // The typed view stays available to native screens.
         assert_eq!(x.version, app.live_view().version);
+    }
+
+    #[test]
+    fn preflight_looks_at_the_real_files() {
+        let app = test_app();
+        let good = app.store.import_file(&write_temp(b"picture"), "png").unwrap();
+        let empty = app.store.import_file(&write_temp(b""), "jpg").unwrap();
+        let check = |logo: &str| {
+            app.data.lock().unwrap().settings.logo = Some(logo.to_string());
+            app.preflight().contains(&crate::preflight::strings::LOGO_MISSING.to_string())
+        };
+        assert!(!check(&good));
+        assert!(check(&empty), "an empty file cannot be shown");
+        assert!(check("gone.png"));
+    }
+
+    fn write_temp(bytes: &[u8]) -> PathBuf {
+        let p = std::env::temp_dir().join(format!("rp-preflight-{}", Uuid::new_v4()));
+        std::fs::write(&p, bytes).unwrap();
+        p
+    }
+
+    #[tokio::test]
+    async fn stage_message_goes_to_the_stage_view_at_once_and_trimmed() {
+        let app = test_app();
+        let mut rx = app.subscribe();
+        app.do_action("stage/message", br#"{"text":"  Wrap up, please \n"}"#).await.unwrap();
+        assert_eq!(app.live_view().stage_message, "Wrap up, please");
+        let Ok(Update::Live(u)) = rx.try_recv() else { panic!("no live update") };
+        assert_eq!(u.stage_message, "Wrap up, please");
+    }
+
+    #[tokio::test]
+    async fn empty_stage_message_clears_it() {
+        let app = test_app();
+        app.do_action("stage/message", br#"{"text":"Wrap up"}"#).await.unwrap();
+        app.do_action("stage/message", br#"{"text":"   "}"#).await.unwrap();
+        assert_eq!(app.live_view().stage_message, "");
+    }
+
+    #[tokio::test]
+    async fn stage_message_never_reaches_the_json_phones_and_pages_read() {
+        let app = test_app();
+        app.do_action("stage/message", br#"{"text":"Wrap up"}"#).await.unwrap();
+        let v = serde_json::to_string(&app.live_view()).unwrap();
+        assert!(!v.contains("Wrap up"), "{v}");
+        assert!(!app.state_json().to_string().contains("Wrap up"));
     }
 
     #[test]

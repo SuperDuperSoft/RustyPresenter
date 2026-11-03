@@ -295,7 +295,7 @@ mod tests {
     fn view() -> LiveView {
         LiveView {
             version: 1, committed: 1, pending: false, frame: Frame::default(), cursor: None, item: None, slide: None, next: None,
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None,
+            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
         }
     }
 

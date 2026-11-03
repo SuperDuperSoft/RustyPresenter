@@ -3,7 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented, CopyText, Kbd } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, Tabs, Note, Lbl, ListRow, RowMain, Check } from "form.slint";
+import { TextField, Tabs, Note, Lbl, ListRow, RowMain, Check, Select } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { SettingsLook } from "settings-look.slint";
 import { SettingsBible } from "settings-bible.slint";
@@ -55,6 +55,13 @@ component SettingsVideo inherits VerticalLayout {
         accessible-label: self.text;
     }
     Rectangle { height: 18px; }
+    Field {
+        label: @tr("Sound goes to");
+        audio := Select {
+            options: SettingsDlg.audio-labels;
+            index <=> SettingsDlg.audio-index;
+        }
+    }
     Field {
         label: @tr("Room screen");
         room-on-top := Check {

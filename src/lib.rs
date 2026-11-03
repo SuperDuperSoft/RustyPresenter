@@ -6,6 +6,7 @@ pub mod lenient;
 pub mod live;
 pub mod model;
 pub mod platform;
+pub mod preflight;
 pub mod recovery;
 pub mod render;
 pub mod room;

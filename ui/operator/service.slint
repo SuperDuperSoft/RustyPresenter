@@ -1,7 +1,7 @@
 // The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
 // drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
 import { Theme } from "../theme.slint";
-import { Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Btn, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`).
 export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool }
@@ -45,6 +45,8 @@ export component ServiceColumn inherits VerticalLayout {
     callback edit(string);
     callback remove(string);
     callback add();
+    /// Preflight: is everything this service needs really there?
+    callback check();
     /// Drop on row `to` (by item id, so a rebuilt list cannot move the wrong item).
     callback move(string, int);
     callback drag-started();
@@ -57,6 +59,15 @@ export component ServiceColumn inherits VerticalLayout {
     PanelHead {
         title: @tr("Service");
         count: root.count;
+        VerticalLayout {
+            alignment: center;
+            check-btn := Btn {
+                small: true;
+                text: @tr("Check");
+                tooltip: @tr("Before the service: are all the songs, files and screens there?");
+                clicked => { root.check(); }
+            }
+        }
     }
 
     // `.items`: padding 0 8px, rows 2 px apart.

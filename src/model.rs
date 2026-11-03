@@ -205,6 +205,8 @@ pub struct Settings {
     /// paints it first (smooth fades on the projector while the operator is busy). Never applies when the room
     /// shares the operator's monitor.
     pub room_on_top: bool,
+    /// Where sound goes: an mpv device name, as `Mpv::audio_devices` lists it. Empty = the computer's default.
+    pub audio_device: String,
 }
 
 impl Default for Settings {
@@ -219,6 +221,7 @@ impl Default for Settings {
             translation: "KJV".into(),
             displays: DisplayRoles::default(),
             room_on_top: true,
+            audio_device: String::new(),
         }
     }
 }
