@@ -5,7 +5,7 @@ pub mod color;
 pub mod layout;
 pub mod raster;
 
-pub use cache::{RenderKey, Renderer};
+pub use cache::{Generation, RenderKey, Renderer, Wanted};
 pub use color::parse_color;
 pub use layout::{Fonts, Rect, TextLayout, TextSlide, fit_steps, layout};
-pub use raster::{Rendered, render_text};
+pub use raster::{Premul, Rendered, render_text};

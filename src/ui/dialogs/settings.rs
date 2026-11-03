@@ -96,6 +96,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_lines(i32::from(s.lines_per_slide.clamp(1, 6)) - 1);
     g.set_credits(match s.credits.as_str() { "last" => 1, "none" => 2, _ => 0 });
     g.set_ccli(s.church_ccli.as_str().into());
+    g.set_room_on_top(s.room_on_top);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -104,6 +105,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.lines_per_slide = (g.get_lines().clamp(0, 5) + 1) as u8;
     s.credits = ["first", "last", "none"][g.get_credits().clamp(0, 2) as usize].into();
     s.church_ccli = g.get_ccli().into();
+    s.room_on_top = g.get_room_on_top();
 }
 
 /// Draws the pages that show the core's state rather than the form: Bible, Video, Backups and Help. The web

@@ -8,7 +8,7 @@ use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monit
 use crate::render::Renderer;
 use crate::video::{FrameGrabber, ffi::Mpv};
 use slint::{CloseRequestResponse, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
-use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, mpsc}, thread::ThreadId, time::Duration};
+use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, atomic::{AtomicBool, Ordering}, mpsc}, thread::ThreadId, time::Duration};
 
 const NOT_CONNECTED: &str = "That screen is not connected right now.";
 
@@ -55,6 +55,8 @@ pub struct NativeScreens {
     roles: Mutex<Vec<String>>,
     /// After a crash: the roles that were open. They reopen instead of what settings say.
     restored: Mutex<Option<Vec<String>>>,
+    /// `Settings::room_on_top` as last read (the data lock is only tried, never waited for, on this thread).
+    room_on_top: AtomicBool,
 }
 
 impl NativeScreens {
@@ -64,7 +66,7 @@ impl NativeScreens {
         if let Some(m) = mpv.clone() { let _ = std::thread::Builder::new().name("mpv-versions".into()).spawn(move || { m.versions(); }); }
         Arc::new_cyclic(|me| NativeScreens {
             app: Arc::downgrade(app), renderer, mpv, ui: std::thread::current().id(), me: me.clone(),
-            seen: Mutex::default(), roles: Mutex::default(), restored: Mutex::default(),
+            seen: Mutex::default(), roles: Mutex::default(), restored: Mutex::default(), room_on_top: AtomicBool::new(true),
         })
     }
 
@@ -139,6 +141,30 @@ impl NativeScreens {
         for (role, win, m) in moved {
             if let Err(e) = monitors::refullscreen(win.window(), &m) { eprintln!("Could not put the {} back: {e}", named(&role)) }
         }
+        self.level_room();
+    }
+
+    /// Whether the room window should be kept on top now: the setting is on and the room is full screen on a
+    /// monitor other than the operator's (where the operator window is, else where it would go).
+    fn room_should_be_on_top(&self) -> bool {
+        if let Some(app) = self.app.upgrade() {
+            if let Ok(d) = app.data.try_lock() { self.room_on_top.store(d.settings.room_on_top, Ordering::Relaxed) }
+        }
+        let (list, main) = self.seen.lock().unwrap().clone();
+        DESK.with(|d| {
+            let d = d.borrow();
+            let room = d.watcher.monitor_of("room").cloned();
+            let operator = d.operator.as_ref().and_then(std::rc::Weak::upgrade).and_then(|op| monitors::current(op.window()))
+                .or_else(|| operator_monitor(&list, main.as_ref(), room.as_ref()));
+            room_on_top(self.room_on_top.load(Ordering::Relaxed), room.as_ref(), operator.as_ref())
+        })
+    }
+
+    /// Puts the room window on top, or back to normal, as `room_should_be_on_top` says (at open and every look).
+    fn level_room(&self) {
+        let on = self.room_should_be_on_top();
+        let rooms: Vec<Rc<Room>> = DESK.with(|d| d.borrow().wins.iter().filter_map(|(_, _, w, _)| match w { Win::Room(r) => Some(r.clone()), _ => None }).collect());
+        for r in rooms { r.set_on_top(on) }
     }
 
     /// Reopen room and stage: what was open before a crash, otherwise what settings say.
@@ -223,6 +249,7 @@ impl NativeScreens {
             match mon { Some(m) => d.watcher.watch(role, m, &self.seen.lock().unwrap().0), None => d.watcher.unwatch(role) }
         });
         self.sync_roles();
+        if role == "room" { self.level_room() }
         Ok(())
     }
 
@@ -289,6 +316,13 @@ impl Screens for NativeScreens {
         let (list, main) = self.seen.lock().unwrap().clone();
         to_monitors(&list, main.as_ref())
     }
+}
+
+/// Whether the room window is kept on top: only with the setting on, and only while it is full screen on a monitor
+/// that is not the operator's (on the operator's own monitor it would cover the operator; a plain test window is
+/// never on top).
+pub fn room_on_top(setting: bool, room: Option<&MonitorId>, operator: Option<&MonitorId>) -> bool {
+    setting && matches!((room, operator), (Some(r), Some(o)) if r != o)
 }
 
 /// The operator's monitor: the main one, unless the room is on it (saved there on purpose); then the
@@ -388,6 +422,30 @@ mod tests {
         assert_eq!(operator_monitor(&[laptop.clone()], Some(&laptop), Some(&laptop)), Some(laptop.clone()), "one monitor");
         assert_eq!(operator_monitor(&[], None, None), None);
         assert_eq!(operator_monitor(&[projector.clone()], Some(&laptop), None), Some(projector.clone()), "main unplugged");
+    }
+
+    #[test]
+    fn room_is_on_top_only_on_a_monitor_of_its_own() {
+        let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 2560, 1920));
+        assert!(room_on_top(true, Some(&projector), Some(&laptop)));
+        assert!(!room_on_top(false, Some(&projector), Some(&laptop)), "the setting turns it off");
+        assert!(!room_on_top(true, Some(&laptop), Some(&laptop)), "never over the operator");
+        assert!(!room_on_top(true, None, Some(&laptop)), "a test window is a plain window");
+        assert!(!room_on_top(true, Some(&projector), None));
+
+        let app = test_app();
+        let s = screens(&app);
+        s.look_at(vec![laptop.clone(), projector.clone()], Some(laptop.clone()));
+        s.open("room", Some(&projector.key())).unwrap();
+        assert!(s.room_should_be_on_top(), "full screen on the projector");
+        app.data.lock().unwrap().settings.room_on_top = false;
+        assert!(!s.room_should_be_on_top(), "turned off in Settings");
+        app.data.lock().unwrap().settings.room_on_top = true;
+        s.open("room", None).unwrap();
+        assert!(!s.room_should_be_on_top(), "a test window");
+        s.open("room", Some(&laptop.key())).unwrap();
+        assert!(s.room_should_be_on_top(), "the room saved on the main monitor: the operator goes to the other one");
+        s.shutdown();
     }
 
     #[test]

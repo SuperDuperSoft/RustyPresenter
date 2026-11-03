@@ -88,7 +88,7 @@ fn draw(source: &Source, size: (u32, u32), renderer: &TextRenderer, store: &Stor
         }
         Source::Text(key) => {
             let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone()));
-            Drawn::Pic(Some(Px::Premul(SharedPixelBuffer::clone_from_slice(&r.rgba_premul, r.width, r.height))), Color::default())
+            Drawn::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default())
         }
     }
 }

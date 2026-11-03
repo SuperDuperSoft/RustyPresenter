@@ -30,6 +30,9 @@ export global SettingsDlg {
     in-out property <int> position;
     in-out property <bool> shadow;
     in-out property <bool> uppercase;
+    // ---- Video ----
+    /// Keep the room screen on top while it has a monitor of its own (`Settings::room_on_top`).
+    in-out property <bool> room-on-top: true;
     in property <bool> has-logo;
     in property <image> logo;
     in property <image> preview;

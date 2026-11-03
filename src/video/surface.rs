@@ -25,13 +25,22 @@ static CHOSEN: std::sync::OnceLock<DrawMode> = std::sync::OnceLock::new();
 pub fn choose_backend() -> DrawMode {
     let select = |r: &str| slint::BackendSelector::new().backend_name("winit".into()).renderer_name(r.into()).select();
     let mut mode = DrawMode::Software;
+    let mut chosen = false;
     if std::env::var("RP_FORCE_SOFTWARE").as_deref() != Ok("1") {
-        match select("femtovg") {
-            Ok(()) => mode = DrawMode::OpenGl,
-            Err(e) => eprintln!("OpenGL drawing unavailable ({e}); drawing video in software"),
+        // PERF EXPERIMENT: RP_RENDERER picks Slint's renderer (default femtovg). femtovg and skia-opengl draw
+        // video under the scene through OpenGL; any other (femtovg-wgpu, skia, skia-vulkan, skia-software,
+        // software) draws video into an image. Renderers other than femtovg and software need the crate's
+        // `renderer-wgpu` / `renderer-skia` features.
+        let r = std::env::var("RP_RENDERER").ok().filter(|r| !r.is_empty()).unwrap_or_else(|| "femtovg".into());
+        match select(&r) {
+            Ok(()) => {
+                chosen = true;
+                if r == "femtovg" || r == "skia-opengl" { mode = DrawMode::OpenGl }
+            }
+            Err(e) => eprintln!("{r} drawing unavailable ({e}); drawing video in software"),
         }
     }
-    if mode == DrawMode::Software {
+    if !chosen {
         if let Err(e) = select("software") {
             eprintln!("software renderer: {e}");
         }
@@ -83,6 +92,8 @@ unsafe extern "C" fn gl_proc(ctx: *mut c_void, name: *const c_char) -> *mut c_vo
 /// loads and plays before it is drawn, and switching players never turns video off.
 pub struct VideoSurface {
     mode: DrawMode,
+    /// The window's buffer swaps wait for the monitor's refresh (the room: no tearing). OpenGL only.
+    vsync: bool,
     wake: &'static Wake,
     size: Box<dyn Fn() -> Option<PhysicalSize>>,
     redraw: Box<dyn Fn()>,
@@ -134,14 +145,16 @@ impl State {
 impl VideoSurface {
     /// Attaches to `ui`'s window. `on_frame` receives software frames (and `None`
     /// when they stop); show it as an `Image` under the scene. In OpenGL mode this
-    /// takes the window's rendering notifier.
-    pub fn attach<C: ComponentHandle + 'static>(ui: &C, mode: DrawMode, on_frame: impl Fn(Option<slint::Image>) + 'static) -> Rc<VideoSurface> {
+    /// takes the window's rendering notifier, and sets the window's swap interval:
+    /// `vsync` waits for the monitor's refresh (`crate::ui::pacing`).
+    pub fn attach<C: ComponentHandle + 'static>(ui: &C, mode: DrawMode, vsync: bool, on_frame: impl Fn(Option<slint::Image>) + 'static) -> Rc<VideoSurface> {
         let (w1, w2) = (ui.as_weak(), ui.as_weak());
         static NEXT: AtomicUsize = AtomicUsize::new(1);
         let id = NEXT.fetch_add(1, Ordering::Relaxed);
         let wake: &'static Wake = Box::leak(Box::new(Wake { queued: AtomicBool::new(false), surface: id }));
         let mut s = VideoSurface {
             mode,
+            vsync,
             wake,
             size: Box::new(move || w1.upgrade().map(|c| c.window().size())),
             redraw: Box::new(move || {
@@ -326,6 +339,7 @@ impl VideoSurface {
     }
 
     fn notify(self: &Rc<Self>, state: RenderingState, api: &GraphicsAPI) {
+        crate::ui::pacing::on_render("room", self.vsync, &state, api);
         match state {
             RenderingState::RenderingSetup => {
                 if let GraphicsAPI::NativeOpenGL { get_proc_address } = api {

@@ -39,6 +39,13 @@ tokio-util = "0.7"
 zip = { version = "9.2", default-features = false, features = ["deflate"] }
 cfb = "0.10"
 
+[features]
+# PERF EXPERIMENT renderers for RP_RENDERER (see `video::choose_backend`); off by default, the app uses FemtoVG.
+# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain.
+renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
+# Skia: rust-skia has no prebuilt binaries for x86_64-pc-windows-gnu, so on Windows this needs the MSVC toolchain.
+renderer-skia = ["slint/renderer-skia", "slint/renderer-skia-opengl", "slint/renderer-skia-vulkan"]
+
 [build-dependencies]
 slint-build = "1.18"
 
@@ -62,3 +69,12 @@ strip = "debuginfo"
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
+
+# examples/slide_bench.rs reads the process CPU time.
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Threading"] }
+
+# Slint 1.18.1's winit backend with the fix from slint#14282 (the timer frame throttle drew every change twice, one
+# refresh late). See patches/i-slint-backend-winit/PATCHED.md; drop this once a Slint release has it.
+[patch.crates-io]
+i-slint-backend-winit = { path = "patches/i-slint-backend-winit" }

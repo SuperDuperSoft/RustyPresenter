@@ -1,12 +1,12 @@
 //! Preparing the room's new layers off the UI thread: slides drawn by the shared renderer,
 //! pictures decoded at display size, and players created and loaded (paused) for video and audio.
 use super::Msg;
-use crate::{app::App, live::{Frame, MediaLayer, SlideLayer}, model::{Background, Theme}, render::{RenderKey, Renderer, parse_color}};
+use crate::{app::App, live::{Frame, Live, MediaLayer, SlideLayer}, model::{Background, SlideContent, Theme}, render::{Generation, RenderKey, Renderer, Wanted, parse_color}};
 use crate::room::{Kind, Want};
 use crate::video::{Player, Players, Role};
 use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
 use crate::ui::block_on;
-use std::{path::{Path, PathBuf}, sync::Arc};
+use std::{path::{Path, PathBuf}, sync::{Arc, mpsc}};
 
 /// Pixels made off the UI thread (an `Image` is not `Send`).
 pub enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
@@ -25,11 +25,35 @@ unsafe impl Send for Fresh {}
 /// One prepared layer: a picture over a fill color, or a loaded, paused player.
 pub(super) enum Made { Pic(Option<Px>, Color), Player(Fresh) }
 
-/// What the prepare threads share with the room.
-pub(super) struct Work { pub(super) app: Arc<App>, pub(super) renderer: Arc<Renderer>, pub(super) video: Players, pub(super) audio: Players }
+/// What the prepare worker shares with the room. `generation` moves on with each new plan, so the worker drops
+/// what an older plan still had to do.
+pub(super) struct Work { pub(super) app: Arc<App>, pub(super) renderer: Arc<Renderer>, pub(super) video: Players, pub(super) audio: Players, pub(super) generation: Generation }
 
-/// One plan's layers to prepare, with what they need from the live view.
-pub(super) struct Job { pub(super) token: u64, pub(super) wants: Vec<Want>, pub(super) frame: Frame, pub(super) theme: Theme, pub(super) logo: Option<String>, pub(super) canvas: (u32, u32) }
+/// One plan's layers to prepare, with what they need from the live view. `wanted` goes stale once a newer plan
+/// starts.
+pub(super) struct Job { pub(super) token: u64, pub(super) wants: Vec<Want>, pub(super) frame: Frame, pub(super) theme: Theme, pub(super) logo: Option<String>, pub(super) canvas: (u32, u32), pub(super) wanted: Wanted }
+
+/// The room's one prepare thread, for as long as the room is open: it takes the newest job, skipping any that a
+/// newer one replaced while it was busy (one thread per plan used to queue up on the renderer with fast Next
+/// presses). Once the jobs are done it has the renderer draw the slides either side of the live one.
+pub(super) fn worker(work: Arc<Work>, send: impl Fn(Msg) + Send + 'static) -> std::io::Result<mpsc::Sender<Job>> {
+    let (tx, rx) = mpsc::channel::<Job>();
+    std::thread::Builder::new().name("room-prepare".into()).spawn(move || {
+        let mut next = None;
+        loop {
+            let Some(mut job) = next.take().or_else(|| rx.recv().ok()) else { return };
+            while let Ok(newer) = rx.try_recv() { job = newer }
+            prepare(&work, &job, &send);
+            // Nothing new waiting: draw ahead. Something waiting: do that first.
+            match rx.try_recv() {
+                Ok(newer) => next = Some(newer),
+                Err(mpsc::TryRecvError::Empty) => prefetch_neighbours(&work, &job),
+                Err(mpsc::TryRecvError::Disconnected) => return,
+            }
+        }
+    })?;
+    Ok(tx)
+}
 
 enum Source {
     Fill(Color),
@@ -78,11 +102,13 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
 
 /// Prepares every layer of `job`, players first (they take longest to be ready), and sends each
 /// as it is done. A player that cannot be made is reported by `Players` for its instance instead.
-pub(super) fn prepare(work: &Work, job: Job, send: impl Fn(Msg)) {
-    let mut sources: Vec<_> = job.wants.iter().map(|w| (w.kind, source(w.kind, &job, &work.app).unwrap_or(Source::Fill(Color::default())))).collect();
+/// Once a newer plan has started, what is left is dropped unsent (the room ignores an old plan anyway).
+pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
+    let mut sources: Vec<_> = job.wants.iter().map(|w| (w.kind, source(w.kind, job, &work.app).unwrap_or(Source::Fill(Color::default())))).collect();
     sources.sort_by_key(|(_, s)| !matches!(s, Source::Player { .. }));
     let token = job.token;
     for (kind, s) in sources {
+        if !job.wanted.still() { return }
         let made = match s {
             Source::Fill(c) => Ok(Made::Pic(None, c)),
             Source::Picture { path, cover, scale } => {
@@ -91,8 +117,9 @@ pub(super) fn prepare(work: &Work, job: Job, send: impl Fn(Msg)) {
                 picture(&path, canvas, cover).map(|px| Made::Pic(Some(px), BLACK))
             }
             Source::Text(key) => {
-                let r = block_on(work.renderer.render(key));
-                Ok(Made::Pic(Some(Px::Premul(SharedPixelBuffer::clone_from_slice(&r.rgba_premul, r.width, r.height))), Color::default()))
+                // Shared with the renderer's cache, not copied.
+                let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
+                Ok(Made::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default()))
             }
             Source::Player { role, inst, path } => {
                 let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };
@@ -110,6 +137,25 @@ pub(super) fn prepare(work: &Work, job: Job, send: impl Fn(Msg)) {
     }
 }
 
+/// The render keys of the live item's text slides either side of the live one, as the room would draw them.
+pub(super) fn neighbours(live: &Live, theme: &Theme, canvas: (u32, u32)) -> Vec<RenderKey> {
+    let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return vec![] };
+    let scripture = item.kind == "scripture";
+    [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
+        SlideContent::Text { text, footer, reference } => Some(RenderKey {
+            text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture, theme: theme.clone(), canvas,
+        }),
+        _ => None,
+    }).collect()
+}
+
+/// While the room shows a text slide, has the renderer draw the next and previous ones when it is idle.
+fn prefetch_neighbours(work: &Work, job: &Job) {
+    if !matches!(job.frame.slide, Some(SlideLayer::Text { .. })) { return }
+    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, &job.theme, job.canvas) };
+    for k in keys { work.renderer.prefetch(k) }
+}
+
 fn unreadable<E>(_: E) -> String { "picture could not be loaded".into() }
 
 /// Decodes a picture (by its content, not its name) and shrinks it to fit (`cover`: to fill) `w`×`h`.
@@ -123,4 +169,31 @@ pub(in crate::ui) fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Re
         image::imageops::resize(&img, size(iw), size(ih), image::imageops::FilterType::Triangle)
     } else { img };
     Ok(Px::Straight(SharedPixelBuffer::clone_from_slice(img.as_raw(), img.width(), img.height())))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{live::{Cursor, LiveItem}, model::Slide};
+
+    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None }, notes: String::new() } }
+
+    #[test]
+    fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
+        let mut live = Live::new();
+        assert!(neighbours(&live, &Theme::default(), (64, 36)).is_empty(), "nothing live");
+        let picture = Slide { label: String::new(), content: SlideContent::Image { asset: "p.png".into() }, notes: String::new() };
+        live.item = Some(LiveItem {
+            item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
+            background: Background::Color { color: "#000000".into() },
+        });
+        let at = |live: &mut Live, slide| live.cursor = Some(Cursor { item_id: uuid::Uuid::nil(), item_index: 0, slide });
+        let texts = |live: &Live| neighbours(live, &Theme::default(), (64, 36)).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
+        at(&mut live, 0);
+        assert_eq!(texts(&live), ["two"], "nothing before the first slide");
+        at(&mut live, 1);
+        assert_eq!(texts(&live), ["one"], "a picture slide is not drawn ahead");
+        at(&mut live, 3);
+        assert_eq!(texts(&live), Vec::<String>::new(), "after the last: nothing; before it: a picture");
+    }
 }

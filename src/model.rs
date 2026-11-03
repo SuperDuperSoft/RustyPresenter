@@ -201,6 +201,10 @@ pub struct Settings {
     pub church_ccli: String,
     pub translation: String,
     pub displays: DisplayRoles,
+    /// Keep the room window on top of other windows while it is full screen on a monitor of its own, so Windows
+    /// paints it first (smooth fades on the projector while the operator is busy). Never applies when the room
+    /// shares the operator's monitor.
+    pub room_on_top: bool,
 }
 
 impl Default for Settings {
@@ -214,6 +218,7 @@ impl Default for Settings {
             church_ccli: String::new(),
             translation: "KJV".into(),
             displays: DisplayRoles::default(),
+            room_on_top: true,
         }
     }
 }

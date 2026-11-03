@@ -9,6 +9,8 @@ pub mod dialogs;
 pub mod ops;
 pub mod thumbs;
 pub mod preview;
+pub mod fade;
+pub mod pacing;
 
 /// Runs a future on this (plain) thread, e.g. a `Renderer` reply, which needs no runtime.
 pub(crate) fn block_on<F: std::future::Future>(f: F) -> F::Output {

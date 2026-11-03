@@ -75,6 +75,8 @@ impl Stage {
     /// Open the stage window, full screen on `monitor` (a plain window without one).
     pub fn open(app: Arc<App>, monitor: Option<MonitorId>) -> Result<Rc<Stage>, String> {
         let ui = StageWindow::new().map_err(|e| format!("Could not open the stage screen: {e}"))?;
+        // Its frames never wait for the monitor's refresh, so the room's are not held up behind them.
+        super::pacing::attach(ui.window(), "stage", false);
         let weak = ui.as_weak();
         ui.on_refit(move || if let Some(ui) = weak.upgrade() { fit(&ui) });
         let clock = Timer::default();

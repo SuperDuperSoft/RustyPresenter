@@ -2,7 +2,7 @@
 // monitor, the transport, the notice, Back/Next, the clears and Up next. The rows and texts come from Rust (`live.rs`).
 import { Theme } from "../theme.slint";
 import { Bar, ScrollBox } from "../widgets.slint";
-import { Layer } from "../room.slint";
+import { Side } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 
@@ -18,11 +18,11 @@ export component LiveColumn inherits Rectangle {
     in property <string> up-next-body: @tr("—");
     in property <[TransportCell]> transport;
 
-    in property <Layer> monitor-bg;
+    in property <Side> monitor-bg;
     in property <bool> monitor-bg-visible: true;
-    in property <Layer> monitor-media;
-    in property <Layer> monitor-slide;
-    in property <Layer> monitor-logo;
+    in property <Side> monitor-media;
+    in property <Side> monitor-slide;
+    in property <Side> monitor-logo;
     in property <bool> monitor-video;
     in property <image> monitor-video-frame;
     in property <bool> monitor-video-cover;

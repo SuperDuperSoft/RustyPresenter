@@ -1,15 +1,17 @@
 // The live column's monitor (`.monitor`, `operator.css:113`). It takes the room's inputs (`ui/room.slint`) so the
 // two screens stay in step; Rust prepares its layers off the UI thread (`src/ui/preview.rs`).
 import { Theme } from "../theme.slint";
-import { FadeLayer, Layer } from "../room.slint";
+import { CutLayer, Side } from "../room.slint";
 
 /// `.monitor`: the live frame, 16:9, with the room's layers (background, media, slide, logo) over the video frame.
 export component LiveMonitor inherits Rectangle {
-    in property <Layer> bg;
+    // Each layer cuts straight to its new picture (an empty `Side` when hidden): fading here would redraw the
+    // operator for every room crossfade.
+    in property <Side> bg;
     in property <bool> bg-visible: true;
-    in property <Layer> media;
-    in property <Layer> slide;
-    in property <Layer> logo;
+    in property <Side> media;
+    in property <Side> slide;
+    in property <Side> logo;
     in property <bool> video;
     in property <image> video-frame;
     /// The drawn video is the background one: it fills the box and is cropped (`object-fit: cover`, the room's
@@ -44,33 +46,32 @@ export component LiveMonitor inherits Rectangle {
             image-fit: root.video-cover ? ImageFit.cover : ImageFit.contain;
             visible: root.video;
         }
-        FadeLayer {
+        CutLayer {
             width: parent.width;
             height: parent.height;
-            layer: root.bg;
+            side: root.bg;
             fit: cover;
             visible: root.bg-visible;
         }
-        FadeLayer {
+        CutLayer {
             width: parent.width;
             height: parent.height;
-            layer: root.media;
+            side: root.media;
         }
-        FadeLayer {
+        CutLayer {
             width: parent.width;
             height: parent.height;
-            layer: root.slide;
+            side: root.slide;
         }
-        FadeLayer {
+        CutLayer {
             width: parent.width;
             height: parent.height;
-            layer: root.logo;
+            side: root.logo;
             scale: 0.7;
         }
         Rectangle {
             background: Theme.black;
             opacity: root.black;
-            animate opacity { duration: 200ms; }
         }
         if root.video && root.room-off: room-off := Text {
             text: @tr("Room screen is off");
