@@ -144,10 +144,10 @@ pub struct App {
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
-    /// Saves the committed frame for crash recovery (set by the native binary).
-    state_writer: OnceLock<crate::recovery::state::StateWriter>,
+    /// Saves the committed frame for crash recovery (set by the native binary, taken on quit).
+    state_writer: Mutex<Option<crate::recovery::state::StateWriter>>,
     state_seq: AtomicU64,
-    /// Restored playback instance → where to start it, taken once by the room.
+    /// Restored playback instance → where to start it, until it goes on air.
     resume: Mutex<HashMap<u64, f64>>,
 }
 
@@ -176,7 +176,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: OnceLock::new(), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
     }
 
@@ -238,25 +238,41 @@ impl App {
             (live.report(ev), live.committed_version > before)
         };
         if changed { self.broadcast_live(); }
-        if committed { self.save_live_state(); }
+        if committed { self.resume_on_air(); self.save_live_state(); }
     }
 
-    pub fn set_state_writer(&self, w: crate::recovery::state::StateWriter) { let _ = self.state_writer.set(w); }
+    pub fn set_state_writer(&self, w: crate::recovery::state::StateWriter) { *self.state_writer.lock().unwrap() = Some(w); }
+
+    /// Writes any state still waiting and saves no more. A clean quit calls this before `state::clear`.
+    pub fn stop_state_writer(&self) {
+        let w = self.state_writer.lock().unwrap().take();
+        if let Some(w) = w { w.flush_and_stop() }
+    }
 
     /// Hands the committed frame and current media positions to the state writer (never waits for the disk).
     pub fn save_live_state(&self) {
-        let Some(w) = self.state_writer.get() else { return };
+        if self.state_writer.lock().unwrap().is_none() { return }
         let windows = self.open_roles().into_iter().filter(|r| r == "room" || r == "stage").collect();
         // Numbered and submitted under the live lock, so a newer frame never loses to an older one.
         let live = self.live.lock().unwrap();
         let seq = self.state_seq.fetch_add(1, Ordering::Relaxed) + 1;
-        if let Some(s) = crate::recovery::state::snapshot(&live, windows, seq) { w.submit(s); }
+        let Some(s) = crate::recovery::state::snapshot(&live, windows, seq) else { return };
+        if let Some(w) = self.state_writer.lock().unwrap().as_ref() { w.submit(s); }
     }
 
     pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
 
-    /// Where a restored playback instance starts; later replays start from the beginning.
-    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().remove(&inst) }
+    /// Where a restored playback instance starts. Kept until it goes on air, as a newer plan may
+    /// prepare it again; later replays start from the beginning.
+    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().get(&inst).copied() }
+
+    /// Forgets the resume positions of the instances the room just committed.
+    fn resume_on_air(&self) {
+        if self.resume.lock().unwrap().is_empty() { return }
+        let Some((frame, ..)) = self.live.lock().unwrap().committed() else { return };
+        let on_air = [frame.background.map(|b| b.inst), frame.media.map(|m| m.inst), frame.audio.map(|a| a.inst)];
+        self.resume.lock().unwrap().retain(|inst, _| !on_air.contains(&Some(*inst)));
+    }
 
     pub fn set_notice(&self, text: &str) {
         self.live.lock().unwrap().notice = Some(text.into());

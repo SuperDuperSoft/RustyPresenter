@@ -279,24 +279,39 @@ mod tests {
         app.set_state_writer(StateWriter::start(app.store.root.clone()));
         let a = text_item(&app, "Alpha");
         let version = run(&app, Command::Show { item_id: a, slide: 0 });
-        std::thread::sleep(std::time::Duration::from_millis(100));
-        assert!(load(&app.store.root).is_none(), "a requested frame is not saved");
         app.room_event(RoomEvent::Committed { version });
-        let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
-        let s = loop {
-            if let Some(s) = load(&app.store.root) { break s }
-            assert!(std::time::Instant::now() < end, "no live-state.json after the commit");
-            std::thread::sleep(std::time::Duration::from_millis(10));
-        };
+        app.stop_state_writer(); // writes what is waiting
+        let s = load(&app.store.root).expect("live-state.json after the commit");
         assert!(slide_text(&s.frame).contains("Alpha"), "{:?}", s.frame);
     }
 
     #[test]
-    fn resume_position_is_consumed_once() {
+    fn app_saves_nothing_requested_or_after_stop() {
+        let app: Arc<App> = test_app();
+        app.set_state_writer(StateWriter::start(app.store.root.clone()));
+        let (a, b) = (text_item(&app, "Alpha"), text_item(&app, "Bravo"));
+        run(&app, Command::Show { item_id: a, slide: 0 });
+        app.stop_state_writer();
+        assert!(load(&app.store.root).is_none(), "a requested frame is not saved");
+        // A clean quit stops the writer, then clears: a later commit must not bring the file back.
+        clear(&app.store.root);
+        let version = run(&app, Command::Show { item_id: b, slide: 0 });
+        app.room_event(RoomEvent::Committed { version });
+        app.stop_state_writer();
+        assert!(!path(&app.store.root).exists());
+    }
+
+    #[test]
+    fn resume_position_lasts_until_on_air() {
         let app = test_app();
         app.set_resume(&[(7, 3.5)]);
         assert_eq!(app.resume_position(8), None);
         assert_eq!(app.resume_position(7), Some(3.5));
+        // A newer plan may prepare the same instance again before the first one went on air.
+        assert_eq!(app.resume_position(7), Some(3.5));
+        let frame = Frame { background: Some(Inst { inst: 7, v: Background::Video { asset: "bg.mp4".into() } }), ..Frame::default() };
+        let version = { let mut live = app.live.lock().unwrap(); live.restore(&saved(frame, 1), true); live.version };
+        app.room_event(RoomEvent::Committed { version });
         assert_eq!(app.resume_position(7), None, "a later replay starts from the beginning");
     }
 }
