@@ -6,6 +6,7 @@ pub mod live;
 pub mod media;
 pub mod model;
 pub mod platform;
+pub mod recovery;
 pub mod render;
 pub mod room;
 pub mod server;

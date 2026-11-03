@@ -329,7 +329,7 @@ impl Player {
         let stop = Arc::new(AtomicBool::new(false));
         let serial = SERIAL.fetch_add(1, Ordering::Relaxed);
         let w = Watch { core: core.clone(), inst, serial, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
-        let thread = match std::thread::Builder::new().name(format!("mpv-events-{inst}")).spawn(move || w.run()) {
+        let thread = match std::thread::Builder::new().name(format!("mpv-events-{inst}")).spawn(move || { crate::recovery::panic::mark_critical(); w.run() }) {
             Ok(t) => t,
             Err(e) => return Err(format!("The video player could not start: {e}")),
         };
