@@ -157,7 +157,7 @@ pub fn file_url(path: &Path, dir: bool) -> Result<String, String> {
     url.map(String::from).map_err(|()| strings::file_url_failed(&path.display().to_string()))
 }
 
-fn strip_verbatim(path: &str) -> String {
+pub(crate) fn strip_verbatim(path: &str) -> String {
     if let Some(rest) = path.strip_prefix(r"\\?\UNC\") {
         format!(r"\\{rest}")
     } else {
