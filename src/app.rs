@@ -905,7 +905,9 @@ impl App {
                         }
                         app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
                     }.await;
-                    let _ = std::fs::remove_dir_all(&dir);
+                    if let Err(e) = std::fs::remove_dir_all(&dir) {
+                        eprintln!("PowerPoint import folder {} was not removed: {e}", dir.display());
+                    }
                     app2.job_end(job, result.err());
                 });
                 return Ok(Imported::Job(job));

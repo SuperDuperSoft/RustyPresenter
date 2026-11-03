@@ -11,11 +11,12 @@ use crate::platform::{proc::{Stop, spawn_tree}, tools};
 #[cfg(windows)]
 use std::{ffi::OsString, path::{Path, PathBuf}, process::{ExitStatus, Stdio}};
 #[cfg(windows)]
-use tokio::{io::{AsyncBufReadExt, BufReader}, process::Command, sync::SemaphorePermit, time::Instant};
+use tokio::{io::{AsyncBufReadExt, AsyncWriteExt, BufReader}, process::Command, sync::SemaphorePermit, time::Instant};
 #[cfg(windows)]
 use tokio_util::sync::CancellationToken;
 
-/// Exports the visible slides of `-Path` to `-Out\slide-001.png`…, printing what it does (see `Line`).
+/// Exports the visible slides of `-Path` to `-Out\slide-001.png`…, printing what it does (see `Line`). After
+/// `SIZE` it reads the picture size `W H` from stdin: `export` answers with `output_size`, so one rule decides it.
 /// PowerShell 5.1 reads it as ANSI, so it stays ASCII.
 pub const SCRIPT: &str = r#"
 param([string]$Path, [string]$Out)
@@ -27,6 +28,8 @@ function Say([string]$s) { [Console]::Out.WriteLine($s); [Console]::Out.Flush() 
 $session = (Get-Process -Id $PID).SessionId
 $wasRunning = [bool](Get-Process POWERPNT -ErrorAction SilentlyContinue | Where-Object { $_.SessionId -eq $session })
 $app = New-Object -ComObject PowerPoint.Application
+# Anything that fails before this line means PowerPoint is missing or broken, not that the file is bad.
+Say 'ATTACHED'
 $hadOpen = $app.Presentations.Count
 $startedByUs = (-not $wasRunning) -and ($hadOpen -eq 0)
 if ($startedByUs) { Say 'STARTED_BY_US' }
@@ -42,12 +45,14 @@ try {
   $sh = [double]$pres.PageSetup.SlideHeight
   $inv = [Globalization.CultureInfo]::InvariantCulture
   Say ('SIZE ' + $sw.ToString($inv) + ' ' + $sh.ToString($inv))
-  # Width 1920 and an even height of at most 2160, as import::pdf::output_size.
-  $ratio = $sw / $sh
-  $away = [MidpointRounding]::AwayFromZero
-  $outW = 1920
-  $outH = [int][Math]::Round(1920 / $ratio / 2, $away) * 2
-  if ($outH -gt 2160) { $outH = 2160; $outW = [int][Math]::Round(2160 * $ratio / 2, $away) * 2 }
+  # The picture size from import::pdf::output_size. Rounding it here as well would disagree at half-way points.
+  $reply = [Console]::In.ReadLine()
+  if ($reply -eq $null) { throw 'no picture size' }
+  $wh = $reply.Trim().Split(' ')
+  if ($wh.Count -ne 2) { throw ('bad picture size ' + $reply) }
+  $outW = [int]$wh[0]
+  $outH = [int]$wh[1]
+  if ($outW -le 0 -or $outH -le 0) { throw ('bad picture size ' + $reply) }
   $shown = @($pres.Slides | Where-Object { -not $_.SlideShowTransition.Hidden })
   $i = 0
   foreach ($s in $shown) {
@@ -59,8 +64,9 @@ try {
 } finally {
   if ($pres -ne $null) { $pres.Close() }
   try { $app.AutomationSecurity = $security } catch {}
-  # A presentation the user opened meanwhile lives in this same PowerPoint, so count again.
-  if ($startedByUs -and $app.Presentations.Count -eq 0) { $app.Quit() }
+  # A presentation the user opened meanwhile lives in this same PowerPoint, so count again. A file opened in
+  # Protected View (an e-mail attachment) is not among Presentations, and a PowerPoint the user brought up is visible.
+  if ($startedByUs -and $app.Presentations.Count -eq 0 -and $app.ProtectedViewWindows.Count -eq 0 -and -not $app.Visible) { $app.Quit() }
 }
 "#;
 
@@ -77,7 +83,7 @@ $app = New-Object -ComObject PowerPoint.Application
 foreach ($p in @($app.Presentations)) {
   if ($p.FullName -eq $Path) { $p.Close() }
 }
-if ($StartedByUs -and $app.Presentations.Count -eq 0) { $app.Quit() }
+if ($StartedByUs -and $app.Presentations.Count -eq 0 -and $app.ProtectedViewWindows.Count -eq 0 -and -not $app.Visible) { $app.Quit() }
 "#;
 
 #[cfg(windows)]
@@ -86,6 +92,8 @@ const CLEANUP_TIMEOUT: Duration = Duration::from_secs(15);
 /// One line the export script prints.
 #[derive(Debug, PartialEq)]
 pub enum Line {
+    /// PowerPoint answered: an export that ends before this could not start PowerPoint.
+    Attached,
     /// Slides in the file, hidden ones included. Sets the time allowed.
     Count(usize),
     /// Slide width and height in points.
@@ -100,6 +108,7 @@ pub enum Line {
 pub fn parse_line(s: &str) -> Option<Line> {
     let mut words = s.split_whitespace();
     let line = match words.next()? {
+        "ATTACHED" => Line::Attached,
         "STARTED_BY_US" => Line::StartedByUs,
         "COUNT" => Line::Count(words.next()?.parse().ok()?),
         "SIZE" => {
@@ -171,6 +180,7 @@ impl PowerPoint {
     /// Saves each visible slide of `input` as `out/slide-001.png`…, sized by `output_size`. The scripts and
     /// PowerShell's log go in `out`'s parent, the import's work folder. `waiting(true)` is called if another
     /// import holds PowerPoint, and `waiting(false)` when this one gets it. `progress(i, n)` follows each slide.
+    /// Stop it through `cancel`: a dropped future still closes our copy, but without waiting for that (`Unfinished`).
     pub async fn export(&self, input: &Path, out: &Path, waiting: &(dyn Fn(bool) + Sync), progress: &(dyn Fn(usize, usize) + Sync), cancel: &CancellationToken) -> Result<Vec<PathBuf>, String> {
         let _permit = self.enter(waiting, cancel).await?;
         let work = out.parent().unwrap_or(out);
@@ -180,10 +190,14 @@ impl PowerPoint {
         let log = work.join("powerpoint.log");
         let mut cmd = self.command();
         cmd.args(self.args(&script, &[("-Path", input), ("-Out", out)]));
-        cmd.stdin(Stdio::null()).stdout(Stdio::piped()).stderr(std::fs::File::create(&log).map_err(not_started)?);
+        cmd.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(std::fs::File::create(&log).map_err(not_started)?);
         let began = Instant::now();
-        let mut tree = spawn_tree(cmd).map_err(not_started)?;
+        // Declared before the tree, so a dropped export kills PowerShell first and then closes our copy.
+        let mut unfinished = Unfinished { ppt: self, work, input, started: false, armed: false };
+        let mut tree = spawn_tree(Command::from(cmd)).map_err(not_started)?;
+        unfinished.armed = true;
         let stdout = tree.stdout().ok_or_else(|| not_started("no output pipe"))?;
+        let mut stdin = tree.stdin();
         let mut lines = BufReader::new(stdout).lines();
         let mut seen = Seen::default();
         let mut deadline = began + self.timeout(0);
@@ -196,16 +210,30 @@ impl PowerPoint {
             };
             let Ok(Some(line)) = line else { break None };
             match parse_line(&line) {
-                Some(Line::StartedByUs) => seen.started = true,
+                Some(Line::Attached) => seen.attached = true,
+                Some(Line::StartedByUs) => {
+                    seen.started = true;
+                    unfinished.started = true;
+                }
                 Some(Line::Count(n)) => {
                     seen.count = Some(n);
                     deadline = began + self.timeout(n);
                 }
-                Some(Line::Size(w, h)) => seen.size = Some((w, h)),
+                Some(Line::Size(w, h)) => {
+                    let size = output_size(w / h);
+                    seen.size = Some(size);
+                    // The script waits for this answer. If it cannot be sent, the closed pipe makes the script fail.
+                    if let Some(mut pipe) = stdin.take() {
+                        let _ = pipe.write_all(format!("{} {}\n", size.0, size.1).as_bytes()).await;
+                        let _ = pipe.flush().await;
+                    }
+                }
                 Some(Line::Slide(i, n)) => {
                     seen.slides = (i, n);
                     progress(i, n);
                 }
+                // A SIZE line that cannot be read gets no answer: closing stdin ends the script's wait at once.
+                None if line.trim_start().starts_with("SIZE") => drop(stdin.take()),
                 None => {}
             }
         };
@@ -215,10 +243,14 @@ impl PowerPoint {
         };
         drop(tree);
         match ended {
-            Ok(status) => finish(out, status, &seen, &log),
+            Ok(status) => {
+                unfinished.armed = false;
+                finish(out, status, &seen, &log)
+            }
             Err(stop) => {
                 // Still holding the turn, so the next import cannot open its copy while ours is being closed.
                 self.cleanup(work, input, seen.started).await;
+                unfinished.armed = false;
                 Err(match stop {
                     Stop::Timeout => strings::PPT_TIMEOUT,
                     Stop::Cancelled => CANCELLED,
@@ -249,18 +281,8 @@ impl PowerPoint {
     /// Closes our copy after a stopped export, and quits PowerPoint only if the export started it and nothing
     /// else is open. A failure is logged and PowerPoint is left alone.
     async fn cleanup(&self, work: &Path, input: &Path, started_by_us: bool) {
-        let script = work.join("powerpoint-cleanup.ps1");
-        if let Err(e) = std::fs::write(&script, CLEANUP_SCRIPT) {
-            eprintln!("PowerPoint clean-up could not be written: {e}");
-            return;
-        }
-        let mut cmd = self.command();
-        cmd.args(self.args(&script, &[("-Path", input)]));
-        if started_by_us {
-            cmd.arg("-StartedByUs");
-        }
-        cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
-        let ended = match spawn_tree(cmd) {
+        let Some(cmd) = self.cleanup_command(work, input, started_by_us) else { return };
+        let ended = match spawn_tree(Command::from(cmd)) {
             Ok(mut tree) => tree.wait(CLEANUP_TIMEOUT, &CancellationToken::new()).await.map_err(|stop| format!("{stop:?}")),
             Err(e) => Err(e.to_string()),
         };
@@ -271,7 +293,25 @@ impl PowerPoint {
         }
     }
 
-    fn command(&self) -> Command {
+    /// The clean-up's PowerShell, or `None` (logged) if its script cannot be written.
+    fn cleanup_command(&self, work: &Path, input: &Path, started_by_us: bool) -> Option<std::process::Command> {
+        let script = work.join("powerpoint-cleanup.ps1");
+        if let Err(e) = std::fs::write(&script, CLEANUP_SCRIPT) {
+            eprintln!("PowerPoint clean-up could not be written: {e}");
+            return None;
+        }
+        let mut cmd = self.command();
+        cmd.args(self.args(&script, &[("-Path", input)]));
+        if started_by_us {
+            cmd.arg("-StartedByUs");
+        }
+        cmd.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+        Some(cmd)
+    }
+
+    /// A std command, so `Unfinished` can start one outside the runtime; `Command::from` makes it async.
+    fn command(&self) -> std::process::Command {
+        use std::process::Command;
         #[cfg(test)]
         if let Some(fake) = &self.fake {
             let mut cmd = Command::new(&fake.exe);
@@ -301,13 +341,58 @@ impl Default for PowerPoint {
     }
 }
 
+/// An export whose PowerShell was started and not yet waited for or cleaned up. If the export future is dropped
+/// (runtime shut down, or a caller that drops instead of cancelling), PowerShell dies with its tree but PowerPoint
+/// still has our copy open, so this starts the clean-up on its own thread, with the same 15 s limit. The turn is
+/// already given back by then, which is why `export` should be stopped through its token.
+#[cfg(windows)]
+struct Unfinished<'a> {
+    ppt: &'a PowerPoint,
+    work: &'a Path,
+    input: &'a Path,
+    started: bool,
+    armed: bool,
+}
+
+#[cfg(windows)]
+impl Drop for Unfinished<'_> {
+    fn drop(&mut self) {
+        use std::os::windows::process::CommandExt;
+        if !self.armed {
+            return;
+        }
+        let Some(mut cmd) = self.ppt.cleanup_command(self.work, self.input, self.started) else { return };
+        cmd.creation_flags(crate::platform::proc::creation_flags());
+        let mut child = match cmd.spawn() {
+            Ok(child) => child,
+            Err(e) => return eprintln!("PowerPoint clean-up failed ({e}); PowerPoint may still be running hidden."),
+        };
+        std::thread::spawn(move || {
+            let began = std::time::Instant::now();
+            loop {
+                match child.try_wait() {
+                    Ok(Some(status)) if status.success() => return,
+                    Ok(Some(status)) => return eprintln!("PowerPoint clean-up ended with {status}; PowerPoint may still be running hidden."),
+                    Ok(None) if began.elapsed() < CLEANUP_TIMEOUT => std::thread::sleep(Duration::from_millis(50)),
+                    Ok(None) | Err(_) => {
+                        let _ = child.kill();
+                        return eprintln!("PowerPoint clean-up did not finish; PowerPoint may still be running hidden.");
+                    }
+                }
+            }
+        });
+    }
+}
+
 /// What the export script said before it ended.
 #[cfg(windows)]
 #[derive(Default)]
 struct Seen {
+    attached: bool,
     started: bool,
     count: Option<usize>,
-    size: Option<(f32, f32)>,
+    /// The picture size sent back after `SIZE`.
+    size: Option<(u32, u32)>,
     /// The last `SLIDE i n`.
     slides: (usize, usize),
 }
@@ -321,7 +406,11 @@ fn finish(out: &Path, status: ExitStatus, seen: &Seen, log: &Path) -> Result<Vec
         eprintln!("PowerPoint export failed ({why}): {}", said.lines().find(|l| !l.trim().is_empty()).unwrap_or(""));
         Err(strings::PPT_CANNOT_READ.to_string())
     };
-    let (Some(_), Some((w, h))) = (seen.count, seen.size) else { return failed("no slide count or size") };
+    if !seen.attached {
+        let said = std::fs::read(log).unwrap_or_default();
+        return Err(not_started(String::from_utf8_lossy(&said).lines().find(|l| !l.trim().is_empty()).unwrap_or("PowerShell ended at once")));
+    }
+    let (Some(_), Some(size)) = (seen.count, seen.size) else { return failed("no slide count or size") };
     if !status.success() {
         return failed(&status.to_string());
     }
@@ -332,7 +421,6 @@ fn finish(out: &Path, status: ExitStatus, seen: &Seen, log: &Path) -> Result<Vec
     if done != total {
         return failed("not every slide was saved");
     }
-    let size = output_size(w / h);
     let pngs: Vec<PathBuf> = (1..=total).map(|i| out.join(format!("slide-{i:03}.png"))).collect();
     for png in &pngs {
         match image::image_dimensions(png) {
@@ -368,8 +456,9 @@ mod tests {
         assert_eq!(parse_line("SIZE 720.5 540.25\r"), Some(Line::Size(720.5, 540.25)));
         assert_eq!(parse_line("SLIDE 2 3"), Some(Line::Slide(2, 3)));
         assert_eq!(parse_line("STARTED_BY_US"), Some(Line::StartedByUs));
+        assert_eq!(parse_line("ATTACHED"), Some(Line::Attached));
         assert_eq!(parse_line("  STARTED_BY_US  "), Some(Line::StartedByUs));
-        for junk in ["", "COUNT", "COUNT x", "SIZE 960", "SIZE 960,5 540", "SIZE 0 540", "SIZE 960 -1", "SLIDE 1", "SLIDE 4 3", "SLIDE 0 3", "slide 1 3", "WARNING: something", "COUNT 3 4"] {
+        for junk in ["", "COUNT", "COUNT x", "SIZE 960", "SIZE 960,5 540", "SIZE 0 540", "SIZE 960 -1", "SLIDE 1", "SLIDE 4 3", "SLIDE 0 3", "slide 1 3", "WARNING: something", "COUNT 3 4", "ATTACHED 1"] {
             assert_eq!(parse_line(junk), None, "{junk:?}");
         }
     }
@@ -388,7 +477,17 @@ mod tests {
             assert!(line.starts_with("if ("), "{line}");
             let cond = &line[..line.find('{').unwrap()];
             assert!(cond.contains("$startedByUs") && cond.contains("Presentations.Count -eq 0"), "{line}");
+            // Protected View windows are not presentations, and a visible PowerPoint is the user's.
+            assert!(cond.contains("ProtectedViewWindows.Count -eq 0") && cond.contains("-not $app.Visible"), "{line}");
         }
+        // PowerPoint answered before anything about the file is tried.
+        let attached = SCRIPT.find("Say 'ATTACHED'").unwrap();
+        assert!(SCRIPT.find("New-Object -ComObject PowerPoint.Application").unwrap() < attached && attached < SCRIPT.find(".Open(").unwrap());
+        // The picture size is read back after SIZE, never rounded here (import::pdf::output_size decides it).
+        let size = SCRIPT.find("Say ('SIZE '").unwrap();
+        let reply = SCRIPT.find("[Console]::In.ReadLine()").unwrap();
+        assert!(size < reply && reply < SCRIPT.find(".Export(").unwrap());
+        assert!(!SCRIPT.contains("Round("));
         // The flag means nothing of the user's was open when the import started.
         let flag = SCRIPT.lines().find(|l| l.trim_start().starts_with("$startedByUs =")).unwrap();
         assert!(flag.contains("$hadOpen -eq 0"), "{flag}");
@@ -416,7 +515,7 @@ mod tests {
         assert_eq!(CLEANUP_SCRIPT.matches(".Close()").count(), 1);
         let guards = quit_guards(CLEANUP_SCRIPT);
         assert_eq!(guards.len(), 1, "{guards:?}");
-        assert!(guards[0].trim().starts_with("if ($StartedByUs -and $app.Presentations.Count -eq 0)"), "{}", guards[0]);
+        assert!(guards[0].trim().starts_with("if ($StartedByUs -and $app.Presentations.Count -eq 0 -and $app.ProtectedViewWindows.Count -eq 0 -and -not $app.Visible)"), "{}", guards[0]);
         for script in [SCRIPT, CLEANUP_SCRIPT] {
             let lower = script.to_lowercase();
             for banned in ["taskkill", "stop-process", "kill", "terminate"] {
@@ -455,10 +554,12 @@ mod tests {
     const MARK: &str = "RP_FAKE_PPT_MARK";
 
     /// Not a real test: PowerShell's stand-in, this test binary run again. The export run follows the steps in
-    /// `RP_FAKE_PPT`, comma separated: `started`, `count:<n>`, `size:<w>:<h>` (points), `slides:<n>:<w>:<h>`
-    /// (writes n pictures of w×h pixels, each followed by its `SLIDE` line), `sleep:<ms>`, `hang`, `fail`.
-    /// The export run adds `start <ms>` and `end <ms>` lines to the file in `RP_FAKE_PPT_MARK`; the clean-up run
-    /// adds `cleanup <its arguments after -File>`.
+    /// `RP_FAKE_PPT`, comma separated: `started`, `count:<n>`, `size:<w>:<h>` (points; then reads the picture
+    /// size from stdin, as the script does), `slides:<n>[:<w>:<h>]` (writes n pictures of w×h pixels, by default
+    /// the size it was sent, each followed by its `SLIDE` line), `sleep:<ms>`, `hang`, `fail`. It prints
+    /// `ATTACHED` first unless the first step is `comfail`, which fails as `New-Object` does without PowerPoint.
+    /// The export run adds `export <its arguments after -File>`, `start <ms>`, `picture <w> <h>` and `end <ms>` lines
+    /// to the file in `RP_FAKE_PPT_MARK`; the clean-up run adds `cleanup <its arguments after -File>`.
     #[cfg(windows)]
     #[test]
     fn fake_powershell() {
@@ -472,17 +573,32 @@ mod tests {
             log(format!("cleanup {}", args[at + 2..].join(" ")));
             std::process::exit(0);
         }
+        log(format!("export {}", args[at + 2..].join(" ")));
         let out = PathBuf::from(&args[args.iter().position(|a| a == "-Out").unwrap() + 1]);
         log(format!("start {}", now_ms()));
-        for step in steps.split(',') {
+        if steps.starts_with("comfail") {
+            eprintln!("New-Object : Retrieving the COM class factory for component with CLSID {{}} failed: 80040154");
+            std::process::exit(1);
+        }
+        println!("ATTACHED");
+        let mut picture = (0u32, 0u32);
+        for step in steps.split(',').filter(|s| !s.is_empty()) {
             let parts: Vec<&str> = step.split(':').collect();
             match parts[0] {
                 "started" => println!("STARTED_BY_US"),
                 "count" => println!("COUNT {}", parts[1]),
-                "size" => println!("SIZE {} {}", parts[1], parts[2]),
+                "size" => {
+                    println!("SIZE {} {}", parts[1], parts[2]);
+                    std::io::stdout().flush().unwrap();
+                    let mut reply = String::new();
+                    std::io::stdin().read_line(&mut reply).unwrap();
+                    let wh: Vec<u32> = reply.split_whitespace().map(|n| n.parse().unwrap()).collect();
+                    picture = (wh[0], wh[1]);
+                    log(format!("picture {} {}", wh[0], wh[1]));
+                }
                 "slides" => {
                     let n: usize = parts[1].parse().unwrap();
-                    let (w, h) = (parts[2].parse().unwrap(), parts[3].parse().unwrap());
+                    let (w, h) = if parts.len() > 2 { (parts[2].parse().unwrap(), parts[3].parse().unwrap()) } else { picture };
                     for i in 1..=n {
                         image::RgbImage::from_pixel(w, h, image::Rgb([200, 30, 30])).save(out.join(format!("slide-{i:03}.png"))).unwrap();
                         println!("SLIDE {i} {n}");
@@ -574,9 +690,10 @@ mod tests {
         let _ = fx.ppt.export(&verbatim, &fx.out, &quiet, &no_progress, &CancellationToken::new()).await;
         let log = std::fs::read_to_string(fx.out.parent().unwrap().join("powerpoint.log")).unwrap();
         assert!(log.contains("Exception calling"), "{log}");
+        // What the export run was really given.
+        assert_eq!(marks(&fx.mark, "export"), vec![format!("-Path {} -Out {}", fx.input.display(), fx.out.display())]);
         let args = fx.ppt.args(&fx.out.parent().unwrap().join("x.ps1"), &[("-Path", verbatim.as_path())]);
         let text: Vec<String> = args.iter().map(|a| a.to_string_lossy().into_owned()).collect();
-        assert_eq!(text[text.len() - 1], fx.input.display().to_string());
         for s in ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File"] {
             assert!(text.iter().any(|a| a == s), "{s}");
         }
@@ -607,21 +724,85 @@ mod tests {
     #[cfg(windows)]
     #[tokio::test]
     async fn cancel_while_waiting_never_starts_powershell() {
-        let fx = fixture("count:1,size:960:540,sleep:800,slides:1:1920:1080");
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let fx = fixture("count:1,size:960:540,sleep:1500,slides:1:1920:1080");
         let free = CancellationToken::new();
         let cancel = CancellationToken::new();
-        let later = cancel.clone();
         let out2 = fx.dir.join("work2").join("slides");
+        let (is_waiting, got_turn) = (AtomicBool::new(false), AtomicBool::new(false));
+        let note = |w: bool| if w { is_waiting.store(true, Ordering::SeqCst) } else { got_turn.store(true, Ordering::SeqCst) };
         let first = fx.ppt.export(&fx.input, &fx.out, &quiet, &no_progress, &free);
         let second = async {
             tokio::time::sleep(Duration::from_millis(100)).await;
-            later.cancel();
-            fx.ppt.export(&fx.input, &out2, &quiet, &no_progress, &cancel).await
+            let r = fx.ppt.export(&fx.input, &out2, &note, &no_progress, &cancel).await;
+            (r, now_ms())
         };
-        let (a, b) = tokio::join!(first, second);
+        // Cancelled only once the second export is really waiting for the turn.
+        let canceller = async {
+            while !is_waiting.load(Ordering::SeqCst) {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            }
+            cancel.cancel();
+        };
+        let (a, (b, b_ended), ()) = tokio::join!(first, second, canceller);
         a.unwrap();
         assert_eq!(b, Err(crate::import::CANCELLED.to_string()));
+        assert!(!got_turn.load(Ordering::SeqCst), "waiting(false) after a cancel");
+        // It returned while the first export still held the turn, and never started PowerShell.
+        assert!(b_ended < times(&fx.mark, "end")[0]);
         assert_eq!(times(&fx.mark, "start").len(), 1);
+    }
+
+    /// Deck shapes that round differently in f32 and f64 (1920 / (384 / 305) is about 1525): the picture size is
+    /// the one `output_size` gives, sent to the script, so the export is accepted.
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn the_picture_size_comes_from_output_size() {
+        for (w, h) in [(384.0f32, 305.0f32), (436.535_43, 634.960_6), (960.0, 540.0)] {
+            let fx = fixture(&format!("count:2,size:{w}:{h},slides:2"));
+            let pngs = fx.ppt.export(&fx.input, &fx.out, &quiet, &no_progress, &CancellationToken::new()).await.unwrap();
+            let (pw, ph) = crate::import::pdf::output_size(w / h);
+            assert_eq!(marks(&fx.mark, "picture"), vec![format!("{pw} {ph}")]);
+            for png in &pngs {
+                assert_eq!(image::image_dimensions(png).unwrap(), (pw, ph));
+            }
+        }
+    }
+
+    /// Without PowerPoint, `New-Object` fails before `ATTACHED`: that is PowerPoint missing, not a bad file.
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn no_powerpoint_says_it_could_not_be_started() {
+        let fx = fixture("comfail");
+        let r = fx.ppt.export(&fx.input, &fx.out, &quiet, &no_progress, &CancellationToken::new()).await;
+        assert_eq!(r, Err("PowerPoint could not be started.".to_string()));
+        assert!(marks(&fx.mark, "cleanup").is_empty());
+    }
+
+    /// A dropped export (not cancelled through its token) still closes our copy, after PowerShell is gone.
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn a_dropped_export_still_cleans_up() {
+        let fx = fixture("started,count:3,size:960:540,hang");
+        let never = CancellationToken::new();
+        let export = fx.ppt.export(&fx.input, &fx.out, &quiet, &no_progress, &never);
+        // `picture` is logged once the size was answered, so STARTED_BY_US has been read by then.
+        let answered = async {
+            while marks(&fx.mark, "picture").is_empty() {
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
+        };
+        tokio::select! {
+            r = export => panic!("the export ended: {r:?}"),
+            () = answered => {}
+        }
+        let began = Instant::now();
+        while marks(&fx.mark, "cleanup").is_empty() && began.elapsed() < Duration::from_secs(20) {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+        assert_eq!(marks(&fx.mark, "cleanup"), vec![format!("-Path {} -StartedByUs", fx.input.display())]);
+        assert!(times(&fx.mark, "end").is_empty(), "the export ran on");
+        assert_eq!(fx.ppt.gate.available_permits(), 1);
     }
 
     /// Review Focus 6: a stopped export leaves our copy open in PowerPoint, so the clean-up closes it by name and
@@ -848,6 +1029,42 @@ mod tests {
         let b_first = firsts.iter().find(|e| e.0 == 'b').unwrap().1;
         assert!(b_first >= a_end, "the exports overlapped");
         wait_for_powerpoint_to_quit(Duration::from_secs(15));
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// Runs PowerShell on the running PowerPoint (attaching only when it runs) and returns what it printed.
+    #[cfg(windows)]
+    fn on_powerpoint(body: &str) -> String {
+        let cmd = format!("$s = (Get-Process -Id $PID).SessionId; if (Get-Process POWERPNT -ErrorAction SilentlyContinue | Where-Object {{ $_.SessionId -eq $s }}) {{ $app = New-Object -ComObject PowerPoint.Application; {body} }}");
+        let out = std::process::Command::new("powershell.exe").args(["-NoProfile", "-NonInteractive", "-Command", &cmd]).output().unwrap();
+        String::from_utf8_lossy(&out.stdout).trim().to_string()
+    }
+
+    /// A deck the user opens in Protected View (an e-mail attachment) while the export runs is not among
+    /// `Presentations`, so the export must not quit the PowerPoint it started.
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn a_deck_opened_in_protected_view_during_the_export_stays_open() {
+        if !real_powerpoint() {
+            return;
+        }
+        let dir = std::env::temp_dir().join(format!("rp-ppt-{}", uuid::Uuid::new_v4()));
+        let input = sample_in(&dir.join("work"));
+        let theirs = sample_in(&dir.join("theirs"));
+        let open = format!("$null = $app.ProtectedViewWindows.Open('{}')", theirs.display());
+        let progress = |i: usize, _: usize| {
+            if i == 1 {
+                on_powerpoint(&open);
+            }
+        };
+        let ppt = PowerPoint::new();
+        let r = ppt.export(&input, &dir.join("work").join("slides"), &quiet, &progress, &CancellationToken::new()).await;
+        let still = on_powerpoint("$app.ProtectedViewWindows.Count");
+        // Close what the test opened, then let the PowerPoint it started go.
+        on_powerpoint("foreach ($w in @($app.ProtectedViewWindows)) { $w.Close() }; if ($app.Presentations.Count -eq 0) { $app.Quit() }");
+        assert_eq!(r.unwrap().len(), 3);
+        assert_eq!(still, "1", "the export quit PowerPoint or closed the user's window");
+        wait_for_powerpoint_to_quit(Duration::from_secs(30));
         std::fs::remove_dir_all(dir).unwrap();
     }
 }
