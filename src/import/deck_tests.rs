@@ -1,9 +1,11 @@
 use super::*;
 use crate::{
     app::{Imported, ImportPurpose, test_app},
-    import::{libreoffice, pdf::{PageError, PdfBackend, PdfDoc}, powerpoint},
+    import::{libreoffice, pdf::{PageError, PdfBackend, PdfDoc}},
     platform::tools::ToolEnv,
 };
+#[cfg(windows)]
+use crate::import::powerpoint;
 use std::{io::{Cursor, Write}, time::{Duration, Instant}};
 
 const PPTX: &str = "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml";

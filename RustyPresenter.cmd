@@ -6,7 +6,7 @@ if exist "%~dp0.tools\cargo\bin\cargo.exe" (
   set "CARGO_HOME=%~dp0.tools\cargo"
   set "RUSTUP_HOME=%~dp0.tools\rustup"
   set "PATH=%~dp0.tools\cargo\bin;%PATH%"
-  rem MinGW-w64 in .tools\mingw64 links the app and compiles Tauri's icon resource (windres). Its dlltool replaces
+  rem MinGW-w64 in .tools\mingw64 links the app and compiles its icon resource (windres). Its dlltool replaces
   rem the toolchain's self-contained one, which has no assembler beside it, so raw-dylib imports would fail.
   set "PATH=%~dp0.tools\mingw64\bin;!PATH!"
   set "CARGO_ENCODED_RUSTFLAGS=-Cdlltool=%~dp0.tools\mingw64\bin\dlltool.exe"

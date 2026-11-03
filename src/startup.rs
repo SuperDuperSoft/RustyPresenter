@@ -1,6 +1,6 @@
-//! Startup shared by the Tauri and native binaries: the port (single instance), the data folder,
+//! Startup: the port (single instance), the data folder,
 //! `App`, the phone/web server and the daily backup.
-use crate::{app::App, platform::instance, server, store::Store};
+use crate::{app::App, server, store::Store};
 use std::{net::{SocketAddr, TcpListener, UdpSocket}, path::PathBuf, sync::Arc, time::Duration};
 
 /// The core of a running RustyPresenter, before any window.
@@ -12,19 +12,6 @@ pub fn port() -> u16 { std::env::var("RUSTYPRESENTER_PORT").ok().and_then(|p| p.
 /// The data folder, without creating it.
 pub fn data_root() -> Result<PathBuf, String> {
     server::data_dir().ok_or("Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA.".to_string())
-}
-
-/// Binds the port and opens the data folder. `Ok(None)`: RustyPresenter is already running
-/// (asked to show its operator window when `focus`).
-pub fn start(focus: bool) -> Result<Option<Started>, String> {
-    let port = port();
-    let root = data_root()?;
-    let Ok(listener) = TcpListener::bind((std::net::Ipv4Addr::UNSPECIFIED, port)) else {
-        if focus { instance::focus_running(port)? }
-        return Ok(None);
-    };
-    let _ = listener.set_nonblocking(true);
-    open(listener, root, port).map(Some)
 }
 
 /// Opens the data folder behind a port already held. Left-over work folders go on every start, so a killed
@@ -40,11 +27,9 @@ pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, 
     Ok(Started { app: App::new(store, data, port, lan_url), listener, root })
 }
 
-/// The console banner; `quit` says how to quit. `web_operator`: list the browser operator page (the Tauri app);
-/// the native binary leaves it out, because its operator is the native window, never a browser.
-pub fn banner(s: &Started, quit: &str, web_operator: bool) {
+/// The console banner; `quit` says how to quit.
+pub fn banner(s: &Started, quit: &str) {
     println!("\n  RustyPresenter {}\n", env!("CARGO_PKG_VERSION"));
-    if web_operator { println!("  Operator:      http://127.0.0.1:{}/", s.app.port); }
     if let Some(u) = &s.app.lan_url { println!("  Phone remote:  {u}"); }
     println!("  Your data:     {}", s.root.display());
     println!("\n  {quit}\n");

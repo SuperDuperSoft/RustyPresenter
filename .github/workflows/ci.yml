@@ -19,18 +19,13 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          # Exactly what the build scripts probe via pkg-config on Linux (cargo tree --target x86_64-unknown-linux-gnu):
-          #   webkit2gtk-sys, javascriptcore-rs-sys, soup3-sys -> libwebkit2gtk-4.1-dev
-          #   gtk/gdk/gdkx11/atk/pango/cairo/gdk-pixbuf/gio/glib-sys -> libgtk-3-dev
-          #   libdbus-sys (tao "dbus" feature) -> libdbus-1-dev
-          #   yeslogic-fontconfig-sys (Slint's text layout: parley -> fontique "system") -> libfontconfig-dev
-          # Slint's winit/femtovg backend needs nothing else at build time: wayland-sys is built with
-          # "dlopen", winit uses xkbcommon-dl, and glutin loads EGL/GLX at run time. libmpv is loaded at
-          # run time too (gated video tests are skipped without RP_VIDEO_TESTS). No tray, rsvg or libxdo.
-          sudo apt-get install -y pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev libdbus-1-dev libfontconfig-dev
-      # Release mode: Tauri test binaries on Windows crash in debug (STATUS_ENTRYPOINT_NOT_FOUND) until Tauri is removed.
-      - run: cargo test --locked --release
-      # Both binaries (Tauri `rustypresenter` and `rustypresenter-native`) and the examples link.
+          # What the build scripts probe via pkg-config on Linux: yeslogic-fontconfig-sys (Slint's text layout:
+          # parley -> fontique "system") -> libfontconfig-dev. Slint's winit/femtovg backend needs nothing else at
+          # build time: wayland-sys is built with "dlopen", winit uses xkbcommon-dl, and glutin loads EGL/GLX at
+          # run time. libmpv is loaded at run time too (gated video tests are skipped without RP_VIDEO_TESTS).
+          sudo apt-get install -y pkg-config libfontconfig-dev
+      - run: cargo test --locked
+      # The binary and the examples link.
       - run: cargo build --locked --release --bins --examples
 
   # Packaging config and scripts. Licences are checked by the licence job (Plan 3/Plan 4 Task 14).

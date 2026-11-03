@@ -43,7 +43,7 @@ pub fn pick(monitors: &[MonitorId], saved: Option<&str>, operator: Option<&Monit
     named.into_iter().find(|m| Some(*m) != operator).cloned()
 }
 
-/// The web operator's Screens dialog shape, numbered left to right like `displays::monitors`.
+/// The web operator's Screens dialog shape, numbered left to right.
 pub fn to_monitors(ids: &[MonitorId], primary: Option<&MonitorId>) -> Vec<Monitor> {
     let mut ids: Vec<_> = ids.iter().collect();
     ids.sort_by_key(|m| m.position);

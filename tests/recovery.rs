@@ -4,7 +4,7 @@ use rustypresenter::{live::{Command as LiveCommand, Envelope, Inst, AudioLayer},
 use std::{fs, io::{Read, Write}, net::{Ipv4Addr, TcpListener, TcpStream}, path::{Path, PathBuf}, process::{Child, Command, ExitStatus, Stdio}, thread, time::{Duration, Instant}};
 use uuid::Uuid;
 
-const EXE: &str = env!("CARGO_BIN_EXE_rustypresenter-native");
+const EXE: &str = env!("CARGO_BIN_EXE_rustypresenter");
 
 fn free_port() -> u16 { TcpListener::bind((Ipv4Addr::UNSPECIFIED, 0)).unwrap().local_addr().unwrap().port() }
 

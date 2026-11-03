@@ -1,54 +1,127 @@
+//! RustyPresenter: the operator, room and stage windows are drawn natively (Slint + libmpv). The phone
+//! remote is the `/remote` web page.
+//!
+//! With no `--app` the executable is the supervisor, which runs itself with `--app`.
+
 // Release builds are a windowed app with no console window behind them.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rustypresenter::{displays, startup};
-use tauri::Manager;
+use rustypresenter::{app::App, platform::{dialog, instance::{self, Bind}}, recovery::{self, exitcode, headless, panic, state::{self, StateWriter}, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
+use std::{cell::RefCell, fs, path::Path, rc::Rc, sync::Arc};
+
+thread_local! {
+    /// The operator window, kept open on the Slint thread until the event loop ends.
+    static OPERATOR: RefCell<Option<Rc<Operator>>> = const { RefCell::new(None) };
+}
+
+/// Tests only: no windows, the core and the server with a stand-in room. A dialog would wait for nobody.
+fn headless_mode() -> bool { std::env::var_os("RUSTYPRESENTER_HEADLESS").is_some_and(|v| v == "1") }
+
+fn tell(msg: &str) {
+    if headless_mode() { eprintln!("{msg}") } else { dialog::error(msg) }
+}
 
 fn fail(msg: &str) -> ! {
-    displays::error_box(msg);
-    std::process::exit(1);
+    tell(msg);
+    std::process::exit(exitcode::CONFIG);
+}
+
+/// A normal quit: the frame on air is not to come back next time.
+fn forget_live_state(app: &App, root: &Path) {
+    app.stop_state_writer();
+    state::clear(root);
+}
+
+/// Runs until Ctrl+C with the stand-in room. Crashes and kills are what the tests want from it.
+fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
+    let log = match fs::OpenOptions::new().create(true).append(true).open(recovery::todays_log()) {
+        Ok(f) => f,
+        Err(e) => fail(&format!("RustyPresenter could not open its log: {e}")),
+    };
+    app.set_screens(Arc::new(headless::NoScreens));
+    headless::run(app.clone(), log);
+    let _ = rt.block_on(tokio::signal::ctrl_c());
 }
 
 fn main() {
-    let headless = std::env::args().any(|a| a == "--no-open");
-    // Already running? `start` asked it to bring up its operator window.
-    let started = match startup::start(!headless) {
-        Ok(Some(s)) => s,
-        Ok(None) => { println!("RustyPresenter is already running."); return; }
-        Err(e) => fail(&e),
+    let args = supervisor::parse_args(std::env::args_os().skip(1));
+    supervisor::quiet_crash_dialogs();
+    if !args.app {
+        let exe = std::env::current_exe().unwrap_or_else(|e| fail(&format!("RustyPresenter could not start: {e}")));
+        let passthrough: Vec<_> = std::env::args_os().skip(1).collect();
+        std::process::exit(supervisor::run(&exe, &recovery::todays_log(), &passthrough));
+    }
+    panic::install(recovery::todays_log());
+    panic::mark_critical();
+    panic::test_crash_point("startup");
+
+    // `--no-browser` from before the native operator is still accepted, and does nothing.
+    let port = startup::port();
+    let root = startup::data_root().unwrap_or_else(|e| fail(&e));
+    let listener = match instance::bind(port, args.restore) {
+        Bind::Ok(l) => l,
+        Bind::Running => { println!("RustyPresenter is already running."); std::process::exit(exitcode::ALREADY_RUNNING); }
+        Bind::Taken => { tell(&instance::taken_message(port)); std::process::exit(exitcode::PORT_TAKEN); }
     };
-    startup::banner(&started, "Close the operator window to quit.", true);
-    let startup::Started { app, listener, .. } = started;
+    let started = startup::open(listener, root, port).unwrap_or_else(|e| fail(&e));
+    if let Err(e) = fs::write(started.root.join("app.pid"), std::process::id().to_string()) { eprintln!("Could not write app.pid: {e}"); }
+    startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.");
+    let startup::Started { app, listener, root } = started;
 
-    let setup_app = app.clone();
-    let result = tauri::Builder::default()
-        .setup(move |t| {
-            let app = setup_app;
-            app.set_probe_mpv(rustypresenter::video::ffi::Mpv::load().ok());
-            tauri::async_runtime::spawn(rustypresenter::import::init(&app));
-            let screens = displays::TauriScreens::new(t.handle().clone(), &app);
-            app.set_screens(screens.clone());
-            tauri::async_runtime::spawn(startup::backups(app.clone(), false));
-            tauri::async_runtime::spawn(screens.watchdog());
-            tauri::async_runtime::spawn(startup::serve(app.clone(), listener));
+    if args.restore { println!("Started with --restore, attempt {}.", args.attempt); }
+    let restored = recovery::restore::at_start(&app, args.restore, args.attempt);
+    app.set_state_writer(StateWriter::start(root.clone()));
 
-            if !headless {
-                app.open_window("operator", None)?;
-                // Reopen the room/stage screens where they were last time, if those screens are plugged in.
-                let roles = app.data.lock().unwrap().settings.displays.clone();
-                let mons = displays::monitors();
-                for (role, id) in [("room", roles.room), ("stage", roles.stage)] {
-                    if let Some(id) = id { if mons.iter().any(|m| m.id == id && !m.primary) { let _ = app.open_window(role, Some(&id)); } }
-                }
-            }
-            Ok(())
-        })
-        .on_window_event(|w, ev| {
-            // Closing the operator window quits, taking the room and stage screens with it.
-            if matches!(ev, tauri::WindowEvent::CloseRequested { .. }) && w.label().starts_with("operator-") {
-                w.app_handle().exit(0);
-            }
-        })
-        .run(tauri::generate_context!());
-    if let Err(e) = result { fail(&format!("RustyPresenter could not start its windows: {e}")); }
+    // Slint runs on this (main) thread; tokio runs the server and backups on its own threads.
+    let rt = match tokio::runtime::Runtime::new() { Ok(rt) => rt, Err(e) => fail(&format!("RustyPresenter could not start: {e}")) };
+    rt.spawn(startup::backups(app.clone(), args.restore));
+    rt.spawn(startup::serve(app.clone(), listener));
+    rt.spawn(startup::save_playing(app.clone()));
+    if headless_mode() {
+        run_headless(&app, &rt);
+        forget_live_state(&app, &root);
+        rt.shutdown_timeout(std::time::Duration::from_secs(2));
+        return;
+    }
+    rt.spawn(async { if tokio::signal::ctrl_c().await.is_ok() { let _ = slint::quit_event_loop(); } });
+
+    let mode = video::choose_backend();
+    let mpv = match video::ffi::Mpv::load() {
+        Ok(m) => Some(m),
+        Err(e) => { eprintln!("Video and audio will not play: {e}"); None }
+    };
+    println!("  Video drawing: {}{}\n", if mode == video::DrawMode::OpenGl { "GPU (OpenGL)" } else { "software" }, if mpv.is_none() { ", video player missing" } else { "" });
+
+    rustypresenter::import::media::at_start(&app, mpv.clone(), rt.handle());
+    rt.spawn(rustypresenter::import::init(&app));
+
+    let native = NativeScreens::new(&app, Renderer::new(), mpv);
+    app.set_screens(native.clone());
+    if let Some(roles) = restored { native.set_restored(roles); }
+    native.start();
+    // Queued after `start`'s reopen, so the room and stage are back before the operator picks its monitor.
+    let (screens, handle, op_app) = (native.clone(), rt.handle().clone(), app.clone());
+    let queued = invoke_from_active_event_loop(move |_| {
+        let ops = Ops::new(op_app.clone(), handle);
+        let operator = match Operator::open(op_app, ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>) {
+            Ok(op) => op,
+            Err(e) => fail(&e),
+        };
+        screens.place_operator(operator.window());
+        // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
+        // and stage close with it below.
+        operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });
+        screens.set_operator(Rc::downgrade(&operator));
+        OPERATOR.with(|o| *o.borrow_mut() = Some(operator));
+    });
+    if let Err(e) = queued { fail(&format!("RustyPresenter could not open its window: {e}")); }
+
+    // The room and stage windows come and go; closing the operator (or Ctrl+C) quits.
+    let result = slint::run_event_loop_until_quit();
+    OPERATOR.with(|o| o.borrow_mut().take());
+    native.shutdown();
+    if let Err(e) = result { fail(&format!("RustyPresenter could not run its windows: {e}")); }
+    forget_live_state(&app, &root);
+    rt.shutdown_timeout(std::time::Duration::from_secs(2));
 }
