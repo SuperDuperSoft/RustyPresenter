@@ -1,0 +1,168 @@
+// Settings → Bible (`operator.js:922-973`, after the `bible-esv` merge): every translation with its status, the
+// online services a church connects with a key, Bible file import, and the copyright lines of what is in use.
+import { Theme } from "../theme.slint";
+import { Btn, Chip, CopyText } from "../widgets.slint";
+import { TextField, Note, Lbl, ListRow, RowMain } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+export component SettingsBible inherits VerticalLayout {
+    Note {
+        bold: @tr("KJV, WEB and BSB are built in and work offline.");
+        text: @tr("The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.");
+    }
+    Rectangle { height: 16px; }
+    Lbl { label: @tr("Translations"); }
+    Rectangle { height: 8px; }
+    VerticalLayout {
+        spacing: 4px;
+        for b[i] in SettingsDlg.bible-sources: source-row := ListRow {
+            accessible-role: list-item;
+            accessible-label: b.translation;
+            accessible-value: b.chip;
+            accessible-description: b.hint;
+            RowMain {
+                title: b.translation;
+                sub: b.hint;
+            }
+            if b.imported: remove-import := Btn {
+                small: true;
+                text: @tr("Remove");
+                clicked => { SettingsDlg.remove-import(i); }
+            }
+            VerticalLayout {
+                alignment: center;
+                Chip {
+                    text: b.chip;
+                    state: b.chip-state;
+                }
+            }
+        }
+    }
+
+    Rectangle { height: 16px; }
+    Lbl { label: @tr("Online services"); }
+    Rectangle { height: 8px; }
+    VerticalLayout {
+        spacing: 4px;
+        for p[i] in SettingsDlg.bible-providers: provider-row := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            accessible-role: list-item;
+            accessible-label: p.label;
+            accessible-value: p.key-set ? "Connected" : "Not connected";
+            VerticalLayout {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    RowMain {
+                        title: p.label;
+                        sub: p.for-text;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Chip {
+                            text: p.key-set ? @tr("Connected") : @tr("Not connected");
+                            state: p.key-set ? "ok" : "warn";
+                        }
+                    }
+                }
+                VerticalLayout {
+                    spacing: 4px;
+                    HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        Text {
+                            text: @tr("1. Sign up free at");
+                            color: Theme.muted;
+                            font-size: 12.5px;
+                            vertical-alignment: center;
+                        }
+                        CopyText { text: p.signup-url; }
+                        copy-link := Btn {
+                            small: true;
+                            icon: "copy";
+                            text: @tr("Copy link");
+                            clicked => { SettingsDlg.copy-link(i); }
+                        }
+                    }
+                    Text {
+                        text: "2. " + p.note;
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                    Text {
+                        text: @tr("3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only.");
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    key := TextField {
+                        horizontal-stretch: 1;
+                        password: true;
+                        placeholder: p.key-set ? @tr("Key saved — paste a new one to replace it") : @tr("Paste the key here");
+                    }
+                    save-key := Btn {
+                        small: true;
+                        primary: true;
+                        text: @tr("Save key");
+                        clicked => { SettingsDlg.save-key(i, key.text); }
+                    }
+                    if p.key-set: disconnect := Btn {
+                        small: true;
+                        text: @tr("Disconnect");
+                        clicked => {
+                            key.text = "";
+                            SettingsDlg.save-key(i, "");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle { height: 16px; }
+    Lbl { label: @tr("Bible files"); }
+    Rectangle { height: 8px; }
+    Note {
+        text: @tr("Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation.");
+    }
+    Rectangle { height: 12px; }
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        short := TextField {
+            width: 220px;
+            text <=> SettingsDlg.bible-short;
+            placeholder: @tr("Short name, e.g. HCSB (optional)");
+        }
+        import-bible := Btn {
+            small: true;
+            icon: "upload";
+            text: @tr("Import a Bible file");
+            clicked => { SettingsDlg.import-bible(); }
+        }
+    }
+    if SettingsDlg.bible-credits.length > 0: VerticalLayout {
+        padding-top: 16px;
+        Note {
+            font-size: 12.5px;
+            VerticalLayout {
+                spacing: 6px;
+                for c in SettingsDlg.bible-credits: Text {
+                    text: c;
+                    color: Theme.muted;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}

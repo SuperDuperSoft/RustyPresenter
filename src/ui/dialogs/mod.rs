@@ -11,6 +11,10 @@ pub mod item_edit;
 pub mod phone;
 pub mod screens;
 pub mod services;
+pub mod about;
+pub mod settings;
+pub mod settings_bible;
+pub mod settings_look;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
 #[path = "../../strings/add.rs"]
@@ -71,6 +75,8 @@ pub struct DialogHooks {
     pub(crate) on_close: Option<Box<dyn FnOnce(&Rc<Operator>)>>,
     pub(crate) refresh: Option<Rc<dyn Fn(&Rc<Operator>)>>,
     pub(crate) asks: Vec<ask::Ask>,
+    /// Run once on the next read whose data changed, whatever the dialog (`on_next_read`).
+    pub(crate) next_read: Vec<Box<dyn FnOnce(&Rc<Operator>)>>,
 }
 
 impl Operator {
@@ -84,7 +90,7 @@ impl Operator {
         let old = {
             let mut st = self.state.borrow_mut();
             st.dialog = Some(kind);
-            (st.dialogs.on_close.take(), st.dialogs.refresh.take())
+            (st.dialogs.on_close.take(), st.dialogs.refresh.take(), std::mem::take(&mut st.dialogs.next_read))
         };
         drop(old);
         self.ui.set_dialog_title(title.into());
@@ -100,7 +106,7 @@ impl Operator {
     pub fn close_dialog(&self) {
         let (was, on_close, refresh) = {
             let mut st = self.state.borrow_mut();
-            (st.dialog.take(), st.dialogs.on_close.take(), st.dialogs.refresh.take())
+            (st.dialog.take(), st.dialogs.on_close.take(), (st.dialogs.refresh.take(), std::mem::take(&mut st.dialogs.next_read)))
         };
         drop(refresh);
         if was.is_none() { return }
@@ -123,13 +129,28 @@ impl Operator {
         if st.dialog.is_some() { st.dialogs.refresh = Some(Rc::new(redraw)); }
     }
 
+    /// Runs `then` once, on the next read whose data changed, while this dialog stays open: the web's
+    /// `await refresh(); redraw()` after an action, for any dialog (Settings is never redrawn by `on_dialog_refresh`).
+    /// Asks the follower for that read, so it comes even when the core's own update was applied first.
+    pub fn on_next_read(&self, then: impl FnOnce(&Rc<Operator>) + 'static) {
+        {
+            let mut st = self.state.borrow_mut();
+            if st.dialog.is_none() { return }
+            st.dialogs.next_read.push(Box::new(then));
+        }
+        self.request_refresh();
+    }
+
     /// Called by `apply_snapshot` when the core's data changed.
     pub fn dialog_refresh(&self) {
-        let redraw = {
-            let st = self.state.borrow();
-            st.dialog.filter(DialogKind::refreshes).and_then(|_| st.dialogs.refresh.clone())
+        let (next, redraw) = {
+            let mut st = self.state.borrow_mut();
+            let redraw = st.dialog.filter(DialogKind::refreshes).and_then(|_| st.dialogs.refresh.clone());
+            (std::mem::take(&mut st.dialogs.next_read), redraw)
         };
-        if let (Some(redraw), Some(op)) = (redraw, self.me.upgrade()) { redraw(&op) }
+        let Some(op) = self.me.upgrade() else { return };
+        for then in next { then(&op) }
+        if let Some(redraw) = redraw { redraw(&op) }
     }
 
     fn dialog_title(&self, kind: DialogKind) -> String {
@@ -159,6 +180,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     services::wire(op);
     screens::wire(op);
     phone::wire(op);
+    settings::wire(op);
 }
 
 #[cfg(test)]

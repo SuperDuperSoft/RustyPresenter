@@ -53,6 +53,18 @@ impl Ops {
         self.run(work, |r| done(r.and_then(|r| r)));
     }
 
+    /// `App::do_action(action, <the file's bytes>)`, for actions whose body is a raw file (`bible/import/{ABBR}`).
+    /// The file is read on tokio, never on the UI thread.
+    pub fn call_file<T: DeserializeOwned + Send + 'static>(&self, action: String, path: PathBuf, done: impl FnOnce(Result<T, String>) + 'static) {
+        let app = self.app.clone();
+        let work = async move {
+            let body = tokio::fs::read(&path).await.map_err(|e| e.to_string())?;
+            let v = app.do_action(&action, &body).await.map_err(|e| e.message)?;
+            serde_json::from_value::<T>(v).map_err(|e| e.to_string())
+        };
+        self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
     /// `App::command` with a fresh id (`operator.js:79-89`). Pass `base` only for Next and Prev.
     pub fn cmd(&self, cmd: Command, base: Option<u64>, done: impl FnOnce(Outcome) + 'static) {
         let app = self.app.clone();

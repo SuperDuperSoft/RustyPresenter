@@ -15,6 +15,7 @@ import { ItemEditDialog } from "dialogs/item-edit.slint";
 import { ServicesDialog } from "dialogs/services.slint";
 import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
+import { SettingsDialog } from "dialogs/settings.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -287,7 +288,8 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "services": ServicesDialog {}
             if root.dialog-kind == "screens": ScreensDialog {}
             if root.dialog-kind == "phone": PhoneDialog {}
-            if root.dialog-kind != "add" && root.dialog-kind != "song-editor" && root.dialog-kind != "item-edit" && root.dialog-kind != "services" && root.dialog-kind != "screens" && root.dialog-kind != "phone": DialogBody {}
+            if root.dialog-kind == "settings": SettingsDialog {}
+            if root.dialog-kind != "add" && root.dialog-kind != "song-editor" && root.dialog-kind != "item-edit" && root.dialog-kind != "services" && root.dialog-kind != "screens" && root.dialog-kind != "phone" && root.dialog-kind != "settings": DialogBody {}
         }
 
         for a in root.ask: AskOverlay {

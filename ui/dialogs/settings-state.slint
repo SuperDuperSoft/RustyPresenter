@@ -1,0 +1,92 @@
+// What the Settings dialog shows and edits (`operator.js:877-1007`), shared by its tab files and set from
+// `src/ui/dialogs/settings.rs`. The form fields are `in-out`: the Rust side reads them back on Save.
+
+/// One choice of the Default background picker (stand-in until Task 18's `BackgroundPicker` merges).
+export struct SettingsBgRow { label: string, swatch: color, image: image, on: bool, tooltip: string }
+
+/// A translation row of Settings → Bible: its status chip and the line under its name.
+export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
+
+/// An online Bible service row of Settings → Bible.
+export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
+
+/// A backup row: when it was made and what it holds.
+export struct SettingsBackupRow { label: string, counts: string }
+
+/// A row of the keyboard table in Help.
+export struct SettingsHelpRow { keys: string, what: string }
+
+export global SettingsDlg {
+    /// 0 Look, 1 Songs, 2 Bible, 3 Video, 4 Backups, 5 Help, 6 About.
+    in-out property <int> tab;
+
+    // ---- Look ----
+    in property <[string]> fonts;
+    in-out property <int> font-index;
+    in-out property <int> size: 84;
+    in-out property <int> scripture-size: 64;
+    in-out property <string> color: "#ffffff";
+    /// The parsed `color`, for the swatch.
+    in property <color> color-swatch;
+    /// 0 Middle, 1 Lower third.
+    in-out property <int> position;
+    in-out property <bool> shadow;
+    in-out property <bool> uppercase;
+    in property <bool> has-logo;
+    in property <image> logo;
+    in property <image> preview;
+    /// "“F” isn't installed on this computer…", or empty.
+    in property <string> font-note;
+    in property <[SettingsBgRow]> backgrounds;
+
+    // ---- Songs ----
+    /// Lines per slide minus one (0–5).
+    in-out property <int> lines;
+    /// 0 On first slide, 1 On last slide, 2 Off.
+    in-out property <int> credits;
+    in-out property <string> ccli;
+
+    // ---- Bible ----
+    in property <[SettingsBibleRow]> bible-sources;
+    in property <[SettingsProviderRow]> bible-providers;
+    in property <[string]> bible-credits;
+    in-out property <string> bible-short;
+
+    // ---- Video ----
+    in property <bool> ffmpeg;
+    in property <string> winget;
+
+    // ---- Backups ----
+    in property <string> backups-folder;
+    in property <[SettingsBackupRow]> backups;
+
+    // ---- Help ----
+    in property <[SettingsHelpRow]> help;
+
+    // ---- About (Task 21) ----
+    in property <string> about-version;
+    in property <string> about-data-folder;
+    in property <string> about-video;
+    in property <string> about-mpv;
+    in property <string> about-licence;
+    in property <bool> licences-open;
+    in property <string> licences;
+
+    callback tab-changed(int);
+    /// Any Look edit: the preview is drawn again 150 ms later.
+    callback look-changed();
+    callback choose-logo();
+    callback remove-logo();
+    callback pick-background(int);
+    callback save-key(int, string);
+    callback copy-link(int);
+    callback import-bible();
+    callback remove-import(int);
+    callback copy-winget();
+    callback check-again();
+    callback backup-now();
+    callback restore(int);
+    callback show-licences(bool);
+    callback cancel();
+    callback save();
+}
