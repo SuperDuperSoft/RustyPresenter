@@ -9,6 +9,7 @@ pub mod platform;
 pub mod recovery;
 pub mod render;
 pub mod room;
+pub mod scripture;
 pub mod server;
 pub mod sha256;
 pub mod slides;
