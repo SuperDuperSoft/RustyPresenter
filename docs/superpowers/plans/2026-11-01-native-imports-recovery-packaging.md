@@ -226,16 +226,16 @@
 - Rules:
   - `%PDF-` → `Pdf`.
   - `PK\x03\x04`:
-    - `mimetype` entry = `application/vnd.oasis.opendocument.presentation` → `Odp`.
+    - `mimetype` entry = `application/vnd.oasis.opendocument.presentation` → `Odp`, or `Encrypted` when `META-INF/manifest.xml` has a `manifest:encryption-data` element.
     - `[Content_Types].xml` Override for `/ppt/presentation.xml` → `Ooxml` with variant from its content type.
-    - `Index/Document.iwa` → `Keynote`.
+    - `Index/Document.iwa` plus an entry starting `Index/Slide` or `Index/MasterSlide` → `Keynote`. Pages and Numbers have `Index/Document.iwa` too, and LibreOffice would convert them.
     - Anything else → `NotPresentation`.
   - `D0CF11E0A1B11AE1`:
     - `EncryptionInfo` + `EncryptedPackage` streams → `Encrypted`.
-    - `PowerPoint Document` stream → `Ppt`.
+    - `PowerPoint Document` stream → `Ppt`, or `Encrypted` when there is an `EncryptedSummary` stream or the `Current User` header token (bytes 12..16) is `0xF3D1C4DF` (MS-PPT). Word and Excel files encrypted the same way as OOXML also give `Encrypted`; they can't be told apart without the password.
     - Anything else → `NotPresentation`.
   - Anything else, including empty files and `PK\x05\x06`, → `NotPresentation`.
-  - For OOXML, read `ppt/presentation.xml` `<p:sldSz cx cy>` and count the `<p:sldIdLst>` entries. A slide is hidden when its root is `<p:sld show="0">`.
+  - For OOXML, read `ppt/presentation.xml` `<p:sldSz cx cy>` and count the `<p:sldIdLst>` entries. A slide is hidden when its root is `<p:sld show="0">`. Part names are matched without case. Each slide is read once, only its first 64 KB, and all slides together at most 50 MB; past that the hidden count is 0.
   - Refuse to parse an entry over 50 MB uncompressed (zip-bomb guard). Fall back to `slide_size: None`.
 
 - [ ] **Step 1: Write the failing tests.** Build the fixtures in-test with the `zip` and `cfb` writers; there are no binary files in git.
@@ -760,7 +760,7 @@
   - `three_crashes_in_a_minute_stop_the_supervisor`: `RUSTYPRESENTER_TEST_CRASH=panic`, `_AT=startup`. The supervisor exits with `GAVE_UP` (5) within 5 s and the log has "gave up".
   - `second_attempt_restores_without_media`: write a saved state with a text slide and an audio layer to `live-state.json`, and start the supervisor **with `--restore` in its arguments** (passed through to attempt 0, see `app_args`), plus `RUSTYPRESENTER_TEST_CRASH=panic`, `_AT=restore-media`. Attempts 0 and 1 restore with media and crash at that point; attempt 2 restores without media and never reaches it. The log has `restored … media=false` with the slide text, `live-state.crashed.json` exists, and `/api/do/…` state shows the notice "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
   - `restore_skips_startup_backup`: after `killed_app_is_restored_with_its_frame`-style kill and restore, `backups/` holds exactly the one backup from the first normal start.
-  - `killed_import_publishes_nothing` (v1 §14.2 "Interrupted import publishes nothing"). Setup: the app binary itself acts as the fake soffice — at the very top of `main`, before argument parsing, `import::libreoffice::fake_soffice_main()` runs and exits only when `RP_FAKE_SOFFICE` is set **and** the first argument is `--headless` (always compiled in, a no-op otherwise, like `test_crash_point`). The supervisor and the `--app` process inherit `RP_FAKE_SOFFICE` too, so the `--headless` check is what keeps them from acting as the fake. The test sets `RP_SOFFICE=<CARGO_BIN_EXE path>` and `RP_FAKE_SOFFICE=hang` on the supervisor's env only (no `set_var` in the test process). The input is a minimal Keynote zip built in-test (`Index/Document.iwa`), because `route` sends Keynote to LibreOffice even on a Windows PC with PowerPoint installed; a `.pptx` would go to PowerPoint there. It starts a deck import through the loopback action `import/path {path, purpose: "powerpoint"}` (new in this task: it calls `App::import_path`; it is operator-only and never on the phone allow-list), kills the app pid mid-import, and waits for the restore. Then: no deck was added, `tmp/` is empty, and no fake soffice process is left (Unix: its pgid is gone; Windows: the Job Object killed it). Gated on `RP_PDFIUM`: restart with `RP_FAKE_SOFFICE=pdf:<fixture>`, and a second import succeeds.
+  - `killed_import_publishes_nothing` (v1 §14.2 "Interrupted import publishes nothing"). Setup: the app binary itself acts as the fake soffice — at the very top of `main`, before argument parsing, `import::libreoffice::fake_soffice_main()` runs and exits only when `RP_FAKE_SOFFICE` is set **and** the first argument is `--headless` (always compiled in, a no-op otherwise, like `test_crash_point`). The supervisor and the `--app` process inherit `RP_FAKE_SOFFICE` too, so the `--headless` check is what keeps them from acting as the fake. The test sets `RP_SOFFICE=<CARGO_BIN_EXE path>` and `RP_FAKE_SOFFICE=hang` on the supervisor's env only (no `set_var` in the test process). The input is a minimal Keynote zip built in-test (`Index/Document.iwa` and `Index/Slide.iwa`), because `route` sends Keynote to LibreOffice even on a Windows PC with PowerPoint installed; a `.pptx` would go to PowerPoint there. It starts a deck import through the loopback action `import/path {path, purpose: "powerpoint"}` (new in this task: it calls `App::import_path`; it is operator-only and never on the phone allow-list), kills the app pid mid-import, and waits for the restore. Then: no deck was added, `tmp/` is empty, and no fake soffice process is left (Unix: its pgid is gone; Windows: the Job Object killed it). Gated on `RP_PDFIUM`: restart with `RP_FAKE_SOFFICE=pdf:<fixture>`, and a second import succeeds.
   - `second_launch_exits_already_running`: a second supervisor exits 0 within 3 s, and the first app's pid is unchanged.
   - `port_taken_by_other_program_does_not_restart`: bind the port in the test first. The supervisor exits 4 once.
   - `normal_start_clears_old_state`
@@ -1012,6 +1012,7 @@ Plan 3 Task 16 already created `about.toml`, `about.hbs`, the committed root `TH
   - Keynote and PDF decks.
   - Software video forced with `RP_FORCE_SOFTWARE=1`.
   - Crash restore by killing the app.
+  - Three crashes in a minute: the give-up dialog with the log path appears. On macOS and Linux it is only printed to stderr until `rfd` (Plan 3 Task 15) is in the build; then switch `recovery::supervisor::give_up_dialog` to `rfd::MessageDialog` there and check it.
   - Logout with the app open.
   - Uninstall keeps the data folder.
   - About shows the LGPL libmpv and opens the licences.

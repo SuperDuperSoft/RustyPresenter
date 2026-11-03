@@ -397,7 +397,7 @@ mod tests {
 
     /// A video item in the current service; returns its media id.
     fn add_video(app: &App) -> Uuid {
-        let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None };
+        let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new() };
         let mut data = app.data.lock().unwrap();
         data.media.push(media.clone());
@@ -543,7 +543,7 @@ mod tests {
         let app = test_app();
         let media = add_video(&app);
         let job = Uuid::new_v4();
-        app.jobs.lock().unwrap().push(crate::app::Job { id: job, label: "Importing slides".into(), percent: 0, error: None });
+        app.jobs.lock().unwrap().push(crate::app::Job { id: job, label: "Importing slides".into(), ..Default::default() });
         let feed = Feed::new(app.clone(), false);
         feed.read_all();
         feed.take();

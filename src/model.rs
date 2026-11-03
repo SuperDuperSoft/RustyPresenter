@@ -83,8 +83,9 @@ pub enum MediaKind {
 #[serde(tag = "state", rename_all = "snake_case")]
 pub enum MediaStatus {
     Ready,
+    /// Read-only: only an old `data.json` has it. `import::media::upgrade_media` turns it into `Ready`.
     Converting { percent: u8 },
-    /// Kept as uploaded; the browser engine may not play it.
+    /// Read-only, as `Converting`. Kept as uploaded; the browser engine may not play it.
     Unconverted { reason: String },
     Failed { reason: String },
 }
@@ -98,6 +99,15 @@ pub struct MediaFile {
     pub status: MediaStatus,
     #[serde(default)]
     pub original_asset: Option<AssetId>,
+    /// Seconds, as far as the probe could tell.
+    #[serde(default)]
+    pub duration: Option<f64>,
+    /// A 320 px wide JPEG. None for audio, and for entries that have not been probed yet.
+    #[serde(default)]
+    pub thumb: Option<AssetId>,
+    /// Pixels, for a video or picture.
+    #[serde(default)]
+    pub size: Option<(u32, u32)>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -247,7 +257,7 @@ impl Data {
         if let Some(l) = &self.settings.logo { set.insert(l.clone()); }
         for m in &self.media {
             set.insert(m.asset.clone());
-            if let Some(o) = &m.original_asset { set.insert(o.clone()); }
+            set.extend(m.original_asset.iter().chain(&m.thumb).cloned());
         }
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }

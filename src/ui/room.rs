@@ -426,7 +426,7 @@ mod tests {
     }
     fn media(app: &App, kind: MediaKind, asset: &str) -> Uuid {
         let media_id = Uuid::new_v4();
-        app.data.lock().unwrap().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None });
+        app.data.lock().unwrap().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None });
         add(app, ItemKind::Media { media_id, autoplay: true, end: EndAction::Stop, looped: false })
     }
     fn scripture(app: &App) -> Uuid {
@@ -544,6 +544,9 @@ mod tests {
         let inst = app.live_view().frame.background.expect("the theme background").inst;
         room.inner.shared.started.lock().unwrap().insert(inst, Kind::Background);
         let mut rx = app.subscribe();
+        // The commit's own update can still be on its way when `committed` already reads `v`.
+        std::thread::sleep(Duration::from_millis(100));
+        while rx.try_recv().is_ok() {}
         let report = |state, error| PlayerReport { inst, player: 1, state, position: 1.0, duration: 9.0, error };
         room.inner.report(report(PlayState::Playing, None));
         std::thread::sleep(Duration::from_millis(300));

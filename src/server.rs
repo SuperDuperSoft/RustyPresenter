@@ -477,7 +477,7 @@ mod tests {
         assert!(s == StatusCode::OK && v["asset"].as_str().unwrap().ends_with(".png"));
         assert_eq!(app.data.lock().unwrap().media.len(), 1);
         let (s, v) = post_upload(&app, "notes.xyz", "", b"x".to_vec()).await;
-        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some("RustyPresenter doesn't know how to show .xyz files.")));
+        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some(crate::video::ffi::MISSING)));
     }
 
     #[test]

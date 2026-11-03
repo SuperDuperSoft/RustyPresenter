@@ -111,6 +111,7 @@ export component OperatorWindow inherits Window {
     callback job-dismiss(string);
     /// Files are being dragged over the window (set from the winit filter, see `files.rs`).
     in property <bool> drop-hint;
+    callback job-cancel(string);
 
     callback services();
     callback screens();
@@ -314,6 +315,7 @@ export component OperatorWindow inherits Window {
         height: root.height;
         jobs: root.jobs;
         dismiss(id) => { root.job-dismiss(id); }
+        cancel(id) => { root.job-cancel(id); }
     }
     ToastStack {
         x: 0px;
