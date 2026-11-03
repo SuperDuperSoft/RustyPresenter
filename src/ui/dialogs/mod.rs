@@ -7,7 +7,6 @@ pub mod add_media;
 pub mod ask;
 pub mod background;
 pub mod item_edit;
-pub(crate) mod pending;
 pub mod phone;
 pub mod screens;
 pub mod services;

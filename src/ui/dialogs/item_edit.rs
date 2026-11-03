@@ -230,8 +230,7 @@ fn remove(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 /// **Edit song** swaps the dialog for the song editor (`openSongEditor(song)`).
 fn edit_song(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     let ItemKind::Song { song_id } = edit.borrow().item.kind else { return };
-    // stand-in until Task 17 merges: Task 17's song editor opener (which also fills the editor) replaces this.
-    op.open_dialog(DialogKind::SongEditor { song_id: Some(song_id), add_after: false });
+    super::song_editor::open_song_editor(op, Some(song_id), false);
 }
 
 #[cfg(test)]
@@ -391,8 +390,8 @@ mod tests {
         settle();
         tiles()[7].invoke_accessible_default_action();
         settle();
-        type_into(&op, "BackgroundPicker::hex", "#12AB3");
-        type_into(&op, "BackgroundPicker::hex", "#12AB34");
+        type_into(&op, "ColorGrid::hex", "#12AB3");
+        type_into(&op, "ColorGrid::hex", "#12AB34");
         assert!(tiles().iter().all(|t| !t.accessible_checked().unwrap_or(false)), "a custom colour is no tile");
         press(&op, "ItemEditDialog::save");
         assert_eq!(item(&app, id).unwrap().background, Some(Background::Color { color: "#12ab34".into() }));
@@ -412,7 +411,7 @@ mod tests {
             image::RgbaImage::from_pixel(4, 4, image::Rgba([px, 0, 0, 255])).save(&p).unwrap();
             paths.push(p);
         }
-        background::PICKED.with(|p| *p.borrow_mut() = Some(paths));
+        crate::ui::operator::files::testing::will_pick(paths);
         settle();
         let tiles = find_all(&op, "BackgroundPicker::choice");
         tiles.last().unwrap().invoke_accessible_default_action();

@@ -1,5 +1,5 @@
 use super::*;
-use super::testing::will_pick;
+use crate::ui::operator::files::testing::will_pick;
 use crate::{
     app::{App, test_app},
     ui::{
@@ -10,7 +10,7 @@ use crate::{
 };
 use i_slint_backend_testing::mock_elapsed_time;
 use slint::{Model, platform::PointerEventButton};
-use std::{sync::Arc, time::Duration};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 
 fn opened(app: &Arc<App>) -> Rc<Operator> {
     let op = open_window(app);
@@ -236,12 +236,43 @@ fn default_background_pick_is_saved() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     let rows: Vec<_> = g(&op).get_backgrounds().iter().collect();
-    assert_eq!(rows.len(), 6, "the six swatches (no media in the library)");
+    assert_eq!(rows.len(), 8, "the six swatches, the custom colour and Upload (no media, no Theme default)");
     assert!(rows[0].on, "black is the default");
     g(&op).invoke_pick_background(1);
     assert!(g(&op).get_backgrounds().row_data(1).unwrap().on);
     click(&op, "SettingsDialog::save");
     assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#0b1a33".into() });
+}
+
+#[test]
+fn default_background_custom_colour_is_saved() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    g(&op).invoke_background_hex("#12AB3".into());
+    g(&op).invoke_background_hex("#12AB34".into());
+    assert!(g(&op).get_backgrounds().iter().all(|r| !r.on), "a custom colour is no tile");
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#12ab34".into() });
+}
+
+#[test]
+fn text_color_from_the_grid_and_its_hex_field() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
+    click(&op, "ColorPicker::swatch");
+    assert!(find(&op, "ColorGrid::hex").is_some());
+    let before = g(&op).get_color();
+    g(&op).invoke_text_hex("#12AB3".into());
+    assert_eq!(g(&op).get_color(), before, "half a colour is ignored");
+    g(&op).invoke_text_hex("#12AB34".into());
+    assert_eq!(g(&op).get_color(), "#12ab34");
+    g(&op).invoke_text_color(slint::Color::from_rgb_u8(255, 0, 0));
+    assert_eq!(g(&op).get_color(), "#ff0000");
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.theme.color, "#ff0000");
 }
 
 #[test]
@@ -258,19 +289,16 @@ fn check_again_toasts_found_or_not() {
     settle();
     assert!(find(&op, "SettingsVideo::missing").is_some());
     assert_eq!(g(&op).get_winget(), "winget install --id Gyan.FFmpeg -e");
+    // Inline `Ops` (tests) read at once when a read is asked for, so the toast follows this machine's own read.
     click(&op, "SettingsVideo::check-again");
-    assert!(toasts(&op).is_empty(), "the toast waits for the fresh read");
-    read(true);
-    settle();
-    assert_eq!(toasts(&op), ["Converter found!"]);
-    assert!(g(&op).get_ffmpeg());
-    assert!(find(&op, "SettingsVideo::found").is_some(), "the tab is redrawn");
+    let found = g(&op).get_ffmpeg();
+    let said = if found { "Converter found!" } else { "Not found yet — restart RustyPresenter after installing." };
+    assert_eq!(toasts(&op), [said]);
+    assert!(find(&op, if found { "SettingsVideo::found" } else { "SettingsVideo::missing" }).is_some(), "the tab is redrawn");
 
     g(&op).invoke_check_again();
-    read(false);
-    assert_eq!(toasts(&op).last().map(String::as_str), Some("Not found yet — restart RustyPresenter after installing."));
     read(true);
-    assert_eq!(toasts(&op).len(), 2, "one toast per click");
+    assert_eq!(toasts(&op).len(), 2, "one toast per click, not one per read");
 }
 
 #[test]

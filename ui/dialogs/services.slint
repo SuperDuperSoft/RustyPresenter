@@ -2,7 +2,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
-import { DialogRow, RowMain } from "rows.slint";
+import { ListRow, RowMain } from "form.slint";
 
 /// One service: its name, "N item(s)" and whether it is the one open.
 export struct ServiceListRow { id: string, name: string, count: string, current: bool }
@@ -39,7 +39,7 @@ export component ServicesDialog inherits VerticalLayout {
         }
         VerticalLayout {
             spacing: 4px;
-            for s in ServicesDialogState.rows: row := DialogRow {
+            for s in ServicesDialogState.rows: row := ListRow {
                 accessible-role: list-item;
                 accessible-label: s.name;
                 RowMain {

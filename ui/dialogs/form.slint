@@ -3,41 +3,56 @@
 import { Theme, OperatorState } from "../theme.slint";
 import { Icon, TipBox } from "../widgets.slint";
 
-/// `.field input[type=text]`: 1.5 px border (accent when focused), radius 9, 9×11 padding.
+/// `.field input[type=text]`: one line on the page background with a 1.5 px border (accent when focused), radius 9,
+/// 9×11 padding. `search` gives the `.search` look (radius 10, 10×12 padding). A test (or a screen reader) can type
+/// into it through its accessible value.
 export component TextField inherits Rectangle {
     in-out property <string> text;
     in property <string> placeholder;
+    /// The accessible name when it differs from the placeholder.
+    in property <string> label;
     in property <bool> password;
+    in property <bool> search;
+    in property <length> font-size: Theme.base-size;
+    out property <bool> has-focus: input.has-focus;
+    /// The text changed by typing (not by Rust setting it).
     callback edited(string);
+    /// Enter.
     callback accepted(string);
+    forward-focus: input;
 
     min-width: 60px;
-    height: 38px;
     background: Theme.bg;
     border-color: input.has-focus ? Theme.accent : Theme.line;
     border-width: 1.5px;
-    border-radius: 9px;
+    border-radius: root.search ? 10px : 9px;
     accessible-role: text-input;
-    accessible-label: root.placeholder;
+    accessible-label: root.label != "" ? root.label : root.placeholder;
+    accessible-placeholder-text: root.placeholder;
     accessible-value: root.text;
+    accessible-action-set-value(v) => {
+        root.text = v;
+        root.edited(v);
+    }
 
     HorizontalLayout {
-        padding-left: 11px;
-        padding-right: 11px;
+        padding-top: root.search ? 10px : 9px;
+        padding-bottom: self.padding-top;
+        padding-left: root.search ? 12px : 11px;
+        padding-right: self.padding-left;
         Rectangle {
-            if root.text == "": Text {
-                x: 0;
+            min-height: input.preferred-height;
+            if input.text == "": Text {
                 width: parent.width;
                 height: parent.height;
                 text: root.placeholder;
                 color: Theme.faint;
                 font-family: Theme.font;
-                font-size: Theme.base-size;
-                vertical-alignment: center;
+                font-size: root.font-size;
                 overflow: elide;
+                vertical-alignment: center;
             }
             input := TextInput {
-                x: 0;
                 width: parent.width;
                 height: parent.height;
                 text <=> root.text;
@@ -47,11 +62,76 @@ export component TextField inherits Rectangle {
                 selection-background-color: Theme.accent;
                 selection-foreground-color: Theme.accent-ink;
                 font-family: Theme.font;
-                font-size: Theme.base-size;
+                font-size: root.font-size;
                 vertical-alignment: center;
                 changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
                 edited => { root.edited(self.text); }
                 accepted => { root.accepted(self.text); }
+            }
+        }
+    }
+}
+
+/// `.field textarea`: several lines that wrap, at least `min-height` tall, scrolled to keep the cursor in view.
+export component TextArea inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    /// The accessible name when it differs from the placeholder.
+    in property <string> label;
+    in property <length> font-size: Theme.base-size;
+    out property <bool> has-focus: input.has-focus;
+    callback edited(string);
+    forward-focus: input;
+
+    min-height: 120px;
+    background: Theme.bg;
+    border-width: 1.5px;
+    border-color: input.has-focus ? Theme.accent : Theme.line;
+    border-radius: 9px;
+    accessible-role: text-input;
+    accessible-label: root.label != "" ? root.label : root.placeholder;
+    accessible-placeholder-text: root.placeholder;
+    accessible-value: root.text;
+    accessible-action-set-value(v) => {
+        root.text = v;
+        root.edited(v);
+    }
+
+    fl := Flickable {
+        x: 11px;
+        y: 9px;
+        width: root.width - 22px;
+        height: root.height - 18px;
+        mouse-drag-pan-enabled: false;
+        content-width: self.width;
+        content-height: max(self.height, input.preferred-height);
+        if input.text == "": Text {
+            width: fl.width;
+            text: root.placeholder;
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: root.font-size;
+            wrap: word-wrap;
+        }
+        input := TextInput {
+            width: fl.width;
+            height: max(fl.height, self.preferred-height);
+            text <=> root.text;
+            single-line: false;
+            wrap: word-wrap;
+            color: Theme.text;
+            selection-background-color: Theme.accent;
+            selection-foreground-color: Theme.accent-ink;
+            font-family: Theme.font;
+            font-size: root.font-size;
+            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+            edited => { root.edited(self.text); }
+            cursor-position-changed(p) => {
+                if p.y + fl.content-y < 0 {
+                    fl.content-y = -p.y;
+                } else if p.y + fl.content-y + root.font-size * 1.5 > fl.height {
+                    fl.content-y = min(0px, fl.height - p.y - root.font-size * 1.5);
+                }
             }
         }
     }
@@ -64,7 +144,16 @@ export component Check inherits HorizontalLayout {
     callback toggled(bool);
     spacing: 10px;
     padding-bottom: 10px;
-    alignment: start;
+    accessible-role: checkbox;
+    accessible-checked: root.checked;
+    accessible-label: root.text;
+    accessible-action-default => { root.toggle(); }
+
+    function toggle() {
+        root.checked = !root.checked;
+        root.toggled(root.checked);
+    }
+
     VerticalLayout {
         alignment: center;
         box := Rectangle {
@@ -74,10 +163,6 @@ export component Check inherits HorizontalLayout {
             border-width: root.checked ? 0px : 1.5px;
             border-color: Theme.muted;
             background: root.checked ? Theme.accent : Theme.bg;
-            accessible-role: checkbox;
-            accessible-checked: root.checked;
-            accessible-label: root.text;
-            accessible-action-default => { ta.clicked(); }
             if root.checked: Path {
                 width: 14px;
                 height: 14px;
@@ -88,16 +173,14 @@ export component Check inherits HorizontalLayout {
                 stroke-width: 3px;
                 fill: transparent;
             }
-            ta := TouchArea {
+            TouchArea {
                 mouse-cursor: pointer;
-                clicked => {
-                    root.checked = !root.checked;
-                    root.toggled(root.checked);
-                }
+                clicked => { root.toggle(); }
             }
         }
     }
     Text {
+        horizontal-stretch: 1;
         text: root.text;
         color: Theme.text;
         font-family: Theme.font;
@@ -106,7 +189,7 @@ export component Check inherits HorizontalLayout {
         wrap: word-wrap;
         TouchArea {
             mouse-cursor: pointer;
-            clicked => { ta.clicked(); }
+            clicked => { root.toggle(); }
         }
     }
 }
@@ -314,7 +397,7 @@ export component Tabs inherits Rectangle {
 }
 
 /// `.note`: a muted paragraph on `panel-2`. `bold` is the web's leading `<b>` sentence, drawn in the text colour on
-/// a line of its own (Slint 1.18 `Text` has no inline bold run).
+/// a line of its own (Slint 1.18 `Text` has no inline bold run). The children go under the text.
 export component Note inherits Rectangle {
     in property <string> bold;
     in property <string> text;
@@ -326,21 +409,24 @@ export component Note inherits Rectangle {
         padding-bottom: 12px;
         padding-left: 14px;
         padding-right: 14px;
-        spacing: 2px;
-        if root.bold != "": Text {
-            text: root.bold;
-            color: Theme.text;
-            font-family: Theme.font;
-            font-size: root.font-size;
-            font-weight: 700;
-            wrap: word-wrap;
-        }
-        if root.text != "": Text {
-            text: root.text;
-            color: Theme.muted;
-            font-family: Theme.font;
-            font-size: root.font-size;
-            wrap: word-wrap;
+        spacing: 6px;
+        if root.bold != "" || root.text != "": VerticalLayout {
+            spacing: 2px;
+            if root.bold != "": Text {
+                text: root.bold;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                font-weight: 700;
+                wrap: word-wrap;
+            }
+            if root.text != "": Text {
+                text: root.text;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                wrap: word-wrap;
+            }
         }
         @children
     }
@@ -374,20 +460,27 @@ export component ListRow inherits Rectangle {
     }
 }
 
-/// `.row .main`: a bold title over a muted line, both cut with an ellipsis.
+/// `.row .main`: a bold title over a muted line, both cut with an ellipsis; the children follow the title on its
+/// line (a "current" chip, say).
 export component RowMain inherits VerticalLayout {
     in property <string> title;
     in property <string> sub;
     horizontal-stretch: 1;
     min-width: 0px;
     alignment: center;
-    Text {
-        text: root.title;
-        color: Theme.text;
-        font-family: Theme.font;
-        font-size: Theme.base-size;
-        font-weight: 600;
-        overflow: elide;
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+        @children
     }
     if root.sub != "": Text {
         text: root.sub;

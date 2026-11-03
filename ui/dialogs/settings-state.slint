@@ -1,8 +1,6 @@
 // What the Settings dialog shows and edits (`operator.js:877-1007`), shared by its tab files and set from
 // `src/ui/dialogs/settings.rs`. The form fields are `in-out`: the Rust side reads them back on Save.
-
-/// One choice of the Default background picker (stand-in until Task 18's `BackgroundPicker` merges).
-export struct SettingsBgRow { label: string, swatch: color, image: image, on: bool, tooltip: string }
+import { BgChoice } from "background-picker.slint";
 
 /// A translation row of Settings → Bible: its status chip and the line under its name.
 export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
@@ -37,7 +35,10 @@ export global SettingsDlg {
     in property <image> preview;
     /// "“F” isn't installed on this computer…", or empty.
     in property <string> font-note;
-    in property <[SettingsBgRow]> backgrounds;
+    /// The Default background picker's tiles (`background::Picker`, no "Theme default").
+    in property <[BgChoice]> backgrounds;
+    /// The colour grid of Text color and the custom background colour.
+    in property <[color]> palette;
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).
@@ -77,7 +78,13 @@ export global SettingsDlg {
     callback look-changed();
     callback choose-logo();
     callback remove-logo();
+    /// Text color: a grid colour, or what was typed into its hex field.
+    callback text-color(color);
+    callback text-hex(string);
     callback pick-background(int);
+    callback background-color(color);
+    callback background-hex(string);
+    callback upload-background();
     callback save-key(int, string);
     callback copy-link(int);
     callback import-bible();

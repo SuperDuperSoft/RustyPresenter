@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, confirm, settings_bible, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_bible, settings_look, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -12,7 +12,7 @@ use crate::{
     live::Command,
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
-use std::{cell::RefCell, path::PathBuf, rc::{Rc, Weak}};
+use std::{cell::RefCell, rc::{Rc, Weak}};
 
 /// What one open Settings dialog holds between callbacks: the edited clone and the lists its buttons index into.
 pub struct Edit {
@@ -80,6 +80,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     });
     let g = op.ui.global::<SettingsDlg>();
     fill_form(&g, &edit.settings.borrow());
+    g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_tab(tab_index(tab));
     about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
@@ -107,9 +108,9 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
 
 /// Draws the pages that show the core's state rather than the form: Bible, Video, Backups and Help. The web
 /// rebuilds them from the newest `S` on every tab switch and after their own actions.
-pub(crate) fn fill_pages(op: &Operator, edit: &Edit, snap: &OperatorSnapshot) {
+pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) {
     let g = op.ui.global::<SettingsDlg>();
-    settings_look::fill_backgrounds(&g, edit, snap);
+    settings_look::fill_backgrounds(op, edit, snap);
     settings_bible::fill(&g, edit, snap);
     g.set_ffmpeg(snap.ffmpeg);
     g.set_winget(strings::WINGET.into());
@@ -160,6 +161,20 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_choose_logo(with(settings_look::choose_logo));
     g.on_remove_logo(with(settings_look::remove_logo));
     g.on_pick_background(with_i(settings_look::pick_background));
+    g.on_upload_background(with(settings_look::upload_background));
+    let with_color = |f: fn(&Rc<Operator>, &Rc<Edit>, String)| {
+        let (me, edit): (Weak<Operator>, Rc<Edit>) = (Rc::downgrade(op), edit.clone());
+        move |c: slint::Color| if let Some(op) = me.upgrade() { f(&op, &edit, background::to_hex(c)) }
+    };
+    // A hex field's text is kept only when it is a whole `#rrggbb`.
+    let with_hex = |f: fn(&Rc<Operator>, &Rc<Edit>, String)| {
+        let (me, edit): (Weak<Operator>, Rc<Edit>) = (Rc::downgrade(op), edit.clone());
+        move |t: slint::SharedString| if let (Some(op), Some(hex)) = (me.upgrade(), background::parse_hex(&t)) { f(&op, &edit, hex) }
+    };
+    g.on_text_color(with_color(settings_look::text_color));
+    g.on_text_hex(with_hex(settings_look::text_color));
+    g.on_background_color(with_color(settings_look::background_color));
+    g.on_background_hex(with_hex(settings_look::background_color));
     let (me, e) = (Rc::downgrade(op), edit.clone());
     g.on_save_key(move |i, key| if let Some(op) = me.upgrade() { settings_bible::save_key(&op, &e, i.max(0) as usize, &key) });
     g.on_copy_link(with_i(settings_bible::copy_link));
@@ -249,38 +264,10 @@ fn save(op: &Rc<Operator>, edit: &Rc<Edit>) {
     });
 }
 
-/// A file pick for Settings (a logo, Bible files). Stand-in until Task 15 merges `files::pick` (rfd): in the app
-/// it picks nothing yet; tests queue the paths a pick returns with `testing::will_pick`.
-pub(crate) fn pick(_op: &Operator, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
-    #[cfg(test)]
-    {
-        let picked = testing::PICKS.with(|p| p.borrow_mut().pop_front()).unwrap_or_default();
-        let picked = if multi { picked } else { picked.into_iter().take(1).collect() };
-        if !picked.is_empty() { done(picked) }
-    }
-    #[cfg(not(test))]
-    {
-        let _ = (multi, done);
-        eprintln!("Settings: file picking arrives with Task 15");
-    }
-}
-
 /// Connects the top bar's Settings button.
 pub(crate) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ui.on_settings(move || if let Some(op) = me.upgrade() { open(&op, SettingsTab::Look) });
-}
-
-#[cfg(test)]
-pub(crate) mod testing {
-    use std::{cell::RefCell, collections::VecDeque, path::PathBuf};
-
-    thread_local! {
-        pub(crate) static PICKS: RefCell<VecDeque<Vec<PathBuf>>> = RefCell::default();
-    }
-
-    /// The next `pick` returns `paths`.
-    pub(crate) fn will_pick(paths: Vec<PathBuf>) { PICKS.with(|p| p.borrow_mut().push_back(paths)) }
 }
 
 #[cfg(test)]

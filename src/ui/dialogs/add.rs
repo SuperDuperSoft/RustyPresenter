@@ -1,11 +1,11 @@
 //! Add to service (`openAdd()` and its tabs, `operator.js:378-511`): five tiles above the current tab. The Song,
 //! Bible and Announcement tabs are here; Video & media and Slides are in `add_media`. The dialog's fields and lists
 //! live in the `AddState` global (`ui/dialogs/add-list.slint`).
-use super::{AddTab, DialogKind, add_strings as tr, pending, song_editor::open_song_editor};
+use super::{AddTab, DialogKind, add_strings as tr, song_editor::open_song_editor};
 use crate::{
     model::Song,
     slides::section_label,
-    ui::{AddRow, AddState, operator::{add_item::add_item, file_input::Filter, window::Operator}, thumbs::Thumbs},
+    ui::{AddRow, AddState, operator::{add_item::add_item_then, file_input::Filter, files, window::Operator}, thumbs::Thumbs},
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -166,7 +166,7 @@ fn add_verses(op: &Rc<Operator>, pasted: bool) {
         let Some(op) = me.upgrade() else { return };
         let Found { label, verses, translation } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
         let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": 0 });
-        add_item(&op, item, true, move |op, _| {
+        add_item_then(&op, item, true, move |op, _| {
             op.toast(tr::bible_added(&label), false);
             op.close_dialog();
         });
@@ -179,7 +179,7 @@ fn add_text(op: &Rc<Operator>) {
     let title = st.get_text_title().trim().to_string();
     if title.is_empty() { return op.toast(tr::GIVE_IT_A_TITLE, true) }
     let item = json!({ "kind": "text", "title": title, "body": st.get_text_body().as_str() });
-    add_item(op, item, false, |op, _| op.close_dialog());
+    add_item_then(op, item, false, |op, _| op.close_dialog());
 }
 
 /// A row's Add: the item goes at the end with the toast "Added to the service", and the dialog closes.
@@ -190,7 +190,7 @@ fn add_row(op: &Rc<Operator>, id: Uuid) {
         Some(DialogKind::Add(AddTab::Deck)) => json!({ "kind": "deck", "deck_id": id }),
         _ => return,
     };
-    add_item(op, item, false, |op, _| op.close_dialog());
+    add_item_then(op, item, false, |op, _| op.close_dialog());
 }
 
 /// Points `AddState`'s callbacks at this dialog. Set on each open; they hold the context and a `Weak` window.
@@ -211,7 +211,7 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_new_song(with(|op, _| open_song_editor(op, None, true)));
     st.on_import_lyrics(with(|op, _| {
         let me = Rc::downgrade(op);
-        pending::pick(op, Filter::Lyrics, true, move |paths| if let Some(op) = me.upgrade() { pending::add_files(&op, paths) });
+        files::pick(op, Filter::Lyrics, true, move |paths| if let Some(op) = me.upgrade() { files::add_files(&op, paths) });
     }));
     st.on_edit_song(with_id(|op, _, id| open_song_editor(op, Some(id), false)));
     st.on_add_row(with_id(|op, _, id| add_row(op, id)));

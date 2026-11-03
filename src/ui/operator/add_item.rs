@@ -1,7 +1,6 @@
 //! `addItem()` (`operator.js:369-375`): one item goes at the end of the service and is selected. Shared by the Add
-//! dialog, the song editor and adding files (Task 14), so it lives in the operator module, which owns the selection.
-use super::window::Operator;
-use crate::ui::dialogs::add_strings::ADDED;
+//! dialog, the song editor and adding files (`files`), so it lives in the operator module, which owns the selection.
+use super::{strings as tr, window::Operator};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::rc::Rc;
@@ -11,18 +10,29 @@ use uuid::Uuid;
 struct Added { id: Uuid }
 
 /// `service/add {item, position: null}`, then the new item is selected and, unless `quiet`, the toast "Added to the
-/// service". `done` runs only when the item went in; a failure is an error toast with the core's message (`guard()`),
-/// so a dialog that waits for `done` to close stays open.
-pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(&Rc<Operator>, Uuid) + 'static) {
+/// service". `done` gets the new id or the core's error; this does not toast an error itself, so adding files can
+/// name the file in its own toast.
+pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(Result<Uuid, String>) + 'static) {
     let me = Rc::downgrade(op);
     op.ops.call::<Added>("service/add", json!({ "item": item, "position": null }), move |r| {
         let Some(op) = me.upgrade() else { return };
+        let r = r.map(|Added { id }| id);
+        if let Ok(id) = r {
+            op.select_added(id);
+            if !quiet { op.toast(tr::ADDED_TO_SERVICE, false); }
+        }
+        done(r);
+    });
+}
+
+/// `add_item` for the dialogs: `done` runs only when the item went in; a failure is an error toast with the core's
+/// message (`guard()`), so a dialog that waits for `done` to close stays open.
+pub fn add_item_then(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(&Rc<Operator>, Uuid) + 'static) {
+    let me = Rc::downgrade(op);
+    add_item(op, item, quiet, move |r| {
+        let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(Added { id }) => {
-                op.select_added(id);
-                if !quiet { op.toast(ADDED, false); }
-                done(&op, id);
-            }
+            Ok(id) => done(&op, id),
             Err(e) => op.toast(e, true),
         }
     });

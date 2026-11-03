@@ -2,7 +2,6 @@
 //! Declared from `src/ui/dialogs/mod.rs` with a `#[path]` line until a shared `src/strings/mod.rs` exists.
 
 /// `addItem()`'s toast (`operator.js:373`).
-pub const ADDED: &str = "Added to the service";
 
 /// `searchList()` (`operator.js:399-410`).
 pub const NOTHING_MATCHES: &str = "Nothing matches.";

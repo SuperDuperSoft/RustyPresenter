@@ -1,10 +1,10 @@
 //! Settings → Bible (`operator.js:922-973`, after the `bible-esv` merge): every translation's status, the online
 //! services a church connects with a key (`bible/key`), Bible file import (`bible/import/{ABBR}`, the raw file) and
 //! removal (`bible/import-remove`), and the copyright lines of the sources in use.
-use super::settings::{Edit, copy, pick, redraw_on_next_read, strings};
+use super::settings::{Edit, copy, redraw_on_next_read, strings};
 use crate::ui::{
     SettingsBibleRow, SettingsDlg, SettingsProviderRow,
-    operator::{view::{BibleProvider, BibleSource, OperatorSnapshot}, window::Operator},
+    operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, OperatorSnapshot}, window::Operator},
 };
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, path::PathBuf, rc::Rc};
@@ -76,7 +76,7 @@ pub(super) fn copy_link(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
 /// own, `-`), one after another; the first failure stops the rest, as the web's loop throws.
 pub(super) fn import(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, edit) = (Rc::downgrade(op), edit.clone());
-    pick(op, true, move |paths| if let Some(op) = me.upgrade() { import_files(&op, &edit, paths) });
+    files::pick(op, Filter::Bibles, true, move |paths| if let Some(op) = me.upgrade() { import_files(&op, &edit, paths) });
 }
 
 pub(crate) fn import_files(op: &Rc<Operator>, edit: &Rc<Edit>, mut paths: Vec<PathBuf>) {

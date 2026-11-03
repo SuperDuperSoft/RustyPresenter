@@ -1,11 +1,11 @@
 //! The Add dialog's Video & media and Slides tabs (`addMedia()` and `addDeck()`, `operator.js:447-500`): the media
 //! and slides libraries, newest first, with a small picture of each, and their Upload / Import buttons.
-use super::{AddTab, add::AddCtx, add::search_key, add_strings as tr, confirm, pending};
+use super::{AddTab, add::AddCtx, add::search_key, add_strings as tr, confirm};
 use crate::{
     model::{Background, MediaFile, MediaKind, MediaStatus},
     ui::{
         AddRow, AddState,
-        operator::{file_input::Filter, strings::kind_name, view::OperatorSnapshot, window::Operator},
+        operator::{file_input::Filter, files, strings::kind_name, view::OperatorSnapshot, window::Operator},
         thumbs::{ThumbJob, ThumbKey, thumb_size},
     },
 };
@@ -119,7 +119,7 @@ fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
 /// Upload files, Import PowerPoint and Make slides from pictures go through the file picker.
 fn pick_then(op: &Rc<Operator>, filter: Filter, multi: bool, then: fn(&Rc<Operator>, Vec<std::path::PathBuf>)) {
     let me = Rc::downgrade(op);
-    pending::pick(op, filter, multi, move |paths| if let Some(op) = me.upgrade() { then(&op, paths) });
+    files::pick(op, filter, multi, move |paths| if let Some(op) = me.upgrade() { then(&op, paths) });
 }
 
 /// The two tabs' callbacks on `AddState`.
@@ -133,11 +133,11 @@ pub(crate) fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
         if let Some(super::DialogKind::Add(tab)) = op.dialog() { delete(&op, tab, id) }
     });
     let c = ctx.clone();
-    st.on_upload_media(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Media, true, pending::add_files) });
+    st.on_upload_media(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Media, true, files::add_files) });
     let c = ctx.clone();
-    st.on_import_powerpoint(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::PowerPoint, false, pending::add_files) });
+    st.on_import_powerpoint(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::PowerPoint, false, files::add_files) });
     let c = ctx.clone();
-    st.on_pictures_to_slides(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Pictures, true, pending::images_to_deck) });
+    st.on_pictures_to_slides(move || if let Some(op) = c.op.upgrade() { pick_then(&op, Filter::Pictures, true, files::images_to_deck) });
 }
 
 #[cfg(test)]

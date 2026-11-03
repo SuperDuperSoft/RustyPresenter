@@ -14,6 +14,85 @@ export struct BgChoice {
     tooltip: string,
 }
 
+/// The colour grid and hex field (the web's `<input type=color>`): Slint 1.18 has no colour dialog. A grid
+/// colour is `picked`; the hex field sends what is typed, which Rust keeps only when it is a whole `#rrggbb`.
+export component ColorGrid inherits Rectangle {
+    /// The grid's colours (from Rust: no colour literals in dialog files).
+    in property <[color]> palette;
+    callback picked(color);
+    callback hex(string);
+
+    property <length> sw: 24px;
+    property <int> pcols: max(1, floor((root.width - 20px + 6px) / (root.sw + 6px)));
+
+    background: Theme.panel-2;
+    border-radius: 10px;
+    VerticalLayout {
+        padding: 10px;
+        spacing: 10px;
+        Rectangle {
+            height: max(0px, ceil(root.palette.length / root.pcols) * (root.sw + 6px) - 6px);
+            for p[i] in root.palette: swatch := Rectangle {
+                x: (i - floor(i / root.pcols) * root.pcols) * (root.sw + 6px);
+                y: floor(i / root.pcols) * (root.sw + 6px);
+                width: root.sw;
+                height: root.sw;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: sta.has-hover ? Theme.text : Theme.line;
+                background: p;
+                accessible-role: button;
+                accessible-action-default => { root.picked(p); }
+                sta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.picked(p); }
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: @tr("Hex");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: 700;
+                vertical-alignment: center;
+            }
+            hex := Rectangle {
+                width: 120px;
+                height: 32px;
+                background: Theme.bg;
+                border-width: 1.5px;
+                border-radius: 8px;
+                border-color: hex-input.has-focus ? Theme.accent : Theme.line;
+                accessible-role: text-input;
+                accessible-label: @tr("Pick any color");
+                accessible-value: hex-input.text;
+                accessible-action-set-value(v) => {
+                    hex-input.text = v;
+                    root.hex(v);
+                }
+                hex-input := TextInput {
+                    x: 9px;
+                    width: parent.width - 18px;
+                    height: parent.height;
+                    single-line: true;
+                    color: Theme.text;
+                    selection-background-color: Theme.accent;
+                    selection-foreground-color: Theme.accent-ink;
+                    font-family: Theme.mono;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    edited => { root.hex(self.text); }
+                    changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                }
+            }
+            Rectangle { horizontal-stretch: 1; }
+        }
+    }
+}
+
 /// The custom colour: Slint 1.18 has no colour dialog, so a click on its swatch opens a small built-in grid and a
 /// hex field under the tiles (the web's `<input type=color>`, tooltip "Pick any color").
 export component BackgroundPicker inherits VerticalLayout {
@@ -33,8 +112,6 @@ export component BackgroundPicker inherits VerticalLayout {
     property <length> gap: 8px;
     property <int> cols: max(1, floor((root.width + root.gap) / (root.tile-w + root.gap)));
     property <int> rows: ceil(root.choices.length / root.cols);
-    property <length> sw: 24px;
-    property <int> pcols: max(1, floor((root.width + 6px) / (root.sw + 6px)));
 
     spacing: 8px;
 
@@ -105,72 +182,49 @@ export component BackgroundPicker inherits VerticalLayout {
         }
     }
 
-    if root.custom-open: Rectangle {
-        background: Theme.panel-2;
-        border-radius: 10px;
-        VerticalLayout {
-            padding: 10px;
-            spacing: 10px;
-            Rectangle {
-                height: max(0px, ceil(root.palette.length / root.pcols) * (root.sw + 6px) - 6px);
-                for p[i] in root.palette: swatch := Rectangle {
-                    x: (i - floor(i / root.pcols) * root.pcols) * (root.sw + 6px);
-                    y: floor(i / root.pcols) * (root.sw + 6px);
-                    width: root.sw;
-                    height: root.sw;
-                    border-radius: 6px;
-                    border-width: 1px;
-                    border-color: sta.has-hover ? Theme.text : Theme.line;
-                    background: p;
-                    accessible-role: button;
-                    accessible-action-default => { root.custom-color(p); }
-                    sta := TouchArea {
-                        mouse-cursor: pointer;
-                        clicked => { root.custom-color(p); }
-                    }
-                }
+    if root.custom-open: ColorGrid {
+        palette: root.palette;
+        picked(c) => { root.custom-color(c); }
+        hex(t) => { root.custom-hex(t); }
+    }
+}
+
+/// A colour field: its swatch opens the grid under it (tooltip "Pick any color"). Settings → Look's Text color.
+export component ColorPicker inherits VerticalLayout {
+    in property <color> value;
+    in property <[color]> palette;
+    callback picked(color);
+    callback hex(string);
+
+    in-out property <bool> open;
+
+    spacing: 8px;
+
+    HorizontalLayout {
+        alignment: start;
+        swatch := Rectangle {
+            width: 42px;
+            height: 34px;
+            border-radius: 8px;
+            border-width: 1.5px;
+            border-color: root.open ? Theme.accent : Theme.line;
+            background: root.value;
+            accessible-role: button;
+            accessible-label: @tr("Pick any color");
+            accessible-checked: root.open;
+            accessible-action-default => { root.open = !root.open; }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.open = !root.open; }
             }
-            HorizontalLayout {
-                spacing: 8px;
-                Text {
-                    text: @tr("Hex");
-                    color: Theme.muted;
-                    font-family: Theme.font;
-                    font-size: 12px;
-                    font-weight: 700;
-                    vertical-alignment: center;
-                }
-                hex := Rectangle {
-                    width: 120px;
-                    height: 32px;
-                    background: Theme.bg;
-                    border-width: 1.5px;
-                    border-radius: 8px;
-                    border-color: hex-input.has-focus ? Theme.accent : Theme.line;
-                    accessible-role: text-input;
-                    accessible-label: @tr("Pick any color");
-                    accessible-value: hex-input.text;
-                    accessible-action-set-value(v) => {
-                        hex-input.text = v;
-                        root.custom-hex(v);
-                    }
-                    hex-input := TextInput {
-                        x: 9px;
-                        width: parent.width - 18px;
-                        height: parent.height;
-                        single-line: true;
-                        color: Theme.text;
-                        selection-background-color: Theme.accent;
-                        selection-foreground-color: Theme.accent-ink;
-                        font-family: Theme.mono;
-                        font-size: Theme.base-size;
-                        vertical-alignment: center;
-                        edited => { root.custom-hex(self.text); }
-                        changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
-                    }
-                }
-                Rectangle { horizontal-stretch: 1; }
+            Tooltip {
+                TipBox { text: @tr("Pick any color"); }
             }
         }
+    }
+    if root.open: grid := ColorGrid {
+        palette: root.palette;
+        picked(c) => { root.picked(c); }
+        hex(t) => { root.hex(t); }
     }
 }

@@ -1,8 +1,9 @@
-//! Adding files to the service (`uploadFiles`, `watchDeckJob`, `imagesToDeck` and `addItem` in
-//! `web/operator.js:369-375, 536-598`): which import a dropped or picked file takes, the window glue that runs the
+//! Adding files to the service (`uploadFiles`, `watchDeckJob` and `imagesToDeck` in
+//! `web/operator.js:536-598`): which import a dropped or picked file takes, the window glue that runs the
 //! imports one after another as client jobs, and the pure steps it is built from. Files arrive from the native
 //! file picker (`pick`) or a desktop drop (`wire`, through the window's winit event filter).
 use super::{
+    add_item::add_item,
     file_input::{DropBatch, DropEvent, DropPlan, Filter, drop_plan},
     overlays::JobHandle, strings as tr, view, window::Operator,
 };
@@ -15,7 +16,7 @@ use crate::{
 };
 use slint::Timer;
 use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::json;
 use std::{
     cell::RefCell,
     cmp::Ordering,
@@ -120,6 +121,7 @@ pub fn deck_title(answer: Option<&str>) -> String {
 pub struct FilesState {
     watches: RefCell<Vec<DeckWatch>>,
     drop: RefCell<DropBatch>,
+    #[cfg_attr(test, allow(dead_code))]
     last_folder: RefCell<Option<PathBuf>>,
     events: Dispatcher<WindowEvent>,
 }
@@ -156,30 +158,12 @@ impl DeckWatch {
     }
 }
 
-/// `service/add`'s and `deck/from-images`'s answer.
+/// `deck/from-images`'s answer.
 #[derive(Deserialize)]
 struct Added { id: Uuid }
 
 /// The name a file's toasts and job card use.
 fn file_name(path: &Path) -> String { path.file_name().unwrap_or(path.as_os_str()).to_string_lossy().into_owned() }
-
-/// `addItem` (`operator.js:369-375`): `service/add` at the end, select the new item, then "Added to the service"
-/// unless `quiet`. `done` gets the new id or the core's error; this does not toast an error itself.
-pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(Result<Uuid, String>) + 'static) {
-    let me = Rc::downgrade(op);
-    op.ops.call::<Added>("service/add", json!({ "item": item, "position": null }), move |r| {
-        let Some(op) = me.upgrade() else { return };
-        let r = r.map(|Added { id }| id);
-        if let Ok(id) = r {
-            op.state.borrow_mut().selected = Some(id);
-            // The core's `Data` update may already have been applied with the old selection.
-            op.mark_service();
-            op.render_slides();
-            if !quiet { op.toast(tr::ADDED_TO_SERVICE, false); }
-        }
-        done(r);
-    });
-}
 
 /// `uploadFiles(files, {add: true})`: each file in turn, as a client job "Uploading `<name>`", then into the
 /// service. A song or media file is added quietly with its own toast; a PowerPoint is added when its job ends. A
@@ -376,8 +360,22 @@ pub fn handle_drop(op: &Rc<Operator>, paths: Vec<PathBuf>) {
 }
 
 /// The native file picker (`pickFiles`, `operator.js:516-521`) over the operator window, starting in the folder
-/// last picked from this session. `done` runs only when files were picked.
+/// last picked from this session. `done` runs only when files were picked. Tests never open the dialog: a pick
+/// takes the next paths queued with `testing::will_pick`.
 pub fn pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
+    #[cfg(test)]
+    {
+        let _ = (op, filter);
+        let picked = testing::PICKS.with(|p| p.borrow_mut().pop_front()).unwrap_or_default();
+        let picked: Vec<PathBuf> = if multi { picked } else { picked.into_iter().take(1).collect() };
+        if !picked.is_empty() { done(picked) }
+    }
+    #[cfg(not(test))]
+    native_pick(op, filter, multi, done);
+}
+
+#[cfg(not(test))]
+fn native_pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
     let mut dialog = rfd::AsyncFileDialog::new().add_filter(filter.name(), &filter.extensions()).set_parent(&op.window().window_handle());
     if let Some(dir) = op.files.last_folder.borrow().as_ref() { dialog = dialog.set_directory(dir); }
     let me = Rc::downgrade(op);
@@ -395,6 +393,19 @@ pub fn pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Ve
 impl Operator {
     /// The window's event filter, for anything else that needs raw window events (Slint allows one filter).
     pub fn window_events(&self) -> &Dispatcher<WindowEvent> { &self.files.events }
+}
+
+#[cfg(test)]
+pub(crate) mod testing {
+    use std::{cell::RefCell, collections::VecDeque, path::PathBuf};
+
+    thread_local! {
+        /// What the next picks return, in order; an empty or missing entry is a cancelled pick.
+        pub(crate) static PICKS: RefCell<VecDeque<Vec<PathBuf>>> = RefCell::default();
+    }
+
+    /// Queues the files the next `pick` "chooses".
+    pub(crate) fn will_pick(paths: Vec<PathBuf>) { PICKS.with(|p| p.borrow_mut().push_back(paths)) }
 }
 
 #[cfg(test)]

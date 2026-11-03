@@ -1,13 +1,13 @@
 //! Settings → Look (`operator.js:893-917`): the theme fields, the logo, the default background and a 16:9 preview
 //! of a sample lyric drawn off the UI thread 150 ms after each change. The preview's text render also says whether
 //! the chosen font is installed; when it is not, a note says slides use Noto Sans (native spec §4).
-use super::settings::{Edit, pick, read_form as read_all, strings};
+use super::{background::{self, Picker}, settings::{Edit, read_form as read_all, strings}};
 use crate::{
     app::{ImportPurpose, Imported},
-    model::{Background, MediaKind, MediaStatus, Settings, Slide, SlideContent},
+    model::{Settings, Slide, SlideContent},
     render::parse_color,
     store::Store,
-    ui::{SettingsBgRow, SettingsDlg, block_on, operator::{view::OperatorSnapshot, window::Operator}, thumbs::{self, Pixels, TextRenderer}},
+    ui::{SettingsDlg, block_on, operator::{file_input::Filter, files, view::OperatorSnapshot, window::Operator}, thumbs::{self, Pixels, TextRenderer}},
 };
 use slint::{ComponentHandle, Image, ModelRc, Timer, TimerMode, VecModel};
 use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, time::Duration};
@@ -19,15 +19,13 @@ pub const PREVIEW_DELAY: Duration = Duration::from_millis(150);
 const PREVIEW_SIZE: (u32, u32) = (640, 360);
 /// The logo is shown 44 px high (88 px covers a 2× screen).
 const LOGO_HEIGHT: u32 = 88;
-/// The six swatches of the background picker (`operator.js:701`).
-const SWATCHES: [&str; 6] = ["#000000", "#0b1a33", "#1d2b1f", "#2b1530", "#3a2412", "#ffffff"];
-
-/// The preview's timer, the choices the background grid shows, and a counter that drops stale renders.
+/// The preview's timer, the Default background picker (made on the first fill), and a counter that drops stale
+/// renders.
 #[derive(Default)]
 pub struct LookState {
     timer: Timer,
     generation: Cell<u64>,
-    backgrounds: RefCell<Vec<Background>>,
+    picker: RefCell<Option<Picker>>,
 }
 
 impl LookState {
@@ -84,23 +82,59 @@ fn swatch(c: &str) -> slint::Color {
     slint::Color::from_argb_u8(a, r, g, b)
 }
 
-/// Stand-in until Task 18 merges `background::choices`: the six swatches, then every ready picture and video.
-pub(super) fn fill_backgrounds(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
-    let mut values: Vec<Background> = SWATCHES.iter().map(|c| Background::Color { color: c.to_string() }).collect();
-    let mut rows: Vec<SettingsBgRow> = SWATCHES.iter().map(|c| SettingsBgRow { swatch: swatch(c), ..Default::default() }).collect();
-    for m in snap.data.media.iter().filter(|m| m.status == MediaStatus::Ready) {
-        let (value, label) = match m.kind {
-            MediaKind::Image => (Background::Image { asset: m.asset.clone() }, m.name.clone()),
-            MediaKind::Video => (Background::Video { asset: m.asset.clone() }, format!("▶ {}", m.name)),
-            _ => continue,
-        };
-        values.push(value);
-        rows.push(SettingsBgRow { label: label.into(), tooltip: m.name.as_str().into(), swatch: slint::Color::from_argb_u8(255, 0, 0, 0), ..Default::default() });
+/// The Default background picker (`allow_default: false`) from the newest library, drawn "on" at the edited value.
+pub(super) fn fill_backgrounds(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) {
+    let value = Some(edit.settings.borrow().background.clone());
+    let mut picker = edit.look.picker.borrow_mut();
+    match picker.as_mut() {
+        Some(p) => { p.set_media(snap.data.media.clone()); p.value = value }
+        None => *picker = Some(Picker::new(op, value, snap.data.media.clone(), false)),
     }
-    let current = &edit.settings.borrow().background;
-    for (row, value) in rows.iter_mut().zip(&values) { row.on = value == current }
-    g.set_backgrounds(ModelRc::new(VecModel::from(rows)));
-    *edit.look.backgrounds.borrow_mut() = values;
+    drop(picker);
+    redraw_backgrounds(op, edit);
+}
+
+/// Redraws the background tiles (a pick, an upload, or a thumbnail that arrived).
+fn redraw_backgrounds(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    let redraw = move || if let (Some(op), Some(edit)) = (me.upgrade(), e.upgrade()) { redraw_backgrounds(&op, &edit) };
+    let rows = edit.look.picker.borrow().as_ref().map(|p| p.rows(redraw)).unwrap_or_default();
+    op.ui.global::<SettingsDlg>().set_backgrounds(ModelRc::new(VecModel::from(rows)));
+}
+
+/// The picker's value into the edited settings, then the tiles and the preview.
+fn background_changed(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let value = edit.look.picker.borrow().as_ref().and_then(|p| p.value.clone());
+    if let Some(v) = value { edit.settings.borrow_mut().background = v }
+    redraw_backgrounds(op, edit);
+    schedule(op, edit);
+}
+
+pub(super) fn pick_background(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let picked = edit.look.picker.borrow_mut().as_mut().is_some_and(|p| p.pick(i));
+    if picked { background_changed(op, edit) }
+}
+
+/// The custom background colour: a grid colour or a whole `#rrggbb` typed into its hex field.
+pub(super) fn background_color(op: &Rc<Operator>, edit: &Rc<Edit>, hex: String) {
+    if let Some(p) = edit.look.picker.borrow_mut().as_mut() { p.set_color(hex) }
+    background_changed(op, edit);
+}
+
+/// "+ Upload…": the imported pictures and videos become pickable at once.
+pub(super) fn upload_background(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    background::upload(op, move |files| {
+        let Some(op) = me.upgrade() else { return };
+        if let Some(p) = edit.look.picker.borrow_mut().as_mut() { p.add_media(files) }
+        redraw_backgrounds(&op, &edit);
+    });
+}
+
+/// Text color from the grid or its hex field: the form's field, then the preview.
+pub(super) fn text_color(op: &Rc<Operator>, edit: &Rc<Edit>, hex: String) {
+    op.ui.global::<SettingsDlg>().set_color(hex.into());
+    changed(op, edit);
 }
 
 /// Any Look field changed: take it into the clone and draw the preview 150 ms later.
@@ -111,17 +145,10 @@ pub(super) fn changed(op: &Rc<Operator>, edit: &Rc<Edit>) {
     schedule(op, edit);
 }
 
-pub(super) fn pick_background(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
-    let Some(value) = edit.look.backgrounds.borrow().get(i).cloned() else { return };
-    edit.settings.borrow_mut().background = value;
-    if let Some(s) = super::settings::snap(op) { fill_backgrounds(&op.ui.global::<SettingsDlg>(), edit, &s) }
-    schedule(op, edit);
-}
-
 /// Choose logo: pick a picture, import it as a bare asset and use it (`operator.js:900`).
 pub(super) fn choose_logo(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, edit) = (Rc::downgrade(op), edit.clone());
-    pick(op, false, move |paths| {
+    files::pick(op, Filter::Pictures, false, move |paths| {
         let (Some(op), Some(path)) = (me.upgrade(), paths.into_iter().next()) else { return };
         logo_from(&op, &edit, path);
     });

@@ -7,7 +7,7 @@ use crate::{
     slides::{parse_sections, song_slides},
     ui::{
         PreviewSlide, SectionChipRow, SongEditorState,
-        operator::{add_item::add_item, window::Operator},
+        operator::{add_item::add_item_then, window::Operator},
         thumbs::{Thumbs, thumb, thumb_size},
     },
 };
@@ -158,7 +158,7 @@ fn save(op: &Rc<Operator>, ctx: &EditorCtx) {
         let Some(op) = me.upgrade() else { return };
         let Saved { id } = match r { Ok(s) => s, Err(e) => return op.toast(e, true) };
         if add_after {
-            add_item(&op, json!({ "kind": "song", "song_id": id }), false, |op, _| op.close_dialog());
+            add_item_then(&op, json!({ "kind": "song", "song_id": id }), false, |op, _| op.close_dialog());
         } else {
             op.toast(tr::SONG_SAVED, false);
             op.close_dialog();

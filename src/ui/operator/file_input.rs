@@ -60,9 +60,9 @@ pub fn drop_plan(paths: Vec<PathBuf>) -> Option<DropPlan> {
     }
 }
 
-/// The web `accept` lists (`operator.js:413,476,491,492,726`).
+/// The web `accept` lists (`operator.js:413,476,491,492,726,900,948`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos }
+pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles }
 
 impl Filter {
     pub fn name(self) -> &'static str {
@@ -72,6 +72,7 @@ impl Filter {
             Filter::Lyrics => tr::FILTER_LYRICS,
             Filter::Pictures => tr::FILTER_PICTURES,
             Filter::PicturesAndVideos => tr::FILTER_PICTURES_AND_VIDEOS,
+            Filter::Bibles => tr::FILTER_BIBLES,
         }
     }
 
@@ -82,6 +83,7 @@ impl Filter {
             Filter::Lyrics => vec!["txt"],
             Filter::Pictures => media::IMAGE.to_vec(),
             Filter::PicturesAndVideos => [media::IMAGE, media::VIDEO].concat(),
+            Filter::Bibles => vec!["xml", "usx", "osis", "zef"],
         }
     }
 }
@@ -192,6 +194,7 @@ mod tests {
         assert_eq!(Filter::PowerPoint.extensions(), ["pptx", "ppt", "ppsx", "pps", "odp"]);
         assert_eq!(Filter::Lyrics.extensions(), ["txt"]);
         assert_eq!(Filter::Pictures.extensions(), media::IMAGE);
+        assert_eq!(Filter::Bibles.extensions(), ["xml", "usx", "osis", "zef"]);
     }
 
     #[test]
@@ -201,7 +204,7 @@ mod tests {
 
     #[test]
     fn every_filter_has_a_name() {
-        for f in [Filter::Media, Filter::PowerPoint, Filter::Lyrics, Filter::Pictures, Filter::PicturesAndVideos] {
+        for f in [Filter::Media, Filter::PowerPoint, Filter::Lyrics, Filter::Pictures, Filter::PicturesAndVideos, Filter::Bibles] {
             assert!(!f.name().is_empty(), "{f:?}");
         }
     }

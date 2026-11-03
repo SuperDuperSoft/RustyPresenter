@@ -7,7 +7,7 @@ pub(super) mod strings;
 use crate::{
     app::{ImportPurpose, Imported},
     model::{AssetId, Background, MediaFile, MediaKind, MediaStatus},
-    ui::{BgChoice, operator::{file_input::Filter, window::Operator}, thumbs::{self, ThumbJob, ThumbKey, ThumbMedia, Thumbs}},
+    ui::{BgChoice, operator::{file_input::Filter, files::pick, window::Operator}, thumbs::{self, ThumbJob, ThumbKey, ThumbMedia, Thumbs}},
 };
 use slint::{Color, Image};
 use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
@@ -152,6 +152,13 @@ impl Picker {
         self.choices = choices(&self.media, self.allow_default);
     }
 
+    /// The library as a newer read has it (Settings redraws its pages from each read); thumbnails already drawn
+    /// are kept.
+    pub fn set_media(&mut self, media: Vec<MediaFile>) {
+        self.media = media;
+        self.choices = choices(&self.media, self.allow_default);
+    }
+
     /// Sets the value from tile `i`; false for the custom colour, Upload or an index out of range.
     pub fn pick(&mut self, i: usize) -> bool {
         let Some(v) = self.choices.get(i).and_then(Choice::value) else { return false };
@@ -223,21 +230,6 @@ pub fn upload_files(op: &Rc<Operator>, paths: Vec<PathBuf>, done: impl FnOnce(Ve
         });
     }
     next(op, paths.into_iter(), Vec::new(), Box::new(done));
-}
-
-/// Task 15's native file dialog: `pick(op, filter, multi, done)`.
-// stand-in until Task 15 merges: picks nothing outside tests, so "+ Upload…" does nothing yet; swap this for
-// Task 15's `pick` at the merge (and the tests' `PICKED` for its test hook).
-fn pick(_op: &Rc<Operator>, _filter: Filter, _multi: bool, done: impl FnOnce(Vec<PathBuf>) + 'static) {
-    #[cfg(test)]
-    if let Some(paths) = PICKED.with(|p| p.borrow_mut().take()) { return done(paths) }
-    let _ = done;
-}
-
-#[cfg(test)]
-thread_local! {
-    /// The files the stand-in picker "chooses" next (tests only).
-    pub(crate) static PICKED: RefCell<Option<Vec<PathBuf>>> = const { RefCell::new(None) };
 }
 
 #[cfg(test)]

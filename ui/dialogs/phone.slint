@@ -3,7 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, CopyText } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
-import { DialogRow, RowMain, Note, SectionLabel } from "rows.slint";
+import { ListRow, RowMain, Note, Lbl } from "form.slint";
 
 export struct PairedPhone { id: string, name: string }
 
@@ -122,11 +122,11 @@ export component PhoneDialog inherits VerticalLayout {
         VerticalLayout {
             padding-top: 18px;
             padding-bottom: 8px;
-            SectionLabel { text: @tr("Paired phones").to-uppercase(); }
+            Lbl { label: @tr("Paired phones"); }
         }
         if PhoneDialogState.phones.length > 0: VerticalLayout {
             spacing: 4px;
-            for p in PhoneDialogState.phones: phone-row := DialogRow {
+            for p in PhoneDialogState.phones: phone-row := ListRow {
                 accessible-role: list-item;
                 accessible-label: p.name;
                 RowMain { title: p.name; }
