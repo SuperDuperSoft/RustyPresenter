@@ -28,7 +28,7 @@ fn main() {
             tauri::async_runtime::spawn(rustypresenter::import::init(&app));
             let screens = displays::TauriScreens::new(t.handle().clone(), &app);
             app.set_screens(screens.clone());
-            tauri::async_runtime::spawn(startup::backups(app.clone()));
+            tauri::async_runtime::spawn(startup::backups(app.clone(), false));
             tauri::async_runtime::spawn(screens.watchdog());
             tauri::async_runtime::spawn(startup::serve(app.clone(), listener));
 

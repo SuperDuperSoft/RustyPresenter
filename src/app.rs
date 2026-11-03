@@ -288,6 +288,9 @@ impl App {
         if let Some(s) = snapshot { writer.submit(s); }
     }
 
+    /// Is video or audio on air?
+    pub fn playing(&self) -> bool { self.live.lock().unwrap().committed().is_some_and(|(frame, ..)| frame.plays()) }
+
     /// Where the restored players should start, in seconds.
     pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
 
@@ -1129,6 +1132,25 @@ mod tests {
         app.save_live_state();
         app.stop_state_writer();
         assert_eq!(state::load(&app.store.root), None);
+    }
+
+    #[test]
+    fn playing_means_committed_video_or_audio() {
+        let app = test_app();
+        let item_id = Uuid::new_v4();
+        let kind = ItemKind::Text { title: "t".into(), body: "text".into() };
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new() });
+        let version = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } }).version;
+        app.room_event(RoomEvent::Committed { version });
+        assert!(!app.playing(), "a text slide does not play");
+
+        let mut saved = state::snapshot(&app.live.lock().unwrap(), vec![], 1).unwrap();
+        saved.frame.audio = Some(Inst { inst: 9, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: false } });
+        app.live.lock().unwrap().restore(&saved, true);
+        assert!(!app.playing(), "not on air until the room commits");
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        assert!(app.playing());
     }
 
     #[test]
