@@ -253,9 +253,9 @@ fn finish(core: &Core, found: Option<Probe>) -> Result<Probe, String> {
 /// Mpv is heavy on a laptop that is also running the service, so only two files are probed at once.
 static PROBES: Semaphore = Semaphore::const_new(2);
 
-fn is_picture(path: &Path) -> bool {
+pub(crate) fn is_picture(path: &Path) -> bool {
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or_default().to_lowercase();
-    crate::media::IMAGE.contains(&ext.as_str())
+    super::media::IMAGE.contains(&ext.as_str())
 }
 
 /// Waits for a turn, until the import is cancelled.
@@ -266,8 +266,24 @@ async fn permit<'a>(gate: &'a Semaphore, cancel: &CancellationToken) -> Result<S
     }
 }
 
+/// `permit`, and `waiting` hears `true` if the turn has to be waited for and `false` when that wait is over.
+async fn turn<'a>(gate: &'a Semaphore, cancel: &CancellationToken, waiting: &(impl Fn(bool) + Sync)) -> Result<SemaphorePermit<'a>, String> {
+    if let Ok(permit) = gate.try_acquire() {
+        return Ok(permit);
+    }
+    waiting(true);
+    let permit = permit(gate, cancel).await;
+    waiting(false);
+    permit
+}
+
 /// Probe a file off the async threads.
 pub async fn probe(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: CancellationToken) -> Result<Probe, String> {
+    probe_waiting(mpv, path, cancel, |_| {}).await
+}
+
+/// [`probe`], telling `waiting` when the file is behind other probes.
+pub async fn probe_waiting(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: CancellationToken, waiting: impl Fn(bool) + Send + Sync) -> Result<Probe, String> {
     if is_picture(&path) {
         let joined = |e: tokio::task::JoinError| {
             eprintln!("probe: picture thread: {e}");
@@ -276,7 +292,7 @@ pub async fn probe(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: CancellationTok
         return tokio::task::spawn_blocking(move || probe_image(&path)).await.map_err(joined)?;
     }
     let mpv = mpv.ok_or(ffi::MISSING)?;
-    let slot = permit(&PROBES, &cancel).await?;
+    let slot = turn(&PROBES, &cancel, &waiting).await?;
     let probing = tokio::task::spawn_blocking(move || probe_holding(&mpv, &path, DEADLINE, &cancel, Some(slot)));
     probing.await.map_err(|e| cant_play("probe thread", e))?
 }
@@ -293,6 +309,44 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("rp-probe-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).unwrap();
         dir.join(name)
+    }
+
+    #[tokio::test]
+    async fn a_free_turn_is_not_a_wait() {
+        let heard = std::sync::Mutex::new(vec![]);
+        let gate = Semaphore::new(1);
+        let _turn = turn(&gate, &CancellationToken::new(), &|w| heard.lock().unwrap().push(w)).await.unwrap();
+        assert!(heard.lock().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn waiting_for_a_turn_is_reported_and_its_end_too() {
+        let heard = Arc::new(std::sync::Mutex::new(vec![]));
+        let gate = Arc::new(Semaphore::new(1));
+        let held = gate.clone().acquire_owned().await.unwrap();
+        let (g, h) = (gate.clone(), heard.clone());
+        let waiter = tokio::spawn(async move {
+            let h2 = h.clone();
+            turn(&g, &CancellationToken::new(), &move |w| h2.lock().unwrap().push(w)).await.map(|_| ())
+        });
+        while heard.lock().unwrap().is_empty() {
+            tokio::task::yield_now().await;
+        }
+        assert_eq!(*heard.lock().unwrap(), [true]);
+        drop(held);
+        waiter.await.unwrap().unwrap();
+        assert_eq!(*heard.lock().unwrap(), [true, false]);
+    }
+
+    #[tokio::test]
+    async fn cancelling_while_waiting_ends_the_wait() {
+        let heard = std::sync::Mutex::new(vec![]);
+        let gate = Semaphore::new(0);
+        let cancel = CancellationToken::new();
+        cancel.cancel();
+        let e = turn(&gate, &cancel, &|w| heard.lock().unwrap().push(w)).await.map(|_| ()).unwrap_err();
+        assert_eq!(e, CANCELLED);
+        assert_eq!(*heard.lock().unwrap(), [true, false]);
     }
 
     #[test]

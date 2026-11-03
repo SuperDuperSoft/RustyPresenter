@@ -32,3 +32,9 @@ pub const PPT_TIMEOUT: &str = "PowerPoint took too long and was stopped.";
 pub const PPT_CANNOT_OPEN: &str = "PowerPoint couldn't open this presentation.";
 /// The raw OS error goes to the log, never to the operator.
 pub const PPT_NOT_STARTED: &str = "PowerPoint could not be started. Check that it opens by itself, then try again.";
+
+// Adding media (Plan 4 Task 8).
+pub const WAITING_FOR_FILE: &str = "Waiting for another file…";
+pub fn adding(name: &str) -> String {
+    format!("Adding “{name}”")
+}

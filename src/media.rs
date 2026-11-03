@@ -58,9 +58,7 @@ pub enum Plan {
 
 pub const NATIVE_VIDEO: &[&str] = &["mp4", "m4v", "webm"];
 pub const NATIVE_AUDIO: &[&str] = &["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "flac", "webm"];
-pub const IMAGE: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "avif"];
-pub const VIDEO: &[&str] = &["mp4", "m4v", "webm", "mov", "mkv", "avi", "wmv", "mpg", "mpeg", "m2v", "vob", "flv", "3gp", "3g2", "mts", "m2ts", "ts", "mxf", "ogv", "dv", "asf", "f4v", "divx", "qt"];
-pub const AUDIO: &[&str] = &["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "flac", "wma", "aiff", "aif", "alac", "ac3", "amr", "mka"];
+pub use crate::import::media::{AUDIO, IMAGE, VIDEO};
 
 /// Ask ffprobe for the codecs and duration.
 pub async fn probe(file: &Path) -> Option<(Vec<String>, Vec<String>, f64)> {

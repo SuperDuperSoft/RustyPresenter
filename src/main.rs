@@ -24,6 +24,7 @@ fn main() {
     let result = tauri::Builder::default()
         .setup(move |t| {
             let app = setup_app;
+            app.set_probe_mpv(rustypresenter::video::ffi::Mpv::load().ok());
             let screens = displays::TauriScreens::new(t.handle().clone(), &app);
             app.set_screens(screens.clone());
             tauri::async_runtime::spawn(startup::backups(app.clone()));

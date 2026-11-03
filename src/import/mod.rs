@@ -4,6 +4,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 pub mod libreoffice;
+pub mod media;
 pub mod pdf;
 pub mod powerpoint;
 pub mod probe;

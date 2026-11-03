@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
+use crate::{bible, import, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -181,6 +181,8 @@ pub struct App {
     state_seq: AtomicU64,
     /// Where restored players start, by playback instance.
     resume: Mutex<HashMap<u64, f64>>,
+    /// The player that probes use; set once at start-up. Holds `None` when libmpv is missing.
+    probe_mpv: OnceLock<Option<Arc<crate::video::ffi::Mpv>>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -208,7 +210,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(),
         })
     }
 
@@ -332,6 +334,13 @@ impl App {
             live.notice = Some(if stopped { "The room screen restarted. Video/audio stopped — click it again to replay." } else { "The room screen restarted." }.into());
         }
         self.broadcast_live();
+    }
+
+    pub fn set_probe_mpv(&self, mpv: Option<Arc<crate::video::ffi::Mpv>>) {
+        let _ = self.probe_mpv.set(mpv);
+    }
+    pub(crate) fn probe_mpv(&self) -> Option<Arc<crate::video::ffi::Mpv>> {
+        self.probe_mpv.get().cloned().flatten()
     }
 
     pub(crate) fn job_start(&self, label: &str) -> Uuid {
@@ -688,6 +697,11 @@ impl App {
             }));
             Ok(json!({}))
         }
+        "media/reprobe" => {
+            let Id { id } = parse(body)?;
+            import::media::reprobe(app.clone(), vec![id]);
+            Ok(json!({}))
+        }
         "media/convert" => {
             let Id { id } = parse(body)?;
             let m = app.data.lock().unwrap().media.iter().find(|m| m.id == id).cloned().ok_or_else(|| ActionError::bad("That file is gone."))?;
@@ -887,6 +901,8 @@ impl App {
         let base_name = name.rsplit(['/', '\\']).next().unwrap_or(name);
         let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
 
+        // Anything else dropped on the Media tab goes to the probe, which decides what it is.
+        let purpose = if purpose == ImportPurpose::Media && ext == "txt" { ImportPurpose::Lyrics } else { purpose };
         match purpose {
             ImportPurpose::Lyrics => {
                 let bytes = tokio::fs::read(&tmp).await;
@@ -920,29 +936,14 @@ impl App {
             ImportPurpose::Asset | ImportPurpose::Media => {}
         }
 
-        let asset = app.store.publish(&tmp, sha, &ext).map_err(|e| ActionError::bad(e.to_string()))?;
-        if purpose == ImportPurpose::Asset { return Ok(Imported::Asset(asset)); }
-
-        let kind = if media::IMAGE.contains(&ext.as_str()) { MediaKind::Image }
-            else if media::VIDEO.contains(&ext.as_str()) && !(ext == "webm" && display.to_lowercase().contains("audio")) { MediaKind::Video }
-            else if media::AUDIO.contains(&ext.as_str()) { MediaKind::Audio }
-            else { return Err(ActionError::bad(format!("RustyPresenter doesn't know how to show .{ext} files."))); };
-        let path = app.store.asset_path(&asset);
-        let plan = match kind {
-            MediaKind::Image => media::Plan::Ready,
-            MediaKind::Video => media::plan_video(&path, &ext).await,
-            MediaKind::Audio => media::plan_audio(&path, &ext).await,
-        };
-        let status = match &plan {
-            media::Plan::Ready => MediaStatus::Ready,
-            media::Plan::Unknown(r) => MediaStatus::Unconverted { reason: r.clone() },
-            _ => MediaStatus::Converting { percent: 0 },
-        };
-        let id = Uuid::new_v4();
-        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None };
-        tryr!(app.edit(|d| { d.media.push(m.clone()); Ok(()) }));
-        if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
-        Ok(Imported::Media(m))
+        if purpose == ImportPurpose::Asset {
+            if let Err(e) = import::media::check_picture(&tmp).await {
+                let _ = tokio::fs::remove_file(&tmp).await;
+                return Err(ActionError::bad(e));
+            }
+            return Ok(Imported::Asset(app.store.publish(&tmp, sha, &ext).map_err(|e| ActionError::bad(e.to_string()))?));
+        }
+        import::media::import_media(app, &tmp, sha, &ext, display).await.map(Imported::Media).map_err(ActionError::bad)
     }
 
     /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
@@ -1367,11 +1368,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn import_path_rejects_unknown_extensions_with_the_web_message() {
+    async fn import_path_leaves_unknown_extensions_to_the_probe() {
         let p = std::env::temp_dir().join(format!("{}.xyz", Uuid::new_v4()));
         std::fs::write(&p, b"x").unwrap();
         let e = test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err();
-        assert_eq!(e.message, "RustyPresenter doesn't know how to show .xyz files.");
+        assert_eq!(e.message, crate::video::ffi::MISSING);
     }
 
     #[tokio::test]
