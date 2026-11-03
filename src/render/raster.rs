@@ -3,14 +3,37 @@ use super::color::parse_color;
 use super::layout::{CANVAS_W, Fonts, TextSlide, clamp_canvas, layout, text_height};
 use crate::model::Theme;
 use cosmic_text::{Buffer, Color, SwashCache};
-use tiny_skia::{Color as SkColor, GradientStop, LinearGradient, Paint, Pixmap, Point, Rect, SpreadMode, Transform};
+use slint::{Rgba8Pixel, SharedPixelBuffer};
+use tiny_skia::{Color as SkColor, GradientStop, LinearGradient, Paint, PixmapMut, Point, Rect, SpreadMode, Transform};
+
+/// Premultiplied RGBA pixels, drawn straight into the buffer a Slint image is made from, so showing a slide copies
+/// nothing (a 2560×1080 slide is 10.6 MB). Reads as a byte slice.
+#[derive(Clone)]
+pub struct Premul(SharedPixelBuffer<Rgba8Pixel>);
+
+impl Premul {
+    /// Transparent pixels.
+    pub fn zeroed(width: u32, height: u32) -> Premul { Premul(SharedPixelBuffer::new(width, height)) }
+
+    /// The pixels for `slint::Image::from_rgba8_premultiplied` (shared, not copied).
+    pub fn buffer(&self) -> SharedPixelBuffer<Rgba8Pixel> { self.0.clone() }
+}
+
+impl std::ops::Deref for Premul {
+    type Target = [u8];
+    fn deref(&self) -> &[u8] { self.0.as_bytes() }
+}
+
+impl std::fmt::Debug for Premul {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "Premul({}x{})", self.0.width(), self.0.height()) }
+}
 
 /// A rendered text slide: premultiplied RGBA, transparent where there is no text.
 #[derive(Clone, Debug)]
 pub struct Rendered {
     pub width: u32,
     pub height: u32,
-    pub rgba_premul: Vec<u8>,
+    pub rgba_premul: Premul,
     /// Body font size in device pixels (theme size × canvas width / 1920, after fitting).
     pub font_px: f32,
     pub font_fallback: bool,
@@ -30,7 +53,8 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
     let mut l = layout(fonts, slide, theme, canvas);
     let (w, h) = canvas;
     let s = w as f32 / CANVAS_W;
-    let mut pix = Pixmap::new(w, h).expect("canvas is clamped to a drawable size");
+    let mut px: SharedPixelBuffer<Rgba8Pixel> = SharedPixelBuffer::new(w, h);
+    let mut pix = PixmapMut::from_bytes(px.make_mut_bytes(), w, h).expect("canvas is clamped to a drawable size");
     if l.lower { draw_lower_shade(&mut pix); }
 
     let color = parse_color(&theme.color);
@@ -52,7 +76,7 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
         composite(&mut pix, &foot, 0, color, FOOT_OPACITY);
     }
 
-    Rendered { width: w, height: h, rgba_premul: pix.take(), font_px: l.font_px * s, font_fallback: l.font_fallback }
+    Rendered { width: w, height: h, rgba_premul: Premul(px), font_px: l.font_px * s, font_fallback: l.font_fallback }
 }
 
 /// Coverage (0–1) of a box of the canvas; everything outside the box is uncovered. Blurring and
@@ -115,7 +139,7 @@ fn coverage_of(fonts: &mut Fonts, cache: &mut SwashCache, buf: &mut Buffer, (w, 
     Coverage { x, y, w: cw, h: ch, data }
 }
 
-fn draw_lower_shade(pix: &mut Pixmap) {
+fn draw_lower_shade(pix: &mut PixmapMut) {
     let h = pix.height() as f32;
     let top = h * (1.0 - LOWER_SHADE);
     let Some(shader) = LinearGradient::new(
@@ -127,7 +151,7 @@ fn draw_lower_shade(pix: &mut Pixmap) {
     if let Some(r) = Rect::from_xywh(0.0, top, pix.width() as f32, h - top) { pix.fill_rect(r, &paint, Transform::identity(), None); }
 }
 
-fn composite_shadow(pix: &mut Pixmap, cov: &Coverage, sh: &Shadow, s: f32, opacity: f32) {
+fn composite_shadow(pix: &mut PixmapMut, cov: &Coverage, sh: &Shadow, s: f32, opacity: f32) {
     // A CSS blur radius is two standard deviations of a Gaussian.
     let sigma = sh.blur * s / 2.0;
     // Grown by exactly how far the blur reaches, the box holds the whole shadow.
@@ -137,7 +161,7 @@ fn composite_shadow(pix: &mut Pixmap, cov: &Coverage, sh: &Shadow, s: f32, opaci
 }
 
 /// Paint `color` through `cov`, moved down by `dy` pixels, over the premultiplied pixmap.
-fn composite(pix: &mut Pixmap, cov: &Coverage, dy: i32, color: [u8; 4], opacity: f32) {
+fn composite(pix: &mut PixmapMut, cov: &Coverage, dy: i32, color: [u8; 4], opacity: f32) {
     let (w, h) = (pix.width() as usize, pix.height() as i32);
     let ca = color[3] as f32 / 255.0 * opacity;
     let rgb = [color[0] as f32, color[1] as f32, color[2] as f32];
@@ -262,6 +286,7 @@ fn box_cols(src: &[f32], dst: &mut [f32], w: usize, h: usize, r: usize) {
 mod tests {
     use super::*;
     use crate::render::layout::{BUNDLED_FAMILY, TextLayout};
+    use tiny_skia::Pixmap;
     use cosmic_text::Weight;
 
     fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
@@ -301,14 +326,14 @@ mod tests {
         for cov in [block(80, 50, 30, 12), block(0, 0, 25, 9), block(150, 100, 50, 20), block(0, 111, 200, 9)] {
             for sh in [Shadow { dy: 3.0, blur: 14.0, alpha: 0.85 }, Shadow { dy: 0.0, blur: 3.0, alpha: 0.9 }, Shadow { dy: -4.0, blur: 1.0, alpha: 1.0 }] {
                 let mut got = Pixmap::new(canvas.0, canvas.1).unwrap();
-                composite_shadow(&mut got, &cov, &sh, 1.0, 0.88);
+                composite_shadow(&mut got.as_mut(), &cov, &sh, 1.0, 0.88);
 
                 // The same shadow, blurred and composited over the whole canvas.
                 let mut want = Pixmap::new(canvas.0, canvas.1).unwrap();
                 let mut whole = cov.grown(400, canvas);
                 assert_eq!((whole.w, whole.h), (200, 120));
                 blur(&mut whole.data, whole.w, whole.h, sh.blur / 2.0);
-                composite(&mut want, &whole, sh.dy as i32, [0, 0, 0, 255], sh.alpha * 0.88);
+                composite(&mut want.as_mut(), &whole, sh.dy as i32, [0, 0, 0, 255], sh.alpha * 0.88);
 
                 let worst = got.data().iter().zip(want.data()).map(|(a, b)| a.abs_diff(*b)).max().unwrap();
                 assert!(worst <= 1, "block at ({}, {}), blur {}: off by {worst}", cov.x, cov.y, sh.blur);
@@ -320,8 +345,8 @@ mod tests {
     #[test]
     fn empty_coverage_draws_nothing() {
         let mut pix = Pixmap::new(64, 64).unwrap();
-        composite_shadow(&mut pix, &Coverage::empty(), &BODY_SHADOWS[0], 1.0, 1.0);
-        composite(&mut pix, &Coverage::empty(), 0, [255, 255, 255, 255], 1.0);
+        composite_shadow(&mut pix.as_mut(), &Coverage::empty(), &BODY_SHADOWS[0], 1.0, 1.0);
+        composite(&mut pix.as_mut(), &Coverage::empty(), 0, [255, 255, 255, 255], 1.0);
         assert!(pix.data().iter().all(|&v| v == 0));
     }
 

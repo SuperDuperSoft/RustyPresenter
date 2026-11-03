@@ -7,7 +7,7 @@ use super::{RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent};
 use crate::platform::monitors::{self, MonitorId};
-use crate::render::Renderer;
+use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
@@ -140,6 +140,8 @@ struct Inner {
     surface: Rc<VideoSurface>,
     monitor: Option<MonitorId>,
     work: Arc<Work>,
+    /// To the room's prepare thread (`prepare::worker`), which ends when this is dropped.
+    jobs: Sender<Job>,
     shared: Arc<Shared>,
     state: RefCell<RoomState>,
     prep: RefCell<Option<Prep>>,
@@ -192,6 +194,8 @@ impl Inner {
     fn start(&self, plan: Plan, view: &LiveView) {
         let old = self.prep.borrow_mut().take();
         if let Some(old) = old { self.dispose(old) } // the `token` rule: only the newest plan is prepared
+        // Whatever an older plan still had to prepare (or render) is dropped from here on.
+        let wanted = self.work.generation.next();
         let (token, wants) = (plan.token, plan.prepare.clone());
         for w in &wants {
             let (me, kind, what) = (self.me.clone(), w.kind, what(w.kind, &view.frame));
@@ -200,10 +204,8 @@ impl Inner {
         let waiting = wants.iter().map(|w| w.kind).collect();
         *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new() });
         if !wants.is_empty() {
-            let job = Job { token, wants, frame: view.frame.clone(), theme: view.theme.clone(), logo: view.logo.clone(), canvas: self.canvas() };
-            let (work, shared) = (self.work.clone(), self.shared.clone());
-            let spawned = std::thread::Builder::new().name("room-prepare".into()).spawn(move || prepare::prepare(&work, job, |m| shared.send(m)));
-            if let Err(e) = spawned { return self.fail(token, format!("the room could not prepare it ({e})")) }
+            let job = Job { token, wants, frame: view.frame.clone(), theme: view.theme.clone(), logo: view.logo.clone(), canvas: self.canvas(), wanted };
+            if self.jobs.send(job).is_err() { return self.fail(token, "the room could not prepare it".into()) }
         }
         self.check();
     }
@@ -398,11 +400,13 @@ impl Room {
         let (tx, reports) = std::sync::mpsc::channel();
         let mut audio = video::players(mpv.clone(), tx.clone());
         audio.options = Options { vo: "null", ..Options::default() };
-        let work = Arc::new(Work { app: app.clone(), renderer, video: video::players(mpv, tx), audio });
+        let work = Arc::new(Work { app: app.clone(), renderer, video: video::players(mpv, tx), audio, generation: Generation::default() });
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
         let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
+        let to_shared = shared.clone();
+        let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| format!("Could not open the room screen: {e}"))?;
         let to_live = app.clone();
         let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { to_live.room_event(ev) });
         // The faces' opacities and the black overlay, each written straight to this window.
@@ -414,7 +418,7 @@ impl Room {
             let me2 = me.clone();
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
-                ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, shared: shared.clone(), state: RefCell::default(),
+                ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
                 faces: RefCell::default(), fader, face_ops, black, swap_probe: RefCell::default(), me: me.clone(),
             }
