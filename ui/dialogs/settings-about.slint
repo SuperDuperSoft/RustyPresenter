@@ -43,6 +43,23 @@ export component SettingsAbout inherits VerticalLayout {
                     color: Theme.muted;
                     wrap: word-wrap;
                 }
+                if SettingsDlg.about-ffmpeg != "": ffmpeg := Text {
+                    text: SettingsDlg.about-ffmpeg;
+                    color: Theme.muted;
+                }
+                if SettingsDlg.about-pdfium != "": pdfium := Text {
+                    text: SettingsDlg.about-pdfium;
+                    color: Theme.muted;
+                }
+                if SettingsDlg.about-libreoffice != "": libreoffice := Text {
+                    text: SettingsDlg.about-libreoffice;
+                    color: Theme.muted;
+                    wrap: word-wrap;
+                }
+                if SettingsDlg.about-powerpoint != "": powerpoint := Text {
+                    text: SettingsDlg.about-powerpoint;
+                    color: Theme.muted;
+                }
                 licence := Text {
                     text: SettingsDlg.about-licence;
                     color: Theme.muted;

@@ -1,5 +1,5 @@
-# cargo-about configuration for THIRD-PARTY-LICENSES.txt (Plan 3 Task 21):
-#   cargo about generate about.hbs -o THIRD-PARTY-LICENSES.txt
+# cargo-about configuration for THIRD-PARTY-LICENSES.txt (Plan 3 Task 21, Plan 4 Task 14). scripts/licenses.sh runs
+# it and appends packaging/licenses/.
 # CI regenerates the file and fails when the committed copy differs (.github/workflows/ci.yml, job `licenses`).
 accepted = [
     "MIT",

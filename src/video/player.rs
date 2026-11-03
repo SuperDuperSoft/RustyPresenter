@@ -709,10 +709,11 @@ mod tests {
     #[test]
     fn versions_are_read_from_a_throwaway_handle() {
         let Some(mpv) = mpv() else { return };
-        let (v, ff) = mpv.versions();
-        assert!(v.starts_with("mpv "), "{v}");
-        assert!(!ff.is_empty());
-        assert_eq!(mpv.versions(), (v, ff), "read once, then kept");
+        let v = mpv.versions();
+        assert!(v.mpv.starts_with("mpv "), "{}", v.mpv);
+        assert!(!v.ffmpeg.is_empty());
+        assert!(!v.configuration.is_empty());
+        assert_eq!(mpv.versions(), v, "read once, then kept");
     }
 
     #[test]

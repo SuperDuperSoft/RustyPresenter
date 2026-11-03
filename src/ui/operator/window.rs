@@ -20,7 +20,7 @@ pub struct VideoInfo { pub draw_mode: DrawMode, pub mpv: Option<MpvInfo> }
 /// The libmpv that loaded: its client API version, the file it came from, and its `mpv-version` and
 /// `ffmpeg-version` (empty when they could not be read).
 #[derive(Clone, Debug, Default, PartialEq)]
-pub struct MpvInfo { pub api: (u32, u32), pub path: String, pub mpv_version: String, pub ffmpeg_version: String }
+pub struct MpvInfo { pub api: (u32, u32), pub path: String, pub mpv_version: String, pub ffmpeg_version: String, pub configuration: String }
 
 impl VideoInfo {
     /// No libmpv: video and audio items say "The video player is missing" (native spec §5).

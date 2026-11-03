@@ -1,0 +1,9 @@
+RustyPresenter uses libmpv and the FFmpeg libraries under the GNU Lesser General Public License. Both are in one
+library file (libmpv-2.dll on Windows, libmpv.2.dylib on macOS, libmpv.so.2 on Linux), loaded at run time.
+
+Source code. The exact sources of the library shipped with a release, and the scripts that built it, are offered in
+the same place as that release, as libmpv-sources-r<N>.tar.xz:
+https://github.com/SuperDuperSoft/RustyPresenter/releases
+
+Replacing the library. You may use your own build of libmpv with the same interface: set the RP_LIBMPV environment
+variable to its path, or replace the file next to the program (on macOS, in Contents/Frameworks).

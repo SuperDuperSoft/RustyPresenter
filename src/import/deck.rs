@@ -60,6 +60,13 @@ pub struct ConverterStatus {
     pub pdfium: bool,
 }
 
+/// What About shows: the status, and which LibreOffice it means.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConverterInfo {
+    pub status: ConverterStatus,
+    pub soffice: Option<PathBuf>,
+}
+
 type FindSoffice = Box<dyn Fn() -> Option<Soffice> + Send + Sync>;
 
 pub struct Converters {
@@ -87,6 +94,10 @@ impl Converters {
 
     pub fn status(&self) -> ConverterStatus {
         ConverterStatus { powerpoint: self.powerpoint.is_some(), libreoffice: self.lo(), pdfium: self.pdf.is_some() }
+    }
+
+    pub fn info(&self) -> ConverterInfo {
+        ConverterInfo { status: self.status(), soffice: self.libreoffice().map(|lo| lo.path().to_path_buf()) }
     }
 
     fn lo(&self) -> Lo {

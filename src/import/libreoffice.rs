@@ -56,6 +56,10 @@ impl LibreOffice {
         self.soffice.snap
     }
 
+    pub fn path(&self) -> &Path {
+        &self.soffice.path
+    }
+
     pub fn args(&self, input: &Path, out_dir: &Path) -> Result<Vec<OsString>, String> {
         let mut args = self.common_args()?;
         args.push("--convert-to".into());

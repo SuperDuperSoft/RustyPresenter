@@ -93,16 +93,22 @@ pub fn about_version(version: &str) -> String { format!("RustyPresenter {version
 pub const VIDEO_GPU: &str = "Video: GPU (OpenGL)";
 pub const VIDEO_SOFTWARE: &str = "Video: software drawing";
 pub const VIDEO_MISSING: &str = "Video player missing";
-/// `mpv` and `ffmpeg` are the `mpv-version` and `ffmpeg-version` properties; either may be empty.
-pub fn mpv_line(mpv: &str, ffmpeg: &str, api: (u32, u32), path: &str) -> String {
-    let lib = format!("libmpv (client API {}.{}) — {path}", api.0, api.1);
-    match (mpv.is_empty(), ffmpeg.is_empty()) {
-        (true, true) => lib,
-        (false, true) => format!("{mpv} · {lib}"),
-        (true, false) => format!("FFmpeg {ffmpeg} · {lib}"),
-        (false, false) => format!("{mpv}, FFmpeg {ffmpeg} · {lib}"),
-    }
+/// `mpv` is the `mpv-version` property, such as "mpv 0.41.0"; empty if it could not be read, and then nothing is
+/// said about the build either.
+pub fn mpv_line(mpv: &str, lgpl: bool, api: (u32, u32), path: &str) -> String {
+    if mpv.is_empty() { return format!("libmpv (client API {}.{}) — {path}", api.0, api.1); }
+    let version = mpv.strip_prefix("mpv ").unwrap_or(mpv);
+    let build = if lgpl { "LGPL build" } else { "not an LGPL build" };
+    format!("libmpv {version} ({build}) · client API {}.{} — {path}", api.0, api.1)
 }
+pub fn ffmpeg_line(ffmpeg: &str) -> String { if ffmpeg.is_empty() { String::new() } else { format!("FFmpeg {ffmpeg}") } }
+pub const PDFIUM_FOUND: &str = "found";
+pub const PDFIUM_MISSING: &str = "missing";
+pub const LIBREOFFICE_SNAP: &str = "Snap — not usable";
+pub const LIBREOFFICE_NONE: &str = "not installed";
+pub fn pdfium_line(state: &str) -> String { format!("pdfium: {state}") }
+pub fn libreoffice_line(state: &str) -> String { format!("LibreOffice: {state}") }
+pub fn powerpoint_line(found: bool) -> String { format!("PowerPoint: {}", if found { "found" } else { "not found" }) }
 /// Where the LGPL sources of the shipped libmpv/FFmpeg build are offered (native spec §13).
 pub const MEDIA_SOURCE_URL: &str = "https://github.com/SuperDuperSoft/RustyPresenter/releases";
 pub fn media_licence() -> String {

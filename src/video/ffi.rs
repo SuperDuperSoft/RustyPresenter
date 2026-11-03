@@ -222,6 +222,17 @@ impl Node {
 
 pub type UpdateCb = unsafe extern "C" fn(*mut c_void);
 
+/// What a libmpv says about itself. All empty until read, and if reading failed.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Versions {
+    /// `mpv-version`, such as "mpv 0.41.0".
+    pub mpv: String,
+    /// `ffmpeg-version`.
+    pub ffmpeg: String,
+    /// `mpv-configuration`: the options the library was built with.
+    pub configuration: String,
+}
+
 /// The loaded libmpv: raw entry points plus small helpers. Shared across threads
 /// (the client API is thread-safe).
 pub struct Mpv {
@@ -253,7 +264,7 @@ pub struct Mpv {
     pub render_context_free: unsafe extern "C" fn(*mut mpv_render_context),
     path: PathBuf,
     /// `mpv-version` and `ffmpeg-version`, read once by [`Mpv::versions`].
-    versions: OnceLock<(String, String)>,
+    versions: OnceLock<Versions>,
     _lib: libloading::Library,
 }
 
@@ -346,7 +357,7 @@ impl Mpv {
 
     /// The `mpv-version` and `ffmpeg-version` properties (e.g. "mpv 0.39.0", "n7.1"), read once on a throwaway
     /// idle handle that never plays; empty when the handle cannot start.
-    pub fn versions(&self) -> (String, String) {
+    pub fn versions(&self) -> Versions {
         self.versions
             .get_or_init(|| unsafe {
                 let h = (self.create)();
@@ -357,7 +368,11 @@ impl Mpv {
                     let _ = self.set_option(h, k, v);
                 }
                 let read = |name| self.get_string(h, name).unwrap_or_default();
-                let v = if (self.initialize)(h) >= 0 { (read("mpv-version"), read("ffmpeg-version")) } else { Default::default() };
+                let v = if (self.initialize)(h) >= 0 {
+                    Versions { mpv: read("mpv-version"), ffmpeg: read("ffmpeg-version"), configuration: read("mpv-configuration") }
+                } else {
+                    Default::default()
+                };
                 (self.terminate_destroy)(h);
                 v
             })

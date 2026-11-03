@@ -248,8 +248,8 @@ impl NativeScreens {
 impl OperatorScreens for NativeScreens {
     fn video_info(&self) -> VideoInfo {
         let mpv = self.mpv.as_ref().map(|m| {
-            let (mpv_version, ffmpeg_version) = m.versions();
-            MpvInfo { api: m.api_version(), path: m.path().display().to_string(), mpv_version, ffmpeg_version }
+            let v = m.versions();
+            MpvInfo { api: m.api_version(), path: m.path().display().to_string(), mpv_version: v.mpv, ffmpeg_version: v.ffmpeg, configuration: v.configuration }
         });
         VideoInfo { draw_mode: crate::video::drawing(), mpv }
     }

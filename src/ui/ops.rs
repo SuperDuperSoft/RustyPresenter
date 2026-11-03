@@ -4,7 +4,7 @@
 //! backend, which has no event loop.
 use crate::{
     app::{App, ImportPurpose, Imported},
-    import::deck::ConverterStatus,
+    import::deck::{ConverterInfo, ConverterStatus},
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
 };
@@ -60,6 +60,16 @@ impl Ops {
         let app = self.app.clone();
         let work = async move {
             let look = move || app.converters().map(|c| c.status());
+            tokio::task::spawn_blocking(look).await.unwrap_or(None)
+        };
+        self.run(work, |r| done(r.unwrap_or(None)));
+    }
+
+    /// The same for About, which also names the LibreOffice it found.
+    pub fn converter_info(&self, done: impl FnOnce(Option<ConverterInfo>) + 'static) {
+        let app = self.app.clone();
+        let work = async move {
+            let look = move || app.converters().map(|c| c.info());
             tokio::task::spawn_blocking(look).await.unwrap_or(None)
         };
         self.run(work, |r| done(r.unwrap_or(None)));
