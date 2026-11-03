@@ -3,6 +3,7 @@
 pub mod strings;
 pub mod libreoffice;
 pub mod pdf;
+pub mod probe;
 
 /// What a cancelled import reports. No toast is shown for it.
 pub const CANCELLED: &str = "Cancelled.";
