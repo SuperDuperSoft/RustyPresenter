@@ -25,13 +25,17 @@ static CHOSEN: std::sync::OnceLock<DrawMode> = std::sync::OnceLock::new();
 pub fn choose_backend() -> DrawMode {
     let select = |r: &str| slint::BackendSelector::new().backend_name("winit".into()).renderer_name(r.into()).select();
     let mut mode = DrawMode::Software;
+    let mut chosen = false;
     if std::env::var("RP_FORCE_SOFTWARE").as_deref() != Ok("1") {
-        match select("femtovg") {
-            Ok(()) => mode = DrawMode::OpenGl,
-            Err(e) => eprintln!("OpenGL drawing unavailable ({e}); drawing video in software"),
+        // PERF EXPERIMENT: RP_RENDERER picks femtovg or skia-opengl (video underlay), or femtovg-wgpu, vello,
+        // skia-software (video drawn into an image).
+        let r = std::env::var("RP_RENDERER").unwrap_or_else(|_| "femtovg".into());
+        match select(&r) {
+            Ok(()) => { chosen = true; if r == "femtovg" || r == "skia-opengl" { mode = DrawMode::OpenGl } }
+            Err(e) => eprintln!("{r} drawing unavailable ({e}); drawing in software"),
         }
     }
-    if mode == DrawMode::Software {
+    if !chosen {
         if let Err(e) = select("software") {
             eprintln!("software renderer: {e}");
         }
