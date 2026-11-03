@@ -36,6 +36,38 @@ pub(crate) fn ui_test_init() {
     });
 }
 
+/// What `tests/ui_operator_flows.rs` needs: integration tests see neither `#[cfg(test)]` items nor `pub(crate)` fields.
+/// Those tests install the testing backend themselves; nothing here depends on it.
+#[doc(hidden)]
+pub mod test_support {
+    use super::operator::{view::OperatorSnapshot, window::{MpvInfo, Operator, OperatorScreens, VideoInfo}};
+    use crate::{app::{App, LiveUpdate}, ui::{OperatorWindow, ops::Ops}, video::{DrawMode, FrameGrabber}};
+    use std::{rc::Rc, sync::Arc};
+
+    struct NoScreens;
+
+    impl OperatorScreens for NoScreens {
+        fn video_info(&self) -> VideoInfo {
+            VideoInfo { draw_mode: DrawMode::Software, mpv: Some(MpvInfo { api: (2, 3), path: "libmpv-2.dll".into() }) }
+        }
+
+        fn preview_grabber(&self) -> Option<FrameGrabber> { None }
+    }
+
+    /// The operator on `Ops::inline`, with no room or stage behind it.
+    pub fn operator_for_tests(app: Arc<App>) -> Rc<Operator> {
+        Operator::open(app.clone(), Ops::inline(app), Rc::new(NoScreens)).unwrap()
+    }
+
+    pub fn operator_window(op: &Operator) -> &OperatorWindow { &op.ui }
+
+    /// What the follower would deliver now; the testing backend has no event loop to run it.
+    pub fn sync(op: &Operator) {
+        op.apply_snapshot(Arc::new(OperatorSnapshot::read(op.app())));
+        op.apply_live(LiveUpdate::new(op.app().live_view()));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
