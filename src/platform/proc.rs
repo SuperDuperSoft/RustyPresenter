@@ -23,7 +23,10 @@ pub struct Tree {
     child: Child,
     #[cfg(windows)]
     job: win::OwnedJob,
-    /// Cleared by `kill`: the id may belong to a new group afterwards.
+    /// Cleared by `kill`: the id may belong to a new group afterwards. A normal exit does not clear it, so `Drop`
+    /// still kills survivors such as a `soffice.bin` that outlived its launcher. A group id is not reused while any
+    /// member lives; the accepted risk is a group that fully ended and whose id was taken by a new group before the
+    /// drop, which needs the whole pid space to wrap in that short window.
     #[cfg(unix)]
     pgid: Option<i32>,
 }
@@ -82,6 +85,17 @@ impl Tree {
             // can never mean "my own group" (0) or "everything" (-1).
             unsafe { libc::kill(-pgid, libc::SIGKILL) };
         }
+    }
+
+    /// The child's pid, or `None` once it has been collected.
+    pub fn id(&self) -> Option<u32> {
+        self.child.id()
+    }
+
+    /// The process group `spawn_tree` created (the child's pid), until `kill` clears it. Plan 4 Task 5 records it.
+    #[cfg(unix)]
+    pub fn pgid(&self) -> Option<i32> {
+        self.pgid
     }
 
     pub fn stdout(&mut self) -> Option<ChildStdout> {

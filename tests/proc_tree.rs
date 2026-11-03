@@ -107,6 +107,19 @@ async fn kill_kills_the_tree_and_can_be_repeated() {
 }
 
 #[tokio::test]
+async fn ids_are_readable_after_spawn() {
+    let (mut tree, out, mark) = start_family().await;
+    let id = tree.id().expect("a running child has a pid");
+    assert_ne!(id, 0);
+    #[cfg(unix)]
+    assert_eq!(tree.pgid(), i32::try_from(id).ok(), "the child leads its own group");
+    tree.kill();
+    #[cfg(unix)]
+    assert_eq!(tree.pgid(), None, "kill clears the group id");
+    assert_all_gone(out, &mark).await;
+}
+
+#[tokio::test]
 async fn a_program_that_cannot_start_is_an_error() {
     let c = Command::new(std::env::temp_dir().join("rp-no-such-program"));
     assert!(spawn_tree(c).is_err());
