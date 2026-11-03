@@ -6,7 +6,7 @@ import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
 import { LiveColumn, TransportCell } from "operator/live.slint";
 import { Layer } from "room.slint";
-import { ToastStack, JobsBox, ToastRow, JobRow } from "operator/overlays.slint";
+import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell, DialogBody } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
 
@@ -102,6 +102,8 @@ export component OperatorWindow inherits Window {
     in property <[ToastRow]> toasts;
     in property <[JobRow]> jobs;
     callback job-dismiss(string);
+    /// Files are being dragged over the window (set from the winit filter, see `files.rs`).
+    in property <bool> drop-hint;
 
     callback services();
     callback screens();
@@ -301,5 +303,12 @@ export component OperatorWindow inherits Window {
         width: root.width;
         height: root.height;
         toasts: root.toasts;
+    }
+    // Files dragged over the window (`z-index: 60`, over the toasts).
+    if root.drop-hint: DropHint {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
     }
 }
