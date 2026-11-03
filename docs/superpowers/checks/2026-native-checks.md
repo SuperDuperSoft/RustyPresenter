@@ -42,6 +42,8 @@ Each column needs a person on that OS; Windows also needs the church laptop with
 | Second launch focuses the running operator window (AppImage and `.deb` especially) | | | |
 | Closing the operator ends the app and the supervisor; nothing restarts | | | |
 | Room on a second monitor; unplug and replug | | | |
+| Lyrics live, no input for 20+ minutes, on battery and plugged in: every screen stays on, no sleep, no lock screen. Close the room: the computer can sleep again | | | |
+| Import from EasyWorship (Add → Song), against the real library: songs, writers, CCLI #, sections and verse order correct; a second import doubles nothing; EasyWorship still opens its library afterwards | | n/a | n/a |
 | With sound: H.264, HEVC, VP9, ProRes, WMV, MP3, AAC | | | |
 | Phone HEVC portrait/VFR, AV1, 4K, no audio: play, loop, stop | | | |
 | Corrupt file: operator error at import, never black on air | | | |
