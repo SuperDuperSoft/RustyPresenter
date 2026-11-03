@@ -1,0 +1,223 @@
+// Settings → Look (`operator.js:893-917`): the slide text's font, sizes, colour, position, shadow and caps, the
+// logo, and on the right a live preview and the default background.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented, TipBox } from "../widgets.slint";
+import { TextField, Check, RangeSlider, Select, Lbl } from "form.slint";
+import { SettingsDlg, SettingsBgRow } from "settings-state.slint";
+
+/// Stand-in until Task 18 merges: a plain grid of the default-background choices (no custom colour, no upload).
+component BackgroundChoices inherits Rectangle {
+    in property <[SettingsBgRow]> choices;
+    callback pick(int);
+    property <length> cell-w: 72px;
+    property <length> cell-h: 46px;
+    property <int> per-row: max(1, floor((root.width + 6px) / (root.cell-w + 6px)));
+    height: ceil(root.choices.length / root.per-row) * (root.cell-h + 6px);
+    for c[i] in root.choices: choice := Rectangle {
+        x: mod(i, root.per-row) * (root.cell-w + 6px);
+        y: floor(i / root.per-row) * (root.cell-h + 6px);
+        width: root.cell-w;
+        height: root.cell-h;
+        border-radius: 8px;
+        border-width: c.on ? 2px : 1.5px;
+        border-color: c.on ? Theme.accent : Theme.line;
+        background: c.swatch;
+        clip: true;
+        accessible-role: button;
+        accessible-label: c.label;
+        accessible-checked: c.on;
+        accessible-action-default => { root.pick(i); }
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: c.image;
+            image-fit: cover;
+        }
+        if c.label != "": Rectangle {
+            y: parent.height - self.height;
+            height: 16px;
+            background: Theme.caption-bg;
+            Text {
+                text: c.label;
+                color: Theme.white;
+                font-size: 10.5px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.pick(i); }
+        }
+        if c.tooltip != "": Tooltip {
+            TipBox { text: c.tooltip; }
+        }
+    }
+}
+
+export component SettingsLook inherits HorizontalLayout {
+    spacing: 20px;
+
+    // Left column (1fr).
+    VerticalLayout {
+        horizontal-stretch: 1;
+        min-width: 0px;
+        Field {
+            label: @tr("Font");
+            font := Select {
+                options: SettingsDlg.fonts;
+                index <=> SettingsDlg.font-index;
+                font-preview: true;
+                changed => { SettingsDlg.look-changed(); }
+            }
+            if SettingsDlg.font-note != "": font-note := Text {
+                text: SettingsDlg.font-note;
+                color: Theme.danger-text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+        Field {
+            label: @tr("Lyrics size");
+            help: @tr("(biggest; long lines shrink to fit)");
+            size := RangeSlider {
+                minimum: 40;
+                maximum: 150;
+                value <=> SettingsDlg.size;
+                changed => { SettingsDlg.look-changed(); }
+            }
+        }
+        Field {
+            label: @tr("Scripture size");
+            scripture-size := RangeSlider {
+                minimum: 36;
+                maximum: 120;
+                value <=> SettingsDlg.scripture-size;
+                changed => { SettingsDlg.look-changed(); }
+            }
+        }
+        // `.cols`
+        HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text color");
+                // Stand-in until Task 18's colour picker merges: the swatch and its hex value.
+                HorizontalLayout {
+                    spacing: 8px;
+                    Rectangle {
+                        width: 42px;
+                        height: 34px;
+                        border-radius: 8px;
+                        border-width: 1.5px;
+                        border-color: Theme.line;
+                        background: SettingsDlg.color-swatch;
+                    }
+                    color := TextField {
+                        horizontal-stretch: 1;
+                        text <=> SettingsDlg.color;
+                        edited => { SettingsDlg.look-changed(); }
+                    }
+                }
+            }
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text position");
+                HorizontalLayout {
+                    alignment: start;
+                    position := Segmented {
+                        labels: [@tr("Middle"), @tr("Lower third")];
+                        index <=> SettingsDlg.position;
+                        changed => { SettingsDlg.look-changed(); }
+                    }
+                }
+            }
+        }
+        shadow := Check {
+            text: @tr("Shadow behind text (easier to read on pictures)");
+            checked <=> SettingsDlg.shadow;
+            toggled => { SettingsDlg.look-changed(); }
+        }
+        caps := Check {
+            text: @tr("ALL CAPS lyrics");
+            checked <=> SettingsDlg.uppercase;
+            toggled => { SettingsDlg.look-changed(); }
+        }
+        Field {
+            label: @tr("Logo");
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                if SettingsDlg.has-logo: Rectangle {
+                    height: 44px;
+                    width: max(44px, self.height * SettingsDlg.logo.width / max(1, SettingsDlg.logo.height));
+                    background: Theme.black;
+                    border-radius: 6px;
+                    logo := Image {
+                        x: 4px;
+                        y: 4px;
+                        width: parent.width - 8px;
+                        height: parent.height - 8px;
+                        source: SettingsDlg.logo;
+                        image-fit: contain;
+                    }
+                }
+                if !SettingsDlg.has-logo: no-logo := Text {
+                    text: @tr("No logo (Logo button shows black)");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                choose-logo := Btn {
+                    small: true;
+                    icon: "upload";
+                    text: @tr("Choose logo");
+                    clicked => { SettingsDlg.choose-logo(); }
+                }
+                if SettingsDlg.has-logo: remove-logo := Btn {
+                    small: true;
+                    text: @tr("Remove");
+                    clicked => { SettingsDlg.remove-logo(); }
+                }
+            }
+        }
+    }
+
+    // Right column (1.1fr).
+    VerticalLayout {
+        horizontal-stretch: 1.1;
+        min-width: 0px;
+        alignment: start;
+        Lbl {
+            label: @tr("Preview");
+        }
+        Rectangle { height: 8px; }
+        preview-box := Rectangle {
+            height: self.width * 9 / 16;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.line;
+            background: Theme.black;
+            clip: true;
+            preview := Image {
+                width: parent.width;
+                height: parent.height;
+                source: SettingsDlg.preview;
+                image-fit: contain;
+            }
+        }
+        Rectangle { height: 14px; }
+        Field {
+            label: @tr("Default background");
+            backgrounds := BackgroundChoices {
+                choices: SettingsDlg.backgrounds;
+                pick(i) => { SettingsDlg.pick-background(i); }
+            }
+        }
+    }
+}
