@@ -11,6 +11,7 @@ build.log
 /.claude/worktrees/
 /packaging/native/
 /packaging/native-macos/
+/packaging/native-licenses/
 /packaging/out/
 /packaging/icons/icon.icns
 /dist/

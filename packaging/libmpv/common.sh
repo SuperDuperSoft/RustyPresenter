@@ -19,6 +19,11 @@ source "$ROOT/packaging/pins.env"
 # BUILD_REV (the workflow's `rev` input) overrides the pinned revision for a new build.
 REV="${BUILD_REV:-$LIBMPV_REV}"
 WORK="${LIBMPV_WORK:-$ROOT/packaging/out/libmpv}"
+# A Windows path (D:\a\...) breaks the MSYS2 tools: tar reads "D:" as a remote host, and
+# FFmpeg's out-of-tree make splits its vpath on the colon. Use the /d/a/... form.
+if command -v cygpath >/dev/null 2>&1; then
+  WORK="$(cygpath -u "$WORK")"
+fi
 SRC="$WORK/src"
 BUILD="$WORK/build"
 PREFIX="$WORK/prefix"

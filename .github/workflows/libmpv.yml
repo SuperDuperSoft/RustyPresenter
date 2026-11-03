@@ -14,6 +14,8 @@ on:
   push:
     paths:
       - "packaging/libmpv/**"
+      - "packaging/pins.env"
+      - ".github/workflows/libmpv.yml"
 
 permissions:
   contents: read
@@ -35,20 +37,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       BUILD_REV: ${{ inputs.rev }}
-      LIBMPV_WORK: ${{ github.workspace }}/packaging/out/libmpv
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@v4
 
-      # A finished build is reused while the scripts and pins are unchanged.
+      # A finished build is reused while the scripts, pins and this workflow (toolchain and
+      # system packages) are unchanged. common.sh builds under packaging/out/libmpv.
       - name: Cache
         id: cache
         uses: actions/cache@v4
         with:
           path: packaging/out/libmpv/artifacts
-          key: libmpv-${{ matrix.os }}-r${{ inputs.rev }}-${{ hashFiles('packaging/libmpv/**', 'packaging/pins.env') }}
+          key: libmpv-${{ matrix.os }}-r${{ inputs.rev }}-${{ hashFiles('packaging/libmpv/**', 'packaging/pins.env', '.github/workflows/libmpv.yml') }}
 
       # Toolchain only. Never MSYS2's ffmpeg or mpv packages.
       - name: MSYS2 UCRT64

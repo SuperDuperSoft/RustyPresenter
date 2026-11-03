@@ -38,15 +38,38 @@ note ""
 note "== pacman -Q"
 pacman -Q >> "$BUILDINFO"
 
-# The static runtime libraries linked into the DLL.
+# The static runtime libraries linked into the DLL, each recorded in BUILDINFO.txt.
+note ""
+note "== static runtime licences"
 extra=()
-for f in /ucrt64/share/licenses/mingw-w64-libraries/COPYING /ucrt64/share/licenses/winpthreads/COPYING \
+for f in /ucrt64/share/licenses/mingw-w64-libraries/COPYING \
   /ucrt64/share/licenses/gcc-libs/RUNTIME.LIBRARY.EXCEPTION /ucrt64/share/licenses/zlib/LICENSE; do
   if [[ -f "$f" ]]; then
     cp "$f" "$BUILD/$(basename "$(dirname "$f")")-$(basename "$f").txt"
     extra+=("$BUILD/$(basename "$(dirname "$f")")-$(basename "$f").txt")
+    note "found $f"
+  else
+    note "not found $f"
   fi
 done
+# -static always links winpthreads, so its notice is required. MSYS2 has shipped it under
+# more than one package name; fall back to whichever package now owns it.
+winpthreads=""
+for f in /ucrt64/share/licenses/winpthreads/COPYING /ucrt64/share/licenses/libwinpthread/COPYING \
+  /ucrt64/share/licenses/mingw-w64-winpthreads/COPYING; do
+  if [[ -f "$f" ]]; then
+    winpthreads="$f"
+    break
+  fi
+done
+if [[ -z "$winpthreads" ]]; then
+  winpthreads="$(find /ucrt64/share/licenses -ipath '*winpthread*' -type f -iname 'COPYING*' 2>/dev/null | head -n 1)"
+fi
+[[ -n "$winpthreads" ]] || die "no winpthreads licence under /ucrt64/share/licenses, but -static links winpthreads into libmpv-2.dll"
+# stage.sh requires this exact name in the zip's licenses/.
+cp "$winpthreads" "$BUILD/winpthreads-COPYING.txt"
+extra+=("$BUILD/winpthreads-COPYING.txt")
+note "found $winpthreads (shipped as licenses/winpthreads-COPYING.txt)"
 
 make_artifact windows x86_64 "$LIB" "${extra[@]}"
 make_sources

@@ -18,6 +18,7 @@ OUT="packaging/out"
 DOWNLOADS="${STAGE_DOWNLOADS:-$OUT/downloads}"
 NATIVE="packaging/native"
 NATIVE_MAC="packaging/native-macos"
+NATIVE_LICENSES="packaging/native-licenses"
 
 die() { echo "stage.sh: $*" >&2; exit 1; }
 say() { echo "stage.sh: $*"; }
@@ -79,11 +80,38 @@ unpack() {
 
 fresh_dir() { rm -rf "$1"; mkdir -p "$1"; }
 
+# Both libraries statically contain other projects whose licences require their notice in
+# every binary copy (libmpv: FFmpeg, dav1d, FreeType, HarfBuzz, libass, fribidi, libplacebo,
+# and winpthreads/mingw-w64 on Windows; pdfium: abseil, ICU, libjpeg-turbo, libpng, ...).
+# THIRD-PARTY-LICENSES.txt does not carry them, so each archive's own notices are staged
+# flat into $NATIVE_LICENSES, which Packager.toml ships as licenses/.
+stage_native_licenses() {
+  fresh_dir "$NATIVE_LICENSES"
+  local f
+  for f in "$STAGE"/libmpv/COPYING* "$STAGE"/libmpv/Copyright "$STAGE"/libmpv/BUILDINFO.txt "$STAGE"/libmpv/licenses/*; do
+    [[ -f "$f" ]] && cp "$f" "$NATIVE_LICENSES/libmpv-$(basename "$f")"
+  done
+  for f in "$STAGE"/pdfium/LICENSE "$STAGE"/pdfium/licenses/*; do
+    [[ -f "$f" ]] && cp "$f" "$NATIVE_LICENSES/pdfium-$(basename "$f")"
+  done
+  # One marker per notice the packages must carry; a renamed or dropped file stops here.
+  local want
+  for want in libmpv-COPYING.LGPL-2.1 libmpv-Copyright libmpv-dav1d-COPYING.txt \
+    libmpv-freetype-FTL.txt libmpv-harfbuzz-COPYING.txt libmpv-libass-COPYING.txt \
+    libmpv-fribidi-COPYING.txt libmpv-libplacebo-LICENSE.txt \
+    pdfium-LICENSE pdfium-libjpeg_turbo.ijg pdfium-freetype.txt pdfium-icu.txt "$@"; do
+    [[ -s "$NATIVE_LICENSES/$want" ]] || die "licence notice $want is missing from the libmpv or pdfium archive"
+  done
+  say "staged $(find "$NATIVE_LICENSES" -type f | wc -l | tr -d ' ') licence notices into $NATIVE_LICENSES"
+}
+
 stage_windows() {
   unpack windows x86_64 win-x64 "$LIBMPV_SHA256_WINDOWS" "$PDFIUM_SHA256_WINDOWS"
   fresh_dir "$NATIVE"
   # NSIS puts resources next to the exe, where Mpv::candidates and pdfium_candidates look.
   cp "$STAGE/libmpv/libmpv-2.dll" "$STAGE/pdfium/bin/pdfium.dll" "$NATIVE/"
+  # build-windows.sh refuses to build without the winpthreads notice, so it must be here.
+  stage_native_licenses libmpv-winpthreads-COPYING.txt
 }
 
 stage_linux() {
@@ -95,6 +123,7 @@ stage_linux() {
   # `libs` entry picks our LGPL build up from /usr/lib* once CI installs it there.
   mkdir -p "$OUT/libmpv-linux"
   cp "$STAGE/libmpv/libmpv.so.2" "$OUT/libmpv-linux/"
+  stage_native_licenses
   say "for the AppImage: sudo install -m 0644 $OUT/libmpv-linux/libmpv.so.2 /usr/lib/x86_64-linux-gnu/ && sudo ldconfig"
 }
 
@@ -170,6 +199,7 @@ stage_macos() {
   # the packaging/native/* resource glob must still match a file.
   fresh_dir "$NATIVE"
   echo "The video and PDF libraries are in Contents/Frameworks." > "$NATIVE/NATIVE-LIBS.txt"
+  stage_native_licenses
   make_icns
 }
 
@@ -178,7 +208,8 @@ stage_macos() {
 mac_finish() {
   local app="dist/RustyPresenter.app"
   [[ -d "$app" ]] || die "$app not found; run cargo packager -c Packager.toml -f app first"
-  codesign --force --deep -s - "$app"
+  # Same hardened runtime and entitlements as cargo-packager's signing (Packager.toml).
+  codesign --force --deep --options runtime --entitlements packaging/macos/entitlements.plist -s - "$app"
   codesign --verify --deep --strict -v "$app"
   hdiutil create -volname RustyPresenter -srcfolder "$app" -ov -format UDZO dist/RustyPresenter.dmg
 }
@@ -194,3 +225,4 @@ esac
 say "staged:"
 ls -l "$NATIVE"
 if [[ -d "$NATIVE_MAC" && "$1" == macos ]]; then ls -l "$NATIVE_MAC"; fi
+ls -l "$NATIVE_LICENSES"
