@@ -6,17 +6,17 @@ under and the full text of that licence. Libraries loaded at run time (libmpv, F
 font follow at the end.
 
 {{#each overview}}
-{{name}} ({{count}} crates)
+{{{name}}} ({{count}} crates)
 {{/each}}
 
 {{#each licenses}}
 ------------------------------------------------------------------------------------------------------------------
-{{name}}
+{{{name}}}
 Used by:
 {{#each used_by}}
   {{crate.name}} {{crate.version}}
 {{/each}}
 
-{{text}}
+{{{text}}}
 
 {{/each}}

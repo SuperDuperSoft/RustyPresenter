@@ -62,13 +62,13 @@ jobs:
         working-directory: experiments/c4-ui-testing
 
   # THIRD-PARTY-LICENSES.txt (shown in Settings → About) must match the lock file: regenerate it and fail on a
-  # difference. To update it locally: cargo install cargo-about --version 0.9.2 --locked, then the command below.
+  # difference. To update it locally: cargo install cargo-about --version 0.9.2 --locked --features cli, then the command below.
   licenses:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-about
-        run: cargo install cargo-about --version 0.9.2 --locked
+        run: cargo install cargo-about --version 0.9.2 --locked --features cli
       - run: cargo about generate about.hbs -o THIRD-PARTY-LICENSES.txt
       - run: git diff --exit-code THIRD-PARTY-LICENSES.txt
