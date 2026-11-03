@@ -925,10 +925,12 @@ pub(crate) mod tests {
         let (s, path) = (stop.clone(), f.clone());
         let writer = std::thread::spawn(move || {
             let mut n = 0u64;
-            while !s.load(std::sync::atomic::Ordering::Relaxed) { n += 1; std::fs::write(&path, n.to_string()).ok(); std::thread::sleep(Duration::from_millis(2)); }
+            while !s.load(std::sync::atomic::Ordering::Relaxed) { n += 1; let tmp = path.with_extension("new"); std::fs::write(&tmp, n.to_string()).ok(); std::fs::rename(&tmp, &path).ok(); std::thread::sleep(Duration::from_millis(2)); }
         });
         while std::fs::read(&f).unwrap_or_default() == b"0" { std::thread::sleep(Duration::from_millis(1)); }
-        let got = read_stable(&[f.clone()], 5, Duration::from_millis(20), "EasyWorship");
+        // The writer renames, because two reads of a file it has just emptied would match. The pause is long
+        // because a loaded machine can stall the writer for a moment, and one match ends the wait.
+        let got = read_stable(&[f.clone()], 3, Duration::from_millis(60), "EasyWorship");
         stop.store(true, std::sync::atomic::Ordering::Relaxed);
         writer.join().unwrap();
         assert!(got.unwrap_err().contains("kept saving"));

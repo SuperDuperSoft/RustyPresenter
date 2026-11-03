@@ -72,6 +72,8 @@ KJV is built in and works offline. NIV, ESV, CSB, HCSB and NLT need a licensed t
 
 ## Licenses
 
+RustyPresenter's own code is under the MIT license or the Apache License 2.0, whichever you prefer (`LICENSE-MIT`, `LICENSE-APACHE`).
+
 RustyPresenter uses libmpv and FFmpeg under the GNU Lesser General Public License. **Settings → About → Show licenses** has every third-party license; the installers include the same text. The exact sources of the shipped library and the scripts that built it are on the [releases page](https://github.com/SuperDuperSoft/RustyPresenter/releases), next to each release.
 
 You may use your own build of libmpv: set `RP_LIBMPV` to its path, or replace the file next to the program (on macOS, in `Contents/Frameworks`).
