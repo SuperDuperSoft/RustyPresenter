@@ -115,6 +115,8 @@ struct Inner {
     deferred: RefCell<Option<(Prep, Option<RoomEvent>)>>,
     /// Ends the half for `deferred` (restarted by each swap, so it is always the newest's).
     fade: Timer,
+    /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
+    swap_probe: RefCell<Option<Box<dyn Fn()>>>,
     me: Weak<Inner>,
 }
 
@@ -275,6 +277,7 @@ impl Inner {
         self.ui.set_bg_visible(room::draw_background(&prep.frame));
         self.sync_pause(&prep.pause);
         if let Some(c) = commit { self.shared.emit(c) }
+        if let Some(f) = self.swap_probe.borrow().as_ref() { f() }
     }
 
     /// Takes a player off air: silent at once, freed after the fade.
@@ -356,7 +359,7 @@ impl Room {
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, shared: shared.clone(), state: RefCell::default(),
-                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(), me: me.clone(),
+                prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(), swap_probe: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -383,6 +386,11 @@ impl Room {
     /// (in OpenGL mode it holds the window's rendering notifier).
     #[doc(hidden)]
     pub fn surface(&self) -> &Rc<VideoSurface> { &self.inner.surface }
+
+    /// Diagnostics only (`examples/slide_bench.rs`): `f` runs on the UI thread each time a new view goes on screen
+    /// (the moment the crossfade starts), so the bench can time the room's first frame after it.
+    #[doc(hidden)]
+    pub fn set_swap_probe(&self, f: impl Fn() + 'static) { *self.inner.swap_probe.borrow_mut() = Some(Box::new(f)) }
 
     #[cfg(test)]
     fn pump(&self) { self.inner.pump() }

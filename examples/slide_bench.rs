@@ -5,7 +5,10 @@
 //! * commit latency: from each command to the room reporting that version (or a newer one) on air;
 //! * UI-thread stalls: a 1 ms repeating Slint timer; every gap over 20 ms counts as a stall;
 //! * process CPU time over the measured stretch (Windows only), as % of one core;
-//! * frames drawn per window (rendering-notifier `AfterRendering`; the plain `software` renderer has no notifier).
+//! * frames drawn per window (rendering-notifier `AfterRendering`; the plain `software` renderer has no notifier),
+//!   as fps and as frames per slide change;
+//! * the room's first frame after each swap: from the room putting a new view on screen (the start of its
+//!   crossfade) to the end of the first room frame drawn after it, in ms.
 //!
 //! Environment:
 //! * `RP_RENDERER`: femtovg (the app's default, OpenGL), femtovg-wgpu (Direct3D 12 / Vulkan / Metal through wgpu;
@@ -15,7 +18,11 @@
 //! * `RP_BENCH_CHANGES` (40), `RP_BENCH_INTERVAL_MS` (250), `RP_BENCH_ROOM` (room window size, `1280x720` pixels);
 //! * `RP_BENCH_ROOM_MONITOR`, `RP_BENCH_STAGE_MONITOR`: put the room / stage full screen on monitor n (1-based, as
 //!   listed at start), the way the app does, instead of a plain window on the operator's monitor. With two
-//!   monitors, `RP_BENCH_ROOM_MONITOR=2` is the setup that lags in church.
+//!   monitors, `RP_BENCH_ROOM_MONITOR=2` is the setup that lags in church;
+//! * `RP_BENCH_SCENARIO`: `slides` (the default, above); `hover`: the same, while a fake mouse sweeps over the
+//!   operator every 8 ms (a hover storm); `playback`: a looping 25 fps clip plays in the room for
+//!   `RP_BENCH_SECONDS` (10) with no slide changes (needs libmpv: `RP_LIBMPV` or the usual places);
+//! * `RP_BENCH_RENDERERS`: with `--matrix`, only these renderers (comma-separated).
 //!
 //! One run prints a `BENCH,...` line. `--matrix [runs]` runs every renderer with 1 and 3 windows, `runs` times each
 //! (default 3), as child processes, and prints a table of medians. Build and run (release only):
@@ -25,18 +32,19 @@
 //! ```
 //!
 //! Each `BENCH` line: renderer, windows, graphics API the operator window got, commit latency p50/p95/max (ms),
-//! stalls over 20 ms (count, longest gap of any size in ms, total ms of stalls), CPU % of one core, fps of operator/room/stage.
+//! stalls over 20 ms (count, longest gap of any size in ms, total ms of stalls), CPU % of one core, fps of operator/room/stage,
+//! room first frame after a swap p50/p95/max (ms), frames per slide change of operator/room/stage.
 use rustypresenter::{
     app::{App, Update},
     live::{Command, Envelope},
-    model::{ItemKind, ServiceItem, Song},
+    model::{EndAction, ItemKind, MediaFile, MediaKind, MediaStatus, ServiceItem, Song},
     platform::monitors,
     render::Renderer,
     store::Store,
     ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, room::Room, screens::NativeScreens, stage::Stage},
     video,
 };
-use slint::{PhysicalPosition, PhysicalSize, RenderingState, Timer, TimerMode};
+use slint::{LogicalPosition, PhysicalPosition, PhysicalSize, RenderingState, Timer, TimerMode, platform::WindowEvent};
 use std::{
     cell::{Cell, RefCell},
     path::PathBuf,
@@ -74,12 +82,13 @@ fn main() {
 
 // ---------- one run ----------
 
-/// Frames drawn by one window while measuring.
+/// Frames drawn by one window while measuring (when each one ended).
 #[derive(Clone, Default)]
-struct Frames { count: Rc<Cell<u64>>, counting: Rc<Cell<bool>>, supported: Rc<Cell<bool>>, api: Rc<RefCell<String>> }
+struct Frames { times: Rc<RefCell<Vec<Instant>>>, counting: Rc<Cell<bool>>, supported: Rc<Cell<bool>>, api: Rc<RefCell<String>> }
 
 impl Frames {
-    fn tick(&self) { if self.counting.get() { self.count.set(self.count.get() + 1) } }
+    fn tick(&self) { if self.counting.get() { self.times.borrow_mut().push(Instant::now()) } }
+    fn count(&self) -> usize { self.times.borrow().len() }
 
     /// Counts `window`'s frames through its rendering notifier.
     fn watch(window: &slint::Window) -> Frames {
@@ -102,11 +111,51 @@ impl Frames {
         f
     }
 
-    fn fps(&self, secs: f64) -> Option<f64> { self.supported.get().then(|| self.count.get() as f64 / secs) }
+    fn fps(&self, secs: f64) -> Option<f64> { self.supported.get().then(|| self.count() as f64 / secs) }
+
+    /// Mean frames per slide change.
+    fn per_change(&self, changes: usize) -> Option<f64> { (self.supported.get() && changes > 0).then(|| self.count() as f64 / changes as f64) }
+}
+
+/// What is measured besides slide changes.
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Scenario { Slides, Hover, Playback }
+
+fn scenario() -> Scenario {
+    match std::env::var("RP_BENCH_SCENARIO").as_deref() {
+        Ok("hover") => Scenario::Hover,
+        Ok("playback") => Scenario::Playback,
+        Ok("" | "slides") | Err(_) => Scenario::Slides,
+        Ok(other) => { eprintln!("unknown RP_BENCH_SCENARIO {other:?} (slides, hover or playback)"); std::process::exit(2) }
+    }
+}
+
+/// A looping test clip for the playback scenario: 2 s of 25 fps frames, each with a bar in a new place, so every
+/// frame differs (mpv plays an animated GIF as video).
+fn write_clip(path: &std::path::Path) {
+    let (w, h, n) = (320u32, 180u32, 50u32);
+    let frames = (0..n).map(|i| {
+        let mut img = image::RgbaImage::from_pixel(w, h, image::Rgba([(i * 5) as u8, 60, 255 - (i * 5) as u8, 255]));
+        let x0 = i * w / n;
+        for y in 0..h { for x in x0..(x0 + 12).min(w) { img.put_pixel(x, y, image::Rgba([255, 255, 255, 255])) } }
+        image::Frame::from_parts(img, 0, 0, image::Delay::from_numer_denom_ms(40, 1))
+    });
+    let file = std::fs::File::create(path).expect("clip file");
+    let mut enc = image::codecs::gif::GifEncoder::new_with_speed(file, 30);
+    enc.encode_frames(frames).expect("clip");
+}
+
+/// For each swap, how long until the first `frames` time at or after it (ms); swaps never followed by a frame
+/// are left out.
+fn first_frame_delays(swaps: &[Instant], frames: &[Instant]) -> Vec<f64> {
+    swaps.iter().filter_map(|s| {
+        let i = frames.partition_point(|f| f < s);
+        frames.get(i).map(|f| (*f - *s).as_secs_f64() * 1000.0)
+    }).collect()
 }
 
 /// What the UI thread keeps while the windows are open.
-struct Open { _op: Rc<Operator>, _room: Option<Rc<Room>>, _stage: Option<Rc<Stage>>, frames: Vec<(&'static str, Frames)>, _stall_timer: Timer }
+struct Open { _op: Rc<Operator>, _room: Option<Rc<Room>>, _stage: Option<Rc<Stage>>, frames: Vec<(&'static str, Frames)>, _stall_timer: Timer, _hover: Option<Timer> }
 
 thread_local! {
     static OPEN: RefCell<Option<Open>> = const { RefCell::new(None) };
@@ -143,6 +192,8 @@ fn pct(sorted: &[f64], p: f64) -> f64 {
 fn run() {
     let renderer_name = std::env::var("RP_RENDERER").ok().filter(|r| !r.is_empty()).unwrap_or_else(|| "femtovg".into());
     let windows = env_num("RP_BENCH_WINDOWS", 3);
+    let scenario = scenario();
+    let seconds = env_num("RP_BENCH_SECONDS", 10);
     let changes = env_num("RP_BENCH_CHANGES", 40) as usize;
     let interval = Duration::from_millis(env_num("RP_BENCH_INTERVAL_MS", 250));
     let (room_w, room_h) = std::env::var("RP_BENCH_ROOM").ok()
@@ -158,6 +209,16 @@ fn run() {
     let store = Store::open(root.clone()).expect("data folder");
     let data = store.load().expect("data");
     let app = App::new(store, data, 4397, None);
+    let clip = (scenario == Scenario::Playback).then(|| {
+        write_clip(&app.store.asset_path("bench-clip.gif"));
+        let media = MediaFile { id: Uuid::new_v4(), name: "Bench clip".into(), kind: MediaKind::Video, asset: "bench-clip.gif".into(), status: MediaStatus::Ready, original_asset: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: true }, background: None, notes: String::new() };
+        let id = item.id;
+        let mut data = app.data.lock().unwrap();
+        data.media.push(media);
+        data.services[0].items.push(item);
+        id
+    });
     let first = {
         let mut data = app.data.lock().unwrap();
         let mut first = None;
@@ -172,12 +233,17 @@ fn run() {
     };
 
     let mode = video::choose_backend();
-    let mpv = video::ffi::Mpv::load().ok();
+    let mpv = match video::ffi::Mpv::load() {
+        Ok(m) => Some(m),
+        Err(e) if scenario == Scenario::Playback => { eprintln!("the playback scenario needs libmpv: {e}"); std::process::exit(2) }
+        Err(_) => None,
+    };
     let rt = tokio::runtime::Runtime::new().expect("tokio");
     let renderer = Renderer::new();
     let screens = NativeScreens::new(&app, renderer.clone(), mpv.clone());
     app.set_screens(screens.clone());
-    eprintln!("renderer {renderer_name} ({mode:?}), {windows} window(s), {changes} changes every {interval:?}");
+    let changes = if scenario == Scenario::Playback { 0 } else { changes };
+    eprintln!("renderer {renderer_name} ({mode:?}), {windows} window(s), scenario {scenario:?}, {changes} changes every {interval:?}");
 
     // Commits as the live engine publishes them (subscribed before anything goes live).
     let commits: Arc<Mutex<Vec<(u64, Instant)>>> = Arc::default();
@@ -197,9 +263,12 @@ fn run() {
     let stalls: Rc<RefCell<Vec<Duration>>> = Rc::default();
     let measuring = Rc::new(Cell::new(false));
     let last_tick = Rc::new(Cell::new(Instant::now()));
+    // When the room put each new view on screen while measuring.
+    let swaps: Rc<RefCell<Vec<Instant>>> = Rc::default();
 
     let (app2, handle) = (app.clone(), rt.handle().clone());
     let (stalls2, measuring2, last2) = (stalls.clone(), measuring.clone(), last_tick.clone());
+    let (swaps2, measuring3) = (swaps.clone(), measuring.clone());
     let setup = move |mons: Vec<monitors::MonitorId>| {
         let ops = Ops::new(app2.clone(), handle);
         let op = Operator::open(app2.clone(), ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>).expect("operator window");
@@ -213,6 +282,8 @@ fn run() {
             let on = |var: &str| std::env::var(var).ok().and_then(|n| n.parse::<usize>().ok()).and_then(|n| mons.get(n.wrapping_sub(1)).cloned());
             let (room_mon, stage_mon) = (on("RP_BENCH_ROOM_MONITOR"), on("RP_BENCH_STAGE_MONITOR"));
             let r = Room::open(app2.clone(), renderer.clone(), mpv.clone(), room_mon.clone()).expect("room window");
+            let (swaps, measuring) = (swaps2.clone(), measuring3.clone());
+            r.set_swap_probe(move || if measuring.get() { swaps.borrow_mut().push(Instant::now()) });
             if room_mon.is_none() {
                 r.window().set_position(PhysicalPosition::new(160, 80));
                 r.window().set_size(PhysicalSize::new(room_w, room_h));
@@ -243,7 +314,21 @@ fn run() {
             let gap = now - last2.replace(now);
             if measuring2.get() { stalls2.borrow_mut().push(gap) }
         });
-        OPEN.with(|o| *o.borrow_mut() = Some(Open { _op: op, _room: room, _stage: stage, frames, _stall_timer: timer }));
+        // The hover storm: a pointer sweeping over the operator window every 8 ms, as a mouse moved over its buttons.
+        let hover = (scenario == Scenario::Hover).then(|| {
+            let (t, w, start) = (Timer::default(), Rc::downgrade(&op), Instant::now());
+            t.start(TimerMode::Repeated, Duration::from_millis(8), move || {
+                let Some(op) = w.upgrade() else { return };
+                let win = op.window();
+                let size = win.size().to_logical(win.scale_factor());
+                let s = start.elapsed().as_secs_f32();
+                let x = (s * 900.0) % size.width.max(1.0);
+                let y = size.height * (0.5 + 0.4 * (s * 1.7).sin());
+                win.dispatch_event(WindowEvent::PointerMoved { position: LogicalPosition::new(x, y) });
+            });
+            t
+        });
+        OPEN.with(|o| *o.borrow_mut() = Some(Open { _op: op, _room: room, _stage: stage, frames, _stall_timer: timer, _hover: hover }));
     };
     // As the app opens its operator: from the active event loop, which also lists the monitors.
     SETUP.with(|s| *s.borrow_mut() = Some(Box::new(setup)));
@@ -264,7 +349,7 @@ fn run() {
         std::thread::spawn(move || {
             std::thread::sleep(Duration::from_millis(1500));
             let env = |base, cmd| Envelope { id: Uuid::new_v4().to_string(), base, cmd };
-            let out = app.command(env(None, Command::Show { item_id: first, slide: 0 }));
+            let out = app.command(env(None, Command::Show { item_id: clip.unwrap_or(first), slide: 0 }));
             assert!(out.ok, "{out:?}");
             std::thread::sleep(WARMUP);
             *measure_from.lock().unwrap() = Some((Instant::now(), cpu_time()));
@@ -279,7 +364,7 @@ fn run() {
                 let out = app.command(env(Some(base), Command::Next));
                 if out.ok { sends.lock().unwrap().push((out.version, sent)) } else { *failed.lock().unwrap() += 1 }
             }
-            std::thread::sleep(interval + SETTLE);
+            if clip.is_some() { std::thread::sleep(Duration::from_secs(seconds)) } else { std::thread::sleep(interval + SETTLE) }
             let _ = slint::invoke_from_event_loop(|| { let _ = slint::quit_event_loop(); });
         });
     }
@@ -319,6 +404,12 @@ fn run() {
     let api = OPEN.with(|o| o.borrow().as_ref().map(|o| o.frames[0].1.api.borrow().clone())).filter(|a| !a.is_empty()).unwrap_or_else(|| "-".into());
     let fps: Vec<(&str, Option<f64>)> = OPEN.with(|o| o.borrow().as_ref().map(|o| o.frames.iter().map(|(n, f)| (*n, f.fps(wall))).collect()).unwrap_or_default());
     let fps_of = |n: &str| fps.iter().find(|(m, _)| *m == n).and_then(|(_, f)| *f);
+    let per_change: Vec<(&str, Option<f64>)> = OPEN.with(|o| o.borrow().as_ref().map(|o| o.frames.iter().map(|(n, f)| (*n, f.per_change(sends.len()))).collect()).unwrap_or_default());
+    let per_of = |n: &str| per_change.iter().find(|(m, _)| *m == n).and_then(|(_, f)| *f);
+    let room_frames: Option<Vec<Instant>> = OPEN.with(|o| o.borrow().as_ref().and_then(|o| o.frames.iter().find(|(n, f)| *n == "room" && f.supported.get()).map(|(_, f)| f.times.borrow().clone())));
+    let mut first: Vec<f64> = room_frames.map(|r| first_frame_delays(&swaps.borrow(), &r)).unwrap_or_default();
+    first.sort_by(f64::total_cmp);
+    let ff = |v: f64| if first.is_empty() { "-".to_string() } else { format!("{v:.1}") };
     let opt = |v: Option<f64>| v.map(|v| format!("{v:.1}")).unwrap_or_else(|| "-".into());
     let committed = |v: f64| if lat.is_empty() { "-".to_string() } else { format!("{v:.0}") };
 
@@ -326,10 +417,12 @@ fn run() {
     eprintln!("commit latency ms: median {} p95 {} max {}", committed(pct(&lat, 0.5)), committed(pct(&lat, 0.95)), committed(pct(&lat, 1.0)));
     eprintln!("UI stalls > 20 ms: {} (total {stall_sum:.0} ms); longest gap {stall_max:.0} ms, mean gap {mean_gap:.1} ms", stall_ms.len());
     eprintln!("CPU: {}% of one core; fps {:?}", opt(cpu_pct), fps);
+    eprintln!("room first frame after a swap, ms: median {} p95 {} max {} ({} swaps); frames per change {:?}", ff(pct(&first, 0.5)), ff(pct(&first, 0.95)), ff(pct(&first, 1.0)), swaps.borrow().len(), per_change);
     println!(
-        "BENCH,{renderer_name},{windows},{api},{},{},{},{},{:.0},{:.0},{},{},{},{}",
+        "BENCH,{renderer_name},{windows},{api},{},{},{},{},{:.0},{:.0},{},{},{},{},{},{},{},{},{},{}",
         committed(pct(&lat, 0.5)), committed(pct(&lat, 0.95)), committed(pct(&lat, 1.0)),
         stall_ms.len(), stall_max, stall_sum, opt(cpu_pct), opt(fps_of("operator")), opt(fps_of("room")), opt(fps_of("stage")),
+        ff(pct(&first, 0.5)), ff(pct(&first, 0.95)), ff(pct(&first, 1.0)), opt(per_of("operator")), opt(per_of("room")), opt(per_of("stage")),
     );
 
     OPEN.with(|o| o.borrow_mut().take());
@@ -341,12 +434,19 @@ fn run() {
 
 // ---------- the matrix ----------
 
-const COLS: [&str; 10] = ["lat p50", "lat p95", "lat max", "stalls", "max gap", "stall sum", "cpu %", "op fps", "room fps", "stage fps"];
+const COLS: [&str; 16] = [
+    "lat p50", "lat p95", "lat max", "stalls", "max gap", "stall sum", "cpu %", "op fps", "room fps", "stage fps",
+    "room 1st p50", "room 1st p95", "room 1st max", "op f/chg", "room f/chg", "stage f/chg",
+];
+/// Decimals shown per column.
+const DECIMALS: [usize; 16] = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 fn matrix(runs: usize) {
     let exe = std::env::current_exe().expect("own path");
     let mut rows = vec![];
+    let only: Option<Vec<String>> = std::env::var("RP_BENCH_RENDERERS").ok().filter(|v| !v.is_empty()).map(|v| v.split(',').map(|r| r.trim().to_string()).collect());
     for r in RENDERERS {
+        if only.as_ref().is_some_and(|o| !o.iter().any(|x| x == r)) { continue }
         if !built_with(r) {
             eprintln!("== {r}: not in this build, skipped");
             continue;
@@ -374,12 +474,12 @@ fn matrix(runs: usize) {
     }
     println!("\nMedians of {runs} run(s); latency and stalls in ms, fps per window (- = not measurable).\n");
     println!("| renderer | windows | api | {} |", COLS.join(" | "));
-    println!("|---|---|---|{}", "---|".repeat(10));
+    println!("|---|---|---|{}", "---|".repeat(COLS.len()));
     for (r, w, api, results) in rows {
-        let cells: Vec<String> = (0..10).map(|c| {
+        let cells: Vec<String> = (0..COLS.len()).map(|c| {
             let mut v: Vec<f64> = results.iter().filter_map(|row| row.get(c).copied().flatten()).collect();
             v.sort_by(f64::total_cmp);
-            if v.is_empty() { "-".into() } else if c >= 6 { format!("{:.1}", pct(&v, 0.5)) } else { format!("{:.0}", pct(&v, 0.5)) }
+            if v.is_empty() { "-".into() } else { format!("{:.*}", DECIMALS[c], pct(&v, 0.5)) }
         }).collect();
         let ok = if results.is_empty() { " (failed)" } else { "" };
         println!("| {r}{ok} | {w} | {api} | {} |", cells.join(" | "));
