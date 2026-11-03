@@ -1,6 +1,8 @@
 pub mod app;
+pub mod automation;
 pub mod bible;
 pub mod import;
+pub mod lenient;
 pub mod live;
 pub mod model;
 pub mod platform;
@@ -12,6 +14,7 @@ pub mod sha256;
 pub mod slides;
 pub mod songselect;
 pub mod startup;
+pub mod timers;
 pub mod store;
 pub mod theme;
 pub mod ui;
