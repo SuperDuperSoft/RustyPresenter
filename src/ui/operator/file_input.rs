@@ -79,7 +79,7 @@ impl Filter {
     pub fn extensions(self) -> Vec<&'static str> {
         match self {
             Filter::Media => [media::VIDEO, media::AUDIO, media::IMAGE].concat(),
-            Filter::PowerPoint => vec!["pptx", "ppt", "ppsx", "pps", "odp"],
+            Filter::PowerPoint => crate::import::deck::DECK_EXT.to_vec(),
             Filter::Lyrics => vec!["txt"],
             Filter::Pictures => media::IMAGE.to_vec(),
             Filter::PicturesAndVideos => [media::IMAGE, media::VIDEO].concat(),
@@ -191,7 +191,7 @@ mod tests {
 
     #[test]
     fn exact_filters_match_the_web() {
-        assert_eq!(Filter::PowerPoint.extensions(), ["pptx", "ppt", "ppsx", "pps", "odp"]);
+        assert_eq!(Filter::PowerPoint.extensions(), crate::import::deck::DECK_EXT);
         assert_eq!(Filter::Lyrics.extensions(), ["txt"]);
         assert_eq!(Filter::Pictures.extensions(), media::IMAGE);
         assert_eq!(Filter::Bibles.extensions(), ["xml", "usx", "osis", "zef"]);

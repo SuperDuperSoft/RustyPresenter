@@ -64,6 +64,8 @@ pub struct OperatorSnapshot {
     pub stage_configured: bool,
     pub phones: usize,
     pub jobs: Vec<JobRow>,
+    /// How the last jobs ended: (job, what it made).
+    pub job_ends: Vec<(Uuid, Option<Uuid>)>,
     pub settings: Settings,
     pub data: Arc<Data>,
     pub monitors: Vec<Monitor>,
@@ -121,6 +123,7 @@ impl OperatorSnapshot {
             stage_configured: data.settings.displays.stage.is_some(),
             phones: app.remote_conns.load(Ordering::Relaxed),
             jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone(), note: j.note.clone(), cancellable: j.cancellable, done: j.done }).collect(),
+            job_ends: app.job_ends.lock().unwrap().iter().copied().collect(),
             settings: data.settings.clone(),
             monitors: app.monitors(),
             windows,

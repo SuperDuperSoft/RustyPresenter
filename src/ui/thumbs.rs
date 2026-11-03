@@ -1,10 +1,10 @@
 //! Slide thumbnails for the operator's grid, drawn off the UI thread the way the web draws them (`slideToLayers`
 //! and `drawStatic` in `render.js`, with `logo: false`, `operator.js:183`). Text slides go through a renderer of
 //! their own: `Renderer` is one worker with one FIFO, so sharing the room's would queue a whole service's
-//! thumbnails ahead of the room's next slide. Video comes out black for now (frames come in Plan 4 with the mpv
-//! probe); the grid draws the play overlay over it.
+//! thumbnails ahead of the room's next slide. Video uses the frame the import saved (`MediaFile::thumb`), or black
+//! until it has one; the grid draws the play overlay over it.
 use crate::{
-    model::{AssetId, Background, Settings, Slide, SlideContent},
+    model::{AssetId, Background, MediaFile, Settings, Slide, SlideContent},
     render::{RenderKey, Renderer, parse_color},
     store::Store,
     ui::block_on,
@@ -30,10 +30,10 @@ const STEP: f32 = 64.0;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ThumbKey { pub render: Option<RenderKey>, pub layers: String, pub size: (u32, u32) }
 
-/// The media layer of a thumbnail: a still, or a video (drawn black until Plan 4).
+/// The media layer of a thumbnail: a still, or a video with its saved frame if it has one.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum ThumbMedia { Still { asset: AssetId }, Video }
+pub enum ThumbMedia { Still { asset: AssetId }, Video { thumb: Option<AssetId> } }
 
 /// What a thumbnail draws, bottom to top (`drawStatic`): background, media, a deck picture, text.
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -53,10 +53,18 @@ pub fn thumb_size(cell_w: f32, scale: f32) -> (u32, u32) {
     (w, w * 9 / 16)
 }
 
+/// The saved frame of the video with this asset.
+pub fn video_thumb(media: &[MediaFile], asset: &str) -> Option<AssetId> {
+    media.iter().find(|m| m.asset == asset).and_then(|m| m.thumb.clone())
+}
+
 /// The thumbnail of `slide` of an item of `kind` (`slideToLayers`). The background is the item's, else the
-/// settings' (`itemBackground`); the logo is never drawn.
-pub fn thumb(slide: &Slide, kind: &str, item_background: Option<&Background>, settings: &Settings, size: (u32, u32)) -> (ThumbKey, ThumbJob) {
-    let background = item_background.unwrap_or(&settings.background).clone();
+/// settings' (`itemBackground`); a video background is drawn as its saved frame. The logo is never drawn.
+pub fn thumb(slide: &Slide, kind: &str, item_background: Option<&Background>, settings: &Settings, media: &[MediaFile], size: (u32, u32)) -> (ThumbKey, ThumbJob) {
+    let background = match item_background.unwrap_or(&settings.background) {
+        Background::Video { asset } if let Some(thumb) = video_thumb(media, asset) => Background::Image { asset: thumb },
+        other => other.clone(),
+    };
     let job = match &slide.content {
         SlideContent::Text { text, footer, reference } => ThumbJob {
             background: Some(background), media: None, picture: None,
@@ -66,7 +74,7 @@ pub fn thumb(slide: &Slide, kind: &str, item_background: Option<&Background>, se
             }),
         },
         SlideContent::Image { asset } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
-        SlideContent::Video { .. } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Video), picture: None, text: None },
+        SlideContent::Video { asset, .. } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Video { thumb: video_thumb(media, asset) }), picture: None, text: None },
         SlideContent::Still { asset } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Still { asset: asset.clone() }), picture: None, text: None },
         SlideContent::Audio { .. } => ThumbJob { background: None, media: None, picture: None, text: None },
     };
@@ -87,7 +95,7 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
             let [r, g, b, a] = parse_color(color);
             imageops::overlay(&mut img, &RgbaImage::from_pixel(w, h, Rgba([r, g, b, a])), 0, 0);
         }
-        // An image background covers the screen; a video one is black until Plan 4.
+        // An image background covers the screen; a video one with no saved frame is black.
         Some(Background::Image { asset }) => if let Some(p) = picture(asset) {
             imageops::overlay(&mut img, &p.resize_to_fill(w, h, FilterType::Triangle).into_rgba8(), 0, 0);
         },
@@ -96,7 +104,10 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     match &job.media {
         Some(ThumbMedia::Still { asset }) => if let Some(p) = picture(asset) { contain(&mut img, &p) },
         // The web's `<video>` has a black background over the whole screen.
-        Some(ThumbMedia::Video) => img = RgbaImage::from_pixel(w, h, Rgba([0, 0, 0, 255])),
+        Some(ThumbMedia::Video { thumb }) => {
+            img = RgbaImage::from_pixel(w, h, Rgba([0, 0, 0, 255]));
+            if let Some(p) = thumb.as_deref().and_then(picture) { contain(&mut img, &p) }
+        }
         None => {}
     }
     if let Some(p) = job.picture.as_deref().and_then(picture) { contain(&mut img, &p) }
@@ -253,12 +264,12 @@ mod tests {
         let mut with_logo = settings();
         with_logo.logo = Some("logo.png".into());
         let slide = text("Amazing grace");
-        let (a, _) = thumb(&slide, "song", None, &settings(), (256, 144));
-        let (b, _) = thumb(&slide, "song", None, &with_logo, (256, 144));
+        let (a, _) = thumb(&slide, "song", None, &settings(), &[], (256, 144));
+        let (b, _) = thumb(&slide, "song", None, &with_logo, &[], (256, 144));
         assert_eq!(a, b);
         // The item's own background is part of the key.
         let red = Background::Color { color: "#ff0000".into() };
-        let (c, job) = thumb(&slide, "song", Some(&red), &with_logo, (256, 144));
+        let (c, job) = thumb(&slide, "song", Some(&red), &with_logo, &[], (256, 144));
         assert_ne!(a, c);
         assert_eq!(job.background, Some(red));
     }
@@ -267,13 +278,13 @@ mod tests {
     fn thumb_layers_follow_slide_to_layers() {
         let s = settings();
         let slide = |content| Slide { label: "x".into(), content, notes: String::new() };
-        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", None, &s, (64, 36));
+        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", None, &s, &[], (64, 36));
         assert_eq!((deck.background, deck.picture.as_deref()), (None, Some("a.png")), "a deck picture has no background");
-        let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", None, &s, (64, 36));
-        assert_eq!(video.media, Some(ThumbMedia::Video));
-        let (_, audio) = thumb(&slide(SlideContent::Audio { asset: "a.mp3".into(), looped: false }), "audio", None, &s, (64, 36));
+        let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", None, &s, &[], (64, 36));
+        assert_eq!(video.media, Some(ThumbMedia::Video { thumb: None }));
+        let (_, audio) = thumb(&slide(SlideContent::Audio { asset: "a.mp3".into(), looped: false }), "audio", None, &s, &[], (64, 36));
         assert_eq!(audio, ThumbJob { background: None, media: None, picture: None, text: None });
-        let (k, scripture) = thumb(&text("In the beginning"), "scripture", None, &s, (64, 36));
+        let (k, scripture) = thumb(&text("In the beginning"), "scripture", None, &s, &[], (64, 36));
         assert!(scripture.text.unwrap().scripture);
         assert_eq!(k.render.unwrap().canvas, (64, 36));
     }
@@ -281,7 +292,7 @@ mod tests {
     #[test]
     fn thumb_text_slide_renders_non_blank() {
         let s = settings();
-        let (key, job) = thumb(&text("Amazing grace"), "song", None, &s, (320, 180));
+        let (key, job) = thumb(&text("Amazing grace"), "song", None, &s, &[], (320, 180));
         let store = store();
         // On a worker thread, as the grid does.
         let px = std::thread::spawn(move || compose(&job, key.size, &TextRenderer::new(), &store)).join().unwrap();
@@ -289,6 +300,42 @@ mod tests {
         let lit = px.as_slice().iter().filter(|p| (p.r, p.g, p.b) != (0, 0, 0)).count();
         assert!(lit > 0, "the text drew something over the black background");
         assert!(px.as_slice().iter().all(|p| p.a == 255), "a thumbnail is opaque");
+    }
+
+    fn slide(content: SlideContent) -> Slide { Slide { label: "x".into(), content, notes: String::new() } }
+
+    fn video_with_a_saved_frame(store: &Store) -> MediaFile {
+        RgbaImage::from_pixel(16, 9, Rgba([0, 255, 0, 255])).save(store.asset_path("frame.png")).unwrap();
+        MediaFile { id: uuid::Uuid::new_v4(), name: "Loop".into(), kind: crate::model::MediaKind::Video, asset: "v.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: Some("frame.png".into()), size: None }
+    }
+
+    #[test]
+    fn video_slide_thumb_uses_media_thumb() {
+        let store = store();
+        let media = [video_with_a_saved_frame(&store)];
+        let video = slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() });
+        let (key, job) = thumb(&video, "video", None, &settings(), &media, (64, 36));
+        assert_eq!(job.media, Some(ThumbMedia::Video { thumb: Some("frame.png".into()) }));
+        let px = compose(&job, key.size, &TextRenderer::new(), &store);
+        assert_eq!(px.as_slice()[18 * 64 + 32].g, 255, "the saved frame, not black");
+        let (without, _) = thumb(&video, "video", None, &settings(), &[], (64, 36));
+        assert_ne!(key, without, "a frame arriving draws the thumbnail again");
+        let other = slide(SlideContent::Video { asset: "other.mp4".into(), autoplay: true, end: Default::default() });
+        assert_eq!(thumb(&other, "video", None, &settings(), &media, (64, 36)).1.media, Some(ThumbMedia::Video { thumb: None }), "only its own frame");
+    }
+
+    #[test]
+    fn video_background_thumb_uses_media_thumb() {
+        let store = store();
+        let media = [video_with_a_saved_frame(&store)];
+        let back = Background::Video { asset: "v.mp4".into() };
+        let (key, job) = thumb(&text("Amazing grace"), "song", Some(&back), &settings(), &media, (64, 36));
+        assert_eq!(job.background, Some(Background::Image { asset: "frame.png".into() }));
+        assert_eq!(compose(&job, key.size, &TextRenderer::new(), &store).as_slice()[0].g, 255);
+        let mut s = settings();
+        s.background = back.clone();
+        assert_eq!(thumb(&text("a"), "song", None, &s, &media, (64, 36)).1.background, Some(Background::Image { asset: "frame.png".into() }), "the settings' background too");
+        assert_eq!(thumb(&text("a"), "song", Some(&back), &settings(), &[], (64, 36)).1.background, Some(back), "no frame yet: black, as before");
     }
 
     #[test]
@@ -303,7 +350,7 @@ mod tests {
         assert_eq!(at(32, 1), (0, 0, 255), "background above the picture");
         assert_eq!(at(32, 18), (255, 255, 255), "the picture in the middle");
         // A video covers everything with black; a missing picture draws nothing.
-        let video = ThumbJob { media: Some(ThumbMedia::Video), ..job.clone() };
+        let video = ThumbJob { media: Some(ThumbMedia::Video { thumb: None }), ..job.clone() };
         let px = compose(&video, (64, 36), &TextRenderer::new(), &store);
         assert!(px.as_slice().iter().all(|p| (p.r, p.g, p.b) == (0, 0, 0)));
         let missing = ThumbJob { media: Some(ThumbMedia::Still { asset: "gone.png".into() }), ..job };
@@ -316,7 +363,7 @@ mod tests {
         crate::ui::ui_test_init();
         let store = store();
         let thumbs = Thumbs::inline(store.root.clone());
-        let (key, job) = thumb(&text("Amazing grace"), "song", None, &settings(), (64, 36));
+        let (key, job) = thumb(&text("Amazing grace"), "song", None, &settings(), &[], (64, 36));
         let got: Rc<RefCell<Vec<Pixels>>> = Rc::default();
         for _ in 0..2 { let g = got.clone(); thumbs.request(key.clone(), job.clone(), move |px| g.borrow_mut().push(px)); }
         let got = got.borrow();

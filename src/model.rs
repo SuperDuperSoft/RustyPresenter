@@ -90,7 +90,7 @@ pub enum MediaStatus {
     Failed { reason: String },
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct MediaFile {
     pub id: Uuid,
     pub name: String,

@@ -5,7 +5,7 @@ use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
@@ -119,6 +119,9 @@ pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash
 
 use crate::import::strings::FALLBACK_NOTE;
 
+/// `App::job_ends` keeps this many. Far more than can end between two operator reads.
+const JOB_ENDS_KEPT: usize = 64;
+
 /// A background job. The fields added for Plan 4 are left out of the JSON when unset, so the web operator's
 /// `jobs` stay as they were for an ordinary job.
 #[derive(Serialize, Clone, Default)]
@@ -170,6 +173,9 @@ pub struct App {
     pub(crate) phones: Mutex<Vec<Phone>>,
     pub(crate) attempts: Mutex<HashMap<IpAddr, Instant>>,
     pub(crate) jobs: Mutex<Vec<Job>>,
+    /// How the last jobs ended: (job, what it made). A job that ended well is gone from `jobs` at once, so this
+    /// is how the operator learns which deck to add.
+    pub(crate) job_ends: Mutex<VecDeque<(Uuid, Option<Uuid>)>>,
     /// The cancel token of each running cancellable job; dropped when the job ends.
     cancels: Mutex<HashMap<Uuid, CancellationToken>>,
     pub room_conns: AtomicUsize,
@@ -209,7 +215,7 @@ impl App {
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
-            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
+            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
         })
@@ -406,6 +412,7 @@ impl App {
         self.cancels.lock().unwrap().remove(&id);
         let mut jobs = self.jobs.lock().unwrap();
         if let Some(j) = jobs.iter_mut().find(|j| j.id == id) {
+            self.job_ended(id, if error.is_none() { j.result } else { None });
             if error.is_none() && j.note.is_none() {
                 jobs.retain(|j| j.id != id);
             } else {
@@ -421,8 +428,14 @@ impl App {
     /// Ends a job that stopped because it was cancelled: it leaves no error and no note.
     pub(crate) fn job_end_cancelled(&self, id: Uuid) {
         self.cancels.lock().unwrap().remove(&id);
+        self.job_ended(id, None);
         self.jobs.lock().unwrap().retain(|j| j.id != id);
         self.broadcast_data();
+    }
+    fn job_ended(&self, id: Uuid, made: Option<Uuid>) {
+        let mut ends = self.job_ends.lock().unwrap();
+        if ends.len() == JOB_ENDS_KEPT { ends.pop_front(); }
+        ends.push_back((id, made));
     }
 
     pub(crate) fn save_phones(&self, phones: &[Phone]) {

@@ -261,7 +261,7 @@ mod tests {
     }
 
     fn media(app: &App, name: &str, kind: MediaKind) -> Uuid {
-        let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{}.bin", Uuid::new_v4()), status: MediaStatus::Ready, original_asset: None };
+        let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{}.bin", Uuid::new_v4()), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
         app.data.lock().unwrap().media.push(m.clone());
         m.id
     }

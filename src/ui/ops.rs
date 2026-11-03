@@ -4,6 +4,7 @@
 //! backend, which has no event loop.
 use crate::{
     app::{App, ImportPurpose, Imported},
+    import::deck::ConverterStatus,
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
 };
@@ -51,6 +52,17 @@ impl Ops {
             serde_json::from_value::<T>(v).map_err(|e| e.to_string())
         };
         self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
+    /// What the Slides tab says about this computer. `None` until `import::init` has run. Looking for LibreOffice
+    /// touches the disk, so it runs off the UI thread.
+    pub fn converter_status(&self, done: impl FnOnce(Option<ConverterStatus>) + 'static) {
+        let app = self.app.clone();
+        let work = async move {
+            let look = move || app.converters().map(|c| c.status());
+            tokio::task::spawn_blocking(look).await.unwrap_or(None)
+        };
+        self.run(work, |r| done(r.unwrap_or(None)));
     }
 
     /// `App::do_action(action, <the file's bytes>)`, for actions whose body is a raw file (`bible/import/{ABBR}`).

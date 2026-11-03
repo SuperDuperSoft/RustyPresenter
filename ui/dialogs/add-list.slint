@@ -47,6 +47,10 @@ export global AddState {
     in-out property <string> text-title;
     in-out property <string> text-body;
 
+    /// The Slides tab's help when a presentation cannot be imported yet; empty when it can.
+    in property <string> deck-help;
+    /// The command in that help, for the Copy button; may be empty.
+    in property <string> install-command;
     callback pick-tab(int);
     callback search-edited(string);
     callback new-song();
@@ -59,7 +63,9 @@ export global AddState {
     callback bible-paste();
     callback text-add();
     callback upload-media();
-    callback import-powerpoint();
+    callback import-deck();
+    callback copy-install();
+    callback check-libreoffice();
     callback pictures-to-slides();
 }
 

@@ -4,7 +4,7 @@
 use super::{background::{self, Picker}, settings::{Edit, read_form as read_all, strings}};
 use crate::{
     app::{ImportPurpose, Imported},
-    model::{Settings, Slide, SlideContent},
+    model::{MediaFile, Settings, Slide, SlideContent},
     render::parse_color,
     store::Store,
     ui::{SettingsDlg, block_on, operator::{file_input::Filter, files, view::OperatorSnapshot, window::Operator}, thumbs::{self, Pixels, TextRenderer}},
@@ -197,13 +197,13 @@ struct Drawn { preview: Pixels, font_missing: bool, logo: Option<Pixels> }
 /// render of the same text, for `font_fallback`, free).
 static RENDERER: TextRenderer = TextRenderer::new();
 
-fn draw(settings: &Settings, store_root: PathBuf) -> Drawn {
+fn draw(settings: &Settings, media: &[MediaFile], store_root: PathBuf) -> Drawn {
     let slide = Slide {
         label: String::new(),
         content: SlideContent::Text { text: strings::SAMPLE_TEXT.into(), footer: Some(strings::SAMPLE_FOOTER.into()), reference: None },
         notes: String::new(),
     };
-    let (key, job) = thumbs::thumb(&slide, "song", None, settings, PREVIEW_SIZE);
+    let (key, job) = thumbs::thumb(&slide, "song", None, settings, media, PREVIEW_SIZE);
     let store = Store { root: store_root };
     let preview = thumbs::compose(&job, key.size, &RENDERER, &store);
     let font_missing = match (job.text, RENDERER.get()) {
@@ -225,6 +225,7 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     edit.look.generation.set(generation);
     let settings = edit.settings.borrow().clone();
     let root = op.app().store.root.clone();
+    let media = op.app().data.lock().unwrap().media.clone();
     let (me, edit) = (Rc::downgrade(op), edit.clone());
     let apply = move |d: Drawn| {
         let Some(op) = me.upgrade() else { return };
@@ -234,9 +235,9 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
         g.set_font_note(if d.font_missing { strings::font_missing(&edit.settings.borrow().theme.font) } else { String::new() }.into());
         g.set_logo(d.logo.map(Image::from_rgba8).unwrap_or_default());
     };
-    if op.ops().is_inline() { return apply(draw(&settings, root)) }
+    if op.ops().is_inline() { return apply(draw(&settings, &media, root)) }
     let (tx, rx) = oneshot::channel::<Drawn>();
-    let started = std::thread::Builder::new().name("settings-preview".into()).spawn(move || { let _ = tx.send(draw(&settings, root)); });
+    let started = std::thread::Builder::new().name("settings-preview".into()).spawn(move || { let _ = tx.send(draw(&settings, &media, root)); });
     if started.is_ok() {
         let _ = slint::spawn_local(async move { if let Ok(d) = rx.await { apply(d) } });
     }

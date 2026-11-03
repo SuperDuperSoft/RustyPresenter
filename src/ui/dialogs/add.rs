@@ -76,6 +76,7 @@ fn show_tab(op: &Rc<Operator>, ctx: &AddCtx, tab: AddTab) {
     st.set_search("".into());
     ctx.term.borrow_mut().clear();
     st.set_tab(tab_index(tab));
+    if tab == AddTab::Deck { super::add_media::show_deck_help(op, |_, _| {}); }
     draw_list(op, ctx);
 }
 

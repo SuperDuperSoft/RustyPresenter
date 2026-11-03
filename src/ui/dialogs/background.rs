@@ -6,6 +6,7 @@ pub(super) mod strings;
 
 use crate::{
     app::{ImportPurpose, Imported},
+    import::CANCELLED,
     model::{AssetId, Background, MediaFile, MediaKind, MediaStatus},
     ui::{BgChoice, operator::{file_input::Filter, files::pick, window::Operator}, thumbs::{self, ThumbJob, ThumbKey, ThumbMedia, Thumbs}},
 };
@@ -31,10 +32,17 @@ pub enum ChoiceKind {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Choice { pub kind: ChoiceKind, pub label: String, pub tooltip: String }
+pub struct Choice {
+    pub kind: ChoiceKind,
+    pub label: String,
+    pub tooltip: String,
+    /// What the tile shows: a picture, or a video's saved frame.
+    pub picture: Option<AssetId>,
+}
 
 impl Choice {
-    fn new(kind: ChoiceKind, label: impl Into<String>, tooltip: impl Into<String>) -> Self { Self { kind, label: label.into(), tooltip: tooltip.into() } }
+    fn new(kind: ChoiceKind, label: impl Into<String>, tooltip: impl Into<String>) -> Self { Self { kind, label: label.into(), tooltip: tooltip.into(), picture: None } }
+    fn showing(mut self, picture: Option<AssetId>) -> Self { self.picture = picture; self }
 
     /// The background this tile sets (`Some(None)` is the theme default); `None` for the custom colour and Upload.
     pub fn value(&self) -> Option<Option<Background>> {
@@ -69,8 +77,8 @@ pub fn choices(media: &[MediaFile], allow_default: bool) -> Vec<Choice> {
     out.push(Choice::new(ChoiceKind::Custom, "", ""));
     for m in media.iter().filter(|m| m.status == MediaStatus::Ready) {
         match m.kind {
-            MediaKind::Image => out.push(Choice::new(ChoiceKind::Image(m.asset.clone()), m.name.clone(), m.name.clone())),
-            MediaKind::Video => out.push(Choice::new(ChoiceKind::Video(m.asset.clone()), strings::video_choice(&m.name), m.name.clone())),
+            MediaKind::Image => out.push(Choice::new(ChoiceKind::Image(m.asset.clone()), m.name.clone(), m.name.clone()).showing(Some(m.asset.clone()))),
+            MediaKind::Video => out.push(Choice::new(ChoiceKind::Video(m.asset.clone()), strings::video_choice(&m.name), m.name.clone()).showing(m.thumb.clone())),
             MediaKind::Audio => {}
         }
     }
@@ -174,7 +182,7 @@ impl Picker {
         let custom = match &self.value { Some(Background::Color { color }) => color.as_str(), _ => CUSTOM_DEFAULT };
         self.choices.iter().enumerate().map(|(i, c)| {
             let swatch = match &c.kind { ChoiceKind::Color(hex) => to_color(hex), ChoiceKind::Custom => to_color(custom), _ => Color::default() };
-            let image = match &c.kind { ChoiceKind::Image(a) => self.image(a, redraw.clone()), _ => Image::default() };
+            let image = c.picture.as_ref().map_or_else(Image::default, |a| self.image(a, redraw.clone()));
             BgChoice {
                 label: c.label.as_str().into(), swatch, image, kind: c.kind_id().into(),
                 on: on == Some(i), tooltip: c.tooltip.as_str().into(),
@@ -225,6 +233,8 @@ pub fn upload_files(op: &Rc<Operator>, paths: Vec<PathBuf>, done: impl FnOnce(Ve
             match r {
                 Ok(Imported::Media(m)) => { got.push(m); next(&op, rest, got, done) }
                 Ok(_) => next(&op, rest, got, done),
+                // The operator pressed Cancel on the card: nothing to say, and nothing more to add.
+                Err(e) if e == CANCELLED => {}
                 Err(e) => op.toast(e, true),
             }
         });
@@ -238,7 +248,7 @@ mod tests {
     use uuid::Uuid;
 
     fn media(name: &str, kind: MediaKind, status: MediaStatus) -> MediaFile {
-        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None }
+        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None }
     }
 
     #[test]
@@ -265,6 +275,16 @@ mod tests {
         let c = choices(&lib, false);
         assert_eq!(c[0].kind, ChoiceKind::Color("#000000".into()), "no Theme default when not allowed");
         assert_eq!(c.len(), 10);
+    }
+
+    #[test]
+    fn background_picker_video_choice_has_thumb_image() {
+        let plain = media("Loop", MediaKind::Video, MediaStatus::Ready);
+        let framed = MediaFile { thumb: Some("frame.jpg".into()), ..media("Walk", MediaKind::Video, MediaStatus::Ready) };
+        let sky = media("Sky", MediaKind::Image, MediaStatus::Ready);
+        let c = choices(&[plain, framed, sky], false);
+        let shown: Vec<Option<&str>> = c[7..10].iter().map(|c| c.picture.as_deref()).collect();
+        assert_eq!(shown, [None, Some("frame.jpg"), Some("Sky.bin")]);
     }
 
     #[test]

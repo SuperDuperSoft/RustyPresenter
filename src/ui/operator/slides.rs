@@ -5,7 +5,7 @@
 use super::{service::kind_icon, strings as tr, view::{self, ItemRow, OperatorSnapshot}, window::Operator};
 use crate::{
     live::Command,
-    model::{Background, Settings, Slide, SlideContent},
+    model::{Background, MediaFile, Settings, Slide, SlideContent},
     ui::{SlideCell, SlideRowCells, ops::outcome_toast, thumbs::{self, Pixels}},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, VecModel};
@@ -49,7 +49,7 @@ pub fn header_title(snap: &OperatorSnapshot, item: Option<&ItemRow>) -> String {
 
 /// What the grid was built from (the web's `gridKey`): a change rebuilds it, anything else only moves the live mark.
 #[derive(Clone, PartialEq)]
-struct GridKey { id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>, settings: Settings }
+struct GridKey { id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>, settings: Settings, media: Vec<MediaFile> }
 
 /// The grid between updates.
 #[derive(Default)]
@@ -80,6 +80,7 @@ impl Operator {
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: it.item.background.clone(), settings: snap.settings.clone(),
+            media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
         });
         if self.slides.borrow().built != key {
             let other_item = self.slides.borrow().built.as_ref().map(|k| k.id) != key.as_ref().map(|k| k.id);
@@ -176,7 +177,7 @@ impl Operator {
             s.generation += 1;
             let Some(k) = &s.built else { return };
             let jobs: Vec<_> = k.slides.iter().enumerate()
-                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, k.background.as_ref(), &k.settings, s.size)))
+                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, k.background.as_ref(), &k.settings, &k.media, s.size)))
                 .collect();
             (s.generation, jobs)
         };

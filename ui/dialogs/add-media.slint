@@ -18,7 +18,7 @@ export component AddMediaTab inherits VerticalLayout {
             clicked => { AddState.upload-media(); }
         }
         hint := Text {
-            text: @tr("Any video format works. Unusual ones are converted once, automatically.");
+            text: @tr("Any video format works.");
             color: Theme.muted;
             font-family: Theme.font;
             font-size: 13px;
@@ -29,7 +29,8 @@ export component AddMediaTab inherits VerticalLayout {
     AddList { max-list-height: root.list-height; }
 }
 
-/// Import PowerPoint, Make slides from pictures, the Google Slides note, and the slides library, newest first.
+/// Import presentation, Make slides from pictures, the Google Slides note, the LibreOffice help when it is
+/// needed, and the slides library, newest first.
 export component AddDeckTab inherits VerticalLayout {
     in property <length> list-height;
     HorizontalLayout {
@@ -37,10 +38,10 @@ export component AddDeckTab inherits VerticalLayout {
         padding-bottom: 12px;
         alignment: start;
         import := Btn {
-            text: @tr("Import PowerPoint");
+            text: @tr("Import presentation");
             icon: "upload";
             primary: true;
-            clicked => { AddState.import-powerpoint(); }
+            clicked => { AddState.import-deck(); }
         }
         pictures := Btn {
             text: @tr("Make slides from pictures");
@@ -60,12 +61,55 @@ export component AddDeckTab inherits VerticalLayout {
                 padding-left: 14px;
                 padding-right: 14px;
                 note := Text {
-                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx), then import that file here.");
+                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too.");
                     color: Theme.muted;
                     font-family: Theme.font;
                     font-size: Theme.base-size;
                     wrap: word-wrap;
                 }
+            }
+        }
+    }
+    // Above the list, only when a presentation cannot be imported yet.
+    if AddState.deck-help != "": VerticalLayout {
+        padding-bottom: 12px;
+        spacing: 8px;
+        deck-help := Text {
+            text: AddState.deck-help;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if AddState.install-command != "": install-box := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 8px;
+            accessible-role: text;
+            accessible-label: AddState.install-command;
+            HorizontalLayout {
+                padding: 8px;
+                Text {
+                    text: AddState.install-command;
+                    color: Theme.text;
+                    font-family: "Consolas, monospace";
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            if AddState.install-command != "": copy := Btn {
+                text: @tr("Copy");
+                clicked => { AddState.copy-install(); }
+            }
+            check := Btn {
+                text: @tr("Check again");
+                clicked => { AddState.check-libreoffice(); }
             }
         }
     }

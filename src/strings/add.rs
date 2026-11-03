@@ -13,6 +13,10 @@ pub fn search_songs(n: usize) -> String { format!("Search {}…", plural(n, "son
 pub fn search_files(n: usize) -> String { format!("Search {}…", plural(n, "file", "files")) }
 /// The Slides tab's search placeholder (`operator.js:497`).
 pub const SEARCH_SLIDES: &str = "Search slides…";
+pub const INSTALL_LIBREOFFICE: &str = "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.";
+pub const COPIED: &str = "Copied";
+pub const LIBREOFFICE_FOUND: &str = "LibreOffice found!";
+pub const LIBREOFFICE_NOT_FOUND: &str = "Not found yet — finish installing, then click Check again.";
 
 /// A song row's subtitle part (`operator.js:421`).
 pub fn ccli(n: &str) -> String { format!("CCLI #{n}") }
