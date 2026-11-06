@@ -193,7 +193,8 @@ pub fn classify(stderr: &str) -> YtError {
     if has(&["video unavailable", "has been removed", "not available in your country", "blocked it in your country", "account associated with this video has been terminated", "this video is no longer available"]) { return YtError::Unavailable }
     if has(&["getaddrinfo failed", "name or service not known", "temporary failure in name resolution", "nodename nor servname", "network is unreachable", "no route to host", "errno 11001", "failed to resolve", "connection refused", "connection reset", "timed out", "unable to connect", "no address associated"]) { return YtError::Offline }
     if has(&["unable to extract", "requested format is not available", "signature extraction failed", "nsig extraction failed", "n challenge", "challenge solving failed", "failed to extract any player response", "unable to decode n-parameter", "only images are available", "please report this issue"]) { return YtError::Broken }
-    let line = stderr.lines().rev().find(|l| l.starts_with("ERROR:")).or_else(|| stderr.lines().rev().find(|l| !l.trim().is_empty())).unwrap_or("yt-dlp stopped");
+    let stopped = crate::tr!("yt-dlp stopped");
+    let line = stderr.lines().rev().find(|l| l.starts_with("ERROR:")).or_else(|| stderr.lines().rev().find(|l| !l.trim().is_empty())).unwrap_or(&stopped);
     // `ERROR: [youtube] <id>: <message>` → `<message>`.
     let msg = line.trim_start_matches("ERROR:").trim();
     let msg = if msg.starts_with('[') { msg.split_once("]: ").map(|(_, m)| m).or_else(|| msg.split_once(": ").map(|(_, m)| m)).unwrap_or(msg) } else { msg };
@@ -235,7 +236,7 @@ fn size(f: &Value) -> u64 {
 
 /// Reads `-J`, refusing what cannot be downloaded (a live stream still running, a private video).
 fn parse_info(json: &str) -> Result<Info, YtError> {
-    let v: Value = serde_json::from_str(json).map_err(|e| YtError::Other(format!("unreadable details ({e})")))?;
+    let v: Value = serde_json::from_str(json).map_err(|e| YtError::Other(crate::tr!("unreadable details ({error})", error = e)))?;
     if v.get("_type").and_then(Value::as_str) == Some("playlist") {
         let entries = v.get("entries").and_then(Value::as_array).cloned().unwrap_or_default();
         let first = entries.iter().find_map(|e| {
@@ -480,8 +481,8 @@ impl Hub {
         cmd.args(args).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped())
             .env_remove("PYTHONHOME").env_remove("PYTHONPATH").env("PYTHONUTF8", "1").env("PYTHONIOENCODING", "utf-8")
             .env("TMP", temp).env("TEMP", temp).env("TMPDIR", temp);
-        let mut tree = spawn_tree(cmd).map_err(|e| YtError::Other(format!("yt-dlp could not start ({e})")))?;
-        let (Some(out), Some(mut err)) = (tree.stdout(), tree.stderr()) else { return Err(YtError::Other("yt-dlp could not start".into())) };
+        let mut tree = spawn_tree(cmd).map_err(|e| YtError::Other(crate::tr!("yt-dlp could not start ({error})", error = e)))?;
+        let (Some(out), Some(mut err)) = (tree.stdout(), tree.stderr()) else { return Err(YtError::Other(crate::tr!("yt-dlp could not start"))) };
         // The error output is read alongside, so a chatty yt-dlp never blocks on a full pipe.
         let errors = tokio::spawn(async move {
             let mut buf = Vec::new();
@@ -535,7 +536,7 @@ impl Hub {
                     return Err(YtError::Broken);
                 }
                 Err(e) => return Err(e),
-                Ok(()) => return parse_info(&json.ok_or_else(|| YtError::Other("yt-dlp gave no details".into()))?),
+                Ok(()) => return parse_info(&json.ok_or_else(|| YtError::Other(crate::tr!("yt-dlp gave no details")))?),
             }
         }
     }
@@ -588,7 +589,7 @@ impl Hub {
                     return Err(YtError::Broken);
                 }
                 Err(e) => return Err(e),
-                Ok(()) => return file.filter(|f| f.is_file()).or_else(|| finished_file(staging)).ok_or_else(|| YtError::Other("yt-dlp saved no video".into())),
+                Ok(()) => return file.filter(|f| f.is_file()).or_else(|| finished_file(staging)).ok_or_else(|| YtError::Other(crate::tr!("yt-dlp saved no video"))),
             }
         }
     }
@@ -715,7 +716,7 @@ async fn download(app: &Arc<App>, job: Uuid, video: &Video, title: &str, quality
     let name = format!("{title}.{ext}");
     let media = match app.import_staged(file, &name, &sha, ImportPurpose::Media).await.map_err(|e| YtError::Other(e.message))? {
         Imported::Media(m) => m,
-        _ => return Err(YtError::Other("not a media file".into())),
+        _ => return Err(YtError::Other(crate::tr!("not a media file"))),
     };
     app.job_result(job, media.id);
     let added = service.is_some_and(|s| add_to_service(app, s, media.id));

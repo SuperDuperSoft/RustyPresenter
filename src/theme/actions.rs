@@ -37,7 +37,7 @@ use crate::theme::overlay::{self, Overlay, OverlayKind, slots};
 use crate::theme::{self, DeleteKind, SavedTheme, ThemeId, clamp_style, default_ref, delete_kind, strings, validate_save};
 
 fn parse<T: DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> {
-    serde_json::from_slice(body).map_err(|e| ActionError::bad(format!("Bad request: {e}")))
+    serde_json::from_slice(body).map_err(|e| ActionError::bad(crate::tr!("Bad request: {error}", error = e)))
 }
 
 fn bad(e: String) -> ActionError {

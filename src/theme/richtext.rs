@@ -30,7 +30,9 @@ pub struct StyleSpan {
 }
 
 /// The size choices in the toolbar, as (percent, label). 0 is the theme size.
-pub const SIZES: [(u16, &str); 4] = [(75, "Small"), (0, "Normal"), (125, "Large"), (150, "Huge")];
+pub fn sizes() -> [(u16, String); 4] {
+    [(75, crate::tr!("Small")), (0, crate::tr!("Normal")), (125, crate::tr!("Large")), (150, crate::tr!("Huge"))]
+}
 
 fn is_false(b: &bool) -> bool {
     !*b
@@ -395,7 +397,7 @@ mod tests {
         assert_eq!(serde_json::to_string(&sp(0, 3, |s| s.bold = true)).unwrap(), r#"{"start":0,"end":3,"bold":true}"#);
         let back: StyleSpan = serde_json::from_str(r##"{"start":1,"end":2,"color":"#ff4f55","size":125}"##).unwrap();
         assert_eq!(back, sp(1, 2, |s| { s.color = Some("#ff4f55".into()); s.size = 125; }));
-        assert_eq!(SIZES[1], (0, "Normal"));
+        assert_eq!(sizes()[1], (0, "Normal".to_string()));
     }
 
     #[test]

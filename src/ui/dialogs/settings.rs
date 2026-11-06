@@ -39,13 +39,18 @@ pub fn tab_index(tab: SettingsTab) -> i32 {
 
 /// `b.created.replace('_', ' at ').replace(/(\d\d)(\d\d)(\d\d)$/, '$1:$2') + ' UTC'` (`operator.js:988`).
 pub fn backup_label(created: &str) -> String {
-    let s = created.replacen('_', " at ", 1);
-    let tail: Vec<char> = s.chars().rev().take(6).collect();
-    let s = if tail.len() == 6 && tail.iter().all(char::is_ascii_digit) {
-        let cut = s.len() - 6;
-        format!("{}{}:{}", &s[..cut], &s[cut..cut + 2], &s[cut + 2..cut + 4])
-    } else { s };
-    format!("{s} UTC")
+    // "143005…" ends as "14:30" when its last six characters are digits.
+    let clock = |s: &str| -> String {
+        let tail: Vec<char> = s.chars().rev().take(6).collect();
+        if tail.len() == 6 && tail.iter().all(char::is_ascii_digit) {
+            let cut = s.len() - 6;
+            format!("{}{}:{}", &s[..cut], &s[cut..cut + 2], &s[cut + 2..cut + 4])
+        } else { s.to_string() }
+    };
+    match created.split_once('_') {
+        Some((day, time)) => crate::tr!("{day} at {time} UTC", day = day, time = clock(time)),
+        None => crate::tr!("{time} UTC", time = clock(created)),
+    }
 }
 
 /// One row of the Help keyboard table: what it says, and the keys it names (`keys::key_name` names, with Ctrl and

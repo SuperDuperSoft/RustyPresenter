@@ -379,7 +379,7 @@ impl Fetcher {
                 let b = builds.yt_dlp.ok_or(FetchError::NoBuild)?;
                 let base = if channel == Channel::Nightly { &sources.yt_dlp_nightly } else { &sources.yt_dlp };
                 let (at, sums) = get_text(&format!("{base}/latest/download/SHA2-256SUMS")).await?;
-                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(format!("no release in {at}")))?;
+                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
                 let sha = sum_for(&sums, b.asset).ok_or(FetchError::NoBuild)?;
                 let unpack = if b.zip { Unpack::Zip } else { Unpack::Save(b.exe.into()) };
                 let parts = vec![Part { url: format!("{base}/download/{tag}/{}", b.asset), sha: Some(sha), unpack }];
@@ -389,8 +389,8 @@ impl Fetcher {
                 let asset = builds.deno.ok_or(FetchError::NoBuild)?;
                 let base = &sources.deno;
                 let (at, sums) = get_text(&format!("{base}/latest/download/{asset}.sha256sum")).await?;
-                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(format!("no release in {at}")))?;
-                let sha = sum_for(&sums, asset).ok_or_else(|| FetchError::Other("no fingerprint for Deno".into()))?;
+                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
+                let sha = sum_for(&sums, asset).ok_or_else(|| FetchError::Other(crate::tr!("no fingerprint for {file}", file = "Deno")))?;
                 let parts = vec![Part { url: format!("{base}/download/{tag}/{asset}"), sha: Some(sha), unpack: Unpack::Zip }];
                 Ok(Plan { tool, version: tag, exe: exe_name("deno"), channel, parts })
             }
@@ -398,7 +398,7 @@ impl Fetcher {
                 FfBuild::Builds(asset) => {
                     let base = &sources.ffmpeg_builds;
                     let (at, sums) = get_text(&format!("{base}/latest/download/checksums.sha256")).await?;
-                    let tag = tag_of(&at).ok_or_else(|| FetchError::Other(format!("no release in {at}")))?;
+                    let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
                     let sha = sum_for(&sums, asset).ok_or(FetchError::NoBuild)?;
                     // The release is rebuilt in place ("latest"), so its fingerprint names the version.
                     let version = format!("{tag}-{}", &sha[..12]);
@@ -431,7 +431,7 @@ impl Fetcher {
         let exe_in_stage = stage.join(&plan.exe);
         if !exe_in_stage.is_file() {
             let _ = tokio::fs::remove_dir_all(&stage).await;
-            return Err(FetchError::Other(format!("{} is missing from the download", plan.exe)));
+            return Err(FetchError::Other(crate::tr!("{file} is missing from the download", file = plan.exe)));
         }
         #[cfg(unix)]
         {
@@ -478,7 +478,7 @@ impl Fetcher {
                 None => {
                     let name = url.rsplit('/').next().unwrap_or_default().to_string();
                     let (_, sums) = get_text(&format!("{url}.sha256")).await?;
-                    sum_for(&sums, &name).ok_or_else(|| FetchError::Other(format!("no fingerprint for {name}")))?
+                    sum_for(&sums, &name).ok_or_else(|| FetchError::Other(crate::tr!("no fingerprint for {file}", file = name)))?
                 }
             };
             if got != want {
@@ -544,7 +544,7 @@ pub(crate) async fn get_text(url: &str) -> Result<(String, String), FetchError> 
     let resp = client()?.get(url).send().await?.error_for_status()?;
     let at = resp.url().to_string();
     if resp.content_length().is_some_and(|n| n > 1024 * 1024) {
-        return Err(FetchError::Other(format!("{url} is too big")));
+        return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
     }
     Ok((at, resp.text().await?))
 }
@@ -553,7 +553,7 @@ pub(crate) async fn get_text(url: &str) -> Result<(String, String), FetchError> 
 pub(crate) async fn get_bytes(url: &str, limit: u64) -> Result<Vec<u8>, FetchError> {
     let resp = client()?.get(url).send().await?.error_for_status()?;
     if resp.content_length().is_some_and(|n| n > limit) {
-        return Err(FetchError::Other(format!("{url} is too big")));
+        return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
     }
     Ok(resp.bytes().await?.to_vec())
 }
@@ -567,7 +567,7 @@ async fn download(url: &str, file: &Path, progress: &(dyn Fn(u64, Option<u64>) +
     let at = resp.url().to_string();
     let total = resp.content_length();
     if total.is_some_and(|n| n > MAX_DOWNLOAD) {
-        return Err(FetchError::Other(format!("{url} is too big")));
+        return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
     }
     let mut out = tokio::fs::File::create(file).await?;
     let (mut hasher, mut done) = (Sha256::new(), 0u64);
@@ -580,7 +580,7 @@ async fn download(url: &str, file: &Path, progress: &(dyn Fn(u64, Option<u64>) +
         let Some(chunk) = chunk else { break };
         done += chunk.len() as u64;
         if done > MAX_DOWNLOAD {
-            return Err(FetchError::Other(format!("{url} is too big")));
+            return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
         }
         hasher.update(&chunk);
         out.write_all(&chunk).await?;
@@ -600,7 +600,7 @@ fn unpack_into(file: &Path, dest: &Path, unpack: &Unpack) -> Result<(), FetchErr
         Unpack::Zip => false,
         Unpack::ZipBin => true,
     };
-    let bad = |e: zip::result::ZipError| FetchError::Other(format!("unreadable archive: {e}"));
+    let bad = |e: zip::result::ZipError| FetchError::Other(crate::tr!("unreadable archive: {error}", error = e));
     let mut archive = zip::ZipArchive::new(std::fs::File::open(file)?).map_err(bad)?;
     for i in 0..archive.len() {
         let mut entry = archive.by_index(i).map_err(bad)?;

@@ -114,22 +114,22 @@ impl BackgroundEntry {
 }
 
 /// The built-in backgrounds: the six colour swatches, then the six gradients.
-pub fn builtin_backgrounds() -> Vec<(&'static str, Background)> {
+pub fn builtin_backgrounds() -> Vec<(String, Background)> {
     let color = |c: &str| Background::Color { color: c.into() };
     let gradient = |from: &str, to: &str, angle: u16| Background::Gradient { from: from.into(), to: to.into(), angle, dim: 0 };
     vec![
-        ("Black", color("#000000")),
-        ("Night blue", color("#0b1a33")),
-        ("Dark green", color("#1d2b1f")),
-        ("Plum", color("#2b1530")),
-        ("Brown", color("#3a2412")),
-        ("White", color("#ffffff")),
-        ("Midnight", gradient("#0b1a33", "#000000", 180)),
-        ("Deep purple", gradient("#2b1530", "#0d0f13", 135)),
-        ("Forest", gradient("#1d2b1f", "#050805", 180)),
-        ("Ember", gradient("#3a2412", "#0d0806", 135)),
-        ("Ocean", gradient("#0e3a4f", "#06141c", 180)),
-        ("Slate", gradient("#2a303b", "#0d0f13", 180)),
+        (crate::tr!("Black"), color("#000000")),
+        (crate::tr!("Night blue"), color("#0b1a33")),
+        (crate::tr!("Dark green"), color("#1d2b1f")),
+        (crate::tr!("Plum"), color("#2b1530")),
+        (crate::tr!("Brown"), color("#3a2412")),
+        (crate::tr!("White"), color("#ffffff")),
+        (crate::tr!("Midnight"), gradient("#0b1a33", "#000000", 180)),
+        (crate::tr!("Deep purple"), gradient("#2b1530", "#0d0f13", 135)),
+        (crate::tr!("Forest"), gradient("#1d2b1f", "#050805", 180)),
+        (crate::tr!("Ember"), gradient("#3a2412", "#0d0806", 135)),
+        (crate::tr!("Ocean"), gradient("#0e3a4f", "#06141c", 180)),
+        (crate::tr!("Slate"), gradient("#2a303b", "#0d0f13", 180)),
     ]
 }
 
@@ -205,9 +205,9 @@ mod tests {
         let b = builtin_backgrounds();
         let colors: Vec<_> = b.iter().filter_map(|(_, x)| match x { Background::Color { color } => Some(color.as_str()), _ => None }).collect();
         assert_eq!(colors, ["#000000", "#0b1a33", "#1d2b1f", "#2b1530", "#3a2412", "#ffffff"]);
-        let grads: Vec<_> = b.iter().filter(|(_, x)| matches!(x, Background::Gradient { .. })).map(|(n, _)| *n).collect();
+        let grads: Vec<_> = b.iter().filter(|(_, x)| matches!(x, Background::Gradient { .. })).map(|(n, _)| n.as_str()).collect();
         assert_eq!(grads, ["Midnight", "Deep purple", "Forest", "Ember", "Ocean", "Slate"]);
-        assert!(b.contains(&("Ember", Background::Gradient { from: "#3a2412".into(), to: "#0d0806".into(), angle: 135, dim: 0 })));
+        assert!(b.contains(&("Ember".to_string(), Background::Gradient { from: "#3a2412".into(), to: "#0d0806".into(), angle: 135, dim: 0 })));
     }
 
     #[test]
