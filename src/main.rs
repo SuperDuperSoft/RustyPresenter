@@ -93,6 +93,7 @@ fn main() {
         Ok(m) => Some(m),
         Err(e) => { eprintln!("Video and audio will not play: {e}"); None }
     };
+    app.ready_old_media();
     // Videos in the library without a picture get one in the background.
     if let Some(m) = &mpv {
         app.set_probe_mpv(m.clone());

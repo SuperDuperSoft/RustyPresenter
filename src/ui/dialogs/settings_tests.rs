@@ -298,29 +298,24 @@ fn text_color_from_the_grid_and_its_hex_field() {
 }
 
 #[test]
-fn check_again_toasts_found_or_not() {
+fn video_tab_shows_the_player_not_a_converter() {
     let app = test_app();
     let op = opened(&app);
-    let read = |ffmpeg: bool| {
+    let read = |missing: bool| {
         let mut s = OperatorSnapshot::read(&app);
-        s.ffmpeg = ffmpeg;
+        s.player_missing = missing;
         op.apply_snapshot(Arc::new(s));
+        settle();
     };
     read(false);
     open(&op, SettingsTab::Video);
     settle();
-    assert!(find(&op, "SettingsVideo::missing").is_some());
-    assert_eq!(g(&op).get_winget(), "winget install --id Gyan.FFmpeg -e");
-    // Inline `Ops` (tests) read at once when a read is asked for, so the toast follows this machine's own read.
-    click(&op, "SettingsVideo::check-again");
-    let found = g(&op).get_ffmpeg();
-    let said = if found { "Converter found!" } else { "Not found yet — restart RustyPresenter after installing." };
-    assert_eq!(toasts(&op), [said]);
-    assert!(find(&op, if found { "SettingsVideo::found" } else { "SettingsVideo::missing" }).is_some(), "the tab is redrawn");
-
-    g(&op).invoke_check_again();
+    assert!(find(&op, "SettingsVideo::ready").is_some());
+    assert!(find(&op, "SettingsVideo::missing").is_none());
     read(true);
-    assert_eq!(toasts(&op).len(), 2, "one toast per click, not one per read");
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "SettingsVideo::missing").is_some());
 }
 
 #[test]

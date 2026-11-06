@@ -66,48 +66,14 @@ component SettingsSongs inherits VerticalLayout {
 }
 
 component SettingsVideo inherits VerticalLayout {
-    if SettingsDlg.ffmpeg: found := Note {
-        bold: @tr("✓ Video converter installed.");
-        text: @tr("Any video you add (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG…) is converted once so it plays smoothly.");
+    // Every format plays through mpv: nothing to install or convert. Only the player itself can be missing.
+    if SettingsDlg.player-ok: ready := Note {
+        bold: @tr("✓ The video player is ready.");
+        text: @tr("Every video and music format plays as it is: MP4, MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos and more. Nothing is converted.");
     }
-    if !SettingsDlg.ffmpeg: VerticalLayout {
-        missing := Note {
-            bold: @tr("Install the free video converter (FFmpeg) so every video format works.");
-            text: @tr("MP4 and WebM videos already play without it.");
-        }
-        Rectangle { height: 12px; }
-        Text {
-            text: @tr("1. Click Start, type PowerShell, open it, and paste this line:");
-            color: Theme.text;
-            wrap: word-wrap;
-        }
-        Rectangle { height: 8px; }
-        HorizontalLayout {
-            spacing: 8px;
-            alignment: start;
-            CopyText { text: SettingsDlg.winget; }
-            copy := Btn {
-                small: true;
-                icon: "copy";
-                text: @tr("Copy");
-                clicked => { SettingsDlg.copy-winget(); }
-            }
-        }
-        Rectangle { height: 10px; }
-        Text {
-            text: @tr("2. When it finishes, close RustyPresenter and open it again.");
-            color: Theme.text;
-            wrap: word-wrap;
-        }
-        Rectangle { height: 8px; }
-        HorizontalLayout {
-            alignment: start;
-            check-again := Btn {
-                icon: "restart";
-                text: @tr("Check again");
-                clicked => { SettingsDlg.check-again(); }
-            }
-        }
+    if !SettingsDlg.player-ok: missing := Note {
+        bold: @tr("The video player is missing.");
+        text: @tr("Videos and music can't play until it is back. Install RustyPresenter again, or put libmpv-2.dll next to RustyPresenter.exe.");
     }
 }
 

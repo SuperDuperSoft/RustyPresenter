@@ -1103,6 +1103,13 @@ impl App {
     /// The libmpv the app loaded: videos get thumbnails from it.
     pub fn set_probe_mpv(&self, mpv: Arc<crate::video::ffi::Mpv>) { let _ = self.probe_mpv.set(mpv); }
 
+    /// Files waiting for, or refused by, the old converter play as they are now: they become Ready (saved once).
+    pub fn ready_old_media(&self) {
+        let waiting = |m: &MediaFile| matches!(m.status, MediaStatus::Converting { .. } | MediaStatus::Unconverted { .. });
+        if !self.data.lock().unwrap().media.iter().any(waiting) { return }
+        let _ = self.edit(|d| { for m in d.media.iter_mut().filter(|m| waiting(m)) { m.status = MediaStatus::Ready } Ok(()) });
+    }
+
     /// The videos in the library that have no thumbnail yet.
     pub fn videos_without_thumbs(&self) -> Vec<Uuid> {
         self.data.lock().unwrap().media.iter().filter(|m| m.kind == MediaKind::Video && m.thumb.is_none()).map(|m| m.id).collect()
@@ -1178,22 +1185,11 @@ impl App {
             else if media::VIDEO.contains(&ext.as_str()) && !(ext == "webm" && display.to_lowercase().contains("audio")) { MediaKind::Video }
             else if media::AUDIO.contains(&ext.as_str()) { MediaKind::Audio }
             else { return Err(ActionError::bad(format!("RustyPresenter doesn't know how to show .{ext} files."))); };
-        let path = app.store.asset_path(&asset);
-        let plan = match kind {
-            MediaKind::Image => media::Plan::Ready,
-            MediaKind::Video => media::plan_video(&path, &ext).await,
-            MediaKind::Audio => media::plan_audio(&path, &ext).await,
-        };
-        let status = match &plan {
-            media::Plan::Ready => MediaStatus::Ready,
-            media::Plan::Unknown(r) => MediaStatus::Unconverted { reason: r.clone() },
-            _ => MediaStatus::Converting { percent: 0 },
-        };
+        // mpv plays every format as it is: nothing is converted, so a file is ready as soon as it is stored.
         let id = Uuid::new_v4();
-        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None, folder: String::new(), thumb: None };
+        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status: MediaStatus::Ready, original_asset: None, folder: String::new(), thumb: None };
         tryr!(app.edit(|d| { d.media.push(m.clone()); Ok(()) }));
         if kind == MediaKind::Video { app.fill_video_thumbs(vec![id]); }
-        if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
         Ok(Imported::Media(m))
     }
 
@@ -1617,6 +1613,16 @@ pub(crate) mod tests {
     async fn easyworship_import_says_when_no_library_is_found() {
         let err = test_app().do_action("song/import-easyworship", br#"{"folder":"/nowhere/rp"}"#).await.unwrap_err();
         assert_eq!(err.message, crate::import::easyworship::NOT_FOUND);
+    }
+
+    #[test]
+    fn old_converter_statuses_become_ready() {
+        let app = test_app();
+        let file = |status| MediaFile { id: Uuid::new_v4(), name: "v".into(), kind: MediaKind::Video, asset: "v.mkv".into(), status, original_asset: None, folder: String::new(), thumb: None };
+        app.data.lock().unwrap().media = vec![file(MediaStatus::Converting { percent: 30 }), file(MediaStatus::Unconverted { reason: "x".into() }), file(MediaStatus::Failed { reason: "y".into() })];
+        app.ready_old_media();
+        let st: Vec<MediaStatus> = app.data.lock().unwrap().media.iter().map(|m| m.status.clone()).collect();
+        assert_eq!(st, vec![MediaStatus::Ready, MediaStatus::Ready, MediaStatus::Failed { reason: "y".into() }]);
     }
 
     #[tokio::test]

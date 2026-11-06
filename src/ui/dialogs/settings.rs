@@ -119,6 +119,7 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     // The Bible lists are read (and fetched when a week old) only while the Bible tab is open (design §13).
     if g.get_tab() == tab_index(SettingsTab::Bible) { settings_bible::search(op, edit, false) }
     g.set_ffmpeg(snap.ffmpeg);
+    g.set_player_ok(!snap.player_missing);
     g.set_winget(strings::WINGET.into());
     g.set_backups_folder(strings::backups_folder(&snap.data_folder).into());
     let rows: Vec<SettingsBackupRow> = snap.backups.iter().map(|b| SettingsBackupRow {

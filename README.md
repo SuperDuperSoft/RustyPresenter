@@ -49,13 +49,7 @@ The window has four parts:
 
 ## Video
 
-MP4 and WebM play right away. For **any other format** (MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos…), install the free FFmpeg converter once:
-
-```
-winget install --id Gyan.FFmpeg -e
-```
-
-After that, RustyPresenter converts each unusual video **once when you add it**, so it plays smoothly on Sunday.
+**Every format plays as it is**: MP4, MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos and music files. Nothing needs converting or installing; RustyPresenter plays them with the mpv player.
 
 ## Where your data lives
 
