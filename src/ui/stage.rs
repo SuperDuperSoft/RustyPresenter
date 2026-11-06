@@ -183,7 +183,7 @@ pub struct Stage { ui: StageWindow, _clock: Timer, closed: Arc<AtomicBool> }
 impl Stage {
     /// Open the stage window, full screen on `monitor` (a plain window without one).
     pub fn open(app: Arc<App>, monitor: Option<MonitorId>) -> Result<Rc<Stage>, String> {
-        let ui = StageWindow::new().map_err(|e| format!("Could not open the stage screen: {e}"))?;
+        let ui = StageWindow::new().map_err(|e| crate::tr!("Could not open the stage screen: {error}", error = e))?;
         // Slint picks the computer's language for the first window; show the app's.
         crate::i18n::sync_slint();
         // Its frames never wait for the monitor's refresh, so the room's are not held up behind them.
@@ -201,7 +201,7 @@ impl Stage {
         let rx = app.subscribe();
         show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view())));
         ui.set_connected(true);
-        ui.show().map_err(|e| format!("Could not open the stage screen: {e}"))?;
+        ui.show().map_err(|e| crate::tr!("Could not open the stage screen: {error}", error = e))?;
         if let Some(m) = &monitor {
             if let Err(e) = monitors::fullscreen_on(&ui, m) { let _ = ui.hide(); return Err(e); }
         }

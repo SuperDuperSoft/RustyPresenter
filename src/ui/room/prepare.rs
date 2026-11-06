@@ -182,7 +182,7 @@ fn prefetch_neighbours(work: &Work, job: &Job) {
     for k in keys { work.renderer.prefetch(k) }
 }
 
-fn unreadable<E>(_: E) -> String { "picture could not be loaded".into() }
+fn unreadable<E>(_: E) -> String { crate::tr!("picture could not be loaded") }
 
 /// Every overlay slot drawn over one transparent `canvas`-sized picture, in order, with the slots that could not be
 /// drawn as (key, inst, reason). Shared with the operator's live monitor.
