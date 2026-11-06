@@ -12,8 +12,9 @@ use i_slint_backend_testing::ElementHandle;
 use std::rc::Rc;
 use uuid::Uuid;
 
-/// The window sizes checked: the smallest supported, the window the installer smoke test found cut off, 1080p and 4K.
-const SIZES: [(f32, f32); 4] = [(1280.0, 720.0), (1454.0, 938.0), (1920.0, 1080.0), (3840.0, 2160.0)];
+/// The window sizes checked: the smallest supported, the laptop budget (FEAT-1 §7.2), the window the installer smoke
+/// test found cut off, 1080p and 4K. The testing backend draws the menu bar inside these heights.
+const SIZES: [(f32, f32); 5] = [(1280.0, 720.0), (1366.0, 768.0), (1454.0, 938.0), (1920.0, 1080.0), (3840.0, 2160.0)];
 
 /// Resizes the window and runs what a frame would (the `narrow` change handler, the overlays' `init`).
 fn resize(op: &Operator, (w, h): (f32, f32)) {
@@ -101,7 +102,9 @@ fn every_dialog_is_centred_and_inside_the_window() {
             assert!(op.dialog().is_some(), "{name} opened");
             assert_inside(&op, "DialogShell::card", size);
             let (l, t, r, b) = bounds(&op, "DialogShell::card");
-            assert!((l - (size.0 - r)).abs() <= 1.0 && (t - (size.1 - b)).abs() <= 1.0, "{name} is centred at {size:?}");
+            // Centred in the area under the menu bar (the testing backend draws the bar inside the window).
+            let (_, top, _, _) = bounds(&op, "OperatorWindow::keys");
+            assert!((l - (size.0 - r)).abs() <= 1.0 && (t - top - (size.1 - b)).abs() <= 1.0, "{name} is centred at {size:?}");
             // The head's X is inside the card, so nothing in the card is wider than the card.
             let (_, _, close_r, close_b) = bounds(&op, "DialogShell::close-btn");
             assert!(close_r <= r + 0.5 && close_b <= b + 0.5, "{name}'s close button is inside its card at {size:?}");
@@ -147,7 +150,7 @@ fn limits(op: &Operator) -> (i_slint_core::layout::LayoutInfo, i_slint_core::lay
 /// that at its own smallest size (1024 × 640, 1280 × 800 at 125 %) its minimum does not follow its height: Windows
 /// grows a window to its minimum, so a minimum one pixel taller than the window grows it without end.
 fn assert_free_limits(op: &Operator, state: &str) {
-    for size in [(1920.0, 1080.0), SIZES[1], SIZES[0]] {
+    for size in [(1920.0, 1080.0), SIZES[2], SIZES[0]] {
         resize(op, size);
         let (h, v) = limits(op);
         assert!(h.min <= 1280.0 && v.min <= 720.0, "{state}: the window can shrink to 1280×720 from {size:?}: its minimum is {}×{}", h.min, v.min);

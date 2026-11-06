@@ -12,6 +12,7 @@ pub mod strings;
 pub mod keys;
 pub mod live;
 pub mod media_bin;
+pub mod menu;
 pub mod overlays;
 pub mod service;
 pub mod slides;
