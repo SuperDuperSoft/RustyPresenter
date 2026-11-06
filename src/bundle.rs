@@ -125,7 +125,10 @@ fn write_zip(store: &Store, contents: &Contents, assets: &[AssetId], part: &Path
     let text = |e: zip::result::ZipError| e.to_string();
     let total = assets.iter().try_fold(0u64, |n, a| fs::metadata(store.asset_path(a)).map(|m| n + m.len())).map_err(|e| e.to_string())?;
     let mut zip = ZipWriter::new(fs::File::create(part).map_err(|e| e.to_string())?);
-    let json = serde_json::to_vec_pretty(contents).map_err(|e| e.to_string())?;
+    // Online Bible text is never saved with a service (Nov 5 spec §5).
+    let mut contents = contents.clone();
+    for item in &mut contents.service.items { crate::scripture::online::strip_item(item, &store.root) }
+    let json = serde_json::to_vec_pretty(&contents).map_err(|e| e.to_string())?;
     zip.start_file(CONTENTS, SimpleFileOptions::default().compression_method(CompressionMethod::Deflated)).map_err(text)?;
     zip.write_all(&json).map_err(|e| e.to_string())?;
     let mut done = 0;

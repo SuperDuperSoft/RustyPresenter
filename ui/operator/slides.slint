@@ -251,6 +251,8 @@ export component SlidesPanel inherits VerticalLayout {
     in property <bool> text-size-shown;
     in property <string> text-size;
     in property <bool> text-size-custom;
+    /// What the operator should know about the selected item's slides (a verse a Bible lacks), under the grid.
+    in property <string> note;
 
     callback show(int);
     callback edit();
@@ -432,6 +434,23 @@ export component SlidesPanel inherits VerticalLayout {
             height: self.preferred-height;
             title: @tr("Nothing to show");
             text: @tr("This item has no slides yet. Click Edit to add some.");
+        }
+    }
+
+    if root.note != "": HorizontalLayout {
+        padding-top: 8px;
+        padding-bottom: 10px;
+        padding-left: 16px;
+        padding-right: 16px;
+        slides-note := Text {
+            horizontal-stretch: 1;
+            text: root.note;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
         }
     }
 }

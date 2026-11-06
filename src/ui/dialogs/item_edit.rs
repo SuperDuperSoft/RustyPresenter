@@ -2,10 +2,13 @@
 //! service item and is never redrawn by `dialog_refresh`, so a phone or a conversion never wipes what was typed.
 //! Save renames the media or slides when the name changed, then sends `service/update`; when that fails (the item
 //! is gone, say) the dialog stays open with the core's message. A passage whose Bible was changed in its picker is
-//! looked up again in that Bible first (Bible library spec §7.2); a failed lookup also keeps the dialog open.
+//! looked up again in that Bible first (Bible library spec §7.2); a failed lookup also keeps the dialog open. The
+//! "Also show" pickers choose up to two more Bibles for this passage only (Nov 5 spec §3); a newly picked one is
+//! looked up on Save with the rest, and one that can't be is left out with a toast.
 use super::{DialogKind, background::{self, Picker, strings}};
 use crate::{
     model::{EndAction, ItemKind, MediaStatus, ServiceItem, VerseText},
+    scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
     ui::{ItemEdit, operator::{bible, view, window::Operator}},
 };
 use serde::Deserialize;
@@ -22,6 +25,9 @@ struct Edit {
     picker: Option<Picker>,
     /// Scripture: the Bible its picker chose (the item's own until a pick).
     bible: Option<String>,
+    /// Scripture: the Also Bibles' ids, in order, and which "Also show" picker is open.
+    also: Vec<String>,
+    also_slot: usize,
 }
 
 thread_local! {
@@ -59,6 +65,10 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_picker_rows(ModelRc::default());
     let mut name = None;
     let bible = match &item.kind { ItemKind::Scripture { translation, .. } => Some(translation.clone()), _ => None };
+    let also = match &item.kind { ItemKind::Scripture { also, .. } => also.iter().map(|a| a.translation.clone()).collect(), _ => vec![] };
+    g.set_also_search("".into());
+    g.set_also_rows(ModelRc::default());
+    g.set_also_layout(i32::from(matches!(item.kind, ItemKind::Scripture { layout: ParallelLayout::Stacked, .. })));
     match &item.kind {
         ItemKind::Song { song_id } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
         ItemKind::Scripture { per_slide, text_size, .. } => {
@@ -103,11 +113,12 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
     let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
-    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible }));
+    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0 }));
 
     op.open_dialog(DialogKind::ItemEdit(id));
     draw_choices(op, &edit);
     show_bible(op, &edit);
+    show_also(op, &edit);
     wire(op, &edit);
     OPEN.with(|o| *o.borrow_mut() = Some(edit));
     op.on_dialog_close(|op| {
@@ -149,6 +160,22 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_toggle_favourite(move |id| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) {
         bible::toggle_favourite(&op, id.into());
         show_bible(&op, &e);
+        show_also(&op, &e);
+    });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_also_opening(move |slot| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) {
+        e.borrow_mut().also_slot = usize::try_from(slot).unwrap_or(0);
+        show_also(&op, &e);
+    });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_also_search_changed(move |_| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { show_also(&op, &e) });
+    g.on_also_accept(with(|op, edit| if let Some(id) = bible::first_picked(&op.ui.global::<ItemEdit>().get_also_rows()) { pick_also(op, edit, id) }));
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_also_pick(move |id| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { pick_also(&op, &e, id.into()) });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_also_remove(move |i| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) {
+        if let Ok(i) = usize::try_from(i) && i < e.borrow().also.len() { e.borrow_mut().also.remove(i); }
+        show_also(&op, &e);
     });
     let me = Rc::downgrade(op);
     g.on_find_more_bibles(move |q| if let Some(op) = me.upgrade() { super::settings::open_bible_search(&op, &q) });
@@ -177,17 +204,72 @@ fn show_bible(op: &Operator, edit: &Rc<RefCell<Edit>>) {
     g.set_picker_note(note);
 }
 
-/// A row of the picker: the Bible Save looks the passage up in.
+/// A row of the picker: the Bible Save looks the passage up in. An Also Bible that is now the main one is turned
+/// off (Nov 5 spec §3).
 fn pick_bible(op: &Operator, edit: &Rc<RefCell<Edit>>, id: String) {
     let known = op.state.borrow().snap.as_ref().is_some_and(|s| s.translations.contains(&id));
     if !known || edit.borrow().bible.is_none() { return }
-    edit.borrow_mut().bible = Some(id);
+    let was_also = {
+        let mut e = edit.borrow_mut();
+        let n = e.also.len();
+        e.also.retain(|t| !crate::bible::id::same_id(t, &id));
+        e.bible = Some(id.clone());
+        e.also.len() != n
+    };
+    if was_also { op.toast(bible_tr::also_turned_off(&label_of(op, &id)), false) }
     show_bible(op, edit);
+    show_also(op, edit);
 }
 
-/// `bible/lookup`'s answer.
+/// What a Bible's chip says ("RV1909 · spa"), else its id.
+fn label_of(op: &Operator, id: &str) -> String {
+    op.state.borrow().snap.as_ref().and_then(|s| view::bible_labels(s).get(id).cloned()).unwrap_or_else(|| id.to_string())
+}
+
+/// The "Also show" chips (a second one once the first is set), the layout switch, and the open picker's lines.
+fn show_also(op: &Operator, edit: &Rc<RefCell<Edit>>) {
+    let e = edit.borrow();
+    if e.bible.is_none() { return }
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let g = op.ui.global::<ItemEdit>();
+    let labels = view::bible_labels(&snap);
+    let shown: Vec<slint::SharedString> = e.also.iter().map(|id| labels.get(id).cloned().unwrap_or_else(|| id.clone()).into()).collect();
+    g.set_also_labels(ModelRc::new(VecModel::from(shown)));
+    let chosen = e.also.get(e.also_slot).map_or("", String::as_str);
+    let (rows, note) = bible::picker_rows(&snap, &g.get_also_search(), chosen);
+    g.set_also_rows(rows);
+    g.set_also_note(note);
+}
+
+/// A row of an "Also show" picker: that slot's Bible for this passage. The main Bible is turned off there, as in
+/// Settings; a Bible picked twice keeps its first place.
+fn pick_also(op: &Operator, edit: &Rc<RefCell<Edit>>, id: String) {
+    let known = op.state.borrow().snap.as_ref().is_some_and(|s| s.translations.contains(&id));
+    let Some(main) = edit.borrow().bible.clone() else { return };
+    if !known { return }
+    if crate::bible::id::same_id(&id, &main) {
+        op.toast(bible_tr::also_turned_off(&label_of(op, &id)), false);
+    } else {
+        let mut e = edit.borrow_mut();
+        let slot = e.also_slot.min(e.also.len());
+        if slot < e.also.len() { e.also[slot] = id } else { e.also.push(id) }
+        crate::scripture::also::tidy_ids(&main, &mut e.also, &|_| false);
+        e.also.truncate(MAX_ALSO);
+    }
+    show_also(op, edit);
+}
+
+/// `bible/lookup`'s answer, with the Also Bibles found and the ids left out.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Vec<VerseText>, translation: String }
+struct Found {
+    label: String,
+    verses: Vec<VerseText>,
+    translation: String,
+    #[serde(default)]
+    also: Vec<AlsoShow>,
+    #[serde(default)]
+    left_out: Vec<String>,
+}
 
 /// Redraws the background tiles (a pick, an upload, or a thumbnail that arrived).
 fn draw_choices(op: &Operator, edit: &Rc<RefCell<Edit>>) {
@@ -201,9 +283,14 @@ fn draw_choices(op: &Operator, edit: &Rc<RefCell<Edit>>) {
 fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
     let mut item = edit.item.clone();
     match &mut item.kind {
-        ItemKind::Scripture { per_slide, text_size, .. } => {
+        ItemKind::Scripture { per_slide, text_size, also, layout, .. } => {
             *per_slide = u8::try_from(g.get_per_slide()).unwrap_or(0);
             *text_size = if g.get_size_mode() == 1 { g.get_text_size().clamp(36, 120) as u32 } else { 0 };
+            // The Also Bibles in their new order; a kept one keeps its verses, a new one is looked up on Save.
+            let old = std::mem::take(also);
+            *also = edit.also.iter().map(|id| old.iter().find(|a| a.translation == *id).cloned()
+                .unwrap_or_else(|| AlsoShow { translation: id.clone(), verses: vec![] })).collect();
+            *layout = if g.get_also_layout() == 1 { ParallelLayout::Stacked } else { ParallelLayout::SideBySide };
         }
         ItemKind::Text { title, body } => {
             *title = g.get_title().into();
@@ -238,23 +325,26 @@ fn rename(name: &Name, typed: &str) -> Option<(&'static str, serde_json::Value)>
 /// toast "Saved". Any failure is an error toast with the core's message, and the dialog stays open.
 fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     let g = op.ui.global::<ItemEdit>();
-    let (item, rename, chosen) = {
+    let (item, rename, chosen, was) = {
         let e = edit.borrow();
-        (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone())
+        (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone(), e.item.clone())
     };
-    let Some(lookup) = relookup(&item, chosen.as_deref()) else { return rename_then_update(op, item, rename) };
+    let Some(lookup) = relookup(&was, &item, chosen.as_deref()) else { return rename_then_update(op, item, rename, None) };
     let me = Rc::downgrade(op);
     op.ops().call::<Found>("bible/lookup", lookup, move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(found) => rename_then_update(&op, with_passage(item, found), rename),
+            Ok(found) => {
+                let left = left_out_toast(&op, &found);
+                rename_then_update(&op, with_passage(item, found), rename, left);
+            }
             Err(e) => op.toast(e, true),
         }
     });
 }
 
-/// The rename (if any), then `service/update` with `item`.
-fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>) {
+/// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
+fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>) {
     let id = item.id;
     let body = serde_json::to_value(&item).unwrap_or_default();
     let update = move |op: &Rc<Operator>| {
@@ -265,6 +355,7 @@ fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'st
                 Ok(_) => {
                     if op.dialog() == Some(DialogKind::ItemEdit(id)) { op.close_dialog() }
                     op.toast(strings::SAVED, false);
+                    if let Some(n) = note { op.toast(n, true) }
                 }
                 Err(e) => op.toast(e, true),
             }
@@ -285,20 +376,35 @@ fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'st
     }
 }
 
-/// The lookup Save needs first: the passage's reference in the Bible the picker chose, when that is another Bible.
-fn relookup(item: &ServiceItem, chosen: Option<&str>) -> Option<serde_json::Value> {
-    let (ItemKind::Scripture { reference, translation, .. }, Some(chosen)) = (&item.kind, chosen) else { return None };
-    (!crate::bible::id::same_id(chosen, translation)).then(|| serde_json::json!({ "reference": reference, "translation": chosen }))
+/// The lookup Save needs first: the passage's reference in the Bible the picker chose and in every Also Bible, when
+/// the main Bible changed or an Also Bible is new (`was` is the item as the dialog opened, `item` as it is saved).
+fn relookup(was: &ServiceItem, item: &ServiceItem, chosen: Option<&str>) -> Option<serde_json::Value> {
+    let (ItemKind::Scripture { reference, translation, .. }, ItemKind::Scripture { also, .. }, Some(chosen)) = (&was.kind, &item.kind, chosen) else { return None };
+    let had = |id: &str| matches!(&was.kind, ItemKind::Scripture { also, .. } if also.iter().any(|a| a.translation == id));
+    let new_also = also.iter().any(|a| !had(&a.translation));
+    if crate::bible::id::same_id(chosen, translation) && !new_also { return None }
+    let mut body = serde_json::json!({ "reference": reference, "translation": chosen });
+    if !also.is_empty() { body["also"] = serde_json::json!(also.iter().map(|a| &a.translation).collect::<Vec<_>>()) }
+    Some(body)
 }
 
-/// `item` with the passage as the lookup found it in the new Bible (its label, the Bible's id and the verses).
+/// `item` with the passage as the lookup found it (its label, the Bible's id, the verses and the Also Bibles found).
 fn with_passage(mut item: ServiceItem, found: Found) -> ServiceItem {
-    if let ItemKind::Scripture { reference, translation, verses, .. } = &mut item.kind {
+    if let ItemKind::Scripture { reference, translation, verses, also, .. } = &mut item.kind {
         *reference = found.label;
         *translation = found.translation;
         *verses = found.verses;
+        *also = found.also;
     }
     item
+}
+
+/// "NIV isn't available right now, so only KJV · WEB was added." when the lookup left an Also Bible out.
+fn left_out_toast(op: &Operator, found: &Found) -> Option<String> {
+    if found.left_out.is_empty() { return None }
+    let kept: Vec<String> = std::iter::once(&found.translation).chain(found.also.iter().map(|a| &a.translation)).map(|t| label_of(op, t)).collect();
+    let left: Vec<String> = found.left_out.iter().map(|t| label_of(op, t)).collect();
+    Some(bible_tr::also_left_out(&left.join(" · "), &kept.join(" · ")))
 }
 
 /// **Remove from service** (no confirm, as on the web), then close.
@@ -466,9 +572,135 @@ mod tests {
     #[test]
     fn a_plain_save_does_not_look_the_passage_up() {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }, background: None, notes: String::new() };
-        assert_eq!(relookup(&item, Some("ebible:spaRV1909")), None);
-        assert_eq!(relookup(&item, None), None);
-        assert_eq!(relookup(&item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
+        assert_eq!(relookup(&item, &item, Some("ebible:spaRV1909")), None);
+        assert_eq!(relookup(&item, &item, None), None);
+        assert_eq!(relookup(&item, &item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
+    }
+
+    fn also_labels(op: &Operator) -> Vec<String> {
+        use slint::Model;
+        g(op).get_also_labels().iter().map(|l| l.to_string()).collect()
+    }
+
+    /// Opens "Also show" picker `slot` and clicks the row labelled `label`.
+    fn pick_also_row(op: &Operator, slot: usize, label: &str) {
+        press(op, &format!("ItemEditDialog::also-{slot}"));
+        let rows = find_all(op, "BiblePickerList::picker-row");
+        let row = rows.iter().find(|r| r.accessible_label().unwrap_or_default() == label).unwrap_or_else(|| panic!("{label} listed"));
+        row.mock_single_click(slint::platform::PointerEventButton::Left);
+        settle();
+    }
+
+    fn also_of(app: &App, id: Uuid) -> (Vec<(String, usize)>, ParallelLayout) {
+        let ItemKind::Scripture { also, layout, .. } = item(app, id).unwrap().kind else { panic!() };
+        (also.iter().map(|a| (a.translation.clone(), a.verses.len())).collect(), layout)
+    }
+
+    #[test]
+    fn also_picker_adds_second_then_third_slot() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert!(find(&op, "ItemEditDialog::also-0").is_some());
+        assert!(find(&op, "ItemEditDialog::also-1").is_none(), "one empty slot to start");
+        assert!(find(&op, "ItemEditDialog::also-layout").is_none(), "no layout switch with no Also Bible");
+        pick_also_row(&op, 0, "WEB");
+        assert_eq!(also_labels(&op), ["WEB"]);
+        assert!(find(&op, "ItemEditDialog::also-1").is_some(), "a second slot once the first is set");
+        assert!(find(&op, "ItemEditDialog::also-x-0").is_some());
+        assert!(find(&op, "ItemEditDialog::also-layout").is_some());
+        pick_also_row(&op, 1, "BSB");
+        assert_eq!(also_labels(&op), ["WEB", "BSB"]);
+        assert!(find(&op, "ItemEditDialog::also-2").is_none(), "three Bibles at most");
+        pick_also_row(&op, 1, "WEB");
+        assert_eq!(also_labels(&op), ["WEB"], "a Bible picked twice keeps its first place");
+    }
+
+    #[test]
+    fn x_removes_and_compacts() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        pick_also_row(&op, 0, "WEB");
+        pick_also_row(&op, 1, "BSB");
+        press(&op, "ItemEditDialog::also-x-0");
+        assert_eq!(also_labels(&op), ["BSB"], "BSB moves up");
+        assert!(find(&op, "ItemEditDialog::also-x-1").is_none());
+        assert!(find(&op, "ItemEditDialog::also-1").is_some(), "the second slot is empty again");
+    }
+
+    #[test]
+    fn item_edit_also_changes_item_not_settings() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        pick_also_row(&op, 0, "WEB");
+        g(&op).set_also_layout(1);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(also_of(&app, id), (vec![("WEB".to_string(), 1)], ParallelLayout::Stacked), "WEB looked up for this passage");
+        let ItemKind::Scripture { translation, verses, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!(translation, "KJV", "the main Bible stays");
+        assert!(verses[0].text.starts_with("For God so loved"), "looked up again with WEB: {}", verses[0].text);
+        assert_eq!(op.dialog(), None);
+        assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
+        let s = app.data.lock().unwrap().settings.clone();
+        assert!(s.also_show.is_empty(), "Settings keep their own Also Bibles");
+        assert_eq!(s.parallel_layout, ParallelLayout::SideBySide);
+    }
+
+    #[test]
+    fn removing_or_reordering_also_bibles_needs_no_lookup() {
+        let app = test_app();
+        let also = vec![
+            AlsoShow { translation: "WEB".into(), verses: vec![VerseText::new("John 3:16", "web text")] },
+            AlsoShow { translation: "BSB".into(), verses: vec![VerseText::new("John 3:16", "bsb text")] },
+        ];
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "old text")], per_slide: 0, text_size: 0, also, layout: Default::default() });
+        let op = opened(&app);
+        open(&op, id);
+        assert_eq!(also_labels(&op), ["WEB", "BSB"], "the item's own Also Bibles");
+        let was = item(&app, id).unwrap();
+        press(&op, "ItemEditDialog::also-x-0");
+        let edited = collect(&OPEN.with(|o| o.borrow().clone()).unwrap().borrow(), &g(&op));
+        assert_eq!(relookup(&was, &edited, Some("KJV")), None, "nothing new to look up");
+        press(&op, "ItemEditDialog::save");
+        let ItemKind::Scripture { also, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!((also.len(), also[0].translation.as_str(), also[0].verses[0].text.as_str()), (1, "BSB", "bsb text"));
+    }
+
+    #[test]
+    fn also_same_as_main_is_turned_off() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        pick_also_row(&op, 0, "KJV");
+        assert!(also_labels(&op).is_empty());
+        assert_eq!(toasts(&op).last(), Some(&("KJV turned off (same as main).".to_string(), false)));
+        pick_also_row(&op, 0, "WEB");
+        g(&op).invoke_pick_bible("WEB".into());
+        assert!(also_labels(&op).is_empty(), "the new main Bible is no Also Bible");
+        assert_eq!(toasts(&op).last(), Some(&("WEB turned off (same as main).".to_string(), false)));
+    }
+
+    #[test]
+    fn also_bible_that_cannot_be_looked_up_is_left_out_with_a_toast() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        pick_also_row(&op, 0, "WEB");
+        g(&op).invoke_also_opening(1);
+        g(&op).invoke_also_pick("NIV".into());
+        assert_eq!(also_labels(&op), ["WEB", "NIV"]);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(also_of(&app, id).0, vec![("WEB".to_string(), 1)], "saved with the Bibles that work");
+        assert!(toasts(&op).contains(&("NIV isn't available right now, so only KJV · WEB was added.".to_string(), true)), "{:?}", toasts(&op));
+        assert_eq!(op.dialog(), None);
     }
 
     #[test]

@@ -130,7 +130,8 @@ impl crate::scripture::planning::PlanTheme for PlanFacts {
 /// Slides of a passage in the main Bible and the Also Bibles (`also`: code and verses, in column order), planned
 /// verse by verse so every Bible's slide shows the same verses (Nov 5 spec §3). Sized by the character estimate
 /// until the measured planner (FEAT-5 Part B) takes over.
-pub fn parallel_slides(verses: &[VerseText], abbr: &str, also: &[(String, &[VerseText])], per_slide: u8, layout: crate::scripture::ParallelLayout, theme: &crate::model::Theme) -> Vec<Slide> {
+/// Also returns the planner's notes: one per Bible per verse it lacks.
+pub fn parallel_slides(verses: &[VerseText], abbr: &str, also: &[(String, &[VerseText])], per_slide: u8, layout: crate::scripture::ParallelLayout, theme: &crate::model::Theme) -> (Vec<Slide>, Vec<String>) {
     use crate::scripture::planning::{AlsoInput, CharMeasure, ScriptureInput, plan_scripture};
     let facts = PlanFacts { size: theme.scripture_size, lower: theme.position == "lower" };
     let input = ScriptureInput {
@@ -145,14 +146,15 @@ pub fn parallel_slides(verses: &[VerseText], abbr: &str, also: &[(String, &[Vers
         canvas: (1920, 1080),
     };
     let planned = plan_scripture(&input, &mut CharMeasure::for_input(&facts, input.canvas));
-    planned.slides.into_iter().map(|p| Slide {
+    let slides = planned.slides.into_iter().map(|p| Slide {
         label: p.label,
         content: SlideContent::Text {
             text: p.text, footer: None, reference: Some(p.reference), size: 0,
             parallel: Some(crate::scripture::Parallel { main_code: abbr.to_string(), also: p.also, layout }),
         },
         notes: String::new(),
-    }).collect()
+    }).collect();
+    (slides, planned.notes)
 }
 
 /// Group verses into slides. `per_slide` 0 = automatic (by length).
@@ -260,9 +262,26 @@ pub fn text_slides(title: &str, body: &str) -> Vec<Slide> {
     slides
 }
 
+/// A passage's slides and what the operator should know about them (Nov 5 spec §3): each verse a Bible lacks, and
+/// each Bible left out of the slides. The note shows under the slides grid.
+pub struct ScriptureBuild { pub slides: Vec<Slide>, pub notes: Vec<String> }
+
+/// `build_item`'s slides of a passage, with its notes. Empty notes for any other item.
+pub fn build_scripture(data: &Data, item: &ServiceItem) -> ScriptureBuild {
+    let (_, _, slides, notes) = build_item_with_notes(data, item);
+    ScriptureBuild { slides, notes }
+}
+
 /// Title, kind and slides for a service item.
 pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec<Slide>) {
+    let (title, kind, slides, _) = build_item_with_notes(data, item);
+    (title, kind, slides)
+}
+
+/// `build_item` and the item's notes for the operator (`build_scripture`).
+pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec<Slide>, Vec<String>) {
     let s = &data.settings;
+    let mut notes = Vec::new();
     let (title, kind, mut slides) = match &item.kind {
         ItemKind::Song { song_id } => match data.songs.iter().find(|x| x.id == *song_id) {
             Some(song) => (song.title.clone(), "song", song_slides(song, s)),
@@ -273,7 +292,18 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             let abbr = abbr_of(translation);
             // Also Bibles with no text here (an online one not fetched yet) are left out of the slides.
             let shown: Vec<(String, &[VerseText])> = also.iter().filter(|a| !a.verses.is_empty()).map(|a| (abbr_of(&a.translation), a.verses.as_slice())).collect();
-            let mut slides = if shown.is_empty() { scripture_slides(verses, *per_slide, &abbr) } else { parallel_slides(verses, &abbr, &shown, *per_slide, *layout, &s.theme) };
+            if verses.is_empty() && crate::bible::sources::is_online(translation) { notes.push(crate::scripture::strings::text_unreachable(&abbr)) }
+            // An online Bible may simply need the internet; any other has left the library.
+            notes.extend(also.iter().filter(|a| a.verses.is_empty()).map(|a| {
+                if crate::bible::sources::is_online(&a.translation) { crate::scripture::strings::needs_internet(&abbr_of(&a.translation)) }
+                else { crate::scripture::strings::BIBLE_REMOVED.to_string() }
+            }));
+            let mut slides = if shown.is_empty() { scripture_slides(verses, *per_slide, &abbr) } else {
+                let (slides, missing) = parallel_slides(verses, &abbr, &shown, *per_slide, *layout, &s.theme);
+                notes.extend(missing);
+                slides
+            };
+            if s.theme.position == "lower" && let Some((third, _)) = shown.get(1) { notes.push(crate::scripture::strings::lower_third_left_out(third)) }
             for sl in &mut slides { if let SlideContent::Text { size, .. } = &mut sl.content { *size = *text_size } }
             let credits: Vec<&BibleCredit> = std::iter::once(translation.as_str()).chain(also.iter().filter(|a| !a.verses.is_empty()).map(|a| a.translation.as_str()))
                 .filter_map(|t| data.bible_credit(t)).collect();
@@ -300,7 +330,7 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),
     };
     if !item.notes.is_empty() { for sl in &mut slides { if sl.notes.is_empty() { sl.notes = item.notes.clone(); } } }
-    (title, kind, slides)
+    (title, kind, slides, notes)
 }
 
 #[cfg(test)]
@@ -464,5 +494,54 @@ mod tests {
         let (title, _, slides) = build_item(&Data::default(), &item);
         assert_eq!(title, "John 3:16-17 (KJV · WEB)");
         assert!(matches!(&slides[0].content, SlideContent::Text { parallel: Some(p), .. } if p.also.len() == 1));
+    }
+
+    fn notes_of(data: &Data, item: &ServiceItem) -> Vec<String> { build_scripture(data, item).notes }
+
+    #[test]
+    fn missing_verse_noted_once_per_bible() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { also, .. } = &mut item.kind { also[0].verses.truncate(1); also[1].verses.truncate(1) }
+        assert_eq!(notes_of(&Data::default(), &item), ["WEB doesn't include John 3:17.", "BSB doesn't include John 3:17."]);
+        assert!(notes_of(&Data::default(), &three_bible_item(0)).is_empty(), "nothing to say when every Bible has every verse");
+    }
+
+    #[test]
+    fn lower_third_names_the_bible_it_leaves_out() {
+        let mut data = Data::default();
+        data.settings.theme.position = "lower".into();
+        assert_eq!(notes_of(&data, &three_bible_item(0)), ["Lower-third themes show two Bibles. BSB is left out."]);
+    }
+
+    #[test]
+    fn uncached_online_also_is_dropped_with_note() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { also, .. } = &mut item.kind { also[1] = crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] } }
+        let b = build_scripture(&Data::default(), &item);
+        assert!(b.slides.iter().all(|s| matches!(&s.content, SlideContent::Text { parallel: Some(p), .. } if p.also.len() == 1)));
+        assert_eq!(b.notes, ["NIV needs the internet for this passage."]);
+    }
+
+    #[test]
+    fn removed_also_bible_drops_column_with_note() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { also, .. } = &mut item.kind { also.truncate(1); also[0] = crate::scripture::AlsoShow { translation: "ebible:spaRV1909".into(), verses: vec![] } }
+        let b = build_scripture(&Data::default(), &item);
+        assert!(b.slides.iter().all(|s| matches!(&s.content, SlideContent::Text { parallel: None, .. })), "only the main Bible is left");
+        assert_eq!(b.notes, ["That Bible was removed. Add it again in Settings → Bibles."]);
+    }
+
+    #[test]
+    fn build_item_and_build_scripture_agree() {
+        let (data, item) = (Data::default(), three_bible_item(1));
+        assert_eq!(build_item(&data, &item).2, build_scripture(&data, &item).slides);
+        assert!(build_scripture(&data, &ServiceItem { kind: ItemKind::Text { title: "A".into(), body: "a".into() }, ..item }).notes.is_empty());
+    }
+
+    #[test]
+    fn online_main_without_text_says_so() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { translation, verses, also, .. } = &mut item.kind { *translation = "NIV".into(); verses.clear(); also.clear() }
+        assert_eq!(notes_of(&Data::default(), &item), ["Couldn't get NIV text — check the internet."]);
     }
 }

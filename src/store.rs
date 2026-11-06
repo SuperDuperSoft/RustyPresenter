@@ -46,8 +46,10 @@ impl Store {
         }
     }
 
+    /// Online Bible text is left out (Nov 5 spec §5).
     pub fn save(&self, data: &Data) -> io::Result<()> {
-        let json = serde_json::to_vec_pretty(data).map_err(io::Error::other)?;
+        let data = crate::scripture::online::without_online_text(data, &self.root);
+        let json = serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?;
         write_atomic(&self.data_path(), &json)
     }
 
@@ -96,7 +98,8 @@ impl Store {
             if fs::hard_link(&src, &tmp).is_err() { fs::copy(&src, &tmp)?; }
             fs::rename(&tmp, &dst)?;
         }
-        fs::write(partial.join("data.json"), serde_json::to_vec_pretty(data).map_err(io::Error::other)?)?;
+        let data = crate::scripture::online::without_online_text(data, &self.root);
+        fs::write(partial.join("data.json"), serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?)?;
         fs::write(partial.join("manifest.json"), serde_json::to_vec_pretty(&Manifest { created: created.clone(), assets }).map_err(io::Error::other)?)?;
         fs::write(partial.join("COMPLETE"), b"ok")?;
         fs::rename(&partial, &dir)?;

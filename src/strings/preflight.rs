@@ -22,3 +22,6 @@ pub fn slides_missing(missing: usize, all: usize) -> String { format!("{missing}
 pub fn item(number: usize, title: &str, problem: &str) -> String { format!("{number}. {title}: {problem}") }
 pub fn more(count: usize) -> String { format!("…and {count} more") }
 pub fn found(count: usize) -> String { if count == 1 { "1 thing to fix before the service:".into() } else { format!("{count} things to fix before the service:") } }
+
+/// An online Bible's passage is not in the capped cache, so it would not show without internet (Nov 5 spec §5).
+pub fn not_offline(abbr: &str, reference: &str) -> String { format!("{abbr} isn't ready offline for {reference}. Open this service once with internet.") }

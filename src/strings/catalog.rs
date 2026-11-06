@@ -63,3 +63,7 @@ pub fn language(name_en: &str, name: &str, code: &str) -> String {
     let en = if name_en.is_empty() { code } else { name_en };
     if name.is_empty() || name == en { en.to_string() } else { format!("{en} · {name}") }
 }
+/// A source's name in a row's tag.
+pub const EBIBLE: &str = "eBible.org";
+/// The row's tag when other libraries offer the same Bible; empty when none do.
+pub fn also_on(sources: &[&str]) -> String { if sources.is_empty() { String::new() } else { format!("Also on {}", sources.join(" · ")) } }

@@ -6,8 +6,9 @@ use serde_json::{Value, json};
 use std::rc::Rc;
 use uuid::Uuid;
 
+/// `service/add`'s answer: the new id, and what to say when an Also Bible was left out (Nov 5 spec §3).
 #[derive(Deserialize)]
-struct Added { id: Uuid }
+struct Added { id: Uuid, #[serde(default)] toast: Option<String> }
 
 /// `service/add {item, position: null}`, then the new item is selected and, unless `quiet`, the toast "Added to the
 /// service". `done` gets the new id or the core's error; this does not toast an error itself, so adding files can
@@ -16,12 +17,13 @@ pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(R
     let me = Rc::downgrade(op);
     op.ops.call::<Added>("service/add", json!({ "item": item, "position": null }), move |r| {
         let Some(op) = me.upgrade() else { return };
-        let r = r.map(|Added { id }| id);
+        let (r, left_out) = match r { Ok(Added { id, toast }) => (Ok(id), toast), Err(e) => (Err(e), None) };
         if let Ok(id) = r {
             op.select_added(id);
             if !quiet { op.toast(tr::ADDED_TO_SERVICE, false); }
         }
         done(r);
+        if let Some(t) = left_out { op.toast(t, true) }
     });
 }
 

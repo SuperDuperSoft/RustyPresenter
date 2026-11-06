@@ -388,3 +388,15 @@ fn a_blocked_passage_stays_out_of_an_opened_service() {
     assert_eq!(there.service().unwrap().items.len(), 4, "the rest of the service came in");
     assert!(strings::opened_report(&opened).contains("One passage used a translation that can't be used in RustyPresenter"));
 }
+
+#[test]
+fn a_service_file_leaves_online_text_out() {
+    let s = store();
+    let mut d = sample(&s);
+    if let ItemKind::Scripture { also, .. } = &mut d.service_mut().unwrap().items[3].kind {
+        also.push(crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![VerseText::new("John 3:16", "NIV words")] });
+    }
+    let c = open_in(&store(), &saved(&s, &d)).unwrap();
+    let ItemKind::Scripture { verses, also, .. } = &c.service.items[3].kind else { panic!() };
+    assert_eq!((verses.len(), also[0].translation.as_str(), also[0].verses.len()), (1, "NIV", 0), "KJV kept, NIV's text left out");
+}

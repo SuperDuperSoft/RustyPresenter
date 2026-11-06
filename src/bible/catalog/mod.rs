@@ -16,28 +16,58 @@ use super::{blocklist, library::{BibleMeta, Dir, Licence}};
 
 /// Where a catalog row comes from. YouVersion, API.Bible, Door43 and CrossWire SWORD join here as they are built.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum CatalogSource { Ebible }
+pub enum CatalogSource {
+    Ebible,
+    /// Online stand-ins for the sources still to come, so `merge` can be tested now.
+    #[cfg(test)]
+    Test(u8),
+}
 
 impl CatalogSource {
     /// The id prefix of its Bibles (`ebible:spaRV1909`).
     pub fn id(self) -> &'static str {
-        match self { CatalogSource::Ebible => "ebible" }
+        match self {
+            CatalogSource::Ebible => "ebible",
+            #[cfg(test)]
+            CatalogSource::Test(_) => "test",
+        }
+    }
+
+    /// Its name in a row's tag ("Also on eBible.org").
+    pub fn label(self) -> &'static str {
+        match self {
+            CatalogSource::Ebible => strings::EBIBLE,
+            #[cfg(test)]
+            CatalogSource::Test(_) => "Test",
+        }
     }
 
     /// True when its Bibles are downloaded and work without internet.
     pub fn offline(self) -> bool {
-        match self { CatalogSource::Ebible => true }
+        match self {
+            CatalogSource::Ebible => true,
+            #[cfg(test)]
+            CatalogSource::Test(_) => false,
+        }
     }
 
     /// The current list. Falls back to the last saved list when the source can't be reached.
     pub async fn refresh(self, ctx: &Ctx) -> Result<Listing, CatalogError> {
-        match self { CatalogSource::Ebible => ebible::refresh(ctx).await }
+        match self {
+            CatalogSource::Ebible => ebible::refresh(ctx).await,
+            #[cfg(test)]
+            CatalogSource::Test(_) => Ok(Listing::default()),
+        }
     }
 
     /// Downloads one of its rows and adds it to the installed Bibles. `progress` gets 0 to 100.
     pub async fn install(self, ctx: &Ctx, row: &CatalogRow, cancel: &tokio_util::sync::CancellationToken,
         progress: &(dyn Fn(u8) + Send + Sync)) -> Result<BibleMeta, install::InstallError> {
-        match self { CatalogSource::Ebible => install::ebible(ctx, row, cancel, progress).await }
+        match self {
+            CatalogSource::Ebible => install::ebible(ctx, row, cancel, progress).await,
+            #[cfg(test)]
+            CatalogSource::Test(_) => Err(install::InstallError::Unusable("a test source installs nothing".into())),
+        }
     }
 }
 
@@ -56,7 +86,11 @@ pub struct Ctx {
 impl Ctx {
     pub fn new(root: PathBuf, source: CatalogSource) -> Self {
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0);
-        let base = match source { CatalogSource::Ebible => ebible::BASE.to_string() };
+        let base = match source {
+            CatalogSource::Ebible => ebible::BASE.to_string(),
+            #[cfg(test)]
+            CatalogSource::Test(_) => String::new(),
+        };
         Ctx { root, now, force: false, base }
     }
 
@@ -144,6 +178,8 @@ pub struct CatalogRow {
     licence: LicenceState,
     /// Every searchable name, folded once by `blocklist::normalise`.
     search: Vec<String>,
+    /// Other sources that offer the same Bible (`merge`).
+    also_from: Vec<CatalogSource>,
 }
 
 impl CatalogRow {
@@ -162,7 +198,7 @@ impl CatalogRow {
         if blocked { return None; }
         let search = [&f.abbr, &f.title, &f.title_en, &f.lang_name, &f.lang_name_en, &f.lang, &f.source_id]
             .iter().map(|s| blocklist::normalise(s)).filter(|s| !s.is_empty()).collect();
-        Some(CatalogRow { source, id, f, scope, licence, search })
+        Some(CatalogRow { source, id, f, scope, licence, search, also_from: vec![] })
     }
 
     pub fn source(&self) -> CatalogSource { self.source }
@@ -183,12 +219,38 @@ impl CatalogRow {
     pub fn has_dc(&self) -> bool { self.f.has_dc }
     pub fn scope(&self) -> Scope { self.scope }
     pub fn licence(&self) -> &LicenceState { &self.licence }
+    /// Other sources that offer the same Bible; the row's tag says "Also on …".
+    pub fn also_from(&self) -> &[CatalogSource] { &self.also_from }
 
     /// True when every word of the query is in one of its names, ignoring case, accents, spaces and punctuation.
     pub fn matches(&self, query: &str) -> bool {
         query.split_whitespace().map(blocklist::normalise).filter(|w| !w.is_empty())
             .all(|w| self.search.iter().any(|s| s.contains(&w)))
     }
+}
+
+/// One row per Bible across sources (Nov 5 spec §4): rows of different sources with the same language and the same
+/// title (the English one, else its own, ignoring case, accents and spacing) become one. The row kept is the offline
+/// source's, else one whose key is saved (`has_key`), else the first listed; it names the others in `also_from`.
+/// Rows of one source never merge: the source lists them apart for a reason (two editions, say).
+pub fn merge(rows: Vec<CatalogRow>, has_key: &dyn Fn(CatalogSource) -> bool) -> Vec<CatalogRow> {
+    let key = |r: &CatalogRow| (r.lang().to_lowercase(), blocklist::normalise(if r.title_en().is_empty() { r.title() } else { r.title_en() }));
+    let rank = |r: &CatalogRow| if r.source.offline() { 0 } else if has_key(r.source) { 1 } else { 2 };
+    let mut out: Vec<CatalogRow> = Vec::new();
+    for r in rows {
+        let k = key(&r);
+        let same = out.iter_mut().find(|o| key(o) == k && o.source != r.source && !o.also_from.contains(&r.source));
+        match same {
+            None => out.push(r),
+            Some(o) if rank(&r) < rank(&*o) => {
+                let old = std::mem::replace(o, r);
+                o.also_from = old.also_from;
+                o.also_from.insert(0, old.source);
+            }
+            Some(o) => o.also_from.push(r.source),
+        }
+    }
+    out
 }
 
 /// The rows that match `query`, in the order given. An empty query matches everything.
@@ -242,6 +304,43 @@ mod tests {
 
     fn row(id: &str, abbr: &str, title: &str, lang: &str) -> Option<CatalogRow> {
         CatalogRow::checked(CatalogSource::Ebible, fields(id, abbr, title, lang), Scope::Full, LicenceState::OnDownload)
+    }
+
+    fn from(source: CatalogSource, id: &str, title: &str, lang: &str) -> CatalogRow {
+        CatalogRow::checked(source, fields(id, "X", title, lang), Scope::Full, LicenceState::OnDownload).unwrap()
+    }
+
+    fn sources_of(rows: &[CatalogRow]) -> Vec<(CatalogSource, Vec<CatalogSource>)> { rows.iter().map(|r| (r.source(), r.also_from().to_vec())).collect() }
+
+    #[test]
+    fn same_bible_two_sources_one_row_offline_wins() {
+        let online = from(CatalogSource::Test(1), "web", "World English Bible", "eng");
+        let offline = from(CatalogSource::Ebible, "engwebp", "World English  bible", "eng");
+        let rows = merge(vec![online, offline], &|_| true);
+        assert_eq!(sources_of(&rows), [(CatalogSource::Ebible, vec![CatalogSource::Test(1)])]);
+        assert_eq!(rows[0].id(), "ebible:engwebp", "the offline row is the one Add installs");
+    }
+
+    #[test]
+    fn different_language_same_title_kept_apart() {
+        let rows = merge(vec![from(CatalogSource::Ebible, "a", "Bible", "eng"), from(CatalogSource::Test(1), "b", "Bible", "spa")], &|_| false);
+        assert_eq!(rows.len(), 2);
+    }
+
+    #[test]
+    fn keyed_online_beats_unkeyed_online() {
+        let rows = merge(vec![from(CatalogSource::Test(1), "a", "NIV", "eng"), from(CatalogSource::Test(2), "b", "NIV", "eng")], &|s| s == CatalogSource::Test(2));
+        assert_eq!(sources_of(&rows), [(CatalogSource::Test(2), vec![CatalogSource::Test(1)])]);
+        let rows = merge(vec![from(CatalogSource::Test(1), "a", "NIV", "eng"), from(CatalogSource::Test(2), "b", "NIV", "eng")], &|_| false);
+        assert_eq!(sources_of(&rows), [(CatalogSource::Test(1), vec![CatalogSource::Test(2)])], "else the first listed");
+    }
+
+    #[test]
+    fn rows_of_one_source_never_merge() {
+        let rows = merge(vec![from(CatalogSource::Ebible, "a", "Reina Valera", "spa"), from(CatalogSource::Ebible, "b", "Reina Valera", "spa")], &|_| false);
+        assert_eq!(rows.len(), 2, "eBible lists two editions apart for a reason");
+        assert_eq!(strings::also_on(&rows[0].also_from().iter().map(|s| s.label()).collect::<Vec<_>>()), "");
+        assert_eq!(strings::also_on(&["YouVersion", "API.Bible"]), "Also on YouVersion · API.Bible");
     }
 
     #[test]

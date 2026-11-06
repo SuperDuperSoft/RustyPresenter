@@ -146,3 +146,12 @@ pub fn also_turned_off(abbr: &str) -> String { format!("{abbr} turned off (same 
 
 /// Some Also Bibles could not be looked up for a new passage; it was added with the rest.
 pub fn also_left_out(left: &str, kept: &str) -> String { format!("{left} isn't available right now, so only {kept} was added.") }
+
+/// A lower-third theme draws two Bibles; the third is named in the passage's note (Nov 5 spec §3).
+pub fn lower_third_left_out(abbr: &str) -> String { format!("Lower-third themes show two Bibles. {abbr} is left out.") }
+
+/// An online Also Bible has no text on this computer for the passage, so its column is left out.
+pub fn needs_internet(abbr: &str) -> String { format!("{abbr} needs the internet for this passage.") }
+
+/// An Also Bible that is no longer in the library (Bible library spec §13).
+pub const BIBLE_REMOVED: &str = "That Bible was removed. Add it again in Settings → Bibles.";

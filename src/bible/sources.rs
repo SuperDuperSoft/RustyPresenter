@@ -131,6 +131,14 @@ impl Provider {
 /// Every source for a translation, best first.
 pub fn sources(translation: &str) -> impl Iterator<Item = &'static Source> { SOURCES.iter().filter(move |s| s.translation == translation) }
 
+/// True for a Bible read over the internet (ESV, NIV, a YouVersion or API.Bible id): its text is only ever kept in
+/// the capped cache, never with a service (Nov 5 spec §5). A file the church imported under the same name is
+/// checked by the caller.
+pub fn is_online(translation: &str) -> bool {
+    let t = translation.trim();
+    t.starts_with("yv:") || t.starts_with("ab:") || SOURCES.iter().any(|s| super::id::same_id(s.translation, t))
+}
+
 /// The source that will be used: the first with a saved key, else the first listed.
 pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Source> {
     sources(translation).find(|s| secrets.key(s.provider).is_some()).or_else(|| sources(translation).next())
@@ -237,7 +245,25 @@ fn clear_cache(root: &Path, provider: Provider) {
 
 #[derive(Serialize, Deserialize, Default, Debug)]
 #[serde(default)]
-pub struct Cache { entries: Vec<Entry> }
+pub struct Cache {
+    entries: Vec<Entry>,
+    /// Verses of the open service (book, chapter, verse): the passages holding them are evicted last (Nov 5 spec §5).
+    #[serde(skip)]
+    pinned: std::collections::BTreeSet<(u8, u16, u16)>,
+}
+
+/// The open service's verses in each online Bible, by id (`pin`).
+static PINNED: Mutex<BTreeMap<String, std::collections::BTreeSet<(u8, u16, u16)>>> = Mutex::new(BTreeMap::new());
+
+/// Keeps `verses` of `translation` in its cache as long as the caps allow: other passages are evicted first. Replaces
+/// that Bible's earlier pins.
+pub fn pin(translation: &str, verses: impl IntoIterator<Item = crate::scripture::VerseId>) {
+    PINNED.lock().unwrap().insert(super::id::normalise_id(translation), verses.into_iter().map(|v| (v.0, v.1, v.2)).collect());
+}
+
+fn pinned(translation: &str) -> std::collections::BTreeSet<(u8, u16, u16)> {
+    PINNED.lock().unwrap().get(&super::id::normalise_id(translation)).cloned().unwrap_or_default()
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct Entry {
@@ -284,6 +310,14 @@ impl Cache {
         self.entries.len() != n
     }
 
+    /// True when the entry holds a verse of the open service.
+    fn is_pinned(&self, e: &Entry) -> bool { e.verses.iter().any(|(c, v, _)| self.pinned.contains(&(e.book, *c, *v))) }
+
+    /// The entry to evict first among those `of` accepts: the oldest one not pinned, else the oldest.
+    fn victim(&self, of: impl Fn(&Entry) -> bool) -> Option<usize> {
+        self.entries.iter().position(|e| of(e) && !self.is_pinned(e)).or_else(|| self.entries.iter().position(of))
+    }
+
     fn get(&self, book: u8, part: &Part, now: u64, policy: CachePolicy) -> Option<&Entry> {
         self.entries.iter().find(|e| e.book == book && e.part == part_key(part) && fresh(e, now, policy))
     }
@@ -296,10 +330,13 @@ impl Cache {
         let Fetched { verses, fums } = f;
         if verses.len() > policy.max_verses || (policy.half_book && verses.len() > half) { return; }
         self.entries.push(Entry { book, part: part_key(part), fetched: now, verses, fums });
-        while self.verse_count() > policy.max_verses { self.entries.remove(0); }
+        while self.verse_count() > policy.max_verses {
+            let Some(i) = self.victim(|_| true) else { break };
+            self.entries.remove(i);
+        }
         if policy.half_book {
             while self.entries.iter().filter(|e| e.book == book).map(|e| e.verses.len()).sum::<usize>() > half {
-                let i = self.entries.iter().position(|e| e.book == book).unwrap();
+                let Some(i) = self.victim(|e| e.book == book) else { break };
                 self.entries.remove(i);
             }
         }
@@ -353,6 +390,34 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
     Ok((canonical(&r, display), out))
 }
 
+/// A passage from the cache alone, never the network: what an online Bible can show offline (Nov 5 spec §5).
+/// `None` when any part of it is missing or too old.
+pub fn cached(root: &Path, translation: &str, input: &str) -> Option<Vec<VerseText>> {
+    let src = source_with(translation, &Secrets::load(root))?;
+    let r = parse_reference(input).ok()?;
+    let (policy, display, now) = (src.provider.cache_policy(), display_name(r.book), crate::app::now_secs());
+    let _g = FILES.lock().unwrap();
+    let cache = Cache::load(root, src.provider, translation);
+    let mut out = Vec::new();
+    for part in &r.parts {
+        let e = cache.get(r.book, part, now, policy)?;
+        out.extend(e.verses.iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text: text.clone(), id: Some(crate::scripture::VerseId(r.book, *c, *v)) }));
+    }
+    Some(out)
+}
+
+/// Puts one passage of `text` in the cache, as a fetch would (tests of what the app does offline).
+#[cfg(test)]
+pub(crate) fn put_cached(root: &Path, translation: &str, input: &str, text: &str) {
+    let src = source_with(translation, &Secrets::load(root)).unwrap();
+    let r = parse_reference(input).unwrap();
+    let part = &r.parts[0];
+    let verses = (part.start.1.unwrap_or(1)..=part.end.1.unwrap_or(1)).map(|v| (part.start.0, v, text.to_string())).collect();
+    let mut cache = Cache::load(root, src.provider, translation);
+    cache.put(r.book, part, crate::app::now_secs(), Fetched { verses, fums: vec![] }, src.provider.cache_policy(), kjv().book_len(r.book));
+    cache.save(root, src.provider, translation).unwrap();
+}
+
 /// Text that turns out to be a blocked translation, whatever its label says: by its verses, or by the notice API.Bible
 /// sent with them. It is neither kept nor reported as used.
 fn refused(provider: Provider, translation: &str, book: u8, f: &Fetched) -> bool {
@@ -365,6 +430,7 @@ fn remember(root: &Path, src: &Source, key: &str, now: u64, (book, part): (u8, &
     let _g = FILES.lock().unwrap();
     if Secrets::load(root).key(src.provider) != Some(key) { return; }
     let mut cache = Cache::load(root, src.provider, src.translation);
+    cache.pinned = pinned(src.translation);
     cache.put(book, part, now, f.clone(), src.provider.cache_policy(), kjv().book_len(book));
     let _ = cache.save(root, src.provider, src.translation);
 }
@@ -590,5 +656,32 @@ mod tests {
         c.put(b, &p, crate::app::now_secs(), Fetched { verses: vec![(1, 1, "and the Word was a god".into())], fums: vec![] }, ESV, 879);
         c.save(&root, Provider::Esv, "ESV").unwrap();
         assert_eq!(lookup(&root, "ESV", "John 1:1").await.unwrap_err(), BLOCKED);
+    }
+
+    #[test]
+    fn pinned_verses_evicted_last() {
+        let tiny = CachePolicy { max_verses: 3, half_book: false, max_age_days: None };
+        let mut c = Cache { pinned: [(42, 3, 16)].into_iter().collect(), ..Cache::default() };
+        let (b, p) = part("John 3:16");
+        c.put(b, &p, 1, verses(3, 16, 1), tiny, 879);
+        for (t, v) in [(2, 1), (3, 2), (4, 3), (5, 4)] { let (b, p) = part(&format!("Romans 1:{v}")); c.put(b, &p, t, verses(1, v, 1), tiny, 433) }
+        assert!(c.get(b, &p, 5, tiny).is_some(), "the open service's verse stays");
+        assert_eq!(c.verse_count(), 3);
+    }
+
+    #[test]
+    fn cached_reads_the_cache_only() {
+        let root = crate::store::test_dir();
+        assert!(cache_file(&root, Provider::Esv, "ESV"));
+        let got = cached(&root, "ESV", "John 3:16").expect("in the cache");
+        assert_eq!((got[0].reference.as_str(), got[0].text.as_str(), got[0].id), ("John 3:16", "v16", Some(crate::scripture::VerseId(42, 3, 16))));
+        assert_eq!(cached(&root, "ESV", "John 3:17"), None, "never the network");
+        assert_eq!(cached(&root, "KJV", "John 3:16"), None, "no online source");
+    }
+
+    #[test]
+    fn online_bibles() {
+        assert!(is_online("NIV") && is_online("esv") && is_online("yv:111") && is_online("ab:de4e12af7f28f599-02"));
+        assert!(!is_online("KJV") && !is_online("ebible:spaRV1909"));
     }
 }
