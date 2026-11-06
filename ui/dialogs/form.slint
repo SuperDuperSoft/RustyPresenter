@@ -68,8 +68,6 @@ export component TextField inherits Rectangle {
                 edited => { root.edited(self.text); }
                 accepted => { root.accepted(self.text); }
                 EditMenu {
-                    x: 0;
-                    y: 0;
                     width: 100%;
                     height: 100%;
                     has-text: input.text != "";
@@ -145,8 +143,6 @@ export component TextArea inherits Rectangle {
                 }
             }
             EditMenu {
-                x: 0;
-                y: 0;
                 width: 100%;
                 height: 100%;
                 has-text: input.text != "";
