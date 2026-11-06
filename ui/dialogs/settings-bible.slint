@@ -6,6 +6,16 @@ import { TextField, Note, Lbl, ListRow, RowMain, Select } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 
 export component SettingsBible inherits VerticalLayout {
+    // ---- Default Bible (§7.1): what the Bible box and new passages use ----
+    Lbl { label: @tr("Default Bible"); }
+    Rectangle { height: 8px; }
+    default-bible := Select {
+        options: SettingsDlg.default-bibles;
+        index <=> SettingsDlg.default-bible;
+        changed(i) => { SettingsDlg.default-bible-changed(i); }
+    }
+    Rectangle { height: 16px; }
+
     // ---- Bible library (Bible library spec §7.1): search, Installed/All, language, one button per row ----
     Lbl { label: @tr("Add Bibles"); }
     Rectangle { height: 8px; }
@@ -239,15 +249,27 @@ export component SettingsBible inherits VerticalLayout {
     }
     if SettingsDlg.bible-credits.length > 0: VerticalLayout {
         padding-top: 16px;
+        Lbl { label: @tr("Credits"); }
+        Rectangle { height: 8px; }
         Note {
             font-size: 12.5px;
             VerticalLayout {
                 spacing: 6px;
-                for c in SettingsDlg.bible-credits: Text {
-                    text: c;
-                    color: Theme.muted;
-                    font-size: 12.5px;
-                    wrap: word-wrap;
+                for c in SettingsDlg.bible-credits: credit := VerticalLayout {
+                    spacing: 2px;
+                    accessible-role: text;
+                    accessible-label: c.text;
+                    accessible-description: c.url;
+                    Text {
+                        text: c.text;
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                    if c.url != "": HorizontalLayout {
+                        alignment: start;
+                        CopyText { text: c.url; }
+                    }
                 }
             }
         }

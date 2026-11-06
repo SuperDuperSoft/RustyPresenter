@@ -5,7 +5,7 @@ use super::settings::{Edit, copy, redraw_on_next_read, strings};
 use crate::{
     bible::{blocklist::normalise, catalog::strings as cat},
     ui::{
-        SettingsBibleRow, SettingsCatalogRow, SettingsDlg, SettingsProviderRow,
+        SettingsBibleRow, SettingsCatalogRow, SettingsCreditRow, SettingsDlg, SettingsProviderRow,
         dialogs::DialogKind,
         operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, JobRow, OperatorSnapshot}, window::Operator},
     },
@@ -18,6 +18,8 @@ use std::{cell::{Cell, RefCell}, collections::{HashMap, HashSet}, path::PathBuf,
 pub struct BibleState {
     sources: RefCell<Vec<BibleSource>>,
     providers: RefCell<Vec<BibleProvider>>,
+    /// The Default Bible list's translation ids, in its order.
+    defaults: RefCell<Vec<String>>,
     pub(crate) catalog: CatalogState,
 }
 
@@ -305,11 +307,51 @@ pub fn hint(b: &BibleSource, providers: &[BibleProvider]) -> String {
     }
 }
 
+/// The Default Bible list: every Bible that can be used now, and the one in use even when it can't (a key was
+/// removed), first, so the list never shows another Bible than the Bible box does. Ids and labels.
+pub fn defaults(snap: &OperatorSnapshot) -> (Vec<String>, Vec<String>) {
+    let mut ids = snap.available.clone();
+    if !ids.contains(&snap.translation) { ids.insert(0, snap.translation.clone()) }
+    let labels = ids.iter().map(|id| match snap.bible_sources.iter().find(|b| b.translation == *id) {
+        Some(b) => cat::bible_option(b.label(), &b.name),
+        None => id.clone(),
+    }).collect();
+    (ids, labels)
+}
+
+/// Every Bible in use that carries a notice or a licence: its credit line and the licence's link (spec §7.1).
+pub fn credits(sources: &[BibleSource]) -> Vec<(String, String)> {
+    sources.iter()
+        .filter(|b| b.status == "online" || b.imported)
+        .filter(|b| b.copyright.as_deref().is_some_and(|c| !c.is_empty()) || !b.licence.is_empty())
+        .map(|b| (cat::credit(b.label(), b.copyright.as_deref().unwrap_or(""), &b.licence), b.licence_url.clone()))
+        .collect()
+}
+
+/// Default Bible picked: `settings/translation` at once, as the Bible box's chips do, so Save and Cancel don't
+/// touch it. A failure puts the list back to what is in use.
+pub(super) fn default_bible(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let Some(id) = edit.bible.defaults.borrow().get(i).cloned() else { return };
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<serde_json::Value>("settings/translation", serde_json::json!({ "translation": id }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(_) => op.toast(cat::DEFAULT_SET, false),
+            Err(e) => op.toast(e, true),
+        }
+        redraw_on_next_read(&op, &edit);
+    });
+}
+
 pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
+    let (ids, labels) = defaults(snap);
+    g.set_default_bible(ids.iter().position(|id| *id == snap.translation).unwrap_or(0) as i32);
+    g.set_default_bibles(ModelRc::new(VecModel::from(labels.into_iter().map(SharedString::from).collect::<Vec<_>>())));
+    *edit.bible.defaults.borrow_mut() = ids;
     let rows: Vec<SettingsBibleRow> = snap.bible_sources.iter().map(|b| {
         let (state, chip) = strings::chip(&b.status);
         SettingsBibleRow {
-            translation: b.translation.as_str().into(), hint: hint(b, &snap.bible_providers).into(),
+            translation: b.label().into(), hint: hint(b, &snap.bible_providers).into(),
             chip: chip.into(), chip_state: state.into(), imported: b.imported,
         }
     }).collect();
@@ -319,9 +361,8 @@ pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
         signup_url: p.signup_url.as_str().into(), note: p.note.as_str().into(),
     }).collect();
     g.set_bible_providers(ModelRc::new(VecModel::from(providers)));
-    let credits: Vec<SharedString> = snap.bible_sources.iter()
-        .filter(|b| b.status == "online" || b.imported)
-        .filter_map(|b| b.copyright.as_deref().filter(|c| !c.is_empty()).map(Into::into))
+    let credits: Vec<SettingsCreditRow> = credits(&snap.bible_sources).into_iter()
+        .map(|(text, url)| SettingsCreditRow { text: text.into(), url: url.into() })
         .collect();
     g.set_bible_credits(ModelRc::new(VecModel::from(credits)));
     *edit.bible.sources.borrow_mut() = snap.bible_sources.clone();
@@ -446,6 +487,21 @@ mod catalog_tests {
         assert_eq!((i.button.as_str(), i.status.as_str(), i.primary), ("Remove", "Added", false));
         r.update = true;
         assert_eq!(line(&r, None, false, false, None, false, false).button, "Update");
+    }
+
+    #[test]
+    fn a_credit_names_the_bible_once_and_adds_the_licence_once() {
+        assert_eq!(cat::credit("RVR", "Copyright © Ejemplo", "CC BY 4.0"), "RVR: Copyright © Ejemplo (CC BY 4.0)");
+        assert_eq!(cat::credit("NET", "NET Bible® copyright © Biblical Studies Press", ""), "NET Bible® copyright © Biblical Studies Press");
+        assert_eq!(cat::credit("WEB", "", "Public domain"), "WEB (Public domain)");
+        assert_eq!(cat::credit("X", "X: CC BY 4.0", "CC BY 4.0"), "X: CC BY 4.0", "not twice");
+        let src = |t: &str, status: &str, imported: bool, copyright: Option<&str>, licence: &str| BibleSource {
+            translation: t.into(), status: status.into(), imported, copyright: copyright.map(Into::into), licence: licence.into(), ..Default::default()
+        };
+        let list = [src("KJV", "offline", false, None, ""), src("ESV", "needs_key", false, Some("ESV ©"), ""), src("ESV", "online", false, Some("ESV ©"), ""),
+            src("e:x", "offline", true, None, ""), src("e:y", "offline", true, None, "Public domain")];
+        assert_eq!(credits(&list).into_iter().map(|c| c.0).collect::<Vec<_>>(), ["ESV ©", "e:y (Public domain)"],
+            "in use and with something to say");
     }
 
     #[test]

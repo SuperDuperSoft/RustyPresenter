@@ -28,6 +28,31 @@ pub enum Licence {
     Unknown,
 }
 
+impl Licence {
+    /// The licence's short name for credits ("CC BY-SA 4.0", "Public domain"); empty when the Bible's own notice
+    /// is all there is (an import, an online provider).
+    pub fn short(&self) -> String {
+        match self {
+            Licence::Pd => "Public domain".into(),
+            Licence::Cc { kind, version, .. } => {
+                let k = kind.to_uppercase();
+                if version.is_empty() { format!("CC {k}") } else { format!("CC {k} {version}") }
+            }
+            Licence::Net => "NET Bible licence".into(),
+            Licence::Provider | Licence::Unknown => String::new(),
+        }
+    }
+
+    /// Where the full licence can be read; empty when there is no page for it. NET has none here yet: its page
+    /// address was not checked, and the notice in the Bible's own file says where to read it.
+    pub fn link(&self) -> &str {
+        match self {
+            Licence::Cc { url, .. } => url,
+            _ => "",
+        }
+    }
+}
+
 /// Where a Bible came from.
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq, Eq)]
 #[serde(tag = "type", rename_all = "snake_case")]
@@ -147,6 +172,15 @@ mod tests {
             source: Source::Ebible { update_date: "2026-03-01".into() }, dir: Dir::Rtl, versification: Vsys::Septuagint, ..Default::default()
         };
         assert_eq!(serde_json::from_str::<BibleMeta>(&serde_json::to_string(&m).unwrap()).unwrap(), m);
+    }
+
+    #[test]
+    fn licences_have_a_short_name_and_a_link_for_credits() {
+        let cc = Licence::Cc { kind: "by-nc-nd".into(), version: "4.0".into(), url: "https://creativecommons.org/licenses/by-nc-nd/4.0/".into() };
+        assert_eq!((cc.short().as_str(), cc.link()), ("CC BY-NC-ND 4.0", "https://creativecommons.org/licenses/by-nc-nd/4.0/"));
+        assert_eq!((Licence::Pd.short().as_str(), Licence::Pd.link()), ("Public domain", ""));
+        assert_eq!((Licence::Net.short().as_str(), Licence::Net.link()), ("NET Bible licence", ""));
+        assert_eq!((Licence::Unknown.short().as_str(), Licence::Provider.short().as_str()), ("", ""));
     }
 
     #[test]

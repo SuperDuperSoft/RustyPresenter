@@ -436,7 +436,7 @@ fn bible_tab_shows_sources_keys_and_import() {
     let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
     let hcsb = sources.iter().position(|r| r.translation == "HCSB").expect("the imported Bible is listed");
     assert!(sources[hcsb].imported);
-    assert!(g(&op).get_bible_credits().iter().any(|c| c.contains("(c) Holman")));
+    assert!(g(&op).get_bible_credits().iter().any(|c| c.text.contains("(c) Holman")));
 
     g(&op).invoke_remove_import(hcsb as i32);
     assert_eq!(toasts(&op).last().map(String::as_str), Some("HCSB removed"));
@@ -569,4 +569,63 @@ fn bible_library_row_follows_its_download_job() {
     let n = g(&op).get_catalog_rows().iter().position(|r| r.title == "World English Bible").unwrap();
     g(&op).invoke_catalog_button(n as i32);
     assert!(cancel.is_cancelled(), "Cancel cancels the row's job");
+}
+
+/// An eBible download as `bible/install` leaves it: prefixed id, its own abbreviation, licence and source.
+fn install_download(app: &App) {
+    use crate::bible::{import::{ImportedBible, install}, library::{BibleMeta, Licence, Source}};
+    let meta = BibleMeta {
+        id: "ebible:spaRVR".into(), abbr: "RVR".into(), name: "Reina Valera Revisada".into(), lang: "spa".into(),
+        lang_name_en: "Spanish".into(), copyright: "Copyright © 2020 Sociedad Ejemplo".into(),
+        licence: Licence::Cc { kind: "by-sa".into(), version: "4.0".into(), url: "https://creativecommons.org/licenses/by-sa/4.0/".into() },
+        source: Source::Ebible { update_date: "2026-03-01".into() }, ..Default::default()
+    };
+    let verses = [((42u8, 3u16, 16u16), "Porque de tal manera amó Dios al mundo.".to_string())].into_iter().collect();
+    install(&app.store.root, ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: meta.copyright.clone(), verses, meta: Some(meta) }).unwrap();
+}
+
+#[test]
+fn default_bible_lists_what_can_be_used_and_is_applied_at_once() {
+    let app = test_app();
+    install_download(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    assert!(find(&op, "SettingsBible::default-bible").is_some());
+    let options: Vec<String> = g(&op).get_default_bibles().iter().map(|s| s.to_string()).collect();
+    assert!(options.contains(&"KJV — King James Version".to_string()), "{options:?}");
+    assert!(options.contains(&"RVR — Reina Valera Revisada".to_string()), "a download by its abbreviation: {options:?}");
+    assert!(!options.iter().any(|o| o.starts_with("ESV")), "a Bible that needs a key isn't offered: {options:?}");
+    let kjv = options.iter().position(|o| o.starts_with("KJV")).unwrap();
+    assert_eq!(g(&op).get_default_bible(), kjv as i32, "the one in use");
+
+    let rvr = options.iter().position(|o| o.starts_with("RVR")).unwrap();
+    g(&op).set_default_bible(rvr as i32);
+    g(&op).invoke_default_bible_changed(rvr as i32);
+    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "applied before Save, by its id");
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("Default Bible changed"));
+    click(&op, "SettingsDialog::cancel");
+    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "Cancel doesn't undo it");
+    refresh(&op);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let options: Vec<String> = g(&op).get_default_bibles().iter().map(|s| s.to_string()).collect();
+    assert!(options[g(&op).get_default_bible() as usize].starts_with("RVR"), "shown again: {options:?}");
+}
+
+#[test]
+fn credits_show_each_downloaded_bible_with_its_licence_and_link() {
+    let app = test_app();
+    install_download(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let credits: Vec<_> = g(&op).get_bible_credits().iter().collect();
+    let c = credits.iter().find(|c| c.text.contains("Sociedad Ejemplo")).unwrap_or_else(|| panic!("{credits:?}"));
+    assert_eq!(c.text, "RVR: Copyright © 2020 Sociedad Ejemplo (CC BY-SA 4.0)");
+    assert_eq!(c.url, "https://creativecommons.org/licenses/by-sa/4.0/");
+    let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
+    let row = sources.iter().find(|r| r.translation == "RVR").unwrap_or_else(|| panic!("listed by abbreviation"));
+    assert_eq!(row.hint, "Reina Valera Revisada — downloaded from eBible.org");
+    assert!(row.imported, "it can still be removed here");
 }

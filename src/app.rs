@@ -526,10 +526,17 @@ impl App {
         let secrets = Secrets::load(root);
         self.translations().iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
-                return json!({ "translation": t, "status": "offline", "provider": format!("{name} — built in, public domain") });
+                return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": format!("{name} — built in, public domain") });
             }
             if let Some(b) = bible::import::meta(root, t) {
-                return json!({ "translation": t, "status": "offline", "imported": true, "provider": format!("{} — imported file", b.name), "copyright": b.copyright });
+                use bible::library::Source;
+                let downloaded = matches!(b.source, Source::Ebible { .. });
+                let provider = if downloaded { bible::catalog::strings::from_ebible(&b.name) } else { format!("{} — imported file", b.name) };
+                let abbr = if b.abbr.is_empty() { b.id.clone() } else { b.abbr.clone() };
+                return json!({
+                    "translation": t, "abbr": abbr, "name": b.name, "status": "offline", "imported": true, "downloaded": downloaded,
+                    "provider": provider, "copyright": b.copyright, "licence": b.licence.short(), "licence_url": b.licence.link(),
+                });
             }
             match source_with(t, &secrets) {
                 Some(s) => json!({

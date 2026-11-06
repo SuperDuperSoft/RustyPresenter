@@ -34,6 +34,19 @@ pub struct BibleSource {
     pub copyright: Option<String>,
     /// Key names of the services that can supply this translation.
     pub providers: Vec<String>,
+    /// What chips show ("RV1909"); empty for a translation the app only knows by name.
+    pub abbr: String,
+    pub name: String,
+    /// Downloaded from a catalog (eBible), not a file the church imported.
+    pub downloaded: bool,
+    /// Licence short name and link for the credits ("CC BY-SA 4.0"); empty when the notice is all there is.
+    pub licence: String,
+    pub licence_url: String,
+}
+
+impl BibleSource {
+    /// How the translation is named in lists: its abbreviation, or the id when it has none.
+    pub fn label(&self) -> &str { if self.abbr.is_empty() { &self.translation } else { &self.abbr } }
 }
 
 /// An online Bible service a church can connect (`App::bible_providers`).

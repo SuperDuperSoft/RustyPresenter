@@ -36,6 +36,20 @@ pub const CANCEL: &str = "Cancel";
 pub const ADDED: &str = "Added";
 pub const WAITING_SHORT: &str = "Waiting";
 pub const UPDATE_READY: &str = "A newer edition is ready";
+pub const DEFAULT_BIBLE: &str = "Default Bible";
+pub const DEFAULT_SET: &str = "Default Bible changed";
+pub const CREDITS: &str = "Credits";
+/// The line under a downloaded Bible in Settings → Bible.
+pub fn from_ebible(name: &str) -> String { format!("{name} — downloaded from eBible.org") }
+/// A Bible in the Default Bible list: its abbreviation, then its title when that says more.
+pub fn bible_option(abbr: &str, name: &str) -> String {
+    if name.is_empty() || name == abbr { abbr.to_string() } else { format!("{abbr} — {name}") }
+}
+/// One credit: the Bible's own notice (or its name), then the licence's short name when it has one.
+pub fn credit(abbr: &str, copyright: &str, licence: &str) -> String {
+    let notice = if copyright.is_empty() { abbr.to_string() } else if copyright.contains(abbr) { copyright.to_string() } else { format!("{abbr}: {copyright}") };
+    if licence.is_empty() || notice.contains(licence) { notice } else { format!("{notice} ({licence})") }
+}
 /// The list is cut at `shown` rows so the page stays quick; search narrows it.
 pub fn showing(shown: usize, of: usize) -> String { format!("Showing {shown} of {of} Bibles. Search to find others.") }
 pub fn downloading(percent: u8) -> String { format!("Downloading… {percent}%") }

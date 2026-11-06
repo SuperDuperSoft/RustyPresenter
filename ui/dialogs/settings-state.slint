@@ -15,6 +15,9 @@ export struct SettingsCatalogRow {
 /// An online Bible service row of Settings → Bible.
 export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
 
+/// A credit of Settings → Bible: the Bible's notice with its licence, and where to read the licence (may be empty).
+export struct SettingsCreditRow { text: string, url: string }
+
 /// A backup row: when it was made and what it holds.
 export struct SettingsBackupRow { label: string, counts: string }
 
@@ -62,7 +65,10 @@ export global SettingsDlg {
     // ---- Bible ----
     in property <[SettingsBibleRow]> bible-sources;
     in property <[SettingsProviderRow]> bible-providers;
-    in property <[string]> bible-credits;
+    in property <[SettingsCreditRow]> bible-credits;
+    /// The Bibles that can be used now (`available`), as "KJV — King James Version", and the one in use.
+    in property <[string]> default-bibles;
+    in-out property <int> default-bible;
     in-out property <string> bible-short;
     /// The library list: what matches the search, filter and language, with headings.
     in property <[SettingsCatalogRow]> catalog-rows;
@@ -123,6 +129,8 @@ export global SettingsDlg {
     /// The library list: a new search, filter or language, and a row's button.
     callback catalog-changed();
     callback catalog-button(int);
+    /// Default Bible: applied at once (`settings/translation`), like the Bible box's chips; Cancel keeps it.
+    callback default-bible-changed(int);
     callback backup-now();
     callback restore(int);
     callback show-licences(bool);
