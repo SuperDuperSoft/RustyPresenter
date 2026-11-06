@@ -6,10 +6,10 @@ on:
     branches: [redesign-media-library]
   workflow_dispatch:
 
-# A newer push replaces a run still going: only the newest code matters here.
+# One run at a time: a newer push waits for the run going (and replaces any run still waiting).
 concurrency:
   group: quick-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   check:
