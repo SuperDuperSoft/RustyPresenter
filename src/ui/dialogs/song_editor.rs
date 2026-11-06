@@ -4,9 +4,10 @@
 use super::{DialogKind, add_strings as tr, confirm};
 use crate::{
     model::Song,
+    sections::arrangement,
     slides::{parse_sections, song_slides},
     ui::{
-        PreviewSlide, SectionChipRow, SongEditorState,
+        ArrChip, ArrChipRow, PreviewSlide, SectionChipRow, SongEditorState,
         operator::{add_item::add_item_then, window::Operator},
         thumbs::{Thumbs, thumb, thumb_size},
     },
@@ -23,6 +24,10 @@ pub const PREVIEW_AFTER: Duration = Duration::from_millis(250);
 const PREVIEW_W: f32 = 256.0;
 /// `+ <label>` buttons per row under Order (the web wraps them; Slint has no wrapping layout).
 const CHIPS_PER_ROW: usize = 4;
+/// Order chips per row.
+const ARR_PER_ROW: usize = 8;
+/// What a dragged order chip carries: plain text `arr:<index>`.
+const ARR_DRAG: &str = "arr:";
 
 /// The open editor: which song, what Save does, the preview's timer and pictures.
 struct EditorCtx {
@@ -125,6 +130,12 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     st.set_chips(ModelRc::new(VecModel::from(chips)));
     let warnings = order_warnings(&song.lyrics, &st.get_order());
     st.set_warning(if warnings.is_empty() { String::new() } else { tr::not_in_lyrics(&warnings) }.into());
+    let (arr, _, written) = arrangement::chips(&song.lyrics, &song.arrangement);
+    let arr: Vec<ArrChip> = arr.into_iter().enumerate().map(|(index, c)| ArrChip {
+        index: index as i32, label: c.label.into(), short: c.short.into(), kind: c.kind.id().into(), missing: c.missing, faded: c.faded,
+    }).collect();
+    st.set_arr_rows(ModelRc::new(VecModel::from(arr.chunks(ARR_PER_ROW).map(|c| ArrChipRow { chips: ModelRc::new(VecModel::from(c.to_vec())) }).collect::<Vec<_>>())));
+    st.set_arr_written(written);
 
     let Some(settings) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) else { return };
     let slides = song_slides(&song, &settings);
@@ -163,6 +174,26 @@ fn add_to_order(op: &Operator, ctx: &EditorCtx, label: &str) {
     order.push(label.to_string());
     st.set_order(order.join(", ").into());
     draw(op, ctx);
+}
+
+/// A change to the order through its chips (FEAT-4 §3.5). An empty order (the written one) is spelled out first.
+fn change_order(op: &Operator, ctx: &EditorCtx, f: impl FnOnce(&mut Vec<String>)) {
+    let st = op.ui.global::<SongEditorState>();
+    let mut order = parse_order(&st.get_order());
+    arrangement::ensure_real(&mut order, &st.get_lyrics());
+    f(&mut order);
+    st.set_order(order.join(", ").into());
+    draw(op, ctx);
+}
+
+fn arr_drag_data(index: i32) -> slint::DataTransfer {
+    let mut d = slint::DataTransfer::default();
+    d.set_plain_text(format!("{ARR_DRAG}{index}").into());
+    d
+}
+
+fn arr_drag_index(d: &slint::DataTransfer) -> i32 {
+    d.plain_text().ok().and_then(|t| t.strip_prefix(ARR_DRAG).and_then(|i| i.parse().ok())).unwrap_or(-1)
 }
 
 #[derive(Deserialize)]
@@ -224,6 +255,19 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     let c = ctx.clone();
     st.on_chip(move |label| if let Some(op) = c.op.upgrade() { add_to_order(&op, &c, &label) });
     let c = ctx.clone();
+    st.on_arr_move(move |from, to| if let (Some(op), Ok(from), Ok(to)) = (c.op.upgrade(), usize::try_from(from), usize::try_from(to)) {
+        change_order(&op, &c, |v| arrangement::move_entry(v, from, to))
+    });
+    let c = ctx.clone();
+    st.on_arr_remove(move |i| if let (Some(op), Ok(i)) = (c.op.upgrade(), usize::try_from(i)) { change_order(&op, &c, |v| arrangement::remove(v, i)) });
+    let c = ctx.clone();
+    st.on_arr_reset(move || if let Some(op) = c.op.upgrade() {
+        op.ui.global::<SongEditorState>().set_order(SharedString::new());
+        draw(&op, &c);
+    });
+    st.on_arr_drag_data(arr_drag_data);
+    st.on_arr_drag_index(|d| arr_drag_index(&d));
+    let c = ctx.clone();
     st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c, false) });
     let c = ctx.clone();
     st.on_save_and_show(move || if let Some(op) = c.op.upgrade() { save(&op, &c, true) });
@@ -279,6 +323,43 @@ mod tests {
         assert_eq!(previews.len(), 2);
         assert_eq!(previews[1].accessible_label().unwrap_or_default(), "Verse 1 (2/2)");
         assert!(st(&op).get_previews().iter().all(|p| p.image.size().width > 0), "each slide is drawn");
+    }
+
+    fn arr(op: &Operator) -> Vec<(String, bool, bool)> {
+        st(op).get_arr_rows().iter().flat_map(|r| r.chips.iter().map(|c| (c.short.to_string(), c.missing, c.faded)).collect::<Vec<_>>()).collect()
+    }
+
+    #[test]
+    fn order_chips_drag_remove_and_reset() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Verse 1\na\n\nChorus\nb\n\nVerse 2\nc");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        assert_eq!(arr(&op), [("V1".into(), false, true), ("C".into(), false, true), ("V2".into(), false, true)], "the written order, faded");
+        assert!(st(&op).get_arr_written());
+        st(&op).invoke_arr_move(1, 3);
+        assert_eq!(st(&op).get_order(), "Verse 1, Verse 2, Chorus", "the first drag spells out the written order");
+        assert_eq!(labels(&op), ["Verse 1", "Verse 2", "Chorus"], "the preview follows");
+        st(&op).invoke_arr_move(2, 0);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 1, Verse 2");
+        st(&op).invoke_arr_remove(1);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 2");
+        st(&op).set_order("Chorus, Coda".into());
+        st(&op).invoke_edited();
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        assert_eq!(arr(&op), [("C".into(), false, false), ("E".into(), true, false)], "Coda is not in the lyrics");
+        st(&op).invoke_arr_reset();
+        assert_eq!(st(&op).get_order(), "");
+        assert!(st(&op).get_arr_written());
+    }
+
+    #[test]
+    fn order_chip_drag_payload_round_trips() {
+        assert_eq!(arr_drag_index(&arr_drag_data(3)), 3);
+        let mut other = slint::DataTransfer::default();
+        other.set_plain_text("svc:1".into());
+        assert_eq!(arr_drag_index(&other), -1);
     }
 
     #[test]
