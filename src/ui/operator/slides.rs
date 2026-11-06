@@ -79,7 +79,11 @@ pub fn header_title(snap: &OperatorSnapshot, item: Option<&ItemRow>) -> String {
 
 /// What the grid was built from (the web's `gridKey`): a change rebuilds it, anything else only moves the live mark.
 #[derive(Clone, PartialEq)]
-struct GridKey { id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>, settings: Settings }
+struct GridKey {
+    id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>, settings: Settings,
+    /// Each slide's grabbed video frame, if it is a video the library has one for (a new frame redraws the grid).
+    frames: Vec<Option<String>>,
+}
 
 /// The grid between updates.
 #[derive(Default)]
@@ -112,6 +116,10 @@ impl Operator {
         ui.set_slide_jumps(ModelRc::new(VecModel::from(item.map_or_else(Vec::new, |i| jumps(&i.kind, &i.slides)))));
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: it.item.background.clone(), settings: snap.settings.clone(),
+            frames: it.slides.iter().map(|sl| match &sl.content {
+                SlideContent::Video { asset, .. } => snap.data.media.iter().find(|m| m.asset == *asset).and_then(|m| m.thumb.clone()),
+                _ => None,
+            }).collect(),
         });
         if self.slides.borrow().built != key {
             let other_item = self.slides.borrow().built.as_ref().map(|k| k.id) != key.as_ref().map(|k| k.id);
@@ -211,7 +219,18 @@ impl Operator {
             let Some(k) = &s.built else { return };
             let passage = passage(&k.kind, &k.slides);
             let jobs: Vec<_> = k.slides.iter().enumerate()
-                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, &passage, k.background.as_ref(), &k.settings, s.size)))
+                .map(|(i, slide)| {
+                    let (key, mut job) = thumbs::thumb(slide, &k.kind, &passage, k.background.as_ref(), &k.settings, s.size);
+                    // A video slide shows its grabbed frame, fitted like the video itself, when the library has one.
+                    if let Some(Some(frame)) = k.frames.get(i) {
+                        {
+                            job.media = Some(thumbs::ThumbMedia::Still { asset: frame.clone() });
+                            let key = thumbs::ThumbKey { layers: serde_json::to_string(&job).unwrap_or_default(), ..key };
+                            return (i, (key, job));
+                        }
+                    }
+                    (i, (key, job))
+                })
                 .collect();
             (s.generation, jobs)
         };
