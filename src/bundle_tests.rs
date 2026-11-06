@@ -63,7 +63,7 @@ fn crafted(s: &Store, a: &str, edit: impl FnOnce(&mut Contents), entries: &[(&st
     let m = media("clip", a);
     let mut svc = Service::new("Crafted");
     svc.items = vec![item(ItemKind::Media { media_id: m.id, autoplay: true, end: EndAction::Stop, looped: false })];
-    let mut c = Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![] };
+    let mut c = Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![] };
     edit(&mut c);
     let json = serde_json::to_vec(&c).unwrap();
     let path = s.root.join("crafted.rpservice");
@@ -163,7 +163,7 @@ fn the_same_song_under_another_id_is_reused() {
     let incoming = song("Amazing Grace", "22025", "words");
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Song { song_id: incoming.id })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
     assert_eq!(opened.songs_added, 0);
     assert_eq!(there.songs.len(), 1);
     assert!(matches!(there.service().unwrap().items[0].kind, ItemKind::Song { song_id } if song_id == local_id));
@@ -179,7 +179,7 @@ fn a_song_with_other_words_comes_in_beside_the_library_one() {
     incoming.id = same_id;
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Song { song_id: same_id })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
     assert_eq!(opened.songs_differ, vec!["Grace".to_string()]);
     assert_eq!(there.songs.len(), 2);
     assert_eq!(there.songs[0].lyrics, "the words here", "the library's own song is untouched");
@@ -195,7 +195,7 @@ fn an_arrangement_change_counts_as_different() {
     let mut incoming = song("Grace", "22025", "words");
     incoming.arrangement = vec!["Chorus".into()];
     let svc = Service::new("S");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![] }).songs_differ.len(), 1);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] }).songs_differ.len(), 1);
 }
 
 #[test]
@@ -204,9 +204,9 @@ fn two_titles_without_ccli_are_only_the_same_with_the_same_words() {
     there.songs.push(song("Hymn", "", "one"));
     let svc = Service::new("S");
     let same = song("Hymn", "", "one");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc.clone(), songs: vec![same], media: vec![], decks: vec![] }).songs_added, 0);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc.clone(), songs: vec![same], media: vec![], decks: vec![], fonts: vec![] }).songs_added, 0);
     let other = song("Hymn", "", "two");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![other], media: vec![], decks: vec![] }).songs_differ.len(), 1);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![other], media: vec![], decks: vec![], fonts: vec![] }).songs_differ.len(), 1);
 }
 
 #[test]
@@ -221,7 +221,7 @@ fn media_and_decks_match_by_their_files() {
     let deck = Deck { id: Uuid::new_v4(), title: "Other".into(), slides: vec![format!("{HEX}.png")] };
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Media { media_id: m.id, autoplay: false, end: EndAction::Loop, looped: false }), item(ItemKind::Deck { deck_id: deck.id })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![deck] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![deck], fonts: vec![] });
     assert_eq!((opened.media_added, opened.decks_added), (0, 0));
     let items = &there.service().unwrap().items;
     assert!(matches!(items[0].kind, ItemKind::Media { media_id, autoplay: false, end: EndAction::Loop, .. } if media_id == mid));
@@ -238,7 +238,7 @@ fn an_id_already_used_by_other_media_gets_a_new_one() {
     m.id = id;
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Media { media_id: id, autoplay: true, end: EndAction::Stop, looped: false })];
-    merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![] });
+    merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![] });
     assert_eq!(there.media.len(), 2);
     let ItemKind::Media { media_id, .. } = there.service().unwrap().items[0].kind else { panic!() };
     assert_ne!(media_id, id);
@@ -399,4 +399,26 @@ fn a_service_file_leaves_online_text_out() {
     let c = open_in(&store(), &saved(&s, &d)).unwrap();
     let ItemKind::Scripture { verses, also, .. } = &c.service.items[3].kind else { panic!() };
     assert_eq!((verses.len(), also[0].translation.as_str(), also[0].verses.len()), (1, "NIV", 0), "KJV kept, NIV's text left out");
+}
+
+#[test]
+fn blanks_headers_and_the_font_travel_in_a_bundle() {
+    let (a, b) = (store(), store());
+    let mut d = sample(&a);
+    d.settings.theme.font = "Montserrat".into();
+    d.service_mut().unwrap().items.push(item(ItemKind::Blank { label: "Song".into(), want: crate::model::BlankKind::Song }));
+    d.service_mut().unwrap().items.push(item(ItemKind::Header { title: "Worship".into(), color: "#4aa3ff".into() }));
+    let file = saved(&a, &d);
+    let c = open_in(&b, &file).unwrap();
+    assert_eq!(c.fonts, ["Montserrat"]);
+    let missing = missing_fonts(&c.fonts, &|_| false);
+    assert_eq!(missing, ["Montserrat"]);
+    assert!(missing_fonts(&c.fonts, &|f| f == "Montserrat").is_empty());
+    assert!(missing_fonts(&["Segoe UI".to_string()], &|_| false).is_empty(), "the default font always has a stand-in");
+    let mut there = Data::default();
+    let opened = Opened { fonts_missing: missing, ..merge(&mut there, c) };
+    let items = &there.service().unwrap().items;
+    assert!(items.iter().any(|i| matches!(&i.kind, ItemKind::Blank { label, .. } if label == "Song")));
+    assert!(items.iter().any(|i| matches!(&i.kind, ItemKind::Header { title, .. } if title == "Worship")));
+    assert!(strings::opened_report(&opened).contains("made with a font this computer does not have, so its words show in another font: Montserrat"));
 }

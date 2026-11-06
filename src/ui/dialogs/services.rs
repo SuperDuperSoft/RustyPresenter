@@ -1,49 +1,97 @@
-//! The Services dialog (`operator.js:776-790`, `ui/dialogs/services.slint`): make an empty service or a copy of
-//! this one, rename and delete services, and open another one.
+//! The Services dialog (`operator.js:776-790`, `ui/dialogs/services.slint`, FEAT-6a §3.1): Copy last week, new
+//! from a template, an empty service or a copy of this one; date, print, rename, delete and open services; save a
+//! service as a template, and the templates. Also the service list's blanks and headers (FEAT-6a, §10c idea 12).
 #[path = "../../strings/services.rs"]
 pub mod strings;
 
-use super::{DialogKind, ask::notice, confirm, prompt, strings as dtr};
+use super::{DialogKind, ask::notice, choose, confirm, prompt, strings as dtr};
 use crate::{
     app::ExportError,
     bundle,
-    ui::{ServiceListRow, ServicesDialogState, operator::{file_input::Filter, files, window::Operator}},
+    model::{BlankKind, DateOrder, ItemKind},
+    planning::{self, strings as ptr},
+    ui::{ServiceListRow, ServicePlanning, ServicesDialogState, TemplateListRow, dialogs::AddTab, operator::{file_input::Filter, files, window::Operator}},
 };
+use chrono::NaiveDate;
+use serde::Deserialize;
 use serde_json::{Value, json};
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
-/// "Service 11/2/2026": the default name of a new service or a copy (`operator.js:779-780`). The web's
-/// `toLocaleDateString()` gives this on the en-US church PCs.
-pub fn dated_name(date: chrono::NaiveDate) -> String { strings::dated_name(&date.format("%-m/%-d/%Y").to_string()) }
+/// How many services show before "Show N older services" (§3.1).
+const NEWEST: usize = 8;
 
-fn today_name() -> String { dated_name(chrono::Local::now().date_naive()) }
+/// "Service 11/2/2026": the default name of a new service or a copy (`operator.js:779-780`), in the computer's
+/// date order (FEAT-6 §5.2).
+pub fn dated_name(date: NaiveDate, order: DateOrder) -> String { strings::dated_name(&planning::format_date(date, order)) }
 
-/// Opens the dialog. It is never redrawn by an update (`DialogKind::refreshes`); Rename and Delete rebuild it.
+fn today() -> NaiveDate { chrono::Local::now().date_naive() }
+
+fn order(op: &Operator) -> DateOrder { planning::date_order(&op.app().data.lock().unwrap().settings) }
+
+fn today_name(op: &Operator) -> String { dated_name(today(), order(op)) }
+
+/// Opens the dialog. It is never redrawn by an update (`DialogKind::refreshes`); its own actions redraw it.
 pub fn open(op: &Rc<Operator>) {
     op.open_dialog(DialogKind::Services);
-    draw(op, |_| {});
+    op.ui.global::<ServicesDialogState>().set_show_all(false);
+    draw(op);
 }
 
-/// Builds the rows from the newest snapshot. `patch` applies a change the core has made but whose update has not
-/// arrived yet, so a rebuild after Rename or Delete shows it.
-fn draw(op: &Operator, patch: impl FnOnce(&mut Vec<ServiceListRow>)) {
-    let mut rows: Vec<ServiceListRow> = op.state.borrow().snap.as_ref().map(|s| s.data.services.iter().map(|svc| ServiceListRow {
-        id: svc.id.to_string().into(),
-        name: svc.name.as_str().into(),
-        count: strings::item_count(svc.items.len()).into(),
-        current: s.service_id == Some(svc.id),
-    }).collect()).unwrap_or_default();
-    patch(&mut rows);
+/// Builds the rows from the core's data, so a change just made shows before its update arrives.
+fn draw(op: &Operator) {
     let g = op.ui.global::<ServicesDialogState>();
-    g.set_can_delete(rows.len() > 1);
+    let (rows, templates, older) = {
+        let d = op.app().data.lock().unwrap();
+        let order = planning::date_order(&d.settings);
+        let current = d.service().map(|s| s.id);
+        let all: Vec<ServiceListRow> = planning::sorted(&d.services).into_iter().map(|svc| {
+            let blanks = planning::blank_count(&svc.items);
+            ServiceListRow {
+                id: svc.id.to_string().into(),
+                name: svc.name.as_str().into(),
+                count: strings::item_count(svc.items.iter().filter(|i| !matches!(i.kind, ItemKind::Header { .. })).count()).into(),
+                current: current == Some(svc.id),
+                date: svc.date.map_or(ptr::NO_DATE.into(), |d| planning::format_day_date(d, order)).into(),
+                dated: svc.date.is_some(),
+                blanks: if blanks > 0 { ptr::blanks_chip(blanks).into() } else { "".into() },
+            }
+        }).collect();
+        let templates: Vec<TemplateListRow> = d.templates.iter().map(|t| TemplateListRow {
+            id: t.id.to_string().into(),
+            name: t.name.as_str().into(),
+            day: planning::day_label(t.day).into(),
+            parts: ptr::template_parts(t.items.len(), planning::blank_count(&t.items)).into(),
+        }).collect();
+        let older = if g.get_show_all() { 0 } else { all.len().saturating_sub(NEWEST) };
+        let mut rows = all;
+        rows.truncate(rows.len() - older);
+        (rows, templates, older)
+    };
+    g.set_can_delete(rows.len() + older > 1);
     g.set_rows(ModelRc::new(VecModel::from(rows)));
+    g.set_older_text(if older > 0 { ptr::show_older(older).into() } else { "".into() });
+    g.set_templates(ModelRc::new(VecModel::from(templates)));
+    g.set_no_templates_text(ptr::NO_TEMPLATES.into());
+    g.set_need_template_text(ptr::NEED_TEMPLATE.into());
 }
 
 /// Rebuilds the dialog if it is still the one open.
-fn redraw(op: &Operator, patch: impl FnOnce(&mut Vec<ServiceListRow>)) {
-    if op.dialog() == Some(DialogKind::Services) { draw(op, patch) }
+fn redraw(op: &Operator) {
+    if op.dialog() == Some(DialogKind::Services) { draw(op) }
+}
+
+/// A call whose failure is an error toast; `then` runs on success.
+fn call(op: &Rc<Operator>, action: &'static str, body: Value, then: impl FnOnce(&Rc<Operator>, Value) + 'static) {
+    let me = Rc::downgrade(op);
+    op.ops().call::<Value>(action, body, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(v) => then(&op, v),
+            Err(e) => { op.toast(&e, true); redraw(&op) }
+        }
+    });
 }
 
 /// New empty service (`:779`), or Copy this service (`:780`): a name prompt, then `service/new`, then close.
@@ -51,83 +99,204 @@ fn redraw(op: &Operator, patch: impl FnOnce(&mut Vec<ServiceListRow>)) {
 fn new_service(op: &Rc<Operator>, copy: bool) {
     let me = Rc::downgrade(op);
     let title = if copy { strings::COPY_PROMPT } else { strings::NEW_PROMPT };
-    prompt(op, title, &today_name(), move |name| {
+    prompt(op, title, &today_name(op), move |name| {
         let (Some(op), Some(name)) = (me.upgrade(), name) else { return };
         let copy_from = copy.then(|| op.state.borrow().snap.as_ref().and_then(|s| s.service_id)).flatten();
         let body = if copy { json!({ "name": name, "copy_from": copy_from }) } else { json!({ "name": name }) };
-        let me = Rc::downgrade(&op);
-        op.ops().call::<Value>("service/new", body, move |r| {
-            let Some(op) = me.upgrade() else { return };
-            match r {
-                Ok(_) => op.close_dialog(),
-                Err(e) => op.toast(&e, true),
-            }
-        });
+        call(&op, "service/new", body, |op, _| op.close_dialog());
     });
 }
 
 /// Rename (`:785`): a prompt starting from the name. A non-empty answer is sent as typed (untrimmed). The dialog
 /// is rebuilt and stays open, even when the prompt was cancelled.
 fn rename(op: &Rc<Operator>, id: Uuid) {
-    let Some(current) = op.state.borrow().snap.as_ref().and_then(|s| s.data.services.iter().find(|s| s.id == id).map(|s| s.name.clone())) else { return };
+    let Some(current) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
     prompt(op, strings::RENAME_PROMPT, &current, move |name| {
         let Some(op) = me.upgrade() else { return };
-        let Some(name) = name.filter(|n| !n.is_empty()) else { return redraw(&op, |_| {}) };
-        let me = Rc::downgrade(&op);
-        op.ops().call::<Value>("service/rename", json!({ "id": id, "name": name }), move |r| {
-            let Some(op) = me.upgrade() else { return };
-            match r {
-                Ok(_) => redraw(&op, |rows| {
-                    let key = id.to_string();
-                    if let Some(row) = rows.iter_mut().find(|r| r.id == key.as_str()) { row.name = name.as_str().into(); }
-                }),
-                Err(e) => op.toast(&e, true),
-            }
-        });
+        let Some(name) = name.filter(|n| !n.is_empty()) else { return redraw(&op) };
+        call(&op, "service/rename", json!({ "id": id, "name": name }), |op, _| redraw(op));
     });
 }
 
 /// The trash button (`:786`): confirm, `service/delete`, and the dialog is rebuilt and stays open.
 fn delete(op: &Rc<Operator>, id: Uuid) {
-    let Some(name) = op.state.borrow().snap.as_ref().and_then(|s| s.data.services.iter().find(|s| s.id == id).map(|s| s.name.clone())) else { return };
+    let Some(name) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
     confirm(op, &strings::delete_question(&name), dtr::OK, dtr::CANCEL, false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        let me = Rc::downgrade(&op);
-        op.ops().call::<Value>("service/delete", json!({ "id": id }), move |r| {
-            let Some(op) = me.upgrade() else { return };
-            match r {
-                // As the core does: the open service, if deleted, becomes the first one.
-                Ok(_) => redraw(&op, |rows| {
-                    let key = id.to_string();
-                    let was_current = rows.iter().any(|r| r.id == key.as_str() && r.current);
-                    rows.retain(|r| r.id != key.as_str());
-                    if was_current && let Some(first) = rows.first_mut() { first.current = true; }
-                }),
-                Err(e) => op.toast(&e, true),
-            }
-        });
+        call(&op, "service/delete", json!({ "id": id }), |op, _| redraw(op));
     });
 }
 
 /// Open (`:787`): `service/select`, then close.
 fn select(op: &Rc<Operator>, id: Uuid) {
-    let me = Rc::downgrade(op);
-    op.ops().call::<Value>("service/select", json!({ "id": id }), move |r| {
-        let Some(op) = me.upgrade() else { return };
-        match r {
-            Ok(_) => op.close_dialog(),
-            Err(e) => op.toast(&e, true),
+    call(op, "service/select", json!({ "id": id }), |op, _| op.close_dialog());
+}
+
+/// What `service/copy-week` and `service/from-template` answer.
+#[derive(Deserialize)]
+struct Made { name: String, blanks: usize }
+
+fn made(op: &Rc<Operator>, v: Value) {
+    op.close_dialog();
+    if let Ok(m) = serde_json::from_value::<Made>(v) { op.toast(ptr::ready(&m.name, m.blanks), false) }
+}
+
+/// Copy last week (§3.2): which service and which date, a question, then `service/copy-week`. A service already
+/// on that date is offered first.
+fn copy_week(op: &Rc<Operator>) {
+    let today = today();
+    let found = {
+        let d = op.app().data.lock().unwrap();
+        let order = planning::date_order(&d.settings);
+        planning::week_source(&d.services, d.service().map(|s| s.id), today).and_then(|id| d.services.iter().find(|s| s.id == id)).map(|src| {
+            let date = planning::next_week_date(src.date, today);
+            let existing = planning::find_on_date(&d.services, date).and_then(|id| d.services.iter().find(|s| s.id == id)).map(|s| (s.id, s.name.clone()));
+            (src.id, src.name.clone(), date, planning::format_day_date(date, order), existing)
+        })
+    };
+    let Some((source, name, date, date_text, existing)) = found else { return op.toast(ptr::NO_SERVICE_TO_COPY, true) };
+    let ask = move |op: &Rc<Operator>| {
+        let me = Rc::downgrade(op);
+        choose(op, &ptr::copy_week_question(&date_text, &name), ptr::COPY, ptr::COPY_WITH_BLANKS, move |answer| {
+            let (Some(op), Some(plain)) = (me.upgrade(), answer) else { return };
+            let body = json!({ "source": source, "date": date.format("%Y-%m-%d").to_string(), "blanks": !plain });
+            call(&op, "service/copy-week", body, made);
+        });
+    };
+    match existing {
+        None => ask(op),
+        Some((id, existing_name)) => {
+            let me = Rc::downgrade(op);
+            let date_text = planning::format_day_date(date, order(op));
+            choose(op, &ptr::already_on_date(&date_text, &existing_name), ptr::OPEN_IT, ptr::MAKE_ANOTHER, move |answer| {
+                let Some(op) = me.upgrade() else { return };
+                match answer {
+                    Some(true) => select(&op, id),
+                    Some(false) => ask(&op),
+                    None => {}
+                }
+            });
         }
+    }
+}
+
+/// The service's name prompt for a template, then `service/from-template`.
+fn from_template(op: &Rc<Operator>, template: Uuid) {
+    let Some((name, date)) = ({
+        let d = op.app().data.lock().unwrap();
+        let order = planning::date_order(&d.settings);
+        d.templates.iter().find(|t| t.id == template).map(|t| {
+            let date = planning::default_date(t.day, today());
+            (format!("{} {}", t.name, planning::format_date(date, order)), date)
+        })
+    }) else { return };
+    let me = Rc::downgrade(op);
+    prompt(op, ptr::NEW_FROM_TEMPLATE_PROMPT, &name, move |answer| {
+        let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
+        call(&op, "service/from-template", json!({ "template": template, "name": name, "date": date.format("%Y-%m-%d").to_string() }), made);
+    });
+}
+
+/// New from template… (§3.3): one template goes straight on; two are a choice; more are picked from their rows.
+fn new_from_template(op: &Rc<Operator>) {
+    let templates: Vec<(Uuid, String)> = op.app().data.lock().unwrap().templates.iter().map(|t| (t.id, t.name.clone())).collect();
+    match templates.as_slice() {
+        [] => {}
+        [(id, _)] => from_template(op, *id),
+        [(a, an), (b, bn)] => {
+            let (a, b) = (*a, *b);
+            let me = Rc::downgrade(op);
+            choose(op, ptr::PICK_TEMPLATE, an, bn, move |answer| {
+                let (Some(op), Some(first)) = (me.upgrade(), answer) else { return };
+                from_template(&op, if first { a } else { b });
+            });
+        }
+        _ => notice(op, ptr::PICK_TEMPLATE_BELOW),
+    }
+}
+
+/// Date… (§3.5): the date typed in the computer's order; empty clears it.
+fn set_date(op: &Rc<Operator>, id: Uuid) {
+    let order = order(op);
+    let Some(current) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.date) else { return };
+    let title = ptr::date_example(&planning::format_date(current.unwrap_or_else(today), order));
+    let me = Rc::downgrade(op);
+    prompt(op, &title, &current.map(|d| planning::format_date(d, order)).unwrap_or_default(), move |answer| {
+        let (Some(op), Some(text)) = (me.upgrade(), answer) else { return };
+        let date = if text.trim().is_empty() { None } else {
+            match planning::parse_date(&text, order) {
+                Some(d) => Some(d.format("%Y-%m-%d").to_string()),
+                None => { op.toast(ptr::BAD_DATE, true); return redraw(&op) }
+            }
+        };
+        call(&op, "service/set-date", json!({ "id": id, "date": date }), |op, _| redraw(op));
+    });
+}
+
+/// Save as template (§3.3): its name without the date, then `template/from-service`.
+fn save_template(op: &Rc<Operator>, id: Uuid) {
+    let Some(name) = ({
+        let d = op.app().data.lock().unwrap();
+        let order = planning::date_order(&d.settings);
+        d.services.iter().find(|s| s.id == id).map(|s| planning::template_name(s, order))
+    }) else { return };
+    let me = Rc::downgrade(op);
+    prompt(op, ptr::TEMPLATE_NAME_PROMPT, &name, move |answer| {
+        let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
+        call(&op, "template/from-service", json!({ "service": id, "name": name }), |op, v| {
+            op.toast(ptr::template_saved(v["name"].as_str().unwrap_or_default()), false);
+            redraw(op);
+        });
+    });
+}
+
+fn template_name(op: &Operator, id: Uuid) -> Option<String> {
+    op.app().data.lock().unwrap().templates.iter().find(|t| t.id == id).map(|t| t.name.clone())
+}
+
+fn rename_template(op: &Rc<Operator>, id: Uuid) {
+    let Some(name) = template_name(op, id) else { return };
+    let me = Rc::downgrade(op);
+    prompt(op, ptr::RENAME_TEMPLATE, &name, move |answer| {
+        let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
+        call(&op, "template/rename", json!({ "id": id, "name": name }), |op, _| redraw(op));
+    });
+}
+
+/// "Sunday", "sun", "Sundays" → Sunday; empty or "any" → any day.
+pub fn parse_day(text: &str) -> Option<Option<chrono::Weekday>> {
+    let t = text.trim().to_lowercase();
+    let t = t.trim_end_matches('s');
+    if t.is_empty() || t.starts_with("any") { return Some(None) }
+    if t.chars().count() < 2 { return None }
+    ptr::DAYS_LONG.iter().position(|d| d.to_lowercase().starts_with(t)).and_then(|i| chrono::Weekday::try_from(i as u8).ok()).map(Some)
+}
+
+fn template_day(op: &Rc<Operator>, id: Uuid) {
+    let Some((name, day)) = op.app().data.lock().unwrap().templates.iter().find(|t| t.id == id).map(|t| (t.name.clone(), t.day)) else { return };
+    let me = Rc::downgrade(op);
+    let current = day.map_or("", |d| ptr::DAYS_LONG[d.num_days_from_monday() as usize]);
+    prompt(op, &ptr::template_day_question(&name), current, move |answer| {
+        let (Some(op), Some(text)) = (me.upgrade(), answer) else { return };
+        let Some(day) = parse_day(&text) else { op.toast(ptr::BAD_DAY, true); return redraw(&op) };
+        call(&op, "template/day", json!({ "id": id, "day": day }), |op, _| redraw(op));
+    });
+}
+
+fn delete_template(op: &Rc<Operator>, id: Uuid) {
+    let Some(name) = template_name(op, id) else { return };
+    let me = Rc::downgrade(op);
+    confirm(op, &ptr::delete_template_question(&name), dtr::OK, dtr::CANCEL, true, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        call(&op, "template/delete", json!({ "id": id }), |op, _| redraw(op));
     });
 }
 
 /// The file name a save starts from: the service's name without what Windows refuses in one.
 fn file_name(name: &str) -> String {
-    let clean: String = name.chars().filter(|c| !c.is_control() && !r#"<>:"/\|?*"#.contains(*c)).collect();
-    let clean = clean.trim().trim_matches('.').trim();
-    format!("{}.{}", if clean.is_empty() { "Service" } else { clean }, bundle::EXT)
+    format!("{}.{}", crate::report_page::safe_name(name, "Service"), bundle::EXT)
 }
 
 /// Save to file: the open service and everything it needs, for another computer (spec §11). The dialog closes so
@@ -165,25 +334,138 @@ fn open_file(op: &Rc<Operator>) {
     });
 }
 
-/// Connects the top bar's Services button and the dialog's buttons. They hold a `Weak`.
+// ---------- blanks and headers in the service list ----------
+
+/// A header's colour for the list.
+pub fn parse_color(hex: &str) -> Option<slint::Color> {
+    let h = hex.strip_prefix('#')?;
+    let v = u32::from_str_radix(h, 16).ok().filter(|_| h.len() == 6)?;
+    Some(slint::Color::from_rgb_u8((v >> 16) as u8, (v >> 8) as u8, v as u8))
+}
+
+/// The item `id` of the open service, from the core.
+fn item(op: &Operator, id: Uuid) -> Option<crate::model::ServiceItem> {
+    op.app().data.lock().unwrap().service().and_then(|s| s.items.iter().find(|i| i.id == id).cloned())
+}
+
+/// Which tab of the Add dialog fills a blank: Anything opens on Song.
+pub fn add_tab(want: BlankKind) -> AddTab {
+    match want {
+        BlankKind::Song | BlankKind::Any => AddTab::Song,
+        BlankKind::Scripture => AddTab::Scripture,
+        BlankKind::Media => AddTab::Media,
+        BlankKind::Deck => AddTab::Deck,
+        BlankKind::Text => AddTab::Text,
+    }
+}
+
+/// Choose (§3.4): the Add dialog on the blank's kind, titled "Fill in: Song"; what is added there replaces the blank.
+pub fn choose_for_blank(op: &Rc<Operator>, id: Uuid) {
+    let Some(ItemKind::Blank { label, want }) = item(op, id).map(|i| i.kind) else { return };
+    super::add::open_add(op, add_tab(want));
+    op.state.borrow_mut().fill = Some(id);
+    let label = if label.trim().is_empty() { ptr::blank_label(want).to_string() } else { label };
+    op.ui.set_dialog_title(ptr::fill_title(&label).into());
+}
+
+/// The Add dialog's choice for the blank being filled: `service/fill`; `done` runs as after an add.
+pub(crate) fn fill_blank(op: &Rc<Operator>, blank: Uuid, item: Value, done: impl FnOnce(&Rc<Operator>, Uuid) + 'static) {
+    let me = Rc::downgrade(op);
+    op.ops().call::<Value>("service/fill", json!({ "id": blank, "item": item }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(_) => {
+                op.state.borrow_mut().fill = None;
+                op.select_added(blank);
+                done(&op, blank);
+            }
+            // The dialog stays open (§5.7).
+            Err(e) => op.toast(&e, true),
+        }
+    });
+}
+
+/// A double-click on a blank chooses for it; on a header it does nothing. True when handled here.
+pub(crate) fn planning_double_click(op: &Rc<Operator>, id: Uuid) -> bool {
+    match item(op, id).map(|i| i.kind) {
+        Some(ItemKind::Blank { .. }) => { choose_for_blank(op, id); true }
+        Some(ItemKind::Header { .. }) => true,
+        _ => false,
+    }
+}
+
+/// Edit on a header renames it. True when `id` is a header.
+pub(crate) fn edit_header(op: &Rc<Operator>, id: Uuid) -> bool {
+    let Some(it) = item(op, id) else { return false };
+    let ItemKind::Header { title, color } = &it.kind else { return false };
+    let color = color.clone();
+    let me = Rc::downgrade(op);
+    prompt(op, ptr::RENAME_HEADER, title, move |answer| {
+        let (Some(op), Some(title)) = (me.upgrade(), answer.filter(|t| !t.trim().is_empty())) else { return };
+        let item = crate::model::ServiceItem { kind: ItemKind::Header { title: title.trim().into(), color }, ..it };
+        call(&op, "service/update", serde_json::to_value(&item).unwrap_or_default(), |_, _| {});
+    });
+    true
+}
+
+/// The header's colour button: the next colour.
+fn recolor(op: &Rc<Operator>, id: Uuid) {
+    let Some(it) = item(op, id) else { return };
+    let ItemKind::Header { title, color } = &it.kind else { return };
+    let kind = ItemKind::Header { title: title.clone(), color: planning::next_header_color(color).into() };
+    call(op, "service/update", serde_json::to_value(crate::model::ServiceItem { kind, ..it }).unwrap_or_default(), |_, _| {});
+}
+
+/// Header: a name, then a header above the selected item (or at the end).
+fn add_header(op: &Rc<Operator>) {
+    let me = Rc::downgrade(op);
+    prompt(op, ptr::HEADER_PROMPT, ptr::HEADER_DEFAULT, move |answer| {
+        let (Some(op), Some(title)) = (me.upgrade(), answer.filter(|t| !t.trim().is_empty())) else { return };
+        let position = {
+            let sel = op.state.borrow().selected;
+            sel.and_then(|id| op.app().data.lock().unwrap().service().and_then(|s| s.items.iter().position(|i| i.id == id)))
+        };
+        let colors = op.app().data.lock().unwrap().service().map_or(0, |s| s.items.iter().filter(|i| matches!(i.kind, ItemKind::Header { .. })).count());
+        let item = json!({ "kind": "header", "title": title.trim(), "color": planning::HEADER_COLORS[colors % planning::HEADER_COLORS.len()] });
+        call(&op, "service/add", json!({ "item": item, "position": position }), |_, _| {});
+    });
+}
+
+/// Connects the top bar's Services button, the dialog's buttons and the service list's blank and header buttons.
+/// They hold a `Weak`.
 pub(crate) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_services(move || if let Some(op) = me.upgrade() { open(&op) });
     let g = op.ui.global::<ServicesDialogState>();
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_new_service(move || if let Some(op) = me.upgrade() { new_service(&op, false) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_copy_service(move || if let Some(op) = me.upgrade() { new_service(&op, true) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_save_file(move || if let Some(op) = me.upgrade() { save_file(&op) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_open_file(move || if let Some(op) = me.upgrade() { open_file(&op) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_rename(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { rename(&op, id) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_delete(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { delete(&op, id) });
-    let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_open(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { select(&op, id) });
+    let plain = |f: fn(&Rc<Operator>)| {
+        let me: Weak<Operator> = Rc::downgrade(op);
+        move || if let Some(op) = me.upgrade() { f(&op) }
+    };
+    let by_id = |f: fn(&Rc<Operator>, Uuid)| {
+        let me: Weak<Operator> = Rc::downgrade(op);
+        move |id: slint::SharedString| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { f(&op, id) }
+    };
+    g.on_copy_week(plain(copy_week));
+    g.on_new_from_template(plain(new_from_template));
+    g.on_new_service(plain(|op| new_service(op, false)));
+    g.on_copy_service(plain(|op| new_service(op, true)));
+    g.on_save_file(plain(save_file));
+    g.on_open_file(plain(open_file));
+    g.on_show_older(plain(|op| { op.ui.global::<ServicesDialogState>().set_show_all(true); redraw(op) }));
+    g.on_rename(by_id(rename));
+    g.on_delete(by_id(delete));
+    g.on_open(by_id(select));
+    g.on_set_date(by_id(set_date));
+    g.on_print(by_id(super::print::open));
+    g.on_save_template(by_id(save_template));
+    g.on_rename_template(by_id(rename_template));
+    g.on_template_day(by_id(template_day));
+    g.on_delete_template(by_id(delete_template));
+    g.on_use_template(by_id(from_template));
+    let p = op.ui.global::<ServicePlanning>();
+    p.on_choose(by_id(choose_for_blank));
+    p.on_recolor(by_id(recolor));
+    p.on_add_header(plain(add_header));
 }
 
 /// What the three dialogs' tests share.
@@ -240,6 +522,7 @@ mod tests {
     use super::testing::*;
     use super::*;
     use crate::{app::{App, test_app}, model::{ItemKind, Service, ServiceItem}, ui::operator::window::testing::{find, find_all, refresh}};
+    use slint::ComponentHandle;
     use slint::{Model, platform::Key};
     use std::sync::Arc;
 
@@ -274,7 +557,7 @@ mod tests {
         let op = open_services(&app);
         let before = app.data.lock().unwrap().services.len();
         click(&op, "ServicesDialog::new-btn", 0);
-        assert_eq!(asked(&op), Some((strings::NEW_PROMPT.into(), today_name())));
+        assert_eq!(asked(&op), Some((strings::NEW_PROMPT.into(), today_name(&op))));
         key(&op, Key::Escape);
         assert_eq!(app.data.lock().unwrap().services.len(), before, "Cancel does nothing");
         assert_eq!(op.dialog(), Some(DialogKind::Services));
@@ -291,15 +574,16 @@ mod tests {
 
     #[test]
     fn copy_service_prompt_defaults_to_dated_name() {
-        assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 1, 2).unwrap()), "Service 1/2/2026");
-        assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap()), "Service 11/22/2026");
+        assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 1, 2).unwrap(), DateOrder::Mdy), "Service 1/2/2026");
+        assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap(), DateOrder::Mdy), "Service 11/22/2026");
+        assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap(), DateOrder::Dmy), "Service 22/11/2026");
         let app = test_app();
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let (from, _) = current(&app);
         let op = open_services(&app);
         click(&op, "ServicesDialog::copy-btn", 0);
-        let today = dated_name(chrono::Local::now().date_naive());
+        let today = today_name(&op);
         assert_eq!(asked(&op), Some((strings::COPY_PROMPT.into(), today.clone())));
         key(&op, Key::Return);
         let (id, name) = current(&app);
@@ -501,5 +785,216 @@ mod tests {
         click(&op, "ServicesDialog::open-btn", 0);
         assert_eq!(current(&app).0, other);
         assert_eq!(op.dialog(), None, "the dialog closes");
+    }
+
+    // ---------- FEAT-6a ----------
+
+    /// The latest Sunday on or before `today`.
+    fn sunday_before(today: NaiveDate) -> NaiveDate {
+        use chrono::Datelike;
+        today - chrono::Duration::days(today.weekday().num_days_from_sunday() as i64)
+    }
+
+    fn set_mdy(app: &App) { app.data.lock().unwrap().settings.date_order = Some(DateOrder::Mdy) }
+
+    fn song_item() -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None } }
+
+    #[test]
+    fn copy_last_week_creates_dated_service_and_opens_it() {
+        let app = test_app();
+        set_mdy(&app);
+        let last = sunday_before(today());
+        let (from, _) = current(&app);
+        {
+            let mut d = app.data.lock().unwrap();
+            d.services[0].date = Some(last);
+            d.services[0].name = format!("Service {}", planning::format_date(last, DateOrder::Mdy));
+            d.services[0].items.push(song_item());
+        }
+        let op = open_services(&app);
+        assert_eq!(rows(&op)[0].date, planning::format_day_date(last, DateOrder::Mdy).as_str());
+        click(&op, "ServicesDialog::copy-week-btn", 0);
+        let next = last + chrono::Duration::days(7);
+        let want = ptr::copy_week_question(&planning::format_day_date(next, DateOrder::Mdy), &format!("Service {}", planning::format_date(last, DateOrder::Mdy)));
+        assert_eq!(asked(&op).map(|a| a.0), Some(want));
+        key(&op, Key::Return);
+        let (id, name) = current(&app);
+        assert_ne!(id, from);
+        assert_eq!(name, format!("Service {}", planning::format_date(next, DateOrder::Mdy)));
+        assert_eq!(app.data.lock().unwrap().service().unwrap().date, Some(next));
+        assert!(matches!(app.data.lock().unwrap().service().unwrap().items[0].kind, ItemKind::Song { .. }), "kept, no blanks");
+        assert_eq!(op.dialog(), None, "the new service opens");
+        assert!(op.toast_log().iter().any(|(t, _)| *t == ptr::ready(&name, 0)), "{:?}", op.toast_log());
+    }
+
+    #[test]
+    fn copy_last_week_blanks_choice_makes_blanks() {
+        let app = test_app();
+        app.data.lock().unwrap().services[0].items.push(song_item());
+        let op = open_services(&app);
+        click(&op, "ServicesDialog::copy-week-btn", 0);
+        click(&op, "AskOverlay::other", 0);
+        let d = app.data.lock().unwrap();
+        assert_eq!(d.services.len(), 2);
+        assert!(matches!(d.service().unwrap().items[0].kind, ItemKind::Blank { .. }));
+        drop(d);
+        assert!(op.toast_log().iter().any(|(t, _)| t.ends_with("fill in 1 blank")), "{:?}", op.toast_log());
+    }
+
+    #[test]
+    fn copy_last_week_existing_date_offers_open() {
+        let app = test_app();
+        let last = sunday_before(today());
+        app.data.lock().unwrap().services[0].date = Some(last);
+        let there = add_service(&app, "Next week");
+        app.data.lock().unwrap().services[1].date = Some(last + chrono::Duration::days(7));
+        let op = open_services(&app);
+        click(&op, "ServicesDialog::copy-week-btn", 0);
+        assert!(asked(&op).unwrap().0.starts_with("There is already a service for"), "{:?}", asked(&op));
+        key(&op, Key::Return);
+        assert_eq!(current(&app).0, there, "Open it");
+        assert_eq!(app.data.lock().unwrap().services.len(), 2);
+    }
+
+    #[test]
+    fn services_sorted_by_date_undated_last_and_older_collapse() {
+        let app = test_app();
+        let base = NaiveDate::from_ymd_opt(2026, 1, 4).unwrap();
+        for w in 0..10 {
+            let id = add_service(&app, &format!("Week {w}"));
+            app.data.lock().unwrap().services.iter_mut().find(|s| s.id == id).unwrap().date = Some(base + chrono::Duration::days(7 * w));
+        }
+        let op = open_services(&app);
+        let r = rows(&op);
+        assert_eq!(r.len(), 8);
+        assert_eq!(r[0].name, "Week 9", "newest first");
+        assert_eq!(op.ui.global::<ServicesDialogState>().get_older_text(), "Show 3 older services");
+        click(&op, "ServicesDialog::older-btn", 0);
+        let r = rows(&op);
+        assert_eq!(r.len(), 11);
+        assert_eq!((r[10].name.as_str(), r[10].date.as_str(), r[10].dated), ("Sunday Service", ptr::NO_DATE, false), "undated last");
+        assert!(find(&op, "ServicesDialog::older-btn").is_none());
+    }
+
+    #[test]
+    fn set_date_prompt_sets_and_clears() {
+        let app = test_app();
+        set_mdy(&app);
+        let (id, _) = current(&app);
+        let op = open_services(&app);
+        click(&op, "ServicesDialog::date-btn", 0);
+        typed(&op, "11/8/2026");
+        key(&op, Key::Return);
+        assert_eq!(app.data.lock().unwrap().services[0].date, NaiveDate::from_ymd_opt(2026, 11, 8));
+        assert_eq!(rows(&op)[0].date, "Sun 11/8/2026");
+        click(&op, "ServicesDialog::date-btn", 0);
+        assert_eq!(asked(&op).map(|a| a.1), Some("11/8/2026".into()));
+        typed(&op, "soon");
+        key(&op, Key::Return);
+        assert!(op.toast_log().iter().any(|(t, e)| t == ptr::BAD_DATE && *e));
+        click(&op, "ServicesDialog::date-btn", 0);
+        key(&op, Key::Backspace);
+        key(&op, Key::Return);
+        assert_eq!(app.data.lock().unwrap().services.iter().find(|s| s.id == id).unwrap().date, None);
+    }
+
+    #[test]
+    fn save_as_template_defaults_songs_to_blank_and_makes_services() {
+        let app = test_app();
+        app.data.lock().unwrap().services[0].items = vec![
+            ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None },
+            song_item(),
+        ];
+        let op = open_services(&app);
+        assert!(find(&op, "ServicesDialog::no-templates").is_some());
+        click(&op, "ServicesDialog::template-btn", 0);
+        assert_eq!(asked(&op), Some((ptr::TEMPLATE_NAME_PROMPT.into(), "Sunday Service".into())));
+        key(&op, Key::Return);
+        {
+            let d = app.data.lock().unwrap();
+            assert_eq!(d.templates.len(), 1);
+            assert_eq!(planning::blank_count(&d.templates[0].items), 1, "the song became a blank");
+        }
+        assert_eq!(op.ui.global::<ServicesDialogState>().get_templates().row_count(), 1, "the list shows it");
+        click(&op, "ServicesDialog::from-template-btn", 0);
+        assert!(asked(&op).unwrap().1.starts_with("Sunday Service "), "{:?}", asked(&op));
+        key(&op, Key::Return);
+        let d = app.data.lock().unwrap();
+        assert_eq!(d.services.len(), 2);
+        let s = d.service().unwrap();
+        assert_eq!(s.template, Some(d.templates[0].id));
+        use chrono::Datelike;
+        assert_eq!(s.date.map(|d| d.weekday()), Some(chrono::Weekday::Sun));
+        assert!(matches!(s.items[1].kind, ItemKind::Blank { .. }));
+    }
+
+    #[test]
+    fn parse_day_reads_day_names() {
+        assert_eq!(parse_day("Sunday"), Some(Some(chrono::Weekday::Sun)));
+        assert_eq!(parse_day("sundays"), Some(Some(chrono::Weekday::Sun)));
+        assert_eq!(parse_day("Wed"), Some(Some(chrono::Weekday::Wed)));
+        assert_eq!(parse_day("th"), Some(Some(chrono::Weekday::Thu)));
+        assert_eq!(parse_day(""), Some(None));
+        assert_eq!(parse_day("Any day"), Some(None));
+        assert_eq!(parse_day("t"), None);
+        assert_eq!(parse_day("someday"), None);
+    }
+
+    #[test]
+    fn blank_row_shows_choose_button_and_fill_mode_replaces_blank() {
+        let app = test_app();
+        let blank = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Blank { label: "Song".into(), want: crate::model::BlankKind::Song }, background: None, notes: "upbeat".into(), theme: None };
+        let bid = blank.id;
+        app.data.lock().unwrap().services[0].items.push(blank);
+        let song = crate::ui::dialogs::add::tests::song(&app, "Amazing Grace", "", "", "Verse 1\nAmazing grace");
+        let op = opened(&app);
+        let row = op.ui.get_service_rows().row_data(0).unwrap();
+        assert!(row.blank && !row.header);
+        assert_eq!((row.title.as_str(), row.subtitle.as_str()), ("Song (blank)", ptr::BLANK_SUBTITLE));
+        click(&op, "ServiceColumn::choose-btn", 0);
+        assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
+        assert_eq!(op.ui.get_dialog_title(), "Fill in: Song");
+        crate::ui::dialogs::add::tests::click(&op, "AddListRow::add-btn");
+        let d = app.data.lock().unwrap();
+        let it = &d.services[0].items;
+        assert_eq!(it.len(), 1, "replaced, not added");
+        assert_eq!(it[0].id, bid);
+        assert!(matches!(it[0].kind, ItemKind::Song { song_id } if song_id == song));
+        assert_eq!(it[0].notes, "upbeat");
+        drop(d);
+        assert_eq!(op.state.borrow().fill, None);
+    }
+
+    #[test]
+    fn enter_on_blank_says_choose_first() {
+        let app = test_app();
+        let blank = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Blank { label: "Song".into(), want: crate::model::BlankKind::Song }, background: None, notes: String::new(), theme: None };
+        app.data.lock().unwrap().services[0].items.push(blank);
+        let op = opened(&app);
+        key(&op, Key::Return);
+        assert!(op.toast_log().iter().any(|(t, _)| t == ptr::BLANK_CHOOSE_FIRST), "{:?}", op.toast_log());
+    }
+
+    #[test]
+    fn headers_are_added_renamed_and_coloured() {
+        let app = test_app();
+        app.data.lock().unwrap().services[0].items.push(song_item());
+        let op = opened(&app);
+        click(&op, "ServiceColumn::header-btn", 0);
+        assert_eq!(asked(&op), Some((ptr::HEADER_PROMPT.into(), ptr::HEADER_DEFAULT.into())));
+        key(&op, Key::Return);
+        refresh(&op);
+        let first = |app: &App| app.data.lock().unwrap().services[0].items[0].clone();
+        let h = first(&app);
+        assert!(matches!(&h.kind, ItemKind::Header { title, color } if title == "Worship" && color == planning::HEADER_COLORS[0]), "above the selected song: {:?}", h.kind);
+        let row = op.ui.get_service_rows().row_data(0).unwrap();
+        assert!(row.header && row.num == 0);
+        assert_eq!(op.ui.get_service_rows().row_data(1).unwrap().num, 1, "headers are not numbered");
+        recolor(&op, h.id);
+        assert!(matches!(first(&app).kind, ItemKind::Header { color, .. } if color == planning::HEADER_COLORS[1]));
+        assert!(edit_header(&op, h.id));
+        typed(&op, "Message");
+        key(&op, Key::Return);
+        assert!(matches!(first(&app).kind, ItemKind::Header { title, .. } if title == "Message"));
     }
 }

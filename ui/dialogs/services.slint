@@ -1,49 +1,96 @@
-// The Services dialog (`operator.js:776-790`): make, copy, rename, delete and open services.
+// The Services dialog (`operator.js:776-790`, FEAT-6a §3.1): make, copy, date, print, rename, delete and open
+// services, and the service templates.
 import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
 import { ListRow, RowMain } from "form.slint";
 
-/// One service: its name, "N item(s)" and whether it is the one open.
-export struct ServiceListRow { id: string, name: string, count: string, current: bool }
+/// One service: its date ("Sun 11/8/2026" or "No date"), name, "N item(s)", "2 blanks" (or empty) and whether it
+/// is the one open.
+export struct ServiceListRow { id: string, name: string, count: string, current: bool, date: string, dated: bool, blanks: string }
+
+/// One template: its name, day ("Sundays") and "N parts, M blanks".
+export struct TemplateListRow { id: string, name: string, day: string, parts: string }
 
 /// Set and answered by `src/ui/dialogs/services.rs`.
 export global ServicesDialogState {
+    /// Newest first: the eight newest, or all of them once "Show N older services" is clicked.
     in property <[ServiceListRow]> rows;
+    /// "Show 3 older services", or empty when every service shows.
+    in property <string> older-text;
+    in-out property <bool> show-all;
     /// The trash button shows only with more than one service.
     in property <bool> can-delete;
+    in property <[TemplateListRow]> templates;
+    in property <string> no-templates-text;
+    in property <string> need-template-text;
+    callback copy-week();
+    callback new-from-template();
     callback new-service();
     callback copy-service();
     callback save-file();
     callback open-file();
+    callback show-older();
     callback rename(string);
     callback delete(string);
     callback open(string);
+    callback set-date(string);
+    callback print(string);
+    callback save-template(string);
+    callback rename-template(string);
+    callback template-day(string);
+    callback delete-template(string);
+    callback use-template(string);
+}
+
+component SectionTitle inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 export component ServicesDialog inherits VerticalLayout {
     DialogBody {
         HorizontalLayout {
             spacing: 8px;
-            padding-bottom: 12px;
+            padding-bottom: 8px;
             alignment: start;
-            new-btn := Btn {
+            copy-week-btn := Btn {
                 primary: true;
+                icon: "copy";
+                text: @tr("Copy last week");
+                tooltip: @tr("Make next week's service from the last one");
+                clicked => { ServicesDialogState.copy-week(); }
+            }
+            from-template-btn := Btn {
+                text: @tr("New from template…");
+                enabled: ServicesDialogState.templates.length > 0;
+                tooltip: ServicesDialogState.templates.length > 0 ? "" : ServicesDialogState.need-template-text;
+                clicked => { ServicesDialogState.new-from-template(); }
+            }
+            new-btn := Btn {
                 icon: "plus";
                 text: @tr("New empty service");
                 clicked => { ServicesDialogState.new-service(); }
             }
             copy-btn := Btn {
-                icon: "copy";
                 text: @tr("Copy this service");
                 clicked => { ServicesDialogState.copy-service(); }
             }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            padding-bottom: 12px;
+            alignment: start;
             save-file-btn := Btn {
+                icon: "download";
                 text: @tr("Save to file");
                 tooltip: @tr("Save the open service and all its files, to move it to another computer");
                 clicked => { ServicesDialogState.save-file(); }
             }
             open-file-btn := Btn {
+                icon: "upload";
                 text: @tr("Open from file");
                 clicked => { ServicesDialogState.open-file(); }
             }
@@ -53,6 +100,17 @@ export component ServicesDialog inherits VerticalLayout {
             for s in ServicesDialogState.rows: row := ListRow {
                 accessible-role: list-item;
                 accessible-label: s.name;
+                VerticalLayout {
+                    alignment: center;
+                    width: 112px;
+                    date := Text {
+                        text: s.date;
+                        color: s.dated ? Theme.text : Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12.5px;
+                        font-weight: s.dated ? 600 : 400;
+                    }
+                }
                 RowMain {
                     title: s.name;
                     sub: s.count;
@@ -63,32 +121,135 @@ export component ServicesDialog inherits VerticalLayout {
                             state: "ok";
                         }
                     }
-                }
-                VerticalLayout {
-                    alignment: center;
-                    rename-btn := Btn {
-                        small: true;
-                        text: @tr("Rename");
-                        clicked => { ServicesDialogState.rename(s.id); }
+                    if s.blanks != "": VerticalLayout {
+                        alignment: center;
+                        blanks-chip := Chip {
+                            text: s.blanks;
+                            state: "warn";
+                        }
                     }
                 }
-                if ServicesDialogState.can-delete: VerticalLayout {
-                    alignment: center;
-                    delete-btn := Btn {
-                        small: true;
-                        icon: "trash";
-                        accessible-role: button;
-                        accessible-label: @tr("Delete");
-                        clicked => { ServicesDialogState.delete(s.id); }
+                HorizontalLayout {
+                    horizontal-stretch: 0;
+                    spacing: 6px;
+                    if !s.current: VerticalLayout {
+                        alignment: center;
+                        open-btn := Btn {
+                            small: true;
+                            primary: true;
+                            text: @tr("Open");
+                            clicked => { ServicesDialogState.open(s.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        rename-btn := Btn {
+                            small: true;
+                            text: @tr("Rename");
+                            clicked => { ServicesDialogState.rename(s.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        date-btn := Btn {
+                            small: true;
+                            text: @tr("Date…");
+                            clicked => { ServicesDialogState.set-date(s.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        print-btn := Btn {
+                            small: true;
+                            text: @tr("Print…");
+                            tooltip: @tr("Print the order of service and the lyrics, or save them as a web page");
+                            clicked => { ServicesDialogState.print(s.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        template-btn := Btn {
+                            small: true;
+                            text: @tr("Save as template");
+                            clicked => { ServicesDialogState.save-template(s.id); }
+                        }
+                    }
+                    if ServicesDialogState.can-delete: VerticalLayout {
+                        alignment: center;
+                        delete-btn := Btn {
+                            small: true;
+                            icon: "trash";
+                            accessible-role: button;
+                            accessible-label: @tr("Delete");
+                            clicked => { ServicesDialogState.delete(s.id); }
+                        }
                     }
                 }
-                if !s.current: VerticalLayout {
-                    alignment: center;
-                    open-btn := Btn {
-                        small: true;
-                        primary: true;
-                        text: @tr("Open");
-                        clicked => { ServicesDialogState.open(s.id); }
+            }
+            if ServicesDialogState.older-text != "": HorizontalLayout {
+                alignment: start;
+                older-btn := Btn {
+                    small: true;
+                    text: ServicesDialogState.older-text;
+                    clicked => { ServicesDialogState.show-older(); }
+                }
+            }
+        }
+        VerticalLayout {
+            padding-top: 18px;
+            spacing: 6px;
+            SectionTitle { text: @tr("Templates"); }
+            if ServicesDialogState.templates.length == 0: no-templates := Text {
+                text: ServicesDialogState.no-templates-text;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+            }
+            for t in ServicesDialogState.templates: trow := ListRow {
+                accessible-role: list-item;
+                accessible-label: t.name;
+                RowMain {
+                    title: t.name;
+                    sub: t.day + " · " + t.parts;
+                }
+                HorizontalLayout {
+                    horizontal-stretch: 0;
+                    spacing: 6px;
+                    VerticalLayout {
+                        alignment: center;
+                        template-use-btn := Btn {
+                            small: true;
+                            primary: true;
+                            text: @tr("Make a service");
+                            clicked => { ServicesDialogState.use-template(t.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        template-day-btn := Btn {
+                            small: true;
+                            text: @tr("Day…");
+                            clicked => { ServicesDialogState.template-day(t.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        template-rename-btn := Btn {
+                            small: true;
+                            text: @tr("Rename");
+                            clicked => { ServicesDialogState.rename-template(t.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        template-delete-btn := Btn {
+                            small: true;
+                            icon: "trash";
+                            accessible-role: button;
+                            accessible-label: @tr("Delete");
+                            clicked => { ServicesDialogState.delete-template(t.id); }
+                        }
                     }
                 }
             }

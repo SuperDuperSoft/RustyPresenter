@@ -30,6 +30,9 @@ pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(R
 /// `add_item` for the dialogs: `done` runs only when the item went in; a failure is an error toast with the core's
 /// message (`guard()`), so a dialog that waits for `done` to close stays open.
 pub fn add_item_then(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(&Rc<Operator>, Uuid) + 'static) {
+    // Filling a blank (FEAT-6a): the choice replaces it instead.
+    let fill = op.state.borrow().fill;
+    if let Some(blank) = fill { return crate::ui::dialogs::services::fill_blank(op, blank, item, done) }
     let me = Rc::downgrade(op);
     add_item(op, item, quiet, move |r| {
         let Some(op) = me.upgrade() else { return };

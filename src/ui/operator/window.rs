@@ -49,7 +49,7 @@ pub use crate::ui::dialogs::DialogKind;
 pub(crate) struct OpState {
     pub(crate) snap: Option<Arc<OperatorSnapshot>>,
     pub(super) live: Option<LiveUpdate>,
-    pub(super) selected: Option<Uuid>,
+    pub(crate) selected: Option<Uuid>,
     pub(super) armed: Option<Uuid>,
     /// Verses per slide picked in the Bible box or Add → Bible this session; `None` follows Settings.
     pub(crate) bible_per_slide: Option<u8>,
@@ -58,6 +58,8 @@ pub(crate) struct OpState {
     pub(crate) asks: usize,
     /// The language the window's Rust-made text was last drawn in (`crate::i18n::current`).
     pub(super) lang: Option<String>,
+    /// The blank the open Add dialog fills (FEAT-6a): its add buttons replace that blank instead of adding.
+    pub(crate) fill: Option<Uuid>,
     /// The open dialog's hooks and the questions waiting (see `ui::dialogs`).
     pub(crate) dialogs: crate::ui::dialogs::DialogHooks,
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).

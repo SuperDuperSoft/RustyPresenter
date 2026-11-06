@@ -77,7 +77,7 @@ fn app_with_song(ccli: &str) -> (Arc<App>, Uuid, Uuid) {
     let app = test_app();
     let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: "John Newton".into(), ccli: ccli.into(),
         copyright: "Public Domain".into(), lyrics: "Verse 1\nAmazing grace\n\nVerse 2\nTwas grace".into(), arrangement: vec![] };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new() };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
     let item_id = item.id;
     let service = {
         let mut d = app.data.lock().unwrap();
@@ -144,7 +144,7 @@ fn does_not_log_when_words_hidden_everywhere() {
 fn does_not_log_non_song_items() {
     let (app, _, _) = app_with_song("22025");
     let text = ServiceItem { id: Uuid::new_v4(), kind: serde_json::from_value(serde_json::json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).unwrap(),
-        background: None, notes: String::new() };
+        background: None, notes: String::new(), theme: None };
     let id = text.id;
     app.data.lock().unwrap().service_mut().unwrap().items.push(text);
     send(&app, Command::Show { item_id: id, slide: 0 });

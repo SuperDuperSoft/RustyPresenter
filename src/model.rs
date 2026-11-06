@@ -197,7 +197,16 @@ pub enum ItemKind {
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
     Text { title: String, body: String },
+    /// A part of the service still to be chosen (FEAT-6). Shows no slides; Next and Prev step over it.
+    Blank { #[serde(default)] label: String, #[serde(default)] want: BlankKind },
+    /// A coloured heading in the service list ("Worship", "Message"). Shows no slides.
+    Header { title: String, #[serde(default)] color: String },
 }
+
+/// What a blank asks for.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum BlankKind { Song, Scripture, Media, Deck, Text, #[default] Any }
 
 fn yes() -> bool { true }
 
@@ -223,11 +232,30 @@ pub struct Service {
     /// A saved theme for the whole service; `None`: the church default.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub theme: Option<crate::theme::ThemeId>,
+    /// The day it is for, "2026-11-08". Services made before FEAT-6 have none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub date: Option<chrono::NaiveDate>,
+    /// The template it was made from (information only; the template may be gone).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub template: Option<Uuid>,
 }
 
 impl Service {
-    pub fn new(name: &str) -> Self { Self { id: Uuid::new_v4(), name: name.into(), items: vec![], theme: None } }
+    pub fn new(name: &str) -> Self { Self { id: Uuid::new_v4(), name: name.into(), items: vec![], theme: None, date: None, template: None } }
 }
+
+/// A saved service shape: kept items and blanks to fill in (FEAT-6).
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ServiceTemplate {
+    pub id: Uuid,
+    pub name: String,
+    /// The day services from it are for; `None` = any day.
+    #[serde(default = "sunday")]
+    pub day: Option<chrono::Weekday>,
+    pub items: Vec<ServiceItem>,
+}
+
+fn sunday() -> Option<chrono::Weekday> { Some(chrono::Weekday::Sun) }
 
 // ---------- Settings ----------
 
@@ -400,6 +428,32 @@ pub struct Settings {
     /// The stage screen's layout (FEAT-3). A value this version can't read loads as Classic.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub stage: crate::stage::StageSettings,
+    /// The Print dialog's choices, remembered.
+    pub print: PrintSettings,
+    /// How dates are written; `None` = by the computer's region.
+    pub date_order: Option<DateOrder>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum Paper { Letter, A4 }
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum PrintWhat { Order, Lyrics, #[default] Both }
+
+/// Month/day/year, day/month/year or year-month-day.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum DateOrder { Mdy, Dmy, Ymd }
+
+/// What to print (FEAT-6b). `paper: None` = by the computer's region.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(default)]
+pub struct PrintSettings { pub what: PrintWhat, pub notes: bool, pub scripture: bool, pub song_per_page: bool, pub paper: Option<Paper> }
+
+impl Default for PrintSettings {
+    fn default() -> Self { Self { what: PrintWhat::Both, notes: true, scripture: true, song_per_page: false, paper: None } }
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -443,6 +497,8 @@ impl Default for Settings {
             parallel_layout: Default::default(),
             ui_language: String::new(),
             stage: Default::default(),
+            print: PrintSettings::default(),
+            date_order: None,
         }
     }
 }
@@ -472,6 +528,9 @@ pub struct Data {
     /// Saved overlays, in drawing order (last on top).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub overlays: Vec<crate::theme::overlay::Overlay>,
+    /// Service templates (FEAT-6).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub templates: Vec<ServiceTemplate>,
     /// Each Bible's credit for its scripture slides, by translation id (`App::refresh_bible_credits`). Worked out
     /// from the Bibles on this computer, so never saved: a Bible added or removed changes it.
     #[serde(skip)]
@@ -503,7 +562,7 @@ impl Default for Data {
         let service = Service::new("Sunday Service");
         Self {
             format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
-            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![],
+            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![],
             bible_credits: BTreeMap::new(),
         }
     }
@@ -558,6 +617,7 @@ impl Data {
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
         set.extend(crate::theme::assets::referenced(&self.themes, &self.backgrounds, &self.overlays));
+        for t in &self.templates { for i in &t.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
         set
     }
 }

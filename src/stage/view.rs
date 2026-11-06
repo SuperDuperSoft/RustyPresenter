@@ -204,7 +204,7 @@ mod tests {
     fn slide(content: SlideContent) -> Slide { Slide { label: String::new(), content, notes: String::new() } }
     fn on_air(s: &Slide) -> Option<SlideLayer> {
         match &s.content {
-            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }),
+            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }),
             _ => None,
         }
     }
@@ -219,7 +219,7 @@ mod tests {
             item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len() }),
             slide: Some(now),
             next: slides.get(at + 1).map(|s| NextUp { title: "Amazing Grace".into(), slide: s.clone() }),
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
+            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0,
         }
     }
     fn empty_view() -> LiveView {

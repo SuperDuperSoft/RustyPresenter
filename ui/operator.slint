@@ -15,6 +15,7 @@ import { AddDialog } from "dialogs/add.slint";
 import { SongEditor } from "dialogs/song-editor.slint";
 import { ItemEditDialog } from "dialogs/item-edit.slint";
 import { ServicesDialog, ServicesDialogState } from "dialogs/services.slint";
+import { PrintDialog } from "dialogs/print.slint";
 import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
@@ -616,6 +617,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "song-editor": SongEditor { window-height: root.height; }
             if root.dialog-kind == "item-edit": ItemEditDialog { close => { root.dialog-close(); } }
             if root.dialog-kind == "services": ServicesDialog {}
+            if root.dialog-kind == "print": PrintDialog {}
             if root.dialog-kind == "screens": ScreensDialog {}
             if root.dialog-kind == "phone": PhoneDialog {}
             if root.dialog-kind == "settings": SettingsDialog {}

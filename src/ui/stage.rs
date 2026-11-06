@@ -388,7 +388,7 @@ mod tests {
         {
             let mut data = app.data.lock().unwrap();
             data.settings.stage.layout = layout;
-            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into() }, background: None, notes: String::new() };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into() }, background: None, notes: String::new(), theme: None };
             data.services[0].items.push(item);
         }
         assert!(app.command(Envelope { id: "n1".into(), base: Some(0), cmd: Command::Next }).ok);
