@@ -156,6 +156,30 @@ pub(crate) fn copy(op: &Operator, text: &str, done_text: &str) {
     }
 }
 
+/// The clipboard's text, if it holds any (Download from YouTube fills its link box from it). Tests read a stand-in.
+pub(crate) fn paste_text() -> Option<String> {
+    #[cfg(test)]
+    return testing::CLIPBOARD.with(|c| c.borrow().clone());
+    #[cfg(not(test))]
+    CLIPBOARD.with(|c| {
+        let mut c = c.borrow_mut();
+        let clipboard = match c.as_mut() { Some(clipboard) => clipboard, None => c.insert(arboard::Clipboard::new().ok()?) };
+        clipboard.get_text().ok()
+    })
+}
+
+#[cfg(test)]
+pub(crate) mod testing {
+    use std::cell::RefCell;
+
+    thread_local! {
+        /// What `paste_text` reads in tests, so they never touch the real clipboard.
+        pub(crate) static CLIPBOARD: RefCell<Option<String>> = const { RefCell::new(None) };
+    }
+
+    pub(crate) fn set_clipboard(text: Option<&str>) { CLIPBOARD.with(|c| *c.borrow_mut() = text.map(str::to_string)) }
+}
+
 /// Sets every `SettingsDlg` callback for this dialog; each holds a `Weak`, so the window does not keep itself alive.
 fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let g = op.ui.global::<SettingsDlg>();

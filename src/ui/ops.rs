@@ -6,9 +6,11 @@ use crate::{
     app::{App, ImportPurpose, Imported},
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
+    youtube,
 };
 use serde::de::DeserializeOwned;
 use std::{future::Future, path::PathBuf, sync::Arc};
+use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -82,6 +84,21 @@ impl Ops {
         let app = self.app.clone();
         let work = async move { app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd }) };
         self.run(work, |r| done(r.unwrap_or_else(|e| Outcome { ok: false, version: 0, error: Some(e), duplicate: false })));
+    }
+
+    /// Looks up a YouTube video (`youtube::Hub::look_up`): its title, length and picture. `setup` hears how far
+    /// getting the helper programs ready has got, from another thread.
+    pub fn youtube_look_up(&self, link: youtube::Link, quality: youtube::Quality, setup: impl Fn(youtube::Setup) + Send + Sync + 'static, done: impl FnOnce(Result<youtube::Found, String>) + 'static) {
+        let app = self.app.clone();
+        let work = async move { app.youtube.look_up(&link, quality, &setup, &CancellationToken::new()).await.map_err(|e| e.message()) };
+        self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
+    /// Starts downloading a YouTube video as a job card (`youtube::start_download`); `done` gets the job's id.
+    pub fn youtube_download(&self, video: youtube::Video, quality: youtube::Quality, service: Option<Uuid>, done: impl FnOnce(Uuid) + 'static) {
+        let app = self.app.clone();
+        let work = async move { youtube::start_download(&app, video, quality, service) };
+        self.run(work, |r| if let Ok(id) = r { done(id) });
     }
 
     /// Copies a file from this computer into the library (`App::import_path`).

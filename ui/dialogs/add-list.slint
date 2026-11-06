@@ -46,6 +46,22 @@ export global AddState {
     in-out property <string> pasted;
     in-out property <string> text-title;
     in-out property <string> text-body;
+    /// The Media tab's YouTube panel (`src/ui/dialogs/add_youtube.rs`): the link, what it is doing or what went
+    /// wrong, the video found, and the download's choices.
+    in-out property <bool> yt-open;
+    in-out property <string> yt-link;
+    in property <bool> yt-busy;
+    in property <string> yt-status;
+    in property <bool> yt-error;
+    in property <bool> yt-found;
+    in property <string> yt-title;
+    in property <string> yt-detail;
+    in property <string> yt-note;
+    in property <bool> yt-thumb-shown;
+    in property <image> yt-thumb;
+    in property <[string]> yt-qualities;
+    in-out property <int> yt-quality;
+    in-out property <bool> yt-add;
 
     callback pick-tab(int);
     callback search-edited(string);
@@ -61,6 +77,10 @@ export global AddState {
     callback upload-media();
     callback import-powerpoint();
     callback pictures-to-slides();
+    callback yt-show();
+    callback yt-link-edited(string);
+    callback yt-look-up();
+    callback yt-download();
 }
 
 /// `.row`: the picture or icon, the title and subtitle, then the row's buttons.

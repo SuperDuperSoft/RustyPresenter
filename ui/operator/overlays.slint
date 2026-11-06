@@ -142,13 +142,26 @@ component JobCard inherits Rectangle {
                 }
             }
         }
-        if !root.over: VerticalLayout {
+        if !root.over: HorizontalLayout {
             padding-top: 7px;
-            bar := Bar {
-                height: 5px;
-                border-radius: 3px;
-                progress: root.job.percent;
-                animated: false;
+            spacing: 8px;
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                bar := Bar {
+                    height: 5px;
+                    border-radius: 3px;
+                    progress: root.job.percent;
+                    animated: false;
+                }
+            }
+            // How far along, in words a volunteer can read at a glance.
+            if root.job.percent > 0: percent := Text {
+                text: "\{root.job.percent}%";
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                vertical-alignment: center;
             }
         }
     }

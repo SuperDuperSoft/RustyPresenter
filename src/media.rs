@@ -18,7 +18,7 @@ fn cmd(program: &Path) -> Command {
     c
 }
 
-/// Find an executable next to the app, on PATH, or in common install folders.
+/// Find an executable next to the app, on PATH, in common install folders, or the FFmpeg YouTube downloads fetched.
 pub fn find_tool(name: &str) -> Option<PathBuf> {
     let exe = if cfg!(windows) { format!("{name}.exe") } else { name.to_string() };
     let mut dirs: Vec<PathBuf> = vec![];
@@ -38,6 +38,10 @@ pub fn find_tool(name: &str) -> Option<PathBuf> {
     }
     dirs.push(PathBuf::from(r"C:\ffmpeg\bin"));
     dirs.push(PathBuf::from(r"C:\Program Files\ffmpeg\bin"));
+    // Last: the one YouTube downloads fetched (`youtube::fetch`), so an FFmpeg the user installed wins.
+    if let Some(ours) = crate::server::data_dir().and_then(|d| crate::youtube::fetch::installed_in(&d.join("deps"), crate::youtube::fetch::Tool::Ffmpeg)) {
+        dirs.extend(ours.exe.parent().map(Path::to_path_buf));
+    }
     dirs.into_iter().map(|d| d.join(&exe)).find(|p| p.is_file())
 }
 
