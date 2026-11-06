@@ -24,7 +24,7 @@ export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
     min-width: 1024px;
     min-height: 640px;
-    preferred-width: 1520px;
+    preferred-width: 1440px;
     preferred-height: 900px;
     background: Theme.bg;
     default-font-family: Theme.font;
@@ -35,10 +35,12 @@ export component OperatorWindow inherits Window {
     /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
     /// `changed` fires only on a change, so `init` sets it for a window whose first width is already its last.
     out property <bool> narrow;
-    /// Below 1510 px the Bible box's translation buttons collapse to the chosen one (`TopBar.compact`), so the top
+    /// Below 1400 px the Bible box's translation buttons collapse to the chosen one (`TopBar.compact`), so the top
     /// bar fits a 1280 px window. Each translation past the eight built in, and the Stage and phones pills, need
     /// more room, so they raise that width. Set with `narrow`, for the same reason.
     out property <bool> compact;
+    /// The Verses button needs another 110 px; narrower, it is still in Add → Bible and Settings → Look.
+    out property <bool> verses-shown;
     init => { root.fit(); }
     changed width => { root.fit(); }
     changed translations => { root.fit(); }
@@ -46,8 +48,10 @@ export component OperatorWindow inherits Window {
     changed phones-label => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;
-        root.compact = root.width < 1510px + max(0, root.translations.length - 8) * 50px
+        let need = 1400px + max(0, root.translations.length - 8) * 50px
             + (root.stage-shown ? 80px : 0px) + (root.phones-label != "" ? 100px : 0px);
+        root.compact = root.width < need;
+        root.verses-shown = root.width >= need + 110px;
     }
 
     // Top bar (see `TopBar`).
@@ -229,6 +233,7 @@ export component OperatorWindow inherits Window {
             top := TopBar {
                 narrow: root.narrow;
                 compact: root.compact;
+                verses-shown: root.verses-shown;
                 covered: root.covered;
                 service-name: root.service-name;
                 translations: root.translations;

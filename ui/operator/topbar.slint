@@ -12,6 +12,8 @@ export component TopBar inherits Rectangle {
     /// The window is too narrow for every translation button: the Bible box shows the chosen one, and a click on it
     /// lists them all.
     in property <bool> compact;
+    /// There is room for the Verses button.
+    in property <bool> verses-shown;
     /// A dialog or question is over the window: the Bible box takes no focus (Tab would otherwise reach it).
     in property <bool> covered;
     in property <string> service-name;
@@ -386,7 +388,7 @@ export component TopBar inherits Rectangle {
                             }
                         }
                         // Verses per slide for the next passage; a click moves to the next choice.
-                        VerticalLayout {
+                        if root.verses-shown: VerticalLayout {
                             alignment: center;
                             per-slide-chip := Rectangle {
                                 property <string> value: root.bible-per-slide == 0 ? @tr("Auto") : "\{root.bible-per-slide}";
