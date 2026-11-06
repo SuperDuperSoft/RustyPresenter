@@ -9,6 +9,9 @@ export struct SettingsBibleRow { translation: string, hint: string, chip: string
 /// `state` is "add", "added" (Remove) or "listed" (already one of the app's own Bibles: no button).
 export struct SettingsCatalogRow { header: string, abbr: string, name: string, tag: string, state: string }
 
+/// A Bible that can be shown under the chosen one: `on` when it is picked (at most two).
+export struct AlsoChip { name: string, label: string, on: bool }
+
 /// An online Bible service row of Settings → Bible.
 export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
 
@@ -55,6 +58,9 @@ export global SettingsDlg {
 
     // ---- Bible ----
     in property <[SettingsBibleRow]> bible-sources;
+    /// Bibles to show under the chosen one with every new passage.
+    in property <[AlsoChip]> also-chips;
+    callback toggle-also(int);
     in property <[SettingsProviderRow]> bible-providers;
     in property <[string]> bible-credits;
     in-out property <string> bible-short;

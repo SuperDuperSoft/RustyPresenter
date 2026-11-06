@@ -694,16 +694,26 @@ impl App {
         }
         // ---- bible ----
         "bible/lookup" => {
-            #[derive(Deserialize)] struct L { reference: String, translation: String }
-            let L { reference, translation } = parse(body)?;
+            // `also`: more Bibles to show under this one (Settings → Bible), at most two.
+            #[derive(Deserialize)] struct L { reference: String, translation: String, #[serde(default)] also: Vec<String> }
+            let L { reference, translation, also } = parse(body)?;
             if bible::blocklist::blocked_id(&translation) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
-            // Built in, then a file the church imported (works offline, wins over any online source), then online.
-            let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
-                else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
-                else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
+            let (label, verses) = tryr!(lookup_passage(app, &translation, &reference).await);
             // An online Bible's id is not a label: the item keeps its abbreviation for the slides.
-            let abbr = bible::catalog::find_added(&app.store.root, &translation).map(|b| b.abbr).unwrap_or_default();
-            Ok(json!({ "label": label, "verses": verses, "translation": translation, "abbr": abbr }))
+            let abbr_of = |t: &str| bible::catalog::find_added(&app.store.root, t).map(|b| b.abbr).unwrap_or_default();
+            // The extra Bibles never stop the passage: one that cannot be read now (offline, no key) is left out.
+            let mut extra = Vec::new();
+            let mut wanted: Vec<String> = Vec::new();
+            for t in also {
+                if t != translation && !wanted.contains(&t) && !bible::blocklist::blocked_id(&t) { wanted.push(t) }
+            }
+            for t in wanted.into_iter().take(crate::model::MAX_BIBLES - 1) {
+                match lookup_passage(app, &t, &reference).await {
+                    Ok((_, v)) => extra.push(crate::model::AlsoShow { abbr: abbr_of(&t), translation: t, verses: v }),
+                    Err(e) => eprintln!("{t} left out of {reference}: {e}"),
+                }
+            }
+            Ok(json!({ "label": label, "verses": verses, "translation": translation, "abbr": abbr_of(&translation), "also": extra }))
         }
         "bible/paste" => {
             // Verses typed or pasted from the church's own Bible, for a translation with no source here (e.g. HCSB).
@@ -875,6 +885,9 @@ impl App {
             s.theme.size = s.theme.size.clamp(24, 200);
             s.theme.scripture_size = s.theme.scripture_size.clamp(24, 200);
             s.bible_per_slide = s.bible_per_slide.min(4);
+            s.also_show.retain(|t| !bible::blocklist::blocked_id(t));
+            s.also_show.dedup();
+            s.also_show.truncate(crate::model::MAX_BIBLES - 1);
             tryr!(app.edit(|d| { d.settings = s; Ok(()) }));
             Ok(json!({}))
         }
@@ -986,6 +999,14 @@ pub enum SongImportMode {
     /// Replace the existing song's words and credits. It keeps its id, so service items still point at it.
     Update,
     KeepBoth,
+}
+
+/// One passage from one Bible: built in, then a file the church imported (works offline, wins over any online
+/// source), then online.
+async fn lookup_passage(app: &App, translation: &str, reference: &str) -> Result<(String, Vec<crate::model::VerseText>), String> {
+    if let Some(b) = bible::built_in(translation) { b.lookup(reference) }
+    else if let Some(b) = bible::import::get(&app.store.root, translation) { b.lookup(reference) }
+    else { bible::sources::lookup(&app.store.root, translation, reference).await }
 }
 
 /// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.

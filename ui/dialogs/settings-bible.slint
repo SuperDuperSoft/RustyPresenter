@@ -84,6 +84,47 @@ export component SettingsBible inherits VerticalLayout {
         }
     }
     Rectangle { height: 16px; }
+    // Up to three Bibles on a slide: the chosen one, then these under it, verse for verse.
+    Lbl { label: @tr("Also show with every new passage"); }
+    Rectangle { height: 4px; }
+    also-help := Text {
+        text: @tr("Pick up to two. Each slide then shows the same verses from every Bible, one under the other.");
+        color: Theme.muted;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+    Rectangle { height: 8px; }
+    also-chips := Rectangle {
+        property <length> chip-w: 96px;
+        property <int> per-row: max(1, floor((self.width + 6px) / (self.chip-w + 6px)));
+        height: ceil(SettingsDlg.also-chips.length / self.per-row) * 36px;
+        for c[i] in SettingsDlg.also-chips: also-chip := Rectangle {
+            x: mod(i, also-chips.per-row) * (also-chips.chip-w + 6px);
+            y: floor(i / also-chips.per-row) * 36px;
+            width: also-chips.chip-w;
+            height: 30px;
+            border-radius: 7px;
+            border-width: 1px;
+            border-color: c.on ? Theme.accent : Theme.line;
+            background: c.on ? Theme.accent : cta.has-hover ? Theme.raise : transparent;
+            accessible-role: checkbox;
+            accessible-label: c.label;
+            accessible-checked: c.on;
+            accessible-action-default => { SettingsDlg.toggle-also(i); }
+            Text {
+                text: c.label;
+                color: c.on ? Theme.accent-ink : Theme.text;
+                font-size: 12.5px;
+                font-weight: 700;
+                overflow: elide;
+            }
+            cta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { SettingsDlg.toggle-also(i); }
+            }
+        }
+    }
+    Rectangle { height: 16px; }
     Lbl { label: @tr("Translations"); }
     Rectangle { height: 8px; }
     VerticalLayout {

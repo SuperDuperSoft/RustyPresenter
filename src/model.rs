@@ -135,6 +135,18 @@ pub struct Deck {
 
 // ---------- Service plan ----------
 
+/// Another Bible shown with a passage: its verses line up with the first Bible's (empty text where it has none).
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct AlsoShow {
+    pub translation: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub abbr: String,
+    pub verses: Vec<VerseText>,
+}
+
+/// How many Bibles a passage can show at once.
+pub const MAX_BIBLES: usize = 3;
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct VerseText {
     pub reference: String,
@@ -153,6 +165,8 @@ pub enum ItemKind {
         reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8,
         #[serde(default)] text_size: u32,
         #[serde(default, skip_serializing_if = "String::is_empty")] abbr: String,
+        /// Up to two more Bibles shown with this one, verse for verse, under it on each slide.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")] also: Vec<AlsoShow>,
     },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
@@ -227,6 +241,8 @@ pub struct Settings {
     pub displays: DisplayRoles,
     /// Verses per slide for new Bible passages: 0 = automatic (by length), else 1–4.
     pub bible_per_slide: u8,
+    /// Bibles shown under the chosen one with every new passage (at most two: three Bibles in all).
+    pub also_show: Vec<String>,
 }
 
 impl Default for Settings {
@@ -241,6 +257,7 @@ impl Default for Settings {
             translation: "KJV".into(),
             displays: DisplayRoles::default(),
             bible_per_slide: 0,
+            also_show: Vec::new(),
         }
     }
 }
@@ -317,7 +334,7 @@ mod tests {
         d.settings.bible_per_slide = 3;
         d.services[0].items.push(ServiceItem {
             id: Uuid::new_v4(), background: None, notes: String::new(),
-            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, abbr: String::new() },
+            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, abbr: String::new(), also: vec![] },
         });
         let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
         assert_eq!(back.settings.bible_per_slide, 3);

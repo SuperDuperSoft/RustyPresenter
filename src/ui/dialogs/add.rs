@@ -157,7 +157,7 @@ fn row_id(id: &str) -> Option<Uuid> { Uuid::parse_str(id).ok() }
 
 /// `bible/lookup`'s and `bible/paste`'s answer. The verses pass through to `service/add` untouched.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String }
+struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String, #[serde(default)] also: Vec<Value> }
 
 /// Add verses (Enter in the reference) and Add pasted verses: the passage goes at the end, quietly, then the toast
 /// "`<label>` added" and the dialog closes (`operator.js:432-445`).
@@ -167,13 +167,14 @@ fn add_verses(op: &Rc<Operator>, pasted: bool) {
     let (action, body) = if pasted {
         ("bible/paste", json!({ "reference": st.get_reference().as_str(), "translation": translation, "text": st.get_pasted().as_str() }))
     } else {
-        ("bible/lookup", json!({ "reference": st.get_reference().as_str(), "translation": translation }))
+        let also = op.state.borrow().snap.as_ref().map(|s| s.settings.also_show.clone()).unwrap_or_default();
+        ("bible/lookup", json!({ "reference": st.get_reference().as_str(), "translation": translation, "also": also }))
     };
     let me = Rc::downgrade(op);
     op.ops().call::<Found>(action, body, move |r| {
         let Some(op) = me.upgrade() else { return };
-        let Found { label, verses, translation, abbr } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
-        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "verses": verses, "per_slide": op.bible_per_slide() });
+        let Found { label, verses, translation, abbr, also } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
+        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "also": also, "verses": verses, "per_slide": op.bible_per_slide() });
         add_item_then(&op, item, true, move |op, _| {
             op.toast(tr::bible_added(&label), false);
             op.close_dialog();

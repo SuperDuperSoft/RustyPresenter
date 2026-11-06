@@ -323,7 +323,7 @@ mod tests {
     #[test]
     fn scripture_per_slide_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, abbr: String::new() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, abbr: String::new(), also: vec![] });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_kind(), "scripture");
@@ -339,7 +339,7 @@ mod tests {
     #[test]
     fn scripture_text_size_saved_and_automatic_again() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, abbr: String::new() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, abbr: String::new(), also: vec![] });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_size_mode(), 0, "Automatic until chosen");

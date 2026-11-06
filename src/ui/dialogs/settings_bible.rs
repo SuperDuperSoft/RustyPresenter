@@ -3,10 +3,10 @@
 //! removal (`bible/import-remove`), and the copyright lines of the sources in use.
 use super::{confirm, settings::{Edit, copy, redraw_on_next_read, strings}, strings as dlg};
 use crate::ui::{
-    SettingsBibleRow, SettingsCatalogRow, SettingsDlg, SettingsProviderRow,
+    AlsoChip, SettingsBibleRow, SettingsCatalogRow, SettingsDlg, SettingsProviderRow,
     operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, OperatorSnapshot}, window::Operator},
 };
-use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, time::Duration};
 
 /// The rows the tab shows, so a button's index finds its translation or service.
@@ -142,7 +142,33 @@ pub fn hint(b: &BibleSource, providers: &[BibleProvider]) -> String {
     }
 }
 
+/// The "Also show" chips: every Bible the church can use except the chosen one, picked ones on.
+pub(super) fn fill_also(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
+    let picked = edit.settings.borrow().also_show.clone();
+    let chips: Vec<AlsoChip> = snap.available.iter().filter(|t| **t != snap.translation).map(|t| AlsoChip {
+        name: t.as_str().into(), label: snap.translation_label(t).into(), on: picked.contains(t),
+    }).collect();
+    g.set_also_chips(ModelRc::new(VecModel::from(chips)));
+}
+
+/// A chip clicked: on or off. A third pick replaces the oldest, so it never holds more than two.
+pub(super) fn toggle_also(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let g = op.ui.global::<SettingsDlg>();
+    let Some(chip) = g.get_also_chips().row_data(i) else { return };
+    let name = chip.name.to_string();
+    {
+        let mut s = edit.settings.borrow_mut();
+        if let Some(at) = s.also_show.iter().position(|t| *t == name) { s.also_show.remove(at); }
+        else {
+            s.also_show.push(name);
+            while s.also_show.len() > crate::model::MAX_BIBLES - 1 { s.also_show.remove(0); }
+        }
+    }
+    if let Some(snap) = op.state.borrow().snap.clone() { fill_also(&g, edit, &snap) }
+}
+
 pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
+    fill_also(g, edit, snap);
     let rows: Vec<SettingsBibleRow> = snap.bible_sources.iter().map(|b| {
         let (state, chip) = strings::chip(&b.status);
         SettingsBibleRow {

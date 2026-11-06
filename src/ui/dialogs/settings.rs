@@ -218,6 +218,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_copy_link(with_i(settings_bible::copy_link));
     g.on_import_bible(with(settings_bible::import));
     g.on_remove_import(with_i(settings_bible::remove_import));
+    g.on_toggle_also(with_i(settings_bible::toggle_also));
     let (me, e) = (Rc::downgrade(op), edit.clone());
     g.on_bible_search(move |_| if let Some(op) = me.upgrade() { settings_bible::typed(&op, &e) });
     g.on_bible_refresh(with(settings_bible::refresh));

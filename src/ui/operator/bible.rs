@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 /// `bible/lookup`'s answer. The verses pass through to `service/add` untouched.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String }
+struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String, #[serde(default)] also: Vec<Value> }
 
 #[derive(Deserialize)]
 struct Added { id: Uuid }
@@ -25,7 +25,8 @@ pub fn submit(op: &Rc<Operator>, reference: String) {
     if reference.is_empty() || op.covered() { return }
     let translation = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_else(|| "KJV".into());
     let me = Rc::downgrade(op);
-    op.ops.call::<Found>("bible/lookup", json!({ "reference": reference, "translation": translation }), move |r| {
+    let also = op.state.borrow().snap.as_ref().map(|s| s.settings.also_show.clone()).unwrap_or_default();
+    op.ops.call::<Found>("bible/lookup", json!({ "reference": reference, "translation": translation, "also": also }), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
             Ok(found) => add(&op, found),
@@ -39,8 +40,8 @@ pub fn submit(op: &Rc<Operator>, reference: String) {
 fn add(op: &Rc<Operator>, found: Found) {
     let live_item = op.live_item();
     let position = op.state.borrow().snap.as_ref().and_then(|s| view::insert_position(&s.items, live_item));
-    let Found { label, verses, translation, abbr } = found;
-    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "verses": verses, "per_slide": op.bible_per_slide() });
+    let Found { label, verses, translation, abbr, also } = found;
+    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "also": also, "verses": verses, "per_slide": op.bible_per_slide() });
     let me = Rc::downgrade(op);
     op.ops.call::<Added>("service/add", json!({ "position": position, "item": item }), move |r| {
         let Some(op) = me.upgrade() else { return };
