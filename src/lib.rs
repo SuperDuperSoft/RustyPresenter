@@ -22,5 +22,6 @@ pub mod timers;
 pub mod store;
 pub mod theme;
 pub mod ui;
+pub mod usage;
 pub mod video;
 pub mod youtube;
