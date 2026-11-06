@@ -40,7 +40,24 @@ struct EditorCtx {
 
 /// `openSongEditor(song, {addAfter})`: `song_id` is a library song to edit, or `None` for a new one. A song that is
 /// no longer in the library opens as a new one.
-pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) {
+pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None) }
+
+/// Edit words on the live song (FEAT-4 §3.4): the editor with the caret at the live section's first lyric line,
+/// found from the live slide's occurrence in the order that built it.
+pub fn edit_live_words(op: &Rc<Operator>, song_id: Uuid, occurrence: Option<u16>) {
+    let caret = occurrence.and_then(|o| {
+        let st = op.state.borrow();
+        let song = st.snap.as_ref()?.data.songs.iter().find(|s| s.id == song_id)?;
+        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, &song.arrangement, o)
+    });
+    open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)));
+}
+
+/// The song on screen now, if any.
+fn live_song(op: &Operator) -> Option<Uuid> { op.shown_live().and_then(|l| l.view().item.as_ref()?.song_id) }
+
+/// `caret`: where the lyrics' caret goes (a byte offset), for Edit words.
+fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>) {
     let song = song_id.and_then(|id| op.state.borrow().snap.as_ref()?.data.songs.iter().find(|s| s.id == id).cloned());
     let song_id = song.as_ref().map(|s| s.id);
     op.open_dialog(DialogKind::SongEditor { song_id, add_after });
@@ -55,6 +72,8 @@ pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: boo
     st.set_existing(song.is_some());
     st.set_add_after(add_after);
     st.set_focus_lyrics(song.is_some());
+    st.set_caret(caret.map_or(-1, |c| i32::try_from(c).unwrap_or(0)));
+    st.set_live_song(song_id.is_some() && song_id == live_song(op));
     let thumbs = if op.ops().is_inline() { Thumbs::inline(op.app().store.root.clone()) } else { Thumbs::new(op.app().store.root.clone()) };
     let ctx = Rc::new(EditorCtx {
         op: Rc::downgrade(op), song_id, saved_title: s.title, add_after, timer: Timer::default(), thumbs,
@@ -151,19 +170,35 @@ struct Saved { id: Uuid }
 
 /// Save (`operator.js:697-704`): every field trimmed except the lyrics, `song/save`, then add it to the service
 /// (Save and add to service) or the toast "Song saved", and close. A refusal is an error toast and the editor stays.
-fn save(op: &Rc<Operator>, ctx: &EditorCtx) {
+/// `show_now` (Save and show now, FEAT-4): once saved, Update screen for the live item.
+fn save(op: &Rc<Operator>, ctx: &EditorCtx, show_now: bool) {
     let song = song_from_fields(&op.ui.global::<SongEditorState>(), ctx.song_id, true);
     let add_after = ctx.add_after;
     let me = Rc::downgrade(op);
     op.ops().call::<Saved>("song/save", serde_json::to_value(&song).unwrap_or_default(), move |r| {
         let Some(op) = me.upgrade() else { return };
         let Saved { id } = match r { Ok(s) => s, Err(e) => return op.toast(e, true) };
-        if add_after {
+        if show_now {
+            refresh_live(&op);
+            op.close_dialog();
+        } else if add_after {
             add_item_then(&op, json!({ "kind": "song", "song_id": id }), false, |op, _| op.close_dialog());
         } else {
             op.toast(tr::SONG_SAVED, false);
             op.close_dialog();
         }
+    });
+}
+
+/// Update screen: the live item as the library has it now, at the same place. With the text cleared, a toast says
+/// why nothing moved.
+pub fn refresh_live(op: &Rc<Operator>) {
+    let Some((item_id, cleared)) = op.shown_live().and_then(|l| Some((l.view().cursor.as_ref()?.item_id, l.view().frame.slide.is_none()))) else { return };
+    let me = Rc::downgrade(op);
+    op.ops().cmd(crate::live::Command::Refresh { item_id }, None, move |o| {
+        let Some(op) = me.upgrade() else { return };
+        if o.ok && cleared { op.toast(crate::sections::strings::SAVED_TEXT_CLEARED, false) }
+        else if let Some((msg, err)) = crate::ui::ops::outcome_toast(&o) { op.toast(msg, err) }
     });
 }
 
@@ -189,7 +224,9 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     let c = ctx.clone();
     st.on_chip(move |label| if let Some(op) = c.op.upgrade() { add_to_order(&op, &c, &label) });
     let c = ctx.clone();
-    st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c) });
+    st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c, false) });
+    let c = ctx.clone();
+    st.on_save_and_show(move || if let Some(op) = c.op.upgrade() { save(&op, &c, true) });
     let c = ctx.clone();
     st.on_delete(move || if let Some(op) = c.op.upgrade() { delete(&op, &c) });
     let c = ctx.clone();

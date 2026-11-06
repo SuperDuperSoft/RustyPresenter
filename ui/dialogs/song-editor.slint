@@ -31,11 +31,16 @@ export global SongEditorState {
     in property <bool> add-after;
     /// The lyrics take the keyboard when the editor opens (editing); else the title (new).
     in property <bool> focus-lyrics;
+    /// Where the caret goes in the lyrics when the editor opens (a byte offset), or -1 (Edit words, FEAT-4).
+    in property <int> caret: -1;
+    /// This song is on screen now: the warning banner and Save and show now (FEAT-4 §3.4).
+    in property <bool> live-song;
 
     /// A field the preview follows (title, lyrics, order) changed by typing.
     callback edited();
     callback chip(string);
     callback save();
+    callback save-and-show();
     callback delete();
     callback cancel();
 }
@@ -59,8 +64,28 @@ export component SongEditor inherits VerticalLayout {
             self.running = false;
             if SongEditorState.focus-lyrics {
                 lyrics.focus();
+                if SongEditorState.caret >= 0 { lyrics.set-caret(SongEditorState.caret); }
             } else {
                 title.focus();
+            }
+        }
+    }
+    if SongEditorState.live-song: live-banner := Rectangle {
+        accessible-role: text;
+        accessible-label: banner-text.text;
+        background: Theme.notice-bg;
+        border-color: Theme.notice-border;
+        border-width: 1px;
+        border-radius: 10px;
+        HorizontalLayout {
+            padding: 9px;
+            padding-left: 12px;
+            banner-text := Text {
+                text: @tr("This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen.");
+                color: Theme.notice-text;
+                font-family: Theme.font;
+                font-size: 13px;
+                wrap: word-wrap;
             }
         }
     }
@@ -230,8 +255,13 @@ export component SongEditor inherits VerticalLayout {
         }
         save := Btn {
             text: SongEditorState.add-after ? @tr("Save and add to service") : @tr("Save song");
-            primary: true;
+            primary: !SongEditorState.live-song;
             clicked => { SongEditorState.save(); }
+        }
+        if SongEditorState.live-song: save-and-show := Btn {
+            text: @tr("Save and show now");
+            primary: true;
+            clicked => { SongEditorState.save-and-show(); }
         }
     }
 }

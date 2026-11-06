@@ -15,6 +15,8 @@ pub mod media_bin;
 pub mod overlays;
 pub mod service;
 pub mod slides;
+#[cfg(test)]
+mod song_flows;
 pub mod text_size;
 pub mod view;
 pub mod window;

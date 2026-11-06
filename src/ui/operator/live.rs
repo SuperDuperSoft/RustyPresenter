@@ -6,7 +6,7 @@ use crate::{
     app::LiveView,
     live::Command,
     room::Kind,
-    ui::{OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, thumbs},
+    ui::{LiveSong, OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, thumbs},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
 use std::{rc::{Rc, Weak}, time::Duration};
@@ -38,6 +38,10 @@ impl Operator {
         ui.set_live_pending(v.pending);
         ui.set_live_what(view::live_what(v).into());
         ui.set_live_notice(v.notice.clone().unwrap_or_default().into());
+        ui.set_live_song(live_song(v));
+        if let Some(crate::ui::dialogs::DialogKind::SongEditor { song_id: Some(id), .. }) = self.dialog() {
+            ui.global::<crate::ui::SongEditorState>().set_live_song(v.item.as_ref().and_then(|i| i.song_id) == Some(id));
+        }
         ui.set_logo_on(v.frame.logo);
         let (title, body) = view::next_up(v);
         ui.set_up_next_title(title.into());
@@ -52,6 +56,9 @@ impl Operator {
         drop(st);
         self.render_monitor(v);
     }
+
+    /// The live view as this window last drew it.
+    pub(crate) fn shown_live(&self) -> Option<crate::app::LiveUpdate> { self.state.borrow().live.clone() }
 
     /// The monitor: its layers (only those that changed are drawn again), and the video under them.
     fn render_monitor(&self, v: &LiveView) {
@@ -149,6 +156,31 @@ impl Operator {
     }
 }
 
+/// The live song's line, Edit words and the change banner (FEAT-4 §3.4).
+pub fn live_song(v: &LiveView) -> LiveSong {
+    let line = v.cursor.as_ref().zip(v.slide.as_ref()).and_then(|(_, s)| {
+        let r = s.section.as_ref()?;
+        Some((crate::sections::strings::live_section_line(&r.label, r.page + 1, r.pages), r.kind.id()))
+    });
+    let (line, kind) = line.unwrap_or_default();
+    let changed = v.changed.as_ref().filter(|c| v.cursor.as_ref().is_some_and(|cur| cur.item_id == c.item_id));
+    LiveSong {
+        line: line.into(), kind: kind.into(),
+        edit: v.item.as_ref().is_some_and(|i| i.song_id.is_some()),
+        banner: changed.map_or("", |c| c.reason.banner()).into(),
+        update: changed.is_some_and(|c| c.reason.can_update()),
+    }
+}
+
+/// Edit words: the live song in the editor, the caret at the live section.
+fn edit_live_words(op: &Rc<Operator>) {
+    let Some((song_id, occurrence)) = op.state.borrow().live.as_ref().and_then(|l| {
+        let v = l.view();
+        Some((v.item.as_ref()?.song_id?, v.slide.as_ref().and_then(|s| s.section.as_ref()).map(|r| r.occurrence)))
+    }) else { return };
+    crate::ui::dialogs::song_editor::edit_live_words(op, song_id, occurrence);
+}
+
 /// Puts `cells` in `model` in place: rows that changed get their new data, and only a different number of rows
 /// resets it (the web rebuilds the rows every time, `renderTransport()`).
 fn put_cells(model: &VecModel<TransportCell>, cells: Vec<TransportCell>) {
@@ -183,6 +215,15 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_live_clear(move |name| if let (Some(op), Some(cmd)) = (me.upgrade(), clear_command(&name)) { op.command(cmd, None) });
     let me = Rc::downgrade(op);
     ui.on_transport_toggle(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.toggle_transport(i) });
+    let me = Rc::downgrade(op);
+    ui.on_live_song_action(move |a| {
+        let Some(op) = me.upgrade() else { return };
+        match a.as_str() {
+            "edit" => edit_live_words(&op),
+            "update" => crate::ui::dialogs::song_editor::refresh_live(&op),
+            _ => {}
+        }
+    });
     let me = Rc::downgrade(op);
     ui.on_monitor_resized(move |_| if let Some(op) = me.upgrade() { op.monitor_resized() });
 }
