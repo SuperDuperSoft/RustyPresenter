@@ -65,7 +65,7 @@ export function textEl(layer, theme, H) {
   body.style.cssText = `flex:1;display:flex;align-items:${lower ? 'flex-end' : 'center'};justify-content:center;padding:${pad * 0.6}px ${pad}px ${lower ? 70 : pad * 0.6}px;min-height:0;`;
   const text = document.createElement('div');
   text.className = 'rp-text';
-  const size = scripture ? (t.scripture_size || 64) : (t.size || 84);
+  const size = layer.size || (scripture ? (t.scripture_size || 64) : (t.size || 84));
   text.style.cssText = `font-family:"${t.font || 'Segoe UI'}", "Segoe UI", system-ui, sans-serif;font-weight:${scripture ? 500 : 600};color:${t.color || '#fff'};` +
     `font-size:${size}px;line-height:${scripture ? 1.32 : 1.22};text-align:${scripture ? 'left' : 'center'};white-space:pre-wrap;overflow-wrap:break-word;max-width:100%;max-height:100%;` +
     (t.shadow !== false ? 'text-shadow:0 3px 14px rgba(0,0,0,.85),0 0 3px rgba(0,0,0,.9);' : '') +
@@ -117,7 +117,7 @@ export function logoEl(logo) {
 export function slideToLayers(slide, kind, background) {
   const c = slide.content;
   switch (c.type) {
-    case 'text': return { background, slide: { type: 'text', text: c.text, footer: c.footer, reference: c.reference, scripture: kind === 'scripture' } };
+    case 'text': return { background, slide: { type: 'text', text: c.text, footer: c.footer, reference: c.reference, scripture: kind === 'scripture', size: c.size } };
     case 'image': return { slide: { type: 'image', asset: c.asset } };
     case 'video': return { background, media: { type: 'video', asset: c.asset } };
     case 'still': return { background, media: { type: 'still', asset: c.asset } };

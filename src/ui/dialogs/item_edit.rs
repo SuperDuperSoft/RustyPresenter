@@ -39,6 +39,8 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_kind(row.kind.as_str().into());
     g.set_song_exists(false);
     g.set_per_slide(0);
+    g.set_size_mode(0);
+    g.set_text_size(snap.data.settings.theme.scripture_size as i32);
     g.set_title("".into());
     g.set_body("".into());
     g.set_autoplay(true);
@@ -50,7 +52,13 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     let mut name = None;
     match &item.kind {
         ItemKind::Song { song_id } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
-        ItemKind::Scripture { per_slide, .. } => g.set_per_slide(i32::from(*per_slide)),
+        ItemKind::Scripture { per_slide, text_size, .. } => {
+            g.set_per_slide(i32::from(*per_slide));
+            if *text_size > 0 {
+                g.set_size_mode(1);
+                g.set_text_size(*text_size as i32);
+            }
+        }
         ItemKind::Text { title, body } => {
             g.set_title(title.as_str().into());
             g.set_body(body.as_str().into());
@@ -146,7 +154,10 @@ fn draw_choices(op: &Operator, edit: &Rc<RefCell<Edit>>) {
 fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
     let mut item = edit.item.clone();
     match &mut item.kind {
-        ItemKind::Scripture { per_slide, .. } => *per_slide = u8::try_from(g.get_per_slide()).unwrap_or(0),
+        ItemKind::Scripture { per_slide, text_size, .. } => {
+            *per_slide = u8::try_from(g.get_per_slide()).unwrap_or(0);
+            *text_size = if g.get_size_mode() == 1 { g.get_text_size().clamp(36, 120) as u32 } else { 0 };
+        }
         ItemKind::Text { title, body } => {
             *title = g.get_title().into();
             *body = g.get_body().into();
@@ -311,7 +322,7 @@ mod tests {
     #[test]
     fn scripture_per_slide_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0 });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0 });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_kind(), "scripture");
@@ -322,6 +333,25 @@ mod tests {
         assert_eq!(per_slide, 2);
         assert_eq!(op.dialog(), None);
         assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
+    }
+
+    #[test]
+    fn scripture_text_size_saved_and_automatic_again() {
+        let app = test_app();
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0 });
+        let op = opened(&app);
+        open(&op, id);
+        assert_eq!(g(&op).get_size_mode(), 0, "Automatic until chosen");
+        assert_eq!(g(&op).get_text_size(), 64, "the slider starts at the Settings size");
+        g(&op).set_size_mode(1);
+        g(&op).set_text_size(100);
+        press(&op, "ItemEditDialog::save");
+        assert!(matches!(item(&app, id).unwrap().kind, ItemKind::Scripture { text_size: 100, .. }));
+        open(&op, id);
+        assert_eq!((g(&op).get_size_mode(), g(&op).get_text_size()), (1, 100));
+        g(&op).set_size_mode(0);
+        press(&op, "ItemEditDialog::save");
+        assert!(matches!(item(&app, id).unwrap().kind, ItemKind::Scripture { text_size: 0, .. }));
     }
 
     #[test]

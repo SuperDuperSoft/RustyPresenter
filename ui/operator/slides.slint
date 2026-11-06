@@ -239,8 +239,16 @@ export component SlidesPanel inherits VerticalLayout {
     in property <length> window-height;
     out property <length> grid-width: grid.width;
 
+    /// A Bible passage is selected: its text size ("Auto" or pixels) and the A− / A+ / Auto buttons.
+    in property <bool> text-size-shown;
+    in property <string> text-size;
+    in property <bool> text-size-custom;
+
     callback show(int);
     callback edit();
+    callback text-smaller();
+    callback text-larger();
+    callback text-auto();
     /// The grid's width changed (Rust works out the columns and the thumbnail size).
     callback grid-resized(length);
 
@@ -295,6 +303,43 @@ export component SlidesPanel inherits VerticalLayout {
                 font-weight: 600;
                 vertical-alignment: center;
                 overflow: elide;
+            }
+        }
+        // The passage's text size: smaller, bigger, or back to Settings' size.
+        if root.text-size-shown: HorizontalLayout {
+            spacing: 4px;
+            text-smaller := Btn {
+                small: true;
+                text: @tr("A−");
+                tooltip: @tr("Smaller text for this passage");
+                clicked => { root.text-smaller(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                text-size := Text {
+                    min-width: 34px;
+                    text: root.text-size;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Text size");
+                    accessible-value: self.text;
+                }
+            }
+            text-larger := Btn {
+                small: true;
+                text: @tr("A+");
+                tooltip: @tr("Bigger text for this passage");
+                clicked => { root.text-larger(); }
+            }
+            if root.text-size-custom: text-auto := Btn {
+                small: true;
+                text: @tr("Auto");
+                tooltip: @tr("Back to the size in Settings");
+                clicked => { root.text-auto(); }
             }
         }
         if root.has-selection: slides-edit := Btn {

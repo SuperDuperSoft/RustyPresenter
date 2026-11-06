@@ -264,7 +264,7 @@ mod tests {
     use crate::render::layout::{BUNDLED_FAMILY, TextLayout};
     use cosmic_text::Weight;
 
-    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[] } }
 
     /// Blur a one-pixel vertical line and return the horizontal profile of the middle row
     /// (the 1-D kernel), with its total and variance.

@@ -1,7 +1,7 @@
 //! Renders slides on one worker thread and keeps recent results, so going back to a slide or
 //! redrawing a thumbnail costs nothing and the UI thread never waits on text rendering.
 use super::{Fonts, Rendered, TextSlide, render_text};
-use crate::model::Theme;
+use crate::model::{PassageSlide, Theme};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, Mutex, mpsc};
 use tokio::sync::oneshot;
@@ -13,6 +13,10 @@ pub struct RenderKey {
     pub footer: Option<String>,
     pub reference: Option<String>,
     pub scripture: bool,
+    /// Largest text size; 0 = the theme's (`TextSlide::size`).
+    pub size: u32,
+    /// The passage whose slides share one size (`TextSlide::passage`).
+    pub passage: Vec<PassageSlide>,
     pub theme: Theme,
     pub canvas: (u32, u32),
 }
@@ -64,7 +68,10 @@ impl Renderer {
                 // Another request may have rendered this key while the job waited in line.
                 let hit = worker_cache.lock().unwrap().get(&key);
                 let r = hit.unwrap_or_else(|| {
-                    let slide = TextSlide { text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture };
+                    let slide = TextSlide {
+                        text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture,
+                        size: key.size, passage: &key.passage,
+                    };
                     // A panic while drawing one slide must not stop the renderer for every screen: show it blank.
                     let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| render_text(&mut fonts, &slide, &key.theme, key.canvas)));
                     let r = Arc::new(drawn.unwrap_or_else(|_| {
@@ -97,7 +104,7 @@ mod tests {
     use super::*;
 
     fn key(text: &str, canvas: (u32, u32)) -> RenderKey {
-        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas }
+        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas }
     }
 
     #[tokio::test]

@@ -62,8 +62,9 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
             }
         }
         Kind::Slide => match f.slide.as_ref()? {
-            SlideLayer::Text { text, footer, reference, scripture } => Source::Text(RenderKey {
-                text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture, theme: job.theme.clone(), canvas: job.canvas,
+            SlideLayer::Text { text, footer, reference, scripture, size: max, passage } => Source::Text(RenderKey {
+                text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
+                size: *max, passage: passage.clone(), theme: job.theme.clone(), canvas: job.canvas,
             }),
             SlideLayer::Image { asset } => picture(asset, false, 1.0),
         },

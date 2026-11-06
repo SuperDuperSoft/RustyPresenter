@@ -9,7 +9,7 @@ use std::path::PathBuf;
 
 fn theme() -> Theme { Theme { font: "Noto Sans".into(), ..Theme::default() } }
 
-fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
+fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[] } }
 
 fn render_at(text: &str, canvas: (u32, u32)) -> Rendered { render_text(&mut Fonts::bundled_only(), &slide(text), &theme(), canvas) }
 
@@ -57,6 +57,8 @@ fn golden_scripture_with_reference() {
         footer: None,
         reference: Some("John 3:16 KJV"),
         scripture: true,
+        size: 0,
+        passage: &[],
     };
     check_golden("scripture_with_reference", &render_text(&mut Fonts::bundled_only(), &s, &theme(), (1920, 1080)));
 }
@@ -64,7 +66,7 @@ fn golden_scripture_with_reference() {
 #[test]
 fn golden_lower_third() {
     let t = Theme { position: "lower".into(), ..theme() };
-    let s = TextSlide { text: "Welcome to Grace First", footer: Some("Service starts at 10:30"), reference: None, scripture: false };
+    let s = TextSlide { text: "Welcome to Grace First", footer: Some("Service starts at 10:30"), reference: None, scripture: false, size: 0, passage: &[] };
     check_golden("lower_third", &render_text(&mut Fonts::bundled_only(), &s, &t, (1920, 1080)));
 }
 
@@ -115,6 +117,8 @@ fn bench_1080p_render_ms() {
         footer: None,
         reference: Some("John 3:16 KJV"),
         scripture: true,
+        size: 0,
+        passage: &[],
     };
     for (name, s) in [("lyric", &lyric), ("scripture", &scripture)] {
         render_text(&mut fonts, s, &theme(), (1920, 1080)); // warm the shaping and glyph caches
