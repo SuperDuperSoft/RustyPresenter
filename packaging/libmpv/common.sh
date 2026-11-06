@@ -67,6 +67,7 @@ fetch_sources() {
   clone mpv https://github.com/mpv-player/mpv.git "v$MPV_VERSION"
   clone libplacebo https://code.videolan.org/videolan/libplacebo.git "v$LIBPLACEBO_VERSION" \
     3rdparty/glad 3rdparty/jinja 3rdparty/markupsafe 3rdparty/fast_float
+  clone vulkan-headers https://github.com/KhronosGroup/Vulkan-Headers.git "$VULKAN_HEADERS_VERSION"
   clone dav1d https://code.videolan.org/videolan/dav1d.git "$DAV1D_VERSION"
   clone freetype https://gitlab.freedesktop.org/freetype/freetype.git "VER-${FREETYPE_VERSION//./-}"
   clone fribidi https://github.com/fribidi/fribidi.git "v$FRIBIDI_VERSION"
@@ -105,8 +106,9 @@ build_deps() {
   # libass picks its font provider per OS (DirectWrite, CoreText, fontconfig).
   meson_build libass -Dtest=disabled -Dcompare=disabled -Dprofile=disabled -Dfuzz=disabled \
     -Dcheckasm=disabled -Dlibunibreak=disabled
-  # OpenGL only: the app draws through mpv's render API on a GL context.
-  meson_build libplacebo -Dvulkan=disabled -Dopengl=enabled -Dd3d11=disabled -Dglslang=disabled \
+  # OpenGL only: the app draws through mpv's render API on a GL context. libplacebo still compiles
+  # vulkan_stubs.c with Vulkan off, which includes <vulkan/vulkan.h>: the headers, nothing linked.
+  meson_build libplacebo "-Dc_args=-I$SRC/vulkan-headers/include" -Dvulkan=disabled -Dopengl=enabled -Dd3d11=disabled -Dglslang=disabled \
     -Dshaderc=disabled -Dlcms=disabled -Dlibdovi=disabled -Dunwind=disabled -Dxxhash=disabled \
     -Ddemos=false -Dtests=false -Dbench=false -Dfuzz=false
 }
