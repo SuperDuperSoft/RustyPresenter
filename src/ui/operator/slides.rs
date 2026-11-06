@@ -108,6 +108,7 @@ impl Operator {
         ui.set_slides_kind(item.map_or("", |i| kind_icon(&i.kind)).into());
         ui.set_has_selection(item.is_some());
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
+        ui.set_slides_note(item.map_or_else(String::new, |i| i.notes.join("\n")).into());
         self.render_text_size();
         ui.set_slide_jumps(ModelRc::new(VecModel::from(item.map_or_else(Vec::new, |i| jumps(&i.kind, &i.slides)))));
         let key = item.map(|it| GridKey {
@@ -323,6 +324,24 @@ mod tests {
     fn show(op: &Operator, item_id: Uuid, slide: usize) {
         op.ops().cmd(Command::Show { item_id, slide }, None, |_| {});
         op.apply_live(LiveUpdate::new(op.app().live_view()));
+    }
+
+    #[test]
+    fn passage_note_under_the_grid_names_missing_verses() {
+        let app = test_app();
+        let vs = |n: u16| (16..16 + n).map(|v| crate::model::VerseText::new(format!("John 3:{v}"), "words")).collect::<Vec<_>>();
+        let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs(1) }];
+        let kind = ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs(2), per_slide: 0, text_size: 0, also, layout: Default::default() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() };
+        app.data.lock().unwrap().services[0].items.push(item.clone());
+        let song = add_text(&app, "A", "a");
+        let op = opened(&app);
+        op.ui.invoke_service_select(item.id.to_string().into());
+        assert_eq!(op.ui.get_slides_note(), "WEB doesn't include John 3:17.");
+        assert!(find(&op, "SlidesPanel::slides-note").is_some());
+        op.ui.invoke_service_select(song.to_string().into());
+        assert_eq!(op.ui.get_slides_note(), "", "other items have no note");
+        assert!(find(&op, "SlidesPanel::slides-note").is_none());
     }
 
     #[test]

@@ -16,8 +16,9 @@ use uuid::Uuid;
 #[derive(Deserialize)]
 struct Found { label: String, verses: Value, translation: String }
 
+/// `service/add`'s answer: the new id, and what to say when an Also Bible was left out.
 #[derive(Deserialize)]
-struct Added { id: Uuid }
+struct Added { id: Uuid, #[serde(default)] toast: Option<String> }
 
 /// Enter in the Bible box (`operator.js:325-336`): look the passage up, add it after the live item (or at the end),
 /// clear the box, give the keys back, and select and arm the new item. A failure is an error toast with the core's
@@ -47,7 +48,7 @@ fn add(op: &Rc<Operator>, found: Found) {
     op.ops.call::<Added>("service/add", json!({ "position": position, "item": item }), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(Added { id }) => {
+            Ok(Added { id, toast }) => {
                 op.ui.set_bible_text("".into());
                 // Only the box gives up the keyboard (the web's `input.blur()`): a dialog or question opened while
                 // the lookup ran keeps it.
@@ -61,6 +62,7 @@ fn add(op: &Rc<Operator>, found: Found) {
                 op.mark_service();
                 op.render_slides();
                 op.toast(&tr::bible_added(&label), false);
+                if let Some(t) = toast { op.toast(&t, true) }
             }
             Err(e) => op.toast(&e, true),
         }
@@ -305,6 +307,17 @@ mod tests {
         assert_eq!(now.len(), 2);
         assert_eq!(now[0], a);
         assert_eq!(op.state.borrow().armed, Some(now[1]));
+    }
+
+    #[test]
+    fn bible_enter_says_which_also_bible_was_left_out() {
+        let app = test_app();
+        app.data.lock().unwrap().settings.also_show = vec!["WEB".into(), "NIV".into()];
+        let op = opened(&app);
+        type_and_enter(&op, "John 3:16");
+        assert_eq!(ids(&app).len(), 1, "the passage went in");
+        let toasts = op.state.borrow().toasts.clone();
+        assert!(toasts.contains(&("NIV isn't available right now, so only KJV · WEB was added.".to_string(), true)), "{toasts:?}");
     }
 
     #[test]

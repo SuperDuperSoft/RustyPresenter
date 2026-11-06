@@ -4,7 +4,7 @@ use super::strings as tr;
 use crate::{
     app::{App, LiveView, Monitor},
     model::{Data, EndAction, ItemKind, MediaFile, MediaStatus, ServiceItem, Settings, Slide, SlideContent},
-    slides::build_item,
+    slides::build_item_with_notes,
     store::BackupInfo,
 };
 use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
@@ -12,7 +12,8 @@ use uuid::Uuid;
 
 /// One service item as the list and the slide grid show it.
 #[derive(Clone, Debug)]
-pub struct ItemRow { pub id: Uuid, pub kind: String, pub title: String, pub subtitle: String, pub slides: Vec<Slide>, pub item: ServiceItem }
+/// `notes`: what the operator should know about the item's slides (a passage's missing verses), shown under the grid.
+pub struct ItemRow { pub id: Uuid, pub kind: String, pub title: String, pub subtitle: String, pub slides: Vec<Slide>, pub item: ServiceItem, pub notes: Vec<String> }
 
 /// The room pill: showing, opened but not drawing yet, or not open.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -122,8 +123,8 @@ impl OperatorSnapshot {
         let room = if app.room_conns.load(Ordering::Relaxed) > 0 { RoomStatus::Showing }
             else if windows.iter().any(|w| w == "room") { RoomStatus::Starting } else { RoomStatus::Off };
         let items = data.service().map(|s| s.items.iter().map(|i| {
-            let (title, kind, slides) = build_item(&data, i);
-            ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone() }
+            let (title, kind, slides, notes) = build_item_with_notes(&data, i);
+            ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone(), notes }
         }).collect()).unwrap_or_default();
         let mut snap = Self {
             service_id: data.service().map(|s| s.id),
@@ -455,7 +456,7 @@ mod tests {
 
     fn media_row(m: &MediaFile, kind: &str, end: EndAction, looped: bool) -> ItemRow {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: m.id, autoplay: true, end, looped }, background: None, notes: String::new() };
-        ItemRow { id: item.id, kind: kind.into(), title: m.name.clone(), subtitle: String::new(), slides: vec![text_slide("clip", "")], item }
+        ItemRow { id: item.id, kind: kind.into(), title: m.name.clone(), subtitle: String::new(), slides: vec![text_slide("clip", "")], item, notes: vec![] }
     }
 
     fn text_slide(label: &str, text: &str) -> Slide {
@@ -464,7 +465,7 @@ mod tests {
 
     fn row(kind: &str, slides: usize) -> ItemRow {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "T".into(), body: String::new() }, background: None, notes: String::new() };
-        ItemRow { id: item.id, kind: kind.into(), title: "T".into(), subtitle: String::new(), slides: (0..slides).map(|i| text_slide(&format!("S{i}"), "x")).collect(), item }
+        ItemRow { id: item.id, kind: kind.into(), title: "T".into(), subtitle: String::new(), slides: (0..slides).map(|i| text_slide(&format!("S{i}"), "x")).collect(), item, notes: vec![] }
     }
 
     fn view() -> LiveView {

@@ -131,6 +131,14 @@ impl Provider {
 /// Every source for a translation, best first.
 pub fn sources(translation: &str) -> impl Iterator<Item = &'static Source> { SOURCES.iter().filter(move |s| s.translation == translation) }
 
+/// True for a Bible read over the internet (ESV, NIV, a YouVersion or API.Bible id): its text is only ever kept in
+/// the capped cache, never with a service (Nov 5 spec §5). A file the church imported under the same name is
+/// checked by the caller.
+pub fn is_online(translation: &str) -> bool {
+    let t = translation.trim();
+    t.starts_with("yv:") || t.starts_with("ab:") || SOURCES.iter().any(|s| super::id::same_id(s.translation, t))
+}
+
 /// The source that will be used: the first with a saved key, else the first listed.
 pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Source> {
     sources(translation).find(|s| secrets.key(s.provider).is_some()).or_else(|| sources(translation).next())
