@@ -85,8 +85,11 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
+    settings_bible::remember(&edit);
+    settings_bible::reset(&g);
     settings_audio::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
+    if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
     op.on_dialog_close(move |_| closing.look.stop());
 }
@@ -194,6 +197,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_copy_link(with_i(settings_bible::copy_link));
     g.on_import_bible(with(settings_bible::import));
     g.on_remove_import(with_i(settings_bible::remove_import));
+    g.on_catalog_changed(with(|op, edit| settings_bible::render(op, edit)));
+    g.on_catalog_button(with_i(settings_bible::catalog_button));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
@@ -208,6 +213,7 @@ fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
     settings_look::drop_preview(op, edit);
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
     if tab == 0 { settings_look::render_now(op, edit) }
+    if tab == 2 { settings_bible::load_catalog(op, edit) }
 }
 
 fn backup_now(op: &Rc<Operator>, edit: &Rc<Edit>) {

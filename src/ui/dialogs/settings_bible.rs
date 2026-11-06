@@ -2,18 +2,297 @@
 //! services a church connects with a key (`bible/key`), Bible file import (`bible/import/{ABBR}`, the raw file) and
 //! removal (`bible/import-remove`), and the copyright lines of the sources in use.
 use super::settings::{Edit, copy, redraw_on_next_read, strings};
-use crate::ui::{
-    SettingsBibleRow, SettingsDlg, SettingsProviderRow,
-    operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, OperatorSnapshot}, window::Operator},
+use crate::{
+    bible::{blocklist::normalise, catalog::strings as cat},
+    ui::{
+        SettingsBibleRow, SettingsCatalogRow, SettingsDlg, SettingsProviderRow,
+        dialogs::DialogKind,
+        operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, JobRow, OperatorSnapshot}, window::Operator},
+    },
 };
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use std::{cell::{Cell, RefCell}, collections::{HashMap, HashSet}, path::PathBuf, rc::{Rc, Weak}};
 
 /// The rows the tab shows, so a button's index finds its translation or service.
 #[derive(Default)]
 pub struct BibleState {
     sources: RefCell<Vec<BibleSource>>,
     providers: RefCell<Vec<BibleProvider>>,
+    pub(crate) catalog: CatalogState,
+}
+
+/// A row of `bible/catalog` (`App::bible_catalog`), in its order: grouped by language, the church's first.
+#[derive(serde::Deserialize, Clone, Debug, Default)]
+#[serde(default)]
+pub struct CatRow {
+    pub id: String,
+    pub abbr: String,
+    pub title: String,
+    pub lang: String,
+    pub lang_name: String,
+    pub lang_name_en: String,
+    pub scope: String,
+    pub apocrypha: bool,
+    pub licence_on_download: bool,
+    pub installed: bool,
+    pub update: bool,
+}
+
+#[derive(serde::Deserialize, Default)]
+#[serde(default)]
+struct Catalog { offline: bool, rows: Vec<CatRow> }
+
+/// The library list of one open Settings dialog.
+#[derive(Default)]
+pub struct CatalogState {
+    rows: RefCell<Vec<CatRow>>,
+    offline: Cell<bool>,
+    loading: Cell<bool>,
+    loaded: Cell<bool>,
+    error: RefCell<Option<String>>,
+    /// The language filter's codes; the Select's index is one more (0 is "All languages").
+    langs: RefCell<Vec<String>>,
+    /// Each shown line's row, `None` for a heading.
+    shown: RefCell<Vec<Option<usize>>>,
+    /// Asked to install and not answered yet; and installed while this dialog was open.
+    pending: RefCell<HashSet<String>>,
+    added: RefCell<HashSet<String>>,
+    failed: RefCell<HashMap<String, String>>,
+}
+
+/// At most this many Bibles are listed at once; the search narrows the rest.
+pub const MAX_SHOWN: usize = 200;
+
+/// What the list shows for one query: lines (a heading, or a row index) and the note above them.
+#[derive(Debug, PartialEq)]
+pub struct Shown { pub lines: Vec<Option<usize>>, pub note: String }
+
+/// Picks the rows for the search words (every word, folded like the catalog), Installed (`filter` 0) or All, and
+/// a language (`""` for all), keeping the rows' order, with a heading line where the language changes.
+pub fn select(rows: &[CatRow], query: &str, filter: i32, lang: &str) -> Shown {
+    let words: Vec<String> = query.split_whitespace().map(normalise).filter(|w| !w.is_empty()).collect();
+    let hit = |r: &CatRow| {
+        if filter == 0 && !r.installed { return false }
+        if !lang.is_empty() && r.lang != lang { return false }
+        if words.is_empty() { return true }
+        let hay = normalise(&format!("{} {} {} {} {} {}", r.title, r.abbr, r.lang_name, r.lang_name_en, r.lang, r.id));
+        words.iter().all(|w| hay.contains(w.as_str()))
+    };
+    let matched: Vec<usize> = rows.iter().enumerate().filter(|(_, r)| hit(r)).map(|(i, _)| i).collect();
+    let mut lines = Vec::new();
+    let mut last: Option<&str> = None;
+    for &i in matched.iter().take(MAX_SHOWN) {
+        if last != Some(rows[i].lang.as_str()) { lines.push(None); last = Some(rows[i].lang.as_str()); }
+        lines.push(Some(i));
+    }
+    let note = if matched.is_empty() {
+        if filter == 0 && words.is_empty() && lang.is_empty() { cat::NONE_INSTALLED.into() } else { cat::NO_MATCH.into() }
+    } else if matched.len() > MAX_SHOWN { cat::showing(MAX_SHOWN, matched.len()) } else { String::new() };
+    Shown { lines, note }
+}
+
+/// The languages of the filter, in the list's order (the church's first), as codes and labels.
+pub fn languages(rows: &[CatRow]) -> (Vec<String>, Vec<String>) {
+    let (mut codes, mut labels) = (Vec::<String>::new(), Vec::new());
+    for r in rows {
+        if !codes.contains(&r.lang) {
+            codes.push(r.lang.clone());
+            labels.push(cat::language(&r.lang_name_en, &r.lang_name, &r.lang));
+        }
+    }
+    (codes, labels)
+}
+
+/// One Bible line: its tag, the status line, the button and the bar. A running download (its job) wins; then a
+/// failure from this dialog; then what is installed.
+pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed: Option<&str>, offline: bool, same_abbr: bool) -> SettingsCatalogRow {
+    let mut tag = vec![cat::TAG_OFFLINE.to_string(), r.scope.clone()];
+    if r.apocrypha { tag.push(cat::INCLUDES_APOCRYPHA.into()) }
+    if r.licence_on_download && !r.installed { tag.push(cat::LICENCE_ON_DOWNLOAD.into()) }
+    let abbr = if same_abbr { format!("{} · {}", r.abbr, r.lang) } else { r.abbr.clone() };
+    let mut row = SettingsCatalogRow {
+        heading: SharedString::new(), abbr: abbr.into(), title: r.title.as_str().into(), tag: tag.join(" · ").into(),
+        status: SharedString::new(), button: SharedString::new(), progress: -1.0, enabled: true, primary: false,
+    };
+    let running = job.filter(|j| j.error.is_none() && !j.done);
+    if let Some(j) = running {
+        let waiting = j.label.starts_with(cat::WAITING.split('{').next().unwrap_or(""));
+        row.status = if waiting { cat::WAITING_SHORT.into() } else { cat::downloading(j.percent).into() };
+        row.progress = if waiting { -1.0 } else { f32::from(j.percent) };
+        row.button = cat::CANCEL.into();
+        row.enabled = j.cancellable;
+        return row;
+    }
+    if pending {
+        row.status = cat::WAITING_SHORT.into();
+        row.progress = 0.0;
+        return row;
+    }
+    if let Some(e) = failed { row.status = e.into() }
+    if r.installed && r.update {
+        if row.status.is_empty() { row.status = cat::UPDATE_READY.into() }
+        (row.button, row.primary, row.enabled) = (cat::UPDATE.into(), true, !offline);
+    } else if r.installed {
+        if added { row.status = cat::ADDED.into() }
+        row.button = cat::REMOVE.into();
+    } else {
+        (row.button, row.primary, row.enabled) = (cat::ADD.into(), true, !offline);
+    }
+    row
+}
+
+thread_local! {
+    /// The open Settings dialog's state, so job progress (which reaches the window, not the dialog) redraws the list.
+    static OPEN: RefCell<Weak<super::settings::Edit>> = const { RefCell::new(Weak::new()) };
+}
+
+/// A new dialog starts with an empty search on All, every language, and no list until the Bible tab is shown.
+pub(super) fn reset(g: &SettingsDlg) {
+    g.set_catalog_search(SharedString::new());
+    g.set_catalog_filter(1);
+    g.set_catalog_languages(ModelRc::new(VecModel::from(vec![SharedString::from(cat::ALL_LANGUAGES)])));
+    g.set_catalog_language(0);
+    g.set_catalog_note(SharedString::new());
+    g.set_catalog_rows(ModelRc::default());
+}
+
+pub(super) fn remember(edit: &Rc<super::settings::Edit>) { OPEN.with(|o| *o.borrow_mut() = Rc::downgrade(edit)) }
+
+/// Loads the library list once per dialog, when the Bible tab is first shown. A list less than a day old comes from
+/// disk; otherwise eBible is asked (spec §7.1, §13: only because the user opened the library).
+pub(super) fn load_catalog(op: &Rc<Operator>, edit: &Rc<super::settings::Edit>) {
+    let c = &edit.bible.catalog;
+    if c.loading.get() || c.loaded.get() { return render(op, edit) }
+    c.loading.set(true);
+    render(op, edit);
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<Catalog>("bible/catalog", serde_json::json!({}), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        let c = &edit.bible.catalog;
+        c.loading.set(false);
+        c.loaded.set(true);
+        match r {
+            Ok(list) => {
+                c.offline.set(list.offline);
+                *c.rows.borrow_mut() = list.rows;
+                *c.error.borrow_mut() = None;
+                let (codes, labels) = languages(&c.rows.borrow());
+                *c.langs.borrow_mut() = codes;
+                let mut options: Vec<SharedString> = vec![cat::ALL_LANGUAGES.into()];
+                options.extend(labels.into_iter().map(SharedString::from));
+                let g = op.ui.global::<SettingsDlg>();
+                g.set_catalog_languages(ModelRc::new(VecModel::from(options)));
+                g.set_catalog_language(0);
+            }
+            Err(e) => *c.error.borrow_mut() = Some(e),
+        }
+        render(&op, &edit);
+    });
+}
+
+/// Draws the library list from the state, the form's search, filter and language, and the jobs.
+pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
+    let g = op.ui.global::<SettingsDlg>();
+    let c = &edit.bible.catalog;
+    g.set_catalog_loading(c.loading.get());
+    if c.loading.get() {
+        g.set_catalog_note(cat::LIST_LOADING.into());
+        g.set_catalog_rows(ModelRc::default());
+        return;
+    }
+    if let Some(e) = c.error.borrow().as_ref() {
+        g.set_catalog_note(e.as_str().into());
+        g.set_catalog_rows(ModelRc::default());
+        c.shown.borrow_mut().clear();
+        return;
+    }
+    let rows = c.rows.borrow();
+    let lang = usize::try_from(g.get_catalog_language() - 1).ok().and_then(|i| c.langs.borrow().get(i).cloned()).unwrap_or_default();
+    let shown = select(&rows, &g.get_catalog_search(), g.get_catalog_filter(), &lang);
+    let jobs: Vec<JobRow> = op.state.borrow().snap.as_ref().map(|s| s.jobs.clone()).unwrap_or_default();
+    let mut abbr_count: HashMap<String, usize> = HashMap::new();
+    for &i in shown.lines.iter().flatten() { *abbr_count.entry(rows[i].abbr.to_lowercase()).or_default() += 1 }
+    let (pending, added, failed) = (c.pending.borrow(), c.added.borrow(), c.failed.borrow());
+    let lines: Vec<SettingsCatalogRow> = shown.lines.iter().enumerate().map(|(n, l)| match l {
+        Some(i) => {
+            let r = &rows[*i];
+            let job = jobs.iter().rev().find(|j| j.subject.as_deref() == Some(r.id.as_str()));
+            line(r, job, pending.contains(&r.id), added.contains(&r.id), failed.get(&r.id).map(String::as_str), c.offline.get(),
+                abbr_count.get(&r.abbr.to_lowercase()).copied().unwrap_or(0) > 1)
+        }
+        None => {
+            let r = shown.lines.get(n + 1).copied().flatten().map(|i| &rows[i]);
+            let heading = r.map(|r| cat::language(&r.lang_name_en, &r.lang_name, &r.lang)).unwrap_or_default();
+            SettingsCatalogRow { heading: heading.into(), progress: -1.0, ..Default::default() }
+        }
+    }).collect();
+    let note = if c.offline.get() {
+        if shown.note.is_empty() { cat::CATALOG_OFFLINE.to_string() } else { format!("{} {}", cat::CATALOG_OFFLINE, shown.note) }
+    } else { shown.note.clone() };
+    g.set_catalog_note(note.into());
+    g.set_catalog_rows(ModelRc::new(VecModel::from(lines)));
+    *c.shown.borrow_mut() = shown.lines;
+}
+
+/// A job's progress or end reached the window: redraw the list if Settings is open and has one.
+pub fn jobs_changed(op: &Operator) {
+    if !matches!(op.state.borrow().dialog, Some(DialogKind::Settings(_))) { return }
+    let Some(edit) = OPEN.with(|o| o.borrow().upgrade()) else { return };
+    if edit.bible.catalog.loaded.get() { render(op, &edit) }
+}
+
+/// A row's one button: Add or Update (`bible/install`), Remove (`bible/import-remove`), Cancel (`job/cancel`).
+pub(super) fn catalog_button(op: &Rc<Operator>, edit: &Rc<super::settings::Edit>, n: usize) {
+    let c = &edit.bible.catalog;
+    let Some(Some(i)) = c.shown.borrow().get(n).copied() else { return };
+    let Some(r) = c.rows.borrow().get(i).cloned() else { return };
+    let jobs: Vec<JobRow> = op.state.borrow().snap.as_ref().map(|s| s.jobs.clone()).unwrap_or_default();
+    if let Some(j) = jobs.iter().rev().find(|j| j.subject.as_deref() == Some(r.id.as_str()) && j.error.is_none() && !j.done) {
+        let id = j.id;
+        op.ops().call::<serde_json::Value>("job/cancel", serde_json::json!({ "id": id }), |_| {});
+        return;
+    }
+    if c.pending.borrow().contains(&r.id) { return }
+    if r.installed && !r.update {
+        let (me, edit) = (Rc::downgrade(op), edit.clone());
+        op.ops().call::<serde_json::Value>("bible/import-remove", serde_json::json!({ "translation": r.id }), move |res| {
+            let Some(op) = me.upgrade() else { return };
+            match res {
+                Ok(_) => {
+                    let c = &edit.bible.catalog;
+                    if let Some(row) = c.rows.borrow_mut().get_mut(i).filter(|x| x.id == r.id) { row.installed = false; row.update = false }
+                    c.added.borrow_mut().remove(&r.id);
+                    render(&op, &edit);
+                    redraw_on_next_read(&op, &edit);
+                    op.toast(cat::removed(&r.abbr), false);
+                }
+                Err(e) => op.toast(e, true),
+            }
+        });
+        return;
+    }
+    if c.offline.get() { return }
+    c.pending.borrow_mut().insert(r.id.clone());
+    c.failed.borrow_mut().remove(&r.id);
+    render(op, edit);
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<serde_json::Value>("bible/install", serde_json::json!({ "translation": r.id }), move |res| {
+        let Some(op) = me.upgrade() else { return };
+        let c = &edit.bible.catalog;
+        c.pending.borrow_mut().remove(&r.id);
+        match res {
+            Ok(_) => {
+                if let Some(row) = c.rows.borrow_mut().get_mut(i).filter(|x| x.id == r.id) { row.installed = true; row.update = false }
+                c.added.borrow_mut().insert(r.id.clone());
+                redraw_on_next_read(&op, &edit);
+                op.toast(cat::added(&r.abbr), false);
+            }
+            // The job card shows the error too; the row keeps it so it is seen where the button was.
+            Err(e) if e == crate::import::CANCELLED => {}
+            Err(e) => { c.failed.borrow_mut().insert(r.id.clone(), e); }
+        }
+        render(&op, &edit);
+    });
 }
 
 /// The line under a translation's name (`hint`, `operator.js:925-926`).
@@ -116,4 +395,65 @@ pub(super) fn remove_import(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
             Err(e) => op.toast(e, true),
         }
     });
+}
+
+#[cfg(test)]
+mod catalog_tests {
+    use super::*;
+
+    fn row(id: &str, abbr: &str, title: &str, lang: &str, installed: bool) -> CatRow {
+        CatRow { id: id.into(), abbr: abbr.into(), title: title.into(), lang: lang.into(), lang_name_en: lang.into(),
+            scope: "Full Bible".into(), installed, ..Default::default() }
+    }
+
+    fn job(subject: &str, label: &str, percent: u8) -> JobRow {
+        JobRow { id: uuid::Uuid::new_v4(), label: label.into(), percent, error: None, note: None, cancellable: true, done: false,
+            subject: Some(subject.into()) }
+    }
+
+    #[test]
+    fn select_puts_a_heading_where_the_language_changes_and_cuts_long_lists() {
+        let rows = vec![row("e:a", "A", "Alpha", "eng", false), row("e:b", "B", "Beta", "eng", true), row("e:c", "C", "Gamma", "spa", false)];
+        assert_eq!(select(&rows, "", 1, "").lines, [None, Some(0), Some(1), None, Some(2)]);
+        assert_eq!(select(&rows, "", 0, "").lines, [None, Some(1)], "Installed");
+        assert_eq!(select(&rows, "", 1, "spa").lines, [None, Some(2)]);
+        assert_eq!(select(&rows, "gamma spa", 1, "").lines, [None, Some(2)], "every word, across fields");
+        assert_eq!(select(&rows, "gamma eng", 1, "").note, cat::NO_MATCH);
+        let many: Vec<CatRow> = (0..MAX_SHOWN + 5).map(|i| row(&format!("e:{i}"), "X", "X", "eng", false)).collect();
+        let s = select(&many, "", 1, "");
+        assert_eq!(s.lines.len(), MAX_SHOWN + 1);
+        assert_eq!(s.note, cat::showing(MAX_SHOWN, MAX_SHOWN + 5));
+    }
+
+    #[test]
+    fn line_has_one_button_for_each_state() {
+        let mut r = row("ebible:x", "X", "X Bible", "eng", false);
+        let l = line(&r, None, false, false, None, false, false);
+        assert_eq!((l.button.as_str(), l.primary, l.enabled, l.progress), ("Add", true, true, -1.0));
+        assert_eq!(l.tag, "Offline · Full Bible");
+        assert!(!line(&r, None, false, false, None, true, false).enabled, "Add is off while offline");
+        assert_eq!(line(&r, None, false, false, None, false, true).abbr, "X · eng", "equal abbreviations told apart");
+        let w = line(&r, Some(&job("ebible:x", "Waiting to download X Bible…", 0)), true, false, None, false, false);
+        assert_eq!((w.button.as_str(), w.status.as_str(), w.progress), ("Cancel", "Waiting", -1.0));
+        let d = line(&r, Some(&job("ebible:x", "Downloading X Bible…", 37)), true, false, None, false, false);
+        assert_eq!((d.status.as_str(), d.progress), ("Downloading… 37%", 37.0));
+        let mut failed = job("ebible:x", "Downloading X Bible…", 37);
+        failed.error = Some("Couldn't download X Bible.".into());
+        assert_eq!(line(&r, Some(&failed), false, false, Some("Couldn't download X Bible."), false, false).button, "Add",
+            "a failed job gives the button back");
+        r.installed = true;
+        let i = line(&r, None, false, true, None, false, false);
+        assert_eq!((i.button.as_str(), i.status.as_str(), i.primary), ("Remove", "Added", false));
+        r.update = true;
+        assert_eq!(line(&r, None, false, false, None, false, false).button, "Update");
+    }
+
+    #[test]
+    fn languages_keep_the_list_order_with_both_names() {
+        let mut a = row("e:a", "A", "A", "spa", false);
+        a.lang_name_en = "Spanish".into();
+        a.lang_name = "Español".into();
+        let rows = vec![row("e:b", "B", "B", "eng", false), a.clone(), a];
+        assert_eq!(languages(&rows), (vec!["eng".to_string(), "spa".into()], vec!["eng".to_string(), "Spanish · Español".into()]));
+    }
 }

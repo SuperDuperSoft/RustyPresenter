@@ -474,3 +474,99 @@ fn the_sound_output_is_saved_and_shown_again() {
     click(&op, "SettingsDialog::save");
     assert_eq!(app.data.lock().unwrap().settings.audio_device, "");
 }
+
+/// A saved eBible list checked just now, so `bible/catalog` reads it from disk and asks no one.
+fn seed_catalog(app: &App) {
+    let dir = app.store.root.join("bibles/catalog");
+    std::fs::create_dir_all(&dir).unwrap();
+    let head = "languageCode,translationId,languageName,languageNameInEnglish,title,Redistributable,Copyright,UpdateDate,OTbooks,NTbooks,DCbooks,textDirection,downloadable,shortTitle,script\n";
+    let rows = [
+        "spa,spaRV1909,Español,Spanish,Santa Biblia Reina-Valera 1909,True,public domain,2025-01-02,39,27,0,ltr,True,Reina-Valera 1909,Latn",
+        "eng,engwebp,English,English,World English Bible,True,public domain,2026-03-01,39,27,0,ltr,True,World English Bible,Latn",
+        "eng,engbrent,English,English,Brenton Septuagint in English,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Latn",
+        "grc,grcbrent,Ελληνικά,Ancient Greek,Brenton Greek Septuagint,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Grek",
+    ];
+    std::fs::write(dir.join("ebible-translations.csv"), format!("{head}{}\n", rows.join("\n"))).unwrap();
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
+    std::fs::write(dir.join("ebible.json"), format!(r#"{{"etag":"","last_modified":"","checked_at":{now}}}"#)).unwrap();
+}
+
+fn catalog_lines(op: &Operator) -> Vec<String> {
+    g(op).get_catalog_rows().iter()
+        .map(|r| if r.heading.is_empty() { format!("{} {} [{}]", r.abbr, r.title, r.button) } else { format!("# {}", r.heading) })
+        .collect()
+}
+
+#[test]
+fn bible_library_lists_searches_and_filters_the_saved_catalog() {
+    let app = test_app();
+    seed_catalog(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    settle();
+    assert_eq!(g(&op).get_catalog_rows().row_count(), 0, "nothing is asked for before the Bible tab is shown");
+    g(&op).set_tab(2);
+    g(&op).invoke_tab_changed(2);
+    settle();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines[0], "# English", "the church's language first: {lines:?}");
+    assert!(lines.iter().any(|l| l.contains(" World English Bible [Add]")), "{lines:?}");
+    let greek = lines.iter().position(|l| l.starts_with("# Ancient Greek")).expect("Greek heading");
+    let spanish = lines.iter().position(|l| l.starts_with("# Spanish")).expect("Spanish heading");
+    assert!(greek < spanish, "then English names A to Z: {lines:?}");
+    assert!(lines.iter().any(|l| l == "# Spanish · Español"), "{lines:?}");
+    assert!(find(&op, "SettingsBible::catalog-search").is_some());
+
+    // Search folds accents and case, and needs every word.
+    g(&op).set_catalog_search("REINA valéra".into());
+    g(&op).invoke_catalog_changed();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines.len(), 2, "{lines:?}");
+    assert!(lines[1].ends_with("Santa Biblia Reina-Valera 1909 [Add]"), "{lines:?}");
+    g(&op).set_catalog_search("brenton".into());
+    g(&op).invoke_catalog_changed();
+    assert_eq!(catalog_lines(&op).len(), 4, "two languages, a heading each");
+
+    // A language.
+    let langs: Vec<String> = g(&op).get_catalog_languages().iter().map(|s| s.to_string()).collect();
+    assert_eq!(langs[0], "All languages");
+    let grc = langs.iter().position(|l| l.starts_with("Ancient Greek")).unwrap();
+    g(&op).set_catalog_language(grc as i32);
+    g(&op).invoke_catalog_changed();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines.len(), 2, "{lines:?}");
+    assert_eq!(lines[0], "# Ancient Greek · Ελληνικά");
+    assert!(lines[1].contains("Brenton Greek Septuagint [Add]"), "{lines:?}");
+
+    // Installed: nothing yet.
+    g(&op).set_catalog_search("".into());
+    g(&op).set_catalog_language(0);
+    g(&op).set_catalog_filter(0);
+    g(&op).invoke_catalog_changed();
+    assert_eq!(g(&op).get_catalog_rows().row_count(), 0);
+    assert!(g(&op).get_catalog_note().starts_with("No Bibles added yet"));
+}
+
+#[test]
+fn bible_library_row_follows_its_download_job() {
+    let app = test_app();
+    seed_catalog(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let web = |op: &Operator| g(op).get_catalog_rows().iter().find(|r| r.title == "World English Bible").unwrap();
+    assert_eq!((web(&op).button.as_str(), web(&op).progress), ("Add", -1.0));
+
+    let (job, cancel) = app.job_start_cancellable("Waiting to download World English Bible…");
+    app.job_subject(job, "ebible:engwebp");
+    refresh(&op);
+    assert_eq!((web(&op).button.as_str(), web(&op).status.as_str()), ("Cancel", "Waiting"));
+    app.job_label(job, "Downloading World English Bible…");
+    app.job_progress(job, 40);
+    refresh(&op);
+    assert_eq!((web(&op).status.as_str(), web(&op).progress), ("Downloading… 40%", 40.0));
+
+    let n = g(&op).get_catalog_rows().iter().position(|r| r.title == "World English Bible").unwrap();
+    g(&op).invoke_catalog_button(n as i32);
+    assert!(cancel.is_cancelled(), "Cancel cancels the row's job");
+}

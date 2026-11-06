@@ -152,6 +152,9 @@ pub struct Job {
     /// The latest note other than `FALLBACK_NOTE`.
     #[serde(skip)]
     pub(crate) other_note: Option<String>,
+    /// What the job works on, so a list can show its progress in the right row: a Bible download's translation id.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) subject: Option<String>,
 }
 
 /// Counts a native room or stage window as a connected screen while it is held (like a web page's socket).
@@ -393,6 +396,11 @@ impl App {
     /// Asks a job to stop. Unknown or finished ids are ignored.
     pub fn job_cancel(&self, id: Uuid) {
         if let Some(token) = self.cancels.lock().unwrap().get(&id) { token.cancel(); }
+    }
+    /// Says what a job works on (`Job::subject`).
+    pub(crate) fn job_subject(&self, id: Uuid, subject: &str) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.subject = Some(subject.into()); }
+        self.broadcast_data();
     }
     /// Changes a running job's label, e.g. to "Waiting for LibreOffice…" and back.
     pub(crate) fn job_label(&self, id: Uuid, label: &str) {
@@ -1081,7 +1089,10 @@ impl App {
         ctx.force = force;
         let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
         let installed = bible::import::list(&self.store.root);
-        let rows: Vec<serde_json::Value> = listing.rows.iter().map(|r| {
+        // Grouped by language, the church's first. There is no church language setting yet, so English.
+        let all: Vec<&bible::catalog::CatalogRow> = listing.rows.iter().collect();
+        let groups = bible::catalog::by_language(&all, "eng");
+        let rows: Vec<serde_json::Value> = groups.iter().flat_map(|g| g.rows.iter().copied()).map(|r| {
             let have = installed.iter().find(|m| m.id == r.id());
             let update = have.is_some_and(|m| !matches!(&m.source, bible::library::Source::Ebible { update_date } if update_date == r.update_date()));
             json!({
@@ -1104,6 +1115,7 @@ impl App {
         let name = row.title().to_string();
         let update = bible::import::meta(&self.store.root, id).is_some();
         let (job, cancel) = self.job_start_cancellable(&strings::WAITING.replace("{name}", &name));
+        self.job_subject(job, id);
         let turn = tokio::select! {
             t = self.bible_downloads.lock() => Some(t),
             _ = cancel.cancelled() => None,

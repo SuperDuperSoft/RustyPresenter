@@ -1,11 +1,98 @@
 // Settings → Bible (`operator.js:922-973`, after the `bible-esv` merge): every translation with its status, the
 // online services a church connects with a key, Bible file import, and the copyright lines of what is in use.
 import { Theme } from "../theme.slint";
-import { Btn, Chip, CopyText } from "../widgets.slint";
-import { TextField, Note, Lbl, ListRow, RowMain } from "form.slint";
+import { Btn, Chip, CopyText, Segmented, Bar } from "../widgets.slint";
+import { TextField, Note, Lbl, ListRow, RowMain, Select } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 
 export component SettingsBible inherits VerticalLayout {
+    // ---- Bible library (Bible library spec §7.1): search, Installed/All, language, one button per row ----
+    Lbl { label: @tr("Add Bibles"); }
+    Rectangle { height: 8px; }
+    HorizontalLayout {
+        spacing: 8px;
+        catalog-search := TextField {
+            horizontal-stretch: 1;
+            search: true;
+            text <=> SettingsDlg.catalog-search;
+            placeholder: @tr("Search by name, short name or language");
+            edited => { SettingsDlg.catalog-changed(); }
+        }
+        catalog-filter := Segmented {
+            labels: [@tr("Installed"), @tr("All")];
+            index <=> SettingsDlg.catalog-filter;
+            changed => { SettingsDlg.catalog-changed(); }
+        }
+    }
+    Rectangle { height: 8px; }
+    catalog-language := Select {
+        options: SettingsDlg.catalog-languages;
+        index <=> SettingsDlg.catalog-language;
+        changed => { SettingsDlg.catalog-changed(); }
+    }
+    if SettingsDlg.catalog-note != "": VerticalLayout {
+        padding-top: 8px;
+        catalog-note := Text {
+            text: SettingsDlg.catalog-note;
+            color: Theme.muted;
+            font-size: 12.5px;
+            wrap: word-wrap;
+        }
+    }
+    Rectangle { height: 8px; }
+    VerticalLayout {
+        spacing: 4px;
+        for r[i] in SettingsDlg.catalog-rows: VerticalLayout {
+            if r.heading != "": VerticalLayout {
+                padding-top: i == 0 ? 0px : 8px;
+                padding-bottom: 2px;
+                Text {
+                    text: r.heading;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 700;
+                    accessible-role: text;
+                }
+            }
+            if r.heading == "": catalog-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: r.title;
+                accessible-value: r.status != "" ? r.status : r.tag;
+                VerticalLayout {
+                    alignment: center;
+                    width: 86px;
+                    Text {
+                        text: r.abbr;
+                        color: Theme.text;
+                        font-weight: 700;
+                        overflow: elide;
+                    }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 4px;
+                    RowMain {
+                        title: r.title;
+                        sub: r.status != "" ? r.status : r.tag;
+                    }
+                    if r.progress >= 0: Bar { progress: r.progress; }
+                }
+                if r.button != "": VerticalLayout {
+                    alignment: center;
+                    catalog-button := Btn {
+                        small: true;
+                        primary: r.primary;
+                        enabled: r.enabled;
+                        text: r.button;
+                        clicked => { SettingsDlg.catalog-button(i); }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle { height: 16px; }
     Note {
         bold: @tr("KJV, WEB and BSB are built in and work offline.");
         text: @tr("The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.");

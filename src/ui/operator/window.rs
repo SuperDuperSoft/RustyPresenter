@@ -190,6 +190,7 @@ impl Operator {
         self.render_service();
         self.render_slides();
         self.render_jobs();
+        crate::ui::dialogs::settings_bible::jobs_changed(self);
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);

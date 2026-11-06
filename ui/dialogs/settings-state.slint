@@ -5,6 +5,13 @@ import { BgChoice } from "background-picker.slint";
 /// A translation row of Settings → Bible: its status chip and the line under its name.
 export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
 
+/// A line of the Bible library list (Settings → Bible): a language heading when `heading` is set, else a Bible.
+/// `button` is "Add", "Update", "Remove", "Cancel" or empty; `progress` is 0–100 while downloading, else -1.
+export struct SettingsCatalogRow {
+    heading: string, abbr: string, title: string, tag: string, status: string, button: string, progress: float,
+    enabled: bool, primary: bool,
+}
+
 /// An online Bible service row of Settings → Bible.
 export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
 
@@ -57,6 +64,17 @@ export global SettingsDlg {
     in property <[SettingsProviderRow]> bible-providers;
     in property <[string]> bible-credits;
     in-out property <string> bible-short;
+    /// The library list: what matches the search, filter and language, with headings.
+    in property <[SettingsCatalogRow]> catalog-rows;
+    in-out property <string> catalog-search;
+    /// 0 Installed, 1 All.
+    in-out property <int> catalog-filter: 1;
+    /// "All languages", then each language in the list.
+    in property <[string]> catalog-languages: ["All languages"];
+    in-out property <int> catalog-language;
+    /// "Loading the list of Bibles…", "You're offline…", "Showing 200 of 950…", or empty.
+    in property <string> catalog-note;
+    in property <bool> catalog-loading;
 
     // ---- Video ----
     in property <string> video-player;
@@ -102,6 +120,9 @@ export global SettingsDlg {
     callback copy-link(int);
     callback import-bible();
     callback remove-import(int);
+    /// The library list: a new search, filter or language, and a row's button.
+    callback catalog-changed();
+    callback catalog-button(int);
     callback backup-now();
     callback restore(int);
     callback show-licences(bool);
