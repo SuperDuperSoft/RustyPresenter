@@ -1458,7 +1458,9 @@ impl App {
         let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
         let installed = bible::import::list(&self.store.root);
         // Grouped by language, the church's first. There is no church language setting yet, so English.
-        let all: Vec<&bible::catalog::CatalogRow> = listing.rows.iter().collect();
+        // One row per Bible across sources (Nov 5 spec §4); eBible is the only source so far, and it has no key.
+        let merged = bible::catalog::merge(listing.rows, &|_| false);
+        let all: Vec<&bible::catalog::CatalogRow> = merged.iter().collect();
         let groups = bible::catalog::by_language(&all, "eng");
         let rows: Vec<serde_json::Value> = groups.iter().flat_map(|g| g.rows.iter().copied()).map(|r| {
             let have = installed.iter().find(|m| m.id == r.id());
@@ -1467,6 +1469,7 @@ impl App {
                 "id": r.id(), "abbr": r.abbr(), "title": r.title(), "lang": r.lang(), "lang_name": r.lang_name(),
                 "lang_name_en": r.lang_name_en(), "scope": r.scope().label(), "apocrypha": r.has_dc(),
                 "licence_on_download": *r.licence() == LicenceState::OnDownload, "installed": have.is_some(), "update": update,
+                "also_on": bible::catalog::strings::also_on(&r.also_from().iter().map(|s| s.label()).collect::<Vec<_>>()),
             })
         }).collect();
         Ok(json!({ "offline": listing.offline, "rows": rows }))
