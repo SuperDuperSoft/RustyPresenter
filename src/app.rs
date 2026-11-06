@@ -745,6 +745,26 @@ impl App {
             tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
             Ok(json!({}))
         }
+        // ---- imports ----
+        // A file on this computer, as the native file dialog or a drop hands it over. Loopback only, like every
+        // action here; the phone remote never reaches it.
+        "import/path" => {
+            #[derive(Deserialize)] struct P { path: PathBuf, purpose: String }
+            let P { path, purpose } = parse(body)?;
+            let purpose = match purpose.as_str() {
+                "powerpoint" => ImportPurpose::PowerPoint,
+                "asset" => ImportPurpose::Asset,
+                "lyrics" => ImportPurpose::Lyrics,
+                "media" => ImportPurpose::Media,
+                _ => return Err(ActionError::bad("Unknown import purpose.")),
+            };
+            Ok(match app.import_path(&path, purpose, |_| {}).await? {
+                Imported::Media(m) => json!({ "media": m }),
+                Imported::Asset(asset) => json!({ "asset": asset }),
+                Imported::Job(job) => json!({ "job": job }),
+                Imported::Song { id, title, duplicate_of } => json!({ "id": id, "title": title, "duplicate_of": duplicate_of }),
+            })
+        }
         // ---- displays ----
         "display/open" => {
             #[derive(Deserialize)] struct O { role: String, monitor: Option<String> }
@@ -1036,7 +1056,7 @@ pub(crate) fn test_app() -> Arc<App> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
 
     #[tokio::test]
@@ -1054,7 +1074,7 @@ mod tests {
         assert_eq!((err.status, err.message.as_str()), (400, "Give the song a title."));
     }
 
-    fn on_air(app: &App) {
+    pub(crate) fn on_air(app: &App) {
         let id = Uuid::new_v4();
         let mut live = app.live.lock().unwrap();
         struct One(Uuid);
@@ -1068,7 +1088,7 @@ mod tests {
         live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));
     }
 
-    fn wait_for_state(root: &std::path::Path, seq: u64) -> state::LiveState {
+    pub(crate) fn wait_for_state(root: &std::path::Path, seq: u64) -> state::LiveState {
         for _ in 0..200 {
             if let Some(s) = state::load(root) && s.seq >= seq { return s; }
             std::thread::sleep(std::time::Duration::from_millis(10));
@@ -1478,6 +1498,23 @@ mod tests {
         let seen = seen.lock().unwrap();
         assert_eq!(seen.last(), Some(&100));
         assert!(seen.windows(2).all(|w| w[0] <= w[1]), "progress only goes up: {seen:?}");
+    }
+
+    #[tokio::test]
+    async fn import_path_action_imports_a_file_from_this_computer() {
+        let app = test_app();
+        let png = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
+        image::RgbaImage::new(2, 2).save(&png).unwrap();
+        let body = serde_json::to_vec(&json!({ "path": png, "purpose": "media" })).unwrap();
+        let v = app.do_action("import/path", &body).await.unwrap();
+        assert_eq!(v["media"]["kind"], "image", "{v}");
+        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        assert!(png.exists(), "the user's file is copied, never moved");
+        let body = serde_json::to_vec(&json!({ "path": png, "purpose": "asset" })).unwrap();
+        assert!(app.do_action("import/path", &body).await.unwrap()["asset"].as_str().unwrap().ends_with(".png"));
+        let missing = serde_json::to_vec(&json!({ "path": png.with_extension("gif"), "purpose": "media" })).unwrap();
+        assert_eq!(app.do_action("import/path", &missing).await.unwrap_err().status, 400);
+        let _ = std::fs::remove_file(png);
     }
 
     #[tokio::test]

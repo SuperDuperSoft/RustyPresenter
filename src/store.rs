@@ -81,7 +81,9 @@ impl Store {
     /// The `COMPLETE` marker is written last; only marked backups are offered.
     pub fn backup(&self, data: &Data) -> io::Result<String> {
         let created = now_stamp();
-        let name = format!("backup-{created}");
+        // Names are to the second: a second backup in the same second gets `-2`, `-3`, … rather than failing.
+        let free = |n: &str| !self.root.join("backups").join(n).exists() && !self.root.join("backups").join(format!("{n}.partial")).exists();
+        let name = (1..).map(|i| if i == 1 { format!("backup-{created}") } else { format!("backup-{created}-{i}") }).find(|n| free(n)).unwrap();
         let dir = self.root.join("backups").join(&name);
         let partial = self.root.join("backups").join(format!("{name}.partial"));
         fs::create_dir_all(&partial)?;
@@ -244,6 +246,15 @@ mod tests {
         fs::create_dir_all(a.join("backups/backup-2026-01-01_000000.partial")).unwrap();
         fs::create_dir_all(a.join("backups/backup-2026-01-02_000000")).unwrap(); // no COMPLETE
         assert!(store.backups().is_empty());
+    }
+
+    #[test]
+    fn two_backups_in_one_second_are_both_kept() {
+        let store = Store::open(test_dir()).unwrap();
+        let data = Data::default();
+        let (first, second) = (store.backup(&data).unwrap(), store.backup(&data).unwrap());
+        assert_ne!(first, second);
+        assert_eq!(store.backups().len(), 2);
     }
 
     #[test]

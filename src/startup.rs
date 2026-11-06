@@ -1,32 +1,32 @@
 //! Startup shared by the Tauri and native binaries: the port (single instance), the data folder,
 //! `App`, the phone/web server and the daily backup.
-use crate::{app::App, server, store::Store};
-use std::{io::Write, net::{SocketAddr, TcpListener, TcpStream, UdpSocket}, path::PathBuf, sync::Arc, time::Duration};
+use crate::{app::App, platform::instance, server, store::Store};
+use std::{net::{SocketAddr, TcpListener, UdpSocket}, path::PathBuf, sync::Arc, time::Duration};
 
 /// The core of a running RustyPresenter, before any window.
 pub struct Started { pub app: Arc<App>, pub listener: TcpListener, pub root: PathBuf }
 
-/// RustyPresenter is already running on `port`: ask it to bring its operator window forward.
-fn show_running(port: u16) -> Result<(), String> {
-    let body = r#"{"role":"operator","monitor":null}"#;
-    let req = format!(
-        "POST /api/do/display/open HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nx-rp: 1\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
-        body.len()
-    );
-    TcpStream::connect_timeout(&SocketAddr::from(([127, 0, 0, 1], port)), Duration::from_secs(3))
-        .and_then(|mut s| s.write_all(req.as_bytes()))
-        .map_err(|_| format!("Port {port} is in use by another program, so RustyPresenter cannot start."))
-}
+/// The port from `RUSTYPRESENTER_PORT`, or 4318.
+pub fn port() -> u16 { std::env::var("RUSTYPRESENTER_PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(4318) }
 
 /// Binds the port and opens the data folder. `Ok(None)`: RustyPresenter is already running
 /// (asked to show its operator window when `focus`).
 pub fn start(focus: bool) -> Result<Option<Started>, String> {
-    let port: u16 = std::env::var("RUSTYPRESENTER_PORT").ok().and_then(|p| p.parse().ok()).unwrap_or(4318);
-    let root = server::data_dir().ok_or("Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA.")?;
+    let port = port();
+    server::data_dir().ok_or(NO_DATA_FOLDER)?;
     let Ok(listener) = TcpListener::bind((std::net::Ipv4Addr::UNSPECIFIED, port)) else {
-        if focus { show_running(port)? }
+        if focus { instance::focus_running(port)? }
         return Ok(None);
     };
+    open(listener, port).map(Some)
+}
+
+const NO_DATA_FOLDER: &str = "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA.";
+
+/// Opens the data folder and builds `App` on a port already bound (`platform::instance::bind`). Leftovers of
+/// unfinished imports in `tmp/` go on every start, a restore after a crash included.
+pub fn open(listener: TcpListener, port: u16) -> Result<Started, String> {
+    let root = server::data_dir().ok_or(NO_DATA_FOLDER)?;
     let _ = listener.set_nonblocking(true);
 
     let store = Store::open(root.clone()).map_err(|e| format!("Cannot use the data folder {}: {e}", root.display()))?;
@@ -36,7 +36,7 @@ pub fn start(focus: bool) -> Result<Option<Started>, String> {
 
     let lan_ip = UdpSocket::bind("0.0.0.0:0").ok().and_then(|s| { s.connect("192.0.2.1:80").ok()?; s.local_addr().ok().map(|a| a.ip()) });
     let lan_url = lan_ip.map(|ip| format!("http://{ip}:{port}/remote"));
-    Ok(Some(Started { app: App::new(store, data, port, lan_url), listener, root }))
+    Ok(Started { app: App::new(store, data, port, lan_url), listener, root })
 }
 
 /// The console banner; `quit` says how to quit. `web_operator`: list the browser operator page (the Tauri app);
@@ -56,13 +56,33 @@ pub async fn serve(app: Arc<App>, listener: TcpListener) {
     if let Err(e) = axum::serve(listener, svc).await { eprintln!("Server stopped: {e}"); }
 }
 
-/// A complete backup at every start, then daily.
-pub async fn backups(app: Arc<App>) {
+/// When the first backup is made: at once, except after a crash restart. Each restart would otherwise copy
+/// the same data again and push older good backups out of the ten that are kept.
+fn first_backup_after(restored: bool) -> Duration {
+    if restored { BACKUP_EVERY } else { Duration::ZERO }
+}
+
+const BACKUP_EVERY: Duration = Duration::from_secs(24 * 3600);
+
+/// A complete backup at every start (not a restored one, see `first_backup_after`), then daily.
+pub async fn backups(app: Arc<App>, restored: bool) {
+    tokio::time::sleep(first_backup_after(restored)).await;
     loop {
         let data = app.data.lock().unwrap().clone();
         if !data.songs.is_empty() || data.services.iter().any(|s| !s.items.is_empty()) {
             if let Err(e) = app.store.backup(&data) { eprintln!("Backup failed: {e}"); }
         }
-        tokio::time::sleep(Duration::from_secs(24 * 3600)).await;
+        tokio::time::sleep(BACKUP_EVERY).await;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_restored_start_waits_a_day_before_its_first_backup() {
+        assert_eq!(first_backup_after(false), Duration::ZERO);
+        assert_eq!(first_backup_after(true), Duration::from_secs(24 * 3600));
     }
 }

@@ -211,6 +211,28 @@ fn plain(path: &Path) -> OsString {
     path.to_str().map_or_else(|| path.into(), |p| tools::strip_verbatim(p).into())
 }
 
+/// LibreOffice's stand-in for the recovery tests: the app binary run as `soffice --headless …` (`RP_SOFFICE`)
+/// with `RP_FAKE_SOFFICE` set. `hang` never ends; `pdf:<fixture>` copies the fixture to where LibreOffice
+/// would write its PDF. A no-op otherwise, so the supervisor and the app, which inherit the variable, are
+/// themselves. Always compiled in, like `test_crash_point`; call it first thing in `main`.
+pub fn fake_soffice_main() {
+    let Some(steps) = std::env::var_os("RP_FAKE_SOFFICE") else { return };
+    let args: Vec<OsString> = std::env::args_os().collect();
+    if args.get(1).is_none_or(|a| a != "--headless") { return }
+    let steps = steps.to_string_lossy();
+    if steps == "hang" {
+        loop { std::thread::sleep(Duration::from_secs(3600)) }
+    }
+    if let Some(fixture) = steps.strip_prefix("pdf:") {
+        let at = args.iter().position(|a| a == "--outdir");
+        let pdf = at.and_then(|at| Some(Path::new(args.get(at + 1)?).join(Path::new(args.get(at + 2)?).file_stem()?).with_extension("pdf")));
+        let copied = pdf.map(|pdf| std::fs::copy(fixture, pdf));
+        std::process::exit(if matches!(copied, Some(Ok(_))) { 0 } else { 1 });
+    }
+    eprintln!("RP_FAKE_SOFFICE: unknown step {steps}");
+    std::process::exit(2);
+}
+
 /// Kills a LibreOffice left by an app that died on Unix. A process group does not die with its parent.
 /// Windows has nothing to do: the Job Object died with the old app.
 #[cfg(not(unix))]
