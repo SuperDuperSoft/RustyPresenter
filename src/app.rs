@@ -112,7 +112,8 @@ pub trait Screens: Send + Sync {
     fn monitors(&self) -> Vec<Monitor>;
 }
 
-pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crate) failures: u32 }
+/// An open pairing window: the PIN to type, and the one-time secret the QR code carries (both die together).
+pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
@@ -810,11 +811,10 @@ impl App {
         }
         // ---- phone remote ----
         "pair/start" => {
-            let pin = random_pin();
-            *app.pairing.lock().unwrap() = Some(Pairing { pin: pin.clone(), until: Instant::now() + Duration::from_secs(120), failures: 0 });
+            let (pin, secret) = (random_pin(), random_token());
             let url = app.lan_url.clone().unwrap_or_default();
-            let qr = qrcode::QrCode::with_error_correction_level(&url, qrcode::EcLevel::M).ok().filter(|_| !url.is_empty())
-                .map(|c| c.render::<qrcode::render::svg::Color>().quiet_zone(true).build());
+            let qr = (!url.is_empty()).then(|| pair_qr_svg(&pair_link(&url, &secret))).flatten();
+            *app.pairing.lock().unwrap() = Some(Pairing { pin: pin.clone(), secret, until: Instant::now() + Duration::from_secs(120), failures: 0 });
             Ok(json!({ "pin": pin, "url": url, "qr": qr, "seconds": 120 }))
         }
         "pair/stop" => { *app.pairing.lock().unwrap() = None; Ok(json!({})) }
@@ -995,6 +995,22 @@ pub(crate) fn hash_token(t: &str) -> String { digest_hex(t.as_bytes()) }
 
 /// 256 bits from the OS random generator (via two v4 UUIDs, 244 random bits).
 pub(crate) fn random_token() -> String { format!("{}{}", Uuid::new_v4().simple(), Uuid::new_v4().simple()) }
+
+/// What the QR code opens: the phone page with the one-time secret in the fragment, so it never reaches a
+/// request line or a log; `remote.js` reads it, wipes it from the address bar and posts it.
+pub(crate) fn pair_link(lan_url: &str, secret: &str) -> String { format!("{lan_url}#pair={secret}") }
+
+pub(crate) fn pair_qr_svg(text: &str) -> Option<String> {
+    qrcode::QrCode::with_error_correction_level(text, qrcode::EcLevel::M).ok()
+        .map(|c| c.render::<qrcode::render::svg::Color>().quiet_zone(true).build())
+}
+
+/// Compares two secrets without stopping at the first difference.
+pub(crate) fn ct_eq(a: &str, b: &str) -> bool {
+    let (a, b) = (a.as_bytes(), b.as_bytes());
+    let diff = a.iter().zip(b).fold((a.len() ^ b.len()) as u64, |d, (x, y)| d | u64::from(x ^ y));
+    diff == 0
+}
 
 pub(crate) fn random_pin() -> String {
     let b = Uuid::new_v4().into_bytes();
