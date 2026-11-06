@@ -159,7 +159,7 @@ mod tests {
         let t = stage_text(&view(Some(now), Some(text("That saved a wretch like me"))));
         assert_eq!(t, StageText {
             title: "Amazing Grace".into(), now: "Amazing grace, how sweet the sound".into(), now_dim: false,
-            notes: "Slow, hold the last line".into(), next: "That saved a wretch like me".into(), timer: String::new(),
+            notes: "Slow, hold the last line".into(), next: "That saved a wretch like me".into(), timer: String::new(), message: String::new(),
         });
     }
 

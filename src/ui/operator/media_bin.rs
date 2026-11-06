@@ -8,7 +8,7 @@ use crate::{
     ui::{BinFolder, BinRow, dialogs::ask, thumbs::{ThumbJob, ThumbKey, Thumbs}},
 };
 use serde_json::{Value, json};
-use slint::{Image, Model, ModelRc, VecModel};
+use slint::{Image, Model, ModelRc};
 use std::{collections::{HashMap, VecDeque}, path::PathBuf, rc::{Rc, Weak}};
 use uuid::Uuid;
 
