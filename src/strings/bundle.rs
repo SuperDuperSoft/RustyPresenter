@@ -36,5 +36,6 @@ pub fn opened_report(o: &super::Opened) -> String {
     if !o.songs_differ.is_empty() {
         text += &format!("\n\nThese differ from the songs already here, so the service uses a second copy: {}", o.songs_differ.join(", "));
     }
+    if o.passages_removed > 0 { text += &format!("\n\n{}", crate::scripture::strings::passages_removed(o.passages_removed)) }
     text
 }

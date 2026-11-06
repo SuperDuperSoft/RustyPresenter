@@ -39,6 +39,8 @@ roxmltree = "=0.21.2"
 rfd = { version = "=0.17.2", default-features = false, features = ["xdg-portal", "wayland", "common-controls-v6"] }
 # Plan 4: file addresses for LibreOffice, cancelling converters.
 url = "2.5"
+# The Bible blocklist compares titles in any script. Already in Cargo.lock through `url`.
+icu_normalizer = { version = "2", default-features = false, features = ["compiled_data"] }
 tokio-util = "0.7"
 # Plan 4: telling presentations apart by their content (zip packages, OLE compound files).
 zip = { version = "9.2", default-features = false, features = ["deflate"] }

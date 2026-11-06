@@ -12,7 +12,14 @@ pub const JOIN_TOO_LONG_NOTE: &str = "Keeping these together makes a slide too l
 pub const UPGRADE_TOAST: &str = "Bible slides are now fitted to the screen, so some passages may break in different places.";
 pub const FITTING_CHIP: &str = "Fitting slides…";
 pub const UNKNOWN_TRANSLATION: &str = "Unknown translation.";
+pub const BLOCKED: &str = "This translation can't be used in RustyPresenter. Please choose another Bible.";
 pub const UNPARSEABLE_VERSE_TOOLTIP: &str = "This verse came from an older version; look the passage up again to choose breaks here.";
+
+/// A saved service lost passages to the blocklist (Bible library spec §4).
+pub fn passages_removed(n: usize) -> String {
+    if n == 1 { "One passage used a translation that can't be used in RustyPresenter and was removed.".into() }
+    else { format!("{n} passages used a translation that can't be used in RustyPresenter and were removed.") }
+}
 
 // ---------- Settings → Bible ----------
 

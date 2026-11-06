@@ -3,6 +3,7 @@
 use crate::model::VerseText;
 
 pub mod api_bible;
+pub mod blocklist;
 pub mod esv;
 pub mod import;
 pub mod nlt;

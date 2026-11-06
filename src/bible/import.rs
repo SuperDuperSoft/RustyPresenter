@@ -1,8 +1,8 @@
 //! Offline Bibles the church supplies: public-domain texts (WEB, BSB, ASV…) or a file a publisher licensed to the
 //! church directly. Reads Zefania, OSIS, USX and OpenSong XML into the same shape as the bundled KJV and keeps each
 //! one as `bibles/{ABBR}.json` in the data folder. Nothing here is bundled or fetched.
-use super::{BOOKS, canonical, display_name, find_book, parse_reference, sources::tidy};
-use crate::model::VerseText;
+use super::{BOOKS, blocklist, canonical, display_name, find_book, parse_reference, sources::tidy};
+use crate::{model::VerseText, scripture::strings::BLOCKED};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use serde::{Deserialize, Serialize};
 use std::{collections::{BTreeMap, BTreeSet}, fs, io, path::{Path, PathBuf}, sync::{Arc, Mutex}};
@@ -158,10 +158,17 @@ pub fn load_all(root: &Path) -> Vec<ImportedBible> {
 fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
     let s: Stored = serde_json::from_slice(&fs::read(p).ok()?).ok()?;
     if sanitize_abbr(abbr).as_deref() != Some(abbr) || s.abbreviation != abbr { return None; }
-    Some(ImportedBible {
+    let b = ImportedBible {
         abbreviation: s.abbreviation, name: s.name, copyright: s.copyright,
         verses: s.verses.into_iter().filter(|v| (v.0 as usize) < BOOKS.len()).map(|(b, c, v, t)| ((b, c, v), t)).collect(),
-    })
+    };
+    (!is_blocked(&b)).then_some(b)
+}
+
+/// What the file says about itself and what its verses read. The abbreviation may be the operator's own.
+fn is_blocked(b: &ImportedBible) -> bool {
+    blocklist::blocked(&b.abbreviation, &[&b.name], &[&b.copyright], &[&b.abbreviation])
+        || blocklist::blocked_text(b.verses.iter().map(|(k, t)| (*k, t.as_str())))
 }
 
 /// Deletes `root/bibles/{ABBR}.json`; already gone is fine. Holds `LOADED` throughout so no reader can reload the
@@ -202,11 +209,13 @@ pub fn all(root: &Path) -> Vec<Arc<ImportedBible>> { loaded(root).values().clone
 /// HCSB are allowed, because a licensed file is how a church gets a translation no online source offers.
 pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible>, String> {
     let mut b = parse(bytes)?;
+    if is_blocked(&b) { return Err(BLOCKED.into()); }
     if !abbr.trim().is_empty() { b.abbreviation = abbr.into(); }
     let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(|| bad_abbr().to_string())?;
     if super::built_in(&abbr).is_some() { return Err(format!("{abbr} is already built in. Give this Bible another short name.")); }
     b.abbreviation = abbr.clone();
     let mut b = combine(load(root, &abbr), b);
+    if is_blocked(&b) { return Err(BLOCKED.into()); }
     if b.name.is_empty() { b.name = abbr.clone(); }
     save(root, &b).map_err(|e| e.to_string())?;
     // Patch the cache in place; a cold cache stays cold and reads the saved file when first needed.
@@ -729,6 +738,52 @@ mod tests {
         assert_eq!(keys(&cached), vec![(18, 23, 1), (42, 3, 16), (42, 3, 17)]);
         assert_eq!(cached.name, "TSTB");
         assert_eq!(load(&root, "TSTB").unwrap(), *cached);
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    const NWT_FILE: &str = r#"<XMLBIBLE biblename="New World Translation"><INFORMATION><title>New World Translation</title><rights>Watch Tower</rights></INFORMATION>
+        <BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">text</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#;
+
+    #[test]
+    fn a_blocked_file_is_refused_under_any_abbreviation() {
+        let root = temp_root("blocked");
+        assert_eq!(import(&root, NWT_FILE.as_bytes(), "").unwrap_err(), BLOCKED);
+        assert_eq!(import(&root, NWT_FILE.as_bytes(), "TEST").unwrap_err(), BLOCKED);
+        assert_eq!(import(&root, USX.as_bytes(), "TPT").unwrap_err(), BLOCKED, "the abbreviation alone");
+        assert!(all(&root).is_empty());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn verses_give_a_nameless_file_away() {
+        let root = temp_root("fingerprint");
+        let psalm = r#"<usx version="2.0"><book code="PSA" style="id"/><chapter number="23" style="c"/><para style="q1"><verse number="1" style="v"/>The Lord is my best friend</para></usx>"#;
+        assert_eq!(import(&root, psalm.as_bytes(), "ABCD").unwrap_err(), BLOCKED);
+        assert!(all(&root).is_empty());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn the_signs_of_the_nwt_are_read_across_files_one_book_at_a_time() {
+        let root = temp_root("books");
+        let usx = |code: &str, chapter: u16, verses: String| format!(r#"<usx version="2.0"><book code="{code}" style="id"/><chapter number="{chapter}" style="c"/><para style="p">{verses}</para></usx>"#);
+        let jehovah: String = (1..=20).map(|n| format!(r#"<verse number="{n}" style="v"/>Jehovah spoke "#)).collect();
+        import(&root, usx("MAT", 1, jehovah).as_bytes(), "ABCD").unwrap();
+        let john = usx("JHN", 1, r#"<verse number="1" style="v"/>and the Word was a god"#.into());
+        assert_eq!(import(&root, john.as_bytes(), "ABCD").unwrap_err(), BLOCKED);
+        assert_eq!(get(&root, "ABCD").unwrap().len(), 20, "the first file stays as it was");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_blocked_file_already_on_disk_is_skipped_and_can_be_removed() {
+        let root = temp_root("on-disk");
+        let bible = ImportedBible { abbreviation: "TPT".into(), name: "x".into(), verses: [((0, 1, 1), "a".to_string())].into(), ..Default::default() };
+        save(&root, &bible).unwrap();
+        assert!(load(&root, "TPT").is_none());
+        assert!(all(&root).is_empty());
+        remove(&root, "TPT").unwrap();
+        assert!(!root.join("bibles").join("TPT.json").exists());
         let _ = fs::remove_dir_all(&root);
     }
 

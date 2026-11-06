@@ -49,6 +49,8 @@ pub struct Opened {
     pub songs_differ: Vec<String>,
     pub media_added: usize,
     pub decks_added: usize,
+    /// Passages left out because their translation may not be used.
+    pub passages_removed: usize,
 }
 
 /// The service's contents and the assets to carry, or one line per thing that is missing. An original file or
@@ -246,6 +248,7 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
         data.decks.push(d);
         opened.decks_added += 1;
     }
+    opened.passages_removed = crate::bible::blocklist::strip_items(&mut service.items);
     let mapped = |id: &mut Uuid| if let Some(new) = ids.get(id) { *id = *new };
     for item in &mut service.items {
         item.id = Uuid::new_v4();

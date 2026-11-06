@@ -22,6 +22,7 @@ pub const VERSIONS: &[(&str, u32)] = &[("NIV", 111), ("HCSB", 72), ("CSB", 1713)
 pub fn version_id(translation: &str) -> Option<u32> {
     VERSIONS.iter().find(|(t, _)| t.eq_ignore_ascii_case(translation.trim())).map(|&(_, id)| id)
         .or_else(|| translation.trim().parse().ok())
+        .filter(|id| !super::blocklist::blocked("", &[], &[], &[&format!("yv:{id}")]))
 }
 
 use super::USFM;
@@ -212,6 +213,7 @@ mod tests {
         assert_eq!(version_id("hcsb"), Some(72));
         assert_eq!(version_id(" 1713 "), Some(1713));
         assert_eq!(version_id("XYZ"), None);
+        assert_eq!(version_id("1849"), None, "blocked, typed as a bare number");
     }
 
     #[test]

@@ -19,12 +19,15 @@ pub fn data_root() -> Result<PathBuf, String> {
 pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> {
     let store = Store::open(root.clone()).map_err(|e| format!("Cannot use the data folder {}: {e}", root.display()))?;
     store.clean_tmp();
-    let data = store.load()?;
-    if !store.data_path().exists() { let _ = store.save(&data); }
+    let mut data = store.load()?;
+    let removed = crate::bible::blocklist::strip(&mut data);
+    if removed > 0 || !store.data_path().exists() { let _ = store.save(&data); }
 
     let lan_ip = UdpSocket::bind("0.0.0.0:0").ok().and_then(|s| { s.connect("192.0.2.1:80").ok()?; s.local_addr().ok().map(|a| a.ip()) });
     let lan_url = lan_ip.map(|ip| format!("http://{ip}:{port}/remote"));
-    Ok(Started { app: App::new(store, data, port, lan_url), listener, root })
+    let app = App::new(store, data, port, lan_url);
+    if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
+    Ok(Started { app, listener, root })
 }
 
 /// The console banner; `quit` says how to quit.
@@ -79,5 +82,26 @@ pub async fn save_playing(app: Arc<App>) {
     loop {
         every.tick().await;
         if app.playing() { app.save_live_state(); }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{model::{Data, ItemKind, Service, ServiceItem}, scripture::strings::passages_removed, store::test_dir};
+
+    #[test]
+    fn a_saved_service_opens_without_blocked_passages() {
+        let root = test_dir();
+        let mut service = Service::new("Sunday");
+        let passage = |translation: &str| ServiceItem { id: uuid::Uuid::new_v4(), background: None, notes: String::new(),
+            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: translation.into(), verses: vec![], per_slide: 0, text_size: 0 } };
+        service.items = vec![passage("KJV"), passage("NWT")];
+        Store::open(root.clone()).unwrap().save(&Data { services: vec![service], ..Data::default() }).unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let started = open(listener, root, 0).unwrap();
+        assert_eq!(started.app.data.lock().unwrap().services[0].items.len(), 1);
+        assert_eq!(started.app.store.load().unwrap().services[0].items.len(), 1, "saved as well");
+        assert_eq!(started.app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
     }
 }

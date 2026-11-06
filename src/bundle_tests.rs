@@ -373,3 +373,18 @@ fn progress_reaches_100() {
     assert_eq!(seen.last(), Some(&100));
     assert!(seen.is_sorted(), "{seen:?}");
 }
+
+#[test]
+fn a_blocked_passage_stays_out_of_an_opened_service() {
+    let (a, b) = (store(), store());
+    let mut d = sample(&a);
+    let scripture = ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0 };
+    d.service_mut().unwrap().items.push(item(scripture));
+    let file = saved(&a, &d);
+    let mut there = Data::default();
+    let c = open_in(&b, &file).unwrap();
+    let opened = merge(&mut there, c);
+    assert_eq!(opened.passages_removed, 1);
+    assert_eq!(there.service().unwrap().items.len(), 4, "the rest of the service came in");
+    assert!(strings::opened_report(&opened).contains("One passage used a translation that can't be used in RustyPresenter"));
+}

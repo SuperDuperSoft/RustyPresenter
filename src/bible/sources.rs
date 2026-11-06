@@ -2,8 +2,8 @@
 //! Each church registers its own free key with the provider; nothing is bundled or published.
 //! Keys live in `secrets.json` beside `data.json`: never in backups, the app state or the repo.
 //! Fetched passages go into a small cache per provider and translation whose size and age follow each provider's terms.
-use super::{Part, Reference, api_bible, canonical, display_name, esv, kjv, nlt, parse_reference, youversion};
-use crate::model::VerseText;
+use super::{Part, Reference, api_bible, blocklist, canonical, display_name, esv, kjv, nlt, parse_reference, youversion};
+use crate::{model::VerseText, scripture::strings::BLOCKED};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io, path::Path, sync::{Mutex, OnceLock}, time::Duration};
 
@@ -310,6 +310,7 @@ impl Cache {
 
 /// Looks up a passage in a copyrighted translation: cache first, then the provider.
 pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(String, Vec<VerseText>), String> {
+    if blocklist::blocked(translation, &[], &[], &[translation, &format!("yv:{}", translation.trim())]) { return Err(BLOCKED.into()); }
     let secrets = Secrets::load(root);
     let src = source_with(translation, &secrets)
         .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
@@ -339,15 +340,24 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
                     }
                 };
                 if f.verses.is_empty() { return Err("No verses found.".into()); }
+                if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
                 remember(root, src, &key, now, (r.book, part), &f);
                 f
             }
         };
+        if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
         provider.report(root, &f.fums);
         out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text }));
         if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
     }
     Ok((canonical(&r, display), out))
+}
+
+/// Text that turns out to be a blocked translation, whatever its label says: by its verses, or by the notice API.Bible
+/// sent with them. It is neither kept nor reported as used.
+fn refused(provider: Provider, translation: &str, book: u8, f: &Fetched) -> bool {
+    f.verses.iter().any(|(c, v, text)| blocklist::blocked_verse(book, *c, *v, text))
+        || (provider == Provider::ApiBible && api_bible::copyright(translation).is_some_and(|n| blocklist::blocked("", &[], &[&n], &[])))
 }
 
 /// Caches a fetched passage, unless the key it was fetched with was removed or changed meanwhile.
@@ -548,5 +558,24 @@ mod tests {
         assert_eq!(label, "John 3:16");
         assert_eq!(v[0].reference, "John 3:16");
         assert_eq!(v[0].text, "For God so loved the world");
+    }
+
+    #[tokio::test]
+    async fn blocked_names_are_refused_before_any_key_is_needed() {
+        let root = crate::store::test_dir();
+        for t in ["TPT", "nwt", "1849"] { assert_eq!(lookup(&root, t, "John 3:16").await.unwrap_err(), BLOCKED, "{t}"); }
+    }
+
+    #[tokio::test]
+    async fn text_that_reads_like_a_blocked_translation_is_refused_whatever_its_label() {
+        let root = crate::store::test_dir();
+        let mut s = Secrets::default();
+        s.keys.insert("esv".into(), "not-a-real-key".into());
+        s.save(&root).unwrap();
+        let (b, p) = part("John 1:1");
+        let mut c = Cache::default();
+        c.put(b, &p, crate::app::now_secs(), Fetched { verses: vec![(1, 1, "and the Word was a god".into())], fums: vec![] }, ESV, 879);
+        c.save(&root, Provider::Esv, "ESV").unwrap();
+        assert_eq!(lookup(&root, "ESV", "John 1:1").await.unwrap_err(), BLOCKED);
     }
 }

@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
+use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, scripture::strings::{BLOCKED, passages_removed}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -630,6 +630,7 @@ impl App {
                 item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
             }
             let mut item: ServiceItem = serde_json::from_value(item).map_err(|e| ActionError::bad(e.to_string()))?;
+            refuse_blocked(&item)?;
             item.id = Uuid::new_v4();
             let id = item.id;
             tryr!(app.edit(|d| {
@@ -642,6 +643,7 @@ impl App {
         }
         "service/update" => {
             let item: ServiceItem = parse(body)?;
+            refuse_blocked(&item)?;
             tryr!(app.edit(|d| {
                 let s = d.service_mut().ok_or("No service is open.")?;
                 let slot = s.items.iter_mut().find(|i| i.id == item.id).ok_or("That item is gone.")?;
@@ -718,6 +720,7 @@ impl App {
             #[derive(Deserialize)] struct P { reference: String, translation: String, text: String }
             let P { reference, translation, text } = parse(body)?;
             let (label, verses) = tryr!(bible::pasted(&reference, &text));
+            if bible::blocklist::blocked_passage(translation.trim(), &verses) { return Err(ActionError::bad(BLOCKED)); }
             Ok(json!({ "label": label, "verses": verses, "translation": translation.trim().to_uppercase() }))
         }
         "bible/key" => {
@@ -834,6 +837,7 @@ impl App {
         "settings/translation" => {
             #[derive(Deserialize)] struct T { translation: String }
             let T { translation } = parse(body)?;
+            if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
             if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
             tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
             Ok(json!({}))
@@ -882,7 +886,12 @@ impl App {
         "backup/restore" => {
             #[derive(Deserialize)] struct B { name: String }
             let B { name } = parse(body)?;
-            let restored = tryr!(app.store.restore(&name));
+            let mut restored = tryr!(app.store.restore(&name));
+            let removed = bible::blocklist::strip(&mut restored);
+            if removed > 0 {
+                tryr!(app.save(&restored));
+                app.live.lock().unwrap().notice = Some(passages_removed(removed));
+            }
             *app.data.lock().unwrap() = restored;
             app.broadcast_data();
             app.broadcast_live();
@@ -1134,6 +1143,14 @@ pub(crate) fn random_pin() -> String {
 
 #[derive(Deserialize)]
 struct Id { id: Uuid }
+
+/// Whole items come in through the action API without passing `bible/lookup`, so the blocklist looks at them here.
+fn refuse_blocked(item: &ServiceItem) -> Result<(), ActionError> {
+    match &item.kind {
+        ItemKind::Scripture { translation, verses, .. } if bible::blocklist::blocked_passage(translation, verses) => Err(ActionError::bad(BLOCKED)),
+        _ => Ok(()),
+    }
+}
 
 fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> {
     serde_json::from_slice(body).map_err(|e| ActionError::bad(format!("Bad request: {e}")))
@@ -1488,6 +1505,47 @@ mod tests {
         assert!(app.do_action("bible/import/KJV", file).await.unwrap_err().message.contains("already built in"));
         app.do_action("bible/import-remove", br#"{"translation":"HCSB"}"#).await.unwrap();
         assert!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"HCSB"}"#).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn blocked_translations_are_refused_on_every_action() {
+        let app = test_app();
+        let refused = |action: &'static str, body: String| { let app = app.clone(); async move { app.do_action(action, body.as_bytes()).await.unwrap_err().message } };
+        for t in ["TPT", "nwt", "JST"] {
+            assert_eq!(refused("bible/lookup", format!(r#"{{"reference":"John 3:16","translation":"{t}"}}"#)).await, BLOCKED, "{t}");
+            assert_eq!(refused("bible/paste", format!(r#"{{"reference":"John 3:16","translation":"{t}","text":"16 For God loved."}}"#)).await, BLOCKED, "{t}");
+            assert_eq!(refused("settings/translation", format!(r#"{{"translation":"{t}"}}"#)).await, BLOCKED, "{t}");
+        }
+        let passage = |t: &str| format!(r#""kind":"scripture","reference":"John 3:16","translation":"{t}","verses":[]"#);
+        assert_eq!(refused("service/add", format!(r#"{{"item":{{{}}}}}"#, passage("TPT"))).await, BLOCKED);
+        let item = format!(r#"{{"id":"{}",{}}}"#, Uuid::new_v4(), passage("NWT"));
+        assert_eq!(refused("service/update", item).await, BLOCKED);
+        assert!(app.data.lock().unwrap().services.iter().all(|s| s.items.is_empty()), "nothing went in");
+    }
+
+    #[tokio::test]
+    async fn a_blocked_text_under_another_name_is_refused() {
+        let app = test_app();
+        let text = "1 In the beginning was the Word, and the Word was with God, and the Word was a god.";
+        let body = json!({ "reference": "John 1:1", "translation": "ABC", "text": text });
+        assert_eq!(app.do_action("bible/paste", body.to_string().as_bytes()).await.unwrap_err().message, BLOCKED);
+        let body = json!({ "item": { "kind": "scripture", "reference": "John 1:1", "translation": "ABC",
+            "verses": [{ "reference": "John 1:1", "text": text }] } });
+        assert_eq!(app.do_action("service/add", body.to_string().as_bytes()).await.unwrap_err().message, BLOCKED);
+    }
+
+    #[tokio::test]
+    async fn restoring_a_backup_leaves_blocked_passages_behind() {
+        let app = test_app();
+        let mut service = Service::new("Sunday");
+        service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(),
+            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0 } });
+        let data = Data { services: vec![service], ..Data::default() };
+        let name = app.store.backup(&data).unwrap();
+        app.do_action("backup/restore", json!({ "name": name }).to_string().as_bytes()).await.unwrap();
+        assert!(app.data.lock().unwrap().services[0].items.is_empty());
+        assert!(app.store.load().unwrap().services[0].items.is_empty(), "saved as well");
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
     }
 
     #[tokio::test]

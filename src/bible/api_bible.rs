@@ -29,6 +29,12 @@ pub struct BibleSummary {
     #[serde(default)]
     abbreviation_local: String,
     #[serde(default)]
+    name: String,
+    #[serde(default)]
+    name_local: String,
+    #[serde(default)]
+    description: String,
+    #[serde(default)]
     language: Language,
 }
 
@@ -178,7 +184,9 @@ fn norm(s: &str) -> String { s.chars().filter(char::is_ascii_alphanumeric).map(|
 /// The Bible whose abbreviation (or local abbreviation) is exactly `translation`, English first.
 pub fn pick_bible<'a>(list: &'a BibleList, translation: &str) -> Option<&'a str> {
     let want = norm(translation);
-    let hits = || list.data.iter().filter(|b| norm(&b.abbreviation) == want || norm(&b.abbreviation_local) == want);
+    let allowed = |b: &&BibleSummary| !super::blocklist::blocked_online(&b.abbreviation, &[&b.name, &b.name_local], &[&b.description], &[])
+        && !super::blocklist::blocked_online(&b.abbreviation_local, &[], &[], &[]);
+    let hits = || list.data.iter().filter(allowed).filter(|b| norm(&b.abbreviation) == want || norm(&b.abbreviation_local) == want);
     hits().find(|b| b.language.id == "eng").or_else(|| hits().next()).map(|b| b.id.as_str())
 }
 
@@ -325,6 +333,18 @@ mod tests {
         assert_eq!(parse_verse_id("JHN", "JHN.3.16-17"), Some((3, 16)));
         assert_eq!(parse_verse_id("JHN", "GEN.1.1"), None);
         assert_eq!(parse_verse_id("JHN", "JHN.3"), None);
+    }
+
+    #[test]
+    fn a_blocked_bible_is_never_picked() {
+        let list: BibleList = serde_json::from_str(r#"{"data":[
+            {"id":"a","abbreviation":"ABC","language":{"id":"eng"},"name":"New World Translation"},
+            {"id":"b","abbreviation":"ABC","abbreviationLocal":"ABC","language":{"id":"eng"},"nameLocal":"Traducción del Nuevo Mundo"},
+            {"id":"c","abbreviation":"ABC","language":{"id":"eng"},"name":"x","description":"The Passion Translation"},
+            {"id":"d","abbreviation":"TNM","language":{"id":"spa"},"name":"x"},
+            {"id":"e","abbreviation":"ABC","language":{"id":"spa"},"name":"Fine"}]}"#).unwrap();
+        assert_eq!(pick_bible(&list, "ABC"), Some("e"));
+        assert_eq!(pick_bible(&list, "TNM"), None);
     }
 
     // Shape from docs.api.bible/guides/bibles (GET /v1/bibles).
