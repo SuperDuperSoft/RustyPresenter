@@ -1,7 +1,8 @@
 //! The native windowing layer (`Screens`): room and stage windows live on the Slint thread and are
 //! opened and closed from any thread through it. They reopen from settings at start, close when
-//! their monitor is unplugged and come back on it when it returns.
-use super::{operator::window::{MpvInfo, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
+//! their monitor is unplugged and come back on it when it returns. The operator window is opened by
+//! the binary; this layer only knows it to bring it forward and to place it away from the room.
+use super::{operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
 use crate::platform::monitors::{self, Change, MonitorId, Watcher, pick, to_monitors};
 use crate::render::Renderer;
@@ -27,9 +28,10 @@ impl Win {
 }
 
 /// The Slint thread's side: open windows (role, opening number, window, the guard that marks the
-/// role connected while it is open), the unplug watch and its timer.
+/// role connected while it is open), the unplug watch and its timer, and the operator window (weak:
+/// the operator holds these screens).
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64 }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>> }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -48,6 +50,8 @@ pub struct NativeScreens {
 impl NativeScreens {
     /// Call on the Slint thread. `mpv` is `None` when libmpv is missing.
     pub fn new(app: &Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>) -> Arc<Self> {
+        // About shows the mpv and FFmpeg versions; read them once now, off the Slint thread.
+        if let Some(m) = mpv.clone() { let _ = std::thread::Builder::new().name("mpv-versions".into()).spawn(move || { m.versions(); }); }
         Arc::new_cyclic(|me| NativeScreens {
             app: Arc::downgrade(app), renderer, mpv, ui: std::thread::current().id(), me: me.clone(),
             seen: Mutex::default(), roles: Mutex::default(),
@@ -72,6 +76,23 @@ impl NativeScreens {
         let desk = DESK.with(|d| std::mem::take(&mut *d.borrow_mut()));
         drop(desk);
         self.roles.lock().unwrap().clear();
+    }
+
+    /// The operator window, for a second launch to bring forward. Call on the Slint thread.
+    pub fn set_operator(&self, operator: std::rc::Weak<Operator>) {
+        DESK.with(|d| d.borrow_mut().operator = Some(operator));
+    }
+
+    /// Puts the operator window on its monitor (see `operator_monitor`), maximised. Call on the Slint
+    /// thread, after the room and stage reopened.
+    pub fn place_operator(&self, window: &slint::Window) {
+        let (list, main) = self.seen.lock().unwrap().clone();
+        let room = DESK.with(|d| d.borrow().watcher.monitor_of("room").cloned());
+        if let Some(m) = operator_monitor(&list, main.as_ref(), room.as_ref()) {
+            // Anywhere on that monitor: maximising fills the monitor the window is on.
+            window.set_position(slint::PhysicalPosition::new(m.position.0 + 40, m.position.1 + 40));
+        }
+        window.set_maximized(true);
     }
 
     /// Runs `f` on the Slint thread and waits for it (never waits when already there).
@@ -155,11 +176,19 @@ impl NativeScreens {
         let app = self.app.upgrade().ok_or("RustyPresenter is closing.")?;
         drop(self.take(role, None)); // the old window's players and GL context go first
         let guard = app.screen_guard(role);
+        // winit activates every window it creates, which would leave the operator's keys dead in the new
+        // full-screen window: when the operator had focus, it gets it back (now and once the window settled).
+        let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
         let win = match role {
             "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
             "stage" => Win::Stage(Stage::open(app, mon.clone())?),
             _ => return Err("unknown window".into()),
         };
+        if let Some(op) = operator {
+            op.refocus();
+            let op = Rc::downgrade(&op);
+            Timer::single_shot(Duration::from_millis(150), move || if let Some(op) = op.upgrade() { op.refocus() });
+        }
         let id = DESK.with(|d| { let mut d = d.borrow_mut(); d.seq += 1; d.seq });
         // Closing the window (Alt+F4) closes it for good, as the operator's Close would.
         let (me, r) = (self.me.clone(), role.to_string());
@@ -203,7 +232,10 @@ impl NativeScreens {
 
 impl OperatorScreens for NativeScreens {
     fn video_info(&self) -> VideoInfo {
-        let mpv = self.mpv.as_ref().map(|m| MpvInfo { api: m.api_version(), path: m.path().display().to_string() });
+        let mpv = self.mpv.as_ref().map(|m| {
+            let (mpv_version, ffmpeg_version) = m.versions();
+            MpvInfo { api: m.api_version(), path: m.path().display().to_string(), mpv_version, ffmpeg_version }
+        });
         VideoInfo { draw_mode: crate::video::drawing(), mpv }
     }
 
@@ -217,8 +249,10 @@ impl OperatorScreens for NativeScreens {
 impl Screens for NativeScreens {
     fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
         match role {
-            // The operator is the web page until the native operator window exists (Plan 3).
-            "operator" => { if let Some(app) = self.app.upgrade() { open_browser(&format!("http://127.0.0.1:{}/", app.port)) } Ok(()) }
+            // A second launch asks for this (spec §8.4): bring the operator window forward.
+            "operator" => self.on_ui(|_| {
+                if let Some(op) = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)) { op.raise() }
+            }),
             "room" | "stage" => {
                 let (role, monitor) = (role.to_string(), monitor.map(str::to_string));
                 self.on_ui(move |s| s.open_here(&role, monitor.as_deref()))?
@@ -242,19 +276,12 @@ impl Screens for NativeScreens {
     }
 }
 
-/// Opens `url` in the system browser.
-pub fn open_browser(url: &str) {
-    use std::process::Command;
-    #[cfg(windows)]
-    let child = { use std::os::windows::process::CommandExt; Command::new("cmd").args(["/C", "start", "", url]).creation_flags(0x0800_0000).spawn() };
-    #[cfg(target_os = "macos")]
-    let child = Command::new("open").arg(url).spawn();
-    #[cfg(all(unix, not(target_os = "macos")))]
-    let child = Command::new("xdg-open").arg(url).spawn();
-    match child {
-        Ok(mut c) => { let _ = std::thread::Builder::new().name("browser".into()).spawn(move || c.wait()); }
-        Err(e) => eprintln!("Could not open {url} in the browser: {e}"),
-    }
+/// The operator's monitor: the main one, unless the room is on it (saved there on purpose); then the
+/// first one the room is not on (`pick`'s rule turned round). With one monitor, that one.
+pub fn operator_monitor(monitors: &[MonitorId], main: Option<&MonitorId>, room: Option<&MonitorId>) -> Option<MonitorId> {
+    let main = main.filter(|m| monitors.contains(*m));
+    if let Some(m) = main.filter(|m| Some(*m) != room) { return Some(m.clone()) }
+    monitors.iter().find(|m| Some(*m) != room).or(main).or(monitors.first()).cloned()
 }
 
 #[cfg(test)]
@@ -267,6 +294,47 @@ mod tests {
     fn screens(app: &Arc<App>) -> Arc<NativeScreens> {
         i_slint_backend_testing::init_no_event_loop();
         NativeScreens::new(app, Renderer::new(), None)
+    }
+
+    #[test]
+    fn display_open_operator_raises_window() {
+        let app = test_app();
+        let s = screens(&app);
+        s.open("operator", None).unwrap(); // no operator yet: nothing to raise, and no error
+        let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
+        s.set_operator(Rc::downgrade(&op));
+        slint::ComponentHandle::hide(&op.ui).unwrap();
+        assert!(!op.window().is_visible());
+        s.open("operator", None).unwrap();
+        assert_eq!(op.raises.get(), 1);
+        assert!(op.window().is_visible(), "shown again");
+        assert!(!op.window().is_minimized(), "and not minimised");
+        assert!(s.open_roles().is_empty(), "the operator is not a room or stage window");
+        s.shutdown();
+    }
+
+    #[test]
+    fn place_operator_maximises_the_window() {
+        let app = test_app();
+        let s = screens(&app);
+        let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
+        assert!(!op.window().is_maximized());
+        s.place_operator(op.window());
+        assert!(op.window().is_maximized());
+        s.shutdown();
+    }
+
+    #[test]
+    fn operator_avoids_room_monitor() {
+        let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 1280, 1920));
+        let both = [laptop.clone(), projector.clone()];
+        assert_eq!(operator_monitor(&both, Some(&laptop), Some(&projector)), Some(laptop.clone()), "the main monitor");
+        assert_eq!(operator_monitor(&both, Some(&laptop), None), Some(laptop.clone()));
+        assert_eq!(operator_monitor(&both, Some(&laptop), Some(&laptop)), Some(projector.clone()), "the room was saved on the main one");
+        assert_eq!(operator_monitor(&both, None, Some(&laptop)), Some(projector.clone()), "no main known");
+        assert_eq!(operator_monitor(&[laptop.clone()], Some(&laptop), Some(&laptop)), Some(laptop.clone()), "one monitor");
+        assert_eq!(operator_monitor(&[], None, None), None);
+        assert_eq!(operator_monitor(&[projector.clone()], Some(&laptop), None), Some(projector.clone()), "main unplugged");
     }
 
     #[test]

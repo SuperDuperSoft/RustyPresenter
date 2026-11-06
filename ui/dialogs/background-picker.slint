@@ -1,0 +1,239 @@
+// `backgroundPicker()` (`operator.js:701-718`, `.bg-choices` in `operator.css:210-215`): Theme default, six
+// swatches, a custom colour, every ready picture or video, and "+ Upload…". The tiles wrap like the web's flex row.
+import { Theme, OperatorState } from "../theme.slint";
+import { EditMenu, TipBox } from "../widgets.slint";
+
+/// One tile. `kind` is "default", "color", "custom", "image", "video" or "upload"; `swatch` is the colour of a
+/// colour tile (and the custom colour's current value); `image` is a picture's thumbnail (black until drawn).
+export struct BgChoice {
+    label: string,
+    swatch: color,
+    image: image,
+    kind: string,
+    on: bool,
+    tooltip: string,
+}
+
+/// The colour grid and hex field (the web's `<input type=color>`): Slint 1.18 has no colour dialog. A grid
+/// colour is `picked`; the hex field sends what is typed, which Rust keeps only when it is a whole `#rrggbb`.
+export component ColorGrid inherits Rectangle {
+    /// The grid's colours (from Rust: no colour literals in dialog files).
+    in property <[color]> palette;
+    callback picked(color);
+    callback hex(string);
+
+    property <length> sw: 24px;
+    property <int> pcols: max(1, floor((root.width - 20px + 6px) / (root.sw + 6px)));
+
+    background: Theme.panel-2;
+    border-radius: 10px;
+    VerticalLayout {
+        padding: 10px;
+        spacing: 10px;
+        Rectangle {
+            height: max(0px, ceil(root.palette.length / root.pcols) * (root.sw + 6px) - 6px);
+            for p[i] in root.palette: swatch := Rectangle {
+                x: (i - floor(i / root.pcols) * root.pcols) * (root.sw + 6px);
+                y: floor(i / root.pcols) * (root.sw + 6px);
+                width: root.sw;
+                height: root.sw;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: sta.has-hover ? Theme.text : Theme.line;
+                background: p;
+                accessible-role: button;
+                accessible-action-default => { root.picked(p); }
+                sta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.picked(p); }
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: @tr("Hex");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: 700;
+                vertical-alignment: center;
+            }
+            hex := Rectangle {
+                width: 120px;
+                height: 32px;
+                background: Theme.bg;
+                border-width: 1.5px;
+                border-radius: 8px;
+                border-color: hex-input.has-focus ? Theme.accent : Theme.line;
+                accessible-role: text-input;
+                accessible-label: @tr("Pick any color");
+                accessible-value: hex-input.text;
+                accessible-action-set-value(v) => {
+                    hex-input.text = v;
+                    root.hex(v);
+                }
+                hex-input := TextInput {
+                    x: 9px;
+                    width: parent.width - 18px;
+                    height: parent.height;
+                    single-line: true;
+                    color: Theme.text;
+                    selection-background-color: Theme.accent;
+                    selection-foreground-color: Theme.accent-ink;
+                    font-family: Theme.mono;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    edited => { root.hex(self.text); }
+                    changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                    EditMenu {
+                        width: 100%;
+                        height: 100%;
+                        has-text: hex-input.text != "";
+                        cut-text => { hex-input.cut(); }
+                        copy-text => { hex-input.copy(); }
+                        paste-text => { hex-input.paste(); }
+                        select-text => { hex-input.select-all(); }
+                    }
+                }
+            }
+            Rectangle { horizontal-stretch: 1; }
+        }
+    }
+}
+
+/// The custom colour: Slint 1.18 has no colour dialog, so a click on its swatch opens a small built-in grid and a
+/// hex field under the tiles (the web's `<input type=color>`, tooltip "Pick any color").
+export component BackgroundPicker inherits VerticalLayout {
+    in property <[BgChoice]> choices;
+    /// The grid's colours (from Rust: no colour literals in dialog files).
+    in property <[color]> palette;
+    callback pick(int);
+    callback custom-color(color);
+    /// Typed into the hex field; Rust keeps it only when it is a whole `#rrggbb`.
+    callback custom-hex(string);
+    callback upload();
+
+    in-out property <bool> custom-open;
+
+    property <length> tile-w: 112px;
+    property <length> tile-h: 63px;
+    property <length> gap: 8px;
+    property <int> cols: max(1, floor((root.width + root.gap) / (root.tile-w + root.gap)));
+    property <int> rows: ceil(root.choices.length / root.cols);
+
+    spacing: 8px;
+
+    tiles := Rectangle {
+        height: max(0px, root.rows * (root.tile-h + root.gap) - root.gap);
+        for c[i] in root.choices: choice := Rectangle {
+            property <bool> custom: c.kind == "custom";
+            property <length> slot-x: (i - floor(i / root.cols) * root.cols) * (root.tile-w + root.gap);
+            property <length> slot-y: floor(i / root.cols) * (root.tile-h + root.gap);
+            x: self.slot-x;
+            y: self.custom ? self.slot-y + (root.tile-h - 34px) / 2 : self.slot-y;
+            width: self.custom ? 42px : root.tile-w;
+            height: self.custom ? 34px : root.tile-h;
+            border-radius: 8px;
+            border-width: self.custom ? 1.5px : 2px;
+            border-color: c.on ? Theme.accent : Theme.line;
+            background: c.kind == "color" || self.custom ? c.swatch : c.kind == "upload" ? Theme.panel-2 : Theme.black;
+            clip: true;
+            accessible-role: button;
+            accessible-label: c.label != "" ? c.label : self.custom ? @tr("Pick any color") : c.tooltip;
+            accessible-checked: c.on;
+            accessible-action-default => { ta.clicked(); }
+
+            if c.kind == "image" || c.kind == "video": Image {
+                width: parent.width;
+                height: parent.height;
+                source: c.image;
+                image-fit: cover;
+            }
+            if c.label != "" && c.kind != "upload": Rectangle {
+                y: parent.height - self.height;
+                height: cap.preferred-height + 4px;
+                background: Theme.caption-bg;
+                cap := Text {
+                    x: 4px;
+                    width: parent.width - 8px;
+                    text: c.label;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 10.5px;
+                    overflow: elide;
+                    vertical-alignment: center;
+                }
+            }
+            if c.kind == "upload": Text {
+                text: c.label;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            ta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    if c.kind == "custom" {
+                        root.custom-open = !root.custom-open;
+                    } else if c.kind == "upload" {
+                        root.upload();
+                    } else {
+                        root.pick(i);
+                    }
+                }
+            }
+            if c.tooltip != "" || choice.custom: Tooltip {
+                TipBox { text: choice.custom ? @tr("Pick any color") : c.tooltip; }
+            }
+        }
+    }
+
+    if root.custom-open: ColorGrid {
+        palette: root.palette;
+        picked(c) => { root.custom-color(c); }
+        hex(t) => { root.custom-hex(t); }
+    }
+}
+
+/// A colour field: its swatch opens the grid under it (tooltip "Pick any color"). Settings → Look's Text color.
+export component ColorPicker inherits VerticalLayout {
+    in property <color> value;
+    in property <[color]> palette;
+    callback picked(color);
+    callback hex(string);
+
+    in-out property <bool> open;
+
+    spacing: 8px;
+
+    HorizontalLayout {
+        alignment: start;
+        swatch := Rectangle {
+            width: 42px;
+            height: 34px;
+            border-radius: 8px;
+            border-width: 1.5px;
+            border-color: root.open ? Theme.accent : Theme.line;
+            background: root.value;
+            accessible-role: button;
+            accessible-label: @tr("Pick any color");
+            accessible-checked: root.open;
+            accessible-action-default => { root.open = !root.open; }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.open = !root.open; }
+            }
+            Tooltip {
+                TipBox { text: @tr("Pick any color"); }
+            }
+        }
+    }
+    if root.open: grid := ColorGrid {
+        palette: root.palette;
+        picked(c) => { root.picked(c); }
+        hex(t) => { root.hex(t); }
+    }
+}

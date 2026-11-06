@@ -5,6 +5,7 @@ pub mod stage;
 pub mod room;
 pub mod screens;
 pub mod operator;
+pub mod dialogs;
 pub mod ops;
 pub mod thumbs;
 pub mod preview;
@@ -33,6 +34,40 @@ pub(crate) fn ui_test_init() {
             i_slint_backend_testing::init_no_event_loop();
         }
     });
+}
+
+/// What the integration tests under `tests/` need, since they cannot see `#[cfg(test)]` items: the operator window
+/// with its actions run inline (`Ops::inline`) and a fake `OperatorScreens`. The caller installs the testing backend
+/// on its thread first (`i_slint_backend_testing::init_no_event_loop`). Not used by the app.
+#[doc(hidden)]
+pub mod test_support {
+    use crate::{
+        app::App,
+        ui::{OperatorWindow, operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, ops::Ops},
+        video::{DrawMode, FrameGrabber},
+    };
+    use std::{rc::Rc, sync::Arc};
+
+    /// No room window and no mpv: video draws in software, the player is missing when `missing` says so, and there
+    /// is never a live preview grabber.
+    pub struct FakeScreens { pub missing: bool }
+
+    impl OperatorScreens for FakeScreens {
+        fn video_info(&self) -> VideoInfo {
+            VideoInfo { draw_mode: DrawMode::Software, mpv: (!self.missing).then(|| MpvInfo { api: (2, 3), path: "libmpv-2.dll".into(), ..Default::default() }) }
+        }
+
+        fn preview_grabber(&self) -> Option<FrameGrabber> { None }
+    }
+
+    /// Opens the operator over `app`, its actions inline. There is no follower: the test hands it updates through
+    /// `Operator::apply_snapshot` and `Operator::apply_live`.
+    pub fn operator_for_tests(app: Arc<App>) -> Rc<Operator> {
+        Operator::open(app.clone(), Ops::inline(app), Rc::new(FakeScreens { missing: false })).expect("operator window opens")
+    }
+
+    /// The Slint window, for `ElementHandle::find_by_element_id`.
+    pub fn window_of(op: &Operator) -> &OperatorWindow { &op.ui }
 }
 
 #[cfg(test)]

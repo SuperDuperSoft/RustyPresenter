@@ -67,3 +67,23 @@ pub const FILTER_POWERPOINT: &str = "PowerPoint";
 pub const FILTER_LYRICS: &str = "SongSelect lyric files";
 pub const FILTER_PICTURES: &str = "Pictures";
 pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
+pub const FILTER_BIBLES: &str = "Bible files";
+
+/// The toast after the Bible box adds a passage (`operator.js:336`).
+pub fn bible_added(label: &str) -> String { format!("{label} added — press Enter to show it") }
+
+/// Adding files (`uploadFiles`, `imagesToDeck` and `addItem` in `operator.js:369-375, 536-598`).
+pub const ADDED_TO_SERVICE: &str = "Added to the service";
+pub fn uploading(name: &str) -> String { format!("Uploading {name}") }
+pub fn uploading_pictures(n: usize) -> String { format!("Uploading {n} picture{}", if n > 1 { "s" } else { "" }) }
+pub fn media_added(name: &str) -> String { format!("{name} added") }
+pub fn media_added_converting(name: &str) -> String { format!("{name} added — converting so it plays smoothly…") }
+pub fn song_imported(title: &str) -> String { format!("Imported “{title}”") }
+/// A SongSelect file whose CCLI # is already in the library: update that song or keep both.
+pub fn song_already(title: &str) -> String { format!("“{title}” is already in the library.") }
+pub const UPDATE_EXISTING: &str = "Update existing";
+pub const KEEP_BOTH: &str = "Keep both";
+pub fn song_updated(title: &str) -> String { format!("Updated “{title}”") }
+pub fn deck_ready(title: &str) -> String { format!("“{title}” is ready") }
+pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
+pub const NAME_THESE_SLIDES: &str = "Name these slides";

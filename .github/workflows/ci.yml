@@ -33,6 +33,60 @@ jobs:
       # Both binaries (Tauri `rustypresenter` and `rustypresenter-native`) and the examples link.
       - run: cargo build --locked --release --bins --examples
 
+  # Packaging config and scripts. Licences are checked by the licence job (Plan 3/Plan 4 Task 14).
+  packaging:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: version-match
+        run: |
+          cargo_version="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)"
+          packager_version="$(sed -n 's/^version = "\([^"]*\)".*/\1/p' Packager.toml | head -n 1)"
+          echo "Cargo.toml $cargo_version, Packager.toml $packager_version"
+          if [ -z "$cargo_version" ] || [ "$cargo_version" != "$packager_version" ]; then
+            echo "::error file=Packager.toml::Packager.toml version ($packager_version) must equal Cargo.toml version ($cargo_version)"
+            exit 1
+          fi
+      - name: Scripts parse
+        run: for f in packaging/*.sh packaging/libmpv/*.sh; do bash -n "$f"; done
+
+  # Video tests against the pinned LGPL libmpv (the one the installers ship), on Windows.
+  video-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pins
+        run: grep -E '^[A-Z0-9_]+=' packaging/pins.env >> "$GITHUB_ENV"
+      # Until libmpv-r<N> is published and pinned (Plan 4 Task 16 Step 2) there is nothing to test against.
+      - name: Check the libmpv pin
+        id: pin
+        run: |
+          if [[ "$LIBMPV_SHA256_WINDOWS" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "pinned=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::libmpv-r$LIBMPV_REV is not pinned in packaging/pins.env yet; gated video tests skipped"
+          fi
+      - uses: dtolnay/rust-toolchain@stable
+        if: steps.pin.outputs.pinned == 'true'
+      - uses: Swatinem/rust-cache@v2
+        if: steps.pin.outputs.pinned == 'true'
+      # The same download and sha256 checks as the installers; also stages pdfium.
+      - name: Download libmpv
+        if: steps.pin.outputs.pinned == 'true'
+        run: |
+          packaging/stage.sh windows
+          echo "RP_LIBMPV=$(cygpath -w "$PWD/packaging/native/libmpv-2.dll")" >> "$GITHUB_ENV"
+          echo "RP_PDFIUM=$(cygpath -w "$PWD/packaging/native/pdfium.dll")" >> "$GITHUB_ENV"
+      # Release mode for the same reason as the test job (Tauri debug test binaries crash on Windows).
+      - name: Gated video tests
+        if: steps.pin.outputs.pinned == 'true'
+        env:
+          RP_VIDEO_TESTS: "1"
+        run: cargo test --locked --release
+
   # Feasibility check C4: Slint's testing backend drives a component headless.
   check-c4-ui-testing:
     strategy:
@@ -60,3 +114,15 @@ jobs:
           sudo apt-get install -y pkg-config libfontconfig-dev
       - run: cargo test --locked
         working-directory: experiments/c4-ui-testing
+
+  # THIRD-PARTY-LICENSES.txt (shown in Settings → About) must match the lock file: regenerate it and fail on a
+  # difference. To update it locally: cargo install cargo-about --version 0.9.2 --locked --features cli, then the command below.
+  licenses:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-about
+        run: cargo install cargo-about --version 0.9.2 --locked --features cli
+      - run: cargo about generate about.hbs -o THIRD-PARTY-LICENSES.txt
+      - run: git diff --exit-code THIRD-PARTY-LICENSES.txt

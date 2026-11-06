@@ -7,7 +7,7 @@ use crate::{
     slides::build_item,
     store::BackupInfo,
 };
-use std::sync::{Arc, atomic::Ordering};
+use std::sync::{Arc, atomic::{AtomicU64, Ordering}};
 use uuid::Uuid;
 
 /// One service item as the list and the slide grid show it.
@@ -20,7 +20,7 @@ pub enum RoomStatus { Showing, Starting, Off }
 
 /// A background job (PowerPoint import) as the jobs box shows it.
 #[derive(Clone, Debug, PartialEq)]
-pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error: Option<String> }
+pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error: Option<String>, pub note: Option<String>, pub cancellable: bool, pub done: bool }
 
 /// One translation's source for Settings → Bible (`App::bible_sources`; never carries a key).
 #[derive(Clone, Debug, Default, PartialEq, serde::Deserialize)]
@@ -75,7 +75,15 @@ pub struct OperatorSnapshot {
     pub phones_list: Vec<(Uuid, String)>,
     pub data_folder: String,
     pub version: String,
+    /// Which full read this is (`read_number`); a patch keeps the number of the read it changed.
+    pub read: u64,
 }
+
+/// Full reads, numbered in the order they start.
+static READS: AtomicU64 = AtomicU64::new(0);
+
+/// The number of the newest full read started so far: a snapshot whose `read` is greater began after this call.
+pub fn read_number() -> u64 { READS.load(Ordering::SeqCst) }
 
 // The follower thread builds it and sends it to the Slint thread.
 const _: fn() = || { fn send<T: Send + Sync>() {} send::<OperatorSnapshot>(); };
@@ -85,6 +93,7 @@ impl OperatorSnapshot {
     /// searches PATH for ffmpeg and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.
     pub fn read(app: &App) -> Self {
+        let read = READS.fetch_add(1, Ordering::SeqCst) + 1;
         let data = app.data.lock().unwrap().clone();
         let translations = app.translations();
         let available = app.available_translations();
@@ -111,7 +120,7 @@ impl OperatorSnapshot {
             stage_connected: app.stage_conns.load(Ordering::Relaxed) > 0,
             stage_configured: data.settings.displays.stage.is_some(),
             phones: app.remote_conns.load(Ordering::Relaxed),
-            jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone() }).collect(),
+            jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone(), note: j.note.clone(), cancellable: j.cancellable, done: j.done }).collect(),
             settings: data.settings.clone(),
             monitors: app.monitors(),
             windows,
@@ -123,6 +132,7 @@ impl OperatorSnapshot {
             data_folder: app.store.root.display().to_string(),
             version: env!("CARGO_PKG_VERSION").into(),
             data: Arc::new(data),
+            read,
         };
         snap.refresh_subtitles();
         snap

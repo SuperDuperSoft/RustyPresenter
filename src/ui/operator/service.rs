@@ -135,6 +135,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_service_show_first(on(|op, id| op.show_first(id)));
     ui.on_service_remove(on(|op, id| op.service_action("service/remove", serde_json::json!({ "id": id }))));
     // Edit opens Item edit (Task 18) and Add opens the Add dialog on the Song tab (Task 16).
+    ui.on_service_edit(on(|op, id| crate::ui::dialogs::item_edit::open(op, id)));
     let me = Rc::downgrade(op);
     ui.on_service_move(move |id, to| {
         let (Some(op), Ok(id), Ok(to)) = (me.upgrade(), Uuid::parse_str(&id), usize::try_from(to)) else { return };

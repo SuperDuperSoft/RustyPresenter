@@ -149,6 +149,11 @@ impl Watcher {
         self.watched.push((role.into(), id, true, now.to_vec()));
     }
 
+    /// The monitor `role`'s window is on while that monitor is connected.
+    pub fn monitor_of(&self, role: &str) -> Option<&MonitorId> {
+        self.watched.iter().find(|(r, _, present, _)| r == role && *present).map(|(_, id, ..)| id)
+    }
+
     /// The operator closed `role`'s window: stop watching for its monitor.
     pub fn unwatch(&mut self, role: &str) { self.watched.retain(|(r, ..)| r != role); }
 

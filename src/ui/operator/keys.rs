@@ -71,8 +71,8 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     if ctx.dialog_open {
         return KeyAction::None;
     }
-    if alt && ctx.in_bible_box && matches!(key.as_bytes(), [b'1'..=b'6']) {
-        return KeyAction::PickTranslation(usize::from(key.as_bytes()[0] - b'1'));
+    if alt && ctx.in_bible_box && let Some(i) = translation_key(key) {
+        return KeyAction::PickTranslation(i);
     }
     if ctx.in_text_field || ctx.in_bible_box {
         return if key == "Escape" { KeyAction::Blur } else { KeyAction::None };
@@ -85,11 +85,26 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     }
 }
 
+/// The translation Alt+`key` picks in the Bible box (0 for the 1 key). Slint hands over the character the key
+/// gives with its modifiers, so besides the digits this takes what the number row gives where it is not the digit:
+/// macOS Option on a US layout (¡ ™ £ ¢ ∞ §) and the unshifted AZERTY row (& é " ' ( -).
+fn translation_key(key: &str) -> Option<usize> {
+    const ROWS: [&str; 3] = ["123456", "¡™£¢∞§", "&é\"'(-"];
+    let mut chars = key.chars();
+    let (Some(c), None) = (chars.next(), chars.next()) else { return None };
+    ROWS.iter().find_map(|row| row.chars().position(|r| r == c))
+}
+
 impl Operator {
+    /// A dialog or a confirm/prompt question is open over the window.
+    pub(crate) fn covered(&self) -> bool {
+        let st = self.state.borrow();
+        st.dialog.is_some() || st.asks > 0
+    }
+
     /// One key press from the window's key scope; true when it was used (the scope then accepts it).
     fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, in_text_field: bool, in_bible_box: bool) -> bool {
-        let dialog_open = { let st = self.state.borrow(); st.dialog.is_some() || st.asks > 0 };
-        let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open };
+        let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open: self.covered() };
         match route(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, ctx) {
             KeyAction::Clear(cmd) => self.command(cmd, None),
             KeyAction::FocusBible => self.ui.invoke_focus_bible(),
@@ -179,6 +194,18 @@ mod tests {
         assert_eq!(route("2", false, true, PLAIN), KeyAction::None);
         let dialog_over_box = KeyCtx { dialog_open: true, ..BIBLE };
         assert_eq!(route("2", false, true, dialog_over_box), KeyAction::None);
+    }
+
+    #[test]
+    fn alt_number_row_picks_translation_on_other_layouts() {
+        assert_eq!(route("™", false, true, BIBLE), KeyAction::PickTranslation(1), "macOS Option+2");
+        assert_eq!(route("§", false, true, BIBLE), KeyAction::PickTranslation(5), "macOS Option+6");
+        assert_eq!(route("&", false, true, BIBLE), KeyAction::PickTranslation(0), "AZERTY 1 key");
+        assert_eq!(route("é", false, true, BIBLE), KeyAction::PickTranslation(1), "AZERTY 2 key");
+        assert_eq!(route("™", false, false, BIBLE), KeyAction::None, "typed without Alt");
+        assert_eq!(route("™", false, true, PLAIN), KeyAction::None);
+        assert_eq!(route("a", false, true, BIBLE), KeyAction::None);
+        assert_eq!(route("12", false, true, BIBLE), KeyAction::None);
     }
 
     #[test]
@@ -371,6 +398,22 @@ mod window_tests {
     }
 
     #[test]
+    fn option_2_on_a_mac_picks_translation_and_types_nothing() {
+        let app = test_app();
+        let op = opened(&app);
+        let picked = Rc::new(Cell::new(None));
+        let p = picked.clone();
+        op.ui.on_pick_translation(move |i| p.set(Some(i)));
+        click_bible_box(&op);
+        type_text(&op, "Ps 23");
+        chord(&op, Key::Alt, "™");
+        assert_eq!(picked.get(), Some(1));
+        assert_eq!(op.ui.get_bible_text(), "Ps 23");
+        chord(&op, Key::Alt, "x");
+        assert_eq!(op.ui.get_bible_text(), "Ps 23x", "other Alt keys still reach the box");
+    }
+
+    #[test]
     fn alt_2_outside_the_bible_box_picks_nothing() {
         let app = test_app();
         let op = opened(&app);
@@ -402,7 +445,7 @@ mod window_tests {
     fn ctrl_b_with_dialog_open_leaves_bible_box_alone() {
         let app = test_app();
         let op = opened(&app);
-        op.state.borrow_mut().dialog = Some(DialogKind::Settings);
+        op.state.borrow_mut().dialog = Some(DialogKind::Settings(crate::ui::dialogs::SettingsTab::Look));
         chord(&op, Key::Control, "b");
         type_text(&op, "x");
         assert_eq!(op.ui.get_bible_text(), "", "the Bible box did not take focus");
@@ -429,7 +472,7 @@ mod window_tests {
         let id = add_text(&app, "A", "a1\n\na2");
         let op = opened(&app);
         show(&op, id, 0);
-        op.state.borrow_mut().dialog = Some(DialogKind::Add);
+        op.state.borrow_mut().dialog = Some(DialogKind::Add(crate::ui::dialogs::AddTab::Song));
         for k in [Key::RightArrow, Key::Space, Key::Return] { key(&op, k) }
         assert_eq!(cursor(&app), Some((id, 0)));
         // The F-keys still work.

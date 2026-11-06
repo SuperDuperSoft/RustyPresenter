@@ -1,0 +1,73 @@
+// The Add dialog's Video & media and Slides tabs (`addMedia()` and `addDeck()`, `operator.js:470-500`). The rows
+// are `AddRow`s with a thumbnail; the logic is in Rust (`src/ui/dialogs/add_media.rs`).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { AddState, AddList } from "add-list.slint";
+
+/// Upload files, the converting hint, and the media library, newest first.
+export component AddMediaTab inherits VerticalLayout {
+    in property <length> list-height;
+    HorizontalLayout {
+        spacing: 8px;
+        padding-bottom: 12px;
+        alignment: start;
+        upload := Btn {
+            text: @tr("Upload files");
+            icon: "upload";
+            primary: true;
+            clicked => { AddState.upload-media(); }
+        }
+        hint := Text {
+            text: @tr("Any video format works. Unusual ones are converted once, automatically.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            vertical-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+    AddList { max-list-height: root.list-height; }
+}
+
+/// Import PowerPoint, Make slides from pictures, the Google Slides note, and the slides library, newest first.
+export component AddDeckTab inherits VerticalLayout {
+    in property <length> list-height;
+    HorizontalLayout {
+        spacing: 8px;
+        padding-bottom: 12px;
+        alignment: start;
+        import := Btn {
+            text: @tr("Import PowerPoint");
+            icon: "upload";
+            primary: true;
+            clicked => { AddState.import-powerpoint(); }
+        }
+        pictures := Btn {
+            text: @tr("Make slides from pictures");
+            icon: "image";
+            clicked => { AddState.pictures-to-slides(); }
+        }
+    }
+    // `.note`
+    VerticalLayout {
+        padding-bottom: 12px;
+        Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            VerticalLayout {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                padding-left: 14px;
+                padding-right: 14px;
+                note := Text {
+                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx), then import that file here.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+    AddList { max-list-height: root.list-height; }
+}

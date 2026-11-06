@@ -102,7 +102,7 @@ pub(super) fn prepare(work: &Work, job: Job, send: impl Fn(Msg)) {
                     // Fill the screen like CSS `object-fit: cover`.
                     let _ = unsafe { p.mpv().set_property(p.handle(), "panscan", "1.0") };
                 }
-                p.load(&path, 0.0);
+                p.load(&path, work.app.resume_position(inst).unwrap_or(0.0)); // after a crash, where it was
                 Ok(Made::Player(Fresh(p)))
             }
         };

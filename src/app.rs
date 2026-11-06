@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, live::*, media, model::*, slides::build_item, songselect, store::Store};
+use crate::{bible, live::*, media, model::*, recovery::state::{self, StateWriter}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -9,10 +9,11 @@ use std::{
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicUsize, Ordering}},
+    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicU64, AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
+use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
 /// Why an action failed. `status` follows HTTP (400 bad input, 403 not allowed, 404 unknown action).
@@ -116,8 +117,35 @@ pub struct Pairing { pub(crate) pin: String, pub(crate) until: Instant, pub(crat
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
 
-#[derive(Serialize, Clone)]
-pub struct Job { pub(crate) id: Uuid, pub(crate) label: String, pub(crate) percent: u8, pub(crate) error: Option<String> }
+/// Says a PowerPoint import fell back to LibreOffice. `App::job_note` keeps it beside a later note.
+pub(crate) const FALLBACK_NOTE: &str = "PowerPoint couldn't open it; used LibreOffice.";
+
+/// A background job. The fields added for Plan 4 are left out of the JSON when unset, so the web operator's
+/// `jobs` stay as they were for an ordinary job.
+#[derive(Serialize, Clone, Default)]
+pub struct Job {
+    pub(crate) id: Uuid,
+    pub(crate) label: String,
+    pub(crate) percent: u8,
+    pub(crate) error: Option<String>,
+    /// Shown like `error`, but not red. A finished job with a note stays until it is dismissed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) note: Option<String>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub(crate) cancellable: bool,
+    /// The id of what the job made, e.g. the new deck.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) result: Option<Uuid>,
+    /// The job ended well and is only still listed for its note.
+    #[serde(skip)]
+    pub(crate) done: bool,
+    /// `FALLBACK_NOTE` was given; `note` starts with it.
+    #[serde(skip)]
+    pub(crate) fell_back: bool,
+    /// The latest note other than `FALLBACK_NOTE`.
+    #[serde(skip)]
+    pub(crate) other_note: Option<String>,
+}
 
 /// Counts a native room or stage window as a connected screen while it is held (like a web page's socket).
 pub struct ScreenGuard { app: Weak<App>, role: String }
@@ -141,9 +169,16 @@ pub struct App {
     pub(crate) phones: Mutex<Vec<Phone>>,
     pub(crate) attempts: Mutex<HashMap<IpAddr, Instant>>,
     pub(crate) jobs: Mutex<Vec<Job>>,
+    /// The cancel token of each running cancellable job; dropped when the job ends.
+    cancels: Mutex<HashMap<Uuid, CancellationToken>>,
     pub room_conns: AtomicUsize,
     pub stage_conns: AtomicUsize,
     pub remote_conns: AtomicUsize,
+    state_writer: Mutex<Option<StateWriter>>,
+    /// Numbers saved states, newest highest.
+    state_seq: AtomicU64,
+    /// Where restored players start, by playback instance.
+    resume: Mutex<HashMap<u64, f64>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -169,8 +204,9 @@ impl App {
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
-            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]),
+            attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
         })
     }
 
@@ -225,9 +261,51 @@ impl App {
         out
     }
 
+    pub fn set_state_writer(&self, w: StateWriter) { *self.state_writer.lock().unwrap() = Some(w); }
+
+    /// Writes what is waiting and ends the writer. For a normal quit.
+    pub fn stop_state_writer(&self) {
+        if let Some(w) = self.state_writer.lock().unwrap().take() { w.flush_and_stop(); }
+    }
+
+    /// Hands the frame on air to the state writer, with where its players are now.
+    pub fn save_live_state(&self) {
+        let windows = self.screens.get().map(|s| s.open_roles()).unwrap_or_default();
+        let writer = self.state_writer.lock().unwrap();
+        let Some(writer) = writer.as_ref() else { return };
+        let seq = self.state_seq.fetch_add(1, Ordering::Relaxed) + 1;
+        let snapshot = state::snapshot(&self.live.lock().unwrap(), windows, seq);
+        if let Some(s) = snapshot { writer.submit(s); }
+    }
+
+    /// Where the restored players should start, in seconds.
+    pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
+
+    /// Kept until the instance goes on air, as a newer plan may prepare it again first; after that a retrigger
+    /// starts from the beginning.
+    pub fn resume_position(&self, inst: u64) -> Option<f64> { self.resume.lock().unwrap().get(&inst).copied() }
+
+    /// Forgets the resume positions of the instances the room just committed.
+    fn resume_on_air(&self) {
+        if self.resume.lock().unwrap().is_empty() { return }
+        let Some((frame, ..)) = self.live.lock().unwrap().committed() else { return };
+        let on_air: Vec<u64> = frame.instances().collect();
+        self.resume.lock().unwrap().retain(|inst, _| !on_air.contains(inst));
+    }
+
+    pub fn set_notice(&self, text: &str) {
+        self.live.lock().unwrap().notice = Some(text.into());
+        self.broadcast_live();
+    }
+
     pub fn room_event(&self, ev: RoomEvent) {
-        let changed = self.live.lock().unwrap().report(ev);
+        let (changed, committed) = {
+            let mut live = self.live.lock().unwrap();
+            let before = live.committed_version;
+            (live.report(ev), live.committed_version != before)
+        };
         if changed { self.broadcast_live(); }
+        if committed { self.resume_on_air(); self.save_live_state(); }
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
@@ -251,21 +329,70 @@ impl App {
 
     pub(crate) fn job_start(&self, label: &str) -> Uuid {
         let id = Uuid::new_v4();
-        self.jobs.lock().unwrap().push(Job { id, label: label.into(), percent: 0, error: None });
+        self.jobs.lock().unwrap().push(Job { id, label: label.into(), ..Job::default() });
         self.broadcast_data();
         id
+    }
+    /// `job_start` for a job with a Cancel button. The work watches the token and, once it has stopped, calls
+    /// `job_end_cancelled`.
+    pub(crate) fn job_start_cancellable(&self, label: &str) -> (Uuid, CancellationToken) {
+        let (id, token) = (Uuid::new_v4(), CancellationToken::new());
+        self.cancels.lock().unwrap().insert(id, token.clone());
+        self.jobs.lock().unwrap().push(Job { id, label: label.into(), cancellable: true, ..Job::default() });
+        self.broadcast_data();
+        (id, token)
+    }
+    /// Asks a job to stop. Unknown or finished ids are ignored.
+    pub fn job_cancel(&self, id: Uuid) {
+        if let Some(token) = self.cancels.lock().unwrap().get(&id) { token.cancel(); }
+    }
+    /// Changes a running job's label, e.g. to "Waiting for LibreOffice…" and back.
+    pub(crate) fn job_label(&self, id: Uuid, label: &str) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.label = label.into(); }
+        self.broadcast_data();
+    }
+    /// Sets the job's note. The last one wins, except that `FALLBACK_NOTE` and any other note are both kept, the
+    /// fallback first. So the deck pipeline sends "Imported with LibreOffice" only when it did not fall back.
+    pub(crate) fn job_note(&self, id: Uuid, note: String) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) {
+            if note == FALLBACK_NOTE { j.fell_back = true } else { j.other_note = Some(note) }
+            j.note = match (j.fell_back, &j.other_note) {
+                (true, Some(other)) => Some(format!("{FALLBACK_NOTE} {other}")),
+                (true, None) => Some(FALLBACK_NOTE.into()),
+                (false, other) => other.clone(),
+            };
+        }
+        self.broadcast_data();
+    }
+    pub(crate) fn job_result(&self, id: Uuid, made: Uuid) {
+        if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.result = Some(made); }
     }
     pub(crate) fn job_progress(&self, id: Uuid, p: u8) {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { if j.percent == p { return; } j.percent = p; }
         let _ = self.tx.send(Update::Job { id, percent: p });
     }
+    /// Ends a job. One that ended well goes away, unless it has a note: then it stays, at 100%, until `job/dismiss`.
+    /// A failed one stays with its error.
     pub(crate) fn job_end(&self, id: Uuid, error: Option<String>) {
+        self.cancels.lock().unwrap().remove(&id);
         let mut jobs = self.jobs.lock().unwrap();
-        match error {
-            None => jobs.retain(|j| j.id != id),
-            Some(e) => if let Some(j) = jobs.iter_mut().find(|j| j.id == id) { j.error = Some(e); j.percent = 100; },
+        if let Some(j) = jobs.iter_mut().find(|j| j.id == id) {
+            if error.is_none() && j.note.is_none() {
+                jobs.retain(|j| j.id != id);
+            } else {
+                j.done = error.is_none();
+                j.error = error;
+                j.percent = 100;
+                j.cancellable = false;
+            }
         }
         drop(jobs);
+        self.broadcast_data();
+    }
+    /// Ends a job that stopped because it was cancelled: it leaves no error and no note.
+    pub(crate) fn job_end_cancelled(&self, id: Uuid) {
+        self.cancels.lock().unwrap().remove(&id);
+        self.jobs.lock().unwrap().retain(|j| j.id != id);
         self.broadcast_data();
     }
 
@@ -405,8 +532,15 @@ impl App {
             }));
             Ok(json!({}))
         }
+        "song/import" => {
+            #[derive(Deserialize)] struct Import { text: String, mode: SongImportMode }
+            let Import { text, mode } = parse(body)?;
+            let (id, title, duplicate_of) = tryr!(app.import_song(&text, mode));
+            Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
+        }
+        // The web operator's raw-body import; it always keeps both.
         "song/import-txt" => {
-            let (id, title, duplicate_of) = tryr!(app.import_song_txt(&String::from_utf8_lossy(body)));
+            let (id, title, duplicate_of) = tryr!(app.import_song(&String::from_utf8_lossy(body), SongImportMode::KeepBoth));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
@@ -584,6 +718,11 @@ impl App {
             }));
             Ok(json!({}))
         }
+        "job/cancel" => {
+            let Id { id } = parse(body)?;
+            app.job_cancel(id);
+            Ok(json!({}))
+        }
         "job/dismiss" => {
             let Id { id } = parse(body)?;
             app.jobs.lock().unwrap().retain(|j| j.id != id);
@@ -678,13 +817,25 @@ impl App {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics }
 
+/// What to do when an imported song has the same CCLI # as one in the library.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SongImportMode {
+    /// Save nothing and report the match, so the operator can choose.
+    Ask,
+    /// Replace the existing song's words and credits. It keeps its id, so service items still point at it.
+    Update,
+    KeepBoth,
+}
+
 /// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
+/// A song with no `id` was not saved: it matches `duplicate_of` and the operator has to choose.
 #[derive(Clone, Debug)]
 pub enum Imported {
     Media(MediaFile),
     Asset(AssetId),
     Job(Uuid),
-    Song { id: Uuid, title: String, duplicate_of: Option<Uuid> },
+    Song { id: Option<Uuid>, title: String, duplicate_of: Option<Uuid> },
 }
 
 impl App {
@@ -734,7 +885,7 @@ impl App {
                 let bytes = tokio::fs::read(&tmp).await;
                 let _ = tokio::fs::remove_file(&tmp).await;
                 let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
-                let (id, title, duplicate_of) = app.import_song_txt(&String::from_utf8_lossy(&bytes)).map_err(ActionError::bad)?;
+                let (id, title, duplicate_of) = app.import_song(&String::from_utf8_lossy(&bytes), SongImportMode::Ask).map_err(ActionError::bad)?;
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => {
@@ -754,7 +905,9 @@ impl App {
                         }
                         app2.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: display.clone(), slides: assets }); Ok(()) })
                     }.await;
-                    let _ = std::fs::remove_dir_all(&dir);
+                    if let Err(e) = std::fs::remove_dir_all(&dir) {
+                        eprintln!("PowerPoint import folder {} was not removed: {e}", dir.display());
+                    }
                     app2.job_end(job, result.err());
                 });
                 return Ok(Imported::Job(job));
@@ -787,13 +940,33 @@ impl App {
         Ok(Imported::Media(m))
     }
 
-    /// A SongSelect `.txt` export becomes a new song. `duplicate_of` names an existing song with the same CCLI number.
-    /// Returns the new song's id and title, and `duplicate_of`.
-    fn import_song_txt(&self, text: &str) -> Result<(Uuid, String, Option<Uuid>), String> {
+    /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
+    /// and the library song with the same CCLI #. `Update` with no match adds the song: the old one may have
+    /// been deleted while the question was open.
+    fn import_song(&self, text: &str, mode: SongImportMode) -> Result<(Option<Uuid>, String, Option<Uuid>), String> {
         let song = songselect::import_txt(text)?;
-        let duplicate_of = self.data.lock().unwrap().songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli).map(|s| s.id);
-        let (id, title) = (song.id, song.title.clone());
-        self.edit(|d| { d.songs.push(song); Ok(()) })?;
+        let title = song.title.clone();
+        // A question saves nothing, so it neither writes data.json nor tells the screens.
+        if mode == SongImportMode::Ask {
+            let data = self.data.lock().unwrap();
+            if let Some(s) = data.songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli) {
+                return Ok((None, title, Some(s.id)));
+            }
+        }
+        let (id, duplicate_of) = self.edit(|d| {
+            let existing = d.songs.iter_mut().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli);
+            let duplicate_of = existing.as_ref().map(|s| s.id);
+            let id = match (mode, existing) {
+                (SongImportMode::Ask, Some(_)) => None,
+                (SongImportMode::Update, Some(s)) => {
+                    let Song { title, writers, ccli, copyright, lyrics, .. } = song;
+                    (s.title, s.writers, s.ccli, s.copyright, s.lyrics) = (title, writers, ccli, copyright, lyrics);
+                    Some(s.id)
+                }
+                _ => { let id = song.id; d.songs.push(song); Some(id) }
+            };
+            Ok((id, duplicate_of))
+        })?;
         Ok((id, title, duplicate_of))
     }
 }
@@ -879,6 +1052,137 @@ mod tests {
     async fn do_action_rejects_untitled_song_with_400() {
         let err = test_app().do_action("song/save", br#"{"id":"00000000-0000-0000-0000-000000000000","title":" ","lyrics":""}"#).await.unwrap_err();
         assert_eq!((err.status, err.message.as_str()), (400, "Give the song a title."));
+    }
+
+    fn on_air(app: &App) {
+        let id = Uuid::new_v4();
+        let mut live = app.live.lock().unwrap();
+        struct One(Uuid);
+        impl Plan for One {
+            fn order(&self) -> Vec<Uuid> { vec![self.0] }
+            fn build(&self, id: Uuid) -> Option<LiveItem> {
+                Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
+                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None }, notes: String::new() }] })
+            }
+        }
+        live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));
+    }
+
+    fn wait_for_state(root: &std::path::Path, seq: u64) -> state::LiveState {
+        for _ in 0..200 {
+            if let Some(s) = state::load(root) && s.seq >= seq { return s; }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        panic!("no saved state with seq {seq}");
+    }
+
+    #[test]
+    fn app_writes_state_after_commit() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        assert_eq!(state::load(&app.store.root), None, "nothing is on air yet");
+        app.room_event(RoomEvent::Committed { version });
+        let s = wait_for_state(&app.store.root, 1);
+        assert!(matches!(s.frame.slide, Some(crate::live::SlideLayer::Text { ref text, .. }) if text == "hello"));
+        assert!(s.saved_at.len() > 8);
+    }
+
+    #[test]
+    fn a_report_that_commits_nothing_saves_nothing() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.room_event(RoomEvent::Committed { version: 99 });
+        app.room_event(RoomEvent::Committed { version });
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root).unwrap().seq, 1);
+    }
+
+    #[test]
+    fn saving_records_the_open_windows_and_a_newer_seq() {
+        struct Roles;
+        impl Screens for Roles {
+            fn open(&self, _: &str, _: Option<&str>) -> Result<(), String> { Ok(()) }
+            fn close(&self, _: &str) {}
+            fn open_roles(&self) -> Vec<String> { vec!["room".into(), "stage".into()] }
+            fn monitors(&self) -> Vec<Monitor> { vec![] }
+        }
+        let app = test_app();
+        app.set_screens(Arc::new(Roles));
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        let first = wait_for_state(&app.store.root, 1);
+        app.save_live_state();
+        let second = wait_for_state(&app.store.root, first.seq + 1);
+        assert_eq!(second.windows, ["room", "stage"]);
+    }
+
+    #[test]
+    fn saving_with_nothing_committed_writes_nothing() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        app.save_live_state();
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None);
+    }
+
+    #[test]
+    fn saving_without_a_writer_does_nothing() {
+        let app = test_app();
+        on_air(&app);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.save_live_state();
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None);
+    }
+
+    #[test]
+    fn resume_position_lasts_until_on_air() {
+        let app = test_app();
+        on_air(&app);
+        let (version, inst) = {
+            let live = app.live.lock().unwrap();
+            (live.version, live.frame.instances().next().expect("the shown frame has an instance"))
+        };
+        app.set_resume(&[(inst, 12.5), (inst + 100, 3.0)]);
+        assert_eq!(app.resume_position(inst), Some(12.5));
+        // A newer plan may prepare the same instance again before the first one went on air.
+        assert_eq!(app.resume_position(inst), Some(12.5));
+        assert_eq!(app.resume_position(inst + 1000), None);
+        app.room_event(RoomEvent::Committed { version });
+        assert_eq!(app.resume_position(inst), None, "a later replay starts from the beginning");
+        assert_eq!(app.resume_position(inst + 100), Some(3.0), "only what went on air is forgotten");
+    }
+
+    #[test]
+    fn a_stopped_writer_saves_nothing_more() {
+        let app = test_app();
+        app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
+        on_air(&app);
+        app.stop_state_writer();
+        assert_eq!(state::load(&app.store.root), None, "a requested frame is not saved");
+        // A clean quit stops the writer, then clears: a later commit must not bring the file back.
+        state::clear(&app.store.root);
+        let version = app.live.lock().unwrap().version;
+        app.room_event(RoomEvent::Committed { version });
+        app.stop_state_writer();
+        assert!(!state::path(&app.store.root).exists());
+    }
+
+    #[tokio::test]
+    async fn set_notice_shows_on_the_live_view() {
+        let app = test_app();
+        let mut rx = app.subscribe();
+        app.set_notice("RustyPresenter restarted after a problem.");
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
+        assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
     }
 
     #[tokio::test]
@@ -1043,11 +1347,114 @@ mod tests {
         std::fs::write(&p, "A Test Song\r\n\r\nVerse 1\r\nOriginal test line one\r\nOriginal test line two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
         let Imported::Song { id, title, duplicate_of } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
         assert_eq!((title.as_str(), duplicate_of), ("A Test Song", None));
+        let id = id.unwrap();
         assert_eq!(app.data.lock().unwrap().songs[0].id, id);
-        // The same song again is flagged as a duplicate of the first.
-        let Imported::Song { duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
-        assert_eq!(duplicate_of, Some(id));
+        // The same song again saves nothing: the operator asks what to do.
+        let Imported::Song { id: second, duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
+        assert_eq!((second, duplicate_of), (None, Some(id)));
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
         assert!(p.exists());
+    }
+
+    const SONG_V1: &str = "A Test Song\n\nVerse 1\nOriginal test line one\n\nChorus\nOriginal test chorus\n\nTest Writer\nCCLI Song # 12345\n© 2026 Test Music\nCCLI License # 98765";
+    const SONG_V2: &str = "A Test Song (New Key)\n\nVerse 1\nChanged test line one\n\nNew Writer\nCCLI Song # 12345\n© 2027 Test Music\nCCLI License # 98765";
+
+    fn song_import_body(text: &str, mode: &str) -> Vec<u8> { json!({ "text": text, "mode": mode }).to_string().into_bytes() }
+
+    #[tokio::test]
+    async fn import_ask_without_duplicate_saves() {
+        let app = test_app();
+        let v = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let songs = app.data.lock().unwrap().songs.clone();
+        assert_eq!(songs.len(), 1);
+        assert_eq!(v, json!({ "id": songs[0].id, "title": "A Test Song", "duplicate_of": null }));
+    }
+
+    #[tokio::test]
+    async fn import_ask_with_duplicate_saves_nothing() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let mut rx = app.subscribe();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "ask")).await.unwrap();
+        assert_eq!(v, json!({ "id": null, "title": "A Test Song (New Key)", "duplicate_of": first["id"] }));
+        assert!(matches!(rx.try_recv(), Err(broadcast::error::TryRecvError::Empty)), "the screens were told of a change");
+        let songs = app.data.lock().unwrap().songs.clone();
+        assert_eq!(songs.len(), 1);
+        assert_eq!(songs[0].title, "A Test Song");
+    }
+
+    #[tokio::test]
+    async fn import_ask_never_matches_on_an_empty_ccli_number() {
+        let app = test_app();
+        let text = "No Number\n\nVerse 1\nA line";
+        app.do_action("song/import", &song_import_body(text, "ask")).await.unwrap();
+        let v = app.do_action("song/import", &song_import_body(text, "ask")).await.unwrap();
+        assert!(v["id"].is_string());
+        assert_eq!(v["duplicate_of"], Value::Null);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn import_update_keeps_song_id_and_service_items() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let id: Uuid = serde_json::from_value(first["id"].clone()).unwrap();
+        app.edit(|d| {
+            let song = d.songs.iter_mut().find(|s| s.id == id).unwrap();
+            song.arrangement = vec!["Chorus".into(), "Verse 1".into()];
+            let service = d.service_mut().ok_or("no service")?;
+            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new() });
+            Ok(())
+        }).unwrap();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "update")).await.unwrap();
+        assert_eq!(v["id"], first["id"]);
+        let d = app.data.lock().unwrap();
+        assert_eq!(d.songs.len(), 1);
+        let song = &d.songs[0];
+        assert_eq!((song.id, song.title.as_str(), song.ccli.as_str()), (id, "A Test Song (New Key)", "12345"));
+        assert_eq!(song.writers, "New Writer");
+        assert!(song.copyright.contains("2027"));
+        assert_eq!(song.arrangement, vec!["Chorus".to_string(), "Verse 1".to_string()]);
+        let item_song = match d.service().unwrap().items[0].kind { ItemKind::Song { song_id } => song_id, _ => panic!() };
+        let shown = d.songs.iter().find(|s| s.id == item_song).unwrap();
+        let settings = Settings { credits: "none".into(), ..Default::default() };
+        let texts: Vec<_> = crate::slides::song_slides(shown, &settings).into_iter().map(|s| match s.content { SlideContent::Text { text, .. } => text, _ => panic!() }).collect();
+        // "Chorus" is no longer a section, so the core drops that name from the order.
+        assert_eq!(texts, vec!["Changed test line one"]);
+    }
+
+    #[tokio::test]
+    async fn import_update_of_a_song_deleted_meanwhile_adds_it() {
+        let app = test_app();
+        let v = app.do_action("song/import", &song_import_body(SONG_V1, "update")).await.unwrap();
+        assert!(v["id"].is_string());
+        assert_eq!(v["duplicate_of"], Value::Null);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn import_keep_both_adds_second_song() {
+        let app = test_app();
+        let first = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
+        let v = app.do_action("song/import", &song_import_body(SONG_V2, "keep_both")).await.unwrap();
+        assert_ne!(v["id"], first["id"]);
+        assert_eq!(v["duplicate_of"], first["id"]);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn song_import_rejects_an_unknown_mode() {
+        let e = test_app().do_action("song/import", &song_import_body(SONG_V1, "replace")).await.unwrap_err();
+        assert_eq!(e.status, 400);
+    }
+
+    #[tokio::test]
+    async fn import_txt_action_still_keeps_both_for_the_web_operator() {
+        let app = test_app();
+        let first = app.do_action("song/import-txt", SONG_V1.as_bytes()).await.unwrap();
+        let v = app.do_action("song/import-txt", SONG_V2.as_bytes()).await.unwrap();
+        assert_eq!(v["duplicate_of"], first["id"]);
+        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
     }
 
     #[tokio::test]
@@ -1077,6 +1484,144 @@ mod tests {
     async fn import_path_missing_file_is_an_error() {
         let p = std::env::temp_dir().join(format!("{}.png", Uuid::new_v4()));
         assert_eq!(test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err().status, 400);
+    }
+
+    #[test]
+    fn note_survives_job_end_until_dismissed() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_note(id, "Imported with LibreOffice — check the slides.".into());
+        app.job_end(id, None);
+        {
+            let jobs = app.jobs.lock().unwrap();
+            assert_eq!(jobs.len(), 1);
+            assert_eq!(jobs[0].note.as_deref(), Some("Imported with LibreOffice — check the slides."));
+            assert_eq!(jobs[0].percent, 100);
+            assert!(jobs[0].done && !jobs[0].cancellable);
+        }
+        do_dismiss(&app, id);
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    fn do_dismiss(app: &Arc<App>, id: Uuid) {
+        tokio::runtime::Runtime::new().unwrap().block_on(app.do_action("job/dismiss", json!({ "id": id }).to_string().as_bytes())).unwrap();
+    }
+
+    #[test]
+    fn job_without_note_is_removed_on_end() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_end(id, None);
+        assert!(app.jobs.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn cancel_token_fires_and_job_disappears() {
+        let app = test_app();
+        let (id, token) = app.job_start_cancellable("Importing");
+        assert!(app.jobs.lock().unwrap()[0].cancellable);
+        assert!(!token.is_cancelled());
+        app.job_cancel(id);
+        assert!(token.is_cancelled());
+        assert_eq!(app.jobs.lock().unwrap().len(), 1, "the job stays until the work has stopped");
+        app.job_note(id, "A note from before the cancel.".into());
+        app.job_end_cancelled(id);
+        assert!(app.jobs.lock().unwrap().is_empty(), "no error and no note left behind");
+        assert!(app.cancels.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn every_end_drops_the_cancel_token() {
+        let app = test_app();
+        let (ok, _) = app.job_start_cancellable("a");
+        let (failed, _) = app.job_start_cancellable("b");
+        let (noted, _) = app.job_start_cancellable("c");
+        app.job_note(noted, "Note".into());
+        app.job_end(ok, None);
+        app.job_end(failed, Some("Nope".into()));
+        app.job_end(noted, None);
+        assert!(app.cancels.lock().unwrap().is_empty());
+        assert!(app.jobs.lock().unwrap().iter().all(|j| !j.cancellable), "nothing left to cancel");
+    }
+
+    #[tokio::test]
+    async fn job_cancel_action_is_wired() {
+        let app = test_app();
+        let (id, token) = app.job_start_cancellable("Importing");
+        app.do_action("job/cancel", json!({ "id": Uuid::new_v4() }).to_string().as_bytes()).await.expect("an unknown id is ignored");
+        assert!(!token.is_cancelled());
+        app.do_action("job/cancel", json!({ "id": id }).to_string().as_bytes()).await.unwrap();
+        assert!(token.is_cancelled());
+    }
+
+    #[test]
+    fn job_label_broadcasts() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        let mut rx = app.tx.subscribe();
+        app.job_label(id, "Waiting for LibreOffice…");
+        assert_eq!(app.jobs.lock().unwrap()[0].label, "Waiting for LibreOffice…");
+        assert!(matches!(rx.try_recv(), Ok(Update::Data)));
+    }
+
+    #[test]
+    fn job_note_broadcasts_and_the_last_one_wins() {
+        let app = test_app();
+        let id = app.job_start("Importing");
+        let mut rx = app.tx.subscribe();
+        app.job_note(id, "First".into());
+        assert!(matches!(rx.try_recv(), Ok(Update::Data)));
+        app.job_note(id, "Second".into());
+        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some("Second"));
+    }
+
+    #[test]
+    fn fallback_note_and_another_are_joined_fallback_first() {
+        let count = "12 slides were expected but 11 were imported.";
+        for notes in [[FALLBACK_NOTE, count], [count, FALLBACK_NOTE]] {
+            let app = test_app();
+            let id = app.job_start("Importing");
+            for n in notes { app.job_note(id, n.into()); }
+            assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(format!("{FALLBACK_NOTE} {count}").as_str()));
+        }
+        let app = test_app();
+        let id = app.job_start("Importing");
+        app.job_note(id, FALLBACK_NOTE.into());
+        app.job_note(id, FALLBACK_NOTE.into());
+        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(FALLBACK_NOTE), "not doubled");
+    }
+
+    #[test]
+    fn fallback_note_survives_later_notes_and_is_never_doubled() {
+        let count = "12 slides were expected but 11 were imported.";
+        let other = "Imported with LibreOffice — check the slides.";
+        let note = |notes: &[&str]| {
+            let app = test_app();
+            let id = app.job_start("Importing");
+            for n in notes { app.job_note(id, (*n).into()); }
+            app.jobs.lock().unwrap()[0].note.clone().unwrap()
+        };
+        assert_eq!(note(&[FALLBACK_NOTE, count, other]), format!("{FALLBACK_NOTE} {other}"));
+        assert_eq!(note(&[FALLBACK_NOTE, count, FALLBACK_NOTE]), format!("{FALLBACK_NOTE} {count}"));
+        assert_eq!(note(&[count, FALLBACK_NOTE, other]), format!("{FALLBACK_NOTE} {other}"));
+    }
+
+    #[test]
+    fn job_result_is_kept() {
+        let app = test_app();
+        let (id, deck) = (app.job_start("Importing"), Uuid::new_v4());
+        app.job_result(id, deck);
+        assert_eq!(app.jobs.lock().unwrap()[0].result, Some(deck));
+    }
+
+    #[test]
+    fn job_json_unchanged_without_new_fields() {
+        let app = test_app();
+        app.job_start("Importing");
+        let job = serde_json::to_value(&app.jobs.lock().unwrap()[0]).unwrap();
+        let mut keys: Vec<_> = job.as_object().unwrap().keys().map(String::as_str).collect();
+        keys.sort();
+        assert_eq!(keys, ["error", "id", "label", "percent"]);
     }
 
     #[tokio::test]

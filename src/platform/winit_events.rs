@@ -3,6 +3,9 @@
 //! Generic over the event so the fan-out is tested without a window.
 use std::{cell::RefCell, rc::Rc};
 
+/// The events a Slint window's winit filter sees.
+pub type WindowEvent = slint::winit_030::winit::event::WindowEvent;
+
 type Handler<E> = Box<dyn FnMut(&E)>;
 
 pub struct Dispatcher<E> { handlers: Rc<RefCell<Vec<Handler<E>>>> }
@@ -26,6 +29,16 @@ impl<E> Dispatcher<E> {
         let added = std::mem::replace(&mut *self.handlers.borrow_mut(), running);
         self.handlers.borrow_mut().extend(added);
     }
+}
+
+/// Makes `events` the window's one winit event filter. Every event still reaches Slint afterwards. On a backend
+/// without winit (the testing backend) nothing is installed.
+pub fn attach(window: &slint::Window, events: Dispatcher<WindowEvent>) {
+    use slint::winit_030::{EventResult, WinitWindowAccessor};
+    window.on_winit_window_event(move |_, e| {
+        events.dispatch(e);
+        EventResult::Propagate
+    });
 }
 
 #[cfg(test)]

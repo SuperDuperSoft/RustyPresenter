@@ -1,0 +1,204 @@
+// Item edit (`openItemEdit`, `operator.js:720-796`): the sections for the item's kind, the stage notes, and
+// Remove / Cancel / Save. Rust (`src/ui/dialogs/item_edit.rs`) fills `ItemEdit` when the dialog opens and reads it on
+// Save; nothing here is redrawn by a data update, so what the user typed stays.
+import { Theme } from "../theme.slint";
+import { Btn, Chip, Segmented, Field } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, TextArea, Check, Note } from "form.slint";
+import { BackgroundPicker, BgChoice } from "background-picker.slint";
+
+export { BgChoice }
+
+/// What the open Item edit shows and what the user changed.
+export global ItemEdit {
+    /// The row's kind: song, scripture, text, video, image, audio or deck.
+    in property <string> kind;
+    /// Song: the library still has the song.
+    in property <bool> song-exists;
+    /// Scripture: 0 = Automatic, else verses per slide.
+    in-out property <int> per-slide;
+    /// Announcement.
+    in-out property <string> title;
+    in-out property <string> body;
+    /// Video: 0 = Clear the screen, 1 = Stay on last frame, 2 = Play again (loop).
+    in-out property <bool> autoplay;
+    in-out property <int> end-index;
+    /// Audio.
+    in-out property <bool> looped;
+    /// Media ("Name in library") and slides ("Name"): the name field is there.
+    in property <bool> has-name;
+    in-out property <string> name;
+    /// Media that is not ready: its status chip and reason.
+    in property <bool> not-ready;
+    in property <string> status-text;
+    in property <string> status-state;
+    in property <string> status-reason;
+    /// Song, scripture and announcement items have a background.
+    in property <bool> has-background;
+    in property <[BgChoice]> choices;
+    in property <[color]> palette;
+    in-out property <string> notes;
+
+    callback edit-song();
+    callback save();
+    callback remove();
+    callback pick-background(int);
+    callback custom-color(color);
+    callback custom-hex(string);
+    callback upload();
+}
+
+/// The text of a `Note` that has something beside it (a button or a status chip).
+component NoteText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    wrap: word-wrap;
+    vertical-alignment: center;
+}
+
+/// The dialog's body and footer, inside `DialogShell`.
+export component ItemEditDialog inherits VerticalLayout {
+    callback close();
+
+    DialogBody {
+        if ItemEdit.kind == "song": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                HorizontalLayout {
+                    spacing: 8px;
+                    NoteText {
+                        horizontal-stretch: 1;
+                        text: ItemEdit.song-exists
+                            ? @tr("Lyrics, order and credits belong to the song in your library.")
+                            : @tr("Lyrics, order and credits belong to the song in your library. This song was deleted from the library.");
+                    }
+                    if ItemEdit.song-exists: VerticalLayout {
+                        alignment: center;
+                        edit-song := Btn {
+                            small: true;
+                            icon: "edit";
+                            text: @tr("Edit song");
+                            clicked => { ItemEdit.edit-song(); }
+                        }
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Verses per slide");
+            HorizontalLayout {
+                alignment: start;
+                per-slide := Segmented {
+                    labels: [@tr("Automatic"), @tr("1 verse"), @tr("2 verses"), @tr("3 verses"), @tr("4 verses")];
+                    index <=> ItemEdit.per-slide;
+                }
+            }
+        }
+        if ItemEdit.kind == "text": Field {
+            label: @tr("Title");
+            title-box := TextField {
+                label: @tr("Title");
+                text <=> ItemEdit.title;
+            }
+        }
+        if ItemEdit.kind == "text": Field {
+            label: @tr("Text");
+            help: @tr("— an empty line starts a new slide");
+            body-box := TextArea {
+                label: @tr("Text");
+                text <=> ItemEdit.body;
+            }
+        }
+        if ItemEdit.kind == "video": autoplay := Check {
+            text: @tr("Start playing as soon as it is shown");
+            checked <=> ItemEdit.autoplay;
+        }
+        if ItemEdit.kind == "video": Field {
+            label: @tr("When the video ends");
+            HorizontalLayout {
+                alignment: start;
+                end := Segmented {
+                    labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)")];
+                    index <=> ItemEdit.end-index;
+                }
+            }
+        }
+        if ItemEdit.kind == "audio": looped := Check {
+            text: @tr("Repeat until stopped");
+            checked <=> ItemEdit.looped;
+        }
+        if ItemEdit.kind == "audio": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                text: @tr("Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All.");
+            }
+        }
+        if ItemEdit.has-name: Field {
+            label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+            name-box := TextField {
+                label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+                text <=> ItemEdit.name;
+            }
+        }
+        if ItemEdit.not-ready: VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                HorizontalLayout {
+                    spacing: 8px;
+                    VerticalLayout {
+                        alignment: center;
+                        Chip {
+                            text: ItemEdit.status-text;
+                            state: ItemEdit.status-state;
+                            tooltip: ItemEdit.status-reason;
+                        }
+                    }
+                    NoteText {
+                        horizontal-stretch: 1;
+                        text: ItemEdit.status-reason;
+                    }
+                }
+            }
+        }
+        if ItemEdit.has-background: Field {
+            label: @tr("Background");
+            picker := BackgroundPicker {
+                choices: ItemEdit.choices;
+                palette: ItemEdit.palette;
+                pick(i) => { ItemEdit.pick-background(i); }
+                custom-color(c) => { ItemEdit.custom-color(c); }
+                custom-hex(t) => { ItemEdit.custom-hex(t); }
+                upload => { ItemEdit.upload(); }
+            }
+        }
+        Field {
+            label: @tr("Stage notes");
+            notes-box := TextArea {
+                label: @tr("Stage notes");
+                min-height: 64px;
+                placeholder: @tr("Shown on the stage display only");
+                text <=> ItemEdit.notes;
+            }
+        }
+    }
+    DialogFoot {
+        remove := Btn {
+            danger: true;
+            icon: "trash";
+            text: @tr("Remove from service");
+            clicked => { ItemEdit.remove(); }
+        }
+        // `margin-right: auto` on the danger button.
+        Rectangle { horizontal-stretch: 1; }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { root.close(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { ItemEdit.save(); }
+        }
+    }
+}

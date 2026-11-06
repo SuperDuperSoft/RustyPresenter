@@ -359,6 +359,41 @@ export component Field inherits VerticalLayout {
     @children
 }
 
+/// The right-click menu of a plain `TextInput` (the browser's menu in every web field; Slint's own `LineEdit` and
+/// `TextEdit` have one, a bare `TextInput` has none). Put it inside the field, filling it, and point its callbacks at
+/// the field's `cut()`, `copy()`, `paste()` and `select-all()`. A read-only field (`editable: false`) offers Copy and
+/// Select all only. It takes right clicks only, so the field still gets every other click.
+export component EditMenu inherits ContextMenuArea {
+    in property <bool> editable: true;
+    in property <bool> has-text;
+    callback cut-text();
+    callback copy-text();
+    callback paste-text();
+    callback select-text();
+    Menu {
+        if root.editable: MenuItem {
+            title: @tr("Cut");
+            enabled: root.has-text;
+            activated => { root.cut-text(); }
+        }
+        MenuItem {
+            title: @tr("Copy");
+            enabled: root.has-text;
+            activated => { root.copy-text(); }
+        }
+        if root.editable: MenuItem {
+            title: @tr("Paste");
+            activated => { root.paste-text(); }
+        }
+        MenuSeparator {}
+        MenuItem {
+            title: @tr("Select all");
+            enabled: root.has-text;
+            activated => { root.select-text(); }
+        }
+    }
+}
+
 /// `.copy`: text the user can select and copy (an address or a code), read-only, in the monospace font. One click
 /// selects all of it (`user-select: all`). Like the web `<span>`, it does not count as a text field for the operator
 /// keys, so it leaves `OperatorState.focus-in-text` alone.
@@ -391,6 +426,17 @@ export component CopyText inherits Rectangle {
             input.focus();
             input.select-all();
         }
+    }
+    // Over the click area, which would otherwise take the right click too.
+    EditMenu {
+        width: 100%;
+        height: 100%;
+        editable: false;
+        has-text: input.text != "";
+        cut-text => { input.cut(); }
+        copy-text => { input.copy(); }
+        paste-text => { input.paste(); }
+        select-text => { input.select-all(); }
     }
 }
 
@@ -483,5 +529,31 @@ export component DashedOutline inherits Rectangle {
         y: root.height - root.radius;
         size: root.radius; thickness: root.thickness; color: root.line-color;
         commands: "M \{root.r} \{root.a} A \{root.a} \{root.a} 0 0 1 \{root.h} 0";
+    }
+}
+
+/// `.dlg-close`: the X in a dialog's head (32 px) and on a failed job card (30 px).
+export component CloseButton inherits Rectangle {
+    in property <length> size: 32px;
+    in property <string> label: @tr("Close");
+    in property <string> tooltip;
+    callback clicked();
+    width: root.size;
+    height: root.size;
+    border-radius: 8px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        name: "close";
+        color: ta.has-hover ? Theme.text : Theme.muted;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    if root.tooltip != "": Tooltip {
+        TipBox { text: root.tooltip; }
     }
 }

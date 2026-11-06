@@ -1,0 +1,28 @@
+
+------------------------------------------------------------------------------------------------------------------
+Libraries loaded at run time, and the bundled font
+------------------------------------------------------------------------------------------------------------------
+
+libmpv (mpv) — GNU Lesser General Public License, version 2.1 or later (LGPL-2.1+)
+  Video and audio playback. RustyPresenter loads libmpv-2.dll (libmpv.so / libmpv.dylib) at run time and does not
+  change it; you may replace it with your own build of the same interface. Source code:
+  https://github.com/mpv-player/mpv
+  The exact sources of the build shipped with a release, and its build scripts, are offered with that release at
+  https://github.com/SuperDuperSoft/RustyPresenter/releases
+
+FFmpeg libraries (libavcodec, libavformat, libavutil, libswscale, libswresample, libavfilter) — GNU Lesser General
+Public License, version 2.1 (LGPLv2.1), as built into the shipped libmpv (no GPL or non-free parts enabled).
+  Source code: https://ffmpeg.org/download.html, and with each release at
+  https://github.com/SuperDuperSoft/RustyPresenter/releases
+
+pdfium — BSD-3-Clause and Apache-2.0 (with third-party parts under their own permissive licences)
+  PDF rendering for slide import, loaded at run time by releases that include it.
+  Source code: https://pdfium.googlesource.com/pdfium/
+
+Noto Sans — SIL Open Font License, version 1.1 (OFL-1.1)
+  The bundled fallback font for slides. Copyright 2022 The Noto Project Authors
+  (https://github.com/notofonts/latin-greek-cyrillic). The font may be used, studied, modified and redistributed
+  freely as long as it is not sold by itself; see https://openfontlicense.org.
+
+The full texts of the GNU LGPL 2.1 and the SIL OFL 1.1 are at https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+and https://openfontlicense.org/open-font-license-official-text/.

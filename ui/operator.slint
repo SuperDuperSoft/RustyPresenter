@@ -6,6 +6,16 @@ import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
 import { LiveColumn, TransportCell } from "operator/live.slint";
 import { Layer } from "room.slint";
+import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
+import { DialogShell } from "dialogs/shell.slint";
+import { AskOverlay, AskRow } from "dialogs/ask.slint";
+import { AddDialog } from "dialogs/add.slint";
+import { SongEditor } from "dialogs/song-editor.slint";
+import { ItemEditDialog } from "dialogs/item-edit.slint";
+import { ServicesDialog } from "dialogs/services.slint";
+import { ScreensDialog } from "dialogs/screens.slint";
+import { PhoneDialog } from "dialogs/phone.slint";
+import { SettingsDialog } from "dialogs/settings.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
 
@@ -95,6 +105,14 @@ export component OperatorWindow inherits Window {
     callback transport-toggle(int);
     callback monitor-resized(length);
 
+    // Toasts and the jobs box (see `overlays.slint`).
+    in property <[ToastRow]> toasts;
+    in property <[JobRow]> jobs;
+    callback job-dismiss(string);
+    /// Files are being dragged over the window (set from the winit filter, see `files.rs`).
+    in property <bool> drop-hint;
+    callback job-cancel(string);
+
     callback services();
     callback screens();
     callback phone();
@@ -115,14 +133,34 @@ export component OperatorWindow inherits Window {
 
     public function focus-bible() { top.focus-bible(); }
 
-    /// Keys taken before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere, and
-    /// Alt+1…6 in the Bible box, where the field would otherwise type the digit.
+    // The dialog layer (see `src/ui/dialogs`): one dialog at a time, swapped in place like the web `<dialog>`.
+    in property <bool> dialog-open;
+    in property <string> dialog-kind;
+    in property <string> dialog-title;
+    in property <bool> dialog-wide;
+    property <int> dialog-focus-serial;
+    callback dialog-close();
+    /// Gives the keyboard back to the open dialog (a question over it was answered).
+    public function focus-dialog() {
+        root.dialog-focus-serial += 1;
+        OperatorState.focus-in-text = false;
+    }
+    /// The question on top (none or one row): a confirm or prompt over the dialog or the bare window.
+    in property <[AskRow]> ask;
+    callback ask-answer(bool, string);
+    callback ask-other();
+
+    /// Keys offered to Rust before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere,
+    /// and Alt+key in the Bible box, where the field would otherwise type the digit. Which Alt keys pick a
+    /// translation is decided in Rust (`keys::route`): the number row gives other characters on some layouts.
     pure function captured(e: KeyEvent) -> bool {
         return e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
             || (e.modifiers.control && (e.text == "b" || e.text == "B"))
-            || (e.modifiers.alt && top.bible-focused
-                && (e.text == "1" || e.text == "2" || e.text == "3" || e.text == "4" || e.text == "5" || e.text == "6"));
+            || (e.modifiers.alt && top.bible-focused);
     }
+
+    /// A dialog or question covers the window: Tab must not reach the window's keys or the Bible box under it.
+    property <bool> covered: root.dialog-open || root.ask.length > 0;
 
     function send-key(e: KeyEvent) -> bool {
         return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
@@ -131,6 +169,7 @@ export component OperatorWindow inherits Window {
     // The window's key scope (`operator.js:305-320`). Everything else reaches it only when the focused field
     // leaves the key alone (`key-pressed` bubbles), so a text field keeps its arrows, Space and Enter.
     keys := FocusScope {
+        focus-on-tab-navigation: !root.covered;
         capture-key-pressed(event) => {
             if root.captured(event) && root.send-key(event) { return accept; }
             reject
@@ -143,6 +182,7 @@ export component OperatorWindow inherits Window {
         VerticalLayout {
             top := TopBar {
                 narrow: root.narrow;
+                covered: root.covered;
                 service-name: root.service-name;
                 translations: root.translations;
                 bible-text <=> root.bible-text;
@@ -239,5 +279,58 @@ export component OperatorWindow inherits Window {
                 }
             }
         }
+
+        if root.dialog-open: DialogShell {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
+            title: root.dialog-title;
+            wide: root.dialog-wide;
+            focus-serial: root.dialog-focus-serial;
+            close => { root.dialog-close(); }
+            if root.dialog-kind == "add": AddDialog { window-height: root.height; }
+            if root.dialog-kind == "song-editor": SongEditor { window-height: root.height; }
+            if root.dialog-kind == "item-edit": ItemEditDialog { close => { root.dialog-close(); } }
+            if root.dialog-kind == "services": ServicesDialog {}
+            if root.dialog-kind == "screens": ScreensDialog {}
+            if root.dialog-kind == "phone": PhoneDialog {}
+            if root.dialog-kind == "settings": SettingsDialog {}
+        }
+
+        for a in root.ask: AskOverlay {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
+            ask: a;
+            answer(ok, text) => { root.ask-answer(ok, text); }
+            other => { root.ask-other(); }
+        }
+    }
+
+    // Over the columns: the jobs box (`z-index: 40`), then the toasts (`z-index: 50`).
+    JobsBox {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+        jobs: root.jobs;
+        dismiss(id) => { root.job-dismiss(id); }
+        cancel(id) => { root.job-cancel(id); }
+    }
+    ToastStack {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+        toasts: root.toasts;
+    }
+    // Files dragged over the window (`z-index: 60`, over the toasts).
+    if root.drop-hint: DropHint {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
     }
 }

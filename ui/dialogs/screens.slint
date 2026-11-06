@@ -1,0 +1,184 @@
+// The Screens dialog (`operator.js:793-828`): a card each for the room and the stage display.
+import { Theme } from "../theme.slint";
+import { Btn, Chip } from "../widgets.slint";
+import { DialogBody } from "shell.slint";
+import { Note } from "form.slint";
+
+/// A connected monitor, as a pick button.
+export struct MonitorChoice { id: string, label: string }
+
+/// One card: its role ("room" or "stage"), texts, status chip and monitor picker. `pick` is the index of the default
+/// monitor (`default_pick`), -1 for none.
+export struct ScreenCard {
+    role: string,
+    title: string,
+    desc: string,
+    chip: string,
+    chip-state: string,
+    open: bool,
+    monitors: [MonitorChoice],
+    pick: int,
+}
+
+/// Set and answered by `src/ui/dialogs/screens.rs`.
+export global ScreensDialogState {
+    in property <[ScreenCard]> cards;
+    /// `display/open` on the picked monitor (its id).
+    callback show(string, string);
+    callback turn-off(string);
+    callback test-window(string);
+    callback refresh();
+}
+
+/// `.mon-pick button` (`.on`).
+component MonitorButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> on;
+    callback clicked();
+    background: Theme.bg;
+    border-width: 1.5px;
+    border-color: root.on ? Theme.accent : Theme.line;
+    border-radius: 9px;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-checked: root.on;
+    HorizontalLayout {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        padding-left: 11px;
+        padding-right: 11px;
+        Text {
+            text: root.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            overflow: elide;
+        }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `.screen-card`. A new card model makes new cards, so the pick starts again from the default (the web redraws).
+component ScreenCardView inherits Rectangle {
+    in property <ScreenCard> card;
+    property <int> pick: root.card.pick;
+    property <bool> can-show: root.pick >= 0 && root.pick < root.card.monitors.length;
+
+    background: Theme.panel-2;
+    border-width: 1px;
+    border-color: Theme.line;
+    border-radius: 12px;
+    accessible-role: groupbox;
+    accessible-label: root.card.title;
+
+    VerticalLayout {
+        padding: 14px;
+        alignment: start;
+        HorizontalLayout {
+            spacing: 8px;
+            padding-bottom: 4px;
+            Text {
+                horizontal-stretch: 1;
+                text: root.card.title;
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 16px;
+                font-weight: 600;
+                vertical-alignment: center;
+            }
+            VerticalLayout {
+                alignment: center;
+                chip := Chip {
+                    text: root.card.chip;
+                    state: root.card.chip-state;
+                    accessible-role: text;
+                    accessible-label: root.card.chip;
+                    accessible-value: root.card.chip-state;
+                }
+            }
+        }
+        Text {
+            text: root.card.desc;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            wrap: word-wrap;
+        }
+        Rectangle { height: 12px; }
+        if root.card.monitors.length > 1: VerticalLayout {
+            spacing: 6px;
+            padding-bottom: 12px;
+            for m[i] in root.card.monitors: monitor := MonitorButton {
+                text: m.label;
+                on: i == root.pick;
+                clicked => { root.pick = i; }
+            }
+        }
+        if root.card.monitors.length <= 1: VerticalLayout {
+            padding-bottom: 12px;
+            one-screen-note := Note {
+                text: @tr("Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh.");
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            show-btn := Btn {
+                primary: true;
+                enabled: root.can-show;
+                text: root.card.open ? @tr("Move / reopen here") : @tr("Show on this screen");
+                accessible-role: button;
+                accessible-label: self.text;
+                accessible-enabled: root.can-show;
+                clicked => { ScreensDialogState.show(root.card.role, root.card.monitors[root.pick].id); }
+            }
+            if root.card.open: off-btn := Btn {
+                text: @tr("Turn off");
+                clicked => { ScreensDialogState.turn-off(root.card.role); }
+            }
+            test-btn := Btn {
+                text: @tr("Test in a window");
+                clicked => { ScreensDialogState.test-window(root.card.role); }
+            }
+        }
+    }
+}
+
+export component ScreensDialog inherits VerticalLayout {
+    DialogBody {
+        // `.screens`: two equal columns, 14 px apart.
+        HorizontalLayout {
+            spacing: 14px;
+            for c in ScreensDialogState.cards: card := ScreenCardView {
+                horizontal-stretch: 1;
+                preferred-width: 100px;
+                card: c;
+            }
+        }
+        HorizontalLayout {
+            padding-top: 12px;
+            spacing: 12px;
+            Text {
+                horizontal-stretch: 1;
+                text: @tr("RustyPresenter remembers your choice and reopens the screens next time.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                wrap: word-wrap;
+                vertical-alignment: center;
+            }
+            VerticalLayout {
+                alignment: center;
+                refresh-btn := Btn {
+                    small: true;
+                    icon: "restart";
+                    text: @tr("Refresh");
+                    clicked => { ScreensDialogState.refresh(); }
+                }
+            }
+        }
+    }
+}

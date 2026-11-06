@@ -1,0 +1,166 @@
+// Settings → Look (`operator.js:893-917`): the slide text's font, sizes, colour, position, shadow and caps, the
+// logo, and on the right a live preview and the default background.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented } from "../widgets.slint";
+import { Check, RangeSlider, Select, Lbl } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { BackgroundPicker, ColorPicker } from "background-picker.slint";
+
+export component SettingsLook inherits HorizontalLayout {
+    spacing: 20px;
+
+    // Left column (1fr).
+    VerticalLayout {
+        horizontal-stretch: 1;
+        min-width: 0px;
+        Field {
+            label: @tr("Font");
+            font := Select {
+                options: SettingsDlg.fonts;
+                index <=> SettingsDlg.font-index;
+                font-preview: true;
+                changed => { SettingsDlg.look-changed(); }
+            }
+            if SettingsDlg.font-note != "": font-note := Text {
+                text: SettingsDlg.font-note;
+                color: Theme.danger-text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+        Field {
+            label: @tr("Lyrics size");
+            help: @tr("(biggest; long lines shrink to fit)");
+            size := RangeSlider {
+                minimum: 40;
+                maximum: 150;
+                value <=> SettingsDlg.size;
+                changed => { SettingsDlg.look-changed(); }
+            }
+        }
+        Field {
+            label: @tr("Scripture size");
+            scripture-size := RangeSlider {
+                minimum: 36;
+                maximum: 120;
+                value <=> SettingsDlg.scripture-size;
+                changed => { SettingsDlg.look-changed(); }
+            }
+        }
+        // `.cols`
+        HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text color");
+                color := ColorPicker {
+                    value: SettingsDlg.color-swatch;
+                    palette: SettingsDlg.palette;
+                    picked(c) => { SettingsDlg.text-color(c); }
+                    hex(t) => { SettingsDlg.text-hex(t); }
+                }
+            }
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text position");
+                HorizontalLayout {
+                    alignment: start;
+                    position := Segmented {
+                        labels: [@tr("Middle"), @tr("Lower third")];
+                        index <=> SettingsDlg.position;
+                        changed => { SettingsDlg.look-changed(); }
+                    }
+                }
+            }
+        }
+        shadow := Check {
+            text: @tr("Shadow behind text (easier to read on pictures)");
+            checked <=> SettingsDlg.shadow;
+            toggled => { SettingsDlg.look-changed(); }
+        }
+        caps := Check {
+            text: @tr("ALL CAPS lyrics");
+            checked <=> SettingsDlg.uppercase;
+            toggled => { SettingsDlg.look-changed(); }
+        }
+        Field {
+            label: @tr("Logo");
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                if SettingsDlg.has-logo: Rectangle {
+                    height: 44px;
+                    width: max(44px, self.height * SettingsDlg.logo.width / max(1, SettingsDlg.logo.height));
+                    background: Theme.black;
+                    border-radius: 6px;
+                    logo := Image {
+                        x: 4px;
+                        y: 4px;
+                        width: parent.width - 8px;
+                        height: parent.height - 8px;
+                        source: SettingsDlg.logo;
+                        image-fit: contain;
+                    }
+                }
+                if !SettingsDlg.has-logo: no-logo := Text {
+                    text: @tr("No logo (Logo button shows black)");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                choose-logo := Btn {
+                    small: true;
+                    icon: "upload";
+                    text: @tr("Choose logo");
+                    clicked => { SettingsDlg.choose-logo(); }
+                }
+                if SettingsDlg.has-logo: remove-logo := Btn {
+                    small: true;
+                    text: @tr("Remove");
+                    clicked => { SettingsDlg.remove-logo(); }
+                }
+            }
+        }
+    }
+
+    // Right column (1.1fr).
+    VerticalLayout {
+        horizontal-stretch: 1.1;
+        min-width: 0px;
+        alignment: start;
+        Lbl {
+            label: @tr("Preview");
+        }
+        Rectangle { height: 8px; }
+        preview-box := Rectangle {
+            height: self.width * 9 / 16;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.line;
+            background: Theme.black;
+            clip: true;
+            preview := Image {
+                width: parent.width;
+                height: parent.height;
+                source: SettingsDlg.preview;
+                image-fit: contain;
+            }
+        }
+        Rectangle { height: 14px; }
+        Field {
+            label: @tr("Default background");
+            backgrounds := BackgroundPicker {
+                choices: SettingsDlg.backgrounds;
+                palette: SettingsDlg.palette;
+                pick(i) => { SettingsDlg.pick-background(i); }
+                custom-color(c) => { SettingsDlg.background-color(c); }
+                custom-hex(t) => { SettingsDlg.background-hex(t); }
+                upload => { SettingsDlg.upload-background(); }
+            }
+        }
+    }
+}
