@@ -2,7 +2,7 @@ const $ = id => document.getElementById(id);
 const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
 let es = null, V = null;
 
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 2500); }
+function toast(msg, good = false) { const t = $('toast'); t.textContent = msg; t.classList.toggle('good', good); t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 2500); }
 async function post(env) {
   try {
     const r = await fetch('/remote/command', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(env) });
@@ -21,6 +21,31 @@ function send(cmd, extra = {}, withBase = false) {
   post(env);
 }
 
+const phoneName = () => /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android phone' : 'Phone';
+
+// The QR code opens /remote#pair=<one-time secret>. Take it out of the address bar straight away (so it is not
+// bookmarked, shared or reused), then pair with it: no typing.
+async function pairFromLink() {
+  const m = /^#pair=([A-Za-z0-9_-]+)$/.exec(location.hash);
+  if (!location.hash) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  if (!m) return false;
+  $('pairErr').textContent = '';
+  const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
+  if (st.paired) return false;
+  const pair = () => fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pair: m[1], name: phoneName() }) }).catch(() => null);
+  let r = await pair();
+  // Scanning twice within a second hits the one-try-a-second limit (429): the code is still good, so wait and retry.
+  if (r && r.status === 429) { await new Promise(ok => setTimeout(ok, 1100)); r = await pair(); }
+  if (r && r.ok) { toast('Connected', true); return false; }
+  const j = r ? await r.json().catch(() => ({})) : {};
+  await start();
+  // "Expired" only when the server said the code is wrong or pairing is closed.
+  $('pairErr').textContent = !r ? 'Could not connect.' : r.status === 429 ? j.error || 'Could not connect.'
+    : 'That QR code has expired. On the computer, click Pair a phone again.';
+  return true;
+}
+
 async function start() {
   const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
   if (st.paired) { $('pair').style.display = 'none'; $('app').style.display = 'flex'; connect(); }
@@ -29,8 +54,7 @@ async function start() {
 
 $('pairBtn').onclick = async () => {
   $('pairErr').textContent = '';
-  const name = /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android phone' : 'Phone';
-  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), name }) });
+  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), name: phoneName() }) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) { $('pairErr').textContent = j.error || 'Could not connect.'; return; }
   start();
@@ -91,4 +115,7 @@ $('prev').onclick = () => send('prev', {}, true);
 document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(b.dataset.c));
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });
 
-start();
+const fromLink = () => pairFromLink().catch(() => false).then(shown => { if (!shown) start(); });
+fromLink();
+// A rescan can land in this same tab (Android reuses it): then only the fragment changes and the page doesn't reload.
+window.addEventListener('hashchange', fromLink);

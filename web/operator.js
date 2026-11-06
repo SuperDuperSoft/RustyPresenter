@@ -849,7 +849,9 @@ function openScreens() {
 }
 
 // ----- phone -----
-let pairTimer = null;
+// pairShowing: a code is on screen (updates don't redraw it); pairedAt: the phones when it started; pairExpired: it
+// ran out, so only the "Code expired" note stays.
+let pairTimer = null, pairedAt = [], pairShowing = false, pairExpired = false;
 function openPhone() {
   const box = h('div');
   const draw = () => box.replaceChildren(
@@ -859,25 +861,45 @@ function openPhone() {
     h('div', { id: 'pairArea', style: 'margin-top:16px' }),
     h('div', { class: 'lbl', style: 'margin:18px 0 8px' }, 'Paired phones'),
     S.phones.length ? h('div', { class: 'list' }, ...S.phones.map(p => h('div', { class: 'row' }, h('div', { class: 'main' }, h('div', { class: 't' }, p.name)),
-      h('button', { class: 'btn small danger', onclick: guard(async () => { await api('phone/revoke', { id: p.id }); await refresh(); draw(); }) }, 'Remove')))) : h('div', { style: 'color:var(--muted)' }, 'None yet.'));
+      h('button', { class: 'btn small danger', onclick: guard(async () => { await api('phone/revoke', { id: p.id }); stopPair(); await refresh(); draw(); }) }, 'Remove')))) : h('div', { style: 'color:var(--muted)' }, 'None yet.'));
+  // Takes the code off the screen and closes pairing on the server too, so the two always agree.
+  const stopPair = () => { clearInterval(pairTimer); pairShowing = pairExpired = false; api('pair/stop').catch(() => {}); };
+  const showExpired = () => box.querySelector('#pairArea').replaceChildren(h('div', { style: 'color:var(--muted)' }, 'Code expired — click Pair a phone again.'));
   async function startPair() {
     const r = await api('pair/start');
     let left = r.seconds;
     const area = box.querySelector('#pairArea');
     const count = h('div', { style: 'color:var(--muted)' });
+    pairedAt = S.phones.map(p => p.id); pairShowing = true; pairExpired = false;
+    // With a QR code, scanning is all it takes (it carries a one-time secret); the PIN is the smaller fallback.
     area.replaceChildren(h('div', { class: 'pair' },
       h('div', { class: 'qr', html: r.qr || '' }),
-      h('div', {},
+      r.qr ? h('div', {},
+        h('div', { style: 'font-size:18px;font-weight:700' }, 'Scan this with your phone’s camera. That’s it.'),
+        h('div', { style: 'color:var(--muted);margin-top:14px' }, `Or open ${r.url} and type`),
+        h('div', { class: 'pin', style: 'font-size:24px' }, r.pin), count)
+      : h('div', {},
         h('div', { style: 'font-size:15px' }, '1. On the phone, open the camera and scan the code (or type the address).'),
         h('div', { style: 'font-size:15px;margin-top:10px' }, '2. Enter this code on the phone:'),
         h('div', { class: 'pin' }, r.pin), count)));
     clearInterval(pairTimer);
-    const tick = () => { count.textContent = left > 0 ? `Code works for ${left} more seconds` : 'Code expired — click Pair a phone again.'; left--; if (left < -1) clearInterval(pairTimer); };
+    // When it runs out the dead code comes off the screen, so nobody scans it.
+    const tick = () => { if (left > 0) { count.textContent = `Code works for ${left} more seconds`; left--; return; } stopPair(); pairExpired = true; draw(); showExpired(); };
     tick(); pairTimer = setInterval(tick, 1000);
   }
   draw();
-  dialog('Phone remote', box, null, { onClose: () => { clearInterval(pairTimer); api('pair/stop').catch(() => {}); } });
-  dialogRefresh = () => { const area = box.querySelector('#pairArea'); if (!area || !area.children.length) draw(); };
+  dialog('Phone remote', box, null, { onClose: stopPair });
+  // Only a phone that was not there before has paired: then the code goes and the phone shows right away. Anything else
+  // (an old phone dropped) keeps the code on screen.
+  dialogRefresh = () => {
+    if (pairShowing) {
+      if (!S.phones.some(p => !pairedAt.includes(p.id))) return;
+      stopPair();
+    }
+    const expired = pairExpired;
+    draw();
+    if (expired) showExpired();
+  };
 }
 
 // ----- settings -----

@@ -57,11 +57,12 @@ export component PhoneDialog inherits VerticalLayout {
                 clicked => { PhoneDialogState.pair(); }
             }
         }
-        // `#pairArea` / `.pair`: the code beside its steps, 240 px + the rest, 22 px apart.
-        if PhoneDialogState.pin != "": HorizontalLayout {
+        // `#pairArea` / `.pair`: the code beside its steps, 240 px + the rest, 22 px apart. Once the code runs out
+        // (`pin` cleared) only the countdown's "Code expired" note stays.
+        if PhoneDialogState.countdown != "": HorizontalLayout {
             padding-top: 16px;
             spacing: 22px;
-            qr := Rectangle {
+            if PhoneDialogState.pin != "": qr := Rectangle {
                 width: 240px;
                 height: 240px;
                 background: Theme.white;
@@ -81,32 +82,54 @@ export component PhoneDialog inherits VerticalLayout {
             VerticalLayout {
                 alignment: center;
                 horizontal-stretch: 1;
-                Text {
+                // With a QR code, scanning is all it takes (the code carries a one-time secret); the PIN is the
+                // smaller fallback for typing.
+                if PhoneDialogState.has-qr: scan := Text {
+                    text: @tr("Scan this with your phone's camera. That's it.");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 18px;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if PhoneDialogState.has-qr: Rectangle { height: 14px; }
+                if PhoneDialogState.has-qr: or-type := Text {
+                    text: @tr("Or open {} and type", PhoneDialogState.lan-url);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if !PhoneDialogState.has-qr && PhoneDialogState.pin != "": Text {
                     text: @tr("1. On the phone, open the camera and scan the code (or type the address).");
                     color: Theme.text;
                     font-family: Theme.font;
                     font-size: 15px;
                     wrap: word-wrap;
                 }
-                Rectangle { height: 10px; }
-                Text {
+                if !PhoneDialogState.has-qr && PhoneDialogState.pin != "": Rectangle { height: 10px; }
+                if !PhoneDialogState.has-qr && PhoneDialogState.pin != "": Text {
                     text: @tr("2. Enter this code on the phone:");
                     color: Theme.text;
                     font-family: Theme.font;
                     font-size: 15px;
                     wrap: word-wrap;
                 }
-                // `.pin`: 700 44px Consolas, 0.2em apart, 8 px above and below.
-                pin := Text {
+                // `.pin`: 700 44px Consolas, 0.2em apart, 8 px above and below; smaller under a QR code.
+                if PhoneDialogState.pin != "": pin := Text {
                     text: PhoneDialogState.pin;
                     color: Theme.accent;
                     font-family: Theme.mono;
-                    font-size: 44px;
+                    font-size: PhoneDialogState.has-qr ? 24px : 44px;
                     font-weight: 700;
-                    letter-spacing: 8.8px;
+                    letter-spacing: PhoneDialogState.has-qr ? 4.8px : 8.8px;
                     accessible-role: text;
                     accessible-label: self.text;
-                    height: self.preferred-height + 16px;
+                    height: self.preferred-height + (PhoneDialogState.has-qr ? 8px : 16px);
                     vertical-alignment: center;
                 }
                 countdown := Text {
