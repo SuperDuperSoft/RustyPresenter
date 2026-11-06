@@ -93,7 +93,7 @@ export global SettingsDlg {
     /// 0 Installed, 1 All.
     in-out property <int> catalog-filter: 1;
     /// "All languages", then each language in the list.
-    in property <[string]> catalog-languages: ["All languages"];
+    in property <[string]> catalog-languages: [@tr("All languages")];
     in-out property <int> catalog-language;
     /// "Loading the list of Bibles…", "You're offline…", "Showing 200 of 950…", or empty.
     in property <string> catalog-note;

@@ -201,7 +201,7 @@ export component SettingsBible inherits VerticalLayout {
             border-radius: 10px;
             accessible-role: list-item;
             accessible-label: p.label;
-            accessible-value: p.key-set ? "Connected" : "Not connected";
+            accessible-value: p.key-set ? @tr("Connected") : @tr("Not connected");
             VerticalLayout {
                 padding-top: 9px;
                 padding-bottom: 9px;
@@ -242,7 +242,7 @@ export component SettingsBible inherits VerticalLayout {
                         }
                     }
                     Text {
-                        text: "2. " + p.note;
+                        text: @tr("2. {}", p.note);
                         color: Theme.muted;
                         font-size: 12.5px;
                         wrap: word-wrap;
