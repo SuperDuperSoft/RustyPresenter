@@ -136,7 +136,7 @@ pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Sour
     sources(translation).find(|s| secrets.key(s.provider).is_some()).or_else(|| sources(translation).next())
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum FetchError {
     /// No answer from the provider (offline, DNS, timeout).
     Network,
@@ -224,13 +224,35 @@ fn save_key(root: &Path, provider: Provider, key: &str) -> io::Result<()> {
     let old = s.key(provider).map(str::to_string);
     if key.is_empty() { s.keys.remove(provider.key_name()); } else { s.keys.insert(provider.key_name().into(), key.into()); }
     s.save(root)?;
-    if key.is_empty() || old.as_deref() != Some(key) { clear_cache(root, provider); }
+    if key.is_empty() || old.as_deref() != Some(key) {
+        clear_cache(root, provider);
+        // What the key may read changed too: its Bible list is fetched again.
+        super::catalog::forget(root, provider);
+    }
     Ok(())
 }
 
-/// Deletes every cache file of one provider. Call with `FILES` held.
+/// Deletes every cache file of one provider, catalog Bibles (`yv:`, `ab:`) included. Call with `FILES` held.
 fn clear_cache(root: &Path, provider: Provider) {
-    for src in SOURCES.iter().filter(|s| s.provider == provider) { let _ = std::fs::remove_file(Cache::path(root, provider, src.translation)); }
+    let prefix = format!("{}-", provider.key_name());
+    let Ok(rd) = std::fs::read_dir(root.join("bible-cache")) else { return };
+    for e in rd.flatten() {
+        if e.file_name().to_str().is_some_and(|n| n.starts_with(&prefix) && n.ends_with(".json")) { let _ = std::fs::remove_file(e.path()); }
+    }
+}
+
+/// A translation id as part of a file name (design §5.1): `:` → `~`, other characters outside `[A-Za-z0-9._-]` →
+/// `%XX`, so `yv:111` is `yv~111` and today's `CSB` stays `CSB`.
+pub fn file_part(id: &str) -> String {
+    let mut out = String::with_capacity(id.len());
+    for b in id.bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'.' | b'_' | b'-' => out.push(b as char),
+            b':' => out.push('~'),
+            b => out.push_str(&format!("%{b:02X}")),
+        }
+    }
+    out
 }
 
 // ---------- cache ----------
@@ -260,12 +282,12 @@ fn fresh(e: &Entry, now: u64, policy: CachePolicy) -> bool { policy.max_age_days
 impl Cache {
     /// `bible-cache/api_bible-CSB.json`: one file per provider, so text is only ever served under its own provider's terms.
     fn path(root: &Path, provider: Provider, translation: &str) -> std::path::PathBuf {
-        root.join("bible-cache").join(format!("{}-{translation}.json", provider.key_name()))
+        root.join("bible-cache").join(format!("{}-{}.json", provider.key_name(), file_part(translation)))
     }
 
     /// Also deletes the old provider-less `bible-cache/{translation}.json`, whose source is unknown.
     pub fn load(root: &Path, provider: Provider, translation: &str) -> Self {
-        let _ = std::fs::remove_file(root.join("bible-cache").join(format!("{translation}.json")));
+        let _ = std::fs::remove_file(root.join("bible-cache").join(format!("{}.json", file_part(translation))));
         std::fs::read(Self::path(root, provider, translation)).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default()
     }
 
@@ -308,15 +330,31 @@ impl Cache {
 
 // ---------- lookup ----------
 
+/// Where an online translation's text comes from: today's fixed routes (`SOURCES`), or a Bible added from a
+/// catalog (`yv:111`, `ab:…`, design §3.3.1).
+struct Route { provider: Provider, label: String }
+
+fn route(root: &Path, translation: &str, secrets: &Secrets) -> Result<Route, String> {
+    if super::catalog::provider_of(translation).is_some() {
+        let b = super::catalog::find_added(root, translation).ok_or_else(|| super::strings::REMOVED.to_string())?;
+        let provider = super::catalog::provider_of(&b.id).unwrap_or(Provider::YouVersion);
+        return Ok(Route { provider, label: b.abbr });
+    }
+    let src = source_with(translation, secrets)
+        .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
+    Ok(Route { provider: src.provider, label: translation.to_string() })
+}
+
 /// Looks up a passage in a copyrighted translation: cache first, then the provider.
 pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(String, Vec<VerseText>), String> {
+    if super::blocklist::blocked_id(translation) { return Err(super::strings::BLOCKED.into()); }
     let secrets = Secrets::load(root);
-    let src = source_with(translation, &secrets)
-        .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
+    let Route { provider, label } = route(root, translation, &secrets)?;
     let r: Reference = parse_reference(input)?;
-    let key = secrets.key(src.provider).map(str::to_string)
-        .ok_or_else(|| format!("{translation} needs a free key from {}. Add it in Settings → Bible, or paste the verses with Add → Bible.", src.provider.label()))?;
-    let (provider, policy) = (src.provider, src.provider.cache_policy());
+    let key = secrets.key(provider).map(str::to_string).ok_or_else(|| if label == translation {
+        format!("{translation} needs a free key from {}. Add it in Settings → Bible, or paste the verses with Add → Bible.", provider.label())
+    } else { super::strings::needs_key(&label, provider.label()) })?;
+    let policy = provider.cache_policy();
     let display = display_name(r.book);
     let now = crate::app::now_secs();
     let mut out = Vec::new();
@@ -335,11 +373,13 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
                     Err(e) => {
                         // A refused key: what it fetched may no longer be kept (API.Bible terms §10).
                         if e == FetchError::BadKey { let _g = FILES.lock().unwrap(); clear_cache(root, provider); }
-                        return Err(e.message(translation, provider));
+                        return Err(e.message(&label, provider));
                     }
                 };
                 if f.verses.is_empty() { return Err("No verses found.".into()); }
-                remember(root, src, &key, now, (r.book, part), &f);
+                // A blocked translation under another name: its text gives it away (design §4).
+                if f.verses.iter().any(|(c, v, t)| super::blocklist::blocked_verse(r.book, *c, *v, t)) { return Err(super::strings::BLOCKED.into()); }
+                remember(root, provider, translation, &key, now, (r.book, part), &f);
                 f
             }
         };
@@ -351,12 +391,12 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
 }
 
 /// Caches a fetched passage, unless the key it was fetched with was removed or changed meanwhile.
-fn remember(root: &Path, src: &Source, key: &str, now: u64, (book, part): (u8, &Part), f: &Fetched) {
+fn remember(root: &Path, provider: Provider, translation: &str, key: &str, now: u64, (book, part): (u8, &Part), f: &Fetched) {
     let _g = FILES.lock().unwrap();
-    if Secrets::load(root).key(src.provider) != Some(key) { return; }
-    let mut cache = Cache::load(root, src.provider, src.translation);
-    cache.put(book, part, now, f.clone(), src.provider.cache_policy(), kjv().book_len(book));
-    let _ = cache.save(root, src.provider, src.translation);
+    if Secrets::load(root).key(provider) != Some(key) { return; }
+    let mut cache = Cache::load(root, provider, translation);
+    cache.put(book, part, now, f.clone(), provider.cache_policy(), kjv().book_len(book));
+    let _ = cache.save(root, provider, translation);
 }
 
 /// "John 3:16-18", "Psalm 23", "John 1:51-2:2" — the plain form every provider's search accepts.
@@ -504,16 +544,54 @@ mod tests {
     #[test]
     fn a_fetch_finishing_after_its_key_was_removed_is_not_cached() {
         let root = crate::store::test_dir();
-        let src = SOURCES.iter().find(|s| s.translation == "CSB" && s.provider == Provider::ApiBible).unwrap();
+        let p_ = Provider::ApiBible;
         let (b, p) = part("John 3:16");
         let f = verses(3, 16, 1);
-        remember(&root, src, "old", 1, (b, &p), &f);
-        assert!(!Cache::path(&root, src.provider, "CSB").exists(), "no key saved");
+        remember(&root, p_, "CSB", "old", 1, (b, &p), &f);
+        assert!(!Cache::path(&root, p_, "CSB").exists(), "no key saved");
         save_key(&root, Provider::ApiBible, "new").unwrap();
-        remember(&root, src, "old", 1, (b, &p), &f);
-        assert!(!Cache::path(&root, src.provider, "CSB").exists(), "key changed");
-        remember(&root, src, "new", 1, (b, &p), &f);
-        assert!(Cache::load(&root, src.provider, "CSB").get(b, &p, 1, src.provider.cache_policy()).is_some());
+        remember(&root, p_, "CSB", "old", 1, (b, &p), &f);
+        assert!(!Cache::path(&root, p_, "CSB").exists(), "key changed");
+        remember(&root, p_, "CSB", "new", 1, (b, &p), &f);
+        assert!(Cache::load(&root, p_, "CSB").get(b, &p, 1, p_.cache_policy()).is_some());
+    }
+
+    #[test]
+    fn catalog_ids_make_safe_cache_files_that_a_key_change_clears() {
+        assert_eq!(file_part("yv:111"), "yv~111");
+        assert_eq!(file_part("ab:de4e12af7f28f599-02"), "ab~de4e12af7f28f599-02");
+        assert_eq!(file_part("CSB"), "CSB");
+        assert_eq!(file_part("a/b\\c"), "a%2Fb%5Cc");
+        let root = crate::store::test_dir();
+        save_key(&root, Provider::YouVersion, "a").unwrap();
+        assert!(cache_file(&root, Provider::YouVersion, "yv:149"));
+        assert!(root.join("bible-cache/youversion-yv~149.json").exists());
+        super::super::catalog::store(&root, Provider::YouVersion, Default::default()).unwrap();
+        save_key(&root, Provider::YouVersion, "b").unwrap();
+        assert!(!Cache::path(&root, Provider::YouVersion, "yv:149").exists(), "a catalog Bible's cache goes with the key");
+        assert!(super::super::catalog::cached(&root, Provider::YouVersion).is_none(), "and so does the Bible list");
+    }
+
+    #[tokio::test]
+    async fn added_catalog_bible_is_looked_up_from_its_cache_with_its_own_label() {
+        let root = crate::store::test_dir();
+        let b = super::super::catalog::OnlineBible { id: "yv:149".into(), abbr: "RVR1960".into(), copyright: "© SBAL".into(), lang: "es".into(), ..Default::default() };
+        let err = lookup(&root, "yv:149", "John 3:16").await.unwrap_err();
+        assert_eq!(err, super::super::strings::REMOVED, "not added: a plain message, not an id");
+        super::super::catalog::add(&root, b).unwrap();
+        let err = lookup(&root, "yv:149", "John 3:16").await.unwrap_err();
+        assert!(err.starts_with("RVR1960 needs the internet"), "{err}");
+        let mut s = Secrets::default();
+        s.keys.insert("youversion".into(), "k".into());
+        s.save(&root).unwrap();
+        let (b, p) = part("John 3:16");
+        let mut c = Cache::default();
+        c.put(b, &p, crate::app::now_secs(), Fetched { verses: vec![(3, 16, "Porque de tal manera amó Dios al mundo".into())], fums: vec![] }, ESV, 879);
+        c.save(&root, Provider::YouVersion, "yv:149").unwrap();
+        let (label, v) = lookup(&root, "yv:149", "Jn 3:16").await.unwrap();
+        assert_eq!(label, "John 3:16");
+        assert!(v[0].text.starts_with("Porque"));
+        assert_eq!(lookup(&root, "yv:1849", "John 3:16").await.unwrap_err(), super::super::strings::BLOCKED);
     }
 
     #[test]

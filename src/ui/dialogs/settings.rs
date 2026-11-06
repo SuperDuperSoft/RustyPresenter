@@ -112,6 +112,8 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     let g = op.ui.global::<SettingsDlg>();
     settings_look::fill_backgrounds(op, edit, snap);
     settings_bible::fill(&g, edit, snap);
+    // The Bible lists are read (and fetched when a week old) only while the Bible tab is open (design §13).
+    if g.get_tab() == tab_index(SettingsTab::Bible) { settings_bible::search(op, edit, false) }
     g.set_ffmpeg(snap.ffmpeg);
     g.set_winget(strings::WINGET.into());
     g.set_backups_folder(strings::backups_folder(&snap.data_folder).into());
@@ -191,6 +193,11 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_copy_link(with_i(settings_bible::copy_link));
     g.on_import_bible(with(settings_bible::import));
     g.on_remove_import(with_i(settings_bible::remove_import));
+    let (me, e) = (Rc::downgrade(op), edit.clone());
+    g.on_bible_search(move |_| if let Some(op) = me.upgrade() { settings_bible::typed(&op, &e) });
+    g.on_bible_refresh(with(settings_bible::refresh));
+    g.on_bible_add(with_i(settings_bible::add_online));
+    g.on_bible_remove(with_i(settings_bible::remove_from_search));
     g.on_copy_winget(with(|op, _| copy(op, strings::WINGET, strings::COPIED)));
     g.on_check_again(with(check_again));
     g.on_backup_now(with(backup_now));

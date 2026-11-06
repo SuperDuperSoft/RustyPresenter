@@ -149,7 +149,7 @@ fn row_id(id: &str) -> Option<Uuid> { Uuid::parse_str(id).ok() }
 
 /// `bible/lookup`'s and `bible/paste`'s answer. The verses pass through to `service/add` untouched.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Value, translation: String }
+struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String }
 
 /// Add verses (Enter in the reference) and Add pasted verses: the passage goes at the end, quietly, then the toast
 /// "`<label>` added" and the dialog closes (`operator.js:432-445`).
@@ -164,8 +164,8 @@ fn add_verses(op: &Rc<Operator>, pasted: bool) {
     let me = Rc::downgrade(op);
     op.ops().call::<Found>(action, body, move |r| {
         let Some(op) = me.upgrade() else { return };
-        let Found { label, verses, translation } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
-        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": 0 });
+        let Found { label, verses, translation, abbr } = match r { Ok(f) => f, Err(e) => return op.toast(e, true) };
+        let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "verses": verses, "per_slide": 0 });
         add_item_then(&op, item, true, move |op, _| {
             op.toast(tr::bible_added(&label), false);
             op.close_dialog();

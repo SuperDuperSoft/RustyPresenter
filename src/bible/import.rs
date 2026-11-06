@@ -158,10 +158,18 @@ pub fn load_all(root: &Path) -> Vec<ImportedBible> {
 fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
     let s: Stored = serde_json::from_slice(&fs::read(p).ok()?).ok()?;
     if sanitize_abbr(abbr).as_deref() != Some(abbr) || s.abbreviation != abbr { return None; }
-    Some(ImportedBible {
+    let b = ImportedBible {
         abbreviation: s.abbreviation, name: s.name, copyright: s.copyright,
         verses: s.verses.into_iter().filter(|v| (v.0 as usize) < BOOKS.len()).map(|(b, c, v, t)| ((b, c, v), t)).collect(),
-    })
+    };
+    // A blocked Bible saved before the blocklist existed is skipped (design §4).
+    (!is_blocked(&b)).then_some(b)
+}
+
+/// Blocked by its names and notice, or by its text (design §4).
+fn is_blocked(b: &ImportedBible) -> bool {
+    super::blocklist::blocked(&b.abbreviation, &[&b.name], &[&b.copyright], &[])
+        || super::blocklist::blocked_text(|bk, c, v| b.verses.get(&(bk, c, v)).map(String::as_str))
 }
 
 /// Deletes `root/bibles/{ABBR}.json`; already gone is fine. Holds `LOADED` throughout so no reader can reload the
@@ -202,6 +210,7 @@ pub fn all(root: &Path) -> Vec<Arc<ImportedBible>> { loaded(root).values().clone
 /// HCSB are allowed, because a licensed file is how a church gets a translation no online source offers.
 pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible>, String> {
     let mut b = parse(bytes)?;
+    if is_blocked(&b) || super::blocklist::blocked_id(abbr) { return Err(super::strings::BLOCKED.into()); }
     if !abbr.trim().is_empty() { b.abbreviation = abbr.into(); }
     let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(|| bad_abbr().to_string())?;
     if super::built_in(&abbr).is_some() { return Err(format!("{abbr} is already built in. Give this Bible another short name.")); }
@@ -558,6 +567,23 @@ mod tests {
  </BIBLEBOOK>
  <BIBLEBOOK bnumber="67" bname="Tobit"><CHAPTER cnumber="1"><VERS vnumber="1">apocrypha</VERS></CHAPTER></BIBLEBOOK>
 </XMLBIBLE>"#;
+
+    #[test]
+    fn blocked_bibles_are_refused_by_name_or_text_and_skipped_on_disk() {
+        let root = crate::store::test_dir();
+        let nwt = ZEFANIA.replace("<title>World English Bible</title>", "<title>Traducción del Nuevo Mundo</title>").replace("biblename=\"WEB\"", "biblename=\"X\"");
+        assert_eq!(import(&root, nwt.as_bytes(), "SB").unwrap_err(), crate::bible::strings::BLOCKED);
+        // No title at all, saved under another name: the text gives it away.
+        let jn = ZEFANIA.replace("<BIBLEBOOK bnumber=\"43\" bname=\"John\" bsname=\"Joh\">", "<BIBLEBOOK bnumber=\"43\"><CHAPTER cnumber=\"1\"><VERS vnumber=\"1\">In the beginning was the Word, and the Word was with God, and the Word was a god.</VERS></CHAPTER>");
+        let jn = jn.replace("<title>World English Bible</title>", "");
+        assert_eq!(import(&root, jn.as_bytes(), "ABC").unwrap_err(), crate::bible::strings::BLOCKED);
+        assert_eq!(import(&root, ZEFANIA.as_bytes(), "TPT").unwrap_err(), crate::bible::strings::BLOCKED, "a blocked short name");
+        // A file that was saved before the blocklist existed.
+        std::fs::create_dir_all(root.join("bibles")).unwrap();
+        std::fs::write(root.join("bibles/NWT.json"), r#"{"abbreviation":"NWT","name":"New World Translation","copyright":"","verses":[[42,3,16,"x"]]}"#).unwrap();
+        assert!(load(&root, "NWT").is_none());
+        assert!(import(&root, ZEFANIA.as_bytes(), "ENG").is_ok(), "an ordinary Bible still imports");
+    }
 
     #[test]
     fn zefania() {

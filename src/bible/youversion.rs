@@ -18,10 +18,14 @@ const MAX_REQUESTS: usize = 20;
 /// Whether a church's app may read one depends on the licenses it accepted, not on this table.
 pub const VERSIONS: &[(&str, u32)] = &[("NIV", 111), ("HCSB", 72), ("CSB", 1713), ("NLT", 116), ("BSB", 3034)];
 
-/// Known label, or a bare number for any other Bible the church's app is licensed for.
+/// Known label, a catalog id (`yv:149`), or a bare number for any other Bible the church's app is licensed for.
+/// A blocked Bible's number (design §4) has no id.
 pub fn version_id(translation: &str) -> Option<u32> {
-    VERSIONS.iter().find(|(t, _)| t.eq_ignore_ascii_case(translation.trim())).map(|&(_, id)| id)
-        .or_else(|| translation.trim().parse().ok())
+    let t = translation.trim();
+    let id = VERSIONS.iter().find(|(v, _)| v.eq_ignore_ascii_case(t)).map(|&(_, id)| id)
+        .or_else(|| super::catalog::yv_number(t))
+        .or_else(|| t.parse().ok())?;
+    (!super::blocklist::blocked_id(&format!("yv:{id}"))).then_some(id)
 }
 
 use super::USFM;
@@ -212,6 +216,9 @@ mod tests {
         assert_eq!(version_id("hcsb"), Some(72));
         assert_eq!(version_id(" 1713 "), Some(1713));
         assert_eq!(version_id("XYZ"), None);
+        assert_eq!(version_id("yv:149"), Some(149));
+        assert_eq!(version_id("1849"), None, "The Passion Translation is blocked by its number too");
+        assert_eq!(version_id("yv:1849"), None);
     }
 
     #[test]

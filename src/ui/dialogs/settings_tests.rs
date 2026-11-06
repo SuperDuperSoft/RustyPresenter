@@ -445,3 +445,52 @@ fn bible_tab_shows_sources_keys_and_import() {
     assert!(!g(&op).get_bible_sources().iter().any(|r| r.imported));
     assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Bible)), "Bible actions keep Settings open");
 }
+
+#[test]
+fn bible_search_adds_an_online_bible_in_one_click() {
+    use crate::bible::catalog::{CatalogFile, OnlineBible, store};
+    let app = test_app();
+    let root = app.store.root.clone();
+    let rv = OnlineBible { id: "yv:149".into(), abbr: "RVR1960".into(), name: "Biblia Reina Valera 1960".into(), lang: "es".into(),
+        lang_name: "Spanish".into(), dir: "ltr".into(), copyright: "© Sociedades Bíblicas en América Latina".into(), ..Default::default() };
+    store(&root, crate::bible::sources::Provider::YouVersion, CatalogFile { fetched: crate::app::now_secs(), bibles: vec![rv] }).unwrap();
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    assert!(!g(&op).get_bible_keys());
+    assert!(g(&op).get_bible_catalog_status().contains("Add a YouVersion or API.Bible key"), "{}", g(&op).get_bible_catalog_status());
+    assert!(find(&op, "SettingsBible::bible-search").is_some(), "the search box leads the page");
+
+    let mut secrets = crate::bible::sources::Secrets::default();
+    secrets.keys.insert("youversion".into(), "k".into());
+    secrets.save(&root).unwrap();
+    g(&op).set_bible_query("spanish".into());
+    g(&op).invoke_bible_search("spanish".into());
+    assert_eq!(g(&op).get_bible_catalog().row_count(), 0, "nothing searched before typing pauses");
+    mock_elapsed_time(Duration::from_millis(200));
+    settle();
+    let rows: Vec<_> = g(&op).get_bible_catalog().iter().collect();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].header, "Spanish");
+    assert_eq!((rows[1].abbr.as_str(), rows[1].tag.as_str(), rows[1].state.as_str()), ("RVR1960", "Needs internet · YouVersion", "add"));
+    assert!(g(&op).get_bible_keys());
+    settle();
+    assert!(find(&op, "SettingsBible::catalog-add").is_some());
+
+    g(&op).invoke_bible_add(1);
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("Added RVR1960 — it's in the Bible box now"));
+    refresh(&op);
+    assert_eq!(g(&op).get_bible_catalog().row_data(1).unwrap().state, "added", "searched again after the read");
+    let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
+    let row = sources.iter().find(|r| r.translation == "RVR1960").expect("listed under its abbreviation, not its id");
+    assert!(row.imported, "removable");
+    let credits: Vec<String> = g(&op).get_bible_credits().iter().map(|c| c.to_string()).collect();
+    assert!(credits.contains(&"RVR1960: © Sociedades Bíblicas en América Latina".to_string()), "{credits:?}");
+    assert!(credits.iter().any(|c| c.contains("YouVersion Platform")));
+    assert!(slint::Model::iter(&op.ui.get_translations()).any(|c| c.name == "RVR1960"), "a chip in the Bible box");
+
+    g(&op).invoke_bible_remove(1);
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("RVR1960 removed"));
+    refresh(&op);
+    assert!(!g(&op).get_bible_sources().iter().any(|r| r.translation == "RVR1960"));
+}

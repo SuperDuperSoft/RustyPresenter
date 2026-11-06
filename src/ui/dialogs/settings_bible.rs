@@ -1,19 +1,135 @@
 //! Settings → Bible (`operator.js:922-973`, after the `bible-esv` merge): every translation's status, the online
 //! services a church connects with a key (`bible/key`), Bible file import (`bible/import/{ABBR}`, the raw file) and
 //! removal (`bible/import-remove`), and the copyright lines of the sources in use.
-use super::settings::{Edit, copy, redraw_on_next_read, strings};
+use super::{confirm, settings::{Edit, copy, redraw_on_next_read, strings}, strings as dlg};
 use crate::ui::{
-    SettingsBibleRow, SettingsDlg, SettingsProviderRow,
+    SettingsBibleRow, SettingsCatalogRow, SettingsDlg, SettingsProviderRow,
     operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, OperatorSnapshot}, window::Operator},
 };
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, time::Duration};
 
 /// The rows the tab shows, so a button's index finds its translation or service.
 #[derive(Default)]
 pub struct BibleState {
     sources: RefCell<Vec<BibleSource>>,
     providers: RefCell<Vec<BibleProvider>>,
+    /// The search rows on screen (`bible/catalog`), so Add/Remove find their Bible.
+    catalog: RefCell<Vec<CatalogRow>>,
+    /// Numbers each search; an answer to an older one is dropped (typing outruns the network).
+    seq: Cell<u64>,
+    /// Waits 150 ms after the last key before searching.
+    typing: slint::Timer,
+}
+
+/// One row of `bible/catalog`'s answer: a `header`, or a Bible.
+#[derive(Clone, Debug, Default, serde::Deserialize)]
+#[serde(default)]
+pub struct CatalogRow { pub header: String, pub id: String, pub abbr: String, pub name: String, pub tag: String, pub state: String }
+
+#[derive(Debug, Default, serde::Deserialize)]
+#[serde(default)]
+struct Catalog { rows: Vec<CatalogRow>, shown: usize, total: usize, keys: bool, notes: Vec<String>, listed: usize }
+
+/// The line under the search box: what to type, how many matched, and any trouble reaching a service.
+fn status(query: &str, c: &Catalog) -> String {
+    let mut lines = Vec::new();
+    if !c.keys { lines.push(strings::SEARCH_NEEDS_KEY.to_string()); }
+    else if query.trim().is_empty() { lines.push(strings::search_hint(c.listed)); }
+    else if c.total == 0 { lines.push(strings::no_match(query)); }
+    else if c.total > c.shown { lines.push(strings::showing(c.shown, c.total)); }
+    lines.extend(c.notes.iter().cloned());
+    if c.keys && !query.trim().is_empty() { lines.push(strings::NOT_LISTED.into()); }
+    lines.join(" ")
+}
+
+/// Searches now with what is in the box (`refresh`: fetch the lists again first). Called when the tab is drawn,
+/// after Add/Remove, and 150 ms after typing stops.
+pub(super) fn search(op: &Rc<Operator>, edit: &Rc<Edit>, refresh: bool) {
+    let g = op.ui.global::<SettingsDlg>();
+    let query = g.get_bible_query().to_string();
+    let seq = edit.bible.seq.get() + 1;
+    edit.bible.seq.set(seq);
+    g.set_bible_searching(true);
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<Catalog>("bible/catalog", serde_json::json!({ "query": query, "refresh": refresh }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        if edit.bible.seq.get() != seq { return }
+        let g = op.ui.global::<SettingsDlg>();
+        g.set_bible_searching(false);
+        match r {
+            Ok(c) => show_catalog(&g, &edit, &query, c),
+            Err(e) => op.toast(e, true),
+        }
+    });
+}
+
+fn show_catalog(g: &SettingsDlg, edit: &Edit, query: &str, c: Catalog) {
+    g.set_bible_keys(c.keys);
+    g.set_bible_catalog_status(status(query, &c).into());
+    let rows: Vec<SettingsCatalogRow> = c.rows.iter().map(|r| SettingsCatalogRow {
+        header: r.header.as_str().into(), abbr: r.abbr.as_str().into(), name: r.name.as_str().into(),
+        tag: r.tag.as_str().into(), state: r.state.as_str().into(),
+    }).collect();
+    g.set_bible_catalog(ModelRc::new(VecModel::from(rows)));
+    *edit.bible.catalog.borrow_mut() = c.rows;
+}
+
+/// A key in the search box: search once typing pauses.
+pub(super) fn typed(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let (me, e) = (Rc::downgrade(op), edit.clone());
+    edit.bible.typing.start(slint::TimerMode::SingleShot, Duration::from_millis(150), move || {
+        if let Some(op) = me.upgrade() { search(&op, &e, false) }
+    });
+}
+
+pub(super) fn refresh(op: &Rc<Operator>, edit: &Rc<Edit>) { search(op, edit, true) }
+
+/// Add on a search row: one click, no questions (design §7.1).
+pub(super) fn add_online(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let Some(id) = edit.bible.catalog.borrow().get(i).map(|r| r.id.clone()).filter(|id| !id.is_empty()) else { return };
+    #[derive(serde::Deserialize)]
+    struct Added { abbr: String }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<Added>("bible/online-add", serde_json::json!({ "id": id }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(a) => {
+                redraw_on_next_read(&op, &edit);
+                op.toast(strings::online_added(&a.abbr), false);
+            }
+            Err(e) => op.toast(e, true),
+        }
+    });
+}
+
+/// Remove on a search row.
+pub(super) fn remove_from_search(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let Some(r) = edit.bible.catalog.borrow().get(i).cloned().filter(|r| !r.id.is_empty()) else { return };
+    remove_online(op, edit, r.id, r.abbr, false);
+}
+
+/// `bible/online-remove`: asks first when saved services use the Bible (their passages keep their verses).
+fn remove_online(op: &Rc<Operator>, edit: &Rc<Edit>, id: String, abbr: String, confirmed: bool) {
+    #[derive(serde::Deserialize)]
+    struct Removed { used: usize, removed: bool }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<Removed>("bible/online-remove", serde_json::json!({ "id": id, "confirm": confirmed }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(Removed { removed: true, .. }) => {
+                redraw_on_next_read(&op, &edit);
+                op.toast(strings::bible_removed(&abbr), false);
+            }
+            Ok(Removed { used, .. }) => {
+                let me = Rc::downgrade(&op);
+                confirm(&op, &strings::used_in_services(&abbr, used), strings::REMOVE, dlg::CANCEL, true, move |ok| {
+                    if let Some(op) = me.upgrade().filter(|_| ok) { remove_online(&op, &edit, id, abbr, true) }
+                });
+            }
+            Err(e) => op.toast(e, true),
+        }
+    });
 }
 
 /// The line under a translation's name (`hint`, `operator.js:925-926`).
@@ -30,8 +146,9 @@ pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
     let rows: Vec<SettingsBibleRow> = snap.bible_sources.iter().map(|b| {
         let (state, chip) = strings::chip(&b.status);
         SettingsBibleRow {
-            translation: b.translation.as_str().into(), hint: hint(b, &snap.bible_providers).into(),
-            chip: chip.into(), chip_state: state.into(), imported: b.imported,
+            translation: b.shown().into(), hint: hint(b, &snap.bible_providers).into(),
+            // The Remove button: an imported file, or a Bible added from the search.
+            chip: chip.into(), chip_state: state.into(), imported: b.imported || b.added,
         }
     }).collect();
     g.set_bible_sources(ModelRc::new(VecModel::from(rows)));
@@ -40,10 +157,14 @@ pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
         signup_url: p.signup_url.as_str().into(), note: p.note.as_str().into(),
     }).collect();
     g.set_bible_providers(ModelRc::new(VecModel::from(providers)));
-    let credits: Vec<SharedString> = snap.bible_sources.iter()
-        .filter(|b| b.status == "online" || b.imported)
-        .filter_map(|b| b.copyright.as_deref().filter(|c| !c.is_empty()).map(Into::into))
+    let mut credits: Vec<SharedString> = snap.bible_sources.iter()
+        .filter(|b| b.status == "online" || b.imported || b.added)
+        .filter_map(|b| b.copyright.as_deref().filter(|c| !c.is_empty()).map(|c| if b.added { format!("{}: {c}", b.shown()) } else { c.to_string() }.into()))
         .collect();
+    // The providers' own lines, for the Bibles added from their lists.
+    let from = |p: &str| snap.bible_sources.iter().any(|b| b.added && b.providers.iter().any(|x| x == p));
+    if from("youversion") { credits.push(crate::bible::strings::CREDIT_YOUVERSION.into()); }
+    if from("api_bible") { credits.push(crate::bible::strings::CREDIT_API_BIBLE.into()); }
     g.set_bible_credits(ModelRc::new(VecModel::from(credits)));
     *edit.bible.sources.borrow_mut() = snap.bible_sources.clone();
     *edit.bible.providers.borrow_mut() = snap.bible_providers.clone();
@@ -104,7 +225,9 @@ pub(crate) fn import_files(op: &Rc<Operator>, edit: &Rc<Edit>, mut paths: Vec<Pa
 }
 
 pub(super) fn remove_import(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
-    let Some(t) = edit.bible.sources.borrow().get(i).map(|b| b.translation.clone()) else { return };
+    let Some(b) = edit.bible.sources.borrow().get(i).cloned() else { return };
+    if b.added { return remove_online(op, edit, b.translation.clone(), b.shown().to_string(), false) }
+    let t = b.translation;
     let (me, edit) = (Rc::downgrade(op), edit.clone());
     op.ops().call::<serde_json::Value>("bible/import-remove", serde_json::json!({ "translation": t }), move |r| {
         let Some(op) = me.upgrade() else { return };

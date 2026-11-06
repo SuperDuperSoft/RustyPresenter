@@ -29,6 +29,8 @@ pub struct BibleSummary {
     #[serde(default)]
     abbreviation_local: String,
     #[serde(default)]
+    name: String,
+    #[serde(default)]
     language: Language,
 }
 
@@ -159,6 +161,10 @@ fn status_error(status: u16, translation: &str) -> FetchError {
 
 /// Finds (and memoizes) the opaque Bible id: `?abbreviation=` first, then the whole English list.
 async fn bible_id(client: &reqwest::Client, key: &str, translation: &str) -> Result<String, FetchError> {
+    // A Bible added from the catalog carries its real id (design §3.4: by id, never by abbreviation).
+    if super::catalog::provider_of(translation).is_some() {
+        return super::catalog::ab_id(translation).map(str::to_string).ok_or_else(|| FetchError::Other("that isn't an API.Bible Bible".into()));
+    }
     let name = translation.to_uppercase();
     if let Some(id) = BIBLE_IDS.lock().unwrap().get(&name) { return Ok(id.clone()); }
     for q in [("abbreviation", name.as_str()), ("language", "eng")] {
@@ -175,10 +181,12 @@ async fn bible_id(client: &reqwest::Client, key: &str, translation: &str) -> Res
 
 fn norm(s: &str) -> String { s.chars().filter(char::is_ascii_alphanumeric).map(|c| c.to_ascii_uppercase()).collect() }
 
-/// The Bible whose abbreviation (or local abbreviation) is exactly `translation`, English first.
+/// The Bible whose abbreviation (or local abbreviation) is exactly `translation`, English first. Blocked Bibles
+/// (design §4) are never picked.
 pub fn pick_bible<'a>(list: &'a BibleList, translation: &str) -> Option<&'a str> {
     let want = norm(translation);
-    let hits = || list.data.iter().filter(|b| norm(&b.abbreviation) == want || norm(&b.abbreviation_local) == want);
+    let ok = |b: &BibleSummary| !super::blocklist::blocked_row(&b.language.id, &b.abbreviation, &[&b.name, &b.abbreviation_local], &[], &[&format!("ab:{}", b.id)]);
+    let hits = || list.data.iter().filter(|b| norm(&b.abbreviation) == want || norm(&b.abbreviation_local) == want).filter(|b| ok(b));
     hits().find(|b| b.language.id == "eng").or_else(|| hits().next()).map(|b| b.id.as_str())
 }
 
@@ -336,6 +344,11 @@ mod tests {
             {"id":"en-01","abbreviation":"engCSB","abbreviationLocal":"CSB","language":{"id":"eng"},"name":"Christian Standard Bible"}]}"#).unwrap();
         assert_eq!(pick_bible(&list, "csb"), Some("en-01"));
         assert_eq!(pick_bible(&list, "NLT"), None);
+        let list: BibleList = serde_json::from_str(r#"{"data":[
+            {"id":"p-01","abbreviation":"TPT","name":"The Passion Translation","language":{"id":"eng"}},
+            {"id":"n-01","abbreviation":"SB","abbreviationLocal":"SB","name":"New World Translation","language":{"id":"eng"}}]}"#).unwrap();
+        assert_eq!(pick_bible(&list, "TPT"), None);
+        assert_eq!(pick_bible(&list, "SB"), None, "blocked by its name whatever the abbreviation");
     }
 
     // Shape from docs.api.bible/resources/content-output-formats (content-type=json) and the `meta.fumsToken`

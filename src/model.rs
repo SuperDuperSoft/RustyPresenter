@@ -119,7 +119,12 @@ pub struct VerseText {
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ItemKind {
     Song { song_id: Uuid },
-    Scripture { reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8 },
+    /// `abbr` is the label slides show when the translation id is not one (`yv:149` → "RVR1960"); saved with the
+    /// item so it survives the Bible being removed or the service moving to another computer. Empty: `translation`.
+    Scripture {
+        reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8,
+        #[serde(default, skip_serializing_if = "String::is_empty")] abbr: String,
+    },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
     Text { title: String, body: String },

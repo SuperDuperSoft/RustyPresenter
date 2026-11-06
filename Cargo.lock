@@ -5619,6 +5619,7 @@ dependencies = [
  "futures-util",
  "glow",
  "i-slint-backend-testing",
+ "icu_normalizer",
  "image",
  "libc",
  "libloading 0.8.9",

@@ -38,6 +38,22 @@ pub fn bible_added(abbr: &str, verses: u64) -> String { format!("Added {abbr} ({
 pub const IMPORT_FAILED: &str = "Import failed.";
 pub fn bible_removed(translation: &str) -> String { format!("{translation} removed") }
 
+// ---- Find more Bibles (Bible library design §3.3.1, §7.1) ----
+pub const SEARCH_NEEDS_KEY: &str = "Add a YouVersion or API.Bible key below to see hundreds more Bibles (they need the internet).";
+pub fn search_hint(listed: usize) -> String {
+    if listed == 0 { "Type a language or a name, like Spanish, Reina or NIV.".into() }
+    else { format!("{listed} Bibles to choose from. Type a language or a name, like Spanish, Reina or NIV.") }
+}
+pub fn no_match(query: &str) -> String { format!("No Bible matches “{}”.", query.trim()) }
+pub fn showing(shown: usize, total: usize) -> String { format!("Showing {shown} of {total}. Type more to narrow the list.") }
+pub const NOT_LISTED: &str = "Don't see a Bible? Accept its licence at platform.youversion.com (or add it to your API.Bible plan), then press Refresh list.";
+pub fn online_added(abbr: &str) -> String { format!("Added {abbr} — it's in the Bible box now") }
+pub fn used_in_services(abbr: &str, n: usize) -> String {
+    let services = if n == 1 { "1 service".to_string() } else { format!("{n} services") };
+    format!("{abbr} is used in {services}. Their passages are saved and still show. Remove {abbr} from the list?")
+}
+pub const REMOVE: &str = "Remove";
+
 fn grouped(n: u64) -> String {
     let digits = n.to_string();
     let mut out = String::new();
