@@ -198,7 +198,9 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response(); }
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad("Bad command.") };
     let allowed = matches!(env.cmd, Command::Next | Command::Prev | Command::Show { .. } | Command::ClearAll | Command::ClearSlide
-        | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::MediaPause { .. });
+        | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::MediaPause { .. }
+        // Overlays on and off (on needs `seen_clear`, checked by the live engine) and F6 (FEAT-1 spec §5.6).
+        | Command::Overlay { .. } | Command::ClearOverlays);
     // A phone's "show this slide" must say which screen state it was based on.
     let has_base = !matches!(env.cmd, Command::Show { .. }) || env.base.is_some();
     let out = if allowed && has_base { app.command(env) } else { Outcome { ok: false, version: 0, error: Some("Not allowed from the phone.".into()), duplicate: false } };
@@ -226,6 +228,9 @@ fn remote_view(app: &App) -> String {
         "on_air": { "slide": live.frame.slide.is_some(), "media": live.frame.media.is_some(), "audio": live.frame.audio.is_some(), "logo": live.frame.logo, "background": live.frame.background.is_some() },
         "media": live.frame.media.as_ref().map(|m| json!({ "inst": m.inst, "paused": matches!(m.v, MediaLayer::Video { paused: true, .. }) })),
         "notice": live.notice,
+        // FEAT-1: the saved overlays with whether each is on, and the newest clear for `seen_clear`.
+        "overlays": crate::theme::overlay::slots::remote_list(&data.overlays, &live.frame.overlays),
+        "clear_epoch": live.clear_epoch,
     }).to_string()
 }
 
