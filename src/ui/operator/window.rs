@@ -446,7 +446,7 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         assert!(find(&op, "TopBar::status-stage").is_none());
-        app.data.lock().unwrap().settings.displays.stage = Some(r"\\.\DISPLAY2".into());
+        app.data.lock().unwrap().settings.screens.assign("stage", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
         refresh(&op);
         let pill = find(&op, "TopBar::status-stage").expect("stage pill once configured");
         assert_eq!(pill.accessible_value().unwrap_or_default(), "off");

@@ -2,24 +2,47 @@
 //! opened and closed from any thread through it. They reopen from settings at start, close when
 //! their monitor is unplugged and come back on it when it returns. The operator window is opened by
 //! the binary; this layer only knows it to bring it forward and to place it away from the room.
-use super::{operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
+use super::{IdentifyWindow, operator::window::{MpvInfo, Operator, OperatorScreens, VideoInfo}, room::Room, stage::Stage};
 use crate::app::{App, Monitor, ScreenGuard, Screens};
+use crate::model::ScreenTarget;
 use crate::platform::{awake::KeepAwake, monitors::{self, Change, MonitorId, Watcher, pick, to_monitors}};
 use crate::render::Renderer;
 use crate::video::{FrameGrabber, ffi::Mpv};
-use slint::{CloseRequestResponse, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
+use slint::{CloseRequestResponse, ComponentHandle, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
 use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, atomic::{AtomicBool, Ordering}, mpsc}, thread::ThreadId, time::Duration};
 
 const NOT_CONNECTED: &str = "That screen is not connected right now.";
 /// Shown where a Linux desktop lists who is keeping it awake.
 const STAYING_AWAKE: &str = "A presentation is on screen";
 
+/// How long Identify's badges stay up.
+const IDENTIFY_FOR: Duration = Duration::from_secs(4);
+/// Share of a monitor's height an Identify badge takes.
+const BADGE: f64 = 0.36;
+
+/// "room" or "stage", for a window name from `ScreenSetup::keyed`.
+fn kind(role: &str) -> &str { role.split(':').next().unwrap_or(role) }
+
 /// How the operator hears about a role's window.
-fn named(role: &str) -> &'static str { if role == "room" { "room screen" } else { "stage display" } }
+fn named(role: &str) -> &'static str {
+    match (kind(role), role.contains(':')) {
+        ("room", false) => "room screen",
+        ("room", true) => "extra audience screen",
+        (_, false) => "stage display",
+        (_, true) => "extra stage screen",
+    }
+}
 
 /// The notice while `role`'s monitor is unplugged.
 pub fn gone_notice(role: &str) -> String {
     format!("The {} was unplugged. It comes back by itself when that screen is plugged in again.", named(role))
+}
+
+/// A badge's rectangle, centred on `m`: position and size in physical pixels.
+fn badge(m: &Monitor) -> ((i32, i32), (u32, u32)) {
+    let h = (f64::from(m.height) * BADGE) as i32;
+    let w = h * 3 / 2;
+    ((m.x + (m.width - w) / 2, m.y + (m.height - h) / 2), (w.max(1) as u32, h.max(1) as u32))
 }
 
 /// Where a role's window reopens at start: `None` to leave it closed, `Some(None)` for a plain window. A normal
@@ -41,7 +64,7 @@ impl Win {
 /// role connected while it is open), the unplug watch and its timer, the operator window (weak:
 /// the operator holds these screens), and the hold that keeps the computer awake while a window is open.
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>>, awake: Option<KeepAwake> }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>>, awake: Option<KeepAwake>, badges: Vec<IdentifyWindow>, badge_timer: Timer }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -150,9 +173,13 @@ impl NativeScreens {
         self.level_room();
     }
 
-    /// Whether the room window should be kept on top now: the setting is on and the room is full screen on a
-    /// monitor other than the operator's (where the operator window is, else where it would go).
-    fn room_should_be_on_top(&self) -> bool {
+    /// Whether the room window should be kept on top now.
+    #[cfg(test)]
+    fn room_should_be_on_top(&self) -> bool { self.should_be_on_top("room") }
+
+    /// Whether an audience window should be kept on top now: the setting is on and it is full screen on a monitor
+    /// other than the operator's (where the operator window is, else where it would go).
+    fn should_be_on_top(&self, role: &str) -> bool {
         if let Some(app) = self.app.upgrade() {
             if let Ok(d) = app.data.try_lock() { self.room_on_top.store(d.settings.room_on_top, Ordering::Relaxed) }
         }
@@ -162,29 +189,72 @@ impl NativeScreens {
             let room = d.watcher.monitor_of("room").cloned();
             let operator = d.operator.as_ref().and_then(std::rc::Weak::upgrade).and_then(|op| monitors::current(op.window()))
                 .or_else(|| operator_monitor(&list, main.as_ref(), room.as_ref()));
-            room_on_top(self.room_on_top.load(Ordering::Relaxed), room.as_ref(), operator.as_ref())
+            room_on_top(self.room_on_top.load(Ordering::Relaxed), d.watcher.monitor_of(role), operator.as_ref())
         })
     }
 
-    /// Puts the room window on top, or back to normal, as `room_should_be_on_top` says (at open and every look).
+    /// Puts the audience windows on top, or back to normal, as `should_be_on_top` says (at open and every look).
     fn level_room(&self) {
-        let on = self.room_should_be_on_top();
-        let rooms: Vec<Rc<Room>> = DESK.with(|d| d.borrow().wins.iter().filter_map(|(_, _, w, _)| match w { Win::Room(r) => Some(r.clone()), _ => None }).collect());
-        for r in rooms { r.set_on_top(on) }
+        let rooms: Vec<(String, Rc<Room>)> = DESK.with(|d| d.borrow().wins.iter().filter_map(|(role, _, w, _)| match w { Win::Room(r) => Some((role.clone(), r.clone())), _ => None }).collect());
+        for (role, r) in rooms { r.set_on_top(self.should_be_on_top(&role)) }
     }
 
-    /// Reopen room and stage: what was open before a crash, otherwise what settings say.
+    /// Reopen the screens: what was open before a crash, otherwise what the setup's switches say.
     fn reopen(&self) {
         let Some(app) = self.app.upgrade() else { return };
-        let saved = app.data.lock().unwrap().settings.displays.clone();
+        let windows = app.data.lock().unwrap().settings.screens.windows();
         let (list, main) = self.seen.lock().unwrap().clone();
         let restored = self.restored.lock().unwrap().take();
-        for (role, id) in [("room", saved.room), ("stage", saved.stage)] {
-            if restored.as_ref().is_some_and(|roles| !roles.iter().any(|r| r == role)) { continue }
-            let Some(m) = reopen_target(id.as_deref(), &list, main.as_ref(), restored.is_some()) else { continue };
-            if let Err(e) = self.show(role, m) { eprintln!("Could not reopen the {}: {e}", named(role)) }
+        for w in &windows {
+            if restored.as_ref().is_some_and(|roles| !roles.iter().any(|r| *r == w.key)) { continue }
+            let id = match &w.target { ScreenTarget::Monitor(m) => Some(m.as_str()), ScreenTarget::Window => None, ScreenTarget::None => continue };
+            let Some(m) = reopen_target(id, &list, main.as_ref(), restored.is_some()) else { continue };
+            let plain = m.is_none();
+            let opened = self.show(&w.key, m);
+            if plain && opened.is_ok() { self.size_window(&w.key, w.size) }
+            if let Err(e) = opened { eprintln!("Could not reopen the {}: {e}", named(&w.key)) }
         }
+        app.screens_applied(windows);
         app.broadcast_data();
+    }
+
+    /// Sets the size of `role`'s plain window.
+    fn size_window(&self, role: &str, (w, h): (u32, u32)) {
+        DESK.with(|d| if let Some((_, _, win, _)) = d.borrow().wins.iter().find(|(r, ..)| r == role) {
+            win.window().set_size(slint::PhysicalSize::new(w, h));
+        });
+    }
+
+    /// Identify (Slint thread): a badge on each monitor, which goes away by itself. A second click starts again.
+    fn identify_here(&self, marks: Vec<(String, String, String)>) -> Result<(), String> {
+        let monitors = to_monitors(&self.seen.lock().unwrap().0, None);
+        let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
+        let mut badges = vec![];
+        for (id, number, what) in marks {
+            let Some(m) = monitors.iter().find(|m| m.id == id) else { continue };
+            let ui = IdentifyWindow::new().map_err(|e| format!("Could not show the screen numbers: {e}"))?;
+            ui.set_number(number.into());
+            ui.set_what(what.into());
+            let ((x, y), (w, h)) = badge(m);
+            ui.window().set_position(slint::PhysicalPosition::new(x, y));
+            ui.window().set_size(slint::PhysicalSize::new(w, h));
+            ui.show().map_err(|e| format!("Could not show the screen numbers: {e}"))?;
+            badges.push(ui);
+        }
+        if let Some(op) = operator {
+            op.refocus();
+            let op = Rc::downgrade(&op);
+            Timer::single_shot(Duration::from_millis(150), move || if let Some(op) = op.upgrade() { op.refocus() });
+        }
+        DESK.with(|d| {
+            let mut d = d.borrow_mut();
+            for old in std::mem::replace(&mut d.badges, badges) { let _ = old.hide(); }
+            d.badge_timer.start(TimerMode::SingleShot, IDENTIFY_FOR, || DESK.with(|d| {
+                let badges = std::mem::take(&mut d.borrow_mut().badges);
+                for b in badges { let _ = b.hide(); }
+            }));
+        });
+        Ok(())
     }
 
     /// An unplug or return from the watch (Slint thread).
@@ -226,8 +296,9 @@ impl NativeScreens {
         // winit activates every window it creates, which would leave the operator's keys dead in the new
         // full-screen window: when the operator had focus, it gets it back (now and once the window settled).
         let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
-        let win = match role {
-            "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
+        let win = match kind(role) {
+            "room" if role == "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
+            "room" => Win::Room(Room::open_mirror(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
             "stage" => Win::Stage(Stage::open(app, mon.clone())?),
             _ => return Err("unknown window".into()),
         };
@@ -255,7 +326,7 @@ impl NativeScreens {
             match mon { Some(m) => d.watcher.watch(role, m, &self.seen.lock().unwrap().0), None => d.watcher.unwatch(role) }
         });
         self.sync_roles();
-        if role == "room" { self.level_room() }
+        if kind(role) == "room" { self.level_room() }
         Ok(())
     }
 
@@ -296,7 +367,7 @@ impl OperatorScreens for NativeScreens {
     /// The room's drawn player, when the room window is open (the operator calls this on the Slint thread, where
     /// the windows live; from any other thread there is none).
     fn preview_grabber(&self) -> Option<FrameGrabber> {
-        DESK.with(|d| d.borrow().wins.iter().find_map(|(_, _, w, _)| match w { Win::Room(r) => r.drawn_grabber(), Win::Stage(_) => None }))
+        DESK.with(|d| d.borrow().wins.iter().find_map(|(role, _, w, _)| match w { Win::Room(r) if role == "room" => r.drawn_grabber(), _ => None }))
     }
 }
 
@@ -307,11 +378,24 @@ impl Screens for NativeScreens {
             "operator" => self.on_ui(|_| {
                 if let Some(op) = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)) { op.raise() }
             }),
-            "room" | "stage" => {
+            _ if matches!(kind(role), "room" | "stage") => {
                 let (role, monitor) = (role.to_string(), monitor.map(str::to_string));
                 self.on_ui(move |s| s.open_here(&role, monitor.as_deref()))?
             }
             _ => Err("unknown window".into()),
+        }
+    }
+
+    fn open_window(&self, role: &str, size: (u32, u32)) -> Result<(), String> {
+        self.open(role, None)?;
+        let role = role.to_string();
+        self.on_ui(move |s| s.size_window(&role, size))
+    }
+
+    fn identify(&self, marks: Vec<(String, String, String)>) {
+        match self.on_ui(move |s| s.identify_here(marks)) {
+            Ok(Err(e)) | Err(e) => eprintln!("{e}"),
+            Ok(Ok(())) => {}
         }
     }
 
@@ -511,6 +595,50 @@ mod tests {
     }
 
     #[test]
+    fn extra_screens_open_beside_the_main_ones() {
+        let app = test_app();
+        let s = screens(&app);
+        s.open("room", None).unwrap();
+        s.open("room:lobby", None).unwrap();
+        s.open("stage:wall", None).unwrap();
+        assert_eq!(s.open_roles(), ["room", "room:lobby", "stage:wall"]);
+        assert_eq!(app.room_conns.load(Ordering::Relaxed), 1, "only the room counts as the room");
+        s.close("room:lobby");
+        assert_eq!(s.open_roles(), ["room", "stage:wall"]);
+        assert!(s.open("projector:1", None).is_err());
+        s.shutdown();
+    }
+
+    #[test]
+    fn a_sized_window_takes_its_size() {
+        let app = test_app();
+        let s = screens(&app);
+        Screens::open_window(&*s, "room", (640, 360)).unwrap();
+        DESK.with(|d| assert_eq!(d.borrow().wins[0].2.window().size(), slint::PhysicalSize::new(640, 360)));
+        s.shutdown();
+    }
+
+    #[test]
+    fn identify_shows_a_badge_on_each_monitor_that_is_there() {
+        let app = test_app();
+        let s = screens(&app);
+        let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 1280, 1920));
+        s.look_at(vec![laptop.clone(), projector.clone()], Some(laptop.clone()));
+        s.identify(vec![(laptop.key(), "1".into(), "This computer".into()), (projector.key(), "2".into(), "Audience".into()), ("gone".into(), "3".into(), "x".into())]);
+        assert_eq!(DESK.with(|d| d.borrow().badges.len()), 2);
+        s.shutdown();
+        assert_eq!(DESK.with(|d| d.borrow().badges.len()), 0);
+    }
+
+    #[test]
+    fn a_badge_sits_in_the_middle_of_its_monitor() {
+        let m = Monitor { id: "x".into(), label: String::new(), x: 1920, y: 0, width: 1280, height: 720, primary: false };
+        let ((x, y), (w, h)) = badge(&m);
+        assert_eq!((w, h), (388, 259));
+        assert_eq!((x - 1920, y), ((1280 - 388) / 2, (720 - 259) / 2));
+    }
+
+    #[test]
     fn unknown_monitor_is_a_readable_error() {
         let app = test_app();
         let s = screens(&app);
@@ -541,6 +669,7 @@ mod tests {
         assert!(s.open_roles().is_empty(), "the room window closes");
         assert_eq!(app.live_view().notice, Some(gone_notice("room")));
         assert!(gone_notice("room").contains("room screen was unplugged"));
+        assert!(gone_notice("room:1").contains("extra audience screen was unplugged"));
         // Plugged in again: the room reopens on it, and the operator hears it restarted.
         s.look_at(vec![laptop.clone(), projector], Some(laptop));
         assert_eq!(s.open_roles(), ["room"]);

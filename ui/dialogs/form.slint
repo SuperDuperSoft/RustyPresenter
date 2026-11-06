@@ -217,6 +217,37 @@ export component Check inherits HorizontalLayout {
 }
 
 /// `input[type=range]`: a whole-number slider from `minimum` to `maximum`; dragging or clicking the track sets it.
+/// An on/off switch. It shows `on`, so whoever set it decides when it really changed.
+export component Toggle inherits Rectangle {
+    in property <bool> on;
+    in property <string> label;
+    callback toggled(bool);
+    width: 38px;
+    height: 22px;
+    border-radius: self.height / 2;
+    background: root.on ? Theme.ok : Theme.raise;
+    border-width: 1px;
+    border-color: root.on ? Theme.ok : Theme.line;
+    accessible-role: switch;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-label: root.label;
+    accessible-action-default => { root.toggled(!root.on); }
+    Rectangle {
+        x: root.on ? root.width - self.width - 3px : 3px;
+        y: 3px;
+        width: root.height - 6px;
+        height: root.height - 6px;
+        border-radius: self.height / 2;
+        background: root.on ? Theme.white : Theme.muted;
+        animate x { duration: 120ms; easing: ease-out; }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(!root.on); }
+    }
+}
+
 export component RangeSlider inherits Rectangle {
     in property <int> minimum;
     in property <int> maximum: 100;

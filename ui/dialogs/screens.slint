@@ -1,184 +1,266 @@
-// The Screens dialog (`operator.js:793-828`): a card each for the room and the stage display.
+// Screen Configuration: the Audience and Stage lists on the left, the picked screen's settings on the right.
 import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
-import { DialogBody } from "shell.slint";
-import { Note } from "form.slint";
+import { Icon } from "../icons.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { Lbl, Note, Select, TextField, Toggle } from "form.slint";
 
-/// A connected monitor, as a pick button.
-export struct MonitorChoice { id: string, label: string }
+/// A screen in a list. `state` is a `Chip` state.
+export struct ScreenRow { id: string, name: string, size: string, status: string, state: string }
 
-/// One card: its role ("room" or "stage"), texts, status chip and monitor picker. `pick` is the index of the default
-/// monitor (`default_pick`), -1 for none.
-export struct ScreenCard {
-    role: string,
-    title: string,
-    desc: string,
-    chip: string,
-    chip-state: string,
-    open: bool,
-    monitors: [MonitorChoice],
-    pick: int,
-}
+/// The Audience or the Stage list. `key` is what the actions call it.
+export struct ScreenList { key: string, title: string, on: bool, rows: [ScreenRow] }
 
 /// Set and answered by `src/ui/dialogs/screens.rs`.
 export global ScreensDialogState {
-    in property <[ScreenCard]> cards;
-    /// `display/open` on the picked monitor (its id).
-    callback show(string, string);
-    callback turn-off(string);
-    callback test-window(string);
+    in property <[ScreenList]> lists;
+    /// The id of the screen on the right.
+    in property <string> selected;
+    in property <string> kind;
+    in-out property <string> name;
+    in property <[string]> outputs;
+    in-out property <int> output;
+    /// A window's size can be typed; a monitor's is what the monitor is.
+    in property <bool> size-editable;
+    in property <bool> has-size;
+    in-out property <string> width-text;
+    in-out property <string> height-text;
+    in property <string> size;
+    in property <string> aspect;
+    in property <string> note;
+    in property <bool> can-remove;
+    in property <bool> one-monitor;
+    callback power(string, bool);
+    callback add(string);
+    callback select(string);
+    callback rename(string);
+    callback pick-output(int);
+    callback resize();
+    callback remove();
+    callback identify();
     callback refresh();
 }
 
-/// `.mon-pick button` (`.on`).
-component MonitorButton inherits Rectangle {
-    in property <string> text;
-    in property <bool> on;
+/// The round + at the end of a list's head.
+component AddButton inherits Rectangle {
+    in property <string> label;
     callback clicked();
-    background: Theme.bg;
-    border-width: 1.5px;
-    border-color: root.on ? Theme.accent : Theme.line;
-    border-radius: 9px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: touch.has-hover ? Theme.raise : transparent;
     accessible-role: button;
-    accessible-label: root.text;
-    accessible-checked: root.on;
-    HorizontalLayout {
-        padding-top: 9px;
-        padding-bottom: 9px;
-        padding-left: 11px;
-        padding-right: 11px;
-        Text {
-            text: root.text;
-            color: Theme.text;
-            font-family: Theme.font;
-            font-size: Theme.base-size;
-            overflow: elide;
-        }
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        name: "plus";
+        color: Theme.text;
     }
-    TouchArea {
+    touch := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
 }
 
-/// `.screen-card`. A new card model makes new cards, so the pick starts again from the default (the web redraws).
-component ScreenCardView inherits Rectangle {
-    in property <ScreenCard> card;
-    property <int> pick: root.card.pick;
-    property <bool> can-show: root.pick >= 0 && root.pick < root.card.monitors.length;
-
-    background: Theme.panel-2;
+component ScreenRowView inherits Rectangle {
+    in property <ScreenRow> screen;
+    property <bool> on: root.screen.id == ScreensDialogState.selected;
+    border-radius: 9px;
     border-width: 1px;
-    border-color: Theme.line;
-    border-radius: 12px;
-    accessible-role: groupbox;
-    accessible-label: root.card.title;
-
-    VerticalLayout {
-        padding: 14px;
-        alignment: start;
-        HorizontalLayout {
-            spacing: 8px;
-            padding-bottom: 4px;
+    border-color: root.on ? Theme.accent : touch.has-hover ? Theme.line : transparent;
+    background: root.on ? Theme.raise : transparent;
+    accessible-role: list-item;
+    accessible-label: root.screen.name;
+    accessible-checked: root.on;
+    accessible-action-default => { ScreensDialogState.select(root.screen.id); }
+    HorizontalLayout {
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-left: 11px;
+        padding-right: 9px;
+        spacing: 8px;
+        VerticalLayout {
+            horizontal-stretch: 1;
+            min-width: 0px;
+            alignment: center;
             Text {
-                horizontal-stretch: 1;
-                text: root.card.title;
+                text: root.screen.name;
                 color: Theme.text;
-                font-family: Theme.display;
-                font-size: 16px;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
                 font-weight: 600;
-                vertical-alignment: center;
+                overflow: elide;
             }
-            VerticalLayout {
-                alignment: center;
-                chip := Chip {
-                    text: root.card.chip;
-                    state: root.card.chip-state;
-                    accessible-role: text;
-                    accessible-label: root.card.chip;
-                    accessible-value: root.card.chip-state;
-                }
+            if root.screen.size != "": Text {
+                text: root.screen.size;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                overflow: elide;
             }
         }
-        Text {
-            text: root.card.desc;
-            color: Theme.muted;
-            font-family: Theme.font;
-            font-size: 13px;
-            wrap: word-wrap;
-        }
-        Rectangle { height: 12px; }
-        if root.card.monitors.length > 1: VerticalLayout {
-            spacing: 6px;
-            padding-bottom: 12px;
-            for m[i] in root.card.monitors: monitor := MonitorButton {
-                text: m.label;
-                on: i == root.pick;
-                clicked => { root.pick = i; }
-            }
-        }
-        if root.card.monitors.length <= 1: VerticalLayout {
-            padding-bottom: 12px;
-            one-screen-note := Note {
-                text: @tr("Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh.");
-            }
-        }
-        HorizontalLayout {
-            spacing: 8px;
-            alignment: start;
-            show-btn := Btn {
-                primary: true;
-                enabled: root.can-show;
-                text: root.card.open ? @tr("Move / reopen here") : @tr("Show on this screen");
-                accessible-role: button;
-                accessible-label: self.text;
-                accessible-enabled: root.can-show;
-                clicked => { ScreensDialogState.show(root.card.role, root.card.monitors[root.pick].id); }
-            }
-            if root.card.open: off-btn := Btn {
-                text: @tr("Turn off");
-                clicked => { ScreensDialogState.turn-off(root.card.role); }
-            }
-            test-btn := Btn {
-                text: @tr("Test in a window");
-                clicked => { ScreensDialogState.test-window(root.card.role); }
+        VerticalLayout {
+            alignment: center;
+            status := Chip {
+                text: root.screen.status;
+                state: root.screen.state;
+                accessible-role: text;
+                accessible-label: root.screen.status;
             }
         }
     }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { ScreensDialogState.select(root.screen.id); }
+    }
+}
+
+component ScreenListView inherits VerticalLayout {
+    in property <ScreenList> list;
+    spacing: 4px;
+    HorizontalLayout {
+        spacing: 10px;
+        padding-bottom: 2px;
+        VerticalLayout {
+            alignment: center;
+            power := Toggle {
+                on: root.list.on;
+                label: root.list.title;
+                toggled(on) => { ScreensDialogState.power(root.list.key, on); }
+            }
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: root.list.title;
+            color: Theme.text;
+            font-family: Theme.display;
+            font-size: 16px;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+        add-btn := AddButton {
+            label: @tr("Add a screen to {}", root.list.title);
+            clicked => { ScreensDialogState.add(root.list.key); }
+        }
+    }
+    for r in root.list.rows: row-view := ScreenRowView { screen: r; }
+}
+
+/// A heading over one setting.
+component Setting inherits VerticalLayout {
+    in property <string> label;
+    spacing: 6px;
+    Lbl { label: root.label; }
+    @children
 }
 
 export component ScreensDialog inherits VerticalLayout {
     DialogBody {
-        // `.screens`: two equal columns, 14 px apart.
         HorizontalLayout {
-            spacing: 14px;
-            for c in ScreensDialogState.cards: card := ScreenCardView {
-                horizontal-stretch: 1;
-                preferred-width: 100px;
-                card: c;
+            spacing: 22px;
+            VerticalLayout {
+                width: 280px;
+                spacing: 18px;
+                alignment: start;
+                for l in ScreensDialogState.lists: list := ScreenListView { list: l; }
             }
-        }
-        HorizontalLayout {
-            padding-top: 12px;
-            spacing: 12px;
-            Text {
-                horizontal-stretch: 1;
-                text: @tr("RustyPresenter remembers your choice and reopens the screens next time.");
-                color: Theme.muted;
-                font-family: Theme.font;
-                font-size: 13px;
-                wrap: word-wrap;
-                vertical-alignment: center;
+            Rectangle {
+                width: 1px;
+                background: Theme.line;
             }
             VerticalLayout {
-                alignment: center;
-                refresh-btn := Btn {
-                    small: true;
-                    icon: "restart";
-                    text: @tr("Refresh");
-                    clicked => { ScreensDialogState.refresh(); }
+                horizontal-stretch: 1;
+                min-width: 0px;
+                spacing: 16px;
+                alignment: start;
+                Setting {
+                    label: ScreensDialogState.kind;
+                    name-field := TextField {
+                        height: 38px;
+                        label: @tr("Name");
+                        text <=> ScreensDialogState.name;
+                        edited(t) => { ScreensDialogState.rename(t); }
+                    }
+                }
+                Setting {
+                    label: @tr("Output");
+                    output-select := Select {
+                        options: ScreensDialogState.outputs;
+                        index <=> ScreensDialogState.output;
+                        changed(i) => { ScreensDialogState.pick-output(i); }
+                    }
+                }
+                if ScreensDialogState.has-size: Setting {
+                    label: @tr("Size");
+                    if ScreensDialogState.size-editable: HorizontalLayout {
+                        spacing: 8px;
+                        alignment: start;
+                        width-field := TextField {
+                            width: 96px;
+                            height: 38px;
+                            label: @tr("Width");
+                            text <=> ScreensDialogState.width-text;
+                            edited => { ScreensDialogState.resize(); }
+                        }
+                        Text {
+                            text: "×";
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                        }
+                        height-field := TextField {
+                            width: 96px;
+                            height: 38px;
+                            label: @tr("Height");
+                            text <=> ScreensDialogState.height-text;
+                            edited => { ScreensDialogState.resize(); }
+                        }
+                    }
+                    if !ScreensDialogState.size-editable: size-text := Text {
+                        text: ScreensDialogState.size;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                    }
+                    if ScreensDialogState.aspect != "": aspect-text := Text {
+                        text: @tr("Aspect ratio: {}", ScreensDialogState.aspect);
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                    }
+                }
+                if ScreensDialogState.note != "": note-box := Note { text: ScreensDialogState.note; font-size: 13px; }
+                if ScreensDialogState.one-monitor: one-screen-note := Note {
+                    font-size: 13px;
+                    text: @tr("Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh.");
+                }
+                if ScreensDialogState.can-remove: HorizontalLayout {
+                    alignment: start;
+                    remove-btn := Btn {
+                        danger: true;
+                        small: true;
+                        icon: "trash";
+                        text: @tr("Remove this screen");
+                        clicked => { ScreensDialogState.remove(); }
+                    }
                 }
             }
+        }
+    }
+    DialogFoot {
+        alignment: stretch;
+        identify-btn := Btn {
+            icon: "monitor";
+            text: @tr("Identify");
+            tooltip: @tr("Show each screen's number on it for a few seconds");
+            clicked => { ScreensDialogState.identify(); }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        refresh-btn := Btn {
+            icon: "restart";
+            text: @tr("Refresh");
+            clicked => { ScreensDialogState.refresh(); }
         }
     }
 }

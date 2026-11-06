@@ -1,16 +1,26 @@
-//! User-facing strings of the Screens dialog (Plan 3 Task 19), copied from `web/operator.js:793-828`.
+//! User-facing strings of Screen Configuration.
 //! Declared from `src/ui/dialogs/screens.rs` with a `#[path]` line, like `strings/dialogs.rs`.
 
-/// The two cards.
-pub const ROOM_TITLE: &str = "Room screen";
-pub const ROOM_DESC: &str = "What the congregation sees: projector or TV.";
-pub const STAGE_TITLE: &str = "Stage display (optional)";
-pub const STAGE_DESC: &str = "For singers and the pastor: current and next lyrics, notes and a clock.";
+/// The two lists.
+pub const AUDIENCE: &str = "Audience";
+pub const STAGE: &str = "Stage";
+pub const AUDIENCE_SCREEN: &str = "Audience screen";
+pub const STAGE_SCREEN: &str = "Stage screen";
 
-/// The status chip.
+/// A row's status chip.
 pub const SHOWING: &str = "Showing";
-pub const STARTING: &str = "Starting…";
 pub const OFF: &str = "Off";
+pub const NO_OUTPUT: &str = "No output";
+pub const UNPLUGGED: &str = "Unplugged";
 
-/// The toast after Show on this screen.
-pub fn opened(title: &str) -> String { format!("{title} opened") }
+/// The Output choices.
+pub const OUTPUT_NONE: &str = "None";
+pub const OUTPUT_WINDOW: &str = "In a window (for testing)";
+pub const OUTPUT_GONE: &str = "Not connected right now";
+
+/// The notes under the settings.
+pub const ON_MAIN: &str = "This is the screen you are working on. Turning this on covers it.";
+pub fn mirrors(first: &str) -> String { format!("Shows the same picture as {first}. Sound only plays from {first}.") }
+
+pub const REMOVE: &str = "Remove";
+pub fn remove_question(name: &str) -> String { format!("Remove “{name}”?") }

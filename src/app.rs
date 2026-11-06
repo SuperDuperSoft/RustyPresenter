@@ -107,11 +107,17 @@ pub struct Monitor {
 
 /// The windowing layer: opens and closes the operator, room and stage screens.
 pub trait Screens: Send + Sync {
+    /// `role` is "operator", or a window name from `ScreenSetup::keyed`: "room", "stage", or either plus ":" and a
+    /// screen's id for the extra screens of a group.
     fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String>;
+    /// A plain window of `size` (physical pixels), for a screen that shows in a window.
+    fn open_window(&self, role: &str, size: (u32, u32)) -> Result<(), String> { let _ = size; self.open(role, None) }
     fn close(&self, role: &str);
     /// Roles with an open window.
     fn open_roles(&self) -> Vec<String>;
     fn monitors(&self) -> Vec<Monitor>;
+    /// Shows `(monitor id, big number, what it is used for)` on each monitor for a few seconds.
+    fn identify(&self, marks: Vec<(String, String, String)>) { let _ = marks; }
     /// The sound outputs found. Asks the system, so never call it on the UI thread. Empty when that cannot be told.
     fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { vec![] }
 }
@@ -174,6 +180,8 @@ pub struct App {
     pub lan_url: Option<String>,
     /// Set once the windowing layer is running; windows can only be opened after that.
     screens: OnceLock<Arc<dyn Screens>>,
+    /// The output windows as last opened or left alone on purpose, by window name (`sync_screens`).
+    applied: Mutex<HashMap<String, ScreenWindow>>,
     pub(crate) pairing: Mutex<Option<Pairing>>,
     pub(crate) phones: Mutex<Vec<Phone>>,
     pub(crate) attempts: Mutex<HashMap<IpAddr, Instant>>,
@@ -221,7 +229,7 @@ impl App {
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
-            screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
+            screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
@@ -456,6 +464,53 @@ impl App {
     }
 
     pub fn close_window(&self, role: &str) { if let Some(s) = self.screens.get() { s.close(role); } }
+
+    /// Remembers that these windows were dealt with at start, so `sync_screens` leaves them alone.
+    pub fn screens_applied(&self, windows: Vec<ScreenWindow>) {
+        *self.applied.lock().unwrap() = windows.into_iter().map(|w| (w.key.clone(), w)).collect();
+    }
+
+    /// Makes the open windows match the setup: closes what it no longer asks for, and opens what is new or changed.
+    /// A window that is already right is left alone, so nothing on air blinks. Says which screens could not open.
+    pub fn sync_screens(&self) -> Result<(), String> {
+        let want = self.data.lock().unwrap().settings.screens.windows();
+        let mut applied = std::mem::take(&mut *self.applied.lock().unwrap());
+        let wanted = |key: &str| want.iter().any(|w| w.key == key);
+        for key in self.open_roles().into_iter().filter(|r| r != "operator" && !wanted(r)) { self.close_window(&key) }
+        applied.retain(|key, _| wanted(key));
+        let mut failed = vec![];
+        for w in &want {
+            if applied.get(&w.key) == Some(w) { continue }
+            let opened = match &w.target {
+                ScreenTarget::Monitor(m) => self.open_window(&w.key, Some(m)),
+                ScreenTarget::Window => self.screens.get().ok_or_else(|| "RustyPresenter is still starting. Try again in a moment.".to_string()).and_then(|s| s.open_window(&w.key, w.size)),
+                ScreenTarget::None => continue,
+            };
+            match opened { Ok(()) => { applied.insert(w.key.clone(), w.clone()); } Err(e) => failed.push(e) }
+        }
+        *self.applied.lock().unwrap() = applied;
+        failed.dedup();
+        if failed.is_empty() { Ok(()) } else { Err(failed.join(" ")) }
+    }
+
+    /// The first monitor that is free for a group's screen: not the operator's, and not used by another screen.
+    fn free_monitor(&self, screens: &ScreenSetup) -> Option<Monitor> {
+        let used: Vec<&str> = ScreenSetup::GROUPS.iter().flat_map(|g| screens.monitors(g)).collect();
+        self.monitors().into_iter().find(|m| !m.primary && !used.contains(&m.id.as_str()))
+    }
+
+    /// Big number for each monitor, and the screens that show on it.
+    fn identify_screens(&self) {
+        let Some(screens) = self.screens.get() else { return };
+        let setup = self.data.lock().unwrap().settings.screens.clone();
+        let marks = screens.monitors().into_iter().enumerate().map(|(i, m)| {
+            let names: Vec<&str> = ScreenSetup::GROUPS.iter().filter_map(|g| setup.group(g)).flat_map(|g| &g.screens)
+                .filter(|s| s.output().target == ScreenTarget::Monitor(m.id.clone())).map(|s| s.name.as_str()).collect();
+            let what = if names.is_empty() { if m.primary { "This computer" } else { "Not used" }.to_string() } else { names.join(", ") };
+            (m.id, (i + 1).to_string(), what)
+        }).collect();
+        screens.identify(marks);
+    }
 
     /// Spec §13, for the current service. Looks at every file it needs, so call it off the UI thread.
     pub fn preflight(&self) -> Vec<String> {
@@ -843,12 +898,12 @@ impl App {
             #[derive(Deserialize)] struct O { role: String, monitor: Option<String> }
             let O { role, monitor } = parse(body)?;
             if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
-            if let Some(m) = monitor.as_ref().filter(|_| role != "operator") {
-                let m = m.clone();
-                let r = role.clone();
-                tryr!(app.edit(|d| { if r == "room" { d.settings.displays.room = Some(m); } else { d.settings.displays.stage = Some(m); } Ok(()) }));
+            if role == "operator" { tryr!(app.open_window(&role, None)) } else {
+                let target = monitor.map_or(ScreenTarget::Window, ScreenTarget::Monitor);
+                let group = if role == "room" { "audience" } else { "stage" };
+                tryr!(app.edit(|d| { d.settings.screens.assign(group, target); Ok(()) }));
+                tryr!(app.sync_screens());
             }
-            tryr!(app.open_window(&role, monitor.as_deref()));
             app.broadcast_data();
             Ok(json!({}))
         }
@@ -856,8 +911,98 @@ impl App {
             #[derive(Deserialize)] struct C { role: String }
             let C { role } = parse(body)?;
             if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
-            app.close_window(&role);
+            if role == "operator" { app.close_window(&role) } else {
+                let group = if role == "room" { "audience" } else { "stage" };
+                tryr!(app.edit(|d| { d.settings.screens.group_mut(group).ok_or("Unknown screen.")?.on = false; Ok(()) }));
+                tryr!(app.sync_screens());
+            }
             app.broadcast_data();
+            Ok(json!({}))
+        }
+        // ---- the screen setup ----
+        "screens/power" => {
+            #[derive(Deserialize)] struct P { group: String, on: bool }
+            let P { group, on } = parse(body)?;
+            let free = app.free_monitor(&app.data.lock().unwrap().settings.screens);
+            tryr!(app.edit(|d| {
+                let g = d.settings.screens.group_mut(&group).ok_or("Unknown screen.")?;
+                // The first switch-on just works when a screen is free for it.
+                if on && g.screens.iter().all(|s| s.output().target == ScreenTarget::None) {
+                    let free = free.ok_or("Pick an output for this screen first.")?;
+                    let first = g.screens.first_mut().ok_or("Add a screen first.")?;
+                    *first.output_mut() = ScreenOutput { target: ScreenTarget::Monitor(free.id), width: free.width.max(0) as u32, height: free.height.max(0) as u32 };
+                }
+                g.on = on;
+                Ok(())
+            }));
+            tryr!(app.sync_screens());
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        "screens/add" => {
+            #[derive(Deserialize)] struct A { group: String }
+            let A { group } = parse(body)?;
+            let id = tryr!(app.edit(|d| {
+                let g = d.settings.screens.group_mut(&group).ok_or("Unknown screen.")?;
+                let n = g.screens.len() + 1;
+                let title = if group == "audience" { "Audience" } else { "Stage Display" };
+                let name = (n..).map(|i| format!("{title} {i}")).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
+                let screen = Screen::new(Uuid::new_v4(), &name);
+                let id = screen.id;
+                g.screens.push(screen);
+                Ok(id)
+            }));
+            Ok(json!({ "id": id }))
+        }
+        "screens/remove" => {
+            #[derive(Deserialize)] struct R { id: Uuid }
+            let R { id } = parse(body)?;
+            tryr!(app.edit(|d| {
+                let s = &mut d.settings.screens;
+                let (group, _) = s.find(id).ok_or("That screen is gone.")?;
+                let g = s.group_mut(group).ok_or("Unknown screen.")?;
+                if g.screens.len() < 2 { return Err("Each list keeps at least one screen.".into()) }
+                g.screens.retain(|s| s.id != id);
+                Ok(())
+            }));
+            tryr!(app.sync_screens());
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        // Any of the name, where it shows and the size of a window. One monitor shows one screen, so taking a monitor
+        // takes it from the screen that had it.
+        "screens/update" => {
+            #[derive(Deserialize)] struct U { id: Uuid, name: Option<String>, target: Option<ScreenTarget>, size: Option<(u32, u32)> }
+            let U { id, name, target, size } = parse(body)?;
+            let move_windows = target.is_some() || size.is_some();
+            let monitors = app.monitors();
+            tryr!(app.edit(|d| {
+                let setup = &mut d.settings.screens;
+                if let Some(ScreenTarget::Monitor(m)) = &target {
+                    for g in [&mut setup.audience, &mut setup.stage] {
+                        for s in g.screens.iter_mut().filter(|s| s.id != id) {
+                            if s.output().target == ScreenTarget::Monitor(m.clone()) { s.output_mut().target = ScreenTarget::None }
+                        }
+                    }
+                }
+                let screen = setup.find_mut(id).ok_or("That screen is gone.")?;
+                if let Some(name) = name.as_deref().map(str::trim).filter(|n| !n.is_empty()) { screen.name = name.into() }
+                let out = screen.output_mut();
+                if let Some(t) = target {
+                    if let ScreenTarget::Monitor(m) = &t && let Some(m) = monitors.iter().find(|x| x.id == *m) {
+                        (out.width, out.height) = (m.width.max(0) as u32, m.height.max(0) as u32);
+                    }
+                    out.target = t;
+                }
+                if let Some((w, h)) = size { (out.width, out.height) = (w.clamp(320, 7680), h.clamp(240, 4320)) }
+                Ok(())
+            }));
+            if move_windows { tryr!(app.sync_screens()) }
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        "screens/identify" => {
+            app.identify_screens();
             Ok(json!({}))
         }
         "stage/message" => {

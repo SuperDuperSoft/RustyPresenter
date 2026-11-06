@@ -206,12 +206,132 @@ impl Default for Theme {
     }
 }
 
+/// The pre-screen-setup choice of monitors. Only ever read from older saved data (`Data::upgrade`); never written.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct DisplayRoles {
     /// Windows monitor device name, e.g. `\\.\DISPLAY2`.
     pub room: Option<String>,
     pub stage: Option<String>,
+}
+
+/// Where a screen's picture goes.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase", tag = "kind", content = "monitor")]
+pub enum ScreenTarget {
+    /// Nowhere yet.
+    #[default]
+    None,
+    /// A plain window on the operator's desktop, for trying things out.
+    Window,
+    /// Full screen on this monitor (`MonitorId::key`).
+    Monitor(String),
+}
+
+/// One physical output of a screen. A window uses its size; a monitor's real size is kept here so a list can show it
+/// while the monitor is unplugged.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(default)]
+pub struct ScreenOutput { pub target: ScreenTarget, pub width: u32, pub height: u32 }
+
+impl Default for ScreenOutput {
+    fn default() -> Self { Self { target: ScreenTarget::None, width: 1920, height: 1080 } }
+}
+
+/// A named screen. It has exactly one output today; a list, so a screen made of several projectors (edge blending)
+/// can be added without changing what is saved.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(default)]
+pub struct Screen { pub id: Uuid, pub name: String, pub outputs: Vec<ScreenOutput> }
+
+impl Default for Screen {
+    fn default() -> Self { Self::new(Uuid::new_v4(), "Screen") }
+}
+
+impl Screen {
+    pub fn new(id: Uuid, name: &str) -> Self { Self { id, name: name.into(), outputs: vec![ScreenOutput::default()] } }
+    /// Its output. A saved screen without one reads as having nowhere to go.
+    pub fn output(&self) -> ScreenOutput { self.outputs.first().cloned().unwrap_or_default() }
+    pub fn output_mut(&mut self) -> &mut ScreenOutput {
+        if self.outputs.is_empty() { self.outputs.push(ScreenOutput::default()) }
+        &mut self.outputs[0]
+    }
+}
+
+/// The Audience or the Stage list and its one switch.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+#[serde(default)]
+pub struct ScreenGroup { pub on: bool, pub screens: Vec<Screen> }
+
+/// An output window the setup asks for, under the name the windowing layer knows it by.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ScreenWindow { pub key: String, pub target: ScreenTarget, pub size: (u32, u32) }
+
+/// Which screens exist and where they show.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(default)]
+pub struct ScreenSetup { pub audience: ScreenGroup, pub stage: ScreenGroup }
+
+impl Default for ScreenSetup {
+    fn default() -> Self {
+        Self {
+            audience: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(1), "Audience")] },
+            stage: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(2), "Stage Display")] },
+        }
+    }
+}
+
+impl ScreenSetup {
+    pub const GROUPS: [&str; 2] = ["audience", "stage"];
+
+    pub fn group(&self, name: &str) -> Option<&ScreenGroup> {
+        match name { "audience" => Some(&self.audience), "stage" => Some(&self.stage), _ => None }
+    }
+
+    pub fn group_mut(&mut self, name: &str) -> Option<&mut ScreenGroup> {
+        match name { "audience" => Some(&mut self.audience), "stage" => Some(&mut self.stage), _ => None }
+    }
+
+    /// The group holding screen `id`, and the screen.
+    pub fn find(&self, id: Uuid) -> Option<(&'static str, &Screen)> {
+        Self::GROUPS.into_iter().find_map(|g| Some((g, self.group(g)?.screens.iter().find(|s| s.id == id)?)))
+    }
+
+    pub fn find_mut(&mut self, id: Uuid) -> Option<&mut Screen> {
+        [&mut self.audience, &mut self.stage].into_iter().flat_map(|g| g.screens.iter_mut()).find(|s| s.id == id)
+    }
+
+    /// The window name of each of the group's screens that has an output. The first is plain "room" or "stage": the
+    /// room is the one that plays sound and tells the live engine what is on air. The others carry their id.
+    pub fn keyed<'a>(&'a self, group: &str) -> Vec<(String, &'a Screen)> {
+        let (role, screens) = match group { "audience" => ("room", &self.audience.screens), _ => ("stage", &self.stage.screens) };
+        screens.iter().filter(|s| s.output().target != ScreenTarget::None).enumerate()
+            .map(|(i, s)| (if i == 0 { role.to_string() } else { format!("{role}:{}", s.id) }, s)).collect()
+    }
+
+    /// The windows the switches ask for, every room before the stage.
+    pub fn windows(&self) -> Vec<ScreenWindow> {
+        Self::GROUPS.into_iter().filter(|g| self.group(g).is_some_and(|g| g.on)).flat_map(|g| self.keyed(g)).map(|(key, s)| {
+            let o = s.output();
+            ScreenWindow { key, target: o.target, size: (o.width, o.height) }
+        }).collect()
+    }
+
+    /// The monitors the group's screens are set to.
+    pub fn monitors(&self, group: &str) -> Vec<&str> {
+        self.group(group).map_or(vec![], |g| g.screens.iter().flat_map(|s| &s.outputs).filter_map(|o| match &o.target {
+            ScreenTarget::Monitor(m) => Some(m.as_str()),
+            _ => None,
+        }).collect())
+    }
+
+    /// Points the group's first screen at `target` and turns the group on.
+    pub fn assign(&mut self, group: &str, target: ScreenTarget) {
+        let Some(g) = self.group_mut(group) else { return };
+        if g.screens.is_empty() { g.screens.push(Screen::default()) }
+        g.screens[0].output_mut().target = target;
+        g.on = true;
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -225,7 +345,10 @@ pub struct Settings {
     pub credits: String,
     pub church_ccli: String,
     pub translation: String,
+    /// Older data only: read once into `screens` by `Data::upgrade`.
+    #[serde(skip_serializing)]
     pub displays: DisplayRoles,
+    pub screens: ScreenSetup,
     /// Keep the room window on top of other windows while it is full screen on a monitor of its own, so Windows
     /// paints it first (smooth fades on the projector while the operator is busy). Never applies when the room
     /// shares the operator's monitor.
@@ -247,6 +370,7 @@ impl Default for Settings {
             church_ccli: String::new(),
             translation: "KJV".into(),
             displays: DisplayRoles::default(),
+            screens: ScreenSetup::default(),
             room_on_top: true,
             audio_device: String::new(),
             bible_per_slide: 0,
@@ -275,6 +399,15 @@ impl Default for Data {
 }
 
 impl Data {
+    /// Brings data saved by an older version up to date. A saved monitor was shown at every start, so its group is on.
+    pub fn upgrade(mut self) -> Self {
+        let old = std::mem::take(&mut self.settings.displays);
+        for (group, monitor) in [("audience", old.room), ("stage", old.stage)] {
+            if let Some(m) = monitor { self.settings.screens.assign(group, ScreenTarget::Monitor(m)) }
+        }
+        self
+    }
+
     pub fn service(&self) -> Option<&Service> {
         self.current_service.and_then(|id| self.services.iter().find(|s| s.id == id)).or(self.services.first())
     }
@@ -349,5 +482,71 @@ mod tests {
         ]);
         assert!(passage("song", &slides).is_empty(), "songs fit slide by slide");
         assert!(passage("scripture", &slides[..1]).is_empty(), "one slide fits itself");
+    }
+}
+
+#[cfg(test)]
+mod screen_tests {
+    use super::*;
+
+    fn on_monitor(name: &str, m: &str) -> Screen {
+        let mut s = Screen::new(Uuid::new_v4(), name);
+        s.output_mut().target = ScreenTarget::Monitor(m.into());
+        s
+    }
+
+    #[test]
+    fn older_data_keeps_its_monitors_and_stays_on() {
+        let old = r#"{"settings":{"displays":{"room":"A","stage":null}}}"#;
+        let d = serde_json::from_str::<Data>(old).unwrap().upgrade();
+        assert!(d.settings.screens.audience.on);
+        assert_eq!(d.settings.screens.monitors("audience"), ["A"]);
+        assert!(!d.settings.screens.stage.on, "no stage was chosen");
+        assert_eq!(d.settings.displays, DisplayRoles::default());
+        assert!(!serde_json::to_string(&d).unwrap().contains("displays"), "the old field is never written again");
+    }
+
+    #[test]
+    fn saved_screens_survive_a_new_load() {
+        let mut d = Data::default();
+        d.settings.screens.assign("stage", ScreenTarget::Window);
+        let again = serde_json::from_str::<Data>(&serde_json::to_string(&d).unwrap()).unwrap().upgrade();
+        assert_eq!(again.settings.screens, d.settings.screens);
+    }
+
+    #[test]
+    fn data_with_no_screens_gets_the_two_lists() {
+        let d = serde_json::from_str::<Data>("{}").unwrap().upgrade();
+        assert_eq!(d.settings.screens, ScreenSetup::default());
+        assert_eq!(d.settings.screens.windows(), vec![]);
+    }
+
+    #[test]
+    fn the_first_screen_with_an_output_is_the_room() {
+        let mut s = ScreenSetup::default();
+        let (lobby, wall) = (on_monitor("Lobby", "B"), on_monitor("Wall", "C"));
+        let wall_id = wall.id;
+        s.audience.screens.extend([lobby, wall]); // the default one has no output
+        s.audience.on = true;
+        let w = s.windows();
+        assert_eq!(w.iter().map(|w| w.key.clone()).collect::<Vec<_>>(), ["room".to_string(), format!("room:{wall_id}")]);
+        assert_eq!(w[0].target, ScreenTarget::Monitor("B".into()));
+    }
+
+    #[test]
+    fn a_switched_off_group_asks_for_no_windows() {
+        let mut s = ScreenSetup::default();
+        s.assign("audience", ScreenTarget::Window);
+        s.assign("stage", ScreenTarget::Window);
+        s.stage.on = false;
+        assert_eq!(s.windows().iter().map(|w| w.key.as_str()).collect::<Vec<_>>(), ["room"]);
+    }
+
+    #[test]
+    fn find_names_the_group() {
+        let s = ScreenSetup::default();
+        let id = s.stage.screens[0].id;
+        assert_eq!(s.find(id).map(|(g, x)| (g, x.name.as_str())), Some(("stage", "Stage Display")));
+        assert!(s.find(Uuid::nil()).is_none());
     }
 }
