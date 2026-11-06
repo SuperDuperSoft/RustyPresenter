@@ -3,6 +3,8 @@
 pub mod add_item;
 pub mod bible;
 pub mod file_input;
+#[cfg(test)]
+mod fit;
 pub mod files;
 #[path = "../../strings/operator.rs"]
 pub mod strings;

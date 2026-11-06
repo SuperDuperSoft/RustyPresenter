@@ -1,6 +1,6 @@
 // The web's `confirm()` and `prompt()` (`operator.js`), as small overlays above any dialog or the bare window.
 import { Theme, OperatorState } from "../theme.slint";
-import { Btn, EditMenu } from "../widgets.slint";
+import { Btn, EditMenu, ScrollBox } from "../widgets.slint";
 
 /// One question: a confirm (OK / Cancel) or a prompt (a text field too). A confirm with an `other-label` has a
 /// third button between them (`choose` in `ask.rs`).
@@ -52,9 +52,10 @@ export component AskOverlay inherits Rectangle {
             reject
         }
 
+        // As a dialog's card: no taller than 88 % of the window; a long question scrolls.
         card := Rectangle {
             width: min(460px, root.width * 0.9);
-            height: lay.preferred-height;
+            height: min(lay.preferred-height, root.height * 0.88);
             x: (root.width - self.width) / 2;
             y: (root.height - self.height) / 2;
             background: Theme.panel;
@@ -75,12 +76,21 @@ export component AskOverlay inherits Rectangle {
                 padding-left: 22px;
                 padding-right: 22px;
                 spacing: 14px;
-                text := Text {
-                    text: root.ask.text;
-                    color: Theme.text;
-                    font-family: Theme.font;
-                    font-size: 15px;
-                    wrap: word-wrap;
+                ScrollBox {
+                    vertical-stretch: 1;
+                    min-height: 0px;
+                    preferred-height: text-lay.preferred-height;
+                    // Room for the scrollbar beside the text.
+                    text-lay := VerticalLayout {
+                        padding-right: 12px;
+                        text := Text {
+                            text: root.ask.text;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 15px;
+                            wrap: word-wrap;
+                        }
+                    }
                 }
                 if root.ask.prompt: Rectangle {
                     height: 38px;
@@ -108,6 +118,8 @@ export component AskOverlay inherits Rectangle {
                             changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
                             accepted => { root.answer(true, root.typed); }
                             EditMenu {
+                                x: 0;
+                                y: 0;
                                 width: 100%;
                                 height: 100%;
                                 has-text: input.text != "";

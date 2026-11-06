@@ -217,6 +217,7 @@ impl Operator {
             name: t.as_str().into(), on: *t == s.translation, off: !s.available.contains(t),
         }).collect();
         ui.set_translations(ModelRc::new(VecModel::from(chips)));
+        ui.set_translation(s.translation.as_str().into());
         let (on, tip) = match s.room {
             RoomStatus::Showing => (true, tr::ROOM_SHOWING),
             RoomStatus::Starting => (false, tr::ROOM_STARTING),
@@ -497,6 +498,20 @@ mod tests {
         assert!(width <= 1250.0, "the test needs a narrow first width, got {width}");
         slint::platform::update_timers_and_animations();
         assert!(ui.get_narrow());
+    }
+
+    #[test]
+    fn first_start_shows_welcome_and_no_dialog() {
+        // Empty data: the Welcome panel is the guide; no dialog opens until the operator asks for one.
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        op.apply_live(crate::app::LiveUpdate::new(app.live_view()));
+        slint::platform::update_timers_and_animations();
+        assert_eq!(op.dialog(), None);
+        assert!(!op.ui.get_dialog_open());
+        assert!(find(&op, "DialogShell::card").is_none());
+        assert!(find(&op, "SlidesPanel::welcome").is_some());
     }
 
     #[test]
