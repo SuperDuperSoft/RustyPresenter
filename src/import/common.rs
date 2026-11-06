@@ -108,7 +108,7 @@ pub(crate) fn read_stable(paths: &[PathBuf], tries: usize, pause: Duration, app:
         paths.iter().map(|p| match std::fs::read(p) {
             Ok(b) => Ok(Some(b)),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
-            Err(e) => Err(format!("Couldn't read {}: {e}.", p.display())),
+            Err(e) => Err(crate::tr!("Couldn't read {path}: {error}.", path = p.display(), error = e)),
         }).collect()
     };
     let mut last = read_all()?;
@@ -118,7 +118,7 @@ pub(crate) fn read_stable(paths: &[PathBuf], tries: usize, pause: Duration, app:
         if now == last { return Ok(now); }
         last = now;
     }
-    Err(format!("{app} kept saving changes while the library was being read. Close {app} and try again."))
+    Err(crate::tr!("{app} kept saving changes while the library was being read. Close {app} and try again.", app = app))
 }
 
 /// A private temp folder, removed on drop. Retries because Windows can hold a just-closed file for a moment.
@@ -147,13 +147,13 @@ impl Drop for TempDir {
 pub(crate) fn snapshot(dbs: &[&Path], app: &str) -> Result<Vec<Connection>, String> {
     let paths: Vec<PathBuf> = dbs.iter().flat_map(|d| database_files(d)).collect();
     let files = read_stable(&paths, STABLE_TRIES, STABLE_PAUSE, app)?;
-    let tmp = TempDir::new().map_err(|e| format!("Couldn't make a temporary folder: {e}."))?;
+    let tmp = TempDir::new().map_err(|e| crate::tr!("Couldn't make a temporary folder: {error}.", error = e))?;
     for (p, bytes) in paths.iter().zip(&files) {
         let Some(bytes) = bytes else { continue };
-        std::fs::write(tmp.0.join(p.file_name().unwrap_or_default()), bytes).map_err(|e| format!("Couldn't copy {}: {e}.", p.display()))?;
+        std::fs::write(tmp.0.join(p.file_name().unwrap_or_default()), bytes).map_err(|e| crate::tr!("Couldn't copy {path}: {error}.", path = p.display(), error = e))?;
     }
     dbs.iter().map(|p| backup_into_memory(&tmp.0.join(p.file_name().unwrap_or_default()))
-        .map_err(|e| format!("Couldn't open {}: {e}.", p.display()))).collect()
+        .map_err(|e| crate::tr!("Couldn't open {path}: {error}.", path = p.display(), error = e))).collect()
 }
 
 /// How often to retry a backup step that finds the database locked: `BUSY_TRIES` × `BUSY_PAUSE`.
@@ -176,7 +176,7 @@ pub(crate) fn backup_into_memory(path: &Path) -> rusqlite::Result<Connection> {
                     busy += 1;
                     if busy > BUSY_TRIES {
                         return Err(rusqlite::Error::SqliteFailure(rusqlite::ffi::Error::new(rusqlite::ffi::SQLITE_BUSY),
-                            Some("the database stayed locked".into())));
+                            Some(crate::tr!("the database stayed locked"))));
                     }
                     std::thread::sleep(BUSY_PAUSE);
                 }
@@ -191,9 +191,9 @@ pub(crate) fn backup_into_memory(path: &Path) -> rusqlite::Result<Connection> {
 pub(crate) fn check_sqlite(path: &Path, not_sqlite: &str) -> Result<(), String> {
     use std::io::Read;
     let mut head = Vec::new();
-    std::fs::File::open(path).and_then(|f| f.take(16).read_to_end(&mut head)).map_err(|e| format!("Couldn't read {}: {e}.", path.display()))?;
+    std::fs::File::open(path).and_then(|f| f.take(16).read_to_end(&mut head)).map_err(|e| crate::tr!("Couldn't read {path}: {error}.", path = path.display(), error = e))?;
     if head == b"SQLite format 3\0" { return Ok(()); }
-    if head.len() < 16 { return Err(format!("{} is empty or damaged, so there is nothing to import.", path.display())); }
+    if head.len() < 16 { return Err(crate::tr!("{path} is empty or damaged, so there is nothing to import.", path = path.display())); }
     Err(not_sqlite.into())
 }
 

@@ -12,6 +12,7 @@
 use super::common::{find_files, label_line, section_name, ImportReport};
 use super::easyworship::split_writers;
 use crate::model::Song;
+use crate::tr;
 use crate::slides::section_label;
 use encoding_rs::{UTF_16BE, UTF_16LE, WINDOWS_1252};
 use std::collections::HashMap;
@@ -401,9 +402,9 @@ impl Draft {
         let title = self.title.clone().map(|t| t.trim().to_string()).filter(|t| !t.is_empty())
             .or_else(|| fallback.map(str::to_string).filter(|t| !t.trim().is_empty()))
             .or_else(|| self.first_line.as_ref().map(|l| l.chars().take(MAX_TITLE).collect::<String>().trim_end_matches([',', ';', ':', '.']).to_string()))
-            .unwrap_or_else(|| "Untitled song".into());
-        if self.too_many { return (title, Err(format!("more than {MAX_SECTIONS} sections, so it isn't a song"))); }
-        if self.sections.is_empty() { return (title, Err("no lyrics".into())); }
+            .unwrap_or_else(|| tr!("Untitled song"));
+        if self.too_many { return (title, Err(tr!("more than {max} sections, so it isn't a song", max = MAX_SECTIONS))); }
+        if self.sections.is_empty() { return (title, Err(tr!("no lyrics"))); }
         let lyrics = self.sections.iter()
             .map(|(name, groups)| format!("{}\n{}", label_line(name), groups.iter().map(|g| g.join("\n")).collect::<Vec<_>>().join("\n\n")))
             .collect::<Vec<_>>().join("\n\n");
@@ -458,8 +459,8 @@ fn parse_named(text: &str, name: Option<&str>) -> (ImportReport, bool) {
         match d.finish(fallback) { (_, Ok(s)) => report.songs.push(s), (title, Err(why)) => report.skipped.push((title, why)) }
     }
     if let Some((title, block)) = unclosed {
-        let title = title.or_else(|| name.map(str::to_string)).unwrap_or_else(|| "Untitled song".into());
-        report.skipped.push((title, format!("a {block} block never ends, so everything after it was left out")));
+        let title = title.or_else(|| name.map(str::to_string)).unwrap_or_else(|| tr!("Untitled song"));
+        report.skipped.push((title, tr!("a {block} block never ends, so everything after it was left out", block = block)));
     }
     (report, chordpro)
 }
@@ -479,18 +480,18 @@ fn file_label(p: &Path) -> String { p.file_name().unwrap_or_default().to_string_
 /// One file's songs added to `report`; problems become skipped entries named after the file.
 fn read_file(p: &Path, report: &mut ImportReport) {
     let size = std::fs::metadata(p).map(|m| m.len()).unwrap_or(0);
-    if size > MAX_FILE { report.skipped.push((file_label(p), "the file is too big to be a song".into())); return; }
+    if size > MAX_FILE { report.skipped.push((file_label(p), tr!("the file is too big to be a song"))); return; }
     let bytes = match std::fs::read(p) {
         Ok(b) => b,
-        Err(e) => { report.skipped.push((file_label(p), format!("couldn't read it: {e}"))); return; }
+        Err(e) => { report.skipped.push((file_label(p), tr!("couldn't read it: {error}", error = e))); return; }
     };
     let stem = p.file_stem().map(|s| s.to_string_lossy().into_owned());
     let (r, chordpro) = parse_named(&decode(&bytes), stem.as_deref());
     // Lyrics alone are a valid ChordPro file, but `.pro` is also a Qt project file: that one must show a chord
     // or a directive.
     let pro = p.extension().and_then(|e| e.to_str()).is_some_and(|e| e.eq_ignore_ascii_case("pro"));
-    if pro && !chordpro { report.skipped.push((file_label(p), "it doesn't look like a ChordPro file".into())); return; }
-    if r.songs.is_empty() && r.skipped.is_empty() { report.skipped.push((file_label(p), "no songs in it".into())); return; }
+    if pro && !chordpro { report.skipped.push((file_label(p), tr!("it doesn't look like a ChordPro file"))); return; }
+    if r.songs.is_empty() && r.skipped.is_empty() { report.skipped.push((file_label(p), tr!("no songs in it"))); return; }
     report.songs.extend(r.songs);
     report.skipped.extend(r.skipped);
 }
@@ -501,20 +502,20 @@ pub fn read_chordpro(path: &Path) -> Result<ImportReport, String> {
     if path.is_file() {
         read_file(path, &mut report);
         if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| "no songs in it".into());
-            return Err(format!("No songs could be read from {}: {why}.", path.display()));
+            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no songs in it"));
+            return Err(tr!("No songs could be read from {path}: {why}.", path = path.display(), why = why));
         }
         return Ok(report);
     }
-    if !path.is_dir() { return Err(format!("Couldn't find {}.", path.display())); }
+    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
     let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, has_extension);
     if files.is_empty() {
-        return Err(format!("No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {}.", path.display()));
+        return Err(tr!("No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}.", path = path.display()));
     }
     for f in &files { read_file(f, &mut report); }
     if cut_short {
         report.skipped.push((path.display().to_string(),
-            format!("the folder has more than {MAX_FILES} files and folders in it, so only the first {MAX_FILES} were looked at")));
+            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
     }
     Ok(report)
 }

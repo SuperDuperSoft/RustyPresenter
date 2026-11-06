@@ -9,6 +9,7 @@
 //! in the app's Song, so they are not read.
 use super::common::{check_sqlite, columns, find_file, label_line, section_name, snapshot, value_int, value_text, ImportReport};
 use crate::model::Song;
+use crate::tr;
 use rusqlite::Connection;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -109,9 +110,9 @@ pub(crate) fn verse_text(verse: roxmltree::Node) -> String {
 
 /// The `<verse>` elements of OpenLP's lyrics XML, in document order. DTDs are refused (no entity tricks).
 pub fn parse_verses(xml: &str) -> Result<Vec<Verse>, String> {
-    let doc = roxmltree::Document::parse(xml.trim_start_matches(is_bom_or_space)).map_err(|e| format!("the lyrics are not valid XML ({e})"))?;
+    let doc = roxmltree::Document::parse(xml.trim_start_matches(is_bom_or_space)).map_err(|e| tr!("the lyrics are not valid XML ({error})", error = e))?;
     let verses: Vec<_> = doc.descendants().filter(|n| n.is_element() && n.tag_name().name().eq_ignore_ascii_case("verse")).collect();
-    if verses.len() > MAX_VERSES { return Err(format!("the lyrics have too many verses (more than {MAX_VERSES})")); }
+    if verses.len() > MAX_VERSES { return Err(tr!("the lyrics have too many verses (more than {max})", max = MAX_VERSES)); }
     Ok(verses.into_iter().map(|n| {
         let (mut kind, mut label) = (n.attribute("type").unwrap_or("").trim().to_string(), n.attribute("label").unwrap_or("").trim().to_string());
         // OpenLyrics style `name="v1"` when there is no type.
@@ -242,10 +243,10 @@ fn join_groups(groups: &[Vec<String>]) -> String {
 /// when that is just the written order. Err is why the lyrics can't be used.
 pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<String>), String> {
     let trimmed = xml.trim_matches(is_bom_or_space);
-    if trimmed.len() > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
+    if trimmed.len() > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
     if !trimmed.starts_with('<') {
         let out = join_groups(&verse_groups(trimmed));
-        return if out.is_empty() { Err("the lyrics are empty".into()) } else { Ok((out, vec![])) };
+        return if out.is_empty() { Err(tr!("the lyrics are empty")) } else { Ok((out, vec![])) };
     }
     lyrics_from_verses(parse_verses(trimmed)?, verse_order)
 }
@@ -253,11 +254,11 @@ pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<Stri
 /// Verses (from OpenLP, OpenLyrics or OpenSong) plus a verse order ("v1 c1 v2 c1") → lyrics and arrangement, as
 /// `lyrics_from_xml` describes.
 pub(crate) fn lyrics_from_verses(verses: Vec<Verse>, verse_order: &str) -> Result<(String, Vec<String>), String> {
-    if verses.len() > MAX_VERSES { return Err(format!("the lyrics have too many verses (more than {MAX_VERSES})")); }
-    if verses.iter().map(|v| v.text.len()).sum::<usize>() > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
+    if verses.len() > MAX_VERSES { return Err(tr!("the lyrics have too many verses (more than {max})", max = MAX_VERSES)); }
+    if verses.iter().map(|v| v.text.len()).sum::<usize>() > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
     let verses: Vec<(Verse, Vec<Vec<String>>)> = verses.into_iter()
         .map(|v| { let g = verse_groups(&v.text); (v, g) }).filter(|(_, g)| !g.is_empty()).collect();
-    if verses.is_empty() { return Err("the lyrics have no verses".into()); }
+    if verses.is_empty() { return Err(tr!("the lyrics have no verses")); }
     let codes: Vec<char> = verses.iter().map(|(v, _)| kind_code(&v.kind)).collect();
     let mut count: HashMap<char, usize> = HashMap::new();
     for c in &codes { *count.entry(*c).or_default() += 1; }
@@ -339,13 +340,13 @@ fn ccli(raw: &str) -> String {
 
 fn display_title(row: &OlpSong) -> String {
     let t = row.title.trim();
-    if t.is_empty() { "Untitled song".into() } else { t.to_string() }
+    if t.is_empty() { tr!("Untitled song") } else { t.to_string() }
 }
 
 /// Err is the reason the row is skipped.
 pub fn to_song(row: &OlpSong) -> Result<Song, String> {
-    if row.temporary { return Err("a temporary copy OpenLP keeps for a service file".into()); }
-    if row.lyrics.trim().is_empty() { return Err("no lyrics".into()); }
+    if row.temporary { return Err(tr!("a temporary copy OpenLP keeps for a service file")); }
+    if row.lyrics.trim().is_empty() { return Err(tr!("no lyrics")); }
     let (lyrics, arrangement) = lyrics_from_xml(&row.lyrics, &row.verse_order)?;
     let writers = row.authors.iter().map(|a| a.trim()).filter(|a| !a.is_empty()).collect::<Vec<_>>().join(" | ");
     Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers, ccli: ccli(&row.ccli_number), copyright: row.copyright.trim().to_string(),
@@ -358,8 +359,8 @@ pub fn to_song(row: &OlpSong) -> Result<Song, String> {
 /// data folder, or the folder above that.
 pub fn read_library(path: &Path) -> Result<ImportReport, String> {
     let db_path = find_database(path)?;
-    check_sqlite(&db_path, "This file isn't an OpenLP song database (songs.sqlite).")?;
-    let db = snapshot(&[&db_path], "OpenLP")?.pop().ok_or("Couldn't open the OpenLP database.")?;
+    check_sqlite(&db_path, &tr!("This file isn't an OpenLP song database (songs.sqlite)."))?;
+    let db = snapshot(&[&db_path], "OpenLP")?.pop().ok_or_else(|| tr!("Couldn't open the OpenLP database."))?;
     let rows = read_rows(&db)?;
     let mut report = ImportReport::default();
     for row in &rows {
@@ -373,8 +374,8 @@ fn find_database(path: &Path) -> Result<PathBuf, String> {
     // The data folder; its parent (OpenLP Portable keeps it in `Data`); and the folder above `openlp` (%APPDATA%).
     let dirs = [path.to_path_buf(), path.join("songs"), path.join("data").join("songs"), path.join("Data").join("songs"),
         path.join("openlp").join("data").join("songs"), path.join("openlp").join("songs")];
-    dirs.iter().find_map(|d| find_file(d, &["songs.sqlite"])).ok_or_else(|| "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder \
-        (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp).".into())
+    dirs.iter().find_map(|d| find_file(d, &["songs.sqlite"])).ok_or_else(|| tr!("No OpenLP songs.sqlite was found here. Pick OpenLP's data folder \
+        (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."))
 }
 
 fn has(cols: &[String], c: &str) -> bool { cols.iter().any(|x| x.eq_ignore_ascii_case(c)) }
@@ -403,9 +404,9 @@ fn read_authors(db: &Connection, order_by: &str) -> rusqlite::Result<HashMap<i64
 
 /// Builds the SELECTs from the columns that exist: 2.0 has no `temporary` or `author_type`.
 fn read_rows(db: &Connection) -> Result<Vec<OlpSong>, String> {
-    let err = |e: rusqlite::Error| format!("Couldn't read the OpenLP database: {e}");
+    let err = |e: rusqlite::Error| tr!("Couldn't read the OpenLP database: {error}", error = e);
     let cols = columns(db, "songs").map_err(err)?;
-    if !has(&cols, "title") || !has(&cols, "lyrics") { return Err("This isn't an OpenLP song database: it has no songs table.".into()); }
+    if !has(&cols, "title") || !has(&cols, "lyrics") { return Err(tr!("This isn't an OpenLP song database: it has no songs table.")); }
     let pick = |c: &str| if has(&cols, c) { format!("\"{c}\"") } else { "NULL".into() };
 
     // Authors are extra: a link table that can't be read (no rowid, odd layout) costs the authors, not the import.

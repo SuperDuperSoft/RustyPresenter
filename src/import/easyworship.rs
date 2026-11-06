@@ -7,7 +7,7 @@
 //! administrator, reference_number, vendor_id …) and `word` (song_id → song.rowid, words = one RTF document).
 use super::common::{check_sqlite, columns, find_file, label_line, numbered_label, section_name, snapshot, value_int, value_text};
 pub use super::common::{classify, Dedupe, ImportReport};
-use crate::{model::Song, slides::section_label};
+use crate::{model::Song, slides::section_label, tr};
 use encoding_rs::Encoding;
 use rusqlite::Connection;
 use std::collections::HashMap;
@@ -393,9 +393,9 @@ pub fn ccli_number(reference: &str, vendor: Option<i64>) -> String {
 
 /// Err is the reason the row is skipped.
 pub fn to_song(row: &EwSong) -> Result<Song, String> {
-    let words = row.words.as_deref().filter(|w| !w.trim().is_empty()).ok_or("no lyrics (probably a video or announcement item)")?;
+    let words = row.words.as_deref().filter(|w| !w.trim().is_empty()).ok_or_else(|| tr!("no lyrics (probably a video or announcement item)"))?;
     let (lyrics, arrangement) = words_to_lyrics(words);
-    if lyrics.trim().is_empty() { return Err("the lyrics are empty".into()); }
+    if lyrics.trim().is_empty() { return Err(tr!("the lyrics are empty")); }
     let admin = row.administrator.trim();
     let mut copyright = row.copyright.trim().to_string();
     if !admin.is_empty() {
@@ -408,7 +408,7 @@ pub fn to_song(row: &EwSong) -> Result<Song, String> {
 
 fn display_title(row: &EwSong) -> String {
     let t = row.title.trim();
-    if t.is_empty() { "Untitled song".into() } else { t.to_string() }
+    if t.is_empty() { tr!("Untitled song") } else { t.to_string() }
 }
 
 // ---------- reader ----------
@@ -434,27 +434,27 @@ fn find_databases(path: &Path) -> Result<(PathBuf, PathBuf), String> {
     let dirs = [data(root.clone()), data(root.join("v6.1")), data(root.join("Default").join("v6.1")), root.join("Data"), root.clone()];
     for dir in dirs {
         let Some(songs) = find_file(&dir, &["Songs.db", "Songs.dat"]) else { continue };
-        check_sqlite(&songs, "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported.")?;
+        check_sqlite(&songs, &tr!("This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."))?;
         let words = find_file(&dir, &["SongWords.db", "SongWords.dat"])
-            .ok_or_else(|| format!("Found Songs.db but not SongWords.db next to it in {}.", dir.display()))?;
+            .ok_or_else(|| tr!("Found Songs.db but not SongWords.db next to it in {folder}.", folder = dir.display()))?;
         return Ok((songs, words));
     }
-    Err("No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder \
-        (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data).".into())
+    Err(tr!("No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder \
+        (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."))
 }
 
 /// Builds the SELECT from the columns that exist: EasyWorship builds differ.
 fn read_rows(songs: &Connection, words: &Connection) -> Result<Vec<EwSong>, String> {
-    let err = |e: rusqlite::Error| format!("Couldn't read the EasyWorship library: {e}");
+    let err = |e: rusqlite::Error| tr!("Couldn't read the EasyWorship library: {error}", error = e);
     let cols = columns(songs, "song").map_err(err)?;
-    if !cols.iter().any(|c| c.eq_ignore_ascii_case("title")) { return Err("Songs.db has no song table. Is this an EasyWorship library?".into()); }
+    if !cols.iter().any(|c| c.eq_ignore_ascii_case("title")) { return Err(tr!("Songs.db has no song table. Is this an EasyWorship library?")); }
     let pick = |c: &str| if cols.iter().any(|x| x.eq_ignore_ascii_case(c)) { format!("\"{c}\"") } else { "NULL".into() };
     let sql = format!("SELECT rowid, {}, {}, {}, {}, {}, {} FROM song ORDER BY rowid",
         pick("title"), pick("author"), pick("copyright"), pick("administrator"), pick("reference_number"), pick("vendor_id"));
 
     let wcols = columns(words, "word").map_err(err)?;
     if !["song_id", "words"].iter().all(|c| wcols.iter().any(|x| x.eq_ignore_ascii_case(c))) {
-        return Err("SongWords.db has no word table. Is this an EasyWorship library?".into());
+        return Err(tr!("SongWords.db has no word table. Is this an EasyWorship library?"));
     }
     let mut lyrics: HashMap<i64, String> = HashMap::new();
     let mut stmt = words.prepare("SELECT song_id, words FROM word ORDER BY rowid").map_err(err)?;
