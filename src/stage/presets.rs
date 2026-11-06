@@ -7,6 +7,8 @@ use uuid::Uuid;
 pub const CLASSIC: Uuid = Uuid::from_u128(0x5ea6e_0001_0000_0000_0000_0000_0000);
 pub const BAND: Uuid = Uuid::from_u128(0x5ea6e_0002_0000_0000_0000_0000_0000);
 pub const SPEAKER: Uuid = Uuid::from_u128(0x5ea6e_0003_0000_0000_0000_0000_0000);
+pub const LYRICS_ONLY: Uuid = Uuid::from_u128(0x5ea6e_0004_0000_0000_0000_0000_0000);
+pub const CLOCK_COUNTDOWN: Uuid = Uuid::from_u128(0x5ea6e_0005_0000_0000_0000_0000_0000);
 
 /// Today's colours, shared by the presets.
 const GREY: &str = "#9aa3b5";
@@ -59,10 +61,44 @@ pub fn resolve_style(kind: &ElementKind, st: &ElementStyle) -> ResolvedStyle {
 /// The built-ins in menu order: Classic first.
 pub fn builtins() -> &'static [StageLayout] {
     static ALL: OnceLock<Vec<StageLayout>> = OnceLock::new();
-    ALL.get_or_init(|| vec![classic_layout(), band_layout(), speaker_layout()])
+    ALL.get_or_init(|| vec![classic_layout(), lyrics_only_layout(), band_layout(), speaker_layout(), clock_countdown_layout()])
 }
 
+/// A built-in layout by id.
 pub fn by_id(id: Uuid) -> Option<&'static StageLayout> { builtins().iter().find(|l| l.id == id) }
+
+pub fn is_builtin(id: Uuid) -> bool { by_id(id).is_some() }
+
+/// A layout by id: the built-ins first, then the church's own. A church layout with a built-in's id is ignored.
+pub fn find_layout(church: &[StageLayout], id: Uuid) -> Option<&StageLayout> {
+    by_id(id).or_else(|| church.iter().find(|l| l.id == id))
+}
+
+/// Every layout for a menu: the built-ins, then the church's own.
+pub fn all_layouts(church: &[StageLayout]) -> impl Iterator<Item = &StageLayout> {
+    builtins().iter().chain(church.iter().filter(|l| !is_builtin(l.id)))
+}
+
+/// One box of every kind, in `ElementKind` order (the editor's Add menu; names in `strings::KIND_NAMES`).
+pub fn all_kinds() -> [ElementKind; 12] {
+    use ElementKind::*;
+    [CurrentSlide { pictures: false, keep_after_clear: false }, NextSlide { pictures: false }, SectionName, NextSection, ItemTitle,
+     SlidesLeft, Notes, Clock { seconds: false, h24: false }, current_timer(), MediaTimeLeft, StageMessage, Text { text: String::new() }]
+}
+
+/// Where `kind` sits in `all_kinds` (and `strings::KIND_NAMES`).
+pub fn kind_index(kind: &ElementKind) -> usize {
+    use ElementKind::*;
+    match kind {
+        CurrentSlide { .. } => 0, NextSlide { .. } => 1, SectionName => 2, NextSection => 3, ItemTitle => 4, SlidesLeft => 5,
+        Notes => 6, Clock { .. } => 7, Timer { .. } => 8, MediaTimeLeft => 9, StageMessage => 10, Text { .. } => 11,
+    }
+}
+
+/// A new box of `kind`, 30 % × 15 % in the middle of the window, with the kind's look.
+pub fn new_box(kind: ElementKind, id: Uuid) -> StageElement {
+    StageElement { id, kind, rect: super::geom::new_box_rect(), style: ElementStyle::default() }
+}
 
 pub fn classic() -> &'static StageLayout { &builtins()[0] }
 
@@ -103,6 +139,26 @@ fn classic_layout() -> StageLayout {
         .done(s::CLASSIC)
 }
 
+/// Just the words, big, and what comes next.
+fn lyrics_only_layout() -> StageLayout {
+    use ElementKind::*;
+    B::new(LYRICS_ONLY)
+        .add(CurrentSlide { pictures: false, keep_after_clear: false }, (3.0, 3.0, 94.0, 62.0), st(|s| s.max_size = Some(12.0)))
+        .add(NextSlide { pictures: false }, (3.0, 68.0, 94.0, 29.0), st(|s| s.color = color(GOLD)))
+        .add(StageMessage, (3.0, 3.0, 94.0, 14.0), ElementStyle::default())
+        .done(s::LYRICS_ONLY)
+}
+
+/// A big clock and the current countdown, for the back of the room or a speaker's timer screen.
+fn clock_countdown_layout() -> StageLayout {
+    use ElementKind::*;
+    B::new(CLOCK_COUNTDOWN)
+        .add(Clock { seconds: false, h24: false }, (5.0, 8.0, 90.0, 40.0), st(|s| s.max_size = Some(30.0)))
+        .add(current_timer(), (5.0, 52.0, 90.0, 30.0), st(|s| s.max_size = Some(22.0)))
+        .add(StageMessage, (5.0, 84.0, 90.0, 13.0), ElementStyle::default())
+        .done(s::CLOCK_COUNTDOWN)
+}
+
 /// For singers and the band: where they are in the song and what comes next, big words, the clock.
 fn band_layout() -> StageLayout {
     use ElementKind::*;
@@ -141,7 +197,8 @@ mod tests {
     #[test]
     fn builtin_ids_are_stable() {
         assert_eq!(CLASSIC.to_string(), "0005ea6e-0001-0000-0000-000000000000");
-        assert_eq!(builtins().iter().map(|l| l.id).collect::<Vec<_>>(), vec![CLASSIC, BAND, SPEAKER]);
+        assert_eq!(builtins().iter().map(|l| l.id).collect::<Vec<_>>(), vec![CLASSIC, LYRICS_ONLY, BAND, SPEAKER, CLOCK_COUNTDOWN]);
+        assert_eq!(CLOCK_COUNTDOWN.to_string(), "0005ea6e-0005-0000-0000-000000000000");
         assert_eq!(classic().id, CLASSIC);
         // Box ids are fixed too, and unique across all layouts.
         let mut ids: Vec<Uuid> = builtins().iter().flat_map(|l| l.elements.iter().map(|e| e.known().unwrap().id)).collect();
@@ -155,7 +212,7 @@ mod tests {
     #[test]
     fn builtin_names_are_unique() {
         let names: Vec<&str> = builtins().iter().map(|l| l.name.as_str()).collect();
-        assert_eq!(names, vec!["Classic", "Band", "Speaker"]);
+        assert_eq!(names, vec!["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown"]);
     }
 
     #[test]
@@ -191,6 +248,52 @@ mod tests {
         assert!(speaker.iter().any(|(k, _)| matches!(k, ElementKind::Timer { timer: TimerRef::Current })));
         assert!(speaker.iter().any(|(k, _)| matches!(k, ElementKind::CurrentSlide { pictures: true, .. })));
         assert!(speaker.iter().any(|(k, _)| **k == ElementKind::Notes));
+    }
+
+    #[test]
+    fn lyrics_only_and_clock_countdown_match_the_spec() {
+        let lyrics = kinds(by_id(LYRICS_ONLY).unwrap());
+        assert_eq!(lyrics.iter().map(|(_, r)| *r).collect::<Vec<_>>(),
+            [PctRect::new(3.0, 3.0, 94.0, 62.0), PctRect::new(3.0, 68.0, 94.0, 29.0), PctRect::new(3.0, 3.0, 94.0, 14.0)]);
+        assert!(matches!(lyrics[0].0, ElementKind::CurrentSlide { .. }) && *lyrics[2].0 == ElementKind::StageMessage);
+        let big = known_style(LYRICS_ONLY, 0);
+        assert_eq!(big.max_size, 12.0);
+        let clock = kinds(by_id(CLOCK_COUNTDOWN).unwrap());
+        assert_eq!(clock.iter().map(|(_, r)| *r).collect::<Vec<_>>(),
+            [PctRect::new(5.0, 8.0, 90.0, 40.0), PctRect::new(5.0, 52.0, 90.0, 30.0), PctRect::new(5.0, 84.0, 90.0, 13.0)]);
+        assert!(matches!(clock[1].0, ElementKind::Timer { timer: TimerRef::Current }));
+        assert_eq!((known_style(CLOCK_COUNTDOWN, 0).max_size, known_style(CLOCK_COUNTDOWN, 1).max_size), (30.0, 22.0));
+    }
+
+    fn known_style(layout: Uuid, i: usize) -> ResolvedStyle {
+        let e = by_id(layout).unwrap().elements[i].known().unwrap();
+        resolve_style(&e.kind, &e.style)
+    }
+
+    #[test]
+    fn find_layout_prefers_builtins_then_church() {
+        let mut fake = classic().clone();
+        fake.name = "Fake".into();
+        let mut ours = classic().clone();
+        (ours.id, ours.name) = (Uuid::from_u128(77), "Ours".into());
+        let church = [fake, ours.clone()];
+        assert_eq!(find_layout(&church, CLASSIC).unwrap().name, "Classic");
+        assert_eq!(find_layout(&church, ours.id), Some(&ours));
+        assert_eq!(find_layout(&church, Uuid::from_u128(5)), None);
+        assert_eq!(all_layouts(&church).map(|l| l.name.as_str()).collect::<Vec<_>>(),
+            ["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Ours"]);
+        assert!(is_builtin(SPEAKER) && !is_builtin(ours.id));
+    }
+
+    #[test]
+    fn every_kind_has_a_name_and_help() {
+        let all = all_kinds();
+        assert_eq!(all.len(), s::KIND_NAMES.len());
+        assert_eq!(all.len(), s::KIND_HELP.len());
+        assert_eq!(kind_index(&all[8]), 8);
+        assert_eq!(s::KIND_NAMES[kind_index(&ElementKind::Notes)], "Notes");
+        let b = new_box(ElementKind::Clock { seconds: false, h24: false }, Uuid::from_u128(9));
+        assert_eq!((b.id, b.rect, b.style.clone()), (Uuid::from_u128(9), PctRect::new(35.0, 42.5, 30.0, 15.0), ElementStyle::default()));
     }
 
     #[test]

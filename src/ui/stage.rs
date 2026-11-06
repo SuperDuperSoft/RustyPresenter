@@ -52,19 +52,20 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 
 /// What the window draws: the live view, the stage layout and the live item's slides (for "next section").
 #[derive(Clone)]
-struct Shown { live: LiveUpdate, layout: &'static StageLayout, slides: Vec<Slide> }
+struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide> }
 
 /// The layout on stage is the church's stage default (Classic when it names no layout).
+/// The church's own layouts are not stored yet (the stage layout editor adds them), so only the built-ins are found.
 fn read(app: &App, live: LiveUpdate) -> Shown {
     let default = app.data.lock().unwrap().settings.stage.layout;
-    let layout = stage::active_layout(None, None, Some(default));
+    let layout = stage::active_layout(&[], None, None, Some(default)).clone();
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
     Shown { live, layout, slides }
 }
 
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
 #[derive(Default)]
-struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>> }
+struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState> }
 
 #[derive(Hash, PartialEq, Eq)]
 struct FitKey { text: String, w: i32, h: i32, bold: bool, max: i32, min: i32 }
@@ -108,9 +109,12 @@ fn color(c: &str) -> slint::Color { let [r, g, b, a] = crate::render::parse_colo
 /// Draw the layout's boxes. Rows that did not change are left alone.
 fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
     // FEAT-2 timers are not published by the app yet: timer boxes stay empty until they are.
-    let (timers, state) = (TimersView::default(), StageState::default());
+    let timers = TimersView::default();
+    let mut state = screen.state.lock().unwrap();
+    state.track_timers(&timers);
     let inputs = StageInputs { live: &shown.live, slides: &shown.slides, timers: &timers, state: &state, now: chrono::Local::now().time() };
-    let v = view::build(&inputs, shown.layout);
+    let v = view::build(&inputs, &shown.layout);
+    drop(state);
     ui.set_bg(color(&v.background));
     ui.set_banner(v.message_fallback.unwrap_or_default().into());
     let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c)).collect();
@@ -424,6 +428,23 @@ mod tests {
     }
 
     #[test]
+    fn every_preset_opens_and_draws_its_boxes() {
+        i_slint_backend_testing::init_no_event_loop();
+        for l in crate::stage::presets::builtins().iter().skip(1) {
+            let stage = Stage::open(app_with_layout(l.id), None).unwrap();
+            assert!(stage.ui.get_use_cells(), "{}", l.name);
+            let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+            assert!(!cells.is_empty(), "{}", l.name);
+            stage.ui.hide().unwrap();
+        }
+        let stage = Stage::open(app_with_layout(crate::stage::presets::CLOCK_COUNTDOWN), None).unwrap();
+        let clock = stage.ui.get_cells().iter().next().expect("clock box");
+        assert_eq!((clock.x, clock.y, clock.w, clock.h), (5.0, 8.0, 90.0, 40.0));
+        assert!(clock.text.ends_with("AM") || clock.text.ends_with("PM"), "{}", clock.text);
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
     fn long_words_shrink_to_fit_their_box() {
         i_slint_backend_testing::init_no_event_loop();
         let app = app_with_layout(crate::stage::presets::BAND);
@@ -433,7 +454,7 @@ mod tests {
         let long = "Amazing grace how sweet the sound that saved a wretch like me, I once was lost but now am found, was blind but now I see. ".repeat(3);
         v.slide.as_mut().unwrap().content = SlideContent::Text { text: long.clone(), footer: None, reference: None, size: 0, parallel: None };
         let screen = StageScreen::default();
-        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap(), slides: vec![] });
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![] });
         let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
         assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
         stage.ui.hide().unwrap();

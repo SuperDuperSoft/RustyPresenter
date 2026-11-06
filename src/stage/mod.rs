@@ -1,6 +1,9 @@
 //! FEAT-3 stage layouts, the pure core (no UI): boxes on the stage screen, what each can show,
 //! the built-in layouts (`presets`) and the compositor that fills the boxes from live state (`view`).
+pub mod geom;
+pub mod lossless;
 pub mod presets;
+pub mod refs;
 pub mod view;
 #[path = "../strings/stage.rs"]
 pub mod strings;
@@ -20,8 +23,8 @@ pub struct StageLayout {
     /// Empty = the bundled font.
     #[serde(default)]
     pub font: String,
-    /// A box a newer version wrote stays `Unknown`: kept, never drawn.
-    #[serde(default)]
+    /// A box a newer version wrote stays `Unknown`: kept, never drawn, written back as it was.
+    #[serde(default, deserialize_with = "lossless::lenient_vec")]
     pub elements: Vec<Lenient<StageElement>>,
 }
 
@@ -45,12 +48,12 @@ pub struct PctRect { pub x: f32, pub y: f32, pub w: f32, pub h: f32 }
 impl PctRect {
     pub const fn new(x: f32, y: f32, w: f32, h: f32) -> Self { PctRect { x, y, w, h } }
 
-    /// Inside the window and at least 2 % each way; NaN or infinity gives the whole window.
+    /// Inside the window and at least 2 % each way. A position that isn't a number is 0; a size, 30 × 15.
     pub fn sanitised(self) -> PctRect {
-        let ok = |v: f32| v.is_finite();
-        if !(ok(self.x) && ok(self.y) && ok(self.w) && ok(self.h)) { return PctRect::new(0.0, 0.0, 100.0, 100.0); }
-        let (w, h) = (self.w.clamp(2.0, 100.0), self.h.clamp(2.0, 100.0));
-        PctRect { x: self.x.clamp(0.0, 100.0 - w), y: self.y.clamp(0.0, 100.0 - h), w, h }
+        let or = |v: f32, d: f32| if v.is_finite() { v } else { d };
+        let (w, h) = (or(self.w, 30.0).clamp(2.0, 100.0), or(self.h, 15.0).clamp(2.0, 100.0));
+        let (x, y) = (or(self.x, 0.0), or(self.y, 0.0));
+        PctRect { x: x.clamp(0.0, 100.0 - w), y: y.clamp(0.0, 100.0 - h), w, h }
     }
 }
 
@@ -143,9 +146,22 @@ impl Default for StageSettings {
 }
 
 /// Which layout is on stage: the "for now" choice, then the live item's, then the default, then Classic.
-/// Ids that name no layout are skipped.
-pub fn active_layout(manual: Option<Uuid>, item: Option<Uuid>, default: Option<Uuid>) -> &'static StageLayout {
-    [manual, item, default].into_iter().flatten().find_map(presets::by_id).unwrap_or_else(presets::classic)
+/// Ids that name no layout (built-in or the church's) are skipped.
+pub fn active_layout<'a>(church: &'a [StageLayout], manual: Option<Uuid>, item: Option<Uuid>, default: Option<Uuid>) -> &'a StageLayout {
+    active_layout_checked(church, manual, item, default).0
+}
+
+/// `active_layout`, plus the first asked-for id that names no layout (to say once that it was deleted).
+pub fn active_layout_checked<'a>(church: &'a [StageLayout], manual: Option<Uuid>, item: Option<Uuid>, default: Option<Uuid>)
+    -> (&'a StageLayout, Option<Uuid>) {
+    let mut missing = None;
+    for id in [manual, item, default].into_iter().flatten() {
+        match presets::find_layout(church, id) {
+            Some(l) => return (l, missing),
+            None => { missing.get_or_insert(id); }
+        }
+    }
+    (presets::classic(), missing)
 }
 
 /// Stage state that is not stored: which timer is "the current one".
@@ -233,8 +249,43 @@ mod tests {
     }
 
     #[test]
+    fn unknown_field_in_known_box_kept_as_unknown() {
+        use serde_json::json;
+        let (id, el) = ("00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002");
+        let r = json!({"x": 0, "y": 0, "w": 10, "h": 10});
+        let extended = [
+            json!({"id": el, "kind": {"type": "clock", "seconds": true, "blink": true}, "rect": r}),
+            json!({"id": el, "kind": {"type": "notes", "x": 1}, "rect": r}),
+            json!({"id": el, "kind": {"type": "item_title"}, "rect": r, "style": {"shadow": 1}}),
+            json!({"id": el, "kind": {"type": "item_title"}, "rect": {"x": 0, "y": 0, "w": 10, "h": 10, "r": 4}}),
+            json!({"id": el, "kind": {"type": "item_title"}, "rect": r, "locked": true}),
+        ];
+        for e in extended {
+            let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [e.clone()]})).unwrap();
+            assert_eq!(l.elements, vec![Lenient::Unknown(e.clone())], "{e}");
+            assert_eq!(serde_json::to_value(&l).unwrap()["elements"][0], e);
+        }
+        // No false alarms: null style fields and whole-number rects stay Known.
+        let plain = json!({"id": el, "kind": {"type": "item_title"}, "rect": {"x": 3, "y": 2, "w": 44, "h": 6}, "style": {"color": null}});
+        let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [plain]})).unwrap();
+        assert!(matches!(l.elements[0], Lenient::Known(_)));
+    }
+
+    #[test]
+    fn active_layout_finds_church_layouts_and_reports_missing() {
+        let mut ours = presets::classic().clone();
+        ours.id = Uuid::from_u128(77);
+        let church = vec![ours];
+        assert_eq!(active_layout(&church, None, None, Some(Uuid::from_u128(77))).id, Uuid::from_u128(77));
+        let gone = Uuid::from_u128(404);
+        let (l, missing) = active_layout_checked(&church, Some(gone), None, None);
+        assert_eq!((l.id, missing), (presets::CLASSIC, Some(gone)));
+        assert_eq!(active_layout_checked(&church, None, None, Some(presets::BAND)).1, None);
+    }
+
+    #[test]
     fn sanitise_clamps_and_fixes_nan() {
-        assert_eq!(PctRect::new(f32::NAN, 0.0, 10.0, 10.0).sanitised(), PctRect::new(0.0, 0.0, 100.0, 100.0));
+        assert_eq!(PctRect::new(f32::NAN, 0.0, f32::INFINITY, f32::NAN).sanitised(), PctRect::new(0.0, 0.0, 30.0, 15.0));
         assert_eq!(PctRect::new(95.0, -5.0, 1.0, 200.0).sanitised(), PctRect::new(95.0, 0.0, 2.0, 100.0));
         assert_eq!(PctRect::new(90.0, 90.0, 20.0, 20.0).sanitised(), PctRect::new(80.0, 80.0, 20.0, 20.0));
     }
@@ -242,17 +293,17 @@ mod tests {
     #[test]
     fn active_layout_manual_then_item_then_default_then_classic() {
         let (band, speaker) = (Some(presets::BAND), Some(presets::SPEAKER));
-        assert_eq!(active_layout(band, speaker, speaker).id, presets::BAND);
-        assert_eq!(active_layout(None, speaker, band).id, presets::SPEAKER);
-        assert_eq!(active_layout(None, None, band).id, presets::BAND);
-        assert_eq!(active_layout(None, None, None).id, presets::CLASSIC);
+        assert_eq!(active_layout(&[], band, speaker, speaker).id, presets::BAND);
+        assert_eq!(active_layout(&[], None, speaker, band).id, presets::SPEAKER);
+        assert_eq!(active_layout(&[], None, None, band).id, presets::BAND);
+        assert_eq!(active_layout(&[], None, None, None).id, presets::CLASSIC);
     }
 
     #[test]
     fn deleted_layout_falls_back() {
         let gone = Some(Uuid::from_u128(9));
-        assert_eq!(active_layout(gone, gone, Some(presets::SPEAKER)).id, presets::SPEAKER);
-        assert_eq!(active_layout(gone, None, gone).id, presets::CLASSIC);
+        assert_eq!(active_layout(&[], gone, gone, Some(presets::SPEAKER)).id, presets::SPEAKER);
+        assert_eq!(active_layout(&[], gone, None, gone).id, presets::CLASSIC);
     }
 
     #[test]
