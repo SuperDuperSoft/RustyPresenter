@@ -19,10 +19,15 @@ fetch_sources
 build_deps
 # SChannel for https; D3D11VA/DXVA2 hardware decoding; native Windows threads.
 build_ffmpeg --enable-w32threads --enable-schannel --enable-d3d11va --enable-dxva2
-# Only the static zlib may link: with MSYS2's import library also on the search path, -lz picked
-# libz.dll.a and -static then pulled in libz.a too (every inflate* defined twice). Set aside for the build.
-zlib_import="$(cygpath -u "${MINGW_PREFIX:-/ucrt64}")/lib/libz.dll.a"
-if [[ -f "$zlib_import" ]]; then mv "$zlib_import" "$zlib_import.rp-aside"; trap 'mv "$zlib_import.rp-aside" "$zlib_import" 2>/dev/null || true' EXIT; fi
+# Only static zlib and iconv may link: with MSYS2's import libraries also on the search path, -lz picked
+# libz.dll.a and -static then pulled in libz.a too (every inflate* defined twice), and -liconv made
+# libmpv-2.dll need libiconv-2.dll. Set aside for the build, put back afterwards.
+mingw_lib="$(cygpath -u "${MINGW_PREFIX:-/ucrt64}")/lib"
+aside=()
+for import_lib in "$mingw_lib/libz.dll.a" "$mingw_lib/libiconv.dll.a"; do
+  if [[ -f "$import_lib" ]]; then mv "$import_lib" "$import_lib.rp-aside"; aside+=("$import_lib"); fi
+done
+trap 'for f in "${aside[@]}"; do mv "$f.rp-aside" "$f" 2>/dev/null || true; done' EXIT
 # -static links libgcc, libstdc++ and winpthreads into the DLL, so it needs only system DLLs.
 build_mpv -Dc_link_args=-static -Dcpp_link_args=-static
 
