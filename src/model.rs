@@ -1,6 +1,7 @@
 //! Library, service plan, settings and the slide types every screen renders.
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use std::collections::BTreeMap;
 
 /// A content-addressed asset file name: `<sha256>.<ext>`.
 pub type AssetId = String;
@@ -55,13 +56,16 @@ pub struct PassageSlide {
     pub text: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<String>,
+    /// The credit line one slide of a passage carries; it takes room from that slide's text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub footer: Option<String>,
 }
 
 /// The passage of an item's slides: every text slide of a scripture item, else none (songs fit slide by slide).
 pub fn passage(kind: &str, slides: &[Slide]) -> Vec<PassageSlide> {
     if kind != "scripture" || slides.len() < 2 { return Vec::new() }
     slides.iter().filter_map(|s| match &s.content {
-        SlideContent::Text { text, reference, .. } => Some(PassageSlide { text: text.clone(), reference: reference.clone() }),
+        SlideContent::Text { text, reference, footer, .. } => Some(PassageSlide { text: text.clone(), reference: reference.clone(), footer: footer.clone() }),
         _ => None,
     }).collect()
 }
@@ -291,12 +295,36 @@ pub struct Data {
     pub decks: Vec<Deck>,
     pub services: Vec<Service>,
     pub current_service: Option<Uuid>,
+    /// Each Bible's credit for its scripture slides, by translation id (`App::refresh_bible_credits`). Worked out
+    /// from the Bibles on this computer, so never saved: a Bible added or removed changes it.
+    #[serde(skip)]
+    pub bible_credits: BTreeMap<String, BibleCredit>,
+}
+
+/// What a scripture slide says about its Bible (Bible library spec §10).
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct BibleCredit {
+    /// Shown after the reference ("John 3:16 (RV1909)").
+    pub abbr: String,
+    /// The credit line: the Bible's notice, then its licence's short name ("RV1909: © … (CC BY-SA 4.0)"). Empty
+    /// when there is nothing to credit (the built-in public-domain Bibles).
+    pub line: String,
+    /// The text is not public domain, so its credit shows even when Settings has credits off.
+    pub required: bool,
+}
+
+impl Data {
+    /// The credit of `translation`'s slides, matched by id (`bible::id::same_id`).
+    pub fn bible_credit(&self, translation: &str) -> Option<&BibleCredit> {
+        self.bible_credits.get(translation)
+            .or_else(|| self.bible_credits.iter().find(|(id, _)| crate::bible::id::same_id(id, translation)).map(|(_, c)| c))
+    }
 }
 
 impl Default for Data {
     fn default() -> Self {
         let service = Service::new("Sunday Service");
-        Self { format: 1, settings: Settings::default(), songs: vec![], media: vec![], decks: vec![], current_service: Some(service.id), services: vec![service] }
+        Self { format: 1, settings: Settings::default(), songs: vec![], media: vec![], decks: vec![], current_service: Some(service.id), services: vec![service], bible_credits: BTreeMap::new() }
     }
 }
 
@@ -370,8 +398,8 @@ mod tests {
         let s = |t: &str| Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0 }, notes: String::new() };
         let slides = [s("a"), s("b")];
         assert_eq!(passage("scripture", &slides), vec![
-            PassageSlide { text: "a".into(), reference: Some("a ref".into()) },
-            PassageSlide { text: "b".into(), reference: Some("b ref".into()) },
+            PassageSlide { text: "a".into(), reference: Some("a ref".into()), footer: None },
+            PassageSlide { text: "b".into(), reference: Some("b ref".into()), footer: None },
         ]);
         assert!(passage("song", &slides).is_empty(), "songs fit slide by slide");
         assert!(passage("scripture", &slides[..1]).is_empty(), "one slide fits itself");

@@ -44,7 +44,7 @@ pub fn next_size(press: Press, current: u32, default: u32, shown: u32) -> Option
 /// Every text slide of `slides`, for measuring.
 fn passage_of(slides: &[Slide]) -> Vec<PassageSlide> {
     slides.iter().filter_map(|s| match &s.content {
-        SlideContent::Text { text, reference, .. } => Some(PassageSlide { text: text.clone(), reference: reference.clone() }),
+        SlideContent::Text { text, reference, footer, .. } => Some(PassageSlide { text: text.clone(), reference: reference.clone(), footer: footer.clone() }),
         _ => None,
     }).collect()
 }

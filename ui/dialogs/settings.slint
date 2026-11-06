@@ -23,7 +23,9 @@ component SettingsSongs inherits VerticalLayout {
         }
     }
     Field {
-        label: @tr("Song credits");
+        label: @tr("Credits");
+        // Bible library spec §10: the setting covers scripture too; a Bible that requires its credit always shows it.
+        help: @tr("Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage.");
         HorizontalLayout {
             alignment: start;
             credits := Segmented {

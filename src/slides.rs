@@ -87,6 +87,18 @@ pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> {
     slides
 }
 
+/// A passage's credit goes on its first or last slide, as Settings says for songs (Bible library spec §10). With
+/// credits off it still shows, on the first slide, for a Bible that is not public domain.
+fn put_scripture_credit(slides: &mut [Slide], credit: &BibleCredit, settings: &Settings) {
+    if credit.line.trim().is_empty() { return }
+    let pos = match settings.credits.as_str() {
+        "last" => slides.len().checked_sub(1),
+        "none" if !credit.required => None,
+        _ => Some(0),
+    };
+    if let Some(SlideContent::Text { footer, .. }) = pos.and_then(|p| slides.get_mut(p)).map(|s| &mut s.content) { *footer = Some(credit.line.clone()) }
+}
+
 fn credit_line(song: &Song, settings: &Settings) -> Option<String> {
     if settings.credits == "none" { return None; }
     let mut parts = vec![song.title.clone()];
@@ -212,9 +224,12 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             None => ("Missing song".into(), "song", vec![]),
         },
         ItemKind::Scripture { reference, translation, verses, per_slide, text_size } => {
-            let mut slides = scripture_slides(verses, *per_slide, translation);
+            let credit = data.bible_credit(translation);
+            let abbr = credit.map(|c| c.abbr.as_str()).filter(|a| !a.is_empty()).unwrap_or(translation);
+            let mut slides = scripture_slides(verses, *per_slide, abbr);
             for sl in &mut slides { if let SlideContent::Text { size, .. } = &mut sl.content { *size = *text_size } }
-            (format!("{reference} ({translation})"), "scripture", slides)
+            if let Some(credit) = credit { put_scripture_credit(&mut slides, credit, s) }
+            (format!("{reference} ({abbr})"), "scripture", slides)
         }
         ItemKind::Media { media_id, autoplay, end, looped } => match data.media.iter().find(|m| m.id == *media_id) {
             Some(m) => {
@@ -299,6 +314,63 @@ mod tests {
         let (_, kind, slides) = build_item(&data, &item);
         assert_eq!((kind, slides.len()), ("scripture", 2));
         assert!(slides.iter().all(|s| matches!(s.content, SlideContent::Text { size: 96, .. })));
+    }
+
+    /// A four-verse passage, two verses a slide, in `translation`, with `credits` set as Settings has it.
+    fn credited(translation: &str, credits: &str, credit: Option<BibleCredit>) -> (String, Vec<Slide>) {
+        let mut data = Data::default();
+        data.settings.credits = credits.into();
+        if let Some(c) = credit { data.bible_credits.insert(translation.into(), c); }
+        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: translation.into(), verses: verses(4), per_slide: 2, text_size: 0 };
+        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let (title, _, slides) = build_item(&data, &item);
+        (title, slides)
+    }
+
+    fn footers(slides: &[Slide]) -> Vec<Option<&str>> {
+        slides.iter().map(|s| match &s.content { SlideContent::Text { footer, .. } => footer.as_deref(), _ => None }).collect()
+    }
+
+    fn rv(required: bool) -> BibleCredit {
+        BibleCredit { abbr: "RV1909".into(), line: "RV1909: © Sociedad (CC BY-SA 4.0)".into(), required }
+    }
+
+    #[test]
+    fn scripture_credit_follows_the_credits_setting() {
+        let line = Some("RV1909: © Sociedad (CC BY-SA 4.0)");
+        assert_eq!(footers(&credited("ebible:spaRV1909", "first", Some(rv(false))).1), [line, None]);
+        assert_eq!(footers(&credited("ebible:spaRV1909", "last", Some(rv(false))).1), [None, line]);
+        assert_eq!(footers(&credited("ebible:spaRV1909", "none", Some(rv(false))).1), [None, None], "public domain: off is off");
+    }
+
+    #[test]
+    fn a_credit_the_bible_requires_shows_once_even_with_credits_off() {
+        assert_eq!(footers(&credited("ebible:spaRV1909", "none", Some(rv(true))).1), [Some("RV1909: © Sociedad (CC BY-SA 4.0)"), None]);
+    }
+
+    #[test]
+    fn scripture_slides_name_the_bible_by_its_abbreviation_not_its_id() {
+        let (title, slides) = credited("ebible:spaRV1909", "first", Some(rv(false)));
+        assert_eq!(title, "Psalm 23 (RV1909)");
+        assert!(matches!(&slides[0].content, SlideContent::Text { reference: Some(r), .. } if r == "Psalm 23:1–2 (RV1909)"), "{:?}", slides[0].content);
+    }
+
+    #[test]
+    fn a_bible_with_no_credit_line_gets_no_footer_and_keeps_its_id() {
+        let blank = BibleCredit { abbr: "KJV".into(), line: String::new(), required: false };
+        let (title, slides) = credited("KJV", "first", Some(blank));
+        assert_eq!(footers(&slides), [None, None]);
+        assert_eq!(title, "Psalm 23 (KJV)");
+        let (_, slides) = credited("WEB", "first", None);
+        assert_eq!(footers(&slides), [None, None], "a Bible with no credit known");
+    }
+
+    #[test]
+    fn credits_match_the_id_in_any_letter_case_for_a_bare_id() {
+        let mut data = Data::default();
+        data.bible_credits.insert("ESV".into(), BibleCredit { abbr: "ESV".into(), line: "ESV notice".into(), required: true });
+        assert_eq!(data.bible_credit("esv").map(|c| c.line.as_str()), Some("ESV notice"));
+        assert_eq!(data.bible_credit("NIV"), None);
     }
 
     #[test]

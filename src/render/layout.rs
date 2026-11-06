@@ -12,6 +12,8 @@ const PAD_BOTTOM_LOWER: f32 = 70.0;
 const FOOT_PAD_BOTTOM: f32 = 46.0;
 const REFERENCE_PX: f32 = 44.0;
 const FOOTER_PX: f32 = 30.0;
+/// Space between the reference and the credit under it.
+const FOOT_GAP: f32 = 8.0;
 /// Line height of the reference/footer line, relative to its font size.
 const FOOT_LINE: f32 = 1.25;
 const MIN_PX: f32 = 26.0;
@@ -91,7 +93,7 @@ impl Fonts {
     fn passage_fit(&mut self, p: &PassageSlide, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> f32 {
         let key = FitKey { slide: p.clone(), scripture: slide.scripture, size: slide.size, theme: theme.clone(), canvas };
         if let Some(px) = self.fits.get(&key) { return *px }
-        let alone = TextSlide { text: &p.text, footer: None, reference: p.reference.as_deref(), scripture: slide.scripture, size: slide.size, passage: &[] };
+        let alone = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: slide.scripture, size: slide.size, passage: &[] };
         let px = layout(self, &alone, theme, canvas).font_px;
         if self.fits.len() >= MAX_FITS { self.fits.clear() }
         self.fits.insert(key, px);
@@ -138,6 +140,9 @@ pub struct TextLayout {
     pub foot: Option<Buffer>,
     /// Where the foot line's top edge sits, in canvas pixels.
     pub foot_y: f32,
+    /// The footer when a reference has the foot line (a passage's credit): one line under the reference, centred.
+    pub credit: Option<Buffer>,
+    pub credit_y: f32,
     pub body_box: Rect,
     /// Lower-third position: text sits at the bottom over a dark gradient.
     pub lower: bool,
@@ -167,27 +172,31 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let font_fallback = !fonts.has_family(wanted);
     let family = if font_fallback { BUNDLED_FAMILY.to_string() } else { wanted.to_string() };
 
-    // render.js shows `layer.reference || layer.footer`: a blank reference gives way to the footer.
+    // A reference shows right-aligned at the foot. A footer alone takes its place, centred; with a reference it goes
+    // under it (Bible library spec §9.2: a passage's credit and its reference show together).
     let filled = |t: &&str| !t.trim().is_empty();
     let reference = slide.reference.filter(filled);
-    let foot_text = reference.or(slide.footer.filter(filled));
-    let (foot, foot_h) = match foot_text {
-        Some(t) => {
-            let is_ref = reference.is_some();
-            let (px, weight) = if is_ref { (REFERENCE_PX, 600) } else { (FOOTER_PX, 400) };
-            let align = if is_ref { Align::Right } else { Align::Center };
-            let px = px * s;
-            let mut b = Buffer::new(&mut fonts.sys, Metrics::new(px, px * FOOT_LINE));
-            let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
-            b.set_size(Some(cw - 2.0 * PAD_X * s), None);
-            b.set_wrap(Wrap::WordOrGlyph);
+    let footer = slide.footer.filter(filled);
+    let line_buffer = |fonts: &mut Fonts, t: &str, is_ref: bool, one_line: bool| {
+        let (px, weight) = if is_ref { (REFERENCE_PX, 600) } else { (FOOTER_PX, 400) };
+        let align = if is_ref { Align::Right } else { Align::Center };
+        let px = px * s;
+        let mut b = Buffer::new(&mut fonts.sys, Metrics::new(px, px * FOOT_LINE));
+        let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
+        b.set_size(Some(cw - 2.0 * PAD_X * s), None);
+        b.set_wrap(Wrap::WordOrGlyph);
+        if one_line { set_one_line(&mut fonts.sys, &mut b, t, &attrs, align) } else {
             b.set_text(t, &attrs, Shaping::Advanced, Some(align));
             b.shape_until_scroll(&mut fonts.sys, false);
-            let h = text_height(&b) + FOOT_PAD_BOTTOM * s;
-            (Some(b), h)
         }
-        None => (None, 0.0),
+        b
     };
+    // A scripture credit is cut to one line on the slide; the full notice is on the credits page (spec §10).
+    let credit = reference.and(footer).map(|t| line_buffer(fonts, t, false, slide.scripture));
+    let foot = reference.or(footer).map(|t| line_buffer(fonts, t, reference.is_some(), false));
+    let credit_h = credit.as_ref().map_or(0.0, |c| text_height(c) + FOOT_GAP * s);
+    let foot_h = foot.as_ref().map_or(0.0, |f| text_height(f) + FOOT_PAD_BOTTOM * s + credit_h);
+    let credit_y = ch - FOOT_PAD_BOTTOM * s - credit.as_ref().map_or(0.0, text_height);
 
     let top = PAD_Y * s;
     let bottom = if lower { PAD_BOTTOM_LOWER } else { PAD_Y } * s;
@@ -226,6 +235,8 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         body,
         foot,
         foot_y: ch - foot_h,
+        credit,
+        credit_y,
         body_box,
         lower,
         scripture: slide.scripture,
@@ -237,12 +248,31 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
 /// most `size` (0 = the theme's scripture size). On 1080p-canvas pixels, like `TextLayout::font_px`.
 pub fn passage_px(fonts: &mut Fonts, passage: &[PassageSlide], size: u32, theme: &Theme, canvas: (u32, u32)) -> f32 {
     let first = passage.first().map_or("", |p| p.text.as_str());
-    let slide = TextSlide { text: first, footer: None, reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage };
+    let slide = TextSlide { text: first, footer: passage.first().and_then(|p| p.footer.as_deref()), reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage };
     layout(fonts, &slide, theme, canvas).font_px
 }
 
 /// A theme size, or the web's default when it is 0 (`t.size || 84`).
 fn or_default(size: u32, default: u32) -> f32 { (if size == 0 { default } else { size }) as f32 }
+
+/// `text` in `b` on one line: cut at a character with "…" after it when it is wider than the buffer.
+fn set_one_line(sys: &mut FontSystem, b: &mut Buffer, text: &str, attrs: &Attrs, align: Align) {
+    let mut put = |b: &mut Buffer, t: &str| {
+        b.set_text(t, attrs, Shaping::Advanced, Some(align));
+        b.shape_until_scroll(sys, false);
+        b.layout_runs().count() <= 1
+    };
+    if put(b, text) { return }
+    let chars: Vec<char> = text.chars().collect();
+    let cut = |n: usize| format!("{}…", chars[..n].iter().collect::<String>().trim_end());
+    // The longest start that still fits with the ellipsis; one character at least.
+    let (mut lo, mut hi) = (1, chars.len());
+    while lo < hi {
+        let mid = (lo + hi).div_ceil(2);
+        if put(b, &cut(mid)) { lo = mid } else { hi = mid - 1 }
+    }
+    put(b, &cut(lo));
+}
 
 /// Total height of all laid-out lines.
 pub fn text_height(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_height).sum() }
@@ -369,13 +399,58 @@ mod tests {
     }
 
     #[test]
-    fn reference_wins_over_footer() {
+    fn reference_and_footer_show_together_the_credit_under_the_reference() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
         let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true, size: 0, passage: &[] };
         let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
         let foot = l.foot.as_ref().unwrap();
         assert_eq!(foot.metrics().font_size, REFERENCE_PX);
         assert_eq!(foot.layout_runs().next().unwrap().text, "John 3:16");
+        let credit = l.credit.as_ref().expect("the footer shows under the reference");
+        assert_eq!(credit.metrics().font_size, FOOTER_PX);
+        assert_eq!(credit.layout_runs().next().unwrap().text, "Footer");
+        assert!(l.foot_y + text_height(foot) <= l.credit_y, "reference {} ends above the credit at {}", l.foot_y + text_height(foot), l.credit_y);
+        assert!(l.credit_y + text_height(credit) <= 1080.0 - FOOT_PAD_BOTTOM + 0.5, "credit inside the bottom padding");
+        assert!(l.body_box.y + l.body_box.h <= l.foot_y + 0.5, "the text box ends above the reference");
+        let alone = layout(&mut Fonts::bundled_only(), &TextSlide { footer: None, ..s }, &t, (1920, 1080));
+        assert!(alone.credit.is_none());
+        assert!(l.body_box.h < alone.body_box.h, "the credit takes room from the text");
+    }
+
+    #[test]
+    fn a_long_scripture_credit_is_cut_to_one_line_with_an_ellipsis() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
+        let notice = "Copyright © 2026 Some Bible Society. Used by permission. All rights reserved worldwide. ".repeat(4);
+        let s = TextSlide { text: "For God", footer: Some(&notice), reference: Some("John 3:16 (XYZ)"), scripture: true, size: 0, passage: &[] };
+        let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
+        let credit = l.credit.as_ref().unwrap();
+        let lines: Vec<_> = credit.layout_runs().collect();
+        assert_eq!(lines.len(), 1);
+        assert!(lines[0].text.ends_with('…') && lines[0].text.starts_with("Copyright © 2026"), "{}", lines[0].text);
+        assert!(lines[0].text.chars().count() > 40, "cut no shorter than needed: {}", lines[0].text);
+        // A song's footer (no reference) still wraps: nothing of the CCLI line is lost.
+        let song = layout(&mut Fonts::bundled_only(), &TextSlide { reference: None, scripture: false, ..s }, &t, (1920, 1080));
+        assert!(song.foot.as_ref().unwrap().layout_runs().count() > 1);
+    }
+
+    #[test]
+    fn a_passage_fits_its_credit_slide_at_the_shared_size() {
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
+        let (reference, credit) = (Some("Psalm 1:1 (XYZ)"), Some("XYZ: Copyright notice"));
+        let mut fonts = Fonts::bundled_only();
+        let alone = |fonts: &mut Fonts, text: &str, footer| layout(fonts, &TextSlide { text, footer, reference, scripture: true, size: 0, passage: &[] }, &t, (1920, 1080)).font_px;
+        // A length where the credit's line costs the text a size step.
+        let text = (20..400).step_by(5).map(|n| "word ".repeat(n))
+            .find(|text| alone(&mut fonts, text, credit) < alone(&mut fonts, text, None)).expect("a length where the credit matters");
+        let want = alone(&mut fonts, &text, credit);
+        let parts = [
+            PassageSlide { text: text.clone(), reference: reference.map(String::from), footer: credit.map(String::from) },
+            PassageSlide { text: text.clone(), reference: reference.map(String::from), footer: None },
+        ];
+        for p in &parts {
+            let s = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: true, size: 0, passage: &parts };
+            assert_eq!(layout(&mut fonts, &s, &t, (1920, 1080)).font_px, want, "every slide at the credit slide's size");
+        }
     }
 
     #[test]
@@ -404,7 +479,7 @@ mod tests {
         layout(&mut Fonts::bundled_only(), &s, &bundled(), (1920, 1080)).font_px
     }
 
-    fn part(text: &str) -> PassageSlide { PassageSlide { text: text.into(), reference: Some("Psalm 119:1–2 (KJV)".into()) } }
+    fn part(text: &str) -> PassageSlide { PassageSlide { text: text.into(), reference: Some("Psalm 119:1–2 (KJV)".into()), footer: None } }
 
     #[test]
     fn a_passage_whose_second_slide_is_longer_makes_the_first_smaller_too() {

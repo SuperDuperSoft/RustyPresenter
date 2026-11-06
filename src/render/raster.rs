@@ -75,6 +75,11 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
         if theme.shadow { for sh in &FOOT_SHADOWS { composite_shadow(&mut pix, &foot, sh, s, FOOT_OPACITY); } }
         composite(&mut pix, &foot, 0, color, FOOT_OPACITY);
     }
+    if let Some(credit) = l.credit.as_mut() {
+        let credit = coverage_of(fonts, &mut cache, credit, (w, h), (l.body_box.x, l.credit_y));
+        if theme.shadow { for sh in &FOOT_SHADOWS { composite_shadow(&mut pix, &credit, sh, s, FOOT_OPACITY); } }
+        composite(&mut pix, &credit, 0, color, FOOT_OPACITY);
+    }
 
     Rendered { width: w, height: h, rgba_premul: Premul(px), font_px: l.font_px * s, font_fallback: l.font_fallback }
 }

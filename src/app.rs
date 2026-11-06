@@ -5,7 +5,7 @@ use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
-    collections::{HashMap, VecDeque},
+    collections::{BTreeMap, HashMap, VecDeque},
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
@@ -226,14 +226,16 @@ impl App {
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
         // A download cut off by a crash or a forced quit leaves nothing behind.
         bible::catalog::install::clean_partials(&store.root);
-        Arc::new(Self {
+        let app = Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()),
-        })
+        });
+        app.refresh_bible_credits();
+        app
     }
 
     pub fn live_view(&self) -> LiveView {
@@ -555,6 +557,30 @@ impl App {
         }).collect()
     }
 
+    /// Each Bible's credit for its scripture slides (Bible library spec §10), from the rows Settings → Bible shows:
+    /// its abbreviation, its notice with the licence's short name, and whether the credit must show. Only a
+    /// public-domain text may go without one: built in, labelled public domain, or a notice that says so.
+    pub(crate) fn bible_credits(&self) -> BTreeMap<String, BibleCredit> {
+        self.bible_sources().iter().filter_map(|s| {
+            let id = s["translation"].as_str()?;
+            let abbr = s["abbr"].as_str().filter(|a| !a.is_empty()).unwrap_or(id);
+            let notice = s["copyright"].as_str().unwrap_or("").trim();
+            let licence = s["licence"].as_str().unwrap_or("");
+            let line = if notice.is_empty() && licence.is_empty() { String::new() }
+                else { bible::catalog::strings::credit(abbr, notice, licence) };
+            let built_in = bible::BUILT_IN.iter().any(|b| b.0 == id);
+            let public = built_in || licence == bible::library::Licence::Pd.short()
+                || (licence.is_empty() && notice.to_lowercase().contains("public domain"));
+            Some((id.to_string(), BibleCredit { abbr: abbr.to_string(), required: !public && !line.is_empty(), line }))
+        }).collect()
+    }
+
+    /// Works the slide credits out again; call it when a Bible is added, removed or its notice is learnt.
+    pub(crate) fn refresh_bible_credits(&self) {
+        let credits = self.bible_credits();
+        self.data.lock().unwrap().bible_credits = credits;
+    }
+
     /// The online services a church can connect, for Settings → Bible.
     pub(crate) fn bible_providers(&self) -> Vec<Value> {
         let secrets = bible::sources::Secrets::load(&self.store.root);
@@ -734,7 +760,12 @@ impl App {
             // Built in, then a file the church imported (works offline, wins over any online source), then online.
             let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
                 else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
-                else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
+                else {
+                    let found = tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await);
+                    // API.Bible sends its notice with the first passage; the slides credit it from then on.
+                    app.refresh_bible_credits();
+                    found
+                };
             Ok(json!({ "label": label, "verses": verses, "translation": translation }))
         }
         "bible/paste" => {
@@ -751,6 +782,7 @@ impl App {
             let K { provider, key } = parse(body)?;
             let p = bible::sources::Provider::from_key_name(&provider).ok_or_else(|| ActionError::bad("Unknown Bible service."))?;
             tryr!(bible::sources::set_key(&app.store.root, p, &key).await);
+            app.refresh_bible_credits();
             app.broadcast_data();
             Ok(json!({}))
         }
@@ -760,6 +792,7 @@ impl App {
             let (root, bytes) = (app.store.root.clone(), body.to_vec());
             let b = tokio::task::spawn_blocking(move || bible::import::import(&root, &bytes, &abbr)).await.map_err(|e| ActionError::bad(e.to_string()))?;
             let b = tryr!(b);
+            app.refresh_bible_credits();
             app.broadcast_data();
             Ok(json!({ "abbreviation": b.abbreviation, "name": b.name, "copyright": b.copyright, "verses": b.len() }))
         }
@@ -776,6 +809,7 @@ impl App {
         "bible/import-remove" => {
             let T { translation } = parse(body)?;
             tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string()));
+            app.refresh_bible_credits();
             app.broadcast_data();
             Ok(json!({}))
         }
@@ -942,6 +976,7 @@ impl App {
                 app.live.lock().unwrap().notice = Some(passages_removed(removed));
             }
             *app.data.lock().unwrap() = restored;
+            app.refresh_bible_credits();
             app.broadcast_data();
             app.broadcast_live();
             Ok(json!({}))
@@ -1153,7 +1188,7 @@ impl App {
         let r = row.source().install(&ctx, &row, &cancel, &move |p| app.job_progress(job, p)).await
             .map_err(|e| { eprintln!("Bible download {id}: {e:?}"); e.message(&name, update) });
         let r = self.job_finished(job, r);
-        if r.is_ok() { self.broadcast_data(); }
+        if r.is_ok() { self.refresh_bible_credits(); self.broadcast_data(); }
         r
     }
 
@@ -1678,6 +1713,64 @@ mod tests {
         let item = saved.services.iter().flat_map(|s| &s.items).next().unwrap();
         assert!(matches!(&item.kind, ItemKind::Scripture { translation, .. } if translation == id));
         assert!(app.state_json()["available_translations"].as_array().unwrap().contains(&json!(id)));
+    }
+
+    /// A downloaded RV1909 under CC BY-SA, saved straight into `app`'s Bible folder (no network).
+    fn downloaded_rv1909(app: &App, licence: bible::library::Licence, notice: &str) {
+        let id = "ebible:spaRV1909";
+        let mut b = bible::import::parse(br#"<XMLBIBLE biblename="Reina Valera"><BIBLEBOOK bnumber="19"><CHAPTER cnumber="23"><VERS vnumber="1">Jehova es mi pastor.</VERS><VERS vnumber="2">En lugares.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#).unwrap();
+        b.abbreviation = id.into();
+        b.copyright = notice.into();
+        b.meta = Some(bible::library::BibleMeta {
+            id: id.into(), abbr: "RV1909".into(), name: "Reina Valera 1909".into(), lang: "spa".into(), copyright: notice.into(), licence,
+            source: bible::library::Source::Ebible { update_date: "2026-01-01".into() }, ..Default::default()
+        });
+        bible::import::install(&app.store.root, b).unwrap();
+    }
+
+    #[tokio::test]
+    async fn a_downloaded_bible_credits_its_passage_and_names_it_by_abbreviation() {
+        let app = test_app();
+        let cc = bible::library::Licence::Cc { kind: "by-sa".into(), version: "4.0".into(), url: "https://creativecommons.org/licenses/by-sa/4.0/".into() };
+        downloaded_rv1909(&app, cc, "© Sociedad Bíblica");
+        assert!(app.data.lock().unwrap().bible_credit("ebible:spaRV1909").is_none(), "not known until the Bibles are read again");
+        app.refresh_bible_credits();
+        app.data.lock().unwrap().settings.credits = "none".into();
+        let v = app.do_action("bible/lookup", br#"{"reference":"Psalm 23:1-2","translation":"ebible:spaRV1909"}"#).await.unwrap();
+        let add = json!({ "item": { "kind": "scripture", "reference": v["label"], "translation": "ebible:spaRV1909", "verses": v["verses"], "per_slide": 1 } });
+        app.do_action("service/add", add.to_string().as_bytes()).await.unwrap();
+        let state = app.state_json();
+        let item = state["items"].as_array().unwrap().last().unwrap();
+        assert!(item["title"].as_str().unwrap().ends_with(" (RV1909)"), "{}", item["title"]);
+        let slides = item["slides"].as_array().unwrap();
+        assert_eq!(slides.len(), 2);
+        assert!(slides[0]["content"]["reference"].as_str().unwrap().ends_with("23:1 (RV1909)"), "{}", slides[0]["content"]);
+        assert_eq!(slides[0]["content"]["footer"], "RV1909: © Sociedad Bíblica (CC BY-SA 4.0)", "CC BY-SA requires the credit, even with credits off");
+        assert!(slides[1]["content"].get("footer").is_none(), "once per passage");
+    }
+
+    #[tokio::test]
+    async fn which_bibles_must_show_their_credit() {
+        let app = test_app();
+        downloaded_rv1909(&app, bible::library::Licence::Pd, "Public domain");
+        app.refresh_bible_credits();
+        let data = app.data.lock().unwrap();
+        let rv = data.bible_credit("ebible:spaRV1909").unwrap();
+        assert!(!rv.required, "public domain: {rv:?}");
+        assert_eq!(rv.abbr, "RV1909");
+        let kjv = data.bible_credit("KJV").unwrap();
+        assert_eq!((kjv.line.as_str(), kjv.required), ("", false), "built in: nothing to credit");
+        let esv = data.bible_credit("ESV").unwrap();
+        assert!(esv.required && esv.line.contains("ESV"), "{esv:?}");
+    }
+
+    #[tokio::test]
+    async fn removing_a_bible_drops_its_credit() {
+        let app = test_app();
+        downloaded_rv1909(&app, bible::library::Licence::Pd, "Public domain");
+        app.refresh_bible_credits();
+        app.do_action("bible/import-remove", br#"{"translation":"ebible:spaRV1909"}"#).await.unwrap();
+        assert!(app.data.lock().unwrap().bible_credit("ebible:spaRV1909").is_none());
     }
 
     #[tokio::test]
