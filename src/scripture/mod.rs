@@ -6,6 +6,7 @@ pub mod breaks;
 pub mod cache;
 pub mod fetch;
 pub mod input;
+pub mod online;
 pub mod plan;
 pub mod planning;
 pub mod position;

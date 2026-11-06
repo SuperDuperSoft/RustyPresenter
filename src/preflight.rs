@@ -11,7 +11,8 @@ const SHOWN: usize = 8;
 /// What is wrong, one line each: the screens, then the settings' files, then the service in order. Empty when all
 /// is well. `audio` is the sound outputs found, empty when that cannot be told. `has_asset` says whether a file of
 /// the library is really there.
-pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dyn Fn(&str) -> bool) -> Vec<String> {
+/// `cached(bible, reference)` says whether an online Bible's passage is in its capped cache (Nov 5 spec §5).
+pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dyn Fn(&str) -> bool, cached: &dyn Fn(&str, &str) -> bool) -> Vec<String> {
     let mut out = vec![];
     let connected = |id: &str| monitors.iter().any(|m| m.id == id);
     let screens = &data.settings.screens;
@@ -27,7 +28,7 @@ pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dy
     if service.items.is_empty() { out.push(strings::EMPTY_SERVICE.into()); }
     for (i, item) in service.items.iter().enumerate() {
         let (title, _, slides) = build_item(data, item);
-        let mut problems = content_problems(data, &item.kind, slides.is_empty(), has_asset);
+        let mut problems = content_problems(data, &item.kind, slides.is_empty(), has_asset, cached);
         if item.background.as_ref().is_some_and(|b| !background_ok(b, has_asset)) { problems.push(strings::ITEM_BACKGROUND_MISSING.into()); }
         out.extend(problems.iter().map(|p| strings::item(i + 1, &title, p)));
     }
@@ -41,12 +42,20 @@ fn background_ok(b: &Background, has_asset: &dyn Fn(&str) -> bool) -> bool {
     }
 }
 
-fn content_problems(data: &Data, kind: &ItemKind, no_slides: bool, has_asset: &dyn Fn(&str) -> bool) -> Vec<String> {
+fn content_problems(data: &Data, kind: &ItemKind, no_slides: bool, has_asset: &dyn Fn(&str) -> bool, cached: &dyn Fn(&str, &str) -> bool) -> Vec<String> {
     let one = |s: &str| vec![s.to_string()];
     match kind {
         ItemKind::Song { song_id } if !data.songs.iter().any(|s| s.id == *song_id) => one(strings::SONG_MISSING),
         ItemKind::Song { .. } if no_slides => one(strings::SONG_EMPTY),
-        ItemKind::Scripture { verses, .. } if verses.is_empty() => one(strings::NO_VERSES),
+        ItemKind::Scripture { reference, translation, verses, also, .. } => {
+            // Each online Bible whose passage would not show without internet; a missing main text says only that.
+            let uncached: Vec<&str> = std::iter::once(translation.as_str()).chain(also.iter().map(|a| a.translation.as_str()))
+                .filter(|t| crate::bible::sources::is_online(t) && !cached(t, reference)).collect();
+            let abbr = |t: &str| data.bible_credit(t).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| t.to_string());
+            let mut out = if verses.is_empty() && !uncached.contains(&translation.as_str()) { one(strings::NO_VERSES) } else { vec![] };
+            out.extend(uncached.into_iter().map(|t| strings::not_offline(&abbr(t), reference)));
+            out
+        }
         ItemKind::Media { media_id, .. } => match data.media.iter().find(|m| m.id == *media_id) {
             None => one(strings::MEDIA_GONE),
             Some(MediaFile { status: MediaStatus::Failed { reason }, .. }) => vec![strings::cant_play(reason)],
@@ -95,7 +104,7 @@ mod tests {
     fn text() -> ItemKind { ItemKind::Text { title: "Welcome".into(), body: "Hello".into() } }
     fn all(_: &str) -> bool { true }
     fn none(_: &str) -> bool { false }
-    fn run(d: &Data, has: &dyn Fn(&str) -> bool) -> Vec<String> { check(d, &[monitor("room")], &[], has) }
+    fn run(d: &Data, has: &dyn Fn(&str) -> bool) -> Vec<String> { check(d, &[monitor("room")], &[], has, &|_, _| true) }
 
     fn media(status: MediaStatus) -> MediaFile {
         MediaFile { id: Uuid::new_v4(), name: "Intro".into(), kind: MediaKind::Video, asset: "a.mp4".into(), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() }
@@ -131,8 +140,8 @@ mod tests {
     #[test]
     fn a_room_screen_is_found_by_its_id_among_several() {
         let d = data(vec![text()]);
-        assert_eq!(check(&d, &[monitor("other")], &[], &all), [s::ROOM_GONE]);
-        assert_eq!(check(&d, &[monitor("other"), monitor("room")], &[], &all), Vec::<String>::new());
+        assert_eq!(check(&d, &[monitor("other")], &[], &all, &|_, _| true), [s::ROOM_GONE]);
+        assert_eq!(check(&d, &[monitor("other"), monitor("room")], &[], &all, &|_, _| true), Vec::<String>::new());
     }
 
     #[test]
@@ -141,7 +150,7 @@ mod tests {
         assert_eq!(run(&d, &all), Vec::<String>::new());
         d.settings.screens.assign("stage", ScreenTarget::Monitor("stage".into()));
         assert_eq!(run(&d, &all), [s::STAGE_GONE]);
-        assert_eq!(check(&d, &[monitor("room"), monitor("stage")], &[], &all), Vec::<String>::new());
+        assert_eq!(check(&d, &[monitor("room"), monitor("stage")], &[], &all, &|_, _| true), Vec::<String>::new());
     }
 
     #[test]
@@ -149,11 +158,11 @@ mod tests {
         let mut d = data(vec![text()]);
         let rooms = [monitor("room")];
         d.settings.audio_device = "wasapi/{board}".into();
-        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all), [s::AUDIO_GONE]);
-        assert_eq!(check(&d, &rooms, &["wasapi/{board}".to_string()], &all), Vec::<String>::new());
-        assert_eq!(check(&d, &rooms, &[], &all), Vec::<String>::new(), "no list: it cannot tell");
+        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all, &|_, _| true), [s::AUDIO_GONE]);
+        assert_eq!(check(&d, &rooms, &["wasapi/{board}".to_string()], &all, &|_, _| true), Vec::<String>::new());
+        assert_eq!(check(&d, &rooms, &[], &all, &|_, _| true), Vec::<String>::new(), "no list: it cannot tell");
         d.settings.audio_device.clear();
-        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all), Vec::<String>::new(), "the default is always there");
+        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all, &|_, _| true), Vec::<String>::new(), "the default is always there");
     }
 
     #[test]
@@ -265,5 +274,30 @@ mod tests {
         assert!(got.starts_with(&s::found(12)), "{got}");
         assert!(got.contains("line 7") && !got.contains("line 8"), "{got}");
         assert!(got.ends_with(&s::more(4)), "{got}");
+    }
+
+    fn niv_item() -> ItemKind {
+        ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God")], per_slide: 0, text_size: 0,
+            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }
+    }
+
+    #[test]
+    fn preflight_flags_uncached_online_passage() {
+        let out = check(&data(vec![niv_item()]), &[monitor("room")], &[], &all, &|_, _| false);
+        assert_eq!(out.len(), 1, "{out:?}");
+        assert!(out[0].ends_with("NIV isn't ready offline for John 3:16. Open this service once with internet."), "{out:?}");
+        let mut online_main = niv_item();
+        if let ItemKind::Scripture { translation, verses, also, .. } = &mut online_main { *translation = "ESV".into(); verses.clear(); also.clear() }
+        let out = check(&data(vec![online_main]), &[monitor("room")], &[], &all, &|_, _| false);
+        assert_eq!(out.len(), 1, "one line, not also \"no verse text\": {out:?}");
+        assert!(out[0].ends_with("ESV isn't ready offline for John 3:16. Open this service once with internet."));
+    }
+
+    #[test]
+    fn preflight_quiet_when_cached() {
+        let asked = std::cell::RefCell::new(vec![]);
+        let cached = |t: &str, r: &str| { asked.borrow_mut().push(format!("{t} {r}")); true };
+        assert_eq!(check(&data(vec![niv_item()]), &[monitor("room")], &[], &all, &cached), Vec::<String>::new());
+        assert_eq!(*asked.borrow(), ["NIV John 3:16"], "stored Bibles are not asked about");
     }
 }

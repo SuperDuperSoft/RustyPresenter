@@ -246,7 +246,52 @@ impl App {
             bible_downloads: tokio::sync::Mutex::new(()), youtube,
         });
         app.refresh_bible_credits();
+        app.online_text_from_cache();
         app
+    }
+
+    /// Puts back the online Bible text that saved data leaves out, from the capped cache alone, and pins the open
+    /// service's verses there so they are evicted last (Nov 5 spec §5). Never uses the network.
+    pub fn online_text_from_cache(&self) {
+        use crate::scripture::online::online_only;
+        let root = &self.store.root;
+        let mut data = self.data.lock().unwrap();
+        let open = data.current_service;
+        let mut pins: BTreeMap<String, Vec<crate::scripture::VerseId>> = BTreeMap::new();
+        for s in &mut data.services {
+            for item in &mut s.items {
+                let ItemKind::Scripture { reference, translation, verses, also, .. } = &mut item.kind else { continue };
+                for (t, vs) in std::iter::once((&*translation, verses)).chain(also.iter_mut().map(|a| (&a.translation, &mut a.verses))) {
+                    if !online_only(root, t) { continue }
+                    if vs.is_empty() && let Some(found) = bible::sources::cached(root, t, reference) { *vs = found }
+                    if Some(s.id) == open { pins.entry(t.clone()).or_default().extend(vs.iter().filter_map(|v| v.id)) }
+                }
+            }
+        }
+        for (t, ids) in pins { bible::sources::pin(&t, ids) }
+    }
+
+    /// The open service's online passages that have no text yet, looked up now (cache, then the internet), so the
+    /// service is ready offline afterwards (Nov 5 spec §5: opening a service fetches what's missing). Quiet on failure:
+    /// the passage's note and preflight already say so.
+    pub async fn fetch_online_text(self: &Arc<Self>) {
+        use crate::scripture::online::online_only;
+        let wanted: Vec<(String, String)> = {
+            let data = self.data.lock().unwrap();
+            data.service().map(|s| s.items.iter().flat_map(|i| match &i.kind {
+                ItemKind::Scripture { reference, translation, verses, also, .. } => std::iter::once((translation, verses.is_empty())).chain(also.iter().map(|a| (&a.translation, a.verses.is_empty())))
+                    .filter(|(t, empty)| *empty && online_only(&self.store.root, t)).map(|(t, _)| (t.clone(), reference.clone())).collect::<Vec<_>>(),
+                _ => vec![],
+            }).collect()).unwrap_or_default()
+        };
+        if wanted.is_empty() { return }
+        let mut got = false;
+        for (t, reference) in wanted { got |= self.lookup_passage(&t, &reference).await.is_ok() }
+        if got {
+            self.online_text_from_cache();
+            self.broadcast_data();
+            self.broadcast_live();
+        }
     }
 
     pub fn live_view(&self) -> LiveView {
@@ -535,7 +580,9 @@ impl App {
         let data = self.data.lock().unwrap().clone();
         let has_asset = |id: &str| std::fs::metadata(self.store.asset_path(id)).is_ok_and(|m| m.is_file() && m.len() > 0);
         let audio: Vec<String> = self.audio_devices().into_iter().map(|d| d.name).collect();
-        crate::preflight::check(&data, &self.monitors(), &audio, &has_asset)
+        let root = &self.store.root;
+        let cached = |t: &str, reference: &str| crate::scripture::online::stored(root, t) || bible::sources::cached(root, t, reference).is_some();
+        crate::preflight::check(&data, &self.monitors(), &audio, &has_asset, &cached)
     }
 
     pub fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { self.screens.get().map(|s| s.audio_devices()).unwrap_or_default() }
@@ -844,6 +891,9 @@ impl App {
         "service/select" => {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| { if !d.services.iter().any(|s| s.id == id) { return Err("That service is gone.".into()); } d.current_service = Some(id); Ok(()) }));
+            app.online_text_from_cache();
+            let me = app.clone();
+            tokio::spawn(async move { me.fetch_online_text().await });
             Ok(json!({}))
         }
         "service/rename" => {
@@ -1228,6 +1278,7 @@ impl App {
             }
             *app.data.lock().unwrap() = restored;
             app.refresh_bible_credits();
+            app.online_text_from_cache();
             app.broadcast_data();
             app.broadcast_live();
             Ok(json!({}))
@@ -1391,7 +1442,11 @@ impl App {
         let app = self.clone();
         let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &path, &cancel, &|p| app.job_progress(job, p)));
         let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
-        self.edit(|d| Ok(bundle::merge(d, contents)))
+        let opened = self.edit(|d| Ok(bundle::merge(d, contents)))?;
+        self.online_text_from_cache();
+        let me = self.clone();
+        tokio::spawn(async move { me.fetch_online_text().await });
+        Ok(opened)
     }
 
     /// The eBible catalog as Settings → Bibles shows it, with what is installed and what has a newer edition.
@@ -2533,5 +2588,42 @@ mod tests {
         let item = d.service().unwrap().items.last().unwrap();
         let ItemKind::Scripture { also, .. } = &item.kind else { panic!() };
         assert_eq!(also.iter().map(|a| a.translation.as_str()).collect::<Vec<_>>(), ["WEB"]);
+    }
+
+    #[tokio::test]
+    async fn online_text_never_saved() {
+        let app = test_app();
+        let body = json!({ "item": { "kind": "scripture", "reference": "John 3:16", "translation": "KJV",
+            "verses": [{ "reference": "John 3:16", "text": "For God so loved the world, that he gave" }],
+            "also": [{ "translation": "NIV", "verses": [{ "reference": "John 3:16", "text": "NIV words from the stub" }] }] } });
+        app.do_action("service/add", body.to_string().as_bytes()).await.unwrap();
+        let saved = std::fs::read_to_string(app.store.data_path()).unwrap();
+        assert!(!saved.contains("NIV words from the stub"), "online text stays out of data.json");
+        assert!(saved.contains("For God so loved the world, that he gave"), "KJV is stored");
+        assert!(saved.contains(r#""translation": "NIV""#), "the Bible itself is kept");
+        let name = { let d = app.data.lock().unwrap().clone(); app.store.backup(&d).unwrap() };
+        let backup = std::fs::read_to_string(app.store.root.join("backups").join(name).join("data.json")).unwrap();
+        assert!(!backup.contains("NIV words from the stub"), "and out of backups");
+        let d = app.data.lock().unwrap();
+        let ItemKind::Scripture { also, .. } = &d.services[0].items[0].kind else { panic!() };
+        assert_eq!(also[0].verses.len(), 1, "this session still shows it");
+    }
+
+    #[test]
+    fn online_text_comes_back_from_the_cache_when_the_service_opens() {
+        let root = std::env::temp_dir().join(format!("rp-test-{}", Uuid::new_v4()));
+        let store = Store::open(root.clone()).unwrap();
+        bible::sources::put_cached(&root, "ESV", "John 3:16", "For God so loved the world, ESV");
+        let mut data = Data::default();
+        data.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ESV".into(), verses: vec![], per_slide: 0, text_size: 0,
+            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }, background: None, notes: String::new() });
+        let app = App::new(store, data, 0, None);
+        let d = app.data.lock().unwrap();
+        let ItemKind::Scripture { verses, also, .. } = &d.services[0].items[0].kind else { panic!() };
+        assert_eq!(verses[0].text, "For God so loved the world, ESV");
+        assert!(also[0].verses.is_empty(), "NIV was never fetched, so it stays empty");
+        drop(d);
+        assert!(app.preflight().iter().any(|l| l.ends_with("NIV isn't ready offline for John 3:16. Open this service once with internet.")), "{:?}", app.preflight());
+        assert!(!app.preflight().iter().any(|l| l.contains("ESV isn't ready")));
     }
 }

@@ -292,6 +292,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             let abbr = abbr_of(translation);
             // Also Bibles with no text here (an online one not fetched yet) are left out of the slides.
             let shown: Vec<(String, &[VerseText])> = also.iter().filter(|a| !a.verses.is_empty()).map(|a| (abbr_of(&a.translation), a.verses.as_slice())).collect();
+            if verses.is_empty() && crate::bible::sources::is_online(translation) { notes.push(crate::scripture::strings::text_unreachable(&abbr)) }
             // An online Bible may simply need the internet; any other has left the library.
             notes.extend(also.iter().filter(|a| a.verses.is_empty()).map(|a| {
                 if crate::bible::sources::is_online(&a.translation) { crate::scripture::strings::needs_internet(&abbr_of(&a.translation)) }
@@ -535,5 +536,12 @@ mod tests {
         let (data, item) = (Data::default(), three_bible_item(1));
         assert_eq!(build_item(&data, &item).2, build_scripture(&data, &item).slides);
         assert!(build_scripture(&data, &ServiceItem { kind: ItemKind::Text { title: "A".into(), body: "a".into() }, ..item }).notes.is_empty());
+    }
+
+    #[test]
+    fn online_main_without_text_says_so() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { translation, verses, also, .. } = &mut item.kind { *translation = "NIV".into(); verses.clear(); also.clear() }
+        assert_eq!(notes_of(&Data::default(), &item), ["Couldn't get NIV text — check the internet."]);
     }
 }
