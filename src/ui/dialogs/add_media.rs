@@ -198,7 +198,7 @@ mod tests {
     use std::sync::Arc;
 
     fn media(app: &App, name: &str, kind: MediaKind, status: MediaStatus) -> Uuid {
-        let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None };
+        let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         app.data.lock().unwrap().media.push(m.clone());
         m.id
     }

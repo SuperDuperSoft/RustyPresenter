@@ -248,7 +248,7 @@ mod tests {
     use uuid::Uuid;
 
     fn media(name: &str, kind: MediaKind, status: MediaStatus) -> MediaFile {
-        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None }
+        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() }
     }
 
     #[test]

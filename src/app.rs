@@ -878,6 +878,40 @@ impl App {
             tryr!(app.edit(|d| { if let Some(m) = d.media.iter_mut().find(|m| m.id == id) { m.name = name; } Ok(()) }));
             Ok(json!({}))
         }
+        "media/folder" => {
+            #[derive(Deserialize)] struct F { id: Uuid, folder: String }
+            let F { id, folder } = parse(body)?;
+            let folder = folder.trim().to_string();
+            tryr!(app.edit(|d| {
+                let m = d.media.iter_mut().find(|m| m.id == id).ok_or("That file is gone.")?;
+                m.folder = folder.clone();
+                if !folder.is_empty() && !d.media_folders.contains(&folder) { d.media_folders.push(folder); }
+                Ok(())
+            }));
+            Ok(json!({}))
+        }
+        "media/folder-new" => {
+            #[derive(Deserialize)] struct F { name: String }
+            let F { name } = parse(body)?;
+            let name = name.trim().to_string();
+            if name.is_empty() { return Err(ActionError::bad("Give the folder a name.")); }
+            tryr!(app.edit(|d| {
+                if !d.media_folders.iter().any(|f| f.eq_ignore_ascii_case(&name)) { d.media_folders.push(name); }
+                Ok(())
+            }));
+            Ok(json!({}))
+        }
+        "media/folder-delete" => {
+            #[derive(Deserialize)] struct F { name: String }
+            let F { name } = parse(body)?;
+            // The files stay in the library; only the folder goes.
+            tryr!(app.edit(|d| {
+                d.media_folders.retain(|f| *f != name);
+                for m in d.media.iter_mut().filter(|m| m.folder == name) { m.folder.clear(); }
+                Ok(())
+            }));
+            Ok(json!({}))
+        }
         "media/delete" => {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {

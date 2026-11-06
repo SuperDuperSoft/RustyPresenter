@@ -101,3 +101,21 @@ pub const BIBLE_IMPORTED: &str = "imported";
 pub const PICKER_NO_MATCH: &str = "No Bible you have matches. Find more Bibles below.";
 pub fn favourite_added(label: &str) -> String { format!("{label} added to favourites") }
 pub fn favourite_removed(label: &str) -> String { format!("{label} removed from favourites") }
+/// The media library (`media_bin.rs`).
+pub const ALL_MEDIA: &str = "All media";
+pub const MEDIA_VIDEO: &str = "Video";
+pub const MEDIA_PICTURE: &str = "Picture";
+pub const MEDIA_AUDIO: &str = "Audio";
+pub const MEDIA_FAILED: &str = "Failed";
+pub fn converting_short(percent: u8) -> String { format!("Converting {percent}%") }
+pub const BIN_HINT_NONE: &str = "Click a thumbnail to choose it.";
+pub const BIN_HINT_USE: &str = "Double-click a thumbnail to use it as the selected item’s background.";
+pub const BIN_HINT_AUDIO: &str = "Add it to the service to play it.";
+pub const BIN_HINT_NOT_READY: &str = "This file isn’t ready to play yet.";
+pub const PICK_ITEM_FIRST: &str = "Pick a service item first, then choose its background.";
+pub fn background_set(name: &str) -> String { format!("Background set to {name}") }
+pub const MOVE_TO_FOLDER: &str = "Folder name (leave empty for none)";
+pub const NEW_FOLDER: &str = "Name for the new folder";
+pub fn delete_folder(name: &str) -> String { format!("Delete the folder “{name}”? Its files stay in the library.") }
+pub const DELETE_FOLDER: &str = "Delete folder";
+pub const CANCEL_ACTION: &str = "Cancel";

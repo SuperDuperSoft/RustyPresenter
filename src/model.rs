@@ -135,6 +135,9 @@ pub struct MediaFile {
     /// Pixels, for a video or picture.
     #[serde(default)]
     pub size: Option<(u32, u32)>,
+    /// The media library folder this file is in; empty: none.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub folder: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -416,6 +419,8 @@ pub struct Data {
     pub settings: Settings,
     pub songs: Vec<Song>,
     pub media: Vec<MediaFile>,
+    /// Media library folders, so one can exist before anything is in it.
+    pub media_folders: Vec<String>,
     pub decks: Vec<Deck>,
     pub services: Vec<Service>,
     pub current_service: Option<Uuid>,
@@ -448,7 +453,7 @@ impl Data {
 impl Default for Data {
     fn default() -> Self {
         let service = Service::new("Sunday Service");
-        Self { format: 1, settings: Settings::default(), songs: vec![], media: vec![], decks: vec![], current_service: Some(service.id), services: vec![service], bible_credits: BTreeMap::new() }
+        Self { format: 1, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![], current_service: Some(service.id), services: vec![service], bible_credits: BTreeMap::new() }
     }
 }
 

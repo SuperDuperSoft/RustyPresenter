@@ -2,10 +2,11 @@
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
 //! column in `slides`, the live column in `live`, the keyboard in `keys`, the Bible box in `bible`, toasts and jobs
 //! in `overlays`; the dialogs come in later tasks.
-use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
+use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, media_bin::{self, BinState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
-    ui::{OperatorWindow, ServiceRow, SlideRowCells, ops::Ops, preview::Preview, thumbs::Thumbs},
+    model::MediaStatus,
+    ui::{BinFolder, BinRow, OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, preview::Preview, thumbs::Thumbs},
     video::{DrawMode, FrameGrabber},
 };
 use slint::{ComponentHandle, VecModel};
@@ -81,6 +82,11 @@ pub struct Operator {
     /// The live column between updates (see `live`), and its monitor's drawing.
     pub(super) live: RefCell<LiveState>,
     pub(super) preview: Preview,
+    /// The media library (see `media_bin`). Its thumbnails have their own worker, so a slide grid redraw never cancels them.
+    pub(super) bin: RefCell<BinState>,
+    pub(super) bin_rows: Rc<VecModel<BinRow>>,
+    pub(super) bin_folders: Rc<VecModel<BinFolder>>,
+    pub(super) bin_thumbs: Thumbs,
     /// The toasts and the jobs box (see `overlays`).
     pub(super) overlays: Overlays,
     /// Adding files: PowerPoint imports waiting for their deck, the desktop drop, the window's event filter (see `files`).
@@ -109,8 +115,10 @@ impl Operator {
             // Tests (inline actions, no event loop) draw thumbnails and the live monitor inline too.
             let (thumbs, preview) = if ops.is_inline() { (Thumbs::inline(app.store.root.clone()), Preview::inline(app.store.root.clone())) }
                 else { (Thumbs::new(app.store.root.clone()), Preview::new(app.store.root.clone())) };
+            let bin_thumbs = media_bin::new_thumbs(app.store.root.clone(), ops.is_inline());
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
+                bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
                 slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
@@ -120,6 +128,7 @@ impl Operator {
         slides::wire(&op);
         text_size::wire(&op);
         live::wire(&op);
+        media_bin::wire(&op);
         keys::wire(&op);
         bible::wire(&op);
         overlays::wire(&op);
@@ -191,6 +200,7 @@ impl Operator {
         self.render_slides();
         self.render_jobs();
         crate::ui::dialogs::settings_bible::jobs_changed(self);
+        if data_changed { self.render_media(); } else { self.mark_media(); }
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
@@ -207,6 +217,7 @@ impl Operator {
         }
         self.mark_service();
         self.mark_slides();
+        self.mark_media();
         self.render_live();
     }
 
@@ -395,7 +406,7 @@ mod tests {
 
     /// A video item in the current service; returns its media id.
     fn add_video(app: &App) -> Uuid {
-        let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
+        let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new() };
         let mut data = app.data.lock().unwrap();
         data.media.push(media.clone());

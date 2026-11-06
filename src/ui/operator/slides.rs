@@ -6,7 +6,7 @@ use super::{service::kind_icon, strings as tr, view::{self, ItemRow, OperatorSna
 use crate::{
     live::Command,
     model::{Background, MediaFile, Settings, Slide, SlideContent, passage},
-    ui::{SlideCell, SlideRowCells, ops::outcome_toast, thumbs::{self, Pixels}},
+    ui::{SlideCell, SlideJump, SlideRowCells, ops::outcome_toast, thumbs::{self, Pixels}},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, VecModel};
 use std::rc::{Rc, Weak};
@@ -36,6 +36,36 @@ pub fn chunk_rows(n: usize, cols: usize) -> Vec<Vec<usize>> {
 /// The row slide `idx` is in.
 pub fn row_of(idx: usize, cols: usize) -> usize {
     idx / cols.max(1)
+}
+
+/// A slide label's section colour name and its short form: "Verse 2" → ("verse", "V2"), "Chorus" → ("chorus", "C").
+/// Anything else (a passage reference, a slide title) has no section: ("", "").
+pub fn section(label: &str) -> (&'static str, String) {
+    let lower = label.trim().to_lowercase();
+    let (word, rest) = lower.split_once(' ').unwrap_or((lower.as_str(), ""));
+    let (id, letter) = match word {
+        "verse" => ("verse", "V"),
+        "chorus" | "refrain" => ("chorus", "C"),
+        "pre-chorus" | "prechorus" => ("pre", "P"),
+        "bridge" => ("bridge", "B"),
+        "tag" | "ending" | "outro" => ("end", "E"),
+        _ => return ("", String::new()),
+    };
+    // A label like "Verse of the day" is not a section.
+    if !rest.is_empty() && !rest.chars().all(|c| c.is_ascii_digit()) { return ("", String::new()) }
+    (id, format!("{letter}{rest}"))
+}
+
+/// The jump buttons of a song: each section once, at its first slide, in order.
+pub fn jumps(kind: &str, slides: &[Slide]) -> Vec<SlideJump> {
+    if kind != "song" { return Vec::new() }
+    let mut seen: Vec<&str> = Vec::new();
+    slides.iter().enumerate().filter_map(|(i, s)| {
+        if seen.contains(&s.label.as_str()) { return None }
+        seen.push(&s.label);
+        let (id, short) = section(&s.label);
+        (!id.is_empty()).then(|| SlideJump { idx: i as i32, short: short.into(), section: id.into() })
+    }).collect()
 }
 
 /// The header title (`operator.js:162`): the selected item's, else a hint that depends on the service being empty.
@@ -79,6 +109,7 @@ impl Operator {
         ui.set_has_selection(item.is_some());
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
         self.render_text_size();
+        ui.set_slide_jumps(ModelRc::new(VecModel::from(item.map_or_else(Vec::new, |i| jumps(&i.kind, &i.slides)))));
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: it.item.background.clone(), settings: snap.settings.clone(),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
@@ -147,6 +178,8 @@ impl Operator {
             image: s.images.get(idx).cloned().unwrap_or_default(),
             live: s.live == Some(idx),
             play: matches!(slide.content, SlideContent::Video { .. } | SlideContent::Audio { .. }),
+            // Only songs are coloured: a passage or slide set has no sections.
+            section: if k.kind == "song" { section(&slide.label).0 } else { "" }.into(),
         }
     }
 
@@ -231,6 +264,29 @@ pub(super) fn wire(op: &Rc<Operator>) {
     });
     let me = Rc::downgrade(op);
     ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() { op.grid_resized(w) });
+}
+
+#[cfg(test)]
+mod section_tests {
+    use super::*;
+
+    #[test]
+    fn sections_and_short_forms() {
+        assert_eq!(section("Verse 2"), ("verse", "V2".to_string()));
+        assert_eq!(section("Chorus"), ("chorus", "C".to_string()));
+        assert_eq!(section("Pre-Chorus 1"), ("pre", "P1".to_string()));
+        assert_eq!(section("Verse of the day"), ("", String::new()));
+        assert_eq!(section("John 3:16"), ("", String::new()));
+    }
+
+    #[test]
+    fn jumps_list_each_section_once_for_songs_only() {
+        let s = |l: &str| Slide { label: l.into(), content: SlideContent::Text { text: String::new(), footer: None, reference: None, size: 0 }, notes: String::new() };
+        let slides = [s("Verse 1"), s("Verse 1"), s("Chorus"), s("Verse 2"), s("Chorus")];
+        let got: Vec<(i32, String)> = jumps("song", &slides).into_iter().map(|j| (j.idx, j.short.to_string())).collect();
+        assert_eq!(got, vec![(0, "V1".to_string()), (2, "C".to_string()), (3, "V2".to_string())]);
+        assert!(jumps("scripture", &slides).is_empty());
+    }
 }
 
 #[cfg(test)]
@@ -398,7 +454,7 @@ mod tests {
     #[test]
     fn video_cell_has_play_overlay() {
         let app = test_app();
-        let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
+        let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new() };
         { let mut d = app.data.lock().unwrap(); d.media.push(media); d.services[0].items.push(item); }
         let op = opened(&app);

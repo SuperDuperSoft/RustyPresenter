@@ -450,7 +450,7 @@ mod tests {
     }
 
     fn media_file(kind: MediaKind, status: MediaStatus) -> MediaFile {
-        MediaFile { id: Uuid::new_v4(), name: "clip".into(), kind, asset: "a.mp4".into(), status, original_asset: None, duration: None, thumb: None, size: None }
+        MediaFile { id: Uuid::new_v4(), name: "clip".into(), kind, asset: "a.mp4".into(), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() }
     }
 
     fn media_row(m: &MediaFile, kind: &str, end: EndAction, looped: bool) -> ItemRow {
