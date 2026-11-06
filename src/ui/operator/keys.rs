@@ -257,9 +257,10 @@ mod tests {
         assert_eq!(route("v", false, false, PLAIN), KeyAction::None);
     }
 
+    /// There is no Blackout toggle (v1 design, clear controls): B is the song's bridge (FEAT-4), never a clear.
     #[test]
-    fn plain_b_is_not_a_shortcut() {
-        assert_eq!(route("b", false, false, PLAIN), KeyAction::None);
+    fn plain_b_is_the_bridge_not_a_blackout() {
+        assert_eq!(route("b", false, false, PLAIN), KeyAction::JumpSection('b'));
     }
 
     #[test]
