@@ -17,6 +17,7 @@ pub mod server;
 pub mod sha256;
 pub mod slides;
 pub mod songselect;
+pub mod stage;
 pub mod sound;
 pub mod startup;
 pub mod timers;

@@ -51,6 +51,9 @@ const NAMES: [(&str, u32); 148] = [
 /// Parse a color to straight (not premultiplied) RGBA.
 pub fn parse_color(s: &str) -> [u8; 4] { parse(s.trim()).unwrap_or(WHITE) }
 
+/// True when `s` names a real colour (so `parse_color` didn't fall back to white). `transparent` is not one.
+pub fn is_color(s: &str) -> bool { let s = s.trim(); !s.eq_ignore_ascii_case("transparent") && parse(s).is_some() }
+
 fn parse(s: &str) -> Option<[u8; 4]> {
     if let Some(hex) = s.strip_prefix('#') { return parse_hex(hex); }
     if let Some((name, args)) = function(s) {
@@ -141,6 +144,16 @@ fn parse_hsl(args: &[&str]) -> Option<[u8; 4]> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn is_color_tells_real_colours_from_typos() {
+        for ok in ["#FFF", "white", "WHITE", " #ffffff ", "#FFFFFF80", "rgb(255 255 255 / 100%)", "hsl(0,0%,100%)", "#9aa3b5", "blue"] {
+            assert!(is_color(ok), "{ok}");
+        }
+        for bad in ["blurple", "transparent", "", "rgb(255,255)", "rgb(a,b,c)", "#ggg", "hsl(0,0%,100%"] {
+            assert!(!is_color(bad), "{bad}");
+        }
+    }
 
     #[test]
     fn hex_forms() {

@@ -1,9 +1,30 @@
 // The stage screen for the people on the platform (same content as `web/stage.html`).
 // Sizes follow the web page's vh/vw units, so the screen scales with the monitor.
 
+/// One box of a stage layout (`stage::view::Cell`), placed in % of the window. Rust picks `size` so the words fit.
+export struct StageCellVm {
+    x: float, y: float, w: float, h: float,
+    text: string,
+    caption: string,
+    color: color,
+    fill: color,
+    /// Font size in % of the window height.
+    size: float,
+    /// 0 left, 1 centre, 2 right.
+    align: int,
+    /// 0 top, 1 middle, 2 bottom.
+    valign: int,
+    bold: bool,
+    dim: bool,
+    /// Over time: red whatever the box colour.
+    red: bool,
+    /// A stage message: yellow box, dark words.
+    message: bool,
+}
+
 export component StageWindow inherits Window {
     title: "RustyPresenter — Stage";
-    background: #07080a;
+    background: root.use-cells ? root.bg : #07080a;
     preferred-width: 1280px;
     preferred-height: 720px;
 
@@ -24,6 +45,22 @@ export component StageWindow inherits Window {
     /// The window or the box for the current slide changed size: fit the text again.
     callback refit();
 
+    /// A layout other than Classic is on stage: draw `cells` instead of the fixed screen.
+    in property <bool> use-cells;
+    in property <color> bg: #07080a;
+    in property <[StageCellVm]> cells;
+    /// A message when the layout has no message box: a banner over the top of the screen.
+    in property <string> banner;
+    /// Words Rust measures (with `probe-*`) to find the size that fits a box.
+    in property <string> probe-text;
+    in property <length> probe-width;
+    in property <float> probe-size: 3;
+    in property <bool> probe-bold;
+    out property <length> probe-height: probe.preferred-height;
+    out property <length> probe-min-width: probe.min-width;
+    out property <length> window-width: root.width;
+    out property <length> window-height: root.height;
+
     property <length> vh: root.height / 100;
     property <length> vw: root.width / 100;
 
@@ -32,8 +69,20 @@ export component StageWindow inherits Window {
 
     TouchArea { mouse-cursor: none; }
 
+    probe := Text {
+        x: 0;
+        y: 0;
+        width: root.probe-width;
+        opacity: 0;
+        text: root.probe-text;
+        font-size: root.probe-size * vh;
+        font-weight: root.probe-bold ? 650 : 500;
+        wrap: word-wrap;
+    }
+
     // Placed explicitly (x, y), so the window does not take its size constraints from text sized by the window.
     VerticalLayout {
+        visible: !root.use-cells;
         x: 0;
         y: 0;
         width: root.width;
@@ -159,6 +208,61 @@ export component StageWindow inherits Window {
                     font-size: 4.4 * vh;
                     wrap: word-wrap;
                 }
+            }
+        }
+    }
+
+    if root.use-cells: Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        for c in root.cells: Rectangle {
+            x: c.x * root.width / 100;
+            y: c.y * root.height / 100;
+            width: c.w * root.width / 100;
+            height: c.h * root.height / 100;
+            background: c.message ? #f5c66b : c.fill;
+            border-radius: 1 * vh;
+            clip: true;
+            VerticalLayout {
+                padding: 1.2 * vh;
+                spacing: 0.6 * vh;
+                if c.caption != "": Text {
+                    height: 2.75 * vh;
+                    text: c.caption;
+                    color: #8b93a7;
+                    font-size: 2.2 * vh;
+                    letter-spacing: 0.12 * 2.2 * vh;
+                    horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
+                }
+                cell-t := Text {
+                    vertical-stretch: 1;
+                    text: c.text;
+                    color: c.red ? #ff4f55 : c.message ? #1a1405 : c.color;
+                    opacity: c.dim ? 0.35 : 1;
+                    font-size: c.size * vh;
+                    font-weight: c.bold || c.message ? 650 : 500;
+                    wrap: word-wrap;
+                    horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
+                    vertical-alignment: c.valign == 0 ? top : c.valign == 2 ? bottom : center;
+                }
+            }
+        }
+        if root.banner != "": Rectangle {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: 16 * vh;
+            background: #f5c66b;
+            banner-t := Text {
+                text: root.banner;
+                color: #1a1405;
+                font-size: 6 * vh;
+                font-weight: 700;
+                wrap: word-wrap;
+                horizontal-alignment: center;
+                vertical-alignment: center;
             }
         }
     }

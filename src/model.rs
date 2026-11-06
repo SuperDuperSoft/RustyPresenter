@@ -397,6 +397,9 @@ pub struct Settings {
     /// The language the app is shown in (I18N): `""` follows the computer, else a code such as `es` or `pt-BR`.
     /// Changed only by `settings/language`.
     pub ui_language: String,
+    /// The stage screen's layout (FEAT-3). A value this version can't read loads as Classic.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub stage: crate::stage::StageSettings,
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -439,6 +442,7 @@ impl Default for Settings {
             also_show: Vec::new(),
             parallel_layout: Default::default(),
             ui_language: String::new(),
+            stage: Default::default(),
         }
     }
 }
