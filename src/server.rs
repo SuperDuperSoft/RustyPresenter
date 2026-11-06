@@ -1,6 +1,6 @@
 //! HTTP host for the phone remote, with live updates over Server-Sent Events, behind PIN pairing. `/api/do/*` answers
 //! only this computer (loopback): single-instance focus, tests and local automation.
-use crate::app::{App, DataPlan, Update, MAX_PHONES, Phone, SESSION_DAYS, hash_token, now_secs, random_token};
+use crate::app::{App, DataPlan, Update, MAX_PHONES, Phone, SESSION_DAYS, ct_eq, hash_token, now_secs, random_token};
 use crate::{live::*, model::*, slides::build_item};
 use axum::{
     Json, Router,
@@ -124,7 +124,12 @@ fn phone_for(app: &App, headers: &HeaderMap) -> Option<Uuid> {
 }
 
 #[derive(Deserialize)]
-struct PairReq { pin: String, #[serde(default)] name: String }
+struct PairReq {
+    #[serde(default)] pin: String,
+    /// The one-time secret from the QR code's `#pair=` (instead of the PIN).
+    #[serde(default)] pair: String,
+    #[serde(default)] name: String,
+}
 
 async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Json(req): Json<PairReq>) -> Response {
     if !same_origin(&headers) { return forbidden(); }
@@ -141,10 +146,12 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
         *pairing = None;
         return bad("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”.");
     };
-    if req.pin.trim() != p.pin {
+    let by_qr = !req.pair.trim().is_empty();
+    let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
+    if !right {
         p.failures += 1;
         if p.failures >= 5 { *pairing = None; return bad("Too many wrong codes. Start pairing again on the computer."); }
-        return bad("That code isn't right.");
+        return bad(if by_qr { "That QR code has expired. On the computer, click Pair a phone again." } else { "That code isn't right." });
     }
     *pairing = None;
     drop(pairing);
@@ -317,5 +324,145 @@ mod tests {
         assert_eq!(call("127.0.0.1", headers.clone()).await.status(), StatusCode::OK);
         headers.remove("x-rp");
         assert_eq!(call("127.0.0.1", headers).await.status(), StatusCode::FORBIDDEN, "no x-rp");
+    }
+
+    fn lan_app() -> Arc<App> {
+        let root = std::env::temp_dir().join(format!("rp-test-{}", Uuid::new_v4()));
+        let store = crate::store::Store::open(root).unwrap();
+        let data = store.load().unwrap();
+        App::new(store, data, 0, Some("http://192.168.1.20:7878/remote".into()))
+    }
+
+    /// Posts to /remote/pair from its own IP (the per-IP limit allows one try a second), with a right Origin.
+    async fn pair(app: &Arc<App>, ip: u8, body: Value) -> (StatusCode, Option<String>, Value) {
+        let mut headers = HeaderMap::new();
+        headers.insert(header::HOST, HeaderValue::from_static("192.168.1.20:7878"));
+        headers.insert(header::ORIGIN, HeaderValue::from_static("http://192.168.1.20:7878"));
+        let addr: SocketAddr = format!("192.168.1.{ip}:50000").parse().unwrap();
+        let req: PairReq = serde_json::from_value(body).unwrap();
+        let r = remote_pair(State(app.clone()), ConnectInfo(addr), headers, Json(req)).await;
+        let cookie = r.headers().get(header::SET_COOKIE).map(|v| v.to_str().unwrap().to_owned());
+        let status = r.status();
+        (status, cookie, serde_json::from_slice(&axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap()).unwrap())
+    }
+
+    async fn start(app: &Arc<App>) -> (Value, String, String) {
+        let v = app.do_action("pair/start", b"{}").await.ok().unwrap();
+        let p = app.pairing.lock().unwrap();
+        let p = p.as_ref().unwrap();
+        (v, p.pin.clone(), p.secret.clone())
+    }
+
+    #[tokio::test]
+    async fn the_qr_code_carries_a_one_time_secret_in_the_fragment() {
+        let app = lan_app();
+        let (v, pin, secret) = start(&app).await;
+        assert!(secret.len() >= 32 && secret.chars().all(|c| c.is_ascii_alphanumeric()), "128+ bits, URL-safe: {secret}");
+        assert_ne!(secret, pin);
+        let link = format!("http://192.168.1.20:7878/remote#pair={secret}");
+        assert_eq!(crate::app::pair_link(app.lan_url.as_deref().unwrap(), &secret), link);
+        assert_eq!(v["qr"].as_str(), crate::app::pair_qr_svg(&link).as_deref(), "the QR code is that link");
+        assert_eq!(v["url"], "http://192.168.1.20:7878/remote", "the address shown for typing has no secret");
+        assert_eq!(v["pin"], pin.as_str());
+        // A fresh pairing makes a fresh secret.
+        let (_, _, again) = start(&app).await;
+        assert_ne!(again, secret);
+    }
+
+    #[tokio::test]
+    async fn pairing_with_the_secret_sets_the_cookie_and_closes_pairing() {
+        let app = lan_app();
+        let (_, pin, secret) = start(&app).await;
+        let (s, cookie, v) = pair(&app, 2, json!({ "pair": secret, "name": "iPhone" })).await;
+        assert_eq!((s, v["ok"].as_bool()), (StatusCode::OK, Some(true)));
+        let cookie = cookie.unwrap();
+        assert!(cookie.starts_with("rp_session=") && cookie.contains("HttpOnly"), "{cookie}");
+        let token = cookie.trim_start_matches("rp_session=").split(';').next().unwrap();
+        let phones = app.phones.lock().unwrap().clone();
+        assert_eq!(phones.len(), 1);
+        assert_eq!((phones[0].name.as_str(), phones[0].hash.clone()), ("iPhone", hash_token(token)));
+        assert!(app.pairing.lock().unwrap().is_none(), "closed");
+        // Single use: neither the secret nor the PIN works again.
+        let (s, c, _) = pair(&app, 3, json!({ "pair": secret })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        let (s, c, _) = pair(&app, 4, json!({ "pin": pin })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        assert_eq!(app.phones.lock().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn the_secret_expires_with_the_window() {
+        let app = lan_app();
+        let (_, _, secret) = start(&app).await;
+        app.pairing.lock().unwrap().as_mut().unwrap().until = Instant::now() - Duration::from_secs(1);
+        let (s, c, _) = pair(&app, 2, json!({ "pair": secret })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        assert!(app.phones.lock().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn a_wrong_secret_counts_as_a_failure() {
+        let app = lan_app();
+        let (_, _, secret) = start(&app).await;
+        let (s, _, v) = pair(&app, 2, json!({ "pair": "0".repeat(64) })).await;
+        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some("That QR code has expired. On the computer, click Pair a phone again.")));
+        assert_eq!(app.pairing.lock().unwrap().as_ref().unwrap().failures, 1);
+        for ip in 3..6 { pair(&app, ip, json!({ "pair": "x" })).await; }
+        let (_, _, v) = pair(&app, 6, json!({ "pin": "nope" })).await;
+        assert_eq!(v["error"], "Too many wrong codes. Start pairing again on the computer.");
+        assert!(app.pairing.lock().unwrap().is_none(), "five failures close pairing");
+        let (s, c, _) = pair(&app, 7, json!({ "pair": secret })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None), "even the right secret is dead now");
+    }
+
+    #[tokio::test]
+    async fn the_pin_still_works_and_kills_the_secret() {
+        let app = lan_app();
+        let (_, pin, secret) = start(&app).await;
+        let (s, cookie, _) = pair(&app, 2, json!({ "pin": format!(" {pin} ") })).await;
+        assert_eq!(s, StatusCode::OK);
+        assert!(cookie.is_some());
+        let (s, c, _) = pair(&app, 3, json!({ "pair": secret })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        assert_eq!(app.phones.lock().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn pairing_keeps_the_same_origin_and_rate_limit_checks() {
+        let app = lan_app();
+        let (_, _, secret) = start(&app).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(header::HOST, HeaderValue::from_static("192.168.1.20:7878"));
+        headers.insert(header::ORIGIN, HeaderValue::from_static("http://evil.example"));
+        let addr: SocketAddr = "192.168.1.9:1".parse().unwrap();
+        let req: PairReq = serde_json::from_value(json!({ "pair": secret })).unwrap();
+        assert_eq!(remote_pair(State(app.clone()), ConnectInfo(addr), headers, Json(req)).await.status(), StatusCode::FORBIDDEN);
+        pair(&app, 2, json!({ "pair": "x" })).await;
+        let (_, _, v) = pair(&app, 2, json!({ "pair": secret })).await;
+        assert_eq!(v["error"], "Too fast — wait a second and try again.");
+        assert!(app.pairing.lock().unwrap().is_some());
+    }
+
+    #[test]
+    fn secrets_are_compared_in_constant_time() {
+        use crate::app::ct_eq;
+        assert!(ct_eq("abc123", "abc123"));
+        assert!(!ct_eq("abc123", "abc124"));
+        assert!(!ct_eq("abc", "abc123"));
+        assert!(!ct_eq("", "123456"));
+        assert!(ct_eq("", ""));
+        // remote_pair goes through ct_eq for both the PIN and the secret, never `==`.
+        let src = include_str!("server.rs");
+        let body = &src[src.find("async fn remote_pair").unwrap()..src.find("async fn remote_status").unwrap()];
+        assert!(body.contains("ct_eq(req.pair.trim(), &p.secret)") && body.contains("ct_eq(req.pin.trim(), &p.pin)"));
+        assert!(!body.contains("!= p.pin") && !body.contains("== p.secret"));
+    }
+
+    #[test]
+    fn other_updates_keep_their_wire_format() {
+        let id = Uuid::nil();
+        assert_eq!(update_json(&Update::Data), r#"{"type":"data"}"#);
+        assert_eq!(update_json(&Update::Job { id, percent: 5 }), format!(r#"{{"id":"{id}","percent":5,"type":"job"}}"#));
+        assert_eq!(update_json(&Update::Revoked { phone: id }), format!(r#"{{"id":"{id}","type":"revoked"}}"#));
     }
 }
