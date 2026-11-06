@@ -143,9 +143,11 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
 pub(super) fn neighbours(live: &Live, theme: &Theme, canvas: (u32, u32)) -> Vec<RenderKey> {
     let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return vec![] };
     let scripture = item.kind == "scripture";
+    let passage = crate::model::passage(&item.kind, &item.slides);
     [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
-        SlideContent::Text { text, footer, reference } => Some(RenderKey {
-            text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture, theme: theme.clone(), canvas,
+        SlideContent::Text { text, footer, reference, size } => Some(RenderKey {
+            text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
+            size: *size, passage: passage.clone(), theme: theme.clone(), canvas,
         }),
         _ => None,
     }).collect()
@@ -178,7 +180,7 @@ mod tests {
     use super::*;
     use crate::{live::{Cursor, LiveItem}, model::Slide};
 
-    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90 }, notes: String::new() } }
 
     #[test]
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
@@ -193,6 +195,10 @@ mod tests {
         let texts = |live: &Live| neighbours(live, &Theme::default(), (64, 36)).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
         at(&mut live, 0);
         assert_eq!(texts(&live), ["two"], "nothing before the first slide");
+        // The same size and passage as the room's own key, or the drawing done ahead is never used.
+        let key = neighbours(&live, &Theme::default(), (64, 36)).remove(0);
+        assert_eq!(key.size, 90);
+        assert_eq!(key.passage.iter().map(|s| s.text.as_str()).collect::<Vec<_>>(), ["one", "two", "four"]);
         at(&mut live, 1);
         assert_eq!(texts(&live), ["one"], "a picture slide is not drawn ahead");
         at(&mut live, 3);

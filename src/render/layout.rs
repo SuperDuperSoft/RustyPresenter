@@ -388,7 +388,7 @@ mod tests {
     #[test]
     fn a_passage_whose_second_slide_is_longer_makes_the_first_smaller_too() {
         let short = "Blessed are the undefiled in the way.";
-        let long = "Blessed are they that keep his testimonies, and that seek him with the whole heart. ".repeat(5);
+        let long = "Blessed are they that keep his testimonies, and that seek him with the whole heart. ".repeat(12);
         let alone = (scripture(short, 0, &[]), scripture(&long, 0, &[]));
         assert_eq!(alone.0, 64.0, "on its own the short slide keeps the scripture size");
         assert!(alone.1 < 64.0, "the long slide shrinks: {}", alone.1);

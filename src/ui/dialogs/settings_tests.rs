@@ -283,6 +283,8 @@ fn default_background_custom_colour_is_saved() {
 fn text_color_from_the_grid_and_its_hex_field() {
     let app = test_app();
     let op = opened(&app);
+    // Tall enough to show the whole grid: `find` skips what the dialog's scroll box clips.
+    op.window().set_size(slint::LogicalSize::new(1400.0, 1300.0));
     open(&op, SettingsTab::Look);
     assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
     click(&op, "ColorPicker::swatch");

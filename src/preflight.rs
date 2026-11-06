@@ -183,8 +183,8 @@ mod tests {
 
     #[test]
     fn scripture_with_no_verses_is_flagged_and_with_verses_needs_nothing_else() {
-        let empty = ItemKind::Scripture { reference: "John 3:16".into(), translation: "NIV".into(), verses: vec![], per_slide: 0 };
-        let full = ItemKind::Scripture { reference: "John 3:17".into(), translation: "NIV".into(), verses: vec![VerseText { reference: "John 3:17".into(), text: "For God".into() }], per_slide: 0 };
+        let empty = ItemKind::Scripture { reference: "John 3:16".into(), translation: "NIV".into(), verses: vec![], per_slide: 0, text_size: 0 };
+        let full = ItemKind::Scripture { reference: "John 3:17".into(), translation: "NIV".into(), verses: vec![VerseText { reference: "John 3:17".into(), text: "For God".into() }], per_slide: 0, text_size: 0 };
         let got = run(&data(vec![empty, full]), &all);
         assert_eq!(got.len(), 1, "{got:?}");
         assert!(got[0].starts_with("1. ") && got[0].ends_with(s::NO_VERSES), "{got:?}");

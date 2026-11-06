@@ -315,14 +315,14 @@ mod tests {
         let store = store();
         let media = [video_with_a_saved_frame(&store)];
         let video = slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() });
-        let (key, job) = thumb(&video, "video", None, &settings(), &media, (64, 36));
+        let (key, job) = thumb(&video, "video", &[], None, &settings(), &media, (64, 36));
         assert_eq!(job.media, Some(ThumbMedia::Video { thumb: Some("frame.png".into()) }));
         let px = compose(&job, key.size, &TextRenderer::new(), &store);
         assert_eq!(px.as_slice()[18 * 64 + 32].g, 255, "the saved frame, not black");
-        let (without, _) = thumb(&video, "video", None, &settings(), &[], (64, 36));
+        let (without, _) = thumb(&video, "video", &[], None, &settings(), &[], (64, 36));
         assert_ne!(key, without, "a frame arriving draws the thumbnail again");
         let other = slide(SlideContent::Video { asset: "other.mp4".into(), autoplay: true, end: Default::default() });
-        assert_eq!(thumb(&other, "video", None, &settings(), &media, (64, 36)).1.media, Some(ThumbMedia::Video { thumb: None }), "only its own frame");
+        assert_eq!(thumb(&other, "video", &[], None, &settings(), &media, (64, 36)).1.media, Some(ThumbMedia::Video { thumb: None }), "only its own frame");
     }
 
     #[test]
@@ -330,13 +330,13 @@ mod tests {
         let store = store();
         let media = [video_with_a_saved_frame(&store)];
         let back = Background::Video { asset: "v.mp4".into() };
-        let (key, job) = thumb(&text("Amazing grace"), "song", Some(&back), &settings(), &media, (64, 36));
+        let (key, job) = thumb(&text("Amazing grace"), "song", &[], Some(&back), &settings(), &media, (64, 36));
         assert_eq!(job.background, Some(Background::Image { asset: "frame.png".into() }));
         assert_eq!(compose(&job, key.size, &TextRenderer::new(), &store).as_slice()[0].g, 255);
         let mut s = settings();
         s.background = back.clone();
-        assert_eq!(thumb(&text("a"), "song", None, &s, &media, (64, 36)).1.background, Some(Background::Image { asset: "frame.png".into() }), "the settings' background too");
-        assert_eq!(thumb(&text("a"), "song", Some(&back), &settings(), &[], (64, 36)).1.background, Some(back), "no frame yet: black, as before");
+        assert_eq!(thumb(&text("a"), "song", &[], None, &s, &media, (64, 36)).1.background, Some(Background::Image { asset: "frame.png".into() }), "the settings' background too");
+        assert_eq!(thumb(&text("a"), "song", &[], Some(&back), &settings(), &[], (64, 36)).1.background, Some(back), "no frame yet: black, as before");
     }
 
     #[test]

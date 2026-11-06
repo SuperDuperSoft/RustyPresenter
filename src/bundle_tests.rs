@@ -30,7 +30,7 @@ fn sample(s: &Store) -> Data {
         first,
         item(ItemKind::Media { media_id: m.id, autoplay: true, end: EndAction::Stop, looped: false }),
         item(ItemKind::Deck { deck_id: deck.id }),
-        item(ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText { reference: "John 3:16".into(), text: "For God".into() }], per_slide: 0 }),
+        item(ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText { reference: "John 3:16".into(), text: "For God".into() }], per_slide: 0, text_size: 0 }),
     ];
     d.songs = vec![sg, song("Unused", "1", "x")];
     d.media = vec![m, media("unused", &other)];

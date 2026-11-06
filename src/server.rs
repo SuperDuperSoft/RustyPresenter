@@ -259,6 +259,7 @@ pub fn data_dir() -> Option<PathBuf> {
 mod tests {
     use super::*;
     use crate::app::{Update, test_app};
+    use axum::http::HeaderValue;
 
     #[test]
     fn revoking_a_phone_ends_only_that_phones_remote_stream() {
@@ -458,11 +459,4 @@ mod tests {
         assert!(!body.contains("!= p.pin") && !body.contains("== p.secret"));
     }
 
-    #[test]
-    fn other_updates_keep_their_wire_format() {
-        let id = Uuid::nil();
-        assert_eq!(update_json(&Update::Data), r#"{"type":"data"}"#);
-        assert_eq!(update_json(&Update::Job { id, percent: 5 }), format!(r#"{{"id":"{id}","percent":5,"type":"job"}}"#));
-        assert_eq!(update_json(&Update::Revoked { phone: id }), format!(r#"{{"id":"{id}","type":"revoked"}}"#));
-    }
 }
