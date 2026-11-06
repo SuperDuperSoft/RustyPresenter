@@ -298,6 +298,8 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             None => ("Missing slides".into(), "deck", vec![]),
         },
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),
+        ItemKind::Blank { label, want } => (crate::planning::blank_title(label, *want), "blank", vec![]),
+        ItemKind::Header { title, .. } => (title.clone(), "header", vec![]),
     };
     if !item.notes.is_empty() { for sl in &mut slides { if sl.notes.is_empty() { sl.notes = item.notes.clone(); } } }
     (title, kind, slides)

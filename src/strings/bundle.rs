@@ -13,6 +13,12 @@ pub const BACKGROUND_GONE: &str = "A background in this service is missing its f
 
 pub fn file_gone(name: &str) -> String { format!("{name} is missing its file.") }
 
+/// Idea 14 (§10c): the fonts the service was made with that this computer lacks.
+pub fn fonts_missing(fonts: &[String]) -> String {
+    format!("This service was made with {} this computer does not have, so its words show in another font: {}. Install {} to see them as they were made.",
+        if fonts.len() == 1 { "a font" } else { "fonts" }, fonts.join(", "), if fonts.len() == 1 { "it" } else { "them" })
+}
+
 pub fn saved(name: &str) -> String { format!("Saved “{name}” to a file.") }
 
 /// The box when a service cannot be saved: what is missing, one line each.
@@ -37,5 +43,6 @@ pub fn opened_report(o: &super::Opened) -> String {
         text += &format!("\n\nThese differ from the songs already here, so the service uses a second copy: {}", o.songs_differ.join(", "));
     }
     if o.passages_removed > 0 { text += &format!("\n\n{}", crate::scripture::strings::passages_removed(o.passages_removed)) }
+    if !o.fonts_missing.is_empty() { text += &format!("\n\n{}", fonts_missing(&o.fonts_missing)) }
     text
 }

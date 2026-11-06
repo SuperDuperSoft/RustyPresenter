@@ -297,7 +297,7 @@ impl Live {
                 let order = plan.order();
                 let index = order.iter().position(|i| i == item_id).ok_or("That item is not in the service.")?;
                 let item = plan.build(*item_id).ok_or("That item has nothing to show.")?;
-                if item.slides.is_empty() { return Err("That item has no slides.".into()); }
+                if item.slides.is_empty() { return Err(if item.kind == "blank" { crate::planning::strings::BLANK_CHOOSE_FIRST } else { "That item has no slides." }.into()); }
                 let slide = (*slide).min(item.slides.len() - 1);
                 self.go(item, index, slide);
                 Ok(())

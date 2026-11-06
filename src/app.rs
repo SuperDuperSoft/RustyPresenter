@@ -762,6 +762,7 @@ impl App {
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Song { song_id } if song_id == id)));
                 if used { return Err("This song is in a service. Remove it from the service first.".into()); }
+                if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Song { song_id } if *song_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.songs.retain(|s| s.id != id);
                 Ok(())
             }));
@@ -831,7 +832,9 @@ impl App {
             let N { name, copy_from } = parse(body)?;
             let id = tryr!(app.edit(|d| {
                 let mut s = Service::new(if name.trim().is_empty() { "New Service" } else { name.trim() });
+                s.date = Some(chrono::Local::now().date_naive());
                 if let Some(src) = copy_from.and_then(|c| d.services.iter().find(|x| x.id == c)) {
+                    s.template = src.template;
                     s.items = src.items.iter().cloned().map(|mut i| { i.id = Uuid::new_v4(); i }).collect();
                 }
                 let id = s.id;
@@ -963,6 +966,7 @@ impl App {
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Media { media_id, .. } if media_id == id)));
                 if used { return Err("This is in a service. Remove it from the service first.".into()); }
+                if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Media { media_id, .. } if *media_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.media.retain(|m| m.id != id);
                 Ok(())
             }));
@@ -1011,6 +1015,7 @@ impl App {
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Deck { deck_id } if deck_id == id)));
                 if used { return Err("These slides are in a service. Remove them from the service first.".into()); }
+                if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Deck { deck_id } if *deck_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.decks.retain(|x| x.id != id);
                 Ok(())
             }));
@@ -1039,6 +1044,7 @@ impl App {
             tryr!(app.edit(|d| {
                 s.favourites = std::mem::take(&mut d.settings.favourites);
                 s.recent = std::mem::take(&mut d.settings.recent);
+                s.print = std::mem::take(&mut d.settings.print);
                 d.settings = s;
                 Ok(())
             }));
@@ -1251,6 +1257,7 @@ impl App {
             app.broadcast_data();
             Ok(json!({}))
         }
+        a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         _ => Err(ActionError { status: 404, message: "unknown action".into() }),
     }
 }
@@ -1391,7 +1398,12 @@ impl App {
         let app = self.clone();
         let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &path, &cancel, &|p| app.job_progress(job, p)));
         let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
-        self.edit(|d| Ok(bundle::merge(d, contents)))
+        let fonts = contents.fonts.clone();
+        let missing = tokio::task::spawn_blocking(move || {
+            let installed = crate::render::Fonts::new();
+            bundle::missing_fonts(&fonts, &|f| installed.has_family(f))
+        }).await.unwrap_or_default();
+        self.edit(|d| Ok(bundle::Opened { fonts_missing: missing, ..bundle::merge(d, contents) }))
     }
 
     /// The eBible catalog as Settings → Bibles shows it, with what is installed and what has a newer edition.

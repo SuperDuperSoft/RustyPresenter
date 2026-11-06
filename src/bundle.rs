@@ -37,6 +37,9 @@ pub struct Contents {
     pub media: Vec<MediaFile>,
     #[serde(default)]
     pub decks: Vec<Deck>,
+    /// The font the slides were made with (Settings → Look), so the computer that opens it can say when it lacks it.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub fonts: Vec<String>,
 }
 
 /// What opening a bundle did.
@@ -51,6 +54,8 @@ pub struct Opened {
     pub decks_added: usize,
     /// Passages left out because their translation may not be used.
     pub passages_removed: usize,
+    /// Fonts the service was made with that this computer does not have (`App::import_service` fills it in).
+    pub fonts_missing: Vec<String>,
 }
 
 /// The service's contents and the assets to carry, or one line per thing that is missing. An original file or
@@ -85,14 +90,15 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
                 },
                 None => missing.push(strings::DECK_GONE.into()),
             },
-            ItemKind::Scripture { .. } | ItemKind::Text { .. } => {}
+            ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
         if let Some(Background::Image { asset } | Background::Video { asset }) = &item.background {
             need(asset, strings::BACKGROUND_GONE.into(), &mut missing);
         }
     }
     if !missing.is_empty() { return Err(missing) }
-    Ok((Contents { format: FORMAT, service: service.clone(), songs, media, decks }, assets.into_iter().collect()))
+    let fonts = vec![data.settings.theme.font.clone()].into_iter().filter(|f| !f.trim().is_empty()).collect();
+    Ok((Contents { format: FORMAT, service: service.clone(), songs, media, decks, fonts }, assets.into_iter().collect()))
 }
 
 /// Copies until the end, watching for Cancel. Sends each chunk to `seen`.
@@ -254,7 +260,7 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
         item.id = Uuid::new_v4();
         match &mut item.kind {
             ItemKind::Song { song_id: id } | ItemKind::Media { media_id: id, .. } | ItemKind::Deck { deck_id: id } => mapped(id),
-            ItemKind::Scripture { .. } | ItemKind::Text { .. } => {}
+            ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
     }
     service.id = Uuid::new_v4();
@@ -263,6 +269,13 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
     data.current_service = Some(service.id);
     data.services.push(service);
     opened
+}
+
+/// The fonts in `fonts` this computer lacks, by `has`.
+pub fn missing_fonts(fonts: &[String], has: &dyn Fn(&str) -> bool) -> Vec<String> {
+    // The default font stands in for the app's own everywhere, so it is never missing.
+    let default = crate::model::Theme::default().font;
+    fonts.iter().filter(|f| !f.trim().is_empty() && **f != default && !has(f)).cloned().collect()
 }
 
 /// `name`, or `name (2)` and so on when a service has it.
