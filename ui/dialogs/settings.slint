@@ -39,6 +39,14 @@ component SettingsSongs inherits VerticalLayout {
         label: @tr("Church CCLI license #");
         ccli := TextField { text <=> SettingsDlg.ccli; }
     }
+    HorizontalLayout {
+        alignment: start;
+        usage-report := Btn {
+            small: true;
+            text: @tr("Song use report…");
+            clicked => { SettingsDlg.usage-report(); }
+        }
+    }
 }
 
 component SettingsVideo inherits VerticalLayout {

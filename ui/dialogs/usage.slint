@@ -1,0 +1,261 @@
+// Song use report (FEAT-7 §3.3): the songs shown live between two dates, for CCLI reporting, with a spreadsheet and
+// a printable page, and every logged use under Details.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Check } from "form.slint";
+
+export struct UsageReportRow { title: string, ccli: string, shown: string, streamed: string, last: string }
+export struct UsageDetailRow { id: string, date: string, time: string, service: string, song: string, streamed: bool }
+
+/// Set and answered by `src/ui/dialogs/usage.rs`.
+export global UsageDlg {
+    in-out property <string> from;
+    in-out property <string> to;
+    in-out property <bool> keep-log: true;
+    in-out property <bool> include-no-ccli;
+    in-out property <bool> details-open;
+    /// "CCLI license #: …", or how to add one.
+    in property <string> license-line;
+    in property <bool> has-license;
+    /// A date that can't be read, or From after To.
+    in property <string> error;
+    in property <bool> has-since-last;
+    in property <string> mark-label;
+    in property <[UsageReportRow]> rows;
+    in property <[UsageDetailRow]> entries;
+    callback dates-edited();
+    callback quick(int);
+    callback include-toggled();
+    callback keep-toggled(bool);
+    callback export-csv();
+    callback open-page();
+    callback mark-reported();
+    callback remove(string);
+}
+
+component Cell inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    vertical-alignment: center;
+    overflow: elide;
+}
+
+component HeadCell inherits Text {
+    in property <string> label;
+    text: root.label.to-uppercase();
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-alignment: center;
+}
+
+export component UsageDialog inherits VerticalLayout {
+    DialogBody {
+        keep-log := Check {
+            text: @tr("Keep a song use log for CCLI reporting");
+            checked <=> UsageDlg.keep-log;
+            toggled(on) => { UsageDlg.keep-toggled(on); }
+        }
+        license := Text {
+            text: UsageDlg.license-line;
+            color: UsageDlg.has-license ? Theme.text : Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: UsageDlg.has-license ? 600 : 400;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        Rectangle { height: 14px; }
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            VerticalLayout {
+                spacing: 6px;
+                Lbl { label: @tr("From"); }
+                from := TextField {
+                    width: 140px;
+                    placeholder: "YYYY-MM-DD";
+                    text <=> UsageDlg.from;
+                    edited => { UsageDlg.dates-edited(); }
+                }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Lbl { label: @tr("To"); }
+                to := TextField {
+                    width: 140px;
+                    placeholder: "YYYY-MM-DD";
+                    text <=> UsageDlg.to;
+                    edited => { UsageDlg.dates-edited(); }
+                }
+            }
+            VerticalLayout {
+                alignment: end;
+                // Centred on the date fields beside them.
+                padding-bottom: 5px;
+                HorizontalLayout {
+                    spacing: 6px;
+                    if UsageDlg.has-since-last: since-last := Btn {
+                        small: true;
+                        text: @tr("Since last report");
+                        clicked => { UsageDlg.quick(0); }
+                    }
+                    last-3 := Btn {
+                        small: true;
+                        text: @tr("Last 3 months");
+                        clicked => { UsageDlg.quick(1); }
+                    }
+                    last-6 := Btn {
+                        small: true;
+                        text: @tr("Last 6 months");
+                        clicked => { UsageDlg.quick(2); }
+                    }
+                    this-year := Btn {
+                        small: true;
+                        text: @tr("This year");
+                        clicked => { UsageDlg.quick(3); }
+                    }
+                }
+            }
+        }
+        if UsageDlg.error != "": error := Text {
+            text: UsageDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        Rectangle { height: 12px; }
+        include := Check {
+            text: @tr("Include songs without a CCLI number");
+            checked <=> UsageDlg.include-no-ccli;
+            toggled => { UsageDlg.include-toggled(); }
+        }
+        Text {
+            text: @tr("Public domain songs don't need reporting.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+        }
+        Rectangle { height: 14px; }
+        // The table: Song · CCLI # · Times shown · Times streamed · Last used.
+        HorizontalLayout {
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 6px;
+            spacing: 12px;
+            HeadCell { horizontal-stretch: 1; label: @tr("Song"); }
+            HeadCell { width: 90px; label: @tr("CCLI #"); }
+            HeadCell { width: 96px; label: @tr("Times shown"); horizontal-alignment: right; }
+            HeadCell { width: 116px; label: @tr("Times streamed"); horizontal-alignment: right; }
+            HeadCell { width: 96px; label: @tr("Last used"); }
+        }
+        Rectangle { height: 1px; background: Theme.line; }
+        for r[i] in UsageDlg.rows: song-row := Rectangle {
+            background: mod(i, 2) == 0 ? Theme.panel-2 : transparent;
+            accessible-role: list-item;
+            accessible-label: r.title;
+            HorizontalLayout {
+                padding: 8px;
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 12px;
+                Cell { horizontal-stretch: 1; text: r.title; font-weight: 600; }
+                Cell { width: 90px; text: r.ccli; color: Theme.muted; }
+                Cell { width: 96px; text: r.shown; horizontal-alignment: right; }
+                Cell { width: 116px; text: r.streamed; horizontal-alignment: right; }
+                Cell { width: 96px; text: r.last; color: Theme.muted; }
+            }
+        }
+        if UsageDlg.rows.length == 0: none := Text {
+            text: @tr("No songs in these dates.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            accessible-role: text;
+            accessible-label: self.text;
+            height: 40px;
+            vertical-alignment: center;
+        }
+        Rectangle { height: 14px; }
+        HorizontalLayout {
+            alignment: start;
+            details-btn := Btn {
+                small: true;
+                icon: UsageDlg.details-open ? "chevron-down" : "chevron-right";
+                text: @tr("Details ({})", UsageDlg.entries.length);
+                clicked => { UsageDlg.details-open = !UsageDlg.details-open; }
+            }
+        }
+        if UsageDlg.details-open: VerticalLayout {
+            padding-top: 8px;
+            spacing: 2px;
+            for e in UsageDlg.entries: entry-row := Rectangle {
+                background: Theme.panel-2;
+                border-radius: 8px;
+                accessible-role: list-item;
+                accessible-label: e.song;
+                HorizontalLayout {
+                    padding: 6px;
+                    padding-left: 12px;
+                    spacing: 12px;
+                    Cell { width: 96px; text: e.date; color: Theme.muted; }
+                    Cell { width: 76px; text: e.time; color: Theme.muted; }
+                    Cell { horizontal-stretch: 1; text: e.song; }
+                    Cell { width: 160px; text: e.service; color: Theme.muted; }
+                    Cell { width: 70px; text: e.streamed ? @tr("streamed") : ""; color: Theme.blue; }
+                    VerticalLayout {
+                        alignment: center;
+                        remove-btn := Btn {
+                            small: true;
+                            danger: true;
+                            text: @tr("Remove");
+                            clicked => { UsageDlg.remove(e.id); }
+                        }
+                    }
+                }
+            }
+        }
+        Rectangle { height: 16px; }
+        // Like `Note`, but the text sits outside a layout so its wrapped height is measured at its real width
+        // (inside `Note` here it was measured as one line and the second line was cut off).
+        footer := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            height: footer-text.preferred-height + 24px;
+            footer-text := Text {
+                x: 14px;
+                y: 12px;
+                width: parent.width - 28px;
+                text: @tr("Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+    }
+    DialogFoot {
+        mark-reported := Btn {
+            text: UsageDlg.mark-label;
+            clicked => { UsageDlg.mark-reported(); }
+        }
+        open-page := Btn {
+            text: @tr("Open printable page");
+            clicked => { UsageDlg.open-page(); }
+        }
+        export-csv := Btn {
+            primary: true;
+            text: @tr("Save as spreadsheet (CSV)…");
+            clicked => { UsageDlg.export-csv(); }
+        }
+    }
+}

@@ -62,7 +62,7 @@ pub fn drop_plan(paths: Vec<PathBuf>) -> Option<DropPlan> {
 
 /// The web `accept` lists (`operator.js:413,476,491,492,726,900,948`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services }
+pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv }
 
 impl Filter {
     pub fn name(self) -> &'static str {
@@ -74,6 +74,7 @@ impl Filter {
             Filter::PicturesAndVideos => tr::FILTER_PICTURES_AND_VIDEOS,
             Filter::Bibles => tr::FILTER_BIBLES,
             Filter::Services => tr::FILTER_SERVICES,
+            Filter::Csv => crate::usage::strings::FILTER_CSV,
         }
     }
 
@@ -86,6 +87,7 @@ impl Filter {
             Filter::PicturesAndVideos => [media::IMAGE, media::VIDEO].concat(),
             Filter::Bibles => vec!["xml", "usx", "osis", "zef"],
             Filter::Services => vec![crate::bundle::EXT],
+            Filter::Csv => vec!["csv"],
         }
     }
 }

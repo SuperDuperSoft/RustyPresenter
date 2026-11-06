@@ -218,6 +218,8 @@ pub struct App {
     read_only: AtomicBool,
     /// YouTube downloads: their helper programs and lookups.
     pub youtube: crate::youtube::Hub,
+    /// The song use log for CCLI reporting (`usage.json`).
+    pub usage: crate::usage::Usage,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -249,13 +251,14 @@ impl App {
         // A download cut off by a crash or a forced quit leaves nothing behind.
         bible::catalog::install::clean_partials(&store.root);
         let youtube = crate::youtube::Hub::new(&store.root);
+        let usage = crate::usage::Usage::open(&store.root);
         let app = Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
-            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false),
+            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage,
         });
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -369,7 +372,10 @@ impl App {
             let mut live = self.live.lock().unwrap();
             live.apply(env, &DataPlan(&data))
         };
-        if out.ok && !out.duplicate { self.broadcast_live(); }
+        if out.ok && !out.duplicate {
+            self.broadcast_live();
+            if self.room_conns.load(Ordering::Relaxed) == 0 { self.note_song_use(false); }
+        }
         out
     }
 
@@ -420,7 +426,7 @@ impl App {
             (live.report(ev), live.committed_version != before)
         };
         if changed { self.broadcast_live(); }
-        if committed { self.resume_on_air(); self.save_live_state(); }
+        if committed { self.resume_on_air(); self.save_live_state(); self.note_song_use(true); }
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
@@ -1354,6 +1360,7 @@ impl App {
             app.broadcast_data();
             Ok(json!({}))
         }
+        a if a.starts_with("usage/") => app.usage_action(a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

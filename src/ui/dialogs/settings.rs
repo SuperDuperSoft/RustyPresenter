@@ -249,6 +249,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_show_licences(move |show| if let Some(op) = me.upgrade() { about::show_licences(&op, show) });
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
+    g.on_usage_report(with(usage_report));
 }
 
 /// Switching tabs drops the Look preview; coming back to Look draws it again from the current edits
@@ -295,7 +296,23 @@ fn restore(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
 
 /// Save settings: the form over the clone, with the translation and screens taken from the **newest** snapshot, so
 /// a translation picked meanwhile (`settings/translation`) or a monitor chosen in Screens is never undone.
-fn save(op: &Rc<Operator>, edit: &Rc<Edit>) {
+fn save(op: &Rc<Operator>, edit: &Rc<Edit>) { save_then(op, edit, |_| {}) }
+
+/// The Song use report from Settings → Songs: opens at once, or, with changes not saved yet, asks to save them first
+/// (FEAT-7 §3.3).
+fn usage_report(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if s == *edit.settings.borrow() { return super::usage::open(op) }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    confirm(op, crate::usage::strings::SAVE_FIRST, crate::usage::strings::SAVE_AND_OPEN, dlg::CANCEL, false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, super::usage::open);
+    });
+}
+
+/// `save`, then `then` once the settings are saved and the dialog closed.
+fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>) + 'static) {
     let mut s = edit.settings.borrow().clone();
     read_form(&op.ui.global::<SettingsDlg>(), &mut s);
     if let Some(latest) = snap(op) {
@@ -310,6 +327,7 @@ fn save(op: &Rc<Operator>, edit: &Rc<Edit>) {
             Ok(_) => {
                 op.close_dialog();
                 op.toast(strings::SAVED, false);
+                then(&op);
             }
             Err(e) => op.toast(e, true),
         }
