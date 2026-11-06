@@ -32,7 +32,7 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
-#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr ""
 
@@ -164,11 +164,11 @@ msgstr ""
 msgid "Add announcement"
 msgstr ""
 
-#: ui/dialogs/add.slint
+#: ui/dialogs/add.slint ui/dialogs/usage.slint
 msgid "Song"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint
 msgid "Lyrics"
 msgstr ""
 
@@ -228,6 +228,26 @@ msgstr ""
 msgid "The verses are looked up again in this Bible when you save."
 msgstr ""
 
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr ""
+
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
 msgid "Automatic"
 msgstr ""
@@ -256,7 +276,7 @@ msgstr ""
 msgid "(biggest; text shrinks automatically when a slide holds more words)"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Choose"
 msgstr ""
 
@@ -368,12 +388,68 @@ msgstr ""
 msgid "Paired phones"
 msgstr ""
 
-#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint
 msgid "Remove"
 msgstr ""
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Service order"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr ""
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr ""
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
 msgstr ""
 
 #: ui/dialogs/screens.slint
@@ -421,6 +497,18 @@ msgid "Refresh"
 msgstr ""
 
 #: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr ""
+
+#: ui/dialogs/services.slint
 msgid "New empty service"
 msgstr ""
 
@@ -449,7 +537,31 @@ msgid "Rename"
 msgstr ""
 
 #: ui/dialogs/services.slint
+msgid "Date…"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr ""
+
+#: ui/dialogs/services.slint
 msgid "Delete"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Day…"
 msgstr ""
 
 #: ui/dialogs/settings-about.slint
@@ -460,7 +572,7 @@ msgstr ""
 msgid "Show licenses"
 msgstr ""
 
-#: ui/dialogs/settings-about.slint ui/operator/live.slint
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint
 msgid "Back"
 msgstr ""
 
@@ -474,14 +586,6 @@ msgstr ""
 
 #: ui/dialogs/settings-bible.slint
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
-msgstr ""
-
-#: ui/dialogs/settings-bible.slint
-msgid "Side by side"
-msgstr ""
-
-#: ui/dialogs/settings-bible.slint
-msgid "Top and bottom"
 msgstr ""
 
 #: ui/dialogs/settings-bible.slint
@@ -644,7 +748,7 @@ msgstr ""
 msgid "ALL CAPS lyrics"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/operator/live.slint
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint
 msgid "Logo"
 msgstr ""
 
@@ -686,6 +790,22 @@ msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -744,7 +864,7 @@ msgstr ""
 msgid "Backups"
 msgstr ""
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/operator.slint
 msgid "Help"
 msgstr ""
 
@@ -754,6 +874,10 @@ msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
@@ -803,6 +927,22 @@ msgid "(optional)"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
+msgid "Not in the lyrics — it is skipped"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Written order — drag to change"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr ""
 
@@ -822,6 +962,86 @@ msgstr ""
 msgid "Save song"
 msgstr ""
 
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Times shown"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Times streamed"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Last used"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "No songs in these dates."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "streamed"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr ""
+
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr ""
@@ -835,10 +1055,22 @@ msgid "updating…"
 msgstr ""
 
 #: ui/operator/live.slint
-msgid "Back (← or Page Up)"
+msgid "Edit words"
 msgstr ""
 
 #: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator.slint
 msgid "Next"
 msgstr ""
 
@@ -922,7 +1154,7 @@ msgstr ""
 msgid "Use as background"
 msgstr ""
 
-#: ui/operator/media.slint ui/operator/service.slint
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint
 msgid "Add to service"
 msgstr ""
 
@@ -947,11 +1179,27 @@ msgid "Service"
 msgstr ""
 
 #: ui/operator/service.slint
+msgid "Add a header"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Check"
 msgstr ""
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Change colour"
 msgstr ""
 
 #: ui/operator/service.slint
@@ -1078,8 +1326,140 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: ui/operator/topbar.slint
+#: ui/operator/topbar.slint ui/operator.slint
 msgid "Settings"
+msgstr ""
+
+#: ui/operator.slint
+msgid "File"
+msgstr ""
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Bible box"
+msgstr ""
+
+#: ui/operator.slint
+msgid "View"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Clear all"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Clear text"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Clear media & background"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Stop audio"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Window"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr ""
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
 msgstr ""
 
 #: ui/widgets.slint
@@ -1092,10 +1472,6 @@ msgstr ""
 
 #: ui/widgets.slint
 msgid "Select all"
-msgstr ""
-
-#: ui/widgets.slint
-msgid "Close"
 msgstr ""
 
 #: src/app.rs
