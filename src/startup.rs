@@ -1,4 +1,4 @@
-//! Startup shared by the Tauri and native binaries: the port (single instance), the data folder,
+//! Startup: the port (single instance), the data folder,
 //! `App`, the phone/web server and the daily backup.
 use crate::{app::App, platform::instance, server, store::Store};
 use std::{net::{SocketAddr, TcpListener, UdpSocket}, path::PathBuf, sync::Arc, time::Duration};

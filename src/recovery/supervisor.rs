@@ -232,19 +232,10 @@ fn give_up_text(log: &Path) -> String {
     format!("RustyPresenter stopped after crashing 3 times in a minute. The log is at {}.", log.display())
 }
 
-/// Tells the operator the app will not come back. Waits for them on Windows; elsewhere it only
-/// prints until a dialog crate is in the build (Plan 3 Task 15 adds `rfd`; then use `rfd::MessageDialog` there).
-/// The gap is on the Plan 4 Task 17 checklist.
+/// Tells the operator the app will not come back, and waits for them.
 pub fn give_up_dialog(log: &Path) {
     if std::env::var_os("RUSTYPRESENTER_HEADLESS").is_some_and(|v| v == "1") { return; }
-    let text = give_up_text(log);
-    eprintln!("{text}");
-    #[cfg(windows)]
-    {
-        use windows_sys::Win32::UI::WindowsAndMessaging::{MB_ICONERROR, MB_OK, MessageBoxW};
-        let wide = |s: &str| s.encode_utf16().chain(Some(0)).collect::<Vec<u16>>();
-        unsafe { MessageBoxW(std::ptr::null_mut(), wide(&text).as_ptr(), wide("RustyPresenter").as_ptr(), MB_OK | MB_ICONERROR); }
-    }
+    crate::platform::dialog::error(&give_up_text(log));
 }
 
 #[cfg(test)]

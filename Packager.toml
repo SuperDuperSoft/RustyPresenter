@@ -5,9 +5,7 @@
 #   cargo packager --release -c Packager.toml -f nsis
 # With `-c` a broken file is reported; without it cargo-packager silently skips it.
 #
-# The packaged binary is `rustypresenter`. Until Plan 4 Task 12 that name is still the
-# Tauri app and the native app is `rustypresenter-native`, so do not ship packages
-# built before Task 12.
+# The packaged binary is `rustypresenter`, the native app.
 
 # `name` is set explicitly: cargo-packager 0.11.8 otherwise looks it up by changing
 # into this file's path, which fails when the file is given with `-c`.

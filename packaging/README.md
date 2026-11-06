@@ -5,9 +5,7 @@ silicon only), a Linux AppImage and a Linux `.deb`. [cargo-packager] 0.11.8 buil
 them from the root `Packager.toml`. `packaging/stage.sh` puts the native libraries where
 that file expects them first.
 
-The packaged binary is `rustypresenter`. Until Plan 4 Task 12 that name still belongs to
-the Tauri app (the native app is `rustypresenter-native`), so packages built before Task 12
-are not the native app.
+The packaged binary is `rustypresenter`, the native app.
 
 ## Files
 

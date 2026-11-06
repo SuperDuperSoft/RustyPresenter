@@ -1,6 +1,7 @@
 // Common Controls v6 is required (the window layer imports TaskDialogIndirect). Rust's std on windows-gnu
 // embeds its own manifest too; the linker keeps this one (and warns ".rsrc merge failure: multiple non-default
 // manifests"), so this one repeats std's settings.
+#[cfg(windows)]
 const MANIFEST: &str = r#"<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
   <dependency>
     <dependentAssembly>
@@ -25,6 +26,7 @@ fn main() {
     // Element ids stay in the generated code so the testing backend can find elements by id (check C4).
     let slint = slint_build::CompilerConfiguration::new().with_debug_info(true);
     slint_build::compile_with_config("ui/app.slint", slint).expect("slint build failed");
-    let windows = tauri_build::WindowsAttributes::new().app_manifest(MANIFEST);
-    tauri_build::try_build(tauri_build::Attributes::new().windows_attributes(windows)).expect("tauri build setup failed");
+    // The icon and manifest of the Windows executable.
+    #[cfg(windows)]
+    winresource::WindowsResource::new().set_icon("icons/icon.ico").set_manifest(MANIFEST).compile().expect("windows resources failed");
 }
