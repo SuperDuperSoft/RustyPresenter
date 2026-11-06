@@ -174,7 +174,15 @@ impl Picker {
         let custom = match &self.value { Some(Background::Color { color }) => color.as_str(), _ => CUSTOM_DEFAULT };
         self.choices.iter().enumerate().map(|(i, c)| {
             let swatch = match &c.kind { ChoiceKind::Color(hex) => to_color(hex), ChoiceKind::Custom => to_color(custom), _ => Color::default() };
-            let image = match &c.kind { ChoiceKind::Image(a) => self.image(a, redraw.clone()), _ => Image::default() };
+            let image = match &c.kind {
+                ChoiceKind::Image(a) => self.image(a, redraw.clone()),
+                // A video shows the frame grabbed when it was added, once there is one.
+                ChoiceKind::Video(a) => match self.media.iter().find(|m| m.asset == *a).and_then(|m| m.thumb.clone()) {
+                    Some(t) => self.image(&t, redraw.clone()),
+                    None => Image::default(),
+                },
+                _ => Image::default(),
+            };
             BgChoice {
                 label: c.label.as_str().into(), swatch, image, kind: c.kind_id().into(),
                 on: on == Some(i), tooltip: c.tooltip.as_str().into(),
