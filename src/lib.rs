@@ -2,6 +2,7 @@ pub mod app;
 pub mod automation;
 pub mod bible;
 pub mod bundle;
+pub mod i18n;
 pub mod import;
 pub mod lenient;
 pub mod live;

@@ -233,6 +233,7 @@ impl NativeScreens {
         for (id, number, what) in marks {
             let Some(m) = monitors.iter().find(|m| m.id == id) else { continue };
             let ui = IdentifyWindow::new().map_err(|e| format!("Could not show the screen numbers: {e}"))?;
+            crate::i18n::sync_slint();
             ui.set_number(number.into());
             ui.set_what(what.into());
             let ((x, y), (w, h)) = badge(m);

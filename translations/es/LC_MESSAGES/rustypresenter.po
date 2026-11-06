@@ -1,0 +1,12 @@
+# Spanish for RustyPresenter.
+msgid ""
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Español\n"
+"X-English-Name: Spanish\n"
+"X-Reviewed: no\n"

@@ -104,6 +104,8 @@ impl Operator {
     /// the columns are empty, the service is called "Service" and there is no Welcome panel.
     pub fn open(app: Arc<App>, ops: Ops, screens: Rc<dyn OperatorScreens>) -> Result<Rc<Operator>, String> {
         let ui = OperatorWindow::new().map_err(tr::open_failed)?;
+        // Slint picks the computer's language for the first window; show the app's.
+        crate::i18n::sync_slint();
         // Its frames never wait for the monitor's refresh, so the room's are not held up behind them.
         crate::ui::pacing::attach(ui.window(), "operator", false);
         let feed = Feed::new(app.clone(), screens.video_info().player_missing());

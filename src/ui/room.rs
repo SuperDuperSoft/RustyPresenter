@@ -414,6 +414,8 @@ impl Room {
 
     fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror: bool) -> Result<Rc<Room>, String> {
         let ui = RoomWindow::new().map_err(|e| format!("Could not open the room screen: {e}"))?;
+        // Slint picks the computer's language for the first window; show the app's.
+        crate::i18n::sync_slint();
         let weak = ui.as_weak();
         // The room is the one window that waits for its monitor's refresh: the projector never tears.
         let surface = VideoSurface::attach(&ui, video::drawing(), true, move |img| if let Some(ui) = weak.upgrade() { ui.set_video_frame(img.unwrap_or_default()) });
