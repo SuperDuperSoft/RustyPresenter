@@ -243,7 +243,7 @@ mod tests {
     use super::*;
     use crate::model::Theme;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide::new(t, SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }) }
 
     fn store() -> Store { Store::open(std::env::temp_dir().join(format!("rp-thumbs-{}", uuid::Uuid::new_v4()))).unwrap() }
 
@@ -278,7 +278,7 @@ mod tests {
     #[test]
     fn thumb_layers_follow_slide_to_layers() {
         let s = settings();
-        let slide = |content| Slide { label: "x".into(), content, notes: String::new() };
+        let slide = |content| Slide::new("x", content);
         let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", &[], None, &s, &[], (64, 36));
         assert_eq!((deck.background, deck.picture.as_deref()), (None, Some("a.png")), "a deck picture has no background");
         let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", &[], None, &s, &[], (64, 36));
@@ -303,7 +303,7 @@ mod tests {
         assert!(px.as_slice().iter().all(|p| p.a == 255), "a thumbnail is opaque");
     }
 
-    fn slide(content: SlideContent) -> Slide { Slide { label: "x".into(), content, notes: String::new() } }
+    fn slide(content: SlideContent) -> Slide { Slide::new("x", content) }
 
     fn video_with_a_saved_frame(store: &Store) -> MediaFile {
         RgbaImage::from_pixel(16, 9, Rgba([0, 255, 0, 255])).save(store.asset_path("frame.png")).unwrap();

@@ -134,8 +134,8 @@ mod tests {
     use slint::ComponentHandle;
     use uuid::Uuid;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
-    fn slide(content: SlideContent) -> Slide { Slide { label: String::new(), content, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide::new(t, SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }) }
+    fn slide(content: SlideContent) -> Slide { Slide::new(String::new(), content) }
 
     /// A view with `now` live as a text slide in "Amazing Grace" and `next` after it.
     fn view(now: Option<Slide>, next: Option<Slide>) -> LiveView {
@@ -147,10 +147,10 @@ mod tests {
             version: 1, committed: 1, pending: false,
             frame: Frame { slide: on_air.flatten(), ..Frame::default() },
             cursor: None,
-            item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2 }),
+            item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2, song_id: None }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(),
         }
     }
 
@@ -267,7 +267,7 @@ mod tests {
             also: vec![crate::scripture::ParallelText { code: "WEB".into(), text: "For God so loved".into() }],
             layout: Default::default(),
         };
-        let s = Slide { label: "John 3:16".into(), content: SlideContent::Text { text: "For God so loved".into(), footer: None, reference: None, size: 0, parallel: Some(p) }, notes: String::new() };
+        let s = Slide::new("John 3:16", SlideContent::Text { text: "For God so loved".into(), footer: None, reference: None, size: 0, parallel: Some(p) });
         assert_eq!(label(&s), "KJV  For God so loved\n\nWEB  For God so loved");
     }
 }

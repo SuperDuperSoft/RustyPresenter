@@ -79,6 +79,14 @@ pub struct Slide {
     pub content: SlideContent,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub notes: String,
+    /// Which song section this slide is from (FEAT-4). Some for song slides only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub section: Option<crate::sections::SectionRef>,
+}
+
+impl Slide {
+    /// A slide with no notes and no section.
+    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None } }
 }
 
 // ---------- Library ----------
@@ -409,6 +417,8 @@ pub struct Settings {
     pub also_show: Vec<String>,
     /// How those Bibles share a slide.
     pub parallel_layout: crate::scripture::ParallelLayout,
+    /// Settings → Section keys: C, B, 1–9… jump the live song to a section (FEAT-4).
+    pub section_keys: bool,
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -450,6 +460,7 @@ impl Default for Settings {
             recent: Vec::new(),
             also_show: Vec::new(),
             parallel_layout: Default::default(),
+            section_keys: true,
         }
     }
 }
@@ -576,7 +587,7 @@ mod tests {
 
     #[test]
     fn passage_is_every_scripture_slide_and_none_for_songs() {
-        let s = |t: &str| Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0, parallel: None }, notes: String::new() };
+        let s = |t: &str| Slide::new(t, SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0, parallel: None });
         let slides = [s("a"), s("b")];
         assert_eq!(passage("scripture", &slides), vec![
             PassageSlide { text: "a".into(), reference: Some("a ref".into()), footer: None },

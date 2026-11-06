@@ -180,13 +180,13 @@ mod tests {
     use super::*;
     use crate::{live::{Cursor, LiveItem}, model::Slide};
 
-    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90, parallel: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide::new(String::new(), SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90, parallel: None }) }
 
     #[test]
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
         let mut live = Live::new();
         assert!(neighbours(&live, &Theme::default(), (64, 36)).is_empty(), "nothing live");
-        let picture = Slide { label: String::new(), content: SlideContent::Image { asset: "p.png".into() }, notes: String::new() };
+        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into() });
         live.item = Some(LiveItem {
             item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
             background: Background::Color { color: "#000000".into() },
