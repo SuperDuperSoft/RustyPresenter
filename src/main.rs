@@ -93,6 +93,12 @@ fn main() {
         Ok(m) => Some(m),
         Err(e) => { eprintln!("Video and audio will not play: {e}"); None }
     };
+    // Videos in the library without a picture get one in the background.
+    if let Some(m) = &mpv {
+        app.set_probe_mpv(m.clone());
+        let _rt = rt.enter();
+        app.fill_video_thumbs(app.videos_without_thumbs());
+    }
     println!("  Video drawing: {}{}\n", if mode == video::DrawMode::OpenGl { "GPU (OpenGL)" } else { "software" }, if mpv.is_none() { ", video player missing" } else { "" });
 
     let native = NativeScreens::new(&app, Renderer::new(), mpv);

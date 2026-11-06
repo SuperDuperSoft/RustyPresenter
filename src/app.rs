@@ -182,6 +182,8 @@ pub struct App {
     resume: Mutex<HashMap<u64, f64>>,
     /// YouTube downloads: their helper programs and lookups.
     pub youtube: crate::youtube::Hub,
+    /// libmpv for grabbing video thumbnails; unset when it is missing (and in tests).
+    probe_mpv: OnceLock<Arc<crate::video::ffi::Mpv>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -217,7 +219,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), youtube,
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), youtube, probe_mpv: OnceLock::new(),
         })
     }
 
@@ -1055,6 +1057,36 @@ impl App {
 
     /// Finish an import from a file already in the store's tmp (copied by `import_path`, or streamed there by
     /// the HTTP upload). `name` is the original file name and `sha` the file's hash. Takes ownership of `tmp`.
+    /// The libmpv the app loaded: videos get thumbnails from it.
+    pub fn set_probe_mpv(&self, mpv: Arc<crate::video::ffi::Mpv>) { let _ = self.probe_mpv.set(mpv); }
+
+    /// The videos in the library that have no thumbnail yet.
+    pub fn videos_without_thumbs(&self) -> Vec<Uuid> {
+        self.data.lock().unwrap().media.iter().filter(|m| m.kind == MediaKind::Video && m.thumb.is_none()).map(|m| m.id).collect()
+    }
+
+    /// Grabs a frame of each video and saves it as its thumbnail, one at a time, in the background. A video mpv
+    /// cannot open keeps no thumbnail (the media library then shows an icon). Needs a tokio runtime.
+    pub fn fill_video_thumbs(self: &Arc<Self>, ids: Vec<Uuid>) {
+        if ids.is_empty() || self.probe_mpv.get().is_none() { return }
+        let app = self.clone();
+        tokio::spawn(async move { for id in ids { app.fill_thumb(id).await } });
+    }
+
+    async fn fill_thumb(&self, id: Uuid) {
+        let Some(mpv) = self.probe_mpv.get().cloned() else { return };
+        let Some(asset) = self.data.lock().unwrap().media.iter().find(|m| m.id == id && m.thumb.is_none()).map(|m| m.asset.clone()) else { return };
+        let probe = crate::import::probe::probe(Some(mpv), self.store.asset_path(&asset), CancellationToken::new()).await;
+        let Some(img) = probe.map_err(|e| eprintln!("No thumbnail for {asset}: {e}")).ok().and_then(|p| p.thumb) else { return };
+        let tmp = self.store.tmp().join(format!("thumb-{}.jpg", Uuid::new_v4()));
+        let thumb = std::fs::write(&tmp, crate::import::probe::thumb_jpeg(&img)).and_then(|_| self.store.import_file(&tmp, "jpg"));
+        let _ = std::fs::remove_file(&tmp);
+        match thumb {
+            Ok(thumb) => { let _ = self.edit(|d| { if let Some(m) = d.media.iter_mut().find(|m| m.id == id) { m.thumb = Some(thumb) } Ok(()) }); }
+            Err(e) => eprintln!("Thumbnail for {asset} not saved: {e}"),
+        }
+    }
+
     pub async fn import_staged(self: &Arc<Self>, tmp: PathBuf, name: &str, sha: &str, purpose: ImportPurpose) -> Result<Imported, ActionError> {
         let app = self;
         let ext = crate::store::sanitize_ext(name.rsplit('.').next().unwrap_or(""));
@@ -1115,8 +1147,9 @@ impl App {
             _ => MediaStatus::Converting { percent: 0 },
         };
         let id = Uuid::new_v4();
-        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None, folder: String::new() };
+        let m = MediaFile { id, name: display, kind, asset: asset.clone(), status, original_asset: None, folder: String::new(), thumb: None };
         tryr!(app.edit(|d| { d.media.push(m.clone()); Ok(()) }));
+        if kind == MediaKind::Video { app.fill_video_thumbs(vec![id]); }
         if matches!(plan, media::Plan::Remux | media::Plan::Transcode) { spawn_conversion(app.clone(), id, asset, plan); }
         Ok(Imported::Media(m))
     }

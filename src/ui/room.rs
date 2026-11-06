@@ -426,7 +426,7 @@ mod tests {
     }
     fn media(app: &App, kind: MediaKind, asset: &str) -> Uuid {
         let media_id = Uuid::new_v4();
-        app.data.lock().unwrap().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None, folder: String::new() });
+        app.data.lock().unwrap().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None, folder: String::new(), thumb: None });
         add(app, ItemKind::Media { media_id, autoplay: true, end: EndAction::Stop, looped: false })
     }
     fn scripture(app: &App) -> Uuid {

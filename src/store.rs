@@ -227,7 +227,7 @@ mod tests {
         fs::write(&src, b"video-bytes").unwrap();
         let asset = store.import_file(&src, "mp4").unwrap();
         let mut data = Data::default();
-        data.media.push(MediaFile { id: uuid::Uuid::new_v4(), name: "clip".into(), kind: MediaKind::Video, asset: asset.clone(), status: MediaStatus::Ready, original_asset: None, folder: String::new() });
+        data.media.push(MediaFile { id: uuid::Uuid::new_v4(), name: "clip".into(), kind: MediaKind::Video, asset: asset.clone(), status: MediaStatus::Ready, original_asset: None, folder: String::new(), thumb: None });
         data.decks.push(Deck { id: uuid::Uuid::new_v4(), title: "d".into(), slides: vec![asset.clone()] });
         let name = store.backup(&data).unwrap();
         // Lose the working asset store and data.

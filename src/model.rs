@@ -124,6 +124,9 @@ pub struct MediaFile {
     /// The media library folder this file is in; empty: none.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub folder: String,
+    /// A video's picture (a JPEG asset from a frame mpv grabbed), for the media library; `None` until grabbed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thumb: Option<AssetId>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -304,6 +307,7 @@ impl Data {
         for m in &self.media {
             set.insert(m.asset.clone());
             if let Some(o) = &m.original_asset { set.insert(o.clone()); }
+            if let Some(t) = &m.thumb { set.insert(t.clone()); }
         }
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
