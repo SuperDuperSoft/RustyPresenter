@@ -48,7 +48,7 @@ fn fake_yt_dlp() {
             "make" => {
                 let o = &ours[ours.iter().position(|a| a == "-o").unwrap() + 1];
                 let file = Path::new(o).parent().unwrap().join(value);
-                std::fs::write(&file, b"not really a video").unwrap();
+                std::fs::write(&file, crate::import::probe::FAKE_VIDEO).unwrap();
                 println!("RPF {}", file.display());
             }
             "brokenunless" => if !program.contains(value) {

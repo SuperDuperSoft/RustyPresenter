@@ -277,6 +277,11 @@ async fn turn<'a>(gate: &'a Semaphore, cancel: &CancellationToken, waiting: &(im
     permit
 }
 
+/// Tests only: a file that starts with this reads as a one-second 640×360 video, so flows that import a video (a
+/// YouTube download) can be tested without libmpv.
+#[cfg(test)]
+pub(crate) const FAKE_VIDEO: &[u8] = b"RP-FAKE-VIDEO";
+
 /// Probe a file off the async threads.
 pub async fn probe(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: CancellationToken) -> Result<Probe, String> {
     probe_waiting(mpv, path, cancel, |_| {}).await
@@ -290,6 +295,10 @@ pub async fn probe_waiting(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: Cancell
             BAD_PICTURE.to_string()
         };
         return tokio::task::spawn_blocking(move || probe_image(&path)).await.map_err(joined)?;
+    }
+    #[cfg(test)]
+    if std::fs::read(&path).is_ok_and(|b| b.starts_with(FAKE_VIDEO)) {
+        return Ok(Probe { kind: MediaKind::Video, duration: Some(1.0), size: Some((640, 360)), thumb: None, tracks: Node::None });
     }
     let mpv = mpv.ok_or(ffi::MISSING)?;
     let slot = turn(&PROBES, &cancel, &waiting).await?;

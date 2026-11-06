@@ -763,23 +763,12 @@ pub(crate) mod testing_fake {
 #[cfg(test)]
 mod tests;
 
-/// An FFmpeg the church installed itself: next to the app, on PATH, from winget, or in the usual folders. Preferred
-/// over the one YouTube downloads fetch, so a newer one the user chose wins.
+/// An FFmpeg the church installed itself, next to the app or on PATH. Preferred over the one YouTube downloads fetch,
+/// so a newer one the user chose wins.
 fn system_ffmpeg() -> Option<PathBuf> {
     let exe = if cfg!(windows) { "ffmpeg.exe" } else { "ffmpeg" };
     let mut dirs: Vec<PathBuf> = vec![];
     if let Some(d) = std::env::current_exe().ok().and_then(|me| me.parent().map(Path::to_path_buf)) { dirs.push(d.join("tools")); dirs.push(d); }
-    if let Some(d) = dirs::data_local_dir() { dirs.push(d.join("Microsoft").join("WinGet").join("Links")); }
     if let Some(path) = std::env::var_os("PATH") { dirs.extend(std::env::split_paths(&path)); }
-    // Newer winget puts `Packages\Gyan.FFmpeg_…\ffmpeg-<version>\bin` on the user PATH instead of a Links shim; an app
-    // started before that PATH change still finds it here.
-    if let Some(pkgs) = dirs::data_local_dir().map(|d| d.join("Microsoft").join("WinGet").join("Packages")) {
-        let subdirs = |p: &Path| std::fs::read_dir(p).into_iter().flatten().flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect::<Vec<_>>();
-        for pkg in subdirs(&pkgs).into_iter().filter(|p| p.file_name().is_some_and(|n| n.to_string_lossy().starts_with("Gyan.FFmpeg"))) {
-            dirs.extend(subdirs(&pkg).into_iter().map(|v| v.join("bin")));
-        }
-    }
-    dirs.push(PathBuf::from(r"C:\ffmpeg\bin"));
-    dirs.push(PathBuf::from(r"C:\Program Files\ffmpeg\bin"));
     dirs.into_iter().map(|d| d.join(exe)).find(|p| p.is_file())
 }

@@ -56,7 +56,7 @@ async fn add(app: &Arc<App>, file: &Path, sha: &str, ext: &str, display: String,
     let thumb = publish_thumb(app, thumb).await?;
     if cancel.is_cancelled() { return Err(CANCELLED.into()) }
     let asset = app.store.publish(file, sha, ext).map_err(|_| DISK_FULL.to_string())?;
-    let media = MediaFile { id: Uuid::new_v4(), name: display, kind, asset, status: MediaStatus::Ready, original_asset: None, duration, thumb, size };
+    let media = MediaFile { id: Uuid::new_v4(), name: display, kind, asset, status: MediaStatus::Ready, original_asset: None, duration, thumb, size, folder: String::new() };
     app.edit(|d| { d.media.push(media.clone()); Ok(()) })?;
     Ok(media)
 }

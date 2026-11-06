@@ -24,15 +24,12 @@ Noto Sans — SIL Open Font License, version 1.1 (OFL-1.1)
   (https://github.com/notofonts/latin-greek-cyrillic). The font may be used, studied, modified and redistributed
   freely as long as it is not sold by itself; see https://openfontlicense.org.
 
-The full texts of the GNU LGPL 2.1 and the SIL OFL 1.1 are at https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
-and https://openfontlicense.org/open-font-license-official-text/.
-
 ------------------------------------------------------------------------------------------------------------------
 Programs downloaded on first use (Download from YouTube) — not part of the installer
 ------------------------------------------------------------------------------------------------------------------
 
 The first time Download from YouTube is used, RustyPresenter downloads these programs from their official release
-pages into its data folder (deps\yt-dlp, deps\deno, depsfmpeg), checks each against the SHA-256 fingerprint
+pages into its data folder (deps\yt-dlp, deps\deno, deps\ffmpeg), checks each against the SHA-256 fingerprint
 published beside it, and runs them as separate programs. RustyPresenter does not change or redistribute them.
 
 yt-dlp — The Unlicense (public domain). The official builds bundle Python and other libraries, so each build as a
@@ -45,10 +42,12 @@ Deno — MIT License. Copyright the Deno authors.
   Source code: https://github.com/denoland/deno
 
 FFmpeg (ffmpeg, ffprobe) — GNU General Public License, version 3 or later (GPL-3.0+), as built with x264 and other
-GPL parts. Joins YouTube's separate picture and sound into one MP4; also used to convert unusual videos.
+GPL parts. Joins YouTube's separate picture and sound into one MP4.
   Windows builds: https://github.com/yt-dlp/FFmpeg-Builds (build scripts and sources of every part).
   macOS and Linux builds: https://ffmpeg.martin-riedl.de (build scripts at https://git.martin-riedl.de/ffmpeg/build-script).
   FFmpeg source code: https://ffmpeg.org/download.html
 
 The full text of the GNU GPL 3 is at https://www.gnu.org/licenses/gpl-3.0.txt, and of the MIT License at
 https://opensource.org/license/mit.
+
+The full licence texts follow.

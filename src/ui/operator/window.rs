@@ -5,8 +5,7 @@
 use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, media_bin::{self, BinState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
-    model::MediaStatus,
-    ui::{BinFolder, BinRow, OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, preview::Preview, thumbs::Thumbs},
+    ui::{BinFolder, BinRow, OperatorWindow, ServiceRow, SlideRowCells, ops::Ops, preview::Preview, thumbs::Thumbs},
     video::{DrawMode, FrameGrabber},
 };
 use slint::{ComponentHandle, VecModel};

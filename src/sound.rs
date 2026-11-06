@@ -95,7 +95,7 @@ mod tests {
 
     fn play_audio(app: &App) -> u64 {
         let media_id = Uuid::new_v4();
-        let file = MediaFile { id: media_id, name: "a".into(), kind: MediaKind::Audio, asset: "a.mp3".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None };
+        let file = MediaFile { id: media_id, name: "a".into(), kind: MediaKind::Audio, asset: "a.mp3".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Media { media_id, autoplay: true, end: EndAction::Stop, looped: false };
         {

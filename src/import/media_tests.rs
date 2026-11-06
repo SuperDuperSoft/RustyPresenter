@@ -7,7 +7,7 @@ use crate::{
 use std::time::{Duration, Instant};
 
 fn entry(kind: MediaKind, asset: &str, status: MediaStatus) -> MediaFile {
-    MediaFile { id: Uuid::new_v4(), name: "x".into(), kind, asset: asset.into(), status, original_asset: None, duration: None, thumb: None, size: None }
+    MediaFile { id: Uuid::new_v4(), name: "x".into(), kind, asset: asset.into(), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() }
 }
 
 fn temp(name: &str) -> PathBuf {

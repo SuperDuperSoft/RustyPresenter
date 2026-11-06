@@ -38,14 +38,14 @@ export component OperatorWindow inherits Window {
     /// Below 1400 px the Bible box's favourite and recent chips are hidden, leaving the chosen one (`TopBar.compact`), so the top
     /// bar fits a 1280 px window. Set with `narrow`, for the same reason.
     out property <bool> compact;
-    /// The Verses button needs another 110 px; narrower, it is still in Add → Bible and Settings → Look.
+    /// The Verses button shows with the full Bible box; narrower, it is still in Add → Bible and Settings → Look.
     out property <bool> verses-shown;
     init => { root.fit(); }
     changed width => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;
         root.compact = root.width < 1400px;
-        root.verses-shown = root.width >= 1510px;
+        root.verses-shown = !root.compact;
     }
 
     // Top bar (see `TopBar`).
