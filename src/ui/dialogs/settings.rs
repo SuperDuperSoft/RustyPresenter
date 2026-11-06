@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_language, settings_look, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -20,18 +20,20 @@ pub struct Edit {
     pub(crate) backups: RefCell<Vec<BackupInfo>>,
     pub(crate) look: settings_look::LookState,
     pub(crate) bible: settings_bible::BibleState,
+    pub(crate) language: settings_language::LanguageState,
 }
 
 /// The tab's index in the `Tabs` row.
 pub fn tab_index(tab: SettingsTab) -> i32 {
     match tab {
         SettingsTab::Look => 0,
-        SettingsTab::Songs => 1,
-        SettingsTab::Bible => 2,
-        SettingsTab::Video => 3,
-        SettingsTab::Backups => 4,
-        SettingsTab::Help => 5,
-        SettingsTab::About => 6,
+        SettingsTab::Language => 1,
+        SettingsTab::Songs => 2,
+        SettingsTab::Bible => 3,
+        SettingsTab::Video => 4,
+        SettingsTab::Backups => 5,
+        SettingsTab::Help => 6,
+        SettingsTab::About => 7,
     }
 }
 
@@ -81,6 +83,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
         backups: RefCell::default(),
         look: settings_look::LookState::default(),
         bible: settings_bible::BibleState::default(),
+        language: settings_language::LanguageState::default(),
     });
     let g = op.ui.global::<SettingsDlg>();
     fill_form(&g, &edit.settings.borrow());
@@ -140,6 +143,7 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     let help: Vec<SettingsHelpRow> = help_rows().iter().map(|r| SettingsHelpRow { keys: r.keys.into(), what: r.what.into() }).collect();
     g.set_help(ModelRc::new(VecModel::from(help)));
     about::fill(op, snap);
+    settings_language::fill(op, edit);
 }
 
 /// Redraws the state pages once the next read arrives (the web's `await refresh(); redraw()`).
@@ -237,6 +241,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_default_bible_changed(with_i(settings_bible::default_bible));
     g.on_toggle_also(with_i(settings_bible::toggle_also));
     g.on_also_layout_changed(with_i(settings_bible::also_layout));
+    g.on_choose_language(with_i(settings_language::choose));
+    g.on_help_translate(with(settings_language::help_translate));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
@@ -250,8 +256,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
 fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
     settings_look::drop_preview(op, edit);
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
-    if tab == 0 { settings_look::render_now(op, edit) }
-    if tab == 2 { settings_bible::load_catalog(op, edit) }
+    if tab == tab_index(SettingsTab::Look) as usize { settings_look::render_now(op, edit) }
+    if tab == tab_index(SettingsTab::Bible) as usize { settings_bible::load_catalog(op, edit) }
 }
 
 fn backup_now(op: &Rc<Operator>, edit: &Rc<Edit>) {

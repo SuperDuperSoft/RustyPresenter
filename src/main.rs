@@ -6,7 +6,7 @@
 // Release builds are a windowed app with no console window behind them.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rustypresenter::{app::App, platform::{dialog, instance::{self, Bind}}, recovery::{self, exitcode, headless, panic, state::{self, StateWriter}, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+use rustypresenter::{app::App, i18n, platform::{dialog, instance::{self, Bind}}, recovery::{self, exitcode, headless, panic, state::{self, StateWriter}, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
 use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
 use std::{cell::RefCell, fs, path::Path, rc::Rc, sync::Arc};
 
@@ -70,6 +70,14 @@ fn main() {
     startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.");
     let startup::Started { app, listener, root } = started;
 
+    // The app's language (I18N spec D6): the one saved in Settings, or the computer's. Before any window, so the
+    // first one is drawn in it.
+    let saved_lang = app.data.lock().unwrap().settings.ui_language.clone();
+    let lang = i18n::resolve(&saved_lang);
+    let _ = i18n::set_language(&lang);
+    let lang_missing = !saved_lang.is_empty() && lang != saved_lang;
+    if lang_missing { eprintln!("The saved language {saved_lang} is not built in; showing English."); }
+
     if args.restore { println!("Started with --restore, attempt {}.", args.attempt); }
     let restored = recovery::restore::at_start(&app, args.restore, args.attempt);
     app.set_state_writer(StateWriter::start(root.clone()));
@@ -111,6 +119,7 @@ fn main() {
             Err(e) => fail(&e),
         };
         screens.place_operator(&operator);
+        if lang_missing { operator.toast(rustypresenter::tr!("The language chosen in Settings is not in this version, so RustyPresenter is in English."), true); }
         // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
         // and stage close with it below.
         operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });

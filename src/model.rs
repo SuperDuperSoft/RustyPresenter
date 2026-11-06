@@ -409,6 +409,9 @@ pub struct Settings {
     pub also_show: Vec<String>,
     /// How those Bibles share a slide.
     pub parallel_layout: crate::scripture::ParallelLayout,
+    /// The language the app is shown in (I18N): `""` follows the computer, else a code such as `es` or `pt-BR`.
+    /// Changed only by `settings/language`.
+    pub ui_language: String,
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -450,6 +453,7 @@ impl Default for Settings {
             recent: Vec::new(),
             also_show: Vec::new(),
             parallel_layout: Default::default(),
+            ui_language: String::new(),
         }
     }
 }
@@ -539,6 +543,16 @@ impl Data {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn old_data_follows_the_computers_language() {
+        let d: Data = serde_json::from_str(r#"{"format":1,"settings":{"lines_per_slide":2}}"#).unwrap();
+        assert_eq!(d.settings.ui_language, "");
+        let mut s = Settings::default();
+        s.ui_language = "pt-BR".into();
+        let back: Settings = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
+        assert_eq!(back.ui_language, "pt-BR");
+    }
 
     #[test]
     fn old_data_without_bible_sizing_loads_as_automatic() {

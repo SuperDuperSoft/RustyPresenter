@@ -575,6 +575,22 @@ msgstr ""
 msgid "Credits"
 msgstr ""
 
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr ""
+
 #: ui/dialogs/settings-look.slint
 msgid "Font"
 msgstr ""
@@ -714,6 +730,10 @@ msgstr ""
 #: ui/dialogs/settings.slint
 msgid "Look"
 msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "Idioma"
 
 #: ui/dialogs/settings.slint
 msgid "Songs"
@@ -1079,4 +1099,32 @@ msgstr ""
 
 #: ui/widgets.slint
 msgid "Close"
+msgstr ""
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr ""
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "Idioma cambiado"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
 msgstr ""

@@ -56,6 +56,8 @@ pub(crate) struct OpState {
     /// The open dialog, and how many confirm/prompt overlays are up; either one blocks the operator keys.
     pub(crate) dialog: Option<DialogKind>,
     pub(crate) asks: usize,
+    /// The language the window's Rust-made text was last drawn in (`crate::i18n::current`).
+    pub(super) lang: Option<String>,
     /// The open dialog's hooks and the questions waiting (see `ui::dialogs`).
     pub(crate) dialogs: crate::ui::dialogs::DialogHooks,
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
@@ -194,6 +196,11 @@ impl Operator {
         st.selected = view::reselect(st.selected, &s.items, live_item);
         // Only a new read or a conversion changes `data`; a job's progress patch shares it.
         let data_changed = st.snap.as_ref().is_none_or(|old| !Arc::ptr_eq(&old.data, &s.data));
+        // Settings → Language switched the app (maybe on another thread): this thread's windows follow, and every
+        // Rust-made text below is drawn again in the new language.
+        let lang = crate::i18n::current();
+        let lang_changed = st.lang.replace(lang.clone()).is_some_and(|old| old != lang);
+        if lang_changed { crate::i18n::sync_slint() }
         st.snap = Some(s.clone());
         drop(st);
         self.render_top(&s);
@@ -205,7 +212,8 @@ impl Operator {
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
-        if data_changed { self.dialog_refresh(); }
+        if data_changed || lang_changed { self.dialog_refresh(); }
+        if lang_changed && self.state.borrow().live.is_some() { self.render_live(); }
         self.watch_decks();
     }
 

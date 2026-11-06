@@ -1,0 +1,52 @@
+// Settings → Language (I18N spec D7): follow the computer, or pick a built-in language. Picking one changes the
+// whole app at once. The rows come from `src/ui/dialogs/settings_language.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Chip } from "../widgets.slint";
+import { Note, ListRow, RowMain } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+export component SettingsLanguage inherits VerticalLayout {
+    spacing: 4px;
+    for row[i] in SettingsDlg.languages: language-row := ListRow {
+        accessible-role: list-item;
+        accessible-label: row.title;
+        accessible-value: row.sub;
+        accessible-description: row.font-warning;
+        VerticalLayout {
+            horizontal-stretch: 1;
+            alignment: center;
+            RowMain {
+                title: row.title;
+                sub: row.sub;
+                if row.on: Chip {
+                    text: @tr("In use");
+                    state: "ok";
+                }
+            }
+            if row.font-warning != "": font-warning := Text {
+                text: row.font-warning;
+                color: Theme.accent;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+        }
+        if !row.on: use-language := Btn {
+            small: true;
+            text: @tr("Use");
+            clicked => { SettingsDlg.choose-language(i); }
+        }
+    }
+    Rectangle { height: 12px; }
+    Note {
+        text: @tr("Translations are made by volunteers. If yours is missing or has mistakes, you can help.");
+        HorizontalLayout {
+            alignment: start;
+            padding-top: 4px;
+            help-translate := Btn {
+                small: true;
+                text: @tr("Help translate RustyPresenter");
+                clicked => { SettingsDlg.help-translate(); }
+            }
+        }
+    }
+}

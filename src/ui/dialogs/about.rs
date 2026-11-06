@@ -129,7 +129,7 @@ mod tests {
         slint::platform::update_timers_and_animations();
         assert_eq!(ElementHandle::find_by_element_type_name(&op.ui, "AboutSlint").count(), 1);
         let g = op.ui.global::<SettingsDlg>();
-        assert_eq!(g.get_tab(), 6);
+        assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::About));
         assert_eq!(g.get_about_version(), format!("RustyPresenter {}", env!("CARGO_PKG_VERSION")).as_str());
         assert_eq!(g.get_about_data_folder(), app.store.root.display().to_string().as_str());
         assert_eq!(g.get_about_video(), "Video: software drawing", "the fake screens draw in software");

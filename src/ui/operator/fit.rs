@@ -75,7 +75,7 @@ fn every_dialog_is_centred_and_inside_the_window() {
     let op = open(&app);
     refresh(&op);
     let item = with_text_item(&op);
-    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 17] = [
+    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 18] = [
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),
         ("Add media", Box::new(|op| add::open_add(op, AddTab::Media))),
@@ -87,6 +87,7 @@ fn every_dialog_is_centred_and_inside_the_window() {
         ("Screens", Box::new(screens::open)),
         ("Phone", Box::new(phone::open)),
         ("Settings look", Box::new(|op| settings::open(op, SettingsTab::Look))),
+        ("Settings language", Box::new(|op| settings::open(op, SettingsTab::Language))),
         ("Settings songs", Box::new(|op| settings::open(op, SettingsTab::Songs))),
         ("Settings Bible", Box::new(|op| settings::open(op, SettingsTab::Bible))),
         ("Settings video", Box::new(|op| settings::open(op, SettingsTab::Video))),

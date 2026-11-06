@@ -14,6 +14,7 @@ pub mod services;
 pub mod settings;
 pub mod settings_audio;
 pub mod settings_bible;
+pub mod settings_language;
 pub mod settings_look;
 pub mod song_editor;
 #[path = "../../strings/dialogs.rs"]
@@ -33,7 +34,7 @@ pub enum AddTab { #[default] Song, Scripture, Media, Deck, Text }
 
 /// The tabs of Settings (`operator.js:883`), and About (native spec §7).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum SettingsTab { #[default] Look, Songs, Bible, Video, Backups, Help, About }
+pub enum SettingsTab { #[default] Look, Language, Songs, Bible, Video, Backups, Help, About }
 
 /// The dialogs of the web operator; one at a time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

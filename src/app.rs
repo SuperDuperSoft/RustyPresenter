@@ -735,6 +735,8 @@ impl App {
             "remotes_connected": self.remote_conns.load(Ordering::Relaxed),
             "data_folder": self.store.root.display().to_string(),
             "app_version": env!("CARGO_PKG_VERSION"),
+            // The language shown (I18N): the phone remote reads its words again when this changes.
+            "lang": crate::i18n::current(),
         })
     }
 
@@ -1039,6 +1041,8 @@ impl App {
             tryr!(app.edit(|d| {
                 s.favourites = std::mem::take(&mut d.settings.favourites);
                 s.recent = std::mem::take(&mut d.settings.recent);
+                // Settings → Language applies at once (`settings/language`); an older form must not undo it.
+                s.ui_language = std::mem::take(&mut d.settings.ui_language);
                 d.settings = s;
                 Ok(())
             }));
@@ -1059,6 +1063,21 @@ impl App {
             }));
             let toast = turned_off.then(|| crate::scripture::strings::also_turned_off(&app.abbr_of(&translation)));
             Ok(json!({ "toast": toast }))
+        }
+        // The app's language (I18N spec D6): `""` follows the computer. Rust text changes at once; windows follow
+        // on their thread (`i18n::sync_slint`). The toast is in the new language.
+        "settings/language" => {
+            #[derive(Deserialize)] struct L { code: String }
+            let L { code } = parse(body)?;
+            if !code.is_empty() && !crate::i18n::is_known(&code) { return Err(ActionError::bad(crate::tr!("Unknown language."))); }
+            // Switched before the save, so the update the save sends finds the new language.
+            let before = crate::i18n::current();
+            let _ = crate::i18n::set_language(&crate::i18n::resolve(&code));
+            if let Err(e) = app.edit(|d| { d.settings.ui_language = code.clone(); Ok(()) }) {
+                let _ = crate::i18n::set_language(&before);
+                return Err(ActionError::bad(e));
+            }
+            Ok(json!({ "toast": crate::tr!("Language changed") }))
         }
         // The church's Also Bibles for new passages and how they share a slide (Nov 5 spec §2–3).
         "settings/also" => {
@@ -2047,6 +2066,26 @@ mod tests {
         assert_eq!(recent.len(), crate::model::RECENT_MAX);
         app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err();
         assert_eq!(app.data.lock().unwrap().settings.recent[0], "WEB", "a refused pick changes nothing");
+    }
+
+    #[tokio::test]
+    async fn language_is_saved_switched_and_kept_by_a_settings_save() {
+        let app = test_app();
+        assert_eq!(crate::i18n::current(), "en");
+        let r = app.do_action("settings/language", br#"{"code":"es"}"#).await.unwrap();
+        assert_eq!(app.store.load().unwrap().settings.ui_language, "es");
+        assert_eq!(crate::i18n::current(), "es");
+        assert_eq!(app.state_json()["lang"], "es", "the phone is told");
+        assert_eq!(r["toast"], crate::i18n::tr("Language changed"), "the toast is in the new language");
+        let err = app.do_action("settings/language", br#"{"code":"xx"}"#).await.unwrap_err();
+        assert_eq!(err.message, crate::i18n::tr("Unknown language."));
+        assert_eq!((app.data.lock().unwrap().settings.ui_language.as_str(), crate::i18n::current().as_str()), ("es", "es"), "a refused code changes nothing");
+        // A Settings form opened before the change is saved: the language stays.
+        app.do_action("settings", serde_json::to_string(&crate::model::Settings::default()).unwrap().as_bytes()).await.unwrap();
+        assert_eq!(app.store.load().unwrap().settings.ui_language, "es");
+        app.do_action("settings/language", br#"{"code":"en"}"#).await.unwrap();
+        assert_eq!((crate::i18n::current().as_str(), app.state_json()["lang"].as_str()), ("en", Some("en")));
+        assert_eq!(app.do_action("settings/language", br#"{"code":"en"}"#).await.unwrap()["toast"], "Language changed");
     }
 
     #[tokio::test]
