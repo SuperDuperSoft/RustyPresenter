@@ -40,7 +40,7 @@ fn clock() -> Overlay {
 
 fn plan_with(overlays: Vec<Overlay>) -> P {
     let id = Uuid::new_v4();
-    let slide = |t: &str| Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() };
+    let slide = |t: &str| Slide::new(String::new(), SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None });
     let item = LiveItem { item_id: id, title: "Song".into(), kind: "song".into(), slides: vec![slide("a"), slide("b")],
         background: Background::Color { color: "#000".into() }, theme: Theme { size: 77, ..Theme::default() } };
     P { items: vec![id], built: HashMap::from([(id, item)]), overlays, logo: Some("logo.png".into()) }

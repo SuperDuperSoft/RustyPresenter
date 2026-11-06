@@ -4,9 +4,10 @@
 use super::{DialogKind, add_strings as tr, confirm};
 use crate::{
     model::Song,
+    sections::arrangement,
     slides::{parse_sections, song_slides},
     ui::{
-        PreviewSlide, SectionChipRow, SongEditorState,
+        ArrChip, ArrChipRow, PreviewSlide, SectionChipRow, SongEditorState,
         operator::{add_item::add_item_then, window::Operator},
         thumbs::{Thumbs, thumb, thumb_size},
     },
@@ -23,6 +24,10 @@ pub const PREVIEW_AFTER: Duration = Duration::from_millis(250);
 const PREVIEW_W: f32 = 256.0;
 /// `+ <label>` buttons per row under Order (the web wraps them; Slint has no wrapping layout).
 const CHIPS_PER_ROW: usize = 4;
+/// Order chips per row.
+const ARR_PER_ROW: usize = 8;
+/// What a dragged order chip carries: plain text `arr:<index>`.
+const ARR_DRAG: &str = "arr:";
 
 /// The open editor: which song, what Save does, the preview's timer and pictures.
 struct EditorCtx {
@@ -40,7 +45,24 @@ struct EditorCtx {
 
 /// `openSongEditor(song, {addAfter})`: `song_id` is a library song to edit, or `None` for a new one. A song that is
 /// no longer in the library opens as a new one.
-pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) {
+pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None) }
+
+/// Edit words on the live song (FEAT-4 §3.4): the editor with the caret at the live section's first lyric line,
+/// found from the live slide's occurrence in the order that built it.
+pub fn edit_live_words(op: &Rc<Operator>, song_id: Uuid, occurrence: Option<u16>) {
+    let caret = occurrence.and_then(|o| {
+        let st = op.state.borrow();
+        let song = st.snap.as_ref()?.data.songs.iter().find(|s| s.id == song_id)?;
+        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, &song.arrangement, o)
+    });
+    open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)));
+}
+
+/// The song on screen now, if any.
+fn live_song(op: &Operator) -> Option<Uuid> { op.shown_live().and_then(|l| l.view().item.as_ref()?.song_id) }
+
+/// `caret`: where the lyrics' caret goes (a byte offset), for Edit words.
+fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>) {
     let song = song_id.and_then(|id| op.state.borrow().snap.as_ref()?.data.songs.iter().find(|s| s.id == id).cloned());
     let song_id = song.as_ref().map(|s| s.id);
     op.open_dialog(DialogKind::SongEditor { song_id, add_after });
@@ -55,6 +77,8 @@ pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: boo
     st.set_existing(song.is_some());
     st.set_add_after(add_after);
     st.set_focus_lyrics(song.is_some());
+    st.set_caret(caret.map_or(-1, |c| i32::try_from(c).unwrap_or(0)));
+    st.set_live_song(song_id.is_some() && song_id == live_song(op));
     let thumbs = if op.ops().is_inline() { Thumbs::inline(op.app().store.root.clone()) } else { Thumbs::new(op.app().store.root.clone()) };
     let ctx = Rc::new(EditorCtx {
         op: Rc::downgrade(op), song_id, saved_title: s.title, add_after, timer: Timer::default(), thumbs,
@@ -106,6 +130,12 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     st.set_chips(ModelRc::new(VecModel::from(chips)));
     let warnings = order_warnings(&song.lyrics, &st.get_order());
     st.set_warning(if warnings.is_empty() { String::new() } else { tr::not_in_lyrics(&warnings) }.into());
+    let (arr, _, written) = arrangement::chips(&song.lyrics, &song.arrangement);
+    let arr: Vec<ArrChip> = arr.into_iter().enumerate().map(|(index, c)| ArrChip {
+        index: index as i32, label: c.label.into(), short: c.short.into(), kind: c.kind.id().into(), missing: c.missing, faded: c.faded,
+    }).collect();
+    st.set_arr_rows(ModelRc::new(VecModel::from(arr.chunks(ARR_PER_ROW).map(|c| ArrChipRow { chips: ModelRc::new(VecModel::from(c.to_vec())) }).collect::<Vec<_>>())));
+    st.set_arr_written(written);
 
     let Some(settings) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) else { return };
     let slides = song_slides(&song, &settings);
@@ -146,24 +176,60 @@ fn add_to_order(op: &Operator, ctx: &EditorCtx, label: &str) {
     draw(op, ctx);
 }
 
+/// A change to the order through its chips (FEAT-4 §3.5). An empty order (the written one) is spelled out first.
+fn change_order(op: &Operator, ctx: &EditorCtx, f: impl FnOnce(&mut Vec<String>)) {
+    let st = op.ui.global::<SongEditorState>();
+    let mut order = parse_order(&st.get_order());
+    arrangement::ensure_real(&mut order, &st.get_lyrics());
+    f(&mut order);
+    st.set_order(order.join(", ").into());
+    draw(op, ctx);
+}
+
+fn arr_drag_data(index: i32) -> slint::DataTransfer {
+    let mut d = slint::DataTransfer::default();
+    d.set_plain_text(format!("{ARR_DRAG}{index}").into());
+    d
+}
+
+fn arr_drag_index(d: &slint::DataTransfer) -> i32 {
+    d.plain_text().ok().and_then(|t| t.strip_prefix(ARR_DRAG).and_then(|i| i.parse().ok())).unwrap_or(-1)
+}
+
 #[derive(Deserialize)]
 struct Saved { id: Uuid }
 
 /// Save (`operator.js:697-704`): every field trimmed except the lyrics, `song/save`, then add it to the service
 /// (Save and add to service) or the toast "Song saved", and close. A refusal is an error toast and the editor stays.
-fn save(op: &Rc<Operator>, ctx: &EditorCtx) {
+/// `show_now` (Save and show now, FEAT-4): once saved, Update screen for the live item.
+fn save(op: &Rc<Operator>, ctx: &EditorCtx, show_now: bool) {
     let song = song_from_fields(&op.ui.global::<SongEditorState>(), ctx.song_id, true);
     let add_after = ctx.add_after;
     let me = Rc::downgrade(op);
     op.ops().call::<Saved>("song/save", serde_json::to_value(&song).unwrap_or_default(), move |r| {
         let Some(op) = me.upgrade() else { return };
         let Saved { id } = match r { Ok(s) => s, Err(e) => return op.toast(e, true) };
-        if add_after {
+        if show_now {
+            refresh_live(&op);
+            op.close_dialog();
+        } else if add_after {
             add_item_then(&op, json!({ "kind": "song", "song_id": id }), false, |op, _| op.close_dialog());
         } else {
             op.toast(tr::SONG_SAVED, false);
             op.close_dialog();
         }
+    });
+}
+
+/// Update screen: the live item as the library has it now, at the same place. With the text cleared, a toast says
+/// why nothing moved.
+pub fn refresh_live(op: &Rc<Operator>) {
+    let Some((item_id, cleared)) = op.shown_live().and_then(|l| Some((l.view().cursor.as_ref()?.item_id, l.view().frame.slide.is_none()))) else { return };
+    let me = Rc::downgrade(op);
+    op.ops().cmd(crate::live::Command::Refresh { item_id }, None, move |o| {
+        let Some(op) = me.upgrade() else { return };
+        if o.ok && cleared { op.toast(crate::sections::strings::SAVED_TEXT_CLEARED, false) }
+        else if let Some((msg, err)) = crate::ui::ops::outcome_toast(&o) { op.toast(msg, err) }
     });
 }
 
@@ -189,7 +255,22 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     let c = ctx.clone();
     st.on_chip(move |label| if let Some(op) = c.op.upgrade() { add_to_order(&op, &c, &label) });
     let c = ctx.clone();
-    st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c) });
+    st.on_arr_move(move |from, to| if let (Some(op), Ok(from), Ok(to)) = (c.op.upgrade(), usize::try_from(from), usize::try_from(to)) {
+        change_order(&op, &c, |v| arrangement::move_entry(v, from, to))
+    });
+    let c = ctx.clone();
+    st.on_arr_remove(move |i| if let (Some(op), Ok(i)) = (c.op.upgrade(), usize::try_from(i)) { change_order(&op, &c, |v| arrangement::remove(v, i)) });
+    let c = ctx.clone();
+    st.on_arr_reset(move || if let Some(op) = c.op.upgrade() {
+        op.ui.global::<SongEditorState>().set_order(SharedString::new());
+        draw(&op, &c);
+    });
+    st.on_arr_drag_data(arr_drag_data);
+    st.on_arr_drag_index(|d| arr_drag_index(&d));
+    let c = ctx.clone();
+    st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c, false) });
+    let c = ctx.clone();
+    st.on_save_and_show(move || if let Some(op) = c.op.upgrade() { save(&op, &c, true) });
     let c = ctx.clone();
     st.on_delete(move || if let Some(op) = c.op.upgrade() { delete(&op, &c) });
     let c = ctx.clone();
@@ -242,6 +323,43 @@ mod tests {
         assert_eq!(previews.len(), 2);
         assert_eq!(previews[1].accessible_label().unwrap_or_default(), "Verse 1 (2/2)");
         assert!(st(&op).get_previews().iter().all(|p| p.image.size().width > 0), "each slide is drawn");
+    }
+
+    fn arr(op: &Operator) -> Vec<(String, bool, bool)> {
+        st(op).get_arr_rows().iter().flat_map(|r| r.chips.iter().map(|c| (c.short.to_string(), c.missing, c.faded)).collect::<Vec<_>>()).collect()
+    }
+
+    #[test]
+    fn order_chips_drag_remove_and_reset() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Verse 1\na\n\nChorus\nb\n\nVerse 2\nc");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        assert_eq!(arr(&op), [("V1".into(), false, true), ("C".into(), false, true), ("V2".into(), false, true)], "the written order, faded");
+        assert!(st(&op).get_arr_written());
+        st(&op).invoke_arr_move(1, 3);
+        assert_eq!(st(&op).get_order(), "Verse 1, Verse 2, Chorus", "the first drag spells out the written order");
+        assert_eq!(labels(&op), ["Verse 1", "Verse 2", "Chorus"], "the preview follows");
+        st(&op).invoke_arr_move(2, 0);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 1, Verse 2");
+        st(&op).invoke_arr_remove(1);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 2");
+        st(&op).set_order("Chorus, Coda".into());
+        st(&op).invoke_edited();
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        assert_eq!(arr(&op), [("C".into(), false, false), ("E".into(), true, false)], "Coda is not in the lyrics");
+        st(&op).invoke_arr_reset();
+        assert_eq!(st(&op).get_order(), "");
+        assert!(st(&op).get_arr_written());
+    }
+
+    #[test]
+    fn order_chip_drag_payload_round_trips() {
+        assert_eq!(arr_drag_index(&arr_drag_data(3)), 3);
+        let mut other = slint::DataTransfer::default();
+        other.set_plain_text("svc:1".into());
+        assert_eq!(arr_drag_index(&other), -1);
     }
 
     #[test]

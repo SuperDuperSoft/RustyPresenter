@@ -197,14 +197,18 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
     if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response(); }
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad("Bad command.") };
+    let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some("Not allowed from the phone.".into()), duplicate: false } };
+    ok(serde_json::to_value(out).unwrap())
+}
+
+/// What a phone may send. "Show this slide" and a section jump must say which screen state they were based on.
+fn phone_may(env: &Envelope) -> bool {
     let allowed = matches!(env.cmd, Command::Next | Command::Prev | Command::Show { .. } | Command::ClearAll | Command::ClearSlide
-        | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::MediaPause { .. }
+        | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::MediaPause { .. } | Command::Jump { .. }
         // Overlays on and off (on needs `seen_clear`, checked by the live engine) and F6 (FEAT-1 spec §5.6).
         | Command::Overlay { .. } | Command::ClearOverlays);
-    // A phone's "show this slide" must say which screen state it was based on.
-    let has_base = !matches!(env.cmd, Command::Show { .. }) || env.base.is_some();
-    let out = if allowed && has_base { app.command(env) } else { Outcome { ok: false, version: 0, error: Some("Not allowed from the phone.".into()), duplicate: false } };
-    ok(serde_json::to_value(out).unwrap())
+    let has_base = !matches!(env.cmd, Command::Show { .. } | Command::Jump { .. }) || env.base.is_some();
+    allowed && has_base
 }
 
 fn remote_view(app: &App) -> String {
@@ -215,6 +219,7 @@ fn remote_view(app: &App) -> String {
         let (title, kind, slides) = build_item(&data, i);
         json!({ "id": i.id, "title": title, "kind": kind, "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
     }).collect()).unwrap_or_default();
+    let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
     let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s) }));
     let next = live.next_preview(&plan).map(|(t, s)| json!({ "title": t, "label": s.label, "text": slide_text(&s) }));
     json!({
@@ -223,6 +228,7 @@ fn remote_view(app: &App) -> String {
         "service": data.service().map(|s| s.name.clone()),
         "items": items,
         "cursor": live.cursor,
+        "sections": sections,
         "current": current,
         "next": next,
         "on_air": { "slide": live.frame.slide.is_some(), "media": live.frame.media.is_some(), "audio": live.frame.audio.is_some(), "logo": live.frame.logo, "background": live.frame.background.is_some() },
@@ -306,6 +312,18 @@ mod tests {
         for path in ["/api/upload?name=a.png", "/api/room-event"] {
             assert_eq!(status_of(addr, "POST", path).await, 404, "POST {path}");
         }
+    }
+
+    #[test]
+    fn phone_jump_needs_a_base_and_refresh_is_not_allowed() {
+        let env = |cmd: &str, base: Option<u64>| -> Envelope {
+            let mut v = json!({ "id": "x", "cmd": cmd, "item_id": Uuid::nil(), "kind": "chorus", "occurrence": 1 });
+            if let Some(b) = base { v["base"] = json!(b) }
+            serde_json::from_value(v).unwrap()
+        };
+        assert!(phone_may(&env("jump", Some(3))));
+        assert!(!phone_may(&env("jump", None)));
+        assert!(!phone_may(&env("refresh", Some(3))));
     }
 
     #[tokio::test]

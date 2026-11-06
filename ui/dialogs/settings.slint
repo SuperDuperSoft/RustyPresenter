@@ -39,6 +39,14 @@ component SettingsSongs inherits VerticalLayout {
         label: @tr("Church CCLI license #");
         ccli := TextField { text <=> SettingsDlg.ccli; }
     }
+    Field {
+        label: @tr("Section keys (C, B, 1–9…)");
+        help: @tr("Turn off if letters typed by mistake move the screen.");
+        section-keys := Check {
+            text: @tr("Letters and numbers jump the live song to a section");
+            checked <=> SettingsDlg.section-keys;
+        }
+    }
     HorizontalLayout {
         alignment: start;
         usage-report := Btn {

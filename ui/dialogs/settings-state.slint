@@ -53,6 +53,8 @@ export global SettingsDlg {
     in-out property <int> position;
     in-out property <bool> shadow;
     in-out property <bool> uppercase;
+    /// C, B, 1–9… jump the live song (`Settings::section_keys`).
+    in-out property <bool> section-keys: true;
     // ---- Video ----
     /// Keep the room screen on top while it has a monitor of its own (`Settings::room_on_top`).
     in-out property <bool> room-on-top: true;

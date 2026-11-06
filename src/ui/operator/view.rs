@@ -460,7 +460,7 @@ mod tests {
     }
 
     fn text_slide(label: &str, text: &str) -> Slide {
-        Slide { label: label.into(), content: SlideContent::Text { text: text.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }
+        Slide::new(label, SlideContent::Text { text: text.into(), footer: None, reference: None, size: 0, parallel: None })
     }
 
     fn row(kind: &str, slides: usize) -> ItemRow {
@@ -471,12 +471,12 @@ mod tests {
     fn view() -> LiveView {
         LiveView {
             version: 1, committed: 1, pending: false, frame: Frame::default(), cursor: None, item: None, slide: None, next: None,
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
         }
     }
 
     fn summary(title: &str) -> Option<LiveItemSummary> {
-        Some(LiveItemSummary { item_id: Uuid::new_v4(), title: title.into(), kind: "song".into(), count: 3 })
+        Some(LiveItemSummary { item_id: Uuid::new_v4(), title: title.into(), kind: "song".into(), count: 3, song_id: None })
     }
 
     fn text_layer() -> Option<SlideLayer> { Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
@@ -609,7 +609,7 @@ mod tests {
         assert_eq!(next_up(&v), (String::new(), "End of service".into()));
         v.next = Some(NextUp { title: "Amazing Grace".into(), slide: text_slide("Verse 2", "Twas grace") });
         assert_eq!(next_up(&v), ("Amazing Grace · Verse 2".into(), "Twas grace".into()));
-        let placeholder = |content| { let mut v = view(); v.next = Some(NextUp { title: "X".into(), slide: Slide { label: "L".into(), content, notes: String::new() } }); next_up(&v).1 };
+        let placeholder = |content| { let mut v = view(); v.next = Some(NextUp { title: "X".into(), slide: Slide::new("L", content) }); next_up(&v).1 };
         assert_eq!(placeholder(SlideContent::Image { asset: "s.png".into() }), "Slide picture");
         assert_eq!(placeholder(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: EndAction::Stop }), "Video");
         assert_eq!(placeholder(SlideContent::Still { asset: "p.png".into() }), "Picture");

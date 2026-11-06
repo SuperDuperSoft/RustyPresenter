@@ -60,6 +60,9 @@
   .sheet .cancel { width: 100%; padding: 15px; border-radius: 12px; background: var(--raise); font-weight: 700; }
   .toast { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); background: #3a1b1d; color: #ffd3d5; padding: 10px 14px; border-radius: 10px; display: none; z-index: 9; font-size: 14px; }
   .toast.good { background: #133524; color: #c6f5dd; }
+  .secs { display: none; gap: 6px; overflow-x: auto; padding: 8px 0 0; }
+  .sec { flex: none; min-width: 44px; height: 38px; border-radius: 10px; border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); color: inherit; font-weight: 700; font-size: 15px; }
+  .sec.live { background: var(--c); color: #0d0f13; }
 </style>
 </head>
 <body>
@@ -72,7 +75,7 @@
 </div>
 <div class="app" id="app">
   <div class="bar"><span class="dot" id="dot"></span><span id="svc">Connecting…</span></div>
-  <div class="now"><div class="label">On screen <span id="nowLabel"></span></div><div class="text" id="now"></div></div>
+  <div class="now"><div class="label">On screen <span id="nowLabel"></span></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
   <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
   <div class="media" id="media"><button id="mediaBtn">Pause video</button></div>
   <div class="next"><div class="label">Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>

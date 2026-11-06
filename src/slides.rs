@@ -60,26 +60,30 @@ pub fn chunk_lines(lines: &[String], n: usize) -> Vec<String> {
 }
 
 pub fn song_order(song: &Song, sections: &[Section]) -> Vec<usize> {
-    let find = |label: &str| sections.iter().position(|s| s.label.eq_ignore_ascii_case(label.trim()));
-    let order: Vec<usize> = song.arrangement.iter().filter_map(|l| find(l)).collect();
-    if order.is_empty() { (0..sections.len()).collect() } else { order }
+    let labels: Vec<String> = sections.iter().map(|s| s.label.clone()).collect();
+    crate::sections::resolve_order(&song.arrangement, &labels)
 }
 
 pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> {
     let sections = parse_sections(&song.lyrics);
+    let lps = settings.lines_per_slide as usize;
     let mut slides = Vec::new();
     let credit = credit_line(song, settings);
-    for idx in song_order(song, &sections) {
+    let order = song_order(song, &sections);
+    for &idx in &order {
         let s = &sections[idx];
         for g in &s.groups {
-            let pages = chunk_lines(g, settings.lines_per_slide as usize);
+            let pages = chunk_lines(g, lps);
             let n = pages.len();
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
-                slides.push(Slide { label, content: SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None }, notes: String::new() });
+                slides.push(Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None }));
             }
         }
     }
+    // Each slide's section (FEAT-4), counted across the section's blank-line groups.
+    let counts: Vec<(&str, usize)> = sections.iter().map(|s| (s.label.as_str(), s.groups.iter().map(|g| chunk_lines(g, lps).len()).sum())).collect();
+    for (slide, r) in slides.iter_mut().zip(crate::sections::song_refs(&counts, &order)) { slide.section = Some(r) }
     if let Some(credit) = credit {
         let pos = match settings.credits.as_str() { "first" => Some(0), "last" => slides.len().checked_sub(1), _ => None };
         if let Some(SlideContent::Text { footer, .. }) = pos.and_then(|p| slides.get_mut(p)).map(|s| &mut s.content) { *footer = Some(credit); }
@@ -146,14 +150,10 @@ pub fn parallel_slides(verses: &[VerseText], abbr: &str, also: &[(String, &[Vers
         canvas: (1920, 1080),
     };
     let planned = plan_scripture(&input, &mut CharMeasure::for_input(&facts, input.canvas));
-    let slides = planned.slides.into_iter().map(|p| Slide {
-        label: p.label,
-        content: SlideContent::Text {
-            text: p.text, footer: None, reference: Some(p.reference), size: 0,
-            parallel: Some(crate::scripture::Parallel { main_code: abbr.to_string(), also: p.also, layout }),
-        },
-        notes: String::new(),
-    }).collect();
+    let slides = planned.slides.into_iter().map(|p| Slide::new(p.label, SlideContent::Text {
+        text: p.text, footer: None, reference: Some(p.reference), size: 0,
+        parallel: Some(crate::scripture::Parallel { main_code: abbr.to_string(), also: p.also, layout }),
+    })).collect();
     (slides, planned.notes)
 }
 
@@ -166,7 +166,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
         if group.is_empty() { return; }
         let text = group.iter().map(|v| format!("{}{}", superscript(verse_num(&v.reference)), v.text)).collect::<Vec<_>>().join(" ");
         let reference = format!("{} ({translation})", join_refs(group));
-        slides.push(Slide { label: join_refs(group), content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }, notes: String::new() });
+        slides.push(Slide::new(join_refs(group), SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }));
         group.clear();
     };
     for v in verses {
@@ -179,7 +179,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
                 let label = if i == 0 { v.reference.clone() } else { format!("{} (cont.)", v.reference) };
                 let text = if i == 0 { format!("{}{}", superscript(verse_num(&v.reference)), p) } else { p };
                 let reference = format!("{}{} ({translation})", v.reference, if i > 0 { " (cont.)" } else { "" });
-                slides.push(Slide { label: if n > 1 { label } else { v.reference.clone() }, content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }, notes: String::new() });
+                slides.push(Slide::new(if n > 1 { label } else { v.reference.clone() }, SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }));
             }
             continue;
         }
@@ -256,9 +256,9 @@ pub fn split_long(text: &str, max: usize) -> Vec<String> {
 pub fn text_slides(title: &str, body: &str) -> Vec<Slide> {
     let mut slides = Vec::new();
     for (i, block) in body.replace("\r\n", "\n").split("\n\n").map(str::trim).filter(|b| !b.is_empty()).enumerate() {
-        slides.push(Slide { label: format!("{title} {}", i + 1), content: SlideContent::Text { text: block.to_string(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() });
+        slides.push(Slide::new(format!("{title} {}", i + 1), SlideContent::Text { text: block.to_string(), footer: None, reference: None, size: 0, parallel: None }));
     }
-    if slides.is_empty() { slides.push(Slide { label: title.to_string(), content: SlideContent::Text { text: title.to_string(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }); }
+    if slides.is_empty() { slides.push(Slide::new(title.to_string(), SlideContent::Text { text: title.to_string(), footer: None, reference: None, size: 0, parallel: None })); }
     slides
 }
 
@@ -319,12 +319,12 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
                     MediaKind::Audio => SlideContent::Audio { asset: m.asset.clone(), looped: *looped },
                 };
                 let kind = match m.kind { MediaKind::Video => "video", MediaKind::Image => "image", MediaKind::Audio => "audio" };
-                (m.name.clone(), kind, vec![Slide { label: m.name.clone(), content, notes: String::new() }])
+                (m.name.clone(), kind, vec![Slide::new(m.name.clone(), content)])
             }
             None => ("Missing media".into(), "video", vec![]),
         },
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
-            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide { label: format!("Slide {}", i + 1), content: SlideContent::Image { asset: a.clone() }, notes: String::new() }).collect()),
+            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide::new(format!("Slide {}", i + 1), SlideContent::Image { asset: a.clone() })).collect()),
             None => ("Missing slides".into(), "deck", vec![]),
         },
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),

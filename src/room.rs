@@ -154,7 +154,7 @@ mod tests {
     use crate::model::{EndAction, Theme};
 
     fn view(version: u64, frame: Frame) -> LiveView {
-        LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, media: None,
+        LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, sections: vec![], changed: None, media: None,
             audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new() }
     }
     fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
@@ -188,6 +188,17 @@ mod tests {
         let mut r = RoomState::new();
         let p = r.plan(&view(1, Frame::default())).unwrap();
         assert!(p.prepare.is_empty() && p.remove.is_empty());
+    }
+
+    #[test]
+    fn unchanged_frame_new_version_commits_without_prepare() {
+        // FEAT-4 quiet adoption: a new version with the same frame prepares and removes nothing.
+        let mut r = RoomState::new();
+        let f = Frame { background: bg(1), slide: text("a"), ..Default::default() };
+        show(&mut r, &view(1, f.clone()));
+        let p = r.plan(&view(2, f)).expect("a plan, so the version commits");
+        assert!(p.prepare.is_empty() && p.remove.is_empty());
+        assert!(matches!(r.ready(p.token), Ready::Swap { commit: RoomEvent::Committed { version: 2 } }));
     }
 
     #[test]

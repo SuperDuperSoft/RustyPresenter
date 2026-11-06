@@ -65,11 +65,16 @@ export global Theme {
     out property <color> sec-pre: #f5b94a;
     out property <color> sec-bridge: #3ccf91;
     out property <color> sec-end: #c9a5ff;
+    out property <color> sec-tag: #ff8a3d;
+    out property <color> sec-intro: #6fd3e0;
+    out property <color> sec-interlude: #c8d36a;
+    out property <color> sec-other: #5d6576;
     out property <color> sec-ink: #0d0f13;
-    /// A song section's colour; transparent when it has none.
+    /// A song section's colour by its kind (`SectionKind::id`, copied from `SectionKind::color`); transparent for "".
     public pure function section-color(section: string) -> color {
-        return section == "verse" ? self.sec-verse : section == "chorus" ? self.sec-chorus : section == "pre" ? self.sec-pre
-            : section == "bridge" ? self.sec-bridge : section == "end" ? self.sec-end : transparent;
+        return section == "verse" ? self.sec-verse : section == "chorus" ? self.sec-chorus : section == "pre_chorus" ? self.sec-pre
+            : section == "bridge" ? self.sec-bridge : section == "ending" ? self.sec-end : section == "tag" ? self.sec-tag
+            : section == "intro" ? self.sec-intro : section == "interlude" ? self.sec-interlude : section == "other" ? self.sec-other : transparent;
     }
 
     out property <length> radius: 12px;

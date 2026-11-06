@@ -199,9 +199,9 @@ mod tests {
     use crate::{app::{LiveItemSummary, NextUp}, live::*, model::{Background, EndAction, Theme}, stage::{presets, Align, ElementStyle, StageElement, BACKGROUND}, timers::TimerKind};
     use crate::lenient::Lenient;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide::new(t, SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }) }
     fn labelled(label: &str, t: &str) -> Slide { Slide { label: label.into(), ..text(t) } }
-    fn slide(content: SlideContent) -> Slide { Slide { label: String::new(), content, notes: String::new() } }
+    fn slide(content: SlideContent) -> Slide { Slide::new(String::new(), content) }
     fn on_air(s: &Slide) -> Option<SlideLayer> {
         match &s.content {
             SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }),
@@ -216,10 +216,10 @@ mod tests {
             version: 1, committed: 1, pending: false,
             frame: Frame { slide: on_air(&now), background: None, ..Frame::default() },
             cursor: Some(Cursor { item_id: Uuid::nil(), item_index: 0, slide: at }),
-            item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len() }),
+            item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len(), song_id: None }),
             slide: Some(now),
             next: slides.get(at + 1).map(|s| NextUp { title: "Amazing Grace".into(), slide: s.clone() }),
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0,
         }
     }
     fn empty_view() -> LiveView {

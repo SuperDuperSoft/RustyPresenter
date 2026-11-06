@@ -3,6 +3,7 @@
 //! the UI thread; until one arrives its cell is black. Clicking a thumbnail takes that slide live at once (there
 //! is no separate Preview step).
 use super::{service::kind_icon, strings as tr, view::{self, ItemRow, OperatorSnapshot}, window::Operator};
+use crate::{app::LiveView, sections::{SectionKind, occurrence_views, strings as song}};
 use crate::{
     live::Command,
     model::{Background, MediaFile, Settings, Slide, SlideContent, passage},
@@ -38,34 +39,29 @@ pub fn row_of(idx: usize, cols: usize) -> usize {
     idx / cols.max(1)
 }
 
-/// A slide label's section colour name and its short form: "Verse 2" → ("verse", "V2"), "Chorus" → ("chorus", "C").
-/// Anything else (a passage reference, a slide title) has no section: ("", "").
-pub fn section(label: &str) -> (&'static str, String) {
-    let lower = label.trim().to_lowercase();
-    let (word, rest) = lower.split_once(' ').unwrap_or((lower.as_str(), ""));
-    let (id, letter) = match word {
-        "verse" => ("verse", "V"),
-        "chorus" | "refrain" => ("chorus", "C"),
-        "pre-chorus" | "prechorus" => ("pre", "P"),
-        "bridge" => ("bridge", "B"),
-        "tag" | "ending" | "outro" => ("end", "E"),
-        _ => return ("", String::new()),
-    };
-    // A label like "Verse of the day" is not a section.
-    if !rest.is_empty() && !rest.chars().all(|c| c.is_ascii_digit()) { return ("", String::new()) }
-    (id, format!("{letter}{rest}"))
+/// A song slide's caption colour: its section kind (`SectionKind::id`); "" for other slides and unlabelled parts.
+pub fn section(slide: &Slide) -> &'static str {
+    slide.section.as_ref().filter(|r| r.kind != SectionKind::Other).map_or("", |r| r.kind.id())
 }
 
-/// The jump buttons of a song: each section once, at its first slide, in order.
-pub fn jumps(kind: &str, slides: &[Slide]) -> Vec<SlideJump> {
-    if kind != "song" { return Vec::new() }
-    let mut seen: Vec<&str> = Vec::new();
-    slides.iter().enumerate().filter_map(|(i, s)| {
-        if seen.contains(&s.label.as_str()) { return None }
-        seen.push(&s.label);
-        let (id, short) = section(&s.label);
-        (!id.is_empty()).then(|| SlideJump { idx: i as i32, short: short.into(), section: id.into() })
-    }).collect()
+/// One chip of the section bar, as a click needs it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct BarChip { pub first_slide: usize, pub occurrence: u16, pub kind: SectionKind }
+
+/// The section bar (FEAT-4 §3.1): one chip per section as the song plays. For the live item they come from the
+/// live snapshot, the live one marked, with the jump key in the tooltip while section keys are on; for any other
+/// item, from its slides as built now.
+pub fn jumps(slides: &[Slide], live: Option<&LiveView>, keys_on: bool) -> (Vec<SlideJump>, Vec<BarChip>) {
+    let views = match live { Some(v) => v.sections.clone(), None => occurrence_views(slides, None) };
+    views.iter().map(|o| {
+        let tooltip = match (live, o.key) {
+            (Some(_), Some(k)) if keys_on => song::chip_key_hint(&o.label, k),
+            (Some(_), _) => o.label.clone(),
+            (None, _) => song::CHIP_SHOW_HINT.into(),
+        };
+        let jump = SlideJump { idx: o.first_slide as i32, short: o.short.as_str().into(), section: o.kind.id().into(), live: o.live, tooltip: tooltip.into() };
+        (jump, BarChip { first_slide: o.first_slide, occurrence: o.occurrence, kind: o.kind })
+    }).unzip()
 }
 
 /// The header title (`operator.js:162`): the selected item's, else a hint that depends on the service being empty.
@@ -95,6 +91,9 @@ pub(super) struct SlidesState {
     live: Option<usize>,
     /// The live slide last scrolled into view: the grid scrolls only when it changes.
     scrolled: Option<(Uuid, usize)>,
+    /// The section bar's chips, and the live item and version when it shows the live song.
+    bar: Vec<BarChip>,
+    bar_live: Option<(Uuid, u64)>,
 }
 
 impl Operator {
@@ -110,7 +109,6 @@ impl Operator {
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
         ui.set_slides_note(item.map_or_else(String::new, |i| i.notes.join("\n")).into());
         self.render_text_size();
-        ui.set_slide_jumps(ModelRc::new(VecModel::from(item.map_or_else(Vec::new, |i| jumps(&i.kind, &i.slides)))));
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
@@ -134,6 +132,7 @@ impl Operator {
 
     /// `markLive()`: marks the live slide of the selected item, and scrolls it into view when it changed.
     pub(super) fn mark_slides(&self) {
+        self.render_section_bar();
         let live = { let st = self.state.borrow(); st.live.as_ref().and_then(|l| view::live_index(l.view(), st.selected)) };
         let (old, live, scroll) = {
             let mut s = self.slides.borrow_mut();
@@ -147,6 +146,44 @@ impl Operator {
         };
         if old != live { for i in [old, live].into_iter().flatten() { self.set_cell(i) } }
         if let Some(row) = scroll { self.ui.invoke_slides_scroll_to_row(row as i32) }
+    }
+
+    /// The section bar of the selected song, live or not.
+    fn render_section_bar(&self) {
+        let (chips, bar, bar_live) = {
+            let st = self.state.borrow();
+            let item = st.selected.and_then(|id| st.snap.as_ref()?.items.iter().find(|i| i.id == id));
+            let keys_on = st.snap.as_ref().is_none_or(|s| s.settings.section_keys);
+            let live = st.live.as_ref().map(|l| l.view()).filter(|v| v.cursor.as_ref().is_some_and(|c| Some(c.item_id) == st.selected));
+            match item {
+                Some(it) => {
+                    let (chips, bar) = jumps(&it.slides, live, keys_on);
+                    (chips, bar, live.map(|v| (it.id, v.version)))
+                }
+                None => Default::default(),
+            }
+        };
+        let mut s = self.slides.borrow_mut();
+        if s.bar == bar && s.bar_live == bar_live && self.ui.get_slide_jumps().row_count() == chips.len()
+            && self.ui.get_slide_jumps().iter().eq(chips.iter().cloned()) { return }
+        (s.bar, s.bar_live) = (bar, bar_live);
+        drop(s);
+        self.ui.set_slide_jumps(ModelRc::new(VecModel::from(chips)));
+    }
+
+    /// A section bar chip: on the live song it jumps there (the slides Next walks); else it takes that part live.
+    fn pick_section(self: &Rc<Self>, i: usize) {
+        let (chip, bar_live) = { let s = self.slides.borrow(); (s.bar.get(i).cloned(), s.bar_live) };
+        let Some(chip) = chip else { return };
+        let Some((item_id, version)) = bar_live else { return self.show_slide(chip.first_slide) };
+        self.state.borrow_mut().armed = None;
+        let me = Rc::downgrade(self);
+        let cmd = Command::Jump { item_id, kind: chip.kind, number: None, occurrence: Some(chip.occurrence) };
+        self.ops.cmd(cmd, Some(version), move |o| {
+            let Some(op) = me.upgrade() else { return };
+            if o.error.as_deref().is_some_and(|e| e.starts_with("stale")) { return op.toast(song::SCREEN_CHANGED, true) }
+            if let Some((msg, err)) = outcome_toast(&o) { op.toast(&msg, err) }
+        });
     }
 
     /// Works out the columns and the thumbnail size for a grid `width` wide; says whether each changed.
@@ -180,7 +217,7 @@ impl Operator {
             live: s.live == Some(idx),
             play: matches!(slide.content, SlideContent::Video { .. } | SlideContent::Audio { .. }),
             // Only songs are coloured: a passage or slide set has no sections.
-            section: if k.kind == "song" { section(&slide.label).0 } else { "" }.into(),
+            section: section(slide).into(),
         }
     }
 
@@ -264,29 +301,33 @@ pub(super) fn wire(op: &Rc<Operator>) {
         if let Some(id) = selected { crate::ui::dialogs::item_edit::open(&op, id) }
     });
     let me = Rc::downgrade(op);
+    ui.on_slides_pick_section(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.pick_section(i) });
+    let me = Rc::downgrade(op);
     ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() { op.grid_resized(w) });
 }
 
 #[cfg(test)]
 mod section_tests {
     use super::*;
+    use crate::sections::refs::kit;
 
     #[test]
-    fn sections_and_short_forms() {
-        assert_eq!(section("Verse 2"), ("verse", "V2".to_string()));
-        assert_eq!(section("Chorus"), ("chorus", "C".to_string()));
-        assert_eq!(section("Pre-Chorus 1"), ("pre", "P1".to_string()));
-        assert_eq!(section("Verse of the day"), ("", String::new()));
-        assert_eq!(section("John 3:16"), ("", String::new()));
+    fn captions_take_the_section_kind() {
+        let s = kit::song("Verse 2\na\nPre-Chorus\nb\nTag\nc", &[], 4);
+        assert_eq!(s.iter().map(section).collect::<Vec<_>>(), ["verse", "pre_chorus", "tag"]);
+        assert_eq!(section(&kit::song("a\n\nb", &[], 4)[0]), "", "an unlabelled part has no colour");
+        assert_eq!(section(&kit::plain(&["John 3:16"])[0]), "");
     }
 
     #[test]
-    fn jumps_list_each_section_once_for_songs_only() {
-        let s = |l: &str| Slide { label: l.into(), content: SlideContent::Text { text: String::new(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() };
-        let slides = [s("Verse 1"), s("Verse 1"), s("Chorus"), s("Verse 2"), s("Chorus")];
-        let got: Vec<(i32, String)> = jumps("song", &slides).into_iter().map(|j| (j.idx, j.short.to_string())).collect();
-        assert_eq!(got, vec![(0, "V1".to_string()), (2, "C".to_string()), (3, "V2".to_string())]);
-        assert!(jumps("scripture", &slides).is_empty());
+    fn bar_chips_follow_the_played_order_for_songs_only() {
+        let slides = kit::song("Verse 1\na\nChorus\nx\nVerse 2\nb", &["Verse 1", "Chorus", "Verse 2", "Chorus"], 4);
+        let (chips, bar) = jumps(&slides, None, true);
+        let got: Vec<(i32, String)> = chips.iter().map(|j| (j.idx, j.short.to_string())).collect();
+        assert_eq!(got, vec![(0, "V1".into()), (1, "C".into()), (2, "V2".into()), (3, "C".into())]);
+        assert_eq!(bar[3].occurrence, 3);
+        assert!(chips.iter().all(|c| !c.live && c.tooltip == "Click to show this part"), "no key hints off the live song");
+        assert!(jumps(&kit::plain(&["a"]), None, true).0.is_empty());
     }
 }
 

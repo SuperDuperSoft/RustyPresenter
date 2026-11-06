@@ -79,6 +79,10 @@ pub struct LiveView {
     pub media: Option<PlayStatus>,
     pub audio: Option<PlayStatus>,
     pub notice: Option<String>,
+    /// The live song's sections, from the live snapshot (FEAT-4): the section bar and the phone chips.
+    pub sections: Vec<crate::sections::OccurrenceView>,
+    /// The live item differs from the library in a way the room would show (FEAT-4 banner).
+    pub changed: Option<crate::sections::LiveChange>,
     /// The church default's style (stage, old pages, and slides taken live before themes).
     pub theme: Theme,
     pub logo: Option<AssetId>,
@@ -91,7 +95,11 @@ pub struct LiveView {
 }
 
 #[derive(Serialize, Clone, Debug)]
-pub struct LiveItemSummary { pub item_id: Uuid, pub title: String, pub kind: String, pub count: usize }
+pub struct LiveItemSummary {
+    pub item_id: Uuid, pub title: String, pub kind: String, pub count: usize,
+    /// The library song of a live song item (FEAT-4: Edit words, the editor's live banner).
+    pub song_id: Option<Uuid>,
+}
 
 #[derive(Serialize, Clone, Debug)]
 pub struct NextUp { pub title: String, pub slide: Slide }
@@ -239,6 +247,11 @@ impl Plan for DataPlan<'_> {
     }
 }
 
+/// The library song of service item `item_id`, if it is a song.
+fn song_of(data: &Data, item_id: Uuid) -> Option<Uuid> {
+    data.service()?.items.iter().find(|i| i.id == item_id).and_then(|i| match i.kind { ItemKind::Song { song_id } => Some(song_id), _ => None })
+}
+
 pub(crate) const SESSION_DAYS: u64 = 30;
 pub(crate) const MAX_PHONES: usize = 5;
 
@@ -319,12 +332,14 @@ impl App {
             pending: live.pending(),
             frame: live.frame.clone(),
             cursor: live.cursor.clone(),
-            item: live.item.as_ref().map(|i| LiveItemSummary { item_id: i.item_id, title: i.title.clone(), kind: i.kind.clone(), count: i.slides.len() }),
+            item: live.item.as_ref().map(|i| LiveItemSummary { item_id: i.item_id, title: i.title.clone(), kind: i.kind.clone(), count: i.slides.len(), song_id: song_of(&data, i.item_id) }),
             slide: live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).cloned(),
             next: live.next_preview(&plan).map(|(title, slide)| NextUp { title, slide }),
             media: live.media_status.clone(),
             audio: live.audio_status.clone(),
             notice: live.notice.clone(),
+            sections: live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default(),
+            changed: live.changed.clone(),
             theme: crate::theme::church_default(&data).style,
             logo: data.settings.logo.clone(),
             clear_epoch: live.clear_epoch,
@@ -352,18 +367,28 @@ impl App {
     pub fn read_only(&self) -> bool { self.read_only.load(Ordering::Relaxed) }
     pub fn set_read_only(&self, on: bool) { self.read_only.store(on, Ordering::Relaxed) }
 
-    /// Mutate data, save, and tell every screen.
+    /// Mutate data, save, and tell every screen. The live item is checked against the new data even when the save
+    /// failed, as memory has changed (FEAT-4 spec §5.4).
     pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
         if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
         let r = {
             let mut data = self.data.lock().unwrap();
-            let r = f(&mut data)?;
-            self.save(&data)?;
-            r
+            f(&mut data).and_then(|r| self.save(&data).map(|()| r))
         };
-        self.broadcast_data();
-        self.broadcast_live();
-        Ok(r)
+        let live_changed = self.reconcile_live();
+        if r.is_ok() {
+            self.broadcast_data();
+            self.broadcast_live();
+        } else if live_changed {
+            self.broadcast_live();
+        }
+        r
+    }
+
+    /// Compares the live item with the library (data, then live: the one lock order). True when live changed.
+    pub(crate) fn reconcile_live(&self) -> bool {
+        let data = self.data.lock().unwrap();
+        self.live.lock().unwrap().reconcile(&DataPlan(&data))
     }
 
     pub fn command(&self, env: Envelope) -> Outcome {
@@ -421,9 +446,14 @@ impl App {
 
     pub fn room_event(&self, ev: RoomEvent) {
         let (changed, committed) = {
+            let data = self.data.lock().unwrap();
             let mut live = self.live.lock().unwrap();
             let before = live.committed_version;
-            (live.report(ev), live.committed_version != before)
+            let failed = matches!(ev, RoomEvent::Failed { .. });
+            let changed = live.report(ev);
+            // A revert can go back to a snapshot older than a quiet adoption: check it against the library again.
+            if changed && failed { live.reconcile(&DataPlan(&data)); }
+            (changed, live.committed_version != before)
         };
         if changed { self.broadcast_live(); }
         if committed { self.resume_on_air(); self.save_live_state(); self.note_song_use(true); }
@@ -1341,6 +1371,7 @@ impl App {
                 app.live.lock().unwrap().notice = Some(passages_removed(removed));
             }
             *app.data.lock().unwrap() = restored;
+            app.reconcile_live();
             app.refresh_bible_credits();
             app.online_text_from_cache();
             app.broadcast_data();
@@ -1728,7 +1759,7 @@ mod tests {
             fn order(&self) -> Vec<Uuid> { vec![self.0] }
             fn build(&self, id: Uuid) -> Option<LiveItem> {
                 Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
-                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }], theme: Theme::default() })
+                    slides: vec![Slide::new("s", SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0, parallel: None })], theme: Theme::default() })
             }
         }
         live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));

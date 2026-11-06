@@ -1,13 +1,17 @@
 // The live column (`web/operator.html:41-61`, `operator.css:108-142`, `operator.js:212-261`): what is live, the
 // monitor, the transport, the notice, Back/Next, the clears and Up next. The rows and texts come from Rust (`live.rs`).
 import { Theme } from "../theme.slint";
-import { Bar, ScrollBox } from "../widgets.slint";
+import { Bar, ScrollBox, Btn } from "../widgets.slint";
 import { Side } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
+
+/// The live song's line under the monitor and the change banner (FEAT-4 §3.4, §7): `line` "Chorus · slide 2 of 3"
+/// in the colour of `kind`; `edit` shows Edit words; `banner` is the change text, `update` shows Update screen.
+export struct LiveSong { line: string, kind: string, edit: bool, banner: string, update: bool }
 
 export component LiveColumn inherits Rectangle {
     in property <bool> pending;
@@ -30,6 +34,9 @@ export component LiveColumn inherits Rectangle {
     in property <bool> monitor-room-off;
     out property <length> monitor-width: monitor.width;
 
+    in property <LiveSong> song;
+    /// "edit" (Edit words) or "update" (Update screen).
+    callback song-action(string);
     callback next();
     callback prev();
     /// `clear_all`, `clear_slide`, `clear_media`, `clear_audio` or `logo` (the web's `data-cmd`).
@@ -153,6 +160,65 @@ export component LiveColumn inherits Rectangle {
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
+                    }
+                }
+            }
+
+            if root.song.line != "" || root.song.edit: HorizontalLayout {
+                spacing: 8px;
+                if root.song.line != "": Rectangle {
+                    width: 6px;
+                    border-radius: 3px;
+                    background: Theme.section-color(root.song.kind);
+                }
+                live-section := Text {
+                    horizontal-stretch: 1;
+                    text: root.song.line;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if root.song.edit: live-edit-words := Btn {
+                    small: true;
+                    icon: "edit";
+                    text: @tr("Edit words");
+                    tooltip: @tr("Fix the words of the live song. The screen changes only when you say so.");
+                    clicked => { root.song-action("edit"); }
+                }
+            }
+
+            if root.song.banner != "": live-changed := Rectangle {
+                accessible-role: text;
+                accessible-label: root.song.banner;
+                background: Theme.notice-bg;
+                border-color: Theme.notice-border;
+                border-width: 1px;
+                border-radius: 10px;
+                HorizontalLayout {
+                    padding-top: 7px;
+                    padding-bottom: 7px;
+                    padding-left: 12px;
+                    padding-right: 8px;
+                    spacing: 8px;
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.song.banner;
+                        color: Theme.notice-text;
+                        font-family: Theme.font;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                        vertical-alignment: center;
+                    }
+                    if root.song.update: live-update-screen := Btn {
+                        primary: true;
+                        small: true;
+                        text: @tr("Update screen");
+                        clicked => { root.song-action("update"); }
                     }
                 }
             }

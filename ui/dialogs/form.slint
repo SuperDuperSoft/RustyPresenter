@@ -93,6 +93,8 @@ export component TextArea inherits Rectangle {
     out property <bool> has-focus: input.has-focus;
     callback edited(string);
     forward-focus: input;
+    /// Puts the caret at byte `offset` of the text.
+    public function set-caret(offset: int) { input.set-selection-offsets(offset, offset); }
 
     min-height: 120px;
     background: Theme.bg;
