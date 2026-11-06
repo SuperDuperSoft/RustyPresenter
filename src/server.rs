@@ -231,7 +231,7 @@ fn remote_view(app: &App) -> String {
 
 pub fn slide_text(s: &Slide) -> String {
     match &s.content {
-        SlideContent::Text { text, .. } => text.clone(),
+        SlideContent::Text { text, parallel, .. } => crate::model::all_bibles_text(text, parallel.as_ref()),
         SlideContent::Image { .. } => "(slide picture)".into(),
         SlideContent::Video { .. } => "(video)".into(),
         SlideContent::Still { .. } => "(picture)".into(),

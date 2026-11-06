@@ -567,6 +567,53 @@ impl App {
     pub(crate) fn open_roles(&self) -> Vec<String> { self.screens.get().map(|s| s.open_roles()).unwrap_or_default() }
 
     /// The standard list plus any other Bible the church imported.
+    /// A passage in one Bible: built in, then a file the church imported or downloaded (offline, and it wins over
+    /// any online source), then online.
+    pub async fn lookup_passage(&self, translation: &str, reference: &str) -> Result<(String, Vec<VerseText>), String> {
+        if let Some(b) = bible::built_in(translation) { return b.lookup(reference) }
+        if let Some(b) = bible::import::get(&self.store.root, translation) { return b.lookup(reference) }
+        let found = bible::sources::lookup(&self.store.root, translation, reference).await?;
+        // API.Bible sends its notice with the first passage; the slides credit it from then on.
+        self.refresh_bible_credits();
+        Ok(found)
+    }
+
+    /// `reference` in each of `ids` (tidied against `main`): the ones found, and the ids left out (not available, not
+    /// found, or blocked).
+    pub async fn lookup_also(&self, main: &str, ids: &[String], reference: &str) -> (Vec<crate::scripture::AlsoShow>, Vec<String>) {
+        let mut ids = ids.to_vec();
+        let mut left_out = crate::scripture::also::tidy_ids(main, &mut ids, &|t| bible::blocklist::blocked(t, &[], &[], &[t]));
+        let mut found = vec![];
+        for t in ids {
+            match self.lookup_passage(&t, reference).await {
+                Ok((_, verses)) if !bible::blocklist::blocked_passage(&t, &verses) => found.push(crate::scripture::AlsoShow { translation: t, verses }),
+                _ => left_out.push(t),
+            }
+        }
+        (found, left_out)
+    }
+
+    /// Gives a new passage the church's Also Bibles and layout. Returns the toast to show when some were left out.
+    pub async fn fill_also(&self, item: &mut ServiceItem) -> Option<String> {
+        let (ids, layout) = { let d = self.data.lock().unwrap(); (d.settings.also_show.clone(), d.settings.parallel_layout) };
+        let ItemKind::Scripture { reference, translation, .. } = &item.kind else { return None };
+        if ids.is_empty() { return None }
+        let (main, reference) = (translation.clone(), reference.clone());
+        let (found, left_out) = self.lookup_also(&main, &ids, &reference).await;
+        let toast = (!left_out.is_empty()).then(|| {
+            let kept: Vec<String> = std::iter::once(main.as_str()).chain(found.iter().map(|a| a.translation.as_str())).map(|t| self.abbr_of(t)).collect();
+            let left: Vec<String> = left_out.iter().map(|t| self.abbr_of(t)).collect();
+            crate::scripture::strings::also_left_out(&left.join(" · "), &kept.join(" · "))
+        });
+        if let ItemKind::Scripture { also, layout: l, .. } = &mut item.kind { *also = found; *l = layout; }
+        toast
+    }
+
+    /// The short name a Bible shows under: its credit's abbreviation, else its id.
+    pub fn abbr_of(&self, translation: &str) -> String {
+        self.data.lock().unwrap().bible_credit(translation).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| translation.to_string())
+    }
+
     pub fn translations(&self) -> Vec<String> {
         let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
         for b in bible::import::list(&self.store.root).iter() { if !out.contains(&b.id) { out.push(b.id.clone()); } }
@@ -735,7 +782,11 @@ impl App {
             if item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("per_slide").is_none() {
                 item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
             }
+            // ... and the church's Also Bibles (Settings → Bible), looked up here.
+            let fill_also = item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("also").is_none();
             let mut item: ServiceItem = serde_json::from_value(item).map_err(|e| ActionError::bad(e.to_string()))?;
+            let mut toast = None;
+            if fill_also { toast = app.fill_also(&mut item).await; }
             refuse_blocked(&item)?;
             item.id = Uuid::new_v4();
             let id = item.id;
@@ -745,7 +796,7 @@ impl App {
                 s.items.insert(pos, item);
                 Ok(())
             }));
-            Ok(json!({ "id": id }))
+            Ok(json!({ "id": id, "toast": toast }))
         }
         "service/update" => {
             let item: ServiceItem = parse(body)?;
@@ -813,18 +864,13 @@ impl App {
         }
         // ---- bible ----
         "bible/lookup" => {
-            #[derive(Deserialize)] struct L { reference: String, translation: String }
-            let L { reference, translation } = parse(body)?;
+            #[derive(Deserialize)] struct L { reference: String, translation: String, #[serde(default)] also: Vec<String> }
+            let L { reference, translation, also } = parse(body)?;
             // Built in, then a file the church imported (works offline, wins over any online source), then online.
-            let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
-                else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
-                else {
-                    let found = tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await);
-                    // API.Bible sends its notice with the first passage; the slides credit it from then on.
-                    app.refresh_bible_credits();
-                    found
-                };
-            Ok(json!({ "label": label, "verses": verses, "translation": translation }))
+            let (label, verses) = tryr!(app.lookup_passage(&translation, &reference).await);
+            // More Bibles shown with it (Nov 5 spec §3): one that cannot be looked up is left out, never the passage.
+            let (also, left_out) = app.lookup_also(&translation, &also, &reference).await;
+            Ok(json!({ "label": label, "verses": verses, "translation": translation, "also": also, "left_out": left_out }))
         }
         "bible/paste" => {
             // Verses typed or pasted from the church's own Bible, for a translation with no source here (e.g. HCSB).
@@ -1003,7 +1049,30 @@ impl App {
             let T { translation } = parse(body)?;
             if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
             if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
-            tryr!(app.edit(|d| { d.settings.used_translation(&translation); d.settings.translation = translation; Ok(()) }));
+            // A main Bible that was also an Also Bible stops being one (Nov 5 spec §3).
+            let turned_off = tryr!(app.edit(|d| {
+                d.settings.used_translation(&translation);
+                let was = d.settings.also_show.iter().any(|t| bible::id::same_id(t, &translation));
+                d.settings.also_show.retain(|t| !bible::id::same_id(t, &translation));
+                d.settings.translation = translation.clone();
+                Ok(was)
+            }));
+            let toast = turned_off.then(|| crate::scripture::strings::also_turned_off(&app.abbr_of(&translation)));
+            Ok(json!({ "toast": toast }))
+        }
+        // The church's Also Bibles for new passages and how they share a slide (Nov 5 spec §2–3).
+        "settings/also" => {
+            #[derive(Deserialize)] struct A { also_show: Vec<String>, #[serde(default)] parallel_layout: crate::scripture::ParallelLayout }
+            let A { mut also_show, parallel_layout } = parse(body)?;
+            let known = app.translations();
+            if also_show.iter().any(|t| bible::blocklist::blocked(t, &[], &[], &[t])) { return Err(ActionError::bad(BLOCKED)); }
+            if also_show.iter().any(|t| !known.contains(t)) { return Err(ActionError::bad("Unknown translation.")); }
+            tryr!(app.edit(|d| {
+                crate::scripture::also::tidy_ids(&d.settings.translation, &mut also_show, &|_| false);
+                d.settings.also_show = also_show;
+                d.settings.parallel_layout = parallel_layout;
+                Ok(())
+            }));
             Ok(json!({}))
         }
         // The picker's star. A Bible no longer installed can still be unstarred.
@@ -1466,7 +1535,9 @@ struct T { translation: String }
 /// Whole items come in through the action API without passing `bible/lookup`, so the blocklist looks at them here.
 fn refuse_blocked(item: &ServiceItem) -> Result<(), ActionError> {
     match &item.kind {
-        ItemKind::Scripture { translation, verses, .. } if bible::blocklist::blocked_passage(translation, verses) => Err(ActionError::bad(BLOCKED)),
+        ItemKind::Scripture { translation, verses, also, .. }
+            if bible::blocklist::blocked_passage(translation, verses) || also.iter().any(|a| bible::blocklist::blocked_passage(&a.translation, &a.verses)) =>
+            Err(ActionError::bad(BLOCKED)),
         _ => Ok(()),
     }
 }
@@ -1524,7 +1595,7 @@ mod tests {
             fn order(&self) -> Vec<Uuid> { vec![self.0] }
             fn build(&self, id: Uuid) -> Option<LiveItem> {
                 Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
-                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0 }, notes: String::new() }] })
+                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }] })
             }
         }
         live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));
@@ -1858,7 +1929,7 @@ mod tests {
         let app = test_app();
         let mut service = Service::new("Sunday");
         service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(),
-            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0 } });
+            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() } });
         let data = Data { services: vec![service], ..Data::default() };
         let name = app.store.backup(&data).unwrap();
         app.do_action("backup/restore", json!({ "name": name }).to_string().as_bytes()).await.unwrap();
@@ -2421,5 +2492,46 @@ mod tests {
     #[tokio::test]
     async fn do_action_unknown_action_is_404() {
         assert_eq!(test_app().do_action("nope", b"{}").await.unwrap_err().status, 404);
+    }
+
+    #[tokio::test]
+    async fn lookup_with_also_returns_each_and_left_out() {
+        let app = test_app();
+        let v = app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"KJV","also":["WEB","ESV","KJV"]}"#).await.unwrap();
+        assert_eq!(v["also"][0]["translation"], "WEB");
+        assert!(v["also"][0]["verses"][0]["text"].as_str().unwrap().starts_with("For God so loved"));
+        assert_eq!(v["also"][0]["verses"][0]["id"], json!([42, 3, 16]));
+        assert_eq!(v["left_out"], json!(["ESV"]), "no ESV key; KJV is the main one, so not an Also Bible");
+    }
+
+    #[tokio::test]
+    async fn main_equal_to_also_turns_also_off() {
+        let app = test_app();
+        app.do_action("settings/also", br#"{"also_show":["WEB"],"parallel_layout":"stacked"}"#).await.unwrap();
+        assert_eq!(app.data.lock().unwrap().settings.parallel_layout, crate::scripture::ParallelLayout::Stacked);
+        let r = app.do_action("settings/translation", br#"{"translation":"WEB"}"#).await.unwrap();
+        assert_eq!(r["toast"], "WEB turned off (same as main).");
+        assert!(app.data.lock().unwrap().settings.also_show.is_empty());
+    }
+
+    #[tokio::test]
+    async fn settings_also_keeps_two_and_refuses_blocked() {
+        let app = test_app();
+        app.do_action("settings/also", br#"{"also_show":["WEB","KJV","BSB","WEB"]}"#).await.unwrap();
+        assert_eq!(app.data.lock().unwrap().settings.also_show, ["WEB", "BSB"]);
+        let err = app.do_action("settings/also", br#"{"also_show":["TPT"]}"#).await.unwrap_err();
+        assert_eq!(err.message, BLOCKED);
+    }
+
+    #[tokio::test]
+    async fn add_with_unavailable_also_adds_the_rest_and_warns() {
+        let app = test_app();
+        app.edit(|d| { d.settings.also_show = vec!["WEB".into(), "ESV".into()]; Ok(()) }).unwrap();
+        let r = app.do_action("service/add", br#"{"item":{"kind":"scripture","reference":"John 3:16","translation":"KJV","verses":[{"reference":"John 3:16","text":"For God"}]}}"#).await.unwrap();
+        assert_eq!(r["toast"], "ESV isn't available right now, so only KJV · WEB was added.");
+        let d = app.data.lock().unwrap();
+        let item = d.service().unwrap().items.last().unwrap();
+        let ItemKind::Scripture { also, .. } = &item.kind else { panic!() };
+        assert_eq!(also.iter().map(|a| a.translation.as_str()).collect::<Vec<_>>(), ["WEB"]);
     }
 }

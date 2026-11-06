@@ -281,7 +281,7 @@ mod section_tests {
 
     #[test]
     fn jumps_list_each_section_once_for_songs_only() {
-        let s = |l: &str| Slide { label: l.into(), content: SlideContent::Text { text: String::new(), footer: None, reference: None, size: 0 }, notes: String::new() };
+        let s = |l: &str| Slide { label: l.into(), content: SlideContent::Text { text: String::new(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() };
         let slides = [s("Verse 1"), s("Verse 1"), s("Chorus"), s("Verse 2"), s("Chorus")];
         let got: Vec<(i32, String)> = jumps("song", &slides).into_iter().map(|j| (j.idx, j.short.to_string())).collect();
         assert_eq!(got, vec![(0, "V1".to_string()), (2, "C".to_string()), (3, "V2".to_string())]);

@@ -76,7 +76,7 @@ pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> {
             let n = pages.len();
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
-                slides.push(Slide { label, content: SlideContent::Text { text, footer: None, reference: None, size: 0 }, notes: String::new() });
+                slides.push(Slide { label, content: SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None }, notes: String::new() });
             }
         }
     }
@@ -110,6 +110,51 @@ fn credit_line(song: &Song, settings: &Settings) -> Option<String> {
     Some(line)
 }
 
+/// One credit for a passage in several Bibles: their lines in column order, joined with " · ". It must show when any
+/// of them must.
+fn joined_credit(credits: &[&BibleCredit]) -> Option<BibleCredit> {
+    let first = credits.first()?;
+    let lines: Vec<&str> = credits.iter().map(|c| c.line.trim()).filter(|l| !l.is_empty()).collect();
+    Some(BibleCredit { line: lines.join(" · "), required: credits.iter().any(|c| c.required), ..(*first).clone() })
+}
+
+/// The theme facts the scripture planner needs.
+#[derive(Clone, Hash)]
+struct PlanFacts { size: u32, lower: bool }
+
+impl crate::scripture::planning::PlanTheme for PlanFacts {
+    fn scripture_size(&self) -> u32 { self.size }
+    fn is_lower_third(&self) -> bool { self.lower }
+}
+
+/// Slides of a passage in the main Bible and the Also Bibles (`also`: code and verses, in column order), planned
+/// verse by verse so every Bible's slide shows the same verses (Nov 5 spec §3). Sized by the character estimate
+/// until the measured planner (FEAT-5 Part B) takes over.
+pub fn parallel_slides(verses: &[VerseText], abbr: &str, also: &[(String, &[VerseText])], per_slide: u8, layout: crate::scripture::ParallelLayout, theme: &crate::model::Theme) -> Vec<Slide> {
+    use crate::scripture::planning::{AlsoInput, CharMeasure, ScriptureInput, plan_scripture};
+    let facts = PlanFacts { size: theme.scripture_size, lower: theme.position == "lower" };
+    let input = ScriptureInput {
+        main: verses.to_vec(),
+        main_code: abbr.to_string(),
+        main_notice: None,
+        also: also.iter().map(|(code, vs)| AlsoInput { code: code.clone(), verses: vs.to_vec(), notice: None }).collect(),
+        per_slide,
+        layout,
+        breaks: Default::default(),
+        theme: facts.clone(),
+        canvas: (1920, 1080),
+    };
+    let planned = plan_scripture(&input, &mut CharMeasure::for_input(&facts, input.canvas));
+    planned.slides.into_iter().map(|p| Slide {
+        label: p.label,
+        content: SlideContent::Text {
+            text: p.text, footer: None, reference: Some(p.reference), size: 0,
+            parallel: Some(crate::scripture::Parallel { main_code: abbr.to_string(), also: p.also, layout }),
+        },
+        notes: String::new(),
+    }).collect()
+}
+
 /// Group verses into slides. `per_slide` 0 = automatic (by length).
 pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) -> Vec<Slide> {
     const AUTO_CHARS: usize = 330;
@@ -119,7 +164,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
         if group.is_empty() { return; }
         let text = group.iter().map(|v| format!("{}{}", superscript(verse_num(&v.reference)), v.text)).collect::<Vec<_>>().join(" ");
         let reference = format!("{} ({translation})", join_refs(group));
-        slides.push(Slide { label: join_refs(group), content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0 }, notes: String::new() });
+        slides.push(Slide { label: join_refs(group), content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }, notes: String::new() });
         group.clear();
     };
     for v in verses {
@@ -132,7 +177,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
                 let label = if i == 0 { v.reference.clone() } else { format!("{} (cont.)", v.reference) };
                 let text = if i == 0 { format!("{}{}", superscript(verse_num(&v.reference)), p) } else { p };
                 let reference = format!("{}{} ({translation})", v.reference, if i > 0 { " (cont.)" } else { "" });
-                slides.push(Slide { label: if n > 1 { label } else { v.reference.clone() }, content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0 }, notes: String::new() });
+                slides.push(Slide { label: if n > 1 { label } else { v.reference.clone() }, content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0, parallel: None }, notes: String::new() });
             }
             continue;
         }
@@ -209,9 +254,9 @@ pub fn split_long(text: &str, max: usize) -> Vec<String> {
 pub fn text_slides(title: &str, body: &str) -> Vec<Slide> {
     let mut slides = Vec::new();
     for (i, block) in body.replace("\r\n", "\n").split("\n\n").map(str::trim).filter(|b| !b.is_empty()).enumerate() {
-        slides.push(Slide { label: format!("{title} {}", i + 1), content: SlideContent::Text { text: block.to_string(), footer: None, reference: None, size: 0 }, notes: String::new() });
+        slides.push(Slide { label: format!("{title} {}", i + 1), content: SlideContent::Text { text: block.to_string(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() });
     }
-    if slides.is_empty() { slides.push(Slide { label: title.to_string(), content: SlideContent::Text { text: title.to_string(), footer: None, reference: None, size: 0 }, notes: String::new() }); }
+    if slides.is_empty() { slides.push(Slide { label: title.to_string(), content: SlideContent::Text { text: title.to_string(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }); }
     slides
 }
 
@@ -223,13 +268,18 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             Some(song) => (song.title.clone(), "song", song_slides(song, s)),
             None => ("Missing song".into(), "song", vec![]),
         },
-        ItemKind::Scripture { reference, translation, verses, per_slide, text_size } => {
-            let credit = data.bible_credit(translation);
-            let abbr = credit.map(|c| c.abbr.as_str()).filter(|a| !a.is_empty()).unwrap_or(translation);
-            let mut slides = scripture_slides(verses, *per_slide, abbr);
+        ItemKind::Scripture { reference, translation, verses, per_slide, text_size, also, layout } => {
+            let abbr_of = |t: &str| data.bible_credit(t).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| t.to_string());
+            let abbr = abbr_of(translation);
+            // Also Bibles with no text here (an online one not fetched yet) are left out of the slides.
+            let shown: Vec<(String, &[VerseText])> = also.iter().filter(|a| !a.verses.is_empty()).map(|a| (abbr_of(&a.translation), a.verses.as_slice())).collect();
+            let mut slides = if shown.is_empty() { scripture_slides(verses, *per_slide, &abbr) } else { parallel_slides(verses, &abbr, &shown, *per_slide, *layout, &s.theme) };
             for sl in &mut slides { if let SlideContent::Text { size, .. } = &mut sl.content { *size = *text_size } }
-            if let Some(credit) = credit { put_scripture_credit(&mut slides, credit, s) }
-            (format!("{reference} ({abbr})"), "scripture", slides)
+            let credits: Vec<&BibleCredit> = std::iter::once(translation.as_str()).chain(also.iter().filter(|a| !a.verses.is_empty()).map(|a| a.translation.as_str()))
+                .filter_map(|t| data.bible_credit(t)).collect();
+            if let Some(credit) = joined_credit(&credits) { put_scripture_credit(&mut slides, &credit, s) }
+            let codes: Vec<&str> = std::iter::once(abbr.as_str()).chain(shown.iter().map(|(a, _)| a.as_str())).collect();
+            (format!("{reference} ({})", codes.join(" · ")), "scripture", slides)
         }
         ItemKind::Media { media_id, autoplay, end, looped } => match data.media.iter().find(|m| m.id == *media_id) {
             Some(m) => {
@@ -287,7 +337,7 @@ mod tests {
 
     #[test]
     fn exact_discontiguous_and_cross_chapter_labels() {
-        let v = |r: &str| VerseText { reference: r.into(), text: "t".into() };
+        let v = |r: &str| VerseText::new(r, "t");
         let a = [v("Psalm 23:1"), v("Psalm 23:4"), v("Psalm 23:5"), v("Psalm 23:6")];
         assert_eq!(join_refs(&a.iter().collect::<Vec<_>>()), "Psalm 23:1, 4–6");
         let b = [v("John 1:51"), v("John 2:1"), v("John 2:2")];
@@ -295,7 +345,7 @@ mod tests {
     }
 
     fn verses(n: usize) -> Vec<VerseText> {
-        (1..=n).map(|i| VerseText { reference: format!("Psalm 23:{i}"), text: format!("verse {i} words") }).collect()
+        (1..=n).map(|i| VerseText::new(format!("Psalm 23:{i}"), format!("verse {i} words"))).collect()
     }
 
     #[test]
@@ -308,7 +358,7 @@ mod tests {
     #[test]
     fn passage_text_size_reaches_every_slide() {
         let mut data = Data::default();
-        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96, abbr: String::new() };
+        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96, also: vec![], layout: Default::default() };
         let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
         data.services[0].items.push(item.clone());
         let (_, kind, slides) = build_item(&data, &item);
@@ -321,7 +371,7 @@ mod tests {
         let mut data = Data::default();
         data.settings.credits = credits.into();
         if let Some(c) = credit { data.bible_credits.insert(translation.into(), c); }
-        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: translation.into(), verses: verses(4), per_slide: 2, text_size: 0 };
+        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: translation.into(), verses: verses(4), per_slide: 2, text_size: 0, also: vec![], layout: Default::default() };
         let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
         let (title, _, slides) = build_item(&data, &item);
         (title, slides)
@@ -379,5 +429,40 @@ mod tests {
         let parts = split_long(text, 120);
         assert!(parts.len() >= 2);
         assert_eq!(parts.join(" ").split_whitespace().collect::<Vec<_>>(), text.split_whitespace().collect::<Vec<_>>());
+    }
+
+    fn three_bible_item(per_slide: u8) -> ServiceItem {
+        let vs = |t: &str| vec![VerseText::new("John 3:16", format!("{t} 16")), VerseText::new("John 3:17", format!("{t} 17"))];
+        let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs("web") }, crate::scripture::AlsoShow { translation: "BSB".into(), verses: vs("bsb") }];
+        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs("kjv"), per_slide, text_size: 0, also, layout: Default::default() }, background: None, notes: String::new() }
+    }
+
+    #[test]
+    fn three_bible_item_builds_parallel_slides() {
+        let (title, kind, slides) = build_item(&Data::default(), &three_bible_item(0));
+        assert_eq!((title.as_str(), kind), ("John 3:16-17 (KJV · WEB · BSB)", "scripture"));
+        assert_eq!(slides.len(), 1);
+        let SlideContent::Text { text, reference, parallel: Some(p), .. } = &slides[0].content else { panic!("{:?}", slides[0].content) };
+        assert!(text.contains("kjv 16") && text.contains("kjv 17"));
+        assert_eq!(reference.as_deref(), Some("John 3:16–17 (KJV · WEB · BSB)"));
+        let codes: Vec<&str> = std::iter::once(p.main_code.as_str()).chain(p.also.iter().map(|a| a.code.as_str())).collect();
+        assert_eq!(codes, ["KJV", "WEB", "BSB"]);
+        assert!(p.also[1].text.contains("bsb 17"));
+    }
+
+    #[test]
+    fn three_bibles_one_verse_per_slide() {
+        let (_, _, slides) = build_item(&Data::default(), &three_bible_item(1));
+        assert_eq!(slides.len(), 2);
+        assert!(slides.iter().all(|s| matches!(&s.content, SlideContent::Text { parallel: Some(p), .. } if p.also.len() == 2)));
+    }
+
+    #[test]
+    fn an_also_bible_without_text_is_left_out() {
+        let mut item = three_bible_item(0);
+        if let ItemKind::Scripture { also, .. } = &mut item.kind { also[1].verses.clear() }
+        let (title, _, slides) = build_item(&Data::default(), &item);
+        assert_eq!(title, "John 3:16-17 (KJV · WEB)");
+        assert!(matches!(&slides[0].content, SlideContent::Text { parallel: Some(p), .. } if p.also.len() == 1));
     }
 }

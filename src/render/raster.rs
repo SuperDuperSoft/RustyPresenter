@@ -47,6 +47,9 @@ const FOOT_SHADOWS: [Shadow; 1] = [Shadow { dy: 2.0, blur: 8.0, alpha: 0.9 }];
 const FOOT_OPACITY: f32 = 0.88;
 /// The lower-third gradient covers the bottom 55% of the screen, transparent to 55% black.
 const LOWER_SHADE: f32 = 0.55;
+/// Column headings of a parallel slide are the text colour at 70 %, dividers at 25 % (FEAT-5 spec §6).
+const HEADING_OPACITY: f32 = 0.7;
+const DIVIDER_OPACITY: f32 = 0.25;
 
 pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> Rendered {
     let canvas = clamp_canvas(canvas);
@@ -60,7 +63,21 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
     let color = parse_color(&theme.color);
     let mut cache = SwashCache::new();
 
-    let body = {
+    if let Some(cols) = l.columns.as_mut() {
+        for d in &cols.dividers {
+            composite(&mut pix, &solid(d, (w, h)), 0, color, DIVIDER_OPACITY);
+        }
+        for c in &mut cols.columns {
+            let heading = coverage_of(fonts, &mut cache, &mut c.heading, (w, h), c.heading_at);
+            if theme.shadow { for sh in &FOOT_SHADOWS { composite_shadow(&mut pix, &heading, sh, s, HEADING_OPACITY); } }
+            composite(&mut pix, &heading, 0, color, HEADING_OPACITY);
+            // Columns start at the top, so verses side by side line up.
+            let body = coverage_of(fonts, &mut cache, &mut c.body, (w, h), (c.rect.x, c.rect.y));
+            if theme.shadow { for sh in &BODY_SHADOWS { composite_shadow(&mut pix, &body, sh, s, 1.0); } }
+            composite(&mut pix, &body, 0, color, 1.0);
+        }
+    }
+    let body = if l.columns.is_some() { Coverage::empty() } else {
         let text_h = text_height(&l.body);
         let b = l.body_box;
         // Taller than the content box (it may still fit within the padding, as on the web): start at the top.
@@ -142,6 +159,14 @@ fn coverage_of(fonts: &mut Fonts, cache: &mut SwashCache, buf: &mut Buffer, (w, 
         data.extend(mask[row * w as usize + x..row * w as usize + x + cw].iter().map(|&m| m as f32 / 255.0));
     }
     Coverage { x, y, w: cw, h: ch, data }
+}
+
+/// Full coverage of a rectangle, cut to the canvas.
+fn solid(r: &super::layout::Rect, (cw, ch): (u32, u32)) -> Coverage {
+    let (x0, y0) = (r.x.round().max(0.0) as usize, r.y.round().max(0.0) as usize);
+    let (x1, y1) = (((r.x + r.w).round().max(0.0) as usize).min(cw as usize), ((r.y + r.h).round().max(0.0) as usize).min(ch as usize));
+    if x1 <= x0 || y1 <= y0 { return Coverage::empty() }
+    Coverage { x: x0, y: y0, w: x1 - x0, h: y1 - y0, data: vec![1.0; (x1 - x0) * (y1 - y0)] }
 }
 
 fn draw_lower_shade(pix: &mut PixmapMut) {
@@ -294,7 +319,7 @@ mod tests {
     use tiny_skia::Pixmap;
     use cosmic_text::Weight;
 
-    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[] } }
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[], parallel: None } }
 
     /// Blur a one-pixel vertical line and return the horizontal profile of the middle row
     /// (the 1-D kernel), with its total and variance.

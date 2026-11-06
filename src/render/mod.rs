@@ -3,6 +3,7 @@
 pub mod cache;
 pub mod color;
 pub mod layout;
+pub mod parallel;
 pub mod raster;
 
 pub use cache::{Generation, RenderKey, Renderer, Wanted};

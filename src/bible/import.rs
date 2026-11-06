@@ -108,7 +108,7 @@ impl ImportedBible {
             loop {
                 let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
                 match self.verses.get(&(r.book, c, v)) {
-                    Some(t) => out.push(VerseText { reference: format!("{display} {c}:{v}"), text: t.clone() }),
+                    Some(t) => out.push(VerseText { id: Some(crate::scripture::VerseId(r.book, c, v)), ..VerseText::new(format!("{display} {c}:{v}"), t.clone()) }),
                     None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
                     None => {}
                 }

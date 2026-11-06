@@ -3,7 +3,7 @@ use super::query::{SearchQuery, Term, first_match, snippet, tokenize};
 use crate::bible::BOOKS;
 use crate::model::VerseText;
 use crate::scripture::VerseId;
-use crate::scripture::input::verse_id_of;
+use crate::scripture::input::verse_id;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::ops::Range;
@@ -107,7 +107,7 @@ pub fn build(read_chapter: &mut dyn FnMut(&str) -> Result<(String, Vec<VerseText
             if cancel.load(Ordering::SeqCst) { return None; }
             let Ok((_, found)) = read_chapter(&format!("{name} {n}")) else { break };
             for v in found {
-                let Some(id) = verse_id_of(&v.reference) else { continue };
+                let Some(id) = verse_id(&v) else { continue };
                 let ordinal = verses.len() as u32;
                 let tokens: Box<[u32]> = tokenize(&v.text).into_iter().map(|w| {
                     let next = postings.len() as u32;
@@ -262,7 +262,7 @@ impl SearchIndex {
     pub fn chapter(&self, book: u8, chapter: u16) -> Vec<VerseText> {
         let start = self.verses.partition_point(|v| (v.book(), v.chapter()) < (book, chapter));
         let len = self.verses[start..].iter().take_while(|v| (v.book(), v.chapter()) == (book, chapter)).count();
-        (start..start + len).map(|i| VerseText { reference: self.refs[i].to_string(), text: self.texts[i].to_string() }).collect()
+        (start..start + len).map(|i| VerseText::new(self.refs[i].to_string(), self.texts[i].to_string())).collect()
     }
 
     #[cfg(test)]
@@ -282,7 +282,7 @@ mod tests {
 
     fn served(book: &str, chapter: u16, texts: &[(u16, &str)]) -> Read {
         let b = book_index(book);
-        Ok((format!("{book} {chapter}"), texts.iter().map(|&(v, t)| VerseText { reference: label_of(VerseId(b, chapter, v)), text: t.into() }).collect()))
+        Ok((format!("{book} {chapter}"), texts.iter().map(|&(v, t)| VerseText::new(label_of(VerseId(b, chapter, v)), t)).collect()))
     }
 
     /// Serves Genesis 1, Psalms 46, John 3 and 1 John 4; empty lower chapters of those books; `Err` elsewhere.
@@ -345,7 +345,7 @@ mod tests {
     }
     #[test] fn build_stops_book_at_first_failed_chapter() {
         // John 1–2 Err, John 3 would serve text → nothing from John is indexed
-        let mut r = |c: &str| if c == "John 3" { Ok(("John 3".into(), vec![VerseText { reference: "John 3:16".into(), text: "loved".into() }])) } else { Err("no".into()) };
+        let mut r = |c: &str| if c == "John 3" { Ok(("John 3".into(), vec![VerseText::new("John 3:16", "loved")])) } else { Err("no".into()) };
         let ix = build(&mut r, &AtomicBool::new(false)).unwrap();
         assert!(refs(&ix, "loved", Scope::All).is_empty());
     }

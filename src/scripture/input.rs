@@ -12,6 +12,9 @@ pub fn parse_verse_label(label: &str) -> Option<(&str, u16, u16)> {
 }
 
 /// The verse a label names; accepts "Psalm" and "Psalms" and any name `find_book` knows.
+/// A verse's id: the one its lookup stored, else read from its label (items saved before ids were stored).
+pub fn verse_id(vt: &crate::model::VerseText) -> Option<VerseId> { vt.id.or_else(|| verse_id_of(&vt.reference)) }
+
 pub fn verse_id_of(label: &str) -> Option<VerseId> {
     let (book, c, v) = parse_verse_label(label)?;
     Some(VerseId(find_book(book)?, c, v))

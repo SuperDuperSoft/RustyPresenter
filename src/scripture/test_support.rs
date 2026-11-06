@@ -1,6 +1,6 @@
 //! Test-only helpers shared by the FEAT-5 test modules. Later tasks add their own helpers here.
 #![allow(dead_code)]
-use super::planning::{CharMeasure, PlanTheme, PlannedScripture, ScriptureInput, SecondInput};
+use super::planning::{AlsoInput, CharMeasure, PlanTheme, PlannedScripture, ScriptureInput};
 use super::{ParallelLayout, VerseBreaks, VerseId};
 use super::cache::TextCache;
 use super::fetch::{BibleReaders, Fetcher, Lookup};
@@ -24,7 +24,7 @@ pub(crate) fn tmp_root() -> PathBuf {
 
 /// Verses `range` of one chapter, labelled like the readers label them, text `"t{b}-{c}-{v}"`.
 pub(crate) fn verses(book: u8, chapter: u16, range: RangeInclusive<u16>) -> Vec<VerseText> {
-    range.map(|v| VerseText { reference: label_of(VerseId(book, chapter, v)), text: format!("t{book}-{chapter}-{v}") }).collect()
+    range.map(|v| VerseText::new(label_of(VerseId(book, chapter, v)), format!("t{book}-{chapter}-{v}"))).collect()
 }
 
 /// `per_chapter` verses (from verse 1) of every chapter in `chapters`.
@@ -83,7 +83,7 @@ impl FakeReaders {
 }
 
 fn fake_verse(id: VerseId) -> VerseText {
-    VerseText { reference: label_of(id), text: format!("t{}-{}-{}", id.book(), id.chapter(), id.verse()) }
+    VerseText::new(label_of(id), format!("t{}-{}-{}", id.book(), id.chapter(), id.verse()))
 }
 
 impl BibleReaders for FakeReaders {
@@ -118,15 +118,21 @@ impl PlanTheme for TestTheme {
     fn is_lower_third(&self) -> bool { self.lower }
 }
 
-pub(crate) fn v(reference: &str, text: &str) -> VerseText { VerseText { reference: reference.into(), text: text.into() } }
+pub(crate) fn v(reference: &str, text: &str) -> VerseText { VerseText::new(reference, text) }
 
-/// A KJV item with no notices, automatic grouping, side by side, no marks, default theme, 1080p.
+/// A KJV item with no notices, automatic grouping, side by side, no marks, default theme, 1080p, and at most one Also
+/// Bible.
 pub(crate) fn input(main: &[VerseText], second: Option<(&str, &[VerseText])>) -> ScriptureInput<TestTheme> {
+    input_also(main, second.as_slice())
+}
+
+/// The same with any number of Also Bibles, as (code, verses).
+pub(crate) fn input_also(main: &[VerseText], also: &[(&str, &[VerseText])]) -> ScriptureInput<TestTheme> {
     ScriptureInput {
         main: main.to_vec(),
         main_code: "KJV".into(),
         main_notice: None,
-        second: second.map(|(code, vs)| SecondInput { code: code.into(), verses: vs.to_vec(), notice: None }),
+        also: also.iter().map(|(code, vs)| AlsoInput { code: code.to_string(), verses: vs.to_vec(), notice: None }).collect(),
         per_slide: 0,
         layout: ParallelLayout::SideBySide,
         breaks: VerseBreaks::default(),
@@ -141,3 +147,11 @@ pub(crate) fn cm() -> CharMeasure { CharMeasure::with_limits(60, 120) }
 
 /// A 10-character verse text.
 pub(crate) fn short(n: u16) -> String { format!("verse{n:05}") }
+
+/// Also Bibles with no stored text, by id.
+pub(crate) fn also(ids: &[&str]) -> Vec<crate::scripture::AlsoShow> {
+    ids.iter().map(|t| crate::scripture::AlsoShow { translation: t.to_string(), verses: vec![] }).collect()
+}
+
+/// The ids of Also Bibles, in order.
+pub(crate) fn also_ids(a: &[crate::scripture::AlsoShow]) -> Vec<&str> { a.iter().map(|x| x.translation.as_str()).collect() }

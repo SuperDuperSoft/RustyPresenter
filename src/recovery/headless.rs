@@ -102,7 +102,7 @@ mod tests {
     }
 
     fn slide(text: &str) -> Option<SlideLayer> {
-        Some(SlideLayer::Text { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] })
+        Some(SlideLayer::Text { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None })
     }
 
     fn audio() -> Option<Inst<AudioLayer>> {

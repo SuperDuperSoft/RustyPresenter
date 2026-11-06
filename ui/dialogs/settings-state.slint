@@ -3,6 +3,9 @@
 import { BgChoice } from "background-picker.slint";
 
 /// A translation row of Settings → Bible: its status chip and the line under its name.
+/// A Bible that can be shown with the default one in every new passage: `on` when it is picked (at most two).
+export struct AlsoChip { label: string, on: bool }
+
 export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
 
 /// A line of the Bible library list (Settings → Bible): a language heading when `heading` is set, else a Bible.
@@ -70,6 +73,10 @@ export global SettingsDlg {
     /// The Bibles that can be used now (`available`), as "KJV — King James Version", and the one in use.
     in property <[string]> default-bibles;
     in-out property <int> default-bible;
+    /// Bibles shown with the default one in every new passage (Nov 5 spec §3).
+    in property <[AlsoChip]> also-chips;
+    /// 0 side by side, 1 top and bottom.
+    in-out property <int> also-layout;
     in-out property <string> bible-short;
     /// The library list: what matches the search, filter and language, with headings.
     in property <[SettingsCatalogRow]> catalog-rows;
@@ -132,6 +139,8 @@ export global SettingsDlg {
     callback catalog-button(int);
     /// Default Bible: applied at once (`settings/translation`), like the Bible box's chips; Cancel keeps it.
     callback default-bible-changed(int);
+    callback toggle-also(int);
+    callback also-layout-changed(int);
     callback backup-now();
     callback restore(int);
     callback show-licences(bool);

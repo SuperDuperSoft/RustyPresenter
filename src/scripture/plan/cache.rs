@@ -18,24 +18,22 @@ fn hash_verses(vs: &[VerseText], h: &mut DefaultHasher) {
     for v in vs {
         v.reference.hash(h);
         v.text.hash(h);
+        v.id.hash(h);
     }
 }
 
-/// The key of `i`: both translations' verses, codes and notices, marks, `per_slide`, layout,
+/// The key of `i`: every Bible's verses, codes and notices, marks, `per_slide`, layout,
 /// theme and canvas.
 pub fn plan_key<T: PlanTheme>(i: &ScriptureInput<T>) -> PlanKey {
     let mut h = DefaultHasher::new();
     hash_verses(&i.main, &mut h);
     i.main_code.hash(&mut h);
     i.main_notice.hash(&mut h);
-    match &i.second {
-        Some(s) => {
-            1u8.hash(&mut h);
-            hash_verses(&s.verses, &mut h);
-            s.code.hash(&mut h);
-            s.notice.hash(&mut h);
-        }
-        None => 0u8.hash(&mut h),
+    i.also.len().hash(&mut h);
+    for a in &i.also {
+        hash_verses(&a.verses, &mut h);
+        a.code.hash(&mut h);
+        a.notice.hash(&mut h);
     }
     i.per_slide.hash(&mut h);
     i.layout.hash(&mut h);
@@ -101,7 +99,7 @@ pub fn changed(prev: &HashMap<Uuid, PlanKey>, now: &[(Uuid, PlanKey)]) -> Vec<Uu
 mod tests {
     use super::*;
     use crate::scripture::VerseId;
-    use crate::scripture::planning::SecondInput;
+    use crate::scripture::planning::AlsoInput;
     use crate::scripture::test_support::{TestTheme, input, tmp_root, v, verses};
 
     fn sample() -> ScriptureInput<TestTheme> { input(&[v("John 3:16", "a"), v("John 3:17", "b")], None) }
@@ -136,7 +134,7 @@ mod tests {
         assert_eq!(resolve_verses(&[], SourceStatus::Online, &cache, "ESV", "John 3:16"), Some(stored));
     }
     #[test]
-    fn plan_key_changes_with_theme_breaks_canvas_second() {
+    fn plan_key_changes_with_theme_breaks_canvas_also() {
         let base = sample();
         let mut a = base.clone();
         a.theme.size = 80;
@@ -145,7 +143,7 @@ mod tests {
         let mut c = base.clone();
         c.canvas = (1024, 768);
         let mut d = base.clone();
-        d.second = Some(SecondInput { code: "NIV".into(), verses: vec![v("John 3:16", "n")], notice: None });
+        d.also = vec![AlsoInput { code: "NIV".into(), verses: vec![v("John 3:16", "n")], notice: None }];
         let keys: HashSet<_> = [&base, &a, &b, &c, &d].iter().map(|i| plan_key(i)).collect();
         assert_eq!(keys.len(), 5);
         assert_eq!(plan_key(&base), plan_key(&base.clone()));

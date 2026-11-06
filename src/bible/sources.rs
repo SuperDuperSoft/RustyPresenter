@@ -347,7 +347,7 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
         };
         if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
         provider.report(root, &f.fums);
-        out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text }));
+        out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text, id: Some(crate::scripture::VerseId(r.book, c, v)) }));
         if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
     }
     Ok((canonical(&r, display), out))

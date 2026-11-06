@@ -10,13 +10,13 @@ const PAD_X: f32 = 110.0;
 const PAD_Y: f32 = 66.0;
 const PAD_BOTTOM_LOWER: f32 = 70.0;
 const FOOT_PAD_BOTTOM: f32 = 46.0;
-const REFERENCE_PX: f32 = 44.0;
+pub(super) const REFERENCE_PX: f32 = 44.0;
 const FOOTER_PX: f32 = 30.0;
 /// Space between the reference and the credit under it.
 const FOOT_GAP: f32 = 8.0;
 /// Line height of the reference/footer line, relative to its font size.
 const FOOT_LINE: f32 = 1.25;
-const MIN_PX: f32 = 26.0;
+pub(super) const MIN_PX: f32 = 26.0;
 /// Largest canvas side drawn. Bigger (or zero) sizes are clamped so a bad size can never crash rendering.
 pub const MAX_CANVAS: u32 = 8192;
 
@@ -93,7 +93,7 @@ impl Fonts {
     fn passage_fit(&mut self, p: &PassageSlide, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> f32 {
         let key = FitKey { slide: p.clone(), scripture: slide.scripture, size: slide.size, theme: theme.clone(), canvas };
         if let Some(px) = self.fits.get(&key) { return *px }
-        let alone = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: slide.scripture, size: slide.size, passage: &[] };
+        let alone = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: slide.scripture, size: slide.size, passage: &[], parallel: None };
         let px = layout(self, &alone, theme, canvas).font_px;
         if self.fits.len() >= MAX_FITS { self.fits.clear() }
         self.fits.insert(key, px);
@@ -123,6 +123,8 @@ pub struct TextSlide<'a> {
     /// The slides of the passage this one belongs to (it included): the text gets the largest size that fits
     /// every one of them. Empty fits this slide alone.
     pub passage: &'a [PassageSlide],
+    /// More Bibles beside or under the main text (a parallel scripture slide).
+    pub parallel: Option<&'a crate::scripture::Parallel>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -148,6 +150,8 @@ pub struct TextLayout {
     pub lower: bool,
     pub scripture: bool,
     pub canvas: (u32, u32),
+    /// A parallel scripture slide: every Bible's column (the main one too); `body` is then empty and unused.
+    pub columns: Option<super::parallel::Columns>,
 }
 
 /// Font sizes to try, largest first: −4 px above 60 px, then −2 px, ending at 26 px.
@@ -219,6 +223,15 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     body.set_wrap(Wrap::WordOrGlyph);
     body.set_text(&text, &attrs, Shaping::Advanced, Some(align));
 
+    if let Some(p) = slide.parallel.filter(|p| !p.also.is_empty()) {
+        let frame = super::parallel::Frame { family: &family, scale: s, canvas: (cw, ch), body_box, max_px: max, line, reference_px: REFERENCE_PX, lower };
+        let cols = super::parallel::columns(fonts, &frame, &super::parallel::texts(&text, p, lower), p.layout);
+        return TextLayout {
+            font_px: cols.font_px, font_fallback, family, body, foot, foot_y: ch - foot_h, credit, credit_y, body_box, lower,
+            scripture: slide.scripture, canvas, columns: Some(cols),
+        };
+    }
+
     let mut font_px = MIN_PX;
     for px in fit_steps(max) {
         body.set_metrics(Metrics::new(px * s, px * s * line));
@@ -241,6 +254,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         lower,
         scripture: slide.scripture,
         canvas,
+        columns: None,
     }
 }
 
@@ -248,7 +262,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
 /// most `size` (0 = the theme's scripture size). On 1080p-canvas pixels, like `TextLayout::font_px`.
 pub fn passage_px(fonts: &mut Fonts, passage: &[PassageSlide], size: u32, theme: &Theme, canvas: (u32, u32)) -> f32 {
     let first = passage.first().map_or("", |p| p.text.as_str());
-    let slide = TextSlide { text: first, footer: passage.first().and_then(|p| p.footer.as_deref()), reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage };
+    let slide = TextSlide { text: first, footer: passage.first().and_then(|p| p.footer.as_deref()), reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage, parallel: None };
     layout(fonts, &slide, theme, canvas).font_px
 }
 
@@ -284,7 +298,7 @@ pub fn max_line_width(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_w).fol
 mod tests {
     use super::*;
 
-    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[] } }
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[], parallel: None } }
 
     fn lay(text: &str) -> TextLayout {
         let mut t = Theme::default();
@@ -378,7 +392,7 @@ mod tests {
     #[test]
     fn zero_scripture_size_means_64_like_the_web() {
         let t = Theme { font: BUNDLED_FAMILY.into(), scripture_size: 0, ..Theme::default() };
-        let s = TextSlide { text: "For God so loved", footer: None, reference: None, scripture: true, size: 0, passage: &[] };
+        let s = TextSlide { text: "For God so loved", footer: None, reference: None, scripture: true, size: 0, passage: &[], parallel: None };
         assert_eq!(layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080)).font_px, 64.0);
     }
 
@@ -386,7 +400,7 @@ mod tests {
     fn blank_reference_shows_the_footer_like_the_web() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
         for reference in ["", "  "] {
-            let s = TextSlide { text: "Welcome", footer: Some("Service at 10:30"), reference: Some(reference), scripture: false, size: 0, passage: &[] };
+            let s = TextSlide { text: "Welcome", footer: Some("Service at 10:30"), reference: Some(reference), scripture: false, size: 0, passage: &[], parallel: None };
             let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
             let foot = l.foot.as_ref().unwrap_or_else(|| panic!("reference {reference:?}: footer missing"));
             assert_eq!(foot.metrics().font_size, FOOTER_PX, "reference {reference:?}: footer style");
@@ -401,7 +415,7 @@ mod tests {
     #[test]
     fn reference_and_footer_show_together_the_credit_under_the_reference() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
-        let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true, size: 0, passage: &[] };
+        let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true, size: 0, passage: &[], parallel: None };
         let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
         let foot = l.foot.as_ref().unwrap();
         assert_eq!(foot.metrics().font_size, REFERENCE_PX);
@@ -421,7 +435,7 @@ mod tests {
     fn a_long_scripture_credit_is_cut_to_one_line_with_an_ellipsis() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
         let notice = "Copyright © 2026 Some Bible Society. Used by permission. All rights reserved worldwide. ".repeat(4);
-        let s = TextSlide { text: "For God", footer: Some(&notice), reference: Some("John 3:16 (XYZ)"), scripture: true, size: 0, passage: &[] };
+        let s = TextSlide { text: "For God", footer: Some(&notice), reference: Some("John 3:16 (XYZ)"), scripture: true, size: 0, passage: &[], parallel: None };
         let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
         let credit = l.credit.as_ref().unwrap();
         let lines: Vec<_> = credit.layout_runs().collect();
@@ -438,7 +452,7 @@ mod tests {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
         let (reference, credit) = (Some("Psalm 1:1 (XYZ)"), Some("XYZ: Copyright notice"));
         let mut fonts = Fonts::bundled_only();
-        let alone = |fonts: &mut Fonts, text: &str, footer| layout(fonts, &TextSlide { text, footer, reference, scripture: true, size: 0, passage: &[] }, &t, (1920, 1080)).font_px;
+        let alone = |fonts: &mut Fonts, text: &str, footer| layout(fonts, &TextSlide { text, footer, reference, scripture: true, size: 0, passage: &[], parallel: None }, &t, (1920, 1080)).font_px;
         // A length where the credit's line costs the text a size step.
         let text = (20..400).step_by(5).map(|n| "word ".repeat(n))
             .find(|text| alone(&mut fonts, text, credit) < alone(&mut fonts, text, None)).expect("a length where the credit matters");
@@ -448,7 +462,7 @@ mod tests {
             PassageSlide { text: text.clone(), reference: reference.map(String::from), footer: None },
         ];
         for p in &parts {
-            let s = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: true, size: 0, passage: &parts };
+            let s = TextSlide { text: &p.text, footer: p.footer.as_deref(), reference: p.reference.as_deref(), scripture: true, size: 0, passage: &parts, parallel: None };
             assert_eq!(layout(&mut fonts, &s, &t, (1920, 1080)).font_px, want, "every slide at the credit slide's size");
         }
     }
@@ -475,7 +489,7 @@ mod tests {
     fn bundled() -> Theme { Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() } }
 
     fn scripture(text: &str, size: u32, passage: &[PassageSlide]) -> f32 {
-        let s = TextSlide { text, footer: None, reference: Some("Psalm 119:1–2 (KJV)"), scripture: true, size, passage };
+        let s = TextSlide { text, footer: None, reference: Some("Psalm 119:1–2 (KJV)"), scripture: true, size, passage, parallel: None };
         layout(&mut Fonts::bundled_only(), &s, &bundled(), (1920, 1080)).font_px
     }
 
@@ -520,7 +534,7 @@ mod tests {
     fn scripture_uses_scripture_size_and_left_align() {
         let mut t = Theme::default();
         t.font = BUNDLED_FAMILY.into();
-        let l = layout(&mut Fonts::new(), &TextSlide { text: "For God so loved", footer: None, reference: Some("John 3:16"), scripture: true, size: 0, passage: &[] }, &t, (1920, 1080));
+        let l = layout(&mut Fonts::new(), &TextSlide { text: "For God so loved", footer: None, reference: Some("John 3:16"), scripture: true, size: 0, passage: &[], parallel: None }, &t, (1920, 1080));
         assert_eq!(l.font_px, 64.0);
         assert!(l.foot.is_some());
         assert!(l.foot_y < 1080.0 && l.foot_y > l.body_box.y + l.body_box.h - 1.0);

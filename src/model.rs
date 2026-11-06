@@ -36,6 +36,9 @@ pub enum SlideContent {
         /// Largest text size in pixels on a 1080p screen (a passage's own size); 0 = the theme's.
         #[serde(default, skip_serializing_if = "is_zero")]
         size: u32,
+        /// More Bibles on this scripture slide; `text` is the main one's.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        parallel: Option<crate::scripture::Parallel>,
     },
     /// A full-screen deck slide image (PowerPoint, images).
     Image { asset: AssetId },
@@ -149,10 +152,30 @@ pub struct Deck {
 
 // ---------- Service plan ----------
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct VerseText {
     pub reference: String,
     pub text: String,
+    /// The verse in English (KJV-style) numbering, when the lookup knew it. Labels in other languages can't be
+    /// parsed reliably, so this is what lines Bibles up; items saved before it have none and fall back to the label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<crate::scripture::VerseId>,
+}
+
+/// A slide's words for the stage screen and the phone: the text, then each Also Bible's, every one headed by its code
+/// ("KJV  For God…", a blank line, "WEB  For God…") when the slide shows several Bibles (Nov 5 spec §3).
+pub fn all_bibles_text(text: &str, parallel: Option<&crate::scripture::Parallel>) -> String {
+    match parallel.filter(|p| !p.also.is_empty()) {
+        None => text.to_string(),
+        Some(p) => std::iter::once((p.main_code.as_str(), text)).chain(p.also.iter().map(|a| (a.code.as_str(), a.text.as_str())))
+            .map(|(code, t)| format!("{code}  {t}")).collect::<Vec<_>>().join("\n\n"),
+    }
+}
+
+impl VerseText {
+    pub fn new(reference: impl Into<String>, text: impl Into<String>) -> Self {
+        VerseText { reference: reference.into(), text: text.into(), id: None }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -161,7 +184,21 @@ pub enum ItemKind {
     Song { song_id: Uuid },
     /// `per_slide`: verses per slide, 0 = automatic (by length). `text_size`: the passage's largest text size in
     /// pixels on a 1080p screen, 0 = automatic (Settings → Look's scripture size).
-    Scripture { reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8, #[serde(default)] text_size: u32 },
+    Scripture {
+        reference: String,
+        translation: String,
+        verses: Vec<VerseText>,
+        #[serde(default)]
+        per_slide: u8,
+        #[serde(default)]
+        text_size: u32,
+        /// Up to `scripture::MAX_ALSO` more Bibles shown with the main one, in order.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        also: Vec<crate::scripture::AlsoShow>,
+        /// How the Bibles share a slide when there is more than one.
+        #[serde(default)]
+        layout: crate::scripture::ParallelLayout,
+    },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
     Text { title: String, body: String },
@@ -368,6 +405,10 @@ pub struct Settings {
     pub favourites: Vec<String>,
     /// Bibles picked lately (ids), newest first, at most `RECENT_MAX`. Chips show them after the favourites.
     pub recent: Vec<String>,
+    /// Bibles shown with the main one in every new passage (church default), at most `scripture::MAX_ALSO`.
+    pub also_show: Vec<String>,
+    /// How those Bibles share a slide.
+    pub parallel_layout: crate::scripture::ParallelLayout,
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -407,6 +448,8 @@ impl Default for Settings {
             bible_per_slide: 0,
             favourites: Vec::new(),
             recent: Vec::new(),
+            also_show: Vec::new(),
+            parallel_layout: Default::default(),
         }
     }
 }
@@ -516,7 +559,7 @@ mod tests {
         d.settings.bible_per_slide = 3;
         d.services[0].items.push(ServiceItem {
             id: Uuid::new_v4(), background: None, notes: String::new(),
-            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, abbr: String::new() },
+            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, also: vec![], layout: Default::default() },
         });
         let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
         assert_eq!(back.settings.bible_per_slide, 3);
@@ -525,7 +568,7 @@ mod tests {
 
     #[test]
     fn a_slide_without_its_own_size_writes_no_size() {
-        let c = SlideContent::Text { text: "a".into(), footer: None, reference: None, size: 0 };
+        let c = SlideContent::Text { text: "a".into(), footer: None, reference: None, size: 0, parallel: None };
         assert_eq!(serde_json::to_string(&c).unwrap(), r#"{"type":"text","text":"a"}"#);
         let back: SlideContent = serde_json::from_str(r#"{"type":"text","text":"a"}"#).unwrap();
         assert_eq!(back, c);
@@ -533,7 +576,7 @@ mod tests {
 
     #[test]
     fn passage_is_every_scripture_slide_and_none_for_songs() {
-        let s = |t: &str| Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0 }, notes: String::new() };
+        let s = |t: &str| Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0, parallel: None }, notes: String::new() };
         let slides = [s("a"), s("b")];
         assert_eq!(passage("scripture", &slides), vec![
             PassageSlide { text: "a".into(), reference: Some("a ref".into()), footer: None },

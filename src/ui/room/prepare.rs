@@ -86,9 +86,9 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
             }
         }
         Kind::Slide => match f.slide.as_ref()? {
-            SlideLayer::Text { text, footer, reference, scripture, size: max, passage } => Source::Text(RenderKey {
+            SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel } => Source::Text(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-                size: *max, passage: passage.clone(), theme: job.theme.clone(), canvas: job.canvas,
+                size: *max, passage: passage.clone(), theme: job.theme.clone(), canvas: job.canvas, parallel: parallel.clone()
             }),
             SlideLayer::Image { asset } => picture(asset, false, 1.0),
         },
@@ -145,9 +145,9 @@ pub(super) fn neighbours(live: &Live, theme: &Theme, canvas: (u32, u32)) -> Vec<
     let scripture = item.kind == "scripture";
     let passage = crate::model::passage(&item.kind, &item.slides);
     [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
-        SlideContent::Text { text, footer, reference, size } => Some(RenderKey {
+        SlideContent::Text { text, footer, reference, size, parallel } => Some(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
-            size: *size, passage: passage.clone(), theme: theme.clone(), canvas,
+            size: *size, passage: passage.clone(), theme: theme.clone(), canvas, parallel: parallel.clone()
         }),
         _ => None,
     }).collect()
@@ -180,7 +180,7 @@ mod tests {
     use super::*;
     use crate::{live::{Cursor, LiveItem}, model::Slide};
 
-    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90 }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: String::new(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90, parallel: None }, notes: String::new() } }
 
     #[test]
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {

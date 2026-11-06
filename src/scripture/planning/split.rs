@@ -1,7 +1,7 @@
 //! Splitting a too-long scripture slide into even parts (spec §5.4 step 4). Splitting runs on
 //! the composed slide text, so a verse superscript stays attached to its first word.
 use super::measure::{Fit, Measure};
-use crate::scripture::ParallelText;
+use crate::scripture::{ParallelLayout, ParallelText};
 
 /// Splits `text` into `n` parts (clamped to `1..=word count`) at word boundaries (ASCII spaces).
 /// Cut `k` sits nearest `k × len / n` chars, preferring a sentence end (`. ? !`) within ±25 %
@@ -53,28 +53,26 @@ const CLOSERS: &[char] = &['"', '\'', '\u{201D}', '\u{2019}', ')', ']'];
 
 fn word_count(text: &str) -> usize { text.split(' ').filter(|w| !w.is_empty()).count() }
 
-/// Splits a `TooLong` slide (main text plus optional second column) into the same number of
-/// parts in both columns: the fewest parts that are all `Comfortable`, else all at most
-/// `Shrunk`, else as many parts as there are words (`W`, the smaller count of the non-empty
-/// columns). With `W < 2` there is nothing to split and the slide comes back as one part.
-pub(super) fn split_slide(main: &str, second: Option<&ParallelText>, m: &mut dyn Measure) -> Vec<(String, Option<ParallelText>)> {
-    let counts = [Some(word_count(main)), second.map(|s| word_count(&s.text))];
-    let w = counts.into_iter().flatten().filter(|&c| c > 0).min().unwrap_or(0);
+/// Splits a `TooLong` slide (main text plus any Also columns) into the same number of parts in every column: the
+/// fewest parts that are all `Comfortable`, else all at most `Shrunk`, else as many parts as there are words (`W`,
+/// the smallest count of the non-empty columns). With `W < 2` there is nothing to split and the slide comes back as
+/// one part.
+pub(super) fn split_slide(main: &str, also: &[ParallelText], layout: ParallelLayout, m: &mut dyn Measure) -> Vec<(String, Vec<ParallelText>)> {
+    let w = std::iter::once(main).chain(also.iter().map(|a| a.text.as_str())).map(word_count).filter(|&c| c > 0).min().unwrap_or(0);
     let column = |text: &str, n: usize| if word_count(text) == 0 { vec![text.to_string(); n] } else { split_into(text, n) };
-    let parts = |n: usize| -> Vec<(String, Option<ParallelText>)> {
-        let seconds: Vec<Option<ParallelText>> = match second {
-            Some(s) => column(&s.text, n).into_iter().map(|text| Some(ParallelText { text, ..s.clone() })).collect(),
-            None => vec![None; n],
-        };
-        column(main, n).into_iter().zip(seconds).collect()
+    let parts = |n: usize| -> Vec<(String, Vec<ParallelText>)> {
+        let cols: Vec<Vec<String>> = also.iter().map(|a| column(&a.text, n)).collect();
+        column(main, n).into_iter().enumerate().map(|(k, text)| {
+            (text, also.iter().zip(&cols).map(|(a, c)| ParallelText { code: a.code.clone(), text: c[k].clone() }).collect())
+        }).collect()
     };
     if w < 2 {
-        return vec![(main.to_string(), second.cloned())];
+        return vec![(main.to_string(), also.to_vec())];
     }
     let mut shrunk = None;
     for n in 2..=w {
         let p = parts(n);
-        let fits: Vec<Fit> = p.iter().map(|(t, s)| m.fits(t, s.as_ref())).collect();
+        let fits: Vec<Fit> = p.iter().map(|(t, a)| m.fits(t, a, layout)).collect();
         if fits.iter().all(|&f| f == Fit::Comfortable) {
             return p;
         }

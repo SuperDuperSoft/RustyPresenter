@@ -1,5 +1,6 @@
-//! Scripture slide planning (spec §5.4): the union of both translations' verses, grouping
-//! by manual marks, `per_slide` or measured fit, and each slide's text, labels and footer.
+//! Scripture slide planning (FEAT-5 spec §5.4, Nov 5 spec §3): the union of every Bible's verses (the main one and
+//! up to `MAX_ALSO` more), grouping by manual marks, `per_slide` or measured fit, and each slide's text, labels and
+//! footer.
 pub mod measure;
 pub mod refs;
 pub mod split;
@@ -7,14 +8,14 @@ pub mod split;
 pub use measure::{CharMeasure, DEFAULT_SCRIPTURE_SIZE, Fit, MIN_PX, Measure, PlanTheme, readable_px};
 pub use refs::join_refs;
 
-use super::input::verse_id_of;
+use super::input::verse_id;
 use super::{ParallelLayout, ParallelText, SlideSource, VerseBreaks, VerseId, strings};
 use crate::model::VerseText;
 use std::collections::{BTreeMap, BTreeSet};
 
-/// The second translation's resolved verses and copyright notice.
+/// An Also Bible's resolved verses and copyright notice.
 #[derive(Clone, Debug, PartialEq)]
-pub struct SecondInput {
+pub struct AlsoInput {
     pub code: String,
     pub verses: Vec<VerseText>,
     pub notice: Option<String>,
@@ -26,7 +27,8 @@ pub struct ScriptureInput<T: PlanTheme> {
     pub main: Vec<VerseText>,
     pub main_code: String,
     pub main_notice: Option<String>,
-    pub second: Option<SecondInput>,
+    /// The Also Bibles, in column order.
+    pub also: Vec<AlsoInput>,
     pub per_slide: u8,
     pub layout: ParallelLayout,
     pub breaks: VerseBreaks,
@@ -41,7 +43,8 @@ pub struct PlannedSlide {
     pub text: String,
     pub reference: String,
     pub footer: Option<String>,
-    pub second: Option<ParallelText>,
+    /// One column per Also Bible, in order; empty for a single Bible.
+    pub also: Vec<ParallelText>,
     pub source: Option<SlideSource>,
     pub split: bool,
 }
@@ -57,35 +60,47 @@ pub struct PlannedScripture {
     pub auto_at: Vec<bool>,
 }
 
-/// One entry of the verse sequence: main text, second text, or both.
+/// One entry of the verse sequence: the main Bible's text and each Also Bible's, any of which may be missing.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnionVerse {
     pub id: Option<VerseId>,
     pub main: Option<VerseText>,
-    pub second: Option<VerseText>,
+    /// One slot per Also Bible, in column order.
+    pub also: Vec<Option<VerseText>>,
 }
 
-/// Both translations' verses in id order. Verses without an id keep their stored order right
-/// after the previous id'd verse of the same translation (at the start if none).
+impl UnionVerse {
+    /// Column `c`: 0 is the main Bible, 1.. the Also Bibles.
+    fn column(&self, c: usize) -> Option<&VerseText> { if c == 0 { self.main.as_ref() } else { self.also[c - 1].as_ref() } }
+    fn column_mut(&mut self, c: usize) -> &mut Option<VerseText> { if c == 0 { &mut self.main } else { &mut self.also[c - 1] } }
+    /// The first column that has this verse.
+    fn shown(&self) -> Option<&VerseText> { self.main.as_ref().or_else(|| self.also.iter().flatten().next()) }
+}
+
+/// Every Bible's verses in id order. Verses without an id keep their stored order right after the previous id'd
+/// verse of the same Bible (at the start if none).
 pub fn union<T: PlanTheme>(input: &ScriptureInput<T>) -> Vec<UnionVerse> {
+    let n = input.also.len();
+    let empty = || UnionVerse { id: None, main: None, also: vec![None; n] };
     let mut by_id: BTreeMap<VerseId, UnionVerse> = BTreeMap::new();
     // Unlabelled verses (and repeats of an id) keyed by the previous id'd verse; `None` = the start.
     let mut loose: BTreeMap<Option<VerseId>, Vec<UnionVerse>> = BTreeMap::new();
-    let second = input.second.as_ref().map_or(&[][..], |s| s.verses.as_slice());
-    for (is_second, verses) in [(false, input.main.as_slice()), (true, second)] {
+    let columns = std::iter::once(input.main.as_slice()).chain(input.also.iter().map(|a| a.verses.as_slice()));
+    for (c, verses) in columns.enumerate() {
         let mut prev = None;
         for vt in verses {
-            if let Some(id) = verse_id_of(&vt.reference) {
-                let u = by_id.entry(id).or_insert(UnionVerse { id: Some(id), main: None, second: None });
-                let slot = if is_second { &mut u.second } else { &mut u.main };
+            if let Some(id) = verse_id(vt) {
+                let u = by_id.entry(id).or_insert_with(|| UnionVerse { id: Some(id), ..empty() });
+                let slot = u.column_mut(c);
                 if slot.is_none() {
                     *slot = Some(vt.clone());
                     prev = Some(id);
                     continue;
                 }
             }
-            let (main, second) = if is_second { (None, Some(vt.clone())) } else { (Some(vt.clone()), None) };
-            loose.entry(prev).or_default().push(UnionVerse { id: None, main, second });
+            let mut u = empty();
+            *u.column_mut(c) = Some(vt.clone());
+            loose.entry(prev).or_default().push(u);
         }
     }
     let mut out = loose.remove(&None).unwrap_or_default();
@@ -102,14 +117,14 @@ pub fn plan_scripture<T: PlanTheme>(input: &ScriptureInput<T>, m: &mut dyn Measu
     let verses = union(input);
     let mut slides = vec![];
     for g in group_verses(input, &verses, m, true) {
-        let (main, second) = compose(input, &verses, &g);
-        if m.fits(&main, second.as_ref()) == Fit::TooLong {
-            let parts = split::split_slide(&main, second.as_ref(), m);
-            for (part, (text, second)) in parts.into_iter().enumerate() {
-                slides.push(slide(input, &verses, &g, text, second, part, true));
+        let (main, also) = compose(input, &verses, &g);
+        if m.fits(&main, &also, input.layout) == Fit::TooLong {
+            let parts = split::split_slide(&main, &also, input.layout, m);
+            for (part, (text, also)) in parts.into_iter().enumerate() {
+                slides.push(slide(input, &verses, &g, text, also, part, true));
             }
         } else {
-            slides.push(slide(input, &verses, &g, main, second, 0, false));
+            slides.push(slide(input, &verses, &g, main, also, 0, false));
         }
     }
     let mut auto_at = vec![false; verses.len()];
@@ -136,8 +151,8 @@ fn group_verses<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], 
                 group.len() >= input.per_slide as usize
             } else {
                 let probe: Vec<usize> = group.iter().copied().chain([i]).collect();
-                let (main, second) = compose(input, verses, &probe);
-                m.fits(&main, second.as_ref()) != Fit::Comfortable
+                let (main, also) = compose(input, verses, &probe);
+                m.fits(&main, &also, input.layout) != Fit::Comfortable
             };
             if new_slide {
                 groups.push(std::mem::take(&mut group));
@@ -152,46 +167,38 @@ fn group_verses<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], 
 }
 
 /// Part `part` of the planned slide for the union verses at `group`, with its composed `text`
-/// and second column. Parts after the first get " (cont.)" after the refs.
+/// and Also columns. Parts after the first get " (cont.)" after the refs.
 fn slide<T: PlanTheme>(
     input: &ScriptureInput<T>,
     verses: &[UnionVerse],
     group: &[usize],
     text: String,
-    second: Option<ParallelText>,
+    also: Vec<ParallelText>,
     part: usize,
     split: bool,
 ) -> PlannedSlide {
-    let shown: Vec<&VerseText> = group.iter().filter_map(|&i| verses[i].main.as_ref().or(verses[i].second.as_ref())).collect();
+    let shown: Vec<&VerseText> = group.iter().filter_map(|&i| verses[i].shown()).collect();
     let mut label = join_refs(&shown);
     if part > 0 {
         label.push_str(" (cont.)");
     }
-    let reference = match &input.second {
-        Some(s) => format!("{label} ({} · {})", input.main_code, s.code),
-        None => format!("{label} ({})", input.main_code),
-    };
-    let notices = [input.main_notice.as_deref(), input.second.as_ref().and_then(|s| s.notice.as_deref())];
+    let codes: Vec<&str> = std::iter::once(input.main_code.as_str()).chain(input.also.iter().map(|a| a.code.as_str())).collect();
+    let reference = format!("{label} ({})", codes.join(" · "));
+    let notices = std::iter::once(input.main_notice.as_deref()).chain(input.also.iter().map(|a| a.notice.as_deref()));
     let footer = notices.into_iter().flatten().filter(|n| !n.trim().is_empty()).collect::<Vec<_>>().join(" · ");
     let ids: Vec<VerseId> = group.iter().filter_map(|&i| verses[i].id).collect();
     let part = u8::try_from(part).unwrap_or(u8::MAX);
     let source = ids.first().zip(ids.last()).map(|(&first, &last)| SlideSource { first, last, part });
-    PlannedSlide { label, text, reference, footer: (!footer.is_empty()).then_some(footer), second, source, split }
+    PlannedSlide { label, text, reference, footer: (!footer.is_empty()).then_some(footer), also, source, split }
 }
 
-/// The main slide text and, in parallel mode, the second column for the union verses at `group`.
-fn compose<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], group: &[usize]) -> (String, Option<ParallelText>) {
-    let column = |pick: fn(&UnionVerse) -> Option<&VerseText>| {
-        group.iter().filter_map(|&i| pick(&verses[i]).map(|vt| verse_text(verses[i].id, vt))).collect::<Vec<_>>().join(" ")
+/// The main slide text and each Also column's, for the union verses at `group`.
+fn compose<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], group: &[usize]) -> (String, Vec<ParallelText>) {
+    let column = |c: usize| {
+        group.iter().filter_map(|&i| verses[i].column(c).map(|vt| verse_text(verses[i].id, vt))).collect::<Vec<_>>().join(" ")
     };
-    let main = column(|u| u.main.as_ref());
-    let second = input.second.as_ref().map(|s| ParallelText {
-        main_code: input.main_code.clone(),
-        second_code: s.code.clone(),
-        text: column(|u| u.second.as_ref()),
-        layout: input.layout,
-    });
-    (main, second)
+    let also = input.also.iter().enumerate().map(|(k, a)| ParallelText { code: a.code.clone(), text: column(k + 1) }).collect();
+    (column(0), also)
 }
 
 /// `"¹⁶\u{2009}text"`; a verse without an id has no number.
@@ -207,18 +214,19 @@ fn superscript(n: u16) -> String {
     n.to_string().chars().map(|c| c.to_digit(10).map_or(c, |d| DIGITS[d as usize])).collect()
 }
 
-/// "NIV doesn't include Acts 8:37." for each id'd verse that only one translation has.
+/// "NIV doesn't include Acts 8:37." for each id'd verse a Bible lacks while another has it, verse by verse, Bibles in
+/// column order.
 fn missing_notes<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse]) -> Vec<String> {
-    let Some(second) = &input.second else { return vec![] };
-    verses
-        .iter()
-        .filter(|u| u.id.is_some())
-        .filter_map(|u| match (&u.main, &u.second) {
-            (Some(vt), None) => Some(strings::missing_verse(&second.code, &vt.reference)),
-            (None, Some(vt)) => Some(strings::missing_verse(&input.main_code, &vt.reference)),
-            _ => None,
-        })
-        .collect()
+    if input.also.is_empty() { return vec![] }
+    let codes: Vec<&str> = std::iter::once(input.main_code.as_str()).chain(input.also.iter().map(|a| a.code.as_str())).collect();
+    let mut out = vec![];
+    for u in verses.iter().filter(|u| u.id.is_some()) {
+        let Some(shown) = u.shown() else { continue };
+        for (c, code) in codes.iter().enumerate() {
+            if u.column(c).is_none() { out.push(strings::missing_verse(code, &shown.reference)) }
+        }
+    }
+    out
 }
 
 #[cfg(test)]

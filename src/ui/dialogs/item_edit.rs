@@ -399,7 +399,7 @@ mod tests {
     #[test]
     fn scripture_per_slide_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0 });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_kind(), "scripture");
@@ -413,8 +413,8 @@ mod tests {
     }
 
     fn kjv_john_3_16(app: &App) -> Uuid {
-        let verses = vec![VerseText { reference: "John 3:16".into(), text: "old text".into() }];
-        push(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 2, text_size: 0 })
+        let verses = vec![VerseText::new("John 3:16", "old text")];
+        push(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 2, text_size: 0, also: vec![], layout: Default::default() })
     }
 
     #[test]
@@ -465,7 +465,7 @@ mod tests {
 
     #[test]
     fn a_plain_save_does_not_look_the_passage_up() {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0 }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }, background: None, notes: String::new() };
         assert_eq!(relookup(&item, Some("ebible:spaRV1909")), None);
         assert_eq!(relookup(&item, None), None);
         assert_eq!(relookup(&item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
@@ -474,7 +474,7 @@ mod tests {
     #[test]
     fn scripture_text_size_saved_and_automatic_again() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, abbr: String::new() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_size_mode(), 0, "Automatic until chosen");

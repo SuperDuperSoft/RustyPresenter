@@ -201,7 +201,7 @@ mod tests {
 
     fn title(t: &str) -> bool { blocked("", &[t], &[], &[]) }
     fn notice(t: &str) -> bool { blocked("", &[], &[t], &[]) }
-    fn verse(reference: &str, text: &str) -> VerseText { VerseText { reference: reference.into(), text: text.into() } }
+    fn verse(reference: &str, text: &str) -> VerseText { VerseText::new(reference, text) }
 
     #[test]
     fn book_numbers_are_the_ones_in_the_book_list() {
@@ -354,7 +354,7 @@ mod tests {
     fn strip_takes_only_blocked_passages() {
         use crate::model::{Service, ServiceItem};
         let item = |translation: &str, verses: Vec<VerseText>| {
-            let kind = ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, text_size: 0 };
+            let kind = ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
             ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() }
         };
         let mut s = Service::new("Sunday");

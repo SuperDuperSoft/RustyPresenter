@@ -1,6 +1,6 @@
 //! How much text fits on a scripture slide: the `Measure` trait, the theme facts planning
 //! needs, and the deterministic character-count `CharMeasure` (spec §5.4, §5.5).
-use crate::scripture::ParallelText;
+use crate::scripture::{ParallelLayout, ParallelText};
 use std::hash::Hash;
 
 /// The smallest scripture font size, in px at 1080p scale.
@@ -27,9 +27,9 @@ pub enum Fit {
     TooLong,
 }
 
-/// Decides how a composed slide (main text plus optional second column) fits.
+/// Decides how a composed slide (main text plus any Also columns, laid out by `layout`) fits.
 pub trait Measure {
-    fn fits(&mut self, main: &str, second: Option<&ParallelText>) -> Fit;
+    fn fits(&mut self, main: &str, also: &[ParallelText], layout: ParallelLayout) -> Fit;
 }
 
 /// `READABLE = max(0.75 × resolved scripture size, 40)` px.
@@ -60,9 +60,11 @@ impl CharMeasure {
 }
 
 impl Measure for CharMeasure {
-    fn fits(&mut self, main: &str, second: Option<&ParallelText>) -> Fit {
-        let main = main.chars().count();
-        let count = second.map_or(main, |s| 2 * main.max(s.text.chars().count()));
+    /// Every column gets the same share of the slide and one font size, so the longest column decides: n columns
+    /// of it count as n times its length, side by side or stacked.
+    fn fits(&mut self, main: &str, also: &[ParallelText], _layout: ParallelLayout) -> Fit {
+        let longest = also.iter().map(|a| a.text.chars().count()).fold(main.chars().count(), usize::max);
+        let count = if also.is_empty() { longest } else { (1 + also.len()) * longest };
         if count <= self.comfortable {
             Fit::Comfortable
         } else if count <= self.max {
@@ -76,18 +78,21 @@ impl Measure for CharMeasure {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::scripture::ParallelLayout;
     use crate::scripture::test_support::TestTheme;
+
+    const SBS: ParallelLayout = ParallelLayout::SideBySide;
 
     #[test]
     fn char_measure_thresholds() {
         let mut m = CharMeasure::with_limits(60, 120);
         assert_eq!(
-            (m.fits(&"a".repeat(60), None), m.fits(&"a".repeat(61), None), m.fits(&"a".repeat(120), None), m.fits(&"a".repeat(121), None)),
+            (m.fits(&"a".repeat(60), &[], SBS), m.fits(&"a".repeat(61), &[], SBS), m.fits(&"a".repeat(120), &[], SBS), m.fits(&"a".repeat(121), &[], SBS)),
             (Fit::Comfortable, Fit::Shrunk, Fit::Shrunk, Fit::TooLong)
         );
-        let p = ParallelText { main_code: "KJV".into(), second_code: "NIV".into(), text: "b".repeat(31), layout: ParallelLayout::SideBySide };
-        assert_eq!(m.fits(&"a".repeat(10), Some(&p)), Fit::Shrunk); // 2 × max(10, 31) = 62
+        let p = ParallelText { code: "NIV".into(), text: "b".repeat(31) };
+        assert_eq!(m.fits(&"a".repeat(10), std::slice::from_ref(&p), SBS), Fit::Shrunk); // 2 × max(10, 31) = 62
+        let q = ParallelText { code: "RVR".into(), text: "c".repeat(20) };
+        assert_eq!(m.fits(&"a".repeat(10), &[p, q], ParallelLayout::Stacked), Fit::Shrunk); // 3 × 31 = 93
     }
 
     #[test]

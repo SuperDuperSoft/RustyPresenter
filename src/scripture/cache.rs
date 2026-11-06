@@ -2,7 +2,7 @@
 //! Memory plus `<root>/scripture-cache/<TR>.json`, at most `cap` verses on disk; verses of the
 //! open service are pinned and evicted last.
 use super::VerseId;
-use super::input::verse_id_of;
+use super::input::verse_id;
 use crate::model::VerseText;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -137,7 +137,7 @@ impl TextCache {
         inner.tick = inner.tick.max(max_used);
         let c = inner.trs.entry(tr_key(tr)).or_default();
         for v in file.verses {
-            c.verses.entry(v.id).or_insert((VerseText { reference: v.reference, text: v.text }, v.used));
+            c.verses.entry(v.id).or_insert((VerseText::new(v.reference, v.text), v.used));
         }
         for (k, p) in file.passages { c.passages.entry(k).or_insert(p); }
         c.prune_passages();
@@ -163,7 +163,7 @@ impl TextCache {
     /// Store a passage in memory and rewrite the translation's file, keeping at most `cap` verses.
     /// A passage with any verse whose label has no `VerseId` is not stored.
     pub fn put(&self, tr: &str, reference: &str, cap: usize, label: &str, verses: &[VerseText]) {
-        let Some(ids) = verses.iter().map(|v| verse_id_of(&v.reference)).collect::<Option<Vec<_>>>() else { return };
+        let Some(ids) = verses.iter().map(|v| verse_id(v)).collect::<Option<Vec<_>>>() else { return };
         if ids.is_empty() { return; }
         let file = {
             let mut inner = self.lock();
@@ -265,7 +265,7 @@ mod tests {
     #[test]
     fn verses_without_ids_are_not_cached() {
         let c = TextCache::new(tmp_root());
-        c.put("ESV", "Odd", 500, "Odd", &[VerseText { reference: "Odd label".into(), text: "x".into() }]);
+        c.put("ESV", "Odd", 500, "Odd", &[VerseText::new("Odd label", "x")]);
         assert!(c.get("ESV", "Odd").is_none());
         assert_eq!(c.file_len("ESV"), 0);
     }

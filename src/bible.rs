@@ -119,7 +119,7 @@ impl Kjv {
                 // A range can run past the book's last chapter (Jude 1:1-3:1).
                 let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
                 match self.verses.get(&(r.book, c, v)) {
-                    Some(t) => out.push(VerseText { reference: format!("{display} {c}:{v}"), text: t.clone() }),
+                    Some(t) => out.push(VerseText { id: Some(crate::scripture::VerseId(r.book, c, v)), ..VerseText::new(format!("{display} {c}:{v}"), t.clone()) }),
                     None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
                     None => {}
                 }
@@ -249,7 +249,7 @@ pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), Strin
     let label = canonical(&r, display);
     // One unnumbered block keeps the whole reference as its label.
     let one = out.len() == 1 && !text.split_whitespace().next().is_some_and(|w| w.trim_matches(['[', ']']).chars().all(|ch| ch.is_ascii_digit() || ch == ':'));
-    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text }).collect()))
+    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text, id: (!one).then_some(crate::scripture::VerseId(r.book, c, v)) }).collect()))
 }
 
 /// Book name as shown in a reference ("Psalm 23", not "Psalms 23").

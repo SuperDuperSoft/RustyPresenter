@@ -1,6 +1,7 @@
 //! FEAT-5 Bible extras core: keyword search, two translations and slide breaks.
 //! Pure and unit-tested; Part B wires it into the app, slides and render.
 
+pub mod also;
 pub mod breaks;
 pub mod cache;
 pub mod fetch;
@@ -17,5 +18,6 @@ pub mod strings;
 #[cfg(test)]
 pub(crate) mod test_support;
 
+pub use also::MAX_ALSO;
 pub use fetch::fetch;
 pub use types::*;

@@ -40,6 +40,7 @@ pub const WAITING_SHORT: &str = "Waiting";
 pub const UPDATE_READY: &str = "A newer edition is ready";
 pub const DEFAULT_BIBLE: &str = "Default Bible";
 pub const DEFAULT_SET: &str = "Default Bible changed";
+pub const ALSO_FULL: &str = "You can show up to two more Bibles. Turn one off first.";
 pub const CREDITS: &str = "Credits";
 /// The line under a downloaded Bible in Settings → Bible.
 pub fn from_ebible(name: &str) -> String { format!("{name} — downloaded from eBible.org") }

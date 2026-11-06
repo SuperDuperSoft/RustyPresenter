@@ -138,8 +138,8 @@ mod tests {
     }
 
     fn psalm(app: &App) -> Uuid {
-        let verses = (1..=2).map(|i| VerseText { reference: format!("Psalm 23:{i}"), text: "The LORD is my shepherd.".into() }).collect();
-        push(app, ItemKind::Scripture { reference: "Psalm 23:1–2".into(), translation: "KJV".into(), verses, per_slide: 1, text_size: 0, abbr: String::new() })
+        let verses = (1..=2).map(|i| VerseText::new(format!("Psalm 23:{i}"), "The LORD is my shepherd.")).collect();
+        push(app, ItemKind::Scripture { reference: "Psalm 23:1–2".into(), translation: "KJV".into(), verses, per_slide: 1, text_size: 0, also: vec![], layout: Default::default() })
     }
 
     fn size_of(app: &App, id: Uuid) -> u32 {

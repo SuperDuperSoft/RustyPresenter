@@ -14,7 +14,7 @@ fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind,
 
 fn song(title: &str, ccli: &str, lyrics: &str) -> Song { Song { id: Uuid::new_v4(), title: title.into(), ccli: ccli.into(), lyrics: lyrics.into(), ..Song::default() } }
 
-fn media(name: &str, a: &str) -> MediaFile { MediaFile { id: Uuid::new_v4(), name: name.into(), kind: MediaKind::Video, asset: a.into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None } }
+fn media(name: &str, a: &str) -> MediaFile { MediaFile { id: Uuid::new_v4(), name: name.into(), kind: MediaKind::Video, asset: a.into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() } }
 
 /// A service using a song, a video, a deck and an image background; plus things it does not use.
 fn sample(s: &Store) -> Data {
@@ -30,7 +30,7 @@ fn sample(s: &Store) -> Data {
         first,
         item(ItemKind::Media { media_id: m.id, autoplay: true, end: EndAction::Stop, looped: false }),
         item(ItemKind::Deck { deck_id: deck.id }),
-        item(ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText { reference: "John 3:16".into(), text: "For God".into() }], per_slide: 0, text_size: 0 }),
+        item(ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }),
     ];
     d.songs = vec![sg, song("Unused", "1", "x")];
     d.media = vec![m, media("unused", &other)];
@@ -378,7 +378,7 @@ fn progress_reaches_100() {
 fn a_blocked_passage_stays_out_of_an_opened_service() {
     let (a, b) = (store(), store());
     let mut d = sample(&a);
-    let scripture = ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0 };
+    let scripture = ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
     d.service_mut().unwrap().items.push(item(scripture));
     let file = saved(&a, &d);
     let mut there = Data::default();

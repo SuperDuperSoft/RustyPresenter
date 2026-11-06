@@ -136,7 +136,7 @@ mod tests {
         LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, media: None,
             audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), stage_message: String::new() }
     }
-    fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }) }
+    fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }) }
     fn bg(inst: u64) -> Option<Inst<Background>> { Some(Inst { inst, v: Background::Color { color: "#000".into() } }) }
     fn video(inst: u64, paused: bool) -> Option<Inst<MediaLayer>> { Some(Inst { inst, v: MediaLayer::Video { asset: "v.mp4".into(), end: EndAction::Stop, paused } }) }
     fn still(inst: u64) -> Option<Inst<MediaLayer>> { Some(Inst { inst, v: MediaLayer::Still { asset: "s.png".into() } }) }

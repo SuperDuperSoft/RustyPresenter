@@ -52,9 +52,9 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
         Some(MediaLayer::Video { .. }) | None => Source::Hidden,
     };
     let slide = match &frame.slide {
-        Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage }) => Source::Text(RenderKey {
+        Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel }) => Source::Text(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-            size: *max, passage: passage.clone(), theme: theme.clone(), canvas: size,
+            size: *max, passage: passage.clone(), theme: theme.clone(), canvas: size, parallel: parallel.clone()
         }),
         Some(SlideLayer::Image { asset }) => picture(asset, false, 1.0),
         None => Source::Hidden,
@@ -200,7 +200,7 @@ mod tests {
     fn frame() -> Frame {
         Frame {
             background: Some(Inst { inst: 1, v: Background::Color { color: "#112233".into() } }),
-            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }),
+            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }),
             ..Default::default()
         }
     }

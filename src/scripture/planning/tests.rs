@@ -1,5 +1,5 @@
 use super::*;
-use crate::scripture::test_support::{cm, input, labels, short, v};
+use crate::scripture::test_support::{cm, input, input_also, labels, short, v};
 
 const T: char = '\u{2009}';
 
@@ -55,8 +55,8 @@ fn parallel_pairs_verses_by_id() {
     let p = plan_scripture(&i, &mut CharMeasure::with_limits(200, 400));
     assert_eq!(p.slides.len(), 1);
     assert_eq!(p.slides[0].text, format!("¹⁶{T}k16 ¹⁷{T}k17"));
-    let s = p.slides[0].second.as_ref().unwrap();
-    assert_eq!((s.text.clone(), s.main_code.as_str(), s.second_code.as_str()), (format!("¹⁶{T}n16 ¹⁷{T}n17"), "KJV", "NIV"));
+    let s = &p.slides[0].also[0];
+    assert_eq!((s.text.clone(), s.code.as_str()), (format!("¹⁶{T}n16 ¹⁷{T}n17"), "NIV"));
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn parallel_missing_verse_leaves_column_empty_and_notes_it() {
     );
     let p = plan_scripture(&i, &mut CharMeasure::with_limits(200, 400));
     assert_eq!(p.notes, ["NIV doesn't include Acts 8:37."]);
-    let s = &p.slides[0].second.as_ref().unwrap().text;
+    let s = &p.slides[0].also[0].text;
     assert!(!s.contains("³⁷") && p.slides[0].text.contains("³⁷"));
 }
 
@@ -90,12 +90,12 @@ fn reference_line_names_both_translations() {
 #[test]
 fn footer_joins_non_empty_notices() {
     let mut i = input(&[v("John 3:16", "a")], Some(("NIV", &[v("John 3:16", "b")])));
-    i.second.as_mut().unwrap().notice = Some("© NIV".into());
+    i.also[0].notice = Some("© NIV".into());
     assert_eq!(plan_scripture(&i, &mut cm()).slides[0].footer.as_deref(), Some("© NIV"));
     i.main_notice = Some("© KJV".into());
     assert_eq!(plan_scripture(&i, &mut cm()).slides[0].footer.as_deref(), Some("© KJV · © NIV"));
     i.main_notice = Some("  ".into());
-    i.second.as_mut().unwrap().notice = Some(String::new());
+    i.also[0].notice = Some(String::new());
     assert_eq!(plan_scripture(&i, &mut cm()).slides[0].footer, None);
 }
 
@@ -136,7 +136,7 @@ fn unparseable_labels_plan_in_order_without_source() {
 fn union_orders_by_id_and_keeps_unlabelled_after_previous() {
     let i = input(&[v("Odd start", "o"), v("John 3:17", "k17"), v("Odd label", "b")], Some(("NIV", &[v("John 3:16", "n16"), v("John 3:17", "n17")])));
     let u = union(&i);
-    let got: Vec<_> = u.iter().map(|x| (x.id, x.main.is_some(), x.second.is_some())).collect();
+    let got: Vec<_> = u.iter().map(|x| (x.id, x.main.is_some(), x.also[0].is_some())).collect();
     assert_eq!(
         got,
         [(None, true, false), (Some(VerseId(42, 3, 16)), false, true), (Some(VerseId(42, 3, 17)), true, true), (None, true, false)]
@@ -168,9 +168,9 @@ fn parallel_long_verse_splits_both_into_same_part_count() {
     let i = input(&[v("John 3:16", &k)], Some(("NIV", &[v("John 3:16", &n)])));
     let p = plan_scripture(&i, &mut cm());
     assert!(p.slides.len() >= 2);
-    assert!(p.slides.iter().all(|s| s.split && s.second.is_some()));
+    assert!(p.slides.iter().all(|s| s.split && s.also.len() == 1));
     assert_eq!(composed(&p), format!("¹⁶{T}{k}"));
-    let second: Vec<_> = p.slides.iter().map(|s| s.second.as_ref().unwrap().text.clone()).collect();
+    let second: Vec<_> = p.slides.iter().map(|s| s.also[0].text.clone()).collect();
     assert_eq!(second.join(" "), format!("¹⁶{T}{n}"));
     assert!(second.iter().all(|t| !t.is_empty()));
 }
@@ -207,4 +207,50 @@ fn scripture_slides_have_no_split_flag_when_they_fit() {
     let i = input(&[v("John 3:16", &short(1)), v("John 3:17", &short(2))], None);
     let p = plan_scripture(&i, &mut cm());
     assert!(p.slides.iter().all(|s| !s.split && s.source.unwrap().part == 0));
+}
+
+#[test]
+fn three_bibles_pair_verses_by_id() {
+    let (k, n, r) = ([v("John 3:16", "k16"), v("John 3:17", "k17")], [v("John 3:16", "n16"), v("John 3:17", "n17")], [v("John 3:17", "r17"), v("John 3:16", "r16")]);
+    let p = plan_scripture(&input_also(&k, &[("NIV", &n), ("RVR", &r)]), &mut CharMeasure::with_limits(400, 800));
+    assert_eq!(p.slides.len(), 1);
+    let codes: Vec<_> = p.slides[0].also.iter().map(|a| a.code.as_str()).collect();
+    assert_eq!(codes, ["NIV", "RVR"]);
+    assert_eq!(p.slides[0].also[1].text, format!("¹⁶{T}r16 ¹⁷{T}r17"));
+}
+
+#[test]
+fn verse_missing_in_two_bibles_notes_each() {
+    let (k, n, r) = ([v("Acts 8:36", "k36"), v("Acts 8:37", "k37")], [v("Acts 8:36", "n36")], [v("Acts 8:36", "r36")]);
+    let p = plan_scripture(&input_also(&k, &[("NIV", &n), ("RVR", &r)]), &mut CharMeasure::with_limits(400, 800));
+    assert_eq!(p.notes, ["NIV doesn't include Acts 8:37.", "RVR doesn't include Acts 8:37."]);
+}
+
+#[test]
+fn three_columns_split_same_part_count() {
+    let long = |w: &str| format!("{w} ").repeat(30).trim_end().to_string();
+    let (k, n, r) = ([v("John 3:16", &long("alpha"))], [v("John 3:16", &long("beta"))], [v("John 3:16", &long("gamma"))]);
+    let mut i = input_also(&k, &[("NIV", &n), ("RVR", &r)]);
+    i.per_slide = 1;
+    let p = plan_scripture(&i, &mut cm());
+    assert!(p.slides.len() > 1);
+    assert!(p.slides.iter().all(|s| s.also.len() == 2 && s.also.iter().all(|c| !c.text.is_empty()) && !s.text.is_empty()));
+    let joined: Vec<_> = p.slides.iter().map(|s| s.also[1].text.clone()).collect();
+    assert_eq!(joined.join(" "), format!("¹⁶{T}{}", long("gamma")));
+}
+
+#[test]
+fn reference_line_names_three_bibles() {
+    let one = [v("John 3:16", "a")];
+    let p = plan_scripture(&input_also(&one, &[("NIV", &one), ("RVR", &one)]), &mut CharMeasure::with_limits(400, 800));
+    assert_eq!(p.slides[0].reference, "John 3:16 (KJV · NIV · RVR)");
+}
+
+#[test]
+fn verse_id_field_beats_label() {
+    let mut k = v("Juan 3:16", "Porque de tal manera");
+    k.id = Some(VerseId(42, 3, 16));
+    let p = plan_scripture(&input(&[k], None), &mut cm());
+    assert_eq!(p.slides[0].source.unwrap().first, VerseId(42, 3, 16));
+    assert_eq!(p.slides[0].text, format!("¹⁶{T}Porque de tal manera"));
 }

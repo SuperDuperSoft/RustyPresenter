@@ -67,11 +67,11 @@ pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_backgroun
         other => other.clone(),
     };
     let job = match &slide.content {
-        SlideContent::Text { text, footer, reference, size: max } => ThumbJob {
+        SlideContent::Text { text, footer, reference, size: max, parallel } => ThumbJob {
             background: Some(background), media: None, picture: None,
             text: Some(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: kind == "scripture",
-                size: *max, passage: passage.to_vec(), theme: settings.theme.clone(), canvas: size,
+                size: *max, passage: passage.to_vec(), theme: settings.theme.clone(), canvas: size, parallel: parallel.clone()
             }),
         },
         SlideContent::Image { asset } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
@@ -243,7 +243,7 @@ mod tests {
     use super::*;
     use crate::model::Theme;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
 
     fn store() -> Store { Store::open(std::env::temp_dir().join(format!("rp-thumbs-{}", uuid::Uuid::new_v4()))).unwrap() }
 
@@ -307,7 +307,7 @@ mod tests {
 
     fn video_with_a_saved_frame(store: &Store) -> MediaFile {
         RgbaImage::from_pixel(16, 9, Rgba([0, 255, 0, 255])).save(store.asset_path("frame.png")).unwrap();
-        MediaFile { id: uuid::Uuid::new_v4(), name: "Loop".into(), kind: crate::model::MediaKind::Video, asset: "v.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: Some("frame.png".into()), size: None }
+        MediaFile { id: uuid::Uuid::new_v4(), name: "Loop".into(), kind: crate::model::MediaKind::Video, asset: "v.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: Some("frame.png".into()), size: None, folder: String::new() }
     }
 
     #[test]

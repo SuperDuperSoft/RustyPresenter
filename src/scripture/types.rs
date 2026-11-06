@@ -8,7 +8,7 @@ use std::collections::BTreeSet;
 pub const UPGRADE_NOTE_KEY: &str = "feat5-measured-breaks";
 
 /// Canonical verse identity in the English (KJV-style) versification: 0-based index
-/// into `bible::BOOKS`, chapter, verse. Derived from labels, never stored on `VerseText`.
+/// into `bible::BOOKS`, chapter, verse. Stored on `VerseText::id` when the lookup knows it, else derived from labels.
 /// Serialised as `[book, chapter, verse]`.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VerseId(pub u8, pub u16, pub u16);
@@ -30,10 +30,10 @@ pub enum ParallelLayout {
     SideBySide,
 }
 
-/// An item's second translation. `verses` is stored only for `offline` translations;
-/// online text lives in the scripture text cache (spec §5.1a).
+/// One more Bible shown with an item's main one (Nov 5 spec §2). `verses` is stored only for Bibles kept on this
+/// computer; online text lives in the capped cache (Nov 5 spec §5).
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
-pub struct SecondText {
+pub struct AlsoShow {
     pub translation: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub verses: Vec<VerseText>,
@@ -58,14 +58,20 @@ impl VerseBreaks {
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct SlideSource { pub first: VerseId, pub last: VerseId, pub part: u8 }
 
-/// The second translation's text for one parallel slide (plain; no styles).
+/// One Also Bible's text for one parallel slide (plain; no styles), headed by its code.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
-pub struct ParallelText { pub main_code: String, pub second_code: String, pub text: String, pub layout: ParallelLayout }
+pub struct ParallelText { pub code: String, pub text: String }
 
-/// Church default for two translations (`Settings.bible`). `None` = one translation.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
-#[serde(default)]
-pub struct BibleSettings { pub second_translation: Option<String>, pub layout: ParallelLayout }
+/// The Also Bibles of one scripture slide, drawn beside or under the main text (Nov 5 spec §3).
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub struct Parallel {
+    /// The main Bible's code, heading its column.
+    pub main_code: String,
+    /// One column per Also Bible, in order.
+    pub also: Vec<ParallelText>,
+    #[serde(default)]
+    pub layout: ParallelLayout,
+}
 
 /// The full FEAT-5 shape of `ItemKind::Scripture`, with the same field attributes
 /// the enum variant gets in Part B.
@@ -77,8 +83,8 @@ pub struct ScriptureFields {
     pub verses: Vec<VerseText>,
     #[serde(default)]
     pub per_slide: u8,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub second: Option<SecondText>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub also: Vec<AlsoShow>,
     #[serde(default)]
     pub layout: ParallelLayout,
     #[serde(default, skip_serializing_if = "VerseBreaks::is_empty")]
@@ -94,13 +100,13 @@ mod tests {
     #[test]
     fn old_scripture_item_loads_with_defaults() {
         let f: ScriptureFields = serde_json::from_str(OLD).unwrap();
-        assert_eq!((f.second, f.layout, f.breaks.is_empty()), (None, ParallelLayout::SideBySide, true));
+        assert_eq!((f.also.is_empty(), f.layout, f.breaks.is_empty()), (true, ParallelLayout::SideBySide, true));
     }
     #[test]
     fn verse_breaks_is_empty_skips_serializing() {
         let f: ScriptureFields = serde_json::from_str(OLD).unwrap();
         let v = serde_json::to_value(&f).unwrap();
-        assert!(v.get("breaks").is_none() && v.get("second").is_none());
+        assert!(v.get("breaks").is_none() && v.get("also").is_none());
     }
     #[test]
     fn parallel_layout_serializes_snake_case() {
@@ -115,22 +121,16 @@ mod tests {
         assert!(b.join.is_empty());
     }
     #[test]
-    fn bible_settings_from_empty_object_is_default() {
-        assert_eq!(serde_json::from_str::<BibleSettings>("{}").unwrap(), BibleSettings::default());
-    }
-    #[test]
-    fn second_text_offline_verses_round_trip_and_online_omits_empty() {
-        let s = SecondText { translation: "WEB".into(), verses: vec![VerseText { reference: "John 3:16".into(), text: "For God so loved".into() }] };
-        let back: SecondText = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
+    fn also_show_offline_verses_round_trip_and_online_omits_empty() {
+        let s = AlsoShow { translation: "WEB".into(), verses: vec![VerseText::new("John 3:16", "For God so loved")] };
+        let back: AlsoShow = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
         assert_eq!(back, s);
-        let online = SecondText { translation: "NIV".into(), verses: vec![] };
+        let online = AlsoShow { translation: "NIV".into(), verses: vec![] };
         assert_eq!(serde_json::to_string(&online).unwrap(), r#"{"translation":"NIV"}"#);
     }
     #[test]
     fn unknown_parallel_layout_loads_as_side_by_side() {
         assert_eq!(serde_json::from_str::<ParallelLayout>("\"three_column\"").unwrap(), ParallelLayout::SideBySide);
-        let s: BibleSettings = serde_json::from_str(r#"{"second_translation":"NIV","layout":"three_column"}"#).unwrap();
-        assert_eq!((s.second_translation.as_deref(), s.layout), (Some("NIV"), ParallelLayout::SideBySide));
         let f: ScriptureFields = serde_json::from_str(&OLD.replace("\"per_slide\":0", "\"per_slide\":0,\"layout\":\"three_column\"")).unwrap();
         assert_eq!(f.layout, ParallelLayout::SideBySide);
     }

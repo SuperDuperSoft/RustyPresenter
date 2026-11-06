@@ -6,7 +6,7 @@ use crate::{
     bible::{blocklist::normalise, catalog::strings as cat},
     render::Fonts,
     ui::{
-        SettingsBibleRow, SettingsCatalogRow, SettingsCreditRow, SettingsDlg, SettingsProviderRow,
+        AlsoChip, SettingsBibleRow, SettingsCatalogRow, SettingsCreditRow, SettingsDlg, SettingsProviderRow,
         dialogs::DialogKind,
         operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, JobRow, OperatorSnapshot}, window::Operator},
     },
@@ -21,6 +21,8 @@ pub struct BibleState {
     providers: RefCell<Vec<BibleProvider>>,
     /// The Default Bible list's translation ids, in its order.
     defaults: RefCell<Vec<String>>,
+    /// The Also show chips' translation ids, in their order.
+    also: RefCell<Vec<String>>,
     pub(crate) catalog: CatalogState,
 }
 
@@ -380,7 +382,52 @@ pub(super) fn default_bible(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     });
 }
 
+/// The Also show chips: every Bible usable now but the default one, ids and labels, and which are picked.
+pub fn also_chips(snap: &OperatorSnapshot) -> Vec<(String, String, bool)> {
+    snap.available.iter().filter(|id| !crate::bible::id::same_id(id, &snap.translation)).map(|id| {
+        let label = snap.bible_sources.iter().find(|b| b.translation == *id).map_or_else(|| id.clone(), |b| b.label().to_string());
+        let on = snap.settings.also_show.iter().any(|t| crate::bible::id::same_id(t, id));
+        (id.clone(), label, on)
+    }).collect()
+}
+
+/// A chip clicked: picks or unpicks that Bible for every new passage (`settings/also`), at most `MAX_ALSO`.
+pub(super) fn toggle_also(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let Some(id) = edit.bible.also.borrow().get(i).cloned() else { return };
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let mut picked = snap.settings.also_show.clone();
+    if picked.iter().any(|t| crate::bible::id::same_id(t, &id)) {
+        picked.retain(|t| !crate::bible::id::same_id(t, &id));
+    } else if picked.len() >= crate::scripture::MAX_ALSO {
+        op.toast(cat::ALSO_FULL, true);
+        return;
+    } else {
+        picked.push(id);
+    }
+    set_also(op, edit, picked, snap.settings.parallel_layout);
+}
+
+/// Side by side or top and bottom, for every new passage.
+pub(super) fn also_layout(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let layout = if i == 1 { crate::scripture::ParallelLayout::Stacked } else { crate::scripture::ParallelLayout::SideBySide };
+    set_also(op, edit, snap.settings.also_show.clone(), layout);
+}
+
+fn set_also(op: &Rc<Operator>, edit: &Rc<Edit>, also_show: Vec<String>, layout: crate::scripture::ParallelLayout) {
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    op.ops().call::<serde_json::Value>("settings/also", serde_json::json!({ "also_show": also_show, "parallel_layout": layout }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        if let Err(e) = r { op.toast(e, true) }
+        redraw_on_next_read(&op, &edit);
+    });
+}
+
 pub(super) fn fill(g: &SettingsDlg, edit: &Edit, snap: &OperatorSnapshot) {
+    let chips = also_chips(snap);
+    g.set_also_chips(ModelRc::new(VecModel::from(chips.iter().map(|(_, label, on)| AlsoChip { label: label.as_str().into(), on: *on }).collect::<Vec<_>>())));
+    g.set_also_layout(i32::from(snap.settings.parallel_layout == crate::scripture::ParallelLayout::Stacked));
+    *edit.bible.also.borrow_mut() = chips.into_iter().map(|(id, _, _)| id).collect();
     let (ids, labels) = defaults(snap);
     g.set_default_bible(ids.iter().position(|id| *id == snap.translation).unwrap_or(0) as i32);
     g.set_default_bibles(ModelRc::new(VecModel::from(labels.into_iter().map(SharedString::from).collect::<Vec<_>>())));

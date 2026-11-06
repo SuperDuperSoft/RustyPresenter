@@ -17,6 +17,8 @@ pub struct RenderKey {
     pub size: u32,
     /// The passage whose slides share one size (`TextSlide::passage`).
     pub passage: Vec<PassageSlide>,
+    /// More Bibles on the slide (`TextSlide::parallel`).
+    pub parallel: Option<crate::scripture::Parallel>,
     pub theme: Theme,
     pub canvas: (u32, u32),
 }
@@ -98,7 +100,7 @@ impl Renderer {
                 let r = hit.unwrap_or_else(|| {
                     let slide = TextSlide {
                         text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture,
-                        size: key.size, passage: &key.passage,
+                        size: key.size, passage: &key.passage, parallel: key.parallel.as_ref(),
                     };
                     // A panic while drawing one slide must not stop the renderer for every screen: show it blank.
                     let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| render_text(&mut fonts, &slide, &key.theme, key.canvas)));
@@ -181,7 +183,7 @@ mod tests {
     use super::*;
 
     fn key(text: &str, canvas: (u32, u32)) -> RenderKey {
-        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas }
+        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas }
     }
 
     #[tokio::test]

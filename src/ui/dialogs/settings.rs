@@ -235,6 +235,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_catalog_changed(with(|op, edit| settings_bible::render(op, edit)));
     g.on_catalog_button(with_i(settings_bible::catalog_button));
     g.on_default_bible_changed(with_i(settings_bible::default_bible));
+    g.on_toggle_also(with_i(settings_bible::toggle_also));
+    g.on_also_layout_changed(with_i(settings_bible::also_layout));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);

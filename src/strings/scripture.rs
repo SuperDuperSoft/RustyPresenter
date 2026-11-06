@@ -140,3 +140,9 @@ mod tests {
         assert_eq!(main_only_added("NIV", "KJV"), "NIV isn't available right now, so only KJV was added. Turn off the second translation with the X.");
     }
 }
+
+/// An Also Bible was picked as the main one (Nov 5 spec §3).
+pub fn also_turned_off(abbr: &str) -> String { format!("{abbr} turned off (same as main).") }
+
+/// Some Also Bibles could not be looked up for a new passage; it was added with the rest.
+pub fn also_left_out(left: &str, kept: &str) -> String { format!("{left} isn't available right now, so only {kept} was added.") }

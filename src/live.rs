@@ -54,6 +54,9 @@ pub enum SlideLayer {
         /// Every slide of the passage this slide belongs to: they all share one text size. Empty for songs.
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         passage: Vec<PassageSlide>,
+        /// More Bibles on this slide (`SlideContent::Text::parallel`); `text` is the main one's.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        parallel: Option<crate::scripture::Parallel>,
     },
     Image { asset: AssetId },
 }
@@ -380,10 +383,10 @@ impl Live {
     fn go(&mut self, item: LiveItem, index: usize, slide: usize) {
         let content = item.slides[slide].content.clone();
         match content {
-            SlideContent::Text { text, footer, reference, size } => {
+            SlideContent::Text { text, footer, reference, size, parallel } => {
                 let scripture = item.kind == "scripture";
                 let passage = passage(&item.kind, &item.slides);
-                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture, size, passage });
+                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture, size, passage, parallel });
                 self.set_background(Some(item.background.clone()));
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -530,7 +533,7 @@ mod tests {
         fn build(&self, id: Uuid) -> Option<LiveItem> { self.items.get(&id).cloned() }
     }
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
     fn black() -> Background { Background::Color { color: "#000".into() } }
 
     fn plan(items: Vec<(&str, Vec<Slide>)>) -> TestPlan {
@@ -576,7 +579,7 @@ mod tests {
         commit(&mut l);
         next(&mut l, &p); // requested, not yet on air
         let s = saved(&l);
-        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }));
+        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }));
         assert_eq!(s.cursor.unwrap().slide, 0);
         assert_eq!(s.v, 1);
     }

@@ -11,13 +11,13 @@ use tokio::sync::broadcast::error::RecvError;
 pub struct StageText { pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String, pub message: String }
 
 /// A slide as the stage names it: its text, or what kind of picture or media it is.
-fn label(s: &Slide) -> &str {
+fn label(s: &Slide) -> String {
     match &s.content {
-        SlideContent::Text { text, .. } => text,
-        SlideContent::Image { .. } => "(slide picture)",
-        SlideContent::Video { .. } => "(video)",
-        SlideContent::Still { .. } => "(picture)",
-        SlideContent::Audio { .. } => "(audio)",
+        SlideContent::Text { text, parallel, .. } => crate::model::all_bibles_text(text, parallel.as_ref()),
+        SlideContent::Image { .. } => "(slide picture)".into(),
+        SlideContent::Video { .. } => "(video)".into(),
+        SlideContent::Still { .. } => "(picture)".into(),
+        SlideContent::Audio { .. } => "(audio)".into(),
     }
 }
 
@@ -28,7 +28,7 @@ pub fn stage_text(view: &LiveView) -> StageText {
     let f = &view.frame;
     let on_air = f.slide.is_some() || f.media.is_some();
     let now = match &view.slide {
-        Some(s) if on_air => label(s).to_string(),
+        Some(s) if on_air => label(s),
         _ if f.logo => "(logo)".into(),
         _ => String::new(),
     };
@@ -38,7 +38,7 @@ pub fn stage_text(view: &LiveView) -> StageText {
         now,
         now_dim: !on_air,
         notes: view.slide.as_ref().map(|s| s.notes.clone()).unwrap_or_default(),
-        next: view.next.as_ref().map_or("End of service", |n| label(&n.slide)).into(),
+        next: view.next.as_ref().map_or_else(|| "End of service".into(), |n| label(&n.slide)),
         timer: timer.unwrap_or_default(),
         message: view.stage_message.clone(),
     }
@@ -134,13 +134,13 @@ mod tests {
     use slint::ComponentHandle;
     use uuid::Uuid;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
     fn slide(content: SlideContent) -> Slide { Slide { label: String::new(), content, notes: String::new() } }
 
     /// A view with `now` live as a text slide in "Amazing Grace" and `next` after it.
     fn view(now: Option<Slide>, next: Option<Slide>) -> LiveView {
         let on_air = now.as_ref().map(|s| match &s.content {
-            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }),
+            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }),
             _ => None,
         });
         LiveView {
@@ -258,5 +258,16 @@ mod tests {
         assert_eq!(stage.ui.get_item_title(), "Welcome");
         assert!(stage.ui.get_now_fits(), "the lyric must fit at the chosen size");
         stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn stage_shows_every_bible_with_its_code() {
+        let p = crate::scripture::Parallel {
+            main_code: "KJV".into(),
+            also: vec![crate::scripture::ParallelText { code: "WEB".into(), text: "For God so loved".into() }],
+            layout: Default::default(),
+        };
+        let s = Slide { label: "John 3:16".into(), content: SlideContent::Text { text: "For God so loved".into(), footer: None, reference: None, size: 0, parallel: Some(p) }, notes: String::new() };
+        assert_eq!(label(&s), "KJV  For God so loved\n\nWEB  For God so loved");
     }
 }
