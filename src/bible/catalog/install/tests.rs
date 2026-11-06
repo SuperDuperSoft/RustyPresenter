@@ -268,3 +268,23 @@ fn messages() {
     assert!(room_for(&std::env::temp_dir(), u64::MAX).is_err_and(|e| matches!(e, InstallError::NoSpace(_))));
     assert!(room_for(&std::env::temp_dir(), 1).is_ok());
 }
+
+/// Library spec §14, "Net (gated)": the live eBible list and one real download. Run with `RP_NET_TESTS=1`; it checks
+/// the CSV's column names and the zip's entry names and licence page, which the other tests only assume.
+#[tokio::test]
+async fn net_the_live_catalog_lists_bibles_and_the_greek_sblgnt_downloads_under_cc_by() {
+    if std::env::var_os("RP_NET_TESTS").is_none() { return; }
+    let root = crate::store::test_dir();
+    let mut c = Ctx::new(root.clone(), CatalogSource::Ebible);
+    c.force = true;
+    let listing = CatalogSource::Ebible.refresh(&c).await.expect("the eBible list loads");
+    assert!(!listing.offline, "answered by eBible.org, not the saved list");
+    assert!(listing.rows.len() > 300, "only {} Bibles offered; the CSV's columns may have changed", listing.rows.len());
+    assert!(listing.rows.iter().any(|r| r.source_id() == "engwebp"), "the World English Bible is offered");
+    let row = listing.rows.iter().find(|r| r.source_id() == "grcsbl").expect("the SBL Greek New Testament is offered");
+    let m = CatalogSource::Ebible.install(&c, row, &CancellationToken::new(), &|_| {}).await.expect("grcsbl downloads");
+    assert!(matches!(&m.licence, crate::bible::library::Licence::Cc { kind, version, .. } if kind == "by" && version == "4.0"), "{:?}", m.licence);
+    let b = import::get(&root, "ebible:grcsbl").expect("installed");
+    assert!(!b.lookup("John 1:1").unwrap().1[0].text.is_empty());
+    assert_eq!(partials_left(&root), 0);
+}

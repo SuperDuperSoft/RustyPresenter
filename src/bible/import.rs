@@ -266,6 +266,10 @@ fn checked_index(root: &Path) -> Vec<BibleMeta> {
 /// Every installed Bible, sorted by id. Never reads verses, once the run's first check is done.
 pub fn list(root: &Path) -> Arc<Vec<BibleMeta>> { folder(&mut LOADED.lock().unwrap(), root).index.clone() }
 
+/// How many parsed Bibles this folder holds in memory now. For tests that check a listing reads no verses.
+#[cfg(test)]
+pub(crate) fn in_memory(root: &Path) -> usize { LOADED.lock().unwrap().get(root).map_or(0, |f| f.recent.len()) }
+
 /// One installed Bible's entry.
 pub fn meta(root: &Path, id: &str) -> Option<BibleMeta> { list(root).iter().find(|m| m.id == id).cloned() }
 

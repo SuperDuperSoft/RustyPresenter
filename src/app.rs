@@ -1841,6 +1841,37 @@ mod tests {
     }
 
     #[test]
+    fn fifty_installed_bibles_are_listed_without_reading_their_verses() {
+        // Library spec §14, lazy loading: a church with many Bibles must not pay for parsing them on every update.
+        use bible::import::{self, ImportedBible};
+        let seed = crate::store::test_dir();
+        assert!(import::list(&seed).is_empty());
+        let ids: Vec<String> = (0..50).map(|i| format!("B{i:02}")).collect();
+        for id in &ids {
+            let mut verses = bible::import::Verses::new();
+            verses.insert((42, 3, 16), format!("{id} John 3:16"));
+            import::save(&seed, &ImportedBible { abbreviation: id.clone(), name: format!("{id} Bible"), verses, ..Default::default() }).unwrap();
+        }
+        // A fresh data folder holding those files and their index, as after a restart.
+        let root = std::env::temp_dir().join(format!("rp-test-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(root.join("bibles")).unwrap();
+        for e in std::fs::read_dir(seed.join("bibles")).unwrap().flatten() {
+            if e.path().is_file() { std::fs::copy(e.path(), root.join("bibles").join(e.file_name())).unwrap(); }
+        }
+        let store = Store::open(root.clone()).unwrap();
+        let data = store.load().unwrap();
+        let app = App::new(store, data, 0, None);
+        let state = app.state_json();
+        let available = app.available_translations();
+        app.refresh_bible_credits();
+        for id in &ids { assert!(available.contains(id), "{id} is listed from the index"); }
+        assert_eq!(state["available_translations"].as_array().unwrap().len(), available.len());
+        assert_eq!(import::in_memory(&root), 0, "no Bible was parsed for the snapshot, the sources or the credits");
+        assert!(import::get(&root, "B07").is_some());
+        assert_eq!(import::in_memory(&root), 1, "a lookup is what loads one");
+    }
+
+    #[test]
     fn available_translations_are_the_bundled_ones() {
         let app = test_app();
         assert_eq!(app.available_translations(), ["KJV", "WEB", "BSB"]);
