@@ -1,6 +1,7 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
 import { Theme, OperatorState } from "theme.slint";
 import { Panel } from "widgets.slint";
+import { Palette } from "std-widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slides.slint";
@@ -40,7 +41,11 @@ export component OperatorWindow inherits Window {
     out property <bool> compact;
     /// The Verses button shows with the full Bible box; narrower, it is still in Add → Bible and Settings → Look.
     out property <bool> verses-shown;
-    init => { root.fit(); }
+    init => {
+        // The app is always dark; the menu bar Slint draws (Linux) and its drop-downs follow the style's palette.
+        Palette.color-scheme = ColorScheme.dark;
+        root.fit();
+    }
     changed width => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;

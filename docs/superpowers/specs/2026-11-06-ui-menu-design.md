@@ -14,6 +14,8 @@ an action the window already has (a button, a key or a dialog). Buttons stay; th
 - Windows and macOS get a native menu (Slint uses `muda`); Linux and the testing backend get Slint's own drawn bar
   (the Fluent style, 40 px). On Windows the native bar is outside the client area; on Linux the window's height
   includes it. Slint moves the window's children under the bar, so `root.height` in the window is the client height.
+  The window sets `Palette.color-scheme` to dark at start: the drawn bar has no background of its own, and with a
+  light palette its words were dark grey on the app's dark top.
 - Slint does not call `TranslateAcceleratorW`; on every platform the window itself matches menu shortcuts **before** the
   focused element sees the key (`i_slint_core::window::process_menubar_shortcuts`), and only for enabled items.
   So `shortcut:` is set **only where the menu's handling is the same as `keys::route` in every focus state**:
