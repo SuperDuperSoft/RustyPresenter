@@ -11,12 +11,6 @@ export struct SlideJump { idx: int, short: string, section: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
 export struct SlideRowCells { cells: [SlideCell] }
 
-/// A song section's colour; transparent when it has none.
-pure function section-color(section: string) -> color {
-    return section == "verse" ? Theme.sec-verse : section == "chorus" ? Theme.sec-chorus : section == "pre" ? Theme.sec-pre
-        : section == "bridge" ? Theme.sec-bridge : section == "end" ? Theme.sec-end : transparent;
-}
-
 /// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
 component Welcome inherits VerticalLayout {
     padding-left: 16px;
@@ -173,7 +167,7 @@ component Thumb inherits Rectangle {
         y: screen.height + 3px;
         height: root.caption-h - 3px;
         border-radius: 5px;
-        background: section-color(root.cell.section);
+        background: Theme.section-color(root.cell.section);
         HorizontalLayout {
             padding-left: root.cell.section != "" ? 6px : 2px;
             padding-right: 4px;
@@ -363,7 +357,7 @@ export component SlidesPanel inherits VerticalLayout {
                 min-width: 32px;
                 height: 30px;
                 border-radius: 7px;
-                background: section-color(j.section);
+                background: Theme.section-color(j.section);
                 opacity: ja.has-hover ? 0.85 : 1;
                 accessible-role: button;
                 accessible-label: j.short;

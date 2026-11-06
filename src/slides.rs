@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn passage_text_size_reaches_every_slide() {
         let mut data = Data::default();
-        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96 };
+        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96, abbr: String::new() };
         let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
         data.services[0].items.push(item.clone());
         let (_, kind, slides) = build_item(&data, &item);

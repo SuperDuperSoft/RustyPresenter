@@ -66,6 +66,11 @@ export global Theme {
     out property <color> sec-bridge: #3ccf91;
     out property <color> sec-end: #c9a5ff;
     out property <color> sec-ink: #0d0f13;
+    /// A song section's colour; transparent when it has none.
+    public pure function section-color(section: string) -> color {
+        return section == "verse" ? self.sec-verse : section == "chorus" ? self.sec-chorus : section == "pre" ? self.sec-pre
+            : section == "bridge" ? self.sec-bridge : section == "end" ? self.sec-end : transparent;
+    }
 
     out property <length> radius: 12px;
     /// Missing fonts fall back to Slint's default (the bundled Noto Sans where Segoe is not installed).

@@ -516,7 +516,7 @@ mod tests {
         d.settings.bible_per_slide = 3;
         d.services[0].items.push(ServiceItem {
             id: Uuid::new_v4(), background: None, notes: String::new(),
-            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96 },
+            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, abbr: String::new() },
         });
         let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
         assert_eq!(back.settings.bible_per_slide, 3);
