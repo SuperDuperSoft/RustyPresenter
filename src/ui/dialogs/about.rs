@@ -71,6 +71,7 @@ mod tests {
         let app = test_app();
         let op = open(&app);
         op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
+        slint::platform::update_timers_and_animations();
         refresh(&op);
         settings::open(&op, SettingsTab::About);
         slint::platform::update_timers_and_animations();

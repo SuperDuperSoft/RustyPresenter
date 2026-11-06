@@ -220,6 +220,8 @@ export component TopBar inherits Rectangle {
                                 changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
                                 accepted => { root.bible-submit(self.text); }
                                 EditMenu {
+                                    x: 0;
+                                    y: 0;
                                     width: 100%;
                                     height: 100%;
                                     has-text: bible-input.text != "";
