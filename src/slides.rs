@@ -76,7 +76,7 @@ pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> {
             let n = pages.len();
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
-                slides.push(Slide { label, content: SlideContent::Text { text, footer: None, reference: None }, notes: String::new() });
+                slides.push(Slide { label, content: SlideContent::Text { text, footer: None, reference: None, size: 0 }, notes: String::new() });
             }
         }
     }
@@ -107,7 +107,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
         if group.is_empty() { return; }
         let text = group.iter().map(|v| format!("{}{}", superscript(verse_num(&v.reference)), v.text)).collect::<Vec<_>>().join(" ");
         let reference = format!("{} ({translation})", join_refs(group));
-        slides.push(Slide { label: join_refs(group), content: SlideContent::Text { text, footer: None, reference: Some(reference) }, notes: String::new() });
+        slides.push(Slide { label: join_refs(group), content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0 }, notes: String::new() });
         group.clear();
     };
     for v in verses {
@@ -120,7 +120,7 @@ pub fn scripture_slides(verses: &[VerseText], per_slide: u8, translation: &str) 
                 let label = if i == 0 { v.reference.clone() } else { format!("{} (cont.)", v.reference) };
                 let text = if i == 0 { format!("{}{}", superscript(verse_num(&v.reference)), p) } else { p };
                 let reference = format!("{}{} ({translation})", v.reference, if i > 0 { " (cont.)" } else { "" });
-                slides.push(Slide { label: if n > 1 { label } else { v.reference.clone() }, content: SlideContent::Text { text, footer: None, reference: Some(reference) }, notes: String::new() });
+                slides.push(Slide { label: if n > 1 { label } else { v.reference.clone() }, content: SlideContent::Text { text, footer: None, reference: Some(reference), size: 0 }, notes: String::new() });
             }
             continue;
         }
@@ -197,9 +197,9 @@ pub fn split_long(text: &str, max: usize) -> Vec<String> {
 pub fn text_slides(title: &str, body: &str) -> Vec<Slide> {
     let mut slides = Vec::new();
     for (i, block) in body.replace("\r\n", "\n").split("\n\n").map(str::trim).filter(|b| !b.is_empty()).enumerate() {
-        slides.push(Slide { label: format!("{title} {}", i + 1), content: SlideContent::Text { text: block.to_string(), footer: None, reference: None }, notes: String::new() });
+        slides.push(Slide { label: format!("{title} {}", i + 1), content: SlideContent::Text { text: block.to_string(), footer: None, reference: None, size: 0 }, notes: String::new() });
     }
-    if slides.is_empty() { slides.push(Slide { label: title.to_string(), content: SlideContent::Text { text: title.to_string(), footer: None, reference: None }, notes: String::new() }); }
+    if slides.is_empty() { slides.push(Slide { label: title.to_string(), content: SlideContent::Text { text: title.to_string(), footer: None, reference: None, size: 0 }, notes: String::new() }); }
     slides
 }
 
@@ -211,8 +211,11 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             Some(song) => (song.title.clone(), "song", song_slides(song, s)),
             None => ("Missing song".into(), "song", vec![]),
         },
-        ItemKind::Scripture { reference, translation, verses, per_slide } =>
-            (format!("{reference} ({translation})"), "scripture", scripture_slides(verses, *per_slide, translation)),
+        ItemKind::Scripture { reference, translation, verses, per_slide, text_size } => {
+            let mut slides = scripture_slides(verses, *per_slide, translation);
+            for sl in &mut slides { if let SlideContent::Text { size, .. } = &mut sl.content { *size = *text_size } }
+            (format!("{reference} ({translation})"), "scripture", slides)
+        }
         ItemKind::Media { media_id, autoplay, end, looped } => match data.media.iter().find(|m| m.id == *media_id) {
             Some(m) => {
                 let content = match m.kind {
@@ -274,6 +277,28 @@ mod tests {
         assert_eq!(join_refs(&a.iter().collect::<Vec<_>>()), "Psalm 23:1, 4–6");
         let b = [v("John 1:51"), v("John 2:1"), v("John 2:2")];
         assert_eq!(join_refs(&b.iter().collect::<Vec<_>>()), "John 1:51–2:2");
+    }
+
+    fn verses(n: usize) -> Vec<VerseText> {
+        (1..=n).map(|i| VerseText { reference: format!("Psalm 23:{i}"), text: format!("verse {i} words") }).collect()
+    }
+
+    #[test]
+    fn scripture_groups_by_per_slide_and_automatic_by_length() {
+        assert_eq!(scripture_slides(&verses(5), 2, "KJV").len(), 3);
+        assert_eq!(scripture_slides(&verses(5), 1, "KJV").len(), 5);
+        assert_eq!(scripture_slides(&verses(5), 0, "KJV").len(), 1, "short verses share one slide when automatic");
+    }
+
+    #[test]
+    fn passage_text_size_reaches_every_slide() {
+        let mut data = Data::default();
+        let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96 };
+        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
+        data.services[0].items.push(item.clone());
+        let (_, kind, slides) = build_item(&data, &item);
+        assert_eq!((kind, slides.len()), ("scripture", 2));
+        assert!(slides.iter().all(|s| matches!(s.content, SlideContent::Text { size: 96, .. })));
     }
 
     #[test]

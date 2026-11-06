@@ -36,6 +36,10 @@ pub const END_OF_SERVICE: &str = "End of service";
 pub const START_OF_SERVICE: &str = "Start of service";
 pub const NOTHING: &str = "—";
 pub const SERVICE: &str = "Service";
+/// The slides header's passage text size when it follows Settings.
+pub const TEXT_SIZE_AUTO: &str = "Auto";
+/// A+ on a passage whose text already had to shrink to fit.
+pub const TEXT_AS_BIG_AS_FITS: &str = "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger.";
 /// The slides column's title with nothing selected (`operator.js:162`).
 pub const PICK_AN_ITEM: &str = "Pick an item on the left";
 pub const WELCOME: &str = "Welcome";

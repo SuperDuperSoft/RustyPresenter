@@ -32,6 +32,9 @@ pub enum SlideContent {
         footer: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         reference: Option<String>,
+        /// Largest text size in pixels on a 1080p screen (a passage's own size); 0 = the theme's.
+        #[serde(default, skip_serializing_if = "is_zero")]
+        size: u32,
     },
     /// A full-screen deck slide image (PowerPoint, images).
     Image { asset: AssetId },
@@ -41,6 +44,26 @@ pub enum SlideContent {
     Still { asset: AssetId },
     /// Audio-only item (walk-in music). Does not change visuals.
     Audio { asset: AssetId, looped: bool },
+}
+
+fn is_zero(n: &u32) -> bool { *n == 0 }
+
+/// One slide of a passage, as far as fitting its text goes: all slides of a passage share one text size, the
+/// largest that fits every one of them, so the text does not jump size between slides.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+pub struct PassageSlide {
+    pub text: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reference: Option<String>,
+}
+
+/// The passage of an item's slides: every text slide of a scripture item, else none (songs fit slide by slide).
+pub fn passage(kind: &str, slides: &[Slide]) -> Vec<PassageSlide> {
+    if kind != "scripture" || slides.len() < 2 { return Vec::new() }
+    slides.iter().filter_map(|s| match &s.content {
+        SlideContent::Text { text, reference, .. } => Some(PassageSlide { text: text.clone(), reference: reference.clone() }),
+        _ => None,
+    }).collect()
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -129,7 +152,9 @@ pub struct VerseText {
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ItemKind {
     Song { song_id: Uuid },
-    Scripture { reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8 },
+    /// `per_slide`: verses per slide, 0 = automatic (by length). `text_size`: the passage's largest text size in
+    /// pixels on a 1080p screen, 0 = automatic (Settings → Look's scripture size).
+    Scripture { reference: String, translation: String, verses: Vec<VerseText>, #[serde(default)] per_slide: u8, #[serde(default)] text_size: u32 },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
     Text { title: String, body: String },
@@ -207,6 +232,8 @@ pub struct Settings {
     pub room_on_top: bool,
     /// Where sound goes: an mpv device name, as `Mpv::audio_devices` lists it. Empty = the computer's default.
     pub audio_device: String,
+    /// Verses per slide for new Bible passages: 0 = automatic (by length), else 1–4.
+    pub bible_per_slide: u8,
 }
 
 impl Default for Settings {
@@ -222,6 +249,7 @@ impl Default for Settings {
             displays: DisplayRoles::default(),
             room_on_top: true,
             audio_device: String::new(),
+            bible_per_slide: 0,
         }
     }
 }
@@ -270,5 +298,56 @@ impl Data {
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
         set
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn old_data_without_bible_sizing_loads_as_automatic() {
+        let old = r#"{"format":1,"settings":{"lines_per_slide":2,"theme":{"scripture_size":70}},"services":[{"id":"6f7b3c1e-1a2b-4c3d-8e9f-001122334455","name":"Sunday","items":[
+            {"id":"6f7b3c1e-1a2b-4c3d-8e9f-001122334466","kind":"scripture","reference":"John 3:16","translation":"KJV","verses":[],"per_slide":2}]}]}"#;
+        let d: Data = serde_json::from_str(old).unwrap();
+        assert_eq!(d.settings.bible_per_slide, 0);
+        assert_eq!(d.settings.theme.scripture_size, 70);
+        match &d.services[0].items[0].kind {
+            ItemKind::Scripture { per_slide, text_size, .. } => assert_eq!((*per_slide, *text_size), (2, 0)),
+            k => panic!("{k:?}"),
+        }
+    }
+
+    #[test]
+    fn bible_sizing_survives_json() {
+        let mut d = Data::default();
+        d.settings.bible_per_slide = 3;
+        d.services[0].items.push(ServiceItem {
+            id: Uuid::new_v4(), background: None, notes: String::new(),
+            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96 },
+        });
+        let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
+        assert_eq!(back.settings.bible_per_slide, 3);
+        assert!(matches!(back.services[0].items[0].kind, ItemKind::Scripture { per_slide: 1, text_size: 96, .. }));
+    }
+
+    #[test]
+    fn a_slide_without_its_own_size_writes_no_size() {
+        let c = SlideContent::Text { text: "a".into(), footer: None, reference: None, size: 0 };
+        assert_eq!(serde_json::to_string(&c).unwrap(), r#"{"type":"text","text":"a"}"#);
+        let back: SlideContent = serde_json::from_str(r#"{"type":"text","text":"a"}"#).unwrap();
+        assert_eq!(back, c);
+    }
+
+    #[test]
+    fn passage_is_every_scripture_slide_and_none_for_songs() {
+        let s = |t: &str| Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: Some(format!("{t} ref")), size: 0 }, notes: String::new() };
+        let slides = [s("a"), s("b")];
+        assert_eq!(passage("scripture", &slides), vec![
+            PassageSlide { text: "a".into(), reference: Some("a ref".into()) },
+            PassageSlide { text: "b".into(), reference: Some("b ref".into()) },
+        ]);
+        assert!(passage("song", &slides).is_empty(), "songs fit slide by slide");
+        assert!(passage("scripture", &slides[..1]).is_empty(), "one slide fits itself");
     }
 }

@@ -50,6 +50,7 @@ pub(super) fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_font_index(index as i32);
     g.set_size(s.theme.size as i32);
     g.set_scripture_size(s.theme.scripture_size as i32);
+    g.set_bible_per_slide(i32::from(s.bible_per_slide.min(4)));
     g.set_color(s.theme.color.as_str().into());
     g.set_color_swatch(swatch(&s.theme.color));
     g.set_position(i32::from(s.theme.position == "lower"));
@@ -65,6 +66,7 @@ pub(super) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     if let Some(font) = slint::Model::row_data(&g.get_fonts(), g.get_font_index().max(0) as usize) { s.theme.font = font.into() }
     s.theme.size = g.get_size().clamp(40, 150) as u32;
     s.theme.scripture_size = g.get_scripture_size().clamp(36, 120) as u32;
+    s.bible_per_slide = g.get_bible_per_slide().clamp(0, 4) as u8;
     // A half-typed colour keeps the last good one.
     let color = g.get_color().trim().to_string();
     if is_hex_color(&color) { s.theme.color = color }
@@ -200,10 +202,10 @@ static RENDERER: TextRenderer = TextRenderer::new();
 fn draw(settings: &Settings, media: &[MediaFile], store_root: PathBuf) -> Drawn {
     let slide = Slide {
         label: String::new(),
-        content: SlideContent::Text { text: strings::SAMPLE_TEXT.into(), footer: Some(strings::SAMPLE_FOOTER.into()), reference: None },
+        content: SlideContent::Text { text: strings::SAMPLE_TEXT.into(), footer: Some(strings::SAMPLE_FOOTER.into()), reference: None, size: 0 },
         notes: String::new(),
     };
-    let (key, job) = thumbs::thumb(&slide, "song", None, settings, media, PREVIEW_SIZE);
+    let (key, job) = thumbs::thumb(&slide, "song", &[], None, settings, media, PREVIEW_SIZE);
     let store = Store { root: store_root };
     let preview = thumbs::compose(&job, key.size, &RENDERER, &store);
     let font_missing = match (job.text, RENDERER.get()) {

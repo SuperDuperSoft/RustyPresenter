@@ -93,6 +93,24 @@ fn save_settings_round_trips_theme_and_lines() {
 }
 
 #[test]
+fn bible_verses_per_slide_round_trips_and_sits_with_the_scripture_size() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_bible_per_slide(), 0, "Automatic by default");
+    assert!(find(&op, "SettingsLook::bible-per-slide").is_some());
+    assert!(find(&op, "SettingsLook::scripture-size").is_some());
+    g(&op).set_bible_per_slide(2);
+    g(&op).set_scripture_size(90);
+    click(&op, "SettingsDialog::save");
+    let s = app.data.lock().unwrap().settings.clone();
+    assert_eq!((s.bible_per_slide, s.theme.scripture_size), (2, 90));
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_bible_per_slide(), 2, "opening again shows what was saved");
+}
+
+#[test]
 fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
     let app = test_app();
     let op = opened(&app);

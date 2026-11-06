@@ -134,13 +134,13 @@ mod tests {
     use slint::ComponentHandle;
     use uuid::Uuid;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
     fn slide(content: SlideContent) -> Slide { Slide { label: String::new(), content, notes: String::new() } }
 
     /// A view with `now` live as a text slide in "Amazing Grace" and `next` after it.
     fn view(now: Option<Slide>, next: Option<Slide>) -> LiveView {
         let on_air = now.as_ref().map(|s| match &s.content {
-            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false }),
+            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }),
             _ => None,
         });
         LiveView {

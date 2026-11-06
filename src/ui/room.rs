@@ -536,7 +536,7 @@ mod tests {
     }
     fn scripture(app: &App) -> Uuid {
         let verses = vec![VerseText { reference: "John 3:16".into(), text: "For God so loved the world".into() }];
-        add(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 0 })
+        add(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 0, text_size: 0 })
     }
     fn run(app: &App, cmd: Command) -> u64 {
         let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd });

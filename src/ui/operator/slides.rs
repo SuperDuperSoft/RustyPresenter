@@ -5,7 +5,7 @@
 use super::{service::kind_icon, strings as tr, view::{self, ItemRow, OperatorSnapshot}, window::Operator};
 use crate::{
     live::Command,
-    model::{Background, MediaFile, Settings, Slide, SlideContent},
+    model::{Background, MediaFile, Settings, Slide, SlideContent, passage},
     ui::{SlideCell, SlideRowCells, ops::outcome_toast, thumbs::{self, Pixels}},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, VecModel};
@@ -78,6 +78,7 @@ impl Operator {
         ui.set_slides_kind(item.map_or("", |i| kind_icon(&i.kind)).into());
         ui.set_has_selection(item.is_some());
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
+        self.render_text_size();
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: it.item.background.clone(), settings: snap.settings.clone(),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
@@ -176,8 +177,9 @@ impl Operator {
             let mut s = self.slides.borrow_mut();
             s.generation += 1;
             let Some(k) = &s.built else { return };
+            let passage = passage(&k.kind, &k.slides);
             let jobs: Vec<_> = k.slides.iter().enumerate()
-                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, k.background.as_ref(), &k.settings, &k.media, s.size)))
+                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, &passage, k.background.as_ref(), &k.settings, &k.media, s.size)))
                 .collect();
             (s.generation, jobs)
         };

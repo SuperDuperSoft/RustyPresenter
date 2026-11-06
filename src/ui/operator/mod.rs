@@ -14,5 +14,6 @@ pub mod live;
 pub mod overlays;
 pub mod service;
 pub mod slides;
+pub mod text_size;
 pub mod view;
 pub mod window;

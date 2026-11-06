@@ -284,7 +284,7 @@ mod tests {
     }
 
     fn text_slide(label: &str, text: &str) -> Slide {
-        Slide { label: label.into(), content: SlideContent::Text { text: text.into(), footer: None, reference: None }, notes: String::new() }
+        Slide { label: label.into(), content: SlideContent::Text { text: text.into(), footer: None, reference: None, size: 0 }, notes: String::new() }
     }
 
     fn row(kind: &str, slides: usize) -> ItemRow {
@@ -303,7 +303,7 @@ mod tests {
         Some(LiveItemSummary { item_id: Uuid::new_v4(), title: title.into(), kind: "song".into(), count: 3 })
     }
 
-    fn text_layer() -> Option<SlideLayer> { Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false }) }
+    fn text_layer() -> Option<SlideLayer> { Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }) }
 
     fn snap(configured: bool, connected: bool) -> OperatorSnapshot {
         let app = crate::app::test_app();

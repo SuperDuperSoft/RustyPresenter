@@ -7,5 +7,5 @@ pub mod raster;
 
 pub use cache::{Generation, RenderKey, Renderer, Wanted};
 pub use color::parse_color;
-pub use layout::{Fonts, Rect, TextLayout, TextSlide, fit_steps, layout};
+pub use layout::{Fonts, Rect, TextLayout, TextSlide, fit_steps, layout, passage_px};
 pub use raster::{Premul, Rendered, render_text};

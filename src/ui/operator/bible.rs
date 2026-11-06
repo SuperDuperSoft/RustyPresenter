@@ -1,6 +1,8 @@
 //! The Bible box in the top bar (`operator.js:93-102, 324-340`): type a reference and press Enter to add the
 //! passage after the live item and arm it, so the next Enter outside the box shows it. The translation chips pick
-//! the translation, saved in `Settings.translation` (product decision 3).
+//! the translation, saved in `Settings.translation` (product decision 3). The Verses chip picks how many verses
+//! go on each slide of the next passage: Settings' choice until the operator picks, then theirs for the session
+//! (shared with Add → Bible).
 use super::{strings as tr, view, window::Operator};
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -38,7 +40,7 @@ fn add(op: &Rc<Operator>, found: Found) {
     let live_item = op.live_item();
     let position = op.state.borrow().snap.as_ref().and_then(|s| view::insert_position(&s.items, live_item));
     let Found { label, verses, translation } = found;
-    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": 0 });
+    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": op.bible_per_slide() });
     let me = Rc::downgrade(op);
     op.ops.call::<Added>("service/add", json!({ "position": position, "item": item }), move |r| {
         let Some(op) = me.upgrade() else { return };
@@ -86,12 +88,32 @@ pub fn pick(op: &Rc<Operator>, index: usize) {
     });
 }
 
+impl Operator {
+    /// Verses per slide for the next passage: picked this session, else Settings' (0 = automatic).
+    pub(crate) fn bible_per_slide(&self) -> u8 {
+        let st = self.state.borrow();
+        st.bible_per_slide.or(st.snap.as_ref().map(|s| s.settings.bible_per_slide)).unwrap_or(0).min(4)
+    }
+
+    /// The operator picked verses per slide (the Verses chip or Add → Bible): kept for the session.
+    pub(crate) fn set_bible_per_slide(&self, n: u8) {
+        let n = n.min(4);
+        self.state.borrow_mut().bible_per_slide = Some(n);
+        self.ui.set_bible_per_slide(i32::from(n));
+    }
+}
+
+/// The Verses chip: Automatic → 1 → 2 → 3 → 4 → Automatic.
+pub fn cycle_per_slide(op: &Operator) { op.set_bible_per_slide((op.bible_per_slide() + 1) % 5) }
+
 /// Connects the box and its chips. The callbacks hold a `Weak`, so the window does not keep itself alive.
 pub(super) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_bible_submit(move |text| if let Some(op) = me.upgrade() { submit(&op, text.into()) });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_pick_translation(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { pick(&op, i) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_cycle_per_slide(move || if let Some(op) = me.upgrade() { cycle_per_slide(&op) });
 }
 
 #[cfg(test)]
@@ -289,6 +311,38 @@ mod tests {
         assert_eq!(app.data.lock().unwrap().settings.translation, "WEB");
         press(&op, "J");
         assert_eq!(op.ui.get_bible_text(), "J", "typing goes to the Bible box");
+    }
+
+    fn per_slide_of(app: &App, i: usize) -> u8 {
+        match &app.data.lock().unwrap().services[0].items[i].kind { ItemKind::Scripture { per_slide, .. } => *per_slide, k => panic!("{k:?}") }
+    }
+
+    #[test]
+    fn new_passages_use_the_settings_verses_per_slide() {
+        let app = test_app();
+        app.data.lock().unwrap().settings.bible_per_slide = 2;
+        let op = opened(&app);
+        assert_eq!(op.ui.get_bible_per_slide(), 2, "the chip shows the Settings choice");
+        type_and_enter(&op, "Psalm 23:1-4");
+        assert_eq!(per_slide_of(&app, 0), 2);
+    }
+
+    #[test]
+    fn verses_chip_picks_per_slide_for_the_session() {
+        let app = test_app();
+        let op = opened(&app);
+        assert_eq!(op.ui.get_bible_per_slide(), 0, "Automatic by default");
+        let chip = find(&op, "TopBar::per-slide-chip").expect("Verses chip");
+        chip.mock_single_click(PointerEventButton::Left);
+        chip.mock_single_click(PointerEventButton::Left);
+        assert_eq!(op.ui.get_bible_per_slide(), 2);
+        type_and_enter(&op, "Psalm 23:1-4");
+        assert_eq!(per_slide_of(&app, 0), 2);
+        refresh(&op);
+        assert_eq!(op.ui.get_bible_per_slide(), 2, "remembered across updates");
+        for _ in 0..3 { cycle_per_slide(&op) }
+        assert_eq!(op.ui.get_bible_per_slide(), 0, "round to Automatic again");
+        assert_eq!(app.data.lock().unwrap().settings.bible_per_slide, 0, "the session pick does not change Settings");
     }
 
     #[test]

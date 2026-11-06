@@ -43,9 +43,22 @@ pub struct AudioLayer {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SlideLayer {
-    Text { text: String, footer: Option<String>, reference: Option<String>, scripture: bool },
+    Text {
+        text: String,
+        footer: Option<String>,
+        reference: Option<String>,
+        scripture: bool,
+        /// The slide's largest text size (`SlideContent::Text::size`); 0 = the theme's.
+        #[serde(default, skip_serializing_if = "is_zero")]
+        size: u32,
+        /// Every slide of the passage this slide belongs to: they all share one text size. Empty for songs.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        passage: Vec<PassageSlide>,
+    },
     Image { asset: AssetId },
 }
+
+fn is_zero(n: &u32) -> bool { *n == 0 }
 
 /// The full layer set the room shows. Bottom → top: background, media, slide, logo. Audio is separate.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
@@ -367,9 +380,10 @@ impl Live {
     fn go(&mut self, item: LiveItem, index: usize, slide: usize) {
         let content = item.slides[slide].content.clone();
         match content {
-            SlideContent::Text { text, footer, reference } => {
+            SlideContent::Text { text, footer, reference, size } => {
                 let scripture = item.kind == "scripture";
-                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture });
+                let passage = passage(&item.kind, &item.slides);
+                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture, size, passage });
                 self.set_background(Some(item.background.clone()));
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -516,7 +530,7 @@ mod tests {
         fn build(&self, id: Uuid) -> Option<LiveItem> { self.items.get(&id).cloned() }
     }
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
     fn black() -> Background { Background::Color { color: "#000".into() } }
 
     fn plan(items: Vec<(&str, Vec<Slide>)>) -> TestPlan {
@@ -562,7 +576,7 @@ mod tests {
         commit(&mut l);
         next(&mut l, &p); // requested, not yet on air
         let s = saved(&l);
-        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false }));
+        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![] }));
         assert_eq!(s.cursor.unwrap().slide, 0);
         assert_eq!(s.v, 1);
     }
@@ -702,6 +716,22 @@ mod tests {
         next(&mut l, &p); assert_eq!(shown(&l).as_deref(), Some("b1"));
         let o = next(&mut l, &p); assert!(!o.ok); assert_eq!(o.error.as_deref(), Some("End of service"));
         l.apply(env(Command::Prev, Some(l.version)), &p); assert_eq!(shown(&l).as_deref(), Some("a2"));
+    }
+
+    #[test]
+    fn scripture_slides_carry_their_passage_and_size_songs_do_not() {
+        let mut p = plan(vec![("Song", vec![text("s1"), text("s2")]), ("Psalm", vec![text("p1"), text("p2")])]);
+        let psalm = p.order[1];
+        let item = p.items.get_mut(&psalm).unwrap();
+        item.kind = "scripture".into();
+        for s in &mut item.slides { if let SlideContent::Text { size, .. } = &mut s.content { *size = 90 } }
+        let mut l = Live::new();
+        next(&mut l, &p);
+        assert!(matches!(&l.frame.slide, Some(SlideLayer::Text { passage, size: 0, .. }) if passage.is_empty()));
+        l.apply(env(Command::Show { item_id: psalm, slide: 1 }, None), &p);
+        let Some(SlideLayer::Text { text, passage, size, scripture, .. }) = &l.frame.slide else { panic!() };
+        assert_eq!((text.as_str(), *size, *scripture), ("p2", 90, true));
+        assert_eq!(passage.iter().map(|s| s.text.as_str()).collect::<Vec<_>>(), ["p1", "p2"]);
     }
 
     #[test]
