@@ -7,6 +7,7 @@ pub mod blocklist;
 pub mod esv;
 pub mod id;
 pub mod import;
+pub mod library;
 pub mod nlt;
 pub mod sources;
 pub mod youversion;

@@ -496,7 +496,7 @@ impl App {
     /// The standard list plus any other Bible the church imported.
     pub fn translations(&self) -> Vec<String> {
         let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
-        for b in bible::import::all(&self.store.root) { if !out.contains(&b.abbreviation) { out.push(b.abbreviation.clone()); } }
+        for b in bible::import::list(&self.store.root).iter() { if !out.contains(&b.id) { out.push(b.id.clone()); } }
         out
     }
 
@@ -515,7 +515,7 @@ impl App {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
                 return json!({ "translation": t, "status": "offline", "provider": format!("{name} — built in, public domain") });
             }
-            if let Some(b) = bible::import::get(root, t) {
+            if let Some(b) = bible::import::meta(root, t) {
                 return json!({ "translation": t, "status": "offline", "imported": true, "provider": format!("{} — imported file", b.name), "copyright": b.copyright });
             }
             match source_with(t, &secrets) {

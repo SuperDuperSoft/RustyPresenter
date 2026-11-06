@@ -2,7 +2,7 @@
 //! church directly. Reads Zefania, OSIS, USX and OpenSong XML into the same shape as the bundled KJV and keeps each
 //! one as `bibles/{ABBR}.json` in the data folder. Nothing here is bundled or fetched. A Bible with a prefixed id
 //! (`bible::id`) keeps the same file format, under its encoded id.
-use super::{BOOKS, blocklist, canonical, display_name, find_book, id, normalise_id, parse_reference, sources::tidy};
+use super::{BOOKS, blocklist, canonical, display_name, find_book, id, library::{self, BibleMeta}, normalise_id, parse_reference, sources::tidy};
 use crate::{model::VerseText, scripture::strings::BLOCKED};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,8 @@ pub struct ImportedBible {
     pub name: String,
     pub copyright: String,
     pub verses: Verses,
+    /// What a download says about itself. `None` for a file the church imported.
+    pub meta: Option<BibleMeta>,
 }
 
 const SUPPORTED: &str = "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx).";
@@ -126,60 +128,86 @@ impl ImportedBible {
 // ---- persistence ----
 
 #[derive(Serialize)]
-struct StoredRef<'a> { abbreviation: &'a str, name: &'a str, copyright: &'a str, verses: Vec<(u8, u16, u16, &'a str)> }
+struct StoredRef<'a> {
+    abbreviation: &'a str,
+    name: &'a str,
+    copyright: &'a str,
+    verses: Vec<(u8, u16, u16, &'a str)>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    meta: Option<&'a BibleMeta>,
+}
 
 #[derive(Deserialize)]
-struct Stored { abbreviation: String, name: String, copyright: String, verses: Vec<(u8, u16, u16, String)> }
+struct Stored {
+    abbreviation: String,
+    name: String,
+    copyright: String,
+    verses: Vec<(u8, u16, u16, String)>,
+    #[serde(default)]
+    meta: Option<BibleMeta>,
+}
 
 fn bad_abbr() -> io::Error { io::Error::new(io::ErrorKind::InvalidInput, "Give the Bible a short name of 2-10 letters or digits, like WEB.") }
 
-/// Writes `root/bibles/{ABBR}.json`, or the encoded id for a prefixed one.
+/// Writes `root/bibles/{ABBR}.json`, or the encoded id for a prefixed one, and updates the index if this run has
+/// one. A crash between the two is repaired by the next start.
 pub fn save(root: &Path, b: &ImportedBible) -> io::Result<()> {
     let abbr = stored_id(&b.abbreviation).ok_or_else(bad_abbr)?;
     fs::create_dir_all(root.join("bibles"))?;
     let s = StoredRef {
-        abbreviation: &abbr, name: &b.name, copyright: &b.copyright,
+        abbreviation: &abbr, name: &b.name, copyright: &b.copyright, meta: b.meta.as_ref(),
         verses: b.verses.iter().map(|(k, t)| (k.0, k.1, k.2, t.as_str())).collect(),
     };
-    crate::store::write_atomic(&file(root, &abbr), &serde_json::to_vec(&s).map_err(io::Error::other)?)
+    let path = file(root, &abbr);
+    let bytes = serde_json::to_vec(&s).map_err(io::Error::other)?;
+    let mut all = LOADED.lock().unwrap();
+    crate::store::write_atomic(&path, &bytes)?;
+    if let Some(folder) = all.get_mut(root) {
+        let mut next = (*folder.index).clone();
+        next.retain(|m| m.id != abbr);
+        next.push(listing(b, bytes.len() as u64));
+        next.sort_by(|a, b| a.id.cmp(&b.id));
+        folder.recent.retain(|x| x.abbreviation != abbr);
+        let _ = library::write_index(root, &next);
+        folder.index = Arc::new(next);
+    }
+    Ok(())
 }
 
-/// One saved Bible, if present and readable.
+/// One saved Bible, if present and readable. Always reads the file; `get` keeps the ones in use.
 pub fn load(root: &Path, abbr: &str) -> Option<ImportedBible> {
     let abbr = stored_id(abbr)?;
     read(&file(root, &abbr), &abbr)
 }
 
-/// Every saved Bible, sorted by abbreviation. Unreadable or misnamed files are skipped.
-pub fn load_all(root: &Path) -> Vec<ImportedBible> {
-    let Ok(rd) = fs::read_dir(root.join("bibles")) else { return Vec::new() };
-    let mut out: Vec<ImportedBible> = rd.flatten().filter_map(|e| {
-        let p = e.path();
-        if p.extension()? != "json" { return None; }
-        read(&p, &id::from_file_stem(p.file_stem()?.to_str()?)?)
-    }).collect();
-    out.sort_by(|a, b| a.abbreviation.cmp(&b.abbreviation));
-    out
-}
-
 fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
     let s: Stored = serde_json::from_slice(&fs::read(p).ok()?).ok()?;
     if stored_id(abbr).as_deref() != Some(abbr) || s.abbreviation != abbr { return None; }
+    if s.meta.as_ref().is_some_and(|m| m.id != abbr) { return None; }
     let b = ImportedBible {
-        abbreviation: s.abbreviation, name: s.name, copyright: s.copyright,
+        abbreviation: s.abbreviation, name: s.name, copyright: s.copyright, meta: s.meta,
         verses: s.verses.into_iter().filter(|v| (v.0 as usize) < BOOKS.len()).map(|(b, c, v, t)| ((b, c, v), t)).collect(),
     };
     (!is_blocked(&b)).then_some(b)
 }
 
+/// The Bible's entry in the list: its own metadata, or what an import knows, with the books it really has.
+fn listing(b: &ImportedBible, bytes: u64) -> BibleMeta {
+    let mut m = b.meta.clone().unwrap_or_else(|| BibleMeta::of_import(&b.abbreviation, &b.name, &b.copyright));
+    m.books = b.verses.keys().map(|k| k.0).collect::<BTreeSet<u8>>().into_iter().collect();
+    m.bytes = bytes;
+    m
+}
+
 /// What the file says about itself and what its verses read. The abbreviation may be the operator's own.
 fn is_blocked(b: &ImportedBible) -> bool {
-    blocklist::blocked(&b.abbreviation, &[&b.name], &[&b.copyright], &[&b.abbreviation])
+    let m = listing(b, 0);
+    m.blocked() || blocklist::blocked_row(&m.lang, &m.abbr, &[&b.name], &[&b.copyright], &[])
         || blocklist::blocked_text(b.verses.iter().map(|(k, t)| (*k, t.as_str())))
 }
 
-/// Deletes the Bible's file; already gone is fine. Holds `LOADED` throughout so no reader can reload the
-/// file between the delete and the eviction.
+/// Deletes the Bible's file and its index entry; already gone is fine. Holds `LOADED` throughout so no reader can
+/// reload the file between the delete and the eviction. A crash between the two is repaired by the next start.
 pub fn remove(root: &Path, abbr: &str) -> io::Result<()> {
     let abbr = stored_id(abbr).ok_or_else(bad_abbr)?;
     let mut all = LOADED.lock().unwrap();
@@ -187,29 +215,76 @@ pub fn remove(root: &Path, abbr: &str) -> io::Result<()> {
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
         r => r,
     };
-    all.remove(root);
+    if let (Ok(()), Some(folder)) = (&r, all.get_mut(root)) {
+        let mut next = (*folder.index).clone();
+        next.retain(|m| m.id != abbr);
+        folder.recent.retain(|x| x.abbreviation != abbr);
+        let _ = library::write_index(root, &next);
+        folder.index = Arc::new(next);
+    }
     r
 }
 
-// ---- loaded Bibles ----
+// ---- installed Bibles ----
 
-type Loaded = BTreeMap<String, Arc<ImportedBible>>;
+/// How many parsed Bibles stay in memory. Each is megabytes, and a church may install hundreds.
+const KEEP: usize = 4;
 
-/// Imported Bibles are megabytes of JSON: read once per data folder, then kept until one is added or removed.
-static LOADED: Mutex<BTreeMap<PathBuf, Arc<Loaded>>> = Mutex::new(BTreeMap::new());
+/// One data folder: the list of installed Bibles, and the ones in use, newest first.
+struct Folder { index: Arc<Vec<BibleMeta>>, recent: Vec<Arc<ImportedBible>> }
 
-fn loaded(root: &Path) -> Arc<Loaded> {
-    let mut all = LOADED.lock().unwrap();
-    all.entry(root.to_path_buf())
-        .or_insert_with(|| Arc::new(load_all(root).into_iter().map(|b| (b.abbreviation.clone(), Arc::new(b))).collect()))
-        .clone()
+static LOADED: Mutex<BTreeMap<PathBuf, Folder>> = Mutex::new(BTreeMap::new());
+
+fn folder<'a>(all: &'a mut BTreeMap<PathBuf, Folder>, root: &Path) -> &'a mut Folder {
+    all.entry(root.to_path_buf()).or_insert_with(|| Folder { index: Arc::new(checked_index(root)), recent: Vec::new() })
 }
 
-/// The imported Bible with this abbreviation, if any.
-pub fn get(root: &Path, abbr: &str) -> Option<Arc<ImportedBible>> { loaded(root).get(abbr).cloned() }
+/// The saved index checked against the folder, once a run. A file with no entry, or a different size from its
+/// entry, is read and listed; an entry with no file goes; a file that can't be used stays unlisted. The index is
+/// written back only when this changed it.
+fn checked_index(root: &Path) -> Vec<BibleMeta> {
+    let saved = library::read_index(root);
+    let mut out = Vec::new();
+    if let Ok(rd) = fs::read_dir(root.join("bibles")) {
+        for e in rd.flatten() {
+            let p = e.path();
+            if p.extension().is_none_or(|x| x != "json") { continue; }
+            let Some(id) = p.file_stem().and_then(|s| s.to_str()).and_then(id::from_file_stem) else { continue };
+            // Skips the folder's other files, which are not Bibles: their names are not ids in stored form.
+            if stored_id(&id).as_deref() != Some(id.as_str()) { continue; }
+            let Ok(size) = e.metadata().map(|m| m.len()) else { continue };
+            let entry = saved.get(&id).filter(|m| m.bytes == size).cloned()
+                .or_else(|| read(&p, &id).map(|b| listing(&b, size)));
+            if let Some(m) = entry.filter(|m| !m.blocked()) { out.push(m); }
+        }
+    }
+    out.sort_by(|a, b| a.id.cmp(&b.id));
+    if out.len() != saved.len() || out.iter().any(|m| saved.get(&m.id) != Some(m)) { let _ = library::write_index(root, &out); }
+    out
+}
 
-/// Every imported Bible, sorted by abbreviation.
-pub fn all(root: &Path) -> Vec<Arc<ImportedBible>> { loaded(root).values().cloned().collect() }
+/// Every installed Bible, sorted by id. Never reads verses, once the run's first check is done.
+pub fn list(root: &Path) -> Arc<Vec<BibleMeta>> { folder(&mut LOADED.lock().unwrap(), root).index.clone() }
+
+/// One installed Bible's entry.
+pub fn meta(root: &Path, id: &str) -> Option<BibleMeta> { list(root).iter().find(|m| m.id == id).cloned() }
+
+/// The installed Bible with this id, if any. Keeps the last `KEEP` in memory; a translation that isn't installed
+/// costs no disk read. The read holds `LOADED`, so a remove can't be undone by a reader that started before it.
+pub fn get(root: &Path, id: &str) -> Option<Arc<ImportedBible>> {
+    let mut all = LOADED.lock().unwrap();
+    let f = folder(&mut all, root);
+    if let Some(i) = f.recent.iter().position(|b| b.abbreviation == id) {
+        let b = f.recent.remove(i);
+        f.recent.insert(0, b.clone());
+        return Some(b);
+    }
+    if !f.index.iter().any(|m| m.id == id) { return None; }
+    let b = Arc::new(read(&file(root, id), id)?);
+    f.recent.insert(0, b.clone());
+    f.recent.truncate(KEEP);
+    Some(b)
+}
 
 /// Parses a file and saves it under `abbr` (or the file's own abbreviation when `abbr` is empty), merging books
 /// into an earlier import of the same name. Built-in names (KJV, WEB, BSB) are refused; copyrighted names such as
@@ -225,14 +300,7 @@ pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible
     if is_blocked(&b) { return Err(BLOCKED.into()); }
     if b.name.is_empty() { b.name = abbr.clone(); }
     save(root, &b).map_err(|e| e.to_string())?;
-    // Patch the cache in place; a cold cache stays cold and reads the saved file when first needed.
-    let b = Arc::new(b);
-    if let Some(m) = LOADED.lock().unwrap().get_mut(root) {
-        let mut next = (**m).clone();
-        next.insert(abbr, b.clone());
-        *m = Arc::new(next);
-    }
-    Ok(b)
+    Ok(Arc::new(b))
 }
 
 // ---- XML plumbing ----
@@ -470,7 +538,7 @@ fn osis(src: &str) -> Result<ImportedBible, String> {
     let [title, identifier, rights] = fields;
     // "Bible.en.WEB" → "WEB" when osisIDWork is missing.
     if abbr.trim().is_empty() { abbr = identifier.rsplit('.').next().unwrap_or_default().to_string(); }
-    Ok(ImportedBible { abbreviation: abbr, name: title, copyright: rights, verses: acc.verses })
+    Ok(ImportedBible { abbreviation: abbr, name: title, copyright: rights, verses: acc.verses, meta: None })
 }
 
 /// Para styles that are not verse text: identification, headings, titles, introductions, labels, remarks
@@ -728,14 +796,14 @@ mod tests {
         assert!(get(&root, "TSTA").is_some());
         remove(&root, "TSTA").unwrap();
         assert!(get(&root, "TSTA").is_none());
-        assert!(all(&root).is_empty());
+        assert!(list(&root).is_empty());
         let _ = fs::remove_dir_all(&root);
     }
 
     #[test]
     fn import_updates_loaded_cache_in_place() {
         let root = temp_root("cache");
-        assert!(all(&root).is_empty()); // warm, empty cache
+        assert!(list(&root).is_empty()); // warm, empty cache
         let john = import(&root, USX.as_bytes(), "tstb").unwrap();
         assert_eq!(john.len(), 2);
         assert_eq!(get(&root, "TSTB").unwrap().len(), 2);
@@ -757,7 +825,7 @@ mod tests {
         assert_eq!(import(&root, NWT_FILE.as_bytes(), "").unwrap_err(), BLOCKED);
         assert_eq!(import(&root, NWT_FILE.as_bytes(), "TEST").unwrap_err(), BLOCKED);
         assert_eq!(import(&root, USX.as_bytes(), "TPT").unwrap_err(), BLOCKED, "the abbreviation alone");
-        assert!(all(&root).is_empty());
+        assert!(list(&root).is_empty());
         let _ = fs::remove_dir_all(&root);
     }
 
@@ -766,7 +834,7 @@ mod tests {
         let root = temp_root("fingerprint");
         let psalm = r#"<usx version="2.0"><book code="PSA" style="id"/><chapter number="23" style="c"/><para style="q1"><verse number="1" style="v"/>The Lord is my best friend</para></usx>"#;
         assert_eq!(import(&root, psalm.as_bytes(), "ABCD").unwrap_err(), BLOCKED);
-        assert!(all(&root).is_empty());
+        assert!(list(&root).is_empty());
         let _ = fs::remove_dir_all(&root);
     }
 
@@ -788,7 +856,7 @@ mod tests {
         let bible = ImportedBible { abbreviation: "TPT".into(), name: "x".into(), verses: [((0, 1, 1), "a".to_string())].into(), ..Default::default() };
         save(&root, &bible).unwrap();
         assert!(load(&root, "TPT").is_none());
-        assert!(all(&root).is_empty());
+        assert!(list(&root).is_empty());
         remove(&root, "TPT").unwrap();
         assert!(!root.join("bibles").join("TPT.json").exists());
         let _ = fs::remove_dir_all(&root);
@@ -849,6 +917,171 @@ mod tests {
         assert_eq!(sanitize_abbr("Ελληνικά"), None);
     }
 
+    /// As after a restart: the run's list and memory are gone, and the folder is checked again.
+    fn ids(root: &Path) -> Vec<String> {
+        LOADED.lock().unwrap().remove(root);
+        list(root).iter().map(|m| m.id.clone()).collect()
+    }
+
+    fn named(id: &str) -> ImportedBible { ImportedBible { abbreviation: id.into(), name: format!("{id} Bible"), ..sample() } }
+
+    fn download(id: &str, abbr: &str, name: &str, lang: &str) -> ImportedBible {
+        let meta = BibleMeta { id: id.into(), abbr: abbr.into(), name: name.into(), lang: lang.into(), lang_name_en: "Spanish".into(), source: library::Source::Ebible { update_date: "2026-03-01".into() }, ..Default::default() };
+        ImportedBible { abbreviation: id.into(), name: name.into(), meta: Some(meta), ..sample() }
+    }
+
+    #[test]
+    fn a_download_keeps_its_metadata_in_its_own_file() {
+        let root = crate::store::test_dir();
+        save(&root, &download("ebible:spaRV1909", "RV1909", "Reina Valera", "es")).unwrap();
+        fs::remove_file(root.join("bibles/index.json")).ok();
+        assert_eq!(ids(&root), ["ebible:spaRV1909"], "the file alone is enough");
+        let m = meta(&root, "ebible:spaRV1909").unwrap();
+        assert_eq!((m.abbr.as_str(), m.lang.as_str(), m.source), ("RV1909", "es", library::Source::Ebible { update_date: "2026-03-01".into() }));
+        assert_eq!(m.books, [40, 42, 64], "worked out from the verses");
+        assert_eq!(m.bytes, fs::metadata(root.join("bibles/ebible~spaRV1909.json")).unwrap().len());
+        assert_eq!(get(&root, "ebible:spaRV1909").unwrap().meta.as_ref().unwrap().lang, "es");
+    }
+
+    #[test]
+    fn an_import_keeps_the_old_file_format_and_lists_with_defaults() {
+        let root = crate::store::test_dir();
+        save(&root, &named("HCSB")).unwrap();
+        let file: serde_json::Value = serde_json::from_slice(&fs::read(root.join("bibles/HCSB.json")).unwrap()).unwrap();
+        assert!(file.get("meta").is_none());
+        assert_eq!(ids(&root), ["HCSB"]);
+        let m = meta(&root, "HCSB").unwrap();
+        assert_eq!((m.abbr.as_str(), m.name.as_str(), m.lang.as_str(), m.source), ("HCSB", "HCSB Bible", "und", library::Source::Import));
+    }
+
+    #[test]
+    fn the_list_comes_from_the_index_while_the_size_matches() {
+        let root = crate::store::test_dir();
+        save(&root, &named("HCSB")).unwrap();
+        assert_eq!(ids(&root), ["HCSB"]);
+        let p = root.join("bibles/HCSB.json");
+        let mut bytes = fs::read(&p).unwrap();
+        bytes.fill(b' ');
+        fs::write(&p, &bytes).unwrap();
+        assert_eq!(ids(&root), ["HCSB"], "same size, so the verses were not read");
+        assert!(get(&root, "HCSB").is_none(), "and a damaged file still doesn't load");
+        fs::write(&p, b"{}").unwrap();
+        assert!(ids(&root).is_empty(), "a new size means the file is read");
+    }
+
+    #[test]
+    fn the_index_is_repaired_from_the_folder() {
+        let root = crate::store::test_dir();
+        save(&root, &named("AAA")).unwrap();
+        save(&root, &named("BBB")).unwrap();
+        assert_eq!(ids(&root), ["AAA", "BBB"]);
+        assert_eq!(library::read_index(&root).len(), 2);
+        // A crash between deleting a file and its entry, and between writing a file and its entry.
+        fs::remove_file(root.join("bibles/AAA.json")).unwrap();
+        let held = fs::read(root.join("bibles/BBB.json")).unwrap();
+        fs::write(root.join("bibles/CCC.json"), String::from_utf8(held).unwrap().replace("\"BBB\"", "\"CCC\"")).unwrap();
+        assert_eq!(ids(&root), ["BBB", "CCC"]);
+        assert_eq!(library::read_index(&root).keys().collect::<Vec<_>>(), ["BBB", "CCC"], "written back");
+        fs::write(root.join("bibles/index.json"), b"damaged").unwrap();
+        assert_eq!(ids(&root), ["BBB", "CCC"]);
+        assert_eq!(library::read_index(&root).len(), 2);
+    }
+
+    #[test]
+    fn saving_and_removing_keep_the_index_up_to_date_in_a_running_app() {
+        let root = crate::store::test_dir();
+        assert!(ids(&root).is_empty());
+        save(&root, &named("BBB")).unwrap();
+        save(&root, &named("AAA")).unwrap();
+        assert_eq!(list(&root).iter().map(|m| m.id.as_str()).collect::<Vec<_>>(), ["AAA", "BBB"]);
+        assert_eq!(library::read_index(&root).len(), 2);
+        remove(&root, "AAA").unwrap();
+        assert_eq!(library::read_index(&root).keys().collect::<Vec<_>>(), ["BBB"]);
+        assert!(get(&root, "AAA").is_none());
+    }
+
+    #[test]
+    fn a_changed_bible_is_not_served_from_memory() {
+        let root = crate::store::test_dir();
+        assert!(ids(&root).is_empty());
+        save(&root, &named("AAA")).unwrap();
+        assert_eq!(get(&root, "AAA").unwrap().name, "AAA Bible");
+        let mut b = named("AAA");
+        b.name = "New name".into();
+        save(&root, &b).unwrap();
+        assert_eq!(get(&root, "AAA").unwrap().name, "New name");
+    }
+
+    #[test]
+    fn only_four_bibles_stay_in_memory_and_the_newest_used_is_kept() {
+        let root = crate::store::test_dir();
+        for id in ["AAA", "BBB", "CCC", "DDD", "EEE"] { save(&root, &named(id)).unwrap(); }
+        assert_eq!(ids(&root).len(), 5);
+        for id in ["AAA", "BBB", "CCC", "DDD", "AAA", "EEE"] { assert!(get(&root, id).is_some()); }
+        let in_memory = |root: &Path| LOADED.lock().unwrap()[root].recent.iter().map(|b| b.abbreviation.clone()).collect::<Vec<_>>();
+        assert_eq!(in_memory(&root), ["EEE", "AAA", "DDD", "CCC"]);
+        assert!(get(&root, "BBB").is_some(), "dropped from memory, read again");
+        assert_eq!(in_memory(&root), ["BBB", "EEE", "AAA", "DDD"]);
+    }
+
+    #[test]
+    fn a_translation_that_is_not_installed_reads_nothing() {
+        let root = crate::store::test_dir();
+        assert!(ids(&root).is_empty());
+        fs::create_dir_all(root.join("bibles")).unwrap();
+        fs::write(root.join("bibles/NIV.json"), br#"{"abbreviation":"NIV","name":"n","copyright":"","verses":[]}"#).unwrap();
+        assert!(get(&root, "NIV").is_none(), "not in this run's list");
+    }
+
+    #[test]
+    fn a_blocked_file_is_never_listed_or_loaded() {
+        let root = crate::store::test_dir();
+        save(&root, &named("TPT")).unwrap();
+        assert!(ids(&root).is_empty());
+        assert!(get(&root, "TPT").is_none());
+        remove(&root, "TPT").unwrap();
+        assert!(!root.join("bibles/TPT.json").exists(), "the operator can still remove it");
+    }
+
+    #[test]
+    fn a_blocked_entry_in_an_old_index_is_dropped() {
+        let root = crate::store::test_dir();
+        save(&root, &named("AAA")).unwrap();
+        assert_eq!(ids(&root), ["AAA"]);
+        let mut m = library::read_index(&root).remove("AAA").unwrap();
+        m.name = "New World Translation".into();
+        library::write_index(&root, &[m]).unwrap();
+        assert!(ids(&root).is_empty());
+    }
+
+    #[test]
+    fn the_tepehua_new_testament_is_a_download_and_not_the_passion_translation() {
+        let root = crate::store::test_dir();
+        save(&root, &download("ebible:tptNT", "TPT", "Tlachichilco Tepehua", "tpt")).unwrap();
+        save(&root, &download("ebible:tpt2", "TPT", "Some Bible", "en")).unwrap();
+        assert_eq!(ids(&root), ["ebible:tptNT"]);
+        assert!(get(&root, "ebible:tptNT").is_some());
+        assert!(get(&root, "ebible:tpt2").is_none());
+    }
+
+    #[test]
+    fn a_title_in_the_file_counts_as_well_as_its_metadata() {
+        let root = crate::store::test_dir();
+        let mut b = download("ebible:abc", "ABC", "Harmless", "en");
+        b.name = "New World Translation".into();
+        save(&root, &b).unwrap();
+        assert!(ids(&root).is_empty());
+    }
+
+    #[test]
+    fn metadata_for_another_id_is_refused() {
+        let root = crate::store::test_dir();
+        let mut b = download("ebible:abc", "ABC", "Harmless", "en");
+        b.meta.as_mut().unwrap().id = "ebible:xyz".into();
+        save(&root, &b).unwrap();
+        assert!(ids(&root).is_empty());
+    }
+
     #[test]
     fn a_prefixed_id_keeps_its_case_and_gets_an_encoded_file() {
         let root = crate::store::test_dir();
@@ -859,8 +1092,7 @@ mod tests {
         assert!(root.join("bibles/ebible~spaRV1909.json").exists());
         assert_eq!(load(&root, "ebible:spaRV1909").unwrap().name, "Reina Valera 1909");
         assert!(load(&root, "ebible:sparv1909").is_none(), "ids are case-sensitive");
-        let all = load_all(&root);
-        assert_eq!(all.iter().map(|b| b.abbreviation.as_str()).collect::<Vec<_>>(), ["ebible:spaRV1909"]);
+        assert_eq!(ids(&root), ["ebible:spaRV1909"]);
         assert!(get(&root, "ebible:spaRV1909").is_some());
         remove(&root, "ebible:spaRV1909").unwrap();
         assert!(!root.join("bibles/ebible~spaRV1909.json").exists());
@@ -876,7 +1108,7 @@ mod tests {
         b.abbreviation = "ebible:x".into();
         save(&root, &b).unwrap();
         fs::rename(root.join("bibles/ebible~x.json"), root.join("bibles/ebible~y.json")).unwrap();
-        assert!(load_all(&root).is_empty());
+        assert!(ids(&root).is_empty());
     }
 
     #[test]
@@ -896,16 +1128,14 @@ mod tests {
         save(&root, &b).unwrap();
         assert!(root.join("bibles").join("WEB.json").exists());
         fs::write(root.join("bibles").join("junk.json"), b"{}").unwrap();
-        let all = load_all(&root);
-        assert_eq!(all.len(), 1);
-        assert_eq!(all[0].abbreviation, "WEB");
-        assert_eq!(all[0].verses, b.verses);
+        assert_eq!(ids(&root), ["WEB"]);
+        assert_eq!(get(&root, "WEB").unwrap().verses, b.verses);
         assert_eq!(load(&root, "web").unwrap().name, "World English Bible");
         b.abbreviation = "x".into();
         assert!(save(&root, &b).is_err());
         remove(&root, "WEB").unwrap();
         remove(&root, "WEB").unwrap();
-        assert!(load_all(&root).is_empty());
+        assert!(ids(&root).is_empty());
         assert!(remove(&root, "..").is_err());
         let _ = fs::remove_dir_all(&root);
     }
