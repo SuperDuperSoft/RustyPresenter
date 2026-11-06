@@ -256,7 +256,7 @@ mod tests {
 
     fn opened(app: &Arc<App>) -> Rc<Operator> {
         let op = open_window(app);
-        op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
         refresh(&op);
         op
     }
@@ -347,6 +347,7 @@ mod tests {
         g(&op).set_text_size(100);
         press(&op, "ItemEditDialog::save");
         assert!(matches!(item(&app, id).unwrap().kind, ItemKind::Scripture { text_size: 100, .. }));
+        refresh(&op);
         open(&op, id);
         assert_eq!((g(&op).get_size_mode(), g(&op).get_text_size()), (1, 100));
         g(&op).set_size_mode(0);

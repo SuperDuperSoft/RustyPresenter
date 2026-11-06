@@ -178,7 +178,7 @@ mod tests {
     /// A window big enough for every row, with the service already read.
     fn opened(app: &Arc<App>) -> std::rc::Rc<Operator> {
         let op = open(app);
-        op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
         refresh(&op);
         op
     }

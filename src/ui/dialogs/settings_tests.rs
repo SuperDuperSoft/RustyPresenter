@@ -14,7 +14,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 
 fn opened(app: &Arc<App>) -> Rc<Operator> {
     let op = open_window(app);
-    op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+    op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
     refresh(&op);
     op
 }
@@ -280,7 +280,8 @@ fn text_color_from_the_grid_and_its_hex_field() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
-    click(&op, "ColorPicker::swatch");
+    // By its accessible action: the Look page has grown, so the swatch can be scrolled out of view.
+    find(&op, "ColorPicker::swatch").expect("swatch").invoke_accessible_default_action();
     assert!(find(&op, "ColorGrid::hex").is_some());
     let before = g(&op).get_color();
     g(&op).invoke_text_hex("#12AB3".into());

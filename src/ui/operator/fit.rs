@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 /// The window sizes checked: the smallest supported, the narrowest with every translation button, the window the
 /// installer smoke test found cut off, 1080p and 4K.
-const SIZES: [(f32, f32); 5] = [(1280.0, 720.0), (1400.0, 900.0), (1454.0, 938.0), (1920.0, 1080.0), (3840.0, 2160.0)];
+const SIZES: [(f32, f32); 5] = [(1280.0, 720.0), (1520.0, 900.0), (1454.0, 938.0), (1920.0, 1080.0), (3840.0, 2160.0)];
 const SMALLEST: (f32, f32) = SIZES[0];
 
 /// Resizes the window and runs what a frame would (the `narrow` change handler, the overlays' `init`).

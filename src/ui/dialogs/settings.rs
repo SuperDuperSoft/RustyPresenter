@@ -64,6 +64,7 @@ pub fn help_rows() -> Vec<HelpRow> {
         HelpRow { keys: "F4", what: DO_STOP_AUDIO, binds: &[("F4", false, false)], action: KeyAction::Clear(Command::ClearAudio) },
         HelpRow { keys: "F5", what: DO_LOGO, binds: &[("F5", false, false)], action: KeyAction::Clear(Command::Logo) },
         HelpRow { keys: KEY_ALT_DIGITS, what: DO_TRANSLATION, binds: &[("1", false, true), ("6", false, true)], action: KeyAction::PickTranslation(0) },
+        HelpRow { keys: KEY_CTRL_V, what: DO_PASTE_LINK, binds: &[("v", true, false)], action: KeyAction::PasteLink },
         HelpRow { keys: KEY_ESC, what: DO_ESC, binds: &[("Escape", false, false)], action: KeyAction::Blur },
     ]
 }

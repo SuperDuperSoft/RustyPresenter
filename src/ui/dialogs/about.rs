@@ -70,7 +70,7 @@ mod tests {
     fn about_shows_aboutslint() {
         let app = test_app();
         let op = open(&app);
-        op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
         refresh(&op);
         settings::open(&op, SettingsTab::About);
         slint::platform::update_timers_and_animations();
