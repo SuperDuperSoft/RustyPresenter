@@ -5,6 +5,7 @@
 use super::{BOOKS, blocklist, canonical, display_name, find_book, id, library::{self, BibleMeta}, normalise_id, parse_reference, sources::tidy};
 use crate::{model::VerseText, scripture::strings::BLOCKED};
 use quick_xml::{Reader, events::{BytesStart, Event}};
+use crate::tr;
 use serde::{Deserialize, Serialize};
 use std::{collections::{BTreeMap, BTreeSet}, fs, io, path::{Path, PathBuf}, sync::{Arc, Mutex}};
 
@@ -21,7 +22,7 @@ pub struct ImportedBible {
     pub meta: Option<BibleMeta>,
 }
 
-const SUPPORTED: &str = "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx).";
+fn supported() -> String { tr!("Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx).") }
 
 /// OSIS book ids in `BOOKS` order (OSIS 2.1.1 User Manual, Appendix C.1:
 /// https://crosswire.org/osis/OSIS%202.1.1%20User%20Manual%2006March2006.pdf).
@@ -47,9 +48,9 @@ pub fn parse(bytes: &[u8]) -> Result<ImportedBible, String> {
         "osis" | "osiscorpus" => osis(&src)?,
         "usx" => usx(&src)?,
         "bible" => opensong(&src)?,
-        _ => return Err(SUPPORTED.into()),
+        _ => return Err(supported()),
     };
-    if b.verses.is_empty() { return Err(format!("No Bible verses found in this file. {SUPPORTED}")); }
+    if b.verses.is_empty() { return Err(tr!("No Bible verses found in this file. {formats}", formats = supported())); }
     b.abbreviation = sanitize_abbr(&b.abbreviation).unwrap_or_default();
     b.name = tidy(&b.name);
     b.copyright = tidy(&b.copyright);
@@ -102,25 +103,25 @@ impl ImportedBible {
         for part in &r.parts {
             let (sc, sv) = part.start;
             let (ec, ev) = part.end;
-            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| format!("{display} {ec} does not exist."))? };
+            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {ec}")))? };
             let mut c = sc;
             let mut v = sv.unwrap_or(1);
             loop {
-                let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
+                let last = self.last_verse(r.book, c).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {c}")))?;
                 match self.verses.get(&(r.book, c, v)) {
                     Some(t) => out.push(VerseText { id: Some(crate::scripture::VerseId(r.book, c, v)), ..VerseText::new(format!("{display} {c}:{v}"), t.clone()) }),
-                    None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
+                    None if v == sv.unwrap_or(1) && c == sc => return Err(tr!("{reference} does not exist.", reference = format!("{display} {c}:{v}"))),
                     None => {}
                 }
                 if c == ec && v >= ev_resolved { break; }
                 if v >= last { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
-                if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+                if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
             }
             if ev.is_some() && !out.iter().any(|x| x.reference == format!("{display} {ec}:{ev_resolved}")) {
-                return Err(format!("{display} {ec}:{ev_resolved} does not exist."));
+                return Err(tr!("{reference} does not exist.", reference = format!("{display} {ec}:{ev_resolved}")));
             }
         }
-        if out.is_empty() { return Err("No verses found.".into()); }
+        if out.is_empty() { return Err(tr!("No verses found.")); }
         Ok((canonical(&r, display), out))
     }
 }
@@ -147,7 +148,7 @@ struct Stored {
     meta: Option<BibleMeta>,
 }
 
-fn bad_abbr() -> io::Error { io::Error::new(io::ErrorKind::InvalidInput, "Give the Bible a short name of 2-10 letters or digits, like WEB.") }
+fn bad_abbr() -> io::Error { io::Error::new(io::ErrorKind::InvalidInput, tr!("Give the Bible a short name of 2-10 letters or digits, like WEB.")) }
 
 /// Writes `root/bibles/{ABBR}.json`, or the encoded id for a prefixed one, and updates the index if this run has
 /// one. A crash between the two is repaired by the next start.
@@ -298,7 +299,7 @@ pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible
     if is_blocked(&b) { return Err(BLOCKED.into()); }
     if !abbr.trim().is_empty() { b.abbreviation = abbr.into(); }
     let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(|| bad_abbr().to_string())?;
-    if super::built_in(&abbr).is_some() { return Err(format!("{abbr} is already built in. Give this Bible another short name.")); }
+    if super::built_in(&abbr).is_some() { return Err(tr!("{abbr} is already built in. Give this Bible another short name.", abbr = abbr)); }
     b.abbreviation = abbr.clone();
     let mut b = combine(load(root, &abbr), b);
     if is_blocked(&b) { return Err(BLOCKED.into()); }
@@ -311,9 +312,9 @@ pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible
 /// titles and notices, and its verses must not name a blocked Bible. Replaces an earlier copy only once all of that
 /// has passed, so a failed update leaves the installed copy working. Returns its entry in the list.
 pub fn install(root: &Path, b: ImportedBible) -> Result<BibleMeta, String> {
-    let Some(meta) = &b.meta else { return Err("A downloaded Bible needs its details.".into()) };
-    if !id::is_prefixed(&meta.id) || meta.id != b.abbreviation { return Err("This Bible's id can't be used.".into()); }
-    if b.verses.is_empty() { return Err("No Bible verses found.".into()); }
+    let Some(meta) = &b.meta else { return Err(tr!("A downloaded Bible needs its details.")) };
+    if !id::is_prefixed(&meta.id) || meta.id != b.abbreviation { return Err(tr!("This Bible's id can't be used.")); }
+    if b.verses.is_empty() { return Err(tr!("No Bible verses found.")); }
     if is_blocked(&b) { return Err(BLOCKED.into()); }
     save(root, &b).map_err(|e| e.to_string())?;
     let size = fs::metadata(file(root, &b.abbreviation)).map(|m| m.len()).unwrap_or(0);
@@ -350,7 +351,7 @@ pub fn vpl(bytes: &[u8]) -> Result<Verses, String> {
     })?;
     acc.end();
     for k in seen { acc.verses.entry(k).or_default(); }
-    if acc.verses.is_empty() { return Err("No Bible verses found in this download.".into()); }
+    if acc.verses.is_empty() { return Err(tr!("No Bible verses found in this download.")); }
     Ok(acc.verses)
 }
 
@@ -430,7 +431,7 @@ fn num(s: impl AsRef<str>) -> Option<u16> {
 
 fn lname(b: &[u8]) -> String { String::from_utf8_lossy(b).to_ascii_lowercase() }
 
-fn bad_xml(e: impl std::fmt::Display, at: u64) -> String { format!("This file isn't valid XML (near byte {at}: {e}). {SUPPORTED}") }
+fn bad_xml(e: impl std::fmt::Display, at: u64) -> String { tr!("This file isn't valid XML (near byte {at}: {error}). {formats}", at = at, error = e, formats = supported()) }
 
 /// Lowercase local name of the first element.
 fn root(src: &str) -> Result<String, String> {
@@ -438,7 +439,7 @@ fn root(src: &str) -> Result<String, String> {
     loop {
         match r.read_event() {
             Ok(Event::Start(e) | Event::Empty(e)) => return Ok(lname(e.local_name().as_ref())),
-            Ok(Event::Eof) => return Err(SUPPORTED.into()),
+            Ok(Event::Eof) => return Err(supported()),
             Err(e) => return Err(bad_xml(e, r.error_position())),
             _ => {}
         }

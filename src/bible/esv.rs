@@ -43,7 +43,7 @@ pub fn parse(book: u8, r: &Response) -> Result<Vec<Verse>, FetchError> {
     let mut out = Vec::new();
     for (range, text) in r.parsed.iter().zip(&r.passages) {
         let Some(&start) = range.first() else { continue };
-        if start / 1_000_000 != book as u32 + 1 { return Err(FetchError::Other("the ESV service returned a different book".into())); }
+        if start / 1_000_000 != book as u32 + 1 { return Err(FetchError::Other(crate::tr!("the ESV service returned a different book"))); }
         out.extend(split_verses(text, (start / 1000 % 1000) as u16, book == PSALMS));
     }
     if out.is_empty() { return Err(FetchError::NotFound); }

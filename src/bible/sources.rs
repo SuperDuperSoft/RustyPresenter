@@ -4,6 +4,7 @@
 //! Fetched passages go into a small cache per provider and translation whose size and age follow each provider's terms.
 use super::{Part, Reference, api_bible, blocklist, canonical, display_name, esv, kjv, nlt, parse_reference, youversion};
 use crate::{model::VerseText, scripture::strings::BLOCKED};
+use crate::tr;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io, path::Path, sync::{Mutex, OnceLock}, time::Duration};
 
@@ -81,12 +82,12 @@ impl Provider {
     }
 
     /// What the church must do after signing up, beyond pasting the key.
-    pub fn setup_note(self) -> &'static str {
+    pub fn setup_note(self) -> String {
         match self {
-            Provider::Esv => "Free for churches. Create an “API application”, then copy its key.",
-            Provider::Nlt => "Free for non-commercial use. Register, then copy the key from your account.",
-            Provider::ApiBible => "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here).",
-            Provider::YouVersion => "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered).",
+            Provider::Esv => tr!("Free for churches. Create an “API application”, then copy its key."),
+            Provider::Nlt => tr!("Free for non-commercial use. Register, then copy the key from your account."),
+            Provider::ApiBible => tr!("The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."),
+            Provider::YouVersion => tr!("Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."),
         }
     }
 
@@ -158,16 +159,16 @@ pub enum FetchError {
 
 impl FetchError {
     pub fn from_status(status: u16) -> Self {
-        match status { 401 | 403 => Self::BadKey, 429 => Self::RateLimited, 404 => Self::NotFound, s => Self::Other(format!("the service answered {s}")) }
+        match status { 401 | 403 => Self::BadKey, 429 => Self::RateLimited, 404 => Self::NotFound, s => Self::Other(tr!("the service answered {status}", status = s)) }
     }
 
     fn message(&self, translation: &str, provider: Provider) -> String {
         match self {
-            Self::Network => format!("Couldn't reach {} for {translation}. Check the internet connection.", provider.label()),
-            Self::BadKey => format!("{} refused the key. Check it in Settings → Bible.", provider.label()),
-            Self::RateLimited => format!("{} says too many lookups. Wait a minute and try again.", provider.label()),
-            Self::NotFound => "No verses found.".into(),
-            Self::Other(e) => format!("{translation} lookup failed: {e}."),
+            Self::Network => tr!("Couldn't reach {service} for {translation}. Check the internet connection.", service = provider.label(), translation = translation),
+            Self::BadKey => tr!("{service} refused the key. Check it in Settings → Bible.", service = provider.label()),
+            Self::RateLimited => tr!("{service} says too many lookups. Wait a minute and try again.", service = provider.label()),
+            Self::NotFound => tr!("No verses found."),
+            Self::Other(e) => tr!("{translation} lookup failed: {error}.", translation = translation, error = e),
         }
     }
 }
@@ -350,10 +351,10 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
     if blocklist::blocked(translation, &[], &[], &[translation, &format!("yv:{}", translation.trim())]) { return Err(BLOCKED.into()); }
     let secrets = Secrets::load(root);
     let src = source_with(translation, &secrets)
-        .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
+        .ok_or_else(|| tr!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible.", translation = translation))?;
     let r: Reference = parse_reference(input)?;
     let key = secrets.key(src.provider).map(str::to_string)
-        .ok_or_else(|| format!("{translation} needs a free key from {}. Add it in Settings → Bible, or paste the verses with Add → Bible.", src.provider.label()))?;
+        .ok_or_else(|| tr!("{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible.", translation = translation, service = src.provider.label()))?;
     let (provider, policy) = (src.provider, src.provider.cache_policy());
     let display = display_name(r.book);
     let now = crate::app::now_secs();
@@ -376,7 +377,7 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
                         return Err(e.message(translation, provider));
                     }
                 };
-                if f.verses.is_empty() { return Err("No verses found.".into()); }
+                if f.verses.is_empty() { return Err(tr!("No verses found.")); }
                 if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
                 remember(root, src, &key, now, (r.book, part), &f);
                 f
@@ -385,7 +386,7 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
         if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
         provider.report(root, &f.fums);
         out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text, id: Some(crate::scripture::VerseId(r.book, c, v)) }));
-        if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+        if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
     }
     Ok((canonical(&r, display), out))
 }

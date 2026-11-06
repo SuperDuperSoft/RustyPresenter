@@ -110,7 +110,7 @@ pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book:
             fums.extend(r.meta.fums_token.clone());
             let out = parse(code, &r)?;
             if out.last().is_some_and(|l| (l.0, l.1) < (e, w)) && out.len() >= 200 {
-                return Err(FetchError::Other("API.Bible sends at most 200 verses at a time; choose a shorter passage".into()));
+                return Err(FetchError::Other(crate::tr!("API.Bible sends at most 200 verses at a time; choose a shorter passage")));
             }
             out
         }
@@ -158,7 +158,7 @@ async fn get(client: &reqwest::Client, key: &str, translation: &str, url: &str) 
 /// 403 is "this Bible isn't on your plan", not a bad key (docs.api.bible/quick-start/errors).
 fn status_error(status: u16, translation: &str) -> FetchError {
     match status {
-        403 => FetchError::Other(format!("{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard")),
+        403 => FetchError::Other(crate::tr!("{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard", translation = translation)),
         s => FetchError::from_status(s),
     }
 }
@@ -176,7 +176,7 @@ async fn bible_id(client: &reqwest::Client, key: &str, translation: &str) -> Res
             return Ok(id.to_string());
         }
     }
-    Err(FetchError::Other(format!("{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard")))
+    Err(FetchError::Other(crate::tr!("{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard", translation = translation)))
 }
 
 fn norm(s: &str) -> String { s.chars().filter(char::is_ascii_alphanumeric).map(|c| c.to_ascii_uppercase()).collect() }
@@ -210,7 +210,7 @@ pub fn parse_verse_id(code: &str, id: &str) -> Option<(u16, u16)> {
 pub fn parse(code: &str, r: &Response) -> Result<Vec<Verse>, FetchError> {
     let mut w = Walk { code, out: Vec::new(), gap: false, wrong_book: false };
     w.walk(&r.data.content, None, false);
-    if w.wrong_book { return Err(FetchError::Other("API.Bible returned a different book".into())); }
+    if w.wrong_book { return Err(FetchError::Other(crate::tr!("API.Bible returned a different book"))); }
     let mut out = w.out;
     for v in &mut out { v.2 = tidy(&v.2); }
     out.retain(|v| !v.2.is_empty());
