@@ -210,6 +210,8 @@ pub struct App {
     converters: OnceLock<Arc<import::deck::Converters>>,
     /// Held by the Bible download under way, so downloads run one at a time (Bible library spec §3.1).
     bible_downloads: tokio::sync::Mutex<()>,
+    /// YouTube downloads: their helper programs and lookups.
+    pub youtube: crate::youtube::Hub,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -234,13 +236,14 @@ impl App {
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
         // A download cut off by a crash or a forced quit leaves nothing behind.
         bible::catalog::install::clean_partials(&store.root);
+        let youtube = crate::youtube::Hub::new(&store.root);
         let app = Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
-            bible_downloads: tokio::sync::Mutex::new(()),
+            bible_downloads: tokio::sync::Mutex::new(()), youtube,
         });
         app.refresh_bible_credits();
         app

@@ -273,5 +273,9 @@ mod tests {
         assert!(text.contains("libmpv"), "the run-time libraries' notice");
         assert!(text.contains("LGPL"));
         assert!(text.find("Slint").unwrap() < text.find("libmpv (mpv)").unwrap(), "crates first, then native.txt");
+        // The programs Download from YouTube fetches on first use are named with their licences.
+        for name in ["yt-dlp — The Unlicense", "Deno — MIT License", "FFmpeg (ffmpeg, ffprobe) — GNU General Public License"] {
+            assert!(text.contains(name), "{name}");
+        }
     }
 }

@@ -25,6 +25,8 @@ pub(crate) struct AddCtx {
     thumbs: OnceCell<Thumbs>,
     /// The Bible tab's Bible: the Bible box's when the dialog opens, then what its picker chose (spec §7.2).
     bible: RefCell<String>,
+    /// The Media tab's Download from YouTube panel.
+    pub(crate) yt: super::add_youtube::Panel,
 }
 
 impl AddCtx {
@@ -36,7 +38,7 @@ impl AddCtx {
         let filter: Box<dyn Fn(&AddRow) -> bool> = Box::new(move |r| { let t = t.borrow(); t.is_empty() || r.key.contains(t.as_str()) });
         let shown = Rc::new(FilterModel::new(all.clone(), filter));
         let bible = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_default();
-        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new(), bible: RefCell::new(bible) })
+        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new(), bible: RefCell::new(bible), yt: Default::default() })
     }
 
     /// Draws the rows' pictures on a worker thread, or at once in tests.
@@ -57,7 +59,10 @@ fn tab_at(i: i32) -> Option<AddTab> {
 }
 
 /// `openAdd(tab)`: opens the dialog on `tab` with empty fields.
-pub fn open_add(op: &Rc<Operator>, tab: AddTab) {
+pub fn open_add(op: &Rc<Operator>, tab: AddTab) { open_add_ctx(op, tab); }
+
+/// `open_add`, keeping hold of the new dialog's list and panels (Download from YouTube fills its link).
+pub(crate) fn open_add_ctx(op: &Rc<Operator>, tab: AddTab) -> Rc<AddCtx> {
     op.open_dialog(DialogKind::Add(tab));
     let st = op.ui.global::<AddState>();
     for clear in [AddState::set_search, AddState::set_picker_search, AddState::set_reference, AddState::set_pasted, AddState::set_text_title, AddState::set_text_body] {
@@ -65,12 +70,14 @@ pub fn open_add(op: &Rc<Operator>, tab: AddTab) {
     }
     st.set_paste_open(false);
     st.set_per_slide(i32::from(op.bible_per_slide()));
+    super::add_youtube::reset(&st);
     let ctx = AddCtx::new(op);
     st.set_rows(ModelRc::from(ctx.shown.clone()));
     wire(op, &ctx);
     show_tab(op, &ctx, tab);
     let redraw = ctx.clone();
     op.on_dialog_refresh(move |op| draw_list(op, &redraw));
+    ctx
 }
 
 /// A tile: the tab's content is made new, so its search starts empty and its first field takes the keyboard.
@@ -267,6 +274,7 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_per_slide_picked(move |i| if let Some(op) = c.op.upgrade() { op.set_bible_per_slide(u8::try_from(i).unwrap_or(0)) });
     st.on_text_add(with(|op, _| add_text(op)));
     super::add_media::wire(op, ctx);
+    super::add_youtube::wire(op, ctx);
 }
 
 /// Asks where the library is, imports it, and says what came in. The picker has no file filter, as the folder

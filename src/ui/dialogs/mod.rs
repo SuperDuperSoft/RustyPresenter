@@ -4,6 +4,7 @@
 pub mod about;
 pub mod add;
 pub mod add_media;
+pub mod add_youtube;
 pub mod ask;
 pub mod background;
 pub mod item_edit;
