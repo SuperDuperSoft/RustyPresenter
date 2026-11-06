@@ -78,7 +78,7 @@ export component UsageDialog inherits VerticalLayout {
                 Lbl { label: @tr("From"); }
                 from := TextField {
                     width: 140px;
-                    placeholder: "YYYY-MM-DD";
+                    placeholder: @tr("YYYY-MM-DD");
                     text <=> UsageDlg.from;
                     edited => { UsageDlg.dates-edited(); }
                 }
@@ -88,7 +88,7 @@ export component UsageDialog inherits VerticalLayout {
                 Lbl { label: @tr("To"); }
                 to := TextField {
                     width: 140px;
-                    placeholder: "YYYY-MM-DD";
+                    placeholder: @tr("YYYY-MM-DD");
                     text <=> UsageDlg.to;
                     edited => { UsageDlg.dates-edited(); }
                 }
