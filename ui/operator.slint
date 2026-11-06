@@ -153,6 +153,10 @@ export component OperatorWindow inherits Window {
     callback live-clear(string);
     callback transport-toggle(int);
     callback monitor-resized(length);
+    /// The message on the stage screen now, and what is typed for the next one.
+    in property <string> stage-message;
+    in-out property <string> stage-draft;
+    callback stage-message-send(string);
 
     // Toasts and the jobs box (see `overlays.slint`).
     in property <[ToastRow]> toasts;
@@ -369,6 +373,10 @@ export component OperatorWindow inherits Window {
                         clear(cmd) => { root.focus-keys(); root.live-clear(cmd); }
                         transport-toggle(i) => { root.focus-keys(); root.transport-toggle(i); }
                         monitor-resized(w) => { root.monitor-resized(w); }
+                        stage-shown: root.stage-shown;
+                        stage-message: root.stage-message;
+                        stage-draft <=> root.stage-draft;
+                        stage-message-send(t) => { root.stage-message-send(t); }
                     }
                 }
             }

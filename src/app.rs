@@ -82,6 +82,8 @@ pub struct LiveView {
     pub notice: Option<String>,
     pub theme: Theme,
     pub logo: Option<AssetId>,
+    /// A note for the people on the platform ("Wrap up", "Next song is up"); empty shows nothing.
+    pub stage_message: String,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -184,6 +186,8 @@ pub struct App {
     pub youtube: crate::youtube::Hub,
     /// libmpv for grabbing video thumbnails; unset when it is missing (and in tests).
     probe_mpv: OnceLock<Arc<crate::video::ffi::Mpv>>,
+    /// The message on the stage screen (`stage/message`); not saved, a restart clears it.
+    stage_message: Mutex<String>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -219,7 +223,7 @@ impl App {
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), youtube, probe_mpv: OnceLock::new(),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), youtube, probe_mpv: OnceLock::new(), stage_message: Mutex::new(String::new()),
         })
     }
 
@@ -241,6 +245,7 @@ impl App {
             notice: live.notice.clone(),
             theme: data.settings.theme.clone(),
             logo: data.settings.logo.clone(),
+            stage_message: self.stage_message.lock().unwrap().clone(),
         }
     }
 
@@ -972,6 +977,13 @@ impl App {
             *app.pairing.lock().unwrap() = Some(Pairing { pin: pin.clone(), secret, until: Instant::now() + Duration::from_secs(120), failures: 0 });
             Ok(json!({ "pin": pin, "url": url, "qr": qr, "seconds": 120 }))
         }
+        "stage/message" => {
+            #[derive(Deserialize)] struct M { text: String }
+            let M { text } = parse(body)?;
+            *app.stage_message.lock().unwrap() = text.trim().chars().take(STAGE_MESSAGE_MAX).collect();
+            app.broadcast_live();
+            Ok(json!({}))
+        }
         "pair/stop" => { *app.pairing.lock().unwrap() = None; Ok(json!({})) }
         "phone/revoke" => {
             let Id { id } = parse(body)?;
@@ -1002,6 +1014,9 @@ pub enum SongImportMode {
     Update,
     KeepBoth,
 }
+
+/// The longest stage message: it has to fit the stage screen in large type.
+pub const STAGE_MESSAGE_MAX: usize = 140;
 
 /// One passage from one Bible: built in, then a file the church imported (works offline, wins over any online
 /// source), then online.
@@ -1555,6 +1570,18 @@ pub(crate) mod tests {
         assert_eq!(app.data.lock().unwrap().settings.translation, "KJV");
         assert_eq!(app.state_json()["items"][0]["title"], "John 3:16 (RVR1960)", "the saved passage keeps its label");
         assert_eq!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"yv:149"}"#).await.unwrap_err().message, bible::strings::REMOVED);
+    }
+
+    #[tokio::test]
+    async fn stage_message_shows_in_the_live_view_until_cleared() {
+        let app = test_app();
+        app.do_action("stage/message", br#"{"text":"  Wrap up  "}"#).await.unwrap();
+        assert_eq!(app.live_view().stage_message, "Wrap up");
+        let long = format!(r#"{{"text":"{}"}}"#, "x".repeat(500));
+        app.do_action("stage/message", long.as_bytes()).await.unwrap();
+        assert_eq!(app.live_view().stage_message.chars().count(), STAGE_MESSAGE_MAX);
+        app.do_action("stage/message", br#"{"text":""}"#).await.unwrap();
+        assert_eq!(app.live_view().stage_message, "");
     }
 
     #[tokio::test]

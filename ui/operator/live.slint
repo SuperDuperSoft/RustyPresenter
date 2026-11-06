@@ -5,6 +5,8 @@ import { Bar, ScrollBox } from "../widgets.slint";
 import { Layer } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
+import { Btn } from "../widgets.slint";
+import { TextField } from "../dialogs/form.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -37,6 +39,11 @@ export component LiveColumn inherits Rectangle {
     callback transport-toggle(int);
     /// The monitor's width changed (Rust redraws the preview at the new size).
     callback monitor-resized(length);
+    /// A stage screen is set up: the message box shows.
+    in property <bool> stage-shown;
+    in property <string> stage-message;
+    in-out property <string> stage-draft;
+    callback stage-message-send(string);
 
     init => { root.monitor-resized(root.monitor-width); }
     changed monitor-width => { root.monitor-resized(root.monitor-width); }
@@ -242,6 +249,49 @@ export component LiveColumn inherits Rectangle {
                     }
                 }
             }
+            // A message for the stage screen ("Wrap up", "Next song is up").
+            if root.stage-shown: VerticalLayout {
+                spacing: 6px;
+                if root.stage-message != "": on-stage := Rectangle {
+                    background: Theme.panel-2;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: Theme.accent;
+                    HorizontalLayout {
+                        padding: 8px;
+                        spacing: 8px;
+                        Text {
+                            horizontal-stretch: 1;
+                            text: @tr("On stage: {}", root.stage-message);
+                            color: Theme.accent;
+                            font-size: 13px;
+                            font-weight: 600;
+                            wrap: word-wrap;
+                            vertical-alignment: center;
+                        }
+                        stage-clear := Btn {
+                            small: true;
+                            text: @tr("Clear");
+                            clicked => { root.stage-message-send(""); }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    stage-text := TextField {
+                        horizontal-stretch: 1;
+                        text <=> root.stage-draft;
+                        placeholder: @tr("Message to the stage screen");
+                        accepted(t) => { root.stage-message-send(t); }
+                    }
+                    stage-send := Btn {
+                        small: true;
+                        text: @tr("Send");
+                        clicked => { root.stage-message-send(root.stage-draft); }
+                    }
+                }
+            }
+
             // `.clears`: Clear All across the width, then four in a row.
             VerticalLayout {
                 spacing: 8px;

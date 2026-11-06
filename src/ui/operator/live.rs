@@ -39,6 +39,7 @@ impl Operator {
         ui.set_live_what(view::live_what(v).into());
         ui.set_live_notice(v.notice.clone().unwrap_or_default().into());
         ui.set_logo_on(v.frame.logo);
+        ui.set_stage_message(v.stage_message.as_str().into());
         let (title, body) = view::next_up(v);
         ui.set_up_next_title(title.into());
         ui.set_up_next_body(body.into());
@@ -184,6 +185,22 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_transport_toggle(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.toggle_transport(i) });
     let me = Rc::downgrade(op);
     ui.on_monitor_resized(move |_| if let Some(op) = me.upgrade() { op.monitor_resized() });
+    // The stage message: Send puts the box's text on the stage screen, Clear takes it off.
+    let me = Rc::downgrade(op);
+    ui.on_stage_message_send(move |text| if let Some(op) = me.upgrade() { op.send_stage_message(text.to_string()) });
+}
+
+impl Operator {
+    fn send_stage_message(self: &Rc<Self>, text: String) {
+        let me = Rc::downgrade(self);
+        self.ops.call::<serde_json::Value>("stage/message", serde_json::json!({ "text": text }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            match r {
+                Ok(_) => { op.ui.set_stage_draft("".into()); op.ui.invoke_focus_keys(); }
+                Err(e) => op.toast(e, true),
+            }
+        });
+    }
 }
 
 #[cfg(test)]

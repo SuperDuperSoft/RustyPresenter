@@ -8,7 +8,7 @@ use tokio::sync::broadcast::error::RecvError;
 
 /// Everything the stage shows, worked out from one live view.
 #[derive(Clone, Debug, PartialEq, Default)]
-pub struct StageText { pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String }
+pub struct StageText { pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String, pub message: String }
 
 /// A slide as the stage names it: its text, or what kind of picture or media it is.
 fn label(s: &Slide) -> &str {
@@ -40,6 +40,7 @@ pub fn stage_text(view: &LiveView) -> StageText {
         notes: view.slide.as_ref().map(|s| s.notes.clone()).unwrap_or_default(),
         next: view.next.as_ref().map_or("End of service", |n| label(&n.slide)).into(),
         timer: timer.unwrap_or_default(),
+        message: view.stage_message.clone(),
     }
 }
 
@@ -65,6 +66,7 @@ fn show(ui: &StageWindow, view: &LiveView) {
     ui.set_notes(t.notes.into());
     ui.set_next(t.next.into());
     ui.set_timer(t.timer.into());
+    ui.set_message(t.message.into());
     fit(ui);
 }
 
@@ -146,7 +148,7 @@ mod tests {
             item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2 }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None,
+            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
         }
     }
 
@@ -248,4 +250,13 @@ mod tests {
         assert!(stage.ui.get_now_fits(), "the lyric must fit at the chosen size");
         stage.ui.hide().unwrap();
     }
+
+    #[test]
+    fn stage_text_carries_the_operator_message() {
+        let mut v = view(None, None);
+        assert_eq!(stage_text(&v).message, "");
+        v.stage_message = "Wrap up in 5".into();
+        assert_eq!(stage_text(&v).message, "Wrap up in 5");
+    }
+
 }

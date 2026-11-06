@@ -15,6 +15,8 @@ export component StageWindow inherits Window {
     in property <string> now;
     in property <bool> now-dim;
     in property <string> notes;
+    /// A message from the operator, shown over everything else in large type; empty hides it.
+    in property <string> message;
     in property <string> next: "End of service";
     /// The current slide's font size in % of the window height. Rust lowers it until `now-fits`.
     in property <float> now-size: 9;
@@ -75,6 +77,25 @@ export component StageWindow inherits Window {
                     font-size: 6 * vh;
                     font-weight: 600;
                     vertical-alignment: center;
+                }
+            }
+        }
+
+        if root.message != "": message-box := Rectangle {
+            background: #f5b94a;
+            border-radius: 1 * vh;
+            VerticalLayout {
+                padding-top: 1.4 * vh;
+                padding-bottom: 1.4 * vh;
+                padding-left: 2 * vw;
+                padding-right: 2 * vw;
+                message-t := Text {
+                    text: root.message;
+                    color: #1a1405;
+                    font-size: 5.5 * vh;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                    horizontal-alignment: center;
                 }
             }
         }
