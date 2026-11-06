@@ -5,6 +5,10 @@ import { BgChoice } from "background-picker.slint";
 /// A translation row of Settings → Bible: its status chip and the line under its name.
 export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
 
+/// A row of the Bible search: a language heading (`header` set), or one Bible with its one button.
+/// `state` is "add", "added" (Remove) or "listed" (already one of the app's own Bibles: no button).
+export struct SettingsCatalogRow { header: string, abbr: string, name: string, tag: string, state: string }
+
 /// An online Bible service row of Settings → Bible.
 export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
 
@@ -52,6 +56,13 @@ export global SettingsDlg {
     in property <[SettingsProviderRow]> bible-providers;
     in property <[string]> bible-credits;
     in-out property <string> bible-short;
+    /// The Bible search (design §3.3.1): what is typed, the rows found, the line under the box.
+    in-out property <string> bible-query;
+    in property <[SettingsCatalogRow]> bible-catalog;
+    in property <string> bible-catalog-status;
+    /// A YouVersion or API.Bible key is set (Refresh list does something).
+    in property <bool> bible-keys;
+    in property <bool> bible-searching;
 
     // ---- Video ----
     in property <bool> ffmpeg;
@@ -89,6 +100,12 @@ export global SettingsDlg {
     callback copy-link(int);
     callback import-bible();
     callback remove-import(int);
+    /// Typing in the Bible search (searched 150 ms after the last key).
+    callback bible-search(string);
+    callback bible-refresh();
+    /// Add or Remove on a search row.
+    callback bible-add(int);
+    callback bible-remove(int);
     callback copy-winget();
     callback check-again();
     callback backup-now();

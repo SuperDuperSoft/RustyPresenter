@@ -27,10 +27,14 @@ pub struct JobRow { pub id: Uuid, pub label: String, pub percent: u8, pub error:
 #[serde(default)]
 pub struct BibleSource {
     pub translation: String,
+    /// What chips and rows show for an online Bible's id (`yv:149` → "RVR1960"); empty: `translation`.
+    pub label: String,
     /// "offline", "online", "needs_key" or "unavailable".
     pub status: String,
     pub provider: Option<String>,
     pub imported: bool,
+    /// Added from the YouVersion or API.Bible list (design §3.3.1): removable, online only.
+    pub added: bool,
     pub copyright: Option<String>,
     /// Key names of the services that can supply this translation.
     pub providers: Vec<String>,
@@ -88,7 +92,16 @@ pub fn read_number() -> u64 { READS.load(Ordering::SeqCst) }
 // The follower thread builds it and sends it to the Slint thread.
 const _: fn() = || { fn send<T: Send + Sync>() {} send::<OperatorSnapshot>(); };
 
+impl BibleSource {
+    pub fn shown(&self) -> &str { if self.label.is_empty() { &self.translation } else { &self.label } }
+}
+
 impl OperatorSnapshot {
+    /// The label a translation id shows on chips and in Settings ("RVR1960" for `yv:149`).
+    pub fn translation_label(&self, id: &str) -> String {
+        self.bible_sources.iter().find(|b| b.translation == id).map_or(id, BibleSource::shown).to_string()
+    }
+
     /// Reads the same sources as `App::state_json`. **Never call it on the Slint thread:** it parses every backup,
     /// searches PATH for ffmpeg and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.

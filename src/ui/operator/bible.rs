@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 /// `bible/lookup`'s answer. The verses pass through to `service/add` untouched.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Value, translation: String }
+struct Found { label: String, verses: Value, translation: String, #[serde(default)] abbr: String }
 
 #[derive(Deserialize)]
 struct Added { id: Uuid }
@@ -37,8 +37,8 @@ pub fn submit(op: &Rc<Operator>, reference: String) {
 fn add(op: &Rc<Operator>, found: Found) {
     let live_item = op.live_item();
     let position = op.state.borrow().snap.as_ref().and_then(|s| view::insert_position(&s.items, live_item));
-    let Found { label, verses, translation } = found;
-    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "verses": verses, "per_slide": 0 });
+    let Found { label, verses, translation, abbr } = found;
+    let item = json!({ "kind": "scripture", "reference": label, "translation": translation, "abbr": abbr, "verses": verses, "per_slide": 0 });
     let me = Rc::downgrade(op);
     op.ops.call::<Added>("service/add", json!({ "position": position, "item": item }), move |r| {
         let Some(op) = me.upgrade() else { return };
@@ -78,7 +78,8 @@ pub fn pick(op: &Rc<Operator>, index: usize) {
     let chips = op.ui.get_translations();
     for i in 0..chips.row_count() {
         let Some(mut chip) = chips.row_data(i) else { continue };
-        let on = chip.name == name.as_str();
+        // By position: two online Bibles may show the same abbreviation.
+        let on = i == index;
         if chip.on != on { chip.on = on; chips.set_row_data(i, chip); }
     }
     op.ui.set_translation(name.as_str().into());

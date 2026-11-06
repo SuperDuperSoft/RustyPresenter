@@ -3,12 +3,23 @@
 use crate::model::VerseText;
 
 pub mod api_bible;
+pub mod blocklist;
+pub mod catalog;
 pub mod esv;
 pub mod import;
 pub mod nlt;
 pub mod sources;
 pub mod youversion;
+#[path = "strings/bible.rs"]
+pub mod strings;
 use std::{collections::BTreeMap, sync::OnceLock};
+
+/// A translation id as typed or stored: a legacy abbreviation (`hcsb`) is uppercased; a prefixed catalog id
+/// (`yv:111`, `ab:de4e…-02`) is opaque and case-sensitive, so it is only trimmed (design §5.1).
+pub fn normalise_id(id: &str) -> String {
+    let id = id.trim();
+    if id.contains(':') { id.to_string() } else { id.to_uppercase() }
+}
 
 /// (code in the eBible KJV source, display name, extra aliases)
 pub const BOOKS: &[(&str, &str, &str)] = &[

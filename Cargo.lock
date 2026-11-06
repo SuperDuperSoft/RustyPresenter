@@ -5620,6 +5620,7 @@ dependencies = [
  "glow",
  "i-slint-backend-testing",
  "i-slint-core",
+ "icu_normalizer",
  "image",
  "libc",
  "libloading 0.8.9",

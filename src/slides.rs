@@ -211,8 +211,16 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
             Some(song) => (song.title.clone(), "song", song_slides(song, s)),
             None => ("Missing song".into(), "song", vec![]),
         },
-        ItemKind::Scripture { reference, translation, verses, per_slide } =>
-            (format!("{reference} ({translation})"), "scripture", scripture_slides(verses, *per_slide, translation)),
+        ItemKind::Scripture { reference, translation, verses, per_slide, abbr } => {
+            let label = if abbr.is_empty() { translation } else { abbr };
+            // A saved passage in a blocked translation (Bible library design §4) shows the message, never its text.
+            if crate::bible::blocklist::blocked_id(translation) || crate::bible::blocklist::blocked_id(label) {
+                let v = [VerseText { reference: reference.clone(), text: crate::bible::strings::BLOCKED.into() }];
+                (format!("{reference} ({label})"), "scripture", scripture_slides(&v, 1, label))
+            } else {
+                (format!("{reference} ({label})"), "scripture", scripture_slides(verses, *per_slide, label))
+            }
+        }
         ItemKind::Media { media_id, autoplay, end, looped } => match data.media.iter().find(|m| m.id == *media_id) {
             Some(m) => {
                 let content = match m.kind {
@@ -238,6 +246,34 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn scripture(translation: &str, abbr: &str) -> ServiceItem {
+        let verses = vec![VerseText { reference: "John 1:1".into(), text: "In the beginning".into() }];
+        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, abbr: abbr.into() }, background: None, notes: String::new() }
+    }
+
+    fn texts(slides: &[Slide]) -> Vec<String> {
+        slides.iter().map(|s| match &s.content { SlideContent::Text { text, .. } => text.clone(), _ => String::new() }).collect()
+    }
+
+    #[test]
+    fn online_bible_items_show_their_abbreviation_not_their_id() {
+        let (title, _, slides) = build_item(&Data::default(), &scripture("yv:149", "RVR1960"));
+        assert_eq!(title, "John 1:1 (RVR1960)");
+        assert!(matches!(&slides[0].content, SlideContent::Text { reference: Some(r), .. } if r.ends_with("(RVR1960)")), "{:?}", slides[0].content);
+        let (title, _, _) = build_item(&Data::default(), &scripture("KJV", ""));
+        assert_eq!(title, "John 1:1 (KJV)", "old items have no abbr");
+    }
+
+    #[test]
+    fn a_saved_passage_in_a_blocked_translation_never_shows_its_text() {
+        for (t, a) in [("NWT", ""), ("yv:1849", "TPT"), ("yv:5", "JST")] {
+            let (_, _, slides) = build_item(&Data::default(), &scripture(t, a));
+            assert_eq!(texts(&slides).len(), 1);
+            assert!(texts(&slides)[0].contains(crate::bible::strings::BLOCKED), "{t}");
+            assert!(!texts(&slides)[0].contains("In the beginning"));
+        }
+    }
 
     #[test]
     fn labels_are_recognized_but_lyrics_are_not() {

@@ -198,6 +198,13 @@ impl Plan for DataPlan<'_> {
 pub(crate) const SESSION_DAYS: u64 = 30;
 pub(crate) const MAX_PHONES: usize = 5;
 
+/// A scripture item in a blocked translation (Bible library design §4). Items come whole over the action API, so
+/// they never pass lookup, paste or import.
+fn blocked_item(item: &ServiceItem) -> bool {
+    matches!(&item.kind, ItemKind::Scripture { translation, abbr, .. }
+        if bible::blocklist::blocked_id(translation) || bible::blocklist::blocked_id(abbr))
+}
+
 pub(crate) fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
 
 impl App {
@@ -416,11 +423,54 @@ impl App {
     /// Roles with an open window (`state_json`'s `windows`).
     pub(crate) fn open_roles(&self) -> Vec<String> { self.screens.get().map(|s| s.open_roles()).unwrap_or_default() }
 
-    /// The standard list plus any other Bible the church imported.
+    /// The standard list plus any other Bible the church imported, then the online Bibles it added (`yv:…`, `ab:…`).
     pub fn translations(&self) -> Vec<String> {
         let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
         for b in bible::import::all(&self.store.root) { if !out.contains(&b.abbreviation) { out.push(b.abbreviation.clone()); } }
+        for b in bible::catalog::added(&self.store.root) { if !out.contains(&b.id) { out.push(b.id); } }
         out
+    }
+
+    /// Settings → Bible's search (design §3.3.1): the saved YouVersion and API.Bible lists of every key that is set,
+    /// each fetched when missing, a week old, or on `refresh`; at most 80 matching rows with language headers.
+    pub(crate) async fn bible_catalog(&self, query: &str, refresh: bool) -> Value {
+        use bible::{catalog, sources::{FetchError, Provider, Secrets}, strings as s};
+        let root = &self.store.root;
+        let secrets = Secrets::load(root);
+        let now = now_secs();
+        let (mut cats, mut notes) = (Vec::new(), Vec::new());
+        let keyed: Vec<(Provider, String)> = [Provider::YouVersion, Provider::ApiBible].into_iter()
+            .filter_map(|p| secrets.key(p).map(|k| (p, k.to_string()))).collect();
+        for (p, key) in &keyed {
+            let (cat, err) = catalog::ensure(root, *p, key, refresh, now).await;
+            let name = if *p == Provider::YouVersion { "YouVersion" } else { "API.Bible" };
+            if let Some(e) = err {
+                notes.push(match e {
+                    FetchError::Network => s::offline(name),
+                    FetchError::BadKey => s::key_refused(name),
+                    FetchError::RateLimited if *p == Provider::YouVersion => s::YOUVERSION_BUSY.into(),
+                    FetchError::RateLimited => s::API_BIBLE_BUSY.into(),
+                    _ => s::list_failed(name),
+                });
+            }
+            if let Some(c) = cat { cats.push((*p, c)); }
+        }
+        let added: Vec<String> = catalog::added(root).into_iter().map(|b| b.id).collect();
+        let (hits, total) = catalog::search(&cats, query, 80);
+        let mut rows = Vec::new();
+        let mut header: Option<String> = None;
+        for (p, b) in &hits {
+            let lang = if b.lang_name.is_empty() { b.lang.clone() } else { b.lang_name.clone() };
+            if header.as_deref() != Some(lang.as_str()) { rows.push(json!({ "header": lang })); header = Some(lang); }
+            let state = if added.contains(&b.id) { "added" } else if catalog::already_listed(*p, b) { "listed" } else { "add" };
+            let tag = if *p == Provider::YouVersion { s::TAG_YOUVERSION } else { s::TAG_API_BIBLE };
+            let name = if b.name_en.is_empty() || b.name_en == b.name { b.name.clone() } else { format!("{} · {}", b.name, b.name_en) };
+            rows.push(json!({ "id": b.id, "abbr": b.abbr, "name": name, "tag": tag, "state": state }));
+        }
+        json!({
+            "rows": rows, "shown": hits.len(), "total": total, "keys": !keyed.is_empty(), "notes": notes,
+            "listed": cats.iter().map(|(_, c)| c.rows.len()).sum::<usize>(),
+        })
     }
 
     /// Translations that can be looked up now: built in, imported, or a licensed source whose key is saved.
@@ -434,12 +484,22 @@ impl App {
         use bible::sources::{Secrets, source_with};
         let root = &self.store.root;
         let secrets = Secrets::load(root);
+        let online = bible::catalog::added(root);
         self.translations().iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
                 return json!({ "translation": t, "status": "offline", "provider": format!("{name} — built in, public domain") });
             }
             if let Some(b) = bible::import::get(root, t) {
                 return json!({ "translation": t, "status": "offline", "imported": true, "provider": format!("{} — imported file", b.name), "copyright": b.copyright });
+            }
+            // Added from a catalog: online only, with the credit kept when it was added (design §3.3.1).
+            if let Some(b) = online.iter().find(|b| b.id == *t) {
+                let p = bible::catalog::provider_of(&b.id).unwrap_or(bible::sources::Provider::YouVersion);
+                return json!({
+                    "translation": t, "label": b.abbr, "name": b.name, "added": true,
+                    "status": if secrets.key(p).is_some() { "online" } else { "needs_key" },
+                    "provider": format!("{} — {}", b.name, p.label()), "providers": [p.key_name()], "copyright": b.copyright,
+                });
             }
             match source_with(t, &secrets) {
                 Some(s) => json!({
@@ -553,6 +613,7 @@ impl App {
             let Add { mut item, position } = parse(body)?;
             if item.get("id").is_none() { item["id"] = json!(Uuid::new_v4()); }
             let mut item: ServiceItem = serde_json::from_value(item).map_err(|e| ActionError::bad(e.to_string()))?;
+            if blocked_item(&item) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             item.id = Uuid::new_v4();
             let id = item.id;
             tryr!(app.edit(|d| {
@@ -565,6 +626,7 @@ impl App {
         }
         "service/update" => {
             let item: ServiceItem = parse(body)?;
+            if blocked_item(&item) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             tryr!(app.edit(|d| {
                 let s = d.service_mut().ok_or("No service is open.")?;
                 let slot = s.items.iter_mut().find(|i| i.id == item.id).ok_or("That item is gone.")?;
@@ -630,18 +692,53 @@ impl App {
         "bible/lookup" => {
             #[derive(Deserialize)] struct L { reference: String, translation: String }
             let L { reference, translation } = parse(body)?;
+            if bible::blocklist::blocked_id(&translation) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             // Built in, then a file the church imported (works offline, wins over any online source), then online.
             let (label, verses) = if let Some(b) = bible::built_in(&translation) { tryr!(b.lookup(&reference)) }
                 else if let Some(b) = bible::import::get(&app.store.root, &translation) { tryr!(b.lookup(&reference)) }
                 else { tryr!(bible::sources::lookup(&app.store.root, &translation, &reference).await) };
-            Ok(json!({ "label": label, "verses": verses, "translation": translation }))
+            // An online Bible's id is not a label: the item keeps its abbreviation for the slides.
+            let abbr = bible::catalog::find_added(&app.store.root, &translation).map(|b| b.abbr).unwrap_or_default();
+            Ok(json!({ "label": label, "verses": verses, "translation": translation, "abbr": abbr }))
         }
         "bible/paste" => {
             // Verses typed or pasted from the church's own Bible, for a translation with no source here (e.g. HCSB).
             #[derive(Deserialize)] struct P { reference: String, translation: String, text: String }
             let P { reference, translation, text } = parse(body)?;
+            let translation = bible::normalise_id(&translation);
+            if bible::blocklist::blocked_id(&translation) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             let (label, verses) = tryr!(bible::pasted(&reference, &text));
-            Ok(json!({ "label": label, "verses": verses, "translation": translation.trim().to_uppercase() }))
+            let abbr = bible::catalog::find_added(&app.store.root, &translation).map(|b| b.abbr).unwrap_or_default();
+            Ok(json!({ "label": label, "verses": verses, "translation": translation, "abbr": abbr }))
+        }
+        "bible/catalog" => {
+            #[derive(Deserialize)] struct C { #[serde(default)] query: String, #[serde(default)] refresh: bool }
+            let C { query, refresh } = parse(body)?;
+            Ok(app.bible_catalog(&query, refresh).await)
+        }
+        "bible/online-add" => {
+            // One click from Settings → Bible: the row's metadata comes from the saved list, never from the caller.
+            #[derive(Deserialize)] struct A { id: String }
+            let A { id } = parse(body)?;
+            let root = &app.store.root;
+            let p = bible::catalog::provider_of(&id).ok_or_else(|| ActionError::bad(bible::strings::UNKNOWN_BIBLE))?;
+            let b = bible::catalog::cached(root, p).and_then(|c| c.rows.iter().find(|(b, _)| b.id == id).map(|(b, _)| b.clone()))
+                .ok_or_else(|| ActionError::bad(bible::strings::UNKNOWN_BIBLE))?;
+            tryr!(bible::catalog::add(root, b.clone()));
+            app.broadcast_data();
+            Ok(json!({ "abbr": b.abbr }))
+        }
+        "bible/online-remove" => {
+            // `used` without `confirm`: the passages saved in services keep their verses, but the operator is asked first.
+            #[derive(Deserialize)] struct R { id: String, #[serde(default)] confirm: bool }
+            let R { id, confirm } = parse(body)?;
+            let used = app.data.lock().unwrap().services.iter()
+                .filter(|s| s.items.iter().any(|i| matches!(&i.kind, ItemKind::Scripture { translation, .. } if *translation == id))).count();
+            if used > 0 && !confirm { return Ok(json!({ "used": used, "removed": false })); }
+            tryr!(bible::catalog::remove(&app.store.root, &id).map_err(|e| e.to_string()));
+            tryr!(app.edit(|d| { if d.settings.translation == id { d.settings.translation = "KJV".into(); } Ok(()) }));
+            app.broadcast_data();
+            Ok(json!({ "used": used, "removed": true }))
         }
         "bible/key" => {
             // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
@@ -745,6 +842,7 @@ impl App {
         "settings/translation" => {
             #[derive(Deserialize)] struct T { translation: String }
             let T { translation } = parse(body)?;
+            if bible::blocklist::blocked_id(&translation) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
             tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
             Ok(json!({}))
@@ -1306,6 +1404,69 @@ pub(crate) mod tests {
         assert!(app.do_action("bible/import/KJV", file).await.unwrap_err().message.contains("already built in"));
         app.do_action("bible/import-remove", br#"{"translation":"HCSB"}"#).await.unwrap();
         assert!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"HCSB"}"#).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn online_bibles_are_found_added_picked_and_removed() {
+        use bible::catalog::{CatalogFile, OnlineBible, store};
+        let app = test_app();
+        let root = app.store.root.clone();
+        let rv = OnlineBible { id: "yv:149".into(), abbr: "RVR1960".into(), name: "Biblia Reina Valera 1960".into(), name_en: "Reina-Valera 1960".into(),
+            lang: "es".into(), lang_name: "Spanish".into(), dir: "ltr".into(), copyright: "© Sociedades Bíblicas en América Latina".into(), ..Default::default() };
+        let niv = OnlineBible { id: "yv:111".into(), abbr: "NIV".into(), name: "New International Version".into(), lang: "en".into(), lang_name: "English".into(), copyright: "Biblica".into(), ..Default::default() };
+        store(&root, bible::sources::Provider::YouVersion, CatalogFile { fetched: now_secs(), bibles: vec![rv.clone(), niv] }).unwrap();
+        // No key: nothing listed, and the page says why.
+        let v = app.do_action("bible/catalog", br#"{"query":"reina"}"#).await.unwrap();
+        assert_eq!((v["keys"].clone(), v["rows"].as_array().unwrap().len()), (json!(false), 0));
+        let mut s = bible::sources::Secrets::default();
+        s.keys.insert("youversion".into(), "k".into());
+        s.save(&root).unwrap();
+        let v = app.do_action("bible/catalog", br#"{"query":"spanish"}"#).await.unwrap();
+        assert_eq!(v["rows"], json!([{ "header": "Spanish" },
+            { "id": "yv:149", "abbr": "RVR1960", "name": "Biblia Reina Valera 1960 · Reina-Valera 1960", "tag": "Needs internet · YouVersion", "state": "add" }]));
+        let v = app.do_action("bible/catalog", br#"{"query":"niv"}"#).await.unwrap();
+        assert_eq!(v["rows"][1]["state"], "listed", "today's NIV route: not twice");
+        assert_eq!(app.do_action("bible/online-add", br#"{"id":"yv:999"}"#).await.unwrap_err().message, bible::strings::UNKNOWN_BIBLE);
+        assert_eq!(app.do_action("bible/online-add", br#"{"id":"yv:149"}"#).await.unwrap()["abbr"], "RVR1960");
+        assert_eq!(app.do_action("bible/catalog", br#"{"query":"reina"}"#).await.unwrap()["rows"][1]["state"], "added");
+        assert!(app.translations().contains(&"yv:149".to_string()));
+        assert!(app.available_translations().contains(&"yv:149".to_string()), "the key is set");
+        let src = app.bible_sources().into_iter().find(|b| b["translation"] == "yv:149").unwrap();
+        assert_eq!((src["label"].clone(), src["added"].clone(), src["copyright"].clone()), (json!("RVR1960"), json!(true), json!(rv.copyright)));
+        // Picking it keeps the id's case; the lookup names it by its abbreviation.
+        app.do_action("settings/translation", br#"{"translation":"yv:149"}"#).await.unwrap();
+        assert_eq!(app.data.lock().unwrap().settings.translation, "yv:149");
+        let v = app.do_action("bible/paste", br#"{"reference":"John 3:16","translation":"yv:149","text":"Porque de tal manera"}"#).await.unwrap();
+        assert_eq!((v["translation"].clone(), v["abbr"].clone()), (json!("yv:149"), json!("RVR1960")));
+        let item = json!({ "item": { "kind": "scripture", "reference": "John 3:16", "translation": "yv:149", "abbr": "RVR1960", "verses": v["verses"], "per_slide": 0 } });
+        app.do_action("service/add", item.to_string().as_bytes()).await.unwrap();
+        assert_eq!(app.state_json()["items"][0]["title"], "John 3:16 (RVR1960)");
+        // Removing asks first while a service uses it, then falls back to KJV.
+        let v = app.do_action("bible/online-remove", br#"{"id":"yv:149"}"#).await.unwrap();
+        assert_eq!((v["used"].clone(), v["removed"].clone()), (json!(1), json!(false)));
+        assert!(app.translations().contains(&"yv:149".to_string()));
+        app.do_action("bible/online-remove", br#"{"id":"yv:149","confirm":true}"#).await.unwrap();
+        assert!(!app.translations().contains(&"yv:149".to_string()));
+        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV");
+        assert_eq!(app.state_json()["items"][0]["title"], "John 3:16 (RVR1960)", "the saved passage keeps its label");
+        assert_eq!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"yv:149"}"#).await.unwrap_err().message, bible::strings::REMOVED);
+    }
+
+    #[tokio::test]
+    async fn blocked_translations_are_refused_everywhere() {
+        let app = test_app();
+        let blocked = bible::strings::BLOCKED;
+        for (action, body) in [
+            ("bible/lookup", r#"{"reference":"John 3:16","translation":"NWT"}"#),
+            ("bible/lookup", r#"{"reference":"John 3:16","translation":"yv:1849"}"#),
+            ("bible/paste", r#"{"reference":"John 3:16","translation":"tpt","text":"x"}"#),
+            ("settings/translation", r#"{"translation":"JST"}"#),
+            ("service/add", r#"{"item":{"kind":"scripture","reference":"John 1:1","translation":"NWT","verses":[]}}"#),
+            ("service/add", r#"{"item":{"kind":"scripture","reference":"John 1:1","translation":"yv:5","abbr":"TPT","verses":[]}}"#),
+        ] {
+            assert_eq!(app.do_action(action, body.as_bytes()).await.unwrap_err().message, blocked, "{action} {body}");
+        }
+        assert!(app.data.lock().unwrap().services[0].items.is_empty());
     }
 
     #[tokio::test]

@@ -35,6 +35,8 @@ pdfium-render = "0.8.37"
 # Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
 reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+# Bible blocklist: accent-insensitive matching in every script (already in the tree through `url`/`idna`).
+icu_normalizer = { version = "2.4", default-features = false, features = ["compiled_data"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
 # Native file dialogs for the operator. 0.17 has no `tokio` feature: its xdg portal (Linux) runs on its own executor.

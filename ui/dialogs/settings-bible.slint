@@ -11,6 +11,79 @@ export component SettingsBible inherits VerticalLayout {
         text: @tr("The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.");
     }
     Rectangle { height: 16px; }
+
+    // Bible library step 2: one search over every Bible the church's keys may read; Add is one click.
+    Lbl { label: @tr("Find more Bibles"); }
+    Rectangle { height: 8px; }
+    HorizontalLayout {
+        spacing: 8px;
+        bible-search := TextField {
+            horizontal-stretch: 1;
+            search: true;
+            text <=> SettingsDlg.bible-query;
+            placeholder: @tr("Search by language or name, like Spanish, Reina or NIV");
+            edited(t) => { SettingsDlg.bible-search(t); }
+        }
+        VerticalLayout {
+            alignment: center;
+            refresh-list := Btn {
+                small: true;
+                icon: "restart";
+                text: @tr("Refresh list");
+                enabled: SettingsDlg.bible-keys && !SettingsDlg.bible-searching;
+                clicked => { if self.enabled { SettingsDlg.bible-refresh(); } }
+            }
+        }
+    }
+    Rectangle { height: 6px; }
+    catalog-status := Text {
+        text: SettingsDlg.bible-searching ? @tr("Searching…") : SettingsDlg.bible-catalog-status;
+        color: Theme.muted;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+    Rectangle { height: 8px; }
+    VerticalLayout {
+        spacing: 4px;
+        for r[i] in SettingsDlg.bible-catalog: VerticalLayout {
+            if r.header != "": catalog-header := Text {
+                text: r.header;
+                color: Theme.text;
+                font-size: 12.5px;
+                font-weight: 700;
+                accessible-role: text;
+            }
+            if r.header == "": catalog-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: r.abbr;
+                accessible-value: r.name;
+                accessible-description: r.tag;
+                RowMain {
+                    title: r.abbr + " — " + r.name;
+                    sub: r.tag;
+                }
+                if r.state == "add": catalog-add := Btn {
+                    small: true;
+                    primary: true;
+                    text: @tr("Add");
+                    clicked => { SettingsDlg.bible-add(i); }
+                }
+                if r.state == "added": catalog-remove := Btn {
+                    small: true;
+                    text: @tr("Remove");
+                    clicked => { SettingsDlg.bible-remove(i); }
+                }
+                if r.state == "listed": VerticalLayout {
+                    alignment: center;
+                    Chip {
+                        text: @tr("Already in your list");
+                        state: "ok";
+                    }
+                }
+            }
+        }
+    }
+    Rectangle { height: 16px; }
     Lbl { label: @tr("Translations"); }
     Rectangle { height: 8px; }
     VerticalLayout {
@@ -24,6 +97,7 @@ export component SettingsBible inherits VerticalLayout {
                 title: b.translation;
                 sub: b.hint;
             }
+            // An imported file, or a Bible added from the search.
             if b.imported: remove-import := Btn {
                 small: true;
                 text: @tr("Remove");

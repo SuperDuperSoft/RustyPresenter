@@ -214,7 +214,7 @@ impl Operator {
         let ui = &self.ui;
         ui.set_service_name(s.service_name.as_str().into());
         let chips: Vec<TranslationChip> = s.translations.iter().map(|t| TranslationChip {
-            name: t.as_str().into(), on: *t == s.translation, off: !s.available.contains(t),
+            name: s.translation_label(t).into(), on: *t == s.translation, off: !s.available.contains(t),
         }).collect();
         ui.set_translations(ModelRc::new(VecModel::from(chips)));
         ui.set_translation(s.translation.as_str().into());
