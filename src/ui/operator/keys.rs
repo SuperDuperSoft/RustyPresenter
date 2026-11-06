@@ -14,6 +14,8 @@ pub enum KeyAction {
     TakeArmedOrSelected,
     Blur,
     PickTranslation(usize),
+    /// Ctrl+V outside a text field: a YouTube link on the clipboard opens Download from YouTube with it.
+    PasteLink,
     None,
 }
 
@@ -77,6 +79,9 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     if ctx.in_text_field || ctx.in_bible_box {
         return if key == "Escape" { KeyAction::Blur } else { KeyAction::None };
     }
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("v") {
+        return KeyAction::PasteLink;
+    }
     match key {
         "ArrowRight" | "ArrowDown" | "PageDown" | " " => KeyAction::Next,
         "ArrowLeft" | "ArrowUp" | "PageUp" => KeyAction::Prev,
@@ -116,6 +121,10 @@ impl Operator {
             KeyAction::TakeArmedOrSelected => self.take_armed_or_selected(),
             KeyAction::Blur => self.ui.invoke_focus_keys(),
             KeyAction::PickTranslation(i) => self.ui.invoke_pick_translation(i as i32),
+            KeyAction::PasteLink => match crate::ui::dialogs::add_youtube::pasted_link() {
+                Some(link) => crate::ui::dialogs::add_youtube::open_with_link(self, &link),
+                None => return false,
+            },
             KeyAction::None => return false,
         }
         true
@@ -169,6 +178,16 @@ mod tests {
     #[test]
     fn ctrl_b_ignored_while_a_dialog_is_open() {
         assert_eq!(route("b", true, false, DIALOG), KeyAction::None);
+    }
+
+    #[test]
+    fn ctrl_v_pastes_a_link_only_outside_text_fields_and_dialogs() {
+        assert_eq!(route("v", true, false, PLAIN), KeyAction::PasteLink);
+        assert_eq!(route("V", true, false, PLAIN), KeyAction::PasteLink);
+        assert_eq!(route("v", true, false, TYPING), KeyAction::None, "the field pastes it itself");
+        assert_eq!(route("v", true, false, BIBLE), KeyAction::None);
+        assert_eq!(route("v", true, false, DIALOG), KeyAction::None);
+        assert_eq!(route("v", false, false, PLAIN), KeyAction::None);
     }
 
     #[test]

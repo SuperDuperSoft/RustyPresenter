@@ -1,10 +1,144 @@
 // The Add dialog's Video & media and Slides tabs (`addMedia()` and `addDeck()`, `operator.js:470-500`). The rows
 // are `AddRow`s with a thumbnail; the logic is in Rust (`src/ui/dialogs/add_media.rs`).
 import { Theme } from "../theme.slint";
-import { Btn } from "../widgets.slint";
+import { Btn, Icon } from "../widgets.slint";
 import { AddState, AddList } from "add-list.slint";
+import { Check, Select, TextField } from "form.slint";
 
-/// Upload files, the converting hint, and the media library, newest first.
+/// Download from YouTube: the rights notice, the link (filled from the clipboard), then the video found with one
+/// Download button. Quality and "Add to service when done" are there for whoever wants them.
+component YouTubePanel inherits VerticalLayout {
+    padding-bottom: 12px;
+    Rectangle {
+        background: Theme.panel-2;
+        border-radius: 10px;
+        VerticalLayout {
+            padding: 14px;
+            spacing: 10px;
+            notice := Text {
+                text: @tr("Only download videos your church has the right to use (your own, licensed, or Creative Commons).");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+            link := TextField {
+                text <=> AddState.yt-link;
+                placeholder: @tr("Paste a YouTube link here");
+                font-size: 16px;
+                init => { self.focus(); }
+                edited(t) => { AddState.yt-link-edited(t); }
+                accepted => { AddState.yt-look-up(); }
+            }
+            if AddState.yt-status != "": status := Text {
+                text: AddState.yt-status;
+                color: AddState.yt-error ? Theme.clear-all-text : Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            if AddState.yt-found: HorizontalLayout {
+                spacing: 12px;
+                VerticalLayout {
+                    alignment: start;
+                    thumb := Rectangle {
+                        width: 160px;
+                        height: 90px;
+                        border-radius: 6px;
+                        background: Theme.black;
+                        clip: true;
+                        if AddState.yt-thumb-shown: Image {
+                            width: parent.width;
+                            height: parent.height;
+                            source: AddState.yt-thumb;
+                            image-fit: cover;
+                        }
+                        if !AddState.yt-thumb-shown: Icon {
+                            name: "video";
+                            color: Theme.muted;
+                        }
+                    }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 4px;
+                    alignment: start;
+                    title := Text {
+                        text: AddState.yt-title;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 15px;
+                        font-weight: 650;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                    detail := Text {
+                        text: AddState.yt-detail;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                    if AddState.yt-note != "": note := Text {
+                        text: AddState.yt-note;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                }
+            }
+            if AddState.yt-found: HorizontalLayout {
+                spacing: 14px;
+                VerticalLayout {
+                    alignment: center;
+                    download := Btn {
+                        text: @tr("Download");
+                        icon: "download";
+                        primary: true;
+                        enabled: !AddState.yt-busy;
+                        clicked => { AddState.yt-download(); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    add-check := Check {
+                        padding-bottom: 0px;
+                        text: @tr("Add to service when done");
+                        checked <=> AddState.yt-add;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Text {
+                        text: @tr("Quality");
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    quality := Select {
+                        width: 190px;
+                        options: AddState.yt-qualities;
+                        index <=> AddState.yt-quality;
+                        accessible-label: @tr("Quality");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Upload files, Download from YouTube (and its panel), the converting hint, and the media library, newest first.
 export component AddMediaTab inherits VerticalLayout {
     in property <length> list-height;
     HorizontalLayout {
@@ -17,6 +151,12 @@ export component AddMediaTab inherits VerticalLayout {
             primary: true;
             clicked => { AddState.upload-media(); }
         }
+        youtube := Btn {
+            text: @tr("Download from YouTube");
+            icon: "download";
+            primary: !AddState.yt-open;
+            clicked => { AddState.yt-show(); }
+        }
         hint := Text {
             text: @tr("Any video format works. Unusual ones are converted once, automatically.");
             color: Theme.muted;
@@ -26,6 +166,7 @@ export component AddMediaTab inherits VerticalLayout {
             wrap: word-wrap;
         }
     }
+    if AddState.yt-open: YouTubePanel {}
     AddList { max-list-height: root.list-height; }
 }
 

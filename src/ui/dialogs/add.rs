@@ -23,6 +23,8 @@ pub(crate) struct AddCtx {
     shown: Rc<Rows>,
     /// The Media and Slides rows' pictures, made on first use.
     thumbs: OnceCell<Thumbs>,
+    /// The Media tab's Download from YouTube panel.
+    pub(crate) yt: super::add_youtube::Panel,
 }
 
 impl AddCtx {
@@ -33,7 +35,7 @@ impl AddCtx {
         // `JSON.stringify(x).toLowerCase().includes(term)` (product decision 5): `key` is the row's JSON, lowercased.
         let filter: Box<dyn Fn(&AddRow) -> bool> = Box::new(move |r| { let t = t.borrow(); t.is_empty() || r.key.contains(t.as_str()) });
         let shown = Rc::new(FilterModel::new(all.clone(), filter));
-        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new() })
+        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new(), yt: Default::default() })
     }
 
     /// Draws the rows' pictures on a worker thread, or at once in tests.
@@ -54,19 +56,24 @@ fn tab_at(i: i32) -> Option<AddTab> {
 }
 
 /// `openAdd(tab)`: opens the dialog on `tab` with empty fields.
-pub fn open_add(op: &Rc<Operator>, tab: AddTab) {
+pub fn open_add(op: &Rc<Operator>, tab: AddTab) { open_add_ctx(op, tab); }
+
+/// `open_add`, keeping hold of the new dialog's list and panels (Download from YouTube fills its link).
+pub(crate) fn open_add_ctx(op: &Rc<Operator>, tab: AddTab) -> Rc<AddCtx> {
     op.open_dialog(DialogKind::Add(tab));
     let st = op.ui.global::<AddState>();
     for clear in [AddState::set_search, AddState::set_reference, AddState::set_pasted, AddState::set_text_title, AddState::set_text_body] {
         clear(&st, "".into());
     }
     st.set_paste_open(false);
+    super::add_youtube::reset(&st);
     let ctx = AddCtx::new(op);
     st.set_rows(ModelRc::from(ctx.shown.clone()));
     wire(op, &ctx);
     show_tab(op, &ctx, tab);
     let redraw = ctx.clone();
     op.on_dialog_refresh(move |op| draw_list(op, &redraw));
+    ctx
 }
 
 /// A tile: the tab's content is made new, so its search starts empty and its first field takes the keyboard.
@@ -219,6 +226,7 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_bible_paste(with(|op, _| add_verses(op, true)));
     st.on_text_add(with(|op, _| add_text(op)));
     super::add_media::wire(op, ctx);
+    super::add_youtube::wire(op, ctx);
 }
 
 /// The service column's "Add to service" opens the dialog on the Song tab (`operator.js:348`).

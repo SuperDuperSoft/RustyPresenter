@@ -180,6 +180,8 @@ pub struct App {
     state_seq: AtomicU64,
     /// Where restored players start, by playback instance.
     resume: Mutex<HashMap<u64, f64>>,
+    /// YouTube downloads: their helper programs and lookups.
+    pub youtube: crate::youtube::Hub,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -202,12 +204,13 @@ impl App {
     pub fn new(store: Store, data: Data, port: u16, lan_url: Option<String>) -> Arc<Self> {
         let (tx, _) = broadcast::channel(256);
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
+        let youtube = crate::youtube::Hub::new(&store.root);
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), remote_conns: AtomicUsize::new(0),
-            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()),
+            state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), youtube,
         })
     }
 

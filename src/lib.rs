@@ -17,3 +17,4 @@ pub mod startup;
 pub mod store;
 pub mod ui;
 pub mod video;
+pub mod youtube;
