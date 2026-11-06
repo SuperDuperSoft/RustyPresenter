@@ -31,11 +31,14 @@ On Linux, the Snap package of LibreOffice cannot be used.
 
 Double-click **`RustyPresenter.cmd`**. The first start builds the app (a few minutes); after that it opens in a few seconds. Closing the main window quits RustyPresenter and turns off the room and stage screens.
 
-A window opens with three columns:
+The window has four parts:
 
-| Left | Middle | Right |
-| --- | --- | --- |
-| **Service**: everything for this Sunday, in order | **Slides** of the item you picked. Click a slide to show it | **Live**: exactly what the room sees, with Next/Back and Clear buttons |
+| Where | What |
+| --- | --- |
+| **Left** | **Service**: everything for this Sunday, in order |
+| **Middle** | **Slides** of the item you picked. Click a slide to show it. Songs have coloured sections and buttons (V1, C, B…) to jump to one |
+| **Bottom** | **Media library**: every video, picture and song file, in folders. Double-click one to make it the background of the item you picked, or click **Add to service** |
+| **Right** | **Live**: exactly what the room sees, with Next/Back, Up next, a message box for the stage screen and the Clear buttons |
 
 ## First time
 
@@ -57,6 +60,13 @@ A window opens with three columns:
 | `F3` | Clear media and background |
 | `F4` | Stop audio |
 | `F5` | Logo |
+| `C` `B` `P` `E` | Jump to the chorus, bridge, pre-chorus or ending of the live song |
+| `1`–`9` | Jump to that verse of the live song |
+| `Ctrl + V` | Add a YouTube link you copied |
+
+## Songs from EasyWorship
+
+**Add → Song → Import from EasyWorship** copies every song (words, writers, copyright and CCLI number) from an EasyWorship library folder, once. EasyWorship itself is not changed. Songs already here are skipped.
 
 ## Video
 
@@ -68,7 +78,7 @@ Any video or audio format plays right away: MP4, MOV, MKV, AVI, WMV, HEVC, ProRe
 
 ## Bible translations
 
-KJV is built in and works offline. NIV, ESV, CSB, HCSB and NLT need a licensed text source before they can be turned on (tracked as F5 in `PROJECT_PLAN.md`).
+KJV, WEB and BSB are built in and work offline. Many more can be added from **Settings → Bible** (search by language or name). NIV, ESV, CSB, HCSB and NLT need the publisher's free key, or HCSB can be imported from a licensed file.
 
 ## Licenses
 
