@@ -97,7 +97,7 @@ impl Flow {
 
 /// An announcement in the current service; an empty line in `body` starts a new slide.
 fn add_text(app: &App, title: &str, body: &str) -> Uuid {
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new() };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };
     app.data.lock().unwrap().services[0].items.push(item.clone());
     item.id
 }
@@ -105,7 +105,7 @@ fn add_text(app: &App, title: &str, body: &str) -> Uuid {
 /// A library song in the current service; returns the service item's id.
 fn add_song(app: &App, title: &str, lyrics: &str) -> Uuid {
     let song = Song { id: Uuid::new_v4(), title: title.into(), lyrics: lyrics.into(), ..Default::default() };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new() };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
     let mut data = app.data.lock().unwrap();
     data.songs.push(song);
     data.services[0].items.push(item.clone());

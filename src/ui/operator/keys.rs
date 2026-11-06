@@ -386,7 +386,7 @@ mod window_tests {
     use uuid::Uuid;
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }

@@ -24,8 +24,15 @@ pub struct SavedTheme {
 }
 
 /// The built-in themes defined in code. FEAT-1 has none; FEAT-7 adds its stream lower third here.
+/// The built-in lower-third theme: smaller text at the bottom on a see-through band, for a livestream or a screen
+/// where the picture must stay visible (FEAT-7's stream screen view uses it).
+pub const LOWER_THIRD_ID: ThemeId = Uuid::from_u128(0x00000000_0000_4000_8000_000000000102);
+
+/// The read-only built-in themes, with fixed ids. Never stored in `Data.themes`; saving one stores an edited copy
+/// there, which `find` prefers (deleting that copy is Reset).
 pub fn builtin() -> Vec<SavedTheme> {
-    Vec::new()
+    let style = Theme { size: 64, scripture_size: 52, position: "lower".into(), band: true, band_opacity: 55, ..Theme::default() };
+    vec![SavedTheme { id: LOWER_THIRD_ID, name: strings::LOWER_THIRD_NAME.into(), style, background: None }]
 }
 
 /// Everything theme lookups need, borrowed from the stored data.
@@ -312,7 +319,7 @@ mod tests {
     #[test]
     fn builtin_theme_resolves_and_override_wins() {
         let (s, b, saved) = fx();
-        assert!(builtin().is_empty());
+        assert_eq!(builtin().iter().map(|b| b.id).collect::<Vec<_>>(), [LOWER_THIRD_ID]);
         let cat = Catalog::new(&s, &b, &saved, None).with_builtins(vec![lower_third()]);
         assert_eq!(cat.find(LOWER), Some(lower_third()));
         assert_eq!(cat.resolve(Some(LOWER), text_item(None)).from, ThemeSource::Service(LOWER));

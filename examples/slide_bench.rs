@@ -268,7 +268,7 @@ fn run() {
     let clip = (scenario == Scenario::Playback).then(|| {
         write_clip(&app.store.asset_path("bench-clip.gif"));
         let media = MediaFile { id: Uuid::new_v4(), name: "Bench clip".into(), kind: MediaKind::Video, asset: "bench-clip.gif".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: true }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: true }, background: None, notes: String::new(), theme: None };
         let id = item.id;
         let mut data = app.data.lock().unwrap();
         data.media.push(media);
@@ -280,7 +280,7 @@ fn run() {
         let mut first = None;
         for n in 1..=5 {
             let song = Song { id: Uuid::new_v4(), title: format!("Bench song {n}"), lyrics: lyrics(n), ..Default::default() };
-            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new() };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
             first.get_or_insert(item.id);
             data.songs.push(song);
             data.services[0].items.push(item);

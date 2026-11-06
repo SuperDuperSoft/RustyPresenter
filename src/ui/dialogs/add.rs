@@ -527,7 +527,7 @@ pub(crate) mod tests {
     fn bible_tab_appends_at_end_and_toasts_label() {
         let app = test_app();
         let text = |title: &str| {
-            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into() }, background: None, notes: String::new() };
+            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into() }, background: None, notes: String::new(), theme: None };
             app.data.lock().unwrap().services[0].items.push(item.clone());
             item.id
         };

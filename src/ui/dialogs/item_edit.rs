@@ -339,7 +339,7 @@ mod tests {
     }
 
     fn push(app: &App, kind: ItemKind) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }
@@ -465,7 +465,7 @@ mod tests {
 
     #[test]
     fn a_plain_save_does_not_look_the_passage_up() {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }, background: None, notes: String::new(), theme: None };
         assert_eq!(relookup(&item, Some("ebible:spaRV1909")), None);
         assert_eq!(relookup(&item, None), None);
         assert_eq!(relookup(&item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
@@ -593,7 +593,7 @@ mod tests {
         settle();
         press(&op, "ItemEditDialog::save");
         let asset = app.data.lock().unwrap().media[1].asset.clone();
-        assert_eq!(item(&app, id).unwrap().background, Some(Background::Image { asset }));
+        assert_eq!(item(&app, id).unwrap().background, Some(Background::Image { asset, dim: 0 }));
         assert_eq!(op.dialog(), None);
     }
 

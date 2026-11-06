@@ -359,7 +359,7 @@ mod tests {
     fn passage_text_size_reaches_every_slide() {
         let mut data = Data::default();
         let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: verses(4), per_slide: 2, text_size: 96, also: vec![], layout: Default::default() };
-        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         data.services[0].items.push(item.clone());
         let (_, kind, slides) = build_item(&data, &item);
         assert_eq!((kind, slides.len()), ("scripture", 2));
@@ -372,7 +372,7 @@ mod tests {
         data.settings.credits = credits.into();
         if let Some(c) = credit { data.bible_credits.insert(translation.into(), c); }
         let kind = ItemKind::Scripture { reference: "Psalm 23".into(), translation: translation.into(), verses: verses(4), per_slide: 2, text_size: 0, also: vec![], layout: Default::default() };
-        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let item = ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         let (title, _, slides) = build_item(&data, &item);
         (title, slides)
     }
@@ -434,7 +434,7 @@ mod tests {
     fn three_bible_item(per_slide: u8) -> ServiceItem {
         let vs = |t: &str| vec![VerseText::new("John 3:16", format!("{t} 16")), VerseText::new("John 3:17", format!("{t} 17"))];
         let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs("web") }, crate::scripture::AlsoShow { translation: "BSB".into(), verses: vs("bsb") }];
-        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs("kjv"), per_slide, text_size: 0, also, layout: Default::default() }, background: None, notes: String::new() }
+        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs("kjv"), per_slide, text_size: 0, also, layout: Default::default() }, background: None, notes: String::new(), theme: None }
     }
 
     #[test]

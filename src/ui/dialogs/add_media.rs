@@ -48,7 +48,7 @@ pub(crate) fn request_pictures(op: &Operator, ctx: &AddCtx, pictures: Vec<(Strin
     let thumbs = ctx.thumbs(op);
     thumbs.cancel_pending();
     for (id, asset) in pictures {
-        let job = ThumbJob { background: Some(Background::Image { asset }), media: None, picture: None, text: None };
+        let job = ThumbJob { background: Some(Background::Image { asset, dim: 0 }), media: None, picture: None, text: None };
         let key = ThumbKey { render: None, layers: serde_json::to_string(&job).unwrap_or_default(), size };
         let all = ctx.all.clone();
         thumbs.request(key, job, move |px| {
@@ -304,7 +304,7 @@ mod tests {
 
         // One still in a service: the core refuses, in its own words.
         let id = media(&app, "clip.mp4", MediaKind::Video, MediaStatus::Ready);
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         refresh(&op);
         settle(&op);

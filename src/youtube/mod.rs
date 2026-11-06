@@ -730,6 +730,7 @@ fn add_to_service(app: &App, service: Uuid, media_id: Uuid) -> bool {
         kind: ItemKind::Media { media_id, autoplay: true, end: Default::default(), looped: false },
         background: None,
         notes: String::new(),
+        theme: None,
     };
     app.edit(|d| {
         let s = d.services.iter_mut().find(|s| s.id == service).ok_or("That service is gone.")?;
