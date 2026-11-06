@@ -279,11 +279,12 @@ fn default_background_custom_colour_is_saved() {
 fn text_color_from_the_grid_and_its_hex_field() {
     let app = test_app();
     let op = opened(&app);
+    // Tall enough that the whole Look page shows: since the Bible verses group, Text color is further down.
+    op.window().set_size(slint::LogicalSize::new(1520.0, 1600.0));
+    settle();
     open(&op, SettingsTab::Look);
     assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
-    // By its accessible action: the Look page has grown, so the swatch can be scrolled out of view.
-    find(&op, "ColorPicker::swatch").expect("swatch").invoke_accessible_default_action();
-    settle();
+    click(&op, "ColorPicker::swatch");
     assert!(find(&op, "ColorGrid::hex").is_some());
     let before = g(&op).get_color();
     g(&op).invoke_text_hex("#12AB3".into());
