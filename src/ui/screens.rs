@@ -87,14 +87,15 @@ impl NativeScreens {
 
     /// Puts the operator window on its monitor (see `operator_monitor`), maximised. Call on the Slint
     /// thread, after the room and stage reopened.
-    pub fn place_operator(&self, window: &slint::Window) {
+    pub fn place_operator(&self, operator: &Operator) {
+        let window = operator.window();
         let (list, main) = self.seen.lock().unwrap().clone();
         let room = DESK.with(|d| d.borrow().watcher.monitor_of("room").cloned());
         if let Some(m) = operator_monitor(&list, main.as_ref(), room.as_ref()) {
             // Anywhere on that monitor: maximising fills the monitor the window is on.
             window.set_position(slint::PhysicalPosition::new(m.position.0 + 40, m.position.1 + 40));
         }
-        window.set_maximized(true);
+        monitors::maximise(&operator.ui);
     }
 
     /// Runs `f` on the Slint thread and waits for it (never waits when already there).
@@ -339,7 +340,7 @@ mod tests {
         let s = screens(&app);
         let op = Operator::open(app.clone(), crate::ui::ops::Ops::inline(app.clone()), Rc::new(s.clone())).unwrap();
         assert!(!op.window().is_maximized());
-        s.place_operator(op.window());
+        s.place_operator(&op);
         assert!(op.window().is_maximized());
         s.shutdown();
     }

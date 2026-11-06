@@ -63,7 +63,8 @@ fn add(op: &Rc<Operator>, found: Found) {
     });
 }
 
-/// A translation chip, or Alt+1…6 in the box. The chip turns on at once and the choice is saved through
+/// A translation chip, or Alt+1…6 in the box. The chip (and the compact box's button) turns on at once and the
+/// choice is saved through
 /// `settings/translation` (product decision 3). A translation that is not connected is still picked, as in the
 /// web; its lookup then fails with the core's message. The chip's click refocuses the box in `topbar.slint`.
 pub fn pick(op: &Rc<Operator>, index: usize) {
@@ -80,6 +81,7 @@ pub fn pick(op: &Rc<Operator>, index: usize) {
         let on = chip.name == name.as_str();
         if chip.on != on { chip.on = on; chips.set_row_data(i, chip); }
     }
+    op.ui.set_translation(name.as_str().into());
     let me = Rc::downgrade(op);
     op.ops.call::<Value>("settings/translation", json!({ "translation": name }), move |r| {
         if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(&e, true) }
@@ -252,6 +254,9 @@ mod tests {
     fn available_chip_tooltip_is_its_name() {
         let app = test_app();
         let op = opened(&app);
+        // Wide enough for every translation's button (narrower, they collapse: `ui::operator::fit`).
+        op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
+        slint::platform::update_timers_and_animations();
         let chips = find_all(&op, "TopBar::translation-chip");
         let tip = |name: &str| chips.iter().find(|c| c.accessible_label().unwrap_or_default() == name)
             .and_then(|c| c.accessible_description()).unwrap_or_default().to_string();
