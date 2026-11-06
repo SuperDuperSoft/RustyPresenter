@@ -403,6 +403,16 @@ impl Room {
     /// Open the room window, full screen on `monitor` (a plain window without one). Without
     /// libmpv everything but video and audio works; those report the missing player.
     pub fn open(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>) -> Result<Rc<Room>, String> {
+        Self::open_as(app, renderer, mpv, monitor, false)
+    }
+
+    /// An extra audience screen: it follows the same live view, silently, and leaves telling the live engine what is
+    /// on air to the room.
+    pub fn open_mirror(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>) -> Result<Rc<Room>, String> {
+        Self::open_as(app, renderer, mpv, monitor, true)
+    }
+
+    fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror: bool) -> Result<Rc<Room>, String> {
         let ui = RoomWindow::new().map_err(|e| format!("Could not open the room screen: {e}"))?;
         let weak = ui.as_weak();
         // The room is the one window that waits for its monitor's refresh: the projector never tears.
@@ -410,7 +420,12 @@ impl Room {
         let (tx, reports) = std::sync::mpsc::channel();
         let mut audio = video::players(mpv.clone(), tx.clone());
         audio.options = Options { vo: "null", ..Options::default() };
-        let work = Arc::new(Work { app: app.clone(), renderer, video: video::players(mpv, tx), audio, generation: Generation::default() });
+        let mut video_players = video::players(mpv, tx);
+        if mirror {
+            audio.options.ao = "null";
+            video_players.options.ao = "null";
+        }
+        let work = Arc::new(Work { app: app.clone(), renderer, video: video_players, audio, generation: Generation::default() });
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
@@ -418,7 +433,7 @@ impl Room {
         let to_shared = shared.clone();
         let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| format!("Could not open the room screen: {e}"))?;
         let to_live = app.clone();
-        let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { to_live.room_event(ev) });
+        let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { if !mirror { to_live.room_event(ev) } });
         // The faces' opacities and the black overlay, each written straight to this window.
         let fader = Fader::new();
         let op = |set: SetOp| { let w = ui.as_weak(); fader.channel(0.0, move |v| if let Some(ui) = w.upgrade() { set(&ui, v) }) };

@@ -1,47 +1,104 @@
-//! The Screens dialog (`operator.js:793-828`, `ui/dialogs/screens.slint`): show the room and the stage display on a
-//! monitor, move them, turn them off or test them in a window.
+//! Screen Configuration (`ui/dialogs/screens.slint`): the Audience and Stage lists, each with a switch, and the picked
+//! screen's name, output and size. What is typed is saved shortly after the typing stops.
 #[path = "../../strings/screens.rs"]
 pub mod strings;
 
 use super::DialogKind;
 use crate::{
     app::Monitor,
-    ui::{MonitorChoice, ScreenCard, ScreensDialogState, operator::{view::{OperatorSnapshot, RoomStatus}, window::Operator}},
+    model::{Screen, ScreenOutput, ScreenSetup, ScreenTarget},
+    platform::monitors::MonitorId,
+    ui::{ScreenList, ScreenRow, ScreensDialogState, operator::{view::OperatorSnapshot, window::Operator}},
 };
 use serde_json::{Value, json};
-use slint::{ComponentHandle, ModelRc, Timer, VecModel};
-use std::{rc::{Rc, Weak}, time::Duration};
+use slint::{ComponentHandle, ModelRc, SharedString, Timer, VecModel};
+use std::{cell::RefCell, rc::{Rc, Weak}, time::Duration};
+use uuid::Uuid;
 
-/// How long after Show on this screen the dialog is redrawn, so the new window's status shows (`operator.js:813`).
-const REDRAW_AFTER_SHOW: Duration = Duration::from_millis(1500);
+/// How long typing must stop before it is saved: every save writes the whole library.
+const SAVE_AFTER: Duration = Duration::from_millis(400);
 
-/// The monitor a card starts on (`operator.js:802`): the saved one if it is still connected, else the first that is
-/// not the primary, else none (Show on this screen is then disabled).
-pub fn default_pick(monitors: &[Monitor], saved: Option<&str>) -> Option<String> {
-    saved.filter(|s| monitors.iter().any(|m| m.id == *s)).map(str::to_string)
-        .or_else(|| monitors.iter().find(|m| !m.primary).map(|m| m.id.clone()))
+/// What was typed and not saved yet. While it is there, a redraw leaves the fields alone.
+struct Typing { id: Uuid, name: Option<String>, size: Option<(u32, u32)> }
+
+thread_local! {
+    static TYPING: RefCell<Option<Typing>> = const { RefCell::new(None) };
+    static SAVE: Timer = Timer::default();
 }
 
-/// A card's status chip, `(text, state)` (`operator.js:804, 809`): Showing once its screen has connected,
-/// Starting… while its window is open but not connected yet, else Off.
-fn chip(connected: bool, open: bool) -> (&'static str, &'static str) {
-    if connected { (strings::SHOWING, "ok") } else if open { (strings::STARTING, "warn") } else { (strings::OFF, "") }
+/// Whether `m` is the saved monitor: exactly, or the same one at a new resolution or place.
+pub fn is_monitor(m: &Monitor, saved: &str) -> bool {
+    m.id == saved || MonitorId::parse(&m.id).is_some_and(|id| id.matches_saved(saved) || MonitorId::parse(saved).is_some_and(|s| s.name == id.name))
 }
 
-fn card(s: &OperatorSnapshot, role: &str) -> ScreenCard {
-    let (title, desc, saved, connected) = if role == "room" {
-        (strings::ROOM_TITLE, strings::ROOM_DESC, s.settings.displays.room.as_deref(), s.room == RoomStatus::Showing)
-    } else {
-        (strings::STAGE_TITLE, strings::STAGE_DESC, s.settings.displays.stage.as_deref(), s.stage_connected)
+/// The Output choices for a screen set to `current`, and the one it is on. A saved monitor that is unplugged stays
+/// listed, so looking at the dialog never changes the choice.
+pub fn outputs(monitors: &[Monitor], current: &ScreenTarget) -> (Vec<(String, ScreenTarget)>, usize) {
+    let mut list = vec![(strings::OUTPUT_NONE.to_string(), ScreenTarget::None), (strings::OUTPUT_WINDOW.to_string(), ScreenTarget::Window)];
+    list.extend(monitors.iter().map(|m| (m.label.clone(), ScreenTarget::Monitor(m.id.clone()))));
+    let at = match current {
+        ScreenTarget::None => Some(0),
+        ScreenTarget::Window => Some(1),
+        ScreenTarget::Monitor(saved) => monitors.iter().position(|m| is_monitor(m, saved)).map(|i| i + 2),
     };
-    let open = s.windows.iter().any(|w| w == role);
-    let (chip_text, chip_state) = chip(connected, open);
-    let pick = default_pick(&s.monitors, saved).and_then(|id| s.monitors.iter().position(|m| m.id == id));
-    let monitors: Vec<MonitorChoice> = s.monitors.iter().map(|m| MonitorChoice { id: m.id.as_str().into(), label: m.label.as_str().into() }).collect();
-    ScreenCard {
-        role: role.into(), title: title.into(), desc: desc.into(), chip: chip_text.into(), chip_state: chip_state.into(), open,
-        monitors: ModelRc::new(VecModel::from(monitors)), pick: pick.map_or(-1, |i| i as i32),
+    let at = at.unwrap_or_else(|| { list.push((strings::OUTPUT_GONE.to_string(), current.clone())); list.len() - 1 });
+    (list, at)
+}
+
+/// `1.78 (16:9)`; empty for a size with no sides.
+pub fn aspect(width: u32, height: u32) -> String {
+    fn gcd(a: u32, b: u32) -> u32 { if b == 0 { a } else { gcd(b, a % b) } }
+    if width == 0 || height == 0 { return String::new() }
+    let d = gcd(width, height);
+    format!("{:.2} ({}:{})", f64::from(width) / f64::from(height), width / d, height / d)
+}
+
+/// The output's size: the monitor's real one while it is connected, else as last saved.
+fn real_size(s: &OperatorSnapshot, o: &ScreenOutput) -> (u32, u32) {
+    let connected = match &o.target { ScreenTarget::Monitor(saved) => s.monitors.iter().find(|m| is_monitor(m, saved)), _ => None };
+    connected.map_or((o.width, o.height), |m| (m.width.max(0) as u32, m.height.max(0) as u32))
+}
+
+fn monitor_gone(s: &OperatorSnapshot, target: &ScreenTarget) -> bool {
+    matches!(target, ScreenTarget::Monitor(saved) if !s.monitors.iter().any(|m| is_monitor(m, saved)))
+}
+
+/// A row's chip, `(text, state)`.
+fn status(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen) -> (&'static str, &'static str) {
+    let target = screen.output().target;
+    let open = setup.keyed(group).iter().any(|(key, x)| x.id == screen.id && s.windows.contains(key));
+    if open { (strings::SHOWING, "ok") }
+    else if target == ScreenTarget::None { (strings::NO_OUTPUT, "") }
+    else if monitor_gone(s, &target) { (strings::UNPLUGGED, "warn") }
+    else { (strings::OFF, "") }
+}
+
+fn list(s: &OperatorSnapshot, setup: &ScreenSetup, key: &str, title: &str) -> ScreenList {
+    let group = setup.group(key).cloned().unwrap_or_default();
+    let rows: Vec<ScreenRow> = group.screens.iter().map(|screen| {
+        let (status_text, state) = status(s, setup, key, screen);
+        let o = screen.output();
+        let (w, h) = real_size(s, &o);
+        let size = if o.target == ScreenTarget::None { String::new() } else { format!("{w} × {h}") };
+        ScreenRow { id: screen.id.to_string().into(), name: typed_name(screen).into(), size: size.into(), status: status_text.into(), state: state.into() }
+    }).collect();
+    ScreenList { key: key.into(), title: title.into(), on: group.on, rows: ModelRc::new(VecModel::from(rows)) }
+}
+
+/// A screen's name, as typed if that is not saved yet.
+fn typed_name(screen: &Screen) -> String {
+    TYPING.with_borrow(|t| t.as_ref().filter(|t| t.id == screen.id).and_then(|t| t.name.clone())).unwrap_or_else(|| screen.name.clone())
+}
+
+/// What a screen's note says: the first audience screen is the one with sound; the screen you work on gets covered.
+fn note(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen) -> String {
+    let keyed = setup.keyed("audience");
+    if group == "audience" && let Some((_, first)) = keyed.first().filter(|_| keyed.iter().skip(1).any(|(_, x)| x.id == screen.id)) {
+        return strings::mirrors(&first.name)
     }
+    let main = s.monitors.iter().find(|m| m.primary);
+    if let ScreenTarget::Monitor(saved) = screen.output().target && main.is_some_and(|m| is_monitor(m, &saved)) { return strings::ON_MAIN.into() }
+    String::new()
 }
 
 /// Opens the dialog and asks for a fresh read, so newly plugged-in monitors show; the dialog is redrawn when it
@@ -49,62 +106,159 @@ fn card(s: &OperatorSnapshot, role: &str) -> ScreenCard {
 pub fn open(op: &Rc<Operator>) {
     op.open_dialog(DialogKind::Screens);
     op.on_dialog_refresh(draw);
+    op.on_dialog_close(save_typing);
     draw(op);
     op.request_refresh();
 }
 
-/// Draws both cards from the newest snapshot. New card models make new cards, so a picked monitor goes back to the
-/// default, as the web's redraw does.
-fn draw(op: &Rc<Operator>) {
-    let Some(s) = op.state.borrow().snap.clone() else { return };
-    let cards = vec![card(&s, "room"), card(&s, "stage")];
-    op.ui.global::<ScreensDialogState>().set_cards(ModelRc::new(VecModel::from(cards)));
+/// The screen on the right: the one picked, else the first there is.
+fn shown(op: &Operator, setup: &ScreenSetup) -> Option<Uuid> {
+    let picked = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()).ok();
+    picked.filter(|id| setup.find(*id).is_some()).or_else(|| ScreenSetup::GROUPS.iter().filter_map(|g| setup.group(g)?.screens.first()).map(|s| s.id).next())
 }
 
-fn title(role: &str) -> &'static str { if role == "room" { strings::ROOM_TITLE } else { strings::STAGE_TITLE } }
+/// Draws the lists and the settings from the newest snapshot.
+fn draw(op: &Rc<Operator>) {
+    let Some(s) = op.state.borrow().snap.clone() else { return };
+    let setup = &s.settings.screens;
+    let g = op.ui.global::<ScreensDialogState>();
+    g.set_lists(ModelRc::new(VecModel::from(vec![list(&s, setup, "audience", strings::AUDIENCE), list(&s, setup, "stage", strings::STAGE)])));
+    g.set_one_monitor(s.monitors.len() <= 1);
+    let Some(id) = shown(op, setup) else { return };
+    let Some((group, screen)) = setup.find(id) else { return };
+    let moved = g.get_selected() != id.to_string();
+    g.set_selected(id.to_string().into());
+    g.set_kind(if group == "audience" { strings::AUDIENCE_SCREEN } else { strings::STAGE_SCREEN }.into());
+    let o = screen.output();
+    let (choices, at) = outputs(&s.monitors, &o.target);
+    let labels: Vec<SharedString> = choices.into_iter().map(|(l, _)| l.into()).collect();
+    g.set_outputs(ModelRc::new(VecModel::from(labels)));
+    g.set_output(at as i32);
+    let typing = TYPING.with_borrow(|t| t.as_ref().is_some_and(|t| t.id == id));
+    if moved || !typing {
+        g.set_name(screen.name.as_str().into());
+        g.set_width_text(o.width.to_string().into());
+        g.set_height_text(o.height.to_string().into());
+    }
+    g.set_has_size(o.target != ScreenTarget::None);
+    g.set_size_editable(o.target == ScreenTarget::Window);
+    let (w, h) = real_size(&s, &o);
+    g.set_size(format!("{w} × {h}").into());
+    g.set_aspect(aspect(w, h).into());
+    g.set_note(note(&s, setup, group, screen).into());
+    g.set_can_remove(setup.group(group).is_some_and(|x| x.screens.len() > 1));
+}
 
-/// `display/open` (`operator.js:813, 815`). On a monitor, it toasts "<title> opened" and redraws 1.5 s later; a test
-/// window (`monitor` None) does neither.
-fn show(op: &Rc<Operator>, role: String, monitor: Option<String>) {
+/// Runs a change, and tells the operator when it fails.
+fn run(op: &Rc<Operator>, action: &'static str, body: Value) {
     let me = Rc::downgrade(op);
-    let on_monitor = monitor.is_some();
-    op.ops().call::<Value>("display/open", json!({ "role": role, "monitor": monitor }), move |r| {
+    op.ops().call::<Value>(action, body, move |r| if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(&e, true) });
+}
+
+/// Saves what was typed.
+fn save_typing(op: &Rc<Operator>) {
+    SAVE.with(Timer::stop);
+    let Some(t) = TYPING.take() else { return };
+    run(op, "screens/update", json!({ "id": t.id, "name": t.name, "size": t.size }));
+}
+
+/// Notes what was typed, and saves it once the typing stops.
+fn typed(op: &Rc<Operator>, change: impl FnOnce(&mut Typing)) {
+    let Ok(id) = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()) else { return };
+    TYPING.with_borrow_mut(|t| {
+        let t = t.get_or_insert(Typing { id, name: None, size: None });
+        change(t);
+    });
+    let me = Rc::downgrade(op);
+    SAVE.with(|timer| timer.start(slint::TimerMode::SingleShot, SAVE_AFTER, move || if let Some(op) = me.upgrade() { save_typing(&op) }));
+}
+
+fn select(op: &Rc<Operator>, id: &str) {
+    save_typing(op);
+    let g = op.ui.global::<ScreensDialogState>();
+    if g.get_selected() == id { return }
+    g.set_selected(id.into());
+    // `draw` tells a new pick by the selected id, which is already this one: fill the fields here.
+    if let Some(screen) = op.state.borrow().snap.as_ref().and_then(|s| s.settings.screens.find(Uuid::parse_str(id).ok()?).map(|(_, x)| x.clone())) {
+        let o = screen.output();
+        g.set_name(screen.name.as_str().into());
+        g.set_width_text(o.width.to_string().into());
+        g.set_height_text(o.height.to_string().into());
+    }
+    draw(op);
+}
+
+fn pick_output(op: &Rc<Operator>, at: usize) {
+    save_typing(op);
+    let g = op.ui.global::<ScreensDialogState>();
+    let Some(s) = op.state.borrow().snap.clone() else { return };
+    let Some(id) = shown(op, &s.settings.screens) else { return };
+    let Some((_, screen)) = s.settings.screens.find(id) else { return };
+    let Some((_, target)) = outputs(&s.monitors, &screen.output().target).0.into_iter().nth(at) else { return };
+    g.set_selected(id.to_string().into());
+    run(op, "screens/update", json!({ "id": id, "target": target }));
+}
+
+fn add(op: &Rc<Operator>, group: String) {
+    save_typing(op);
+    let me = Rc::downgrade(op);
+    op.ops().call::<Value>("screens/add", json!({ "group": group }), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(_) if on_monitor => {
-                op.toast(strings::opened(title(&role)), false);
-                let me = Rc::downgrade(&op);
-                Timer::single_shot(REDRAW_AFTER_SHOW, move || if let Some(op) = me.upgrade() { op.dialog_refresh() });
+            Ok(v) => {
+                let id = v["id"].as_str().unwrap_or_default().to_string();
+                op.on_next_read(move |op| select(op, &id));
             }
-            Ok(_) => {}
             Err(e) => op.toast(&e, true),
         }
     });
 }
 
-/// Turn off (`operator.js:814`).
-fn turn_off(op: &Rc<Operator>, role: String) {
+fn remove(op: &Rc<Operator>) {
+    save_typing(op);
+    let Some(s) = op.state.borrow().snap.clone() else { return };
+    let Some(id) = shown(op, &s.settings.screens) else { return };
+    let Some((_, screen)) = s.settings.screens.find(id) else { return };
     let me = Rc::downgrade(op);
-    op.ops().call::<Value>("display/close", json!({ "role": role }), move |r| {
-        if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(&e, true) }
+    super::confirm(op, &strings::remove_question(&screen.name), strings::REMOVE, super::strings::CANCEL, true, move |yes| {
+        if let (true, Some(op)) = (yes, me.upgrade()) { run(&op, "screens/remove", json!({ "id": id })) }
     });
 }
 
-/// Connects the top bar's Screens button and the dialog's buttons. They hold a `Weak`.
+/// Connects the top bar's Screens button and the dialog. They hold a `Weak`.
 pub(crate) fn wire(op: &Rc<Operator>) {
-    let me: Weak<Operator> = Rc::downgrade(op);
-    op.ui.on_screens(move || if let Some(op) = me.upgrade() { open(&op) });
+    let on = |f: Rc<dyn Fn(&Rc<Operator>)>| -> Box<dyn Fn()> {
+        let me: Weak<Operator> = Rc::downgrade(op);
+        Box::new(move || if let Some(op) = me.upgrade() { f(&op) })
+    };
+    op.ui.on_screens(on(Rc::new(open)));
     let g = op.ui.global::<ScreensDialogState>();
     let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_show(move |role, monitor| if let Some(op) = me.upgrade() {
-        if !monitor.is_empty() { show(&op, role.into(), Some(monitor.into())) }
+    g.on_power(move |group, on| if let Some(op) = me.upgrade() { run(&op, "screens/power", json!({ "group": group.as_str(), "on": on })) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_add(move |group| if let Some(op) = me.upgrade() { add(&op, group.into()) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_select(move |id| if let Some(op) = me.upgrade() { select(&op, &id) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_rename(move |name| if let Some(op) = me.upgrade() {
+        typed(&op, |t| t.name = Some(name.to_string()));
+        draw(&op);
     });
     let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_test_window(move |role| if let Some(op) = me.upgrade() { show(&op, role.into(), None) });
+    g.on_pick_output(move |at| if let Some(op) = me.upgrade() { pick_output(&op, at.max(0) as usize) });
     let me: Weak<Operator> = Rc::downgrade(op);
-    g.on_turn_off(move |role| if let Some(op) = me.upgrade() { turn_off(&op, role.into()) });
-    // Refresh (`operator.js:823`): the follower re-reads everything, monitors included, and the snapshot's arrival
-    // redraws the dialog. `App::monitors()` is never called on the Slint thread.
+    g.on_resize(move || if let Some(op) = me.upgrade() {
+        let g = op.ui.global::<ScreensDialogState>();
+        // Half-typed numbers wait: 19 on the way to 1920 is not a size to save.
+        if let (Ok(w @ 320..=7680), Ok(h @ 240..=4320)) = (g.get_width_text().parse::<u32>(), g.get_height_text().parse::<u32>()) {
+            typed(&op, |t| t.size = Some((w, h)));
+        }
+    });
+    g.on_remove(on(Rc::new(remove)));
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_identify(move || if let Some(op) = me.upgrade() { run(&op, "screens/identify", json!({})) });
+    // Refresh: the follower re-reads everything, monitors included, and the snapshot's arrival redraws the dialog.
+    // `App::monitors()` is never called on the Slint thread.
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_refresh(move || if let Some(op) = me.upgrade() { op.request_refresh() });
 }
@@ -119,7 +273,13 @@ mod tests {
 
     /// A windowing layer with monitors that can change and a record of what was opened.
     #[derive(Default)]
-    struct FakeDisplays { monitors: Mutex<Vec<Monitor>>, open: Mutex<Vec<String>>, calls: Mutex<Vec<(String, Option<String>)>> }
+    struct FakeDisplays {
+        monitors: Mutex<Vec<Monitor>>,
+        open: Mutex<Vec<String>>,
+        calls: Mutex<Vec<(String, Option<String>)>>,
+        sized: Mutex<Vec<(String, (u32, u32))>>,
+        marks: Mutex<Vec<(String, String, String)>>,
+    }
 
     impl Screens for FakeDisplays {
         fn open(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
@@ -128,9 +288,14 @@ mod tests {
             if !open.iter().any(|r| r == role) { open.push(role.into()); }
             Ok(())
         }
+        fn open_window(&self, role: &str, size: (u32, u32)) -> Result<(), String> {
+            self.sized.lock().unwrap().push((role.into(), size));
+            self.open(role, None)
+        }
         fn close(&self, role: &str) { self.open.lock().unwrap().retain(|r| r != role); }
         fn open_roles(&self) -> Vec<String> { self.open.lock().unwrap().clone() }
         fn monitors(&self) -> Vec<Monitor> { self.monitors.lock().unwrap().clone() }
+        fn identify(&self, marks: Vec<(String, String, String)>) { *self.marks.lock().unwrap() = marks; }
     }
 
     fn mon(id: &str, primary: bool) -> Monitor {
@@ -149,116 +314,245 @@ mod tests {
         op.ui.invoke_screens();
         settle(&op);
         assert_eq!(op.dialog(), Some(DialogKind::Screens));
-        assert_eq!(op.ui.get_dialog_title(), "Screens");
+        assert_eq!(op.ui.get_dialog_title(), "Screen Configuration");
         op
     }
 
-    fn cards(op: &Operator) -> Vec<ScreenCard> { op.ui.global::<ScreensDialogState>().get_cards().iter().collect() }
+    fn state(op: &Operator) -> ScreensDialogState<'_> { op.ui.global::<ScreensDialogState>() }
 
-    fn toasts(op: &Operator) -> Vec<String> { op.ui.get_toasts().iter().map(|t| t.text.to_string()).collect() }
-
-    #[test]
-    fn default_pick_prefers_saved_then_non_primary() {
-        let ms = [mon("A", true), mon("B", false), mon("C", false)];
-        assert_eq!(default_pick(&ms, Some("C")).as_deref(), Some("C"), "the saved monitor");
-        assert_eq!(default_pick(&ms, Some("gone")).as_deref(), Some("B"), "saved but unplugged: first non-primary");
-        assert_eq!(default_pick(&ms, None).as_deref(), Some("B"));
-        assert_eq!(default_pick(&ms[..1], None), None, "only the primary");
-        assert_eq!(default_pick(&ms[..1], Some("A")).as_deref(), Some("A"), "the saved primary is kept");
-        assert_eq!(default_pick(&[], Some("A")), None);
+    fn rows(op: &Operator, list: usize) -> Vec<ScreenRow> {
+        state(op).get_lists().row_data(list).unwrap().rows.iter().collect()
     }
 
-    #[test]
-    fn one_monitor_nothing_saved_disables_show() {
-        let (app, d) = with_displays(vec![mon("A", true)]);
-        let op = open_screens(&app);
-        assert!(cards(&op).iter().all(|c| c.pick == -1));
-        let show = find(&op, "ScreenCardView::show-btn").unwrap();
-        assert_eq!(show.accessible_enabled(), Some(false));
-        click(&op, "ScreenCardView::show-btn", 0);
-        assert!(d.calls.lock().unwrap().is_empty(), "a disabled button opens nothing");
-        // Test in a window still works, on no monitor.
-        click(&op, "ScreenCardView::test-btn", 0);
-        assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), None)]);
-        assert!(toasts(&op).is_empty(), "no toast for a test window");
+    /// Runs an action at once (the test `Ops` are inline).
+    fn act(op: &Operator, action: &'static str, body: Value) { op.ops().call::<Value>(action, body, |r| { r.unwrap(); }); }
+
+    fn update(op: &Rc<Operator>, body: Value) {
+        act(op, "screens/update", body);
+        refresh(op);
+        settle(op);
     }
 
+    fn toasts(op: &Operator) -> Vec<String> { op.toast_log().into_iter().map(|t| t.0).collect() }
+
     #[test]
-    fn one_monitor_shows_plug_in_note() {
+    fn opens_with_audience_and_stage_lists() {
         let (app, _d) = with_displays(vec![mon("A", true)]);
         let op = open_screens(&app);
-        assert_eq!(find_all(&op, "ScreenCardView::one-screen-note").len(), 2, "on both cards");
-        assert!(find(&op, "ScreenCardView::monitor").is_none());
-        let (app, _d) = with_displays(vec![mon("A", true), mon("B", false)]);
-        let op = open_screens(&app);
-        assert!(find(&op, "ScreenCardView::one-screen-note").is_none());
-        assert_eq!(find_all(&op, "ScreenCardView::monitor").len(), 4, "two monitors on each card");
+        let lists: Vec<ScreenList> = state(&op).get_lists().iter().collect();
+        assert_eq!(lists.iter().map(|l| l.title.to_string()).collect::<Vec<_>>(), ["Audience", "Stage"]);
+        assert!(lists.iter().all(|l| !l.on));
+        assert_eq!(rows(&op, 0)[0].name, "Audience");
+        assert_eq!(rows(&op, 1)[0].name, "Stage Display");
+        assert_eq!(state(&op).get_name(), "Audience", "the first screen is picked");
+        assert_eq!(state(&op).get_output(), 0, "and goes nowhere yet");
+        assert!(!state(&op).get_can_remove(), "a list keeps one screen");
+        assert!(find(&op, "ScreensDialog::one-screen-note").is_some(), "only one monitor");
     }
 
     #[test]
-    fn show_opens_on_the_picked_monitor_and_toasts() {
-        let (app, d) = with_displays(vec![mon("A", true), mon("B", false), mon("C", false)]);
-        let op = open_screens(&app);
-        let mons = find_all(&op, "ScreenCardView::monitor");
-        assert_eq!(mons[1].accessible_checked(), Some(true), "B: the first non-primary");
-        click(&op, "ScreenCardView::monitor", 2);
-        assert_eq!(find_all(&op, "ScreenCardView::monitor")[2].accessible_checked(), Some(true));
-        click(&op, "ScreenCardView::show-btn", 0);
-        assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("C".to_string()))]);
-        assert_eq!(app.data.lock().unwrap().settings.displays.room.as_deref(), Some("C"), "remembered");
-        assert_eq!(toasts(&op), ["Room screen opened"]);
-    }
-
-    #[test]
-    fn turn_off_only_while_window_open() {
+    fn the_switch_turns_on_and_takes_the_free_monitor() {
         let (app, d) = with_displays(vec![mon("A", true), mon("B", false)]);
         let op = open_screens(&app);
-        assert!(find(&op, "ScreenCardView::off-btn").is_none());
-        assert_eq!(find(&op, "ScreenCardView::show-btn").unwrap().accessible_label().unwrap_or_default(), "Show on this screen");
-        click(&op, "ScreenCardView::show-btn", 1);
-        assert_eq!(*d.calls.lock().unwrap(), [("stage".to_string(), Some("B".to_string()))]);
+        click(&op, "ScreenListView::power", 0);
         refresh(&op);
         settle(&op);
-        let offs = find_all(&op, "ScreenCardView::off-btn");
-        assert_eq!(offs.len(), 1, "only the stage card");
-        assert_eq!(find_all(&op, "ScreenCardView::show-btn")[1].accessible_label().unwrap_or_default(), "Move / reopen here");
-        click(&op, "ScreenCardView::off-btn", 0);
-        assert!(d.open.lock().unwrap().is_empty());
+        assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("B".to_string()))]);
+        assert!(app.data.lock().unwrap().settings.screens.audience.on, "remembered");
+        assert_eq!(rows(&op, 0)[0].status, "Showing");
+        assert_eq!(rows(&op, 0)[0].size, "1920 × 1080");
+        click(&op, "ScreenListView::power", 0);
         refresh(&op);
         settle(&op);
-        assert!(find(&op, "ScreenCardView::off-btn").is_none());
+        assert!(d.open.lock().unwrap().is_empty(), "off closes it");
+        assert_eq!(rows(&op, 0)[0].status, "Off");
     }
 
     #[test]
-    fn screens_status_chips() {
+    fn the_switch_needs_a_screen_to_show_on() {
         let (app, d) = with_displays(vec![mon("A", true)]);
         let op = open_screens(&app);
-        let chips = |op: &Operator| cards(op).iter().map(|c| (c.chip.to_string(), c.chip_state.to_string())).collect::<Vec<_>>();
-        assert_eq!(chips(&op), [("Off".into(), "".into()), ("Off".into(), "".into())]);
-        d.open.lock().unwrap().push("room".into());
-        d.open.lock().unwrap().push("stage".into());
+        click(&op, "ScreenListView::power", 1);
         refresh(&op);
-        assert_eq!(chips(&op), [("Starting…".into(), "warn".into()), ("Starting…".into(), "warn".into())], "in `windows`");
-        let _room = app.screen_guard("room");
-        refresh(&op);
-        assert_eq!(chips(&op), [("Showing".into(), "ok".into()), ("Starting…".into(), "warn".into())]);
-        let _stage = app.screen_guard("stage");
-        refresh(&op);
-        assert_eq!(chips(&op)[1], ("Showing".into(), "ok".into()), "the stage uses stage_connected");
         settle(&op);
-        let chip = find_all(&op, "ScreenCardView::chip");
-        assert_eq!(chip[0].accessible_label().unwrap_or_default(), "Showing");
+        assert!(d.calls.lock().unwrap().is_empty());
+        assert!(!app.data.lock().unwrap().settings.screens.stage.on);
+        assert_eq!(toasts(&op), ["Pick an output for this screen first."]);
+    }
+
+    #[test]
+    fn output_choice_is_saved_and_moves_the_open_window() {
+        let (app, d) = with_displays(vec![mon("A", true), mon("B", false), mon("C", false)]);
+        let op = open_screens(&app);
+        let id = rows(&op, 0)[0].id.to_string();
+        state(&op).invoke_pick_output(3); // None, window, A, B
+        refresh(&op);
+        settle(&op);
+        assert_eq!(state(&op).get_output(), 3);
+        assert!(d.calls.lock().unwrap().is_empty(), "the switch is off, so nothing opens");
+        act(&op, "screens/power", json!({ "group": "audience", "on": true }));
+        d.calls.lock().unwrap().clear();
+        act(&op, "screens/update", json!({ "id": id, "name": "Projector" }));
+        assert!(d.calls.lock().unwrap().is_empty(), "a new name does not blink the room");
+        update(&op, json!({ "id": id, "target": { "kind": "monitor", "monitor": "C" } }));
+        assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("C".to_string()))]);
+    }
+
+    #[test]
+    fn a_monitor_shows_one_screen() {
+        let (app, _d) = with_displays(vec![mon("A", true), mon("B", false)]);
+        let op = open_screens(&app);
+        let (first, second) = (rows(&op, 0)[0].id.to_string(), rows(&op, 1)[0].id.to_string());
+        update(&op, json!({ "id": first, "target": { "kind": "monitor", "monitor": "B" } }));
+        update(&op, json!({ "id": second, "target": { "kind": "monitor", "monitor": "B" } }));
+        let s = app.data.lock().unwrap().settings.screens.clone();
+        assert_eq!(s.monitors("audience"), Vec::<&str>::new());
+        assert_eq!(s.monitors("stage"), ["B"]);
+    }
+
+    #[test]
+    fn extra_audience_screens_get_their_own_window() {
+        let (app, d) = with_displays(vec![mon("A", true), mon("B", false), mon("C", false)]);
+        let op = open_screens(&app);
+        click(&op, "ScreenListView::add-btn", 0);
+        settle(&op);
+        refresh(&op);
+        settle(&op);
+        let rows0 = rows(&op, 0);
+        assert_eq!(rows0.iter().map(|r| r.name.to_string()).collect::<Vec<_>>(), ["Audience", "Audience 2"]);
+        assert_eq!(state(&op).get_selected(), rows0[1].id, "the new screen is picked");
+        assert!(state(&op).get_can_remove());
+        update(&op, json!({ "id": rows0[0].id.as_str(), "target": { "kind": "monitor", "monitor": "B" } }));
+        update(&op, json!({ "id": rows0[1].id.as_str(), "target": { "kind": "monitor", "monitor": "C" } }));
+        assert!(state(&op).get_note().contains("Sound only plays from Audience"));
+        act(&op, "screens/power", json!({ "group": "audience", "on": true }));
+        let extra = format!("room:{}", rows0[1].id);
+        assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("B".to_string())), (extra.clone(), Some("C".to_string()))]);
+        refresh(&op);
+        settle(&op);
+        assert_eq!(rows(&op, 0)[1].status, "Showing");
+        // Removing the first makes the other one the room, which has the sound.
+        act(&op, "screens/remove", json!({ "id": rows0[0].id.as_str() }));
+        assert_eq!(*d.open.lock().unwrap(), ["room"]);
+        assert_eq!(d.calls.lock().unwrap().last().unwrap(), &("room".to_string(), Some("C".to_string())));
+    }
+
+    #[test]
+    fn remove_asks_first() {
+        let (app, _d) = with_displays(vec![mon("A", true)]);
+        let op = open_screens(&app);
+        click(&op, "ScreenListView::add-btn", 1);
+        settle(&op);
+        refresh(&op);
+        settle(&op);
+        click(&op, "ScreensDialog::remove-btn", 0);
+        assert_eq!(asked(&op).unwrap().0, "Remove “Stage Display 2”?");
+        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 2, "not yet");
+        click(&op, "AskOverlay::ok", 0);
+        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 1);
+    }
+
+    #[test]
+    fn typing_a_name_saves_when_the_dialog_closes() {
+        let (app, _d) = with_displays(vec![mon("A", true)]);
+        let op = open_screens(&app);
+        state(&op).invoke_rename("Lobby TV".into());
+        assert_eq!(rows(&op, 0)[0].name, "Lobby TV", "the list follows the typing");
+        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Audience", "not saved on each key");
+        op.close_dialog();
+        settle(&op);
+        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Lobby TV");
+    }
+
+    #[test]
+    fn a_window_opens_at_its_size_and_half_typed_numbers_wait() {
+        let (app, d) = with_displays(vec![mon("A", true), mon("B", false)]);
+        let op = open_screens(&app);
+        state(&op).invoke_pick_output(1);
+        refresh(&op);
+        settle(&op);
+        assert!(state(&op).get_size_editable(), "a window's size can be typed");
+        state(&op).set_width_text("19".into());
+        state(&op).invoke_resize();
+        assert!(TYPING.with_borrow(Option::is_none), "19 is on its way to something");
+        state(&op).set_width_text("1280".into());
+        state(&op).set_height_text("720".into());
+        state(&op).invoke_resize();
+        op.close_dialog();
+        settle(&op);
+        act(&op, "screens/power", json!({ "group": "audience", "on": true }));
+        assert_eq!(*d.sized.lock().unwrap(), [("room".to_string(), (1280, 720))]);
+        let op = open_screens(&app);
+        assert_eq!(state(&op).get_aspect(), "1.78 (16:9)");
+        state(&op).invoke_pick_output(3);
+        refresh(&op);
+        settle(&op);
+        assert!(!state(&op).get_size_editable(), "a monitor's size is the monitor's");
+        assert_eq!(state(&op).get_size(), "1920 × 1080");
+    }
+
+    #[test]
+    fn an_unplugged_monitor_stays_chosen() {
+        let (app, _d) = with_displays(vec![mon("A", true)]);
+        app.data.lock().unwrap().settings.screens.assign("audience", ScreenTarget::Monitor("gone".into()));
+        let op = open_screens(&app);
+        assert_eq!(rows(&op, 0)[0].status, "Unplugged");
+        assert_eq!(state(&op).get_output(), 3, "None, window, A, then the missing one");
+        assert_eq!(state(&op).get_outputs().row_data(3).unwrap(), "Not connected right now");
+    }
+
+    #[test]
+    fn a_connected_monitor_shows_its_real_size() {
+        let (app, _d) = with_displays(vec![mon("A", true), Monitor { width: 1280, height: 720, ..mon("B", false) }]);
+        app.data.lock().unwrap().settings.screens.assign("audience", ScreenTarget::Monitor("B".into())); // saved as 1920 × 1080
+        let op = open_screens(&app);
+        assert_eq!(rows(&op, 0)[0].size, "1280 × 720");
+        assert_eq!(state(&op).get_size(), "1280 × 720");
+    }
+
+    #[test]
+    fn identify_marks_every_monitor() {
+        let (app, d) = with_displays(vec![mon("A", true), mon("B", false), mon("C", false)]);
+        let op = open_screens(&app);
+        let id = rows(&op, 1)[0].id.to_string();
+        update(&op, json!({ "id": id, "target": { "kind": "monitor", "monitor": "C" } }));
+        click(&op, "ScreensDialog::identify-btn", 0);
+        assert_eq!(*d.marks.lock().unwrap(), [
+            ("A".to_string(), "1".to_string(), "This computer".to_string()),
+            ("B".to_string(), "2".to_string(), "Not used".to_string()),
+            ("C".to_string(), "3".to_string(), "Stage Display".to_string()),
+        ]);
     }
 
     #[test]
     fn refresh_requests_a_new_read_with_monitors() {
         let (app, d) = with_displays(vec![mon("A", true)]);
         let op = open_screens(&app);
-        assert!(find(&op, "ScreenCardView::monitor").is_none());
+        assert_eq!(state(&op).get_outputs().row_count(), 3);
         d.monitors.lock().unwrap().push(mon("B", false));
         click(&op, "ScreensDialog::refresh-btn", 0);
         assert_eq!(op.state.borrow().snap.as_ref().unwrap().monitors.len(), 2, "a new read, monitors included");
-        assert_eq!(find_all(&op, "ScreenCardView::monitor").len(), 4, "and the dialog was redrawn");
-        assert!(cards(&op).iter().all(|c| c.pick == 1), "B is picked");
+        assert_eq!(state(&op).get_outputs().row_count(), 4, "and the dialog was redrawn");
+        assert!(find_all(&op, "ScreensDialog::one-screen-note").is_empty());
+    }
+
+    #[test]
+    fn output_list_and_aspect() {
+        let ms = [mon("A", true)];
+        let (list, at) = outputs(&ms, &ScreenTarget::Window);
+        assert_eq!((list.len(), at), (3, 1));
+        let (list, at) = outputs(&ms, &ScreenTarget::Monitor("A".into()));
+        assert_eq!((list.len(), at), (3, 2));
+        assert_eq!(aspect(1920, 1080), "1.78 (16:9)");
+        assert_eq!(aspect(1280, 800), "1.60 (8:5)");
+        assert_eq!(aspect(0, 1080), "");
+    }
+
+    #[test]
+    fn a_monitor_at_a_new_resolution_is_the_same_monitor() {
+        let now = Monitor { id: r"\\.\DISPLAY2|1280×720|1920,0".into(), ..mon("x", false) };
+        assert!(is_monitor(&now, r"\\.\DISPLAY2|1920×1080|1920,0"), "same name");
+        assert!(is_monitor(&now, r"\\.\DISPLAY2"), "an older bare name");
+        assert!(!is_monitor(&now, r"\\.\DISPLAY3|1280×720|1920,0"));
     }
 }

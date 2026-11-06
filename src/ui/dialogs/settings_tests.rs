@@ -117,12 +117,12 @@ fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
     open(&op, SettingsTab::Songs);
     g(&op).set_ccli("777".into());
     block_on(app.do_action("settings/translation", br#"{"translation":"WEB"}"#)).unwrap();
-    app.data.lock().unwrap().settings.displays.room = Some(r"\\.\DISPLAY2".into());
+    app.data.lock().unwrap().settings.screens.assign("audience", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
     refresh(&op);
     click(&op, "SettingsDialog::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!(s.translation, "WEB", "the translation picked meanwhile is kept");
-    assert_eq!(s.displays.room.as_deref(), Some(r"\\.\DISPLAY2"), "the screen chosen meanwhile is kept");
+    assert_eq!(s.screens.monitors("audience"), [r"\\.\DISPLAY2"], "the screen chosen meanwhile is kept");
     assert_eq!(s.church_ccli, "777");
 }
 
