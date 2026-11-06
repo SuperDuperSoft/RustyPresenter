@@ -16,6 +16,8 @@ pub enum KeyAction {
     PickTranslation(usize),
     /// Ctrl+V outside a text field: a YouTube link on the clipboard opens Download from YouTube with it.
     PasteLink,
+    /// A song section of the live song: `c` chorus, `b` bridge, `p` pre-chorus, `e` ending or tag, `1`–`9` that verse.
+    JumpSection(char),
     None,
 }
 
@@ -82,12 +84,37 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     if ctrl_or_cmd && key.eq_ignore_ascii_case("v") {
         return KeyAction::PasteLink;
     }
+    if !ctrl_or_cmd && !alt && let Some(c) = section_key(key) {
+        return KeyAction::JumpSection(c);
+    }
     match key {
         "ArrowRight" | "ArrowDown" | "PageDown" | " " => KeyAction::Next,
         "ArrowLeft" | "ArrowUp" | "PageUp" => KeyAction::Prev,
         "Enter" => KeyAction::TakeArmedOrSelected,
         _ => KeyAction::None,
     }
+}
+
+/// A section jump key, lower case: c, b, p, e, or a verse number 1–9.
+fn section_key(key: &str) -> Option<char> {
+    let mut chars = key.chars();
+    let (Some(c), None) = (chars.next(), chars.next()) else { return None };
+    let c = c.to_ascii_lowercase();
+    (matches!(c, 'c' | 'b' | 'p' | 'e') || ('1'..='9').contains(&c)).then_some(c)
+}
+
+/// The first slide of section `key` (see `section_key`) among slide labels: `c` finds "Chorus", `2` "Verse 2".
+pub fn section_slide<'a>(labels: impl IntoIterator<Item = &'a str>, key: char) -> Option<usize> {
+    labels.into_iter().position(|l| {
+        let (id, short) = super::slides::section(l);
+        match key {
+            'c' => id == "chorus",
+            'b' => id == "bridge",
+            'p' => id == "pre",
+            'e' => id == "end",
+            d => id == "verse" && (short[1..] == *d.to_string() || (short.len() == 1 && d == '1')),
+        }
+    })
 }
 
 /// The translation Alt+`key` picks in the Bible box (0 for the 1 key). Slint hands over the character the key
@@ -101,6 +128,22 @@ fn translation_key(key: &str) -> Option<usize> {
 }
 
 impl Operator {
+    /// Takes section `key` of the live song live (or of the selected song when nothing is live); false when there is
+    /// no such section, so the key is left alone.
+    fn jump_section(self: &Rc<Self>, key: char) -> bool {
+        let target = {
+            let st = self.state.borrow();
+            let Some(snap) = st.snap.as_ref() else { return false };
+            let id = self.live_item().or(st.selected);
+            id.and_then(|id| snap.items.iter().find(|i| i.id == id && i.kind == "song"))
+                .and_then(|i| section_slide(i.slides.iter().map(|s| s.label.as_str()), key).map(|s| (i.id, s)))
+        };
+        let Some((item_id, slide)) = target else { return false };
+        self.state.borrow_mut().armed = None;
+        self.command(Command::Show { item_id, slide }, None);
+        true
+    }
+
     /// A dialog or a confirm/prompt question is open over the window.
     pub(crate) fn covered(&self) -> bool {
         let st = self.state.borrow();
@@ -125,6 +168,7 @@ impl Operator {
                 Some(link) => crate::ui::dialogs::add_youtube::open_with_link(self, &link),
                 None => return false,
             },
+            KeyAction::JumpSection(c) => return self.jump_section(c),
             KeyAction::None => return false,
         }
         true
@@ -157,6 +201,28 @@ mod tests {
     const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false };
     const BIBLE: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
     const DIALOG: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: true };
+
+    #[test]
+    fn section_keys_jump_only_outside_text_fields() {
+        assert_eq!(route("c", false, false, PLAIN), KeyAction::JumpSection('c'));
+        assert_eq!(route("C", false, false, PLAIN), KeyAction::JumpSection('c'));
+        assert_eq!(route("2", false, false, PLAIN), KeyAction::JumpSection('2'));
+        assert_eq!(route("c", false, false, TYPING), KeyAction::None, "typing a c in a box types it");
+        assert_eq!(route("x", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("c", true, false, PLAIN), KeyAction::None, "Ctrl+C is not a jump");
+    }
+
+    #[test]
+    fn section_slide_finds_the_first_slide_of_each_section() {
+        let labels = ["Verse 1", "Verse 1", "Chorus", "Verse 2", "Chorus", "Bridge", "Tag"];
+        assert_eq!(section_slide(labels, 'c'), Some(2));
+        assert_eq!(section_slide(labels, '2'), Some(3));
+        assert_eq!(section_slide(labels, '1'), Some(0));
+        assert_eq!(section_slide(labels, 'b'), Some(5));
+        assert_eq!(section_slide(labels, 'e'), Some(6));
+        assert_eq!(section_slide(labels, 'p'), None);
+        assert_eq!(section_slide(["Verse"], '1'), Some(0), "an unnumbered verse is verse 1");
+    }
 
     #[test]
     fn f_keys_clear_even_while_typing_or_in_a_dialog() {
