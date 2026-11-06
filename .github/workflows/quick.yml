@@ -3,7 +3,7 @@ name: Quick check
 # Fast feedback for the redesign branch: compile and unit tests on Linux. The full matrix runs at merge time.
 on:
   push:
-    branches: [redesign-media-library]
+    branches: [redesign-media-library, merge-all]
   workflow_dispatch:
 
 # One run at a time: a newer push waits for the run going (and replaces any run still waiting).
