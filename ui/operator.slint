@@ -17,6 +17,7 @@ import { ServicesDialog } from "dialogs/services.slint";
 import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
+import { UsageDialog } from "dialogs/usage.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, BinRow, BinFolder }
 
@@ -166,6 +167,8 @@ export component OperatorWindow inherits Window {
     callback stage-message();
     callback check-service();
     callback settings();
+    /// Opens the Song use report (FEAT-7 §3.3); for the menu bar and Settings → Songs.
+    callback usage-report();
     callback bible-submit(string);
     callback pick-translation(int);
     callback picker-opening();
@@ -410,6 +413,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "screens": ScreensDialog {}
             if root.dialog-kind == "phone": PhoneDialog {}
             if root.dialog-kind == "settings": SettingsDialog {}
+            if root.dialog-kind == "usage": UsageDialog {}
         }
 
         for a in root.ask: AskOverlay {

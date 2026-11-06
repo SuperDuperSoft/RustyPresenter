@@ -16,6 +16,7 @@ pub mod settings_audio;
 pub mod settings_bible;
 pub mod settings_look;
 pub mod song_editor;
+pub mod usage;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
 #[path = "../../strings/add.rs"]
@@ -46,6 +47,8 @@ pub enum DialogKind {
     Screens,
     Phone,
     Settings(SettingsTab),
+    /// The song use report (FEAT-7 §3.3).
+    Usage,
 }
 
 impl DialogKind {
@@ -54,7 +57,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_)) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -66,6 +69,7 @@ impl DialogKind {
             DialogKind::Screens => "screens",
             DialogKind::Phone => "phone",
             DialogKind::Settings(_) => "settings",
+            DialogKind::Usage => "usage",
         }
     }
 }
@@ -174,6 +178,7 @@ impl Operator {
             DialogKind::Screens => strings::SCREENS.into(),
             DialogKind::Phone => strings::PHONE.into(),
             DialogKind::Settings(_) => strings::SETTINGS.into(),
+            DialogKind::Usage => crate::usage::strings::TITLE.into(),
         }
     }
 }
@@ -191,6 +196,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     screens::wire(op);
     phone::wire(op);
     settings::wire(op);
+    usage::wire(op);
 }
 
 #[cfg(test)]
