@@ -63,6 +63,20 @@ export global ItemEdit {
     callback pick-bible(string);
     callback toggle-favourite(string);
     callback find-more-bibles(string);
+    /// Scripture: the Bibles shown with the main one in this passage only (Nov 5 spec §3), at most two, as their
+    /// chips say them. Both "Also show" pickers share one list; `also-opening` says which one is opening.
+    in property <[string]> also-labels;
+    /// 0 side by side, 1 top and bottom.
+    in-out property <int> also-layout;
+    in property <[TranslationChip]> also-rows;
+    in-out property <string> also-search;
+    in property <string> also-note;
+    callback also-opening(int);
+    callback also-search-changed(string);
+    callback also-accept();
+    callback also-pick(string);
+    /// The X beside an Also Bible: the one after it moves up.
+    callback also-remove(int);
 }
 
 /// The text of a `Note` that has something beside it (a button or a status chip).
@@ -127,6 +141,61 @@ export component ItemEditDialog inherits VerticalLayout {
                     font-size: Theme.base-size;
                     vertical-alignment: center;
                     wrap: word-wrap;
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Also show");
+            VerticalLayout {
+                spacing: 8px;
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 8px;
+                    also-0 := BiblePickButton {
+                        height: 32px;
+                        label: ItemEdit.also-labels.length > 0 ? ItemEdit.also-labels[0] : @tr("none");
+                        rows: ItemEdit.also-rows;
+                        search <=> ItemEdit.also-search;
+                        note: ItemEdit.also-note;
+                        opening => { ItemEdit.also-opening(0); }
+                        search-changed(text) => { ItemEdit.also-search-changed(text); }
+                        accept => { ItemEdit.also-accept(); }
+                        pick(id) => { ItemEdit.also-pick(id); }
+                        toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                        find-more(q) => { ItemEdit.find-more-bibles(q); }
+                    }
+                    if ItemEdit.also-labels.length > 0: also-x-0 := Btn {
+                        small: true;
+                        icon: "close";
+                        tooltip: @tr("Stop showing this Bible");
+                        clicked => { ItemEdit.also-remove(0); }
+                    }
+                    if ItemEdit.also-labels.length > 0: also-1 := BiblePickButton {
+                        height: 32px;
+                        label: ItemEdit.also-labels.length > 1 ? ItemEdit.also-labels[1] : @tr("none");
+                        rows: ItemEdit.also-rows;
+                        search <=> ItemEdit.also-search;
+                        note: ItemEdit.also-note;
+                        opening => { ItemEdit.also-opening(1); }
+                        search-changed(text) => { ItemEdit.also-search-changed(text); }
+                        accept => { ItemEdit.also-accept(); }
+                        pick(id) => { ItemEdit.also-pick(id); }
+                        toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                        find-more(q) => { ItemEdit.find-more-bibles(q); }
+                    }
+                    if ItemEdit.also-labels.length > 1: also-x-1 := Btn {
+                        small: true;
+                        icon: "close";
+                        tooltip: @tr("Stop showing this Bible");
+                        clicked => { ItemEdit.also-remove(1); }
+                    }
+                }
+                if ItemEdit.also-labels.length > 0: HorizontalLayout {
+                    alignment: start;
+                    also-layout := Segmented {
+                        labels: [@tr("Side by side"), @tr("Top and bottom")];
+                        index <=> ItemEdit.also-layout;
+                    }
                 }
             }
         }
