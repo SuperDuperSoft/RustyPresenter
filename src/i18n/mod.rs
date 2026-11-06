@@ -27,6 +27,7 @@
 //! - After adding or changing text, run `cargo run --example i18n_extract` to update `translations/` (the
 //!   `i18n_pot_is_current` test fails until then).
 
+pub mod extract;
 pub mod plural;
 pub mod po;
 

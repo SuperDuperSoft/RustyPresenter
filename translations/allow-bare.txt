@@ -1,0 +1,9 @@
+# Plain text in ui/**/*.slint that is not translated (checked by `slint_has_no_bare_user_text` in tests/i18n_catalogs.rs).
+# One text per line, exactly as written in the .slint file; or `file: <path>` for a whole file. Lines starting with # are notes.
+# Only symbols, names and the like belong here: words people read go through @tr(...).
+
+# The developer's widget gallery (`cargo run --example widgets`); church volunteers never see it.
+file: ui/gallery.slint
+
+# The letter in the brand mark (top left of the operator).
+R
