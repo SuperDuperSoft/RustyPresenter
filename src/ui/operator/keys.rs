@@ -535,7 +535,9 @@ mod window_tests {
     fn ctrl_b_with_dialog_open_leaves_bible_box_alone() {
         let app = test_app();
         let op = opened(&app);
-        op.state.borrow_mut().dialog = Some(DialogKind::Settings(crate::ui::dialogs::SettingsTab::Look));
+        // Opened for real, so the window's menu bar sees it too (its Ctrl+B item is off while a dialog is up).
+        crate::ui::dialogs::settings::open(&op, crate::ui::dialogs::SettingsTab::Look);
+        assert_eq!(op.dialog(), Some(DialogKind::Settings(crate::ui::dialogs::SettingsTab::Look)));
         chord(&op, Key::Control, "b");
         type_text(&op, "x");
         assert_eq!(op.ui.get_bible_text(), "", "the Bible box did not take focus");

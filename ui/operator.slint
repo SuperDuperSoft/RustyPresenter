@@ -13,7 +13,7 @@ import { AskOverlay, AskRow } from "dialogs/ask.slint";
 import { AddDialog } from "dialogs/add.slint";
 import { SongEditor } from "dialogs/song-editor.slint";
 import { ItemEditDialog } from "dialogs/item-edit.slint";
-import { ServicesDialog } from "dialogs/services.slint";
+import { ServicesDialog, ServicesDialogState } from "dialogs/services.slint";
 import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
@@ -176,6 +176,16 @@ export component OperatorWindow inherits Window {
     callback find-more-bibles(string);
     callback cycle-per-slide();
 
+    // The menu bar (`src/ui/operator/menu.rs`).
+    /// There is a current service (File → Save this service to a file…).
+    in property <bool> has-service;
+    callback menu(string);
+    /// Items that open a dialog or act on the window: the first read is in and nothing covers the window (its
+    /// buttons are under a dialog's backdrop then).
+    out property <bool> menu-ready: root.loaded && !root.covered;
+    out property <bool> menu-can-edit: root.menu-ready && root.has-selection;
+    out property <bool> menu-can-save: root.menu-ready && root.has-service;
+
     /// One key press, for `keys::route` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, whether a text field
     /// has focus and whether that field is the Bible box. True when the key was used.
     callback key(string, bool, bool, bool, bool) -> bool;
@@ -222,6 +232,194 @@ export component OperatorWindow inherits Window {
 
     function send-key(e: KeyEvent) -> bool {
         return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
+    }
+
+    // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Only F1–F5 and Ctrl+B are
+    // bound as shortcuts: the window matches them before any text box, and these do the same wherever the focus is.
+    MenuBar {
+        Menu {
+            title: @tr("File");
+            MenuItem {
+                title: @tr("New service…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); ServicesDialogState.new-service(); }
+            }
+            MenuItem {
+                title: @tr("Services…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.services(); }
+            }
+            MenuItem {
+                title: @tr("Open a service file…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); ServicesDialogState.open-file(); }
+            }
+            MenuItem {
+                title: @tr("Save this service to a file…");
+                enabled: root.menu-can-save;
+                activated => { root.focus-keys(); ServicesDialogState.save-file(); }
+            }
+            MenuSeparator {}
+            Menu {
+                title: @tr("Add to service");
+                enabled: root.menu-ready;
+                MenuItem {
+                    title: @tr("Song…");
+                    activated => { root.focus-keys(); root.menu("add-song"); }
+                }
+                MenuItem {
+                    title: @tr("Bible passage…");
+                    activated => { root.focus-keys(); root.menu("add-bible"); }
+                }
+                MenuItem {
+                    title: @tr("Video & media…");
+                    activated => { root.focus-keys(); root.menu("add-media"); }
+                }
+                MenuItem {
+                    title: @tr("Slides…");
+                    activated => { root.focus-keys(); root.menu("add-slides"); }
+                }
+                MenuItem {
+                    title: @tr("Announcement…");
+                    activated => { root.focus-keys(); root.menu("add-text"); }
+                }
+            }
+            MenuItem {
+                title: @tr("Import media…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.bin-import(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Exit");
+                activated => { root.menu("exit"); }
+            }
+        }
+        Menu {
+            title: @tr("Edit");
+            MenuItem {
+                title: @tr("Edit the selected item…");
+                enabled: root.menu-can-edit;
+                activated => { root.focus-keys(); root.slides-edit(); }
+            }
+            MenuItem {
+                title: @tr("Bible box");
+                shortcut: @keys(Control + B);
+                enabled: !root.covered;
+                activated => { root.focus-bible(); }
+            }
+        }
+        Menu {
+            title: @tr("View");
+            MenuItem {
+                title: @tr("Next");
+                enabled: !root.covered;
+                activated => { root.focus-keys(); root.live-next(); }
+            }
+            MenuItem {
+                title: @tr("Back");
+                enabled: !root.covered;
+                activated => { root.focus-keys(); root.live-prev(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Clear all");
+                shortcut: @keys(F1);
+                activated => { root.live-clear("clear_all"); }
+            }
+            MenuItem {
+                title: @tr("Clear text");
+                shortcut: @keys(F2);
+                activated => { root.live-clear("clear_slide"); }
+            }
+            MenuItem {
+                title: @tr("Clear media & background");
+                shortcut: @keys(F3);
+                activated => { root.live-clear("clear_media"); }
+            }
+            MenuItem {
+                title: @tr("Stop audio");
+                shortcut: @keys(F4);
+                activated => { root.live-clear("clear_audio"); }
+            }
+            MenuItem {
+                title: @tr("Logo");
+                shortcut: @keys(F5);
+                activated => { root.live-clear("logo"); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: bin.open ? @tr("Hide media library") : @tr("Show media library");
+                enabled: !root.covered;
+                activated => { bin.open = !bin.open; }
+            }
+        }
+        Menu {
+            title: @tr("Window");
+            MenuItem {
+                title: @tr("Screens…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.screens(); }
+            }
+            MenuItem {
+                title: @tr("Phone remote…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.phone(); }
+            }
+            MenuItem {
+                title: @tr("Stage message…");
+                enabled: root.menu-ready && root.stage-shown;
+                activated => { root.focus-keys(); root.stage-message(); }
+            }
+        }
+        Menu {
+            title: @tr("Settings");
+            MenuItem {
+                title: @tr("Settings…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.settings(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Songs…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-songs"); }
+            }
+            MenuItem {
+                title: @tr("Bible…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-bible"); }
+            }
+            MenuItem {
+                title: @tr("Video…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-video"); }
+            }
+            MenuItem {
+                title: @tr("Backups…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-backups"); }
+            }
+        }
+        Menu {
+            title: @tr("Help");
+            MenuItem {
+                title: @tr("Keyboard shortcuts");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-help"); }
+            }
+            MenuItem {
+                title: @tr("Check the service");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.check-service(); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("About RustyPresenter");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-about"); }
+            }
+        }
     }
 
     // The window's key scope (`operator.js:305-320`). Everything else reaches it only when the focused field

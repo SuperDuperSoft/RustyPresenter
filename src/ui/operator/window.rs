@@ -2,7 +2,7 @@
 //! into snapshots for the Slint thread (`operator.js:292-302`). The service column is in `service`, the slides
 //! column in `slides`, the live column in `live`, the keyboard in `keys`, the Bible box in `bible`, toasts and jobs
 //! in `overlays`; the dialogs come in later tasks.
-use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, media_bin::{self, BinState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
+use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, media_bin::{self, BinState}, menu, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
     ui::{BinFolder, BinRow, OperatorWindow, ServiceRow, SlideRowCells, ops::Ops, preview::Preview, thumbs::Thumbs},
@@ -134,6 +134,7 @@ impl Operator {
         crate::ui::dialogs::wire(&op);
         files::wire(&op);
         checks::wire(&op);
+        menu::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -243,6 +244,7 @@ impl Operator {
         ui.set_stage_shown(stage.is_some());
         ui.set_stage_on(stage.unwrap_or(false));
         ui.set_phones_label(view::phones_label(s.phones).unwrap_or_default().into());
+        ui.set_has_service(s.service_id.is_some());
     }
 }
 
