@@ -70,6 +70,15 @@ fn tag(m: &MediaFile) -> String {
     }
 }
 
+/// The picture a tile shows: a picture itself, a video's grabbed frame; audio has none.
+pub fn tile_asset(m: &MediaFile) -> Option<AssetId> {
+    match m.kind {
+        MediaKind::Image => Some(m.asset.clone()),
+        MediaKind::Video => m.thumb.clone(),
+        MediaKind::Audio => None,
+    }
+}
+
 /// What this file becomes as a background; `None` for audio and for files not ready to play.
 pub fn as_background(m: &MediaFile) -> Option<Background> {
     if m.status != MediaStatus::Ready { return None }
@@ -118,14 +127,15 @@ impl Operator {
             let rows: Vec<BinRow> = files.iter().map(|m| BinRow {
                 id: m.id.to_string().into(), name: m.name.as_str().into(),
                 kind: match m.kind { MediaKind::Video => "video", MediaKind::Image => "image", MediaKind::Audio => "audio" }.into(),
-                tag: tag(m).into(), image: b.images.get(&m.asset).cloned().unwrap_or_default(),
+                tag: tag(m).into(), image: tile_asset(m).and_then(|a| b.images.get(&a).cloned()).unwrap_or_default(),
                 picked: b.picked == Some(m.id), on_screen: on_screen.as_ref() == Some(&m.asset),
             }).collect();
             let folders: Vec<BinFolder> = folder_counts(&media, &listed).into_iter().map(|(name, count)| BinFolder {
                 label: if name.is_empty() { tr::ALL_MEDIA } else { name.as_str() }.into(),
                 on: name == b.folder, count: count as i32, name: name.as_str().into(),
             }).collect();
-            let wanted: Vec<AssetId> = files.iter().filter(|m| m.kind == MediaKind::Image && !b.images.contains_key(&m.asset)).map(|m| m.asset.clone()).collect();
+            let mut wanted: Vec<AssetId> = files.iter().filter_map(|m| tile_asset(m)).filter(|a| !b.images.contains_key(a)).collect();
+            wanted.dedup();
             (rows, folders, wanted)
         };
         self.bin_rows.set_vec(rows);
@@ -168,7 +178,7 @@ impl Operator {
             let image = Image::from_rgba8(px);
             op.bin.borrow_mut().images.insert(asset.clone(), image.clone());
             let Some(media) = op.bin_media() else { return };
-            let ids: Vec<String> = media.iter().filter(|m| m.asset == asset).map(|m| m.id.to_string()).collect();
+            let ids: Vec<String> = media.iter().filter(|m| tile_asset(m).as_ref() == Some(&asset)).map(|m| m.id.to_string()).collect();
             for i in 0..op.bin_rows.row_count() {
                 let Some(mut row) = op.bin_rows.row_data(i) else { continue };
                 if ids.iter().any(|id| id == row.id.as_str()) {
@@ -306,7 +316,7 @@ mod tests {
     use super::*;
 
     fn file(name: &str, kind: MediaKind, folder: &str) -> MediaFile {
-        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status: MediaStatus::Ready, original_asset: None, folder: folder.into() }
+        MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: folder.into() }
     }
 
     fn sample() -> Vec<MediaFile> {
