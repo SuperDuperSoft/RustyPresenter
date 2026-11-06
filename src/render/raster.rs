@@ -15,6 +15,9 @@ impl Premul {
     /// Transparent pixels.
     pub fn zeroed(width: u32, height: u32) -> Premul { Premul(SharedPixelBuffer::new(width, height)) }
 
+    /// Pixels already premultiplied.
+    pub fn from_buffer(b: SharedPixelBuffer<Rgba8Pixel>) -> Premul { Premul(b) }
+
     /// The pixels for `slint::Image::from_rgba8_premultiplied` (shared, not copied).
     pub fn buffer(&self) -> SharedPixelBuffer<Rgba8Pixel> { self.0.clone() }
 }
@@ -58,7 +61,9 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
     let s = w as f32 / CANVAS_W;
     let mut px: SharedPixelBuffer<Rgba8Pixel> = SharedPixelBuffer::new(w, h);
     let mut pix = PixmapMut::from_bytes(px.make_mut_bytes(), w, h).expect("canvas is clamped to a drawable size");
-    if l.lower { draw_lower_shade(&mut pix); }
+    // A text band replaces the lower-third shade.
+    let band = theme.band && l.columns.is_none();
+    if l.lower && !band { draw_lower_shade(&mut pix); }
 
     let color = parse_color(&theme.color);
     let mut cache = SwashCache::new();
@@ -81,10 +86,22 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
         let text_h = text_height(&l.body);
         let b = l.body_box;
         // Taller than the content box (it may still fit within the padding, as on the web): start at the top.
-        let y = if text_h > b.h { b.y } else if l.lower { b.y + b.h - text_h } else { b.y + (b.h - text_h) / 2.0 };
+        let y = if text_h > b.h || l.top { b.y } else if l.lower { b.y + b.h - text_h } else { b.y + (b.h - text_h) / 2.0 };
         coverage_of(fonts, &mut cache, &mut l.body, (w, h), (b.x, y))
     };
+    if band && body.w > 0 {
+        let p = BAND_PAD * s;
+        let r = (body.x as f32 - p, body.y as f32 - p, body.w as f32 + 2.0 * p, body.h as f32 + 2.0 * p);
+        fill_round_rect(&mut pix, r, BAND_RADIUS * s, parse_color(&theme.band_color), f32::from(theme.band_opacity.min(100)) / 100.0);
+    }
     if theme.shadow { for sh in &BODY_SHADOWS { composite_shadow(&mut pix, &body, sh, s, 1.0); } }
+    // The outline sits under the text and over its shadow.
+    let outline = (f32::from(theme.outline.min(12)) * s).round() as usize;
+    if outline > 0 && body.w > 0 {
+        let mut ring = body.grown(outline, (w, h));
+        dilate(&mut ring.data, ring.w, ring.h, outline);
+        composite(&mut pix, &ring, 0, parse_color(&theme.outline_color), 1.0);
+    }
     composite(&mut pix, &body, 0, color, 1.0);
 
     if let Some(foot) = l.foot.as_mut() {
@@ -99,6 +116,65 @@ pub fn render_text(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: 
     }
 
     Rendered { width: w, height: h, rgba_premul: Premul(px), font_px: l.font_px * s, font_fallback: l.font_fallback }
+}
+
+/// Text band padding around the lines and its corner radius, in 1080p pixels (FEAT-1 spec §6.2).
+const BAND_PAD: f32 = 28.0;
+const BAND_RADIUS: f32 = 12.0;
+
+/// A filled rectangle `(x, y, w, h)` with rounded corners, in `color` at `alpha`, over the pixmap.
+pub(crate) fn fill_round_rect(pix: &mut PixmapMut, (x, y, w, h): (f32, f32, f32, f32), radius: f32, color: [u8; 4], alpha: f32) {
+    let r = radius.min(w / 2.0).min(h / 2.0).max(0.0);
+    let mut pb = tiny_skia::PathBuilder::new();
+    pb.move_to(x + r, y);
+    pb.line_to(x + w - r, y);
+    pb.quad_to(x + w, y, x + w, y + r);
+    pb.line_to(x + w, y + h - r);
+    pb.quad_to(x + w, y + h, x + w - r, y + h);
+    pb.line_to(x + r, y + h);
+    pb.quad_to(x, y + h, x, y + h - r);
+    pb.line_to(x, y + r);
+    pb.quad_to(x, y, x + r, y);
+    pb.close();
+    let Some(path) = pb.finish() else { return };
+    let a = (f32::from(color[3]) / 255.0 * alpha).clamp(0.0, 1.0);
+    let mut paint = Paint::default();
+    paint.set_color(SkColor::from_rgba8(color[0], color[1], color[2], (a * 255.0).round() as u8));
+    paint.anti_alias = true;
+    pix.fill_path(&path, &paint, tiny_skia::FillRule::Winding, Transform::identity(), None);
+}
+
+/// The text of `buf` with its top-left at `at`, on a transparent `size` picture: `under` draws first (a box), then
+/// the slide's body shadow when `shadow`, then the text in `color`. `s` is the canvas scale (width / 1920).
+pub(crate) fn text_picture(fonts: &mut Fonts, buf: &mut Buffer, size: (u32, u32), at: (f32, f32), color: [u8; 4], shadow: bool, s: f32,
+    under: impl FnOnce(&mut PixmapMut)) -> Premul {
+    let (w, h) = clamp_canvas(size);
+    let mut px: SharedPixelBuffer<Rgba8Pixel> = SharedPixelBuffer::new(w, h);
+    {
+        let mut pix = PixmapMut::from_bytes(px.make_mut_bytes(), w, h).expect("a clamped size is drawable");
+        under(&mut pix);
+        let cov = coverage_of(fonts, &mut SwashCache::new(), buf, (w, h), at);
+        if shadow { for sh in &BODY_SHADOWS { composite_shadow(&mut pix, &cov, sh, s, 1.0); } }
+        composite(&mut pix, &cov, 0, color, 1.0);
+    }
+    Premul(px)
+}
+
+/// Grows coverage by `r` pixels each way (a square max filter, rows then columns).
+fn dilate(data: &mut [f32], w: usize, h: usize, r: usize) {
+    if r == 0 || w == 0 || h == 0 { return }
+    let mut tmp = vec![0.0f32; data.len()];
+    for y in 0..h {
+        let row = &data[y * w..(y + 1) * w];
+        for x in 0..w {
+            tmp[y * w + x] = row[x.saturating_sub(r)..(x + r + 1).min(w)].iter().copied().fold(0.0, f32::max);
+        }
+    }
+    for x in 0..w {
+        for y in 0..h {
+            data[y * w + x] = (y.saturating_sub(r)..(y + r + 1).min(h)).map(|yy| tmp[yy * w + x]).fold(0.0, f32::max);
+        }
+    }
 }
 
 /// Coverage (0–1) of a box of the canvas; everything outside the box is uncovered. Blurring and

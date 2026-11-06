@@ -58,12 +58,20 @@ pub fn video_thumb(media: &[MediaFile], asset: &str) -> Option<AssetId> {
     media.iter().find(|m| m.asset == asset).and_then(|m| m.thumb.clone())
 }
 
+/// The settings an item's thumbnails are drawn with: its resolved theme (item > service > church default) as the
+/// theme, and its resolved background (its own, else the theme's, else Standard's) as the background.
+pub fn item_settings(data: &crate::model::Data, item: &crate::model::ServiceItem) -> Settings {
+    let service = crate::theme::service_of(data, item.id).map(|(s, _)| s);
+    let r = crate::theme::resolve(data, service, item);
+    Settings { theme: r.style, background: r.background, ..data.settings.clone() }
+}
+
 /// The thumbnail of `slide` of an item of `kind` (`slideToLayers`). The background is the item's, else the
 /// settings' (`itemBackground`); a video background is drawn as its saved frame. The logo is never drawn. `passage`
 /// is the item's (`model::passage`), so the thumbnail's text has the size the room shows.
 pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_background: Option<&Background>, settings: &Settings, media: &[MediaFile], size: (u32, u32)) -> (ThumbKey, ThumbJob) {
     let background = match item_background.unwrap_or(&settings.background) {
-        Background::Video { asset } if let Some(thumb) = video_thumb(media, asset) => Background::Image { asset: thumb },
+        Background::Video { asset, dim } if let Some(thumb) = video_thumb(media, asset) => Background::Image { asset: thumb, dim: *dim },
         other => other.clone(),
     };
     let job = match &slide.content {
@@ -92,15 +100,21 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     let mut img = RgbaImage::from_pixel(w, h, Rgba([0, 0, 0, 255]));
     let picture = |asset: &str| decode(&store.asset_path(asset));
     match &job.background {
+        // Gradients and Darken are drawn like the room draws them.
+        Some(bg) if matches!(bg, Background::Gradient { .. }) || bg.dim() > 0 => {
+            let decoded = bg.asset().filter(|_| matches!(bg, Background::Image { .. })).and_then(|a| picture(a)).map(|p| p.into_rgba8());
+            let px = crate::render::background::background_pixels(bg, decoded.as_ref(), (w, h));
+            over_premultiplied(&mut img, &px.rgba_premul);
+        }
         Some(Background::Color { color }) => {
             let [r, g, b, a] = parse_color(color);
             imageops::overlay(&mut img, &RgbaImage::from_pixel(w, h, Rgba([r, g, b, a])), 0, 0);
         }
         // An image background covers the screen; a video one with no saved frame is black.
-        Some(Background::Image { asset }) => if let Some(p) = picture(asset) {
+        Some(Background::Image { asset, .. }) => if let Some(p) = picture(asset) {
             imageops::overlay(&mut img, &p.resize_to_fill(w, h, FilterType::Triangle).into_rgba8(), 0, 0);
         },
-        Some(Background::Video { .. }) | None => {}
+        Some(Background::Video { .. } | Background::Gradient { .. }) | None => {}
     }
     match &job.media {
         Some(ThumbMedia::Still { asset }) => if let Some(p) = picture(asset) { contain(&mut img, &p) },
@@ -241,6 +255,27 @@ fn decode(path: &Path) -> Option<DynamicImage> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn item_settings_use_the_resolved_theme_and_background() {
+        let mut d = crate::model::Data::default();
+        let t = crate::theme::SavedTheme { id: uuid::Uuid::new_v4(), name: "X".into(), style: crate::model::Theme { size: 99, ..Default::default() },
+            background: Some(Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 0 }) };
+        d.themes.push(t.clone());
+        d.services[0].theme = Some(t.id);
+        let item = crate::model::ServiceItem { id: uuid::Uuid::new_v4(), kind: crate::model::ItemKind::Text { title: "a".into(), body: "b".into() }, background: None, notes: String::new(), theme: None };
+        d.services[0].items.push(item.clone());
+        let s = item_settings(&d, &item);
+        assert_eq!((s.theme.size, s.background), (99, t.background.unwrap()));
+    }
+
+    #[test]
+    fn thumbnails_draw_gradient_backgrounds() {
+        let job = ThumbJob { background: Some(Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 0 }), media: None, picture: None, text: None };
+        let px = compose(&job, (32, 18), &TextRenderer::new(), &store());
+        let top = &px.as_bytes()[..4];
+        assert!(top[0].abs_diff(0x0b) <= 3 && top[1].abs_diff(0x1a) <= 3 && top[2].abs_diff(0x33) <= 3, "{top:?}");
+    }
     use crate::model::Theme;
 
     fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
@@ -329,13 +364,13 @@ mod tests {
     fn video_background_thumb_uses_media_thumb() {
         let store = store();
         let media = [video_with_a_saved_frame(&store)];
-        let back = Background::Video { asset: "v.mp4".into() };
+        let back = Background::Video { asset: "v.mp4".into(), dim: 0 };
         let (key, job) = thumb(&text("Amazing grace"), "song", &[], Some(&back), &settings(), &media, (64, 36));
-        assert_eq!(job.background, Some(Background::Image { asset: "frame.png".into() }));
+        assert_eq!(job.background, Some(Background::Image { asset: "frame.png".into(), dim: 0 }));
         assert_eq!(compose(&job, key.size, &TextRenderer::new(), &store).as_slice()[0].g, 255);
         let mut s = settings();
         s.background = back.clone();
-        assert_eq!(thumb(&text("a"), "song", &[], None, &s, &media, (64, 36)).1.background, Some(Background::Image { asset: "frame.png".into() }), "the settings' background too");
+        assert_eq!(thumb(&text("a"), "song", &[], None, &s, &media, (64, 36)).1.background, Some(Background::Image { asset: "frame.png".into(), dim: 0 }), "the settings' background too");
         assert_eq!(thumb(&text("a"), "song", &[], Some(&back), &settings(), &[], (64, 36)).1.background, Some(back), "no frame yet: black, as before");
     }
 
