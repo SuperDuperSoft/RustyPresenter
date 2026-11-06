@@ -39,7 +39,7 @@ A window opens with three columns:
 
 ## First time
 
-1. **Screens** (top right): pick the projector/TV and click *Show on this screen*. Windows must be set to *Extend* (press `Win + P`).
+1. **Screens** (top right): flip the **Audience** switch on. It finds the projector/TV by itself; pick another under *Output* if you need to, and **Identify** shows which screen is which. Use **+** to add more screens. Windows must be set to *Extend* (press `Win + P`).
 2. **Add to service**: songs, Bible, videos/pictures/music, slides, announcements. You can also **drag files** onto the window.
 3. **Bible box** at the top: type `John 3:16` and press **Enter** to add it. Press **Enter** again to show it.
 4. During the service, press **→** or click the big **Next** button. Next keeps going into the next item.

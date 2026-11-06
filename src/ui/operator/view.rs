@@ -136,7 +136,7 @@ impl OperatorSnapshot {
             bible_providers: typed(app.bible_providers()),
             room,
             stage_connected: app.stage_conns.load(Ordering::Relaxed) > 0,
-            stage_configured: data.settings.displays.stage.is_some(),
+            stage_configured: data.settings.screens.stage.on && !data.settings.screens.keyed("stage").is_empty(),
             phones: app.remote_conns.load(Ordering::Relaxed),
             jobs: app.jobs.lock().unwrap().iter().map(|j| JobRow { id: j.id, label: j.label.clone(), percent: j.percent, error: j.error.clone(), note: j.note.clone(), cancellable: j.cancellable, done: j.done, subject: j.subject.clone() }).collect(),
             job_ends: app.job_ends.lock().unwrap().iter().copied().collect(),

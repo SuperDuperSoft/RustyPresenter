@@ -264,7 +264,7 @@ fn save(op: &Rc<Operator>, edit: &Rc<Edit>) {
     read_form(&op.ui.global::<SettingsDlg>(), &mut s);
     if let Some(latest) = snap(op) {
         s.translation = latest.settings.translation.clone();
-        s.displays = latest.settings.displays.clone();
+        s.screens = latest.settings.screens.clone();
     }
     let body = serde_json::to_value(&s).unwrap_or_default();
     let me = Rc::downgrade(op);

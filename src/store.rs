@@ -38,7 +38,7 @@ impl Store {
 
     pub fn load(&self) -> Result<Data, String> {
         match fs::read_to_string(self.data_path()) {
-            Ok(text) => serde_json::from_str(&text).map_err(|e| format!(
+            Ok(text) => serde_json::from_str(&text).map(Data::upgrade).map_err(|e| format!(
                 "Your saved data at {} could not be read ({e}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside.",
                 self.data_path().display())),
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(Data::default()),
@@ -127,7 +127,7 @@ impl Store {
         let dir = self.root.join("backups").join(name);
         if !dir.join("COMPLETE").exists() { return Err("That backup is incomplete and cannot be restored.".into()); }
         let manifest: Manifest = serde_json::from_slice(&fs::read(dir.join("manifest.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
-        let data: Data = serde_json::from_slice(&fs::read(dir.join("data.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+        let data: Data = serde_json::from_slice::<Data>(&fs::read(dir.join("data.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?.upgrade();
         let store = self.root.join("backups").join("assets");
         for a in &manifest.assets {
             let dst = self.asset_path(a);

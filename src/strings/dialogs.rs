@@ -6,7 +6,7 @@ pub const ADD: &str = "Add to service";
 pub const NEW_SONG: &str = "New song";
 pub const EDIT_SONG: &str = "Edit song";
 pub const SERVICES: &str = "Services";
-pub const SCREENS: &str = "Screens";
+pub const SCREENS: &str = "Screen Configuration";
 pub const PHONE: &str = "Phone remote";
 pub const SETTINGS: &str = "Settings";
 

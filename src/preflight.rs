@@ -14,13 +14,11 @@ const SHOWN: usize = 8;
 pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dyn Fn(&str) -> bool) -> Vec<String> {
     let mut out = vec![];
     let connected = |id: &str| monitors.iter().any(|m| m.id == id);
-    let displays = &data.settings.displays;
-    match displays.room.as_deref() {
-        None => out.push(strings::NO_ROOM.to_string()),
-        Some(room) if !connected(room) => out.push(strings::ROOM_GONE.to_string()),
-        Some(_) => {}
-    }
-    if displays.stage.as_deref().is_some_and(|s| !connected(s)) { out.push(strings::STAGE_GONE.into()); }
+    let screens = &data.settings.screens;
+    let room = screens.monitors("audience");
+    if room.is_empty() { out.push(strings::NO_ROOM.to_string()) }
+    else if !room.into_iter().all(connected) { out.push(strings::ROOM_GONE.to_string()) }
+    if screens.stage.on && !screens.monitors("stage").into_iter().all(connected) { out.push(strings::STAGE_GONE.into()); }
     let sound = data.settings.audio_device.as_str();
     if !sound.is_empty() && !audio.is_empty() && !audio.iter().any(|a| a == sound) { out.push(strings::AUDIO_GONE.into()); }
     if data.settings.logo.as_deref().is_some_and(|l| !has_asset(l)) { out.push(strings::LOGO_MISSING.into()); }
@@ -78,7 +76,7 @@ pub fn report(problems: &[String]) -> String {
 #[cfg(test)]
 mod tests {
     use super::{strings as s, *};
-    use crate::model::{Deck, EndAction, MediaKind, Service, ServiceItem, Song, VerseText};
+    use crate::model::{Deck, EndAction, MediaKind, ScreenTarget, Service, ServiceItem, Song, VerseText};
     use uuid::Uuid;
 
     fn monitor(id: &str) -> Monitor { Monitor { id: id.into(), label: format!("Screen {id}"), x: 0, y: 0, width: 1920, height: 1080, primary: false } }
@@ -86,7 +84,7 @@ mod tests {
     /// A service with these items, the room on a connected screen.
     fn data(items: Vec<ItemKind>) -> Data {
         let mut d = Data::default();
-        d.settings.displays.room = Some("room".into());
+        d.settings.screens.assign("audience", ScreenTarget::Monitor("room".into()));
         let mut service = Service::new("Sunday");
         service.items = items.into_iter().map(item).collect();
         d.current_service = Some(service.id);
@@ -117,14 +115,14 @@ mod tests {
     #[test]
     fn no_room_screen_chosen() {
         let mut d = data(vec![text()]);
-        d.settings.displays.room = None;
+        d.settings.screens.assign("audience", ScreenTarget::None);
         assert_eq!(run(&d, &all), [s::NO_ROOM]);
     }
 
     #[test]
     fn room_screen_not_connected_comes_first() {
         let mut d = data(vec![ItemKind::Song { song_id: Uuid::new_v4() }]);
-        d.settings.displays.room = Some(r"\\.\DISPLAY2".into());
+        d.settings.screens.assign("audience", ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
         let got = run(&d, &all);
         assert_eq!(got[0], s::ROOM_GONE);
         assert_eq!(got.len(), 2);
@@ -141,7 +139,7 @@ mod tests {
     fn stage_screen_gone_is_flagged_but_none_chosen_is_fine() {
         let mut d = data(vec![text()]);
         assert_eq!(run(&d, &all), Vec::<String>::new());
-        d.settings.displays.stage = Some("stage".into());
+        d.settings.screens.assign("stage", ScreenTarget::Monitor("stage".into()));
         assert_eq!(run(&d, &all), [s::STAGE_GONE]);
         assert_eq!(check(&d, &[monitor("room"), monitor("stage")], &[], &all), Vec::<String>::new());
     }
