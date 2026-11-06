@@ -4,6 +4,7 @@ use crate::model::VerseText;
 
 pub mod api_bible;
 pub mod blocklist;
+pub mod catalog;
 pub mod esv;
 pub mod id;
 pub mod import;
