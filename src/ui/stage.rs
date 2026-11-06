@@ -1,64 +1,97 @@
 //! The stage screen for the people on the platform: what is live, what comes next, notes,
 //! the clock and the time left on a video (same content as `web/stage.html`).
-use super::StageWindow;
-use crate::{app::{App, LiveUpdate, LiveView, Update}, model::{Slide, SlideContent}, platform::monitors::{self, MonitorId}};
-use slint::{ComponentHandle, Timer, TimerMode};
-use std::{rc::Rc, sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}, time::Duration};
+//! Classic (the default) draws today's fixed screen; any other stage layout draws its boxes (`stage::view`).
+use super::{StageCellVm, StageWindow};
+use crate::{
+    app::{App, LiveUpdate, LiveView, Update},
+    model::Slide,
+    platform::monitors::{self, MonitorId},
+    stage::{self, presets, strings as s, view::{self, CellContent, StageInputs}, Align, StageLayout, StageState, VAlign},
+    timers::TimersView,
+};
+use slint::{ComponentHandle, Model, Timer, TimerMode, VecModel};
+use std::{collections::HashMap, rc::Rc, sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}, time::Duration};
 use tokio::sync::broadcast::error::RecvError;
+
+use crate::stage::view::label;
 
 /// Everything the stage shows, worked out from one live view.
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct StageText { pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String, pub message: String }
-
-/// A slide as the stage names it: its text, or what kind of picture or media it is.
-fn label(s: &Slide) -> String {
-    match &s.content {
-        SlideContent::Text { text, parallel, .. } => crate::model::all_bibles_text(text, parallel.as_ref()),
-        SlideContent::Image { .. } => "(slide picture)".into(),
-        SlideContent::Video { .. } => "(video)".into(),
-        SlideContent::Still { .. } => "(picture)".into(),
-        SlideContent::Audio { .. } => "(audio)".into(),
-    }
-}
-
-/// `−m:ss`, never below zero.
-fn countdown(left: f64) -> String { let s = left.max(0.0).round() as u64; format!("−{}:{:02}", s / 60, s % 60) }
 
 pub fn stage_text(view: &LiveView) -> StageText {
     let f = &view.frame;
     let on_air = f.slide.is_some() || f.media.is_some();
     let now = match &view.slide {
         Some(s) if on_air => label(s),
-        _ if f.logo => "(logo)".into(),
+        _ if f.logo => s::LOGO.into(),
         _ => String::new(),
     };
-    let timer = view.media.as_ref().or(view.audio.as_ref()).filter(|m| m.duration > 0.0).map(|m| countdown(m.duration - m.position));
+    let timer = view.media.as_ref().or(view.audio.as_ref()).filter(|m| m.duration > 0.0).map(|m| view::countdown(m.duration - m.position));
     StageText {
-        title: view.item.as_ref().map_or("Nothing live", |i| i.title.as_str()).into(),
+        title: view.item.as_ref().map_or(s::NOTHING_LIVE, |i| i.title.as_str()).into(),
         now,
         now_dim: !on_air,
         notes: view.slide.as_ref().map(|s| s.notes.clone()).unwrap_or_default(),
-        next: view.next.as_ref().map_or_else(|| "End of service".into(), |n| label(&n.slide)),
+        next: view.next.as_ref().map_or_else(|| s::END_OF_SERVICE.into(), |n| label(&n.slide)),
         timer: timer.unwrap_or_default(),
         message: view.stage_message.clone(),
     }
 }
 
 /// The largest font size (in % of the height) that `fits`: 9 % down to 3 % in 0.4 % steps, like `stage.html`.
-pub fn fit_size(fits: impl Fn(f32) -> bool) -> f32 {
-    (0..=15).map(|k| 9.0 - 0.4 * k as f32).find(|s| fits(*s)).unwrap_or(3.0)
+pub fn fit_size(fits: impl Fn(f32) -> bool) -> f32 { fit_between(9.0, 3.0, fits) }
+
+/// The largest size from `max` down to `min` in 0.4 % steps that `fits`; `min` when none does.
+pub fn fit_between(max: f32, min: f32, fits: impl Fn(f32) -> bool) -> f32 {
+    let steps = ((max - min) / 0.4 + 1e-3).floor().max(0.0) as usize;
+    (0..=steps).map(|k| max - 0.4 * k as f32).find(|s| fits(*s)).unwrap_or(min)
 }
 
-fn clock(t: chrono::NaiveTime) -> String { t.format("%-I:%M %p").to_string() }
+fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 
-fn tick(ui: &StageWindow) { ui.set_clock(clock(chrono::Local::now().time()).into()); }
+/// What the window draws: the live view, the stage layout and the live item's slides (for "next section").
+#[derive(Clone)]
+struct Shown { live: LiveUpdate, layout: &'static StageLayout, slides: Vec<Slide> }
+
+/// The layout on stage is the church's stage default (Classic when it names no layout).
+fn read(app: &App, live: LiveUpdate) -> Shown {
+    let default = app.data.lock().unwrap().settings.stage.layout;
+    let layout = stage::active_layout(None, None, Some(default));
+    let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
+    Shown { live, layout, slides }
+}
+
+/// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
+#[derive(Default)]
+struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>> }
+
+#[derive(Hash, PartialEq, Eq)]
+struct FitKey { text: String, w: i32, h: i32, bold: bool, max: i32, min: i32 }
+
+fn tick(ui: &StageWindow, screen: &StageScreen) {
+    ui.set_clock(clock(chrono::Local::now().time()).into());
+    if ui.get_use_cells() { redraw(ui, screen) }
+}
 
 fn fit(ui: &StageWindow) {
     let size = fit_size(|s| { ui.set_now_size(s); ui.get_now_fits() });
     ui.set_now_size(size);
 }
 
-fn show(ui: &StageWindow, view: &LiveView) {
+fn show(ui: &StageWindow, screen: &StageScreen, shown: Shown) {
+    let cells = shown.layout.id != presets::CLASSIC;
+    ui.set_use_cells(cells);
+    if cells { draw_cells(ui, screen, &shown) } else { show_classic(ui, &shown.live) }
+    *screen.last.lock().unwrap() = Some(shown);
+}
+
+fn redraw(ui: &StageWindow, screen: &StageScreen) {
+    let last = screen.last.lock().unwrap().clone();
+    if let Some(shown) = last { if ui.get_use_cells() { draw_cells(ui, screen, &shown) } else { fit(ui) } }
+}
+
+fn show_classic(ui: &StageWindow, view: &LiveView) {
     let t = stage_text(view);
     ui.set_item_title(t.title.into());
     ui.set_now(t.now.into());
@@ -70,6 +103,76 @@ fn show(ui: &StageWindow, view: &LiveView) {
     fit(ui);
 }
 
+fn color(c: &str) -> slint::Color { let [r, g, b, a] = crate::render::parse_color(c); slint::Color::from_argb_u8(a, r, g, b) }
+
+/// Draw the layout's boxes. Rows that did not change are left alone.
+fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
+    // FEAT-2 timers are not published by the app yet: timer boxes stay empty until they are.
+    let (timers, state) = (TimersView::default(), StageState::default());
+    let inputs = StageInputs { live: &shown.live, slides: &shown.slides, timers: &timers, state: &state, now: chrono::Local::now().time() };
+    let v = view::build(&inputs, shown.layout);
+    ui.set_bg(color(&v.background));
+    ui.set_banner(v.message_fallback.unwrap_or_default().into());
+    let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c)).collect();
+    let model = ui.get_cells();
+    match model.as_any().downcast_ref::<VecModel<StageCellVm>>() {
+        Some(m) if m.row_count() == rows.len() => {
+            for (i, row) in rows.into_iter().enumerate() { if m.row_data(i).as_ref() != Some(&row) { m.set_row_data(i, row) } }
+        }
+        Some(m) => m.set_vec(rows),
+        None => ui.set_cells(Rc::new(VecModel::from(rows)).into()),
+    }
+}
+
+/// One box for the window, its words sized to fit. Empty boxes are not drawn.
+fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell) -> Option<StageCellVm> {
+    let (text, caption, dim, red, message) = match &c.content {
+        CellContent::Empty => return None,
+        CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
+        // Pictures on stage are not drawn yet: the box names the slide instead.
+        CellContent::Picture { caption, .. } => (s::SLIDE_PICTURE.to_string(), caption.clone().unwrap_or_default(), false, false, false),
+        CellContent::Message { text } => (text.clone(), String::new(), false, false, true),
+    };
+    let st = &c.style;
+    let bold = st.bold || message;
+    let size = fit_cell(ui, screen, &text, c, !caption.is_empty(), bold);
+    Some(StageCellVm {
+        x: c.rect.x, y: c.rect.y, w: c.rect.w, h: c.rect.h,
+        text: text.into(),
+        caption: caption.to_uppercase().into(),
+        color: color(&st.color),
+        fill: st.fill.as_deref().map_or(slint::Color::from_argb_u8(0, 0, 0, 0), color),
+        size,
+        align: match st.align { Align::Left => 0, Align::Center => 1, Align::Right => 2 },
+        valign: match st.valign { VAlign::Top => 0, VAlign::Middle => 1, VAlign::Bottom => 2 },
+        bold, dim, red, message,
+    })
+}
+
+/// Box padding and caption height in % of the window height (as `ui/stage.slint` draws them).
+const PAD: f32 = 1.2;
+const CAPTION: f32 = 2.75 + 0.6;
+
+/// The biggest size from the box's `max_size` down to its `min_size` at which the words fit the box.
+fn fit_cell(ui: &StageWindow, screen: &StageScreen, text: &str, c: &view::Cell, caption: bool, bold: bool) -> f32 {
+    let (max, min) = (c.style.max_size, c.style.min_size);
+    if text.is_empty() { return max; }
+    let (ww, wh) = (ui.get_window_width(), ui.get_window_height());
+    let vh = wh / 100.0;
+    let aw = c.rect.w * ww / 100.0 - 2.0 * PAD * vh;
+    let ah = c.rect.h * vh - 2.0 * PAD * vh - if caption { CAPTION * vh } else { 0.0 };
+    let key = FitKey { text: text.into(), w: aw.round() as i32, h: ah.round() as i32, bold, max: (max * 100.0) as i32, min: (min * 100.0) as i32 };
+    let mut fits = screen.fits.lock().unwrap();
+    if let Some(size) = fits.get(&key) { return *size; }
+    ui.set_probe_text(text.into());
+    ui.set_probe_width(aw.max(1.0));
+    ui.set_probe_bold(bold);
+    let size = fit_between(max, min, |s| { ui.set_probe_size(s); ui.get_probe_height() <= ah && ui.get_probe_min_width() <= aw });
+    if fits.len() > 512 { fits.clear() }
+    fits.insert(key, size);
+    size
+}
+
 /// An open stage window. It follows the live view until it is dropped.
 pub struct Stage { ui: StageWindow, _clock: Timer, closed: Arc<AtomicBool> }
 
@@ -79,22 +182,25 @@ impl Stage {
         let ui = StageWindow::new().map_err(|e| format!("Could not open the stage screen: {e}"))?;
         // Its frames never wait for the monitor's refresh, so the room's are not held up behind them.
         super::pacing::attach(ui.window(), "stage", false);
+        let screen = Arc::new(StageScreen::default());
         let weak = ui.as_weak();
-        ui.on_refit(move || if let Some(ui) = weak.upgrade() { fit(&ui) });
+        let sc = screen.clone();
+        ui.on_refit(move || if let Some(ui) = weak.upgrade() { redraw(&ui, &sc) });
         let clock = Timer::default();
         let weak = ui.as_weak();
-        clock.start(TimerMode::Repeated, Duration::from_secs(1), move || if let Some(ui) = weak.upgrade() { tick(&ui) });
-        tick(&ui);
+        let sc = screen.clone();
+        clock.start(TimerMode::Repeated, Duration::from_secs(1), move || if let Some(ui) = weak.upgrade() { tick(&ui, &sc) });
+        tick(&ui, &screen);
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();
-        show(&ui, &app.live_view());
+        show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view())));
         ui.set_connected(true);
         ui.show().map_err(|e| format!("Could not open the stage screen: {e}"))?;
         if let Some(m) = &monitor {
             if let Err(e) = monitors::fullscreen_on(&ui, m) { let _ = ui.hide(); return Err(e); }
         }
         let closed = Arc::new(AtomicBool::new(false));
-        follow(app, rx, ui.as_weak(), closed.clone());
+        follow(app, rx, ui.as_weak(), screen, closed.clone());
         Ok(Rc::new(Stage { ui, _clock: clock, closed }))
     }
 
@@ -105,24 +211,26 @@ impl Drop for Stage {
     fn drop(&mut self) { self.closed.store(true, Ordering::Relaxed); let _ = self.ui.hide(); }
 }
 
-/// Forward live updates to the window from a plain thread (no tokio runtime needed on the UI side).
+/// Forward live and data updates to the window from a plain thread (no tokio runtime needed on the UI side).
 /// Only the newest view is drawn: updates that arrive while one is queued replace it.
-fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: slint::Weak<StageWindow>, closed: Arc<AtomicBool>) {
-    let latest: Arc<Mutex<Option<LiveUpdate>>> = Arc::default();
+fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: slint::Weak<StageWindow>, screen: Arc<StageScreen>, closed: Arc<AtomicBool>) {
+    let latest: Arc<Mutex<Option<Shown>>> = Arc::default();
     let _ = std::thread::Builder::new().name("stage-updates".into()).spawn(move || loop {
         let update = match rx.blocking_recv() {
             Ok(Update::Live(u)) => u,
+            // Settings may have a new stage layout.
+            Ok(Update::Data) | Err(RecvError::Lagged(_)) => LiveUpdate::new(app.live_view()),
             Ok(_) => continue,
-            Err(RecvError::Lagged(_)) => LiveUpdate::new(app.live_view()),
             Err(RecvError::Closed) => {
                 let _ = ui.upgrade_in_event_loop(|ui| ui.set_connected(false));
                 return;
             }
         };
         if closed.load(Ordering::Relaxed) { return; }
-        if latest.lock().unwrap().replace(update).is_some() { continue; } // already queued: it will draw this one
-        let latest = latest.clone();
-        let sent = ui.upgrade_in_event_loop(move |ui| if let Some(u) = latest.lock().unwrap().take() { show(&ui, &u) });
+        let shown = read(&app, update);
+        if latest.lock().unwrap().replace(shown).is_some() { continue; } // already queued: it will draw this one
+        let (latest, screen) = (latest.clone(), screen.clone());
+        let sent = ui.upgrade_in_event_loop(move |ui| if let Some(s) = latest.lock().unwrap().take() { show(&ui, &screen, s) });
         if sent.is_err() { return; }
     });
 }
@@ -257,6 +365,77 @@ mod tests {
         assert_eq!(next.accessible_label().unwrap_or_default(), "Please stand");
         assert_eq!(stage.ui.get_item_title(), "Welcome");
         assert!(stage.ui.get_now_fits(), "the lyric must fit at the chosen size");
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn fit_between_steps_from_the_boxes_biggest_size() {
+        assert_eq!(fit_between(18.0, 3.0, |_| true), 18.0);
+        assert!((fit_between(6.0, 3.0, |s| s < 5.0) - 4.8).abs() < 1e-4);
+        assert_eq!(fit_between(6.0, 3.0, |_| false), 3.0);
+        assert_eq!(fit_between(2.5, 2.5, |_| false), 2.5);
+    }
+
+    /// A text item live, its first slide on air, with `layout` as the stage default.
+    fn app_with_layout(layout: Uuid) -> Arc<App> {
+        let app = test_app();
+        {
+            let mut data = app.data.lock().unwrap();
+            data.settings.stage.layout = layout;
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into() }, background: None, notes: String::new() };
+            data.services[0].items.push(item);
+        }
+        assert!(app.command(Envelope { id: "n1".into(), base: Some(0), cmd: Command::Next }).ok);
+        app
+    }
+
+    #[test]
+    fn classic_default_keeps_todays_screen() {
+        i_slint_backend_testing::init_no_event_loop();
+        let stage = Stage::open(app_with_layout(crate::stage::presets::CLASSIC), None).unwrap();
+        assert!(!stage.ui.get_use_cells());
+        assert_eq!(stage.ui.get_item_title(), "Welcome");
+        stage.ui.hide().unwrap();
+        // A layout id this version doesn't know is Classic too.
+        let stage = Stage::open(app_with_layout(Uuid::from_u128(42)), None).unwrap();
+        assert!(!stage.ui.get_use_cells());
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn stage_window_places_cells_from_layout() {
+        i_slint_backend_testing::init_no_event_loop();
+        let stage = Stage::open(app_with_layout(crate::stage::presets::BAND), None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        assert!(stage.ui.get_use_cells());
+        let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+        let now = cells.iter().find(|c| c.text == "Grace and peace to you").expect("current slide box");
+        assert_eq!((now.x, now.y, now.w, now.h), (3.0, 13.0, 94.0, 50.0));
+        assert!(now.size <= 10.0 && now.size >= 3.0);
+        let next = cells.iter().find(|c| c.text == "Please stand").expect("next slide box");
+        assert_eq!(next.caption, "NEXT");
+        assert!(cells.iter().any(|c| c.text == "1 slide left"));
+        // Empty boxes (section name for a non-song, media time, timer, message) are not drawn.
+        assert!(cells.iter().all(|c| !c.text.is_empty()));
+        let texts: Vec<String> = i_slint_backend_testing::ElementHandle::find_by_element_id(&stage.ui, "StageWindow::cell-t")
+            .map(|e| e.accessible_label().unwrap_or_default().to_string()).collect();
+        assert!(texts.iter().any(|t| t == "Grace and peace to you"), "{texts:?}");
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn long_words_shrink_to_fit_their_box() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = app_with_layout(crate::stage::presets::BAND);
+        let stage = Stage::open(app.clone(), None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        let mut v = app.live_view();
+        let long = "Amazing grace how sweet the sound that saved a wretch like me, I once was lost but now am found, was blind but now I see. ".repeat(3);
+        v.slide.as_mut().unwrap().content = SlideContent::Text { text: long.clone(), footer: None, reference: None, size: 0, parallel: None };
+        let screen = StageScreen::default();
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap(), slides: vec![] });
+        let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
+        assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
         stage.ui.hide().unwrap();
     }
 
