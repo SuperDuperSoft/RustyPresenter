@@ -303,6 +303,53 @@ pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible
     Ok(Arc::new(b))
 }
 
+/// Saves a Bible a catalog downloaded, after the same checks as a file the church imports: its own metadata, its
+/// titles and notices, and its verses must not name a blocked Bible. Replaces an earlier copy only once all of that
+/// has passed, so a failed update leaves the installed copy working. Returns its entry in the list.
+pub fn install(root: &Path, b: ImportedBible) -> Result<BibleMeta, String> {
+    let Some(meta) = &b.meta else { return Err("A downloaded Bible needs its details.".into()) };
+    if !id::is_prefixed(&meta.id) || meta.id != b.abbreviation { return Err("This Bible's id can't be used.".into()); }
+    if b.verses.is_empty() { return Err("No Bible verses found.".into()); }
+    if is_blocked(&b) { return Err(BLOCKED.into()); }
+    save(root, &b).map_err(|e| e.to_string())?;
+    let size = fs::metadata(file(root, &b.abbreviation)).map(|m| m.len()).unwrap_or(0);
+    Ok(listing(&b, size))
+}
+
+/// eBible.org's `{id}_vpl.xml` (Bible library spec §3.1): `<v b="GEN" c="1" v="1">text</v>`, USFM book codes, notes
+/// and headings already left out. A verse range `v="15-16"` keeps its text on 15 and leaves 16 empty, and an empty
+/// `<v>` stays as an empty verse, so verse numbers still line up with other Bibles. Books past the 66 are skipped
+/// until the app knows them (spec §5.3).
+pub fn vpl(bytes: &[u8]) -> Result<Verses, String> {
+    let src = decode(bytes);
+    let mut acc = Acc::default();
+    let mut seen = Vec::new();
+    walk(&src, |t| {
+        if acc.skipping(&t) { return; }
+        match t {
+            Tok::Open { name: "v", el, empty } => {
+                acc.end();
+                let book = attr(el, "b").as_deref().and_then(usx_book);
+                let (chapter, verse) = (attr(el, "c").and_then(num), attr(el, "v"));
+                let (Some(book), Some(chapter), Some(verse)) = (book, chapter, verse) else { return };
+                let Some(first) = num(&verse) else { return };
+                let last = verse.split_once('-').and_then(|(_, b)| num(b)).filter(|l| *l > first).unwrap_or(first);
+                // A range is a few verses; a damaged one must not make thousands of empty ones.
+                for v in first..=last.min(first.saturating_add(50)) { seen.push((book, chapter, v)); }
+                if !empty { acc.start((book, chapter, first)); }
+            }
+            Tok::Close("v") => acc.end(),
+            Tok::Open { name, empty, .. } => acc.edge(name, empty),
+            Tok::Close(name) => acc.edge(name, false),
+            Tok::Text(s) => acc.text(s),
+        }
+    })?;
+    acc.end();
+    for k in seen { acc.verses.entry(k).or_default(); }
+    if acc.verses.is_empty() { return Err("No Bible verses found in this download.".into()); }
+    Ok(acc.verses)
+}
+
 // ---- XML plumbing ----
 
 /// The lowercase `encoding` of the XML declaration in the first 200 bytes, if any.
@@ -1161,5 +1208,33 @@ mod tests {
         let whole = ImportedBible { verses: [((0, 1, 1), "a".to_string()), ((1, 1, 1), "b".to_string())].into(), ..Default::default() };
         assert_eq!(combine(Some(c), whole.clone()).verses, whole.verses);
         assert_eq!(combine(None, one(3)).len(), 1);
+    }
+
+    #[test]
+    fn vpl_reads_usfm_codes_ranges_empty_verses_and_entities() {
+        let xml = br#"<?xml version="1.0" encoding="UTF-8"?>
+<vpl>
+<v b="GEN" c="1" v="1">In the  beginning
+ God</v>
+<v b="MAT" c="17" v="21"></v>
+<v b="MAT" c="17" v="20">Because of your unbelief &#8212; truly.</v>
+<v b="ROM" c="16" v="15-16">Greet Philologus &amp; Julia. Greet one another.</v>
+<v b="TOB" c="1" v="1">Tobit is skipped until books past 66 exist.</v>
+<v b="XYZ" c="1" v="1">unknown</v>
+<v b="JHN" c="0" v="1">chapter zero</v>
+<v b="1JN" c="1" v="1"/>
+</vpl>"#;
+        let v = vpl(xml).unwrap();
+        assert_eq!(v[&(0, 1, 1)], "In the beginning God");
+        assert_eq!(v[&(39, 17, 20)], "Because of your unbelief — truly.");
+        assert_eq!(v[&(39, 17, 21)], "", "an empty verse stays, so numbers line up");
+        assert_eq!(v[&(44, 16, 15)], "Greet Philologus & Julia. Greet one another.");
+        assert_eq!(v[&(44, 16, 16)], "", "the second verse of a range is left empty");
+        assert_eq!(v[&(61, 1, 1)], "");
+        assert_eq!(v.len(), 6, "{v:?}");
+        let b = ImportedBible { verses: v, ..Default::default() };
+        assert_eq!(b.lookup("Romans 16:15-16").unwrap().1.len(), 2);
+        assert!(vpl(b"<vpl></vpl>").is_err());
+        assert!(vpl(b"<vpl><v b='GEN' c='1' v='1'>x</w></vpl>").is_err(), "broken XML");
     }
 }

@@ -1,6 +1,7 @@
 //! Desktop platform glue for the native app: monitors and fullscreen, keeping the screen awake.
 pub mod awake;
 pub mod dialog;
+pub mod disk;
 pub mod instance;
 pub mod monitors;
 pub mod winit_events;

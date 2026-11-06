@@ -173,9 +173,9 @@ pub fn abbreviation(translation_id: &str, language_code: &str) -> String {
 }
 
 /// The row as the app offers it, or `None` when it may not be offered: not redistributable, not downloadable,
-/// right to left (until step 3), a licence already refused, or blocked.
+/// right to left (until step 3), an id that can't be a file name, a licence already refused, or blocked.
 pub fn offer(r: &Row, licences: &Licences) -> Option<CatalogRow> {
-    if !r.redistributable || !r.downloadable || r.translation_id.is_empty() { return None; }
+    if !r.redistributable || !r.downloadable || !super::install::valid_source_id(&r.translation_id) { return None; }
     let rtl = r.text_direction.eq_ignore_ascii_case("rtl") || RTL_SCRIPTS.iter().any(|s| s.eq_ignore_ascii_case(&r.script));
     if rtl { return None; }
     let scope = match (r.ot_books >= 39, r.nt_books >= 27) {

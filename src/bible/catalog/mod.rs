@@ -5,12 +5,14 @@
 //! fields are private, so no source can list a blocked Bible by forgetting a check. Downloads and imports still run
 //! the content check of `blocklist` on the text itself.
 pub mod ebible;
+pub mod install;
+pub mod licence;
 #[path = "../../strings/catalog.rs"]
 pub mod strings;
 
 use std::path::PathBuf;
 
-use super::{blocklist, library::{Dir, Licence}};
+use super::{blocklist, library::{BibleMeta, Dir, Licence}};
 
 /// Where a catalog row comes from. YouVersion, API.Bible, Door43 and CrossWire SWORD join here as they are built.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -30,6 +32,12 @@ impl CatalogSource {
     /// The current list. Falls back to the last saved list when the source can't be reached.
     pub async fn refresh(self, ctx: &Ctx) -> Result<Listing, CatalogError> {
         match self { CatalogSource::Ebible => ebible::refresh(ctx).await }
+    }
+
+    /// Downloads one of its rows and adds it to the installed Bibles. `progress` gets 0 to 100.
+    pub async fn install(self, ctx: &Ctx, row: &CatalogRow, cancel: &tokio_util::sync::CancellationToken,
+        progress: &(dyn Fn(u8) + Send + Sync)) -> Result<BibleMeta, install::InstallError> {
+        match self { CatalogSource::Ebible => install::ebible(ctx, row, cancel, progress).await }
     }
 }
 

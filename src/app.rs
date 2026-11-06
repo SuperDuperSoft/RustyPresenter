@@ -197,6 +197,8 @@ pub struct App {
     probe_mpv: OnceLock<Option<Arc<crate::video::ffi::Mpv>>>,
     /// The deck converters; set once at start-up by `import::init`.
     converters: OnceLock<Arc<import::deck::Converters>>,
+    /// Held by the Bible download under way, so downloads run one at a time (Bible library spec §3.1).
+    bible_downloads: tokio::sync::Mutex<()>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -219,12 +221,15 @@ impl App {
     pub fn new(store: Store, data: Data, port: u16, lan_url: Option<String>) -> Arc<Self> {
         let (tx, _) = broadcast::channel(256);
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
+        // A download cut off by a crash or a forced quit leaves nothing behind.
+        bible::catalog::install::clean_partials(&store.root);
         Arc::new(Self {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
+            bible_downloads: tokio::sync::Mutex::new(()),
         })
     }
 
@@ -741,9 +746,18 @@ impl App {
             app.broadcast_data();
             Ok(json!({ "abbreviation": b.abbreviation, "name": b.name, "copyright": b.copyright, "verses": b.len() }))
         }
+        "bible/catalog" => {
+            #[derive(Deserialize, Default)] #[serde(default)] struct C { force: bool }
+            let C { force } = if body.is_empty() { C::default() } else { parse(body)? };
+            Ok(tryr!(app.bible_catalog(force).await))
+        }
+        "bible/install" => {
+            let T { translation } = parse(body)?;
+            let m = tryr!(app.install_bible(&translation).await);
+            Ok(json!({ "id": m.id, "abbr": m.abbr, "name": m.name }))
+        }
         "bible/import-remove" => {
-            #[derive(Deserialize)] struct R { translation: String }
-            let R { translation } = parse(body)?;
+            let T { translation } = parse(body)?;
             tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string()));
             app.broadcast_data();
             Ok(json!({}))
@@ -1059,6 +1073,51 @@ impl App {
         self.edit(|d| Ok(bundle::merge(d, contents)))
     }
 
+    /// The eBible catalog as Settings → Bibles shows it, with what is installed and what has a newer edition.
+    /// Asks eBible at most once a day unless `force`.
+    pub async fn bible_catalog(&self, force: bool) -> Result<serde_json::Value, String> {
+        use bible::catalog::{CatalogSource, Ctx, LicenceState};
+        let mut ctx = Ctx::new(self.store.root.clone(), CatalogSource::Ebible);
+        ctx.force = force;
+        let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
+        let installed = bible::import::list(&self.store.root);
+        let rows: Vec<serde_json::Value> = listing.rows.iter().map(|r| {
+            let have = installed.iter().find(|m| m.id == r.id());
+            let update = have.is_some_and(|m| !matches!(&m.source, bible::library::Source::Ebible { update_date } if update_date == r.update_date()));
+            json!({
+                "id": r.id(), "abbr": r.abbr(), "title": r.title(), "lang": r.lang(), "lang_name": r.lang_name(),
+                "lang_name_en": r.lang_name_en(), "scope": r.scope().label(), "apocrypha": r.has_dc(),
+                "licence_on_download": *r.licence() == LicenceState::OnDownload, "installed": have.is_some(), "update": update,
+            })
+        }).collect();
+        Ok(json!({ "offline": listing.offline, "rows": rows }))
+    }
+
+    /// Downloads a Bible from the eBible catalog, or updates the installed copy, as a job with Cancel. Downloads
+    /// wait their turn. A failed update leaves the installed copy working.
+    pub async fn install_bible(self: &Arc<Self>, id: &str) -> Result<bible::library::BibleMeta, String> {
+        use bible::catalog::{CatalogSource, Ctx, strings};
+        let ctx = Ctx::new(self.store.root.clone(), CatalogSource::Ebible);
+        let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
+        if listing.offline { return Err(strings::OFFLINE_NO_ADD.into()); }
+        let row = listing.rows.into_iter().find(|r| r.id() == id).ok_or(strings::NOT_IN_LIST)?;
+        let name = row.title().to_string();
+        let update = bible::import::meta(&self.store.root, id).is_some();
+        let (job, cancel) = self.job_start_cancellable(&strings::WAITING.replace("{name}", &name));
+        let turn = tokio::select! {
+            t = self.bible_downloads.lock() => Some(t),
+            _ = cancel.cancelled() => None,
+        };
+        let Some(_turn) = turn else { self.job_end_cancelled(job); return Err(import::CANCELLED.into()) };
+        self.job_label(job, &strings::DOWNLOADING.replace("{name}", &name));
+        let app = self.clone();
+        let r = row.source().install(&ctx, &row, &cancel, &move |p| app.job_progress(job, p)).await
+            .map_err(|e| { eprintln!("Bible download {id}: {e:?}"); e.message(&name, update) });
+        let r = self.job_finished(job, r);
+        if r.is_ok() { self.broadcast_data(); }
+        r
+    }
+
     /// Ends a job the way its result says.
     fn job_finished<T>(&self, job: Uuid, r: Result<T, String>) -> Result<T, String> {
         match &r {
@@ -1143,6 +1202,10 @@ pub(crate) fn random_pin() -> String {
 
 #[derive(Deserialize)]
 struct Id { id: Uuid }
+
+/// A body that names one Bible.
+#[derive(Deserialize)]
+struct T { translation: String }
 
 /// Whole items come in through the action API without passing `bible/lookup`, so the blocklist looks at them here.
 fn refuse_blocked(item: &ServiceItem) -> Result<(), ActionError> {
