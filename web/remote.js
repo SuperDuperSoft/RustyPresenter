@@ -1,4 +1,6 @@
 const $ = id => document.getElementById(id);
+// FEAT-4 texts, copied from src/strings/song.rs.
+const STR = { screenChanged: 'The screen changed — try again.' };
 const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
 let es = null, V = null;
 
@@ -11,6 +13,7 @@ async function post(env) {
     if (!out.ok && out.error) {
       if (!out.error.startsWith('stale')) toast(out.error);
       else if (env.cmd === 'show') toast('The screen changed just now — tap the slide again.');
+      else if (env.cmd === 'jump') toast(STR.screenChanged);
     }
   } catch { toast('Not connected'); }
 }
@@ -71,6 +74,7 @@ function render() {
   const air = V.on_air;
   $('now').textContent = air.logo ? '(Logo)' : V.current && (air.slide || air.media) ? V.current.text : air.audio ? '(Music playing)' : '(Clear)';
   $('nowLabel').textContent = V.current && (air.slide || air.media) ? V.current.label : '';
+  renderSections();
   $('nextText').textContent = V.next ? V.next.text : 'End of service';
   $('nextLabel').textContent = V.next ? `${V.next.title} · ${V.next.label}` : '';
   $('logoBtn').classList.toggle('on', air.logo);
@@ -85,6 +89,21 @@ function render() {
     row.querySelector('.k').textContent = it.slides.length + (it.slides.length === 1 ? ' slide' : ' slides');
     row.onclick = () => openSheet(it);
     return row;
+  }));
+}
+
+// The live song's sections: a tap jumps the screen to exactly that one.
+function renderSections() {
+  const secs = V.sections || [];
+  $('secs').style.display = secs.length ? 'flex' : 'none';
+  $('secs').replaceChildren(...secs.map(o => {
+    const b = document.createElement('button');
+    b.className = 'sec' + (o.live ? ' live' : '');
+    b.style.setProperty('--c', o.color);
+    b.textContent = o.short;
+    b.title = o.label;
+    b.onclick = () => send('jump', { item_id: V.cursor.item_id, kind: o.kind, occurrence: o.occurrence }, true);
+    return b;
   }));
 }
 

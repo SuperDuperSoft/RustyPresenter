@@ -13,10 +13,12 @@
 //! * Every playing video/audio gets a fresh playback instance id. Reports from
 //!   the room are accepted while their instance is in the requested frame or
 //!   the committed frame (still on air), and ignored once retired.
-use crate::{model::*, recovery::state::LiveState};
+use crate::{model::*, recovery::state::LiveState, sections::{JumpTarget, LiveChange, SectionKind}};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use uuid::Uuid;
+
+mod song;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Inst<T> {
@@ -116,6 +118,7 @@ struct Snapshot {
     frame: Frame,
     cursor: Option<Cursor>,
     item: Option<LiveItem>,
+    changed: Option<LiveChange>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
@@ -133,10 +136,14 @@ pub enum Command {
     /// Pause/resume the foreground video (`paused`), naming the playback instance.
     MediaPause { inst: u64, paused: bool },
     AudioPause { inst: u64, paused: bool },
+    /// Jump the live song to a section (FEAT-4). Relative: needs `base`. With `occurrence`, `kind` is its kind.
+    Jump { item_id: Uuid, kind: SectionKind, #[serde(default)] number: Option<u8>, #[serde(default)] occurrence: Option<u16> },
+    /// Show the library's version of the live item at the same place (Update screen). Operator only.
+    Refresh { item_id: Uuid },
 }
 
 impl Command {
-    fn relative(&self) -> bool { matches!(self, Command::Next | Command::Prev) }
+    fn relative(&self) -> bool { matches!(self, Command::Next | Command::Prev | Command::Jump { .. }) }
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -196,6 +203,8 @@ pub struct Live {
     pub notice: Option<String>,
     /// The version `restore` made, once there has been one.
     pub restored_version: Option<u64>,
+    /// The live item no longer matches the library and the room would look different (FEAT-4 banner).
+    pub changed: Option<LiveChange>,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -211,13 +220,13 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, restored_version: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            audio_status: None, notice: None, restored_version: None, changed: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
 
     fn remember(&mut self) {
-        self.history.push_back(Snapshot { version: self.version, frame: self.frame.clone(), cursor: self.cursor.clone(), item: self.item.clone() });
+        self.history.push_back(Snapshot { version: self.version, frame: self.frame.clone(), cursor: self.cursor.clone(), item: self.item.clone(), changed: self.changed.clone() });
         while self.history.len() > HISTORY {
             // Never drop the committed snapshot: it is what a failed request reverts to.
             let idx = self.history.iter().position(|s| s.version != self.committed_version).unwrap_or(0);
@@ -327,6 +336,8 @@ impl Live {
                 self.bump();
                 Ok(())
             }
+            Command::Jump { item_id, kind, number, occurrence } => self.jump(*item_id, JumpTarget { kind: *kind, number: *number, occurrence: *occurrence }),
+            Command::Refresh { item_id } => self.refresh(plan, *item_id),
         }
     }
 
@@ -415,6 +426,8 @@ impl Live {
             }
         }
         self.cursor = Some(Cursor { item_id: item.item_id, item_index: index, slide });
+        // A new version of the item (a click on a slide) shows the library as it is now.
+        if self.item.as_ref() != Some(&item) { self.changed = None }
         self.item = Some(item);
         self.notice = None;
         self.bump();
@@ -449,6 +462,7 @@ impl Live {
                 self.frame = snap.frame;
                 self.cursor = snap.cursor;
                 self.item = snap.item;
+                self.changed = snap.changed;
                 self.notice = Some(format!("Could not show that: {reason}"));
                 self.bump();
                 true
@@ -533,7 +547,7 @@ mod tests {
         fn build(&self, id: Uuid) -> Option<LiveItem> { self.items.get(&id).cloned() }
     }
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide::new(t, SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }) }
     fn black() -> Background { Background::Color { color: "#000".into() } }
 
     fn plan(items: Vec<(&str, Vec<Slide>)>) -> TestPlan {
@@ -546,9 +560,9 @@ mod tests {
         p
     }
 
-    fn video(asset: &str, end: EndAction) -> Slide { Slide { label: asset.into(), content: SlideContent::Video { asset: asset.into(), autoplay: true, end }, notes: String::new() } }
-    fn audio(asset: &str) -> Slide { Slide { label: asset.into(), content: SlideContent::Audio { asset: asset.into(), looped: false }, notes: String::new() } }
-    fn deck(asset: &str) -> Slide { Slide { label: asset.into(), content: SlideContent::Image { asset: asset.into() }, notes: String::new() } }
+    fn video(asset: &str, end: EndAction) -> Slide { Slide::new(asset, SlideContent::Video { asset: asset.into(), autoplay: true, end }) }
+    fn audio(asset: &str) -> Slide { Slide::new(asset, SlideContent::Audio { asset: asset.into(), looped: false }) }
+    fn deck(asset: &str) -> Slide { Slide::new(asset, SlideContent::Image { asset: asset.into() }) }
 
     static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     fn env(cmd: Command, base: Option<u64>) -> Envelope {
