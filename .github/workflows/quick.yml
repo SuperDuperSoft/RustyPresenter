@@ -21,14 +21,18 @@ jobs:
       - run: cargo check --locked --lib --bin rustypresenter-native
       - run: cargo test --locked --lib
 
-  # The Bible box tests on the code before the redesign, to tell a regression from a Linux-only failure.
-  baseline:
+  # Which laptop branch broke the Bible box tests? One run per branch.
+  branches:
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: [f7a232f3538d04f695596accb370d54e66088912, d6adff2179fe330bc4733cfc8078a6cc7e275886, 88ccd045d1eced9e3e4bb17b9dd61d36cf1740df, dd30963b2d2ba86a126613ffa289446cce603349, 4accfd131e0e93dc89e3f4a1501fb30523112925, 507242980390f70af834ae79c6b0c8866798d3bf]
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 5ac7307446991cb412266a3c1245577ba7cf0fa1
+          ref: ${{ matrix.ref }}
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
@@ -36,14 +40,4 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libwebkit2gtk-4.1-dev libgtk-3-dev libdbus-1-dev libfontconfig-dev
-      - run: cargo test --locked --lib ui::operator::bible
-
-  windows:
-    runs-on: windows-latest
-    timeout-minutes: 120
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --locked --release --lib
-      - run: cargo build --locked --release --bin rustypresenter-native
+      - run: cargo test --locked --lib ui::operator::
