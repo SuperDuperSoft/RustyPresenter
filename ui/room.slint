@@ -1,4 +1,4 @@
-// The room output (same layers as `web/output.html`): background, media, slide, logo, bottom → top.
+// The room output (same layers as `web/output.html`): background, media, slide, logo, overlays, bottom → top.
 // Video is drawn by mpv under the whole scene (OpenGL) or handed in as `video-frame` (software).
 // Each layer has two faces, so a new picture fades in over the old one as it fades out (driven from Rust).
 import { Theme } from "theme.slint";
@@ -100,6 +100,11 @@ export component RoomWindow inherits Window {
     in property <Side> logo-b;
     in property <float> logo-a-op;
     in property <float> logo-b-op;
+    /// Every overlay (logo bug, clock, sign) on one transparent picture, above the logo.
+    in property <Side> overlays-a;
+    in property <Side> overlays-b;
+    in property <float> overlays-a-op;
+    in property <float> overlays-b-op;
     /// A video is drawn under the scene, so nothing here may paint the base black.
     in property <bool> video;
     /// Software drawing: the current video frame.
@@ -156,6 +161,15 @@ export component RoomWindow inherits Window {
         a-op: root.logo-a-op;
         b-op: root.logo-b-op;
         scale: 0.7;
+    }
+    overlays := FadeLayer {
+        width: root.width;
+        height: root.height;
+        a: root.overlays-a;
+        b: root.overlays-b;
+        a-op: root.overlays-a-op;
+        b-op: root.overlays-b-op;
+        fit: fill;
     }
     // Driven by Rust (`src/ui/fade.rs`), like the faces; childless, so no offscreen layer.
     black := Rectangle {
