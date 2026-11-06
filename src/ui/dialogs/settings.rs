@@ -65,6 +65,7 @@ pub fn help_rows() -> Vec<HelpRow> {
         HelpRow { keys: "F5", what: DO_LOGO, binds: &[("F5", false, false)], action: KeyAction::Clear(Command::Logo) },
         HelpRow { keys: KEY_ALT_DIGITS, what: DO_TRANSLATION, binds: &[("1", false, true), ("5", false, true)], action: KeyAction::PickTranslation(0) },
         HelpRow { keys: KEY_SECTIONS, what: DO_SECTIONS, binds: &[("c", false, false), ("b", false, false), ("p", false, false), ("e", false, false),
+            ("t", false, false), ("i", false, false), ("l", false, false), ("v", false, false),
             ("1", false, false), ("2", false, false), ("3", false, false), ("4", false, false), ("5", false, false), ("6", false, false),
             ("7", false, false), ("8", false, false), ("9", false, false)], action: KeyAction::JumpSection('c') },
         HelpRow { keys: KEY_CTRL_V, what: DO_PASTE_LINK, binds: &[("v", true, false)], action: KeyAction::PasteLink },
@@ -112,6 +113,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_credits(match s.credits.as_str() { "last" => 1, "none" => 2, _ => 0 });
     g.set_ccli(s.church_ccli.as_str().into());
     g.set_room_on_top(s.room_on_top);
+    g.set_section_keys(s.section_keys);
     settings_audio::fill(g, &[], &s.audio_device);
 }
 
@@ -122,6 +124,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.credits = ["first", "last", "none"][g.get_credits().clamp(0, 2) as usize].into();
     s.church_ccli = g.get_ccli().into();
     s.room_on_top = g.get_room_on_top();
+    s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
 }
 

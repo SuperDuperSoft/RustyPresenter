@@ -1,7 +1,7 @@
 //! Operator keyboard shortcuts (`operator.js:305-320`): which key does what, as pure functions, and the glue that
 //! runs it for the window's key scope (`keys` in `ui/operator.slint`).
 use super::window::Operator;
-use crate::live::Command;
+use crate::{live::Command, ui::ops::outcome_toast};
 use slint::platform::Key;
 use std::rc::{Rc, Weak};
 
@@ -16,7 +16,7 @@ pub enum KeyAction {
     PickTranslation(usize),
     /// Ctrl+V outside a text field: a YouTube link on the clipboard opens Download from YouTube with it.
     PasteLink,
-    /// A song section of the live song: `c` chorus, `b` bridge, `p` pre-chorus, `e` ending or tag, `1`–`9` that verse.
+    /// A section key for the live song (FEAT-4 §3.2): `1`–`9` that verse, or a section letter, lower case.
     JumpSection(char),
     None,
 }
@@ -84,8 +84,8 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     if ctrl_or_cmd && key.eq_ignore_ascii_case("v") {
         return KeyAction::PasteLink;
     }
-    if !ctrl_or_cmd && !alt && let Some(c) = section_key(key) {
-        return KeyAction::JumpSection(c);
+    if crate::sections::jump_for_key(key, ctrl_or_cmd, alt).is_some() && let Some(c) = key.chars().next() {
+        return KeyAction::JumpSection(c.to_ascii_lowercase());
     }
     match key {
         "ArrowRight" | "ArrowDown" | "PageDown" | " " => KeyAction::Next,
@@ -93,28 +93,6 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
         "Enter" => KeyAction::TakeArmedOrSelected,
         _ => KeyAction::None,
     }
-}
-
-/// A section jump key, lower case: c, b, p, e, or a verse number 1–9.
-fn section_key(key: &str) -> Option<char> {
-    let mut chars = key.chars();
-    let (Some(c), None) = (chars.next(), chars.next()) else { return None };
-    let c = c.to_ascii_lowercase();
-    (matches!(c, 'c' | 'b' | 'p' | 'e') || ('1'..='9').contains(&c)).then_some(c)
-}
-
-/// The first slide of section `key` (see `section_key`) among slide labels: `c` finds "Chorus", `2` "Verse 2".
-pub fn section_slide<'a>(labels: impl IntoIterator<Item = &'a str>, key: char) -> Option<usize> {
-    labels.into_iter().position(|l| {
-        let (id, short) = super::slides::section(l);
-        match key {
-            'c' => id == "chorus",
-            'b' => id == "bridge",
-            'p' => id == "pre",
-            'e' => id == "end",
-            d => id == "verse" && (short[1..] == *d.to_string() || (short.len() == 1 && d == '1')),
-        }
-    })
 }
 
 /// The Bible chip Alt+`key` picks in the Bible box (0 for the 1 key: the chosen Bible; 1…4 the favourite and
@@ -129,19 +107,31 @@ fn translation_key(key: &str) -> Option<usize> {
 }
 
 impl Operator {
-    /// Takes section `key` of the live song live (or of the selected song when nothing is live); false when there is
-    /// no such section, so the key is left alone.
+    /// Jumps the live song to section `key` (FEAT-4 §3.2) and says so in a toast, as a stray key moves the room
+    /// screen. Off in Settings, the key is left alone.
     fn jump_section(self: &Rc<Self>, key: char) -> bool {
-        let target = {
+        use crate::sections::{jump_for_key, jump_toast, strings as song};
+        let Some((kind, number)) = jump_for_key(&key.to_string(), false, false) else { return false };
+        let (on, live) = {
             let st = self.state.borrow();
-            let Some(snap) = st.snap.as_ref() else { return false };
-            let id = self.live_item().or(st.selected);
-            id.and_then(|id| snap.items.iter().find(|i| i.id == id && i.kind == "song"))
-                .and_then(|i| section_slide(i.slides.iter().map(|s| s.label.as_str()), key).map(|s| (i.id, s)))
+            (st.snap.as_ref().is_none_or(|s| s.settings.section_keys), st.live.as_ref().map(|l| (l.view().cursor.clone(), l.view().sections.is_empty(), l.view().version)))
         };
-        let Some((item_id, slide)) = target else { return false };
+        if !on { return false }
+        let Some((Some(cursor), no_sections, version)) = live else {
+            self.toast(song::NOTHING_LIVE, false);
+            return true;
+        };
+        if no_sections {
+            self.toast(song::KEYS_SONGS_ONLY, false);
+            return true;
+        }
         self.state.borrow_mut().armed = None;
-        self.command(Command::Show { item_id, slide }, None);
+        let me = Rc::downgrade(self);
+        let cmd = Command::Jump { item_id: cursor.item_id, kind, number, occurrence: None };
+        self.ops.cmd(cmd, Some(version), move |o| {
+            let Some(op) = me.upgrade() else { return };
+            if o.ok { op.toast(&jump_toast(kind, number, key), false) } else if let Some((msg, err)) = outcome_toast(&o) { op.toast(&msg, err) }
+        });
         true
     }
 
@@ -210,19 +200,12 @@ mod tests {
         assert_eq!(route("2", false, false, PLAIN), KeyAction::JumpSection('2'));
         assert_eq!(route("c", false, false, TYPING), KeyAction::None, "typing a c in a box types it");
         assert_eq!(route("x", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("0", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("l", false, false, PLAIN), KeyAction::JumpSection('l'), "L is Interlude");
+        assert_eq!(route("V", false, false, PLAIN), KeyAction::JumpSection('v'));
+        assert_eq!(route("c", false, true, PLAIN), KeyAction::None, "Alt+C is not a jump");
+        assert_eq!(route("c", false, false, DIALOG), KeyAction::None, "not with a dialog open");
         assert_eq!(route("c", true, false, PLAIN), KeyAction::None, "Ctrl+C is not a jump");
-    }
-
-    #[test]
-    fn section_slide_finds_the_first_slide_of_each_section() {
-        let labels = ["Verse 1", "Verse 1", "Chorus", "Verse 2", "Chorus", "Bridge", "Tag"];
-        assert_eq!(section_slide(labels, 'c'), Some(2));
-        assert_eq!(section_slide(labels, '2'), Some(3));
-        assert_eq!(section_slide(labels, '1'), Some(0));
-        assert_eq!(section_slide(labels, 'b'), Some(5));
-        assert_eq!(section_slide(labels, 'e'), Some(6));
-        assert_eq!(section_slide(labels, 'p'), None);
-        assert_eq!(section_slide(["Verse"], '1'), Some(0), "an unnumbered verse is verse 1");
     }
 
     #[test]
@@ -254,7 +237,7 @@ mod tests {
         assert_eq!(route("v", true, false, TYPING), KeyAction::None, "the field pastes it itself");
         assert_eq!(route("v", true, false, BIBLE), KeyAction::None);
         assert_eq!(route("v", true, false, DIALOG), KeyAction::None);
-        assert_eq!(route("v", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("v", false, false, PLAIN), KeyAction::JumpSection('v'), "a plain V is the next verse (FEAT-4)");
     }
 
     /// There is no Blackout toggle (v1 design, clear controls): B is the song's bridge (FEAT-4), never a clear.

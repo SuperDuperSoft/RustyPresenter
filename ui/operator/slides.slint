@@ -1,13 +1,13 @@
 // The slides column (`web/operator.html:33-38`, `operator.css:80-106`, `operator.js:156-210`): the selected item's
 // header, its slides as 16:9 thumbnails in rows, and the empty states. The rows are built in Rust (`slides.rs`).
 import { Theme } from "../theme.slint";
-import { Icon, Btn, ScrollBox } from "../widgets.slint";
+import { Icon, Btn, ScrollBox, TipBox } from "../widgets.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
-/// `section` is "verse", "pre", "chorus", "bridge", "end" or "" (no colour).
+/// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
 export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string }
-/// A button that takes a song section live: `short` is "V1", "C", ...
-export struct SlideJump { idx: int, short: string, section: string }
+/// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
+export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
 export struct SlideRowCells { cells: [SlideCell] }
 
@@ -255,6 +255,8 @@ export component SlidesPanel inherits VerticalLayout {
     in property <string> note;
 
     callback show(int);
+    /// A section bar chip, by its index in `jumps`.
+    callback pick-section(int);
     callback edit();
     callback text-smaller();
     callback text-larger();
@@ -352,18 +354,21 @@ export component SlidesPanel inherits VerticalLayout {
                 clicked => { root.text-auto(); }
             }
         }
-        // A song's sections: click one to take it live.
+        // A song's sections as it plays: click one to show it (on the live song, it jumps there like Next would).
         if root.jumps.length > 0: HorizontalLayout {
             spacing: 4px;
-            for j in root.jumps: Rectangle {
+            for j[i] in root.jumps: Rectangle {
                 min-width: 32px;
                 height: 30px;
                 border-radius: 7px;
                 background: Theme.section-color(j.section);
+                border-width: j.live ? 2px : 0px;
+                border-color: Theme.live;
                 opacity: ja.has-hover ? 0.85 : 1;
                 accessible-role: button;
                 accessible-label: j.short;
-                accessible-action-default => { root.show(j.idx); }
+                accessible-description: j.tooltip;
+                accessible-action-default => { root.pick-section(i); }
                 HorizontalLayout {
                     padding-left: 7px;
                     padding-right: 7px;
@@ -379,7 +384,10 @@ export component SlidesPanel inherits VerticalLayout {
                 }
                 ja := TouchArea {
                     mouse-cursor: pointer;
-                    clicked => { root.show(j.idx); }
+                    clicked => { root.pick-section(i); }
+                }
+                if j.tooltip != "": Tooltip {
+                    TipBox { text: j.tooltip; }
                 }
             }
         }
