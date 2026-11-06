@@ -189,7 +189,12 @@ fn outline_draws_a_ring_in_its_colour() {
 fn text_band_sits_behind_the_text_and_replaces_the_lower_shade() {
     let t = Theme { band: true, band_color: "#0000ff".into(), band_opacity: 100, position: "lower".into(), ..plain() };
     let r = render_with("Grace", t);
-    let text = ink_box(&render_with("Grace", Theme { position: "lower".into(), ..plain() }));
+    // The white letters' box (the band is blue, so it is not counted).
+    let (mut x0, mut y0) = (u32::MAX, u32::MAX);
+    for (i, p) in r.rgba_premul.chunks(4).enumerate() {
+        if p[0] > 200 && p[1] > 200 && p[3] > 200 { (x0, y0) = (x0.min(i as u32 % r.width), y0.min(i as u32 / r.width)) }
+    }
+    let text = (x0, y0);
     let at = |x: u32, y: u32| { let i = ((y * r.width + x) * 4) as usize; [r.rgba_premul[i], r.rgba_premul[i + 1], r.rgba_premul[i + 2], r.rgba_premul[i + 3]] };
     assert_eq!(at(text.0.saturating_sub(4), text.1), [0, 0, 255, 255], "band left of the text");
     assert_eq!(at(2, 140)[3], 0, "no lower-third shade around the band");

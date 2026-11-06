@@ -280,6 +280,7 @@ impl Live {
 
     /// Puts an overlay slot up (replacing one with its key). No version bump: the caller commits. False when an
     /// equal copy was already up.
+    #[cfg(test)] // FEAT-2's timer and message slots will use it outside tests.
     pub(crate) fn show_overlay(&mut self, slot: OverlaySlot) -> bool { slots::show(&mut self.frame.overlays, slot) }
 
     /// Takes the overlay slot with `key` down. No version bump. False when it was not up.

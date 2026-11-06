@@ -474,14 +474,16 @@ mod tests {
     }
 
     #[test]
-    fn bundled_only_holds_just_the_three_noto_sans_faces() {
+    fn bundled_only_holds_just_the_noto_sans_faces() {
         let f = Fonts::bundled_only();
         let faces: Vec<_> = f.sys.db().faces().collect();
-        assert_eq!(faces.len(), 3);
+        assert_eq!(faces.len(), 5);
         assert!(faces.iter().all(|face| face.families.iter().any(|(n, _)| n == BUNDLED_FAMILY)));
         let mut weights: Vec<u16> = faces.iter().map(|face| face.weight.0).collect();
         weights.sort();
-        assert_eq!(weights, [400, 500, 600]);
+        // Regular, Medium and SemiBold, plus Bold and Italic for rich text (FEAT-1).
+        assert_eq!(weights, [400, 400, 500, 600, 700]);
+        assert_eq!(faces.iter().filter(|face| face.style == cosmic_text::fontdb::Style::Italic).count(), 1);
     }
 
     #[test]
