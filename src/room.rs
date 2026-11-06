@@ -2,16 +2,16 @@
 //! prepared, which to remove, and when a prepared frame may be committed.
 //! Mirrors `web/output.js` (`keys`, `apply`, the `token` rule, `syncPause`).
 use crate::app::LiveView;
-use crate::live::{Frame, MediaLayer, RoomEvent};
+use crate::live::{Frame, MediaLayer, RoomEvent, SlideLayer};
 use crate::model::Background;
 use std::time::Duration;
 
 /// What a layer shows; a layer is re-prepared only when its key changes.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub enum LayerKey { Background(u64), Media(u64), Slide(String), Logo(String), Audio(u64) }
+pub enum LayerKey { Background(u64), Media(u64), Slide(String), Logo(String), Overlays(String), Audio(u64) }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub enum Kind { Background, Media, Slide, Logo, Audio }
+pub enum Kind { Background, Media, Slide, Logo, Overlays, Audio }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Want { pub kind: Kind, pub key: LayerKey, pub timeout: Duration }
@@ -28,25 +28,46 @@ const BACKGROUND_VIDEO: Duration = Duration::from_millis(6000);
 const PLAYER: Duration = Duration::from_millis(8000);
 
 /// Bottom → top, then audio. Also the index into `Layers::keys`.
-const KINDS: [Kind; 5] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo, Kind::Audio];
+const KINDS: [Kind; 6] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo, Kind::Overlays, Kind::Audio];
 
 /// The layer keys of one frame, plus what fading needs to know about it.
 #[derive(Clone, Default)]
-struct Layers { keys: [Option<LayerKey>; 5], video: bool, version: Option<u64>, theme: String }
+struct Layers { keys: [Option<LayerKey>; 6], video: bool, version: Option<u64>, theme: String }
 
 impl Layers {
     fn of(view: &LiveView, theme: String) -> Self {
         let f = &view.frame;
-        let slide = f.slide.as_ref().map(|s| LayerKey::Slide(format!("{}:{}", serde_json::to_string(s).unwrap_or_default(), theme_json(view))));
+        // A slide with its own theme (taken live with one) keys on it alone, so editing the church default never
+        // prepares it again; one from an older `live-state.json` follows the view's theme.
+        let slide = f.slide.as_ref().map(|s| {
+            let own = matches!(s, SlideLayer::Text { theme: Some(_), .. });
+            let json = serde_json::to_string(s).unwrap_or_default();
+            LayerKey::Slide(if own { json } else { format!("{json}:{}", theme_json(view)) })
+        });
         let keys = [
             f.background.as_ref().map(|b| LayerKey::Background(b.inst)),
             f.media.as_ref().map(|m| LayerKey::Media(m.inst)),
             slide,
             f.logo.then(|| LayerKey::Logo(view.logo.clone().unwrap_or_default())),
+            (!f.overlays.is_empty()).then(|| LayerKey::Overlays(overlays_key(view))),
             f.audio.as_ref().map(|a| LayerKey::Audio(a.inst)),
         ];
         Self { keys, video: is_video(f), version: Some(view.version), theme }
     }
+}
+
+/// What the overlay layer shows: its slots without their instance numbers, the font they fall back to and the text
+/// of the bound ones (a clock) right now, so a new minute prepares the overlays again and nothing else.
+fn overlays_key(view: &LiveView) -> String {
+    let slots: Vec<_> = view.frame.overlays.iter().map(|o| (&o.key, o.z, &o.source, &o.place)).collect();
+    format!("{}:{}:{}", serde_json::to_string(&slots).unwrap_or_default(), view.theme.font, bound_now(view))
+}
+
+/// The text of every bound overlay (a clock) at this moment.
+pub fn bound_now(view: &LiveView) -> String {
+    if !view.frame.overlays.iter().any(|o| o.source.is_bound()) { return String::new() }
+    let ctx = crate::theme::overlay::BoundCtx::at(chrono::Local::now());
+    view.frame.overlays.iter().filter_map(|o| crate::theme::overlay::bound_text(&o.source, &ctx)).collect::<Vec<_>>().join("|")
 }
 
 fn theme_json(view: &LiveView) -> String { serde_json::to_string(&view.theme).unwrap_or_default() }
@@ -76,7 +97,7 @@ impl RoomState {
     /// What to change for `view`; `None` when neither the version nor the theme/logo changed
     /// since the newest plan (only pause state may differ, see `pause_sync`).
     pub fn plan(&mut self, view: &LiveView) -> Option<Plan> {
-        let theme = format!("{}:{}", theme_json(view), serde_json::to_string(&view.logo).unwrap_or_default());
+        let theme = format!("{}:{}:{}", theme_json(view), serde_json::to_string(&view.logo).unwrap_or_default(), bound_now(view));
         let last = self.pending.as_ref().map_or(&self.shown, |(_, l)| l);
         if last.version == Some(view.version) && last.theme == theme { return None; }
         let next = Layers::of(view, theme);
@@ -134,9 +155,9 @@ mod tests {
 
     fn view(version: u64, frame: Frame) -> LiveView {
         LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, media: None,
-            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), stage_message: String::new() }
+            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new() }
     }
-    fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }) }
+    fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
     fn bg(inst: u64) -> Option<Inst<Background>> { Some(Inst { inst, v: Background::Color { color: "#000".into() } }) }
     fn video(inst: u64, paused: bool) -> Option<Inst<MediaLayer>> { Some(Inst { inst, v: MediaLayer::Video { asset: "v.mp4".into(), end: EndAction::Stop, paused } }) }
     fn still(inst: u64) -> Option<Inst<MediaLayer>> { Some(Inst { inst, v: MediaLayer::Still { asset: "s.png".into() } }) }
@@ -154,7 +175,7 @@ mod tests {
     #[test]
     fn first_view_prepares_every_present_layer() {
         let mut r = RoomState::new();
-        let f = Frame { background: bg(1), media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false) };
+        let f = Frame { background: bg(1), media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![] };
         let p = r.plan(&view(1, f)).unwrap();
         assert_eq!(p.version, 1);
         assert_eq!(kinds(&p), vec![Kind::Background, Kind::Media, Kind::Slide, Kind::Logo, Kind::Audio]);
@@ -192,6 +213,51 @@ mod tests {
         let p = r.plan(&v).expect("theme change is a plan");
         assert_eq!(kinds(&p), vec![Kind::Slide]);
         assert!(p.remove.is_empty());
+    }
+
+    fn sign(text: &str) -> crate::theme::overlay::OverlaySlot {
+        use crate::theme::overlay::{OverlaySlot, OverlaySource, Placement, saved_key};
+        let source = OverlaySource::Text { text: text.into(), styles: vec![], look: Default::default() };
+        OverlaySlot { key: saved_key(uuid::Uuid::nil()), z: 0, inst: 1, name: "Sign".into(), source, place: Placement::default() }
+    }
+
+    #[test]
+    fn overlay_change_prepares_only_overlays() {
+        let mut r = RoomState::new();
+        let f = Frame { background: bg(1), slide: text("a"), logo: true, ..Default::default() };
+        show(&mut r, &view(1, f.clone()));
+        let on = Frame { overlays: vec![sign("Welcome")], ..f.clone() };
+        let p = r.plan(&view(2, on.clone())).unwrap();
+        assert_eq!(kinds(&p), vec![Kind::Overlays]);
+        assert!(matches!(r.ready(p.token), Ready::Swap { .. }));
+        // The same sign shown again (a new instance number) is not drawn again.
+        let mut again = on.clone();
+        again.overlays[0].inst = 7;
+        assert!(r.plan(&view(3, again)).unwrap().prepare.is_empty());
+        let p = r.plan(&view(4, f)).unwrap();
+        assert!(p.prepare.is_empty());
+        assert_eq!(p.remove, vec![Kind::Overlays]);
+    }
+
+    #[test]
+    fn slide_layer_keys_on_its_own_theme_else_view_theme() {
+        let own = |t: &str| {
+            let mut s = text(t);
+            if let Some(SlideLayer::Text { theme, .. }) = &mut s { *theme = Some(Theme::default()) }
+            s
+        };
+        // A slide carrying its own theme: editing the church default does not prepare it again.
+        let mut r = RoomState::new();
+        let mut v = view(1, Frame { slide: own("a"), ..Default::default() });
+        show(&mut r, &v);
+        v.theme.size += 10;
+        assert!(r.plan(&v).unwrap().prepare.is_empty(), "church default edit leaves a snapshot slide alone");
+        // One from an older live-state.json follows the view's theme.
+        let mut r = RoomState::new();
+        let mut v = view(1, Frame { slide: text("a"), ..Default::default() });
+        show(&mut r, &v);
+        v.theme.size += 10;
+        assert_eq!(kinds(&r.plan(&v).unwrap()), vec![Kind::Slide]);
     }
 
     #[test]
@@ -288,12 +354,12 @@ mod tests {
     #[test]
     fn timeouts_match_web_room() {
         let mut r = RoomState::new();
-        let bgv = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into() } });
-        let f = Frame { background: bgv, media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false) };
+        let bgv = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into(), dim: 0 } });
+        let f = Frame { background: bgv, media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![] };
         let p = r.plan(&view(1, f)).unwrap();
         let ms: Vec<u128> = p.prepare.iter().map(|w| w.timeout.as_millis()).collect();
         assert_eq!(ms, vec![6000, 8000, 2500, 2500, 8000]);
-        let bgi = Some(Inst { inst: 4, v: Background::Image { asset: "b.png".into() } });
+        let bgi = Some(Inst { inst: 4, v: Background::Image { asset: "b.png".into(), dim: 0 } });
         let p = r.plan(&view(2, Frame { background: bgi, media: still(5), ..Default::default() })).unwrap();
         let ms: Vec<u128> = p.prepare.iter().map(|w| w.timeout.as_millis()).collect();
         assert_eq!(ms, vec![2500, 2500]);

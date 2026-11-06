@@ -1,6 +1,6 @@
 //! Where slide text goes and how big it is. Mirrors the rules of the web renderer (`web/render.js`):
 //! a 1920-wide logical canvas, text shrinks until it fits, and words are never dropped.
-use crate::model::{PassageSlide, Theme};
+use crate::model::{PassageSlide, TextAlign, Theme};
 use cosmic_text::{Align, Attrs, Buffer, Family, FontSystem, Metrics, Shaping, Weight, Wrap};
 use std::collections::HashMap;
 
@@ -35,7 +35,7 @@ const BUNDLED_FACES: [&[u8]; 3] = [
     include_bytes!("../../assets/fonts/NotoSans-SemiBold.ttf"),
 ];
 
-/// The font database: system fonts plus the bundled Noto Sans, so text looks the same everywhere.
+/// The font database: system fonts plus the bundled Noto Sans (with bold and italic), so text looks the same everywhere.
 pub struct Fonts {
     pub(crate) sys: FontSystem,
     /// The fitted size of passage slides already measured, so drawing each slide of a passage does not measure
@@ -55,7 +55,7 @@ impl Fonts {
     /// operator installed work, and other scripts (Korean, emoji, ...) fall back to system faces.
     pub fn new() -> Self {
         let mut sys = FontSystem::new();
-        for face in BUNDLED_FACES { sys.db_mut().load_font_data(face.to_vec()); }
+        for face in BUNDLED_FACES.iter().chain(&crate::theme::paint::fonts::RICH_FACES) { sys.db_mut().load_font_data(face.to_vec()); }
         Self { sys, fits: HashMap::new() }
     }
 
@@ -64,7 +64,7 @@ impl Fonts {
     /// reference-image tests; text outside Noto Sans' coverage draws as missing-glyph boxes.
     pub fn bundled_only() -> Self {
         let mut db = cosmic_text::fontdb::Database::new();
-        for face in BUNDLED_FACES { db.load_font_data(face.to_vec()); }
+        for face in BUNDLED_FACES.iter().chain(&crate::theme::paint::fonts::RICH_FACES) { db.load_font_data(face.to_vec()); }
         for set in [cosmic_text::fontdb::Database::set_sans_serif_family, cosmic_text::fontdb::Database::set_serif_family,
                     cosmic_text::fontdb::Database::set_monospace_family] {
             set(&mut db, BUNDLED_FAMILY);
@@ -148,6 +148,8 @@ pub struct TextLayout {
     pub body_box: Rect,
     /// Lower-third position: text sits at the bottom over a dark gradient.
     pub lower: bool,
+    /// Top position: text starts at the top padding.
+    pub top: bool,
     pub scripture: bool,
     pub canvas: (u32, u32),
     /// A parallel scripture slide: every Bible's column (the main one too); `body` is then empty and unused.
@@ -171,6 +173,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let (cw, ch) = (canvas.0 as f32, canvas.1 as f32);
     let s = cw / CANVAS_W;
     let lower = theme.position == "lower";
+    let top_pos = theme.position == "top";
     // Like render.js `t.font || 'Segoe UI'`; a blank name is no font either.
     let wanted = if theme.font.trim().is_empty() { DEFAULT_FAMILY } else { theme.font.as_str() };
     let font_fallback = !fonts.has_family(wanted);
@@ -207,10 +210,12 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let body_box = Rect { x: PAD_X * s, y: top, w: cw - 2.0 * PAD_X * s, h: (ch - top - bottom - foot_h).max(0.0) };
 
     let text = if theme.uppercase && !slide.scripture { slide.text.to_uppercase() } else { slide.text.to_string() };
+    // Scripture keeps its own weight and alignment; songs and announcements take the theme's (FEAT-1 spec §4.1).
     let (weight, line, align, max) = if slide.scripture {
         (500, 1.32, Align::Left, or_default(theme.scripture_size, DEFAULT_SCRIPTURE_SIZE))
     } else {
-        (600, 1.22, Align::Center, or_default(theme.size, DEFAULT_SIZE))
+        let align = match theme.align { TextAlign::Left => Align::Left, TextAlign::Center => Align::Center, TextAlign::Right => Align::Right };
+        (theme.weight.clamp(100, 900), 1.22, align, or_default(theme.size, DEFAULT_SIZE))
     };
     // Like the Settings range (`app.rs` keeps theme sizes within 24–200), so a bad size cannot stall fitting.
     let max = if slide.size > 0 { slide.size.clamp(24, 200) as f32 } else { max };
@@ -227,7 +232,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         let frame = super::parallel::Frame { family: &family, scale: s, canvas: (cw, ch), body_box, max_px: max, line, reference_px: REFERENCE_PX, lower };
         let cols = super::parallel::columns(fonts, &frame, &super::parallel::texts(&text, p, lower), p.layout);
         return TextLayout {
-            font_px: cols.font_px, font_fallback, family, body, foot, foot_y: ch - foot_h, credit, credit_y, body_box, lower,
+            font_px: cols.font_px, font_fallback, family, body, foot, foot_y: ch - foot_h, credit, credit_y, body_box, lower, top: top_pos,
             scripture: slide.scripture, canvas, columns: Some(cols),
         };
     }
@@ -252,6 +257,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
         credit_y,
         body_box,
         lower,
+        top: top_pos,
         scripture: slide.scripture,
         canvas,
         columns: None,
@@ -468,14 +474,16 @@ mod tests {
     }
 
     #[test]
-    fn bundled_only_holds_just_the_three_noto_sans_faces() {
+    fn bundled_only_holds_just_the_noto_sans_faces() {
         let f = Fonts::bundled_only();
         let faces: Vec<_> = f.sys.db().faces().collect();
-        assert_eq!(faces.len(), 3);
+        assert_eq!(faces.len(), 5);
         assert!(faces.iter().all(|face| face.families.iter().any(|(n, _)| n == BUNDLED_FAMILY)));
         let mut weights: Vec<u16> = faces.iter().map(|face| face.weight.0).collect();
         weights.sort();
-        assert_eq!(weights, [400, 500, 600]);
+        // Regular, Medium and SemiBold, plus Bold and Italic for rich text (FEAT-1).
+        assert_eq!(weights, [400, 400, 500, 600, 700]);
+        assert_eq!(faces.iter().filter(|face| face.style == cosmic_text::fontdb::Style::Italic).count(), 1);
     }
 
     #[test]

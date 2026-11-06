@@ -14,6 +14,7 @@
 //!   the room are accepted while their instance is in the requested frame or
 //!   the committed frame (still on air), and ignored once retired.
 use crate::{model::*, recovery::state::LiveState};
+use crate::theme::{overlay::{self, Overlay, OverlaySlot, slots}, strings as theme_strings};
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use uuid::Uuid;
@@ -57,13 +58,17 @@ pub enum SlideLayer {
         /// More Bibles on this slide (`SlideContent::Text::parallel`); `text` is the main one's.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         parallel: Option<crate::scripture::Parallel>,
+        /// The live item's theme as it was taken live (`LiveItem::theme`). `None` only in a `live-state.json` from
+        /// before themes: then `LiveView.theme` (the church default's style).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        theme: Option<Theme>,
     },
     Image { asset: AssetId },
 }
 
 fn is_zero(n: &u32) -> bool { *n == 0 }
 
-/// The full layer set the room shows. Bottom → top: background, media, slide, logo. Audio is separate.
+/// The full layer set the room shows. Bottom → top: background, media, slide, logo, overlays. Audio is separate.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct Frame {
     pub background: Option<Inst<Background>>,
@@ -71,9 +76,25 @@ pub struct Frame {
     pub slide: Option<SlideLayer>,
     pub logo: bool,
     pub audio: Option<Inst<AudioLayer>>,
+    /// Overlays that stay up while slides change (a logo bug, a clock, a sign), sorted by `(z, key)`, one per key.
+    /// Each is a copy of what was shown (FEAT-1 spec §4.5).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub overlays: Vec<OverlaySlot>,
 }
 
+/// Which layers a frame shows, for clear buttons that light up while their layer is on screen.
+#[derive(Serialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct Showing { pub background: bool, pub media: bool, pub text: bool, pub logo: bool, pub overlays: bool, pub audio: bool }
+
 impl Frame {
+    /// Which layers have something on them.
+    pub fn showing(&self) -> Showing {
+        Showing {
+            background: self.background.is_some(), media: self.media.is_some(), text: self.slide.is_some(), logo: self.logo,
+            overlays: !self.overlays.is_empty(), audio: self.audio.is_some(),
+        }
+    }
+
     /// Is there video or audio here, rather than only slides and pictures?
     pub fn plays(&self) -> bool {
         self.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. }))
@@ -100,6 +121,10 @@ pub struct LiveItem {
     pub kind: String,
     pub slides: Vec<Slide>,
     pub background: Background,
+    /// The resolved text style (item > service > church default), captured when the item was taken live, so editing
+    /// a theme never changes the room by itself (FEAT-1 spec §5.3).
+    #[serde(default)]
+    pub theme: Theme,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -133,10 +158,20 @@ pub enum Command {
     /// Pause/resume the foreground video (`paused`), naming the playback instance.
     MediaPause { inst: u64, paused: bool },
     AudioPause { inst: u64, paused: bool },
+    /// Turn saved overlay `id` on or off. Turning on carries `seen_clear`, the `clear_epoch` of the sender's newest
+    /// view: a show sent before a clear the sender had not seen is refused (FEAT-1 spec §5.2). No `base`. In JSON the
+    /// overlay's id is `"overlay"`, as the envelope's `"id"` is the command's own.
+    Overlay { #[serde(rename = "overlay")] id: Uuid, on: bool, #[serde(default)] seen_clear: Option<u64> },
+    /// F6: take every overlay down.
+    ClearOverlays,
 }
 
 impl Command {
     fn relative(&self) -> bool { matches!(self, Command::Next | Command::Prev) }
+    /// Every intentional clear, whether or not it removes anything: it moves `Live::clear_epoch` on.
+    fn clears(&self) -> bool {
+        matches!(self, Command::ClearAll | Command::ClearSlide | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::ClearOverlays)
+    }
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -162,6 +197,10 @@ pub struct Outcome {
 pub trait Plan {
     fn order(&self) -> Vec<Uuid>;
     fn build(&self, item_id: Uuid) -> Option<LiveItem>;
+    /// Saved overlay `id`: its library index (its drawing order) and a copy.
+    fn saved_overlay(&self, _id: Uuid) -> Option<(u32, Overlay)> { None }
+    /// The church logo, which a "church logo" picture overlay shows.
+    fn logo(&self) -> Option<AssetId> { None }
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
@@ -175,6 +214,8 @@ pub enum RoomEvent {
     Committed { version: u64 },
     Failed { version: u64, reason: String },
     Media { inst: u64, state: PlayState, #[serde(default)] position: f64, #[serde(default)] duration: f64, #[serde(default)] error: Option<String> },
+    /// An overlay could not be drawn (its picture is gone). The rest of the frame was shown.
+    OverlayFailed { key: String, inst: u64, reason: String },
 }
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
@@ -196,6 +237,8 @@ pub struct Live {
     pub notice: Option<String>,
     /// The version `restore` made, once there has been one.
     pub restored_version: Option<u64>,
+    /// Moves on with every clear (F1–F6), so a show sent before the sender saw a clear is refused.
+    pub clear_epoch: u64,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -211,7 +254,7 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, restored_version: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            audio_status: None, notice: None, restored_version: None, clear_epoch: 0, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -231,6 +274,20 @@ impl Live {
     }
 
     fn inst(&mut self) -> u64 { let i = self.next_inst; self.next_inst += 1; i }
+
+    /// The next playback or overlay instance number (saved with the live state, so a restart never reuses one).
+    pub fn next_inst(&self) -> u64 { self.next_inst }
+
+    /// Puts an overlay slot up (replacing one with its key). No version bump: the caller commits. False when an
+    /// equal copy was already up.
+    #[cfg(test)] // FEAT-2's timer and message slots will use it outside tests.
+    pub(crate) fn show_overlay(&mut self, slot: OverlaySlot) -> bool { slots::show(&mut self.frame.overlays, slot) }
+
+    /// Takes the overlay slot with `key` down. No version bump. False when it was not up.
+    pub(crate) fn hide_overlay(&mut self, key: &str) -> bool { slots::hide(&mut self.frame.overlays, key) }
+
+    /// Keeps the overlay slots `f` accepts. No version bump. True when any was removed.
+    pub(crate) fn retain_overlays(&mut self, f: impl Fn(&OverlaySlot) -> bool) -> bool { slots::retain(&mut self.frame.overlays, f) }
 
     fn committed_frame(&self) -> Option<&Frame> {
         self.history.iter().find(|s| s.version == self.committed_version).map(|s| &s.frame)
@@ -257,7 +314,9 @@ impl Live {
         self.frame = s.frame.clone();
         self.cursor = s.cursor.clone();
         self.item = s.item.clone();
-        self.next_inst = s.frame.instances().max().map_or(self.next_inst, |i| self.next_inst.max(i + 1));
+        self.next_inst = s.frame.instances().chain(s.frame.overlays.iter().map(|o| o.inst)).max().map_or(self.next_inst, |i| self.next_inst.max(i + 1));
+        self.next_inst = self.next_inst.max(s.next_inst);
+        self.clear_epoch = self.clear_epoch.max(s.clear_epoch);
         if !with_media {
             if self.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) { self.frame.media = None; }
             self.frame.audio = None;
@@ -290,6 +349,7 @@ impl Live {
                 _ => {}
             }
         }
+        if env.cmd.clears() { self.clear_epoch += 1 }
         match &env.cmd {
             Command::Next => self.step(plan, true),
             Command::Prev => self.step(plan, false),
@@ -308,7 +368,26 @@ impl Live {
             Command::ClearAudio => { self.frame.audio = None; self.bump(); Ok(()) }
             Command::Logo => {
                 self.frame.slide = None; self.frame.background = None; self.frame.media = None; self.frame.logo = true;
+                // Pictures, clocks and signs stay over the logo (FEAT-1 spec §5.2).
+                self.retain_overlays(|s| s.source.survives_logo());
                 self.bump();
+                Ok(())
+            }
+            Command::Overlay { id, on: true, seen_clear } => {
+                slots::check_seen_clear(*seen_clear, self.clear_epoch)?;
+                let (z, o) = plan.saved_overlay(*id).ok_or(theme_strings::OVERLAY_GONE)?;
+                let inst = self.inst();
+                let mut slot = slots::saved_slot(*id, std::slice::from_ref(&o), plan.logo().as_ref(), inst)?;
+                slot.z = z;
+                if slots::turn_on(&mut self.frame.overlays, slot)? { self.bump() }
+                Ok(())
+            }
+            Command::Overlay { id, on: false, .. } => {
+                if self.hide_overlay(&overlay::saved_key(*id)) { self.bump() }
+                Ok(())
+            }
+            Command::ClearOverlays => {
+                if self.retain_overlays(|_| false) { self.bump() }
                 Ok(())
             }
             Command::MediaPause { inst, paused } => {
@@ -386,7 +465,8 @@ impl Live {
             SlideContent::Text { text, footer, reference, size, parallel } => {
                 let scripture = item.kind == "scripture";
                 let passage = passage(&item.kind, &item.slides);
-                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture, size, passage, parallel });
+                let theme = Some(item.theme.clone());
+                self.frame.slide = Some(SlideLayer::Text { text, footer, reference, scripture, size, passage, parallel, theme });
                 self.set_background(Some(item.background.clone()));
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -446,10 +526,20 @@ impl Live {
                 if version != self.version || !self.pending() { return false; }
                 let Some(snap) = self.history.iter().find(|s| s.version == self.committed_version).cloned() else { return false };
                 // Back to what is actually on air. Its instances are unchanged, so the room keeps playing them.
+                // Overlays are not part of that: they stay as they were asked for.
+                let overlays = std::mem::take(&mut self.frame.overlays);
                 self.frame = snap.frame;
+                self.frame.overlays = overlays;
                 self.cursor = snap.cursor;
                 self.item = snap.item;
                 self.notice = Some(format!("Could not show that: {reason}"));
+                self.bump();
+                true
+            }
+            RoomEvent::OverlayFailed { key, inst, reason } => {
+                // Only a slot that is still up with that instance; a later copy or one taken down is left alone.
+                let Some(name) = slots::failed(&mut self.frame.overlays, &key, inst) else { return false };
+                self.notice = Some(theme_strings::overlay_failed(&name, &reason));
                 self.bump();
                 true
             }
@@ -541,7 +631,7 @@ mod tests {
         for (title, slides) in items {
             let id = Uuid::new_v4();
             p.order.push(id);
-            p.items.insert(id, LiveItem { item_id: id, title: title.into(), kind: "song".into(), slides, background: black() });
+            p.items.insert(id, LiveItem { item_id: id, title: title.into(), kind: "song".into(), slides, background: black(), theme: Theme::default() });
         }
         p
     }
@@ -579,7 +669,7 @@ mod tests {
         commit(&mut l);
         next(&mut l, &p); // requested, not yet on air
         let s = saved(&l);
-        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }));
+        assert_eq!(s.frame.slide, Some(SlideLayer::Text { text: "a1".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: Some(Theme::default()) }));
         assert_eq!(s.cursor.unwrap().slide, 0);
         assert_eq!(s.v, 1);
     }
@@ -668,7 +758,7 @@ mod tests {
     fn restore_without_media_keeps_a_still_and_an_image_background() {
         let mut s = with_layers(&mut Live::new());
         s.frame.media = Some(Inst { inst: 2, v: MediaLayer::Still { asset: "p.png".into() } });
-        s.frame.background = Some(Inst { inst: 1, v: Background::Image { asset: "b.png".into() } });
+        s.frame.background = Some(Inst { inst: 1, v: Background::Image { asset: "b.png".into(), dim: 0 } });
         let mut l = Live::new();
         l.restore(&s, false);
         assert_eq!(l.frame.media, s.frame.media);
@@ -678,7 +768,7 @@ mod tests {
     #[test]
     fn restore_without_media_drops_a_video_background() {
         let mut s = with_layers(&mut Live::new());
-        s.frame.background = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into() } });
+        s.frame.background = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into(), dim: 0 } });
         let mut l = Live::new();
         l.restore(&s, false);
         assert_eq!(l.frame.background, None);
@@ -687,10 +777,10 @@ mod tests {
     #[test]
     fn only_video_and_audio_count_as_playing() {
         assert!(!Frame::default().plays());
-        let still = Frame { media: Some(Inst { inst: 1, v: MediaLayer::Still { asset: "s.png".into() } }), background: Some(Inst { inst: 2, v: Background::Image { asset: "b.png".into() } }), ..Frame::default() };
+        let still = Frame { media: Some(Inst { inst: 1, v: MediaLayer::Still { asset: "s.png".into() } }), background: Some(Inst { inst: 2, v: Background::Image { asset: "b.png".into(), dim: 0 } }), ..Frame::default() };
         assert!(!still.plays());
         assert!(Frame { media: Some(Inst { inst: 1, v: MediaLayer::Video { asset: "v.mp4".into(), end: EndAction::Stop, paused: false } }), ..Frame::default() }.plays());
-        assert!(Frame { background: Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into() } }), ..Frame::default() }.plays());
+        assert!(Frame { background: Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into(), dim: 0 } }), ..Frame::default() }.plays());
         assert!(Frame { audio: Some(Inst { inst: 1, v: AudioLayer { asset: "a.mp3".into(), title: "a".into(), looped: false, paused: false } }), ..Frame::default() }.plays());
     }
 

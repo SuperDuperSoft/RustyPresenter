@@ -355,7 +355,7 @@ mod tests {
         use crate::model::{Service, ServiceItem};
         let item = |translation: &str, verses: Vec<VerseText>| {
             let kind = ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
-            ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new() }
+            ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None }
         };
         let mut s = Service::new("Sunday");
         s.items = vec![item("KJV", vec![verse("John 1:1", "and the Word was God.")]), item("TPT", vec![]), item("NWT", vec![])];

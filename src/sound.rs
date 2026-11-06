@@ -67,7 +67,7 @@ mod tests {
 
     #[test]
     fn a_background_video_is_muted_so_it_plays_on() {
-        let background = Some(Inst { inst: 3, v: Background::Video { asset: "b.mp4".into() } });
+        let background = Some(Inst { inst: 3, v: Background::Video { asset: "b.mp4".into(), dim: 0 } });
         assert_eq!(names(&Frame { background, ..Frame::default() }), []);
     }
 
@@ -101,7 +101,7 @@ mod tests {
         {
             let mut d = app.data.lock().unwrap();
             d.media.push(file);
-            d.services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new() });
+            d.services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         }
         let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
         assert!(out.ok, "{out:?}");

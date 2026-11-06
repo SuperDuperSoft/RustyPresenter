@@ -36,7 +36,7 @@ mod tests {
     fn saved_with_audio(app: &App) -> LiveState {
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: "Amazing".into() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
         let version = out.version;
         app.room_event(RoomEvent::Committed { version });

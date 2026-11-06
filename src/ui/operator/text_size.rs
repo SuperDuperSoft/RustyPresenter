@@ -132,7 +132,7 @@ mod tests {
     use uuid::Uuid;
 
     fn push(app: &App, kind: ItemKind) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }

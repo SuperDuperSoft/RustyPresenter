@@ -9,7 +9,7 @@ use std::{
     io::{Read, Write},
     net::IpAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicU64, AtomicUsize, Ordering}},
+    sync::{Arc, Mutex, OnceLock, Weak, atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering}},
     time::{Duration, Instant},
 };
 use tokio::sync::broadcast;
@@ -79,8 +79,12 @@ pub struct LiveView {
     pub media: Option<PlayStatus>,
     pub audio: Option<PlayStatus>,
     pub notice: Option<String>,
+    /// The church default's style (stage, old pages, and slides taken live before themes).
     pub theme: Theme,
     pub logo: Option<AssetId>,
+    /// The newest clear (`Live::clear_epoch`): an overlay turned on sends it back as `seen_clear`.
+    #[serde(default)]
+    pub clear_epoch: u64,
     /// The operator's message for the stage screen (spec §12.2). Never in the JSON: it goes to the stage and nowhere else.
     #[serde(skip)]
     pub stage_message: String,
@@ -210,6 +214,8 @@ pub struct App {
     converters: OnceLock<Arc<import::deck::Converters>>,
     /// Held by the Bible download under way, so downloads run one at a time (Bible library spec §3.1).
     bible_downloads: tokio::sync::Mutex<()>,
+    /// The data was saved by a newer RustyPresenter: live control works, nothing is saved (FEAT-1 spec §4.7).
+    read_only: AtomicBool,
     /// YouTube downloads: their helper programs and lookups.
     pub youtube: crate::youtube::Hub,
 }
@@ -217,11 +223,17 @@ pub struct App {
 pub struct DataPlan<'a>(pub &'a Data);
 
 impl Plan for DataPlan<'_> {
+    fn saved_overlay(&self, id: Uuid) -> Option<(u32, crate::theme::overlay::Overlay)> {
+        self.0.overlays.iter().position(|o| o.id == id).map(|i| (i as u32, self.0.overlays[i].clone()))
+    }
+    fn logo(&self) -> Option<AssetId> { self.0.settings.logo.clone() }
     fn order(&self) -> Vec<Uuid> { self.0.service().map(|s| s.items.iter().map(|i| i.id).collect()).unwrap_or_default() }
     fn build(&self, id: Uuid) -> Option<LiveItem> {
-        let item = self.0.service()?.items.iter().find(|i| i.id == id)?;
+        let service = self.0.service()?;
+        let item = service.items.iter().find(|i| i.id == id)?;
         let (title, kind, slides) = build_item(self.0, item);
-        Some(LiveItem { item_id: id, title, kind: kind.into(), slides, background: item.background.clone().unwrap_or_else(|| self.0.settings.background.clone()) })
+        let resolved = crate::theme::resolve(self.0, Some(service), item);
+        Some(LiveItem { item_id: id, title, kind: kind.into(), slides, background: resolved.background, theme: resolved.style })
     }
 }
 
@@ -243,7 +255,7 @@ impl App {
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
-            bible_downloads: tokio::sync::Mutex::new(()), youtube,
+            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false),
         });
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -310,8 +322,9 @@ impl App {
             media: live.media_status.clone(),
             audio: live.audio_status.clone(),
             notice: live.notice.clone(),
-            theme: data.settings.theme.clone(),
+            theme: crate::theme::church_default(&data).style,
             logo: data.settings.logo.clone(),
+            clear_epoch: live.clear_epoch,
             stage_message: self.stage_message.lock().unwrap().clone(),
         }
     }
@@ -326,10 +339,19 @@ impl App {
     }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
-    pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.store.save(data).map_err(|e| format!("Could not save: {e}")) }
+    pub(crate) fn save(&self, data: &Data) -> Result<(), String> {
+        if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
+        self.store.save(data).map_err(|e| format!("Could not save: {e}"))
+    }
+
+    /// The data was saved by a newer RustyPresenter (`Store::load_full`): every edit is refused with
+    /// `strings::themes::NEWER_DATA`, live control keeps working. The operator shows it as a banner.
+    pub fn read_only(&self) -> bool { self.read_only.load(Ordering::Relaxed) }
+    pub fn set_read_only(&self, on: bool) { self.read_only.store(on, Ordering::Relaxed) }
 
     /// Mutate data, save, and tell every screen.
     pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
+        if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
         let r = {
             let mut data = self.data.lock().unwrap();
             let r = f(&mut data)?;
@@ -777,6 +799,7 @@ impl App {
             "backups": self.store.backups(),
             "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name })).collect::<Vec<_>>(),
             "jobs": *self.jobs.lock().unwrap(),
+            "read_only": self.read_only(),
             "room_connected": self.room_conns.load(Ordering::Relaxed) > 0,
             "stage_connected": self.stage_conns.load(Ordering::Relaxed) > 0,
             "remotes_connected": self.remote_conns.load(Ordering::Relaxed),
@@ -848,7 +871,13 @@ impl App {
             Ok(json!({ "id": id, "toast": toast }))
         }
         "service/update" => {
-            let item: ServiceItem = parse(body)?;
+            // Merged by key into the stored item, so a client that does not know a field (an item's theme) keeps it.
+            let patch: Value = parse(body)?;
+            let stored = patch.get("id").and_then(|id| serde_json::from_value::<Uuid>(id.clone()).ok()).and_then(|id| {
+                app.data.lock().unwrap().service().and_then(|s| s.items.iter().find(|i| i.id == id)).and_then(|i| serde_json::to_value(i).ok())
+            });
+            let merged = match stored { Some(s) => tryr!(crate::theme::merge::merge_object(&s, &patch)), None => patch };
+            let item: ServiceItem = serde_json::from_value(merged).map_err(|e| ActionError::bad(format!("Bad request: {e}")))?;
             refuse_blocked(&item)?;
             tryr!(app.edit(|d| {
                 let s = d.service_mut().ok_or("No service is open.")?;
@@ -1081,14 +1110,17 @@ impl App {
         }
         // ---- settings ----
         "settings" => {
-            let mut s: Settings = parse(body)?;
-            s.lines_per_slide = s.lines_per_slide.clamp(1, 8);
-            s.theme.size = s.theme.size.clamp(24, 200);
-            s.theme.scripture_size = s.theme.scripture_size.clamp(24, 200);
-            s.bible_per_slide = s.bible_per_slide.min(4);
-            // The picker owns these (`settings/translation`, `settings/favourite`): a form saved from an older copy
-            // must not undo a star or a pick made while it was open.
+            // Merged by key into the stored settings (FEAT-1 spec §9.1): a key the form leaves out (a logo set
+            // meanwhile) keeps its value.
+            let patch: Value = parse(body)?;
             tryr!(app.edit(|d| {
+                let mut s: Settings = crate::theme::merge::merge_typed(&d.settings, &patch, crate::theme::merge::merge_object)?;
+                s.lines_per_slide = s.lines_per_slide.clamp(1, 8);
+                s.theme.size = s.theme.size.clamp(24, 200);
+                s.theme.scripture_size = s.theme.scripture_size.clamp(24, 200);
+                s.bible_per_slide = s.bible_per_slide.min(4);
+                // The picker owns these (`settings/translation`, `settings/favourite`): a form saved from an older
+                // copy must not undo a star or a pick made while it was open.
                 s.favourites = std::mem::take(&mut d.settings.favourites);
                 s.recent = std::mem::take(&mut d.settings.recent);
                 // Settings → Language applies at once (`settings/language`); an older form must not undo it.
@@ -1289,6 +1321,7 @@ impl App {
         "backup/restore" => {
             #[derive(Deserialize)] struct B { name: String }
             let B { name } = parse(body)?;
+            if app.read_only() { return Err(ActionError::bad(crate::theme::strings::NEWER_DATA)); }
             let mut restored = tryr!(app.store.restore(&name));
             let removed = bible::blocklist::strip(&mut restored);
             if removed > 0 {
@@ -1321,7 +1354,11 @@ impl App {
             app.broadcast_data();
             Ok(json!({}))
         }
-        _ => Err(ActionError { status: 404, message: "unknown action".into() }),
+        // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
+        a => match crate::theme::actions::run(app, a, body).await {
+            Some(r) => r,
+            None => Err(ActionError { status: 404, message: "unknown action".into() }),
+        },
     }
 }
 }
@@ -1672,7 +1709,7 @@ mod tests {
             fn order(&self) -> Vec<Uuid> { vec![self.0] }
             fn build(&self, id: Uuid) -> Option<LiveItem> {
                 Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
-                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }] })
+                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0, parallel: None }, notes: String::new() }], theme: Theme::default() })
             }
         }
         live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));
@@ -1747,7 +1784,7 @@ mod tests {
         let app = test_app();
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: "text".into() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         let version = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } }).version;
         app.room_event(RoomEvent::Committed { version });
         assert!(!app.playing(), "a text slide does not play");
@@ -2005,7 +2042,7 @@ mod tests {
     async fn restoring_a_backup_leaves_blocked_passages_behind() {
         let app = test_app();
         let mut service = Service::new("Sunday");
-        service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(),
+        service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(), theme: None,
             kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() } });
         let data = Data { services: vec![service], ..Data::default() };
         let name = app.store.backup(&data).unwrap();
@@ -2325,7 +2362,7 @@ mod tests {
             let song = d.songs.iter_mut().find(|s| s.id == id).unwrap();
             song.arrangement = vec!["Chorus".into(), "Verse 1".into()];
             let service = d.service_mut().ok_or("no service")?;
-            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new() });
+            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new(), theme: None });
             Ok(())
         }).unwrap();
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "update")).await.unwrap();
@@ -2559,7 +2596,7 @@ mod tests {
         let id = {
             let mut d = app.data.lock().unwrap();
             let s = d.service_mut().unwrap();
-            s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new() });
+            s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None });
             s.id
         };
         let e = block_on(app.export_service(id, dest.clone())).unwrap_err();
@@ -2658,7 +2695,7 @@ mod tests {
         bible::sources::put_cached(&root, "ESV", "John 3:16", "For God so loved the world, ESV");
         let mut data = Data::default();
         data.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ESV".into(), verses: vec![], per_slide: 0, text_size: 0,
-            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }, background: None, notes: String::new() });
+            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let app = App::new(store, data, 0, None);
         let d = app.data.lock().unwrap();
         let ItemKind::Scripture { verses, also, .. } = &d.services[0].items[0].kind else { panic!() };

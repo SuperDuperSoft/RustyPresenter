@@ -37,8 +37,8 @@ pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dy
 
 fn background_ok(b: &Background, has_asset: &dyn Fn(&str) -> bool) -> bool {
     match b {
-        Background::Color { .. } => true,
-        Background::Image { asset } | Background::Video { asset } => has_asset(asset),
+        Background::Color { .. } | Background::Gradient { .. } => true,
+        Background::Image { asset, .. } | Background::Video { asset, .. } => has_asset(asset),
     }
 }
 
@@ -100,7 +100,7 @@ mod tests {
         d.services = vec![service];
         d
     }
-    fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() } }
+    fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None } }
     fn text() -> ItemKind { ItemKind::Text { title: "Welcome".into(), body: "Hello".into() } }
     fn all(_: &str) -> bool { true }
     fn none(_: &str) -> bool { false }
@@ -169,7 +169,7 @@ mod tests {
     fn missing_logo_and_default_background_files() {
         let mut d = data(vec![text()]);
         d.settings.logo = Some("logo.png".into());
-        d.settings.background = Background::Image { asset: "bg.png".into() };
+        d.settings.background = Background::Image { asset: "bg.png".into(), dim: 0 };
         assert_eq!(run(&d, &none), [s::LOGO_MISSING, s::BACKGROUND_MISSING]);
         assert_eq!(run(&d, &|a| a == "logo.png"), [s::BACKGROUND_MISSING]);
     }
@@ -242,7 +242,7 @@ mod tests {
     #[test]
     fn an_items_own_background_file() {
         let mut d = data(vec![text()]);
-        d.services[0].items[0].background = Some(Background::Video { asset: "loop.mp4".into() });
+        d.services[0].items[0].background = Some(Background::Video { asset: "loop.mp4".into(), dim: 0 });
         assert_eq!(run(&d, &none), [s::item(1, "Welcome", s::ITEM_BACKGROUND_MISSING)]);
         assert_eq!(run(&d, &all), Vec::<String>::new());
     }

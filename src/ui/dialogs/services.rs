@@ -294,7 +294,7 @@ mod tests {
         assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 1, 2).unwrap()), "Service 1/2/2026");
         assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap()), "Service 11/22/2026");
         let app = test_app();
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let (from, _) = current(&app);
         let op = open_services(&app);
@@ -391,7 +391,7 @@ mod tests {
     #[test]
     fn save_to_file_writes_the_open_service() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None });
         let op = open_services(&app);
         let dest = saved_file(&app, &op);
         assert!(dest.exists());
@@ -414,7 +414,7 @@ mod tests {
         let app = test_app();
         let mut d = app.data.lock().unwrap();
         let id = Uuid::new_v4();
-        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new() });
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new(), theme: None });
         drop(d);
         let op = open_services(&app);
         let dest = saved_file(&app, &op);

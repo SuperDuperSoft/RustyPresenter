@@ -6,7 +6,9 @@ use crate::room::{Kind, Want};
 use crate::video::{Player, Players, Role};
 use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
 use crate::ui::block_on;
-use std::{path::{Path, PathBuf}, sync::{Arc, mpsc}};
+use std::{path::{Path, PathBuf}, sync::{Arc, Mutex, mpsc}};
+use crate::render::Fonts;
+use crate::theme::overlay::{ImageSource, OverlaySlot, OverlaySource};
 
 /// Pixels made off the UI thread (an `Image` is not `Send`).
 pub enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
@@ -27,7 +29,11 @@ pub(super) enum Made { Pic(Option<Px>, Color), Player(Fresh) }
 
 /// What the prepare worker shares with the room. `generation` moves on with each new plan, so the worker drops
 /// what an older plan still had to do.
-pub(super) struct Work { pub(super) app: Arc<App>, pub(super) renderer: Arc<Renderer>, pub(super) video: Players, pub(super) audio: Players, pub(super) generation: Generation }
+pub(super) struct Work {
+    pub(super) app: Arc<App>, pub(super) renderer: Arc<Renderer>, pub(super) video: Players, pub(super) audio: Players, pub(super) generation: Generation,
+    /// For drawing overlays, made on first use (it loads the system fonts).
+    pub(super) fonts: Mutex<Option<Fonts>>,
+}
 
 /// One plan's layers to prepare, with what they need from the live view. `wanted` goes stale once a newer plan
 /// starts.
@@ -57,8 +63,11 @@ pub(super) fn worker(work: Arc<Work>, send: impl Fn(Msg) + Send + 'static) -> st
 
 enum Source {
     Fill(Color),
+    /// A gradient, or a picture with Darken (`render::background`).
+    Painted { bg: Background, picture: Option<PathBuf> },
     Picture { path: PathBuf, cover: bool, scale: f32 },
     Text(RenderKey),
+    Overlays(Vec<OverlaySlot>),
     Player { role: Role, inst: u64, path: PathBuf },
 }
 
@@ -74,8 +83,10 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
             let b = f.background.as_ref()?;
             match &b.v {
                 Background::Color { color: c } => Source::Fill(color(c)),
-                Background::Image { asset } => picture(asset, true, 1.0),
-                Background::Video { asset: a } => Source::Player { role: Role::Background, inst: b.inst, path: asset(a) },
+                Background::Image { asset, dim: 0 } => picture(asset, true, 1.0),
+                Background::Image { asset: a, .. } => Source::Painted { bg: b.v.clone(), picture: Some(asset(a)) },
+                Background::Gradient { .. } => Source::Painted { bg: b.v.clone(), picture: None },
+                Background::Video { asset: a, .. } => Source::Player { role: Role::Background, inst: b.inst, path: asset(a) },
             }
         }
         Kind::Media => {
@@ -86,14 +97,15 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
             }
         }
         Kind::Slide => match f.slide.as_ref()? {
-            SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel } => Source::Text(RenderKey {
+            SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme } => Source::Text(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-                size: *max, passage: passage.clone(), theme: job.theme.clone(), canvas: job.canvas, parallel: parallel.clone()
+                size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone()
             }),
             SlideLayer::Image { asset } => picture(asset, false, 1.0),
         },
         // The logo sits on black at up to 70 % of the screen (`logoEl` in `render.js`).
         Kind::Logo => match &job.logo { Some(a) => picture(a, false, 0.7), None => Source::Fill(BLACK) },
+        Kind::Overlays => Source::Overlays(f.overlays.clone()),
         Kind::Audio => {
             let a = f.audio.as_ref()?;
             Source::Player { role: Role::Audio { looped: a.v.looped }, inst: a.inst, path: asset(&a.v.asset) }
@@ -117,6 +129,15 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
                 // Pictures sit on black, as in the web room; image backgrounds cover the screen.
                 picture(&path, canvas, cover).map(|px| Made::Pic(Some(px), BLACK))
             }
+            Source::Overlays(slots) => {
+                let mut fonts = work.fonts.lock().unwrap();
+                let fonts = fonts.get_or_insert_with(Fonts::new);
+                let (px, failed) = overlays(fonts, &slots, &job.theme.font, job.canvas, |a| work.app.store.asset_path(a));
+                // A slot that can't be drawn is left out and reported; it never stops the rest of the frame.
+                for (key, inst, reason) in failed { send(Msg::Event(crate::live::RoomEvent::OverlayFailed { key, inst, reason })) }
+                Ok(Made::Pic(Some(px), Color::default()))
+            }
+            Source::Painted { bg, picture } => painted(&bg, picture.as_deref(), job.canvas).map(|px| Made::Pic(Some(px), Color::default())),
             Source::Text(key) => {
                 // Shared with the renderer's cache, not copied.
                 let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
@@ -139,15 +160,16 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
     }
 }
 
-/// The render keys of the live item's text slides either side of the live one, as the room would draw them.
-pub(super) fn neighbours(live: &Live, theme: &Theme, canvas: (u32, u32)) -> Vec<RenderKey> {
+/// The render keys of the live item's text slides either side of the live one, as the room would draw them (in the
+/// item's own theme).
+pub(super) fn neighbours(live: &Live, canvas: (u32, u32)) -> Vec<RenderKey> {
     let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return vec![] };
     let scripture = item.kind == "scripture";
     let passage = crate::model::passage(&item.kind, &item.slides);
     [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
         SlideContent::Text { text, footer, reference, size, parallel } => Some(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
-            size: *size, passage: passage.clone(), theme: theme.clone(), canvas, parallel: parallel.clone()
+            size: *size, passage: passage.clone(), theme: item.theme.clone(), canvas, parallel: parallel.clone()
         }),
         _ => None,
     }).collect()
@@ -156,11 +178,42 @@ pub(super) fn neighbours(live: &Live, theme: &Theme, canvas: (u32, u32)) -> Vec<
 /// While the room shows a text slide, has the renderer draw the next and previous ones when it is idle.
 fn prefetch_neighbours(work: &Work, job: &Job) {
     if !matches!(job.frame.slide, Some(SlideLayer::Text { .. })) { return }
-    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, &job.theme, job.canvas) };
+    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, job.canvas) };
     for k in keys { work.renderer.prefetch(k) }
 }
 
 fn unreadable<E>(_: E) -> String { "picture could not be loaded".into() }
+
+/// Every overlay slot drawn over one transparent `canvas`-sized picture, in order, with the slots that could not be
+/// drawn as (key, inst, reason). Shared with the operator's live monitor.
+pub(in crate::ui) fn overlays(fonts: &mut Fonts, slots: &[OverlaySlot], theme_font: &str, canvas: (u32, u32), path: impl Fn(&str) -> PathBuf)
+    -> (Px, Vec<(String, u64, String)>) {
+    let ctx = crate::theme::overlay::BoundCtx::at(chrono::Local::now());
+    let mut placed = Vec::new();
+    let mut failed = Vec::new();
+    for slot in slots {
+        let picture = match &slot.source {
+            OverlaySource::Image { source: ImageSource::Asset { asset }, .. } => match decode(&path(asset)) {
+                Ok(p) => Some(p),
+                Err(_) => { failed.push((slot.key.clone(), slot.inst, crate::theme::strings::PICTURE_UNREADABLE.to_string())); continue }
+            },
+            _ => None,
+        };
+        let text = crate::theme::overlay::bound_text(&slot.source, &ctx);
+        if let Some(p) = crate::render::overlay::draw(fonts, slot, text.as_deref(), theme_font, canvas, picture.as_ref()) { placed.push(p) }
+    }
+    (Px::Premul(crate::render::overlay::compose(&placed, canvas).rgba_premul.buffer()), failed)
+}
+
+fn decode(path: &Path) -> Result<image::RgbaImage, String> {
+    Ok(image::ImageReader::open(path).map_err(unreadable)?.with_guessed_format().map_err(unreadable)?.decode().map_err(unreadable)?.into_rgba8())
+}
+
+/// A gradient or a darkened picture background at `canvas` (`picture`: the image file).
+pub(in crate::ui) fn painted(bg: &Background, picture: Option<&Path>, canvas: (u32, u32)) -> Result<Px, String> {
+    let img = match picture { Some(p) => Some(decode(p)?), None => None };
+    Ok(Px::Premul(crate::render::background::background_pixels(bg, img.as_ref(), canvas).rgba_premul.buffer()))
+}
 
 /// Decodes a picture (by its content, not its name) and shrinks it to fit (`cover`: to fill) `w`×`h`.
 pub(in crate::ui) fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Result<Px, String> {
@@ -185,18 +238,18 @@ mod tests {
     #[test]
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
         let mut live = Live::new();
-        assert!(neighbours(&live, &Theme::default(), (64, 36)).is_empty(), "nothing live");
+        assert!(neighbours(&live, (64, 36)).is_empty(), "nothing live");
         let picture = Slide { label: String::new(), content: SlideContent::Image { asset: "p.png".into() }, notes: String::new() };
         live.item = Some(LiveItem {
             item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
-            background: Background::Color { color: "#000000".into() },
+            background: Background::Color { color: "#000000".into() }, theme: Theme::default(),
         });
         let at = |live: &mut Live, slide| live.cursor = Some(Cursor { item_id: uuid::Uuid::nil(), item_index: 0, slide });
-        let texts = |live: &Live| neighbours(live, &Theme::default(), (64, 36)).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
+        let texts = |live: &Live| neighbours(live, (64, 36)).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
         at(&mut live, 0);
         assert_eq!(texts(&live), ["two"], "nothing before the first slide");
         // The same size and passage as the room's own key, or the drawing done ahead is never used.
-        let key = neighbours(&live, &Theme::default(), (64, 36)).remove(0);
+        let key = neighbours(&live, (64, 36)).remove(0);
         assert_eq!(key.size, 90);
         assert_eq!(key.passage.iter().map(|s| s.text.as_str()).collect::<Vec<_>>(), ["one", "two", "four"]);
         at(&mut live, 1);

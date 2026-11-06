@@ -19,6 +19,12 @@ pub struct LiveState {
     pub positions: Vec<(u64, f64)>,
     /// Open window roles: "room", "stage".
     pub windows: Vec<String>,
+    /// `Live::clear_epoch`, so a restart never lowers it.
+    #[serde(default)]
+    pub clear_epoch: u64,
+    /// `Live::next_inst`, so a restart never reuses an instance number.
+    #[serde(default)]
+    pub next_inst: u64,
 }
 
 const VERSION: u32 = 1;
@@ -61,7 +67,7 @@ pub fn snapshot(live: &Live, windows: Vec<String>, seq: u64) -> Option<LiveState
     let (frame, cursor, item) = live.committed()?;
     let positions = [&live.media_status, &live.audio_status].into_iter().flatten()
         .filter(|p| frame.instances().any(|i| i == p.inst)).map(|p| (p.inst, p.position)).collect();
-    Some(LiveState { v: VERSION, seq, saved_at: now_stamp(), frame, cursor, item, positions, windows })
+    Some(LiveState { v: VERSION, seq, saved_at: now_stamp(), frame, cursor, item, positions, windows, clear_epoch: live.clear_epoch, next_inst: live.next_inst() })
 }
 
 #[derive(Default)]
@@ -134,7 +140,7 @@ mod tests {
     }
 
     fn state(seq: u64) -> LiveState {
-        LiveState { v: 1, seq, saved_at: "now".into(), frame: Frame::default(), cursor: None, item: None, positions: vec![(3, 1.5)], windows: vec!["room".into()] }
+        LiveState { v: 1, seq, saved_at: "now".into(), frame: Frame::default(), cursor: None, item: None, positions: vec![(3, 1.5)], windows: vec!["room".into()], clear_epoch: 0, next_inst: 0 }
     }
 
     #[test]

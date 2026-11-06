@@ -71,7 +71,7 @@ impl Operator {
                 Kind::Media => OperatorWindow::set_monitor_media,
                 Kind::Slide => OperatorWindow::set_monitor_slide,
                 Kind::Logo => OperatorWindow::set_monitor_logo,
-                Kind::Audio => continue,
+                Kind::Overlays | Kind::Audio => continue,
             };
             let side = match drawn {
                 Drawn::Pic(px, color) => Side { image: px.map(|p| p.image()).unwrap_or_default(), color },
@@ -203,14 +203,14 @@ mod tests {
     use uuid::Uuid;
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }
 
     fn add_video(app: &App) -> Uuid {
         let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None };
         let mut d = app.data.lock().unwrap();
         d.media.push(media);
         d.services[0].items.push(item.clone());
@@ -441,7 +441,7 @@ mod tests {
         assert!(!op.ui.get_monitor_video_cover(), "a foreground video is letterboxed like the room (object-fit: contain)");
         let mut v = app.live_view();
         v.frame.media = None;
-        v.frame.background = Some(crate::live::Inst { inst: 99, v: crate::model::Background::Video { asset: "bg.mp4".into() } });
+        v.frame.background = Some(crate::live::Inst { inst: 99, v: crate::model::Background::Video { asset: "bg.mp4".into(), dim: 0 } });
         v.version += 1;
         op.apply_live(LiveUpdate::new(v));
         assert!(op.ui.get_monitor_video());

@@ -1,8 +1,10 @@
 //! Slide rendering shared by every screen: the room output, the live preview and the operator
 //! thumbnails all draw text slides with this code, so what you see is what the room sees.
+pub mod background;
 pub mod cache;
 pub mod color;
 pub mod layout;
+pub mod overlay;
 pub mod parallel;
 pub mod raster;
 

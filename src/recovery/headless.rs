@@ -87,7 +87,7 @@ mod tests {
     fn text_item(app: &App, text: &str) -> Uuid {
         let id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: text.into() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         id
     }
 
@@ -98,11 +98,11 @@ mod tests {
     }
 
     fn saved(frame: Frame) -> LiveState {
-        LiveState { v: 1, seq: 1, saved_at: "now".into(), frame, cursor: None, item: None, positions: vec![], windows: vec![] }
+        LiveState { v: 1, seq: 1, saved_at: "now".into(), frame, cursor: None, item: None, positions: vec![], windows: vec![], clear_epoch: 0, next_inst: 0 }
     }
 
     fn slide(text: &str) -> Option<SlideLayer> {
-        Some(SlideLayer::Text { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None })
+        Some(SlideLayer::Text { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None })
     }
 
     fn audio() -> Option<Inst<AudioLayer>> {

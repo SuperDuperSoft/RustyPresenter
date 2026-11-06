@@ -49,8 +49,8 @@ impl Choice {
         match &self.kind {
             ChoiceKind::Default => Some(None),
             ChoiceKind::Color(c) => Some(Some(Background::Color { color: c.clone() })),
-            ChoiceKind::Image(a) => Some(Some(Background::Image { asset: a.clone() })),
-            ChoiceKind::Video(a) => Some(Some(Background::Video { asset: a.clone() })),
+            ChoiceKind::Image(a) => Some(Some(Background::Image { asset: a.clone(), dim: 0 })),
+            ChoiceKind::Video(a) => Some(Some(Background::Video { asset: a.clone(), dim: 0 })),
             ChoiceKind::Custom | ChoiceKind::Upload => None,
         }
     }
@@ -295,9 +295,9 @@ mod tests {
         assert_eq!(selected(&c, &Some(Background::Color { color: "#0b1a33".into() })), Some(2));
         assert_eq!(selected(&c, &Some(Background::Color { color: "#0B1A33".into() })), None, "compared as the web does, exactly");
         assert_eq!(selected(&c, &Some(Background::Color { color: "#123456".into() })), None, "a custom colour is no tile");
-        assert_eq!(selected(&c, &Some(Background::Image { asset: "Sky.bin".into() })), Some(8));
-        assert_eq!(selected(&c, &Some(Background::Video { asset: "Loop.bin".into() })), Some(9));
-        assert_eq!(selected(&c, &Some(Background::Image { asset: "Loop.bin".into() })), None, "same asset, other kind");
+        assert_eq!(selected(&c, &Some(Background::Image { asset: "Sky.bin".into(), dim: 0 })), Some(8));
+        assert_eq!(selected(&c, &Some(Background::Video { asset: "Loop.bin".into(), dim: 0 })), Some(9));
+        assert_eq!(selected(&c, &Some(Background::Image { asset: "Loop.bin".into(), dim: 0 })), None, "same asset, other kind");
         assert_eq!(selected(&choices(&lib, false), &None), None);
     }
 

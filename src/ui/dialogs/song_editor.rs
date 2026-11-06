@@ -339,7 +339,7 @@ mod tests {
         let app = test_app();
         let used = song(&app, "Used", "", "", "Verse 1\na");
         let spare = song(&app, "Spare", "", "", "Verse 1\nb");
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used }, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used }, background: None, notes: String::new(), theme: None });
         let op = opened(&app);
         open_song_editor(&op, Some(used), false);
         settle(&op);

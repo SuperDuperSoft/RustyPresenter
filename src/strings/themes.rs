@@ -12,9 +12,15 @@ pub const THEME_SAVED: &str = "Theme saved";
 pub const THEME_DELETED: &str = "Theme deleted";
 pub const STANDARD_NAME: &str = "Standard";
 pub const CHURCH_DEFAULT: &str = "Church default";
+/// The built-in lower-third theme's name.
+pub const LOWER_THIRD_NAME: &str = "Lower third";
 pub const STANDARD_HINT: &str = "Built in — the style RustyPresenter started with";
 pub const DEFAULT_HINT: &str = "Church default — used whenever nothing else is picked";
 pub const NEW_THEME_NAME: &str = "New theme";
+pub const SERVICE_GONE: &str = "That service is gone.";
+pub const ITEM_GONE: &str = "That item is gone.";
+/// Decks and media items draw no text, so they take a background but no theme.
+pub const ITEM_NO_THEME: &str = "Only songs, Bible passages and announcements use a theme.";
 pub const BOLD_DISABLED_TIP: &str = "Text is already bold in this theme";
 pub const BUNDLED_FONT_NOTE: &str = "works on every computer";
 

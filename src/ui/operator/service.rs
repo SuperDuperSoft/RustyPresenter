@@ -165,7 +165,7 @@ mod tests {
     fn add_texts(app: &App, titles: &[&str]) -> Vec<Uuid> {
         let mut d = app.data.lock().unwrap();
         titles.iter().map(|t| {
-            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.to_string(), body: format!("{t} body") }, background: None, notes: String::new() };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.to_string(), body: format!("{t} body") }, background: None, notes: String::new(), theme: None };
             d.services[0].items.push(item.clone());
             item.id
         }).collect()
@@ -347,7 +347,7 @@ mod tests {
         start_drag(&op, center(&row(&op, 1)));
         // Another client puts X first while B is in the air.
         let x = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.insert(0, ServiceItem { id: x, kind: ItemKind::Text { title: "X".into(), body: "x".into() }, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.insert(0, ServiceItem { id: x, kind: ItemKind::Text { title: "X".into(), body: "x".into() }, background: None, notes: String::new(), theme: None });
         refresh(&op);
         drop_at(&op, target);
         // `service/move {id: B, to: 3}` on [X, A, B, C, D]: B is the item that moved.

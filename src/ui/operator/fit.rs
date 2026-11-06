@@ -38,7 +38,7 @@ fn assert_inside(op: &Operator, id: &str, (w, h): (f32, f32)) {
 }
 
 fn with_text_item(op: &Rc<Operator>) -> Uuid {
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Good morning".into() }, background: None, notes: String::new() };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Good morning".into() }, background: None, notes: String::new(), theme: None };
     op.app().data.lock().unwrap().services[0].items.push(item.clone());
     refresh(op);
     item.id
@@ -193,7 +193,7 @@ fn window_limits_never_follow_its_size() {
     assert!(find(&op, "SlidesPanel::choose").is_some());
     assert_free_limits(&op, "nothing selected");
     // A song that is not in the library has no slides.
-    let empty = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new() };
+    let empty = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None };
     op.app().data.lock().unwrap().services[0].items.push(empty.clone());
     refresh(&op);
     op.ui.invoke_service_select(empty.id.to_string().into());

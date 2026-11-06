@@ -142,7 +142,7 @@ mod tests {
     /// A view with `now` live as a text slide in "Amazing Grace" and `next` after it.
     fn view(now: Option<Slide>, next: Option<Slide>) -> LiveView {
         let on_air = now.as_ref().map(|s| match &s.content {
-            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }),
+            SlideContent::Text { text, .. } => Some(SlideLayer::Text { text: text.clone(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }),
             _ => None,
         });
         LiveView {
@@ -152,7 +152,7 @@ mod tests {
             item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2 }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
+            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
         }
     }
 
@@ -248,7 +248,7 @@ mod tests {
         let app = test_app();
         {
             let mut data = app.data.lock().unwrap();
-            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into() }, background: None, notes: String::new() };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into() }, background: None, notes: String::new(), theme: None };
             data.services[0].items.push(item);
         }
         assert!(app.command(Envelope { id: "n1".into(), base: Some(0), cmd: Command::Next }).ok);

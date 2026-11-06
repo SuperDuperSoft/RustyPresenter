@@ -19,13 +19,14 @@ pub fn data_root() -> Result<PathBuf, String> {
 pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> {
     let store = Store::open(root.clone()).map_err(|e| format!("Cannot use the data folder {}: {e}", root.display()))?;
     store.clean_tmp();
-    let mut data = store.load()?;
+    let crate::store::Loaded { mut data, read_only } = store.load_full()?;
     let removed = crate::bible::blocklist::strip(&mut data);
-    if removed > 0 || !store.data_path().exists() { let _ = store.save(&data); }
+    if !read_only && (removed > 0 || !store.data_path().exists()) { let _ = store.save(&data); }
 
     let lan_ip = UdpSocket::bind("0.0.0.0:0").ok().and_then(|s| { s.connect("192.0.2.1:80").ok()?; s.local_addr().ok().map(|a| a.ip()) });
     let lan_url = lan_ip.map(|ip| format!("http://{ip}:{port}/remote"));
     let app = App::new(store, data, port, lan_url);
+    app.set_read_only(read_only);
     if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
     Ok(Started { app, listener, root })
 }
@@ -94,7 +95,7 @@ mod tests {
     fn a_saved_service_opens_without_blocked_passages() {
         let root = test_dir();
         let mut service = Service::new("Sunday");
-        let passage = |translation: &str| ServiceItem { id: uuid::Uuid::new_v4(), background: None, notes: String::new(),
+        let passage = |translation: &str| ServiceItem { id: uuid::Uuid::new_v4(), background: None, notes: String::new(), theme: None,
             kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: translation.into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() } };
         service.items = vec![passage("KJV"), passage("NWT")];
         Store::open(root.clone()).unwrap().save(&Data { services: vec![service], ..Data::default() }).unwrap();

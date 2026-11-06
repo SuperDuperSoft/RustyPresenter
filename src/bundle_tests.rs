@@ -10,7 +10,7 @@ fn asset(s: &Store, bytes: &[u8], ext: &str) -> AssetId {
     s.import_file(&p, ext).unwrap()
 }
 
-fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() } }
+fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None } }
 
 fn song(title: &str, ccli: &str, lyrics: &str) -> Song { Song { id: Uuid::new_v4(), title: title.into(), ccli: ccli.into(), lyrics: lyrics.into(), ..Song::default() } }
 
@@ -22,7 +22,7 @@ fn sample(s: &Store) -> Data {
     let (v, slide, bg, other) = (asset(s, b"video", "mp4"), asset(s, b"slide", "png"), asset(s, b"bg", "jpg"), asset(s, b"not used", "png"));
     let (sg, m, deck) = (song("Amazing Grace", "22025", "Verse 1\nAmazing grace"), media("clip", &v), Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec![slide] });
     let mut first = item(ItemKind::Song { song_id: sg.id });
-    first.background = Some(Background::Image { asset: bg });
+    first.background = Some(Background::Image { asset: bg, dim: 0 });
     first.notes = "Key of G".into();
     let svc = d.service_mut().unwrap();
     svc.name = "Easter".into();
@@ -135,7 +135,7 @@ fn moves_a_service_to_an_empty_computer() {
     assert_eq!(there.songs[0].lyrics, "Verse 1\nAmazing grace");
     assert_eq!(fs::read(b.asset_path(&there.media[0].asset)).unwrap(), b"video");
     assert_eq!(fs::read(b.asset_path(&there.decks[0].slides[0])).unwrap(), b"slide");
-    let Some(Background::Image { asset: bg }) = &svc.items[0].background else { panic!() };
+    let Some(Background::Image { asset: bg, .. }) = &svc.items[0].background else { panic!() };
     assert_eq!(fs::read(b.asset_path(bg)).unwrap(), b"bg");
 }
 
@@ -318,7 +318,7 @@ fn every_asset_field_is_checked() {
         Box::new(|c| c.media[0].thumb = Some("../x.jpg".into())),
         Box::new(|c| c.media[0].original_asset = Some("../x.mp4".into())),
         Box::new(|c| c.decks.push(Deck { id: Uuid::new_v4(), title: "d".into(), slides: vec!["../x.png".into()] })),
-        Box::new(|c| c.service.items[0].background = Some(Background::Video { asset: "../x.mp4".into() })),
+        Box::new(|c| c.service.items[0].background = Some(Background::Video { asset: "../x.mp4".into(), dim: 0 })),
     ];
     for edit in cases {
         let p = crafted(&s, &a, edit, &[(&entry, b"v")]);

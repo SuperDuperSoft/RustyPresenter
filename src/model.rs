@@ -6,13 +6,8 @@ use std::collections::BTreeMap;
 /// A content-addressed asset file name: `<sha256>.<ext>`.
 pub type AssetId = String;
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum Background {
-    Color { color: String },
-    Image { asset: AssetId },
-    Video { asset: AssetId },
-}
+/// A colour, picture, video or gradient, each with a Darken value (FEAT-1 spec §4.3).
+pub use crate::theme::backgrounds::{Background, BackgroundEntry};
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[serde(rename_all = "snake_case")]
@@ -215,6 +210,9 @@ pub struct ServiceItem {
     pub background: Option<Background>,
     #[serde(default)]
     pub notes: String,
+    /// A saved theme for this item only (songs, scripture, announcements); `None`: the service's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<crate::theme::ThemeId>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -222,33 +220,20 @@ pub struct Service {
     pub id: Uuid,
     pub name: String,
     pub items: Vec<ServiceItem>,
+    /// A saved theme for the whole service; `None`: the church default.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub theme: Option<crate::theme::ThemeId>,
 }
 
 impl Service {
-    pub fn new(name: &str) -> Self { Self { id: Uuid::new_v4(), name: name.into(), items: vec![] } }
+    pub fn new(name: &str) -> Self { Self { id: Uuid::new_v4(), name: name.into(), items: vec![], theme: None } }
 }
 
 // ---------- Settings ----------
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
-#[serde(default)]
-pub struct Theme {
-    pub font: String,
-    /// Largest text size in pixels on a 1080p screen. Text shrinks to fit.
-    pub size: u32,
-    pub color: String,
-    pub shadow: bool,
-    /// "center" or "lower"
-    pub position: String,
-    pub uppercase: bool,
-    pub scripture_size: u32,
-}
-
-impl Default for Theme {
-    fn default() -> Self {
-        Self { font: "Segoe UI".into(), size: 84, color: "#ffffff".into(), shadow: true, position: "center".into(), uppercase: false, scripture_size: 64 }
-    }
-}
+/// A text style (font, size, colour, weight, outline, text band, …). Standard is `Settings.theme`; saved themes are
+/// in `Data.themes` (FEAT-1 spec §4.1).
+pub use crate::theme::{TextAlign, Theme};
 
 /// The pre-screen-setup choice of monitors. Only ever read from older saved data (`Data::upgrade`); never written.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
@@ -471,6 +456,18 @@ pub struct Data {
     pub decks: Vec<Deck>,
     pub services: Vec<Service>,
     pub current_service: Option<Uuid>,
+    /// The background library (pictures, videos, colours and gradients the church keeps).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub backgrounds: Vec<BackgroundEntry>,
+    /// Saved themes (Standard is `settings.theme`, never in here; a built-in's id here is its edited copy).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub themes: Vec<crate::theme::SavedTheme>,
+    /// The starred church default; `None` or a theme that is gone: Standard.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_theme: Option<crate::theme::ThemeId>,
+    /// Saved overlays, in drawing order (last on top).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub overlays: Vec<crate::theme::overlay::Overlay>,
     /// Each Bible's credit for its scripture slides, by translation id (`App::refresh_bible_credits`). Worked out
     /// from the Bibles on this computer, so never saved: a Bible added or removed changes it.
     #[serde(skip)]
@@ -500,7 +497,11 @@ impl Data {
 impl Default for Data {
     fn default() -> Self {
         let service = Service::new("Sunday Service");
-        Self { format: 1, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![], current_service: Some(service.id), services: vec![service], bible_credits: BTreeMap::new() }
+        Self {
+            format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
+            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![],
+            bible_credits: BTreeMap::new(),
+        }
     }
 }
 
@@ -514,6 +515,25 @@ impl Data {
         self
     }
 
+    /// The one load hook (FEAT-1 spec §4.7): every fix-up that runs on loaded data, in a fixed order. True when
+    /// something changed, so the caller saves. Later features add their fix-ups here.
+    pub fn after_load(&mut self) -> bool {
+        let mut changed = false;
+        // FEAT-1: overlay text formatting that a hand edit left outside its text.
+        for o in &mut self.overlays {
+            if let crate::theme::overlay::OverlaySource::Text { text, styles, .. } = &mut o.source {
+                let tidy = crate::theme::richtext::normalize(text, styles.clone());
+                if tidy != *styles { *styles = tidy; changed = true; }
+            }
+        }
+        changed
+    }
+
+    /// The themes as resolution sees them: Standard (`settings`), the saved ones, the built-ins and the default.
+    pub fn catalog(&self) -> crate::theme::Catalog<'_> {
+        crate::theme::Catalog::new(&self.settings.theme, &self.settings.background, &self.themes, self.default_theme)
+    }
+
     pub fn service(&self) -> Option<&Service> {
         self.current_service.and_then(|id| self.services.iter().find(|s| s.id == id)).or(self.services.first())
     }
@@ -524,10 +544,7 @@ impl Data {
     /// Every asset the library, services or settings reference.
     pub fn referenced_assets(&self) -> std::collections::BTreeSet<AssetId> {
         let mut set = std::collections::BTreeSet::new();
-        let bg = |b: &Background, set: &mut std::collections::BTreeSet<AssetId>| match b {
-            Background::Image { asset } | Background::Video { asset } => { set.insert(asset.clone()); }
-            Background::Color { .. } => {}
-        };
+        let bg = |b: &Background, set: &mut std::collections::BTreeSet<AssetId>| { set.extend(b.asset().cloned()); };
         bg(&self.settings.background, &mut set);
         if let Some(l) = &self.settings.logo { set.insert(l.clone()); }
         for m in &self.media {
@@ -536,6 +553,7 @@ impl Data {
         }
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
+        set.extend(crate::theme::assets::referenced(&self.themes, &self.backgrounds, &self.overlays));
         set
     }
 }
@@ -572,7 +590,7 @@ mod tests {
         let mut d = Data::default();
         d.settings.bible_per_slide = 3;
         d.services[0].items.push(ServiceItem {
-            id: Uuid::new_v4(), background: None, notes: String::new(),
+            id: Uuid::new_v4(), background: None, notes: String::new(), theme: None,
             kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, also: vec![], layout: Default::default() },
         });
         let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
@@ -664,5 +682,36 @@ mod screen_tests {
         let id = s.stage.screens[0].id;
         assert_eq!(s.find(id).map(|(g, x)| (g, x.name.as_str())), Some(("stage", "Stage Display")));
         assert!(s.find(Uuid::nil()).is_none());
+    }
+}
+
+#[cfg(test)]
+mod feat1_tests {
+    use super::*;
+    use crate::theme::overlay::{ImageSource, Overlay, OverlaySource, Placement};
+    use crate::theme::richtext::StyleSpan;
+
+    #[test]
+    fn after_load_normalizes_stored_spans() {
+        let mut d = Data::default();
+        assert!(!d.after_load(), "nothing to do");
+        let span: StyleSpan = serde_json::from_str(r#"{"start":2,"end":99,"bold":true}"#).unwrap();
+        d.overlays.push(Overlay { id: Uuid::new_v4(), name: "Wi-Fi".into(), source: OverlaySource::Text { text: "Hello".into(), styles: vec![span], look: Default::default() }, place: Placement::default() });
+        assert!(d.after_load());
+        let OverlaySource::Text { styles, .. } = &d.overlays[0].source else { panic!() };
+        assert_eq!((styles[0].start, styles[0].end), (2, 5));
+        assert!(!d.after_load(), "once");
+    }
+
+    #[test]
+    fn referenced_assets_include_themes_backgrounds_overlays() {
+        let mut d = Data::default();
+        d.themes.push(crate::theme::SavedTheme { id: Uuid::new_v4(), name: "T".into(), style: Theme::default(), background: Some(Background::Image { asset: "t.png".into(), dim: 10 }) });
+        d.backgrounds.push(BackgroundEntry::new("B", Background::Video { asset: "b.mp4".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));
+        d.overlays.push(Overlay { id: Uuid::new_v4(), name: "Bug".into(), source: OverlaySource::Image { source: ImageSource::Asset { asset: "o.png".into() }, opacity: 100 }, place: Placement::default() });
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "t".into(), body: "b".into() },
+            background: Some(Background::Gradient { from: "#000".into(), to: "#fff".into(), angle: 90, dim: 0 }), notes: String::new(), theme: None });
+        let set = d.referenced_assets();
+        for a in ["t.png", "b.mp4", "o.png"] { assert!(set.contains(a), "{a}"); }
     }
 }

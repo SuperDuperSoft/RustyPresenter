@@ -31,6 +31,8 @@ pub enum Source {
     /// Not shown: the layer is empty, or it is a video, which is drawn under the layers.
     Hidden,
     Fill(String),
+    /// A gradient, a darkened picture, or the Darken over a background video (`render::background`).
+    Painted { bg: Background, asset: Option<String> },
     /// A picture on black; `cover` fills the screen (an image background), `scale` is its share (the logo's 70 %).
     Picture { asset: String, cover: bool, scale: f32 },
     Text(RenderKey),
@@ -44,7 +46,10 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
     let picture = |asset: &str, cover, scale| Source::Picture { asset: asset.into(), cover, scale };
     let bg = match frame.background.as_ref().map(|b| &b.v) {
         Some(Background::Color { color }) => Source::Fill(color.clone()),
-        Some(Background::Image { asset }) => picture(asset, true, 1.0),
+        Some(Background::Image { asset, dim: 0 }) => picture(asset, true, 1.0),
+        Some(bg @ Background::Image { asset, .. }) => Source::Painted { bg: bg.clone(), asset: Some(asset.clone()) },
+        Some(bg @ Background::Gradient { .. }) => Source::Painted { bg: bg.clone(), asset: None },
+        Some(bg @ Background::Video { dim: 1.., .. }) => Source::Painted { bg: bg.clone(), asset: None },
         Some(Background::Video { .. }) | None => Source::Hidden,
     };
     let media = match frame.media.as_ref().map(|m| &m.v) {
@@ -52,9 +57,9 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
         Some(MediaLayer::Video { .. }) | None => Source::Hidden,
     };
     let slide = match &frame.slide {
-        Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel }) => Source::Text(RenderKey {
+        Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme: own }) => Source::Text(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-            size: *max, passage: passage.clone(), theme: theme.clone(), canvas: size, parallel: parallel.clone()
+            size: *max, passage: passage.clone(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone()
         }),
         Some(SlideLayer::Image { asset }) => picture(asset, false, 1.0),
         None => Source::Hidden,
@@ -86,6 +91,10 @@ fn draw(source: &Source, size: (u32, u32), renderer: &TextRenderer, store: &Stor
         Source::Picture { asset, cover, scale } => {
             let canvas = (((size.0 as f32) * scale) as u32, ((size.1 as f32) * scale) as u32);
             Drawn::Pic(prepare::picture(&store.asset_path(asset), canvas, *cover).ok(), BLACK)
+        }
+        Source::Painted { bg, asset } => {
+            let path = asset.as_ref().map(|a| store.asset_path(a));
+            Drawn::Pic(prepare::painted(bg, path.as_deref(), size).ok(), Color::default())
         }
         Source::Text(key) => {
             let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone()));
@@ -200,7 +209,7 @@ mod tests {
     fn frame() -> Frame {
         Frame {
             background: Some(Inst { inst: 1, v: Background::Color { color: "#112233".into() } }),
-            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }),
+            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }),
             ..Default::default()
         }
     }
@@ -219,7 +228,7 @@ mod tests {
         assert_eq!(s[1], (Kind::Media, Source::Hidden), "the video is drawn under the layers, not as one");
         assert!(matches!(&s[2], (Kind::Slide, Source::Text(k)) if k.canvas == (448, 252) && k.text == "Amazing grace"));
         // A background video is the drawn one while no foreground video plays, and the background stays visible.
-        let bgv = Frame { background: Some(Inst { inst: 9, v: Background::Video { asset: "bg.mp4".into() } }), ..Default::default() };
+        let bgv = Frame { background: Some(Inst { inst: 9, v: Background::Video { asset: "bg.mp4".into(), dim: 0 } }), ..Default::default() };
         assert_eq!((drawn_video(&bgv), background_visible(&bgv)), (Some((9, true)), true));
         assert_eq!(sources(&bgv, &Theme::default(), None, (64, 36))[0], (Kind::Background, Source::Hidden));
     }

@@ -83,8 +83,8 @@ pub fn tile_asset(m: &MediaFile) -> Option<AssetId> {
 pub fn as_background(m: &MediaFile) -> Option<Background> {
     if m.status != MediaStatus::Ready { return None }
     match m.kind {
-        MediaKind::Image => Some(Background::Image { asset: m.asset.clone() }),
-        MediaKind::Video => Some(Background::Video { asset: m.asset.clone() }),
+        MediaKind::Image => Some(Background::Image { asset: m.asset.clone(), dim: 0 }),
+        MediaKind::Video => Some(Background::Video { asset: m.asset.clone(), dim: 0 }),
         MediaKind::Audio => None,
     }
 }
@@ -105,8 +105,8 @@ impl Operator {
         let st = self.state.borrow();
         let item = st.snap.as_ref()?.items.iter().find(|i| i.id == live)?;
         match item.item.background.as_ref()? {
-            Background::Image { asset } | Background::Video { asset } => Some(asset.clone()),
-            Background::Color { .. } => None,
+            Background::Image { asset, .. } | Background::Video { asset, .. } => Some(asset.clone()),
+            Background::Color { .. } | Background::Gradient { .. } => None,
         }
     }
 
@@ -170,7 +170,7 @@ impl Operator {
     /// Asks for one picture's thumbnail. Marked as asked for, so a redraw before it arrives does not ask again.
     fn draw_tile(&self, asset: AssetId) {
         self.bin.borrow_mut().images.insert(asset.clone(), Image::default());
-        let job = ThumbJob { background: Some(Background::Image { asset: asset.clone() }), media: None, picture: None, text: None };
+        let job = ThumbJob { background: Some(Background::Image { asset: asset.clone(), dim: 0 }), media: None, picture: None, text: None };
         let key = ThumbKey { render: None, layers: serde_json::to_string(&job).unwrap_or_default(), size: THUMB };
         let me = self.me.clone();
         self.bin_thumbs.request(key, job, move |px| {
@@ -353,7 +353,7 @@ mod tests {
     #[test]
     fn only_ready_pictures_and_videos_can_be_backgrounds() {
         let v = file("v", MediaKind::Video, "");
-        assert_eq!(as_background(&v), Some(Background::Video { asset: "v.bin".into() }));
+        assert_eq!(as_background(&v), Some(Background::Video { asset: "v.bin".into(), dim: 0 }));
         assert_eq!(as_background(&file("a", MediaKind::Audio, "")), None);
         let mut busy = file("i", MediaKind::Image, "");
         busy.status = MediaStatus::Converting { percent: 10 };

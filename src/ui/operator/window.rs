@@ -418,7 +418,7 @@ mod tests {
     /// A video item in the current service; returns its media id.
     fn add_video(app: &App) -> Uuid {
         let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None };
         let mut data = app.data.lock().unwrap();
         data.media.push(media.clone());
         data.services[0].items.push(item);

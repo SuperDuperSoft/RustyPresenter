@@ -455,7 +455,7 @@ mod tests {
     }
 
     fn media_row(m: &MediaFile, kind: &str, end: EndAction, looped: bool) -> ItemRow {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: m.id, autoplay: true, end, looped }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: m.id, autoplay: true, end, looped }, background: None, notes: String::new(), theme: None };
         ItemRow { id: item.id, kind: kind.into(), title: m.name.clone(), subtitle: String::new(), slides: vec![text_slide("clip", "")], item, notes: vec![] }
     }
 
@@ -464,14 +464,14 @@ mod tests {
     }
 
     fn row(kind: &str, slides: usize) -> ItemRow {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "T".into(), body: String::new() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "T".into(), body: String::new() }, background: None, notes: String::new(), theme: None };
         ItemRow { id: item.id, kind: kind.into(), title: "T".into(), subtitle: String::new(), slides: (0..slides).map(|i| text_slide(&format!("S{i}"), "x")).collect(), item, notes: vec![] }
     }
 
     fn view() -> LiveView {
         LiveView {
             version: 1, committed: 1, pending: false, frame: Frame::default(), cursor: None, item: None, slide: None, next: None,
-            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, stage_message: String::new(),
+            media: None, audio: None, notice: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
         }
     }
 
@@ -479,7 +479,7 @@ mod tests {
         Some(LiveItemSummary { item_id: Uuid::new_v4(), title: title.into(), kind: "song".into(), count: 3 })
     }
 
-    fn text_layer() -> Option<SlideLayer> { Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None }) }
+    fn text_layer() -> Option<SlideLayer> { Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
 
     fn snap(configured: bool, connected: bool) -> OperatorSnapshot {
         let app = crate::app::test_app();
@@ -700,7 +700,7 @@ mod tests {
         app.edit(|d| {
             d.settings.translation = "GONE".into();
             let bg = Some(Background::Color { color: "#112233".into() });
-            d.service_mut().unwrap().items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: bg, notes: String::new() });
+            d.service_mut().unwrap().items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: bg, notes: String::new(), theme: None });
             Ok(())
         }).unwrap();
         let s = OperatorSnapshot::read(&app);

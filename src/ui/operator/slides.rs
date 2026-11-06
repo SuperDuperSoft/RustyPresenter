@@ -112,7 +112,7 @@ impl Operator {
         self.render_text_size();
         ui.set_slide_jumps(ModelRc::new(VecModel::from(item.map_or_else(Vec::new, |i| jumps(&i.kind, &i.slides)))));
         let key = item.map(|it| GridKey {
-            id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: it.item.background.clone(), settings: snap.settings.clone(),
+            id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
         });
         if self.slides.borrow().built != key {
@@ -304,7 +304,7 @@ mod tests {
 
     /// An announcement with one slide per block of `body`; returns its id.
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }
@@ -332,7 +332,7 @@ mod tests {
         let vs = |n: u16| (16..16 + n).map(|v| crate::model::VerseText::new(format!("John 3:{v}"), "words")).collect::<Vec<_>>();
         let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs(1) }];
         let kind = ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs(2), per_slide: 0, text_size: 0, also, layout: Default::default() };
-        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         let song = add_text(&app, "A", "a");
         let op = opened(&app);
@@ -440,7 +440,7 @@ mod tests {
     fn empty_states_text() {
         let app = test_app();
         // A song that is not in the library has no slides.
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let op = opened(&app);
         assert_eq!(find(&op, "Empty::empty-title").unwrap().accessible_label().unwrap(), "Nothing to show");
@@ -475,7 +475,7 @@ mod tests {
     fn video_cell_has_play_overlay() {
         let app = test_app();
         let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new(), theme: None };
         { let mut d = app.data.lock().unwrap(); d.media.push(media); d.services[0].items.push(item); }
         let op = opened(&app);
         assert!(cells(&op)[0].play);

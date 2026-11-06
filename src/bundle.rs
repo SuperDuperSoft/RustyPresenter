@@ -87,7 +87,7 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
             },
             ItemKind::Scripture { .. } | ItemKind::Text { .. } => {}
         }
-        if let Some(Background::Image { asset } | Background::Video { asset }) = &item.background {
+        if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &item.background {
             need(asset, strings::BACKGROUND_GONE.into(), &mut missing);
         }
     }
@@ -157,7 +157,7 @@ fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
         set.extend(m.original_asset.iter().chain(&m.thumb).cloned());
     }
     for i in &c.service.items {
-        if let Some(Background::Image { asset } | Background::Video { asset }) = &i.background { set.insert(asset.clone()); }
+        if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &i.background { set.insert(asset.clone()); }
     }
     set
 }

@@ -42,8 +42,16 @@ fn what(kind: Kind, f: &Frame) -> &'static str {
         Kind::Media => "video",
         Kind::Slide => "slide",
         Kind::Logo => "logo",
+        Kind::Overlays => "overlay",
         Kind::Audio => "audio",
     }
+}
+
+/// The Darken fill over a background video, when it has one.
+fn video_dim(kind: Kind, f: &Frame) -> Option<slint::Color> {
+    if kind != Kind::Background { return None }
+    let d = f.background.as_ref().map(|b| b.v.dim()).filter(|d| *d > 0)?;
+    Some(slint::Color::from_argb_u8((u16::from(d) * 255 / 100) as u8, 0, 0, 0))
 }
 
 /// A layer's two faces as Rust keeps them. `b_top`: face b is the current one; `shown`: the current face is
@@ -74,7 +82,7 @@ impl Faces {
 }
 
 /// The room's picture layers, bottom to top, as indices into `Inner::faces`.
-const LAYERS: [Kind; 4] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo];
+const LAYERS: [Kind; 5] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo, Kind::Overlays];
 
 fn index(kind: Kind) -> Option<usize> { LAYERS.iter().position(|k| *k == kind) }
 
@@ -87,12 +95,13 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
         Kind::Background => (RoomWindow::set_bg_a, RoomWindow::set_bg_b, RoomWindow::set_bg_a_op, RoomWindow::set_bg_b_op),
         Kind::Media => (RoomWindow::set_media_a, RoomWindow::set_media_b, RoomWindow::set_media_a_op, RoomWindow::set_media_b_op),
         Kind::Slide => (RoomWindow::set_slide_a, RoomWindow::set_slide_b, RoomWindow::set_slide_a_op, RoomWindow::set_slide_b_op),
+        Kind::Overlays => (RoomWindow::set_overlays_a, RoomWindow::set_overlays_b, RoomWindow::set_overlays_a_op, RoomWindow::set_overlays_b_op),
         _ => (RoomWindow::set_logo_a, RoomWindow::set_logo_b, RoomWindow::set_logo_a_op, RoomWindow::set_logo_b_op),
     }
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(String) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(String), Event(RoomEvent) }
 
 /// What the room's threads share.
 struct Shared {
@@ -152,11 +161,15 @@ struct Inner {
     /// Ends the half for `deferred` (restarted by each swap, so it is always the newest's).
     fade: Timer,
     /// The picture layers' faces, by `index`.
-    faces: RefCell<[Faces; 4]>,
+    faces: RefCell<[Faces; 5]>,
     /// Drives the faces' opacities and the black overlay, redrawing only this window.
     fader: Fader,
     /// Each layer's (face a, face b) opacity, by `index`.
-    face_ops: [(Chan, Chan); 4],
+    face_ops: [(Chan, Chan); 5],
+    /// The newest live view, for the clock's tick.
+    last: RefCell<Option<LiveView>>,
+    /// Runs once a second while a bound overlay (a clock) is on: a new text prepares only the overlay layer.
+    clock: Timer,
     black: Chan,
     /// The window level last set (`Room::set_on_top`); `None` until the window exists.
     on_top: Cell<Option<bool>>,
@@ -177,12 +190,15 @@ impl Inner {
                 Some(Msg::Made { token, kind, made }) => self.made(token, kind, made),
                 Some(Msg::Report(r)) => self.report(r),
                 Some(Msg::Device(d)) => self.sync_device(&d),
+                Some(Msg::Event(ev)) => self.shared.emit(ev),
                 None => break,
             }
         }
     }
 
     fn view(&self, view: &LiveView) {
+        *self.last.borrow_mut() = Some(view.clone());
+        self.sync_clock(view);
         let plan = self.state.borrow_mut().plan(view);
         match plan { Some(plan) => self.start(plan, view), None => self.sync_pause(&room::pause_sync(view)) }
     }
@@ -211,6 +227,19 @@ impl Inner {
             if self.jobs.send(job).is_err() { return self.fail(token, "the room could not prepare it".into()) }
         }
         self.check();
+    }
+
+    /// Ticks once a second while the frame has a bound overlay (a clock); `RoomState::plan` sees its text change.
+    fn sync_clock(&self, view: &LiveView) {
+        let bound = view.frame.overlays.iter().any(|o| o.source.is_bound());
+        if bound == self.clock.running() { return }
+        if !bound { return self.clock.stop() }
+        let me = self.me.clone();
+        self.clock.start(TimerMode::Repeated, Duration::from_secs(1), move || {
+            let Some(i) = me.upgrade() else { return };
+            let view = i.last.borrow().clone();
+            if let Some(v) = view { i.view(&v) }
+        });
     }
 
     fn timed_out(&self, token: u64, kind: Kind, what: &str) {
@@ -308,7 +337,9 @@ impl Inner {
             match got {
                 Got::Pic(side) => self.put(kind, side),
                 Got::Play(p) => {
-                    self.hide(kind); // video is drawn under the scene; audio has no layer
+                    // Video is drawn under the scene (audio has no layer); a background video's Darken is a black
+                    // fill on its layer.
+                    match video_dim(kind, &prep.frame) { Some(c) => self.put(kind, Side { image: Default::default(), color: c }), None => self.hide(kind) }
                     self.shared.started.lock().unwrap().insert(p.inst(), kind);
                     if let Some(s) = slot(kind) { players[s] = Some(p) }
                 }
@@ -427,7 +458,7 @@ impl Room {
             audio.options.ao = "null";
             video_players.options.ao = "null";
         }
-        let work = Arc::new(Work { app: app.clone(), renderer, video: video_players, audio, generation: Generation::default() });
+        let work = Arc::new(Work { app: app.clone(), renderer, video: video_players, audio, generation: Generation::default(), fonts: Mutex::default() });
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
@@ -439,7 +470,7 @@ impl Room {
         // The faces' opacities and the black overlay, each written straight to this window.
         let fader = Fader::new();
         let op = |set: SetOp| { let w = ui.as_weak(); fader.channel(0.0, move |v| if let Some(ui) = w.upgrade() { set(&ui, v) }) };
-        let face_ops: [(Chan, Chan); 4] = std::array::from_fn(|i| { let (_, _, a, b) = setters(i); (op(a), op(b)) });
+        let face_ops: [(Chan, Chan); 5] = std::array::from_fn(|i| { let (_, _, a, b) = setters(i); (op(a), op(b)) });
         let black = op(RoomWindow::set_black);
         let inner = Rc::new_cyclic(|me: &Weak<Inner>| {
             let me2 = me.clone();
@@ -447,7 +478,7 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -543,7 +574,7 @@ mod tests {
 
     fn add(app: &App, kind: ItemKind) -> Uuid {
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new() });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         id
     }
     fn media(app: &App, kind: MediaKind, asset: &str) -> Uuid {
