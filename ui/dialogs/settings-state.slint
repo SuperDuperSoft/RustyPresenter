@@ -7,9 +7,10 @@ export struct SettingsBibleRow { translation: string, hint: string, chip: string
 
 /// A line of the Bible library list (Settings → Bible): a language heading when `heading` is set, else a Bible.
 /// `button` is "Add", "Update", "Remove", "Cancel" or empty; `progress` is 0–100 while downloading, else -1.
+/// `font-warning` is set when no font here can draw the title or the language's name.
 export struct SettingsCatalogRow {
     heading: string, abbr: string, title: string, tag: string, status: string, button: string, progress: float,
-    enabled: bool, primary: bool,
+    enabled: bool, primary: bool, font-warning: string,
 }
 
 /// An online Bible service row of Settings → Bible.

@@ -4,6 +4,7 @@
 use super::settings::{Edit, copy, redraw_on_next_read, strings};
 use crate::{
     bible::{blocklist::normalise, catalog::strings as cat},
+    render::Fonts,
     ui::{
         SettingsBibleRow, SettingsCatalogRow, SettingsCreditRow, SettingsDlg, SettingsProviderRow,
         dialogs::DialogKind,
@@ -60,6 +61,8 @@ pub struct CatalogState {
     pending: RefCell<HashSet<String>>,
     added: RefCell<HashSet<String>>,
     failed: RefCell<HashMap<String, String>>,
+    /// Rows checked for a missing font (spec §9.1), by id: the check shapes text, so each row is checked once.
+    no_font: RefCell<HashMap<String, bool>>,
 }
 
 /// At most this many Bibles are listed at once; the search narrows the rest.
@@ -105,9 +108,36 @@ pub fn languages(rows: &[CatRow]) -> (Vec<String>, Vec<String>) {
     (codes, labels)
 }
 
+/// What the missing-font check shapes for a row: its title and its language's own name, both shown in the list.
+/// The first verse is not checked yet: that needs the Bible read, and the list is drawn on the window's thread.
+pub fn font_test_line(r: &CatRow) -> String { format!("{} {}", r.title, r.lang_name) }
+
+/// Whether no font in `fonts` can draw some of the row's test line.
+pub fn needs_font(fonts: &mut Fonts, r: &CatRow) -> bool { fonts.lacks_glyphs(&font_test_line(r)) }
+
+thread_local! {
+    /// The fonts the rows are checked with: the bundled faces and the system's, as slides use. Made on the first
+    /// check, as loading the system fonts takes a moment.
+    static FONTS: RefCell<Option<Fonts>> = const { RefCell::new(None) };
+}
+
+/// Checks rows with the bundled faces only from now on, on this thread: tests get the same answer on every machine.
+#[cfg(test)]
+pub(crate) fn check_with_bundled_fonts() { FONTS.with(|f| *f.borrow_mut() = Some(Fonts::bundled_only())) }
+
+/// `needs_font` with the app's fonts, once per row id.
+fn no_font(memo: &RefCell<HashMap<String, bool>>, r: &CatRow) -> bool {
+    if let Some(&v) = memo.borrow().get(&r.id) { return v }
+    let v = FONTS.with(|f| needs_font(f.borrow_mut().get_or_insert_with(Fonts::new), r));
+    memo.borrow_mut().insert(r.id.clone(), v);
+    v
+}
+
 /// One Bible line: its tag, the status line, the button and the bar. A running download (its job) wins; then a
-/// failure from this dialog; then what is installed.
-pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed: Option<&str>, offline: bool, same_abbr: bool) -> SettingsCatalogRow {
+/// failure from this dialog; then what is installed. `no_font` adds the missing-font warning, in every state.
+#[allow(clippy::too_many_arguments)]
+pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed: Option<&str>, offline: bool, same_abbr: bool,
+    no_font: bool) -> SettingsCatalogRow {
     let mut tag = vec![cat::TAG_OFFLINE.to_string(), r.scope.clone()];
     if r.apocrypha { tag.push(cat::INCLUDES_APOCRYPHA.into()) }
     if r.licence_on_download && !r.installed { tag.push(cat::LICENCE_ON_DOWNLOAD.into()) }
@@ -115,6 +145,7 @@ pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed
     let mut row = SettingsCatalogRow {
         heading: SharedString::new(), abbr: abbr.into(), title: r.title.as_str().into(), tag: tag.join(" · ").into(),
         status: SharedString::new(), button: SharedString::new(), progress: -1.0, enabled: true, primary: false,
+        font_warning: if no_font { cat::NO_FONT.into() } else { SharedString::new() },
     };
     let running = job.filter(|j| j.error.is_none() && !j.done);
     if let Some(j) = running {
@@ -220,7 +251,7 @@ pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
             let r = &rows[*i];
             let job = jobs.iter().rev().find(|j| j.subject.as_deref() == Some(r.id.as_str()));
             line(r, job, pending.contains(&r.id), added.contains(&r.id), failed.get(&r.id).map(String::as_str), c.offline.get(),
-                abbr_count.get(&r.abbr.to_lowercase()).copied().unwrap_or(0) > 1)
+                abbr_count.get(&r.abbr.to_lowercase()).copied().unwrap_or(0) > 1, no_font(&c.no_font, r))
         }
         None => {
             let r = shown.lines.get(n + 1).copied().flatten().map(|i| &rows[i]);
@@ -469,24 +500,24 @@ mod catalog_tests {
     #[test]
     fn line_has_one_button_for_each_state() {
         let mut r = row("ebible:x", "X", "X Bible", "eng", false);
-        let l = line(&r, None, false, false, None, false, false);
+        let l = line(&r, None, false, false, None, false, false, false);
         assert_eq!((l.button.as_str(), l.primary, l.enabled, l.progress), ("Add", true, true, -1.0));
         assert_eq!(l.tag, "Offline · Full Bible");
-        assert!(!line(&r, None, false, false, None, true, false).enabled, "Add is off while offline");
-        assert_eq!(line(&r, None, false, false, None, false, true).abbr, "X · eng", "equal abbreviations told apart");
-        let w = line(&r, Some(&job("ebible:x", "Waiting to download X Bible…", 0)), true, false, None, false, false);
+        assert!(!line(&r, None, false, false, None, true, false, false).enabled, "Add is off while offline");
+        assert_eq!(line(&r, None, false, false, None, false, true, false).abbr, "X · eng", "equal abbreviations told apart");
+        let w = line(&r, Some(&job("ebible:x", "Waiting to download X Bible…", 0)), true, false, None, false, false, false);
         assert_eq!((w.button.as_str(), w.status.as_str(), w.progress), ("Cancel", "Waiting", -1.0));
-        let d = line(&r, Some(&job("ebible:x", "Downloading X Bible…", 37)), true, false, None, false, false);
+        let d = line(&r, Some(&job("ebible:x", "Downloading X Bible…", 37)), true, false, None, false, false, false);
         assert_eq!((d.status.as_str(), d.progress), ("Downloading… 37%", 37.0));
         let mut failed = job("ebible:x", "Downloading X Bible…", 37);
         failed.error = Some("Couldn't download X Bible.".into());
-        assert_eq!(line(&r, Some(&failed), false, false, Some("Couldn't download X Bible."), false, false).button, "Add",
+        assert_eq!(line(&r, Some(&failed), false, false, Some("Couldn't download X Bible."), false, false, false).button, "Add",
             "a failed job gives the button back");
         r.installed = true;
-        let i = line(&r, None, false, true, None, false, false);
+        let i = line(&r, None, false, true, None, false, false, false);
         assert_eq!((i.button.as_str(), i.status.as_str(), i.primary), ("Remove", "Added", false));
         r.update = true;
-        assert_eq!(line(&r, None, false, false, None, false, false).button, "Update");
+        assert_eq!(line(&r, None, false, false, None, false, false, false).button, "Update");
     }
 
     #[test]
@@ -502,6 +533,22 @@ mod catalog_tests {
             src("e:x", "offline", true, None, ""), src("e:y", "offline", true, None, "Public domain")];
         assert_eq!(credits(&list).into_iter().map(|c| c.0).collect::<Vec<_>>(), ["ESV ©", "e:y (Public domain)"],
             "in use and with something to say");
+    }
+
+    #[test]
+    fn a_row_warns_when_no_font_draws_its_title_or_language() {
+        let mut f = Fonts::bundled_only();
+        let mut r = row("ebible:amh", "AMH", "መጽሐፍ ቅዱስ", "amh", false);
+        assert!(needs_font(&mut f, &r), "the title");
+        r.title = "Amharic Bible".into();
+        assert!(!needs_font(&mut f, &r));
+        r.lang_name = "አማርኛ".into();
+        assert!(needs_font(&mut f, &r), "the language's own name, shown in its heading");
+        let l = line(&r, None, false, false, None, false, false, true);
+        assert_eq!((l.font_warning.as_str(), l.button.as_str()), (cat::NO_FONT, "Add"), "shown before Add, and Add still works");
+        let d = line(&r, Some(&job("ebible:amh", "Downloading Amharic Bible…", 10)), true, false, None, false, false, true);
+        assert_eq!(d.font_warning, cat::NO_FONT, "and while downloading");
+        assert!(line(&r, None, false, false, None, false, false, false).font_warning.is_empty());
     }
 
     #[test]

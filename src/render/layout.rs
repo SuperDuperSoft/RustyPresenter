@@ -70,6 +70,19 @@ impl Fonts {
         Self { sys: FontSystem::new_with_locale_and_db("en-US".into(), db), fits: HashMap::new() }
     }
 
+    /// Whether `text` shapes with a missing-glyph box somewhere: no bundled or installed face (system fallback
+    /// included) has a glyph for one of its characters. Spaces and invisible format marks (zero-width joiners,
+    /// direction marks, soft hyphens) are not checked. Settings → Bible warns with this (Library spec §9.1).
+    pub fn lacks_glyphs(&mut self, text: &str) -> bool {
+        let text: String = text.chars().map(|c| if is_invisible(c) { ' ' } else { c }).collect();
+        if text.trim().is_empty() { return false }
+        let mut b = Buffer::new(&mut self.sys, Metrics::new(32.0, 40.0));
+        b.set_wrap(Wrap::None);
+        b.set_text(&text, &Attrs::new().family(Family::Name(BUNDLED_FAMILY)), Shaping::Advanced, None);
+        b.shape_until_scroll(&mut self.sys, false);
+        b.layout_runs().any(|r| r.glyphs.iter().any(|g| g.glyph_id == 0 && r.text.get(g.start..g.end).is_some_and(|s| !s.trim().is_empty())))
+    }
+
     pub fn has_family(&self, name: &str) -> bool {
         self.sys.db().faces().any(|f| f.families.iter().any(|(n, _)| n.eq_ignore_ascii_case(name)))
     }
@@ -87,6 +100,14 @@ impl Fonts {
 }
 
 impl Default for Fonts { fn default() -> Self { Self::new() } }
+
+/// Characters that draw nothing and that a face may map to no glyph: white space, controls, zero-width joiners and
+/// spaces, direction marks and embeddings, word joiners, the byte-order mark, soft hyphens and variation selectors.
+fn is_invisible(c: char) -> bool {
+    c.is_whitespace() || c.is_control()
+        || matches!(c, '\u{00AD}' | '\u{034F}' | '\u{061C}' | '\u{180E}' | '\u{200B}'..='\u{200F}' | '\u{202A}'..='\u{202E}'
+            | '\u{2060}'..='\u{206F}' | '\u{FE00}'..='\u{FE0F}' | '\u{FEFF}' | '\u{E0100}'..='\u{E01EF}')
+}
 
 /// The text parts of a slide (`live::SlideLayer::Text`).
 #[derive(Clone, Copy, Debug)]
@@ -428,5 +449,17 @@ mod tests {
         assert_eq!(l.font_px, 64.0);
         assert!(l.foot.is_some());
         assert!(l.foot_y < 1080.0 && l.foot_y > l.body_box.y + l.body_box.h - 1.0);
+    }
+
+    #[test]
+    fn lacks_glyphs_finds_a_script_no_face_covers() {
+        let mut f = Fonts::bundled_only();
+        for covered in ["Reina Valera 1909", "Ἐν ἀρχῇ ἦν ὁ λόγος", "Синодальный перевод", "Kinh Thánh Tiếng Việt", "", "  \t"] {
+            assert!(!f.lacks_glyphs(covered), "{covered:?}: Noto Sans covers it");
+        }
+        assert!(!f.lacks_glyphs("Bible\u{200D}\u{200F}\u{FEFF}\u{00AD} 2020"), "invisible marks are not checked");
+        for missing in ["성경전서 개역개정판", "Holy Bible 新译本", "መጽሐፍ ቅዱስ"] {
+            assert!(f.lacks_glyphs(missing), "{missing:?}: Noto Sans has no glyph for it and no other face is loaded");
+        }
     }
 }

@@ -68,6 +68,7 @@ export component SettingsBible inherits VerticalLayout {
                 accessible-role: list-item;
                 accessible-label: r.title;
                 accessible-value: r.status != "" ? r.status : r.tag;
+                accessible-description: r.font-warning;
                 VerticalLayout {
                     alignment: center;
                     width: 86px;
@@ -87,6 +88,12 @@ export component SettingsBible inherits VerticalLayout {
                         sub: r.status != "" ? r.status : r.tag;
                     }
                     if r.progress >= 0: Bar { progress: r.progress; }
+                    if r.font-warning != "": font-warning := Text {
+                        text: r.font-warning;
+                        color: Theme.accent;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
                 }
                 if r.button != "": VerticalLayout {
                     alignment: center;

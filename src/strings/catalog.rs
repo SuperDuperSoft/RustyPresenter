@@ -34,6 +34,8 @@ pub const UPDATE: &str = "Update";
 pub const REMOVE: &str = "Remove";
 pub const CANCEL: &str = "Cancel";
 pub const ADDED: &str = "Added";
+/// Under a row whose title or language name has a character no font on this computer can draw (spec §9.1).
+pub const NO_FONT: &str = "Your computer may not have a font for this language.";
 pub const WAITING_SHORT: &str = "Waiting";
 pub const UPDATE_READY: &str = "A newer edition is ready";
 pub const DEFAULT_BIBLE: &str = "Default Bible";

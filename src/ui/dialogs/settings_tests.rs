@@ -485,6 +485,7 @@ fn seed_catalog(app: &App) {
         "eng,engwebp,English,English,World English Bible,True,public domain,2026-03-01,39,27,0,ltr,True,World English Bible,Latn",
         "eng,engbrent,English,English,Brenton Septuagint in English,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Latn",
         "grc,grcbrent,Ελληνικά,Ancient Greek,Brenton Greek Septuagint,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Grek",
+        "amh,amh2005,አማርኛ,Amharic,መጽሐፍ ቅዱስ,True,public domain,2024-01-01,39,27,0,ltr,True,Amharic Bible,Ethi",
     ];
     std::fs::write(dir.join("ebible-translations.csv"), format!("{head}{}\n", rows.join("\n"))).unwrap();
     let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
@@ -545,6 +546,22 @@ fn bible_library_lists_searches_and_filters_the_saved_catalog() {
     g(&op).invoke_catalog_changed();
     assert_eq!(g(&op).get_catalog_rows().row_count(), 0);
     assert!(g(&op).get_catalog_note().starts_with("No Bibles added yet"));
+}
+
+#[test]
+fn bible_library_warns_on_a_row_no_font_can_draw() {
+    let app = test_app();
+    seed_catalog(&app);
+    crate::ui::dialogs::settings_bible::check_with_bundled_fonts();
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let rows: Vec<_> = g(&op).get_catalog_rows().iter().filter(|r| r.heading.is_empty()).collect();
+    let warned: Vec<&str> = rows.iter().filter(|r| !r.font_warning.is_empty()).map(|r| r.title.as_str()).collect();
+    assert_eq!(warned, ["መጽሐፍ ቅዱስ"], "Latin and Greek are drawn by the bundled Noto Sans; Ethiopic isn't");
+    let amh = rows.iter().find(|r| r.title == "መጽሐፍ ቅዱስ").unwrap();
+    assert_eq!((amh.font_warning.as_str(), amh.button.as_str()), ("Your computer may not have a font for this language.", "Add"));
+    assert!(find(&op, "SettingsBible::font-warning").is_some(), "the warning is on the page");
 }
 
 #[test]
