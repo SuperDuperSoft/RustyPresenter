@@ -402,7 +402,7 @@ async fn it_is_tried_once_more_only() {
 async fn first_use_fetches_the_helpers_and_reports_it() {
     let server = FakeReleases::start().await;
     server.yt_dlp_release("2026.10.26", b"exe");
-    server.deno_release("v2.9.8", "deno-x86_64-pc-windows-msvc.zip", &crate::youtube::testing::zip_of(&[("deno.exe", b"deno")]), true);
+    server.deno_release("v2.9.8", "deno-x86_64-pc-windows-msvc.zip", &crate::youtube::testing::zip_of(&[(fetch_exe("deno").as_str(), b"deno")]), true);
     let app = test_app();
     app.youtube.fetch.set_sources(server.sources());
     app.youtube.fetch.set_builds(fetch::Builds {
