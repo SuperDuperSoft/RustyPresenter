@@ -43,6 +43,8 @@ export global AddState {
     in-out property <string> search;
     in-out property <string> reference;
     in-out property <bool> paste-open;
+    /// Verses per slide for the passage: 0 Automatic, else 1–4 (the session's choice, shared with the Bible box).
+    in-out property <int> per-slide;
     in-out property <string> pasted;
     in-out property <string> text-title;
     in-out property <string> text-body;
@@ -73,6 +75,7 @@ export global AddState {
     callback delete-row(string);
     callback bible-add();
     callback bible-paste();
+    callback per-slide-picked(int);
     callback text-add();
     callback upload-media();
     callback import-powerpoint();

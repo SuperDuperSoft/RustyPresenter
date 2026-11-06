@@ -4,7 +4,7 @@
 //! thumbnails ahead of the room's next slide. Video comes out black for now (frames come in Plan 4 with the mpv
 //! probe); the grid draws the play overlay over it.
 use crate::{
-    model::{AssetId, Background, Settings, Slide, SlideContent},
+    model::{AssetId, Background, PassageSlide, Settings, Slide, SlideContent},
     render::{RenderKey, Renderer, parse_color},
     store::Store,
     ui::block_on,
@@ -54,15 +54,16 @@ pub fn thumb_size(cell_w: f32, scale: f32) -> (u32, u32) {
 }
 
 /// The thumbnail of `slide` of an item of `kind` (`slideToLayers`). The background is the item's, else the
-/// settings' (`itemBackground`); the logo is never drawn.
-pub fn thumb(slide: &Slide, kind: &str, item_background: Option<&Background>, settings: &Settings, size: (u32, u32)) -> (ThumbKey, ThumbJob) {
+/// settings' (`itemBackground`); the logo is never drawn. `passage` is the item's (`model::passage`), so the
+/// thumbnail's text has the size the room shows.
+pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_background: Option<&Background>, settings: &Settings, size: (u32, u32)) -> (ThumbKey, ThumbJob) {
     let background = item_background.unwrap_or(&settings.background).clone();
     let job = match &slide.content {
-        SlideContent::Text { text, footer, reference } => ThumbJob {
+        SlideContent::Text { text, footer, reference, size: max } => ThumbJob {
             background: Some(background), media: None, picture: None,
             text: Some(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: kind == "scripture",
-                theme: settings.theme.clone(), canvas: size,
+                size: *max, passage: passage.to_vec(), theme: settings.theme.clone(), canvas: size,
             }),
         },
         SlideContent::Image { asset } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
@@ -231,7 +232,7 @@ mod tests {
     use super::*;
     use crate::model::Theme;
 
-    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None }, notes: String::new() } }
+    fn text(t: &str) -> Slide { Slide { label: t.into(), content: SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0 }, notes: String::new() } }
 
     fn store() -> Store { Store::open(std::env::temp_dir().join(format!("rp-thumbs-{}", uuid::Uuid::new_v4()))).unwrap() }
 
@@ -253,12 +254,12 @@ mod tests {
         let mut with_logo = settings();
         with_logo.logo = Some("logo.png".into());
         let slide = text("Amazing grace");
-        let (a, _) = thumb(&slide, "song", None, &settings(), (256, 144));
-        let (b, _) = thumb(&slide, "song", None, &with_logo, (256, 144));
+        let (a, _) = thumb(&slide, "song", &[], None, &settings(), (256, 144));
+        let (b, _) = thumb(&slide, "song", &[], None, &with_logo, (256, 144));
         assert_eq!(a, b);
         // The item's own background is part of the key.
         let red = Background::Color { color: "#ff0000".into() };
-        let (c, job) = thumb(&slide, "song", Some(&red), &with_logo, (256, 144));
+        let (c, job) = thumb(&slide, "song", &[], Some(&red), &with_logo, (256, 144));
         assert_ne!(a, c);
         assert_eq!(job.background, Some(red));
     }
@@ -267,13 +268,13 @@ mod tests {
     fn thumb_layers_follow_slide_to_layers() {
         let s = settings();
         let slide = |content| Slide { label: "x".into(), content, notes: String::new() };
-        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", None, &s, (64, 36));
+        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", &[], None, &s, (64, 36));
         assert_eq!((deck.background, deck.picture.as_deref()), (None, Some("a.png")), "a deck picture has no background");
-        let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", None, &s, (64, 36));
+        let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", &[], None, &s, (64, 36));
         assert_eq!(video.media, Some(ThumbMedia::Video));
-        let (_, audio) = thumb(&slide(SlideContent::Audio { asset: "a.mp3".into(), looped: false }), "audio", None, &s, (64, 36));
+        let (_, audio) = thumb(&slide(SlideContent::Audio { asset: "a.mp3".into(), looped: false }), "audio", &[], None, &s, (64, 36));
         assert_eq!(audio, ThumbJob { background: None, media: None, picture: None, text: None });
-        let (k, scripture) = thumb(&text("In the beginning"), "scripture", None, &s, (64, 36));
+        let (k, scripture) = thumb(&text("In the beginning"), "scripture", &[], None, &s, (64, 36));
         assert!(scripture.text.unwrap().scripture);
         assert_eq!(k.render.unwrap().canvas, (64, 36));
     }
@@ -281,7 +282,7 @@ mod tests {
     #[test]
     fn thumb_text_slide_renders_non_blank() {
         let s = settings();
-        let (key, job) = thumb(&text("Amazing grace"), "song", None, &s, (320, 180));
+        let (key, job) = thumb(&text("Amazing grace"), "song", &[], None, &s, (320, 180));
         let store = store();
         // On a worker thread, as the grid does.
         let px = std::thread::spawn(move || compose(&job, key.size, &TextRenderer::new(), &store)).join().unwrap();
@@ -316,7 +317,7 @@ mod tests {
         crate::ui::ui_test_init();
         let store = store();
         let thumbs = Thumbs::inline(store.root.clone());
-        let (key, job) = thumb(&text("Amazing grace"), "song", None, &settings(), (64, 36));
+        let (key, job) = thumb(&text("Amazing grace"), "song", &[], None, &settings(), (64, 36));
         let got: Rc<RefCell<Vec<Pixels>>> = Rc::default();
         for _ in 0..2 { let g = got.clone(); thumbs.request(key.clone(), job.clone(), move |px| g.borrow_mut().push(px)); }
         let got = got.borrow();

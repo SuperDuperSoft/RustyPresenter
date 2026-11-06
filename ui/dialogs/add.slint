@@ -1,7 +1,7 @@
 // Add to service (`operator.js:378-511`, `operator.css:154-173`): five tiles above the current tab. The logic is in
 // Rust (`src/ui/dialogs/add.rs`), which talks to this dialog through `AddState`.
 import { Theme } from "../theme.slint";
-import { Btn, Field, Icon } from "../widgets.slint";
+import { Btn, Field, Icon, Segmented } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
 import { TextArea, TextField } from "form.slint";
 import { AddRow, AddState, AddList } from "add-list.slint";
@@ -112,6 +112,19 @@ component AddBibleTab inherits VerticalLayout {
             clicked => {
                 AddState.paste-open = true;
             }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        Text {
+            text: @tr("Verses per slide");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+        per-slide := Segmented {
+            labels: [@tr("Auto"), "1", "2", "3", "4"];
+            index <=> AddState.per-slide;
+            changed(i) => { AddState.per-slide-picked(i); }
         }
     }
     if AddState.paste-open: VerticalLayout {

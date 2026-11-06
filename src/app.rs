@@ -612,6 +612,10 @@ impl App {
             #[derive(Deserialize)] struct Add { item: Value, position: Option<usize> }
             let Add { mut item, position } = parse(body)?;
             if item.get("id").is_none() { item["id"] = json!(Uuid::new_v4()); }
+            // A passage added without a choice gets the church's verses per slide (Settings → Look).
+            if item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("per_slide").is_none() {
+                item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
+            }
             let mut item: ServiceItem = serde_json::from_value(item).map_err(|e| ActionError::bad(e.to_string()))?;
             if blocked_item(&item) { return Err(ActionError::bad(bible::strings::BLOCKED)); }
             item.id = Uuid::new_v4();
@@ -836,6 +840,7 @@ impl App {
             s.lines_per_slide = s.lines_per_slide.clamp(1, 8);
             s.theme.size = s.theme.size.clamp(24, 200);
             s.theme.scripture_size = s.theme.scripture_size.clamp(24, 200);
+            s.bible_per_slide = s.bible_per_slide.min(4);
             tryr!(app.edit(|d| { d.settings = s; Ok(()) }));
             Ok(json!({}))
         }
@@ -1177,6 +1182,18 @@ pub(crate) mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn a_passage_added_without_a_choice_gets_the_settings_verses_per_slide() {
+        let app = test_app();
+        app.data.lock().unwrap().settings.bible_per_slide = 3;
+        let add = |per_slide: &str| format!(r#"{{"item":{{"kind":"scripture","reference":"John 3:16","translation":"KJV","verses":[]{per_slide}}}}}"#);
+        app.do_action("service/add", add("").as_bytes()).await.unwrap();
+        app.do_action("service/add", add(r#","per_slide":1"#).as_bytes()).await.unwrap();
+        let d = app.data.lock().unwrap();
+        let per: Vec<u8> = d.services[0].items.iter().map(|i| match i.kind { ItemKind::Scripture { per_slide, .. } => per_slide, _ => 9 }).collect();
+        assert_eq!(per, [3, 1], "a choice the client made is kept");
+    }
+
+    #[tokio::test]
     async fn do_action_saves_a_song_and_returns_its_id() {
         let app = test_app();
         let v = app.do_action("song/save", br#"{"id":"00000000-0000-0000-0000-000000000000","title":"Amazing Grace","lyrics":"Verse 1\nAmazing grace"}"#).await.unwrap();
@@ -1199,7 +1216,7 @@ pub(crate) mod tests {
             fn order(&self) -> Vec<Uuid> { vec![self.0] }
             fn build(&self, id: Uuid) -> Option<LiveItem> {
                 Some(LiveItem { item_id: id, title: "T".into(), kind: "song".into(), background: Background::Color { color: "#000".into() },
-                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None }, notes: String::new() }] })
+                    slides: vec![Slide { label: "s".into(), content: SlideContent::Text { text: "hello".into(), footer: None, reference: None, size: 0 }, notes: String::new() }] })
             }
         }
         live.apply(Envelope { id: id.to_string(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }, &One(id));

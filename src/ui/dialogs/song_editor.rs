@@ -115,7 +115,7 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     ctx.previews.set_vec(slides.iter().map(|s| PreviewSlide { image: Image::default(), label: s.label.as_str().into() }).collect::<Vec<_>>());
     let size = thumb_size(PREVIEW_W, op.window().scale_factor());
     for (i, slide) in slides.iter().enumerate() {
-        let (key, job) = thumb(slide, "song", None, &settings, size);
+        let (key, job) = thumb(slide, "song", &[], None, &settings, size);
         let (previews, me) = (ctx.previews.clone(), ctx.op.clone());
         let ctx_gen = ctx.generation.clone();
         ctx.thumbs.request(key, job, move |px| {

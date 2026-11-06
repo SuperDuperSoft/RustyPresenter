@@ -1,7 +1,8 @@
 //! Where slide text goes and how big it is. Mirrors the rules of the web renderer (`web/render.js`):
 //! a 1920-wide logical canvas, text shrinks until it fits, and words are never dropped.
-use crate::model::Theme;
+use crate::model::{PassageSlide, Theme};
 use cosmic_text::{Align, Attrs, Buffer, Family, FontSystem, Metrics, Shaping, Weight, Wrap};
+use std::collections::HashMap;
 
 /// Logical canvas width every size below is measured against.
 pub const CANVAS_W: f32 = 1920.0;
@@ -33,7 +34,19 @@ const BUNDLED_FACES: [&[u8]; 3] = [
 ];
 
 /// The font database: system fonts plus the bundled Noto Sans, so text looks the same everywhere.
-pub struct Fonts { pub(crate) sys: FontSystem }
+pub struct Fonts {
+    pub(crate) sys: FontSystem,
+    /// The fitted size of passage slides already measured, so drawing each slide of a passage does not measure
+    /// all the others again.
+    fits: HashMap<FitKey, f32>,
+}
+
+/// Everything that decides the fitted size of one passage slide.
+#[derive(PartialEq, Eq, Hash)]
+struct FitKey { slide: PassageSlide, scripture: bool, size: u32, theme: Theme, canvas: (u32, u32) }
+
+/// The most fitted sizes kept before the memo starts again.
+const MAX_FITS: usize = 1024;
 
 impl Fonts {
     /// Installed system fonts plus the bundled Noto Sans. What the app uses: theme fonts the
@@ -41,7 +54,7 @@ impl Fonts {
     pub fn new() -> Self {
         let mut sys = FontSystem::new();
         for face in BUNDLED_FACES { sys.db_mut().load_font_data(face.to_vec()); }
-        Self { sys }
+        Self { sys, fits: HashMap::new() }
     }
 
     /// Only the bundled Noto Sans, with a fixed locale: the same pixels on every machine, whatever
@@ -54,11 +67,22 @@ impl Fonts {
                     cosmic_text::fontdb::Database::set_monospace_family] {
             set(&mut db, BUNDLED_FAMILY);
         }
-        Self { sys: FontSystem::new_with_locale_and_db("en-US".into(), db) }
+        Self { sys: FontSystem::new_with_locale_and_db("en-US".into(), db), fits: HashMap::new() }
     }
 
     pub fn has_family(&self, name: &str) -> bool {
         self.sys.db().faces().any(|f| f.families.iter().any(|(n, _)| n.eq_ignore_ascii_case(name)))
+    }
+
+    /// The size `p` fits at, laid out like `slide` but on its own.
+    fn passage_fit(&mut self, p: &PassageSlide, slide: &TextSlide, theme: &Theme, canvas: (u32, u32)) -> f32 {
+        let key = FitKey { slide: p.clone(), scripture: slide.scripture, size: slide.size, theme: theme.clone(), canvas };
+        if let Some(px) = self.fits.get(&key) { return *px }
+        let alone = TextSlide { text: &p.text, footer: None, reference: p.reference.as_deref(), scripture: slide.scripture, size: slide.size, passage: &[] };
+        let px = layout(self, &alone, theme, canvas).font_px;
+        if self.fits.len() >= MAX_FITS { self.fits.clear() }
+        self.fits.insert(key, px);
+        px
     }
 }
 
@@ -71,6 +95,11 @@ pub struct TextSlide<'a> {
     pub footer: Option<&'a str>,
     pub reference: Option<&'a str>,
     pub scripture: bool,
+    /// Largest text size in pixels at 1080p; 0 = the theme's (`size` or `scripture_size`).
+    pub size: u32,
+    /// The slides of the passage this one belongs to (it included): the text gets the largest size that fits
+    /// every one of them. Empty fits this slide alone.
+    pub passage: &'a [PassageSlide],
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -149,6 +178,11 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     } else {
         (600, 1.22, Align::Center, or_default(theme.size, DEFAULT_SIZE))
     };
+    // Like the Settings range (`app.rs` keeps theme sizes within 24–200), so a bad size cannot stall fitting.
+    let max = if slide.size > 0 { slide.size.clamp(24, 200) as f32 } else { max };
+    // One size for the whole passage: never above what its fullest slide fits. Every fitted size is a step of
+    // `fit_steps(max)`, so fitting from it continues the same steps.
+    let max = slide.passage.iter().fold(max, |m, p| m.min(fonts.passage_fit(p, slide, theme, canvas)));
     let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
     let mut body = Buffer::new(&mut fonts.sys, Metrics::new(max * s, max * s * line));
     body.set_size(Some(body_box.w), None);
@@ -178,6 +212,14 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     }
 }
 
+/// The size a passage's text shows at (`TextSlide::passage`): the largest that fits every one of its slides, at
+/// most `size` (0 = the theme's scripture size). On 1080p-canvas pixels, like `TextLayout::font_px`.
+pub fn passage_px(fonts: &mut Fonts, passage: &[PassageSlide], size: u32, theme: &Theme, canvas: (u32, u32)) -> f32 {
+    let first = passage.first().map_or("", |p| p.text.as_str());
+    let slide = TextSlide { text: first, footer: None, reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage };
+    layout(fonts, &slide, theme, canvas).font_px
+}
+
 /// A theme size, or the web's default when it is 0 (`t.size || 84`).
 fn or_default(size: u32, default: u32) -> f32 { (if size == 0 { default } else { size }) as f32 }
 
@@ -191,7 +233,7 @@ pub fn max_line_width(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_w).fol
 mod tests {
     use super::*;
 
-    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false } }
+    fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[] } }
 
     fn lay(text: &str) -> TextLayout {
         let mut t = Theme::default();
@@ -285,7 +327,7 @@ mod tests {
     #[test]
     fn zero_scripture_size_means_64_like_the_web() {
         let t = Theme { font: BUNDLED_FAMILY.into(), scripture_size: 0, ..Theme::default() };
-        let s = TextSlide { text: "For God so loved", footer: None, reference: None, scripture: true };
+        let s = TextSlide { text: "For God so loved", footer: None, reference: None, scripture: true, size: 0, passage: &[] };
         assert_eq!(layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080)).font_px, 64.0);
     }
 
@@ -293,7 +335,7 @@ mod tests {
     fn blank_reference_shows_the_footer_like_the_web() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
         for reference in ["", "  "] {
-            let s = TextSlide { text: "Welcome", footer: Some("Service at 10:30"), reference: Some(reference), scripture: false };
+            let s = TextSlide { text: "Welcome", footer: Some("Service at 10:30"), reference: Some(reference), scripture: false, size: 0, passage: &[] };
             let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
             let foot = l.foot.as_ref().unwrap_or_else(|| panic!("reference {reference:?}: footer missing"));
             assert_eq!(foot.metrics().font_size, FOOTER_PX, "reference {reference:?}: footer style");
@@ -308,7 +350,7 @@ mod tests {
     #[test]
     fn reference_wins_over_footer() {
         let t = Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() };
-        let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true };
+        let s = TextSlide { text: "For God", footer: Some("Footer"), reference: Some("John 3:16"), scripture: true, size: 0, passage: &[] };
         let l = layout(&mut Fonts::bundled_only(), &s, &t, (1920, 1080));
         let foot = l.foot.as_ref().unwrap();
         assert_eq!(foot.metrics().font_size, REFERENCE_PX);
@@ -334,11 +376,55 @@ mod tests {
         assert_eq!(l.font_px, 84.0);
     }
 
+    fn bundled() -> Theme { Theme { font: BUNDLED_FAMILY.into(), ..Theme::default() } }
+
+    fn scripture(text: &str, size: u32, passage: &[PassageSlide]) -> f32 {
+        let s = TextSlide { text, footer: None, reference: Some("Psalm 119:1–2 (KJV)"), scripture: true, size, passage };
+        layout(&mut Fonts::bundled_only(), &s, &bundled(), (1920, 1080)).font_px
+    }
+
+    fn part(text: &str) -> PassageSlide { PassageSlide { text: text.into(), reference: Some("Psalm 119:1–2 (KJV)".into()) } }
+
+    #[test]
+    fn a_passage_whose_second_slide_is_longer_makes_the_first_smaller_too() {
+        let short = "Blessed are the undefiled in the way.";
+        let long = "Blessed are they that keep his testimonies, and that seek him with the whole heart. ".repeat(5);
+        let alone = (scripture(short, 0, &[]), scripture(&long, 0, &[]));
+        assert_eq!(alone.0, 64.0, "on its own the short slide keeps the scripture size");
+        assert!(alone.1 < 64.0, "the long slide shrinks: {}", alone.1);
+        let passage = [part(short), part(&long)];
+        assert_eq!(scripture(short, 0, &passage), alone.1, "one size for the whole passage");
+        assert_eq!(scripture(&long, 0, &passage), alone.1);
+    }
+
+    #[test]
+    fn a_passage_that_fits_keeps_its_size() {
+        let passage = [part("For God so loved the world."), part("That whosoever believeth.")];
+        assert_eq!(scripture("For God so loved the world.", 0, &passage), 64.0);
+    }
+
+    #[test]
+    fn passage_size_is_the_largest_and_never_above_it() {
+        assert_eq!(scripture("For God so loved the world.", 96, &[]), 96.0, "the passage's own size wins over the theme's");
+        let passage = [part("For God so loved the world."), part("That whosoever believeth.")];
+        assert_eq!(scripture("For God so loved the world.", 40, &passage), 40.0);
+        assert_eq!(scripture("Hi", 1000, &[]), 200.0, "a bad size is kept within range");
+    }
+
+    #[test]
+    fn songs_without_a_passage_fit_slide_by_slide() {
+        let mut fonts = Fonts::bundled_only();
+        let long = "How sweet the sound that saved a wretch like me ".repeat(8);
+        let t = bundled();
+        assert!(layout(&mut fonts, &slide(&long), &t, (1920, 1080)).font_px < 84.0);
+        assert_eq!(layout(&mut fonts, &slide("Amazing grace"), &t, (1920, 1080)).font_px, 84.0);
+    }
+
     #[test]
     fn scripture_uses_scripture_size_and_left_align() {
         let mut t = Theme::default();
         t.font = BUNDLED_FAMILY.into();
-        let l = layout(&mut Fonts::new(), &TextSlide { text: "For God so loved", footer: None, reference: Some("John 3:16"), scripture: true }, &t, (1920, 1080));
+        let l = layout(&mut Fonts::new(), &TextSlide { text: "For God so loved", footer: None, reference: Some("John 3:16"), scripture: true, size: 0, passage: &[] }, &t, (1920, 1080));
         assert_eq!(l.font_px, 64.0);
         assert!(l.foot.is_some());
         assert!(l.foot_y < 1080.0 && l.foot_y > l.body_box.y + l.body_box.h - 1.0);

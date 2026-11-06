@@ -54,6 +54,8 @@ export component OperatorWindow inherits Window {
     in property <[TranslationChip]> translations;
     in property <string> translation;
     in-out property <string> bible-text;
+    /// Verses per slide for the next passage: 0 Automatic, else 1–4.
+    in property <int> bible-per-slide;
     in property <bool> room-on;
     in property <string> room-state: "warn";
     in property <string> room-tip;
@@ -90,6 +92,13 @@ export component OperatorWindow inherits Window {
     callback slides-show(int);
     callback slides-edit();
     callback slides-grid-resized(length);
+    /// A Bible passage is selected: its text size ("Auto" or pixels) with A− / A+ / Auto.
+    in property <bool> slides-text-size-shown;
+    in property <string> slides-text-size;
+    in property <bool> slides-text-size-custom;
+    callback slides-text-smaller();
+    callback slides-text-larger();
+    callback slides-text-auto();
     public function slides-scroll-to-row(row: int) { slides.scroll-to-row(row); }
     public function slides-scroll-to-top() { slides.scroll-to-top(); }
 
@@ -132,6 +141,7 @@ export component OperatorWindow inherits Window {
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
+    callback cycle-per-slide();
 
     /// One key press, for `keys::route` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, whether a text field
     /// has focus and whether that field is the Bible box. True when the key was used.
@@ -201,6 +211,7 @@ export component OperatorWindow inherits Window {
                 translations: root.translations;
                 translation: root.translation;
                 bible-text <=> root.bible-text;
+                bible-per-slide: root.bible-per-slide;
                 room-on: root.room-on;
                 room-state: root.room-state;
                 room-tip: root.room-tip;
@@ -213,6 +224,7 @@ export component OperatorWindow inherits Window {
                 settings => { root.focus-keys(); root.settings(); }
                 bible-submit(text) => { root.bible-submit(text); }
                 pick-translation(i) => { root.pick-translation(i); }
+                cycle-per-slide => { root.cycle-per-slide(); }
             }
 
             // `.layout`: minmax(250px, 300px) 1fr minmax(360px, 440px), 10 px gap and padding.
@@ -258,6 +270,12 @@ export component OperatorWindow inherits Window {
                         window-height: root.height;
                         show(idx) => { root.focus-keys(); root.slides-show(idx); }
                         edit => { root.focus-keys(); root.slides-edit(); }
+                        text-size-shown: root.slides-text-size-shown;
+                        text-size: root.slides-text-size;
+                        text-size-custom: root.slides-text-size-custom;
+                        text-smaller => { root.focus-keys(); root.slides-text-smaller(); }
+                        text-larger => { root.focus-keys(); root.slides-text-larger(); }
+                        text-auto => { root.focus-keys(); root.slides-text-auto(); }
                         grid-resized(w) => { root.slides-grid-resized(w); }
                     }
                 }
