@@ -93,6 +93,7 @@ impl FakeReleases {
     }
 
     /// yt-dlp/FFmpeg-Builds: one rolling release named `latest`.
+    #[cfg_attr(not(windows), allow(dead_code))] // only the Windows-only layout test uses it
     pub(crate) fn ffmpeg_builds(&self, asset: &str, zip: &[u8]) {
         self.put(&format!("/ffmpeg-builds/releases/download/latest/{asset}"), zip.to_vec());
         self.put("/ffmpeg-builds/releases/download/latest/checksums.sha256", format!("{}  {asset}\n", digest_hex(zip)).into_bytes());

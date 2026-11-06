@@ -38,9 +38,10 @@ build_ffmpeg --enable-pthreads --enable-videotoolbox --enable-audiotoolbox \
   --extra-cflags="$MINOS_FLAG" --extra-ldflags="$MINOS_FLAG" "${tls[@]}"
 
 # mpv 0.41 only offers videotoolbox-gl through gl-cocoa, which needs the cocoa feature
-# (the Cocoa/IOKit/QuartzCore frameworks); -Dcocoa=disabled would fail at setup. The
-# Swift and cocoa-cb parts stay off.
-build_mpv -Dcocoa=enabled -Dgl-cocoa=enabled -Dswift-build=disabled -Dmacos-cocoa-cb=disabled \
+# (the Cocoa/IOKit/QuartzCore frameworks); -Dcocoa=disabled would fail at setup. With cocoa,
+# mpv 0.41 always compiles player/clipboard/clipboard-mac.m, which includes the header the
+# Swift build generates, so Swift is on; cocoa-cb (mpv's own window) stays off.
+build_mpv -Dcocoa=enabled -Dgl-cocoa=enabled -Dswift-build=enabled -Dmacos-cocoa-cb=disabled \
   -Dvideotoolbox-gl=enabled
 
 if grep -q "built for newer macOS version" "$BUILD/mpv-compile.txt"; then
