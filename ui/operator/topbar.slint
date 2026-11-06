@@ -1,12 +1,11 @@
 // The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
 // status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in `src/ui/operator/bible.rs`.
 import { Theme, OperatorState } from "../theme.slint";
-import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox, ScrollBox } from "../widgets.slint";
+import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
 
-/// One Bible in the Bible box: a chip, or a picker row. `name` is what the chip says ("RV1909 · spa"),
-/// `full-name` the title. `on` is the chosen one, `off` is not connected yet. A picker row with a `heading` is only
-/// that heading.
-export struct TranslationChip { id: string, name: string, full-name: string, on: bool, off: bool, favourite: bool, heading: string }
+import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
+
+export { TranslationChip }
 
 export component TopBar inherits Rectangle {
     /// Window width ≤ 1250 px: no brand word, Screens/Phone as icons, pills as dots (`operator.css:239`).
@@ -302,191 +301,27 @@ export component TopBar inherits Rectangle {
                                     y: parent.height + 8px;
                                     width: 300px;
                                     close-policy: close-on-click-outside;
-                                    Rectangle {
-                                        background: Theme.panel;
-                                        border-color: Theme.line;
-                                        border-width: 1px;
-                                        border-radius: 10px;
-                                        drop-shadow-blur: 24px;
-                                        drop-shadow-offset-y: 8px;
-                                        drop-shadow-color: Theme.shadow-dialog;
-                                        VerticalLayout {
-                                            padding: 6px;
-                                            spacing: 4px;
-                                            // Search the Bibles this computer has.
-                                            Rectangle {
-                                                height: 32px;
-                                                border-radius: 7px;
-                                                border-width: 1px;
-                                                border-color: picker-search.has-focus ? Theme.accent : Theme.line;
-                                                background: Theme.bg;
-                                                HorizontalLayout {
-                                                    padding-left: 8px;
-                                                    padding-right: 8px;
-                                                    spacing: 6px;
-                                                    VerticalLayout {
-                                                        alignment: center;
-                                                        Icon {
-                                                            width: 14px;
-                                                            height: 14px;
-                                                            name: "search";
-                                                            color: Theme.faint;
-                                                        }
-                                                    }
-                                                    Rectangle {
-                                                        horizontal-stretch: 1;
-                                                        if picker-search.text == "": Text {
-                                                            x: 0;
-                                                            y: 0;
-                                                            width: parent.width;
-                                                            height: parent.height;
-                                                            text: @tr("Search your Bibles");
-                                                            color: Theme.faint;
-                                                            font-family: Theme.font;
-                                                            font-size: 12.5px;
-                                                            vertical-alignment: center;
-                                                        }
-                                                        picker-search := TextInput {
-                                                            x: 0;
-                                                            y: 0;
-                                                            width: parent.width;
-                                                            height: parent.height;
-                                                            text <=> root.picker-search;
-                                                            single-line: true;
-                                                            color: Theme.text;
-                                                            font-family: Theme.font;
-                                                            font-size: 12.5px;
-                                                            vertical-alignment: center;
-                                                            accessible-placeholder-text: @tr("Search your Bibles");
-                                                            init => { self.focus(); }
-                                                            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
-                                                            edited => { root.picker-search-changed(self.text); }
-                                                            // Enter picks the first Bible listed.
-                                                            accepted => {
-                                                                root.picker-accept();
-                                                                picker.close();
-                                                                bible-input.focus();
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            if root.picker-note != "": Text {
-                                                text: root.picker-note;
-                                                color: Theme.muted;
-                                                font-family: Theme.font;
-                                                font-size: 11.5px;
-                                                wrap: word-wrap;
-                                            }
-                                            ScrollBox {
-                                                height: min(360px, picker-rows-box.preferred-height);
-                                                picker-rows-box := VerticalLayout {
-                                                    spacing: 1px;
-                                                    for row[i] in root.picker-rows: Rectangle {
-                                                        height: row.heading != "" ? 24px : 30px;
-                                                        if row.heading != "": Text {
-                                                            x: 9px;
-                                                            y: 0;
-                                                            width: parent.width - 18px;
-                                                            height: parent.height - 3px;
-                                                            text: row.heading;
-                                                            color: Theme.faint;
-                                                            font-family: Theme.font;
-                                                            font-size: 10.5px;
-                                                            font-weight: 700;
-                                                            vertical-alignment: bottom;
-                                                            overflow: elide;
-                                                        }
-                                                        if row.heading == "": picker-row := Rectangle {
-                                                            border-radius: 6px;
-                                                            background: row.on ? Theme.accent : row-ta.has-hover ? Theme.raise : transparent;
-                                                            accessible-role: button;
-                                                            accessible-label: row.name;
-                                                            accessible-description: row.full-name;
-                                                            accessible-checked: row.on;
-                                                            accessible-action-default => { root.pick-bible(row.id); }
-                                                            row-ta := TouchArea {
-                                                                mouse-cursor: pointer;
-                                                                // As a chip does: the Bible box takes the keyboard again.
-                                                                clicked => {
-                                                                    bible-input.focus();
-                                                                    root.pick-bible(row.id);
-                                                                    picker.close();
-                                                                }
-                                                            }
-                                                            HorizontalLayout {
-                                                                padding-left: 9px;
-                                                                padding-right: 4px;
-                                                                spacing: 8px;
-                                                                Text {
-                                                                    text: row.name;
-                                                                    color: row.on ? Theme.accent-ink : Theme.text;
-                                                                    font-family: Theme.font;
-                                                                    font-size: 12.5px;
-                                                                    font-weight: 700;
-                                                                    vertical-alignment: center;
-                                                                }
-                                                                Text {
-                                                                    horizontal-stretch: 1;
-                                                                    text: row.off ? @tr("not connected") : row.full-name;
-                                                                    color: row.on ? Theme.accent-ink : Theme.faint;
-                                                                    font-family: Theme.font;
-                                                                    font-size: 11.5px;
-                                                                    overflow: elide;
-                                                                    vertical-alignment: center;
-                                                                }
-                                                                // The star: favourites come first as chips.
-                                                                star := Rectangle {
-                                                                    width: 24px;
-                                                                    accessible-role: checkbox;
-                                                                    accessible-label: @tr("Favourite");
-                                                                    accessible-checked: row.favourite;
-                                                                    accessible-action-default => { root.toggle-favourite(row.id); }
-                                                                    Icon {
-                                                                        width: 14px;
-                                                                        height: 14px;
-                                                                        name: "star";
-                                                                        filled: row.favourite;
-                                                                        color: row.on ? Theme.accent-ink : row.favourite || star-ta.has-hover ? Theme.accent : Theme.faint;
-                                                                    }
-                                                                    star-ta := TouchArea {
-                                                                        mouse-cursor: pointer;
-                                                                        clicked => { root.toggle-favourite(row.id); }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            // Opens Settings → Bible with the search carried over.
-                                            find-more := Rectangle {
-                                                height: 30px;
-                                                border-radius: 6px;
-                                                background: find-more-ta.has-hover ? Theme.raise : transparent;
-                                                accessible-role: button;
-                                                accessible-label: @tr("Find more Bibles…");
-                                                accessible-action-default => {
-                                                    picker.close();
-                                                    root.find-more-bibles(root.picker-search);
-                                                }
-                                                Text {
-                                                    x: 9px;
-                                                    text: @tr("Find more Bibles…");
-                                                    color: Theme.accent;
-                                                    font-family: Theme.font;
-                                                    font-size: 12.5px;
-                                                    font-weight: 700;
-                                                    vertical-alignment: center;
-                                                }
-                                                find-more-ta := TouchArea {
-                                                    mouse-cursor: pointer;
-                                                    clicked => {
-                                                        picker.close();
-                                                        root.find-more-bibles(root.picker-search);
-                                                    }
-                                                }
-                                            }
+                                    BiblePickerList {
+                                        rows: root.picker-rows;
+                                        search <=> root.picker-search;
+                                        note: root.picker-note;
+                                        search-changed(text) => { root.picker-search-changed(text); }
+                                        // Enter picks the first Bible listed; a row's click picks it. Either way the
+                                        // Bible box takes the keyboard again, as after a chip.
+                                        accept => {
+                                            root.picker-accept();
+                                            picker.close();
+                                            bible-input.focus();
+                                        }
+                                        pick(id) => {
+                                            bible-input.focus();
+                                            root.pick-bible(id);
+                                            picker.close();
+                                        }
+                                        toggle-favourite(id) => { root.toggle-favourite(id); }
+                                        find-more(q) => {
+                                            picker.close();
+                                            root.find-more-bibles(q);
                                         }
                                     }
                                 }

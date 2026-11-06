@@ -3,6 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Chip, Icon, ScrollBox } from "../widgets.slint";
 import { TextField, ListRow, RowMain } from "form.slint";
+import { TranslationChip } from "../bible-picker.slint";
 
 /// One library row: a song, a media file or a set of slides.
 export struct AddRow {
@@ -36,7 +37,13 @@ export global AddState {
     in property <string> placeholder;
     /// "Nothing matches." / "Nothing here yet.", or empty when there are rows.
     in property <string> empty;
+    /// The Bible this passage comes from, as its chip says it ("KJV", "RV1909 · spa"). It starts as the Bible box's
+    /// and the picker next to the reference changes it for this dialog only.
     in property <string> translation;
+    /// That Bible's picker: its lines, search and no-match note (as the Bible box's picker).
+    in property <[TranslationChip]> picker-rows;
+    in-out property <string> picker-search;
+    in property <string> picker-note;
     /// The translation has no source here, so its verses can be pasted (`operator.js:441`).
     in property <bool> can-paste;
     /// What the user typed in the fields; reset when the dialog opens.
@@ -65,6 +72,13 @@ export global AddState {
     callback bible-add();
     callback bible-paste();
     callback per-slide-picked(int);
+    /// The Bible picker is opening (empty search), its search changed, Enter in it, a row, a star, "Find more Bibles…".
+    callback picker-opening();
+    callback picker-search-changed(string);
+    callback picker-accept();
+    callback pick-bible(string);
+    callback toggle-favourite(string);
+    callback find-more-bibles(string);
     callback text-add();
     callback upload-media();
     callback import-deck();

@@ -136,14 +136,27 @@ pub(super) fn render_chips(ui: &crate::ui::OperatorWindow, s: &view::OperatorSna
     fill_picker(ui, s, &ui.get_picker_search());
 }
 
-/// The picker's lines for `query`, with the note shown when nothing matches.
-fn fill_picker(ui: &crate::ui::OperatorWindow, s: &view::OperatorSnapshot, query: &str) {
+/// A Bible picker's lines for `query`, with `chosen` marked, and the note shown when nothing matches. The Bible box's
+/// picker and Add → Bible's share this.
+pub(crate) fn picker_rows(s: &view::OperatorSnapshot, query: &str, chosen: &str) -> (ModelRc<TranslationChip>, SharedString) {
     let rows: Vec<TranslationChip> = view::picker_lines(s, query).iter().map(|l| match l {
         view::PickerLine::Heading(h) => TranslationChip { heading: h.as_str().into(), ..Default::default() },
-        view::PickerLine::Bible(c) => chip(c, c.id == s.translation),
+        view::PickerLine::Bible(c) => chip(c, c.id == chosen),
     }).collect();
-    ui.set_picker_note(if rows.is_empty() { tr::PICKER_NO_MATCH.into() } else { SharedString::new() });
-    ui.set_picker_rows(ModelRc::new(VecModel::from(rows)));
+    let note = if rows.is_empty() { tr::PICKER_NO_MATCH.into() } else { SharedString::new() };
+    (ModelRc::new(VecModel::from(rows)), note)
+}
+
+/// The first Bible a picker lists (Enter in its search).
+pub(crate) fn first_picked(rows: &ModelRc<TranslationChip>) -> Option<String> {
+    rows.iter().find(|r| r.heading.is_empty()).map(|r| r.id.to_string())
+}
+
+/// The Bible box's picker lines for `query`.
+fn fill_picker(ui: &crate::ui::OperatorWindow, s: &view::OperatorSnapshot, query: &str) {
+    let (rows, note) = picker_rows(s, query, &s.translation);
+    ui.set_picker_note(note);
+    ui.set_picker_rows(rows);
 }
 
 /// The picker's search changed (or the picker is opening, with an empty search).
@@ -154,8 +167,7 @@ pub fn search_picker(op: &Operator, query: &str) {
 
 /// Enter in the picker's search: the first Bible listed.
 pub fn accept_picker(op: &Rc<Operator>) {
-    let first = op.ui.get_picker_rows().iter().find(|r| r.heading.is_empty()).map(|r| r.id.to_string());
-    if let Some(id) = first { pick_id(op, id) }
+    if let Some(id) = first_picked(&op.ui.get_picker_rows()) { pick_id(op, id) }
 }
 
 impl Operator {
@@ -430,7 +442,7 @@ mod tests {
         op.window().dispatch_event(WindowEvent::PointerMoved { position: slint::LogicalPosition::new(0.0, 0.0) });
         find(&op, "TopBar::translation-pick").expect("the chosen chip").mock_single_click(PointerEventButton::Left);
         slint::platform::update_timers_and_animations();
-        let stars = find_all(&op, "TopBar::star");
+        let stars = find_all(&op, "BiblePickerList::star");
         assert!(!stars.is_empty(), "the picker is open");
         let rows = picker(&op).into_iter().filter(|l| !l.starts_with('#')).collect::<Vec<_>>();
         let esv = rows.iter().position(|r| r == "ESV").expect("ESV listed");

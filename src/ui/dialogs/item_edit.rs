@@ -1,12 +1,14 @@
 //! Item edit (`openItemEdit`, `operator.js:720-796`; `ui/dialogs/item-edit.slint`). It works on a clone of the
 //! service item and is never redrawn by `dialog_refresh`, so a phone or a conversion never wipes what was typed.
 //! Save renames the media or slides when the name changed, then sends `service/update`; when that fails (the item
-//! is gone, say) the dialog stays open with the core's message.
+//! is gone, say) the dialog stays open with the core's message. A passage whose Bible was changed in its picker is
+//! looked up again in that Bible first (Bible library spec §7.2); a failed lookup also keeps the dialog open.
 use super::{DialogKind, background::{self, Picker, strings}};
 use crate::{
-    model::{EndAction, ItemKind, MediaStatus, ServiceItem},
-    ui::{ItemEdit, operator::window::Operator},
+    model::{EndAction, ItemKind, MediaStatus, ServiceItem, VerseText},
+    ui::{ItemEdit, operator::{bible, view, window::Operator}},
 };
+use serde::Deserialize;
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}};
 use uuid::Uuid;
@@ -18,6 +20,8 @@ struct Edit {
     item: ServiceItem,
     name: Option<Name>,
     picker: Option<Picker>,
+    /// Scripture: the Bible its picker chose (the item's own until a pick).
+    bible: Option<String>,
 }
 
 thread_local! {
@@ -49,7 +53,12 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_has_name(false);
     g.set_name("".into());
     g.set_not_ready(false);
+    g.set_translation("".into());
+    g.set_translation_changed(false);
+    g.set_picker_search("".into());
+    g.set_picker_rows(ModelRc::default());
     let mut name = None;
+    let bible = match &item.kind { ItemKind::Scripture { translation, .. } => Some(translation.clone()), _ => None };
     match &item.kind {
         ItemKind::Song { song_id } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
         ItemKind::Scripture { per_slide, text_size, .. } => {
@@ -94,10 +103,11 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
     let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
-    let edit = Rc::new(RefCell::new(Edit { item, name, picker }));
+    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible }));
 
     op.open_dialog(DialogKind::ItemEdit(id));
     draw_choices(op, &edit);
+    show_bible(op, &edit);
     wire(op, &edit);
     OPEN.with(|o| *o.borrow_mut() = Some(edit));
     op.on_dialog_close(|op| {
@@ -129,6 +139,19 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
         let picked = usize::try_from(i).ok().zip(e.borrow_mut().picker.as_mut()).is_some_and(|(i, p)| p.pick(i));
         if picked { draw_choices(&op, &e) }
     });
+    g.on_picker_opening(with(|op, edit| show_bible(op, edit)));
+    g.on_picker_accept(with(|op, edit| if let Some(id) = bible::first_picked(&op.ui.global::<ItemEdit>().get_picker_rows()) { pick_bible(op, edit, id) }));
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_picker_search_changed(move |_| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { show_bible(&op, &e) });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_pick_bible(move |id| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { pick_bible(&op, &e, id.into()) });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_toggle_favourite(move |id| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) {
+        bible::toggle_favourite(&op, id.into());
+        show_bible(&op, &e);
+    });
+    let me = Rc::downgrade(op);
+    g.on_find_more_bibles(move |q| if let Some(op) = me.upgrade() { super::settings::open_bible_search(&op, &q) });
     let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
     g.on_custom_color(move |c| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { set_color(&op, &e, background::to_hex(c)) });
     let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
@@ -139,6 +162,32 @@ fn set_color(op: &Operator, edit: &Rc<RefCell<Edit>>, hex: String) {
     if let Some(p) = edit.borrow_mut().picker.as_mut() { p.set_color(hex) }
     draw_choices(op, edit);
 }
+
+/// The Bible chip, the note under it and the picker's lines (keeping its search). A Bible no longer installed
+/// shows as its id.
+fn show_bible(op: &Operator, edit: &Rc<RefCell<Edit>>) {
+    let e = edit.borrow();
+    let (Some(chosen), ItemKind::Scripture { translation, .. }) = (e.bible.as_ref(), &e.item.kind) else { return };
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let g = op.ui.global::<ItemEdit>();
+    g.set_translation(view::bible_labels(&snap).get(chosen).cloned().unwrap_or_else(|| chosen.clone()).into());
+    g.set_translation_changed(!crate::bible::id::same_id(chosen, translation));
+    let (rows, note) = bible::picker_rows(&snap, &g.get_picker_search(), chosen);
+    g.set_picker_rows(rows);
+    g.set_picker_note(note);
+}
+
+/// A row of the picker: the Bible Save looks the passage up in.
+fn pick_bible(op: &Operator, edit: &Rc<RefCell<Edit>>, id: String) {
+    let known = op.state.borrow().snap.as_ref().is_some_and(|s| s.translations.contains(&id));
+    if !known || edit.borrow().bible.is_none() { return }
+    edit.borrow_mut().bible = Some(id);
+    show_bible(op, edit);
+}
+
+/// `bible/lookup`'s answer.
+#[derive(Deserialize)]
+struct Found { label: String, verses: Vec<VerseText>, translation: String }
 
 /// Redraws the background tiles (a pick, an upload, or a thumbnail that arrived).
 fn draw_choices(op: &Operator, edit: &Rc<RefCell<Edit>>) {
@@ -185,14 +234,27 @@ fn rename(name: &Name, typed: &str) -> Option<(&'static str, serde_json::Value)>
     }
 }
 
-/// Save: rename if needed, then `service/update`, then close and toast "Saved". Any failure is an error toast with
-/// the core's message, and the dialog stays open.
+/// Save: look the passage up again if its Bible changed, rename if needed, then `service/update`, then close and
+/// toast "Saved". Any failure is an error toast with the core's message, and the dialog stays open.
 fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     let g = op.ui.global::<ItemEdit>();
-    let (item, rename) = {
+    let (item, rename, chosen) = {
         let e = edit.borrow();
-        (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())))
+        (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone())
     };
+    let Some(lookup) = relookup(&item, chosen.as_deref()) else { return rename_then_update(op, item, rename) };
+    let me = Rc::downgrade(op);
+    op.ops().call::<Found>("bible/lookup", lookup, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(found) => rename_then_update(&op, with_passage(item, found), rename),
+            Err(e) => op.toast(e, true),
+        }
+    });
+}
+
+/// The rename (if any), then `service/update` with `item`.
+fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>) {
     let id = item.id;
     let body = serde_json::to_value(&item).unwrap_or_default();
     let update = move |op: &Rc<Operator>| {
@@ -221,6 +283,22 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
             });
         }
     }
+}
+
+/// The lookup Save needs first: the passage's reference in the Bible the picker chose, when that is another Bible.
+fn relookup(item: &ServiceItem, chosen: Option<&str>) -> Option<serde_json::Value> {
+    let (ItemKind::Scripture { reference, translation, .. }, Some(chosen)) = (&item.kind, chosen) else { return None };
+    (!crate::bible::id::same_id(chosen, translation)).then(|| serde_json::json!({ "reference": reference, "translation": chosen }))
+}
+
+/// `item` with the passage as the lookup found it in the new Bible (its label, the Bible's id and the verses).
+fn with_passage(mut item: ServiceItem, found: Found) -> ServiceItem {
+    if let ItemKind::Scripture { reference, translation, verses, .. } = &mut item.kind {
+        *reference = found.label;
+        *translation = found.translation;
+        *verses = found.verses;
+    }
+    item
 }
 
 /// **Remove from service** (no confirm, as on the web), then close.
@@ -331,6 +409,65 @@ mod tests {
         assert_eq!(per_slide, 2);
         assert_eq!(op.dialog(), None);
         assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
+    }
+
+    fn kjv_john_3_16(app: &App) -> Uuid {
+        let verses = vec![VerseText { reference: "John 3:16".into(), text: "old text".into() }];
+        push(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 2, text_size: 0 })
+    }
+
+    #[test]
+    fn scripture_bible_change_looks_the_verses_up_again_on_save() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        assert_eq!(g(&op).get_translation(), "KJV");
+        assert!(!g(&op).get_translation_changed());
+        press(&op, "ItemEditDialog::bible-pick");
+        let rows = find_all(&op, "BiblePickerList::picker-row");
+        assert!(!rows.is_empty(), "the picker is open");
+        let web = rows.iter().find(|r| r.accessible_label().unwrap_or_default() == "WEB").expect("WEB listed");
+        web.mock_single_click(slint::platform::PointerEventButton::Left);
+        settle();
+        assert_eq!(g(&op).get_translation(), "WEB");
+        assert!(g(&op).get_translation_changed(), "the note says Save looks it up again");
+        assert!(item(&app, id).is_some_and(|i| matches!(i.kind, ItemKind::Scripture { ref translation, .. } if translation == "KJV")), "nothing changes before Save");
+        press(&op, "ItemEditDialog::save");
+        let ItemKind::Scripture { reference, translation, verses, per_slide, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!((reference.as_str(), translation.as_str(), per_slide), ("John 3:16", "WEB", 2));
+        assert_eq!(verses.len(), 1);
+        assert_ne!(verses[0].text, "old text", "the verse is WEB's now");
+        assert_eq!(op.dialog(), None);
+        assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
+        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV", "the Bible box keeps its Bible");
+    }
+
+    #[test]
+    fn scripture_failed_relookup_keeps_the_dialog_and_the_item() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        g(&op).invoke_pick_bible("NIV".into());
+        assert_eq!(g(&op).get_translation(), "NIV");
+        press(&op, "ItemEditDialog::save");
+        assert!(toasts(&op).last().is_some_and(|t| t.1), "an error toast: {:?}", toasts(&op));
+        assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)), "the dialog stays open");
+        let ItemKind::Scripture { translation, verses, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!((translation.as_str(), verses[0].text.as_str()), ("KJV", "old text"));
+        g(&op).invoke_pick_bible("KJV".into());
+        assert!(!g(&op).get_translation_changed(), "back to its own Bible");
+        g(&op).invoke_pick_bible("nothing-like-this".into());
+        assert_eq!(g(&op).get_translation(), "KJV", "an unknown Bible is not picked");
+    }
+
+    #[test]
+    fn a_plain_save_does_not_look_the_passage_up() {
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0 }, background: None, notes: String::new() };
+        assert_eq!(relookup(&item, Some("ebible:spaRV1909")), None);
+        assert_eq!(relookup(&item, None), None);
+        assert_eq!(relookup(&item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
     }
 
     #[test]

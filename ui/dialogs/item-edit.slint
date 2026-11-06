@@ -6,6 +6,7 @@ import { Btn, Chip, Segmented, Field } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, TextArea, Check, Note, RangeSlider } from "form.slint";
 import { BackgroundPicker, BgChoice } from "background-picker.slint";
+import { BiblePickButton, TranslationChip } from "../bible-picker.slint";
 
 export { BgChoice }
 
@@ -15,6 +16,13 @@ export global ItemEdit {
     in property <string> kind;
     /// Song: the library still has the song.
     in property <bool> song-exists;
+    /// Scripture: the passage's Bible as its chip says it, and that Bible's picker (spec §7.2). A new Bible looks the
+    /// verses up again on Save.
+    in property <string> translation;
+    in property <bool> translation-changed;
+    in property <[TranslationChip]> picker-rows;
+    in-out property <string> picker-search;
+    in property <string> picker-note;
     /// Scripture: 0 = Automatic, else verses per slide.
     in-out property <int> per-slide;
     /// Scripture text size: 0 = Automatic (Settings → Look), 1 = this passage's own `text-size`.
@@ -49,6 +57,12 @@ export global ItemEdit {
     callback custom-color(color);
     callback custom-hex(string);
     callback upload();
+    callback picker-opening();
+    callback picker-search-changed(string);
+    callback picker-accept();
+    callback pick-bible(string);
+    callback toggle-favourite(string);
+    callback find-more-bibles(string);
 }
 
 /// The text of a `Note` that has something beside it (a button or a status chip).
@@ -85,6 +99,34 @@ export component ItemEditDialog inherits VerticalLayout {
                             clicked => { ItemEdit.edit-song(); }
                         }
                     }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Bible");
+            HorizontalLayout {
+                spacing: 14px;
+                bible-pick := BiblePickButton {
+                    height: 32px;
+                    label: ItemEdit.translation;
+                    rows: ItemEdit.picker-rows;
+                    search <=> ItemEdit.picker-search;
+                    note: ItemEdit.picker-note;
+                    opening => { ItemEdit.picker-opening(); }
+                    search-changed(text) => { ItemEdit.picker-search-changed(text); }
+                    accept => { ItemEdit.picker-accept(); }
+                    pick(id) => { ItemEdit.pick-bible(id); }
+                    toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                    find-more(q) => { ItemEdit.find-more-bibles(q); }
+                }
+                Text {
+                    horizontal-stretch: 1;
+                    text: ItemEdit.translation-changed ? @tr("The verses are looked up again in this Bible when you save.") : "";
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    wrap: word-wrap;
                 }
             }
         }

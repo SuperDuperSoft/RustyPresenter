@@ -5,7 +5,7 @@ use super::{AddTab, DialogKind, add_strings as tr, song_editor::open_song_editor
 use crate::{
     model::Song,
     slides::section_label,
-    ui::{AddRow, AddState, operator::{add_item::add_item_then, file_input::Filter, files, window::Operator}, thumbs::Thumbs},
+    ui::{AddRow, AddState, operator::{add_item::add_item_then, bible, file_input::Filter, files, view, window::Operator}, thumbs::Thumbs},
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -23,6 +23,8 @@ pub(crate) struct AddCtx {
     shown: Rc<Rows>,
     /// The Media and Slides rows' pictures, made on first use.
     thumbs: OnceCell<Thumbs>,
+    /// The Bible tab's Bible: the Bible box's when the dialog opens, then what its picker chose (spec §7.2).
+    bible: RefCell<String>,
 }
 
 impl AddCtx {
@@ -33,7 +35,8 @@ impl AddCtx {
         // `JSON.stringify(x).toLowerCase().includes(term)` (product decision 5): `key` is the row's JSON, lowercased.
         let filter: Box<dyn Fn(&AddRow) -> bool> = Box::new(move |r| { let t = t.borrow(); t.is_empty() || r.key.contains(t.as_str()) });
         let shown = Rc::new(FilterModel::new(all.clone(), filter));
-        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new() })
+        let bible = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_default();
+        Rc::new(AddCtx { op: Rc::downgrade(op), all, term, shown, thumbs: OnceCell::new(), bible: RefCell::new(bible) })
     }
 
     /// Draws the rows' pictures on a worker thread, or at once in tests.
@@ -57,7 +60,7 @@ fn tab_at(i: i32) -> Option<AddTab> {
 pub fn open_add(op: &Rc<Operator>, tab: AddTab) {
     op.open_dialog(DialogKind::Add(tab));
     let st = op.ui.global::<AddState>();
-    for clear in [AddState::set_search, AddState::set_reference, AddState::set_pasted, AddState::set_text_title, AddState::set_text_body] {
+    for clear in [AddState::set_search, AddState::set_picker_search, AddState::set_reference, AddState::set_pasted, AddState::set_text_title, AddState::set_text_body] {
         clear(&st, "".into());
     }
     st.set_paste_open(false);
@@ -87,8 +90,7 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
     let Some(DialogKind::Add(tab)) = op.dialog() else { return };
     let Some(snap) = op.state.borrow().snap.clone() else { return };
     let st = op.ui.global::<AddState>();
-    st.set_translation(snap.translation.as_str().into());
-    st.set_can_paste(!snap.available.contains(&snap.translation));
+    show_bible(op, ctx);
     let (rows, placeholder, pictures) = match tab {
         AddTab::Song => {
             let mut songs: Vec<&Song> = snap.data.songs.iter().collect();
@@ -103,6 +105,34 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
     show_empty(op, ctx);
     // Once the rows are in the model, so a picture drawn at once finds its row.
     super::add_media::request_pictures(op, ctx, pictures);
+}
+
+/// The Bible tab's Bible: the one the picker chose while it is still installed, else the Bible box's.
+fn chosen_bible(op: &Operator, ctx: &AddCtx) -> Option<String> {
+    let st = op.state.borrow();
+    let snap = st.snap.as_ref()?;
+    let picked = ctx.bible.borrow();
+    Some(snap.translations.iter().find(|t| crate::bible::id::same_id(t, &picked)).cloned().unwrap_or_else(|| snap.translation.clone()))
+}
+
+/// The Bible tab's chip, its paste offer and its picker's lines (keeping the picker's search).
+fn show_bible(op: &Operator, ctx: &AddCtx) {
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let Some(chosen) = chosen_bible(op, ctx) else { return };
+    let st = op.ui.global::<AddState>();
+    st.set_translation(view::bible_labels(&snap).get(&chosen).cloned().unwrap_or_else(|| chosen.clone()).into());
+    st.set_can_paste(!snap.available.contains(&chosen));
+    let (rows, note) = bible::picker_rows(&snap, &st.get_picker_search(), &chosen);
+    st.set_picker_rows(rows);
+    st.set_picker_note(note);
+}
+
+/// A row of the Bible tab's picker: this passage's Bible, not the Bible box's.
+fn pick_bible(op: &Operator, ctx: &AddCtx, id: String) {
+    let known = op.state.borrow().snap.as_ref().is_some_and(|s| s.translations.contains(&id));
+    if !known { return }
+    *ctx.bible.borrow_mut() = id;
+    show_bible(op, ctx);
 }
 
 /// "Nothing matches." while searching, "Nothing here yet." otherwise, when no row is shown.
@@ -155,9 +185,9 @@ struct Found { label: String, verses: Value, translation: String }
 
 /// Add verses (Enter in the reference) and Add pasted verses: the passage goes at the end, quietly, then the toast
 /// "`<label>` added" and the dialog closes (`operator.js:432-445`).
-fn add_verses(op: &Rc<Operator>, pasted: bool) {
+fn add_verses(op: &Rc<Operator>, ctx: &AddCtx, pasted: bool) {
     let st = op.ui.global::<AddState>();
-    let translation = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_else(|| "KJV".into());
+    let translation = chosen_bible(op, ctx).unwrap_or_else(|| "KJV".into());
     let (action, body) = if pasted {
         ("bible/paste", json!({ "reference": st.get_reference().as_str(), "translation": translation, "text": st.get_pasted().as_str() }))
     } else {
@@ -218,8 +248,21 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_import_easyworship(with(|op, _| import_easyworship(op)));
     st.on_edit_song(with_id(|op, _, id| open_song_editor(op, Some(id), false)));
     st.on_add_row(with_id(|op, _, id| add_row(op, id)));
-    st.on_bible_add(with(|op, _| add_verses(op, false)));
-    st.on_bible_paste(with(|op, _| add_verses(op, true)));
+    st.on_bible_add(with(|op, ctx| add_verses(op, ctx, false)));
+    st.on_bible_paste(with(|op, ctx| add_verses(op, ctx, true)));
+    st.on_picker_opening(with(|op, ctx| show_bible(op, ctx)));
+    let c = ctx.clone();
+    st.on_picker_search_changed(move |_| if let Some(op) = c.op.upgrade() { show_bible(&op, &c) });
+    st.on_picker_accept(with(|op, ctx| if let Some(id) = bible::first_picked(&op.ui.global::<AddState>().get_picker_rows()) { pick_bible(op, ctx, id) }));
+    let c = ctx.clone();
+    st.on_pick_bible(move |id| if let Some(op) = c.op.upgrade() { pick_bible(&op, &c, id.into()) });
+    let c = ctx.clone();
+    st.on_toggle_favourite(move |id| if let Some(op) = c.op.upgrade() {
+        bible::toggle_favourite(&op, id.into());
+        show_bible(&op, &c);
+    });
+    let c = ctx.clone();
+    st.on_find_more_bibles(move |q| if let Some(op) = c.op.upgrade() { super::settings::open_bible_search(&op, &q) });
     let c = ctx.clone();
     st.on_per_slide_picked(move |i| if let Some(op) = c.op.upgrade() { op.set_bible_per_slide(u8::try_from(i).unwrap_or(0)) });
     st.on_text_add(with(|op, _| add_text(op)));
@@ -519,6 +562,59 @@ pub(crate) mod tests {
         assert_eq!(op.ui.get_bible_per_slide(), 1, "the Bible box remembers the choice too");
         open_add(&op, AddTab::Scripture);
         assert_eq!(op.ui.global::<AddState>().get_per_slide(), 1, "remembered for the session");
+    }
+
+    #[test]
+    fn bible_tab_picker_chooses_this_passages_bible_only() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Scripture);
+        settle(&op);
+        let st = op.ui.global::<AddState>();
+        assert_eq!(st.get_translation(), "KJV", "starts with the Bible box's Bible");
+        click(&op, "AddBibleTab::bible-pick");
+        let rows = find_all(&op, "BiblePickerList::picker-row");
+        assert!(!rows.is_empty(), "the picker is open");
+        assert!(st.get_picker_rows().iter().any(|r| r.on && r.id == "KJV"), "the dialog's Bible is marked");
+        let web = rows.iter().find(|r| r.accessible_label().unwrap_or_default() == "WEB").expect("WEB listed");
+        web.mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(st.get_translation(), "WEB");
+        assert!(find_all(&op, "BiblePickerList::picker-row").is_empty(), "the picker closed");
+        st.set_reference("John 3:16".into());
+        click(&op, "AddBibleTab::add");
+        assert!(matches!(&items(&app)[0], ItemKind::Scripture { translation, .. } if translation == "WEB"), "{:?}", items(&app)[0]);
+        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV", "the Bible box keeps its Bible");
+        assert_eq!(op.ui.get_translation(), "KJV");
+        open_add(&op, AddTab::Scripture);
+        assert_eq!(op.ui.global::<AddState>().get_translation(), "KJV", "the next Add starts from the Bible box again");
+    }
+
+    #[test]
+    fn bible_tab_picker_search_enter_star_and_paste_offer() {
+        let app = test_app();
+        let op = opened(&app);
+        open_add(&op, AddTab::Scripture);
+        settle(&op);
+        let st = op.ui.global::<AddState>();
+        assert!(!st.get_can_paste(), "KJV is here, so nothing to paste");
+        st.invoke_picker_opening();
+        st.set_picker_search("niv".into());
+        st.invoke_picker_search_changed("niv".into());
+        let listed: Vec<String> = st.get_picker_rows().iter().filter(|r| r.heading.is_empty()).map(|r| r.id.to_string()).collect();
+        assert_eq!(listed, ["NIV"], "the search narrows the list");
+        st.invoke_picker_accept();
+        assert_eq!(st.get_translation(), "NIV", "Enter picks the first Bible listed");
+        assert!(st.get_can_paste(), "NIV is not connected here, so its verses can be pasted");
+        settle(&op);
+        assert!(find(&op, "AddBibleTab::paste-instead").is_some());
+        refresh(&op);
+        settle(&op);
+        assert_eq!(st.get_translation(), "NIV", "a data update keeps the dialog's choice");
+        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV");
+        st.invoke_toggle_favourite("NIV".into());
+        assert_eq!(app.data.lock().unwrap().settings.favourites, ["NIV"]);
+        assert!(st.get_picker_rows().iter().any(|r| r.id == "NIV" && r.favourite), "the star shows at once");
     }
 
     #[test]

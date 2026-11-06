@@ -127,7 +127,7 @@ fn bible_chips_collapse_to_the_chosen_one_in_a_narrow_window() {
     assert!(pick.size().width <= 80.0, "the button keeps its own width, not the Bible box's: {}", pick.size().width);
     pick.mock_single_click(PointerEventButton::Left);
     slint::platform::update_timers_and_animations();
-    let rows = find_all(&op, "TopBar::picker-row");
+    let rows = find_all(&op, "BiblePickerList::picker-row");
     let snap = op.state.borrow().snap.clone().unwrap();
     assert_eq!(rows.len(), snap.translations.len(), "every Bible, once");
     let web = rows.iter().find(|r| r.accessible_label().unwrap_or_default() == "WEB").expect("WEB in the list");

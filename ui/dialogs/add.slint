@@ -6,6 +6,7 @@ import { DialogBody } from "shell.slint";
 import { TextArea, TextField } from "form.slint";
 import { AddRow, AddState, AddList } from "add-list.slint";
 import { AddMediaTab, AddDeckTab } from "add-media.slint";
+import { BiblePickButton } from "../bible-picker.slint";
 
 export { AddRow, AddState }
 
@@ -91,16 +92,35 @@ component AddSongTab inherits VerticalLayout {
     AddList { max-list-height: root.list-height; }
 }
 
-/// `addScripture()`: a reference, Add verses, and pasting verses for a translation with no source here.
+/// `addScripture()`: a reference and its Bible, Add verses, and pasting verses for a translation with no source here.
 component AddBibleTab inherits VerticalLayout {
     Field {
         label: @tr("Reference ({})", AddState.translation);
-        reference := TextField {
-            text <=> AddState.reference;
-            placeholder: @tr("e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39");
-            font-size: 16px;
-            init => { self.focus(); }
-            accepted => { AddState.bible-add(); }
+        HorizontalLayout {
+            spacing: 8px;
+            reference := TextField {
+                horizontal-stretch: 1;
+                text <=> AddState.reference;
+                placeholder: @tr("e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39");
+                font-size: 16px;
+                init => { self.focus(); }
+                accepted => { AddState.bible-add(); }
+            }
+            // The passage's Bible: the same picker as the Bible box's chip (spec §7.2). A pick here is for this
+            // passage only; the Bible box keeps its own.
+            bible-pick := BiblePickButton {
+                label: AddState.translation;
+                rows: AddState.picker-rows;
+                search <=> AddState.picker-search;
+                note: AddState.picker-note;
+                opening => { AddState.picker-opening(); }
+                search-changed(text) => { AddState.picker-search-changed(text); }
+                accept => { AddState.picker-accept(); }
+                pick(id) => { AddState.pick-bible(id); }
+                toggle-favourite(id) => { AddState.toggle-favourite(id); }
+                find-more(q) => { AddState.find-more-bibles(q); }
+                done => { reference.focus(); }
+            }
         }
     }
     HorizontalLayout {
