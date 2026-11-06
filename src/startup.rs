@@ -80,7 +80,7 @@ pub async fn backups(app: Arc<App>, restored: bool) {
 }
 
 #[cfg(test)]
-mod tests {
+mod backup_tests {
     use super::*;
 
     #[test]

@@ -147,9 +147,9 @@ mod tests {
     /// A saved state showing "Amazing grace", with an audio layer when `audio`.
     fn saved(audio: bool) -> LiveState {
         let item_id = Uuid::new_v4();
-        let slide = Slide { label: "Verse 1".into(), content: SlideContent::Text { text: "Amazing grace".into(), footer: None, reference: None }, notes: String::new() };
+        let slide = Slide { label: "Verse 1".into(), content: SlideContent::Text { text: "Amazing grace".into(), footer: None, reference: None, size: 0 }, notes: String::new() };
         let frame = Frame {
-            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false }),
+            slide: Some(SlideLayer::Text { text: "Amazing grace".into(), footer: None, reference: None, scripture: false, passage: vec![], size: 0 }),
             audio: audio.then(|| Inst { inst: 7, v: AudioLayer { asset: "a.mp3".into(), title: "Hymn".into(), looped: false, paused: false } }),
             ..Frame::default()
         };
