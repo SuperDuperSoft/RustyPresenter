@@ -73,7 +73,9 @@ export component ServiceColumn inherits VerticalLayout {
             alignment: center;
             header-btn := Btn {
                 small: true;
-                text: @tr("Header");
+                icon: "plus";
+                accessible-role: button;
+                accessible-label: @tr("Add a header");
                 tooltip: @tr("Add a coloured heading to the service list, like “Worship” or “Message”");
                 clicked => { ServicePlanning.add-header(); }
             }
@@ -230,6 +232,8 @@ export component ServiceColumn inherits VerticalLayout {
                         double-clicked => { root.show-first(it.id); }
 
                         if it.blank: choose-btn := Btn {
+                            width: self.preferred-width;
+                            height: self.preferred-height;
                             x: parent.width - self.width - 10px - 1.5px - (parent.has-hover ? 60px : 0px);
                             y: (parent.height - self.height) / 2;
                             small: true;
