@@ -36,7 +36,7 @@ component BinTab inherits Rectangle {
 
 /// One thumbnail: 16:9 with the kind and "ON SCREEN" marks, and the name under it.
 component BinTile inherits Rectangle {
-    in property <BinRow> row;
+    in property <BinRow> file;
     callback clicked();
     callback double-clicked();
 
@@ -46,8 +46,8 @@ component BinTile inherits Rectangle {
     clip: true;
     background: Theme.panel-2;
     accessible-role: button;
-    accessible-label: root.row.name;
-    accessible-item-selected: root.row.picked;
+    accessible-label: root.file.name;
+    accessible-item-selected: root.file.picked;
     accessible-action-default => { root.clicked(); }
 
     Rectangle {
@@ -59,13 +59,13 @@ component BinTile inherits Rectangle {
         Image {
             width: parent.width;
             height: parent.height;
-            source: root.row.image;
+            source: root.file.image;
             image-fit: cover;
         }
-        if root.row.kind != "image": Icon {
+        if root.file.kind != "image": Icon {
             width: 26px;
             height: 26px;
-            name: root.row.kind == "audio" ? "audio" : "play";
+            name: root.file.kind == "audio" ? "audio" : "play";
             color: Theme.muted;
         }
         Rectangle {
@@ -76,14 +76,14 @@ component BinTile inherits Rectangle {
             border-radius: 4px;
             background: Theme.caption-bg;
             tag := Text {
-                text: root.row.tag;
+                text: root.file.tag;
                 color: Theme.white;
                 font-family: Theme.font;
                 font-size: 11px;
                 font-weight: 600;
             }
         }
-        if root.row.on-screen: Rectangle {
+        if root.file.on-screen: Rectangle {
             x: parent.width - self.width - 6px;
             y: 6px;
             width: on-air.preferred-width + 12px;
@@ -104,7 +104,7 @@ component BinTile inherits Rectangle {
         y: root.height - root.name-h;
         width: root.width - 16px;
         height: root.name-h;
-        text: root.row.name;
+        text: root.file.name;
         color: Theme.text;
         font-family: Theme.font;
         font-size: 12px;
@@ -114,7 +114,7 @@ component BinTile inherits Rectangle {
     Rectangle {
         border-radius: 8px;
         border-width: 2px;
-        border-color: root.row.picked ? Theme.accent : ta.has-hover ? Theme.thumb-hover : Theme.line;
+        border-color: root.file.picked ? Theme.accent : ta.has-hover ? Theme.thumb-hover : Theme.line;
     }
     ta := TouchArea {
         mouse-cursor: pointer;
@@ -316,13 +316,13 @@ export component MediaBin inherits VerticalLayout {
                     y: 0;
                     width: tiles.width;
                     height: 20px + ceil(root.rows.length / root.cols) * (root.cell-h + root.gap);
-                    for row[i] in root.rows: BinTile {
+                    for f[i] in root.rows: BinTile {
                         x: 10px + (i - floor(i / root.cols) * root.cols) * (root.cell-w + root.gap);
                         y: 10px + floor(i / root.cols) * (root.cell-h + root.gap);
                         width: root.cell-w;
-                        row: row;
-                        clicked => { root.pick(row.id); }
-                        double-clicked => { root.pick(row.id); root.use-picked(); }
+                        file: f;
+                        clicked => { root.pick(f.id); }
+                        double-clicked => { root.pick(f.id); root.use-picked(); }
                     }
                 }
             }
