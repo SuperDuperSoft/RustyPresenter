@@ -149,7 +149,7 @@ mod tests {
 
     fn opened(app: &Arc<App>, select: Uuid) -> Rc<Operator> {
         let op = open(app);
-        op.window().set_size(slint::LogicalSize::new(1400.0, 900.0));
+        op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
         refresh(&op);
         op.ui.invoke_service_select(select.to_string().into());
         op

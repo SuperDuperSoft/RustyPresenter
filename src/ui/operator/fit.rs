@@ -12,8 +12,9 @@ use i_slint_backend_testing::ElementHandle;
 use std::rc::Rc;
 use uuid::Uuid;
 
-/// The window sizes checked: the smallest supported, and the window the installer smoke test found cut off.
-const SIZES: [(f32, f32); 2] = [(1280.0, 720.0), (1454.0, 938.0)];
+/// The window sizes checked: the smallest supported, the window the installer smoke test found cut off, 1080p and 4K.
+const SIZES: [(f32, f32); 4] = [(1280.0, 720.0), (1454.0, 938.0), (1920.0, 1080.0), (3840.0, 2160.0)];
+const SMALLEST: (f32, f32) = SIZES[0];
 
 /// Resizes the window and runs what a frame would (the `narrow` change handler, the overlays' `init`).
 fn resize(op: &Operator, (w, h): (f32, f32)) {
