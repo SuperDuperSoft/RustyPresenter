@@ -24,7 +24,7 @@ export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
     min-width: 1024px;
     min-height: 640px;
-    preferred-width: 1520px;
+    preferred-width: 1440px;
     preferred-height: 900px;
     background: Theme.bg;
     default-font-family: Theme.font;
@@ -38,11 +38,14 @@ export component OperatorWindow inherits Window {
     /// Below 1400 px the Bible box's favourite and recent chips are hidden, leaving the chosen one (`TopBar.compact`), so the top
     /// bar fits a 1280 px window. Set with `narrow`, for the same reason.
     out property <bool> compact;
+    /// The Verses button needs another 110 px; narrower, it is still in Add → Bible and Settings → Look.
+    out property <bool> verses-shown;
     init => { root.fit(); }
     changed width => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;
         root.compact = root.width < 1400px;
+        root.verses-shown = root.width >= 1510px;
     }
 
     // Top bar (see `TopBar`).
@@ -238,6 +241,7 @@ export component OperatorWindow inherits Window {
             top := TopBar {
                 narrow: root.narrow;
                 compact: root.compact;
+                verses-shown: root.verses-shown;
                 covered: root.covered;
                 service-name: root.service-name;
                 translations: root.translations;
