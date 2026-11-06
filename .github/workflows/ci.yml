@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    # The redesign branch uses quick.yml while it is being built.
+    branches-ignore: [redesign-media-library]
   pull_request:
 
 jobs:
