@@ -409,6 +409,9 @@ pub struct Settings {
     pub also_show: Vec<String>,
     /// How those Bibles share a slide.
     pub parallel_layout: crate::scripture::ParallelLayout,
+    /// The stage screen's layout (FEAT-3). A value this version can't read loads as Classic.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub stage: crate::stage::StageSettings,
 }
 
 /// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
@@ -450,6 +453,7 @@ impl Default for Settings {
             recent: Vec::new(),
             also_show: Vec::new(),
             parallel_layout: Default::default(),
+            stage: Default::default(),
         }
     }
 }
