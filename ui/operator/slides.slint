@@ -4,9 +4,18 @@ import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox } from "../widgets.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
-export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool }
+/// `section` is "verse", "pre", "chorus", "bridge", "end" or "" (no colour).
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string }
+/// A button that takes a song section live: `short` is "V1", "C", ...
+export struct SlideJump { idx: int, short: string, section: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
 export struct SlideRowCells { cells: [SlideCell] }
+
+/// A song section's colour; transparent when it has none.
+pure function section-color(section: string) -> color {
+    return section == "verse" ? Theme.sec-verse : section == "chorus" ? Theme.sec-chorus : section == "pre" ? Theme.sec-pre
+        : section == "bridge" ? Theme.sec-bridge : section == "end" ? Theme.sec-end : transparent;
+}
 
 /// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
 component Welcome inherits VerticalLayout {
@@ -159,31 +168,34 @@ component Thumb inherits Rectangle {
         }
     }
 
-    // `.cap`: the slide number (faint) and its label; red and bold while live.
-    HorizontalLayout {
-        y: screen.height;
-        height: root.caption-h;
-        padding-top: 6px;
-        padding-left: 2px;
-        padding-right: 2px;
-        spacing: 6px;
-        Text {
-            text: root.cell.idx + 1;
-            color: Theme.faint;
-            font-family: Theme.font;
-            font-size: 12.5px;
-            font-weight: root.cell.live ? 700 : 400;
-            vertical-alignment: center;
-        }
-        Text {
-            horizontal-stretch: 1;
-            text: root.cell.label;
-            color: root.cell.live ? Theme.live : Theme.muted;
-            font-family: Theme.font;
-            font-size: 12.5px;
-            font-weight: root.cell.live ? 700 : 400;
-            vertical-alignment: center;
-            overflow: elide;
+    // The caption: the slide number and its label, on the section's colour for a song. Red and bold while live.
+    Rectangle {
+        y: screen.height + 3px;
+        height: root.caption-h - 3px;
+        border-radius: 5px;
+        background: section-color(root.cell.section);
+        HorizontalLayout {
+            padding-left: root.cell.section != "" ? 6px : 2px;
+            padding-right: 4px;
+            spacing: 6px;
+            Text {
+                text: root.cell.idx + 1;
+                color: root.cell.section != "" ? Theme.sec-ink : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: root.cell.live ? 700 : 400;
+                vertical-alignment: center;
+            }
+            Text {
+                horizontal-stretch: 1;
+                text: root.cell.label;
+                color: root.cell.section != "" ? Theme.sec-ink : root.cell.live ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: root.cell.live || root.cell.section != "" ? 700 : 400;
+                vertical-alignment: center;
+                overflow: elide;
+            }
         }
     }
 
@@ -230,6 +242,8 @@ export component SlidesPanel inherits VerticalLayout {
     in property <bool> has-selection;
     in property <int> slide-count;
     in property <[SlideRowCells]> rows;
+    /// A song's sections, to jump straight to one.
+    in property <[SlideJump]> jumps;
     /// Cells per row, from `slides::columns(grid-width)`.
     in property <int> columns: 1;
     /// The first state read has arrived; until then the grid is empty with no Welcome.
@@ -340,6 +354,37 @@ export component SlidesPanel inherits VerticalLayout {
                 text: @tr("Auto");
                 tooltip: @tr("Back to the size in Settings");
                 clicked => { root.text-auto(); }
+            }
+        }
+        // A song's sections: click one to take it live.
+        if root.jumps.length > 0: HorizontalLayout {
+            spacing: 4px;
+            for j in root.jumps: Rectangle {
+                min-width: 32px;
+                height: 30px;
+                border-radius: 7px;
+                background: section-color(j.section);
+                opacity: ja.has-hover ? 0.85 : 1;
+                accessible-role: button;
+                accessible-label: j.short;
+                accessible-action-default => { root.show(j.idx); }
+                HorizontalLayout {
+                    padding-left: 7px;
+                    padding-right: 7px;
+                    Text {
+                        text: j.short;
+                        color: Theme.sec-ink;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+                ja := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.show(j.idx); }
+                }
             }
         }
         if root.has-selection: slides-edit := Btn {

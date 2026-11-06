@@ -59,6 +59,14 @@ export global Theme {
     /// Thumbnails, the monitor and media boxes where nothing is drawn yet.
     out property <color> black: #000;
 
+    // Song sections: the slide captions and the jump buttons. Told apart by lightness and letter as well as hue.
+    out property <color> sec-verse: #6aa8ff;
+    out property <color> sec-chorus: #ff8f93;
+    out property <color> sec-pre: #f5b94a;
+    out property <color> sec-bridge: #3ccf91;
+    out property <color> sec-end: #c9a5ff;
+    out property <color> sec-ink: #0d0f13;
+
     out property <length> radius: 12px;
     /// Missing fonts fall back to Slint's default (the bundled Noto Sans where Segoe is not installed).
     out property <string> font: "Segoe UI Variable Text";

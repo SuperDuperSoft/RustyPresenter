@@ -3,7 +3,8 @@ import { Theme, OperatorState } from "theme.slint";
 import { Panel } from "widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
-import { SlidesPanel, SlideCell, SlideRowCells } from "operator/slides.slint";
+import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slides.slint";
+import { MediaBin, BinRow, BinFolder } from "operator/media.slint";
 import { LiveColumn, TransportCell } from "operator/live.slint";
 import { Layer } from "room.slint";
 import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
@@ -17,7 +18,7 @@ import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
 
-export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, TransportCell }
+export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, BinRow, BinFolder }
 
 export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
@@ -88,6 +89,8 @@ export component OperatorWindow inherits Window {
     in property <int> slide-count;
     in property <[SlideRowCells]> slide-rows;
     in property <int> slide-columns: 1;
+    /// A song's sections, to jump straight to one.
+    in property <[SlideJump]> slide-jumps;
     out property <length> slides-grid-width: slides.grid-width;
     callback slides-show(int);
     callback slides-edit();
@@ -101,6 +104,26 @@ export component OperatorWindow inherits Window {
     callback slides-text-auto();
     public function slides-scroll-to-row(row: int) { slides.scroll-to-row(row); }
     public function slides-scroll-to-top() { slides.scroll-to-top(); }
+
+    // The media library (see `MediaBin`).
+    in property <[BinRow]> bin-rows;
+    in property <[BinFolder]> bin-folders;
+    in property <string> bin-tab: "all";
+    in property <bool> bin-has-pick;
+    in property <string> bin-pick-name;
+    in property <string> bin-pick-hint;
+    in property <bool> bin-can-use;
+    in property <bool> bin-can-delete-folder;
+    callback bin-set-tab(string);
+    callback bin-set-folder(string);
+    callback bin-search(string);
+    callback bin-pick(string);
+    callback bin-use-picked();
+    callback bin-add-picked();
+    callback bin-move-picked();
+    callback bin-import();
+    callback bin-new-folder();
+    callback bin-delete-folder();
 
     // Live column (see `LiveColumn`).
     in property <bool> live-pending;
@@ -227,56 +250,89 @@ export component OperatorWindow inherits Window {
                 cycle-per-slide => { root.cycle-per-slide(); }
             }
 
-            // `.layout`: minmax(250px, 300px) 1fr minmax(360px, 440px), 10 px gap and padding.
+            // The work area (service, slides, media library) beside the live column, which runs the full height.
             HorizontalLayout {
                 vertical-stretch: 1;
-                padding: 10px;
-                spacing: 10px;
-                service-col := Panel {
-                    min-width: 250px;
-                    preferred-width: 300px;
-                    max-width: 300px;
-                    horizontal-stretch: 0;
-                    ServiceColumn {
-                        vertical-stretch: 1;
-                        rows: root.service-rows;
-                        count: root.service-count;
-                        loaded: root.loaded;
-                        select(id) => { root.focus-keys(); root.service-select(id); }
-                        show-first(id) => { root.focus-keys(); root.service-show-first(id); }
-                        edit(id) => { root.focus-keys(); root.service-edit(id); }
-                        remove(id) => { root.focus-keys(); root.service-remove(id); }
-                        add => { root.focus-keys(); root.service-add(); }
-                        move(id, to) => { root.service-move(id, to); }
-                        drag-started => { root.service-drag-started(); }
-                        drag-finished => { root.service-drag-finished(); }
-                        drag-data(id) => { return root.service-drag-data(id); }
-                        drag-id(data) => { return root.service-drag-id(data); }
-                    }
-                }
-                slides-col := Panel {
+                padding: 8px;
+                spacing: 8px;
+                VerticalLayout {
                     horizontal-stretch: 1;
                     min-width: 0px;
-                    slides := SlidesPanel {
+                    spacing: 8px;
+                    HorizontalLayout {
                         vertical-stretch: 1;
-                        title: root.slides-title;
-                        kind: root.slides-kind;
-                        has-selection: root.has-selection;
-                        slide-count: root.slide-count;
-                        rows: root.slide-rows;
-                        columns: root.slide-columns;
-                        loaded: root.loaded;
-                        item-count: root.item-count;
-                        window-height: root.height;
-                        show(idx) => { root.focus-keys(); root.slides-show(idx); }
-                        edit => { root.focus-keys(); root.slides-edit(); }
-                        text-size-shown: root.slides-text-size-shown;
-                        text-size: root.slides-text-size;
-                        text-size-custom: root.slides-text-size-custom;
-                        text-smaller => { root.focus-keys(); root.slides-text-smaller(); }
-                        text-larger => { root.focus-keys(); root.slides-text-larger(); }
-                        text-auto => { root.focus-keys(); root.slides-text-auto(); }
-                        grid-resized(w) => { root.slides-grid-resized(w); }
+                        spacing: 8px;
+                        service-col := Panel {
+                            min-width: 250px;
+                            preferred-width: 264px;
+                            max-width: 280px;
+                            horizontal-stretch: 0;
+                            ServiceColumn {
+                                vertical-stretch: 1;
+                                rows: root.service-rows;
+                                count: root.service-count;
+                                loaded: root.loaded;
+                                select(id) => { root.focus-keys(); root.service-select(id); }
+                                show-first(id) => { root.focus-keys(); root.service-show-first(id); }
+                                edit(id) => { root.focus-keys(); root.service-edit(id); }
+                                remove(id) => { root.focus-keys(); root.service-remove(id); }
+                                add => { root.focus-keys(); root.service-add(); }
+                                move(id, to) => { root.service-move(id, to); }
+                                drag-started => { root.service-drag-started(); }
+                                drag-finished => { root.service-drag-finished(); }
+                                drag-data(id) => { return root.service-drag-data(id); }
+                                drag-id(data) => { return root.service-drag-id(data); }
+                            }
+                        }
+                        slides-col := Panel {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            slides := SlidesPanel {
+                                vertical-stretch: 1;
+                                title: root.slides-title;
+                                kind: root.slides-kind;
+                                has-selection: root.has-selection;
+                                slide-count: root.slide-count;
+                                rows: root.slide-rows;
+                                columns: root.slide-columns;
+                                jumps: root.slide-jumps;
+                                loaded: root.loaded;
+                                item-count: root.item-count;
+                                window-height: root.height;
+                                show(idx) => { root.focus-keys(); root.slides-show(idx); }
+                                edit => { root.focus-keys(); root.slides-edit(); }
+                                text-size-shown: root.slides-text-size-shown;
+                                text-size: root.slides-text-size;
+                                text-size-custom: root.slides-text-size-custom;
+                                text-smaller => { root.focus-keys(); root.slides-text-smaller(); }
+                                text-larger => { root.focus-keys(); root.slides-text-larger(); }
+                                text-auto => { root.focus-keys(); root.slides-text-auto(); }
+                                grid-resized(w) => { root.slides-grid-resized(w); }
+                            }
+                        }
+                    }
+                    bin-col := Panel {
+                        vertical-stretch: 0;
+                        bin := MediaBin {
+                            rows: root.bin-rows;
+                            folders: root.bin-folders;
+                            tab: root.bin-tab;
+                            has-pick: root.bin-has-pick;
+                            pick-name: root.bin-pick-name;
+                            pick-hint: root.bin-pick-hint;
+                            can-use: root.bin-can-use;
+                            can-delete-folder: root.bin-can-delete-folder;
+                            set-tab(t) => { root.focus-keys(); root.bin-set-tab(t); }
+                            set-folder(f) => { root.focus-keys(); root.bin-set-folder(f); }
+                            search(q) => { root.bin-search(q); }
+                            pick(id) => { root.focus-keys(); root.bin-pick(id); }
+                            use-picked => { root.focus-keys(); root.bin-use-picked(); }
+                            add-picked => { root.focus-keys(); root.bin-add-picked(); }
+                            move-picked => { root.bin-move-picked(); }
+                            import => { root.focus-keys(); root.bin-import(); }
+                            new-folder => { root.bin-new-folder(); }
+                            delete-folder => { root.bin-delete-folder(); }
+                        }
                     }
                 }
                 live-col := Panel {

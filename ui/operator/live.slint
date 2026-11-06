@@ -197,44 +197,6 @@ export component LiveColumn inherits Rectangle {
                 }
             }
 
-            // `.clears`: Clear All across the width, then four in a row.
-            VerticalLayout {
-                spacing: 8px;
-                clear-all := ClearAllBtn {
-                    text: @tr("Clear All");
-                    key: "F1";
-                    clicked => { root.clear("clear_all"); }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    clear-text := ClearBtn {
-                        horizontal-stretch: 1;
-                        text: @tr("Text");
-                        key: "F2";
-                        clicked => { root.clear("clear_slide"); }
-                    }
-                    clear-media := ClearBtn {
-                        horizontal-stretch: 1;
-                        text: @tr("Media");
-                        key: "F3";
-                        clicked => { root.clear("clear_media"); }
-                    }
-                    clear-audio := ClearBtn {
-                        horizontal-stretch: 1;
-                        text: @tr("Audio");
-                        key: "F4";
-                        clicked => { root.clear("clear_audio"); }
-                    }
-                    clear-logo := ClearBtn {
-                        horizontal-stretch: 1;
-                        text: @tr("Logo");
-                        key: "F5";
-                        on: root.logo-on;
-                        clicked => { root.clear("logo"); }
-                    }
-                }
-            }
-
             // `.next-up`: min 70 px, the body clipped at 110 px.
             up-next := Rectangle {
                 min-height: 70px;
@@ -277,6 +239,43 @@ export component LiveColumn inherits Rectangle {
                                 wrap: word-wrap;
                             }
                         }
+                    }
+                }
+            }
+            // `.clears`: Clear All across the width, then four in a row.
+            VerticalLayout {
+                spacing: 8px;
+                clear-all := ClearAllBtn {
+                    text: @tr("Clear All");
+                    key: "F1";
+                    clicked => { root.clear("clear_all"); }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    clear-text := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Text");
+                        key: "F2";
+                        clicked => { root.clear("clear_slide"); }
+                    }
+                    clear-media := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Media");
+                        key: "F3";
+                        clicked => { root.clear("clear_media"); }
+                    }
+                    clear-audio := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Audio");
+                        key: "F4";
+                        clicked => { root.clear("clear_audio"); }
+                    }
+                    clear-logo := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Logo");
+                        key: "F5";
+                        on: root.logo-on;
+                        clicked => { root.clear("logo"); }
                     }
                 }
             }

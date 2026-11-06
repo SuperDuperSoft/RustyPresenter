@@ -1,0 +1,378 @@
+// The media library along the bottom of the operator window: folders, kind tabs, search, thumbnail size and what to
+// do with the chosen file. The rows and filtering are in Rust (`media_bin.rs`).
+import { Theme } from "../theme.slint";
+import { Icon, Btn, ScrollBox } from "../widgets.slint";
+import { TextField } from "../dialogs/form.slint";
+
+/// One file. `kind` is "video", "image" or "audio"; `image` stays empty for video and audio (an icon is drawn).
+export struct BinRow { id: string, name: string, kind: string, tag: string, image: image, picked: bool, on-screen: bool }
+/// One folder of the list. An empty `name` is "All media".
+export struct BinFolder { name: string, label: string, count: int, on: bool }
+
+/// One tab: `id` is "all", "video", "image" or "audio".
+component BinTab inherits Rectangle {
+    in property <string> text;
+    in property <bool> on;
+    callback clicked();
+    min-width: label.preferred-width + 20px;
+    height: 30px;
+    border-radius: 6px;
+    background: root.on ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    label := Text {
+        text: root.text;
+        color: root.on ? Theme.accent : ta.has-hover ? Theme.text : Theme.muted;
+        font-family: Theme.font;
+        font-size: 13px;
+        font-weight: root.on ? 600 : 400;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// One thumbnail: 16:9 with the kind and "ON SCREEN" marks, and the name under it.
+component BinTile inherits Rectangle {
+    in property <BinRow> row;
+    callback clicked();
+    callback double-clicked();
+
+    property <length> name-h: 24px;
+    height: root.width * 9 / 16 + root.name-h;
+    border-radius: 8px;
+    clip: true;
+    background: Theme.panel-2;
+    accessible-role: button;
+    accessible-label: root.row.name;
+    accessible-item-selected: root.row.picked;
+    accessible-action-default => { root.clicked(); }
+
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.width * 9 / 16;
+        background: Theme.black;
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.row.image;
+            image-fit: cover;
+        }
+        if root.row.kind != "image": Icon {
+            width: 26px;
+            height: 26px;
+            name: root.row.kind == "audio" ? "audio" : "play";
+            color: Theme.muted;
+        }
+        Rectangle {
+            x: 6px;
+            y: 6px;
+            width: tag.preferred-width + 12px;
+            height: 18px;
+            border-radius: 4px;
+            background: Theme.caption-bg;
+            tag := Text {
+                text: root.row.tag;
+                color: Theme.white;
+                font-family: Theme.font;
+                font-size: 11px;
+                font-weight: 600;
+            }
+        }
+        if root.row.on-screen: Rectangle {
+            x: parent.width - self.width - 6px;
+            y: 6px;
+            width: on-air.preferred-width + 12px;
+            height: 18px;
+            border-radius: 4px;
+            background: Theme.live;
+            on-air := Text {
+                text: @tr("ON SCREEN");
+                color: Theme.black;
+                font-family: Theme.font;
+                font-size: 10px;
+                font-weight: 800;
+            }
+        }
+    }
+    Text {
+        x: 8px;
+        y: root.height - root.name-h;
+        width: root.width - 16px;
+        height: root.name-h;
+        text: root.row.name;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 12px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    Rectangle {
+        border-radius: 8px;
+        border-width: 2px;
+        border-color: root.row.picked ? Theme.accent : ta.has-hover ? Theme.thumb-hover : Theme.line;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+        double-clicked => { root.double-clicked(); }
+    }
+}
+
+export component MediaBin inherits VerticalLayout {
+    in-out property <bool> open: true;
+    in property <string> tab: "all";
+    in property <[BinFolder]> folders;
+    in property <[BinRow]> rows;
+    in-out property <string> query;
+    /// A file is chosen: its name, a hint and what can be done with it.
+    in property <bool> has-pick;
+    in property <string> pick-name;
+    in property <string> pick-hint;
+    in property <bool> can-use;
+    /// The selected folder can be deleted (it is not "All media").
+    in property <bool> can-delete-folder;
+
+    callback set-tab(string);
+    callback set-folder(string);
+    callback search(string);
+    callback pick(string);
+    callback use-picked();
+    callback add-picked();
+    callback move-picked();
+    callback import();
+    callback new-folder();
+    callback delete-folder();
+
+    /// The size slider: how wide a thumbnail is.
+    property <length> tile-w: 150px;
+    property <length> gap: 8px;
+    property <int> cols: max(1, floor((tiles.width - 20px - 10px + root.gap) / (root.tile-w + root.gap)));
+    property <length> cell-w: (tiles.width - 20px - 10px - (root.cols - 1) * root.gap) / root.cols;
+    property <length> cell-h: root.cell-w * 9 / 16 + 24px;
+
+    // The header: always there, so the library can be opened again.
+    HorizontalLayout {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        height: 44px;
+        toggle := Rectangle {
+            width: toggle-row.preferred-width;
+            accessible-role: button;
+            accessible-label: @tr("Media library");
+            accessible-expandable: true;
+            accessible-expanded: root.open;
+            accessible-action-default => { root.open = !root.open; }
+            toggle-row := HorizontalLayout {
+                spacing: 6px;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        name: root.open ? "chevron-down" : "chevron-right";
+                        color: Theme.muted;
+                    }
+                }
+                Text {
+                    text: @tr("Media library");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.open = !root.open; }
+            }
+        }
+        if root.open: Rectangle {
+            width: tabs.preferred-width + 4px;
+            border-radius: 8px;
+            background: Theme.bg;
+            tabs := HorizontalLayout {
+                padding: 1px;
+                spacing: 2px;
+                BinTab { text: @tr("All"); on: root.tab == "all"; clicked => { root.set-tab("all"); } }
+                BinTab { text: @tr("Videos"); on: root.tab == "video"; clicked => { root.set-tab("video"); } }
+                BinTab { text: @tr("Pictures"); on: root.tab == "image"; clicked => { root.set-tab("image"); } }
+                BinTab { text: @tr("Audio"); on: root.tab == "audio"; clicked => { root.set-tab("audio"); } }
+            }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        if root.open: bin-search := TextField {
+            width: 190px;
+            search: true;
+            text <=> root.query;
+            placeholder: @tr("Search media");
+            edited(t) => { root.search(t); }
+        }
+        if root.open: HorizontalLayout {
+            spacing: 6px;
+            Btn {
+                small: true;
+                icon: "chevron-left";
+                tooltip: @tr("Smaller thumbnails");
+                clicked => { root.tile-w = max(110px, root.tile-w - 25px); }
+            }
+            Btn {
+                small: true;
+                icon: "chevron-right";
+                tooltip: @tr("Bigger thumbnails");
+                clicked => { root.tile-w = min(210px, root.tile-w + 25px); }
+            }
+        }
+        if root.open: bin-import := Btn {
+            small: true;
+            icon: "upload";
+            text: @tr("Import");
+            clicked => { root.import(); }
+        }
+    }
+
+    if root.open: HorizontalLayout {
+        height: 220px;
+        // Folders.
+        Rectangle {
+            width: 168px;
+            ScrollBox {
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                VerticalLayout {
+                    padding: 6px;
+                    spacing: 2px;
+                    alignment: start;
+                    for f in root.folders: Rectangle {
+                        height: 34px;
+                        border-radius: 6px;
+                        background: f.on ? Theme.raise : fa.has-hover ? Theme.panel-2 : transparent;
+                        accessible-role: button;
+                        accessible-label: f.label;
+                        accessible-action-default => { root.set-folder(f.name); }
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            spacing: 6px;
+                            Text {
+                                horizontal-stretch: 1;
+                                text: f.label;
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: 13px;
+                                font-weight: f.on ? 600 : 400;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                            Text {
+                                text: f.count;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                vertical-alignment: center;
+                            }
+                        }
+                        fa := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.set-folder(f.name); }
+                        }
+                    }
+                    new-folder := Btn {
+                        small: true;
+                        icon: "plus";
+                        text: @tr("New folder");
+                        clicked => { root.new-folder(); }
+                    }
+                    if root.can-delete-folder: delete-folder := Btn {
+                        small: true;
+                        icon: "trash";
+                        text: @tr("Delete folder");
+                        clicked => { root.delete-folder(); }
+                    }
+                }
+            }
+        }
+        Rectangle { width: 1px; background: Theme.line; }
+
+        // Thumbnails. Placed by hand: Slint has no wrapping layout.
+        tiles := Rectangle {
+            horizontal-stretch: 1;
+            min-width: 0px;
+            ScrollBox {
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                Rectangle {
+                    x: 0;
+                    y: 0;
+                    width: tiles.width;
+                    height: 20px + ceil(root.rows.length / root.cols) * (root.cell-h + root.gap);
+                    for row[i] in root.rows: BinTile {
+                        x: 10px + (i - floor(i / root.cols) * root.cols) * (root.cell-w + root.gap);
+                        y: 10px + floor(i / root.cols) * (root.cell-h + root.gap);
+                        width: root.cell-w;
+                        row: row;
+                        clicked => { root.pick(row.id); }
+                        double-clicked => { root.pick(row.id); root.use-picked(); }
+                    }
+                }
+            }
+            if root.rows.length == 0: empty := Text {
+                width: parent.width - 40px;
+                text: @tr("Nothing here yet. Click Import, or try another folder or word.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+        }
+        Rectangle { width: 1px; background: Theme.line; }
+
+        // What to do with the chosen file.
+        VerticalLayout {
+            width: 188px;
+            padding: 10px;
+            spacing: 8px;
+            Text {
+                text: root.has-pick ? root.pick-name : @tr("Pick a file");
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                font-weight: 600;
+                overflow: elide;
+            }
+            Text {
+                vertical-stretch: 1;
+                text: root.pick-hint;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+            if root.can-use: use-picked := Btn {
+                primary: true;
+                text: @tr("Use as background");
+                clicked => { root.use-picked(); }
+            }
+            if root.has-pick: add-picked := Btn {
+                text: @tr("Add to service");
+                clicked => { root.add-picked(); }
+            }
+            if root.has-pick: move-picked := Btn {
+                small: true;
+                text: @tr("Move to folder");
+                clicked => { root.move-picked(); }
+            }
+        }
+    }
+}
