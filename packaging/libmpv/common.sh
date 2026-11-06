@@ -174,6 +174,8 @@ build_mpv() {
     -Dlibavdevice=disabled -Dmanpage-build=disabled -Dhtml-build=disabled -Dpdf-build=disabled
     "$@")
   say "building mpv"
+  # What decides the clipboard and Swift sources (the macOS build needs Swift for clipboard-mac.m).
+  grep -n -i -e clipboard -e "features\['swift'\]" -e "'swift'" "$SRC/mpv/meson.build" "$SRC/mpv/meson.options" 2>/dev/null | sed 's/^/libmpv: meson: /' || true
   meson setup "$BUILD/mpv" "$SRC/mpv" "${args[@]}"
   note "mpv: meson setup ${args[*]}"
   # mpv's meson writes every feature as HAVE_<NAME> (set10), so -Dgpl=false is HAVE_GPL 0.
