@@ -802,6 +802,8 @@ mod tests {
         let _ = std::fs::remove_dir_all(deps);
     }
 
+    // The ffmpeg-builds zip layout (and its `.exe` names) is only used on Windows; elsewhere FFmpeg is a static build.
+    #[cfg(windows)]
     #[tokio::test]
     async fn deno_and_ffmpeg_install_with_their_own_layouts() {
         let server = FakeReleases::start().await;
