@@ -151,8 +151,10 @@ export component MediaBin inherits VerticalLayout {
     /// The size slider: how wide a thumbnail is.
     property <length> tile-w: 150px;
     property <length> gap: 8px;
-    property <int> cols: max(1, floor((tiles.width - 20px - 10px + root.gap) / (root.tile-w + root.gap)));
-    property <length> cell-w: (tiles.width - 20px - 10px - (root.cols - 1) * root.gap) / root.cols;
+    /// The thumbnails' width: everything but the folders, the side panel and their two dividers.
+    property <length> tiles-w: root.width - 168px - 188px - 2px;
+    property <int> cols: max(1, floor((root.tiles-w - 20px - 10px + root.gap) / (root.tile-w + root.gap)));
+    property <length> cell-w: (root.tiles-w - 20px - 10px - (root.cols - 1) * root.gap) / root.cols;
     property <length> cell-h: root.cell-w * 9 / 16 + 24px;
 
     // The header: always there, so the library can be opened again.
@@ -314,7 +316,7 @@ export component MediaBin inherits VerticalLayout {
                 Rectangle {
                     x: 0;
                     y: 0;
-                    width: tiles.width;
+                    width: root.tiles-w;
                     height: 20px + ceil(root.rows.length / root.cols) * (root.cell-h + root.gap);
                     for f[i] in root.rows: BinTile {
                         x: 10px + (i - floor(i / root.cols) * root.cols) * (root.cell-w + root.gap);
