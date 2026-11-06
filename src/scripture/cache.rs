@@ -97,13 +97,12 @@ pub struct TextCache {
     inner: Mutex<Inner>,
 }
 
-fn tr_key(tr: &str) -> String { tr.trim().to_uppercase() }
+fn tr_key(tr: &str) -> String { crate::bible::normalise_id(tr) }
 
 fn passage_key(reference: &str) -> String { reference.trim().to_lowercase() }
 
 fn file_path(root: &Path, tr: &str) -> PathBuf {
-    let name: String = tr_key(tr).chars().filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_').collect();
-    root.join("scripture-cache").join(format!("{name}.json"))
+    root.join("scripture-cache").join(format!("{}.json", crate::bible::id::file_stem(&tr_key(tr))))
 }
 
 /// The file's contents; `None` when missing, corrupt or from another version.
@@ -195,6 +194,17 @@ mod tests {
     use super::*;
     use crate::model::VerseText;
     use crate::scripture::test_support::{ids_of, tmp_root, verses, verses_many};
+
+    #[test]
+    fn prefixed_ids_keep_their_case_and_their_own_files() {
+        let c = TextCache::new(tmp_root());
+        c.put("ebible:spaRV1909", "John 3", 500, "John 3", &verses(42, 3, 1..=2));
+        assert!(c.root.join("scripture-cache/ebible~spaRV1909.json").exists());
+        assert!(c.get("ebible:spaRV1909", "John 3").is_some());
+        assert!(c.get("ebible:sparv1909", "John 3").is_none());
+        c.put("esv", "John 3", 500, "John 3", &verses(42, 3, 1..=2));
+        assert!(c.root.join("scripture-cache/ESV.json").exists(), "old ids keep their files");
+    }
 
     #[test]
     fn per_item_limit_is_min_of_400_and_cap() { assert_eq!(per_item_limit(500), 400); assert_eq!(per_item_limit(300), 300); }

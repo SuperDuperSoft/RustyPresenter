@@ -1,7 +1,8 @@
 //! Offline Bibles the church supplies: public-domain texts (WEB, BSB, ASV…) or a file a publisher licensed to the
 //! church directly. Reads Zefania, OSIS, USX and OpenSong XML into the same shape as the bundled KJV and keeps each
-//! one as `bibles/{ABBR}.json` in the data folder. Nothing here is bundled or fetched.
-use super::{BOOKS, blocklist, canonical, display_name, find_book, parse_reference, sources::tidy};
+//! one as `bibles/{ABBR}.json` in the data folder. Nothing here is bundled or fetched. A Bible with a prefixed id
+//! (`bible::id`) keeps the same file format, under its encoded id.
+use super::{BOOKS, blocklist, canonical, display_name, find_book, id, normalise_id, parse_reference, sources::tidy};
 use crate::{model::VerseText, scripture::strings::BLOCKED};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use serde::{Deserialize, Serialize};
@@ -61,6 +62,14 @@ pub fn sanitize_abbr(s: &str) -> Option<String> {
         || (a.len() == 4 && (a.starts_with("COM") || a.starts_with("LPT")) && a.as_bytes()[3].is_ascii_digit());
     ((2..=10).contains(&a.len()) && !device).then_some(a)
 }
+
+/// The id of a Bible on disk: a prefixed id as it stands, an old-style abbreviation by `sanitize_abbr`.
+fn stored_id(s: &str) -> Option<String> {
+    let s = normalise_id(s);
+    if s.contains(':') { id::is_prefixed(&s).then_some(s) } else { sanitize_abbr(&s) }
+}
+
+fn file(root: &Path, id: &str) -> PathBuf { root.join("bibles").join(format!("{}.json", id::file_stem(id))) }
 
 /// Adds `new` to an earlier import with the same abbreviation, book by book: each book in `new` (USX is one book
 /// per file) replaces that whole book; other old books stay. A non-empty new name or copyright wins.
@@ -124,22 +133,21 @@ struct Stored { abbreviation: String, name: String, copyright: String, verses: V
 
 fn bad_abbr() -> io::Error { io::Error::new(io::ErrorKind::InvalidInput, "Give the Bible a short name of 2-10 letters or digits, like WEB.") }
 
-/// Writes `root/bibles/{ABBR}.json`.
+/// Writes `root/bibles/{ABBR}.json`, or the encoded id for a prefixed one.
 pub fn save(root: &Path, b: &ImportedBible) -> io::Result<()> {
-    let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(bad_abbr)?;
-    let dir = root.join("bibles");
-    fs::create_dir_all(&dir)?;
+    let abbr = stored_id(&b.abbreviation).ok_or_else(bad_abbr)?;
+    fs::create_dir_all(root.join("bibles"))?;
     let s = StoredRef {
         abbreviation: &abbr, name: &b.name, copyright: &b.copyright,
         verses: b.verses.iter().map(|(k, t)| (k.0, k.1, k.2, t.as_str())).collect(),
     };
-    crate::store::write_atomic(&dir.join(format!("{abbr}.json")), &serde_json::to_vec(&s).map_err(io::Error::other)?)
+    crate::store::write_atomic(&file(root, &abbr), &serde_json::to_vec(&s).map_err(io::Error::other)?)
 }
 
 /// One saved Bible, if present and readable.
 pub fn load(root: &Path, abbr: &str) -> Option<ImportedBible> {
-    let abbr = sanitize_abbr(abbr)?;
-    read(&root.join("bibles").join(format!("{abbr}.json")), &abbr)
+    let abbr = stored_id(abbr)?;
+    read(&file(root, &abbr), &abbr)
 }
 
 /// Every saved Bible, sorted by abbreviation. Unreadable or misnamed files are skipped.
@@ -148,8 +156,7 @@ pub fn load_all(root: &Path) -> Vec<ImportedBible> {
     let mut out: Vec<ImportedBible> = rd.flatten().filter_map(|e| {
         let p = e.path();
         if p.extension()? != "json" { return None; }
-        let stem = p.file_stem()?.to_str()?.to_string();
-        read(&p, &stem)
+        read(&p, &id::from_file_stem(p.file_stem()?.to_str()?)?)
     }).collect();
     out.sort_by(|a, b| a.abbreviation.cmp(&b.abbreviation));
     out
@@ -157,7 +164,7 @@ pub fn load_all(root: &Path) -> Vec<ImportedBible> {
 
 fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
     let s: Stored = serde_json::from_slice(&fs::read(p).ok()?).ok()?;
-    if sanitize_abbr(abbr).as_deref() != Some(abbr) || s.abbreviation != abbr { return None; }
+    if stored_id(abbr).as_deref() != Some(abbr) || s.abbreviation != abbr { return None; }
     let b = ImportedBible {
         abbreviation: s.abbreviation, name: s.name, copyright: s.copyright,
         verses: s.verses.into_iter().filter(|v| (v.0 as usize) < BOOKS.len()).map(|(b, c, v, t)| ((b, c, v), t)).collect(),
@@ -171,12 +178,12 @@ fn is_blocked(b: &ImportedBible) -> bool {
         || blocklist::blocked_text(b.verses.iter().map(|(k, t)| (*k, t.as_str())))
 }
 
-/// Deletes `root/bibles/{ABBR}.json`; already gone is fine. Holds `LOADED` throughout so no reader can reload the
+/// Deletes the Bible's file; already gone is fine. Holds `LOADED` throughout so no reader can reload the
 /// file between the delete and the eviction.
 pub fn remove(root: &Path, abbr: &str) -> io::Result<()> {
-    let abbr = sanitize_abbr(abbr).ok_or_else(bad_abbr)?;
+    let abbr = stored_id(abbr).ok_or_else(bad_abbr)?;
     let mut all = LOADED.lock().unwrap();
-    let r = match fs::remove_file(root.join("bibles").join(format!("{abbr}.json"))) {
+    let r = match fs::remove_file(file(root, &abbr)) {
         Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
         r => r,
     };
@@ -840,6 +847,43 @@ mod tests {
         assert_eq!(sanitize_abbr("COM1"), None);
         assert_eq!(sanitize_abbr("ABCDEFGHIJK"), None);
         assert_eq!(sanitize_abbr("Ελληνικά"), None);
+    }
+
+    #[test]
+    fn a_prefixed_id_keeps_its_case_and_gets_an_encoded_file() {
+        let root = crate::store::test_dir();
+        let mut b = sample();
+        b.abbreviation = "ebible:spaRV1909".into();
+        b.name = "Reina Valera 1909".into();
+        save(&root, &b).unwrap();
+        assert!(root.join("bibles/ebible~spaRV1909.json").exists());
+        assert_eq!(load(&root, "ebible:spaRV1909").unwrap().name, "Reina Valera 1909");
+        assert!(load(&root, "ebible:sparv1909").is_none(), "ids are case-sensitive");
+        let all = load_all(&root);
+        assert_eq!(all.iter().map(|b| b.abbreviation.as_str()).collect::<Vec<_>>(), ["ebible:spaRV1909"]);
+        assert!(get(&root, "ebible:spaRV1909").is_some());
+        remove(&root, "ebible:spaRV1909").unwrap();
+        assert!(!root.join("bibles/ebible~spaRV1909.json").exists());
+        assert!(get(&root, "ebible:spaRV1909").is_none());
+    }
+
+    #[test]
+    fn a_bad_id_is_refused_and_a_file_must_match_its_name() {
+        let root = crate::store::test_dir();
+        let mut b = sample();
+        b.abbreviation = "EBIBLE:x".into();
+        assert!(save(&root, &b).is_err());
+        b.abbreviation = "ebible:x".into();
+        save(&root, &b).unwrap();
+        fs::rename(root.join("bibles/ebible~x.json"), root.join("bibles/ebible~y.json")).unwrap();
+        assert!(load_all(&root).is_empty());
+    }
+
+    #[test]
+    fn an_operators_abbreviation_never_becomes_a_prefixed_id() {
+        let root = crate::store::test_dir();
+        let file = br#"<XMLBIBLE biblename="Test"><BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">For God loved.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#;
+        assert_eq!(import(&root, file, "ab:cd").unwrap().abbreviation, "ABCD");
     }
 
     #[test]

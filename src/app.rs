@@ -721,7 +721,7 @@ impl App {
             let P { reference, translation, text } = parse(body)?;
             let (label, verses) = tryr!(bible::pasted(&reference, &text));
             if bible::blocklist::blocked_passage(translation.trim(), &verses) { return Err(ActionError::bad(BLOCKED)); }
-            Ok(json!({ "label": label, "verses": verses, "translation": translation.trim().to_uppercase() }))
+            Ok(json!({ "label": label, "verses": verses, "translation": bible::normalise_id(&translation) }))
         }
         "bible/key" => {
             // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
@@ -1553,6 +1553,29 @@ mod tests {
         let v = test_app().do_action("bible/paste", br#"{"reference":"John 3:16-17","translation":"hcsb","text":"16 For God loved. 17 For God sent."}"#).await.unwrap();
         assert_eq!(v["translation"], "HCSB");
         assert_eq!(v["verses"].as_array().unwrap().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn a_prefixed_id_goes_through_paste_settings_and_a_saved_service() {
+        let app = test_app();
+        let id = "ebible:spaRV1909";
+        let mut b = bible::import::parse(br#"<XMLBIBLE biblename="Reina Valera"><BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">De tal manera.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#).unwrap();
+        b.abbreviation = id.into();
+        bible::import::save(&app.store.root, &b).unwrap();
+
+        let v = app.do_action("bible/lookup", json!({ "reference": "John 3:16", "translation": id }).to_string().as_bytes()).await.unwrap();
+        assert_eq!((v["translation"].as_str(), v["verses"][0]["text"].as_str()), (Some(id), Some("De tal manera.")));
+        let v = app.do_action("bible/paste", json!({ "reference": "John 3:16", "translation": id, "text": "16 De tal." }).to_string().as_bytes()).await.unwrap();
+        assert_eq!(v["translation"], id, "not uppercased");
+
+        app.do_action("settings/translation", json!({ "translation": id }).to_string().as_bytes()).await.unwrap();
+        assert_eq!(app.store.load().unwrap().settings.translation, id);
+        let add = json!({ "item": { "kind": "scripture", "reference": "John 3:16", "translation": id, "verses": v["verses"] } });
+        app.do_action("service/add", add.to_string().as_bytes()).await.unwrap();
+        let saved = app.store.load().unwrap();
+        let item = saved.services.iter().flat_map(|s| &s.items).next().unwrap();
+        assert!(matches!(&item.kind, ItemKind::Scripture { translation, .. } if translation == id));
+        assert!(app.state_json()["available_translations"].as_array().unwrap().contains(&json!(id)));
     }
 
     #[tokio::test]

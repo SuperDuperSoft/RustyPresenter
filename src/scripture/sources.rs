@@ -1,5 +1,6 @@
 //! Translation sources: the `bible_sources` rows plus the translations stored on this computer.
 use super::strings::{STATUS_NEEDS_KEY, STATUS_OFFLINE, STATUS_ONLINE, STATUS_UNAVAILABLE};
+use crate::bible::id::same_id;
 use serde::{Deserialize, Serialize};
 
 /// A translation's status in `bible_sources`. A status from a newer build loads as `Unknown`
@@ -41,10 +42,10 @@ impl Sources {
     pub fn kjv_only() -> Sources { Sources { rows: vec![], local: vec!["KJV".into()] } }
 
     fn row(&self, tr: &str) -> Option<&SourceInfo> {
-        self.rows.iter().find(|r| r.translation.eq_ignore_ascii_case(tr.trim()))
+        self.rows.iter().find(|r| same_id(&r.translation, tr))
     }
 
-    fn is_local(&self, tr: &str) -> bool { self.local.iter().any(|l| l.eq_ignore_ascii_case(tr.trim())) }
+    fn is_local(&self, tr: &str) -> bool { self.local.iter().any(|l| same_id(l, tr)) }
 }
 
 /// The row's status; with no row, `Offline` for a translation stored here, else `Unavailable`.

@@ -5,10 +5,12 @@ use crate::model::VerseText;
 pub mod api_bible;
 pub mod blocklist;
 pub mod esv;
+pub mod id;
 pub mod import;
 pub mod nlt;
 pub mod sources;
 pub mod youversion;
+pub use id::normalise_id;
 use std::{collections::BTreeMap, sync::OnceLock};
 
 /// (code in the eBible KJV source, display name, extra aliases)

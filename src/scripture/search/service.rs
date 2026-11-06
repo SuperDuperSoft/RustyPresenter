@@ -78,7 +78,7 @@ pub struct SearchService {
 }
 
 /// The map key for a translation code.
-fn key(tr: &str) -> String { tr.trim().to_ascii_uppercase() }
+fn key(tr: &str) -> String { crate::bible::normalise_id(tr) }
 
 impl SearchService {
     /// `on_ready(code)` is called on the blocking pool when a translation's index is ready.

@@ -260,12 +260,12 @@ fn fresh(e: &Entry, now: u64, policy: CachePolicy) -> bool { policy.max_age_days
 impl Cache {
     /// `bible-cache/api_bible-CSB.json`: one file per provider, so text is only ever served under its own provider's terms.
     fn path(root: &Path, provider: Provider, translation: &str) -> std::path::PathBuf {
-        root.join("bible-cache").join(format!("{}-{translation}.json", provider.key_name()))
+        root.join("bible-cache").join(format!("{}-{}.json", provider.key_name(), super::id::file_stem(translation)))
     }
 
     /// Also deletes the old provider-less `bible-cache/{translation}.json`, whose source is unknown.
     pub fn load(root: &Path, provider: Provider, translation: &str) -> Self {
-        let _ = std::fs::remove_file(root.join("bible-cache").join(format!("{translation}.json")));
+        let _ = std::fs::remove_file(root.join("bible-cache").join(format!("{}.json", super::id::file_stem(translation))));
         std::fs::read(Self::path(root, provider, translation)).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default()
     }
 
@@ -474,6 +474,19 @@ mod tests {
         std::fs::write(root.join("bible-cache/CSB.json"), r#"{"entries":[]}"#).unwrap();
         let _ = Cache::load(&root, Provider::ApiBible, "CSB");
         assert!(!root.join("bible-cache/CSB.json").exists());
+    }
+
+    #[test]
+    fn a_prefixed_id_has_its_own_safe_cache_file() {
+        let root = crate::store::test_dir();
+        let (b, p) = part("John 3:16");
+        let mut c = Cache::default();
+        c.put(b, &p, 1, Fetched { verses: vec![(3, 16, "x".into())], fums: vec![] }, ESV, 879);
+        c.save(&root, Provider::ApiBible, "ab:de4e12af7f28f599-02").unwrap();
+        assert!(root.join("bible-cache/api_bible-ab~de4e12af7f28f599-02.json").exists());
+        assert!(Cache::load(&root, Provider::ApiBible, "ab:de4e12af7f28f599-02").get(b, &p, 1, ESV).is_some());
+        c.save(&root, Provider::ApiBible, "ab:../../x").unwrap();
+        assert!(root.join("bible-cache/api_bible-ab~..%2F..%2Fx.json").exists());
     }
 
     fn cache_file(root: &Path, provider: Provider, translation: &str) -> bool {

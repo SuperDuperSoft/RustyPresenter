@@ -4,7 +4,7 @@
 //! protected (`CachePolicy { max_age_days: Some(30), .. }`); every passage shown links to its full copyright
 //! notice (`copyright()`); each passage's `fumsToken` is returned (and cached) so `sources::lookup` reports it to
 //! FUMS (`report_fums`) every time the passage is shown, fetched or cached.
-use super::{Part, sources::{FetchError, Fetched, Verse, tidy}};
+use super::{Part, normalise_id, sources::{FetchError, Fetched, Verse, tidy}};
 use serde::Deserialize;
 use std::{collections::BTreeMap, path::Path, sync::{Mutex, OnceLock}};
 
@@ -94,7 +94,7 @@ static BIBLE_IDS: Mutex<BTreeMap<String, String>> = Mutex::new(BTreeMap::new());
 static COPYRIGHTS: Mutex<BTreeMap<String, String>> = Mutex::new(BTreeMap::new());
 
 /// Copyright text from the last passage fetched in this translation (e.g. the CSB's Holman notice).
-pub fn copyright(translation: &str) -> Option<String> { COPYRIGHTS.lock().unwrap().get(&translation.to_uppercase()).cloned() }
+pub fn copyright(translation: &str) -> Option<String> { COPYRIGHTS.lock().unwrap().get(&normalise_id(translation)).cloned() }
 
 // ---------- fetch ----------
 
@@ -145,12 +145,12 @@ async fn get(client: &reqwest::Client, key: &str, translation: &str, url: &str) 
         .send().await?;
     if !res.status().is_success() {
         // 403/404 can mean the Bible left the key's plan: look its id up again next time.
-        BIBLE_IDS.lock().unwrap().remove(&translation.to_uppercase());
+        BIBLE_IDS.lock().unwrap().remove(&normalise_id(translation));
         return Err(status_error(res.status().as_u16(), translation));
     }
     let r = res.json::<Response>().await?;
     if !r.data.copyright.trim().is_empty() {
-        COPYRIGHTS.lock().unwrap().insert(translation.to_uppercase(), tidy(&r.data.copyright));
+        COPYRIGHTS.lock().unwrap().insert(normalise_id(translation), tidy(&r.data.copyright));
     }
     Ok(r)
 }
@@ -165,7 +165,7 @@ fn status_error(status: u16, translation: &str) -> FetchError {
 
 /// Finds (and memoizes) the opaque Bible id: `?abbreviation=` first, then the whole English list.
 async fn bible_id(client: &reqwest::Client, key: &str, translation: &str) -> Result<String, FetchError> {
-    let name = translation.to_uppercase();
+    let name = normalise_id(translation);
     if let Some(id) = BIBLE_IDS.lock().unwrap().get(&name) { return Ok(id.clone()); }
     for q in [("abbreviation", name.as_str()), ("language", "eng")] {
         let res = client.get(format!("{URL}/bibles")).header("api-key", key).query(&[q]).send().await?;
