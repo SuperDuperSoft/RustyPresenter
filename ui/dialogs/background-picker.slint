@@ -87,6 +87,8 @@ export component ColorGrid inherits Rectangle {
                     edited => { root.hex(self.text); }
                     changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
                     EditMenu {
+                        x: 0;
+                        y: 0;
                         width: 100%;
                         height: 100%;
                         has-text: hex-input.text != "";

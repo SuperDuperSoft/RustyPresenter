@@ -363,8 +363,8 @@ export component Field inherits VerticalLayout {
 /// The right-click menu of a plain `TextInput` (the browser's menu in every web field; Slint's own `LineEdit` and
 /// `TextEdit` have one, a bare `TextInput` has none). Put it inside the field, filling it, and point its callbacks at
 /// the field's `cut()`, `copy()`, `paste()` and `select-all()`. A read-only field (`editable: false`) offers Copy and
-/// Select all only. It takes right clicks only, so the field still gets every other click. Do not give it `x` or `y`:
-/// with them the field stops taking the keyboard focus from a click. Position the field itself instead.
+/// Select all only. It takes right clicks only, so the field still gets every other click. Give it `x: 0; y: 0;` too,
+/// so it does not fix the field at its current size (see `ScrollBox`).
 export component EditMenu inherits ContextMenuArea {
     in property <bool> editable: true;
     in property <bool> has-text;
@@ -431,6 +431,8 @@ export component CopyText inherits Rectangle {
     }
     // Over the click area, which would otherwise take the right click too.
     EditMenu {
+        x: 0;
+        y: 0;
         width: 100%;
         height: 100%;
         editable: false;

@@ -311,6 +311,7 @@ mod tests {
     fn opened(app: &Arc<App>) -> Rc<Operator> {
         let op = open(app);
         op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
+        slint::platform::update_timers_and_animations();
         refresh(&op);
         op
     }
