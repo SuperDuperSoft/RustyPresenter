@@ -1,0 +1,1130 @@
+# Spanish for RustyPresenter.
+msgid ""
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Español\n"
+"X-English-Name: Spanish\n"
+"X-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr ""
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr ""
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr ""
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint
+msgid "Edit"
+msgstr ""
+
+#: ui/dialogs/add-list.slint
+msgid "Add"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr ""
+
+#: ui/dialogs/add-media.slint ui/widgets.slint
+msgid "Copy"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "New song"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Auto"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint
+msgid "Title"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint
+msgid "Text"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Song"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint
+msgid "Lyrics"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint
+msgid "Slides"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Announcement"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr ""
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr ""
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Edit song"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Choose"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Background"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint
+msgid "Cancel"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Pair a phone"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr ""
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint
+msgid "Remove"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint
+msgid "Back"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Default Bible"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Connected"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Not connected"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Bible files"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint
+msgid "Credits"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Lower third"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint
+msgid "Logo"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Off"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "Idioma"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Video"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Help"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Writers"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Next"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Up next"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Clear All"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Media"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator/media.slint
+msgid "Audio"
+msgstr ""
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr ""
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Pictures"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Delete folder"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr ""
+
+#: ui/operator/media.slint ui/operator/service.slint
+msgid "Add to service"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr ""
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr ""
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr ""
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator.slint
+msgid "Service"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr ""
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr ""
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Stage"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Phone"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Settings"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Close"
+msgstr ""
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr ""
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "Idioma cambiado"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr ""

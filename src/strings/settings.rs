@@ -119,6 +119,17 @@ pub fn media_licence() -> String {
     format!("Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {MEDIA_SOURCE_URL}")
 }
 
+// ---- Language (I18N spec D7) ----
+pub fn use_computer_language(name: &str) -> String { crate::tr!("Use the computer's language ({name})", name = name) }
+/// A machine-drafted translation no native speaker has checked yet (spec D9).
+pub fn needs_review(name: &str) -> String { crate::tr!("{name} (needs review)", name = name) }
+pub fn language_sub(english_name: &str, percent: u8) -> String {
+    crate::tr!("{english_name} · {percent}% translated", english_name = english_name, percent = percent)
+}
+pub fn no_font_for_language() -> String { crate::tr!("Your computer may not have a font for this language.") }
+/// "Help translate RustyPresenter" copies this.
+pub const TRANSLATING_URL: &str = "https://github.com/SuperDuperSoft/RustyPresenter/blob/main/docs/TRANSLATING.md";
+
 #[cfg(test)]
 mod tests {
     #[test]

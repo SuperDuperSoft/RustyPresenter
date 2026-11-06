@@ -191,7 +191,7 @@ fn look_preview_rebuilt_on_tab_return() {
     g(&op).invoke_look_changed();
     // Leave before the preview is drawn again: the image goes.
     let tabs = find_all(&op, "Tabs::tab");
-    assert_eq!(tabs.len(), 7);
+    assert_eq!(tabs.len(), 8);
     tabs[1].mock_single_click(PointerEventButton::Left);
     settle();
     assert_eq!(g(&op).get_tab(), 1);
@@ -509,8 +509,8 @@ fn bible_library_lists_searches_and_filters_the_saved_catalog() {
     open(&op, SettingsTab::Look);
     settle();
     assert_eq!(g(&op).get_catalog_rows().row_count(), 0, "nothing is asked for before the Bible tab is shown");
-    g(&op).set_tab(2);
-    g(&op).invoke_tab_changed(2);
+    g(&op).set_tab(tab_index(SettingsTab::Bible));
+    g(&op).invoke_tab_changed(tab_index(SettingsTab::Bible));
     settle();
     let lines = catalog_lines(&op);
     assert_eq!(lines[0], "# English", "the church's language first: {lines:?}");
@@ -648,4 +648,40 @@ fn credits_show_each_downloaded_bible_with_its_licence_and_link() {
     let row = sources.iter().find(|r| r.translation == "RVR").unwrap_or_else(|| panic!("listed by abbreviation"));
     assert_eq!(row.hint, "Reina Valera Revisada — downloaded from eBible.org");
     assert!(row.imported, "it can still be removed here");
+}
+
+#[test]
+fn language_tab_lists_languages_and_switches_the_app_at_once() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Language);
+    settle();
+    assert_eq!(g(&op).get_tab(), 1, "Language comes right after Look");
+    let tab_labels = || find_all(&op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect::<Vec<_>>();
+    assert_eq!(tab_labels()[..3], ["Look", "Language", "Songs"]);
+    let rows: Vec<crate::ui::SettingsLanguageRow> = g(&op).get_languages().iter().collect();
+    assert!(rows[0].title.starts_with("Use the computer's language ("), "{:?}", rows[0].title);
+    assert!(rows[0].on, "new data follows the computer");
+    assert_eq!(rows[1].title, "English");
+    let es = rows.iter().position(|r| r.title == "Español (needs review)").expect("Spanish is listed by its own name");
+    assert!(rows[es].sub.starts_with("Spanish · ") && rows[es].sub.ends_with("% translated"), "{:?}", rows[es].sub);
+    assert_eq!(find_all(&op, "SettingsLanguage::use-language").len(), rows.len() - 1, "every row but the chosen one has Use");
+
+    g(&op).invoke_choose_language(es as i32);
+    settle();
+    assert_eq!(crate::i18n::current(), "es");
+    assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
+    assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
+    assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
+    assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
+    assert!(g(&op).get_languages().row_data(es).unwrap().on);
+
+    // Cancel keeps it; English again from its row.
+    g(&op).invoke_cancel();
+    open(&op, SettingsTab::Language);
+    settle();
+    g(&op).invoke_choose_language(1);
+    settle();
+    assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
+    assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
 }

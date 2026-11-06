@@ -127,6 +127,13 @@ thread_local! {
 #[cfg(test)]
 pub(crate) fn check_with_bundled_fonts() { FONTS.with(|f| *f.borrow_mut() = Some(Fonts::bundled_only())) }
 
+/// Whether no font here (the app's, as for Bible rows) can draw some of `text`. Latin letters are in every font, so
+/// they need no check (which would load the system's fonts).
+pub(crate) fn lacks_font(text: &str) -> bool {
+    if text.chars().all(|c| (c as u32) < 0x250) { return false }
+    FONTS.with(|f| f.borrow_mut().get_or_insert_with(Fonts::new).lacks_glyphs(text))
+}
+
 /// `needs_font` with the app's fonts, once per row id.
 fn no_font(memo: &RefCell<HashMap<String, bool>>, r: &CatRow) -> bool {
     if let Some(&v) = memo.borrow().get(&r.id) { return v }

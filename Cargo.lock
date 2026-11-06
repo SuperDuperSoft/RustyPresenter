@@ -4661,6 +4661,7 @@ dependencies = [
  "signal-hook-registry",
  "slint",
  "slint-build",
+ "sys-locale",
  "tiny-skia 0.12.0",
  "tokio",
  "tokio-util",

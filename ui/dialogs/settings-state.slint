@@ -25,12 +25,19 @@ export struct SettingsCreditRow { text: string, url: string }
 /// A backup row: when it was made and what it holds.
 export struct SettingsBackupRow { label: string, counts: string }
 
+/// A row of Settings → Language: "Use the computer's language (…)" or a language by its own name; `sub` is its
+/// English name and how much is translated; `on` is the one chosen.
+export struct SettingsLanguageRow { title: string, sub: string, on: bool, font-warning: string }
+
 /// A row of the keyboard table in Help.
 export struct SettingsHelpRow { keys: string, what: string }
 
 export global SettingsDlg {
-    /// 0 Look, 1 Songs, 2 Bible, 3 Video, 4 Backups, 5 Help, 6 About.
+    /// 0 Look, 1 Language, 2 Songs, 3 Bible, 4 Video, 5 Backups, 6 Help, 7 About.
     in-out property <int> tab;
+
+    // ---- Language ----
+    in property <[SettingsLanguageRow]> languages;
 
     // ---- Look ----
     in property <[string]> fonts;
@@ -119,6 +126,9 @@ export global SettingsDlg {
     in property <string> licences;
 
     callback tab-changed(int);
+    /// Settings → Language: a row's Use button (applied at once), and the translators' guide link.
+    callback choose-language(int);
+    callback help-translate();
     /// Any Look edit: the preview is drawn again 150 ms later.
     callback look-changed();
     callback choose-logo();

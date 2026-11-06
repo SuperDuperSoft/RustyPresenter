@@ -45,6 +45,8 @@ tokio-util = "0.7"
 # Plan 4: telling presentations apart by their content (zip packages, OLE compound files).
 zip = { version = "9.2", default-features = false, features = ["deflate"] }
 cfb = "0.10"
+# The computer's language (I18N). Already in Cargo.lock through Slint.
+sys-locale = "0.3"
 
 [features]
 # PERF EXPERIMENT renderers for RP_RENDERER (see `video::choose_backend`); off by default, the app uses FemtoVG.

@@ -34,6 +34,10 @@ pub(crate) fn ui_test_init() {
     INIT.with(|done| {
         if !done.replace(true) {
             i_slint_backend_testing::init_no_event_loop();
+            // Slint picks the computer's language for the first window it makes: make one, then show English (each
+            // test thread's language, `crate::i18n`), whatever the computer's language is.
+            drop(crate::ui::IdentifyWindow::new().expect("a first window"));
+            crate::i18n::sync_slint();
         }
     });
 }
