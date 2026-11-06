@@ -526,7 +526,7 @@ impl App {
         let secrets = Secrets::load(root);
         self.translations().iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
-                return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": format!("{name} — built in, public domain") });
+                return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": format!("{name} — built in, public domain"), "language": "English" });
             }
             if let Some(b) = bible::import::meta(root, t) {
                 use bible::library::Source;
@@ -535,12 +535,14 @@ impl App {
                 let abbr = if b.abbr.is_empty() { b.id.clone() } else { b.abbr.clone() };
                 return json!({
                     "translation": t, "abbr": abbr, "name": b.name, "status": "offline", "imported": true, "downloaded": downloaded,
-                    "provider": provider, "copyright": b.copyright, "licence": b.licence.short(), "licence_url": b.licence.link(),
+                    "provider": provider, "copyright": b.copyright, "licence": b.licence.short(), "licence_url": b.licence.link(), "lang": b.lang,
+                    "language": if b.lang.is_empty() || b.lang == "und" { String::new() } else { bible::catalog::strings::language(&b.lang_name_en, &b.lang_name, &b.lang) },
                 });
             }
             match source_with(t, &secrets) {
                 Some(s) => json!({
                     "translation": t,
+                    "language": "English",
                     "status": if secrets.key(s.provider).is_some() { "online" } else { "needs_key" },
                     "provider": s.provider.label(),
                     "providers": bible::sources::sources(t).map(|s| s.provider.key_name()).collect::<Vec<_>>(),
@@ -860,7 +862,14 @@ impl App {
             s.theme.size = s.theme.size.clamp(24, 200);
             s.theme.scripture_size = s.theme.scripture_size.clamp(24, 200);
             s.bible_per_slide = s.bible_per_slide.min(4);
-            tryr!(app.edit(|d| { d.settings = s; Ok(()) }));
+            // The picker owns these (`settings/translation`, `settings/favourite`): a form saved from an older copy
+            // must not undo a star or a pick made while it was open.
+            tryr!(app.edit(|d| {
+                s.favourites = std::mem::take(&mut d.settings.favourites);
+                s.recent = std::mem::take(&mut d.settings.recent);
+                d.settings = s;
+                Ok(())
+            }));
             Ok(json!({}))
         }
         "settings/translation" => {
@@ -868,7 +877,18 @@ impl App {
             let T { translation } = parse(body)?;
             if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
             if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
-            tryr!(app.edit(|d| { d.settings.translation = translation; Ok(()) }));
+            tryr!(app.edit(|d| { d.settings.used_translation(&translation); d.settings.translation = translation; Ok(()) }));
+            Ok(json!({}))
+        }
+        // The picker's star. A Bible no longer installed can still be unstarred.
+        "settings/favourite" => {
+            #[derive(Deserialize)] struct F { translation: String, on: bool }
+            let F { translation, on } = parse(body)?;
+            if on {
+                if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
+                if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
+            }
+            tryr!(app.edit(|d| { d.settings.set_favourite(&translation, on); Ok(()) }));
             Ok(json!({}))
         }
         // ---- displays ----
@@ -1668,6 +1688,50 @@ mod tests {
         assert_eq!(app.store.load().unwrap().settings.translation, "NIV", "saved to disk");
         assert_eq!(app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err().message, "Unknown translation.");
         assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+    }
+
+    #[tokio::test]
+    async fn picking_a_bible_puts_it_first_in_recent() {
+        let app = test_app();
+        for t in ["NIV", "WEB", "NIV", "BSB", "ESV", "NLT", "CSB", "HCSB", "KJV", "WEB"] {
+            app.do_action("settings/translation", json!({ "translation": t }).to_string().as_bytes()).await.unwrap();
+        }
+        let recent = app.store.load().unwrap().settings.recent;
+        assert_eq!(recent, ["WEB", "KJV", "HCSB", "CSB", "NLT", "ESV", "BSB", "NIV"], "newest first, once each, saved");
+        assert_eq!(recent.len(), crate::model::RECENT_MAX);
+        app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err();
+        assert_eq!(app.data.lock().unwrap().settings.recent[0], "WEB", "a refused pick changes nothing");
+    }
+
+    #[tokio::test]
+    async fn favourites_star_unstar_and_survive_a_settings_save() {
+        let app = test_app();
+        let star = |t: &str, on: bool| json!({ "translation": t, "on": on }).to_string();
+        app.do_action("settings/favourite", star("ESV", true).as_bytes()).await.unwrap();
+        app.do_action("settings/favourite", star("KJV", true).as_bytes()).await.unwrap();
+        app.do_action("settings/favourite", star("esv", true).as_bytes()).await.unwrap_err();
+        app.do_action("settings/favourite", star("ESV", true).as_bytes()).await.unwrap();
+        assert_eq!(app.store.load().unwrap().settings.favourites, ["ESV", "KJV"], "once each, in the order starred");
+        assert_eq!(app.do_action("settings/favourite", star("XYZ", true).as_bytes()).await.unwrap_err().message, "Unknown translation.");
+        assert_eq!(app.do_action("settings/favourite", star("NWT", true).as_bytes()).await.unwrap_err().message, BLOCKED);
+        // A form opened before the star is saved: the star stays.
+        let mut form = crate::model::Settings::default();
+        form.lines_per_slide = 3;
+        app.do_action("settings", serde_json::to_string(&form).unwrap().as_bytes()).await.unwrap();
+        let s = app.data.lock().unwrap().settings.clone();
+        assert_eq!((s.lines_per_slide, s.favourites.as_slice()), (3, ["ESV".to_string(), "KJV".to_string()].as_slice()));
+        app.do_action("settings/favourite", star("ESV", false).as_bytes()).await.unwrap();
+        app.do_action("settings/favourite", star("GONE", false).as_bytes()).await.unwrap();
+        assert_eq!(app.data.lock().unwrap().settings.favourites, ["KJV"], "unstarring needs no installed Bible");
+    }
+
+    #[test]
+    fn blocked_bibles_leave_favourites_and_recent() {
+        let mut d = Data::default();
+        d.settings.favourites = vec!["KJV".into(), "NWT".into()];
+        d.settings.recent = vec!["TPT".into(), "WEB".into()];
+        bible::blocklist::strip(&mut d);
+        assert_eq!((d.settings.favourites, d.settings.recent), (vec!["KJV".to_string()], vec!["WEB".to_string()]));
     }
 
     #[tokio::test]

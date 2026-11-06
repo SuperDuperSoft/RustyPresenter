@@ -234,6 +234,30 @@ pub struct Settings {
     pub audio_device: String,
     /// Verses per slide for new Bible passages: 0 = automatic (by length), else 1–4.
     pub bible_per_slide: u8,
+    /// Bibles starred in the picker (ids), in the order they were starred. Chips show them after the chosen one.
+    pub favourites: Vec<String>,
+    /// Bibles picked lately (ids), newest first, at most `RECENT_MAX`. Chips show them after the favourites.
+    pub recent: Vec<String>,
+}
+
+/// How many recently picked Bibles `Settings.recent` keeps: enough that four remain once the chosen one and the
+/// favourites are left out of the chips.
+pub const RECENT_MAX: usize = 8;
+
+impl Settings {
+    /// `translation` was just chosen: it goes to the front of `recent`, once.
+    pub fn used_translation(&mut self, translation: &str) {
+        self.recent.retain(|t| !crate::bible::id::same_id(t, translation));
+        self.recent.insert(0, translation.to_string());
+        self.recent.truncate(RECENT_MAX);
+    }
+
+    /// Stars `translation` (`on`) or unstars it. Starring one already starred changes nothing.
+    pub fn set_favourite(&mut self, translation: &str, on: bool) {
+        let starred = self.favourites.iter().any(|t| crate::bible::id::same_id(t, translation));
+        if on && !starred { self.favourites.push(translation.to_string()) }
+        if !on { self.favourites.retain(|t| !crate::bible::id::same_id(t, translation)) }
+    }
 }
 
 impl Default for Settings {
@@ -250,6 +274,8 @@ impl Default for Settings {
             room_on_top: true,
             audio_device: String::new(),
             bible_per_slide: 0,
+            favourites: Vec::new(),
+            recent: Vec::new(),
         }
     }
 }

@@ -111,30 +111,28 @@ fn every_dialog_is_centred_and_inside_the_window() {
 }
 
 #[test]
-fn translation_buttons_collapse_in_a_narrow_window() {
+fn bible_chips_collapse_to_the_chosen_one_in_a_narrow_window() {
     use crate::ui::operator::window::testing::find_all;
     use slint::platform::PointerEventButton;
     let app = test_app();
     let op = open(&app);
     refresh(&op);
     resize(&op, (1454.0, 938.0));
-    assert!(find(&op, "TopBar::translation-pick").is_none());
-    assert!(find_all(&op, "TopBar::translation-chip").len() > 1, "every translation has its button");
+    assert!(find(&op, "TopBar::translation-pick").is_some(), "the chosen Bible's button is always there");
+    assert_eq!(find_all(&op, "TopBar::translation-chip").len(), 2, "then the favourite and recent chips (here WEB, BSB)");
     resize(&op, (1280.0, 720.0));
     assert!(find(&op, "TopBar::translation-chip").is_none());
     let pick = find(&op, "TopBar::translation-pick").expect("the chosen translation's button");
     assert_eq!(pick.accessible_label().unwrap_or_default(), "KJV");
     assert!(pick.size().width <= 80.0, "the button keeps its own width, not the Bible box's: {}", pick.size().width);
-    let picked = Rc::new(std::cell::Cell::new(None));
-    let p = picked.clone();
-    op.ui.on_pick_translation(move |i| p.set(Some(i)));
     pick.mock_single_click(PointerEventButton::Left);
     slint::platform::update_timers_and_animations();
     let rows = find_all(&op, "TopBar::picker-row");
-    assert_eq!(rows.len(), slint::Model::row_count(&op.ui.get_translations()), "the list shows every translation");
-    let web = rows.iter().position(|r| r.accessible_label().unwrap_or_default() == "WEB").expect("WEB in the list");
-    rows[web].mock_single_click(PointerEventButton::Left);
-    assert_eq!(picked.get(), Some(web as i32));
+    let snap = op.state.borrow().snap.clone().unwrap();
+    assert_eq!(rows.len(), snap.translations.len(), "every Bible, once");
+    let web = rows.iter().find(|r| r.accessible_label().unwrap_or_default() == "WEB").expect("WEB in the list");
+    web.mock_single_click(PointerEventButton::Left);
+    assert_eq!(app.data.lock().unwrap().settings.translation, "WEB");
 }
 /// The window's own limits, as the winit backend reads them for the window's minimum and maximum size
 /// (`WindowProperties::layout_constraints`): horizontal, then vertical.

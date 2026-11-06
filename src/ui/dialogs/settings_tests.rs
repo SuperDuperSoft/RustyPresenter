@@ -378,7 +378,7 @@ fn help_lists_every_bound_key() {
             if action == KeyAction::None || (ctx.in_text_field && action == KeyAction::None) { continue }
             let row = rows.iter().find(|r| same(&r.action, &action)).unwrap_or_else(|| panic!("{key:?} ctrl={ctrl} alt={alt} does {action:?}, not in Help"));
             let named = row.binds.iter().any(|(k, c, a)| k.eq_ignore_ascii_case(&key) && *c == ctrl && *a == alt)
-                || (row.keys == strings::KEY_ALT_DIGITS && alt && ('1'..='6').contains(&key.chars().next().unwrap()));
+                || (row.keys == strings::KEY_ALT_DIGITS && alt && ('1'..='5').contains(&key.chars().next().unwrap()));
             assert!(named, "{key:?} ctrl={ctrl} alt={alt} is not named in the Help row {:?}", row.keys);
         }
     }
@@ -391,7 +391,7 @@ fn help_lists_every_bound_key() {
     assert_eq!(shown, rows.iter().map(|r| (r.keys.to_string(), r.what.to_string())).collect::<Vec<_>>());
     assert_eq!(shown[0], ("→  ↓  Space  Page Down".to_string(), "Next".to_string()));
     assert_eq!(shown[1], ("←  ↑  Page Up".to_string(), "Back".to_string()));
-    assert!(shown.contains(&("Alt + 1–6".to_string(), "Bible translation (in the Bible box)".to_string())));
+    assert!(shown.contains(&("Alt + 1–5".to_string(), "Pick a Bible chip (in the Bible box)".to_string())));
     assert_eq!(find_all(&op, "SettingsHelp::help-row").len(), rows.len());
 }
 

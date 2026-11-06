@@ -42,6 +42,10 @@ pub struct BibleSource {
     /// Licence short name and link for the credits ("CC BY-SA 4.0"); empty when the notice is all there is.
     pub licence: String,
     pub licence_url: String,
+    /// The language code from the Bible's file ("spa"); empty for built-in and online Bibles.
+    pub lang: String,
+    /// The language as the picker heads it ("Spanish · Español"); empty when not known.
+    pub language: String,
 }
 
 impl BibleSource {
@@ -278,6 +282,125 @@ pub fn fmt_time(s: f64) -> String {
 /// "1 item", "N items", or nothing for an empty service (`operator.js:129`).
 pub fn count_label(n: usize) -> String { if n == 0 { String::new() } else { tr::items(n) } }
 
+/// How many chips follow the chosen Bible's in the Bible box (spec §7.2: Alt+1 is the chosen one, Alt+2…5 these).
+pub const QUICK_CHIPS: usize = 4;
+
+/// One Bible as the Bible box's chips and picker show it.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct BibleChoice {
+    /// What lookups and `settings/translation` take ("KJV", "ebible:spaRV1909").
+    pub id: String,
+    /// The chip's text: the abbreviation, with the language and then "imported" added where two would read alike.
+    pub label: String,
+    /// The full name, for the picker and the chip's tip; empty when the app only knows the abbreviation.
+    pub name: String,
+    /// Not connected yet (a licensed Bible with no key): shown faded, still pickable.
+    pub off: bool,
+    pub favourite: bool,
+}
+
+/// What each translation is called on chips (spec §7.2). Abbreviations that read alike, ignoring case, get the
+/// language code, then "imported" for a file the church imported, so "RV1909 · spa" and "RV1909 · spa · imported"
+/// can sit side by side. A label does not change with what is next to it.
+pub fn bible_labels(s: &OperatorSnapshot) -> std::collections::HashMap<String, String> {
+    use std::collections::HashMap;
+    let source = |t: &str| s.bible_sources.iter().find(|b| b.translation == t);
+    let base = |t: &str| source(t).map_or(t, BibleSource::label).to_string();
+    let mut count: HashMap<String, usize> = HashMap::new();
+    for t in &s.translations { *count.entry(base(t).to_lowercase()).or_default() += 1 }
+    let mut labels: HashMap<String, String> = s.translations.iter().map(|t| {
+        let mut label = base(t);
+        if count[&label.to_lowercase()] > 1 && let Some(b) = source(t) && !b.lang.is_empty() { label = format!("{label} · {}", b.lang) }
+        (t.clone(), label)
+    }).collect();
+    let mut count: HashMap<String, usize> = HashMap::new();
+    for l in labels.values() { *count.entry(l.to_lowercase()).or_default() += 1 }
+    for t in &s.translations {
+        let l = &labels[t];
+        if count[&l.to_lowercase()] > 1 && source(t).is_some_and(|b| b.imported && !b.downloaded) {
+            let l = format!("{l} · {}", tr::BIBLE_IMPORTED);
+            labels.insert(t.clone(), l);
+        }
+    }
+    labels
+}
+
+/// The translation `t` as a chip or picker row.
+fn bible_choice(s: &OperatorSnapshot, labels: &std::collections::HashMap<String, String>, t: &str) -> BibleChoice {
+    let source = s.bible_sources.iter().find(|b| b.translation == t);
+    BibleChoice {
+        id: t.to_string(),
+        label: labels.get(t).cloned().unwrap_or_else(|| t.to_string()),
+        name: source.map(|b| b.name.clone()).unwrap_or_default(),
+        off: !s.available.iter().any(|a| a == t),
+        favourite: s.settings.favourites.iter().any(|f| crate::bible::id::same_id(f, t)),
+    }
+}
+
+/// The ids in `list` that are still installed (or known), each once, leaving out `skip`.
+fn installed<'a>(s: &'a OperatorSnapshot, list: &'a [String], skip: &'a [String]) -> impl Iterator<Item = &'a String> + 'a {
+    use crate::bible::id::same_id;
+    list.iter().enumerate()
+        .filter(|(i, t)| !list[..*i].iter().any(|u| same_id(u, t)))
+        .filter_map(|(_, t)| s.translations.iter().find(|u| same_id(u, t)))
+        .filter(move |t| !skip.iter().any(|u| same_id(u, t)))
+}
+
+/// The Bible box's chips (spec §7.2): the chosen Bible first, then up to `QUICK_CHIPS` more: favourites, then the
+/// ones picked lately. While there are fewer than that (a new install has none), the Bibles that work now fill the
+/// rest in list order, so Alt+2… and one-click switching work from the first day.
+pub fn bible_chips(s: &OperatorSnapshot) -> Vec<BibleChoice> {
+    let labels = bible_labels(s);
+    let mut ids: Vec<String> = vec![s.translation.clone()];
+    let more: Vec<String> = installed(s, &s.settings.favourites, &ids).cloned()
+        .chain(installed(s, &s.settings.recent, &ids).cloned())
+        .chain(s.translations.iter().filter(|t| s.available.contains(t)).cloned())
+        .collect();
+    for t in more {
+        if ids.len() > QUICK_CHIPS { break }
+        if !ids.iter().any(|u| crate::bible::id::same_id(u, &t)) { ids.push(t) }
+    }
+    ids.iter().map(|t| bible_choice(s, &labels, t)).collect()
+}
+
+/// One line of the Bible picker: a heading, or a Bible.
+#[derive(Clone, Debug, PartialEq)]
+pub enum PickerLine { Heading(String), Bible(BibleChoice) }
+
+/// The Bible picker's lines (spec §7.2): Favourites, Recent, then every other installed Bible under its language
+/// (English first, then A to Z, then Bibles whose language is not known). Each Bible shows once. The search keeps
+/// the Bibles whose abbreviation, name or language holds every word (folded like the catalog's search); headings
+/// with nothing under them go.
+pub fn picker_lines(s: &OperatorSnapshot, query: &str) -> Vec<PickerLine> {
+    use crate::bible::blocklist::normalise;
+    let labels = bible_labels(s);
+    let words: Vec<String> = query.split_whitespace().map(normalise).filter(|w| !w.is_empty()).collect();
+    let language = |t: &str| s.bible_sources.iter().find(|b| b.translation == t).map(|b| b.language.clone()).unwrap_or_default();
+    let matches = |c: &BibleChoice| {
+        let hay = normalise(&format!("{} {} {} {}", c.label, c.name, c.id, language(&c.id)));
+        words.iter().all(|w| hay.contains(w.as_str()))
+    };
+    let favourites: Vec<String> = installed(s, &s.settings.favourites, &[]).cloned().collect();
+    let recent: Vec<String> = installed(s, &s.settings.recent, &favourites).take(QUICK_CHIPS).cloned().collect();
+    let mut groups: Vec<(String, Vec<String>)> = vec![(tr::PICKER_FAVOURITES.into(), favourites.clone()), (tr::PICKER_RECENT.into(), recent.clone())];
+    let shown: Vec<String> = favourites.into_iter().chain(recent).collect();
+    let mut by_language: Vec<(String, Vec<String>)> = Vec::new();
+    for t in s.translations.iter().filter(|t| !shown.contains(t)) {
+        let l = language(t);
+        match by_language.iter_mut().find(|(k, _)| *k == l) { Some((_, v)) => v.push(t.clone()), None => by_language.push((l, vec![t.clone()])) }
+    }
+    by_language.sort_by_key(|(l, _)| (l != "English", l.is_empty(), l.to_lowercase()));
+    groups.extend(by_language.into_iter().map(|(l, v)| (if l.is_empty() { tr::PICKER_OTHER.to_string() } else { l }, v)));
+    let mut out = Vec::new();
+    for (heading, ids) in groups {
+        let rows: Vec<BibleChoice> = ids.iter().map(|t| bible_choice(s, &labels, t)).filter(|c| matches(c)).collect();
+        if rows.is_empty() { continue }
+        out.push(PickerLine::Heading(heading));
+        out.extend(rows.into_iter().map(PickerLine::Bible));
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -286,6 +409,45 @@ mod tests {
         live::{AudioLayer, Cursor, Frame, Inst, MediaLayer, PlayState, PlayStatus, SlideLayer},
         model::{Background, MediaKind, Theme},
     };
+
+    fn source(id: &str, abbr: &str, lang: &str, imported: bool, downloaded: bool) -> BibleSource {
+        BibleSource { translation: id.into(), abbr: abbr.into(), lang: lang.into(), imported, downloaded, status: "offline".into(), ..Default::default() }
+    }
+
+    #[test]
+    fn alike_abbreviations_get_the_language_then_imported() {
+        let mut s = OperatorSnapshot::read(&crate::app::test_app());
+        let extra = [
+            source("ebible:spaRV1909", "RV1909", "spa", true, true),
+            source("RV1909", "RV1909", "spa", true, false),
+            source("ebible:ptbRV1909", "rv1909", "ptb", true, true),
+            source("ebible:engKJV2", "KJV", "eng", true, true),
+        ];
+        for b in extra {
+            s.translations.push(b.translation.clone());
+            s.available.push(b.translation.clone());
+            s.bible_sources.push(b);
+        }
+        let l = bible_labels(&s);
+        assert_eq!(l["ebible:spaRV1909"], "RV1909 · spa");
+        assert_eq!(l["RV1909"], "RV1909 · spa · imported");
+        assert_eq!(l["ebible:ptbRV1909"], "rv1909 · ptb", "case does not tell them apart");
+        assert_eq!(l["ebible:engKJV2"], "KJV · eng");
+        assert_eq!(l["KJV"], "KJV", "a built-in has no language to add");
+        assert_eq!(l["WEB"], "WEB");
+    }
+
+    #[test]
+    fn chips_skip_removed_and_repeated_bibles() {
+        let mut s = OperatorSnapshot::read(&crate::app::test_app());
+        s.settings.favourites = vec!["GONE".into(), "web".into(), "BSB".into(), "BSB".into()];
+        s.settings.recent = vec!["KJV".into(), "NIV".into()];
+        let ids: Vec<String> = bible_chips(&s).into_iter().map(|c| c.id).collect();
+        assert_eq!(ids, ["KJV", "WEB", "BSB", "NIV"], "the chosen one is not repeated; a removed one is skipped");
+        let c = &bible_chips(&s)[1];
+        assert!(c.favourite && !c.off && c.name == "World English Bible", "{c:?}");
+        assert!(bible_chips(&s)[3].off, "NIV needs a key");
+    }
 
     fn media_file(kind: MediaKind, status: MediaStatus) -> MediaFile {
         MediaFile { id: Uuid::new_v4(), name: "clip".into(), kind, asset: "a.mp4".into(), status, original_asset: None, duration: None, thumb: None, size: None }

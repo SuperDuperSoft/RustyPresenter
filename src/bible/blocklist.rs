@@ -178,8 +178,12 @@ pub fn blocked_passage(translation: &str, verses: &[VerseText]) -> bool {
         || verses.iter().any(|v| place(v).is_some_and(|(b, c, n)| blocked_verse(b, c, n, &v.text)))
 }
 
-/// Takes out every passage that may not be used, from every saved service. How many went.
+/// Takes out every passage that may not be used, from every saved service, and such Bibles from the picker's
+/// favourites and recent list. How many passages went.
 pub fn strip(data: &mut Data) -> usize {
+    let id = |t: &String| !blocked(t, &[], &[], &[t]);
+    data.settings.favourites.retain(id);
+    data.settings.recent.retain(id);
     data.services.iter_mut().map(|s| strip_items(&mut s.items)).sum()
 }
 

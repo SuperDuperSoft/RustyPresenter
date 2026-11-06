@@ -5,10 +5,10 @@
 use super::{bible, checks, files::{self, FilesState}, keys, live::{self, LiveState}, overlays::{self, Overlays}, service, slides::{self, SlidesState}, strings as tr, text_size, view::{self, OperatorSnapshot, RoomStatus}};
 use crate::{
     app::{App, LiveUpdate, Update},
-    ui::{OperatorWindow, ServiceRow, SlideRowCells, TranslationChip, ops::Ops, preview::Preview, thumbs::Thumbs},
+    ui::{OperatorWindow, ServiceRow, SlideRowCells, ops::Ops, preview::Preview, thumbs::Thumbs},
     video::{DrawMode, FrameGrabber},
 };
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ComponentHandle, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}, sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}}};
 use tokio::sync::{Notify, broadcast::{Receiver, error::{RecvError, TryRecvError}}};
 use uuid::Uuid;
@@ -219,11 +219,7 @@ impl Operator {
     fn render_top(&self, s: &OperatorSnapshot) {
         let ui = &self.ui;
         ui.set_service_name(s.service_name.as_str().into());
-        let chips: Vec<TranslationChip> = s.translations.iter().map(|t| TranslationChip {
-            name: t.as_str().into(), on: *t == s.translation, off: !s.available.contains(t),
-        }).collect();
-        ui.set_translations(ModelRc::new(VecModel::from(chips)));
-        ui.set_translation(s.translation.as_str().into());
+        super::bible::render_chips(ui, s);
         ui.set_bible_per_slide(i32::from(self.state.borrow().bible_per_slide.unwrap_or(s.settings.bible_per_slide).min(4)));
         let (on, tip) = match s.room {
             RoomStatus::Showing => (true, tr::ROOM_SHOWING),
@@ -528,16 +524,17 @@ mod tests {
     }
 
     #[test]
-    fn translation_chips_mark_the_chosen_and_unconnected() {
+    fn translation_chips_start_with_the_chosen_then_the_ones_that_work() {
         let app = test_app();
         let op = open(&app);
         refresh(&op);
-        let chips: Vec<TranslationChip> = slint::Model::iter(&op.ui.get_translations()).collect();
-        let snap = op.state.borrow().snap.clone().unwrap();
-        assert_eq!(chips.len(), snap.translations.len());
-        assert!(chips.iter().any(|c| c.name == "KJV" && c.on && !c.off));
+        let chips: Vec<crate::ui::TranslationChip> = slint::Model::iter(&op.ui.get_translations()).collect();
+        let names: Vec<&str> = chips.iter().map(|c| c.name.as_str()).collect();
+        assert_eq!(names, ["KJV", "WEB", "BSB"], "a new install: the chosen one, then the Bibles that work now");
+        assert!(chips[0].on && !chips[0].off);
         assert_eq!(chips.iter().filter(|c| c.on).count(), 1);
-        assert!(chips.iter().any(|c| c.off), "a translation that needs a key is shown faded");
+        assert_eq!(slint::Model::row_count(&op.ui.get_quick_chips()), 2, "the chips after the chosen one");
+        assert_eq!(op.ui.get_translation(), "KJV");
     }
 
     #[test]

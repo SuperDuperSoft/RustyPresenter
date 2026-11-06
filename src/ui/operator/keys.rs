@@ -85,11 +85,12 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     }
 }
 
-/// The translation Alt+`key` picks in the Bible box (0 for the 1 key). Slint hands over the character the key
-/// gives with its modifiers, so besides the digits this takes what the number row gives where it is not the digit:
-/// macOS Option on a US layout (¡ ™ £ ¢ ∞ §) and the unshifted AZERTY row (& é " ' ( -).
+/// The Bible chip Alt+`key` picks in the Bible box (0 for the 1 key: the chosen Bible; 1…4 the favourite and
+/// recent chips, spec §7.2). Slint hands over the character the key gives with its modifiers, so besides the digits
+/// this takes what the number row gives where it is not the digit: macOS Option on a US layout (¡ ™ £ ¢ ∞) and the
+/// unshifted AZERTY row (& é " ' ().
 fn translation_key(key: &str) -> Option<usize> {
-    const ROWS: [&str; 3] = ["123456", "¡™£¢∞§", "&é\"'(-"];
+    const ROWS: [&str; 3] = ["12345", "¡™£¢∞", "&é\"'("];
     let mut chars = key.chars();
     let (Some(c), None) = (chars.next(), chars.next()) else { return None };
     ROWS.iter().find_map(|row| row.chars().position(|r| r == c))
@@ -186,7 +187,8 @@ mod tests {
     #[test]
     fn alt_digit_picks_translation_only_in_bible_box() {
         assert_eq!(route("1", false, true, BIBLE), KeyAction::PickTranslation(0));
-        assert_eq!(route("6", false, true, BIBLE), KeyAction::PickTranslation(5));
+        assert_eq!(route("5", false, true, BIBLE), KeyAction::PickTranslation(4));
+        assert_eq!(route("6", false, true, BIBLE), KeyAction::None, "five chips at most");
         assert_eq!(route("7", false, true, BIBLE), KeyAction::None);
         assert_eq!(route("0", false, true, BIBLE), KeyAction::None);
         assert_eq!(route("2", false, false, BIBLE), KeyAction::None, "plain digits are typed");
@@ -199,7 +201,7 @@ mod tests {
     #[test]
     fn alt_number_row_picks_translation_on_other_layouts() {
         assert_eq!(route("™", false, true, BIBLE), KeyAction::PickTranslation(1), "macOS Option+2");
-        assert_eq!(route("§", false, true, BIBLE), KeyAction::PickTranslation(5), "macOS Option+6");
+        assert_eq!(route("∞", false, true, BIBLE), KeyAction::PickTranslation(4), "macOS Option+5");
         assert_eq!(route("&", false, true, BIBLE), KeyAction::PickTranslation(0), "AZERTY 1 key");
         assert_eq!(route("é", false, true, BIBLE), KeyAction::PickTranslation(1), "AZERTY 2 key");
         assert_eq!(route("™", false, false, BIBLE), KeyAction::None, "typed without Alt");

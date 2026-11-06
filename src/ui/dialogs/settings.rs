@@ -50,7 +50,7 @@ pub fn backup_label(created: &str) -> String {
 /// Alt), which must do `action` (a test compares the table with `keys::route`).
 pub struct HelpRow { pub keys: &'static str, pub what: &'static str, pub binds: &'static [(&'static str, bool, bool)], pub action: KeyAction }
 
-/// The Help table (`operator.js:993`), with ↓/↑ (Product decision 7) and Alt + 1–6 (Product decision 4).
+/// The Help table (`operator.js:993`), with ↓/↑ (Product decision 7) and Alt + 1–5 (Product decision 4; Bible library spec §7.2).
 pub fn help_rows() -> Vec<HelpRow> {
     use strings::*;
     vec![
@@ -63,7 +63,7 @@ pub fn help_rows() -> Vec<HelpRow> {
         HelpRow { keys: "F3", what: DO_CLEAR_MEDIA, binds: &[("F3", false, false)], action: KeyAction::Clear(Command::ClearMedia) },
         HelpRow { keys: "F4", what: DO_STOP_AUDIO, binds: &[("F4", false, false)], action: KeyAction::Clear(Command::ClearAudio) },
         HelpRow { keys: "F5", what: DO_LOGO, binds: &[("F5", false, false)], action: KeyAction::Clear(Command::Logo) },
-        HelpRow { keys: KEY_ALT_DIGITS, what: DO_TRANSLATION, binds: &[("1", false, true), ("6", false, true)], action: KeyAction::PickTranslation(0) },
+        HelpRow { keys: KEY_ALT_DIGITS, what: DO_TRANSLATION, binds: &[("1", false, true), ("5", false, true)], action: KeyAction::PickTranslation(0) },
         HelpRow { keys: KEY_ESC, what: DO_ESC, binds: &[("Escape", false, false)], action: KeyAction::Blur },
     ]
 }
@@ -92,6 +92,13 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
     op.on_dialog_close(move |_| closing.look.stop());
+}
+
+/// "Find more Bibles…" in the Bible picker: Settings on the Bible tab, with the picker's search in the library's
+/// search box (spec §7.2).
+pub fn open_bible_search(op: &Rc<Operator>, query: &str) {
+    open(op, SettingsTab::Bible);
+    settings_bible::search_for(op, query);
 }
 
 /// Puts the edited settings into the form (`in-out` fields of `SettingsDlg`).

@@ -1,23 +1,31 @@
 // The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
 // status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in `src/ui/operator/bible.rs`.
 import { Theme, OperatorState } from "../theme.slint";
-import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
+import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox, ScrollBox } from "../widgets.slint";
 
-/// One translation button in the Bible box: `on` is the chosen one, `off` is not connected yet.
-export struct TranslationChip { name: string, on: bool, off: bool }
+/// One Bible in the Bible box: a chip, or a picker row. `name` is what the chip says ("RV1909 · spa"),
+/// `full-name` the title. `on` is the chosen one, `off` is not connected yet. A picker row with a `heading` is only
+/// that heading.
+export struct TranslationChip { id: string, name: string, full-name: string, on: bool, off: bool, favourite: bool, heading: string }
 
 export component TopBar inherits Rectangle {
     /// Window width ≤ 1250 px: no brand word, Screens/Phone as icons, pills as dots (`operator.css:239`).
     in property <bool> narrow;
-    /// The window is too narrow for every translation button: the Bible box shows the chosen one, and a click on it
-    /// lists them all.
+    /// The window is too narrow for the favourite and recent chips: the Bible box shows only the chosen one.
     in property <bool> compact;
     /// A dialog or question is over the window: the Bible box takes no focus (Tab would otherwise reach it).
     in property <bool> covered;
     in property <string> service-name;
+    /// The chips Alt+1…5 pick: the chosen Bible, then favourites and recent ones.
     in property <[TranslationChip]> translations;
-    /// The chosen translation's name (the `on` chip), for the compact Bible box.
+    /// `translations` without the chosen one: the chips drawn after it.
+    in property <[TranslationChip]> quick-chips;
+    /// The chosen Bible's chip text.
     in property <string> translation;
+    /// The picker's lines, its search and the line above the list (no match).
+    in property <[TranslationChip]> picker-rows;
+    in-out property <string> picker-search;
+    in property <string> picker-note;
     in-out property <string> bible-text;
     /// Verses per slide for the next passage: 0 Automatic, else 1–4.
     in property <int> bible-per-slide;
@@ -37,11 +45,27 @@ export component TopBar inherits Rectangle {
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
+    /// The picker is about to open: the window fills its lines.
+    callback picker-opening();
+    callback picker-search-changed(string);
+    /// Enter in the picker's search.
+    callback picker-accept();
+    callback pick-bible(string);
+    callback toggle-favourite(string);
+    /// "Find more Bibles…" with the picker's search.
+    callback find-more-bibles(string);
     /// The Verses chip: the next verses-per-slide choice.
     callback cycle-per-slide();
 
     /// The Bible box has the keyboard focus (the window's keys then leave typing keys to it).
     out property <bool> bible-focused: bible-input.has-focus;
+
+    /// Opens the Bible picker on an empty search.
+    public function open-picker() {
+        root.picker-search = "";
+        root.picker-opening();
+        picker.show();
+    }
 
     /// Ctrl+B: focus the Bible box with its whole text selected (`operator.js:308`).
     public function focus-bible() {
@@ -231,8 +255,8 @@ export component TopBar inherits Rectangle {
                                 }
                             }
                         }
-                        // A narrow window: the chosen translation and a chevron; a click lists them all.
-                        if root.compact: VerticalLayout {
+                        // The chosen Bible and a chevron: a click opens the picker (spec §7.2).
+                        VerticalLayout {
                             horizontal-stretch: 0;
                             alignment: center;
                             translation-pick := Rectangle {
@@ -240,8 +264,8 @@ export component TopBar inherits Rectangle {
                                 background: Theme.accent;
                                 accessible-role: button;
                                 accessible-label: root.translation;
-                                accessible-description: @tr("Choose a translation");
-                                accessible-action-default => { picker.show(); }
+                                accessible-description: @tr("Choose a Bible");
+                                accessible-action-default => { root.open-picker(); }
                                 HorizontalLayout {
                                     padding-top: 5px;
                                     padding-bottom: 5px;
@@ -268,15 +292,16 @@ export component TopBar inherits Rectangle {
                                 }
                                 TouchArea {
                                     mouse-cursor: pointer;
-                                    clicked => { picker.show(); }
+                                    clicked => { root.open-picker(); }
                                 }
                                 Tooltip {
-                                    TipBox { text: @tr("Choose a translation"); }
+                                    TipBox { text: @tr("Choose a Bible"); }
                                 }
                                 picker := PopupWindow {
                                     x: parent.width - self.width;
                                     y: parent.height + 8px;
-                                    width: 200px;
+                                    width: 300px;
+                                    close-policy: close-on-click-outside;
                                     Rectangle {
                                         background: Theme.panel;
                                         border-color: Theme.line;
@@ -286,45 +311,179 @@ export component TopBar inherits Rectangle {
                                         drop-shadow-offset-y: 8px;
                                         drop-shadow-color: Theme.shadow-dialog;
                                         VerticalLayout {
-                                            padding: 5px;
-                                            spacing: 2px;
-                                            for chip[i] in root.translations: picker-row := Rectangle {
-                                                border-radius: 6px;
-                                                background: chip.on ? Theme.accent : row-ta.has-hover ? Theme.raise : transparent;
-                                                accessible-role: button;
-                                                accessible-label: chip.name;
-                                                accessible-checked: chip.on;
+                                            padding: 6px;
+                                            spacing: 4px;
+                                            // Search the Bibles this computer has.
+                                            Rectangle {
+                                                height: 32px;
+                                                border-radius: 7px;
+                                                border-width: 1px;
+                                                border-color: picker-search.has-focus ? Theme.accent : Theme.line;
+                                                background: Theme.bg;
                                                 HorizontalLayout {
-                                                    padding-top: 6px;
-                                                    padding-bottom: 6px;
-                                                    padding-left: 9px;
-                                                    padding-right: 9px;
-                                                    spacing: 8px;
-                                                    Text {
-                                                        text: chip.name;
-                                                        color: chip.on ? Theme.accent-ink : Theme.text;
-                                                        font-family: Theme.font;
-                                                        font-size: 12.5px;
-                                                        font-weight: 700;
-                                                        vertical-alignment: center;
+                                                    padding-left: 8px;
+                                                    padding-right: 8px;
+                                                    spacing: 6px;
+                                                    VerticalLayout {
+                                                        alignment: center;
+                                                        Icon {
+                                                            width: 14px;
+                                                            height: 14px;
+                                                            name: "search";
+                                                            color: Theme.faint;
+                                                        }
                                                     }
-                                                    if chip.off: Text {
+                                                    Rectangle {
                                                         horizontal-stretch: 1;
-                                                        text: @tr("not connected");
-                                                        color: Theme.faint;
-                                                        font-family: Theme.font;
-                                                        font-size: 11.5px;
-                                                        horizontal-alignment: right;
-                                                        vertical-alignment: center;
+                                                        if picker-search.text == "": Text {
+                                                            x: 0;
+                                                            y: 0;
+                                                            width: parent.width;
+                                                            height: parent.height;
+                                                            text: @tr("Search your Bibles");
+                                                            color: Theme.faint;
+                                                            font-family: Theme.font;
+                                                            font-size: 12.5px;
+                                                            vertical-alignment: center;
+                                                        }
+                                                        picker-search := TextInput {
+                                                            x: 0;
+                                                            y: 0;
+                                                            width: parent.width;
+                                                            height: parent.height;
+                                                            text <=> root.picker-search;
+                                                            single-line: true;
+                                                            color: Theme.text;
+                                                            font-family: Theme.font;
+                                                            font-size: 12.5px;
+                                                            vertical-alignment: center;
+                                                            accessible-placeholder-text: @tr("Search your Bibles");
+                                                            init => { self.focus(); }
+                                                            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                                                            edited => { root.picker-search-changed(self.text); }
+                                                            // Enter picks the first Bible listed.
+                                                            accepted => {
+                                                                root.picker-accept();
+                                                                picker.close();
+                                                                bible-input.focus();
+                                                            }
+                                                        }
                                                     }
                                                 }
-                                                row-ta := TouchArea {
+                                            }
+                                            if root.picker-note != "": Text {
+                                                text: root.picker-note;
+                                                color: Theme.muted;
+                                                font-family: Theme.font;
+                                                font-size: 11.5px;
+                                                wrap: word-wrap;
+                                            }
+                                            ScrollBox {
+                                                height: min(360px, picker-rows-box.preferred-height);
+                                                picker-rows-box := VerticalLayout {
+                                                    spacing: 1px;
+                                                    for row[i] in root.picker-rows: Rectangle {
+                                                        height: row.heading != "" ? 24px : 30px;
+                                                        if row.heading != "": Text {
+                                                            x: 9px;
+                                                            y: 0;
+                                                            width: parent.width - 18px;
+                                                            height: parent.height - 3px;
+                                                            text: row.heading;
+                                                            color: Theme.faint;
+                                                            font-family: Theme.font;
+                                                            font-size: 10.5px;
+                                                            font-weight: 700;
+                                                            vertical-alignment: bottom;
+                                                            overflow: elide;
+                                                        }
+                                                        if row.heading == "": picker-row := Rectangle {
+                                                            border-radius: 6px;
+                                                            background: row.on ? Theme.accent : row-ta.has-hover ? Theme.raise : transparent;
+                                                            accessible-role: button;
+                                                            accessible-label: row.name;
+                                                            accessible-description: row.full-name;
+                                                            accessible-checked: row.on;
+                                                            accessible-action-default => { root.pick-bible(row.id); }
+                                                            row-ta := TouchArea {
+                                                                mouse-cursor: pointer;
+                                                                // As a chip does: the Bible box takes the keyboard again.
+                                                                clicked => {
+                                                                    bible-input.focus();
+                                                                    root.pick-bible(row.id);
+                                                                    picker.close();
+                                                                }
+                                                            }
+                                                            HorizontalLayout {
+                                                                padding-left: 9px;
+                                                                padding-right: 4px;
+                                                                spacing: 8px;
+                                                                Text {
+                                                                    text: row.name;
+                                                                    color: row.on ? Theme.accent-ink : Theme.text;
+                                                                    font-family: Theme.font;
+                                                                    font-size: 12.5px;
+                                                                    font-weight: 700;
+                                                                    vertical-alignment: center;
+                                                                }
+                                                                Text {
+                                                                    horizontal-stretch: 1;
+                                                                    text: row.off ? @tr("not connected") : row.full-name;
+                                                                    color: row.on ? Theme.accent-ink : Theme.faint;
+                                                                    font-family: Theme.font;
+                                                                    font-size: 11.5px;
+                                                                    overflow: elide;
+                                                                    vertical-alignment: center;
+                                                                }
+                                                                // The star: favourites come first as chips.
+                                                                star := Rectangle {
+                                                                    width: 24px;
+                                                                    accessible-role: checkbox;
+                                                                    accessible-label: @tr("Favourite");
+                                                                    accessible-checked: row.favourite;
+                                                                    accessible-action-default => { root.toggle-favourite(row.id); }
+                                                                    Icon {
+                                                                        width: 14px;
+                                                                        height: 14px;
+                                                                        name: "star";
+                                                                        filled: row.favourite;
+                                                                        color: row.on ? Theme.accent-ink : row.favourite || star-ta.has-hover ? Theme.accent : Theme.faint;
+                                                                    }
+                                                                    star-ta := TouchArea {
+                                                                        mouse-cursor: pointer;
+                                                                        clicked => { root.toggle-favourite(row.id); }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            // Opens Settings → Bible with the search carried over.
+                                            find-more := Rectangle {
+                                                height: 30px;
+                                                border-radius: 6px;
+                                                background: find-more-ta.has-hover ? Theme.raise : transparent;
+                                                accessible-role: button;
+                                                accessible-label: @tr("Find more Bibles…");
+                                                accessible-action-default => {
+                                                    picker.close();
+                                                    root.find-more-bibles(root.picker-search);
+                                                }
+                                                Text {
+                                                    x: 9px;
+                                                    text: @tr("Find more Bibles…");
+                                                    color: Theme.accent;
+                                                    font-family: Theme.font;
+                                                    font-size: 12.5px;
+                                                    font-weight: 700;
+                                                    vertical-alignment: center;
+                                                }
+                                                find-more-ta := TouchArea {
                                                     mouse-cursor: pointer;
-                                                    // As a chip does: the Bible box takes the keyboard again.
                                                     clicked => {
-                                                        bible-input.focus();
-                                                        root.pick-translation(i);
                                                         picker.close();
+                                                        root.find-more-bibles(root.picker-search);
                                                     }
                                                 }
                                             }
@@ -333,18 +492,18 @@ export component TopBar inherits Rectangle {
                                 }
                             }
                         }
-                        // `.translations`
+                        // The favourite and recent Bibles as one-click chips (Alt+2…5); hidden in a narrow window.
                         if !root.compact: HorizontalLayout {
                             spacing: 3px;
-                            for chip[i] in root.translations: VerticalLayout {
+                            for chip[i] in root.quick-chips: VerticalLayout {
                                 alignment: center;
                                 translation-chip := Rectangle {
-                                    // The web `title` (`operator.js:100`): its own name, or how to connect it.
+                                    // Its full name, or how to connect it.
                                     property <string> tip: chip.off
                                         ? @tr("{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.", chip.name)
-                                        : chip.name;
+                                        : chip.full-name != "" ? chip.full-name : chip.name;
                                     border-radius: 6px;
-                                    background: chip.on ? Theme.accent : transparent;
+                                    background: transparent;
                                     opacity: chip.off ? 0.4 : 1;
                                     accessible-role: button;
                                     accessible-label: chip.name;
@@ -357,7 +516,7 @@ export component TopBar inherits Rectangle {
                                         padding-right: 7px;
                                         Text {
                                             text: chip.name;
-                                            color: chip.on ? Theme.accent-ink : Theme.muted;
+                                            color: Theme.muted;
                                             font-family: Theme.font;
                                             font-size: 11.5px;
                                             font-weight: 700;
@@ -369,7 +528,7 @@ export component TopBar inherits Rectangle {
                                         // The web refocuses the input after a pick (`operator.js:101`).
                                         clicked => {
                                             bible-input.focus();
-                                            root.pick-translation(i);
+                                            root.pick-translation(i + 1);
                                         }
                                     }
                                     Tooltip {

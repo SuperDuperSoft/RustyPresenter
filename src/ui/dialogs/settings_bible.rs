@@ -189,6 +189,12 @@ pub(super) fn reset(g: &SettingsDlg) {
     g.set_catalog_rows(ModelRc::default());
 }
 
+/// Puts `query` in the library's search box and redraws the list (the picker's "Find more Bibles…").
+pub(super) fn search_for(op: &Operator, query: &str) {
+    op.ui.global::<SettingsDlg>().set_catalog_search(query.trim().into());
+    if let Some(edit) = OPEN.with(|o| o.borrow().upgrade()) { render(op, &edit) }
+}
+
 pub(super) fn remember(edit: &Rc<super::settings::Edit>) { OPEN.with(|o| *o.borrow_mut() = Rc::downgrade(edit)) }
 
 /// Loads the library list once per dialog, when the Bible tab is first shown. A list less than a day old comes from

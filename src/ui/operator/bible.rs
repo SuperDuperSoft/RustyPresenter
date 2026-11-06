@@ -1,12 +1,14 @@
 //! The Bible box in the top bar (`operator.js:93-102, 324-340`): type a reference and press Enter to add the
-//! passage after the live item and arm it, so the next Enter outside the box shows it. The translation chips pick
-//! the translation, saved in `Settings.translation` (product decision 3). The Verses chip picks how many verses
+//! passage after the live item and arm it, so the next Enter outside the box shows it. The Bible chips (the chosen
+//! one, then favourites and recent ones) and the picker behind the chosen chip pick the translation, saved in
+//! `Settings.translation` (product decision 3; Bible library spec §7.2). The Verses chip picks how many verses
 //! go on each slide of the next passage: Settings' choice until the operator picks, then theirs for the session
 //! (shared with Add → Bible).
 use super::{strings as tr, view, window::Operator};
 use serde::Deserialize;
 use serde_json::{Value, json};
-use slint::Model;
+use crate::ui::TranslationChip;
+use slint::{Model, ModelRc, SharedString, VecModel};
 use std::{rc::{Rc, Weak}, sync::Arc};
 use uuid::Uuid;
 
@@ -65,27 +67,95 @@ fn add(op: &Rc<Operator>, found: Found) {
     });
 }
 
-/// A translation chip, or Alt+1…6 in the box. The chip turns on at once and the choice is saved through
-/// `settings/translation` (product decision 3). A translation that is not connected is still picked, as in the
-/// web; its lookup then fails with the core's message. The chip's click refocuses the box in `topbar.slint`.
+/// The chip at `index` (0 the chosen Bible, then the favourite and recent chips), or Alt+1…5 in the box.
 pub fn pick(op: &Rc<Operator>, index: usize) {
-    let name = {
+    let Some(chip) = op.ui.get_translations().row_data(index) else { return };
+    pick_id(op, chip.id.to_string());
+}
+
+/// Chooses the Bible `id` (a chip or a picker row). The chips change at once, with it first and recent
+/// updated as the core will, and the choice is saved through `settings/translation` (product decision 3). A Bible
+/// that is not connected is still picked, as in the web; its lookup then fails with the core's message. The
+/// chip's click refocuses the box in `topbar.slint`.
+pub fn pick_id(op: &Rc<Operator>, id: String) {
+    {
         let mut st = op.state.borrow_mut();
         let Some(snap) = st.snap.as_mut() else { return };
-        let Some(name) = snap.translations.get(index).cloned() else { return };
-        Arc::make_mut(snap).translation = name.clone();
-        name
-    };
-    let chips = op.ui.get_translations();
-    for i in 0..chips.row_count() {
-        let Some(mut chip) = chips.row_data(i) else { continue };
-        let on = chip.name == name.as_str();
-        if chip.on != on { chip.on = on; chips.set_row_data(i, chip); }
+        if !snap.translations.contains(&id) { return }
+        let snap = Arc::make_mut(snap);
+        snap.settings.used_translation(&id);
+        snap.translation = id.clone();
     }
+    rerender(op);
     let me = Rc::downgrade(op);
-    op.ops.call::<Value>("settings/translation", json!({ "translation": name }), move |r| {
+    op.ops.call::<Value>("settings/translation", json!({ "translation": id }), move |r| {
         if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(&e, true) }
     });
+}
+
+/// The star in the picker: stars or unstars `id`, at once on screen, then through `settings/favourite`.
+pub fn toggle_favourite(op: &Rc<Operator>, id: String) {
+    let (on, label) = {
+        let mut st = op.state.borrow_mut();
+        let Some(snap) = st.snap.as_mut() else { return };
+        let snap = Arc::make_mut(snap);
+        let on = !snap.settings.favourites.iter().any(|f| crate::bible::id::same_id(f, &id));
+        snap.settings.set_favourite(&id, on);
+        (on, view::bible_labels(snap).get(&id).cloned().unwrap_or_else(|| id.clone()))
+    };
+    rerender(op);
+    let me = Rc::downgrade(op);
+    op.ops.call::<Value>("settings/favourite", json!({ "translation": id, "on": on }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(_) => op.toast(&if on { tr::favourite_added(&label) } else { tr::favourite_removed(&label) }, false),
+            Err(e) => op.toast(&e, true),
+        }
+    });
+}
+
+/// Redraws the chips and the picker from the newest snapshot.
+fn rerender(op: &Operator) {
+    let snap = op.state.borrow().snap.clone();
+    if let Some(s) = snap { render_chips(&op.ui, &s) }
+}
+
+fn chip(c: &view::BibleChoice, on: bool) -> TranslationChip {
+    TranslationChip {
+        id: c.id.as_str().into(), name: c.label.as_str().into(), full_name: c.name.as_str().into(),
+        on, off: c.off, favourite: c.favourite, heading: SharedString::new(),
+    }
+}
+
+/// The Bible box's chips and the picker's lines (spec §7.2) from `s`; the picker keeps its search.
+pub(super) fn render_chips(ui: &crate::ui::OperatorWindow, s: &view::OperatorSnapshot) {
+    let chips: Vec<TranslationChip> = view::bible_chips(s).iter().enumerate().map(|(i, c)| chip(c, i == 0)).collect();
+    ui.set_translation(chips.first().map(|c| c.name.clone()).unwrap_or_default());
+    ui.set_quick_chips(ModelRc::new(VecModel::from(chips.iter().skip(1).cloned().collect::<Vec<_>>())));
+    ui.set_translations(ModelRc::new(VecModel::from(chips)));
+    fill_picker(ui, s, &ui.get_picker_search());
+}
+
+/// The picker's lines for `query`, with the note shown when nothing matches.
+fn fill_picker(ui: &crate::ui::OperatorWindow, s: &view::OperatorSnapshot, query: &str) {
+    let rows: Vec<TranslationChip> = view::picker_lines(s, query).iter().map(|l| match l {
+        view::PickerLine::Heading(h) => TranslationChip { heading: h.as_str().into(), ..Default::default() },
+        view::PickerLine::Bible(c) => chip(c, c.id == s.translation),
+    }).collect();
+    ui.set_picker_note(if rows.is_empty() { tr::PICKER_NO_MATCH.into() } else { SharedString::new() });
+    ui.set_picker_rows(ModelRc::new(VecModel::from(rows)));
+}
+
+/// The picker's search changed (or the picker is opening, with an empty search).
+pub fn search_picker(op: &Operator, query: &str) {
+    let snap = op.state.borrow().snap.clone();
+    if let Some(s) = snap { fill_picker(&op.ui, &s, query) }
+}
+
+/// Enter in the picker's search: the first Bible listed.
+pub fn accept_picker(op: &Rc<Operator>) {
+    let first = op.ui.get_picker_rows().iter().find(|r| r.heading.is_empty()).map(|r| r.id.to_string());
+    if let Some(id) = first { pick_id(op, id) }
 }
 
 impl Operator {
@@ -112,6 +182,18 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_bible_submit(move |text| if let Some(op) = me.upgrade() { submit(&op, text.into()) });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_pick_translation(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { pick(&op, i) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_pick_bible(move |id| if let Some(op) = me.upgrade() { pick_id(&op, id.into()) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_toggle_favourite(move |id| if let Some(op) = me.upgrade() { toggle_favourite(&op, id.into()) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_picker_opening(move || if let Some(op) = me.upgrade() { search_picker(&op, "") });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_picker_search_changed(move |q| if let Some(op) = me.upgrade() { search_picker(&op, &q) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_picker_accept(move || if let Some(op) = me.upgrade() { accept_picker(&op) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_find_more_bibles(move |q| if let Some(op) = me.upgrade() { crate::ui::dialogs::settings::open_bible_search(&op, &q) });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_cycle_per_slide(move || if let Some(op) = me.upgrade() { cycle_per_slide(&op) });
 }
@@ -171,8 +253,16 @@ mod tests {
 
     fn last_toast(op: &Operator) -> Option<(String, bool)> { op.state.borrow().toasts.last().cloned() }
 
-    fn chip_index(op: &Operator, name: &str) -> usize {
-        op.state.borrow().snap.as_ref().unwrap().translations.iter().position(|t| t == name).expect("translation listed")
+    fn chord(op: &Operator, modifier: Key, text: &str) {
+        op.window().dispatch_event(WindowEvent::KeyPressed { text: char::from(modifier).into() });
+        press(op, text);
+        op.window().dispatch_event(WindowEvent::KeyReleased { text: char::from(modifier).into() });
+    }
+
+    fn chip_names(op: &Operator) -> Vec<String> { op.ui.get_translations().iter().map(|c| c.name.to_string()).collect() }
+
+    fn picker(op: &Operator) -> Vec<String> {
+        op.ui.get_picker_rows().iter().map(|r| if r.heading.is_empty() { format!("{}{}", r.name, if r.favourite { " *" } else { "" }) } else { format!("# {}", r.heading) }).collect()
     }
 
     #[test]
@@ -209,7 +299,7 @@ mod tests {
     fn bible_item_uses_translation_from_lookup() {
         let app = test_app();
         let op = opened(&app);
-        pick(&op, chip_index(&op, "WEB"));
+        pick_id(&op, "WEB".into());
         type_and_enter(&op, "jn 3:16");
         let data = app.data.lock().unwrap();
         match &data.services[0].items[0].kind {
@@ -265,7 +355,7 @@ mod tests {
         let op = opened(&app);
         let core = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap()
             .block_on(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"NIV"}"#)).unwrap_err().message;
-        pick(&op, chip_index(&op, "NIV"));
+        pick_id(&op, "NIV".into());
         type_and_enter(&op, "John 3:16");
         assert_eq!(last_toast(&op), Some((core, true)));
         assert_eq!(op.ui.get_bible_text(), "John 3:16");
@@ -273,24 +363,100 @@ mod tests {
     }
 
     #[test]
-    fn available_chip_tooltip_is_its_name() {
+    fn chip_tooltip_is_its_name_or_how_to_connect_it() {
         let app = test_app();
         let op = opened(&app);
-        // Wide enough for every translation's button (narrower, they collapse: `ui::operator::fit`).
+        toggle_favourite(&op, "NIV".into());
+        refresh(&op);
         op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
         slint::platform::update_timers_and_animations();
         let chips = find_all(&op, "TopBar::translation-chip");
         let tip = |name: &str| chips.iter().find(|c| c.accessible_label().unwrap_or_default() == name)
             .and_then(|c| c.accessible_description()).unwrap_or_default().to_string();
-        assert_eq!(tip("KJV"), "KJV");
+        assert_eq!(tip("WEB"), "World English Bible");
         assert_eq!(tip("NIV"), "NIV isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.");
+    }
+
+    #[test]
+    fn favourites_then_recent_follow_the_chosen_chip() {
+        let app = test_app();
+        let op = opened(&app);
+        assert_eq!(chip_names(&op), ["KJV", "WEB", "BSB"]);
+        toggle_favourite(&op, "ESV".into());
+        assert_eq!(chip_names(&op), ["KJV", "ESV", "WEB", "BSB"], "a star shows at once, before the Bibles that only fill in");
+        assert_eq!(app.data.lock().unwrap().settings.favourites, ["ESV"], "and is saved");
+        pick_id(&op, "NIV".into());
+        pick_id(&op, "BSB".into());
+        assert_eq!(chip_names(&op), ["BSB", "ESV", "NIV", "KJV", "WEB"], "the chosen one, the favourite, then newest first");
+        refresh(&op);
+        assert_eq!(chip_names(&op), ["BSB", "ESV", "NIV", "KJV", "WEB"], "the core agrees");
+        assert_eq!(app.data.lock().unwrap().settings.recent, ["BSB", "NIV"]);
+        pick_id(&op, "NLT".into());
+        assert_eq!(chip_names(&op).len(), 5, "at most four after the chosen one");
+        assert_eq!(chip_names(&op), ["NLT", "ESV", "BSB", "NIV", "KJV"]);
+        // Alt+2 picks the second chip.
+        find(&op, "TopBar::bible-input").unwrap().mock_single_click(PointerEventButton::Left);
+        chord(&op, Key::Alt, "2");
+        assert_eq!(app.data.lock().unwrap().settings.translation, "ESV");
+    }
+
+    #[test]
+    fn picker_lists_favourites_recent_then_languages_and_searches() {
+        let app = test_app();
+        let op = opened(&app);
+        toggle_favourite(&op, "WEB".into());
+        pick_id(&op, "NIV".into());
+        pick_id(&op, "KJV".into());
+        refresh(&op);
+        op.ui.invoke_open_bible_picker();
+        let all = picker(&op);
+        assert_eq!(&all[..5], ["# Favourites", "WEB *", "# Recent", "KJV", "NIV"]);
+        assert_eq!(all[5], "# English");
+        assert!(all.contains(&"BSB".to_string()) && all.iter().filter(|l| *l == "KJV").count() == 1, "each Bible once: {all:?}");
+        search_picker(&op, "world");
+        assert_eq!(picker(&op), ["# Favourites", "WEB *"], "by name");
+        search_picker(&op, "zzz");
+        assert!(picker(&op).is_empty());
+        assert_eq!(op.ui.get_picker_note(), tr::PICKER_NO_MATCH);
+        search_picker(&op, "bsb");
+        accept_picker(&op);
+        assert_eq!(app.data.lock().unwrap().settings.translation, "BSB", "Enter picks the first Bible listed");
+    }
+
+    #[test]
+    fn picker_star_and_row_click() {
+        let app = test_app();
+        let op = opened(&app);
+        op.window().dispatch_event(WindowEvent::PointerMoved { position: slint::LogicalPosition::new(0.0, 0.0) });
+        find(&op, "TopBar::translation-pick").expect("the chosen chip").mock_single_click(PointerEventButton::Left);
+        slint::platform::update_timers_and_animations();
+        let stars = find_all(&op, "TopBar::star");
+        assert!(!stars.is_empty(), "the picker is open");
+        let rows = picker(&op).into_iter().filter(|l| !l.starts_with('#')).collect::<Vec<_>>();
+        let esv = rows.iter().position(|r| r == "ESV").expect("ESV listed");
+        stars[esv].mock_single_click(PointerEventButton::Left);
+        assert_eq!(app.data.lock().unwrap().settings.favourites, ["ESV"]);
+        assert_eq!(last_toast(&op), Some(("ESV added to favourites".into(), false)));
+    }
+
+    #[test]
+    fn find_more_opens_the_library_with_the_search() {
+        let app = test_app();
+        let op = opened(&app);
+        op.ui.invoke_open_bible_picker();
+        op.ui.set_picker_search("Reina".into());
+        op.ui.invoke_find_more_bibles("Reina".into());
+        assert!(op.state.borrow().dialog.is_some(), "Settings opened");
+        let g = slint::ComponentHandle::global::<crate::ui::SettingsDlg>(&op.ui);
+        assert_eq!(g.get_tab(), crate::ui::dialogs::settings::tab_index(crate::ui::dialogs::SettingsTab::Bible));
+        assert_eq!(g.get_catalog_search(), "Reina");
     }
 
     #[test]
     fn translation_choice_survives_restart() {
         let app = test_app();
         let op = opened(&app);
-        pick(&op, chip_index(&op, "NIV"));
+        pick_id(&op, "NIV".into());
         let on = |op: &Operator| slint::Model::iter(&op.ui.get_translations()).filter(|c| c.on).map(|c| c.name.to_string()).collect::<Vec<_>>();
         assert_eq!(on(&op), ["NIV"], "the chip turns on at once");
         assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");

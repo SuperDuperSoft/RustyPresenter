@@ -74,7 +74,7 @@ pub const KEY_NEXT: &str = "→  ↓  Space  Page Down";
 pub const KEY_BACK: &str = "←  ↑  Page Up";
 pub const KEY_ENTER: &str = "Enter";
 pub const KEY_CTRL_B: &str = "Ctrl + B";
-pub const KEY_ALT_DIGITS: &str = "Alt + 1–6";
+pub const KEY_ALT_DIGITS: &str = "Alt + 1–5";
 pub const KEY_ESC: &str = "Esc";
 pub const DO_NEXT: &str = "Next";
 pub const DO_BACK: &str = "Back";
@@ -85,7 +85,7 @@ pub const DO_CLEAR_TEXT: &str = "Clear text";
 pub const DO_CLEAR_MEDIA: &str = "Clear media & background";
 pub const DO_STOP_AUDIO: &str = "Stop audio";
 pub const DO_LOGO: &str = "Logo";
-pub const DO_TRANSLATION: &str = "Bible translation (in the Bible box)";
+pub const DO_TRANSLATION: &str = "Pick a Bible chip (in the Bible box)";
 pub const DO_ESC: &str = "Leave a text box";
 
 // ---- About (Task 21, native spec §7) ----

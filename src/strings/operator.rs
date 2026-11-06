@@ -90,3 +90,14 @@ pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
 pub const NAME_THESE_SLIDES: &str = "Name these slides";
 
 pub const STAGE_MESSAGE_ASK: &str = "Message for the stage screen. Leave it empty to take it down.";
+
+// The Bible picker (Bible library spec §7.2).
+pub const PICKER_FAVOURITES: &str = "Favourites";
+pub const PICKER_RECENT: &str = "Recent";
+/// Heads installed Bibles whose language is not known (an imported file without one).
+pub const PICKER_OTHER: &str = "Other Bibles";
+/// Added to a chip when an imported file and another Bible would read alike ("RV1909 · spa · imported").
+pub const BIBLE_IMPORTED: &str = "imported";
+pub const PICKER_NO_MATCH: &str = "No Bible you have matches. Find more Bibles below.";
+pub fn favourite_added(label: &str) -> String { format!("{label} added to favourites") }
+pub fn favourite_removed(label: &str) -> String { format!("{label} removed from favourites") }
