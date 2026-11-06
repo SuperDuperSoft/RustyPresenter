@@ -23,20 +23,20 @@ export struct StageCellVm {
 }
 
 export component StageWindow inherits Window {
-    title: "RustyPresenter — Stage";
+    title: @tr("RustyPresenter — Stage");
     background: root.use-cells ? root.bg : #07080a;
     preferred-width: 1280px;
     preferred-height: 720px;
 
     in property <bool> connected;
-    in property <string> item-title: "Waiting for the service…";
+    in property <string> item-title: @tr("Waiting for the service…");
     in property <string> clock;
     /// Time left on the playing video or audio, `−m:ss`; empty hides it.
     in property <string> timer;
     in property <string> now;
     in property <bool> now-dim;
     in property <string> notes;
-    in property <string> next: "End of service";
+    in property <string> next: @tr("End of service");
     /// The operator's message (spec §12.2); empty hides it.
     in property <string> message;
     /// The current slide's font size in % of the window height. Rust lowers it until `now-fits`.
@@ -197,7 +197,7 @@ export component StageWindow inherits Window {
                 alignment: start;
                 spacing: 0.6 * vh;
                 Text {
-                    text: "NEXT";
+                    text: @tr("NEXT");
                     color: #8b93a7;
                     font-size: 2.2 * vh;
                     letter-spacing: 0.12 * 2.2 * vh;
