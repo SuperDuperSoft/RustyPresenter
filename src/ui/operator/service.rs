@@ -28,15 +28,25 @@ pub fn kind_icon(kind: &str) -> &'static str {
 }
 
 /// The list rows for a snapshot (`renderService()`): numbered from 1, with the selected and the live item marked.
+/// Headers (FEAT-6) have no number and do not count.
 pub fn rows(snap: &OperatorSnapshot, selected: Option<Uuid>, live_item: Option<Uuid>) -> Vec<ServiceRow> {
-    snap.items.iter().enumerate().map(|(i, it)| ServiceRow {
-        id: it.id.to_string().into(),
-        num: i as i32 + 1,
-        kind: kind_icon(&it.kind).into(),
-        title: it.title.as_str().into(),
-        subtitle: it.subtitle.as_str().into(),
-        selected: selected == Some(it.id),
-        live: live_item == Some(it.id),
+    let mut num = 0;
+    snap.items.iter().map(|it| {
+        let header = match &it.item.kind { crate::model::ItemKind::Header { color, .. } => Some(crate::planning::header_color(color)), _ => None };
+        let blank = it.kind == "blank";
+        if header.is_none() { num += 1 }
+        ServiceRow {
+            id: it.id.to_string().into(),
+            num: if header.is_some() { 0 } else { num },
+            kind: kind_icon(&it.kind).into(),
+            title: it.title.as_str().into(),
+            subtitle: if blank { crate::planning::strings::BLANK_SUBTITLE.into() } else { it.subtitle.as_str().into() },
+            selected: selected == Some(it.id),
+            live: live_item == Some(it.id),
+            blank,
+            header: header.is_some(),
+            color: header.and_then(crate::ui::dialogs::services::parse_color).unwrap_or_default(),
+        }
     }).collect()
 }
 
@@ -92,6 +102,7 @@ impl Operator {
 
     /// A double-click: show the item's first slide, if it has one (`operator.js:135`).
     fn show_first(self: &Rc<Self>, id: Uuid) {
+        if crate::ui::dialogs::services::planning_double_click(self, id) { return }
         let has_slides = self.state.borrow().snap.as_ref()
             .and_then(|s| s.items.iter().find(|i| i.id == id))
             .is_some_and(|i| !i.slides.is_empty());
@@ -135,7 +146,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_service_show_first(on(|op, id| op.show_first(id)));
     ui.on_service_remove(on(|op, id| op.service_action("service/remove", serde_json::json!({ "id": id }))));
     // Edit opens Item edit (Task 18) and Add opens the Add dialog on the Song tab (Task 16).
-    ui.on_service_edit(on(|op, id| crate::ui::dialogs::item_edit::open(op, id)));
+    ui.on_service_edit(on(|op, id| if !crate::ui::dialogs::services::edit_header(op, id) { crate::ui::dialogs::item_edit::open(op, id) }));
     let me = Rc::downgrade(op);
     ui.on_service_move(move |id, to| {
         let (Some(op), Ok(id), Ok(to)) = (me.upgrade(), Uuid::parse_str(&id), usize::try_from(to)) else { return };

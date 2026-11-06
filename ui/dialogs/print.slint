@@ -1,0 +1,87 @@
+// Print or save (FEAT-6b §3.6): the order of service and the lyrics, as a page the web browser prints.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented } from "../widgets.slint";
+import { DialogBody } from "shell.slint";
+import { Check } from "form.slint";
+
+/// Set and answered by `src/ui/dialogs/print.rs`.
+export global PrintDialogState {
+    /// 0 Service order, 1 Lyrics, 2 Both.
+    in-out property <int> what: 2;
+    in-out property <bool> notes: true;
+    in-out property <bool> scripture: true;
+    in-out property <bool> song-per-page;
+    /// 0 Letter, 1 A4.
+    in-out property <int> paper;
+    /// A page is being made: the buttons wait.
+    in property <bool> busy;
+    callback print();
+    callback save();
+    callback close();
+}
+
+component Label inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+export component PrintDialog inherits VerticalLayout {
+    DialogBody {
+        VerticalLayout {
+            spacing: 8px;
+            Label { text: @tr("What to print"); }
+            HorizontalLayout {
+                alignment: start;
+                what := Segmented {
+                    labels: [@tr("Service order"), @tr("Lyrics"), @tr("Both")];
+                    index <=> PrintDialogState.what;
+                }
+            }
+            Rectangle { height: 6px; }
+            Label { text: @tr("Options"); }
+            notes := Check {
+                text: @tr("Include item notes");
+                checked <=> PrintDialogState.notes;
+            }
+            scripture := Check {
+                text: @tr("Include Bible readings with the lyrics");
+                checked <=> PrintDialogState.scripture;
+            }
+            song-per-page := Check {
+                text: @tr("Start each song on a new page");
+                checked <=> PrintDialogState.song-per-page;
+            }
+            Label { text: @tr("Paper"); }
+            HorizontalLayout {
+                alignment: start;
+                paper := Segmented {
+                    labels: [@tr("Letter"), @tr("A4")];
+                    index <=> PrintDialogState.paper;
+                }
+            }
+            Rectangle { height: 10px; }
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                print-btn := Btn {
+                    primary: true;
+                    text: @tr("Print…");
+                    tooltip: @tr("Opens the page in your web browser, where you can print it or save it as a PDF");
+                    enabled: !PrintDialogState.busy;
+                    clicked => { PrintDialogState.print(); }
+                }
+                save-btn := Btn {
+                    text: @tr("Save web page…");
+                    enabled: !PrintDialogState.busy;
+                    clicked => { PrintDialogState.save(); }
+                }
+                close-btn := Btn {
+                    text: @tr("Close");
+                    clicked => { PrintDialogState.close(); }
+                }
+            }
+        }
+    }
+}

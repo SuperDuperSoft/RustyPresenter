@@ -9,6 +9,7 @@ pub mod ask;
 pub mod background;
 pub mod item_edit;
 pub mod phone;
+pub mod print;
 pub mod screens;
 pub mod services;
 pub mod settings;
@@ -43,6 +44,8 @@ pub enum DialogKind {
     SongEditor { song_id: Option<Uuid>, add_after: bool },
     ItemEdit(Uuid),
     Services,
+    /// Print or save one service (FEAT-6b).
+    Print(Uuid),
     Screens,
     Phone,
     Settings(SettingsTab),
@@ -63,6 +66,7 @@ impl DialogKind {
             DialogKind::SongEditor { .. } => "song-editor",
             DialogKind::ItemEdit(_) => "item-edit",
             DialogKind::Services => "services",
+            DialogKind::Print(_) => "print",
             DialogKind::Screens => "screens",
             DialogKind::Phone => "phone",
             DialogKind::Settings(_) => "settings",
@@ -92,6 +96,7 @@ impl Operator {
         let old = {
             let mut st = self.state.borrow_mut();
             st.dialog = Some(kind);
+            st.fill = None;
             (st.dialogs.on_close.take(), st.dialogs.refresh.take(), std::mem::take(&mut st.dialogs.next_read))
         };
         drop(old);
@@ -108,6 +113,7 @@ impl Operator {
     pub fn close_dialog(&self) {
         let (was, on_close, refresh) = {
             let mut st = self.state.borrow_mut();
+            st.fill = None;
             (st.dialog.take(), st.dialogs.on_close.take(), (st.dialogs.refresh.take(), std::mem::take(&mut st.dialogs.next_read)))
         };
         drop(refresh);
@@ -171,6 +177,7 @@ impl Operator {
                 .and_then(|s| s.items.iter().find(|i| i.id == id).map(|i| i.title.clone()))
                 .unwrap_or_default(),
             DialogKind::Services => strings::SERVICES.into(),
+            DialogKind::Print(_) => print::TITLE.into(),
             DialogKind::Screens => strings::SCREENS.into(),
             DialogKind::Phone => strings::PHONE.into(),
             DialogKind::Settings(_) => strings::SETTINGS.into(),
@@ -188,6 +195,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     op.ui.on_ask_other(move || if let Some(op) = me.upgrade() { ask::answer_other(&op) });
     add::wire_add_button(op);
     services::wire(op);
+    print::wire(op);
     screens::wire(op);
     phone::wire(op);
     settings::wire(op);

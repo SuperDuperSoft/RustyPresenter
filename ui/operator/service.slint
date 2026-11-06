@@ -3,8 +3,18 @@
 import { Theme } from "../theme.slint";
 import { Btn, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 
-/// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`).
-export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool }
+/// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
+/// Choose button; a header is a coloured band in `color`.
+export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color }
+
+/// Blanks and headers in the service list (FEAT-6a, `src/ui/dialogs/services.rs`).
+export global ServicePlanning {
+    /// Choose what goes in a blank: opens Add on the blank's kind.
+    callback choose(string);
+    /// The next colour for a header.
+    callback recolor(string);
+    callback add-header();
+}
 
 /// An `.item .acts` button: an icon, a line-coloured square on hover, and a tooltip.
 component RowAct inherits Rectangle {
@@ -61,6 +71,15 @@ export component ServiceColumn inherits VerticalLayout {
         count: root.count;
         VerticalLayout {
             alignment: center;
+            header-btn := Btn {
+                small: true;
+                text: @tr("Header");
+                tooltip: @tr("Add a coloured heading to the service list, like “Worship” or “Message”");
+                clicked => { ServicePlanning.add-header(); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
             check-btn := Btn {
                 small: true;
                 text: @tr("Check");
@@ -91,7 +110,20 @@ export component ServiceColumn inherits VerticalLayout {
                 border-radius: drop.has-drag ? 0 : 10px;
                 border-width: 1.5px;
                 border-color: it.selected ? Theme.line : transparent;
-                background: it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                background: it.header ? it.color.with-alpha(it.selected ? 0.32 : 0.2) : it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+
+                if it.blank: DashedOutline {
+                    line-color: Theme.dash;
+                    radius: 10px;
+                }
+                if it.header: Rectangle {
+                    x: 0;
+                    width: 4px;
+                    y: 6px;
+                    height: parent.height - 12px;
+                    background: it.color;
+                    border-radius: 2px;
+                }
                 opacity: drag.dragging ? 0.4 : 1;
 
                 // `.item.live::before`: a 4 px bar in the list's left padding.
@@ -107,12 +139,12 @@ export component ServiceColumn inherits VerticalLayout {
 
                 // The CSS padding sits inside the 1.5 px border; a Slint layout's starts at the outer edge.
                 HorizontalLayout {
-                    padding-top: 9px + 1.5px;
-                    padding-bottom: 9px + 1.5px;
-                    padding-left: 10px + 1.5px;
+                    padding-top: (it.header ? 7px : 9px) + 1.5px;
+                    padding-bottom: (it.header ? 7px : 9px) + 1.5px;
+                    padding-left: it.header ? 14px : 10px + 1.5px;
                     padding-right: 10px + 1.5px;
                     spacing: 10px;
-                    Text {
+                    if !it.header: Text {
                         width: 18px;
                         text: it.num;
                         color: Theme.faint;
@@ -121,7 +153,7 @@ export component ServiceColumn inherits VerticalLayout {
                         horizontal-alignment: right;
                         vertical-alignment: center;
                     }
-                    VerticalLayout {
+                    if !it.header: VerticalLayout {
                         alignment: center;
                         Rectangle {
                             width: 30px;
@@ -138,15 +170,16 @@ export component ServiceColumn inherits VerticalLayout {
                         horizontal-stretch: 1;
                         min-width: 0px;
                         alignment: center;
-                        Text {
+                        title := Text {
                             text: it.title;
-                            color: Theme.text;
+                            color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
                             font-family: Theme.font;
-                            font-size: Theme.base-size;
-                            font-weight: 600;
+                            font-size: it.header ? 12.5px : Theme.base-size;
+                            font-weight: it.header ? 800 : 600;
+                            letter-spacing: it.header ? 0.6px : 0px;
                             overflow: elide;
                         }
-                        Text {
+                        if !it.header: Text {
                             text: it.subtitle;
                             color: Theme.muted;
                             font-family: Theme.font;
@@ -154,8 +187,10 @@ export component ServiceColumn inherits VerticalLayout {
                             overflow: elide;
                         }
                     }
-                    // Room for `.acts` (two 28 px buttons, 2 px apart) while they show.
-                    if row-ta.has-hover: Rectangle { width: 58px; }
+                    // Room for the Choose button (drawn over the row's touch area, below).
+                    if it.blank: Rectangle { width: 72px; }
+                    // Room for `.acts` (two or three 28 px buttons, 2 px apart) while they show.
+                    if row-ta.has-hover: Rectangle { width: it.header ? 88px : 58px; }
                 }
 
                 if drop.has-drag: Rectangle {
@@ -194,11 +229,26 @@ export component ServiceColumn inherits VerticalLayout {
                         clicked => { root.select(it.id); }
                         double-clicked => { root.show-first(it.id); }
 
+                        if it.blank: choose-btn := Btn {
+                            x: parent.width - self.width - 10px - 1.5px - (parent.has-hover ? 60px : 0px);
+                            y: (parent.height - self.height) / 2;
+                            small: true;
+                            primary: true;
+                            text: @tr("Choose");
+                            tooltip: @tr("Choose what goes here");
+                            clicked => { ServicePlanning.choose(it.id); }
+                        }
+
                         // `.item:hover .acts`
                         if self.has-hover: HorizontalLayout {
                             x: parent.width - self.width - 10px - 1.5px;
                             y: (parent.height - self.height) / 2;
                             spacing: 2px;
+                            if it.header: color := RowAct {
+                                icon: "star";
+                                tooltip: @tr("Change colour");
+                                clicked => { ServicePlanning.recolor(it.id); }
+                            }
                             edit := RowAct {
                                 icon: "edit";
                                 tooltip: @tr("Edit");

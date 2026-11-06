@@ -181,7 +181,7 @@ impl Operator {
         let target = {
             let mut st = self.state.borrow_mut();
             let id = st.armed.take().or(st.selected);
-            id.filter(|id| st.snap.as_ref().is_some_and(|s| s.items.iter().any(|i| i.id == *id && !i.slides.is_empty())))
+            id.filter(|id| st.snap.as_ref().is_some_and(|s| s.items.iter().any(|i| i.id == *id && (!i.slides.is_empty() || i.kind == "blank"))))
         };
         if let Some(item_id) = target { self.command(Command::Show { item_id, slide: 0 }, None) }
     }

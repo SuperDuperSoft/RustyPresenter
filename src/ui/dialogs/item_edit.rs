@@ -97,6 +97,8 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             g.set_name(d.title.as_str().into());
             name = Some(Name::Deck { id: d.id, was: d.title.clone() });
         },
+        // FEAT-6: a blank keeps its notes and background here; a header is renamed from the service list.
+        ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     let has_background = matches!(item.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. } | ItemKind::Text { .. });
     g.set_has_background(has_background);
@@ -217,7 +219,7 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
             "audio" => *looped = g.get_looped(),
             _ => {}
         },
-        ItemKind::Song { .. } | ItemKind::Deck { .. } => {}
+        ItemKind::Song { .. } | ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     if let Some(p) = &edit.picker { item.background = p.value.clone() }
     item.notes = g.get_notes().into();
