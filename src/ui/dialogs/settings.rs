@@ -227,6 +227,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_copy_winget(with(|op, _| copy(op, strings::WINGET, strings::COPIED)));
     g.on_check_again(with(check_again));
     g.on_backup_now(with(backup_now));
+    g.on_import_easyworship(with(|op, _| import_easyworship(op, None)));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
     g.on_show_licences(move |show| if let Some(op) = me.upgrade() { about::show_licences(&op, show) });
@@ -249,6 +250,36 @@ fn check_again(op: &Rc<Operator>, edit: &Rc<Edit>) {
         let Some(s) = snap(op) else { return };
         fill_pages(op, &edit, &s);
         op.toast(if s.ffmpeg { strings::CONVERTER_FOUND } else { strings::CONVERTER_NOT_FOUND }, false);
+    });
+}
+
+/// Import from EasyWorship: from where it keeps its library, or, when it is not there, from a folder the operator
+/// picks. The page then says how many songs came in and which were skipped.
+fn import_easyworship(op: &Rc<Operator>, folder: Option<std::path::PathBuf>) {
+    let g = op.ui.global::<SettingsDlg>();
+    g.set_ew_busy(true);
+    g.set_ew_result(strings::EW_WORKING.into());
+    let me = Rc::downgrade(op);
+    let body = serde_json::json!({ "folder": folder.as_ref().map(|f| f.to_string_lossy().into_owned()) });
+    op.ops().call::<serde_json::Value>("song/import-easyworship", body, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        let g = op.ui.global::<SettingsDlg>();
+        g.set_ew_busy(false);
+        match r {
+            Ok(v) => {
+                let added = v["imported"].as_u64().unwrap_or(0) as usize;
+                let skipped: Vec<String> = v["skipped"].as_array().map(|a| a.iter().map(|s| format!("{} ({})", s["title"].as_str().unwrap_or(""), s["reason"].as_str().unwrap_or(""))).collect()).unwrap_or_default();
+                g.set_ew_result(strings::ew_done(added, &skipped).into());
+                op.toast(strings::ew_toast(added), false);
+            }
+            // Not where EasyWorship keeps it: ask once where it is.
+            Err(e) if folder.is_none() && e == crate::import::easyworship::NOT_FOUND => {
+                g.set_ew_result(strings::EW_PICK.into());
+                let me = Rc::downgrade(&op);
+                crate::ui::operator::files::pick_folder(&op, move |dir| if let Some(op) = me.upgrade() { import_easyworship(&op, Some(dir)) });
+            }
+            Err(e) => { g.set_ew_result(e.as_str().into()); op.toast(e, true); }
+        }
     });
 }
 

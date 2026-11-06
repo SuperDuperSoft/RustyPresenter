@@ -610,6 +610,19 @@ impl App {
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // The web operator's raw-body import; it always keeps both.
+        "song/import-easyworship" => {
+            // `folder`: where the operator pointed when the library was not where EasyWorship keeps it.
+            #[derive(Deserialize)] struct E { #[serde(default)] folder: Option<String> }
+            let E { folder } = parse(body)?;
+            let dir = crate::import::easyworship::find_dir(folder.as_deref().map(Path::new))
+                .ok_or_else(|| ActionError::bad(crate::import::easyworship::NOT_FOUND))?;
+            let scratch = app.store.tmp().join(format!("easyworship-{}", Uuid::new_v4()));
+            let songs = tokio::task::spawn_blocking(move || crate::import::easyworship::read_library(&dir, &scratch)).await
+                .map_err(|e| ActionError::bad(e.to_string()))?.map_err(ActionError::bad)?;
+            // One save for the whole library: nothing is added unless all of it is.
+            let (added, skipped) = tryr!(app.edit(|d| Ok(add_easyworship_songs(&mut d.songs, songs))));
+            Ok(json!({ "imported": added, "skipped": skipped }))
+        }
         "song/import-txt" => {
             let (id, title, duplicate_of) = tryr!(app.import_song(&String::from_utf8_lossy(body), SongImportMode::KeepBoth));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
@@ -1013,6 +1026,21 @@ pub enum SongImportMode {
     /// Replace the existing song's words and credits. It keeps its id, so service items still point at it.
     Update,
     KeepBoth,
+}
+
+/// Adds imported EasyWorship songs to the library. A song already there (same CCLI number, or the same title when
+/// it has none) or without words is skipped, with the reason. Returns the number added and the skipped ones.
+pub fn add_easyworship_songs(library: &mut Vec<Song>, songs: Vec<Song>) -> (usize, Vec<Value>) {
+    let (mut added, mut skipped) = (0, Vec::new());
+    for song in songs {
+        let dup = library.iter().any(|s| if song.ccli.is_empty() { s.title.eq_ignore_ascii_case(&song.title) } else { s.ccli == song.ccli });
+        let reason = if song.lyrics.trim().is_empty() { Some("no words") } else if dup { Some("already in the library") } else { None };
+        match reason {
+            Some(r) => skipped.push(json!({ "title": song.title, "reason": r })),
+            None => { library.push(song); added += 1; }
+        }
+    }
+    (added, skipped)
 }
 
 /// The longest stage message: it has to fit the stage screen in large type.
@@ -1570,6 +1598,25 @@ pub(crate) mod tests {
         assert_eq!(app.data.lock().unwrap().settings.translation, "KJV");
         assert_eq!(app.state_json()["items"][0]["title"], "John 3:16 (RVR1960)", "the saved passage keeps its label");
         assert_eq!(app.do_action("bible/lookup", br#"{"reference":"John 3:16","translation":"yv:149"}"#).await.unwrap_err().message, bible::strings::REMOVED);
+    }
+
+    #[test]
+    fn easyworship_songs_skip_duplicates_and_empty_ones() {
+        let song = |title: &str, ccli: &str, lyrics: &str| Song { id: Uuid::new_v4(), title: title.into(), ccli: ccli.into(), lyrics: lyrics.into(), ..Default::default() };
+        let mut lib = vec![song("Amazing Grace", "22025", "x"), song("Old Hymn", "", "x")];
+        let (added, skipped) = add_easyworship_songs(&mut lib, vec![
+            song("Amazing Grace (EW)", "22025", "a"), song("old hymn", "", "b"), song("Blank", "", " "), song("New Song", "7", "c"),
+        ]);
+        assert_eq!(added, 1);
+        assert_eq!(lib.last().unwrap().title, "New Song");
+        let reasons: Vec<&str> = skipped.iter().map(|s| s["reason"].as_str().unwrap()).collect();
+        assert_eq!(reasons, ["already in the library", "already in the library", "no words"]);
+    }
+
+    #[tokio::test]
+    async fn easyworship_import_says_when_no_library_is_found() {
+        let err = test_app().do_action("song/import-easyworship", br#"{"folder":"/nowhere/rp"}"#).await.unwrap_err();
+        assert_eq!(err.message, crate::import::easyworship::NOT_FOUND);
     }
 
     #[tokio::test]

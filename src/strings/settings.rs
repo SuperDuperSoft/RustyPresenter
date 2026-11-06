@@ -130,3 +130,17 @@ mod tests {
         assert_eq!(super::bible_added("X", 1_234_567), "Added X (1,234,567 verses)");
     }
 }
+
+/// Settings → Songs: Import from EasyWorship.
+pub const EW_WORKING: &str = "Reading EasyWorship's songs…";
+pub const EW_PICK: &str = "EasyWorship's songs weren't in the usual place. Choose the folder EasyWorship keeps its data in.";
+pub fn ew_toast(added: usize) -> String { if added == 1 { "1 song imported from EasyWorship".into() } else { format!("{added} songs imported from EasyWorship") } }
+pub fn ew_done(added: usize, skipped: &[String]) -> String {
+    let mut t = ew_toast(added);
+    if !skipped.is_empty() {
+        let shown: Vec<&str> = skipped.iter().take(8).map(String::as_str).collect();
+        t += &format!(". Skipped {}: {}", skipped.len(), shown.join(", "));
+        if skipped.len() > 8 { t += ", …"; }
+    }
+    t + "."
+}

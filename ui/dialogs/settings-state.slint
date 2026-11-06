@@ -117,6 +117,10 @@ export global SettingsDlg {
     callback copy-winget();
     callback check-again();
     callback backup-now();
+    /// Settings → Songs: import EasyWorship's library; busy while it runs, then what happened.
+    callback import-easyworship();
+    in property <bool> ew-busy;
+    in property <string> ew-result;
     callback restore(int);
     callback show-licences(bool);
     callback cancel();

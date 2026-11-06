@@ -32,6 +32,8 @@ rustls = { version = "0.23", default-features = false, features = ["ring", "std"
 icu_normalizer = { version = "2.4", default-features = false, features = ["compiled_data"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
+# The one-time EasyWorship song import reads its SQLite library (bundled: no system SQLite needed).
+rusqlite = { version = "0.37", features = ["bundled"] }
 # Native file dialogs for the operator. 0.17 has no `tokio` feature: its xdg portal (Linux) runs on its own executor.
 rfd = { version = "=0.17.2", default-features = false, features = ["xdg-portal", "wayland", "common-controls-v6"] }
 # Plan 4: file addresses for LibreOffice, cancelling converters.

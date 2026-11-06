@@ -3,6 +3,7 @@
 use std::io;
 use std::path::{Path, PathBuf};
 
+pub mod easyworship;
 pub mod libreoffice;
 pub mod pdf;
 pub mod powerpoint;

@@ -36,6 +36,33 @@ component SettingsSongs inherits VerticalLayout {
         label: @tr("Church CCLI license #");
         ccli := TextField { text <=> SettingsDlg.ccli; }
     }
+    Rectangle { height: 8px; }
+    Field {
+        label: @tr("Songs from EasyWorship");
+        VerticalLayout {
+            spacing: 6px;
+            Text {
+                text: @tr("Copies every song (words, writers, copyright and CCLI number) from EasyWorship on this computer. EasyWorship itself is not changed. Songs already here are skipped.");
+                color: Theme.muted;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                alignment: start;
+                import-ew := Btn {
+                    text: @tr("Import from EasyWorship");
+                    enabled: !SettingsDlg.ew-busy;
+                    clicked => { if self.enabled { SettingsDlg.import-easyworship(); } }
+                }
+            }
+            if SettingsDlg.ew-result != "": ew-result := Text {
+                text: SettingsDlg.ew-result;
+                color: Theme.text;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+        }
+    }
 }
 
 component SettingsVideo inherits VerticalLayout {
