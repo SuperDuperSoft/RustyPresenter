@@ -12,6 +12,8 @@ export component LiveMonitor inherits Rectangle {
     in property <Side> media;
     in property <Side> slide;
     in property <Side> logo;
+    /// Lines drawn from a phone (`src/render/drawing.rs`), over the slide.
+    in property <image> drawing;
     in property <bool> video;
     in property <image> video-frame;
     /// The drawn video is the background one: it fills the box and is cropped (`object-fit: cover`, the room's
@@ -72,6 +74,12 @@ export component LiveMonitor inherits Rectangle {
             height: parent.height;
             side: root.logo;
             scale: 0.7;
+        }
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.drawing;
+            image-fit: fill;
         }
         Rectangle {
             background: Theme.black;

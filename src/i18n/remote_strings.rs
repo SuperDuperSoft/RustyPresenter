@@ -51,6 +51,15 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("(Music playing)", tr!("(Music playing)")),
         ("(Clear)", tr!("(Clear)")),
         ("End of service", tr!("End of service")),
+        // Drawing on the slide (web/draw.js).
+        ("Draw on the slide", tr!("Draw on the slide")),
+        ("Highlighter", tr!("Highlighter")),
+        ("Pen size", tr!("Pen size")),
+        ("Undo", tr!("Undo")),
+        ("Clear all", tr!("Clear all")),
+        // The ink switch: lines that stay, or fade away by themselves like a laser pointer.
+        ("Stays", tr!("Stays")),
+        ("Fades", tr!("Fades")),
         // The name a newly paired phone gets in the computer's list of phones.
         ("Android phone", tr!("Android phone")),
     ]

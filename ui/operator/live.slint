@@ -28,6 +28,9 @@ export component LiveColumn inherits Rectangle {
     in property <Side> monitor-media;
     in property <Side> monitor-slide;
     in property <Side> monitor-logo;
+    in property <image> monitor-drawing;
+    /// A phone drawing is on the room screen: the Drawing chip shows, its ✕ clears it (`clear("clear_drawing")`).
+    in property <bool> drawing-on;
     in property <bool> monitor-video;
     in property <image> monitor-video-frame;
     in property <bool> monitor-video-cover;
@@ -113,11 +116,61 @@ export component LiveColumn inherits Rectangle {
                 media: root.monitor-media;
                 slide: root.monitor-slide;
                 logo: root.monitor-logo;
+                drawing: root.monitor-drawing;
                 video: root.monitor-video;
                 video-frame: root.monitor-video-frame;
                 video-cover: root.monitor-video-cover;
                 black: root.monitor-black;
                 room-off: root.monitor-room-off;
+            }
+
+            // A phone is drawing on the slide: say so, with a ✕ that takes the drawing away.
+            if root.drawing-on: HorizontalLayout {
+                alignment: start;
+                drawing-chip := Rectangle {
+                    height: 28px;
+                    border-radius: 14px;
+                    border-width: 1px;
+                    border-color: Theme.accent;
+                    background: Theme.raise;
+                    accessible-role: text;
+                    accessible-label: @tr("Drawing");
+                    HorizontalLayout {
+                        padding-left: 11px;
+                        padding-right: 4px;
+                        spacing: 6px;
+                        Text {
+                            text: "✎ " + @tr("Drawing");
+                            color: Theme.accent;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                        clear-drawing := Rectangle {
+                            width: 22px;
+                            height: 22px;
+                            y: 2px;
+                            border-radius: 11px;
+                            background: x-ta.has-hover ? Theme.btn-hover : transparent;
+                            accessible-role: button;
+                            accessible-label: @tr("Clear drawing");
+                            accessible-action-default => { root.clear("clear_drawing"); }
+                            Text {
+                                text: "✕";
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                horizontal-alignment: center;
+                                vertical-alignment: center;
+                            }
+                            x-ta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { root.clear("clear_drawing"); }
+                            }
+                        }
+                    }
+                }
             }
 
             // `.transport`: one box holding a row per playing video or audio.

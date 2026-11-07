@@ -133,6 +133,37 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     Pixels::clone_from_slice(img.as_raw(), w, h)
 }
 
+/// The slide on the room screen now, drawn like a thumbnail at `size` (the phone's drawing view and the stage's
+/// drawing panel). Black when nothing is on screen. Never the phone drawing itself.
+pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRenderer) -> Pixels {
+    let job = {
+        let data = app.data.lock().unwrap();
+        let live = app.live.lock().unwrap();
+        let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
+        live.cursor.as_ref().zip(live.item.as_ref()).filter(|_| on_air).and_then(|(c, item)| {
+            let slide = item.slides.get(c.slide)?;
+            let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
+            let passage = crate::model::passage(&item.kind, &item.slides);
+            Some(thumb(slide, &item.kind, &passage, Some(&item.background), &settings, &data.media, size).1)
+        })
+    };
+    match job {
+        Some(job) => compose(&job, size, renderer, &app.store),
+        None => {
+            let black = RgbaImage::from_pixel(size.0.max(1), size.1.max(1), Rgba([0, 0, 0, 255]));
+            Pixels::clone_from_slice(black.as_raw(), black.width(), black.height())
+        }
+    }
+}
+
+/// `over` (premultiplied, same size) drawn onto opaque `img`.
+pub fn put_over(img: &mut Pixels, over: &[u8]) {
+    let (w, h) = (img.width(), img.height());
+    let mut rgba = RgbaImage::from_raw(w, h, img.as_bytes().to_vec()).unwrap_or_default();
+    over_premultiplied(&mut rgba, over);
+    *img = Pixels::clone_from_slice(rgba.as_raw(), w, h);
+}
+
 /// Draws `p` as large as fits, centred (`object-fit: contain`).
 fn contain(img: &mut RgbaImage, p: &DynamicImage) {
     let (w, h) = img.dimensions();

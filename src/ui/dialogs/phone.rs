@@ -36,7 +36,9 @@ pub fn open(op: &Rc<Operator>) {
     let (me, st) = (Rc::downgrade(op), state.clone());
     g.on_pair(move || if let Some(op) = me.upgrade() { start(&op, &st) });
     let (me, st) = (Rc::downgrade(op), state.clone());
-    g.on_remove(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse()) { revoke(&op, &st, id) });
+    g.on_remove(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse::<Uuid>()) { revoke(&op, &st, id) });
+    let me = Rc::downgrade(op);
+    g.on_may_draw(move |id, on| if let (Some(op), Ok(id)) = (me.upgrade(), id.parse::<Uuid>()) { may_draw(&op, id, on) });
     let st = state.clone();
     op.on_dialog_refresh(move |op| {
         // A phone that pairs (by QR code or PIN) closes pairing on the computer: show it in the list right away.
@@ -52,7 +54,7 @@ pub fn open(op: &Rc<Operator>) {
 }
 
 fn phone_ids(op: &Operator) -> Vec<Uuid> {
-    op.state.borrow().snap.as_ref().map(|s| s.phones_list.iter().map(|(id, _)| *id).collect()).unwrap_or_default()
+    op.state.borrow().snap.as_ref().map(|s| s.phones_list.iter().map(|(id, ..)| *id).collect()).unwrap_or_default()
 }
 
 /// Draws the note, the empty pairing area and the paired phones (`draw()`, `operator.js:833-843`).
@@ -64,7 +66,7 @@ fn draw(op: &Operator) {
     g.set_countdown("".into());
     g.set_has_qr(false);
     g.set_qr(slint::Image::default());
-    let phones: Vec<PairedPhone> = s.phones_list.iter().map(|(id, name)| PairedPhone { id: id.to_string().into(), name: name.as_str().into() }).collect();
+    let phones: Vec<PairedPhone> = s.phones_list.iter().map(|(id, name, may_draw)| PairedPhone { id: id.to_string().into(), name: name.as_str().into(), may_draw: *may_draw }).collect();
     g.set_phones(ModelRc::new(VecModel::from(phones)));
 }
 
@@ -112,6 +114,16 @@ fn revoke(op: &Rc<Operator>, state: &Rc<PairState>, id: Uuid) {
         if let Err(e) = r { return op.toast(&e, true) }
         if let Some(state) = st.upgrade() { state.stop() }
         if op.dialog() == Some(DialogKind::Phone) { draw(&op) }
+        op.request_refresh();
+    });
+}
+
+/// "May draw on slides" for one phone, saved at once; the list redraws from the next read.
+fn may_draw(op: &Rc<Operator>, id: Uuid, on: bool) {
+    let me = Rc::downgrade(op);
+    op.ops().call::<Value>("phone/may_draw", json!({ "id": id, "on": on }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        if let Err(e) = r { op.toast(&e, true) }
         op.request_refresh();
     });
 }
@@ -204,7 +216,7 @@ mod tests {
         assert!(find(&op, "PhoneDialog::none-yet").is_some());
         // What a successful /remote/pair does: close pairing, add the phone, broadcast.
         *app.pairing.lock().unwrap() = None;
-        app.phones.lock().unwrap().push(Phone { id: Uuid::new_v4(), name: "iPhone".into(), hash: String::new(), last_seen: 0 });
+        app.phones.lock().unwrap().push(Phone { id: Uuid::new_v4(), name: "iPhone".into(), hash: String::new(), last_seen: 0, may_draw: true });
         refresh(&op);
         settle(&op);
         assert_eq!(label(&op, "PhoneDialog::phone-row"), "iPhone");
@@ -243,7 +255,7 @@ mod tests {
     #[test]
     fn remove_revokes_without_asking_and_redraws() {
         let app = app_with_lan();
-        let phone = Phone { id: Uuid::new_v4(), name: "Pastor's phone".into(), hash: String::new(), last_seen: 0 };
+        let phone = Phone { id: Uuid::new_v4(), name: "Pastor's phone".into(), hash: String::new(), last_seen: 0, may_draw: true };
         app.phones.lock().unwrap().push(phone.clone());
         let op = open_phone(&app);
         assert_eq!(find_all(&op, "PhoneDialog::phone-row").len(), 1);
@@ -255,5 +267,22 @@ mod tests {
         assert!(find(&op, "PhoneDialog::phone-row").is_none(), "redrawn from a fresh read");
         assert!(find(&op, "PhoneDialog::none-yet").is_some());
         assert!(find(&op, "PhoneDialog::pin").is_none(), "the pairing area is cleared, as the web's draw() does");
+    }
+
+    #[test]
+    fn each_phone_has_a_may_draw_switch_on_by_default() {
+        let app = app_with_lan();
+        let phone = Phone { id: Uuid::new_v4(), name: "Pastor's iPad".into(), hash: String::new(), last_seen: 0, may_draw: true };
+        app.phones.lock().unwrap().push(phone.clone());
+        let op = open_phone(&app);
+        let check = find(&op, "PhoneDialog::may-draw").expect("a switch per phone");
+        assert_eq!(check.accessible_label().unwrap_or_default(), "May draw on slides");
+        assert_eq!(check.accessible_checked(), Some(true));
+        check.invoke_accessible_default_action();
+        settle(&op);
+        assert!(!app.phones.lock().unwrap()[0].may_draw, "saved at once");
+        refresh(&op);
+        settle(&op);
+        assert_eq!(find(&op, "PhoneDialog::may-draw").unwrap().accessible_checked(), Some(false));
     }
 }

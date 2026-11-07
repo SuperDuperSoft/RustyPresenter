@@ -3,6 +3,7 @@
 pub mod background;
 pub mod cache;
 pub mod color;
+pub mod drawing;
 pub mod layout;
 pub mod overlay;
 pub mod parallel;

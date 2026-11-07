@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 use uuid::Uuid;
 
+pub mod drawing;
 mod song;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -322,6 +323,10 @@ pub struct Live {
     pub adopted: Option<(Uuid, Vec<Option<usize>>)>,
     /// Inside `apply_batch`: the strongest change so far, committed once at the end.
     batch: Option<Change>,
+    /// Lines drawn on the live slide from phones. Not part of the frame or the version (`drawing` module).
+    pub drawing: std::sync::Arc<drawing::Drawing>,
+    /// Settings → "Keep drawings when the slide changes" (the App keeps it in step with the settings).
+    pub keep_drawing: bool,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -338,7 +343,7 @@ impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
             audio_status: None, notice: None, restored_version: None, clear_epoch: 0, changed: None, visual_version: 0, manual_version: 0,
-            origin: Origin::User, adopted: None, batch: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -366,6 +371,9 @@ impl Live {
             if self.origin == Origin::User { self.manual_version = self.version }
         }
     }
+
+    /// Takes every drawn line away. No version bump. True when there were any.
+    pub fn clear_drawing(&mut self) -> bool { drawing::clear_shared(&mut self.drawing) }
 
     fn inst(&mut self) -> u64 { let i = self.next_inst; self.next_inst += 1; i }
 
@@ -512,12 +520,13 @@ impl Live {
                 self.go(item, index, slide);
                 Ok(())
             }
-            Command::ClearAll => { self.frame = Frame::default(); self.bump(); Ok(()) }
-            Command::ClearSlide => { self.frame.slide = None; self.bump(); Ok(()) }
+            Command::ClearAll => { self.frame = Frame::default(); self.clear_drawing(); self.bump(); Ok(()) }
+            Command::ClearSlide => { self.frame.slide = None; self.clear_drawing(); self.bump(); Ok(()) }
             Command::ClearMedia => { self.frame.background = None; self.frame.media = None; self.bump(); Ok(()) }
             Command::ClearAudio => { self.frame.audio = None; self.bump(); Ok(()) }
             Command::Logo => {
                 self.frame.slide = None; self.frame.background = None; self.frame.media = None; self.frame.logo = true;
+                self.clear_drawing();
                 // Pictures, clocks and signs stay over the logo (FEAT-1 spec §5.2).
                 self.retain_overlays(|s| s.source.survives_logo());
                 self.bump();
@@ -651,6 +660,9 @@ impl Live {
     /// | Still image   | removed     | unchanged (hidden) | still image (replaces video)    | off  | continues  |
     /// | Audio item    | unchanged   | unchanged          | unchanged                       | unchanged | new instance from start |
     fn go(&mut self, item: LiveItem, index: usize, slide: usize) {
+        // A drawing belongs to the slide it was drawn on (unless the church keeps them).
+        let moved = self.cursor.as_ref().is_none_or(|c| (c.item_id, c.slide) != (item.item_id, slide));
+        if moved && !self.keep_drawing { self.clear_drawing(); }
         let content = item.slides[slide].content.clone();
         match content {
             SlideContent::Text { text, footer, reference, size, parallel } => {
@@ -1195,5 +1207,54 @@ mod tests {
         p.order.remove(1);
         next(&mut l, &p);
         assert_eq!(shown(&l).as_deref(), Some("c"));
+    }
+
+    fn scribble(l: &mut Live, phone: Uuid) {
+        let c = drawing::DrawCmd::Start { stroke: 1, color: drawing::PALETTE[0].into(), width: 12.0, pen: drawing::Pen::Pen, points: vec![[0.2, 0.3], [0.6, 0.3]], ink: Default::default() };
+        std::sync::Arc::make_mut(&mut l.drawing).apply(phone, &c).unwrap();
+    }
+
+    #[test]
+    fn a_drawing_clears_when_the_slide_changes() {
+        let p = plan(vec![("A", vec![text("a1"), text("a2")]), ("B", vec![text("b1")])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        scribble(&mut l, Uuid::new_v4());
+        let v = l.version;
+        assert_eq!(l.version, v, "drawing never moves the version");
+        // Showing the same slide again keeps it.
+        let (item_id, slide) = { let c = l.cursor.clone().unwrap(); (c.item_id, c.slide) };
+        let b = l.version;
+        assert!(l.apply(env(Command::Show { item_id, slide }, Some(b)), &p).ok);
+        assert!(!l.drawing.is_empty(), "same slide again: kept");
+        next(&mut l, &p);
+        assert!(l.drawing.is_empty(), "next slide: cleared");
+        scribble(&mut l, Uuid::new_v4());
+        next(&mut l, &p);
+        assert!(l.drawing.is_empty(), "into the next item: cleared");
+    }
+
+    #[test]
+    fn keep_drawings_when_the_slide_changes() {
+        let p = plan(vec![("A", vec![text("a1"), text("a2")])]);
+        let mut l = Live::new();
+        l.keep_drawing = true;
+        next(&mut l, &p);
+        scribble(&mut l, Uuid::new_v4());
+        next(&mut l, &p);
+        assert!(!l.drawing.is_empty(), "kept across the slide change");
+        // Clear Text, Clear All and Logo clear it even then.
+        for cmd in [Command::ClearSlide, Command::ClearAll, Command::Logo] {
+            scribble(&mut l, Uuid::new_v4());
+            assert!(l.apply(env(cmd.clone(), None), &p).ok);
+            assert!(l.drawing.is_empty(), "{cmd:?}");
+        }
+        // Clear Media and Clear Audio leave it.
+        scribble(&mut l, Uuid::new_v4());
+        assert!(l.apply(env(Command::ClearMedia, None), &p).ok);
+        assert!(l.apply(env(Command::ClearAudio, None), &p).ok);
+        assert!(!l.drawing.is_empty());
+        assert!(l.clear_drawing());
+        assert!(!l.clear_drawing(), "nothing left");
     }
 }

@@ -131,6 +131,12 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_credits(match s.credits.as_str() { "last" => 1, "none" => 2, _ => 0 });
     g.set_ccli(s.church_ccli.as_str().into());
     g.set_room_on_top(s.room_on_top);
+    g.set_keep_drawings(s.keep_drawings);
+    g.set_stage_drawings(s.stage_drawings);
+    g.set_drawing_limit(s.drawing_limit);
+    g.set_drawing_max_strokes(s.drawing_max_strokes.to_string().into());
+    g.set_drawing_max_per_second(s.drawing_max_per_second.to_string().into());
+    g.set_fade_secs(s.fade_secs.to_string().into());
     g.set_section_keys(s.section_keys);
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
@@ -143,6 +149,15 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.credits = ["first", "last", "none"][g.get_credits().clamp(0, 2) as usize].into();
     s.church_ccli = g.get_ccli().into();
     s.room_on_top = g.get_room_on_top();
+    s.keep_drawings = g.get_keep_drawings();
+    s.stage_drawings = g.get_stage_drawings();
+    s.drawing_limit = g.get_drawing_limit();
+    // A number kept to its range; anything else leaves the setting as it was.
+    let num = |t: slint::SharedString, r: std::ops::RangeInclusive<u32>, old: u32| t.trim().parse::<u32>().map_or(old, |n| n.clamp(*r.start(), *r.end()));
+    use crate::live::drawing::{FADE_SECS_RANGE, actions::{MAX_PER_SECOND_RANGE, MAX_STROKES_RANGE}};
+    s.drawing_max_strokes = num(g.get_drawing_max_strokes(), MAX_STROKES_RANGE, s.drawing_max_strokes);
+    s.drawing_max_per_second = num(g.get_drawing_max_per_second(), MAX_PER_SECOND_RANGE, s.drawing_max_per_second);
+    s.fade_secs = num(g.get_fade_secs(), FADE_SECS_RANGE, s.fade_secs);
     s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
     super::stage_layouts::read_settings(g, s);

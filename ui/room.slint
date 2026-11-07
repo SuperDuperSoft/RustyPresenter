@@ -1,4 +1,4 @@
-// The room output (same layers as `web/output.html`): background, media, slide, logo, overlays, bottom → top.
+// The room output (same layers as `web/output.html`): background, media, slide, logo, drawing, overlays, bottom → top.
 // Video is drawn by mpv under the whole scene (OpenGL) or handed in as `video-frame` (software).
 // Each layer has two faces, so a new picture fades in over the old one as it fades out (driven from Rust).
 import { Theme } from "theme.slint";
@@ -105,6 +105,8 @@ export component RoomWindow inherits Window {
     in property <Side> overlays-b;
     in property <float> overlays-a-op;
     in property <float> overlays-b-op;
+    /// Lines drawn from a phone (`src/render/drawing.rs`), over the slide and logo, under the overlays.
+    in property <image> drawing;
     /// A video is drawn under the scene, so nothing here may paint the base black.
     in property <bool> video;
     /// Software drawing: the current video frame.
@@ -161,6 +163,12 @@ export component RoomWindow inherits Window {
         a-op: root.logo-a-op;
         b-op: root.logo-b-op;
         scale: 0.7;
+    }
+    drawing := Image {
+        width: root.width;
+        height: root.height;
+        source: root.drawing;
+        image-fit: fill;
     }
     overlays := FadeLayer {
         width: root.width;

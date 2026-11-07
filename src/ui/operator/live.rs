@@ -4,12 +4,13 @@
 use super::{view::{self, RoomStatus, TransportKind, TransportRow}, window::Operator};
 use crate::{
     app::LiveView,
-    live::Command,
+    live::{Command, drawing::Drawing},
+    render::drawing::DrawingCanvas,
     room::Kind,
     ui::{LiveSong, OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, thumbs},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
-use std::{rc::{Rc, Weak}, time::Duration};
+use std::{rc::{Rc, Weak}, sync::Arc, time::Duration};
 
 /// How often the preview asks the room's player for a frame (4 Hz).
 const GRAB_EVERY: Duration = Duration::from_millis(250);
@@ -27,6 +28,11 @@ pub(super) struct LiveState {
     video: Option<u64>,
     video_gen: u64,
     grab_timer: Timer,
+    /// The phone drawing over the monitor: its layer (finished strokes cached), the newest drawing and its `rev`.
+    drawing: DrawingCanvas,
+    drawing_now: Option<Arc<Drawing>>,
+    /// Draws the monitor's drawing again while ink fades.
+    fade_timer: Timer,
 }
 
 impl Operator {
@@ -55,8 +61,35 @@ impl Operator {
         st.rows = rows;
         drop(st);
         self.render_monitor(v);
+        self.render_drawing(&v.drawing, false);
         self.render_overlay_strip();
     }
+
+    /// The phone drawing on the monitor, and the Drawing chip. An older drawing than the one shown is ignored (a
+    /// live view read before the newest strokes can arrive after them); `again` draws it even when unchanged.
+    pub(crate) fn render_drawing(&self, d: &Arc<Drawing>, again: bool) {
+        let mut st = self.live.borrow_mut();
+        let newer = st.drawing_now.as_ref().is_none_or(|old| d.rev > old.rev);
+        if !newer && !again { return }
+        let d = if newer { st.drawing_now = Some(d.clone()); d.clone() } else { st.drawing_now.clone().unwrap_or_else(|| d.clone()) };
+        let px = st.drawing.render(&d, self.preview.size());
+        match d.next_change(std::time::Instant::now()) {
+            Some(wait) => {
+                let me = self.me.clone();
+                st.fade_timer.start(TimerMode::SingleShot, wait, move || if let Some(op) = me.upgrade() {
+                    let now = op.live.borrow().drawing_now.clone();
+                    if let Some(d) = now { op.render_drawing(&d, true) }
+                });
+            }
+            None => st.fade_timer.stop(),
+        }
+        drop(st);
+        self.ui.set_monitor_drawing(px.map(|p| Image::from_rgba8_premultiplied(p.buffer())).unwrap_or_default());
+        self.ui.set_drawing_on(!d.is_empty());
+    }
+
+    /// View → Clear drawing and the chip's ✕.
+    fn clear_drawing(&self) { self.ops().call::<serde_json::Value>("drawing/clear", serde_json::json!({}), |_| {}) }
 
     /// The live view as this window last drew it.
     pub(crate) fn shown_live(&self) -> Option<crate::app::LiveUpdate> { self.state.borrow().live.clone() }
@@ -159,7 +192,7 @@ impl Operator {
     /// The monitor was resized: draw its layers again at the new size.
     fn monitor_resized(&self) {
         let v = self.state.borrow().live.clone();
-        if let Some(v) = v { self.render_monitor(v.view()) }
+        if let Some(v) = v { self.render_monitor(v.view()); self.render_drawing(&v.view().drawing, true) }
     }
 }
 
@@ -237,7 +270,11 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_live_prev(move || if let Some(op) = me.upgrade() { op.step(false) });
     // The clears send no base.
     let me = Rc::downgrade(op);
-    ui.on_live_clear(move |name| if let (Some(op), Some(cmd)) = (me.upgrade(), clear_command(&name)) { op.command(cmd, None) });
+    ui.on_live_clear(move |name| {
+        let Some(op) = me.upgrade() else { return };
+        if name == "clear_drawing" { return op.clear_drawing() }
+        if let Some(cmd) = clear_command(&name) { op.command(cmd, None) }
+    });
     let me = Rc::downgrade(op);
     ui.on_transport_toggle(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.toggle_transport(i) });
     let me = Rc::downgrade(op);
@@ -556,5 +593,42 @@ mod tests {
         click(&op, "LiveColumn::clear-all");
         let slide = op.ui.get_monitor_slide();
         assert!(slide.image.size().width == 0 && slide.color.alpha() == 0, "cleared at once, with no fade");
+    }
+
+    #[test]
+    fn a_phone_drawing_shows_on_the_monitor_with_a_chip_that_clears_it() {
+        use crate::live::drawing::{DrawCmd, Pen, PALETTE};
+        let app = test_app();
+        let phone = Uuid::new_v4();
+        app.phones.lock().unwrap().push(crate::app::Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
+        let id = add_text(&app, "A", "Amazing grace");
+        let op = opened(&app);
+        run(&op, Command::Show { item_id: id, slide: 0 });
+        assert!(find(&op, "LiveColumn::drawing-chip").is_none());
+        assert_eq!(op.ui.get_monitor_drawing().size().width, 0);
+        app.draw(phone, &DrawCmd::Start { stroke: 1, color: PALETTE[0].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.2, 0.5], [0.8, 0.5]], ink: Default::default() }).unwrap();
+        // What the follower hands over for `Update::Drawing`.
+        op.render_drawing(&app.live_view().drawing, false);
+        let size = op.ui.get_monitor_drawing().size();
+        assert_eq!((size.width, size.height), op.preview.size(), "drawn at the monitor's size");
+        assert!(size.width > 0);
+        assert_eq!(label(&op, "LiveColumn::drawing-chip"), "Drawing");
+        // An older live view does not bring back an older drawing.
+        let mut old = app.live_view();
+        old.drawing = Default::default();
+        op.render_drawing(&old.drawing, false);
+        assert!(op.ui.get_monitor_drawing().size().width > 0);
+        // The ✕ clears it.
+        find(&op, "LiveColumn::clear-drawing").unwrap().mock_single_click(PointerEventButton::Left);
+        assert!(app.live_view().drawing.is_empty());
+        live(&op);
+        assert!(find(&op, "LiveColumn::drawing-chip").is_none());
+        assert_eq!(op.ui.get_monitor_drawing().size().width, 0);
+        // A new slide clears a drawing on its own.
+        app.draw(phone, &DrawCmd::Start { stroke: 2, color: PALETTE[0].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.2, 0.5]], ink: Default::default() }).unwrap();
+        live(&op);
+        assert!(find(&op, "LiveColumn::drawing-chip").is_some());
+        click(&op, "LiveColumn::clear-all");
+        assert!(find(&op, "LiveColumn::drawing-chip").is_none());
     }
 }

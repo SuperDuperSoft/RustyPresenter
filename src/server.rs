@@ -5,7 +5,7 @@ use crate::{live::*, model::*, slides::build_item};
 use axum::{
     Json, Router,
     body::Bytes,
-    extract::{ConnectInfo, DefaultBodyLimit, Path as UrlPath, State},
+    extract::{ConnectInfo, DefaultBodyLimit, Path as UrlPath, Query, State},
     http::{HeaderMap, StatusCode, header},
     response::{IntoResponse, Response, sse::{Event, KeepAlive, Sse}},
     routing::{get, post},
@@ -52,6 +52,7 @@ fn asset_response(body: &'static str, ctype: &'static str) -> Response {
 
 async fn remote_page() -> Response { asset_response(page!("remote.html"), "text/html; charset=utf-8") }
 async fn remote_js() -> Response { asset_response(page!("remote.js"), "text/javascript; charset=utf-8") }
+async fn draw_js() -> Response { asset_response(page!("draw.js"), "text/javascript; charset=utf-8") }
 
 // ---------- local API ----------
 
@@ -159,7 +160,7 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     let mut phones = app.phones.lock().unwrap();
     if phones.len() >= MAX_PHONES { phones.sort_by_key(|p| p.last_seen); phones.remove(0); }
     let name = if req.name.trim().is_empty() { crate::tr!("Phone {number}", number = phones.len() + 1) } else { req.name.trim().chars().take(40).collect() };
-    phones.push(Phone { id: Uuid::new_v4(), name, hash: hash_token(&token), last_seen: now_secs() });
+    phones.push(Phone { id: Uuid::new_v4(), name, hash: hash_token(&token), last_seen: now_secs(), may_draw: true });
     app.save_phones(&phones);
     drop(phones);
     app.broadcast_data();
@@ -189,18 +190,28 @@ fn same_origin(headers: &HeaderMap) -> bool {
 /// What a phone's remote stream sends for each update: a fresh remote view, nothing for import
 /// progress, and the end of the stream when this phone is unpaired.
 fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<String>, ()> + Send + 'static {
+    // The phone's strokes as last sent: points added to a stroke are not news to the phone that drew them.
+    let sent = std::sync::Mutex::new(None::<Vec<u32>>);
     move |app, u| match u {
         Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
         Some(Update::Job { .. }) => Ok(None),
         // FEAT-2: a tick sends only the phone's timer lines.
         Some(Update::Timers(v)) => Ok(Some(remote_timers(v))),
-        _ => Ok(Some(remote_view(app))),
+        // Drawing: only which of this phone's strokes are still up (undo, clears and slide changes take them away).
+        Some(Update::Drawing(d)) => {
+            let mine = d.ids_of(phone);
+            let mut sent = sent.lock().unwrap();
+            if sent.as_ref() == Some(&mine) { return Ok(None) }
+            *sent = Some(mine.clone());
+            Ok(Some(json!({ "type": "drawing", "mine": mine }).to_string()))
+        }
+        _ => Ok(Some(remote_view(app, Some(phone)))),
     }
 }
 
 async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, "pair first").into_response() };
-    let first = remote_view(&app);
+    let first = remote_view(&app, Some(phone));
     let s = event_stream(app, first, remote_map(phone));
     Sse::new(s).keep_alive(KeepAlive::new().interval(Duration::from_secs(10))).into_response()
 }
@@ -213,6 +224,51 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
     if let Err(e) = phone_automation(&app, phone, &env) { return ok(serde_json::to_value(Outcome { ok: false, version: 0, error: Some(e), duplicate: false }).unwrap()) }
     let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some(crate::tr!("Not allowed from the phone.")), duplicate: false } };
     ok(serde_json::to_value(out).unwrap())
+}
+
+/// A drawing command from a paired phone (`live::drawing`): `{ ok }` or `{ ok: false, error }`. Malformed input is
+/// refused; there is no cap on how much or how fast a phone draws.
+async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
+    if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
+    let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() };
+    let Ok(cmd) = serde_json::from_slice::<crate::live::drawing::DrawCmd>(&body) else { return bad(crate::tr!("Bad command.")) };
+    match app.draw(phone, &cmd) {
+        Ok(()) => ok(json!({ "ok": true })),
+        Err(e) => ok(json!({ "ok": false, "error": e })),
+    }
+}
+
+#[derive(Deserialize)]
+struct SlideSize { #[serde(default)] w: Option<u32> }
+
+/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide (16:9). Paired phones only.
+async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
+    if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
+    let width = q.w.unwrap_or(960);
+    let Ok(Ok(jpeg)) = tokio::task::spawn_blocking(move || live_slide_jpeg(&app, width)).await else {
+        return (StatusCode::INTERNAL_SERVER_ERROR, crate::tr!("Could not draw the slide.")).into_response()
+    };
+    ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], jpeg).into_response()
+}
+
+/// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, 16:9.
+pub fn live_slide_size(width: u32) -> (u32, u32) {
+    let w = width.clamp(160, 1920);
+    (w, w * 9 / 16)
+}
+
+/// The live slide drawn like an operator thumbnail (the shared slide renderer), as a JPEG. Black when nothing
+/// is on screen; the drawing itself is not in it (the phone draws its own lines over it).
+pub fn live_slide_jpeg(app: &App, width: u32) -> Result<Vec<u8>, String> {
+    use crate::ui::thumbs;
+    static RENDER: thumbs::TextRenderer = thumbs::TextRenderer::new();
+    let size = live_slide_size(width);
+    let rgba = thumbs::live_slide(app, size, &RENDER);
+    let rgb: Vec<u8> = rgba.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
+    let mut out = Vec::new();
+    image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, 85)
+        .encode(&rgb, size.0, size.1, image::ExtendedColorType::Rgb8).map_err(|e| e.to_string())?;
+    Ok(out)
 }
 
 /// What a phone may send. "Show this slide" and a section jump must say which screen state they were based on.
@@ -258,7 +314,8 @@ fn timer_lines(v: &crate::timers::TimersView) -> Vec<Value> {
     v.timers.iter().filter(|t| t.on_remote).map(|t| json!({ "name": t.name, "text": crate::timers::text(t.value_ms), "over": t.overrun })).collect()
 }
 
-fn remote_view(app: &App) -> String {
+fn remote_view(app: &App, phone: Option<Uuid>) -> String {
+    let may_draw = phone.is_some_and(|id| app.phones.lock().unwrap().iter().any(|p| p.id == id && p.may_draw));
     let timers = app.timers();
     let data = app.data.lock().unwrap();
     let live = app.live.lock().unwrap();
@@ -292,6 +349,10 @@ fn remote_view(app: &App) -> String {
         "timers": timer_lines(&timers),
         // I18N: the page reads `/i18n.json` again when this changes.
         "lang": crate::i18n::current(),
+        // Drawing: whether this phone may draw (its Draw button), and its strokes still up.
+        "may_draw": may_draw,
+        "fade_secs": live.drawing.fade_after.as_secs(),
+        "my_strokes": phone.map(|id| live.drawing.ids_of(id)).unwrap_or_default(),
     }).to_string()
 }
 
@@ -308,6 +369,7 @@ pub fn slide_text(s: &Slide) -> String {
 pub fn router(app: Arc<App>) -> Router {
     Router::new()
         .route("/static/remote.js", get(remote_js))
+        .route("/static/draw.js", get(draw_js))
         .route("/api/do/{*action}", post(api).layer(DefaultBodyLimit::max(64 * 1024 * 1024)))
         .route("/remote", get(remote_page))
         .route("/remote/pair", post(remote_pair))
@@ -315,6 +377,8 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/i18n.json", get(remote_i18n))
         .route("/remote/events", get(remote_events))
         .route("/remote/command", post(remote_command))
+        .route("/remote/draw", post(remote_draw))
+        .route("/remote/live-slide", get(remote_live_slide))
         .with_state(app)
 }
 
@@ -385,7 +449,7 @@ mod tests {
     #[tokio::test]
     async fn remote_page_still_served() {
         let addr = served(test_app()).await;
-        for path in ["/remote", "/static/remote.js", "/remote/status"] {
+        for path in ["/remote", "/static/remote.js", "/static/draw.js", "/remote/status"] {
             assert_eq!(status_of(addr, "GET", path).await, 200, "{path}");
         }
     }
@@ -418,7 +482,7 @@ msgstr[1] "{n} Folien"
             assert_eq!(m["On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."], "Am Computer: {phone} → {pair}, dann den Code tippen.");
             assert_eq!(m["Cancel"], "Cancel", "an untranslated word stays English");
             let app = test_app();
-            let v: Value = serde_json::from_str(&remote_view(&app)).unwrap();
+            let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
             assert_eq!(v["lang"], "xx", "the phone is told the language");
         });
     }
@@ -427,7 +491,7 @@ msgstr[1] "{n} Folien"
     #[test]
     fn every_remote_word_is_listed() {
         let m = i18n_map();
-        let js = include_str!("../web/remote.js");
+        let js = concat!(include_str!("../web/remote.js"), include_str!("../web/draw.js"));
         let mut asked = Vec::new();
         for (at, _) in js.match_indices("t('") {
             if js[..at].ends_with(|c: char| c.is_alphanumeric() || c == '_' || c == '.') { continue }
@@ -593,6 +657,110 @@ msgstr[1] "{n} Folien"
         let body = &src[src.find("async fn remote_pair").unwrap()..src.find("async fn remote_status").unwrap()];
         assert!(body.contains("ct_eq(req.pair.trim(), &p.secret)") && body.contains("ct_eq(req.pin.trim(), &p.pin)"));
         assert!(!body.contains("!= p.pin") && !body.contains("== p.secret"));
+    }
+
+
+    /// A paired phone with session cookie `rp_session=<token>`, and the headers it sends.
+    fn paired(app: &App, token: &str, may_draw: bool) -> (Uuid, HeaderMap) {
+        let id = Uuid::new_v4();
+        app.phones.lock().unwrap().push(Phone { id, name: "iPad".into(), hash: hash_token(token), last_seen: now_secs(), may_draw });
+        let mut h = HeaderMap::new();
+        h.insert(header::COOKIE, format!("rp_session={token}").parse().unwrap());
+        h.insert(header::CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        (id, h)
+    }
+
+    async fn body_json(r: Response) -> (StatusCode, Value) {
+        let status = r.status();
+        let b = axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap();
+        (status, serde_json::from_slice(&b).unwrap_or(Value::Null))
+    }
+
+    #[tokio::test]
+    async fn the_live_slide_picture_is_for_paired_phones_only() {
+        let app = test_app();
+        let get = |h: HeaderMap, w| remote_live_slide(State(app.clone()), h, Query(SlideSize { w }));
+        assert_eq!(get(HeaderMap::new(), None).await.status(), StatusCode::UNAUTHORIZED);
+        let mut wrong = HeaderMap::new();
+        wrong.insert(header::COOKIE, "rp_session=guess".parse().unwrap());
+        assert_eq!(get(wrong, None).await.status(), StatusCode::UNAUTHORIZED);
+        let (_, h) = paired(&app, "secret-token", false);
+        let r = get(h, Some(320)).await;
+        assert_eq!(r.status(), StatusCode::OK, "seeing the slide needs no drawing permission");
+        assert_eq!(r.headers()[header::CONTENT_TYPE], "image/jpeg");
+        let b = axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap();
+        let img = image::load_from_memory_with_format(&b, image::ImageFormat::Jpeg).unwrap();
+        assert_eq!((img.width(), img.height()), (320, 180), "the size the phone asked for, 16:9");
+        assert_eq!(live_slide_size(10), (160, 90));
+        assert_eq!(live_slide_size(9999), (1920, 1080));
+        // Over the network too: no cookie, no picture.
+        let addr = served(test_app()).await;
+        assert_eq!(status_of(addr, "GET", "/remote/live-slide?w=320").await, 401);
+    }
+
+    #[tokio::test]
+    async fn the_live_slide_picture_shows_the_live_text_slide() {
+        let app = test_app();
+        let id = Uuid::new_v4();
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God so loved the world")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: Some(Background::Color { color: "#204080".into() }), notes: String::new(), theme: None });
+        assert!(app.command(Envelope { id: "s".into(), base: Some(app.live.lock().unwrap().version), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
+        let jpeg = live_slide_jpeg(&app, 320).unwrap();
+        let img = image::load_from_memory(&jpeg).unwrap().into_rgb8();
+        let p = img.get_pixel(4, 4);
+        assert!(p[2] > 100 && p[0] < 70, "the slide's blue background, not black: {p:?}");
+        assert!(img.pixels().any(|p| p[0] > 200 && p[1] > 200 && p[2] > 200), "the white words");
+    }
+
+    #[tokio::test]
+    async fn drawing_from_the_phone_checks_pairing_permission_and_input() {
+        let app = test_app();
+        let draw = |h: HeaderMap, body: Value| remote_draw(State(app.clone()), h, Bytes::from(body.to_string()));
+        let start = json!({ "op": "start", "stroke": 1, "color": "#ffd60a", "width": 12, "pen": "pen", "points": [[0.1, 0.2]] });
+        let (s, _) = body_json(draw(HeaderMap::new(), start.clone()).await).await;
+        assert_eq!(s, StatusCode::FORBIDDEN, "not JSON from this page");
+        let mut unpaired = HeaderMap::new();
+        unpaired.insert(header::CONTENT_TYPE, HeaderValue::from_static("application/json"));
+        assert_eq!(body_json(draw(unpaired, start.clone()).await).await.0, StatusCode::UNAUTHORIZED);
+        let (_, no) = paired(&app, "no-token", false);
+        let (s, v) = body_json(draw(no, start.clone()).await).await;
+        assert_eq!((s, v["ok"].as_bool()), (StatusCode::OK, Some(false)));
+        assert_eq!(v["error"], crate::live::drawing::actions::not_allowed());
+        let (me, yes) = paired(&app, "yes-token", true);
+        assert_eq!(body_json(draw(yes.clone(), start).await).await.1["ok"], true);
+        let more = json!({ "op": "more", "stroke": 1, "points": [[0.3, 0.2], [0.5, 0.25]] });
+        assert_eq!(body_json(draw(yes.clone(), more).await).await.1["ok"], true);
+        let off = json!({ "op": "more", "stroke": 1, "points": [[1.5, 0.2]] });
+        assert_eq!(body_json(draw(yes.clone(), off).await).await.1["ok"], false);
+        let (s, _) = body_json(remote_draw(State(app.clone()), yes.clone(), Bytes::from_static(b"{nope")).await).await;
+        assert_eq!(s, StatusCode::BAD_REQUEST);
+        let colour = json!({ "op": "start", "stroke": 2, "color": "#123456", "width": 12, "pen": "pen", "points": [[0.1, 0.2]] });
+        assert_eq!(body_json(draw(yes.clone(), colour).await).await.1["ok"], false);
+        let d = app.live.lock().unwrap().drawing.clone();
+        assert_eq!((d.strokes.len(), d.points()), (1, 3));
+        assert_eq!(d.strokes[0].phone, me);
+        let v: Value = serde_json::from_str(&remote_view(&app, Some(me))).unwrap();
+        assert_eq!((v["may_draw"].as_bool(), v["my_strokes"].clone()), (Some(true), json!([1])));
+        let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!(v["may_draw"], false);
+    }
+
+    #[test]
+    fn a_phone_hears_only_when_its_own_strokes_change() {
+        use crate::live::drawing::{DrawCmd, Drawing, Pen};
+        let (me, you) = (Uuid::new_v4(), Uuid::new_v4());
+        let app = test_app();
+        let map = remote_map(me);
+        let mut d = Drawing::default();
+        let send = |d: &Drawing| map(&app, Some(&Update::Drawing(Arc::new(d.clone()))));
+        d.apply(me, &DrawCmd::Start { stroke: 4, color: "#ffd60a".into(), width: 12.0, pen: Pen::Pen, points: vec![[0.1, 0.1]], ink: Default::default() }).unwrap();
+        let first: Value = serde_json::from_str(&send(&d).unwrap().unwrap()).unwrap();
+        assert_eq!(first, json!({ "type": "drawing", "mine": [4] }));
+        d.apply(me, &DrawCmd::More { stroke: 4, points: vec![[0.2, 0.1]] }).unwrap();
+        assert_eq!(send(&d), Ok(None), "more points: nothing to say");
+        d.apply(you, &DrawCmd::Start { stroke: 1, color: "#ffd60a".into(), width: 12.0, pen: Pen::Pen, points: vec![[0.1, 0.1]], ink: Default::default() }).unwrap();
+        assert_eq!(send(&d), Ok(None), "someone else's stroke");
+        d.clear();
+        assert_eq!(serde_json::from_str::<Value>(&send(&d).unwrap().unwrap()).unwrap()["mine"], json!([]));
     }
 
 }

@@ -288,7 +288,7 @@ impl Drop for Operator {
 
 /// What the follower has read and the Slint thread has not applied yet: only the newest of each.
 #[derive(Default)]
-struct Pending { snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool }
+struct Pending { snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool, drawing: Option<Arc<crate::live::drawing::Drawing>> }
 
 /// The follower's side: reads and patches snapshots off the Slint thread and posts them to `listen`.
 struct Feed {
@@ -338,6 +338,8 @@ impl Feed {
                 Some(Update::Live(v)) => live = Some(v),
                 // FEAT-2: the strip reads the newest readout itself (`App::timers`).
                 Some(Update::Timers(_)) => { self.pending.lock().unwrap().timers = true; self.wake.notify_one(); }
+                // A phone drew: only the monitor's drawing and the Drawing chip follow it.
+                Some(Update::Drawing(d)) => { self.pending.lock().unwrap().drawing = Some(d); self.wake.notify_one(); }
                 Some(Update::Job { id, percent }) => self.patch(|s| match s.jobs.iter_mut().find(|j| j.id == id) {
                     Some(j) => { j.percent = percent; true }
                     None => false,
@@ -372,11 +374,12 @@ fn listen(me: Weak<Operator>, feed: Arc<Feed>) -> bool {
             feed.wake.notified().await;
             if feed.is_closed() { return }
             let Some(op) = me.upgrade() else { return };
-            let Pending { snap, live, timers } = feed.take();
+            let Pending { snap, live, timers, drawing } = feed.take();
             // Live first, so the selection can fall back to the live item (`operator.js:73`).
             if let Some(v) = live { op.apply_live(v); }
             if let Some(s) = snap { op.apply_snapshot(s); }
             if timers { op.apply_timers(); }
+            if let Some(d) = drawing { op.render_drawing(&d, false); }
         }
     }).is_ok()
 }

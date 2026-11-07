@@ -39,6 +39,8 @@ pub enum Update {
     Revoked { phone: Uuid },
     /// The timer readout changed (FEAT-2): the only tick update. `App::timers()` returns the same `Arc`.
     Timers(Arc<crate::timers::TimersView>),
+    /// Lines drawn on the live slide changed (`live::drawing`). The newest drawing, shared.
+    Drawing(Arc<crate::live::drawing::Drawing>),
 }
 
 /// One published live view, shared by every receiver of the update.
@@ -95,6 +97,9 @@ pub struct LiveView {
     /// The operator's message for the stage screen (spec §12.2). Never in the JSON: it goes to the stage and nowhere else.
     #[serde(skip)]
     pub stage_message: String,
+    /// Lines drawn on the live slide from phones (`live::drawing`). Screens only.
+    #[serde(skip)]
+    pub drawing: Arc<crate::live::drawing::Drawing>,
 }
 
 #[derive(Serialize, Clone, Debug)]
@@ -141,7 +146,12 @@ pub trait Screens: Send + Sync {
 pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
+pub struct Phone {
+    pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64,
+    /// "May draw on slides" (on for new pairings, and for phones paired before drawing existed).
+    #[serde(default = "crate::live::drawing::yes")]
+    pub(crate) may_draw: bool,
+}
 
 use crate::import::strings::fallback_note;
 
@@ -239,6 +249,8 @@ pub struct App {
     pub(crate) ticker_wake: tokio::sync::Notify,
     /// The Automation dialog is open, so stopped countdowns to a time keep their readout fresh.
     pub(crate) automation_watching: AtomicBool,
+    /// A thread is taking faded ink away (`live::drawing::actions`).
+    pub(crate) fade_ticking: AtomicBool,
     /// Bible keyword search indexes, made on the first search (FEAT-5).
     pub(crate) search: OnceLock<crate::scripture::search::SearchService>,
 }
@@ -285,10 +297,16 @@ impl App {
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
-            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
+            bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
         });
+        {
+            let data = app.data.lock().unwrap();
+            let mut live = app.live.lock().unwrap();
+            live.keep_drawing = data.settings.keep_drawings;
+            crate::live::drawing::actions::sync_fade(&mut live, &data.settings);
+        }
         app.publish_timers(chrono::Utc::now(), true);
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -364,6 +382,7 @@ impl App {
             logo: data.settings.logo.clone(),
             clear_epoch: live.clear_epoch,
             stage_message: self.stage_message.lock().unwrap().clone(),
+            drawing: live.drawing.clone(),
         }
     }
 
@@ -439,7 +458,10 @@ impl App {
     /// Compares the live item with the library (data, then live: the one lock order). True when live changed.
     pub(crate) fn reconcile_live(&self) -> bool {
         let data = self.data.lock().unwrap();
-        self.live.lock().unwrap().reconcile(&DataPlan(&data))
+        let mut live = self.live.lock().unwrap();
+        live.keep_drawing = data.settings.keep_drawings;
+        crate::live::drawing::actions::sync_fade(&mut live, &data.settings);
+        live.reconcile(&DataPlan(&data))
     }
 
     pub fn command(&self, env: Envelope) -> Outcome {
@@ -897,7 +919,7 @@ impl App {
             "bible_sources": self.bible_sources(),
             "bible_providers": self.bible_providers(),
             "backups": self.store.backups(),
-            "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name })).collect::<Vec<_>>(),
+            "phones": self.phones.lock().unwrap().iter().map(|p| json!({ "id": p.id, "name": p.name, "may_draw": p.may_draw })).collect::<Vec<_>>(),
             "jobs": *self.jobs.lock().unwrap(),
             "read_only": self.read_only(),
             "room_connected": self.room_conns.load(Ordering::Relaxed) > 0,
@@ -1469,6 +1491,7 @@ impl App {
             Ok(json!({}))
         }
         a if a.starts_with("usage/") => app.usage_action(a, body).await,
+        a if crate::live::drawing::actions::handles(a) => crate::live::drawing::actions::run(app, a, body),
         a if crate::scripture::actions::handles(a) => crate::scripture::actions::run(app, a, body).await,
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         a if crate::stage::actions::handles(a) => crate::stage::actions::run(app, a, body).await,

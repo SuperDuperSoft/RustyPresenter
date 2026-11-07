@@ -106,6 +106,41 @@ component SettingsVideo inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Drawing from a phone");
+        VerticalLayout {
+            keep-drawings := Check {
+                text: @tr("Keep drawings when the slide changes");
+                checked <=> SettingsDlg.keep-drawings;
+            }
+            stage-drawings := Check {
+                text: @tr("Show drawings on the stage screen");
+                checked <=> SettingsDlg.stage-drawings;
+            }
+        }
+    }
+    Field {
+        label: @tr("Fading ink disappears after (seconds, 1–30)");
+        help: @tr("On the phone, “Fades” ink works like a laser pointer: it goes away by itself.");
+        fade-secs := TextField { text <=> SettingsDlg.fade-secs; }
+    }
+    Field {
+        label: @tr("Limits");
+        VerticalLayout {
+            drawing-limit := Check {
+                text: @tr("Limit phone drawing");
+                checked <=> SettingsDlg.drawing-limit;
+            }
+            if SettingsDlg.drawing-limit: Field {
+                label: @tr("Most lines on the screen at once");
+                drawing-max-strokes := TextField { text <=> SettingsDlg.drawing-max-strokes; }
+            }
+            if SettingsDlg.drawing-limit: Field {
+                label: @tr("Most drawing updates a second from one phone");
+                drawing-max-per-second := TextField { text <=> SettingsDlg.drawing-max-per-second; }
+            }
+        }
+    }
+    Field {
         label: @tr("Stage layout");
         help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
         stage-layout := Select {
