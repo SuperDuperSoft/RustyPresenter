@@ -28,6 +28,8 @@ struct Edit {
     /// Scripture: the Also Bibles' ids, in order, and which "Also show" picker is open.
     also: Vec<String>,
     also_slot: usize,
+    /// What each line of the Theme box picks (`None`: the service's).
+    themes: Vec<Option<crate::theme::ThemeId>>,
 }
 
 thread_local! {
@@ -115,7 +117,11 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
     let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
-    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0 }));
+    let themes = if has_background { theme_choices(&snap.data, &item) } else { vec![] };
+    g.set_theme_options(ModelRc::new(VecModel::from(themes.iter().map(|(l, _)| l.as_str().into()).collect::<Vec<slint::SharedString>>())));
+    g.set_theme_index(themes.iter().position(|(_, t)| *t == item.theme).unwrap_or(0) as i32);
+    let themes = themes.into_iter().map(|(_, t)| t).collect();
+    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0, themes }));
 
     op.open_dialog(DialogKind::ItemEdit(id));
     draw_choices(op, &edit);
@@ -309,8 +315,22 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
         ItemKind::Song { .. } | ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     if let Some(p) = &edit.picker { item.background = p.value.clone() }
+    if let Some(t) = usize::try_from(g.get_theme_index()).ok().and_then(|i| edit.themes.get(i)) { item.theme = *t }
     item.notes = g.get_notes().into();
     item
+}
+
+/// Songs, scripture and announcements draw text, so they take a theme.
+fn item_has_theme(item: &ServiceItem) -> bool { matches!(item.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. } | ItemKind::Text { .. }) }
+
+/// The Theme box (FEAT-1 §3.3): "Same as service (<its theme>)", then every theme. An item's theme that is gone shows
+/// as the service's.
+pub fn theme_choices(data: &crate::model::Data, item: &ServiceItem) -> Vec<(String, Option<crate::theme::ThemeId>)> {
+    use crate::theme::{self, strings as ts};
+    let service = theme::service_of(data, item.id).and_then(|(s, _)| s.theme).and_then(|id| theme::find(data, id)).unwrap_or_else(|| theme::church_default(data));
+    let mut out = vec![(ts::same_as_service(&service.name), None)];
+    out.extend(data.catalog().rows().into_iter().map(|r| (r.name, Some(r.id))));
+    out
 }
 
 /// `parts.saveName`: a rename when the name changed and is not blank, sent trimmed.
@@ -348,7 +368,9 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 /// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
 fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>) {
     let id = item.id;
-    let body = serde_json::to_value(&item).unwrap_or_default();
+    let mut body = serde_json::to_value(&item).unwrap_or_default();
+    // Sent even when it is none, so "Same as service" clears a theme (the save merges by key).
+    if item_has_theme(&item) { body["theme"] = serde_json::to_value(item.theme).unwrap_or_default() }
     let update = move |op: &Rc<Operator>| {
         let me = Rc::downgrade(op);
         op.ops().call::<serde_json::Value>("service/update", body, move |r| {
@@ -777,7 +799,7 @@ mod tests {
         open(&op, id);
         let tiles = || find_all(&op, "BackgroundPicker::choice");
         settle();
-        assert_eq!(tiles().len(), 9, "default, six swatches, custom, upload");
+        assert_eq!(tiles().len(), 15, "default, six swatches, custom, six gradients, upload");
         assert!(tiles()[0].accessible_checked().unwrap_or(false), "Theme default is on");
         tiles()[2].invoke_accessible_default_action();
         settle();
@@ -796,6 +818,42 @@ mod tests {
         assert!(tiles().iter().all(|t| !t.accessible_checked().unwrap_or(false)), "a custom colour is no tile");
         press(&op, "ItemEditDialog::save");
         assert_eq!(item(&app, id).unwrap().background, Some(Background::Color { color: "#12ab34".into() }));
+    }
+
+    #[test]
+    fn item_edit_theme_combo_saves() {
+        let app = test_app();
+        let christmas = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(), background: None };
+        app.data.lock().unwrap().themes.push(christmas.clone());
+        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into() });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        let options: Vec<String> = g(&op).get_theme_options().iter().map(|s| s.to_string()).collect();
+        assert_eq!(options, ["Same as service (Standard)", "Standard", "Lower third", "Christmas"]);
+        assert_eq!(g(&op).get_theme_index(), 0);
+        assert!(find(&op, "ItemEditDialog::item-theme").is_some());
+        g(&op).set_theme_index(3);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(item(&app, id).unwrap().theme, Some(christmas.id));
+        open(&op, id);
+        settle();
+        assert_eq!(g(&op).get_theme_index(), 3, "opening again shows it");
+        g(&op).set_theme_index(0);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(item(&app, id).unwrap().theme, None, "Same as service clears it");
+    }
+
+    #[test]
+    fn media_items_have_no_theme_box() {
+        let app = test_app();
+        let m = media(&app, "Sky", MediaKind::Image);
+        let id = push(&app, ItemKind::Media { media_id: m, autoplay: true, end: EndAction::Stop, looped: false });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert_eq!(g(&op).get_theme_options().row_count(), 0);
+        assert!(find(&op, "ItemEditDialog::item-theme").is_none());
     }
 
     #[test]
@@ -821,9 +879,9 @@ mod tests {
         assert_eq!(names, ["one", "two"], "the core names media without the extension");
         assert_eq!(toasts(&op).last(), Some(&("Added to the media library — pick it here".to_string(), false)));
         let tiles = find_all(&op, "BackgroundPicker::choice");
-        assert_eq!(tiles.len(), 11, "both pictures are pickable at once");
-        assert_eq!(tiles[8].accessible_label().unwrap(), "one");
-        tiles[9].invoke_accessible_default_action();
+        assert_eq!(tiles.len(), 17, "both pictures are pickable at once");
+        assert_eq!(tiles[14].accessible_label().unwrap(), "one");
+        tiles[15].invoke_accessible_default_action();
         settle();
         press(&op, "ItemEditDialog::save");
         let asset = app.data.lock().unwrap().media[1].asset.clone();
