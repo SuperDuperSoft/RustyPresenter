@@ -256,12 +256,12 @@ fn clamp_look(look: &mut OverlayLook) {
 pub fn validate(mut o: Overlay, asset_exists: impl Fn(&AssetId) -> bool) -> Result<Overlay, String> {
     o.name = o.name.trim().to_string();
     if o.name.is_empty() {
-        return Err(strings::OVERLAY_NAME_REQUIRED.into());
+        return Err(strings::overlay_name_required().into());
     }
     match &mut o.source {
         OverlaySource::Text { text, styles, look } => {
             if text.trim().is_empty() {
-                return Err(strings::OVERLAY_TEXT_REQUIRED.into());
+                return Err(strings::overlay_text_required().into());
             }
             *styles = richtext::normalize(text, std::mem::take(styles));
             clamp_look(look);
@@ -270,12 +270,12 @@ pub fn validate(mut o: Overlay, asset_exists: impl Fn(&AssetId) -> bool) -> Resu
             if let ImageSource::Asset { asset } = source
                 && !asset_exists(asset)
             {
-                return Err(strings::PICTURE_GONE.into());
+                return Err(strings::picture_gone().into());
             }
             *opacity = (*opacity).min(100);
         }
         OverlaySource::Clock { look, .. } => clamp_look(look),
-        OverlaySource::Unknown => return Err(strings::OVERLAY_KIND.into()),
+        OverlaySource::Unknown => return Err(strings::overlay_kind().into()),
     }
     o.place.width = o.place.width.clamp(5, 100);
     o.place.margin = o.place.margin.min(20);
@@ -394,20 +394,20 @@ mod tests {
     fn overlay_save_validates() {
         let yes = |_: &AssetId| true;
         let no = |_: &AssetId| false;
-        assert_eq!(validate(text_overlay("   ", "Hi"), yes).unwrap_err(), OVERLAY_NAME_REQUIRED);
-        assert_eq!(validate(text_overlay("Wi-Fi", "  \n "), yes).unwrap_err(), OVERLAY_TEXT_REQUIRED);
+        assert_eq!(validate(text_overlay("   ", "Hi"), yes).unwrap_err(), overlay_name_required());
+        assert_eq!(validate(text_overlay("Wi-Fi", "  \n "), yes).unwrap_err(), overlay_text_required());
         let picture = Overlay {
             id: Uuid::nil(),
             name: "Logo".into(),
             source: OverlaySource::Image { source: ImageSource::Asset { asset: "gone.png".into() }, opacity: 100 },
             place: Placement::default(),
         };
-        assert_eq!(validate(picture.clone(), no).unwrap_err(), PICTURE_GONE);
+        assert_eq!(validate(picture.clone(), no).unwrap_err(), picture_gone());
         assert!(validate(picture, yes).is_ok());
         let logo = Overlay { source: OverlaySource::Image { source: ImageSource::ChurchLogo, opacity: 250 }, ..text_overlay("Logo", "") };
         assert_eq!(validate(logo, no).unwrap().source, OverlaySource::Image { source: ImageSource::ChurchLogo, opacity: 100 });
         let unknown = Overlay { source: OverlaySource::Unknown, ..text_overlay("Odd", "") };
-        assert_eq!(validate(unknown, yes).unwrap_err(), OVERLAY_KIND);
+        assert_eq!(validate(unknown, yes).unwrap_err(), overlay_kind());
 
         let mut wide = text_overlay("  Wi-Fi  ", "Café ß");
         wide.place = Placement { anchor: Anchor::Top, width: 200, margin: 99 };

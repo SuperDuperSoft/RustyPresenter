@@ -80,17 +80,17 @@ impl SectionKind {
         })
     }
 
-    pub fn name(self) -> &'static str {
+    pub fn name(self) -> String {
         match self {
-            SectionKind::Verse => strings::VERSE,
-            SectionKind::Chorus => strings::CHORUS,
-            SectionKind::PreChorus => strings::PRE_CHORUS,
-            SectionKind::Bridge => strings::BRIDGE,
-            SectionKind::Tag => strings::TAG,
-            SectionKind::Intro => strings::INTRO,
-            SectionKind::Ending => strings::ENDING,
-            SectionKind::Interlude => strings::INTERLUDE,
-            SectionKind::Other => strings::OTHER,
+            SectionKind::Verse => strings::verse(),
+            SectionKind::Chorus => strings::chorus(),
+            SectionKind::PreChorus => strings::pre_chorus(),
+            SectionKind::Bridge => strings::bridge(),
+            SectionKind::Tag => strings::tag(),
+            SectionKind::Intro => strings::intro(),
+            SectionKind::Ending => strings::ending(),
+            SectionKind::Interlude => strings::interlude(),
+            SectionKind::Other => strings::other(),
         }
     }
 

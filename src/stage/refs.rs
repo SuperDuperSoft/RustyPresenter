@@ -44,17 +44,17 @@ pub fn delete_question(name: &str, refs: &[LayoutRef]) -> String {
     if items == 0 && !default && macros == 0 { return ask; }
     let mut parts = vec![];
     if items > 0 { parts.push(s::service_items(items)); }
-    if default { parts.push(s::THE_STAGE_DEFAULT.to_string()); }
+    if default { parts.push(s::the_stage_default()); }
     if macros > 0 { parts.push(s::macros(macros)); }
-    let mut tails: Vec<&str> = vec![];
+    let mut tails: Vec<String> = vec![];
     match (items, default) {
-        (0, true) => tails.push(s::DEFAULT_USES_CLASSIC),
-        (1, false) => tails.push(s::ITEM_USES_DEFAULT),
-        (_, false) if items > 1 => tails.push(s::ITEMS_USE_DEFAULT),
-        (_, true) => tails.push(s::ITEMS_AND_DEFAULT_USE_CLASSIC),
+        (0, true) => tails.push(s::default_uses_classic()),
+        (1, false) => tails.push(s::item_uses_default()),
+        (_, false) if items > 1 => tails.push(s::items_use_default()),
+        (_, true) => tails.push(s::items_and_default_use_classic()),
         _ => {}
     }
-    match macros { 0 => {} 1 => tails.push(s::MACRO_WONT_RUN), _ => tails.push(s::MACROS_WONT_RUN) }
+    match macros { 0 => {} 1 => tails.push(s::macro_wont_run()), _ => tails.push(s::macros_wont_run()) }
     format!("{ask} {} {}.", s::used_by(&join_and(&parts)), upper_first(&tails.join("; ")))
 }
 
@@ -63,7 +63,7 @@ fn join_and(parts: &[String]) -> String {
     match parts {
         [] => String::new(),
         [one] => one.clone(),
-        [rest @ .., last] => format!("{} {} {last}", rest.join(", "), s::AND),
+        [rest @ .., last] => format!("{} {} {last}", rest.join(", "), s::and()),
     }
 }
 
@@ -75,8 +75,8 @@ fn upper_first(t: &str) -> String {
 /// The church's layouts after saving `layouts` (added or changed) and removing `deleted`, or why not.
 /// Nothing is applied on an error. Each layout is tidied (`geom::sanitise_layout`); names are trimmed.
 pub fn plan_replace(church: &[StageLayout], layouts: Vec<StageLayout>, deleted: &[Uuid]) -> Result<Vec<StageLayout>, String> {
-    if layouts.iter().map(|l| l.id).chain(deleted.iter().copied()).any(presets::is_builtin) { return Err(s::BUILTIN_LOCKED.into()); }
-    if layouts.iter().any(|l| l.elements.len() > geom::MAX_BOXES) { return Err(s::TOO_MANY_BOXES.into()); }
+    if layouts.iter().map(|l| l.id).chain(deleted.iter().copied()).any(presets::is_builtin) { return Err(s::builtin_locked().into()); }
+    if layouts.iter().any(|l| l.elements.len() > geom::MAX_BOXES) { return Err(s::too_many_boxes().into()); }
     let mut out: Vec<StageLayout> = church.iter().filter(|l| !deleted.contains(&l.id)).cloned().collect();
     let sent: Vec<Uuid> = layouts.iter().map(|l| l.id).collect();
     for mut l in layouts {
@@ -88,7 +88,7 @@ pub fn plan_replace(church: &[StageLayout], layouts: Vec<StageLayout>, deleted: 
     // Only the layouts sent are checked, in the order sent, so the error names what the person typed.
     for id in sent {
         let Some(l) = out.iter().find(|l| l.id == id) else { continue };
-        if l.name.is_empty() { return Err(s::NAME_EMPTY.into()); }
+        if l.name.is_empty() { return Err(s::name_empty().into()); }
         let key = l.name.to_lowercase();
         let clash = presets::builtins().iter().any(|b| b.name.to_lowercase() == key)
             || out.iter().any(|o| o.id != id && o.name.trim().to_lowercase() == key);

@@ -167,7 +167,7 @@ pub fn live_song(v: &LiveView) -> LiveSong {
     LiveSong {
         line: line.into(), kind: kind.into(),
         edit: v.item.as_ref().is_some_and(|i| i.song_id.is_some()),
-        banner: changed.map_or("", |c| c.reason.banner()).into(),
+        banner: changed.map_or_else(String::new, |c| c.reason.banner()).into(),
         update: changed.is_some_and(|c| c.reason.can_update()),
     }
 }

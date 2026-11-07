@@ -61,7 +61,7 @@ pub struct Opened {
 /// The service's contents and the assets to carry, or one line per thing that is missing. An original file or
 /// thumbnail that has gone is left out: the service plays without them.
 pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> Result<(Contents, Vec<AssetId>), Vec<String>> {
-    let Some(service) = data.services.iter().find(|s| s.id == service) else { return Err(vec![strings::SERVICE_GONE.into()]) };
+    let Some(service) = data.services.iter().find(|s| s.id == service) else { return Err(vec![strings::service_gone().into()]) };
     let (mut songs, mut media, mut decks) = (Vec::<Song>::new(), Vec::<MediaFile>::new(), Vec::<Deck>::new());
     let mut assets = BTreeSet::new();
     let mut missing: Vec<String> = vec![];
@@ -70,7 +70,7 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
         match &item.kind {
             ItemKind::Song { song_id } => match data.songs.iter().find(|s| s.id == *song_id) {
                 Some(s) => if !songs.iter().any(|x| x.id == s.id) { songs.push(s.clone()) },
-                None => missing.push(strings::SONG_GONE.into()),
+                None => missing.push(strings::song_gone().into()),
             },
             ItemKind::Media { media_id, .. } => match data.media.iter().find(|m| m.id == *media_id) {
                 Some(m) => if !media.iter().any(|x| x.id == m.id) {
@@ -81,19 +81,19 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
                     for extra in m.original_asset.iter().chain(&m.thumb) { need(extra, String::new(), &mut missing) }
                     media.push(m);
                 },
-                None => missing.push(strings::MEDIA_GONE.into()),
+                None => missing.push(strings::media_gone().into()),
             },
             ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
                 Some(d) => if !decks.iter().any(|x| x.id == d.id) {
                     for slide in &d.slides { need(slide, strings::file_gone(&d.title), &mut missing) }
                     decks.push(d.clone());
                 },
-                None => missing.push(strings::DECK_GONE.into()),
+                None => missing.push(strings::deck_gone().into()),
             },
             ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
         if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &item.background {
-            need(asset, strings::BACKGROUND_GONE.into(), &mut missing);
+            need(asset, strings::background_gone().into(), &mut missing);
         }
     }
     if !missing.is_empty() { return Err(missing) }
@@ -172,13 +172,13 @@ fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
 /// them have matched their names. Nothing is in the library yet: see `merge`.
 pub fn read(store: &Store, path: &Path, cancel: &CancellationToken, progress: &dyn Fn(u8)) -> Result<Contents, String> {
     let file = fs::File::open(path).map_err(|e| e.to_string())?;
-    let mut zip = ZipArchive::new(file).map_err(|_| strings::NOT_A_SERVICE_FILE.to_string())?;
+    let mut zip = ZipArchive::new(file).map_err(|_| strings::not_a_service_file())?;
     let contents = read_contents(&mut zip)?;
     let ids = asset_ids(&contents);
-    if !ids.iter().all(|id| is_asset_id(id)) { return Err(strings::DAMAGED.into()) }
+    if !ids.iter().all(|id| is_asset_id(id)) { return Err(strings::damaged().into()) }
     let mut sizes = BTreeMap::new();
     for id in ids.iter().filter(|id| !store.asset_path(id).exists()) {
-        sizes.insert(id.clone(), zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::DAMAGED.to_string())?.size());
+        sizes.insert(id.clone(), zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::damaged())?.size());
     }
     let stage = store.tmp().join(format!("bundle-{}", Uuid::new_v4()));
     fs::create_dir_all(&stage).map_err(|e| e.to_string())?;
@@ -188,11 +188,11 @@ pub fn read(store: &Store, path: &Path, cancel: &CancellationToken, progress: &d
 }
 
 fn read_contents(zip: &mut ZipArchive<fs::File>) -> Result<Contents, String> {
-    let not_ours = |_| strings::NOT_A_SERVICE_FILE.to_string();
+    let not_ours = |_| strings::not_a_service_file();
     let mut json = vec![];
-    zip.by_name(CONTENTS).map_err(|_| strings::NOT_A_SERVICE_FILE.to_string())?.take(MAX_CONTENTS).read_to_end(&mut json).map_err(|e| e.to_string())?;
+    zip.by_name(CONTENTS).map_err(|_| strings::not_a_service_file())?.take(MAX_CONTENTS).read_to_end(&mut json).map_err(|e| e.to_string())?;
     let value: serde_json::Value = serde_json::from_slice(&json).map_err(not_ours)?;
-    if value.get("format").and_then(|f| f.as_u64()).is_some_and(|f| f > FORMAT as u64) { return Err(strings::NEWER_FILE.into()) }
+    if value.get("format").and_then(|f| f.as_u64()).is_some_and(|f| f > FORMAT as u64) { return Err(strings::newer_file().into()) }
     serde_json::from_value(value).map_err(not_ours)
 }
 
@@ -200,13 +200,13 @@ fn unpack(store: &Store, zip: &mut ZipArchive<fs::File>, sizes: &BTreeMap<AssetI
     let total: u64 = sizes.values().sum();
     let mut done = 0;
     for id in sizes.keys() {
-        let mut entry = zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::DAMAGED.to_string())?;
+        let mut entry = zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::damaged())?;
         let mut out = fs::File::create(stage.join(id)).map_err(|e| e.to_string())?;
         let mut hasher = Sha256::new();
         copy(&mut entry, &mut out, cancel, &mut |b| { hasher.update(b); done += b.len() as u64; progress(percent(done, total)) })
-            .map_err(|e| if e == CANCELLED { e } else { strings::DAMAGED.to_string() })?;
+            .map_err(|e| if e == CANCELLED { e } else { strings::damaged() })?;
         let (hash, _) = id.split_once('.').unwrap_or_default();
-        if hex(&hasher.finalize()) != hash { return Err(strings::DAMAGED.into()) }
+        if hex(&hasher.finalize()) != hash { return Err(strings::damaged().into()) }
         out.sync_all().map_err(|e| e.to_string())?;
     }
     for id in sizes.keys() {

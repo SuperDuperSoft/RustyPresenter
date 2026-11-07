@@ -38,7 +38,7 @@ pub(crate) fn reset(st: &AddState) {
     st.set_yt_note("".into());
     st.set_yt_thumb_shown(false);
     st.set_yt_thumb(Image::default());
-    let qualities: Vec<SharedString> = tr::QUALITIES.iter().map(|q| SharedString::from(*q)).collect();
+    let qualities: Vec<SharedString> = tr::qualities().into_iter().map(SharedString::from).collect();
     st.set_yt_qualities(ModelRc::new(VecModel::from(qualities)));
     st.set_yt_quality(0);
     st.set_yt_add(true);
@@ -77,7 +77,7 @@ fn look_up(op: &Rc<Operator>, ctx: &Rc<AddCtx>, again: bool) {
     let st = op.ui.global::<AddState>();
     let text = st.get_yt_link().to_string();
     let Some(link) = youtube::link(&text) else {
-        if !text.trim().is_empty() { show_error(&st, tr::NOT_A_LINK) }
+        if !text.trim().is_empty() { show_error(&st, &tr::not_a_link()) }
         return;
     };
     let p = &ctx.yt;
@@ -89,7 +89,7 @@ fn look_up(op: &Rc<Operator>, ctx: &Rc<AddCtx>, again: bool) {
     st.set_yt_found(false);
     st.set_yt_error(false);
     st.set_yt_busy(true);
-    st.set_yt_status(tr::LOOKING_UP.into());
+    st.set_yt_status(tr::looking_up().into());
     *p.setup.lock().unwrap() = None;
     let (shown, me) = (p.setup.clone(), Rc::downgrade(op));
     p.timer.start(TimerMode::Repeated, SETUP_EVERY, move || {
@@ -268,7 +268,7 @@ mod tests {
         press(&op, char::from(slint::platform::Key::Return));
         settle(&op);
         assert!(st.get_yt_error());
-        assert_eq!(st.get_yt_status(), tr::NOT_A_LINK);
+        assert_eq!(st.get_yt_status(), tr::not_a_link());
         assert_eq!(runs(&log), 0);
         st.set_yt_link("https://youtu.be/aqz-KE-bpKQ".into());
         st.invoke_yt_look_up();

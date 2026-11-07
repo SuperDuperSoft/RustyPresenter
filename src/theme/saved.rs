@@ -32,7 +32,7 @@ pub const LOWER_THIRD_ID: ThemeId = Uuid::from_u128(0x00000000_0000_4000_8000_00
 /// there, which `find` prefers (deleting that copy is Reset).
 pub fn builtin() -> Vec<SavedTheme> {
     let style = Theme { size: 64, scripture_size: 52, position: "lower".into(), band: true, band_opacity: 55, ..Theme::default() };
-    vec![SavedTheme { id: LOWER_THIRD_ID, name: strings::LOWER_THIRD_NAME.into(), style, background: None }]
+    vec![SavedTheme { id: LOWER_THIRD_ID, name: strings::lower_third_name().into(), style, background: None }]
 }
 
 /// Everything theme lookups need, borrowed from the stored data.
@@ -90,7 +90,7 @@ impl<'a> Catalog<'a> {
     }
 
     pub fn standard(&self) -> SavedTheme {
-        SavedTheme { id: STANDARD_ID, name: strings::STANDARD_NAME.into(), style: self.standard_style.clone(), background: None }
+        SavedTheme { id: STANDARD_ID, name: strings::standard_name().into(), style: self.standard_style.clone(), background: None }
     }
 
     /// Standard, then a saved theme (a built-in's override wins), then a built-in.
@@ -149,21 +149,21 @@ impl<'a> Catalog<'a> {
 }
 
 fn is_reserved(lower: &str) -> bool {
-    [strings::STANDARD_NAME, strings::CHURCH_DEFAULT].iter().any(|r| r.to_lowercase() == lower)
+    [strings::standard_name(), strings::church_default()].iter().any(|r| r.to_lowercase() == lower)
 }
 
 /// Checks a theme sent by `theme/save` and returns it ready to store: name trimmed, required, not
 /// reserved and unique; a nil id gets a new one; the style is clamped. Standard is saved elsewhere.
 pub fn validate_save(cat: &Catalog, mut t: SavedTheme) -> Result<SavedTheme, String> {
     if t.id == STANDARD_ID {
-        return Err(strings::STANDARD_SAVE_ELSEWHERE.into());
+        return Err(strings::standard_save_elsewhere().into());
     }
     t.name = t.name.trim().to_string();
     if t.name.is_empty() {
-        return Err(strings::THEME_NAME_REQUIRED.into());
+        return Err(strings::theme_name_required().into());
     }
     if is_reserved(&t.name.to_lowercase()) {
-        return Err(strings::THEME_NAME_RESERVED.into());
+        return Err(strings::theme_name_reserved().into());
     }
     if cat.name_taken(&t.name, t.id) {
         return Err(strings::theme_exists(&t.name));
@@ -190,13 +190,13 @@ pub enum DeleteKind {
 pub fn delete_kind(cat: &Catalog, id: ThemeId) -> Result<DeleteKind, String> {
     let stored = cat.saved.iter().any(|t| t.id == id);
     if id == STANDARD_ID || (cat.is_builtin(id) && !stored) {
-        Err(strings::BUILTIN_NO_DELETE.into())
+        Err(strings::builtin_no_delete().into())
     } else if cat.is_builtin(id) {
         Ok(DeleteKind::ResetBuiltin)
     } else if stored {
         Ok(DeleteKind::Saved)
     } else {
-        Err(strings::THEME_GONE.into())
+        Err(strings::theme_gone().into())
     }
 }
 
@@ -312,7 +312,7 @@ mod tests {
         let (s, b, saved) = fx();
         let cat = Catalog::new(&s, &b, &saved, Some(Uuid::new_v4()));
         assert_eq!(cat.church_default().id, STANDARD_ID);
-        assert_eq!(cat.church_default().name, STANDARD_NAME);
+        assert_eq!(cat.church_default().name, standard_name());
         assert!(cat.rows()[0].is_default);
     }
 
@@ -353,9 +353,9 @@ mod tests {
         let (s, b, saved) = fx();
         let cat = Catalog::new(&s, &b, &saved, None).with_builtins(vec![lower_third()]);
         let christmas = saved[0].clone();
-        assert_eq!(validate_save(&cat, named("   ")).unwrap_err(), THEME_NAME_REQUIRED);
-        assert_eq!(validate_save(&cat, named("church DEFAULT")).unwrap_err(), THEME_NAME_RESERVED);
-        assert_eq!(validate_save(&cat, named(" standard")).unwrap_err(), THEME_NAME_RESERVED);
+        assert_eq!(validate_save(&cat, named("   ")).unwrap_err(), theme_name_required());
+        assert_eq!(validate_save(&cat, named("church DEFAULT")).unwrap_err(), theme_name_reserved());
+        assert_eq!(validate_save(&cat, named(" standard")).unwrap_err(), theme_name_reserved());
         assert_eq!(validate_save(&cat, named("christmas")).unwrap_err(), theme_exists("christmas"));
         assert_eq!(validate_save(&cat, named("LOWER THIRD")).unwrap_err(), theme_exists("LOWER THIRD"));
         let ok = validate_save(&cat, SavedTheme { id: CHRISTMAS, name: "Christmas ".into(), ..christmas }).unwrap();
@@ -379,16 +379,16 @@ mod tests {
         let (s, b, saved) = fx();
         let cat = Catalog::new(&s, &b, &saved, None);
         let t = SavedTheme { id: STANDARD_ID, name: "Mine".into(), style: Theme::default(), background: None };
-        assert_eq!(validate_save(&cat, t).unwrap_err(), STANDARD_SAVE_ELSEWHERE);
+        assert_eq!(validate_save(&cat, t).unwrap_err(), standard_save_elsewhere());
     }
 
     #[test]
     fn delete_kind_refuses_standard_and_unedited_builtin() {
         let (s, b, saved) = fx();
         let cat = Catalog::new(&s, &b, &saved, None).with_builtins(vec![lower_third()]);
-        assert_eq!(delete_kind(&cat, STANDARD_ID).unwrap_err(), BUILTIN_NO_DELETE);
-        assert_eq!(delete_kind(&cat, LOWER).unwrap_err(), BUILTIN_NO_DELETE);
-        assert_eq!(delete_kind(&cat, Uuid::new_v4()).unwrap_err(), THEME_GONE);
+        assert_eq!(delete_kind(&cat, STANDARD_ID).unwrap_err(), builtin_no_delete());
+        assert_eq!(delete_kind(&cat, LOWER).unwrap_err(), builtin_no_delete());
+        assert_eq!(delete_kind(&cat, Uuid::new_v4()).unwrap_err(), theme_gone());
         assert!(matches!(delete_kind(&cat, YOUTH), Ok(DeleteKind::Saved)));
 
         let mut with_override = saved.clone();

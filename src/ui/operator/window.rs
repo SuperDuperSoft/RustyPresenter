@@ -245,9 +245,9 @@ impl Operator {
         super::bible::render_chips(ui, s);
         ui.set_bible_per_slide(i32::from(self.state.borrow().bible_per_slide.unwrap_or(s.settings.bible_per_slide).min(4)));
         let (on, tip) = match s.room {
-            RoomStatus::Showing => (true, tr::ROOM_SHOWING),
-            RoomStatus::Starting => (false, tr::ROOM_STARTING),
-            RoomStatus::Off => (false, tr::ROOM_OFF),
+            RoomStatus::Showing => (true, tr::room_showing()),
+            RoomStatus::Starting => (false, tr::room_starting()),
+            RoomStatus::Off => (false, tr::room_off()),
         };
         ui.set_room_on(on);
         ui.set_room_state(if on { "on" } else { "warn" }.into());

@@ -109,7 +109,7 @@ pub fn suggested_title(path: &Path) -> String {
 pub fn deck_title(answer: Option<&str>) -> String {
     match answer {
         Some(a) if !a.trim().is_empty() => a.to_string(),
-        _ => tr::DEFAULT_DECK_TITLE.to_string(),
+        _ => tr::default_deck_title(),
     }
 }
 
@@ -203,7 +203,7 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
             // Saved nothing: a song with this CCLI # is in the library. Asked one file at a time, like the rest.
             Ok(Imported::Song { id: None, title, .. }) => {
                 let me = Rc::downgrade(&op);
-                dialogs::choose(&op, &tr::song_in_library(&title), tr::UPDATE_EXISTING, tr::KEEP_BOTH, move |answer| {
+                dialogs::choose(&op, &tr::song_in_library(&title), &tr::update_existing(), &tr::keep_both(), move |answer| {
                     let Some(op) = me.upgrade() else { return };
                     let Some(update) = answer else { return then(&op, Ok(None)) };
                     let (mode, toast) = if update { ("update", tr::song_updated(&title)) } else { ("keep_both", tr::song_imported(&title)) };
@@ -223,7 +223,7 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
                 then(&op, Ok(None));
             }
             // A media, lyrics or PowerPoint import never answers with a bare asset.
-            Ok(Imported::Asset(_)) => then(&op, Err(tr::ACTION_STOPPED.into())),
+            Ok(Imported::Asset(_)) => then(&op, Err(tr::action_stopped().into())),
         }
     });
 }
@@ -282,7 +282,7 @@ fn next_picture(op: &Rc<Operator>, mut p: Pictures) {
                 p.job.set_percent((p.assets.len() as f64 * 100.0 / p.total as f64).round() as u8);
                 next_picture(&op, p);
             }
-            Ok(_) => op.toast(tr::ACTION_STOPPED, true),
+            Ok(_) => op.toast(tr::action_stopped(), true),
             Err(e) => op.toast(e, true),
         }
     });
@@ -291,7 +291,7 @@ fn next_picture(op: &Rc<Operator>, mut p: Pictures) {
 fn name_deck(op: &Rc<Operator>, p: Pictures) {
     let me = Rc::downgrade(op);
     let first = p.first.clone();
-    dialogs::prompt(op, tr::NAME_THESE_SLIDES, &first, move |answer| {
+    dialogs::prompt(op, &tr::name_these_slides(), &first, move |answer| {
         let Some(op) = me.upgrade() else { return };
         let Pictures { assets, job, .. } = p;
         let me = Rc::downgrade(&op);
@@ -357,7 +357,7 @@ pub fn handle_drop(op: &Rc<Operator>, paths: Vec<PathBuf>) {
         Some(DropPlan::AskOneDeck(paths)) => {
             let me = Rc::downgrade(op);
             let question = tr::pictures_to_deck(paths.len());
-            dialogs::confirm(op, &question, tr::ONE_SLIDE_SET, tr::SEPARATE_PICTURES, false, move |one| {
+            dialogs::confirm(op, &question, &tr::one_slide_set(), &tr::separate_pictures(), false, move |one| {
                 let Some(op) = me.upgrade() else { return };
                 if one { images_to_deck(&op, paths) } else { add_files(&op, paths) }
             });

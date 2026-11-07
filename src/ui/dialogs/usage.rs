@@ -80,7 +80,7 @@ fn fill(g: &UsageDlg, v: &ReportView, set_dates: bool) {
     g.set_error("".into());
     g.set_keep_log(v.enabled);
     g.set_has_license(!v.license.is_empty());
-    g.set_license_line(if v.license.is_empty() { strings::NO_LICENSE.into() } else { strings::license_line(&v.license).into() });
+    g.set_license_line(if v.license.is_empty() { strings::no_license().into() } else { strings::license_line(&v.license).into() });
     g.set_has_since_last(v.reported_through.is_some());
     g.set_mark_label(strings::mark_reported(&v.to).into());
     let rows: Vec<UsageReportRow> = v.rows.iter().map(|r| UsageReportRow {
@@ -102,7 +102,7 @@ fn dates_edited(op: &Rc<Operator>, state: &Rc<State>) {
     if parse_date(&from).is_some() && parse_date(&to).is_some() { return load(op, state, false) }
     let whole = |t: &str| t.trim().len() >= 10;
     let bad = (whole(&from) && parse_date(&from).is_none()) || (whole(&to) && parse_date(&to).is_none());
-    g.set_error(if bad { strings::BAD_DATE.into() } else { "".into() });
+    g.set_error(if bad { strings::bad_date().into() } else { "".into() });
 }
 
 fn quick(op: &Rc<Operator>, state: &Rc<State>, q: Quick) {
@@ -119,8 +119,8 @@ fn checked_dates(op: &Operator) -> Option<(NaiveDate, NaiveDate)> {
     let (from, to) = (parse_date(&g.get_from()), parse_date(&g.get_to()));
     let dates = from.zip(to);
     match dates {
-        None => g.set_error(strings::BAD_DATE.into()),
-        Some((from, to)) if from > to => { g.set_error(strings::FROM_AFTER_TO.into()); return None }
+        None => g.set_error(strings::bad_date().into()),
+        Some((from, to)) if from > to => { g.set_error(strings::from_after_to().into()); return None }
         Some(_) => {}
     }
     dates
@@ -160,7 +160,7 @@ fn mark_reported(op: &Rc<Operator>, state: &Rc<State>) {
     let Some((_, to)) = checked_dates(op) else { return };
     let to = export::day(to);
     let (me, st) = (Rc::downgrade(op), Rc::downgrade(state));
-    confirm(op, &strings::mark_confirm(&to), strings::MARK, dlg::CANCEL, false, move |ok| {
+    confirm(op, &strings::mark_confirm(&to), &strings::mark(), &dlg::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<Value>("usage/mark-reported", json!({ "through": to }), move |r| {
@@ -178,14 +178,14 @@ fn mark_reported(op: &Rc<Operator>, state: &Rc<State>) {
 
 fn remove(op: &Rc<Operator>, state: &Rc<State>, id: String) {
     let (me, st) = (Rc::downgrade(op), Rc::downgrade(state));
-    confirm(op, strings::REMOVE_CONFIRM, strings::REMOVE, dlg::CANCEL, true, move |ok| {
+    confirm(op, &strings::remove_confirm(), &strings::remove(), &dlg::cancel(), true, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<Value>("usage/remove", json!({ "id": id }), move |r| {
             let Some(op) = me.upgrade() else { return };
             match r {
                 Ok(_) => {
-                    op.toast(strings::REMOVED, false);
+                    op.toast(strings::removed(), false);
                     if let Some(state) = st.upgrade() && op.dialog() == Some(DialogKind::Usage) { load(&op, &state, false) }
                 }
                 Err(e) => op.toast(e, true),

@@ -1,7 +1,7 @@
 //! Adding a video, song or picture to the library. No conversion: what libmpv can open is ready to play, so the
 //! file goes in as it came, with what the probe found out about it. Nothing is published until the probe has
 //! said yes, so a file that can't be played leaves nothing behind.
-use super::{CANCELLED, probe::{self, BAD_PICTURE, CANT_PLAY, Probe}, strings};
+use super::{CANCELLED, probe::{self, bad_picture, cant_play, Probe}, strings};
 use crate::{
     app::App,
     model::{AssetId, Data, MediaFile, MediaKind, MediaStatus},
@@ -30,7 +30,7 @@ pub async fn import_media(app: &Arc<App>, tmp: &Path, sha: &str, ext: &str, disp
     let probed = match std::fs::rename(tmp, &file) {
         Ok(()) => {
             let (shown, watcher) = (label, app.clone());
-            let waiting = move |waiting: bool| watcher.job_label(job, if waiting { strings::WAITING_FOR_FILE } else { &shown });
+            let waiting = move |waiting: bool| watcher.job_label(job, &if waiting { strings::waiting_for_file() } else { shown.clone() });
             probe::probe_waiting(app.probe_mpv(), file.clone(), token.clone(), waiting).await
         }
         Err(_) => Err(disk_full()),
@@ -76,7 +76,7 @@ async fn publish_thumb(app: &Arc<App>, thumb: Option<image::RgbImage>) -> Result
 /// `ImportPurpose::Asset`: a picture is checked before it is published, so nothing that can't be drawn gets in.
 pub async fn check_picture(file: &Path) -> Result<(), String> {
     let file = file.to_path_buf();
-    tokio::task::spawn_blocking(move || probe::probe_image(&file).map(|_| ())).await.map_err(|_| BAD_PICTURE.to_string())?
+    tokio::task::spawn_blocking(move || probe::probe_image(&file).map(|_| ())).await.map_err(|_| bad_picture())?
 }
 
 /// Library entries from before this version. Maps `Converting`/`Unconverted` to `Ready`, as conversion is gone and
@@ -124,7 +124,7 @@ pub(crate) async fn reprobe_all(app: Arc<App>, ids: Vec<Uuid>) {
                     (m.duration, m.size, m.status) = (duration, size, MediaStatus::Ready);
                     m.thumb = thumb.or(m.thumb.take());
                 }
-                Found::CantPlay => m.status = MediaStatus::Failed { reason: CANT_PLAY.into() },
+                Found::CantPlay => m.status = MediaStatus::Failed { reason: cant_play().into() },
             }
         }
         Ok(())

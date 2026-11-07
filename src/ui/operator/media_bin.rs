@@ -63,10 +63,10 @@ pub fn folder_counts(media: &[MediaFile], listed: &[String]) -> Vec<(String, usi
 fn tag(m: &MediaFile) -> String {
     match (&m.status, m.kind) {
         (MediaStatus::Converting { percent }, _) => tr::converting_short(*percent),
-        (MediaStatus::Failed { .. }, _) => tr::MEDIA_FAILED.into(),
-        (_, MediaKind::Video) => tr::MEDIA_VIDEO.into(),
-        (_, MediaKind::Image) => tr::MEDIA_PICTURE.into(),
-        (_, MediaKind::Audio) => tr::MEDIA_AUDIO.into(),
+        (MediaStatus::Failed { .. }, _) => tr::media_failed().into(),
+        (_, MediaKind::Video) => tr::media_video().into(),
+        (_, MediaKind::Image) => tr::media_picture().into(),
+        (_, MediaKind::Audio) => tr::media_audio().into(),
     }
 }
 
@@ -131,7 +131,7 @@ impl Operator {
                 picked: b.picked == Some(m.id), on_screen: on_screen.as_ref() == Some(&m.asset),
             }).collect();
             let folders: Vec<BinFolder> = folder_counts(&media, &listed).into_iter().map(|(name, count)| BinFolder {
-                label: if name.is_empty() { tr::ALL_MEDIA } else { name.as_str() }.into(),
+                label: if name.is_empty() { tr::all_media() } else { name.clone() }.into(),
                 on: name == b.folder, count: count as i32, name: name.as_str().into(),
             }).collect();
             let mut wanted: Vec<AssetId> = files.iter().filter_map(|m| tile_asset(m)).filter(|a| !b.images.contains_key(a)).collect();
@@ -159,10 +159,10 @@ impl Operator {
         ui.set_bin_pick_name(m.as_ref().map_or("", |m| m.name.as_str()).into());
         ui.set_bin_can_use(m.as_ref().is_some_and(|m| as_background(m).is_some()));
         ui.set_bin_pick_hint(match &m {
-            None => tr::BIN_HINT_NONE,
-            Some(m) if m.kind == MediaKind::Audio => tr::BIN_HINT_AUDIO,
-            Some(m) if m.status != MediaStatus::Ready => tr::BIN_HINT_NOT_READY,
-            Some(_) => tr::BIN_HINT_USE,
+            None => tr::bin_hint_none(),
+            Some(m) if m.kind == MediaKind::Audio => tr::bin_hint_audio(),
+            Some(m) if m.status != MediaStatus::Ready => tr::bin_hint_not_ready(),
+            Some(_) => tr::bin_hint_use(),
         }.into());
         ui.set_bin_can_delete_folder(!self.bin.borrow().folder.is_empty());
     }
@@ -195,7 +195,7 @@ impl Operator {
         let Some(background) = as_background(&m) else { return };
         let (selected, snap) = { let st = self.state.borrow(); (st.selected, st.snap.clone()) };
         let Some(item) = selected.and_then(|id| snap?.items.iter().find(|i| i.id == id).map(|i| i.item.clone())) else {
-            return self.toast(tr::PICK_ITEM_FIRST, false);
+            return self.toast(tr::pick_item_first(), false);
         };
         let mut item = item;
         item.background = Some(background);
@@ -227,7 +227,7 @@ impl Operator {
     fn move_picked(self: &Rc<Self>) {
         let Some(m) = self.picked() else { return };
         let me = Rc::downgrade(self);
-        ask::prompt(self, tr::MOVE_TO_FOLDER, &m.folder, move |name| {
+        ask::prompt(self, &tr::move_to_folder(), &m.folder, move |name| {
             let (Some(op), Some(name)) = (me.upgrade(), name) else { return };
             op.folder_action("media/folder", json!({ "id": m.id, "folder": name.trim() }));
         });
@@ -235,7 +235,7 @@ impl Operator {
 
     fn new_folder(self: &Rc<Self>) {
         let me = Rc::downgrade(self);
-        ask::prompt(self, tr::NEW_FOLDER, "", move |name| {
+        ask::prompt(self, &tr::new_folder(), "", move |name| {
             let (Some(op), Some(name)) = (me.upgrade(), name) else { return };
             op.folder_action("media/folder-new", json!({ "name": name.trim() }));
         });
@@ -245,7 +245,7 @@ impl Operator {
         let name = self.bin.borrow().folder.clone();
         if name.is_empty() { return }
         let me = Rc::downgrade(self);
-        ask::confirm(self, &tr::delete_folder(&name), tr::DELETE_FOLDER, tr::CANCEL_ACTION, true, move |ok| {
+        ask::confirm(self, &tr::delete_folder(&name), &tr::delete_folder_button(), &tr::cancel_action(), true, move |ok| {
             let Some(op) = me.upgrade() else { return };
             if ok { op.folder_action("media/folder-delete", json!({ "name": name })); }
         });

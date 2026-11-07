@@ -10,12 +10,12 @@ use std::rc::Rc;
 pub struct Choices { pub labels: Vec<String>, pub names: Vec<String>, pub index: usize }
 
 pub fn choices(devices: &[AudioDevice], saved: &str) -> Choices {
-    let mut labels = vec![tr::AUDIO_DEFAULT.to_string()];
+    let mut labels = vec![tr::audio_default()];
     let mut names = vec![String::new()];
     labels.extend(devices.iter().map(|d| d.label.clone()));
     names.extend(devices.iter().map(|d| d.name.clone()));
     if !saved.is_empty() && !names.iter().any(|n| n == saved) {
-        labels.push(tr::AUDIO_SAVED_GONE.into());
+        labels.push(tr::audio_saved_gone().into());
         names.push(saved.into());
     }
     let index = names.iter().position(|n| n == saved).unwrap_or(0);
@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn the_default_comes_first_and_is_chosen_when_nothing_is_saved() {
         let got = choices(&[dev("wasapi/{a}", "Speakers")], "");
-        assert_eq!(got, Choices { labels: vec![tr::AUDIO_DEFAULT.into(), "Speakers".into()], names: vec![String::new(), "wasapi/{a}".into()], index: 0 });
+        assert_eq!(got, Choices { labels: vec![tr::audio_default().into(), "Speakers".into()], names: vec![String::new(), "wasapi/{a}".into()], index: 0 });
     }
 
     #[test]
@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn a_saved_device_that_is_gone_stays_chosen_and_says_so() {
         let got = choices(&[dev("wasapi/{a}", "Speakers")], "wasapi/{b}");
-        assert_eq!(got.labels.last().unwrap(), tr::AUDIO_SAVED_GONE);
+        assert_eq!(*got.labels.last().unwrap(), tr::audio_saved_gone());
         assert_eq!(got.names.last().unwrap(), "wasapi/{b}");
         assert_eq!(got.index, 2);
     }

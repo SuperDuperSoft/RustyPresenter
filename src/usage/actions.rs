@@ -67,7 +67,7 @@ fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> 
 fn date_arg(text: Option<&str>, or: NaiveDate) -> Result<NaiveDate, ActionError> {
     match text.map(str::trim).filter(|t| !t.is_empty()) {
         None => Ok(or),
-        Some(t) => parse_date(t).ok_or_else(|| ActionError::bad(strings::BAD_DATE)),
+        Some(t) => parse_date(t).ok_or_else(|| ActionError::bad(strings::bad_date())),
     }
 }
 
@@ -95,7 +95,7 @@ impl App {
         let reported = self.usage.log().reported_through;
         let from = date_arg(r.from.as_deref(), super::default_from(reported, today))?;
         let to = date_arg(r.to.as_deref(), today)?;
-        if from > to { return Err(ActionError::bad(strings::FROM_AFTER_TO)) }
+        if from > to { return Err(ActionError::bad(strings::from_after_to())) }
         Ok((from, to))
     }
 
@@ -132,7 +132,7 @@ impl App {
             "usage/mark-reported" => {
                 #[derive(Deserialize)] struct Through { through: String }
                 let Through { through } = parse(body)?;
-                let through = parse_date(&through).ok_or_else(|| ActionError::bad(strings::BAD_DATE))?;
+                let through = parse_date(&through).ok_or_else(|| ActionError::bad(strings::bad_date()))?;
                 self.usage.edit(|log| log.reported_through = Some(through)).map_err(|e| ActionError::bad(strings::save_failed(&e)))?;
                 Ok(json!({ "ok": true }))
             }

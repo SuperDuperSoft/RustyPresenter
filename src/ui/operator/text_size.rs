@@ -70,7 +70,7 @@ impl Operator {
         };
         self.ui.set_slides_text_size_shown(size.is_some());
         self.ui.set_slides_text_size_custom(size.is_some_and(|s| s > 0));
-        self.ui.set_slides_text_size(size.filter(|s| *s > 0).map(|s| s.to_string()).unwrap_or_else(|| tr::TEXT_SIZE_AUTO.into()).into());
+        self.ui.set_slides_text_size(size.filter(|s| *s > 0).map(|s| s.to_string()).unwrap_or_else(|| tr::text_size_auto().into()).into());
     }
 
     /// A−, A+ or Auto on the selected passage.
@@ -85,7 +85,7 @@ impl Operator {
         let default = if theme.scripture_size == 0 { 64 } else { theme.scripture_size };
         let shown = if press == Press::Automatic { 0 } else { shown_px(&row.slides, text_size, &theme) };
         let Some(to) = next_size(press, text_size, default, shown) else {
-            if press == Press::Larger { self.toast(tr::TEXT_AS_BIG_AS_FITS, false) }
+            if press == Press::Larger { self.toast(tr::text_as_big_as_fits(), false) }
             return;
         };
         let mut item = row.item.clone();

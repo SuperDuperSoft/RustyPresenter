@@ -58,13 +58,13 @@ impl InstallError {
         let named = |s: &str| s.replace("{name}", name);
         match self {
             InstallError::Cancelled => crate::import::CANCELLED.into(),
-            InstallError::Download(_) => named(strings::DOWNLOAD_FAILED),
-            InstallError::NoSpace(mb) => strings::NO_SPACE.replace("{n}", &mb.to_string()),
-            InstallError::Blocked => crate::scripture::strings::BLOCKED.into(),
-            _ if update => named(strings::UPDATE_UNUSABLE),
-            InstallError::Licence => strings::LICENCE_REFUSED.into(),
-            InstallError::TooLarge => strings::TOO_LARGE.into(),
-            InstallError::Unusable(_) => named(strings::UNUSABLE),
+            InstallError::Download(_) => named(&strings::download_failed()),
+            InstallError::NoSpace(mb) => strings::no_space().replace("{n}", &mb.to_string()),
+            InstallError::Blocked => crate::scripture::strings::blocked().into(),
+            _ if update => named(&strings::update_unusable()),
+            InstallError::Licence => strings::licence_refused().into(),
+            InstallError::TooLarge => strings::too_large().into(),
+            InstallError::Unusable(_) => named(&strings::unusable()),
         }
     }
 }
@@ -138,7 +138,7 @@ pub async fn ebible(ctx: &Ctx, row: &CatalogRow, cancel: &CancellationToken, pro
     let bible = ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: meta.copyright.clone(), verses, meta: Some(meta) };
     let root = ctx.root.clone();
     let saved = tokio::task::spawn_blocking(move || import::install(&root, bible)).await.map_err(|e| InstallError::Unusable(e.to_string()))?;
-    let meta = saved.map_err(|e| if e == crate::scripture::strings::BLOCKED { InstallError::Blocked } else { InstallError::Unusable(e) })?;
+    let meta = saved.map_err(|e| if e == crate::scripture::strings::blocked() { InstallError::Blocked } else { InstallError::Unusable(e) })?;
     progress(100);
     Ok(meta)
 }

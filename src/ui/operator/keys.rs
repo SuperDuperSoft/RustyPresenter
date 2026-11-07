@@ -118,11 +118,11 @@ impl Operator {
         };
         if !on { return false }
         let Some((Some(cursor), no_sections, version)) = live else {
-            self.toast(song::NOTHING_LIVE, false);
+            self.toast(song::nothing_live(), false);
             return true;
         };
         if no_sections {
-            self.toast(song::KEYS_SONGS_ONLY, false);
+            self.toast(song::keys_songs_only(), false);
             return true;
         }
         self.state.borrow_mut().armed = None;

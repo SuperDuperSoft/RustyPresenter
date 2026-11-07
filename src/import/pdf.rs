@@ -51,14 +51,14 @@ fn near(a: f32, b: f32) -> bool {
 
 /// The ratio of a PDF's pages, or why they cannot be used.
 pub fn check_pages(sizes: &[(f32, f32)], expected_ratio: Option<f32>) -> Result<f32, String> {
-    let cannot_read = || Err(LO_CANNOT_READ.to_string());
-    let Some(first) = sizes.first() else { return Err(PDF_NO_SLIDES.to_string()) };
+    let cannot_read = || Err(lo_cannot_read());
+    let Some(first) = sizes.first() else { return Err(pdf_no_slides()) };
     if sizes.iter().any(|(w, h)| *w <= 0.0 || *h <= 0.0) {
         return cannot_read();
     }
     let ratio = first.0 / first.1;
     if sizes.iter().any(|(w, h)| !near(w / h, ratio)) {
-        return Err(PDF_MIXED_SIZES.to_string());
+        return Err(pdf_mixed_sizes());
     }
     let good = match expected_ratio {
         Some(expected) => near(ratio, expected),
@@ -106,8 +106,8 @@ impl PdfRenderer {
                 let _ = bound.send(Err(e));
             }
         });
-        thread.map_err(|_| PDFIUM_MISSING.to_string())?;
-        ready.recv().map_err(|_| PDFIUM_MISSING.to_string())??;
+        thread.map_err(|_| pdfium_missing())?;
+        ready.recv().map_err(|_| pdfium_missing())??;
         Ok(PdfRenderer { jobs, dead: watch::Sender::new(false), page_timeout: PAGE_TIMEOUT })
     }
 
@@ -121,14 +121,14 @@ impl PdfRenderer {
 
     fn stuck(&self) -> Result<Vec<PathBuf>, String> {
         self.dead.send_replace(true);
-        Err(PDFIUM_STUCK.to_string())
+        Err(pdfium_stuck())
     }
 
     /// Renders every page to `out_dir/slide-001.png`…, in order. `progress(done, total)` follows each page.
     pub async fn render(&self, pdf: PathBuf, out_dir: PathBuf, expected_ratio: Option<f32>, progress: Box<dyn Fn(usize, usize) + Send>, cancel: CancellationToken) -> Result<Vec<PathBuf>, String> {
         let mut died = self.dead.subscribe();
         if *died.borrow_and_update() {
-            return Err(PDFIUM_STUCK.to_string());
+            return Err(pdfium_stuck());
         }
         let (reply, mut replies) = mpsc::unbounded_channel();
         let queued = cancel.clone();
@@ -143,7 +143,7 @@ impl PdfRenderer {
                 // The thread sees the same token when it reaches this job, and skips it.
                 _ = queued.cancelled(), if !begun => return Err(CANCELLED.to_string()),
                 // The render in front got stuck, so this one will never start.
-                _ = async { let _ = died.wait_for(|dead| *dead).await; }, if !begun => return Err(PDFIUM_STUCK.to_string()),
+                _ = async { let _ = died.wait_for(|dead| *dead).await; }, if !begun => return Err(pdfium_stuck()),
             };
             match reply {
                 Ok(Some(Reply::Begun)) => begun = true,
@@ -177,7 +177,7 @@ fn render_job(backend: &mut dyn PdfBackend, job: &Job) -> Result<Vec<PathBuf>, S
     let size = output_size(check_pages(&sizes, job.expected_ratio)?);
     std::fs::create_dir_all(&job.out_dir).map_err(|e| {
         eprintln!("pdfium: {}: {e}", job.out_dir.display());
-        SLIDE_NOT_SAVED.to_string()
+        slide_not_saved()
     })?;
     let _ = job.reply.send(Reply::Opened);
     let mut pages = Vec::with_capacity(sizes.len());
@@ -193,7 +193,7 @@ fn render_job(backend: &mut dyn PdfBackend, job: &Job) -> Result<Vec<PathBuf>, S
             }
             PageError::Save(e) => {
                 eprintln!("pdfium: page {}: {}: {e}", index + 1, out.display());
-                SLIDE_NOT_SAVED.to_string()
+                slide_not_saved()
             }
         })?;
         pages.push(out);
@@ -209,7 +209,7 @@ fn bind(candidates: &[PathBuf]) -> Result<Box<dyn PdfBackend>, String> {
     let bindings = candidates.iter().find_map(|path| Pdfium::bind_to_library(path).ok()).map_or_else(Pdfium::bind_to_system_library, Ok);
     let bindings = bindings.map_err(|e| {
         eprintln!("pdfium: {e}");
-        PDFIUM_MISSING.to_string()
+        pdfium_missing()
     })?;
     Ok(Box::new(Pdfium::new(bindings)))
 }
@@ -219,7 +219,7 @@ impl PdfBackend for Pdfium {
         check_pdf(pdf)?;
         let doc = self.load_pdf_from_file(pdf, None).map_err(|e| {
             eprintln!("pdfium: {e}");
-            PDF_CANNOT_OPEN.to_string()
+            pdf_cannot_open()
         })?;
         Ok(Box::new(doc))
     }
@@ -245,7 +245,7 @@ impl PdfDoc for PdfDocument<'_> {
 pub fn check_pdf(path: &Path) -> Result<(), String> {
     let mut start = [0u8; 5];
     let read = File::open(path).and_then(|mut f| f.read_exact(&mut start));
-    if read.is_ok() && start == *b"%PDF-" { Ok(()) } else { Err(NOT_PDF.to_string()) }
+    if read.is_ok() && start == *b"%PDF-" { Ok(()) } else { Err(not_pdf()) }
 }
 
 #[cfg(test)]

@@ -1,121 +1,124 @@
 //! User-facing strings the native operator builds in Rust (Plan 3's string file, FEAT-4 §7 convention).
 //! The text is copied from `web/operator.js`; tests compare against it.
 //! Declared from `src/ui/operator/mod.rs` with a `#[path]` line until a shared `src/strings/mod.rs` exists.
+use crate::{tr, trn};
 
 /// `KIND_NAME` in `operator.js:40`, keyed by the kind `slides::build_item` returns.
-pub fn kind_name(kind: &str) -> &'static str {
+pub fn kind_name(kind: &str) -> String {
     match kind {
-        "song" => "Song",
-        "scripture" => "Scripture",
-        "video" => "Video",
-        "image" => "Picture",
-        "audio" => "Audio",
-        "deck" => "Slides",
-        "text" => "Announcement",
-        _ => "",
+        "song" => tr!("Song"),
+        "scripture" => tr!("Scripture"),
+        "video" => tr!("Video"),
+        "image" => tr!("Picture"),
+        "audio" => tr!("Audio"),
+        "deck" => tr!("Slides"),
+        "text" => tr!("Announcement"),
+        _ => String::new(),
     }
 }
 
-pub fn cant_be_played(kind: &str) -> String { format!("{kind} · can't be played") }
-pub const LOOPS: &str = " · loops";
+pub fn cant_be_played(kind: &str) -> String { tr!("{kind} · can't be played", kind = kind) }
+pub fn loops() -> String { tr!(" · loops") }
 /// Native spec §5: a video or audio item when libmpv could not be loaded.
-pub fn player_missing(kind: &str) -> String { format!("{kind} · The video player is missing — reinstall RustyPresenter") }
-pub fn slide_count(kind: &str, n: usize) -> String { format!("{kind} · {n} slide{}", if n == 1 { "" } else { "s" }) }
+pub fn player_missing(kind: &str) -> String { tr!("{kind} · The video player is missing — reinstall RustyPresenter", kind = kind) }
+pub fn slide_count(kind: &str, n: usize) -> String { trn!("{kind} · {n} slide", "{kind} · {n} slides", n, kind = kind) }
 
-pub fn items(n: usize) -> String { format!("{n} item{}", if n > 1 { "s" } else { "" }) }
-pub fn phones(n: usize) -> String { format!("{n} phone{}", if n > 1 { "s" } else { "" }) }
+pub fn items(n: usize) -> String { trn!("{n} item", "{n} items", n) }
+pub fn phones(n: usize) -> String { trn!("{n} phone", "{n} phones", n) }
 
-pub const LOGO: &str = "Logo";
-pub const CLEAR: &str = "Clear";
+pub fn logo() -> String { tr!("Logo") }
+pub fn clear() -> String { tr!("Clear") }
 pub fn audio_title(title: &str) -> String { format!("♪ {title}") }
-pub const SLIDE_PICTURE: &str = "Slide picture";
-pub const VIDEO: &str = "Video";
-pub const PICTURE: &str = "Picture";
-pub const AUDIO: &str = "Audio";
-pub const END_OF_SERVICE: &str = "End of service";
-pub const START_OF_SERVICE: &str = "Start of service";
+pub fn slide_picture() -> String { tr!("Slide picture") }
+pub fn video() -> String { tr!("Video") }
+pub fn picture() -> String { tr!("Picture") }
+pub fn audio() -> String { tr!("Audio") }
+pub fn end_of_service() -> String { tr!("End of service") }
+pub fn start_of_service() -> String { tr!("Start of service") }
 pub const NOTHING: &str = "—";
-pub const SERVICE: &str = "Service";
+pub fn service() -> String { tr!("Service") }
 /// The slides header's passage text size when it follows Settings.
-pub const TEXT_SIZE_AUTO: &str = "Auto";
+pub fn text_size_auto() -> String { tr!("Auto") }
 /// A+ on a passage whose text already had to shrink to fit.
-pub const TEXT_AS_BIG_AS_FITS: &str = "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger.";
+pub fn text_as_big_as_fits() -> String { tr!("The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger.") }
 /// The slides column's title with nothing selected (`operator.js:162`).
-pub const PICK_AN_ITEM: &str = "Pick an item on the left";
-pub const WELCOME: &str = "Welcome";
+pub fn pick_an_item() -> String { tr!("Pick an item on the left") }
+pub fn welcome() -> String { tr!("Welcome") }
 
 /// The core call never finished (its task panicked or the runtime is shutting down). The web's generic
 /// failure text (`operator.js:48`).
-pub const ACTION_STOPPED: &str = "Something went wrong.";
+pub fn action_stopped() -> String { tr!("Something went wrong.") }
 
 /// The room pill's tooltip (`operator.js:104`).
-pub const ROOM_SHOWING: &str = "Room screen is showing";
-pub const ROOM_STARTING: &str = "Room screen is starting…";
-pub const ROOM_OFF: &str = "Room screen is not open — click Screens";
+pub fn room_showing() -> String { tr!("Room screen is showing") }
+pub fn room_starting() -> String { tr!("Room screen is starting…") }
+pub fn room_off() -> String { tr!("Room screen is not open — click Screens") }
 
-pub fn open_failed(e: impl std::fmt::Display) -> String { format!("Could not open the operator window: {e}") }
+pub fn open_failed(e: impl std::fmt::Display) -> String { tr!("Could not open the operator window: {error}", error = e) }
 
 /// The title a deck from pictures gets when its name prompt is cancelled or left blank (`operator.js:591`).
-pub const DEFAULT_DECK_TITLE: &str = "Slides";
+pub fn default_deck_title() -> String { tr!("Slides") }
 
 /// The confirm for several pictures dropped at once, and its two buttons (the native wording of OK/Cancel, `operator.js:610`).
-pub fn pictures_to_deck(n: usize) -> String { format!("Make {n} pictures into one set of slides?") }
-pub const ONE_SLIDE_SET: &str = "One slide set";
-pub const SEPARATE_PICTURES: &str = "Separate pictures";
+pub fn pictures_to_deck(n: usize) -> String {
+    trn!("Make {n} pictures into one set of slides?", "Make {n} pictures into one set of slides?", n)
+}
+pub fn one_slide_set() -> String { tr!("One slide set") }
+pub fn separate_pictures() -> String { tr!("Separate pictures") }
 
 /// File picker filter names. The web `accept` lists have none, so these are new.
-pub const FILTER_MEDIA: &str = "Videos, pictures and music";
-pub const FILTER_POWERPOINT: &str = "Presentations";
-pub const FILTER_LYRICS: &str = "SongSelect lyric files";
-pub const FILTER_PICTURES: &str = "Pictures";
-pub const FILTER_PICTURES_AND_VIDEOS: &str = "Pictures and videos";
-pub const FILTER_BIBLES: &str = "Bible files";
-pub const FILTER_SERVICES: &str = "Service files";
+pub fn filter_media() -> String { tr!("Videos, pictures and music") }
+pub fn filter_powerpoint() -> String { tr!("Presentations") }
+pub fn filter_lyrics() -> String { tr!("SongSelect lyric files") }
+pub fn filter_pictures() -> String { tr!("Pictures") }
+pub fn filter_pictures_and_videos() -> String { tr!("Pictures and videos") }
+pub fn filter_bibles() -> String { tr!("Bible files") }
+pub fn filter_services() -> String { tr!("Service files") }
 
 /// The toast after the Bible box adds a passage (`operator.js:336`).
-pub fn bible_added(label: &str) -> String { format!("{label} added — press Enter to show it") }
+pub fn bible_added(label: &str) -> String { tr!("{passage} added — press Enter to show it", passage = label) }
 
 /// Adding files (`uploadFiles`, `imagesToDeck` and `addItem` in `operator.js:369-375, 536-598`).
-pub const ADDED_TO_SERVICE: &str = "Added to the service";
-pub fn uploading(name: &str) -> String { format!("Uploading {name}") }
-pub fn uploading_pictures(n: usize) -> String { format!("Uploading {n} picture{}", if n > 1 { "s" } else { "" }) }
-pub fn media_added(name: &str) -> String { format!("{name} added") }
-pub fn song_imported(title: &str) -> String { format!("Imported “{title}”") }
-pub fn song_in_library(title: &str) -> String { format!("“{title}” is already in the library.") }
-pub fn song_updated(title: &str) -> String { format!("Updated “{title}”") }
-pub const UPDATE_EXISTING: &str = "Update existing";
-pub const KEEP_BOTH: &str = "Keep both";
-pub fn deck_ready(title: &str) -> String { format!("“{title}” is ready") }
+pub fn added_to_service() -> String { tr!("Added to the service") }
+pub fn uploading(name: &str) -> String { tr!("Uploading {name}", name = name) }
+pub fn uploading_pictures(n: usize) -> String { trn!("Uploading {n} picture", "Uploading {n} pictures", n) }
+pub fn media_added(name: &str) -> String { tr!("{name} added", name = name) }
+pub fn song_imported(title: &str) -> String { tr!("Imported “{title}”", title = title) }
+pub fn song_in_library(title: &str) -> String { tr!("“{title}” is already in the library.", title = title) }
+pub fn song_updated(title: &str) -> String { tr!("Updated “{title}”", title = title) }
+pub fn update_existing() -> String { tr!("Update existing") }
+pub fn keep_both() -> String { tr!("Keep both") }
+pub fn deck_ready(title: &str) -> String { tr!("“{title}” is ready", title = title) }
 pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
-pub const NAME_THESE_SLIDES: &str = "Name these slides";
+pub fn name_these_slides() -> String { tr!("Name these slides") }
 
-pub const STAGE_MESSAGE_ASK: &str = "Message for the stage screen. Leave it empty to take it down.";
+pub fn stage_message_ask() -> String { tr!("Message for the stage screen. Leave it empty to take it down.") }
 
 // The Bible picker (Bible library spec §7.2).
-pub const PICKER_FAVOURITES: &str = "Favourites";
-pub const PICKER_RECENT: &str = "Recent";
+pub fn picker_favourites() -> String { tr!("Favourites") }
+pub fn picker_recent() -> String { tr!("Recent") }
 /// Heads installed Bibles whose language is not known (an imported file without one).
-pub const PICKER_OTHER: &str = "Other Bibles";
+pub fn picker_other() -> String { tr!("Other Bibles") }
 /// Added to a chip when an imported file and another Bible would read alike ("RV1909 · spa · imported").
-pub const BIBLE_IMPORTED: &str = "imported";
-pub const PICKER_NO_MATCH: &str = "No Bible you have matches. Find more Bibles below.";
-pub fn favourite_added(label: &str) -> String { format!("{label} added to favourites") }
-pub fn favourite_removed(label: &str) -> String { format!("{label} removed from favourites") }
+pub fn bible_imported() -> String { tr!("imported") }
+pub fn picker_no_match() -> String { tr!("No Bible you have matches. Find more Bibles below.") }
+pub fn favourite_added(label: &str) -> String { tr!("{bible} added to favourites", bible = label) }
+pub fn favourite_removed(label: &str) -> String { tr!("{bible} removed from favourites", bible = label) }
 /// The media library (`media_bin.rs`).
-pub const ALL_MEDIA: &str = "All media";
-pub const MEDIA_VIDEO: &str = "Video";
-pub const MEDIA_PICTURE: &str = "Picture";
-pub const MEDIA_AUDIO: &str = "Audio";
-pub const MEDIA_FAILED: &str = "Failed";
-pub fn converting_short(percent: u8) -> String { format!("Converting {percent}%") }
-pub const BIN_HINT_NONE: &str = "Click a thumbnail to choose it.";
-pub const BIN_HINT_USE: &str = "Double-click a thumbnail to use it as the selected item’s background.";
-pub const BIN_HINT_AUDIO: &str = "Add it to the service to play it.";
-pub const BIN_HINT_NOT_READY: &str = "This file isn’t ready to play yet.";
-pub const PICK_ITEM_FIRST: &str = "Pick a service item first, then choose its background.";
-pub fn background_set(name: &str) -> String { format!("Background set to {name}") }
-pub const MOVE_TO_FOLDER: &str = "Folder name (leave empty for none)";
-pub const NEW_FOLDER: &str = "Name for the new folder";
-pub fn delete_folder(name: &str) -> String { format!("Delete the folder “{name}”? Its files stay in the library.") }
-pub const DELETE_FOLDER: &str = "Delete folder";
-pub const CANCEL_ACTION: &str = "Cancel";
+pub fn all_media() -> String { tr!("All media") }
+pub fn media_video() -> String { tr!("Video") }
+pub fn media_picture() -> String { tr!("Picture") }
+pub fn media_audio() -> String { tr!("Audio") }
+pub fn media_failed() -> String { tr!("Failed") }
+pub fn converting_short(percent: u8) -> String { tr!("Converting {percent}%", percent = percent) }
+pub fn bin_hint_none() -> String { tr!("Click a thumbnail to choose it.") }
+pub fn bin_hint_use() -> String { tr!("Double-click a thumbnail to use it as the selected item’s background.") }
+pub fn bin_hint_audio() -> String { tr!("Add it to the service to play it.") }
+pub fn bin_hint_not_ready() -> String { tr!("This file isn’t ready to play yet.") }
+pub fn pick_item_first() -> String { tr!("Pick a service item first, then choose its background.") }
+pub fn background_set(name: &str) -> String { tr!("Background set to {name}", name = name) }
+pub fn move_to_folder() -> String { tr!("Folder name (leave empty for none)") }
+pub fn new_folder() -> String { tr!("Name for the new folder") }
+pub fn delete_folder(name: &str) -> String { tr!("Delete the folder “{name}”? Its files stay in the library.", name = name) }
+pub fn delete_folder_button() -> String { tr!("Delete folder") }
+pub fn cancel_action() -> String { tr!("Cancel") }

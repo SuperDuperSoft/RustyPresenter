@@ -384,7 +384,7 @@ fn help_lists_every_bound_key() {
             if action == KeyAction::None || (ctx.in_text_field && action == KeyAction::None) { continue }
             let row = rows.iter().find(|r| same(&r.action, &action)).unwrap_or_else(|| panic!("{key:?} ctrl={ctrl} alt={alt} does {action:?}, not in Help"));
             let named = row.binds.iter().any(|(k, c, a)| k.eq_ignore_ascii_case(&key) && *c == ctrl && *a == alt)
-                || (row.keys == strings::KEY_ALT_DIGITS && alt && ('1'..='5').contains(&key.chars().next().unwrap()));
+                || (row.keys == strings::key_alt_digits() && alt && ('1'..='5').contains(&key.chars().next().unwrap()));
             assert!(named, "{key:?} ctrl={ctrl} alt={alt} is not named in the Help row {:?}", row.keys);
         }
     }

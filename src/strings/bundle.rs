@@ -1,46 +1,49 @@
 //! What saving a service to a file and opening one says (spec §11).
+use crate::{tr, trn};
 
-pub const NOT_A_SERVICE_FILE: &str = "That is not a RustyPresenter service file.";
-pub const NEWER_FILE: &str = "That service file was made by a newer version of RustyPresenter.";
-pub const DAMAGED: &str = "That service file is damaged, so nothing was added.";
-pub const SERVICE_GONE: &str = "That service is gone.";
-pub const SAVING: &str = "Saving the service…";
-pub const OPENING: &str = "Opening the service file…";
-pub const SONG_GONE: &str = "A song in this service is no longer in the library.";
-pub const MEDIA_GONE: &str = "A video, picture or sound in this service is no longer in the library.";
-pub const DECK_GONE: &str = "A set of slides in this service is no longer in the library.";
-pub const BACKGROUND_GONE: &str = "A background in this service is missing its file.";
+pub fn not_a_service_file() -> String { tr!("That is not a RustyPresenter service file.") }
+pub fn newer_file() -> String { tr!("That service file was made by a newer version of RustyPresenter.") }
+pub fn damaged() -> String { tr!("That service file is damaged, so nothing was added.") }
+pub fn service_gone() -> String { tr!("That service is gone.") }
+pub fn saving() -> String { tr!("Saving the service…") }
+pub fn opening() -> String { tr!("Opening the service file…") }
+pub fn song_gone() -> String { tr!("A song in this service is no longer in the library.") }
+pub fn media_gone() -> String { tr!("A video, picture or sound in this service is no longer in the library.") }
+pub fn deck_gone() -> String { tr!("A set of slides in this service is no longer in the library.") }
+pub fn background_gone() -> String { tr!("A background in this service is missing its file.") }
 
-pub fn file_gone(name: &str) -> String { format!("{name} is missing its file.") }
+pub fn file_gone(name: &str) -> String { tr!("{name} is missing its file.", name = name) }
 
 /// Idea 14 (§10c): the fonts the service was made with that this computer lacks.
 pub fn fonts_missing(fonts: &[String]) -> String {
-    format!("This service was made with {} this computer does not have, so its words show in another font: {}. Install {} to see them as they were made.",
-        if fonts.len() == 1 { "a font" } else { "fonts" }, fonts.join(", "), if fonts.len() == 1 { "it" } else { "them" })
+    trn!("This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made.",
+        "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made.",
+        fonts.len(), fonts = fonts.join(", "))
 }
 
-pub fn saved(name: &str) -> String { format!("Saved “{name}” to a file.") }
+pub fn saved(name: &str) -> String { tr!("Saved “{name}” to a file.", name = name) }
 
 /// The box when a service cannot be saved: what is missing, one line each.
 pub fn missing_report(lines: &[String]) -> String {
     const SHOWN: usize = 8;
-    let mut text = format!("This service was not saved, because something it needs is missing:\n\n{}", lines[..lines.len().min(SHOWN)].join("\n"));
-    if lines.len() > SHOWN { text += &format!("\n…and {} more.", lines.len() - SHOWN) }
+    let mut text = tr!("This service was not saved, because something it needs is missing:");
+    text += "\n\n";
+    text += &lines[..lines.len().min(SHOWN)].join("\n");
+    if lines.len() > SHOWN { text += "\n"; text += &tr!("…and {n} more.", n = lines.len() - SHOWN) }
     text
 }
 
-fn plural(n: usize, one: &str, many: &str) -> String { format!("{n} {}", if n == 1 { one } else { many }) }
-
 /// The box after opening a service file.
 pub fn opened_report(o: &super::Opened) -> String {
-    let mut text = format!("Opened “{}”.", o.name);
+    let mut text = tr!("Opened “{name}”.", name = o.name);
     let mut new = vec![];
-    if o.songs_added > 0 { new.push(plural(o.songs_added, "song", "songs")) }
-    if o.media_added > 0 { new.push(plural(o.media_added, "media file", "media files")) }
-    if o.decks_added > 0 { new.push(plural(o.decks_added, "set of slides", "sets of slides")) }
-    if !new.is_empty() { text += &format!("\n\nNew in the library: {}.", new.join(", ")) }
+    if o.songs_added > 0 { new.push(trn!("{n} song", "{n} songs", o.songs_added)) }
+    if o.media_added > 0 { new.push(trn!("{n} media file", "{n} media files", o.media_added)) }
+    if o.decks_added > 0 { new.push(trn!("{n} set of slides", "{n} sets of slides", o.decks_added)) }
+    if !new.is_empty() { text += "\n\n"; text += &tr!("New in the library: {things}.", things = new.join(", ")) }
     if !o.songs_differ.is_empty() {
-        text += &format!("\n\nThese differ from the songs already here, so the service uses a second copy: {}", o.songs_differ.join(", "));
+        text += "\n\n";
+        text += &tr!("These differ from the songs already here, so the service uses a second copy: {titles}", titles = o.songs_differ.join(", "));
     }
     if o.passages_removed > 0 { text += &format!("\n\n{}", crate::scripture::strings::passages_removed(o.passages_removed)) }
     if !o.fonts_missing.is_empty() { text += &format!("\n\n{}", fonts_missing(&o.fonts_missing)) }

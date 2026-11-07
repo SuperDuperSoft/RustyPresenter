@@ -236,7 +236,7 @@ pub fn until_target<Tz: TimeZone>(target: &TimeTarget, starts_at: Option<TimeOfD
     let today = now.with_timezone(tz).date_naive();
     match target {
         TimeTarget::ServiceStart => {
-            let at = starts_at.ok_or_else(|| strings::NO_START_TIME.to_string())?;
+            let at = starts_at.ok_or_else(|| strings::no_start_time())?;
             let t = resolve_local(tz, today, at);
             if t <= now { Err(strings::service_start_passed(&at.label())) } else { Ok(t) }
         }
@@ -300,7 +300,7 @@ impl TimerRun {
     /// The state a new run begins in. Refuses an unknown kind or a target that can't be used.
     fn fresh<Tz: TimeZone>(def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<RunState, String> {
         use crate::automation::strings;
-        match def.kind.known().ok_or_else(|| strings::TIMER_NEEDS_NEWER.to_string())? {
+        match def.kind.known().ok_or_else(|| strings::timer_needs_newer())? {
             TimerKind::Duration { .. } | TimerKind::CountUp => Ok(RunState::Running { since: ctx.now, carried_ms: 0 }),
             TimerKind::UntilTime { target } => {
                 Ok(RunState::RunningTo { target: until_target(target, ctx.starts_at, ctx.now, ctx.tz)? })
@@ -310,7 +310,7 @@ impl TimerRun {
 
     /// Starts or resumes. Already running is a no-op; on `Err` nothing changes.
     pub fn start<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
-        if def.kind.known().is_none() { return Err(crate::automation::strings::TIMER_NEEDS_NEWER.into()) }
+        if def.kind.known().is_none() { return Err(crate::automation::strings::timer_needs_newer().into()) }
         match self.state {
             RunState::Running { .. } | RunState::RunningTo { .. } => {}
             RunState::Paused { elapsed_ms } => self.state = RunState::Running { since: ctx.now, carried_ms: elapsed_ms },
@@ -331,7 +331,7 @@ impl TimerRun {
     pub fn pause(&mut self, now: DateTime<Utc>) -> Result<(), String> {
         match self.state {
             RunState::Running { .. } => self.state = RunState::Paused { elapsed_ms: self.elapsed_ms(now) },
-            RunState::RunningTo { .. } => return Err(crate::automation::strings::CANT_PAUSE_TO_TIME.into()),
+            RunState::RunningTo { .. } => return Err(crate::automation::strings::cant_pause_to_time().into()),
             _ => {}
         }
         Ok(())
@@ -360,14 +360,14 @@ impl TimerRun {
         use crate::automation::strings;
         match (def.kind.known(), change, &self.state) {
             (Some(TimerKind::Duration { .. }), SetNow::Secs(s), _) => {
-                if !(1..=86_399).contains(&s) { return Err(strings::DURATION_RANGE.into()) }
+                if !(1..=86_399).contains(&s) { return Err(strings::duration_range().into()) }
                 self.length_for_now = Some(s);
             }
             (Some(TimerKind::UntilTime { .. }), SetNow::At(at), RunState::RunningTo { .. }) => {
                 let target = until_target(&TimeTarget::Fixed { at }, ctx.starts_at, ctx.now, ctx.tz)?;
                 self.state = RunState::RunningTo { target };
             }
-            _ => return Err(strings::SET_NOW_WRONG_KIND.into()),
+            _ => return Err(strings::set_now_wrong_kind().into()),
         }
         Ok(())
     }
@@ -587,7 +587,7 @@ mod tests {
         let chi = test_zone::Chicago2026;
         let now = utc(2026, 6, 7, 15, 45);
         assert_eq!(until_target(&TimeTarget::ServiceStart, None, now, &chi),
-            Err(crate::automation::strings::NO_START_TIME.into()));
+            Err(crate::automation::strings::no_start_time().into()));
     }
 
     #[test]
@@ -723,7 +723,7 @@ mod tests {
         let mut r = TimerRun::default();
         r.start(&until(fixed(11, 0), Overrun::Stop), &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
         let before = r.clone();
-        assert_eq!(r.pause(now + TimeDelta::minutes(1)), Err(crate::automation::strings::CANT_PAUSE_TO_TIME.into()));
+        assert_eq!(r.pause(now + TimeDelta::minutes(1)), Err(crate::automation::strings::cant_pause_to_time().into()));
         assert_eq!(r, before);
     }
 
@@ -731,7 +731,7 @@ mod tests {
     fn unknown_timer_kind_loads_and_cannot_start() {
         let def = TimerDef { kind: Lenient::Unknown(serde_json::json!({"type":"lap_timer"})), ..TimerDef::default() };
         let mut r = TimerRun::default();
-        assert_eq!(r.start(&def, &ctx(at(0))), Err(crate::automation::strings::TIMER_NEEDS_NEWER.into()));
+        assert_eq!(r.start(&def, &ctx(at(0))), Err(crate::automation::strings::timer_needs_newer().into()));
         assert_eq!(r, TimerRun::default());
         assert_eq!(r.snapshot(&def, at(0), &Utc, None), None);
     }
@@ -767,7 +767,7 @@ mod tests {
         assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
         assert_eq!(r.run, 0);
         let res = r.restart(&def, &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 9 });
-        assert_eq!(res, Err(crate::automation::strings::NO_START_TIME.into()));
+        assert_eq!(res, Err(crate::automation::strings::no_start_time().into()));
         assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
         assert_eq!(r.run, 0);
         assert_eq!(r.seen_clear, 3);
@@ -823,7 +823,7 @@ mod tests {
         let saved = def.clone();
         let mut r = TimerRun::default();
         assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c),
-            Err(crate::automation::strings::SET_NOW_WRONG_KIND.into()));
+            Err(crate::automation::strings::set_now_wrong_kind().into()));
         assert_eq!(r, TimerRun::default());
         r.start(&def, &c).unwrap();
         r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c).unwrap();
@@ -833,22 +833,22 @@ mod tests {
         assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(10, 15)), &c), Err("That time (10:15 AM) has passed.".into()));
         assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 30) });
         // A length is the wrong kind of change for a countdown to a time.
-        assert_eq!(r.set_now(&def, SetNow::Secs(60), &c), Err(crate::automation::strings::SET_NOW_WRONG_KIND.into()));
+        assert_eq!(r.set_now(&def, SetNow::Secs(60), &c), Err(crate::automation::strings::set_now_wrong_kind().into()));
     }
 
     #[test]
     fn set_now_rejects_out_of_range_and_wrong_kind() {
-        use crate::automation::strings::{DURATION_RANGE, SET_NOW_WRONG_KIND};
+        use crate::automation::strings::{duration_range, set_now_wrong_kind};
         let def = dur(60, Overrun::Stop);
         let mut r = TimerRun::default();
-        assert_eq!(r.set_now(&def, SetNow::Secs(0), &ctx(at(0))), Err(DURATION_RANGE.into()));
-        assert_eq!(r.set_now(&def, SetNow::Secs(86_400), &ctx(at(0))), Err(DURATION_RANGE.into()));
+        assert_eq!(r.set_now(&def, SetNow::Secs(0), &ctx(at(0))), Err(duration_range().into()));
+        assert_eq!(r.set_now(&def, SetNow::Secs(86_400), &ctx(at(0))), Err(duration_range().into()));
         assert_eq!(r.length_for_now, None);
         r.set_now(&def, SetNow::Secs(86_399), &ctx(at(0))).unwrap();
         assert_eq!(r.length_for_now, Some(86_399));
-        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 0)), &ctx(at(0))), Err(SET_NOW_WRONG_KIND.into()));
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 0)), &ctx(at(0))), Err(set_now_wrong_kind().into()));
         let mut r = TimerRun::default();
-        assert_eq!(r.set_now(&count_up(), SetNow::Secs(5), &ctx(at(0))), Err(SET_NOW_WRONG_KIND.into()));
+        assert_eq!(r.set_now(&count_up(), SetNow::Secs(5), &ctx(at(0))), Err(set_now_wrong_kind().into()));
         assert_eq!(r, TimerRun::default());
     }
 

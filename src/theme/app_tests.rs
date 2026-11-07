@@ -26,9 +26,9 @@ async fn read_only_rejects_edits() {
     let app = test_app();
     app.set_read_only(true);
     let err = act(&app, "song/save", serde_json::json!({ "id": Uuid::nil(), "title": "A", "lyrics": "" })).await.unwrap_err();
-    assert_eq!(err, strings::NEWER_DATA);
+    assert_eq!(err, strings::newer_data());
     assert!(app.data.lock().unwrap().songs.is_empty(), "nothing changed in memory either");
-    assert_eq!(act(&app, "backup/restore", serde_json::json!({ "name": "backup-x" })).await.unwrap_err(), strings::NEWER_DATA);
+    assert_eq!(act(&app, "backup/restore", serde_json::json!({ "name": "backup-x" })).await.unwrap_err(), strings::newer_data());
     assert!(!app.store.data_path().exists(), "nothing written");
     assert_eq!(app.state_json()["read_only"], true);
 }
@@ -73,7 +73,7 @@ async fn theme_save_requires_unique_name() {
     let app = test_app();
     new_theme(&app, "Christmas", 90).await;
     assert_eq!(act(&app, "theme/save", theme_json(" christmas ", 80)).await.unwrap_err(), strings::theme_exists("christmas"));
-    assert_eq!(act(&app, "theme/save", theme_json("  ", 80)).await.unwrap_err(), strings::THEME_NAME_REQUIRED);
+    assert_eq!(act(&app, "theme/save", theme_json("  ", 80)).await.unwrap_err(), strings::theme_name_required());
     assert_eq!(app.data.lock().unwrap().themes.len(), 1);
 }
 
@@ -81,7 +81,7 @@ async fn theme_save_requires_unique_name() {
 async fn theme_name_church_default_reserved() {
     let app = test_app();
     for name in ["Church default", "standard"] {
-        assert_eq!(act(&app, "theme/save", theme_json(name, 80)).await.unwrap_err(), strings::THEME_NAME_RESERVED);
+        assert_eq!(act(&app, "theme/save", theme_json(name, 80)).await.unwrap_err(), strings::theme_name_reserved());
     }
 }
 
@@ -89,7 +89,7 @@ async fn theme_name_church_default_reserved() {
 async fn theme_save_rejects_standard_id() {
     let app = test_app();
     let body = json!({ "id": STANDARD_ID, "name": "Mine", "style": Theme::default() });
-    assert_eq!(act(&app, "theme/save", body).await.unwrap_err(), strings::STANDARD_SAVE_ELSEWHERE);
+    assert_eq!(act(&app, "theme/save", body).await.unwrap_err(), strings::standard_save_elsewhere());
 }
 
 #[tokio::test]
@@ -116,8 +116,8 @@ async fn theme_delete_clears_references_and_counts() {
     let d = app.data.lock().unwrap();
     assert!(d.themes.is_empty() && d.services[0].theme.is_none() && d.services[0].items[0].theme.is_none());
     drop(d);
-    assert_eq!(act(&app, "theme/delete", json!({ "id": STANDARD_ID })).await.unwrap_err(), strings::BUILTIN_NO_DELETE);
-    assert_eq!(act(&app, "theme/delete", json!({ "id": x })).await.unwrap_err(), strings::THEME_GONE);
+    assert_eq!(act(&app, "theme/delete", json!({ "id": STANDARD_ID })).await.unwrap_err(), strings::builtin_no_delete());
+    assert_eq!(act(&app, "theme/delete", json!({ "id": x })).await.unwrap_err(), strings::theme_gone());
 }
 
 #[tokio::test]
@@ -143,7 +143,7 @@ async fn make_default_keeps_previous_default_as_theme() {
     assert_eq!(d.themes[0].style.size, 120, "Christmas unchanged");
     drop(d);
     assert_eq!(app.live_view().theme, Theme::default(), "the original look is back");
-    assert_eq!(act(&app, "theme/make-default", json!({ "id": Uuid::new_v4() })).await.unwrap_err(), strings::THEME_GONE);
+    assert_eq!(act(&app, "theme/make-default", json!({ "id": Uuid::new_v4() })).await.unwrap_err(), strings::theme_gone());
 }
 
 #[tokio::test]
@@ -157,7 +157,7 @@ async fn editing_starred_theme_changes_default() {
     assert_eq!(rows["rows"][0]["id"], json!(STANDARD_ID));
     let mine = rows["rows"].as_array().unwrap().iter().find(|r| r["id"] == json!(x)).unwrap();
     assert_eq!(mine["is_default"], true);
-    assert_eq!(rows["rows"][1]["name"], strings::LOWER_THIRD_NAME, "built-ins next");
+    assert_eq!(rows["rows"][1]["name"], strings::lower_third_name(), "built-ins next");
 }
 
 #[tokio::test]
@@ -177,8 +177,8 @@ async fn theme_save_standard_writes_only_theme_and_background() {
 async fn service_theme_rejects_unknown() {
     let app = test_app();
     let sid = app.data.lock().unwrap().services[0].id;
-    assert_eq!(act(&app, "service/theme", json!({ "service_id": sid, "theme": Uuid::new_v4() })).await.unwrap_err(), strings::THEME_GONE);
-    assert_eq!(act(&app, "service/theme", json!({ "service_id": Uuid::new_v4(), "theme": null })).await.unwrap_err(), strings::SERVICE_GONE);
+    assert_eq!(act(&app, "service/theme", json!({ "service_id": sid, "theme": Uuid::new_v4() })).await.unwrap_err(), strings::theme_gone());
+    assert_eq!(act(&app, "service/theme", json!({ "service_id": Uuid::new_v4(), "theme": null })).await.unwrap_err(), strings::service_gone());
 }
 
 #[tokio::test]
@@ -246,8 +246,8 @@ async fn item_theme_sets_clears_and_refuses_decks() {
     assert_eq!(app.data.lock().unwrap().services[0].items[0].theme, Some(x));
     act(&app, "item/theme", json!({ "item_id": item.id, "theme": null })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().services[0].items[0].theme, None);
-    assert_eq!(act(&app, "item/theme", json!({ "item_id": deck.id, "theme": x })).await.unwrap_err(), strings::ITEM_NO_THEME);
-    assert_eq!(act(&app, "item/theme", json!({ "item_id": Uuid::new_v4(), "theme": x })).await.unwrap_err(), strings::ITEM_GONE);
+    assert_eq!(act(&app, "item/theme", json!({ "item_id": deck.id, "theme": x })).await.unwrap_err(), strings::item_no_theme());
+    assert_eq!(act(&app, "item/theme", json!({ "item_id": Uuid::new_v4(), "theme": x })).await.unwrap_err(), strings::item_gone());
 }
 
 // ---- theme snapshot on the live item (spec §5.3) ----
@@ -314,17 +314,17 @@ async fn new_overlay(app: &Arc<App>, body: serde_json::Value) -> Uuid {
 #[tokio::test]
 async fn background_add_rename_remove() {
     let app = test_app();
-    assert_eq!(act(&app, "background/add", json!({ "name": " ", "background": { "type": "color", "color": "#000" } })).await.unwrap_err(), strings::BACKGROUND_NAME_REQUIRED);
+    assert_eq!(act(&app, "background/add", json!({ "name": " ", "background": { "type": "color", "color": "#000" } })).await.unwrap_err(), strings::background_name_required());
     let bg = Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 30 };
     let v = act(&app, "background/add", json!({ "name": "Midnight", "background": bg })).await.unwrap();
     let id = v["id"].clone();
     act(&app, "background/rename", json!({ "id": id, "name": "Night" })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().backgrounds[0].name, "Night");
-    assert_eq!(act(&app, "background/rename", json!({ "id": id, "name": "" })).await.unwrap_err(), strings::BACKGROUND_NAME_REQUIRED);
+    assert_eq!(act(&app, "background/rename", json!({ "id": id, "name": "" })).await.unwrap_err(), strings::background_name_required());
     app.data.lock().unwrap().settings.background = bg.clone();
     act(&app, "background/remove", json!({ "id": id })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().settings.background, bg, "what uses it keeps it");
-    assert_eq!(act(&app, "background/remove", json!({ "id": id })).await.unwrap_err(), strings::BACKGROUND_GONE);
+    assert_eq!(act(&app, "background/remove", json!({ "id": id })).await.unwrap_err(), strings::background_gone());
 }
 
 #[tokio::test]
@@ -332,11 +332,11 @@ async fn overlay_save_validates() {
     let app = test_app();
     let mut nameless = wifi();
     nameless["name"] = json!("");
-    assert_eq!(act(&app, "overlay/save", nameless).await.unwrap_err(), strings::OVERLAY_NAME_REQUIRED);
+    assert_eq!(act(&app, "overlay/save", nameless).await.unwrap_err(), strings::overlay_name_required());
     let blank = json!({ "id": Uuid::nil(), "name": "S", "source": { "type": "text", "text": "  " } });
-    assert_eq!(act(&app, "overlay/save", blank).await.unwrap_err(), strings::OVERLAY_TEXT_REQUIRED);
+    assert_eq!(act(&app, "overlay/save", blank).await.unwrap_err(), strings::overlay_text_required());
     let gone = json!({ "id": Uuid::nil(), "name": "P", "source": { "type": "image", "source": { "kind": "asset", "asset": "nope.png" } } });
-    assert_eq!(act(&app, "overlay/save", gone).await.unwrap_err(), strings::PICTURE_GONE);
+    assert_eq!(act(&app, "overlay/save", gone).await.unwrap_err(), strings::picture_gone());
     let id = new_overlay(&app, wifi()).await;
     let d = app.data.lock().unwrap();
     assert_eq!((d.overlays[0].id, d.overlays[0].name.as_str()), (id, "Wi-Fi"));
@@ -359,7 +359,7 @@ async fn overlay_on_from_the_operator_lists_lit_chips_and_f6_clears() {
     assert!(app.live_view().frame.overlays.is_empty());
     assert_eq!(app.live_view().clear_epoch, seen + 1);
     let late = crate::live::Command::Overlay { id, on: true, seen_clear: Some(seen) };
-    assert_eq!(app.command(Envelope { id: "c3".into(), base: None, cmd: late }).error.as_deref(), Some(strings::SCREEN_CLEARED));
+    assert_eq!(app.command(Envelope { id: "c3".into(), base: None, cmd: late }).error.as_deref(), Some(strings::screen_cleared().as_str()));
 }
 
 #[tokio::test]
@@ -375,17 +375,17 @@ async fn overlay_delete_keeps_slot_on_screen_and_move_reorders() {
     assert_eq!(app.live_view().frame.overlays.len(), 1, "still on screen");
     let chips = act(&app, "overlay/list", json!({})).await.unwrap();
     assert_eq!(chips["chips"][1]["deleted"], true);
-    assert_eq!(act(&app, "overlay/delete", json!({ "id": a })).await.unwrap_err(), strings::OVERLAY_GONE);
+    assert_eq!(act(&app, "overlay/delete", json!({ "id": a })).await.unwrap_err(), strings::overlay_gone());
 }
 
 #[tokio::test]
 async fn logo_choose_and_remove_save_immediately() {
     let app = test_app();
-    assert_eq!(act(&app, "settings/logo", json!({ "asset": "missing.png" })).await.unwrap_err(), strings::PICTURE_GONE);
+    assert_eq!(act(&app, "settings/logo", json!({ "asset": "missing.png" })).await.unwrap_err(), strings::picture_gone());
     let logo = picture_file(&app, "logo.png");
-    assert_eq!(act(&app, "settings/logo", json!({ "asset": logo })).await.unwrap()["toast"], strings::LOGO_SAVED);
+    assert_eq!(act(&app, "settings/logo", json!({ "asset": logo })).await.unwrap()["toast"], strings::logo_saved());
     assert_eq!(app.store.load().unwrap().settings.logo.as_deref(), Some("logo.png"));
-    assert_eq!(act(&app, "settings/logo", json!({ "asset": null })).await.unwrap()["toast"], strings::LOGO_REMOVED);
+    assert_eq!(act(&app, "settings/logo", json!({ "asset": null })).await.unwrap()["toast"], strings::logo_removed());
     assert_eq!(app.store.load().unwrap().settings.logo, None);
 }
 
@@ -445,5 +445,5 @@ async fn settings_save_null_clears_optional_field_and_rejects_non_objects() {
     act(&app, "settings/logo", json!({ "asset": logo })).await.unwrap();
     act(&app, "settings", json!({ "logo": null })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().settings.logo, None);
-    assert_eq!(act(&app, "settings", json!([1])).await.unwrap_err(), strings::EXPECTED_OBJECT);
+    assert_eq!(act(&app, "settings", json!([1])).await.unwrap_err(), strings::expected_object());
 }

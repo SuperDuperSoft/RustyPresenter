@@ -18,7 +18,7 @@ fn check(op: &Rc<Operator>) {
 fn stage_message(op: &Rc<Operator>) {
     let current = op.app().live_view().stage_message;
     let me = Rc::downgrade(op);
-    ask::prompt(op, tr::STAGE_MESSAGE_ASK, &current, move |text| {
+    ask::prompt(op, &tr::stage_message_ask(), &current, move |text| {
         let (Some(op), Some(text)) = (me.upgrade(), text) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<serde_json::Value>("stage/message", serde_json::json!({ "text": text }), move |r| {
@@ -59,8 +59,8 @@ mod tests {
         let version = app.live_view().version;
         click(&op, "ServiceColumn::check-btn");
         let row = asked(&op).expect("a report");
-        assert!(row.text.contains(pf::NO_ROOM), "{}", row.text);
-        assert!(row.text.contains(pf::EMPTY_SERVICE), "{}", row.text);
+        assert!(row.text.contains(&pf::no_room()), "{}", row.text);
+        assert!(row.text.contains(&pf::empty_service()), "{}", row.text);
         assert_eq!(row.cancel_label, "", "a report, not a question");
         assert_eq!(app.live_view().version, version);
     }
@@ -82,7 +82,7 @@ mod tests {
         click(&op, "TopBar::message-btn");
         let row = asked(&op).expect("a question");
         assert!(row.prompt);
-        assert_eq!(row.text, tr::STAGE_MESSAGE_ASK);
+        assert_eq!(row.text, tr::stage_message_ask());
         assert_eq!(row.value, "");
         ask::answer(&op, true, "Wrap up".into());
         assert_eq!(app.live_view().stage_message, "Wrap up");

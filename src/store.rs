@@ -186,7 +186,7 @@ impl Store {
         if !dir.join("COMPLETE").exists() { return Err("That backup is incomplete and cannot be restored.".into()); }
         let manifest: Manifest = serde_json::from_slice(&fs::read(dir.join("manifest.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
         let mut data: Data = serde_json::from_slice::<Data>(&fs::read(dir.join("data.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?.upgrade();
-        if data.format > SUPPORTED_FORMAT { return Err(crate::theme::strings::NEWER_DATA.into()); }
+        if data.format > SUPPORTED_FORMAT { return Err(crate::theme::strings::newer_data().into()); }
         // An older backup comes back in this build's format; the data it replaces is copied aside below.
         self.upgrade_format(&mut data, false);
         data.after_load();

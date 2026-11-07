@@ -10,12 +10,12 @@ use uuid::Uuid;
 pub enum ChangeReason { WordsOnScreen, LookOnScreen, PlaceLost, NoSlides }
 
 impl ChangeReason {
-    pub fn banner(self) -> &'static str {
+    pub fn banner(self) -> String {
         match self {
-            ChangeReason::WordsOnScreen => strings::BANNER_WORDS,
-            ChangeReason::LookOnScreen => strings::BANNER_LOOK,
-            ChangeReason::PlaceLost => strings::BANNER_LOST,
-            ChangeReason::NoSlides => strings::BANNER_NO_SLIDES,
+            ChangeReason::WordsOnScreen => strings::banner_words(),
+            ChangeReason::LookOnScreen => strings::banner_look(),
+            ChangeReason::PlaceLost => strings::banner_lost(),
+            ChangeReason::NoSlides => strings::banner_no_slides(),
         }
     }
 

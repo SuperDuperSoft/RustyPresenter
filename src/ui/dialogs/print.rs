@@ -14,7 +14,7 @@ use slint::ComponentHandle;
 use std::{path::PathBuf, rc::{Rc, Weak}};
 use uuid::Uuid;
 
-pub use tr::TITLE;
+pub use tr::title;
 
 /// Opens the dialog for `service` with the choices last used.
 pub fn open(op: &Rc<Operator>, service: Uuid) {
@@ -62,7 +62,7 @@ fn write(op: &Rc<Operator>, path: Option<PathBuf>) {
         op.ui.global::<PrintDialogState>().set_busy(false);
         match r {
             Ok(w) if path.is_some() => op.toast(tr::saved(&w.path.file_name().unwrap_or_default().to_string_lossy()), false),
-            Ok(w) if w.opened => op.toast(tr::OPENED, false),
+            Ok(w) if w.opened => op.toast(tr::opened(), false),
             Ok(w) => notice(&op, &tr::not_opened(&w.path.display().to_string())),
             Err(e) => op.toast(&e, true),
         }
@@ -107,7 +107,7 @@ mod tests {
         click(&op, "PrintDialog::print-btn", 0);
         let p = app.data.lock().unwrap().settings.print.clone();
         assert_eq!(p, PrintSettings { what: PrintWhat::Order, notes: false, scripture: true, song_per_page: false, paper: Some(Paper::A4) });
-        assert!(op.toast_log().iter().any(|(t, err)| t == tr::OPENED && !err), "{:?}", op.toast_log());
+        assert!(op.toast_log().iter().any(|(t, err)| *t == tr::opened() && !err), "{:?}", op.toast_log());
         // Opened again later, it starts from those.
         op.close_dialog();
         crate::ui::operator::window::testing::refresh(&op);

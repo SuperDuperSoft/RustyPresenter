@@ -61,8 +61,8 @@ fn window_callback_opens_the_report_with_its_title() {
     log_today(&app, "Amazing Grace", "22025");
     log_today(&app, "Our own song", "");
     let op = open_report(&app);
-    assert_eq!(op.ui.get_dialog_title(), strings::TITLE);
-    assert_eq!(g(&op).get_license_line(), strings::NO_LICENSE);
+    assert_eq!(op.ui.get_dialog_title(), strings::title());
+    assert_eq!(g(&op).get_license_line(), strings::no_license());
     assert_eq!(g(&op).get_rows().row_count(), 1, "no CCLI number, not listed by default");
     assert_eq!(g(&op).get_rows().row_data(0).unwrap().title, "Amazing Grace");
     assert_eq!(g(&op).get_entries().row_count(), 2, "Details lists every use");
@@ -90,10 +90,10 @@ fn bad_dates_say_so() {
     let op = open_report(&app);
     g(&op).set_from("2026-13-40".into());
     g(&op).invoke_dates_edited();
-    assert_eq!(g(&op).get_error(), strings::BAD_DATE);
+    assert_eq!(g(&op).get_error(), strings::bad_date());
     g(&op).set_from("2099-01-01".into());
     g(&op).invoke_dates_edited();
-    assert_eq!(g(&op).get_error(), strings::FROM_AFTER_TO);
+    assert_eq!(g(&op).get_error(), strings::from_after_to());
 }
 
 #[test]
@@ -103,12 +103,12 @@ fn usage_remove_entry_asks_then_removes() {
     let op = open_report(&app);
     click(&op, "UsageDialog::details-btn");
     click(&op, "UsageDialog::remove-btn");
-    assert_eq!(asked(&op).as_deref(), Some(strings::REMOVE_CONFIRM));
+    assert_eq!(asked(&op).as_deref(), Some(strings::remove_confirm().as_str()));
     ask::answer(&op, true, String::new());
     settle();
     assert!(app.usage.log().entries.is_empty());
     assert_eq!(g(&op).get_entries().row_count(), 0);
-    assert!(toasts(&op).contains(&strings::REMOVED.to_string()));
+    assert!(toasts(&op).contains(&strings::removed()));
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn settings_edits_survive_opening_usage_report() {
     settle();
     op.ui.global::<crate::ui::SettingsDlg>().set_ccli("998877".into());
     click(&op, "SettingsSongs::usage-report");
-    assert_eq!(asked(&op).as_deref(), Some(strings::SAVE_FIRST));
+    assert_eq!(asked(&op).as_deref(), Some(strings::save_first().as_str()));
     ask::answer(&op, true, String::new());
     settle();
     assert_eq!(app.data.lock().unwrap().settings.church_ccli, "998877");

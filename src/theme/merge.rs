@@ -12,7 +12,7 @@ use crate::theme::strings;
 /// Top-level keys of `patch` over `stored`: a missing key keeps its value, `null` or a value
 /// replaces it. Nested objects are replaced whole.
 pub fn merge_object(stored: &Value, patch: &Value) -> Result<Value, String> {
-    let patch = patch.as_object().ok_or(strings::EXPECTED_OBJECT)?;
+    let patch = patch.as_object().ok_or(strings::expected_object())?;
     let mut out = stored.as_object().cloned().unwrap_or_default();
     for (k, v) in patch {
         out.insert(k.clone(), v.clone());
@@ -25,19 +25,19 @@ pub fn merge_object(stored: &Value, patch: &Value) -> Result<Value, String> {
 pub fn merge_service(stored: &Value, patch: &Value) -> Result<Value, String> {
     let mut out = merge_object(stored, patch)?;
     let Some(items) = patch.get("items") else { return Ok(out) };
-    let items = items.as_array().ok_or(strings::EXPECTED_OBJECT)?;
+    let items = items.as_array().ok_or(strings::expected_object())?;
     let old: Vec<&Map<String, Value>> =
         stored.get("items").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_object).collect();
     let mut seen = HashSet::new();
     let mut merged = Vec::with_capacity(items.len());
     for item in items {
-        let fields = item.as_object().ok_or(strings::EXPECTED_OBJECT)?;
+        let fields = item.as_object().ok_or(strings::expected_object())?;
         let Some(id) = fields.get("id").filter(|id| !id.is_null()) else {
             merged.push(item.clone());
             continue;
         };
         if !seen.insert(id.to_string()) {
-            return Err(strings::ITEM_TWICE.into());
+            return Err(strings::item_twice().into());
         }
         let prior = old.iter().copied().find(|o| o.get("id") == Some(id));
         // A missing kind keeps the stored one, like any other key.
@@ -151,9 +151,9 @@ mod tests {
     #[test]
     fn service_update_rejects_duplicate_ids_and_non_objects() {
         let stored = json!({"id": ID, "items": []});
-        assert_eq!(merge_service(&stored, &json!({"items": [{"id": I, "kind": "text"}, {"id": I, "kind": "text"}]})).unwrap_err(), ITEM_TWICE);
-        assert_eq!(merge_service(&stored, &json!([1, 2])).unwrap_err(), EXPECTED_OBJECT);
-        assert_eq!(merge_service(&stored, &json!({"items": [1]})).unwrap_err(), EXPECTED_OBJECT);
-        assert_eq!(merge_object(&json!({}), &json!("x")).unwrap_err(), EXPECTED_OBJECT);
+        assert_eq!(merge_service(&stored, &json!({"items": [{"id": I, "kind": "text"}, {"id": I, "kind": "text"}]})).unwrap_err(), item_twice());
+        assert_eq!(merge_service(&stored, &json!([1, 2])).unwrap_err(), expected_object());
+        assert_eq!(merge_service(&stored, &json!({"items": [1]})).unwrap_err(), expected_object());
+        assert_eq!(merge_object(&json!({}), &json!("x")).unwrap_err(), expected_object());
     }
 }

@@ -94,7 +94,7 @@ impl LibreOffice {
     /// `waiting(true)` is called if another conversion holds LibreOffice, and `waiting(false)` when this one gets it.
     pub async fn to_pdf(&self, input: &Path, work: &Path, waiting: &(dyn Fn(bool) + Sync), cancel: &CancellationToken) -> Result<PathBuf, String> {
         if self.soffice.snap {
-            return Err(strings::LO_SNAP.to_string());
+            return Err(strings::lo_snap());
         }
         let _permit = self.enter(waiting, cancel).await?;
         self.converted.store(true, Ordering::Relaxed);
@@ -115,7 +115,7 @@ impl LibreOffice {
             }
             let _ = std::fs::remove_dir_all(&self.profile);
         }
-        Err(strings::LO_CANNOT_READ.to_string())
+        Err(strings::lo_cannot_read())
     }
 
     /// Starts LibreOffice once in the background, so the first import is not the slow one.
@@ -204,13 +204,13 @@ impl Run {
     /// What the operator sees. The raw OS error of a failed start goes to the log only.
     fn message(self) -> String {
         match self {
-            Run::Timeout => strings::LO_TIMEOUT.to_string(),
+            Run::Timeout => strings::lo_timeout(),
             Run::Cancelled => CANCELLED.to_string(),
             Run::NotStarted(e) => {
                 eprintln!("LibreOffice could not start: {e}");
-                strings::LO_NOT_STARTED.to_string()
+                strings::lo_not_started()
             }
-            Run::Failed => strings::LO_CANNOT_READ.to_string(),
+            Run::Failed => strings::lo_cannot_read(),
         }
     }
 }

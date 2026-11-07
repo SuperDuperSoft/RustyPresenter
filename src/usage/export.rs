@@ -28,7 +28,7 @@ pub fn to_csv(rows: &[ReportRow], license: &str) -> String {
         out += &line(&[strings::CSV_LICENSE.into(), license.trim().into()]);
         out += "\r\n";
     }
-    out += &line(&strings::CSV_HEADER.map(String::from));
+    out += &line(&strings::csv_header());
     for r in rows {
         out += &line(&[r.title.clone(), r.ccli.clone(), r.writers.clone(), r.shown.to_string(), r.streamed.to_string(), day(r.last_used)]);
     }
@@ -41,13 +41,13 @@ fn esc(text: &str) -> String {
 
 /// A page to print or save as PDF from the browser: title, dates, licence, the table and the CCLI note.
 pub fn to_html(rows: &[ReportRow], license: &str, range: (NaiveDate, NaiveDate)) -> String {
-    let license_line = if license.trim().is_empty() { strings::NO_LICENSE.to_string() } else { strings::license_line(license.trim()) };
+    let license_line = if license.trim().is_empty() { strings::no_license() } else { strings::license_line(license.trim()) };
     let mut body = String::new();
     if rows.is_empty() {
-        body += &format!("<p class=\"none\">{}</p>\n", esc(strings::PAGE_NO_SONGS));
+        body += &format!("<p class=\"none\">{}</p>\n", esc(&strings::page_no_songs()));
     } else {
         body += "<table>\n<thead><tr>";
-        for (i, h) in strings::CSV_HEADER.iter().enumerate() {
+        for (i, h) in strings::csv_header().iter().enumerate() {
             body += &format!("<th{}>{}</th>", if (3..5).contains(&i) { " class=\"n\"" } else { "" }, esc(h));
         }
         body += "</tr></thead>\n<tbody>\n";
@@ -71,10 +71,10 @@ th {{ border-bottom: 2px solid #111; }}\n\
 .note {{ color: #444; font-size: 13px; margin-top: 18px; }}\n\
 @media print {{ .hint {{ display: none; }} body {{ margin: 0; }} }}\n\
 </style>\n</head>\n<body>\n<h1>{title}</h1>\n<p class=\"meta\">{range}<br>{license}</p>\n<p class=\"hint note\">{hint}</p>\n{body}<p class=\"note\">{footer}</p>\n</body>\n</html>\n",
-        title = esc(strings::TITLE),
+        title = esc(&strings::title()),
         range = esc(&strings::page_range(&day(range.0), &day(range.1))),
         license = esc(&license_line),
-        hint = esc(strings::PAGE_PRINT_HINT),
-        footer = esc(strings::FOOTER),
+        hint = esc(&strings::page_print_hint()),
+        footer = esc(&strings::footer()),
     )
 }

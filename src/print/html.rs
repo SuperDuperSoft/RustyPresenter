@@ -83,7 +83,7 @@ pub fn render(doc: &PrintDoc, paper: Paper, footer: &str) -> String {
                 close(&mut h, &mut table);
                 if std::mem::take(&mut brk) { h.push_str("<div class=\"brk\"></div>\n") }
                 h += &match other {
-                    Block::Heading(t) if t == super::strings::ORDER_HEADING || t == super::strings::LYRICS_HEADING => format!("<h2>{}</h2>\n", escape(t)),
+                    Block::Heading(t) if *t == super::strings::order_heading() || *t == super::strings::lyrics_heading() => format!("<h2>{}</h2>\n", escape(t)),
                     Block::Heading(t) => format!("<h3>{}</h3>\n", escape(t)),
                     Block::Credit(t) => format!("<p class=\"credit\">{}</p>\n", escape(t)),
                     Block::Order(t) => format!("<p class=\"order\">{}</p>\n", escape(t)),

@@ -30,8 +30,8 @@ impl AutoAdvance {
     /// Time on each slide, kept to 2–600 s even if a stored value is outside it.
     pub fn interval(&self) -> TimeDelta { TimeDelta::seconds(self.secs.clamp(MIN_SECS, MAX_SECS).into()) }
 
-    pub fn validate(secs: u16) -> Result<(), &'static str> {
-        if (MIN_SECS..=MAX_SECS).contains(&secs) { Ok(()) } else { Err(strings::ADVANCE_RANGE) }
+    pub fn validate(secs: u16) -> Result<(), String> {
+        if (MIN_SECS..=MAX_SECS).contains(&secs) { Ok(()) } else { Err(strings::advance_range()) }
     }
 }
 
@@ -232,8 +232,8 @@ mod tests {
         assert_eq!(AutoAdvance { secs: 9000, loop_item: true }.interval(), TimeDelta::seconds(600));
         assert_eq!(AutoAdvance::validate(2), Ok(()));
         assert_eq!(AutoAdvance::validate(600), Ok(()));
-        assert_eq!(AutoAdvance::validate(1), Err(crate::automation::strings::ADVANCE_RANGE));
-        assert_eq!(AutoAdvance::validate(601), Err(crate::automation::strings::ADVANCE_RANGE));
+        assert_eq!(AutoAdvance::validate(1), Err(crate::automation::strings::advance_range()));
+        assert_eq!(AutoAdvance::validate(601), Err(crate::automation::strings::advance_range()));
     }
 
     #[test]

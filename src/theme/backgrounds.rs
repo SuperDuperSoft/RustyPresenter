@@ -140,7 +140,7 @@ pub fn file_stem_name(file_name: &str) -> String {
         _ => file_name,
     };
     let stem = stem.trim();
-    if stem.is_empty() { crate::theme::strings::UNNAMED_BACKGROUND.to_string() } else { stem.to_string() }
+    if stem.is_empty() { crate::theme::strings::unnamed_background() } else { stem.to_string() }
 }
 
 /// RFC 3339 for `DateTime<Utc>` (the chrono `serde` feature is off).

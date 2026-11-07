@@ -3,7 +3,7 @@
 //! one as `bibles/{ABBR}.json` in the data folder. Nothing here is bundled or fetched. A Bible with a prefixed id
 //! (`bible::id`) keeps the same file format, under its encoded id.
 use super::{BOOKS, blocklist, canonical, display_name, find_book, id, library::{self, BibleMeta}, normalise_id, parse_reference, sources::tidy};
-use crate::{model::VerseText, scripture::strings::BLOCKED};
+use crate::{model::VerseText, scripture::strings::blocked};
 use quick_xml::{Reader, events::{BytesStart, Event}};
 use crate::tr;
 use serde::{Deserialize, Serialize};
@@ -296,13 +296,13 @@ pub fn get(root: &Path, id: &str) -> Option<Arc<ImportedBible>> {
 /// HCSB are allowed, because a licensed file is how a church gets a translation no online source offers.
 pub fn import(root: &Path, bytes: &[u8], abbr: &str) -> Result<Arc<ImportedBible>, String> {
     let mut b = parse(bytes)?;
-    if is_blocked(&b) { return Err(BLOCKED.into()); }
+    if is_blocked(&b) { return Err(blocked().into()); }
     if !abbr.trim().is_empty() { b.abbreviation = abbr.into(); }
     let abbr = sanitize_abbr(&b.abbreviation).ok_or_else(|| bad_abbr().to_string())?;
     if super::built_in(&abbr).is_some() { return Err(tr!("{abbr} is already built in. Give this Bible another short name.", abbr = abbr)); }
     b.abbreviation = abbr.clone();
     let mut b = combine(load(root, &abbr), b);
-    if is_blocked(&b) { return Err(BLOCKED.into()); }
+    if is_blocked(&b) { return Err(blocked().into()); }
     if b.name.is_empty() { b.name = abbr.clone(); }
     save(root, &b).map_err(|e| e.to_string())?;
     Ok(Arc::new(b))
@@ -315,7 +315,7 @@ pub fn install(root: &Path, b: ImportedBible) -> Result<BibleMeta, String> {
     let Some(meta) = &b.meta else { return Err(tr!("A downloaded Bible needs its details.")) };
     if !id::is_prefixed(&meta.id) || meta.id != b.abbreviation { return Err(tr!("This Bible's id can't be used.")); }
     if b.verses.is_empty() { return Err(tr!("No Bible verses found.")); }
-    if is_blocked(&b) { return Err(BLOCKED.into()); }
+    if is_blocked(&b) { return Err(blocked().into()); }
     save(root, &b).map_err(|e| e.to_string())?;
     let size = fs::metadata(file(root, &b.abbreviation)).map(|m| m.len()).unwrap_or(0);
     Ok(listing(&b, size))
@@ -874,9 +874,9 @@ mod tests {
     #[test]
     fn a_blocked_file_is_refused_under_any_abbreviation() {
         let root = temp_root("blocked");
-        assert_eq!(import(&root, NWT_FILE.as_bytes(), "").unwrap_err(), BLOCKED);
-        assert_eq!(import(&root, NWT_FILE.as_bytes(), "TEST").unwrap_err(), BLOCKED);
-        assert_eq!(import(&root, USX.as_bytes(), "TPT").unwrap_err(), BLOCKED, "the abbreviation alone");
+        assert_eq!(import(&root, NWT_FILE.as_bytes(), "").unwrap_err(), blocked());
+        assert_eq!(import(&root, NWT_FILE.as_bytes(), "TEST").unwrap_err(), blocked());
+        assert_eq!(import(&root, USX.as_bytes(), "TPT").unwrap_err(), blocked(), "the abbreviation alone");
         assert!(list(&root).is_empty());
         let _ = fs::remove_dir_all(&root);
     }
@@ -885,7 +885,7 @@ mod tests {
     fn verses_give_a_nameless_file_away() {
         let root = temp_root("fingerprint");
         let psalm = r#"<usx version="2.0"><book code="PSA" style="id"/><chapter number="23" style="c"/><para style="q1"><verse number="1" style="v"/>The Lord is my best friend</para></usx>"#;
-        assert_eq!(import(&root, psalm.as_bytes(), "ABCD").unwrap_err(), BLOCKED);
+        assert_eq!(import(&root, psalm.as_bytes(), "ABCD").unwrap_err(), blocked());
         assert!(list(&root).is_empty());
         let _ = fs::remove_dir_all(&root);
     }
@@ -897,7 +897,7 @@ mod tests {
         let jehovah: String = (1..=20).map(|n| format!(r#"<verse number="{n}" style="v"/>Jehovah spoke "#)).collect();
         import(&root, usx("MAT", 1, jehovah).as_bytes(), "ABCD").unwrap();
         let john = usx("JHN", 1, r#"<verse number="1" style="v"/>and the Word was a god"#.into());
-        assert_eq!(import(&root, john.as_bytes(), "ABCD").unwrap_err(), BLOCKED);
+        assert_eq!(import(&root, john.as_bytes(), "ABCD").unwrap_err(), blocked());
         assert_eq!(get(&root, "ABCD").unwrap().len(), 20, "the first file stays as it was");
         let _ = fs::remove_dir_all(&root);
     }

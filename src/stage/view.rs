@@ -74,10 +74,10 @@ pub fn shared_rect_priority(cells: &mut [Cell]) {
 pub fn label(slide: &Slide) -> String {
     match &slide.content {
         SlideContent::Text { text, parallel, .. } => crate::model::all_bibles_text(text, parallel.as_ref()),
-        SlideContent::Image { .. } => s::SLIDE_PICTURE.into(),
-        SlideContent::Video { .. } => s::VIDEO.into(),
-        SlideContent::Still { .. } => s::PICTURE.into(),
-        SlideContent::Audio { .. } => s::AUDIO.into(),
+        SlideContent::Image { .. } => s::slide_picture().into(),
+        SlideContent::Video { .. } => s::video().into(),
+        SlideContent::Still { .. } => s::picture().into(),
+        SlideContent::Audio { .. } => s::audio().into(),
     }
 }
 
@@ -126,7 +126,7 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
             let on_air = f.slide.is_some() || f.media.is_some();
             match &live.slide {
                 Some(slide) if on_air => slide_content(slide, *pictures, caption),
-                _ if f.logo => CellContent::Text { text: s::LOGO.into(), dim: true, caption, red: false },
+                _ if f.logo => CellContent::Text { text: s::logo().into(), dim: true, caption, red: false },
                 // Clear Slide leaves the background (or media) up; Clear All leaves nothing.
                 Some(slide) if *keep_after_clear && f.background.is_some() => CellContent::Text { text: label(slide), dim: true, caption, red: false },
                 _ => CellContent::Text { text: String::new(), dim: true, caption, red: false },
@@ -137,7 +137,7 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
                 let other_item = live.item.as_ref().is_none_or(|i| i.title != n.title);
                 slide_content(&n.slide, *pictures, caption.map(|c| if other_item { s::next_item(&n.title) } else { c }))
             }
-            None => CellContent::text(s::END_OF_SERVICE, caption),
+            None => CellContent::text(s::end_of_service(), caption),
         },
         ElementKind::SectionName => match &live.slide {
             Some(slide) if is_song(live) => CellContent::text(section_of(&slide.label), caption),
@@ -154,7 +154,7 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
                 _ => CellContent::Empty,
             }
         }
-        ElementKind::ItemTitle => CellContent::text(live.item.as_ref().map_or(s::NOTHING_LIVE, |i| i.title.as_str()), caption),
+        ElementKind::ItemTitle => CellContent::text(live.item.as_ref().map_or_else(s::nothing_live, |i| i.title.clone()), caption),
         ElementKind::SlidesLeft => match (&live.item, &live.cursor) {
             (Some(item), Some(c)) => CellContent::text(s::slides_left(item.count.saturating_sub(c.slide + 1)), caption),
             _ => CellContent::Empty,
@@ -169,7 +169,7 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
                 TimerRef::Current => inp.state.current(inp.timers),
                 TimerRef::Id { id } => match inp.timers.timers.iter().find(|t| t.id == *id) {
                     Some(t) => Some(t),
-                    None => return CellContent::Text { text: s::TIMER_REMOVED.into(), dim: true, caption, red: false },
+                    None => return CellContent::Text { text: s::timer_removed().into(), dim: true, caption, red: false },
                 },
             };
             found.map_or(CellContent::Empty, |t| timer_cell(t, caption))

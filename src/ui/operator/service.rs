@@ -40,7 +40,7 @@ pub fn rows(snap: &OperatorSnapshot, selected: Option<Uuid>, live_item: Option<U
             num: if header.is_some() { 0 } else { num },
             kind: kind_icon(&it.kind).into(),
             title: it.title.as_str().into(),
-            subtitle: if blank { crate::planning::strings::BLANK_SUBTITLE.into() } else { it.subtitle.as_str().into() },
+            subtitle: if blank { crate::planning::strings::blank_subtitle().into() } else { it.subtitle.as_str().into() },
             selected: selected == Some(it.id),
             live: live_item == Some(it.id),
             blank,

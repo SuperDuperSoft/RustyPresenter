@@ -17,19 +17,19 @@ pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dy
     let connected = |id: &str| monitors.iter().any(|m| m.id == id);
     let screens = &data.settings.screens;
     let room = screens.monitors("audience");
-    if room.is_empty() { out.push(strings::NO_ROOM.to_string()) }
-    else if !room.into_iter().all(connected) { out.push(strings::ROOM_GONE.to_string()) }
-    if screens.stage.on && !screens.monitors("stage").into_iter().all(connected) { out.push(strings::STAGE_GONE.into()); }
+    if room.is_empty() { out.push(strings::no_room()) }
+    else if !room.into_iter().all(connected) { out.push(strings::room_gone()) }
+    if screens.stage.on && !screens.monitors("stage").into_iter().all(connected) { out.push(strings::stage_gone().into()); }
     let sound = data.settings.audio_device.as_str();
-    if !sound.is_empty() && !audio.is_empty() && !audio.iter().any(|a| a == sound) { out.push(strings::AUDIO_GONE.into()); }
-    if data.settings.logo.as_deref().is_some_and(|l| !has_asset(l)) { out.push(strings::LOGO_MISSING.into()); }
-    if !background_ok(&data.settings.background, has_asset) { out.push(strings::BACKGROUND_MISSING.into()); }
+    if !sound.is_empty() && !audio.is_empty() && !audio.iter().any(|a| a == sound) { out.push(strings::audio_gone().into()); }
+    if data.settings.logo.as_deref().is_some_and(|l| !has_asset(l)) { out.push(strings::logo_missing().into()); }
+    if !background_ok(&data.settings.background, has_asset) { out.push(strings::background_missing().into()); }
     let Some(service) = data.service() else { return out };
-    if service.items.is_empty() { out.push(strings::EMPTY_SERVICE.into()); }
+    if service.items.is_empty() { out.push(strings::empty_service().into()); }
     for (i, item) in service.items.iter().enumerate() {
         let (title, _, slides) = build_item(data, item);
         let mut problems = content_problems(data, &item.kind, slides.is_empty(), has_asset, cached);
-        if item.background.as_ref().is_some_and(|b| !background_ok(b, has_asset)) { problems.push(strings::ITEM_BACKGROUND_MISSING.into()); }
+        if item.background.as_ref().is_some_and(|b| !background_ok(b, has_asset)) { problems.push(strings::item_background_missing().into()); }
         out.extend(problems.iter().map(|p| strings::item(i + 1, &title, p)));
     }
     out
@@ -43,27 +43,27 @@ fn background_ok(b: &Background, has_asset: &dyn Fn(&str) -> bool) -> bool {
 }
 
 fn content_problems(data: &Data, kind: &ItemKind, no_slides: bool, has_asset: &dyn Fn(&str) -> bool, cached: &dyn Fn(&str, &str) -> bool) -> Vec<String> {
-    let one = |s: &str| vec![s.to_string()];
+    let one = |s: String| vec![s];
     match kind {
-        ItemKind::Song { song_id } if !data.songs.iter().any(|s| s.id == *song_id) => one(strings::SONG_MISSING),
-        ItemKind::Song { .. } if no_slides => one(strings::SONG_EMPTY),
+        ItemKind::Song { song_id } if !data.songs.iter().any(|s| s.id == *song_id) => one(strings::song_missing()),
+        ItemKind::Song { .. } if no_slides => one(strings::song_empty()),
         ItemKind::Scripture { reference, translation, verses, also, .. } => {
             // Each online Bible whose passage would not show without internet; a missing main text says only that.
             let uncached: Vec<&str> = std::iter::once(translation.as_str()).chain(also.iter().map(|a| a.translation.as_str()))
                 .filter(|t| crate::bible::sources::is_online(t) && !cached(t, reference)).collect();
             let abbr = |t: &str| data.bible_credit(t).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| t.to_string());
-            let mut out = if verses.is_empty() && !uncached.contains(&translation.as_str()) { one(strings::NO_VERSES) } else { vec![] };
+            let mut out = if verses.is_empty() && !uncached.contains(&translation.as_str()) { one(strings::no_verses()) } else { vec![] };
             out.extend(uncached.into_iter().map(|t| strings::not_offline(&abbr(t), reference)));
             out
         }
         ItemKind::Media { media_id, .. } => match data.media.iter().find(|m| m.id == *media_id) {
-            None => one(strings::MEDIA_GONE),
+            None => one(strings::media_gone()),
             Some(MediaFile { status: MediaStatus::Failed { reason }, .. }) => vec![strings::cant_play(reason)],
-            Some(m) if !has_asset(&m.asset) => one(strings::FILE_MISSING),
+            Some(m) if !has_asset(&m.asset) => one(strings::file_missing()),
             Some(_) => vec![],
         },
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
-            None => one(strings::DECK_GONE),
+            None => one(strings::deck_gone()),
             Some(d) => match d.slides.iter().filter(|a| !has_asset(a)).count() {
                 0 => vec![],
                 missing => vec![strings::slides_missing(missing, d.slides.len())],
@@ -75,7 +75,7 @@ fn content_problems(data: &Data, kind: &ItemKind, no_slides: bool, has_asset: &d
 
 /// The text for the operator.
 pub fn report(problems: &[String]) -> String {
-    if problems.is_empty() { return strings::ALL_CLEAR.into(); }
+    if problems.is_empty() { return strings::all_clear().into(); }
     let mut text = format!("{}\n", strings::found(problems.len()));
     for p in problems.iter().take(SHOWN) { text.push('\n'); text.push_str(p); }
     if problems.len() > SHOWN { text.push('\n'); text.push_str(&strings::more(problems.len() - SHOWN)); }
@@ -118,14 +118,14 @@ mod tests {
 
     #[test]
     fn an_empty_service_is_flagged() {
-        assert_eq!(run(&data(vec![]), &all), [s::EMPTY_SERVICE]);
+        assert_eq!(run(&data(vec![]), &all), [s::empty_service()]);
     }
 
     #[test]
     fn no_room_screen_chosen() {
         let mut d = data(vec![text()]);
         d.settings.screens.assign("audience", ScreenTarget::None);
-        assert_eq!(run(&d, &all), [s::NO_ROOM]);
+        assert_eq!(run(&d, &all), [s::no_room()]);
     }
 
     #[test]
@@ -133,14 +133,14 @@ mod tests {
         let mut d = data(vec![ItemKind::Song { song_id: Uuid::new_v4() }]);
         d.settings.screens.assign("audience", ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
         let got = run(&d, &all);
-        assert_eq!(got[0], s::ROOM_GONE);
+        assert_eq!(got[0], s::room_gone());
         assert_eq!(got.len(), 2);
     }
 
     #[test]
     fn a_room_screen_is_found_by_its_id_among_several() {
         let d = data(vec![text()]);
-        assert_eq!(check(&d, &[monitor("other")], &[], &all, &|_, _| true), [s::ROOM_GONE]);
+        assert_eq!(check(&d, &[monitor("other")], &[], &all, &|_, _| true), [s::room_gone()]);
         assert_eq!(check(&d, &[monitor("other"), monitor("room")], &[], &all, &|_, _| true), Vec::<String>::new());
     }
 
@@ -149,7 +149,7 @@ mod tests {
         let mut d = data(vec![text()]);
         assert_eq!(run(&d, &all), Vec::<String>::new());
         d.settings.screens.assign("stage", ScreenTarget::Monitor("stage".into()));
-        assert_eq!(run(&d, &all), [s::STAGE_GONE]);
+        assert_eq!(run(&d, &all), [s::stage_gone()]);
         assert_eq!(check(&d, &[monitor("room"), monitor("stage")], &[], &all, &|_, _| true), Vec::<String>::new());
     }
 
@@ -158,7 +158,7 @@ mod tests {
         let mut d = data(vec![text()]);
         let rooms = [monitor("room")];
         d.settings.audio_device = "wasapi/{board}".into();
-        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all, &|_, _| true), [s::AUDIO_GONE]);
+        assert_eq!(check(&d, &rooms, &["wasapi/{laptop}".to_string()], &all, &|_, _| true), [s::audio_gone()]);
         assert_eq!(check(&d, &rooms, &["wasapi/{board}".to_string()], &all, &|_, _| true), Vec::<String>::new());
         assert_eq!(check(&d, &rooms, &[], &all, &|_, _| true), Vec::<String>::new(), "no list: it cannot tell");
         d.settings.audio_device.clear();
@@ -170,14 +170,14 @@ mod tests {
         let mut d = data(vec![text()]);
         d.settings.logo = Some("logo.png".into());
         d.settings.background = Background::Image { asset: "bg.png".into(), dim: 0 };
-        assert_eq!(run(&d, &none), [s::LOGO_MISSING, s::BACKGROUND_MISSING]);
-        assert_eq!(run(&d, &|a| a == "logo.png"), [s::BACKGROUND_MISSING]);
+        assert_eq!(run(&d, &none), [s::logo_missing(), s::background_missing()]);
+        assert_eq!(run(&d, &|a| a == "logo.png"), [s::background_missing()]);
     }
 
     #[test]
     fn a_song_gone_from_the_library_names_its_place() {
         let d = data(vec![text(), ItemKind::Song { song_id: Uuid::new_v4() }]);
-        assert_eq!(run(&d, &all), [s::item(2, "Missing song", s::SONG_MISSING)]);
+        assert_eq!(run(&d, &all), [s::item(2, "Missing song", &s::song_missing())]);
     }
 
     #[test]
@@ -185,7 +185,7 @@ mod tests {
         let song = Song { id: Uuid::new_v4(), title: "Silent".into(), ..Song::default() };
         let mut d = data(vec![ItemKind::Song { song_id: song.id }]);
         d.songs.push(song);
-        assert_eq!(run(&d, &all), [s::item(1, "Silent", s::SONG_EMPTY)]);
+        assert_eq!(run(&d, &all), [s::item(1, "Silent", &s::song_empty())]);
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod tests {
         let full = ItemKind::Scripture { reference: "John 3:17".into(), translation: "NIV".into(), verses: vec![VerseText::new("John 3:17", "For God")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
         let got = run(&data(vec![empty, full]), &all);
         assert_eq!(got.len(), 1, "{got:?}");
-        assert!(got[0].starts_with("1. ") && got[0].ends_with(s::NO_VERSES), "{got:?}");
+        assert!(got[0].starts_with("1. ") && got[0].ends_with(&s::no_verses()), "{got:?}");
     }
 
     #[test]
@@ -203,7 +203,7 @@ mod tests {
         let d = data(vec![media_item(&m)]);
         let got = run(&d, &all);
         assert_eq!(got.len(), 1, "{got:?}");
-        assert!(got[0].ends_with(s::MEDIA_GONE), "{got:?}");
+        assert!(got[0].ends_with(&s::media_gone()), "{got:?}");
     }
 
     #[test]
@@ -212,7 +212,7 @@ mod tests {
         let mut d = data(vec![media_item(&m)]);
         d.media.push(m);
         assert_eq!(run(&d, &all), Vec::<String>::new());
-        assert_eq!(run(&d, &none), [s::item(1, "Intro", s::FILE_MISSING)]);
+        assert_eq!(run(&d, &none), [s::item(1, "Intro", &s::file_missing())]);
     }
 
     #[test]
@@ -236,14 +236,14 @@ mod tests {
     fn deck_gone_from_the_library() {
         let got = run(&data(vec![ItemKind::Deck { deck_id: Uuid::new_v4() }]), &all);
         assert_eq!(got.len(), 1, "{got:?}");
-        assert!(got[0].ends_with(s::DECK_GONE), "{got:?}");
+        assert!(got[0].ends_with(&s::deck_gone()), "{got:?}");
     }
 
     #[test]
     fn an_items_own_background_file() {
         let mut d = data(vec![text()]);
         d.services[0].items[0].background = Some(Background::Video { asset: "loop.mp4".into(), dim: 0 });
-        assert_eq!(run(&d, &none), [s::item(1, "Welcome", s::ITEM_BACKGROUND_MISSING)]);
+        assert_eq!(run(&d, &none), [s::item(1, "Welcome", &s::item_background_missing())]);
         assert_eq!(run(&d, &all), Vec::<String>::new());
     }
 
@@ -258,7 +258,7 @@ mod tests {
 
     #[test]
     fn report_all_clear() {
-        assert_eq!(report(&[]), s::ALL_CLEAR);
+        assert_eq!(report(&[]), s::all_clear());
     }
 
     #[test]

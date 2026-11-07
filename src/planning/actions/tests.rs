@@ -46,10 +46,10 @@ async fn set_date_sets_and_clears() {
     let id = app.data.lock().unwrap().services[0].id;
     act(&app, "service/set-date", json!({ "id": id, "date": "2026-11-08" })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().services[0].date, chrono::NaiveDate::from_ymd_opt(2026, 11, 8));
-    assert_eq!(act(&app, "service/set-date", json!({ "id": id, "date": "2026-13-01" })).await.unwrap_err(), tr::BAD_DATE);
+    assert_eq!(act(&app, "service/set-date", json!({ "id": id, "date": "2026-13-01" })).await.unwrap_err(), tr::bad_date());
     act(&app, "service/set-date", json!({ "id": id, "date": null })).await.unwrap();
     assert_eq!(app.data.lock().unwrap().services[0].date, None);
-    assert_eq!(act(&app, "service/set-date", json!({ "id": Uuid::new_v4(), "date": null })).await.unwrap_err(), tr::SERVICE_GONE);
+    assert_eq!(act(&app, "service/set-date", json!({ "id": Uuid::new_v4(), "date": null })).await.unwrap_err(), tr::service_gone());
 }
 
 #[tokio::test]
@@ -70,9 +70,9 @@ async fn fill_replaces_blank_in_place_and_refuses_non_blank() {
         assert_eq!(it.notes, "upbeat");
     }
     let again = act(&app, "service/fill", json!({ "id": bid, "item": { "kind": "song", "song_id": song } })).await.unwrap_err();
-    assert_eq!(again, tr::NOT_A_BLANK, "two quick fills cannot overwrite a real item");
-    assert_eq!(act(&app, "service/fill", json!({ "id": oid, "item": { "kind": "song", "song_id": song } })).await.unwrap_err(), tr::NOT_A_BLANK);
-    assert_eq!(act(&app, "service/fill", json!({ "id": Uuid::new_v4(), "item": { "kind": "song", "song_id": song } })).await.unwrap_err(), tr::BLANK_GONE);
+    assert_eq!(again, tr::not_a_blank(), "two quick fills cannot overwrite a real item");
+    assert_eq!(act(&app, "service/fill", json!({ "id": oid, "item": { "kind": "song", "song_id": song } })).await.unwrap_err(), tr::not_a_blank());
+    assert_eq!(act(&app, "service/fill", json!({ "id": Uuid::new_v4(), "item": { "kind": "song", "song_id": song } })).await.unwrap_err(), tr::blank_gone());
 }
 
 #[tokio::test]
@@ -85,7 +85,7 @@ async fn templates_save_make_rename_and_delete() {
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 4); // a Wednesday
         s.id
     };
-    assert_eq!(act(&app, "template/from-service", json!({ "service": sid, "name": " " })).await.unwrap_err(), tr::TEMPLATE_NEEDS_NAME);
+    assert_eq!(act(&app, "template/from-service", json!({ "service": sid, "name": " " })).await.unwrap_err(), tr::template_needs_name());
     let t = act(&app, "template/from-service", json!({ "service": sid, "name": "Midweek" })).await.unwrap();
     let tid: Uuid = serde_json::from_value(t["id"].clone()).unwrap();
     assert_eq!(app.data.lock().unwrap().templates[0].day, Some(chrono::Weekday::Wed));
@@ -106,8 +106,8 @@ async fn templates_save_make_rename_and_delete() {
     }
     act(&app, "template/delete", json!({ "id": tid })).await.unwrap();
     assert!(app.data.lock().unwrap().templates.is_empty());
-    assert_eq!(act(&app, "service/from-template", json!({ "template": tid })).await.unwrap_err(), tr::TEMPLATE_GONE);
-    assert_eq!(act(&app, "template/save", json!({ "id": Uuid::new_v4(), "name": "X", "items": [] })).await.unwrap_err(), tr::TEMPLATE_NEEDS_PARTS);
+    assert_eq!(act(&app, "service/from-template", json!({ "template": tid })).await.unwrap_err(), tr::template_gone());
+    assert_eq!(act(&app, "template/save", json!({ "id": Uuid::new_v4(), "name": "X", "items": [] })).await.unwrap_err(), tr::template_needs_parts());
 }
 
 #[tokio::test]
@@ -145,7 +145,7 @@ async fn show_blank_says_choose_first_and_next_steps_over_it() {
     app.data.lock().unwrap().services[0].items = vec![a, blank, b];
     let cmd = |c: crate::live::Command, base: Option<u64>| crate::live::Envelope { id: Uuid::new_v4().to_string(), base, cmd: c };
     let out = app.command(cmd(crate::live::Command::Show { item_id: bid, slide: 0 }, Some(0)));
-    assert_eq!(out.error.as_deref(), Some(tr::BLANK_CHOOSE_FIRST));
+    assert_eq!(out.error.as_deref(), Some(tr::blank_choose_first().as_str()));
     let v = app.live_view().version;
     assert!(app.command(cmd(crate::live::Command::Show { item_id: aid, slide: 0 }, Some(v))).ok);
     let v = app.live_view().version;

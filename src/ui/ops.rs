@@ -38,7 +38,7 @@ impl Ops {
         match &self.rt {
             Some(rt) => {
                 let task = rt.spawn(work);
-                if let Err(e) = slint::spawn_local(async move { done(task.await.map_err(|_| tr::ACTION_STOPPED.to_string())) }) {
+                if let Err(e) = slint::spawn_local(async move { done(task.await.map_err(|_| tr::action_stopped())) }) {
                     eprintln!("Operator action not delivered: {e}");
                 }
             }
@@ -80,7 +80,7 @@ impl Ops {
     /// `App::preflight`, off the UI thread: it looks at every file the service needs.
     pub fn preflight(&self, done: impl FnOnce(Vec<String>) + 'static) {
         let app = self.app.clone();
-        let work = async move { tokio::task::spawn_blocking(move || app.preflight()).await.map_err(|_| tr::ACTION_STOPPED.to_string()) };
+        let work = async move { tokio::task::spawn_blocking(move || app.preflight()).await.map_err(|_| tr::action_stopped()) };
         self.run(work, |r| done(r.and_then(|r| r).unwrap_or_else(|e| vec![e])));
     }
 
@@ -175,7 +175,7 @@ pub fn outcome_toast(o: &Outcome) -> Option<(String, bool)> {
     if o.ok { return None; }
     let e = o.error.as_deref()?;
     if e.starts_with("stale") { return None; }
-    Some((e.to_string(), !(e == tr::END_OF_SERVICE || e == tr::START_OF_SERVICE)))
+    Some((e.to_string(), !(e == tr::end_of_service() || e == tr::start_of_service())))
 }
 
 #[cfg(test)]
@@ -253,7 +253,7 @@ mod tests {
         ops.cmd(Command::Next, Some(outs[1].version), move |r| *o2.borrow_mut() = Some(r));
         let r = o.borrow_mut().take().unwrap();
         assert!(!r.ok);
-        assert_eq!(r.error.as_deref(), Some(tr::END_OF_SERVICE));
+        assert_eq!(r.error.as_deref(), Some(tr::end_of_service().as_str()));
         assert_eq!(outcome_toast(&r), Some(("End of service".into(), false)));
     }
 }

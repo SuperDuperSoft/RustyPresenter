@@ -190,7 +190,7 @@ async fn asset_import_refuses_undecodable_picture() {
     let p = temp("logo.png");
     std::fs::write(&p, &bytes[..bytes.len() / 2]).unwrap();
     let e = app.import_path(&p, ImportPurpose::Asset, |_| {}).await.unwrap_err();
-    assert_eq!(e.message, BAD_PICTURE);
+    assert_eq!(e.message, bad_picture());
     assert_eq!(files_in(app.store.assets()), 0);
     assert_eq!(files_in(app.store.tmp()), 0);
 }
@@ -239,7 +239,7 @@ async fn reprobe_failure_is_recorded_and_try_again_clears_it() {
     let app = test_app();
     let id = stored(&app, MediaKind::Image, "p.png", b"not a picture", MediaStatus::Ready);
     reprobe_all(app.clone(), vec![id]).await;
-    assert_eq!(media(&app, id).status, MediaStatus::Failed { reason: CANT_PLAY.into() });
+    assert_eq!(media(&app, id).status, MediaStatus::Failed { reason: cant_play().into() });
     let good = std::fs::read(png("q.png", 4, 4)).unwrap();
     std::fs::write(app.store.asset_path("p.png"), good).unwrap();
     app.do_action("media/reprobe", serde_json::to_vec(&serde_json::json!({ "id": id })).unwrap().as_slice()).await.unwrap();

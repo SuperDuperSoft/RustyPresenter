@@ -1,5 +1,5 @@
 //! Translation sources: the `bible_sources` rows plus the translations stored on this computer.
-use super::strings::{STATUS_NEEDS_KEY, STATUS_OFFLINE, STATUS_ONLINE, STATUS_UNAVAILABLE};
+use super::strings::{status_needs_key, status_offline, status_online, status_unavailable};
 use crate::bible::id::same_id;
 use serde::{Deserialize, Serialize};
 
@@ -69,12 +69,12 @@ pub fn copyright_of(sources: &Sources, tr: &str) -> Option<String> {
 }
 
 /// The Settings wording for a status.
-pub fn status_wording(s: SourceStatus) -> &'static str {
+pub fn status_wording(s: SourceStatus) -> String {
     match s {
-        SourceStatus::Offline => STATUS_OFFLINE,
-        SourceStatus::Online => STATUS_ONLINE,
-        SourceStatus::NeedsKey => STATUS_NEEDS_KEY,
-        SourceStatus::Unavailable | SourceStatus::Unknown => STATUS_UNAVAILABLE,
+        SourceStatus::Offline => status_offline(),
+        SourceStatus::Online => status_online(),
+        SourceStatus::NeedsKey => status_needs_key(),
+        SourceStatus::Unavailable | SourceStatus::Unknown => status_unavailable(),
     }
 }
 

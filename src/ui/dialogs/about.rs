@@ -36,9 +36,9 @@ pub fn is_lgpl(configuration: &str) -> bool { configuration.split_whitespace().a
 
 pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo, conv: Option<&ConverterInfo>) -> AboutInfo {
     let video = match (&info.mpv, info.draw_mode) {
-        (None, _) => strings::VIDEO_MISSING,
-        (Some(_), DrawMode::OpenGl) => strings::VIDEO_GPU,
-        (Some(_), DrawMode::Software) => strings::VIDEO_SOFTWARE,
+        (None, _) => strings::video_missing(),
+        (Some(_), DrawMode::OpenGl) => strings::video_gpu(),
+        (Some(_), DrawMode::Software) => strings::video_software(),
     };
     let lgpl = info.mpv.as_ref().is_some_and(|m| is_lgpl(&m.configuration));
     AboutInfo {
@@ -48,7 +48,7 @@ pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo, conv: Option<&Conve
         mpv: info.mpv.as_ref().map(|m| strings::mpv_line(&m.mpv_version, lgpl, m.api, &m.path)).unwrap_or_default(),
         ffmpeg: info.mpv.as_ref().map(|m| m.ffmpeg_version.clone()).unwrap_or_default(),
         lgpl,
-        pdfium: conv.map(|c| if c.status.pdfium { strings::PDFIUM_FOUND } else { strings::PDFIUM_MISSING }.to_string()).unwrap_or_default(),
+        pdfium: conv.map(|c| if c.status.pdfium { strings::pdfium_found() } else { strings::pdfium_missing() }.to_string()).unwrap_or_default(),
         libreoffice: conv.map(libreoffice).unwrap_or_default(),
         powerpoint: conv.is_some_and(|c| c.status.powerpoint),
     }
@@ -56,9 +56,9 @@ pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo, conv: Option<&Conve
 
 fn libreoffice(c: &ConverterInfo) -> String {
     match (c.status.libreoffice, &c.soffice) {
-        (Lo::Snap, _) => strings::LIBREOFFICE_SNAP.into(),
+        (Lo::Snap, _) => strings::libreoffice_snap().into(),
         (Lo::Ok, Some(path)) => path.display().to_string(),
-        _ => strings::LIBREOFFICE_NONE.into(),
+        _ => strings::libreoffice_none().into(),
     }
 }
 
@@ -90,8 +90,8 @@ pub(super) fn fill(op: &Rc<Operator>, snap: &OperatorSnapshot) {
 
 /// The Video tab's two lines: which player, and how video is drawn.
 pub fn video_lines(info: &VideoInfo) -> (String, String) {
-    let Some(mpv) = &info.mpv else { return (super::add_strings::PLAYER_MISSING.into(), String::new()) };
-    let drawing = match info.draw_mode { DrawMode::OpenGl => strings::DRAWING_GPU, DrawMode::Software => strings::DRAWING_SOFTWARE };
+    let Some(mpv) = &info.mpv else { return (super::add_strings::player_missing().into(), String::new()) };
+    let drawing = match info.draw_mode { DrawMode::OpenGl => strings::drawing_gpu(), DrawMode::Software => strings::drawing_software() };
     (strings::video_player(&mpv.mpv_version), drawing.into())
 }
 

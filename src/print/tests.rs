@@ -114,8 +114,8 @@ fn lyrics_empty_service_message() {
     let d = Data::default();
     let s = Service::new("Empty");
     let doc = build(&d, &s, &opts(PrintWhat::Both), DateOrder::Mdy);
-    assert!(doc.blocks.contains(&Block::Para(strings::NOTHING_TO_PRINT.into())));
-    assert!(doc.blocks.contains(&Block::Para(strings::EMPTY_SERVICE.into())));
+    assert!(doc.blocks.contains(&Block::Para(strings::nothing_to_print().into())));
+    assert!(doc.blocks.contains(&Block::Para(strings::empty_service().into())));
     assert_eq!(doc.subtitle, "", "no date, no licence");
 }
 

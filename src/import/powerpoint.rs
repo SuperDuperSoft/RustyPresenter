@@ -252,9 +252,9 @@ impl PowerPoint {
                 self.cleanup(work, input, seen.started).await;
                 unfinished.armed = false;
                 Err(match stop {
-                    Stop::Timeout => strings::PPT_TIMEOUT,
+                    Stop::Timeout => strings::ppt_timeout(),
                     Stop::Cancelled => CANCELLED,
-                    Stop::Io(_) => strings::PPT_CANNOT_READ,
+                    Stop::Io(_) => strings::ppt_cannot_read(),
                 }
                 .to_string())
             }
@@ -345,7 +345,7 @@ impl Default for PowerPoint {
 #[cfg(not(windows))]
 impl PowerPoint {
     pub async fn export(&self, _: &std::path::Path, _: &std::path::Path, _: &(dyn Fn(bool) + Sync), _: &(dyn Fn(usize, usize) + Sync), _: &tokio_util::sync::CancellationToken) -> Result<Vec<std::path::PathBuf>, String> {
-        Err(super::strings::PPT_NOT_STARTED.to_string())
+        Err(super::strings::ppt_not_started())
     }
 }
 
@@ -412,7 +412,7 @@ fn finish(out: &Path, status: ExitStatus, seen: &Seen, log: &Path) -> Result<Vec
         let said = std::fs::read(log).unwrap_or_default();
         let said = String::from_utf8_lossy(&said);
         eprintln!("PowerPoint export failed ({why}): {}", said.lines().find(|l| !l.trim().is_empty()).unwrap_or(""));
-        Err(strings::PPT_CANNOT_READ.to_string())
+        Err(strings::ppt_cannot_read())
     };
     if !seen.attached {
         let said = std::fs::read(log).unwrap_or_default();
@@ -424,7 +424,7 @@ fn finish(out: &Path, status: ExitStatus, seen: &Seen, log: &Path) -> Result<Vec
     }
     let (done, total) = seen.slides;
     if total == 0 {
-        return Err(strings::PDF_NO_SLIDES.to_string());
+        return Err(strings::pdf_no_slides());
     }
     if done != total {
         return failed("not every slide was saved");
@@ -442,7 +442,7 @@ fn finish(out: &Path, status: ExitStatus, seen: &Seen, log: &Path) -> Result<Vec
 #[cfg(windows)]
 fn not_started(e: impl std::fmt::Display) -> String {
     eprintln!("PowerPoint could not start: {e}");
-    strings::PPT_NOT_STARTED.to_string()
+    strings::ppt_not_started()
 }
 
 /// A path as PowerPoint can open it: `\\?\` confuses it.

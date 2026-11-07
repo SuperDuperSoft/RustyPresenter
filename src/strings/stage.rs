@@ -1,72 +1,76 @@
 //! User-facing strings of the stage screen and its layouts.
 //! Declared from `src/stage/mod.rs` with a `#[path]` line, like `strings/dialogs.rs`.
+use crate::{tr, trn};
 
 /// What the stage is called everywhere ("Stage layout", never "theme").
-pub const STAGE_LAYOUT: &str = "Stage layout";
+pub fn stage_layout() -> String { tr!("Stage layout") }
 
 /// The built-in stage layouts.
-pub const CLASSIC: &str = "Classic";
-pub const LYRICS_ONLY: &str = "Lyrics only";
-pub const BAND: &str = "Band";
-pub const SPEAKER: &str = "Speaker";
-pub const CLOCK_COUNTDOWN: &str = "Clock and countdown";
+pub fn classic() -> String { tr!("Classic") }
+pub fn lyrics_only() -> String { tr!("Lyrics only") }
+pub fn band() -> String { tr!("Band") }
+pub fn speaker() -> String { tr!("Speaker") }
+pub fn clock_countdown() -> String { tr!("Clock and countdown") }
 
 /// Box kinds for the editor's Add menu, in `ElementKind` order (`presets::all_kinds`).
-pub const KIND_NAMES: [&str; 12] = [
-    "Current slide", "Next slide", "Section", "Next section", "Item title", "Slides left",
-    "Notes", "Clock", "Timer", "Video time left", "Message", "Text",
-];
-pub const KIND_HELP: [&str; 12] = [
-    "the words on screen now", "the words coming next", "Verse, Chorus, Bridge…", "the next part of the song",
-    "the live item's name", "“3 slides left”", "the slide's stage notes", "the time of day", "a countdown or count-up",
-    "time left on the video or audio", "messages sent from the back", "words you type once",
-];
+pub fn kind_names() -> [String; 12] {
+    [
+        tr!("Current slide"), tr!("Next slide"), tr!("Section"), tr!("Next section"), tr!("Item title"), tr!("Slides left"),
+        tr!("Notes"), tr!("Clock"), tr!("Timer"), tr!("Video time left"), tr!("Message"), tr!("Text"),
+    ]
+}
+pub fn kind_help() -> [String; 12] {
+    [
+        tr!("the words on screen now"), tr!("the words coming next"), tr!("Verse, Chorus, Bridge…"), tr!("the next part of the song"),
+        tr!("the live item's name"), tr!("“3 slides left”"), tr!("the slide's stage notes"), tr!("the time of day"), tr!("a countdown or count-up"),
+        tr!("time left on the video or audio"), tr!("messages sent from the back"), tr!("words you type once"),
+    ]
+}
 
 /// Slides that have no words of their own.
-pub const SLIDE_PICTURE: &str = "(slide picture)";
-pub const VIDEO: &str = "(video)";
-pub const PICTURE: &str = "(picture)";
-pub const AUDIO: &str = "(audio)";
-pub const LOGO: &str = "(logo)";
+pub fn slide_picture() -> String { tr!("(slide picture)") }
+pub fn video() -> String { tr!("(video)") }
+pub fn picture() -> String { tr!("(picture)") }
+pub fn audio() -> String { tr!("(audio)") }
+pub fn logo() -> String { tr!("(logo)") }
 
-pub const NOTHING_LIVE: &str = "Nothing live";
-pub const END_OF_SERVICE: &str = "End of service";
+pub fn nothing_live() -> String { tr!("Nothing live") }
+pub fn end_of_service() -> String { tr!("End of service") }
 
 /// Small captions above a box's words.
-pub const NEXT: &str = "NEXT";
-pub const NEXT_SECTION: &str = "NEXT SECTION";
-pub fn next_item(title: &str) -> String { format!("NEXT · {title}") }
+pub fn next() -> String { tr!("NEXT") }
+pub fn next_section() -> String { tr!("NEXT SECTION") }
+pub fn next_item(title: &str) -> String { tr!("NEXT · {title}", title = title) }
 
 /// How many slides of the live item are still to come.
 pub fn slides_left(n: usize) -> String {
     match n {
-        0 => "Last slide".into(),
-        1 => "1 slide left".into(),
-        n => format!("{n} slides left"),
+        0 => tr!("Last slide"),
+        n => trn!("{n} slide left", "{n} slides left", n),
     }
 }
 
 /// Timer boxes.
-pub const TIMER_REMOVED: &str = "Timer removed";
-pub fn paused(name: &str) -> String { format!("{name} · paused") }
+pub fn timer_removed() -> String { tr!("Timer removed") }
+pub fn paused(name: &str) -> String { tr!("{timer} · paused", timer = name) }
 
 /// Saving the church's stage layouts.
-pub const LAYOUT_GONE: &str = "That stage layout is gone.";
-pub const BUILTIN_LOCKED: &str = "Built-in stage layouts can't be changed. Make a copy first.";
-pub const NAME_EMPTY: &str = "Give the stage layout a name.";
-pub fn name_taken(name: &str) -> String { format!("There is already a stage layout called “{name}”.") }
-pub const TOO_MANY_BOXES: &str = "A stage layout can have at most 24 boxes.";
+pub fn layout_gone() -> String { tr!("That stage layout is gone.") }
+pub fn builtin_locked() -> String { tr!("Built-in stage layouts can't be changed. Make a copy first.") }
+pub fn name_empty() -> String { tr!("Give the stage layout a name.") }
+pub fn name_taken(name: &str) -> String { tr!("There is already a stage layout called “{name}”.", name = name) }
+pub fn too_many_boxes() -> String { tr!("A stage layout can have at most 24 boxes.") }
 
 /// Asking before a layout is deleted (`refs::delete_question`).
-pub fn delete_layout(name: &str) -> String { format!("Delete “{name}”?") }
-pub fn used_by(parts: &str) -> String { format!("It is used by {parts}.") }
-pub fn service_items(n: usize) -> String { if n == 1 { "1 service item".into() } else { format!("{n} service items") } }
-pub const THE_STAGE_DEFAULT: &str = "the stage default";
-pub fn macros(n: usize) -> String { if n == 1 { "1 macro".into() } else { format!("{n} macros") } }
-pub const AND: &str = "and";
-pub const ITEMS_AND_DEFAULT_USE_CLASSIC: &str = "Items and the default will use Classic";
-pub const ITEM_USES_DEFAULT: &str = "That item will use the stage default";
-pub const ITEMS_USE_DEFAULT: &str = "Those items will use the stage default";
-pub const DEFAULT_USES_CLASSIC: &str = "The default will use Classic";
-pub const MACRO_WONT_RUN: &str = "the macro won't run until it is edited";
-pub const MACROS_WONT_RUN: &str = "the macros won't run until they are edited";
+pub fn delete_layout(name: &str) -> String { tr!("Delete “{name}”?", name = name) }
+pub fn used_by(parts: &str) -> String { tr!("It is used by {things}.", things = parts) }
+pub fn service_items(n: usize) -> String { trn!("{n} service item", "{n} service items", n) }
+pub fn the_stage_default() -> String { tr!("the stage default") }
+pub fn macros(n: usize) -> String { trn!("{n} macro", "{n} macros", n) }
+pub fn and() -> String { tr!("and") }
+pub fn items_and_default_use_classic() -> String { tr!("Items and the default will use Classic") }
+pub fn item_uses_default() -> String { tr!("That item will use the stage default") }
+pub fn items_use_default() -> String { tr!("Those items will use the stage default") }
+pub fn default_uses_classic() -> String { tr!("The default will use Classic") }
+pub fn macro_wont_run() -> String { tr!("the macro won't run until it is edited") }
+pub fn macros_wont_run() -> String { tr!("the macros won't run until they are edited") }

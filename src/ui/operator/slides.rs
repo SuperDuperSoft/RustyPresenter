@@ -57,7 +57,7 @@ pub fn jumps(slides: &[Slide], live: Option<&LiveView>, keys_on: bool) -> (Vec<S
         let tooltip = match (live, o.key) {
             (Some(_), Some(k)) if keys_on => song::chip_key_hint(&o.label, k),
             (Some(_), _) => o.label.clone(),
-            (None, _) => song::CHIP_SHOW_HINT.into(),
+            (None, _) => song::chip_show_hint().into(),
         };
         let jump = SlideJump { idx: o.first_slide as i32, short: o.short.as_str().into(), section: o.kind.id().into(), live: o.live, tooltip: tooltip.into() };
         (jump, BarChip { first_slide: o.first_slide, occurrence: o.occurrence, kind: o.kind })
@@ -68,8 +68,8 @@ pub fn jumps(slides: &[Slide], live: Option<&LiveView>, keys_on: bool) -> (Vec<S
 pub fn header_title(snap: &OperatorSnapshot, item: Option<&ItemRow>) -> String {
     match item {
         Some(it) => it.title.clone(),
-        None if snap.items.is_empty() => tr::WELCOME.into(),
-        None => tr::PICK_AN_ITEM.into(),
+        None if snap.items.is_empty() => tr::welcome().into(),
+        None => tr::pick_an_item().into(),
     }
 }
 
@@ -181,7 +181,7 @@ impl Operator {
         let cmd = Command::Jump { item_id, kind: chip.kind, number: None, occurrence: Some(chip.occurrence) };
         self.ops.cmd(cmd, Some(version), move |o| {
             let Some(op) = me.upgrade() else { return };
-            if o.error.as_deref().is_some_and(|e| e.starts_with("stale")) { return op.toast(song::SCREEN_CHANGED, true) }
+            if o.error.as_deref().is_some_and(|e| e.starts_with("stale")) { return op.toast(song::screen_changed(), true) }
             if let Some((msg, err)) = outcome_toast(&o) { op.toast(&msg, err) }
         });
     }

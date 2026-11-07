@@ -11,9 +11,9 @@ pub enum JumpError { NotASong, NoSuchSection(SectionKind, Option<u8>), NoSuchOcc
 impl JumpError {
     pub fn message(&self) -> String {
         match self {
-            JumpError::NotASong => strings::KEYS_SONGS_ONLY.into(),
-            JumpError::NoSuchSection(kind, number) => strings::no_section(kind.name(), *number),
-            JumpError::NoSuchOccurrence | JumpError::KindMismatch => strings::SONG_CHANGED.into(),
+            JumpError::NotASong => strings::keys_songs_only().into(),
+            JumpError::NoSuchSection(kind, number) => strings::no_section(&kind.name(), *number),
+            JumpError::NoSuchOccurrence | JumpError::KindMismatch => strings::song_changed().into(),
         }
     }
 }
@@ -56,7 +56,7 @@ pub fn jump_for_key(key: &str, ctrl_or_cmd: bool, alt: bool) -> Option<(SectionK
 
 /// "Jumped to Verse 2 (2)", "Jumped to Chorus (C)".
 pub fn jump_toast(kind: SectionKind, number: Option<u8>, key: char) -> String {
-    let name = match number { Some(n) => format!("{} {n}", kind.name()), None => kind.name().to_string() };
+    let name = match number { Some(n) => format!("{} {n}", kind.name()), None => kind.name() };
     strings::jumped(&name, key.to_ascii_uppercase())
 }
 

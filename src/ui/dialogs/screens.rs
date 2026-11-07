@@ -34,14 +34,14 @@ pub fn is_monitor(m: &Monitor, saved: &str) -> bool {
 /// The Output choices for a screen set to `current`, and the one it is on. A saved monitor that is unplugged stays
 /// listed, so looking at the dialog never changes the choice.
 pub fn outputs(monitors: &[Monitor], current: &ScreenTarget) -> (Vec<(String, ScreenTarget)>, usize) {
-    let mut list = vec![(strings::OUTPUT_NONE.to_string(), ScreenTarget::None), (strings::OUTPUT_WINDOW.to_string(), ScreenTarget::Window)];
+    let mut list = vec![(strings::output_none(), ScreenTarget::None), (strings::output_window(), ScreenTarget::Window)];
     list.extend(monitors.iter().map(|m| (m.label.clone(), ScreenTarget::Monitor(m.id.clone()))));
     let at = match current {
         ScreenTarget::None => Some(0),
         ScreenTarget::Window => Some(1),
         ScreenTarget::Monitor(saved) => monitors.iter().position(|m| is_monitor(m, saved)).map(|i| i + 2),
     };
-    let at = at.unwrap_or_else(|| { list.push((strings::OUTPUT_GONE.to_string(), current.clone())); list.len() - 1 });
+    let at = at.unwrap_or_else(|| { list.push((strings::output_gone(), current.clone())); list.len() - 1 });
     (list, at)
 }
 
@@ -64,13 +64,13 @@ fn monitor_gone(s: &OperatorSnapshot, target: &ScreenTarget) -> bool {
 }
 
 /// A row's chip, `(text, state)`.
-fn status(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen) -> (&'static str, &'static str) {
+fn status(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen) -> (String, &'static str) {
     let target = screen.output().target;
     let open = setup.keyed(group).iter().any(|(key, x)| x.id == screen.id && s.windows.contains(key));
-    if open { (strings::SHOWING, "ok") }
-    else if target == ScreenTarget::None { (strings::NO_OUTPUT, "") }
-    else if monitor_gone(s, &target) { (strings::UNPLUGGED, "warn") }
-    else { (strings::OFF, "") }
+    if open { (strings::showing(), "ok") }
+    else if target == ScreenTarget::None { (strings::no_output(), "") }
+    else if monitor_gone(s, &target) { (strings::unplugged(), "warn") }
+    else { (strings::off(), "") }
 }
 
 fn list(s: &OperatorSnapshot, setup: &ScreenSetup, key: &str, title: &str) -> ScreenList {
@@ -97,7 +97,7 @@ fn note(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen)
         return strings::mirrors(&first.name)
     }
     let main = s.monitors.iter().find(|m| m.primary);
-    if let ScreenTarget::Monitor(saved) = screen.output().target && main.is_some_and(|m| is_monitor(m, &saved)) { return strings::ON_MAIN.into() }
+    if let ScreenTarget::Monitor(saved) = screen.output().target && main.is_some_and(|m| is_monitor(m, &saved)) { return strings::on_main().into() }
     String::new()
 }
 
@@ -122,13 +122,13 @@ fn draw(op: &Rc<Operator>) {
     let Some(s) = op.state.borrow().snap.clone() else { return };
     let setup = &s.settings.screens;
     let g = op.ui.global::<ScreensDialogState>();
-    g.set_lists(ModelRc::new(VecModel::from(vec![list(&s, setup, "audience", strings::AUDIENCE), list(&s, setup, "stage", strings::STAGE)])));
+    g.set_lists(ModelRc::new(VecModel::from(vec![list(&s, setup, "audience", &strings::audience()), list(&s, setup, "stage", &strings::stage())])));
     g.set_one_monitor(s.monitors.len() <= 1);
     let Some(id) = shown(op, setup) else { return };
     let Some((group, screen)) = setup.find(id) else { return };
     let moved = g.get_selected() != id.to_string();
     g.set_selected(id.to_string().into());
-    g.set_kind(if group == "audience" { strings::AUDIENCE_SCREEN } else { strings::STAGE_SCREEN }.into());
+    g.set_kind(if group == "audience" { strings::audience_screen() } else { strings::stage_screen() }.into());
     let o = screen.output();
     let (choices, at) = outputs(&s.monitors, &o.target);
     let labels: Vec<SharedString> = choices.into_iter().map(|(l, _)| l.into()).collect();
@@ -220,7 +220,7 @@ fn remove(op: &Rc<Operator>) {
     let Some(id) = shown(op, &s.settings.screens) else { return };
     let Some((_, screen)) = s.settings.screens.find(id) else { return };
     let me = Rc::downgrade(op);
-    super::confirm(op, &strings::remove_question(&screen.name), strings::REMOVE, super::strings::CANCEL, true, move |yes| {
+    super::confirm(op, &strings::remove_question(&screen.name), &strings::remove(), &super::strings::cancel(), true, move |yes| {
         if let (true, Some(op)) = (yes, me.upgrade()) { run(&op, "screens/remove", json!({ "id": id })) }
     });
 }

@@ -7,8 +7,8 @@ use uuid::Uuid;
 impl Live {
     /// Jump the live song to a section. Walks the snapshot, like Next; errors change nothing.
     pub(super) fn jump(&mut self, item_id: Uuid, t: JumpTarget) -> Result<(), String> {
-        let (Some(cursor), Some(item)) = (self.cursor.clone(), self.item.clone()) else { return Err(strings::NOTHING_LIVE.into()) };
-        if cursor.item_id != item_id { return Err(strings::LIVE_SONG_CHANGED.into()) }
+        let (Some(cursor), Some(item)) = (self.cursor.clone(), self.item.clone()) else { return Err(strings::nothing_live().into()) };
+        if cursor.item_id != item_id { return Err(strings::live_song_changed().into()) }
         let target = sections::jump_target(&item.slides, cursor.slide, &t).map_err(|e| e.message())?;
         self.go(item, cursor.item_index, target);
         Ok(())
@@ -18,9 +18,9 @@ impl Live {
     /// clear stays; the new words show on the next Next, jump or click.
     pub(super) fn refresh(&mut self, plan: &dyn Plan, item_id: Uuid) -> Result<(), String> {
         let (Some(cursor), Some(old)) = (self.cursor.clone().filter(|c| c.item_id == item_id), self.item.clone()) else {
-            return Err(strings::NO_LONGER_LIVE.into());
+            return Err(strings::no_longer_live().into());
         };
-        let new = plan.build(item_id).filter(|i| !i.slides.is_empty()).ok_or(strings::NO_SLIDES_NOW)?;
+        let new = plan.build(item_id).filter(|i| !i.slides.is_empty()).ok_or(strings::no_slides_now())?;
         let slide = sections::refresh_slide(sections::map_position(&old.slides, cursor.slide, &new.slides)).min(new.slides.len() - 1);
         self.changed = None;
         if self.frame.slide.is_some() {
