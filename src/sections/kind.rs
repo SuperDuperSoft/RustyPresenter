@@ -70,9 +70,12 @@ impl SectionKind {
     }
 
     /// The jump key, lower case: the church's (Settings → Sections), else the usual one. Other has none.
-    pub fn key(self) -> Option<char> {
+    pub fn key(self) -> Option<char> { self.key_in(&super::look::current()) }
+
+    /// The jump key `look` gives it, else the usual one. Other has none.
+    pub fn key_in(self, look: &super::SectionLook) -> Option<char> {
         if self == SectionKind::Other { return None }
-        super::look::current().key(self).or_else(|| self.default_key())
+        look.key(self).or_else(|| self.default_key())
     }
 
     /// The usual jump key: Verse `v` (next verse), Interlude `l`; Other has none.

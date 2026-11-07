@@ -1,0 +1,97 @@
+// Settings → Media (N21, N24): what new pictures and videos do, where the sound goes, and cleaning up the library.
+// Read and written by `src/ui/dialogs/settings_media.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented } from "../widgets.slint";
+import { TextField, Note, Select } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+/// A group's title.
+component Heading inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: 15px;
+    font-weight: 700;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+export component SettingsMedia inherits VerticalLayout {
+    spacing: 4px;
+    Heading { text: @tr("New pictures and videos"); }
+    Rectangle { height: 6px; }
+    Field {
+        label: @tr("When the shape doesn't match the screen");
+        HorizontalLayout {
+            alignment: start;
+            scale := Segmented {
+                labels: [@tr("Fit (black bars)"), @tr("Fill (cut the edges)"), @tr("Stretch")];
+                index <=> SettingsDlg.media-scale;
+            }
+        }
+    }
+    Field {
+        label: @tr("When a video ends");
+        help: @tr("For videos added from now on. Change one video in its Edit window.");
+        HorizontalLayout {
+            alignment: start;
+            video-end := Segmented {
+                labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)"), @tr("Go to the next slide")];
+                index <=> SettingsDlg.video-end;
+            }
+        }
+    }
+    Field {
+        label: @tr("Pictures added together as slides");
+        help: @tr("Each picture stays this long, then the next one comes up.");
+        picture-secs := Select {
+            options: [@tr("Until Next is pressed"), @tr("5 seconds"), @tr("8 seconds"), @tr("10 seconds"), @tr("15 seconds"), @tr("20 seconds"), @tr("30 seconds"), @tr("1 minute")];
+            index <=> SettingsDlg.picture-secs;
+        }
+    }
+    Rectangle { height: 14px; }
+    Heading { text: @tr("Sound"); }
+    Rectangle { height: 6px; }
+    Field {
+        label: @tr("Headphones (Listen)");
+        help: @tr("View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it.");
+        listen := Select {
+            options: SettingsDlg.listen-labels;
+            index <=> SettingsDlg.listen-index;
+        }
+    }
+    Field {
+        label: @tr("Delay the room's sound (milliseconds)");
+        help: @tr("If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay.");
+        HorizontalLayout {
+            alignment: start;
+            delay := TextField {
+                width: 120px;
+                height: 38px;
+                text <=> SettingsDlg.delay-ms;
+                label: @tr("Delay the room's sound (milliseconds)");
+            }
+        }
+    }
+    Field {
+        label: @tr("Speakers");
+        channels := Select {
+            options: [@tr("Stereo (as recorded)"), @tr("Mono (both speakers the same)"), @tr("Swap left and right"), @tr("Left speaker only"), @tr("Right speaker only")];
+            index <=> SettingsDlg.channels;
+        }
+    }
+    Rectangle { height: 14px; }
+    Heading { text: @tr("Media library"); }
+    Rectangle { height: 6px; }
+    Note {
+        text: @tr("Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide.");
+    }
+    Rectangle { height: 6px; }
+    HorizontalLayout {
+        alignment: start;
+        cleanup := Btn {
+            small: true;
+            text: @tr("Clean up unused media…");
+            clicked => { SettingsDlg.cleanup-media(); }
+        }
+    }
+}

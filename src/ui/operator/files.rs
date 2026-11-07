@@ -192,7 +192,8 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
             Err(e) if e == CANCELLED => then(&op, Ok(None)),
             Err(e) => then(&op, Err(e)),
             Ok(Imported::Media(m)) => {
-                let item = json!({ "kind": "media", "media_id": m.id, "autoplay": true, "end": "stop", "looped": false });
+                // No "end": the core gives a video what Settings → Media says.
+                let item = json!({ "kind": "media", "media_id": m.id, "autoplay": true, "looped": false });
                 let me = Rc::downgrade(&op);
                 add_item(&op, item, true, move |r| {
                     let Some(op) = me.upgrade() else { return };
@@ -300,7 +301,7 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
             match r {
                 Ok(Added { id }) => {
                     let me = Rc::downgrade(&op);
-                    add_item(&op, json!({ "kind": "deck", "deck_id": id }), false, move |r| {
+                    add_item(&op, json!({ "kind": "deck", "deck_id": id, "slideshow": true }), false, move |r| {
                         let Some(op) = me.upgrade() else { return };
                         match r {
                             Ok(_) => op.close_dialog(),

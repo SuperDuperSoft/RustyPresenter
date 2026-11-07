@@ -6,6 +6,7 @@ pub mod prepare;
 use super::{RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent};
+use crate::media_prefs::{Scale, SoundOut};
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
@@ -86,6 +87,11 @@ const LAYERS: [Kind; 5] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Log
 
 fn index(kind: Kind) -> Option<usize> { LAYERS.iter().position(|k| *k == kind) }
 
+/// How a picture on the media layer fills the room (Settings → Media, N24): `media-fit` in `room.slint`.
+fn media_fit(scale: Scale) -> i32 {
+    match scale { Scale::Fit => 0, Scale::Fill => 1, Scale::Stretch => 2 }
+}
+
 type SetSide = fn(&RoomWindow, Side);
 type SetOp = fn(&RoomWindow, f32);
 
@@ -101,7 +107,7 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(String), Event(RoomEvent) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent) }
 
 /// What the room's threads share.
 struct Shared {
@@ -258,6 +264,7 @@ impl Inner {
         match made {
             Err(reason) => return self.fail(token, reason),
             Ok(Made::Pic(px, color)) => {
+                if kind == Kind::Media { self.ui.set_media_fit(media_fit(self.work.app.data.lock().unwrap().settings.media.scale)) }
                 let side = Side { image: px.map(Px::image).unwrap_or_default(), color };
                 if let Some(p) = self.prep.borrow_mut().as_mut() { p.got.push((kind, Got::Pic(side))); p.done(kind) }
             }
@@ -380,11 +387,11 @@ impl Inner {
         }
     }
 
-    /// Moves what is on air to the sound output just chosen, so one chosen after a device went away is heard.
-    /// New players read it from the settings.
-    fn sync_device(&self, device: &str) {
+    /// Moves what is on air to the sound output just chosen (a device back after it went away, or Listen turned on
+    /// or off), with its delay and routing. New players read it from the settings.
+    fn sync_device(&self, sound: &SoundOut) {
         let players = self.players.borrow();
-        for p in [&players[MEDIA], &players[AUDIO]].into_iter().flatten() { p.set_audio_device(device) }
+        for p in [&players[MEDIA], &players[AUDIO]].into_iter().flatten() { p.set_sound(sound) }
     }
 
     /// Does the newest jump once, on the player it names (one taken off air since is left alone).
@@ -562,7 +569,7 @@ fn forward(reports: std::sync::mpsc::Receiver<PlayerReport>, shared: Arc<Shared>
 
 /// Live updates from a plain thread; only the newest view is applied.
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, shared: Arc<Shared>) {
-    let sound = move |app: &App| app.data.lock().unwrap().settings.audio_device.clone();
+    let sound = move |app: &App| app.sound_out();
     let mut device = sound(&app);
     let _ = std::thread::Builder::new().name("room-updates".into()).spawn(move || loop {
         let update = match rx.blocking_recv() {
@@ -678,7 +685,7 @@ mod tests {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
         let room = open(&app);
-        let sent = || room.inner.shared.inbox.lock().unwrap().iter().filter(|m| matches!(m, Msg::Device(d) if d == "wasapi/{b}")).count();
+        let sent = || room.inner.shared.inbox.lock().unwrap().iter().filter(|m| matches!(m, Msg::Device(d) if d.device == "wasapi/{b}")).count();
         app.data.lock().unwrap().settings.audio_device = "wasapi/{b}".into();
         app.broadcast_data();
         let end = Instant::now() + Duration::from_secs(5);
@@ -687,6 +694,24 @@ mod tests {
         app.broadcast_data();
         std::thread::sleep(Duration::from_millis(50));
         assert_eq!(sent(), 1, "the same output again is not news");
+        // Listen (N21): the headphones, with no delay or routing; off again: the main output as it was.
+        app.data.lock().unwrap().settings.media = crate::media_prefs::MediaPrefs { listen_device: "wasapi/{phones}".into(), delay_ms: 80, ..Default::default() };
+        app.listening.store(true, Ordering::Relaxed);
+        app.broadcast_data();
+        let phones = || room.inner.shared.inbox.lock().unwrap().iter().any(|m| matches!(m, Msg::Device(d) if d.device == "wasapi/{phones}" && d.delay == 0.0));
+        let end = Instant::now() + Duration::from_secs(5);
+        while !phones() && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)); }
+        assert!(phones());
+        app.listening.store(false, Ordering::Relaxed);
+        app.broadcast_data();
+        let end = Instant::now() + Duration::from_secs(5);
+        while sent() < 2 && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)); }
+        assert_eq!(sent(), 2, "back to the main output, now with its delay");
+    }
+
+    #[test]
+    fn media_fit_follows_settings() {
+        assert_eq!([Scale::Fit, Scale::Fill, Scale::Stretch].map(media_fit), [0, 1, 2]);
     }
 
     #[test]

@@ -16,6 +16,8 @@ pub enum EndAction {
     Stop,
     Loop,
     Hold,
+    /// Hold the last frame and go to the next slide (N24).
+    Next,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -474,6 +476,9 @@ pub struct Settings {
     /// read loads as the defaults.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub keys: crate::shortcuts::KeySettings,
+    /// Settings → Media: new media's defaults and the sound outputs (N21, N24).
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub media: crate::media_prefs::MediaPrefs,
 }
 
 /// How many service files File → Open recent lists.
@@ -562,6 +567,7 @@ impl Default for Settings {
             graphics: Graphics::Auto,
             sections: Default::default(),
             keys: Default::default(),
+            media: Default::default(),
         }
     }
 }

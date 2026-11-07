@@ -12,7 +12,7 @@ mod occurrences;
 mod reconcile;
 pub(crate) mod refs;
 
-pub use jump::{JumpError, JumpTarget, jump_for_key, jump_target, jump_toast};
+pub use jump::{JumpError, JumpTarget, jump_for_key, jump_for_key_in, jump_target, jump_toast};
 pub use kind::{SectionKind, color_for_label};
 pub use look::{SectionLook, label_line};
 pub(crate) use kind::translated_head;

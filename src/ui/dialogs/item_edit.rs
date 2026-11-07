@@ -8,7 +8,7 @@
 //! service" (FEAT-4 §3.5): untick "Use the song's usual order" to give this service its own order.
 use super::{DialogKind, background::{self, Picker, strings}, song_editor::{arr_chips, arr_drag_data, arr_drag_index, arr_rows}};
 use crate::{
-    model::{EndAction, ItemKind, MediaStatus, ServiceItem, Song, VerseText},
+    model::{ItemKind, MediaStatus, ServiceItem, Song, VerseText},
     scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
     sections::{arrangement, strings as song_tr},
     ui::{ArrAddRow, ItemEdit, operator::{bible, view, window::Operator}},
@@ -46,7 +46,7 @@ thread_local! {
 }
 
 /// "When the video ends", in the order of the segments.
-const ENDS: [EndAction; 3] = [EndAction::Stop, EndAction::Hold, EndAction::Loop];
+use crate::media_prefs::ENDS;
 
 /// Opens Item edit for service item `id` (the row's Edit button or the slides header's). Nothing happens when the
 /// item is not in the newest snapshot.
@@ -578,7 +578,7 @@ mod tests {
     use super::*;
     use crate::{
         app::{App, test_app},
-        model::{Background, MediaFile, MediaKind, Song},
+        model::{Background, EndAction, MediaFile, MediaKind, Song},
         ui::operator::window::testing::{find, find_all, open as open_window, refresh},
     };
     use std::sync::Arc;
@@ -980,6 +980,14 @@ mod tests {
         press(&op, "ItemEditDialog::save");
         let ItemKind::Media { autoplay, end, looped, .. } = item(&app, id).unwrap().kind else { panic!() };
         assert_eq!((autoplay, end, looped), (false, EndAction::Hold, false));
+        // N24: the fourth choice goes to the next slide.
+        refresh(&op);
+        open(&op, id);
+        assert_eq!(g(&op).get_end_index(), 1);
+        g(&op).set_end_index(3);
+        press(&op, "ItemEditDialog::save");
+        let ItemKind::Media { end, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!(end, EndAction::Next);
 
         // Audio: "Repeat until stopped".
         let a = media(&app, "Hymn", MediaKind::Audio);

@@ -174,7 +174,7 @@ fn main() {
     }
 
     let (tx, rx) = channel();
-    let opts = Options { vo: "libmpv", ao: "null", audio_device: String::new() };
+    let opts = Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] };
     let player = Rc::new(Player::with_options(mpv.clone(), Role::Background, 1, tx.clone(), &opts).expect("player"));
     player.load(Path::new(&src), 0.0); // waits for the render context
     surface.set_player(Some(player.clone()));

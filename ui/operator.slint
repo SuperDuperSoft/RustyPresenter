@@ -220,6 +220,8 @@ export component OperatorWindow inherits Window {
     callback open-recent(int);
     /// View → Zoom: how large the window draws itself, in percent (`menu::ZOOMS`).
     in property <int> zoom-percent: 100;
+    /// View → Listen in headphones is on (N21): the sound goes to the operator's headphones only.
+    in property <bool> listening;
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -346,6 +348,11 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.bin-import(); }
             }
+            MenuItem {
+                title: @tr("Clean up unused media…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("media-cleanup"); }
+            }
             MenuSeparator {}
             MenuItem {
                 title: @tr("Print service order…");
@@ -435,6 +442,11 @@ export component OperatorWindow inherits Window {
                 title: @tr("Stop audio");
                 shortcut: MenuKeys.clear-audio;
                 activated => { root.live-clear("clear_audio"); }
+            }
+            MenuItem {
+                title: root.listening ? @tr("Stop listening in headphones") : @tr("Listen in headphones");
+                enabled: root.menu-ready;
+                activated => { root.menu("listen"); }
             }
             MenuItem {
                 title: @tr("Logo");
@@ -549,6 +561,11 @@ export component OperatorWindow inherits Window {
                 title: @tr("Video…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("settings-video"); }
+            }
+            MenuItem {
+                title: @tr("Media and sound…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-media"); }
             }
             MenuItem {
                 title: @tr("Backups…");

@@ -339,11 +339,12 @@ pub enum Clash {
 /// Keys the editor never takes: Esc (it cancels the change and leaves text boxes) and Tab (moves the focus).
 pub fn reserved(chord: &Chord) -> bool { matches!(chord.key.as_str(), "Escape" | "Tab") }
 
-/// What is wrong with giving `action` the key `chord`, the worst first. `section_keys`: the Settings switch.
-pub fn clashes(map: &Keymap, action: Action, chord: &Chord, section_keys: bool) -> Vec<Clash> {
+/// What is wrong with giving `action` the key `chord`, the worst first. `sections`: the church's section keys, or
+/// `None` while the Section keys switch is off.
+pub fn clashes(map: &Keymap, action: Action, chord: &Chord, sections: Option<&crate::sections::SectionLook>) -> Vec<Clash> {
     let mut out = vec![];
     if let Some((other, _)) = map.entries().iter().find(|(a, keys)| *a != action && keys.contains(chord)) { out.push(Clash::Action(*other)) }
-    if section_keys && !chord.ctrl && !chord.alt && crate::sections::jump_for_key(&chord.key, false, false).is_some() { out.push(Clash::SectionKey) }
+    if let Some(look) = sections && crate::sections::jump_for_key_in(look, &chord.key, chord.ctrl, chord.alt).is_some() { out.push(Clash::SectionKey) }
     if chord.alt && !chord.ctrl && matches!(chord.key.as_str(), "1" | "2" | "3" | "4" | "5") { out.push(Clash::BibleChip) }
     let editing = matches!(chord.key.as_str(), "a" | "c" | "x" | "v" | "z" | "y");
     let its_own = matches!((action, chord.key.as_str()), (Action::Undo, "z") | (Action::Redo, "y") | (Action::PasteLink, "v"));

@@ -147,6 +147,9 @@ impl History {
         for s in &mut self.redo { s.changes.carry(before, after, BEFORE) }
     }
 
+    /// Forgets every step: after something Undo can't take back (deleted files), no step may bring back what used them.
+    pub fn clear(&mut self) { self.undo.clear(); self.redo.clear(); }
+
     pub fn can_undo(&self) -> bool { !self.undo.is_empty() }
     pub fn can_redo(&self) -> bool { !self.redo.is_empty() }
 

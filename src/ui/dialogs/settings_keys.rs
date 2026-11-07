@@ -3,6 +3,7 @@
 use super::{confirm, settings::{Edit, strings as st}, strings as dlg};
 use crate::{
     live::ClearLayer,
+    sections::{SectionKind, SectionLook},
     shortcuts::{Action, Chord, Clash, ClearGroup, KeySettings, Keymap, clashes, labels, reserved},
     ui::{ClearGroupRow, KeysDlg, SettingsDlg, SettingsHelpRow, operator::window::Operator},
 };
@@ -52,8 +53,16 @@ pub fn what(action: Action, groups: &[ClearGroup]) -> String {
     }
 }
 
+/// The section keys as the Help table shows them: "1–9  C  P  B  T  I  E  L  V" with the church's own letters.
+pub fn section_keys_label(look: &SectionLook) -> String {
+    use SectionKind::*;
+    let letters = [Chorus, PreChorus, Bridge, Tag, Intro, Ending, Interlude, Verse].into_iter()
+        .filter_map(|k| k.key_in(look)).map(|c| c.to_uppercase().to_string());
+    std::iter::once("1–9".to_string()).chain(letters).collect::<Vec<_>>().join("  ")
+}
+
 /// The Help table (`operator.js:993`): every shortcut with its keys as the church set them, and the fixed keys.
-pub fn help_rows(keys: &KeySettings) -> Vec<HelpRow> {
+pub fn help_rows(keys: &KeySettings, sections: &SectionLook) -> Vec<HelpRow> {
     let map = Keymap::new(keys);
     let fixed = |k: String, w: String| HelpRow { keys: k, what: w, action: None, changed: false };
     let mut rows = vec![];
@@ -61,7 +70,7 @@ pub fn help_rows(keys: &KeySettings) -> Vec<HelpRow> {
         // The Bible chips and the section keys sit after the clear keys and groups, as before.
         if *action == Action::PasteLink {
             rows.push(fixed(st::key_alt_digits(), st::do_translation()));
-            rows.push(fixed(st::KEY_SECTIONS.into(), st::do_sections()));
+            rows.push(fixed(section_keys_label(sections), st::do_sections()));
         }
         let changed = keys.changed.iter().any(|b| b.action == action.id());
         rows.push(HelpRow { keys: labels(chords), what: what(*action, &keys.clear_groups), action: Some(*action), changed });
@@ -72,8 +81,8 @@ pub fn help_rows(keys: &KeySettings) -> Vec<HelpRow> {
 
 /// Draws the table and the groups from the edited settings.
 pub(crate) fn fill(op: &Operator, edit: &Edit) {
-    let keys = edit.settings.borrow().keys.clone();
-    let rows: Vec<SettingsHelpRow> = help_rows(&keys).into_iter().map(|r| SettingsHelpRow {
+    let (keys, sections) = { let s = edit.settings.borrow(); (s.keys.clone(), s.sections.clone()) };
+    let rows: Vec<SettingsHelpRow> = help_rows(&keys, &sections).into_iter().map(|r| SettingsHelpRow {
         keys: r.keys.into(), what: r.what.into(), id: r.action.map(|a| a.id()).unwrap_or_default().into(), changed: r.changed,
     }).collect();
     op.ui.global::<SettingsDlg>().set_help(ModelRc::new(VecModel::from(rows)));
@@ -101,8 +110,8 @@ fn layer_name(l: ClearLayer) -> String {
 
 /// The action on Help row `i` of the edited settings.
 fn row_action(edit: &Edit, i: i32) -> Option<Action> {
-    let keys = edit.settings.borrow().keys.clone();
-    help_rows(&keys).get(usize::try_from(i).ok()?)?.action
+    let s = edit.settings.borrow();
+    help_rows(&s.keys, &s.sections).get(usize::try_from(i).ok()?)?.action
 }
 
 /// Waits for the next key for row `i`'s action. The menu bar's shortcuts are off meanwhile.
@@ -131,7 +140,7 @@ pub fn captured(op: &Rc<Operator>, chord: Chord) {
     let section_keys = op.ui.global::<SettingsDlg>().get_section_keys();
     let (found, groups) = {
         let s = edit.settings.borrow();
-        (clashes(&Keymap::new(&s.keys), action, &chord, section_keys), s.keys.clear_groups.clone())
+        (clashes(&Keymap::new(&s.keys), action, &chord, section_keys.then_some(&s.sections)), s.keys.clear_groups.clone())
     };
     let text = clash_text(&chord, action, &found, &groups);
     let me = Rc::downgrade(op);

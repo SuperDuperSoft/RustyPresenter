@@ -117,15 +117,28 @@ fn menu_keys_are_never_typing_keys() {
 #[test]
 fn clashes_name_what_the_key_already_does() {
     let map = Keymap::default();
-    assert_eq!(clashes(&map, Action::ClearMessage, &c("F2"), true), [Clash::Action(Action::ClearSlide)]);
-    assert_eq!(clashes(&map, Action::ClearSlide, &c("F2"), true), [], "its own key");
-    assert_eq!(clashes(&map, Action::Logo, &c("C"), true), [Clash::SectionKey]);
-    assert_eq!(clashes(&map, Action::Logo, &c("C"), false), [], "section keys are off");
-    assert_eq!(clashes(&map, Action::Logo, &c("Alt+2"), true), [Clash::BibleChip]);
-    assert_eq!(clashes(&map, Action::Logo, &c("Ctrl+C"), true), [Clash::TextEditing]);
-    assert_eq!(clashes(&map, Action::Undo, &c("Ctrl+V"), true), [Clash::Action(Action::PasteLink), Clash::TextEditing]);
-    assert_eq!(clashes(&map, Action::Logo, &c("F11"), true), []);
+    let usual = crate::sections::SectionLook::default();
+    let on = Some(&usual);
+    assert_eq!(clashes(&map, Action::ClearMessage, &c("F2"), on), [Clash::Action(Action::ClearSlide)]);
+    assert_eq!(clashes(&map, Action::ClearSlide, &c("F2"), on), [], "its own key");
+    assert_eq!(clashes(&map, Action::Logo, &c("C"), on), [Clash::SectionKey]);
+    assert_eq!(clashes(&map, Action::Logo, &c("C"), None), [], "section keys are off");
+    assert_eq!(clashes(&map, Action::Logo, &c("Alt+2"), on), [Clash::BibleChip]);
+    assert_eq!(clashes(&map, Action::Logo, &c("Ctrl+C"), on), [Clash::TextEditing]);
+    assert_eq!(clashes(&map, Action::Undo, &c("Ctrl+V"), on), [Clash::Action(Action::PasteLink), Clash::TextEditing]);
+    assert_eq!(clashes(&map, Action::Logo, &c("F11"), on), []);
     assert!(reserved(&c("Escape")) && reserved(&c("Tab")) && !reserved(&c("F1")));
+}
+
+#[test]
+fn section_key_clashes_use_the_churchs_own_keys() {
+    use crate::sections::{SectionKind, SectionLook, look::KindLook};
+    let map = Keymap::default();
+    let mut look = SectionLook::default();
+    look.kinds.push(KindLook { kind: SectionKind::Chorus, name: String::new(), color: String::new(), key: "r".into() });
+    assert_eq!(clashes(&map, Action::Logo, &c("R"), Some(&look)), [Clash::SectionKey], "the church's Chorus key");
+    assert_eq!(clashes(&map, Action::Logo, &c("C"), Some(&look)), [], "C is free now");
+    assert_eq!(clashes(&map, Action::Logo, &c("7"), Some(&look)), [Clash::SectionKey], "verse numbers stay");
 }
 
 #[test]

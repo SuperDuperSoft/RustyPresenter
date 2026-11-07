@@ -33,11 +33,13 @@ pub struct Options {
     pub ao: &'static str,
     /// From settings; empty = automatic.
     pub audio_device: String,
+    /// More options from Settings → Media (`media_prefs::mpv_options`).
+    pub extra: Vec<(&'static str, String)>,
 }
 
 impl Default for Options {
     fn default() -> Self {
-        Options { vo: "libmpv", ao: "", audio_device: String::new() }
+        Options { vo: "libmpv", ao: "", audio_device: String::new(), extra: vec![] }
     }
 }
 
@@ -310,10 +312,10 @@ impl Player {
         }
         match role {
             Role::Background => set.extend([("mute", "yes"), ("loop-file", "inf")]),
-            Role::Foreground(end) => set.extend([("loop-file", lp(end == EndAction::Loop)), ("keep-open", if end == EndAction::Hold { "yes" } else { "no" })]),
+            Role::Foreground(end) => set.extend([("loop-file", lp(end == EndAction::Loop)), ("keep-open", if matches!(end, EndAction::Hold | EndAction::Next) { "yes" } else { "no" })]),
             Role::Audio { looped } => set.extend([("vid", "no"), ("loop-file", lp(looped))]),
         }
-        for (k, v) in set {
+        for (k, v) in set.into_iter().chain(opts.extra.iter().map(|(k, v)| (*k, v.as_str()))) {
             if let Err(e) = unsafe { mpv.set_option(h, k, v) } {
                 return Err(e);
             }
@@ -429,6 +431,13 @@ impl Player {
     pub fn set_audio_device(&self, name: &str) {
         let name = if name.is_empty() { "auto" } else { name };
         let _ = unsafe { self.core.mpv.set_property(self.core.h, "audio-device", name) };
+    }
+
+    /// Moves this player's sound (N21): the output, its delay and its routing, while it plays.
+    pub fn set_sound(&self, sound: &crate::media_prefs::SoundOut) {
+        self.set_audio_device(&sound.device);
+        let _ = unsafe { self.core.mpv.set_property(self.core.h, "audio-delay", &format!("{:.3}", sound.delay)) };
+        let _ = unsafe { self.core.mpv.set_property(self.core.h, "af", &sound.af) };
     }
 
     /// Current playback position in seconds (0 when nothing is playing).
@@ -574,9 +583,9 @@ pub fn players(mpv: Option<Arc<Mpv>>, reports: Sender<PlayerReport>) -> Players 
 }
 
 impl Players {
-    /// `audio_device` is `Settings::audio_device` as it is now, so a change applies from the next item.
-    pub fn create(&self, role: Role, inst: u64, audio_device: &str) -> Option<Player> {
-        let opts = Options { audio_device: audio_device.to_string(), ..self.options.clone() };
+    /// `audio_device` and `extra` are from the settings as they are now, so a change applies from the next item.
+    pub fn create(&self, role: Role, inst: u64, audio_device: &str, extra: Vec<(&'static str, String)>) -> Option<Player> {
+        let opts = Options { audio_device: audio_device.to_string(), extra, ..self.options.clone() };
         let r = match &self.mpv {
             Some(m) => Player::with_options(m.clone(), role, inst, self.reports.clone(), &opts),
             None => Err(ffi::missing()),
@@ -605,7 +614,7 @@ mod tests {
     /// A silent, windowless player for `inst`.
     fn start(mpv: &Arc<Mpv>, role: Role, inst: u64, src: &str) -> (Player, Receiver<PlayerReport>) {
         let (tx, rx) = channel();
-        let opts = Options { vo: "null", ao: "null", audio_device: String::new() };
+        let opts = Options { vo: "null", ao: "null", audio_device: String::new(), extra: vec![] };
         let p = Player::with_options(mpv.clone(), role, inst, tx, &opts).unwrap();
         p.load(Path::new(src), 0.0);
         (p, rx)
@@ -756,7 +765,7 @@ mod tests {
     fn render_context_keeps_the_core_alive_after_its_player_drops() {
         let Some(mpv) = mpv() else { return };
         let (tx, _rx) = channel();
-        let p = Player::with_options(mpv.clone(), Role::Background, 11, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        let p = Player::with_options(mpv.clone(), Role::Background, 11, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] }).unwrap();
         p.set_render(sw_render(&p));
         assert!(p.has_render());
         let rc = p.take_render().expect("render context");
@@ -772,7 +781,7 @@ mod tests {
     fn player_drop_frees_a_render_context_left_in_its_slot() {
         let Some(mpv) = mpv() else { return };
         let (tx, _rx) = channel();
-        let p = Player::with_options(mpv, Role::Background, 12, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        let p = Player::with_options(mpv, Role::Background, 12, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] }).unwrap();
         p.set_render(sw_render(&p));
         let core = Arc::downgrade(&p.core);
         drop(p);
@@ -783,7 +792,7 @@ mod tests {
     fn libmpv_output_loads_once_a_render_context_exists() {
         let Some(mpv) = mpv() else { return };
         let (tx, rx) = channel();
-        let p = Player::with_options(mpv.clone(), Role::Background, 13, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        let p = Player::with_options(mpv.clone(), Role::Background, 13, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] }).unwrap();
         p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
         // Loading before the render context exists would deselect the video track.
         let (early, _) = until(&rx, 0.5, |_| true);
@@ -826,7 +835,7 @@ mod tests {
     fn reattached_render_context_draws_again() {
         let Some(mpv) = mpv() else { return };
         let (tx, rx) = channel();
-        let p = Player::with_options(mpv, Role::Background, 14, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        let p = Player::with_options(mpv, Role::Background, 14, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] }).unwrap();
         p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
         p.set_render(sw_render(&p));
         assert!(until(&rx, 5.0, |r| r.state == PlayState::Playing).1);
@@ -962,7 +971,7 @@ mod tests {
     /// Plays `testsrc2` into a software render context.
     fn sw_player(mpv: Arc<Mpv>, inst: u64) -> (Player, Receiver<PlayerReport>) {
         let (tx, rx) = channel();
-        let p = Player::with_options(mpv, Role::Background, inst, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new() }).unwrap();
+        let p = Player::with_options(mpv, Role::Background, inst, tx, &Options { vo: "libmpv", ao: "null", audio_device: String::new(), extra: vec![] }).unwrap();
         p.load(Path::new("av://lavfi:testsrc2=size=320x240:rate=30"), 0.0);
         p.set_render(sw_render(&p));
         (p, rx)
@@ -1050,7 +1059,7 @@ mod tests {
     #[test]
     fn missing_libmpv_reports_error_for_instance() {
         let (tx, rx) = channel();
-        assert!(players(None, tx).create(Role::Audio { looped: false }, 42, "").is_none());
+        assert!(players(None, tx).create(Role::Audio { looped: false }, 42, "", vec![]).is_none());
         let r = rx.try_recv().expect("report");
         assert_eq!((r.inst, r.state, r.error.as_deref()), (42, PlayState::Error, Some(ffi::missing().as_str())));
     }

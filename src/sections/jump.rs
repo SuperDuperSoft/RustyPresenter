@@ -46,12 +46,17 @@ pub fn jump_target(slides: &[Slide], current: usize, t: &JumpTarget) -> Result<u
 
 /// A section key: `1`–`9` a verse, a kind's letter (any case) that kind. Not with Ctrl, Cmd or Alt held.
 pub fn jump_for_key(key: &str, ctrl_or_cmd: bool, alt: bool) -> Option<(SectionKind, Option<u8>)> {
+    jump_for_key_in(&super::look::current(), key, ctrl_or_cmd, alt)
+}
+
+/// `jump_for_key` with the keys `look` gives (Settings → Songs → Sections and labels, maybe not saved yet).
+pub fn jump_for_key_in(look: &super::SectionLook, key: &str, ctrl_or_cmd: bool, alt: bool) -> Option<(SectionKind, Option<u8>)> {
     if ctrl_or_cmd || alt { return None }
     let mut chars = key.chars();
     let (Some(c), None) = (chars.next(), chars.next()) else { return None };
     if let Some(d) = c.to_digit(10).filter(|d| *d >= 1) { return Some((SectionKind::Verse, Some(d as u8))) }
     let c = c.to_ascii_lowercase();
-    SectionKind::ALL.into_iter().find(|k| k.key() == Some(c)).map(|k| (k, None))
+    SectionKind::ALL.into_iter().find(|k| k.key_in(look) == Some(c)).map(|k| (k, None))
 }
 
 /// "Jumped to Verse 2 (2)", "Jumped to Chorus (C)".

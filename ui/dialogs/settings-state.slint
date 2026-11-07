@@ -34,7 +34,7 @@ export struct SettingsLanguageRow { title: string, sub: string, on: bool, font-w
 export struct SettingsHelpRow { keys: string, what: string, id: string, changed: bool }
 
 export global SettingsDlg {
-    /// 0 Look, 1 Themes, 2 Language, 3 Songs, 4 Bible, 5 Video, 6 Backups, 7 Help, 8 About.
+    /// 0 Look, 1 Themes, 2 Language, 3 Songs, 4 Bible, 5 Video, 6 Media, 7 Backups, 8 Help, 9 About.
     in-out property <int> tab;
 
     // ---- Language ----
@@ -68,6 +68,23 @@ export global SettingsDlg {
     in property <[BgChoice]> backgrounds;
     /// The colour grid of Text color and the custom background colour.
     in property <[color]> palette;
+
+    // ---- Media (N21, N24) ----
+    /// 0 Fit, 1 Fill, 2 Stretch (`media_prefs::SCALES`).
+    in-out property <int> media-scale;
+    /// An index of `media_prefs::PICTURE_SECS`.
+    in-out property <int> picture-secs;
+    /// An index of `media_prefs::ENDS`.
+    in-out property <int> video-end;
+    /// The headphones list: "None", then every sound output found.
+    in property <[string]> listen-labels;
+    in property <[string]> listen-names;
+    in-out property <int> listen-index;
+    /// The main output delay as typed, in milliseconds.
+    in-out property <string> delay-ms;
+    /// An index of `media_prefs::CHANNELS`.
+    in-out property <int> channels;
+    callback cleanup-media();
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).

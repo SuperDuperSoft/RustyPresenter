@@ -327,7 +327,7 @@ export component ItemEditDialog inherits VerticalLayout {
             HorizontalLayout {
                 alignment: start;
                 end := Segmented {
-                    labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)")];
+                    labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)"), @tr("Go to the next slide")];
                     index <=> ItemEdit.end-index;
                 }
             }

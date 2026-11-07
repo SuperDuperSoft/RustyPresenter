@@ -57,7 +57,7 @@ fn change(op: &Operator, row: usize) {
 
 #[test]
 fn help_lists_every_key_with_what_it_does() {
-    let rows = help_rows(&KeySettings::default());
+    let rows = help_rows(&KeySettings::default(), &SectionLook::default());
     fn s(r: &HelpRow) -> (&str, &str) { (r.keys.as_str(), r.what.as_str()) }
     assert_eq!(s(&rows[0]), ("→  ↓  Space  Page Down", "Next"));
     assert_eq!(s(&rows[1]), ("←  ↑  Page Up", "Back"));
@@ -88,7 +88,7 @@ fn help_lists_every_key_with_what_it_does() {
             let named = match &action {
                 KeyAction::None | KeyAction::Blur => true,
                 KeyAction::PickTranslation(_) => alt && ('1'..='5').contains(&key.chars().next().unwrap()),
-                KeyAction::JumpSection(_) => ('1'..='9').contains(&key.chars().next().unwrap()) || st::KEY_SECTIONS.to_lowercase().contains(&key),
+                KeyAction::JumpSection(_) => ('1'..='9').contains(&key.chars().next().unwrap()) || section_keys_label(&SectionLook::default()).to_lowercase().contains(&key),
                 _ => map.action_for(&Chord::new(&key, ctrl, alt, false)).is_some_and(|a| rows.iter().any(|r| r.action == Some(a))),
             };
             assert!(named, "{key:?} ctrl={ctrl} alt={alt} does {action:?}, not in Help");
@@ -197,4 +197,15 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     let keys = app.data.lock().unwrap().settings.keys.clone();
     assert_eq!(keys.clear_groups.len(), 1);
     assert!(keys.changed.is_empty());
+}
+
+#[test]
+fn the_help_table_shows_the_churchs_section_keys() {
+    use crate::sections::{SectionKind, look::KindLook};
+    assert_eq!(section_keys_label(&SectionLook::default()), "1–9  C  P  B  T  I  E  L  V");
+    let mut look = SectionLook::default();
+    look.kinds.push(KindLook { kind: SectionKind::Chorus, name: String::new(), color: String::new(), key: "r".into() });
+    assert_eq!(section_keys_label(&look), "1–9  R  P  B  T  I  E  L  V");
+    let rows = help_rows(&KeySettings::default(), &look);
+    assert!(rows.iter().any(|r| r.keys == "1–9  R  P  B  T  I  E  L  V" && r.action.is_none()));
 }

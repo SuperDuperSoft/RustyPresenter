@@ -800,6 +800,20 @@ impl Live {
         })
     }
 
+    /// The live video `inst` goes to the next slide when it ends (N24).
+    pub fn ends_with_next(&self, inst: u64) -> bool {
+        matches!(&self.frame.media, Some(Inst { inst: i, v: MediaLayer::Video { end: EndAction::Next, .. } }) if *i == inst)
+    }
+
+    /// Takes down a video that ended with nothing to go on to.
+    pub(crate) fn retire_ended(&mut self, inst: u64) -> bool { self.retire(inst) }
+
+    /// Every frame this engine may still show or go back to: the live one and those it remembers.
+    pub fn frames(&self) -> impl Iterator<Item = &Frame> { std::iter::once(&self.frame).chain(self.history.iter().map(|s| &s.frame)) }
+
+    /// The items those frames came from, for the pictures their other slides need.
+    pub fn items(&self) -> impl Iterator<Item = &LiveItem> { self.item.iter().chain(self.history.iter().filter_map(|s| s.item.as_ref())) }
+
     fn audio_layer(&self, inst: u64) -> Option<AudioLayer> {
         [Some(&self.frame), self.committed_frame()].into_iter().flatten().find_map(|f| f.audio.as_ref().filter(|a| a.inst == inst).map(|a| a.v.clone()))
     }
