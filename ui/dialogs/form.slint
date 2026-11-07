@@ -91,6 +91,8 @@ export component TextArea inherits Rectangle {
     in property <string> label;
     in property <length> font-size: Theme.base-size;
     out property <bool> has-focus: input.has-focus;
+    /// Where the caret is now, as a byte offset of the text.
+    out property <int> caret: input.cursor-position-byte-offset;
     callback edited(string);
     forward-focus: input;
     /// Puts the caret at byte `offset` of the text.

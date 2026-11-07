@@ -63,6 +63,18 @@ pub fn chunk_lines(lines: &[String], n: usize) -> Vec<String> {
     lines.chunks(n.max(1)).map(|c| c.join("\n")).collect()
 }
 
+/// A slide group's label and pages (N19): a `{Label}` first line is the label, not words, and a group that is only
+/// a label is one empty slide.
+pub fn group_pages(group: &[String], lines_per_slide: usize) -> (Option<String>, Vec<String>) {
+    let (tag, lines) = match group.first().and_then(|l| crate::sections::label_line(l)) {
+        Some(t) => (Some(t.to_string()), &group[1..]),
+        None => (None, group),
+    };
+    let mut pages = chunk_lines(lines, lines_per_slide);
+    if pages.is_empty() { pages.push(String::new()) }
+    (tag, pages)
+}
+
 pub fn song_order(song: &Song, sections: &[Section]) -> Vec<usize> { order_of(&song.arrangement, sections) }
 
 /// The written sections `order` plays (an empty or unmatched order plays them as written).
@@ -91,20 +103,25 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
     for &idx in &order {
         let s = &sections[idx];
         for g in &s.groups {
-            let pages = chunk_lines(g, lps);
+            let (tag, pages) = group_pages(g, lps);
             let n = pages.len();
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
-                slides.push(Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None }));
+                let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None });
+                if p == 0 { slide.tag = tag.clone() }
+                slides.push(slide);
             }
         }
     }
     // Each slide's section (FEAT-4), counted across the section's blank-line groups.
-    let counts: Vec<(&str, usize)> = sections.iter().map(|s| (s.label.as_str(), s.groups.iter().map(|g| chunk_lines(g, lps).len()).sum())).collect();
+    let counts: Vec<(&str, usize)> = sections.iter().map(|s| (s.label.as_str(), s.groups.iter().map(|g| group_pages(g, lps).1.len()).sum())).collect();
     for (slide, r) in slides.iter_mut().zip(crate::sections::song_refs(&counts, &order)) { slide.section = Some(r) }
     if let Some(credit) = credit {
-        let pos = match settings.credits.as_str() { "first" => Some(0), "last" => slides.len().checked_sub(1), _ => None };
-        if let Some(SlideContent::Text { footer, .. }) = pos.and_then(|p| slides.get_mut(p)).map(|s| &mut s.content) { *footer = Some(credit); }
+        let last = slides.len().checked_sub(1);
+        let at: &[Option<usize>] = match settings.credits.as_str() { "first" => &[Some(0)], "last" => &[last], "both" => &[Some(0), last], _ => &[] };
+        for p in at.iter().flatten() {
+            if let Some(SlideContent::Text { footer, .. }) = slides.get_mut(*p).map(|s| &mut s.content) { *footer = Some(credit.clone()); }
+        }
     }
     slides
 }
@@ -121,15 +138,65 @@ fn put_scripture_credit(slides: &mut [Slide], credit: &BibleCredit, settings: &S
     if let Some(SlideContent::Text { footer, .. }) = pos.and_then(|p| slides.get_mut(p)).map(|s| &mut s.content) { *footer = Some(credit.line.clone()) }
 }
 
+/// The credit line when Settings → Songs leaves the template empty: the line songs have always had.
+pub const DEFAULT_CREDIT_TEMPLATE: &str = "{title} · {author} · {copyright} · CCLI Song #{ccli} · CCLI License #{license}";
+
+/// The words each template gap stands for (N36), in the order Settings lists them.
+pub const CREDIT_GAPS: [&str; 8] = ["title", "artist", "author", "publisher", "year", "copyright", "ccli", "license"];
+
 fn credit_line(song: &Song, settings: &Settings) -> Option<String> {
     if settings.credits == "none" { return None; }
-    let mut parts = vec![song.title.clone()];
-    if !song.writers.trim().is_empty() { parts.push(song.writers.trim().to_string()); }
-    if !song.copyright.trim().is_empty() { parts.push(song.copyright.trim().to_string()); }
-    let mut line = parts.join(" · ");
-    if !song.ccli.trim().is_empty() { line.push_str(&format!(" · CCLI Song #{}", song.ccli.trim())); }
-    if !settings.church_ccli.trim().is_empty() { line.push_str(&format!(" · CCLI License #{}", settings.church_ccli.trim())); }
-    Some(line)
+    let template = if settings.credit_template.trim().is_empty() { DEFAULT_CREDIT_TEMPLATE } else { settings.credit_template.as_str() };
+    let line = fill_credit(template, song, &settings.church_ccli);
+    (!line.is_empty()).then_some(line)
+}
+
+/// A song's copyright: as written, else "© year publisher" from its parts.
+pub fn song_copyright(song: &Song) -> String {
+    let written = song.copyright.trim();
+    if !written.is_empty() { return written.to_string() }
+    let parts: Vec<&str> = [song.year.trim(), song.publisher.trim()].into_iter().filter(|p| !p.is_empty()).collect();
+    if parts.is_empty() { String::new() } else { format!("© {}", parts.join(" ")) }
+}
+
+/// Fills a credit template. It is read in parts split by " · " (or " | "): a part whose gaps are all empty is left
+/// out with its separator, so "CCLI Song #{ccli}" goes away for a song with no number. A gap the app does not know
+/// stays as written.
+pub fn fill_credit(template: &str, song: &Song, license: &str) -> String {
+    let value = |gap: &str| -> Option<String> {
+        Some(match gap {
+            "title" => song.title.trim().into(),
+            "artist" => song.artist.trim().into(),
+            "author" | "writers" => song.writers.trim().into(),
+            "publisher" => song.publisher.trim().into(),
+            "year" => song.year.trim().into(),
+            "copyright" => song_copyright(song),
+            "ccli" => song.ccli.trim().into(),
+            "license" | "licence" => license.trim().into(),
+            _ => return None,
+        })
+    };
+    let sep = [" · ", " | "].into_iter().find(|s| template.contains(s));
+    let pieces: Vec<&str> = match sep { Some(s) => template.split(s).collect(), None => vec![template] };
+    let parts: Vec<String> = pieces.into_iter().filter_map(|part| {
+        let (mut out, mut gaps, mut filled) = (String::new(), 0, 0);
+        let mut rest = part;
+        while let Some(open) = rest.find('{') {
+            out.push_str(&rest[..open]);
+            let after = &rest[open + 1..];
+            match after.find('}').map(|close| (&after[..close], close)) {
+                Some((gap, close)) => match value(gap.trim().to_lowercase().as_str()) {
+                    Some(v) => { gaps += 1; if !v.is_empty() { filled += 1 } out.push_str(&v); rest = &after[close + 1..] }
+                    None => { out.push_str(&rest[open..open + 1 + close + 1]); rest = &after[close + 1..] }
+                },
+                None => { out.push_str(&rest[open..]); rest = "" }
+            }
+        }
+        out.push_str(rest);
+        let out = out.trim().to_string();
+        (!out.is_empty() && (gaps == 0 || filled > 0)).then_some(out)
+    }).collect();
+    parts.join(sep.unwrap_or(""))
 }
 
 /// One credit for a passage in several Bibles: their lines in column order, joined with " · ". It must show when any
@@ -405,6 +472,48 @@ mod tests {
         let settings = Settings { church_ccli: "999".into(), ..Default::default() };
         let slides = song_slides(&song, &settings);
         match &slides[0].content { SlideContent::Text { footer: Some(f), .. } => { assert!(f.contains("CCLI Song #123")); assert!(f.contains("License #999")); } c => panic!("{c:?}") }
+    }
+
+    #[test]
+    fn credits_show_on_first_and_last_slide_by_default() {
+        let song = Song { title: "T".into(), ccli: "123".into(), lyrics: "Verse 1\na\n\nb\n\nc".into(), ..Default::default() };
+        let line = Some("T · CCLI Song #123");
+        assert_eq!(footers(&song_slides(&song, &Settings::default())), [line.clone(), None, line.clone()]);
+        let one = Song { lyrics: "Verse 1\na".into(), ..song.clone() };
+        assert_eq!(footers(&song_slides(&one, &Settings::default())), [line.clone()], "one slide: once");
+        let first = Settings { credits: "first".into(), ..Default::default() };
+        assert_eq!(footers(&song_slides(&song, &first)), [line, None, None]);
+        let off = Settings { credits: "none".into(), ..Default::default() };
+        assert_eq!(footers(&song_slides(&song, &off)), [None, None, None]);
+    }
+
+    #[test]
+    fn credit_template_fills_parts_and_drops_empty_ones() {
+        let song = Song { title: "Grace".into(), artist: "Chris Tomlin".into(), writers: "John Newton".into(), publisher: "sixsteps Music".into(),
+            year: "2006".into(), ccli: "4768151".into(), lyrics: "Verse 1\na".into(), ..Default::default() };
+        assert_eq!(fill_credit(DEFAULT_CREDIT_TEMPLATE, &song, "999"), "Grace · John Newton · © 2006 sixsteps Music · CCLI Song #4768151 · CCLI License #999");
+        assert_eq!(fill_credit("“{title}” as sung by {artist} | Words: {author} | {weird}", &song, ""), "“Grace” as sung by Chris Tomlin | Words: John Newton | {weird}");
+        let bare = Song { title: "Grace".into(), ..Default::default() };
+        assert_eq!(fill_credit(DEFAULT_CREDIT_TEMPLATE, &bare, ""), "Grace", "parts with nothing in them go");
+        assert_eq!(fill_credit("{title} ({year})", &bare, ""), "Grace ()", "one part: kept as written");
+        let written = Song { copyright: "© 2006 Hillsong".into(), year: "1999".into(), ..bare };
+        assert_eq!(song_copyright(&written), "© 2006 Hillsong", "the written one wins");
+        let custom = Settings { credit_template: "{title} — {artist}".into(), ..Default::default() };
+        assert_eq!(footers(&song_slides(&song, &custom))[0], Some("Grace — Chris Tomlin"));
+    }
+
+    #[test]
+    fn slide_labels_come_from_brace_lines() {
+        let song = Song { lyrics: "Verse 1\n{Instrumental}\n\n{Spoken Word}\nSay this\nand this\nand that\nChorus\nx".into(), ..Default::default() };
+        let slides = song_slides(&song, &Settings { credits: "none".into(), ..Default::default() });
+        let got: Vec<(&str, Option<&str>, String)> = slides.iter().map(|s| (s.label.as_str(), s.tag.as_deref(), match &s.content { SlideContent::Text { text, .. } => text.clone(), _ => String::new() })).collect();
+        assert_eq!(got, [
+            ("Verse 1", Some("Instrumental"), String::new()),
+            ("Verse 1 (1/2)", Some("Spoken Word"), "Say this\nand this".into()),
+            ("Verse 1 (2/2)", None, "and that".into()),
+            ("Chorus", None, "x".into()),
+        ]);
+        assert_eq!(slides[2].section.as_ref().map(|r| (r.page, r.pages)), Some((2, 3)), "the label line is not counted as words");
     }
 
     #[test]

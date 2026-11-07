@@ -5,7 +5,8 @@ import { Icon, Btn, ScrollBox, TipBox } from "../widgets.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
-export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string }
+/// `tag` is the slide's label ("Instrumental", N19) or "", shown on the picture in `tag-color`.
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color }
 /// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
 export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
@@ -155,6 +156,32 @@ component Thumb inherits Rectangle {
                 height: 24px;
                 name: "play";
                 color: Theme.white;
+            }
+        }
+        // N19: the slide's label, top right.
+        if root.cell.tag != "": tag := Rectangle {
+            x: parent.width - self.width - 8px;
+            y: 8px;
+            width: self.preferred-width;
+            height: self.preferred-height;
+            border-radius: 5px;
+            background: root.cell.tag-color;
+            accessible-role: text;
+            accessible-label: root.cell.tag;
+            HorizontalLayout {
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-left: 6px;
+                padding-right: 6px;
+                Text {
+                    text: root.cell.tag;
+                    color: Theme.sec-ink;
+                    font-family: Theme.font;
+                    font-size: 10.5px;
+                    font-weight: 700;
+                    overflow: elide;
+                    max-width: root.width * 0.6;
+                }
             }
         }
         if root.cell.live: badge := Rectangle {

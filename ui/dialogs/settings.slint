@@ -10,10 +10,11 @@ import { SettingsBible } from "settings-bible.slint";
 import { SettingsAbout } from "settings-about.slint";
 import { SettingsLanguage } from "settings-language.slint";
 import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
+import { SettingsSections } from "settings-sections.slint";
 
 export { SettingsDlg }
 
-component SettingsSongs inherits VerticalLayout {
+component SettingsSongsGeneral inherits VerticalLayout {
     Field {
         label: @tr("Lines per slide");
         HorizontalLayout {
@@ -28,12 +29,32 @@ component SettingsSongs inherits VerticalLayout {
         label: @tr("Credits");
         // Bible library spec §10: the setting covers scripture too; a Bible that requires its credit always shows it.
         help: @tr("Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage.");
-        HorizontalLayout {
+        credits-on := Check {
+            text: @tr("Show the copyright line");
+            checked <=> SettingsDlg.credits-on;
+        }
+        if SettingsDlg.credits-on: HorizontalLayout {
             alignment: start;
             credits := Segmented {
-                labels: [@tr("On first slide"), @tr("On last slide"), @tr("Off")];
+                labels: [@tr("On first and last slide"), @tr("On first slide"), @tr("On last slide")];
                 index <=> SettingsDlg.credits;
             }
+        }
+    }
+    if SettingsDlg.credits-on: Field {
+        label: @tr("Copyright line");
+        help: @tr("Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line.");
+        credit-template := TextField {
+            text <=> SettingsDlg.credit-template;
+            placeholder: SettingsDlg.credit-usual;
+            edited => { SettingsDlg.credit-template-edited(); }
+        }
+        credit-sample := Text {
+            text: SettingsDlg.credit-sample;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            wrap: word-wrap;
         }
     }
     Field {
@@ -56,6 +77,20 @@ component SettingsSongs inherits VerticalLayout {
             clicked => { SettingsDlg.usage-report(); }
         }
     }
+}
+
+component SettingsSongs inherits VerticalLayout {
+    // N19: the songs' general settings, or their sections and slide labels.
+    HorizontalLayout {
+        alignment: start;
+        padding-bottom: 12px;
+        songs-page := Segmented {
+            labels: [@tr("General"), @tr("Sections and labels")];
+            index <=> SettingsDlg.songs-page;
+        }
+    }
+    if SettingsDlg.songs-page == 1: sections := SettingsSections {}
+    if SettingsDlg.songs-page == 0: SettingsSongsGeneral {}
 }
 
 component SettingsVideo inherits VerticalLayout {

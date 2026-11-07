@@ -289,6 +289,7 @@ impl App {
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
         });
+        crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         app.publish_timers(chrono::Utc::now(), true);
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -426,6 +427,9 @@ impl App {
     }
 
     fn after_edit(&self, ok: bool) {
+        // Settings → Sections: names, colours, keys and heading words follow at once.
+        let look = self.data.lock().unwrap().settings.sections.clone();
+        crate::sections::look::set_look(&look);
         let live_changed = self.reconcile_live();
         if ok {
             self.broadcast_data();

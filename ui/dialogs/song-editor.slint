@@ -5,7 +5,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Field, ScrollBox } from "../widgets.slint";
 import { ArrangementStrip, ArrChip, ArrChipRow, ArrAddRow } from "arrangement.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { TextArea, TextField } from "form.slint";
+import { TextArea, TextField, Select } from "form.slint";
 
 /// One slide of the preview, as the core makes it: its picture and its label.
 export struct PreviewSlide { image: image, label: string }
@@ -22,7 +22,13 @@ export global SongEditorState {
     in-out property <string> writers;
     in-out property <string> ccli;
     in-out property <string> copyright;
+    /// N36: who sings it, the publisher and the copyright year.
+    in-out property <string> artist;
+    in-out property <string> publisher;
+    in-out property <string> year;
     in-out property <string> lyrics;
+    /// "Label this slide…", then the slide labels (Settings → Sections).
+    in property <[string]> labels;
     in-out property <string> order;
     in property <[SectionChipRow]> chips;
     in property <[PreviewSlide]> previews;
@@ -57,6 +63,10 @@ export global SongEditorState {
     /// A chip's drag payload, and the index in one (-1 when it is not an order chip).
     pure callback arr-drag-data(int) -> data-transfer;
     pure callback arr-drag-index(data-transfer) -> int;
+    /// N34: a slide break at the caret (a byte offset); gives the caret's new place.
+    callback slide-break(int) -> int;
+    /// N19: label `i` on top of the slide the caret is in; gives the caret's new place.
+    callback label-slide(int, int) -> int;
     callback save();
     callback save-and-show();
     callback delete();
@@ -136,6 +146,32 @@ export component SongEditor inherits VerticalLayout {
                 }
                 Cols {
                     Field {
+                        horizontal-stretch: 2;
+                        label: @tr("Artist");
+                        artist := TextField {
+                            text <=> SongEditorState.artist;
+                            placeholder: @tr("Who sings it");
+                        }
+                    }
+                    Field {
+                        horizontal-stretch: 2;
+                        label: @tr("Publisher");
+                        publisher := TextField {
+                            text <=> SongEditorState.publisher;
+                            placeholder: @tr("Publisher");
+                        }
+                    }
+                    Field {
+                        horizontal-stretch: 1;
+                        label: @tr("Year");
+                        year := TextField {
+                            text <=> SongEditorState.year;
+                            placeholder: @tr("2006");
+                        }
+                    }
+                }
+                Cols {
+                    Field {
                         horizontal-stretch: 1;
                         label: @tr("CCLI song #");
                         ccli := TextField {
@@ -155,6 +191,32 @@ export component SongEditor inherits VerticalLayout {
                 Field {
                     label: @tr("Lyrics");
                     help: @tr("— section names on their own line; an empty line inside a section starts a new slide");
+                    HorizontalLayout {
+                        spacing: 8px;
+                        alignment: start;
+                        slide-break := Btn {
+                            small: true;
+                            text: @tr("Insert slide break");
+                            tooltip: @tr("Starts a new slide where the cursor is");
+                            clicked => {
+                                lyrics.set-caret(SongEditorState.slide-break(lyrics.caret));
+                                lyrics.focus();
+                            }
+                        }
+                        label-slide := Select {
+                            width: 200px;
+                            height: 30px;
+                            options: SongEditorState.labels;
+                            index: 0;
+                            changed(i) => {
+                                if i > 0 {
+                                    lyrics.set-caret(SongEditorState.label-slide(lyrics.caret, i - 1));
+                                    self.index = 0;
+                                    lyrics.focus();
+                                }
+                            }
+                        }
+                    }
                     lyrics := TextArea {
                         min-height: max(120px, root.window-height * 0.46);
                         font-size: 14.5px;

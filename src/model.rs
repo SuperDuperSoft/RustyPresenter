@@ -77,11 +77,14 @@ pub struct Slide {
     /// Which song section this slide is from (FEAT-4). Some for song slides only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub section: Option<crate::sections::SectionRef>,
+    /// A song slide's label (N19): "Instrumental", from a `{Instrumental}` line on top of it in the lyrics.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
 }
 
 impl Slide {
-    /// A slide with no notes and no section.
-    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None } }
+    /// A slide with no notes, no section and no label.
+    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None, tag: None } }
 }
 
 // ---------- Library ----------
@@ -96,6 +99,14 @@ pub struct Song {
     pub ccli: String,
     #[serde(default)]
     pub copyright: String,
+    /// Who sings it (N36).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub artist: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub publisher: String,
+    /// The copyright year, as typed ("2006").
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub year: String,
     /// Lyrics with section labels on their own lines (`Verse 1`, `[Chorus]`).
     /// A blank line inside a section forces a new slide.
     pub lyrics: String,
@@ -411,8 +422,11 @@ pub struct Settings {
     pub background: Background,
     pub logo: Option<AssetId>,
     pub lines_per_slide: u8,
-    /// "first", "last" or "none"
+    /// "first", "last", "both" (first and last slide) or "none"
     pub credits: String,
+    /// The song credit line (N36), with `{title}`, `{artist}`, `{author}`, `{publisher}`, `{year}`, `{copyright}`,
+    /// `{ccli}` and `{license}`; empty = `slides::DEFAULT_CREDIT_TEMPLATE`.
+    pub credit_template: String,
     pub church_ccli: String,
     pub translation: String,
     /// Older data only: read once into `screens` by `Data::upgrade`.
@@ -453,6 +467,9 @@ pub struct Settings {
     /// version can't read loads as Auto.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub graphics: Graphics,
+    /// Settings → Songs → Sections (N19): the church's section names, colours, keys and slide labels.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub sections: crate::sections::SectionLook,
 }
 
 /// How many service files File → Open recent lists.
@@ -519,7 +536,8 @@ impl Default for Settings {
             background: Background::Color { color: "#000000".into() },
             logo: None,
             lines_per_slide: 2,
-            credits: "first".into(),
+            credits: "both".into(),
+            credit_template: String::new(),
             church_ccli: String::new(),
             translation: "KJV".into(),
             displays: DisplayRoles::default(),
@@ -538,6 +556,7 @@ impl Default for Settings {
             section_keys: true,
             recent_files: Vec::new(),
             graphics: Graphics::Auto,
+            sections: Default::default(),
         }
     }
 }

@@ -45,7 +45,7 @@ pub fn build(inp: &StageInputs, layout: &StageLayout) -> StageView {
         let mut style = resolve_style(&e.kind, &e.style);
         let content = content(inp, &e.kind, &style);
         if e.style.color.is_none() && matches!(e.kind, ElementKind::SectionName | ElementKind::NextSection) {
-            if let CellContent::Text { text, .. } = &content { style.color = section_color(text).into(); }
+            if let CellContent::Text { text, .. } = &content { style.color = section_color(text); }
         }
         Cell { element: e.id, rect: e.rect, style, content }
     }).collect();
@@ -97,15 +97,8 @@ pub fn section_of(label: &str) -> &str {
     if pages { &label[..at] } else { label }
 }
 
-/// The colour of a song section's name (a stand-in until FEAT-4's section colours).
-pub fn section_color(label: &str) -> &'static str {
-    let l = label.to_ascii_lowercase();
-    if l.starts_with("pre-chorus") || l.starts_with("prechorus") { "#c792ea" }
-    else if l.starts_with("chorus") { "#ff9f6b" }
-    else if l.starts_with("verse") { "#6fb3ff" }
-    else if l.starts_with("bridge") { "#5fd3a8" }
-    else { "#9aa3b5" }
-}
+/// The colour of a song section's name: its kind's (Settings → Sections), grey for a part with no kind.
+pub fn section_color(label: &str) -> String { crate::sections::color_for_label(label).unwrap_or_else(|| "#9aa3b5".into()) }
 
 fn is_song(live: &LiveView) -> bool { live.item.as_ref().is_some_and(|i| i.kind == "song") }
 

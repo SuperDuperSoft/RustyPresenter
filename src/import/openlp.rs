@@ -350,7 +350,7 @@ pub fn to_song(row: &OlpSong) -> Result<Song, String> {
     let (lyrics, arrangement) = lyrics_from_xml(&row.lyrics, &row.verse_order)?;
     let writers = row.authors.iter().map(|a| a.trim()).filter(|a| !a.is_empty()).collect::<Vec<_>>().join(" | ");
     Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers, ccli: ccli(&row.ccli_number), copyright: row.copyright.trim().to_string(),
-        lyrics, arrangement })
+        lyrics, arrangement, ..Default::default() })
 }
 
 // ---------- reader ----------

@@ -238,7 +238,7 @@ fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -> (String, 
     if rights.is_empty() { rights = copyright("", &get("CCLICopyrightInfo")); }
     let song = read_groups(root).and_then(|groups| lyrics_of(groups, &arrangement_ids(root))).map(|(lyrics, arrangement)| Song {
         id: Uuid::new_v4(), title: title.clone(), writers: split_writers(&writers), ccli: ccli_number(&get("CCLISongNumber")),
-        copyright: rights, lyrics, arrangement,
+        copyright: rights, lyrics, arrangement, ..Default::default()
     });
     (title, song)
 }

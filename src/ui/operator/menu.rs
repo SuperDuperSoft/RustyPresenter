@@ -44,6 +44,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "settings-themes" => Settings(SettingsTab::Themes),
         "overlays" => MenuAction::Overlays,
         "settings-songs" => Settings(SettingsTab::Songs),
+        "settings-sections" => Settings(SettingsTab::Sections),
         "settings-bible" => Settings(SettingsTab::Bible),
         "settings-video" => Settings(SettingsTab::Video),
         "settings-backups" => Settings(SettingsTab::Backups),
@@ -231,6 +232,7 @@ mod tests {
         assert_eq!(action("settings-themes"), Some(MenuAction::Settings(SettingsTab::Themes)));
         assert_eq!(action("overlays"), Some(MenuAction::Overlays));
         assert_eq!(action("settings-songs"), Some(MenuAction::Settings(SettingsTab::Songs)));
+        assert_eq!(action("settings-sections"), Some(MenuAction::Settings(SettingsTab::Sections)));
         assert_eq!(action("settings-bible"), Some(MenuAction::Settings(SettingsTab::Bible)));
         assert_eq!(action("settings-video"), Some(MenuAction::Settings(SettingsTab::Video)));
         assert_eq!(action("settings-backups"), Some(MenuAction::Settings(SettingsTab::Backups)));
