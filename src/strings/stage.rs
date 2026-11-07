@@ -39,6 +39,8 @@ pub fn end_of_service() -> String { tr!("End of service") }
 
 /// Small captions above a box's words.
 pub fn next() -> String { tr!("NEXT") }
+/// N29: over a slide sent to the stage screen only.
+pub fn stage_only() -> String { tr!("STAGE ONLY") }
 pub fn next_section() -> String { tr!("NEXT SECTION") }
 pub fn next_item(title: &str) -> String { tr!("NEXT · {title}", title = title) }
 

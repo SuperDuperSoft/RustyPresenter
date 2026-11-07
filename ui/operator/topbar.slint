@@ -5,6 +5,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
 
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
+import { PanelExtras } from "extras.slint";
 
 export { TranslationChip }
 
@@ -72,6 +73,11 @@ export component TopBar inherits Rectangle {
         root.picker-search = "";
         root.picker-opening();
         picker.show();
+    }
+
+    /// N6: the Bible box's last references (Edit → Recent verses).
+    public function open-history() {
+        if PanelExtras.history.length > 0 { history-popup.show(); }
     }
 
     /// Ctrl+B: focus the Bible box with its whole text selected (`operator.js:308`).
@@ -206,6 +212,68 @@ export component TopBar inherits Rectangle {
                         animate border-color { duration: 150ms; }
                     }
 
+                    history-popup := PopupWindow {
+                        x: 0;
+                        y: parent.height + 8px;
+                        width: min(360px, parent.width);
+                        close-policy: close-on-click-outside;
+                        Rectangle {
+                            background: Theme.panel;
+                            border-color: Theme.line;
+                            border-width: 1px;
+                            border-radius: 10px;
+                            drop-shadow-blur: 24px;
+                            drop-shadow-offset-y: 8px;
+                            drop-shadow-color: Theme.shadow-dialog;
+                            VerticalLayout {
+                                padding: 6px;
+                                spacing: 1px;
+                                HorizontalLayout {
+                                    padding-left: 9px;
+                                    height: 22px;
+                                    Text {
+                                        text: @tr("Recent verses");
+                                        color: Theme.faint;
+                                        font-family: Theme.font;
+                                        font-size: 10.5px;
+                                        font-weight: 700;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                                for reference in PanelExtras.history: history-row := Rectangle {
+                                    height: 30px;
+                                    border-radius: 6px;
+                                    background: history-row-ta.has-hover ? Theme.raise : transparent;
+                                    accessible-role: button;
+                                    accessible-label: reference;
+                                    accessible-action-default => {
+                                        history-popup.close();
+                                        bible-input.focus();
+                                        PanelExtras.history-pick(reference);
+                                    }
+                                    Text {
+                                        x: 9px;
+                                        width: parent.width - 18px;
+                                        text: reference;
+                                        color: Theme.text;
+                                        font-family: Theme.font;
+                                        font-size: 13px;
+                                        vertical-alignment: center;
+                                        overflow: elide;
+                                    }
+                                    history-row-ta := TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => {
+                                            history-popup.close();
+                                            bible-input.focus();
+                                            PanelExtras.history-pick(reference);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     HorizontalLayout {
                         padding-left: 12px;
                         padding-right: 8px;
@@ -259,6 +327,33 @@ export component TopBar inherits Rectangle {
                                     copy-text => { bible-input.copy(); }
                                     paste-text => { bible-input.paste(); }
                                     select-text => { bible-input.select-all(); }
+                                }
+                            }
+                        }
+                        // N6: the last references typed here, one click to add again.
+                        if PanelExtras.history.length > 0: VerticalLayout {
+                            horizontal-stretch: 0;
+                            alignment: center;
+                            history-btn := Rectangle {
+                                width: 26px;
+                                height: 26px;
+                                border-radius: 6px;
+                                background: history-ta.has-hover ? Theme.raise : transparent;
+                                accessible-role: button;
+                                accessible-label: @tr("Recent verses");
+                                accessible-action-default => { root.open-history(); }
+                                Icon {
+                                    width: 15px;
+                                    height: 15px;
+                                    name: "restart";
+                                    color: Theme.muted;
+                                }
+                                history-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => { root.open-history(); }
+                                }
+                                Tooltip {
+                                    TipBox { text: @tr("Recent verses"); }
                                 }
                             }
                         }
@@ -330,6 +425,10 @@ export component TopBar inherits Rectangle {
                                         find-more(q) => {
                                             picker.close();
                                             root.find-more-bibles(q);
+                                        }
+                                        info(id) => {
+                                            picker.close();
+                                            PanelExtras.bible-info(id);
                                         }
                                     }
                                 }

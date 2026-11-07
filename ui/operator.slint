@@ -27,6 +27,7 @@ import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
+import { PanelExtras } from "operator/extras.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -232,6 +233,8 @@ export component OperatorWindow inherits Window {
     }
 
     public function focus-bible() { top.focus-bible(); }
+    /// N6: Edit → Recent verses.
+    public function open-bible-history() { top.open-history(); }
     /// Opens the Bible picker (tests and the chosen chip).
     public function open-bible-picker() { top.open-picker(); }
 
@@ -397,6 +400,32 @@ export component OperatorWindow inherits Window {
                 enabled: !root.covered;
                 activated => { root.focus-bible(); }
             }
+            // N6: Bible extras.
+            MenuItem {
+                title: @tr("Recent verses…");
+                enabled: !root.covered && PanelExtras.history.length > 0;
+                activated => { root.open-bible-history(); }
+            }
+            MenuItem {
+                title: @tr("Add the verse before");
+                enabled: root.menu-ready && PanelExtras.passage;
+                activated => { root.focus-keys(); PanelExtras.prev-verse(); }
+            }
+            MenuItem {
+                title: @tr("Add the verse after");
+                enabled: root.menu-ready && PanelExtras.passage;
+                activated => { root.focus-keys(); PanelExtras.next-verse(); }
+            }
+            MenuItem {
+                title: @tr("Save passage to song library");
+                enabled: root.menu-ready && PanelExtras.passage;
+                activated => { root.focus-keys(); PanelExtras.save-passage(); }
+            }
+            MenuItem {
+                title: @tr("About this Bible…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("bible-info"); }
+            }
         }
         Menu {
             title: @tr("View");
@@ -480,6 +509,17 @@ export component OperatorWindow inherits Window {
                 title: @tr("Stage message…");
                 enabled: root.menu-ready && root.stage-shown;
                 activated => { root.focus-keys(); root.stage-message(); }
+            }
+            // N29: a slide for the stage screen only.
+            MenuItem {
+                title: PanelExtras.stage-mode ? @tr("Slide clicks go to the room again") : @tr("Next slide click: stage only");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); PanelExtras.toggle-stage-mode(); }
+            }
+            MenuItem {
+                title: @tr("Take the stage-only slide down");
+                enabled: PanelExtras.stage-only != "";
+                activated => { root.focus-keys(); PanelExtras.stage-down(); }
             }
             MenuItem {
                 title: @tr("Stage layouts…");

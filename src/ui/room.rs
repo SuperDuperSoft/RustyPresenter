@@ -29,6 +29,11 @@ fn slot(kind: Kind) -> Option<usize> {
     match kind { Kind::Background => Some(BG), Kind::Media => Some(MEDIA), Kind::Audio => Some(AUDIO), _ => None }
 }
 
+/// How long a plan's layers crossfade: Settings' look fade when only the look changed (N9; 0 cuts), else `FADE`.
+fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
+    if plan.look_change { Duration::from_millis(u64::from(view.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS))) } else { FADE }
+}
+
 /// The playback instance a layer key names (only players report).
 fn inst(key: &LayerKey) -> Option<u64> {
     match key { LayerKey::Background(i) | LayerKey::Media(i) | LayerKey::Audio(i) => Some(*i), _ => None }
@@ -138,7 +143,8 @@ enum Got { Pic(Side), Play(Rc<Player>) }
 
 /// The newest plan while its layers are prepared. `heard`: what players not made yet reported, by
 /// serial (`Some` = failed); readiness is per player, as an older plan's player may share the instance.
-struct Prep { plan: Plan, frame: Frame, pause: Vec<(u64, bool)>, waiting: Vec<Kind>, got: Vec<(Kind, Got)>, heard: HashMap<u64, Option<String>> }
+/// `fade`: how long its layers crossfade (Settings' look fade for a look change, N9).
+struct Prep { plan: Plan, frame: Frame, pause: Vec<(u64, bool)>, waiting: Vec<Kind>, got: Vec<(Kind, Got)>, heard: HashMap<u64, Option<String>>, fade: Duration }
 
 impl Prep {
     fn done(&mut self, kind: Kind) { self.waiting.retain(|k| *k != kind) }
@@ -226,7 +232,8 @@ impl Inner {
             Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, why) });
         }
         let waiting = wants.iter().map(|w| w.kind).collect();
-        *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new() });
+        let fade = fade_for(&plan, view);
+        *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new(), fade });
         if !wants.is_empty() {
             let job = Job { token, wants, frame: view.frame.clone(), theme: view.theme.clone(), logo: view.logo.clone(), canvas: self.canvas(), wanted };
             if self.jobs.send(job).is_err() { return self.fail(token, crate::tr!("the room could not prepare it")) }
@@ -334,18 +341,19 @@ impl Inner {
 
     fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
         let mut players = self.players.borrow_mut();
+        let fade = prep.fade;
         for kind in &prep.plan.remove {
-            self.hide(*kind);
+            self.hide(*kind, fade);
             if let Some(s) = slot(*kind) { self.retire(players[s].take()) }
         }
         for (kind, got) in prep.got {
             let old = slot(kind).and_then(|s| players[s].take());
             match got {
-                Got::Pic(side) => self.put(kind, side),
+                Got::Pic(side) => self.put(kind, side, fade),
                 Got::Play(p) => {
                     // Video is drawn under the scene (audio has no layer); a background video's Darken is a black
                     // fill on its layer.
-                    match video_dim(kind, &prep.frame) { Some(c) => self.put(kind, Side { image: Default::default(), color: c }), None => self.hide(kind) }
+                    match video_dim(kind, &prep.frame) { Some(c) => self.put(kind, Side { image: Default::default(), color: c }, fade), None => self.hide(kind, fade) }
                     self.shared.started.lock().unwrap().insert(p.inst(), kind);
                     if let Some(s) = slot(kind) { players[s] = Some(p) }
                 }
@@ -408,25 +416,25 @@ impl Inner {
     }
 
     /// Puts `side` on `kind`'s hidden face (only that face's picture is written) and crossfades to it.
-    fn put(&self, kind: Kind, side: Side) {
+    fn put(&self, kind: Kind, side: Side, fade: Duration) {
         let Some(i) = index(kind) else { return };
         let (on_b, ops) = { let mut f = self.faces.borrow_mut(); let on_b = f[i].put(side.clone()); (on_b, f[i].ops()) };
         let (set_a, set_b, _, _) = setters(i);
         if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
-        self.fade_to(i, ops);
+        self.fade_to(i, ops, fade);
     }
 
     /// Fades `kind` out (its pictures stay, for a later crossfade).
-    fn hide(&self, kind: Kind) {
+    fn hide(&self, kind: Kind, fade: Duration) {
         let Some(i) = index(kind) else { return };
         let ops = { let mut f = self.faces.borrow_mut(); f[i].shown = false; f[i].ops() };
-        self.fade_to(i, ops);
+        self.fade_to(i, ops, fade);
     }
 
-    fn fade_to(&self, i: usize, (a, b): (f32, f32)) {
+    fn fade_to(&self, i: usize, (a, b): (f32, f32), fade: Duration) {
         let (ca, cb) = self.face_ops[i];
-        self.fader.fade(ca, a, FADE);
-        self.fader.fade(cb, b, FADE);
+        self.fader.fade(ca, a, fade);
+        self.fader.fade(cb, b, fade);
     }
 
     fn close(&self) {
@@ -657,6 +665,19 @@ mod tests {
     fn open(app: &Arc<App>) -> Rc<Room> { Room::open(app.clone(), Renderer::new(), None, None).unwrap() }
 
     #[test]
+    fn a_look_change_fades_for_the_settings_time() {
+        let mut v = test_app().live_view();
+        let plan = |look_change| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change };
+        v.look_fade_ms = 2500;
+        assert_eq!(fade_for(&plan(true), &v), Duration::from_millis(2500));
+        assert_eq!(fade_for(&plan(false), &v), FADE, "a new slide crossfades as always");
+        v.look_fade_ms = 0;
+        assert_eq!(fade_for(&plan(true), &v), Duration::ZERO, "0 cuts");
+        v.look_fade_ms = 60_000;
+        assert_eq!(fade_for(&plan(true), &v), Duration::from_secs(5), "never longer than Settings offers");
+    }
+
+    #[test]
     fn text_slide_sets_slide_image_and_commits() {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
@@ -703,7 +724,7 @@ mod tests {
         assert!(shared.inbox.lock().unwrap().is_empty(), "nothing is queued once closed");
     }
 
-    fn prep(plan: Plan, frame: Frame) -> Prep { Prep { plan, frame, pause: vec![], waiting: vec![], got: vec![], heard: Default::default() } }
+    fn prep(plan: Plan, frame: Frame) -> Prep { Prep { plan, frame, pause: vec![], waiting: vec![], got: vec![], heard: Default::default(), fade: FADE } }
 
     #[test]
     fn a_failure_while_fading_through_black_commits_the_swap_first() {
@@ -741,7 +762,7 @@ mod tests {
         let app = test_app();
         let room = open(&app);
         let i = &room.inner;
-        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true }, Frame::default()), RoomEvent::Committed { version: 0 });
+        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true, look_change: false }, Frame::default()), RoomEvent::Committed { version: 0 });
         swap(100);
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
         swap(101);

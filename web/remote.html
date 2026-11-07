@@ -73,6 +73,13 @@
   .timer { display: flex; justify-content: space-between; background: var(--panel); border-radius: 12px; padding: 10px 14px; font-weight: 700; }
   .timer .over { color: var(--live); }
   .sheet input { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--text); margin-bottom: 10px; }
+  .stage { display: none; background: var(--panel); border-radius: 16px; padding: 12px 16px; border: 1.5px solid rgba(255,159,107,.6); }
+  .stage.on { display: block; }
+  .stage .label { color: #ff9f6b; }
+  .stage .text { font-size: 15px; font-weight: 500; min-height: 0; max-height: 64px; overflow: hidden; }
+  .stage button { margin-top: 8px; padding: 10px 14px; border-radius: 10px; background: var(--raise); font-weight: 700; }
+  .sheet .only { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; color: var(--muted); font-weight: 600; }
+  .sheet .only input { width: 22px; height: 22px; margin: 0; accent-color: #ff9f6b; }
   .sheet .go { width: 100%; padding: 15px; border-radius: 12px; background: var(--accent); color: #1a1405; font-weight: 800; margin-bottom: 8px; }
 </style>
 </head>
@@ -87,6 +94,7 @@
 <div class="app" id="app">
   <div class="bar"><span class="dot" id="dot"></span><span id="svc" data-t>Connecting…</span></div>
   <div class="now"><div class="label" data-t>On screen <span id="nowLabel"></span></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
+  <div class="stage" id="stage"><div class="label" data-t>Stage only</div><div class="text" id="stageText"></div><button id="stageOff" data-t>Take it off the stage</button></div>
   <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
   <div class="media" id="media"><button id="mediaBtn" data-t>Pause video</button></div>
   <div class="next"><div class="label" data-t>Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>
@@ -101,7 +109,7 @@
   </div>
   <div class="items"><h2 data-t>Service</h2><div id="items"></div></div>
 </div>
-<div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p data-t>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel" data-t>Cancel</button></div></div>
+<div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p data-t>Tap a slide to put it on the screen.</p><label class="only"><input type="checkbox" id="sheetOnly"><span data-t>Stage screen only (the room won't see it)</span></label><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel" data-t>Cancel</button></div></div>
 <div class="sheet" id="ask"><div class="box"><h3 id="askTitle"></h3><div id="askFields"></div><button class="go" id="askGo"></button><button class="cancel" id="askCancel" data-t>Cancel</button></div></div>
 <div class="toast" id="toast"></div>
 <script type="module" src="/static/remote.js"></script>

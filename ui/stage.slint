@@ -35,6 +35,8 @@ export component StageWindow inherits Window {
     in property <string> timer;
     in property <string> now;
     in property <bool> now-dim;
+    /// N29: `now` is a slide for the stage only (the room shows something else).
+    in property <bool> stage-only;
     in property <string> notes;
     in property <string> next: @tr("End of service");
     /// The operator's message (spec §12.2); empty hides it.
@@ -145,6 +147,27 @@ export component StageWindow inherits Window {
                     font-weight: 700;
                     wrap: word-wrap;
                     horizontal-alignment: center;
+                }
+            }
+        }
+
+        if root.stage-only: HorizontalLayout {
+            alignment: center;
+            stage-only-tag := Rectangle {
+                background: #ff9f6b;
+                border-radius: 0.8 * vh;
+                HorizontalLayout {
+                    padding-left: 1.2 * vw;
+                    padding-right: 1.2 * vw;
+                    padding-top: 0.4 * vh;
+                    padding-bottom: 0.4 * vh;
+                    Text {
+                        text: @tr("STAGE ONLY");
+                        color: #07080a;
+                        font-size: 2.6 * vh;
+                        font-weight: 800;
+                        letter-spacing: 1px;
+                    }
                 }
             }
         }

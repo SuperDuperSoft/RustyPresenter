@@ -198,6 +198,9 @@ pub enum Command {
     HideMessage,
     /// FEAT-2: run a macro. The App runs it (it needs timers and data); `base` is required when it changes slides.
     RunMacro { #[serde(rename = "macro")] macro_id: Uuid, #[serde(default)] seen_clear: Option<u64> },
+    /// N29: show slide `slide` of `item_id` on the stage screen only; no `item_id` takes it down. The App keeps it
+    /// (`App::set_stage_only`); the room never changes.
+    StageOnly { #[serde(default)] item_id: Option<Uuid>, #[serde(default)] slide: usize },
 }
 
 impl Command {
@@ -597,6 +600,8 @@ impl Live {
             }
             // The App runs macros before the engine sees them (`App::command`).
             Command::RunMacro { .. } => Err(crate::automation::strings::macro_needs_app()),
+            // The App keeps the stage-only slide (`App::command`); the engine never shows it.
+            Command::StageOnly { .. } => Ok(()),
         }
     }
 

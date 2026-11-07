@@ -17,7 +17,11 @@ use crate::stage::view::label;
 
 /// Everything the stage shows, worked out from one live view.
 #[derive(Clone, Debug, PartialEq, Default)]
-pub struct StageText { pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String, pub message: String }
+pub struct StageText {
+    pub title: String, pub now: String, pub now_dim: bool, pub notes: String, pub next: String, pub timer: String, pub message: String,
+    /// N29: `now` is a slide sent to the stage only.
+    pub stage_only: bool,
+}
 
 pub fn stage_text(view: &LiveView) -> StageText {
     let f = &view.frame;
@@ -28,11 +32,13 @@ pub fn stage_text(view: &LiveView) -> StageText {
         _ => String::new(),
     };
     let timer = view.media.as_ref().or(view.audio.as_ref()).filter(|m| m.duration > 0.0).map(|m| view::countdown(m.duration - m.position));
+    let only = view.stage_only.as_ref().map(|o| &o.slide);
     StageText {
+        stage_only: only.is_some(),
         title: view.item.as_ref().map_or_else(s::nothing_live, |i| i.title.clone()).into(),
-        now,
-        now_dim: !on_air,
-        notes: view.slide.as_ref().map(|s| s.notes.clone()).unwrap_or_default(),
+        now: only.map_or(now, label),
+        now_dim: !on_air && only.is_none(),
+        notes: only.or(view.slide.as_ref()).map(|s| s.notes.clone()).unwrap_or_default(),
         next: view.next.as_ref().map_or_else(|| s::end_of_service().into(), |n| label(&n.slide)),
         timer: timer.unwrap_or_default(),
         message: view.stage_message.clone(),
@@ -107,6 +113,7 @@ fn show_classic(ui: &StageWindow, view: &LiveView, timer: &str) {
     ui.set_item_title(t.title.into());
     ui.set_now(t.now.into());
     ui.set_now_dim(t.now_dim);
+    ui.set_stage_only(t.stage_only);
     ui.set_notes(t.notes.into());
     ui.set_next(t.next.into());
     ui.set_timer(t.timer.into());
@@ -278,7 +285,7 @@ mod tests {
             item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2, song_id: None }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), stage_only: None, look_fade_ms: 0,
         }
     }
 
@@ -289,8 +296,19 @@ mod tests {
         let t = stage_text(&view(Some(now), Some(text("That saved a wretch like me"))));
         assert_eq!(t, StageText {
             title: "Amazing Grace".into(), now: "Amazing grace, how sweet the sound".into(), now_dim: false,
-            notes: "Slow, hold the last line".into(), next: "That saved a wretch like me".into(), timer: String::new(), message: String::new(),
+            notes: "Slow, hold the last line".into(), next: "That saved a wretch like me".into(), timer: String::new(), message: String::new(), stage_only: false,
         });
+    }
+
+    #[test]
+    fn classic_shows_a_stage_only_slide_instead_of_the_live_one() {
+        let mut v = view(None, Some(text("Next up")));
+        let mut note = text("Watch me for the ending");
+        note.notes = "Two more times".into();
+        v.stage_only = Some(crate::app::StageOnly { item_id: Uuid::nil(), index: 0, slide: note });
+        let t = stage_text(&v);
+        assert_eq!((t.now.as_str(), t.now_dim, t.stage_only, t.notes.as_str()), ("Watch me for the ending", false, true, "Two more times"));
+        assert_eq!(t.next, "Next up", "the room's next slide is still next");
     }
 
     #[test]

@@ -17,7 +17,11 @@ pub enum Kind { Background, Media, Slide, Logo, Overlays, Audio }
 pub struct Want { pub kind: Kind, pub key: LayerKey, pub timeout: Duration }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Plan { pub token: u64, pub version: u64, pub prepare: Vec<Want>, pub remove: Vec<Kind>, pub fade_through_black: bool }
+pub struct Plan {
+    pub token: u64, pub version: u64, pub prepare: Vec<Want>, pub remove: Vec<Kind>, pub fade_through_black: bool,
+    /// N9: only the look (theme) of what is up changed, so the room fades for Settings' look fade time.
+    pub look_change: bool,
+}
 
 #[derive(Debug)]
 pub enum Ready { Swap { commit: RoomEvent }, Stale }
@@ -32,13 +36,18 @@ const KINDS: [Kind; 6] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Logo
 
 /// The layer keys of one frame, plus what fading needs to know about it.
 #[derive(Clone, Default)]
-struct Layers { keys: [Option<LayerKey>; 6], video: bool, version: Option<u64>, theme: String }
+struct Layers {
+    keys: [Option<LayerKey>; 6], video: bool, version: Option<u64>, theme: String,
+    /// N9: the theme the slide is drawn with, and the slide without it.
+    look: String, content: Option<String>,
+}
 
 impl Layers {
     fn of(view: &LiveView, theme: String) -> Self {
         let f = &view.frame;
         // A slide with its own theme (taken live with one) keys on it alone, so editing the church default never
         // prepares it again; one from an older `live-state.json` follows the view's theme.
+        let (look, content) = look_and_content(view);
         let slide = f.slide.as_ref().map(|s| {
             let own = matches!(s, SlideLayer::Text { theme: Some(_), .. });
             let json = serde_json::to_string(s).unwrap_or_default();
@@ -52,8 +61,16 @@ impl Layers {
             (!f.overlays.is_empty()).then(|| LayerKey::Overlays(overlays_key(view))),
             f.audio.as_ref().map(|a| LayerKey::Audio(a.inst)),
         ];
-        Self { keys, video: is_video(f), version: Some(view.version), theme }
+        Self { keys, video: is_video(f), version: Some(view.version), theme, look, content }
     }
+}
+
+/// The look a frame is drawn with (the church default and the slide's own theme), and the slide without its theme.
+fn look_and_content(view: &LiveView) -> (String, Option<String>) {
+    let mut slide = view.frame.slide.clone();
+    let own = match &mut slide { Some(SlideLayer::Text { theme, .. }) => theme.take(), _ => None };
+    let look = format!("{}|{}", theme_json(view), serde_json::to_string(&own).unwrap_or_default());
+    (look, slide.map(|s| serde_json::to_string(&s).unwrap_or_default()))
 }
 
 /// What the overlay layer shows: its slots without their instance numbers, the font they fall back to and the text
@@ -111,9 +128,12 @@ impl RoomState {
             }
         }
         let fade_through_black = next.keys[1] != self.shown.keys[1] && (next.video || self.shown.video);
+        // The same slide (or none) and media in another look: a look change (N9).
+        let look_change = self.shown.version.is_some() && next.look != self.shown.look && next.content == self.shown.content
+            && next.keys[1] == self.shown.keys[1];
         self.token += 1;
         self.pending = Some((self.token, next));
-        Some(Plan { token: self.token, version: view.version, prepare, remove, fade_through_black })
+        Some(Plan { token: self.token, version: view.version, prepare, remove, fade_through_black, look_change })
     }
 
     /// Everything for `token` is prepared: swap it in if it is still the newest.
@@ -155,7 +175,7 @@ mod tests {
 
     fn view(version: u64, frame: Frame) -> LiveView {
         LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, sections: vec![], changed: None, media: None,
-            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new() }
+            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new(), stage_only: None, look_fade_ms: 0 }
     }
     fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
     fn bg(inst: u64) -> Option<Inst<Background>> { Some(Inst { inst, v: Background::Color { color: "#000".into() } }) }
@@ -212,6 +232,33 @@ mod tests {
         let p = r.plan(&v2).unwrap();
         assert!(r.plan(&v2).is_none());
         assert!(matches!(r.ready(p.token), Ready::Swap { .. }));
+    }
+
+    fn themed(t: &str, size: u32) -> Option<SlideLayer> {
+        let mut s = text(t);
+        if let Some(SlideLayer::Text { theme, .. }) = &mut s { *theme = Some(Theme { size, ..Theme::default() }) }
+        s
+    }
+
+    #[test]
+    fn only_a_new_look_is_a_look_change() {
+        let mut r = RoomState::new();
+        let first = show(&mut r, &view(1, Frame { background: bg(1), slide: themed("a", 80), ..Default::default() }));
+        assert!(!first.look_change, "the first frame is not a change of look");
+        // The same words in another theme, with its background: a look change.
+        let p = show(&mut r, &view(2, Frame { background: bg(2), slide: themed("a", 60), ..Default::default() }));
+        assert!(p.look_change);
+        // The church default changing under a slide without its own theme is one too.
+        show(&mut r, &view(3, Frame { slide: text("a"), ..Default::default() }));
+        let mut v = view(3, Frame { slide: text("a"), ..Default::default() });
+        v.theme.size += 10;
+        assert!(r.plan(&v).expect("a plan").look_change);
+        // Next slide in the same look: an ordinary crossfade.
+        let mut r = RoomState::new();
+        show(&mut r, &view(1, Frame { slide: themed("a", 80), ..Default::default() }));
+        assert!(!show(&mut r, &view(2, Frame { slide: themed("b", 80), ..Default::default() })).look_change);
+        // A new slide in a new look is a new slide.
+        assert!(!show(&mut r, &view(3, Frame { slide: themed("c", 60), ..Default::default() })).look_change);
     }
 
     #[test]

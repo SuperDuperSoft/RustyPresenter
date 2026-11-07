@@ -115,6 +115,22 @@ fn bible_verses_per_slide_round_trips_and_sits_with_the_scripture_size() {
 }
 
 #[test]
+fn look_fade_slider_round_trips_in_tenths() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_look_fade(), 10, "one second by default");
+    assert!(find(&op, "SettingsLook::look-fade").is_some());
+    g(&op).set_look_fade(25);
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.look_fade_ms, 2500);
+    assert_eq!(app.live_view().look_fade_ms, 2500, "the room reads it from the live view");
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_look_fade(), 25);
+}
+
+#[test]
 fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
     let app = test_app();
     let op = opened(&app);

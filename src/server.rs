@@ -222,7 +222,9 @@ fn phone_may(env: &Envelope) -> bool {
         // Overlays on and off (on needs `seen_clear`, checked by the live engine) and F6 (FEAT-1 spec §5.6).
         | Command::Overlay { .. } | Command::ClearOverlays
         // FEAT-2 §5.11: macros and messages marked for the phone (`phone_automation` checks the marks).
-        | Command::RunMacro { .. } | Command::ShowMessage { .. } | Command::HideMessage);
+        | Command::RunMacro { .. } | Command::ShowMessage { .. } | Command::HideMessage
+        // N29: a slide for the stage screen only.
+        | Command::StageOnly { .. });
     let has_base = !matches!(env.cmd, Command::Show { .. } | Command::Jump { .. }) || env.base.is_some();
     allowed && has_base
 }
@@ -290,6 +292,8 @@ fn remote_view(app: &App) -> String {
         "messages": data.automation.messages.iter().filter(|t| t.remote).map(|t| json!({ "id": t.id, "name": t.name, "fields": crate::automation::messages::parse(&t.text).fields })).collect::<Vec<_>>(),
         "message_shown": crate::automation::slots::shown_message(&live.frame.overlays).is_some(),
         "timers": timer_lines(&timers),
+        // N29: the slide on the stage screen only, if any.
+        "stage_only": app.live_view_stage_only().map(|o| json!({ "item_id": o.item_id, "slide": o.index, "label": o.slide.label, "text": slide_text(&o.slide) })),
         // I18N: the page reads `/i18n.json` again when this changes.
         "lang": crate::i18n::current(),
     }).to_string()
@@ -380,6 +384,19 @@ mod tests {
         assert!(phone_may(&env("jump", Some(3))));
         assert!(!phone_may(&env("jump", None)));
         assert!(!phone_may(&env("refresh", Some(3))));
+    }
+
+    #[test]
+    fn the_phone_may_put_a_slide_on_the_stage_only_and_sees_it() {
+        let app = test_app();
+        let id = Uuid::new_v4();
+        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Text { title: "Band".into(), body: "Watch me".into() }, background: None, notes: String::new(), theme: None });
+        let env: Envelope = serde_json::from_value(json!({ "id": "x", "cmd": "stage_only", "item_id": id, "slide": 0 })).unwrap();
+        assert!(phone_may(&env), "no base needed: the room does not change");
+        assert!(app.command(env).ok);
+        let v: Value = serde_json::from_str(&remote_view(&app)).unwrap();
+        assert_eq!(v["stage_only"]["text"], "Watch me");
+        assert!(phone_may(&serde_json::from_value(json!({ "id": "y", "cmd": "stage_only" })).unwrap()));
     }
 
     #[tokio::test]

@@ -3,6 +3,7 @@
 pub mod add_item;
 pub mod automation;
 pub mod bible;
+pub mod bible_extras;
 pub mod checks;
 pub mod file_input;
 #[cfg(test)]
@@ -19,6 +20,7 @@ pub mod overlays;
 pub mod service;
 pub mod service_theme;
 pub mod slides;
+pub mod stage_only;
 #[cfg(test)]
 mod song_flows;
 pub mod text_size;

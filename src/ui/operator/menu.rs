@@ -30,6 +30,8 @@ pub enum MenuAction {
     Automation,
     /// Edit → Find a verse… (FEAT-5).
     FindVerse,
+    /// Edit → About this Bible… (N6): the chosen Bible's licence and where it comes from.
+    BibleInfo,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -61,6 +63,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "stage-layouts" => MenuAction::StageLayouts,
         "automation" => MenuAction::Automation,
         "find-verse" => MenuAction::FindVerse,
+        "bible-info" => MenuAction::BibleInfo,
         _ => return None,
     })
 }
@@ -87,6 +90,10 @@ impl Operator {
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
+            Some(MenuAction::BibleInfo) => {
+                let chosen = self.state.borrow().snap.as_ref().map(|s| s.translation.clone());
+                if let Some(id) = chosen { super::bible_extras::info(self, &id) }
+            }
             None => {}
         }
     }

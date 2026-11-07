@@ -121,6 +121,12 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
     let live = inp.live;
     let caption = style.caption.clone();
     match kind {
+        // N29: a slide for the stage only takes the current slide's box, marked so the band knows the room
+        // doesn't see it.
+        ElementKind::CurrentSlide { pictures, .. } if live.stage_only.is_some() => {
+            let only = live.stage_only.as_ref().map(|o| &o.slide);
+            only.map_or(CellContent::Empty, |slide| slide_content(slide, *pictures, Some(s::stage_only().into())))
+        }
         ElementKind::CurrentSlide { pictures, keep_after_clear } => {
             let f = &live.frame;
             let on_air = f.slide.is_some() || f.media.is_some();
@@ -219,7 +225,7 @@ mod tests {
             item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len(), song_id: None }),
             slide: Some(now),
             next: slides.get(at + 1).map(|s| NextUp { title: "Amazing Grace".into(), slide: s.clone() }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), stage_only: None, look_fade_ms: 0, clear_epoch: 0,
         }
     }
     fn empty_view() -> LiveView {
@@ -260,6 +266,19 @@ mod tests {
         assert_eq!(words(&only(&v, &song(), CUR)), ("Amazing grace", false));
         let next = only(&v, &song(), ElementKind::NextSlide { pictures: false });
         assert_eq!(next, CellContent::Text { text: "That saved a wretch".into(), dim: false, caption: Some("NEXT".into()), red: false });
+    }
+
+    #[test]
+    fn a_stage_only_slide_takes_the_current_box_with_a_caption() {
+        let mut v = song_view(&song(), 0);
+        v.stage_only = Some(crate::app::StageOnly { item_id: Uuid::nil(), index: 3, slide: text("Watch me for the ending") });
+        let c = only(&v, &song(), CUR);
+        assert_eq!(c, CellContent::Text { text: "Watch me for the ending".into(), dim: false, caption: Some("STAGE ONLY".into()), red: false });
+        // The room's slide is still Next's starting point.
+        let next = only(&v, &song(), ElementKind::NextSlide { pictures: false });
+        assert_eq!(words(&next).0, "That saved a wretch");
+        v.stage_only = None;
+        assert_eq!(words(&only(&v, &song(), CUR)), ("Amazing grace", false));
     }
 
     #[test]

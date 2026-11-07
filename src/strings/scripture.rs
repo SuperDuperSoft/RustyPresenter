@@ -157,3 +157,23 @@ pub fn needs_internet(abbr: &str) -> String { tr!("{bible} needs the internet fo
 
 /// An Also Bible that is no longer in the library (Bible library spec §13).
 pub fn bible_removed() -> String { tr!("That Bible was removed. Add it again in Settings → Bibles.") }
+
+// ---- N6: Bible extras ----
+
+/// Prev or Next verse with no passage selected.
+pub fn pick_a_passage() -> String { tr!("Select a Bible passage first.") }
+/// Prev verse on Genesis 1:1, Next verse on Revelation 22:21.
+pub fn no_verse_before() -> String { tr!("There is no verse before this one.") }
+pub fn no_verse_after() -> String { tr!("There is no verse after this one.") }
+/// Save to library: the song's title ("John 3:16-18 (KJV)").
+pub fn saved_passage_title(reference: &str, abbr: &str) -> String { tr!("{reference} ({bible})", reference = reference, bible = abbr) }
+pub fn passage_saved(title: &str) -> String { tr!("Saved “{title}” to the song library.", title = title) }
+
+/// About this Bible: the lines of the notice.
+pub fn info_language(language: &str) -> String { tr!("Language: {language}", language = language) }
+pub fn info_from(provider: &str) -> String { tr!("Comes from: {provider}", provider = provider) }
+pub fn info_copyright(notice: &str) -> String { tr!("Copyright: {notice}", notice = notice) }
+pub fn info_licence(licence: &str) -> String { tr!("Licence: {licence}", licence = licence) }
+pub fn info_needs_key() -> String { tr!("Not connected yet. Add its key in Settings → Bible.") }
+pub fn info_unavailable() -> String { tr!("This Bible isn't on this computer and no online service has it.") }
+pub fn info_no_notice() -> String { tr!("No copyright notice is known. Check the licence before showing it in public.") }
