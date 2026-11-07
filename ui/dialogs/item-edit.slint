@@ -49,6 +49,13 @@ export global ItemEdit {
     in property <[BgChoice]> choices;
     in property <[color]> palette;
     in-out property <string> notes;
+    /// FEAT-2: song, scripture, announcement and slides items can turn their own slides.
+    in property <bool> advance-shown;
+    /// The item has at least two slides.
+    in property <bool> advance-allowed;
+    in-out property <bool> advance-on;
+    in-out property <string> advance-secs: "8";
+    in-out property <bool> advance-loop: true;
 
     callback edit-song();
     callback save();
@@ -311,6 +318,31 @@ export component ItemEditDialog inherits VerticalLayout {
                 custom-color(c) => { ItemEdit.custom-color(c); }
                 custom-hex(t) => { ItemEdit.custom-hex(t); }
                 upload => { ItemEdit.upload(); }
+            }
+        }
+        if ItemEdit.advance-shown: VerticalLayout {
+            padding-bottom: 6px;
+            advance-on := Check {
+                text: @tr("Advance slides automatically");
+                checked <=> ItemEdit.advance-on;
+            }
+            if !ItemEdit.advance-allowed: Text {
+                text: @tr("Needs at least two slides.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+            }
+            if ItemEdit.advance-on && ItemEdit.advance-allowed: HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                padding-bottom: 10px;
+                Text { text: @tr("every"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+                advance-secs := TextField { width: 70px; text <=> ItemEdit.advance-secs; label: @tr("Seconds"); }
+                Text { text: @tr("seconds"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+            }
+            if ItemEdit.advance-on && ItemEdit.advance-allowed: advance-loop := Check {
+                text: @tr("Start over after the last slide");
+                checked <=> ItemEdit.advance-loop;
             }
         }
         Field {

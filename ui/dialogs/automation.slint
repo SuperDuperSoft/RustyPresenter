@@ -1,0 +1,455 @@
+// The Automation dialog (FEAT-2 §3.2–§3.6): Timers · Messages · Macros · Pre-service. A list on the left, the
+// chosen one's form on the right. Filled and answered by `src/ui/dialogs/automation.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, TextArea, Lbl, Check, Select, Note } from "form.slint";
+
+export struct AutoListRow { id: string, title: string, sub: string, readout: string, over: bool, locked: bool }
+export struct AutoStepRow { label: string }
+
+export global AutomationDlg {
+    in-out property <int> tab;
+    in property <string> error;
+    in property <string> note;
+    in property <[AutoListRow]> rows;
+    /// The row whose form is shown; -1 is a new one.
+    in property <int> selected: -1;
+    in property <bool> editing;
+
+    // Timers
+    in-out property <string> t-name;
+    in-out property <int> t-kind;
+    in-out property <bool> t-service-start: true;
+    in-out property <string> t-at;
+    in-out property <string> t-minutes;
+    in-out property <string> t-seconds;
+    in-out property <bool> t-keep-counting;
+    in-out property <int> t-place;
+    in-out property <string> t-caption;
+    in-out property <bool> t-on-stage;
+    in-out property <bool> t-on-phone;
+    in-out property <int> t-at-zero;
+    in property <[string]> t-at-zero-options;
+    in-out property <string> starts-at;
+    in property <bool> t-running;
+
+    // Messages
+    in-out property <string> m-name;
+    in-out property <string> m-text;
+    in-out property <int> m-place;
+    in-out property <int> m-hide;
+    in-out property <bool> m-phone;
+    in property <string> m-fields;
+
+    // Macros
+    in-out property <string> k-name;
+    in-out property <int> k-color;
+    in-out property <bool> k-phone;
+    in property <bool> k-locked;
+    in property <[AutoStepRow]> k-steps;
+    in property <[string]> step-kinds;
+    in-out property <int> step-kind;
+    in property <[string]> step-targets;
+    in-out property <int> step-target;
+    in property <bool> step-needs-text;
+    in-out property <string> step-text;
+
+    // Pre-service
+    in property <[string]> p-loop-options;
+    in-out property <int> p-loop;
+    in property <[string]> p-music-options;
+    in-out property <int> p-music;
+    in-out property <int> p-place;
+    in-out property <string> p-caption;
+    in-out property <int> p-end;
+
+    callback tab-changed(int);
+    callback pick(int);
+    callback new-one();
+    callback save();
+    callback delete();
+    callback timer-start();
+    callback timer-reset();
+    callback starts-at-save();
+    callback message-text-edited();
+    callback step-kind-changed();
+    callback step-add();
+    callback step-move(int, int);
+    callback step-remove(int);
+    callback preservice-save();
+}
+
+component Gap inherits Rectangle { height: 12px; }
+
+/// One labelled control.
+component Labelled inherits VerticalLayout {
+    in property <string> label;
+    spacing: 6px;
+    padding-bottom: 10px;
+    Lbl { label: root.label; }
+    @children
+}
+
+component TimerForm inherits VerticalLayout {
+    Labelled {
+        label: @tr("Name");
+        t-name := TextField { text <=> AutomationDlg.t-name; }
+    }
+    Labelled {
+        label: @tr("Kind");
+        t-kind := Segmented {
+            labels: [@tr("Count down to a time"), @tr("Count down"), @tr("Count up")];
+            index <=> AutomationDlg.t-kind;
+        }
+    }
+    if AutomationDlg.t-kind == 0: VerticalLayout {
+        t-service-start := Check {
+            text: @tr("This service's start time");
+            checked <=> AutomationDlg.t-service-start;
+        }
+        if !AutomationDlg.t-service-start: Labelled {
+            label: @tr("Time (like 10:30 or 18:45)");
+            t-at := TextField { width: 140px; text <=> AutomationDlg.t-at; placeholder: "10:30"; }
+        }
+    }
+    if AutomationDlg.t-kind == 1: Labelled {
+        label: @tr("Length (minutes and seconds)");
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            t-minutes := TextField { width: 80px; text <=> AutomationDlg.t-minutes; label: @tr("Minutes"); }
+            Text { text: ":"; color: Theme.text; vertical-alignment: center; }
+            t-seconds := TextField { width: 80px; text <=> AutomationDlg.t-seconds; label: @tr("Seconds"); }
+        }
+    }
+    if AutomationDlg.t-kind != 2: t-overrun := Check {
+        text: @tr("Keep counting after zero (+m:ss)");
+        checked <=> AutomationDlg.t-keep-counting;
+    }
+    Labelled {
+        label: @tr("When it reaches zero");
+        t-at-zero := Select { options: AutomationDlg.t-at-zero-options; index <=> AutomationDlg.t-at-zero; }
+    }
+    Labelled {
+        label: @tr("Place on the screen");
+        t-place := Select {
+            options: [@tr("Top right"), @tr("Top left"), @tr("Bottom right"), @tr("Bottom left"), @tr("Centre (large)")];
+            index <=> AutomationDlg.t-place;
+        }
+    }
+    Labelled {
+        label: @tr("Caption");
+        t-caption := TextField { text <=> AutomationDlg.t-caption; placeholder: @tr("Service starts in"); }
+    }
+    t-on-stage := Check { text: @tr("Show on stage"); checked <=> AutomationDlg.t-on-stage; }
+    t-on-phone := Check { text: @tr("Show on the phone remote"); checked <=> AutomationDlg.t-on-phone; }
+}
+
+component MessageForm inherits VerticalLayout {
+    Labelled {
+        label: @tr("Name");
+        m-name := TextField { text <=> AutomationDlg.m-name; }
+    }
+    Labelled {
+        label: @tr("Text");
+        m-text := TextField {
+            text <=> AutomationDlg.m-text;
+            edited => { AutomationDlg.message-text-edited(); }
+        }
+        Text {
+            text: @tr("Put a word in {curly brackets} to make a box to fill in, like {Number}.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+        }
+        if AutomationDlg.m-fields != "": m-fields := Text {
+            text: AutomationDlg.m-fields;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+        }
+    }
+    Labelled {
+        label: @tr("Position");
+        m-place := Segmented { labels: [@tr("Bottom"), @tr("Top")]; index <=> AutomationDlg.m-place; }
+    }
+    Labelled {
+        label: @tr("Hide after");
+        m-hide := Select {
+            options: [@tr("Never"), @tr("15 s"), @tr("30 s"), @tr("1 min"), @tr("2 min"), @tr("5 min")];
+            index <=> AutomationDlg.m-hide;
+        }
+    }
+    m-phone := Check { text: @tr("Can be shown from the phone"); checked <=> AutomationDlg.m-phone; }
+}
+
+component MacroForm inherits VerticalLayout {
+    if AutomationDlg.k-locked: Note { text: @tr("Change it in the Pre-service tab"); }
+    Labelled {
+        label: @tr("Name");
+        k-name := TextField { text <=> AutomationDlg.k-name; }
+    }
+    Labelled {
+        label: @tr("Colour");
+        k-color := Select {
+            options: [@tr("Amber"), @tr("Red"), @tr("Orange"), @tr("Green"), @tr("Teal"), @tr("Blue"), @tr("Purple"), @tr("Grey")];
+            index <=> AutomationDlg.k-color;
+        }
+    }
+    k-phone := Check { text: @tr("Show on the phone remote"); checked <=> AutomationDlg.k-phone; }
+    Lbl { label: @tr("Steps"); }
+    Rectangle { height: 6px; }
+    for s[i] in AutomationDlg.k-steps: step-row := Rectangle {
+        background: Theme.panel-2;
+        border-radius: 8px;
+        HorizontalLayout {
+            padding: 6px;
+            padding-left: 10px;
+            spacing: 4px;
+            Text {
+                horizontal-stretch: 1;
+                text: (i + 1) + ". " + s.label;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+            if !AutomationDlg.k-locked: Btn { small: true; icon: "chevron-down"; tooltip: @tr("Move down"); clicked => { AutomationDlg.step-move(i, 1); } }
+            if !AutomationDlg.k-locked: Btn { small: true; text: "↑"; tooltip: @tr("Move up"); clicked => { AutomationDlg.step-move(i, -1); } }
+            if !AutomationDlg.k-locked: Btn { small: true; icon: "trash"; tooltip: @tr("Remove"); clicked => { AutomationDlg.step-remove(i); } }
+        }
+    }
+    if AutomationDlg.k-steps.length == 0: Text {
+        text: @tr("No steps yet.");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+    }
+    if !AutomationDlg.k-locked: VerticalLayout {
+        padding-top: 10px;
+        spacing: 6px;
+        Lbl { label: @tr("Add step"); }
+        HorizontalLayout {
+            spacing: 8px;
+            step-kind := Select {
+                horizontal-stretch: 1;
+                options: AutomationDlg.step-kinds;
+                index <=> AutomationDlg.step-kind;
+                changed => { AutomationDlg.step-kind-changed(); }
+            }
+            if AutomationDlg.step-targets.length > 0: step-target := Select {
+                horizontal-stretch: 1;
+                options: AutomationDlg.step-targets;
+                index <=> AutomationDlg.step-target;
+            }
+        }
+        if AutomationDlg.step-needs-text: step-text := TextField {
+            text <=> AutomationDlg.step-text;
+            placeholder: @tr("What to fill in, like Number=27");
+        }
+        HorizontalLayout {
+            alignment: start;
+            step-add := Btn { small: true; icon: "plus"; text: @tr("Add step"); clicked => { AutomationDlg.step-add(); } }
+        }
+    }
+}
+
+component PreServiceForm inherits VerticalLayout {
+    Note { text: @tr("Start countdown puts the music and the slides up and counts down to this service's start time."); }
+    Gap {}
+    Labelled {
+        label: @tr("Countdown to");
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            p-starts-at := TextField { width: 120px; text <=> AutomationDlg.starts-at; placeholder: "10:30"; label: @tr("Starts at"); }
+            Btn { small: true; text: @tr("Set start time"); clicked => { AutomationDlg.starts-at-save(); } }
+        }
+    }
+    Labelled {
+        label: @tr("Loop these slides");
+        p-loop := Select { options: AutomationDlg.p-loop-options; index <=> AutomationDlg.p-loop; }
+    }
+    Labelled {
+        label: @tr("Play music");
+        p-music := Select { options: AutomationDlg.p-music-options; index <=> AutomationDlg.p-music; }
+    }
+    Labelled {
+        label: @tr("Countdown position");
+        p-place := Select {
+            options: [@tr("Top right"), @tr("Top left"), @tr("Bottom right"), @tr("Bottom left"), @tr("Centre (large)")];
+            index <=> AutomationDlg.p-place;
+        }
+    }
+    Labelled {
+        label: @tr("Caption");
+        p-caption := TextField { text <=> AutomationDlg.p-caption; }
+    }
+    Labelled {
+        label: @tr("When the countdown ends");
+        p-end := Select {
+            options: [@tr("Hide the countdown"), @tr("Show the logo"), @tr("Clear everything"), @tr("Put the first item on the screen")];
+            index <=> AutomationDlg.p-end;
+        }
+    }
+    if AutomationDlg.p-end > 0: Text {
+        text: @tr("Only happens if nobody has changed the screen since the countdown started.");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+}
+
+export component AutomationDialog inherits VerticalLayout {
+    in property <length> window-height;
+    HorizontalLayout {
+        padding-left: 22px;
+        padding-right: 22px;
+        padding-bottom: 8px;
+        tabs := Segmented {
+            labels: [@tr("Timers"), @tr("Messages"), @tr("Macros"), @tr("Pre-service")];
+            index <=> AutomationDlg.tab;
+            changed(i) => { AutomationDlg.tab-changed(i); }
+        }
+    }
+    DialogBody {
+        min-height: min(560px, root.window-height - 220px);
+        if AutomationDlg.tab == 3: PreServiceForm {}
+        if AutomationDlg.tab != 3: HorizontalLayout {
+            spacing: 18px;
+            // The list.
+            VerticalLayout {
+                width: 280px;
+                spacing: 4px;
+                alignment: start;
+                if AutomationDlg.tab == 0: HorizontalLayout {
+                    padding-bottom: 8px;
+                    spacing: 8px;
+                    Text {
+                        text: @tr("This service starts at");
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12.5px;
+                        vertical-alignment: center;
+                    }
+                    starts-at := TextField { width: 80px; text <=> AutomationDlg.starts-at; placeholder: "10:30"; label: @tr("Starts at"); accepted => { AutomationDlg.starts-at-save(); } }
+                    Btn { small: true; text: @tr("Set"); clicked => { AutomationDlg.starts-at-save(); } }
+                }
+                for r[i] in AutomationDlg.rows: auto-row := Rectangle {
+                    border-radius: 9px;
+                    background: i == AutomationDlg.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                    border-width: 1px;
+                    border-color: i == AutomationDlg.selected ? Theme.accent : transparent;
+                    accessible-role: list-item;
+                    accessible-label: r.title;
+                    accessible-action-default => { AutomationDlg.pick(i); }
+                    HorizontalLayout {
+                        padding: 8px;
+                        padding-left: 10px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            Text {
+                                text: (r.locked ? "🔒 " : "") + r.title;
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: Theme.base-size;
+                                font-weight: 600;
+                                overflow: elide;
+                            }
+                            if r.sub != "": Text {
+                                text: r.sub;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                overflow: elide;
+                            }
+                        }
+                        if r.readout != "": Text {
+                            text: r.readout;
+                            color: r.over ? Theme.live : Theme.text;
+                            font-family: Theme.font;
+                            font-size: 15px;
+                            font-weight: 700;
+                            vertical-alignment: center;
+                        }
+                    }
+                    row-ta := TouchArea { mouse-cursor: pointer; clicked => { AutomationDlg.pick(i); } }
+                }
+                HorizontalLayout {
+                    padding-top: 8px;
+                    alignment: start;
+                    new-btn := Btn {
+                        small: true;
+                        icon: "plus";
+                        text: AutomationDlg.tab == 0 ? @tr("New timer") : AutomationDlg.tab == 1 ? @tr("New message") : @tr("New macro");
+                        clicked => { AutomationDlg.new-one(); }
+                    }
+                }
+            }
+            Rectangle { width: 1px; background: Theme.line; }
+            // The form.
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: start;
+                if !AutomationDlg.editing: Text {
+                    text: @tr("Pick one on the left, or make a new one.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                }
+                if AutomationDlg.editing && AutomationDlg.tab == 0: TimerForm {}
+                if AutomationDlg.editing && AutomationDlg.tab == 1: MessageForm {}
+                if AutomationDlg.editing && AutomationDlg.tab == 2: MacroForm {}
+            }
+        }
+        if AutomationDlg.note != "": auto-note := Text {
+            text: AutomationDlg.note;
+            color: Theme.ok;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+        }
+        if AutomationDlg.error != "": auto-error := Text {
+            text: AutomationDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0: timer-reset := Btn {
+            text: @tr("Reset");
+            clicked => { AutomationDlg.timer-reset(); }
+        }
+        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0: timer-start := Btn {
+            icon: AutomationDlg.t-running ? "pause" : "play";
+            text: AutomationDlg.t-running ? @tr("Pause") : @tr("Start");
+            clicked => { AutomationDlg.timer-start(); }
+        }
+        if AutomationDlg.tab != 3 && AutomationDlg.editing && AutomationDlg.selected >= 0: delete-btn := Btn {
+            danger: true;
+            icon: "trash";
+            text: @tr("Delete");
+            clicked => { AutomationDlg.delete(); }
+        }
+        if AutomationDlg.tab != 3 && AutomationDlg.editing && !AutomationDlg.k-locked: save-btn := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { AutomationDlg.save(); }
+        }
+        if AutomationDlg.tab == 3: pre-save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { AutomationDlg.preservice-save(); }
+        }
+    }
+}

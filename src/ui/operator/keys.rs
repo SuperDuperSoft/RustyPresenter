@@ -18,6 +18,8 @@ pub enum KeyAction {
     PasteLink,
     /// A section key for the live song (FEAT-4 §3.2): `1`–`9` that verse, or a section letter, lower case.
     JumpSection(char),
+    /// Ctrl+Shift+M (Cmd+Shift+M): Show message (FEAT-2 §3.3), even while typing.
+    ShowMessage,
     None,
 }
 
@@ -71,6 +73,10 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     }
     if ctrl_or_cmd && key.eq_ignore_ascii_case("b") {
         return if ctx.dialog_open { KeyAction::None } else { KeyAction::FocusBible };
+    }
+    // The window only offers Ctrl+M with Shift held (`captured` in `operator.slint`).
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("m") {
+        return if ctx.dialog_open { KeyAction::None } else { KeyAction::ShowMessage };
     }
     if ctx.dialog_open {
         return KeyAction::None;
@@ -160,6 +166,7 @@ impl Operator {
                 None => return false,
             },
             KeyAction::JumpSection(c) => return self.jump_section(c),
+            KeyAction::ShowMessage => crate::ui::dialogs::show_message::open(self),
             KeyAction::None => return false,
         }
         true

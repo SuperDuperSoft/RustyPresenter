@@ -6,6 +6,7 @@ pub mod add;
 pub mod add_media;
 pub mod add_youtube;
 pub mod ask;
+pub mod automation;
 pub mod background;
 pub mod item_edit;
 pub mod phone;
@@ -17,6 +18,7 @@ pub mod settings_audio;
 pub mod settings_bible;
 pub mod settings_language;
 pub mod settings_look;
+pub mod show_message;
 pub mod song_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
@@ -53,6 +55,10 @@ pub enum DialogKind {
     Settings(SettingsTab),
     /// The song use report (FEAT-7 §3.3).
     Usage,
+    /// Timers, messages, macros and the pre-service countdown (FEAT-2).
+    Automation,
+    /// Show a message on the room screen (FEAT-2 §3.3).
+    ShowMessage,
 }
 
 impl DialogKind {
@@ -61,7 +67,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::Automation) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -75,6 +81,8 @@ impl DialogKind {
             DialogKind::Phone => "phone",
             DialogKind::Settings(_) => "settings",
             DialogKind::Usage => "usage",
+            DialogKind::Automation => "automation",
+            DialogKind::ShowMessage => "show-message",
         }
     }
 }
@@ -187,6 +195,8 @@ impl Operator {
             DialogKind::Phone => strings::phone().into(),
             DialogKind::Settings(_) => strings::settings().into(),
             DialogKind::Usage => crate::usage::strings::title().into(),
+            DialogKind::Automation => crate::tr!("Automation"),
+            DialogKind::ShowMessage => crate::tr!("Show message"),
         }
     }
 }

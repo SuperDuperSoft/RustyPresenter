@@ -139,6 +139,7 @@ impl Operator {
         overlays::wire(&op);
         crate::ui::dialogs::wire(&op);
         files::wire(&op);
+        super::automation::wire(&op);
         checks::wire(&op);
         menu::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
@@ -217,6 +218,7 @@ impl Operator {
         self.ui.set_loaded(true);
         if data_changed || lang_changed { self.dialog_refresh(); }
         if lang_changed && self.state.borrow().live.is_some() { self.render_live(); }
+        super::automation::render(self);
         self.watch_decks();
     }
 
@@ -231,6 +233,13 @@ impl Operator {
         self.mark_slides();
         self.mark_media();
         self.render_live();
+        super::automation::render(self);
+    }
+
+    /// A new timer readout (FEAT-2): the strip and the Automation dialog's readouts follow it.
+    pub fn apply_timers(&self) {
+        super::automation::render(self);
+        crate::ui::dialogs::automation::readouts(self);
     }
 
     /// The item the live cursor is on (`L.cursor.item_id`), if any.
@@ -271,7 +280,7 @@ impl Drop for Operator {
 
 /// What the follower has read and the Slint thread has not applied yet: only the newest of each.
 #[derive(Default)]
-struct Pending { snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate> }
+struct Pending { snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool }
 
 /// The follower's side: reads and patches snapshots off the Slint thread and posts them to `listen`.
 struct Feed {
@@ -319,6 +328,8 @@ impl Feed {
         for u in batch {
             match u {
                 Some(Update::Live(v)) => live = Some(v),
+                // FEAT-2: the strip reads the newest readout itself (`App::timers`).
+                Some(Update::Timers(_)) => { self.pending.lock().unwrap().timers = true; self.wake.notify_one(); }
                 Some(Update::Job { id, percent }) => self.patch(|s| match s.jobs.iter_mut().find(|j| j.id == id) {
                     Some(j) => { j.percent = percent; true }
                     None => false,
@@ -353,10 +364,11 @@ fn listen(me: Weak<Operator>, feed: Arc<Feed>) -> bool {
             feed.wake.notified().await;
             if feed.is_closed() { return }
             let Some(op) = me.upgrade() else { return };
-            let Pending { snap, live } = feed.take();
+            let Pending { snap, live, timers } = feed.take();
             // Live first, so the selection can fall back to the live item (`operator.js:73`).
             if let Some(v) = live { op.apply_live(v); }
             if let Some(s) = snap { op.apply_snapshot(s); }
+            if timers { op.apply_timers(); }
         }
     }).is_ok()
 }
@@ -567,7 +579,7 @@ mod tests {
         add_video(&app);
         let feed = Feed::new(app.clone(), true);
         feed.read_all();
-        let Pending { snap, live } = feed.take();
+        let Pending { snap, live, .. } = feed.take();
         assert!(live.is_some(), "a full read carries the live view too");
         let op = open(&app);
         op.apply_snapshot(snap.unwrap());
