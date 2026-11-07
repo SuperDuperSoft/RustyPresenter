@@ -13,6 +13,8 @@ export struct SlideRowCells { cells: [SlideCell] }
 
 /// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
 component Welcome inherits VerticalLayout {
+    callback add();
+    callback screens();
     padding-left: 16px;
     padding-right: 16px;
     alignment: start;
@@ -75,6 +77,23 @@ component Welcome inherits VerticalLayout {
                             font-size: Theme.base-size;
                             vertical-alignment: center;
                             wrap: word-wrap;
+                        }
+                    }
+                    // N7: the first two steps as buttons.
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: 10px;
+                        padding-top: 6px;
+                        welcome-screens := Btn {
+                            icon: "monitor";
+                            text: @tr("Screens");
+                            clicked => { root.screens(); }
+                        }
+                        welcome-add := Btn {
+                            primary: true;
+                            icon: "plus";
+                            text: @tr("Add to service");
+                            clicked => { root.add(); }
                         }
                     }
                 }
@@ -265,6 +284,9 @@ export component SlidesPanel inherits VerticalLayout {
     callback text-auto();
     /// The grid's width changed (Rust works out the columns and the thumbnail size).
     callback grid-resized(length);
+    /// The Welcome panel's buttons (N7).
+    callback welcome-add();
+    callback welcome-screens();
 
     /// `.grid`: 16 px side padding and 14 px gaps; cells share the width like `repeat(auto-fill, minmax(230px, 1fr))`.
     property <length> cell-w: max(1px, (grid.width - 32px - 14px * (root.columns - 1)) / max(1, root.columns));
@@ -436,6 +458,8 @@ export component SlidesPanel inherits VerticalLayout {
         }
 
         if root.loaded && root.item-count == 0: welcome := Welcome {
+            add => { root.welcome-add(); }
+            screens => { root.welcome-screens(); }
             y: root.window-height * 9%;
             width: parent.width;
             height: self.preferred-height;

@@ -3,11 +3,51 @@ use super::{strings as tr, window::Operator};
 use crate::{preflight, ui::dialogs::ask};
 use std::rc::Rc;
 
+/// N2: how often the service is checked by itself, for the status pill.
+pub const EVERY: std::time::Duration = std::time::Duration::from_secs(30);
+
 pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
-    op.ui.on_check_service(move || if let Some(op) = me.upgrade() { check(&op) });
+    op.ui.on_check_service(move || if let Some(op) = me.upgrade() { check(&op); recheck(&op) });
     let me = Rc::downgrade(op);
     op.ui.on_stage_message(move || if let Some(op) = me.upgrade() { stage_message(&op) });
+}
+
+/// Starts the quiet check: once now, then every `EVERY`, while the window is open.
+pub(super) fn start_watch(op: &Rc<Operator>) {
+    recheck(op);
+    let me = Rc::downgrade(op);
+    op.check_timer.start(slint::TimerMode::Repeated, EVERY, move || if let Some(op) = me.upgrade() { recheck(&op) });
+}
+
+/// Runs the check off the UI thread and puts the answer on the status pill.
+pub(super) fn recheck(op: &Rc<Operator>) {
+    let me = Rc::downgrade(op);
+    op.ops().preflight(move |problems| if let Some(op) = me.upgrade() { show_pill(&op, &problems) });
+}
+
+fn show_pill(op: &Operator, problems: &[String]) {
+    let p = pill(problems);
+    op.ui.set_check_state(p.state.into());
+    op.ui.set_check_label(p.label.into());
+    op.ui.set_check_tip(p.tip.into());
+}
+
+/// What the status pill says for these problems (N2).
+#[derive(Debug, PartialEq)]
+pub struct CheckPill { pub state: &'static str, pub label: String, pub tip: String }
+
+/// At most this many problems in the pill's tooltip; clicking it shows the full report.
+const TIP_LINES: usize = 3;
+
+pub fn pill(problems: &[String]) -> CheckPill {
+    if problems.is_empty() {
+        return CheckPill { state: "on", label: crate::tr!("Ready"), tip: crate::tr!("Nothing missing for this service.") };
+    }
+    let mut tip: Vec<String> = problems.iter().take(TIP_LINES).cloned().collect();
+    if problems.len() > TIP_LINES { tip.push(crate::trn!("…and {n} more", "…and {n} more", problems.len() - TIP_LINES)) }
+    tip.push(crate::tr!("Click to see everything."));
+    CheckPill { state: "warn", label: crate::trn!("{n} problem", "{n} problems", problems.len()), tip: tip.join("\n") }
 }
 
 fn check(op: &Rc<Operator>) {
@@ -63,6 +103,29 @@ mod tests {
         assert!(row.text.contains(&pf::empty_service()), "{}", row.text);
         assert_eq!(row.cancel_label, "", "a report, not a question");
         assert_eq!(app.live_view().version, version);
+    }
+
+    #[test]
+    fn pill_says_ready_or_counts_problems_and_lists_a_few() {
+        let ok = pill(&[]);
+        assert_eq!((ok.state, ok.label.as_str()), ("on", "Ready"));
+        let one = pill(&["Room screen is not connected".into()]);
+        assert_eq!((one.state, one.label.as_str()), ("warn", "1 problem"));
+        assert!(one.tip.starts_with("Room screen is not connected"), "{}", one.tip);
+        let five: Vec<String> = (1..=5).map(|i| format!("p{i}")).collect();
+        let many = pill(&five);
+        assert_eq!(many.label, "5 problems");
+        assert!(many.tip.contains("p3") && !many.tip.contains("p4") && many.tip.contains("2 more"), "{}", many.tip);
+    }
+
+    #[test]
+    fn status_pill_shows_the_quiet_check_and_opens_the_report() {
+        let (_app, op) = opened();
+        recheck(&op);
+        assert_eq!(op.ui.get_check_state(), "warn", "a test app has no room screen");
+        click(&op, "TopBar::status-check");
+        let row = asked(&op).expect("a report");
+        assert!(row.text.contains(&pf::no_room()), "{}", row.text);
     }
 
     #[test]

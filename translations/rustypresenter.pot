@@ -1071,6 +1071,30 @@ msgid "updating…"
 msgstr ""
 
 #: ui/operator/live.slint
+msgid "−15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Edit words"
 msgstr ""
 
@@ -1159,7 +1183,11 @@ msgid "Delete folder"
 msgstr ""
 
 #: ui/operator/media.slint
-msgid "Nothing here yet. Click Import, or try another folder or word."
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import media"
 msgstr ""
 
 #: ui/operator/media.slint
@@ -1170,7 +1198,7 @@ msgstr ""
 msgid "Use as background"
 msgstr ""
 
-#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
 msgstr ""
 
@@ -1223,7 +1251,7 @@ msgid "Your service is empty"
 msgstr ""
 
 #: ui/operator/service.slint
-msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -1248,6 +1276,10 @@ msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
+msgstr ""
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
 msgstr ""
 
 #: ui/operator/slides.slint ui/operator.slint
@@ -1332,10 +1364,6 @@ msgstr ""
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
-msgstr ""
-
-#: ui/operator/topbar.slint
-msgid "Screens"
 msgstr ""
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
@@ -2154,6 +2182,10 @@ msgstr ""
 msgid "That audio is no longer playing."
 msgstr ""
 
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr ""
+
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
 msgstr ""
@@ -2412,7 +2444,7 @@ msgstr ""
 msgid "Give it a title."
 msgstr ""
 
-#: src/strings/add.rs
+#: src/strings/add.rs src/ui/operator/checks.rs
 msgid "Ready"
 msgstr ""
 
@@ -3633,9 +3665,11 @@ msgstr[1] ""
 msgid "{number}. {title}: {problem}"
 msgstr ""
 
-#: src/strings/preflight.rs
+#: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
-msgstr ""
+msgid_plural "…and {n} more"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -5170,6 +5204,20 @@ msgstr ""
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
 msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"

@@ -415,6 +415,16 @@ impl Player {
         let _ = unsafe { self.core.mpv.set_property(self.core.h, "pause", if paused { "yes" } else { "no" }) };
     }
 
+    /// Jumps `secs` forward (positive) or back (negative) from where it is (N4).
+    pub fn seek_by(&self, secs: f64) {
+        let _ = unsafe { self.core.mpv.command(self.core.h, &["seek", &format!("{secs}"), "relative"]) };
+    }
+
+    /// Jumps to `secs` before the end (N4). mpv reads a negative absolute time from the end.
+    pub fn seek_before_end(&self, secs: f64) {
+        let _ = unsafe { self.core.mpv.command(self.core.h, &["seek", &format!("{}", -secs.abs()), "absolute"]) };
+    }
+
     /// Moves this player to another sound output. Empty is the system default, as in `Options`.
     pub fn set_audio_device(&self, name: &str) {
         let name = if name.is_empty() { "auto" } else { name };
@@ -644,6 +654,24 @@ mod tests {
         assert!(all.iter().any(|r| r.position > 1.0), "{all:?}");
         // 2 s of time-pos at most every 500 ms, plus state changes.
         assert!(all.len() <= 8, "{} reports: {all:?}", all.len());
+    }
+
+    #[test]
+    fn seeks_forward_back_and_to_near_the_end() {
+        let Some(mpv) = mpv() else { return };
+        let (p, rx) = start(&mpv, Role::Foreground(EndAction::Hold), 4, "av://lavfi:testsrc2=size=320x240:rate=30:duration=40");
+        let (v, ok) = until(&rx, 5.0, |r| r.state == PlayState::Playing && r.duration > 1.0);
+        assert!(ok, "{v:?}");
+        p.set_paused(true);
+        p.seek_by(15.0);
+        let (v, ok) = until(&rx, 5.0, |r| r.position > 14.0 && r.position < 17.0);
+        assert!(ok, "forward 15 s: {v:?}");
+        p.seek_by(-15.0);
+        let (v, ok) = until(&rx, 5.0, |r| r.position < 2.0);
+        assert!(ok, "back 15 s: {v:?}");
+        p.seek_before_end(10.0);
+        let (v, ok) = until(&rx, 5.0, |r| r.position > 29.0 && r.position < 31.0);
+        assert!(ok, "10 s before the end of 40: {v:?}");
     }
 
     #[test]

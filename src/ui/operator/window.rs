@@ -96,6 +96,8 @@ pub struct Operator {
     pub(super) overlays: Overlays,
     /// Adding files: PowerPoint imports waiting for their deck, the desktop drop, the window's event filter (see `files`).
     pub(super) files: FilesState,
+    /// N2: re-runs the service check for the status pill.
+    pub(super) check_timer: slint::Timer,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -126,7 +128,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -142,6 +144,7 @@ impl Operator {
         crate::ui::dialogs::wire(&op);
         files::wire(&op);
         checks::wire(&op);
+        checks::start_watch(&op);
         menu::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }

@@ -168,6 +168,8 @@ struct Inner {
     face_ops: [(Chan, Chan); 5],
     /// The newest live view, for the clock's tick.
     last: RefCell<Option<LiveView>>,
+    /// The newest `Seek::n` already done (N4), so each jump happens once.
+    seeked: Cell<u64>,
     /// Runs once a second while a bound overlay (a clock) is on: a new text prepares only the overlay layer.
     clock: Timer,
     black: Chan,
@@ -200,7 +202,10 @@ impl Inner {
         *self.last.borrow_mut() = Some(view.clone());
         self.sync_clock(view);
         let plan = self.state.borrow_mut().plan(view);
-        match plan { Some(plan) => self.start(plan, view), None => self.sync_pause(&room::pause_sync(view)) }
+        match plan {
+            Some(plan) => self.start(plan, view),
+            None => { self.sync_pause(&room::pause_sync(view)); self.sync_seek(view.frame.seek) }
+        }
     }
 
     /// The size layers are prepared at: the room monitor's, else the window's.
@@ -353,6 +358,7 @@ impl Inner {
         self.ui.set_video(self.surface.active());
         self.ui.set_bg_visible(room::draw_background(&prep.frame));
         self.sync_pause(&prep.pause);
+        self.sync_seek(prep.frame.seek);
         if let Some(c) = commit { self.shared.emit(c) }
         if let Some(f) = self.swap_probe.borrow().as_ref() { f() }
     }
@@ -378,6 +384,19 @@ impl Inner {
     fn sync_device(&self, device: &str) {
         let players = self.players.borrow();
         for p in [&players[MEDIA], &players[AUDIO]].into_iter().flatten() { p.set_audio_device(device) }
+    }
+
+    /// Does the newest jump once, on the player it names (one taken off air since is left alone).
+    fn sync_seek(&self, seek: Option<crate::live::Seek>) {
+        let Some(s) = seek.filter(|s| s.n > self.seeked.get()) else { return };
+        self.seeked.set(s.n);
+        let players = self.players.borrow();
+        for p in [&players[MEDIA], &players[AUDIO]].into_iter().flatten().filter(|p| p.inst() == s.inst) {
+            match s.to {
+                crate::live::SeekTo::By { secs } => p.seek_by(secs),
+                crate::live::SeekTo::BeforeEnd { secs } => p.seek_before_end(secs),
+            }
+        }
     }
 
     fn sync_pause(&self, pairs: &[(u64, bool)]) {
@@ -478,7 +497,7 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });

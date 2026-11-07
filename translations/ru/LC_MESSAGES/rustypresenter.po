@@ -5,7 +5,16 @@
 # Russian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 # Russian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ru\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Русский\nX-English-Name: Russian\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Native-Name: Русский\n"
+"X-English-Name: Russian\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -916,8 +925,20 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— названия разделов на отдельной строке; пустая строка внутри раздела начинает новый слайд"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Куплет 1]\nО благодать, спасён тобой\nЯ из пучины бед\n\n[Припев]\nЦепей уж нет…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Куплет 1]\n"
+"О благодать, спасён тобой\n"
+"Я из пучины бед\n"
+"\n"
+"[Припев]\n"
+"Цепей уж нет…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1064,6 +1085,30 @@ msgid "updating…"
 msgstr "обновление…"
 
 #: ui/operator/live.slint
+msgid "−15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Edit words"
 msgstr "Править текст"
 
@@ -1152,8 +1197,12 @@ msgid "Delete folder"
 msgstr "Удалить папку"
 
 #: ui/operator/media.slint
-msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr "Здесь пока пусто. Нажмите «Импорт» или выберите другую папку либо слово."
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import media"
+msgstr ""
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -1163,7 +1212,7 @@ msgstr "Выберите файл"
 msgid "Use as background"
 msgstr "Сделать фоном"
 
-#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
 msgstr "Добавить в служение"
 
@@ -1216,8 +1265,8 @@ msgid "Your service is empty"
 msgstr "Ваше служение пустое"
 
 #: ui/operator/service.slint
-msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr "Нажмите «Добавить в служение» ниже, введите стих Библии вверху или перетащите файлы в это окно."
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
+msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -1242,6 +1291,10 @@ msgstr "Введите стих, например «Иоанна 3:16», в по
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "Во время служения нажимайте большую кнопку «Далее» (или клавишу →)."
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Экраны"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
@@ -1326,10 +1379,6 @@ msgstr "Подключены телефоны-пульты"
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
 msgstr "Показать сообщение на экране сцены"
-
-#: ui/operator/topbar.slint
-msgid "Screens"
-msgstr "Экраны"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
@@ -2147,6 +2196,10 @@ msgstr "Это видео больше не воспроизводится."
 msgid "That audio is no longer playing."
 msgstr "Этот звук больше не воспроизводится."
 
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr ""
+
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
 msgstr "В эфире пока ничего нет."
@@ -2410,7 +2463,7 @@ msgstr "{passage} добавлен"
 msgid "Give it a title."
 msgstr "Дайте название."
 
-#: src/strings/add.rs
+#: src/strings/add.rs src/ui/operator/checks.rs
 msgid "Ready"
 msgstr "Готово"
 
@@ -3645,9 +3698,12 @@ msgstr[2] "Не хватает {missing} из {n} слайдов"
 msgid "{number}. {title}: {problem}"
 msgstr "{number}. {title}: {problem}"
 
-#: src/strings/preflight.rs
+#: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
-msgstr "…и ещё {n}"
+msgid_plural "…and {n} more"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -5196,6 +5252,21 @@ msgstr "{day} в {time} UTC"
 msgid "{time} UTC"
 msgstr "{time} UTC"
 
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
 msgstr "не удалось загрузить картинку"
@@ -5359,3 +5430,9 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Nothing here yet. Click Import, or try another folder or word."
+#~ msgstr "Здесь пока пусто. Нажмите «Импорт» или выберите другую папку либо слово."
+
+#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+#~ msgstr "Нажмите «Добавить в служение» ниже, введите стих Библии вверху или перетащите файлы в это окно."

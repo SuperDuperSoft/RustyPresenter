@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn first_view_prepares_every_present_layer() {
         let mut r = RoomState::new();
-        let f = Frame { background: bg(1), media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![] };
+        let f = Frame { background: bg(1), media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![], seek: None };
         let p = r.plan(&view(1, f)).unwrap();
         assert_eq!(p.version, 1);
         assert_eq!(kinds(&p), vec![Kind::Background, Kind::Media, Kind::Slide, Kind::Logo, Kind::Audio]);
@@ -366,7 +366,7 @@ mod tests {
     fn timeouts_match_web_room() {
         let mut r = RoomState::new();
         let bgv = Some(Inst { inst: 1, v: Background::Video { asset: "b.mp4".into(), dim: 0 } });
-        let f = Frame { background: bgv, media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![] };
+        let f = Frame { background: bgv, media: video(2, false), slide: text("a"), logo: true, audio: audio(3, false), overlays: vec![], seek: None };
         let p = r.plan(&view(1, f)).unwrap();
         let ms: Vec<u128> = p.prepare.iter().map(|w| w.timeout.as_millis()).collect();
         assert_eq!(ms, vec![6000, 8000, 2500, 2500, 8000]);

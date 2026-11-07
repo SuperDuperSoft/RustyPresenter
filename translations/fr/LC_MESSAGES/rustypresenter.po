@@ -11,7 +11,16 @@
 # French for RustyPresenter. Machine-drafted; needs review by a native speaker.
 # French for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fr\nPlural-Forms: nplurals=2; plural=(n > 1);\nX-Native-Name: Français\nX-English-Name: French\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Native-Name: Français\n"
+"X-English-Name: French\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -922,8 +931,20 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— noms de section sur leur propre ligne ; une ligne vide dans une section commence une nouvelle diapo"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Couplet 1]\nGrâce infinie, ô quel beau son\nQui sauva le misérable que j’étais\n\nRefrain\nMes chaînes sont brisées…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Couplet 1]\n"
+"Grâce infinie, ô quel beau son\n"
+"Qui sauva le misérable que j’étais\n"
+"\n"
+"Refrain\n"
+"Mes chaînes sont brisées…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1070,6 +1091,30 @@ msgid "updating…"
 msgstr "mise à jour…"
 
 #: ui/operator/live.slint
+msgid "−15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Edit words"
 msgstr "Modifier les paroles"
 
@@ -1158,8 +1203,12 @@ msgid "Delete folder"
 msgstr "Supprimer le dossier"
 
 #: ui/operator/media.slint
-msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr "Rien ici pour l’instant. Cliquez sur Importer, ou essayez un autre dossier ou mot."
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import media"
+msgstr ""
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -1169,7 +1218,7 @@ msgstr "Choisir un fichier"
 msgid "Use as background"
 msgstr "Utiliser comme arrière-plan"
 
-#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
 msgstr "Ajouter au culte"
 
@@ -1222,8 +1271,8 @@ msgid "Your service is empty"
 msgstr "Votre culte est vide"
 
 #: ui/operator/service.slint
-msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr "Cliquez sur « Ajouter au culte » ci-dessous, tapez un verset biblique en haut, ou faites glisser des fichiers sur cette fenêtre."
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
+msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -1248,6 +1297,10 @@ msgstr "Tapez un verset comme « John 3:16 » dans la case Bible et appuyez su
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "Utilisez le grand bouton Suivant (ou la touche →) pendant le culte."
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Écrans"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
@@ -1332,10 +1385,6 @@ msgstr "Télécommandes téléphone connectées"
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
 msgstr "Afficher un message sur l’écran de scène"
-
-#: ui/operator/topbar.slint
-msgid "Screens"
-msgstr "Écrans"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
@@ -2153,6 +2202,10 @@ msgstr "Cette vidéo n’est plus en lecture."
 msgid "That audio is no longer playing."
 msgstr "Cet audio n’est plus en lecture."
 
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr ""
+
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
 msgstr "Rien n’est encore en direct."
@@ -2411,7 +2464,7 @@ msgstr "{passage} ajouté"
 msgid "Give it a title."
 msgstr "Donnez-lui un titre."
 
-#: src/strings/add.rs
+#: src/strings/add.rs src/ui/operator/checks.rs
 msgid "Ready"
 msgstr "Prêt"
 
@@ -3632,9 +3685,11 @@ msgstr[1] "{missing} diapos sur {n} manquantes"
 msgid "{number}. {title}: {problem}"
 msgstr "{number}. {title} : {problem}"
 
-#: src/strings/preflight.rs
+#: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
-msgstr "…et {n} de plus"
+msgid_plural "…and {n} more"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -5170,6 +5225,20 @@ msgstr "{day} à {time} UTC"
 msgid "{time} UTC"
 msgstr "{time} UTC"
 
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
 msgstr "l’image n’a pas pu être chargée"
@@ -5333,3 +5402,9 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "Nothing here yet. Click Import, or try another folder or word."
+#~ msgstr "Rien ici pour l’instant. Cliquez sur Importer, ou essayez un autre dossier ou mot."
+
+#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+#~ msgstr "Cliquez sur « Ajouter au culte » ci-dessous, tapez un verset biblique en haut, ou faites glisser des fichiers sur cette fenêtre."

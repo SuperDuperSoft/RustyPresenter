@@ -328,14 +328,28 @@ export component MediaBin inherits VerticalLayout {
                     }
                 }
             }
-            if root.rows.length == 0: empty := Text {
+            // N7: an empty list always offers the one thing to do next.
+            if root.rows.length == 0: VerticalLayout {
                 width: parent.width - 40px;
-                text: @tr("Nothing here yet. Click Import, or try another folder or word.");
-                color: Theme.muted;
-                font-family: Theme.font;
-                font-size: 13px;
-                horizontal-alignment: center;
-                wrap: word-wrap;
+                alignment: center;
+                spacing: 10px;
+                empty := Text {
+                    text: @tr("Nothing here yet. Import pictures, videos or music, or try another folder or word.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                HorizontalLayout {
+                    alignment: center;
+                    empty-import := Btn {
+                        primary: true;
+                        icon: "upload";
+                        text: @tr("Import media");
+                        clicked => { root.import(); }
+                    }
+                }
             }
         }
         Rectangle { width: 1px; background: Theme.line; }

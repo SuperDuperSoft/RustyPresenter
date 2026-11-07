@@ -157,7 +157,11 @@ export component Pill inherits Rectangle {
         }
     }
 
-    ta := TouchArea { }
+    callback clicked();
+
+    ta := TouchArea {
+        clicked => { root.clicked(); }
+    }
 
     if root.tooltip != "": Tooltip {
         TipBox { text: root.tooltip; }

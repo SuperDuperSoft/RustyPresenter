@@ -376,9 +376,10 @@ mod tests {
         assert_eq!(find(&op, "ServiceColumn::empty-title").unwrap().accessible_label().unwrap(), "Your service is empty");
         assert_eq!(
             find(&op, "ServiceColumn::empty-text").unwrap().accessible_label().unwrap(),
-            "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+            "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
         );
         assert!(find(&op, "ServiceColumn::add-btn").is_some());
+        assert!(find(&op, "ServiceColumn::empty-add").is_some(), "N7: the empty list has its own big Add button");
         assert_eq!(op.ui.get_service_count(), "");
         add_texts(&app, &["A"]);
         refresh(&op);

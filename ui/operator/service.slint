@@ -298,12 +298,23 @@ export component ServiceColumn inherits VerticalLayout {
                     wrap: word-wrap;
                 }
                 empty-text := Text {
-                    text: @tr("Click “Add to service” below, type a Bible verse up top, or drag files onto this window.");
+                    text: @tr("Add songs, videos and slides, type a Bible verse up top, or drag files onto this window.");
                     color: Theme.muted;
                     font-family: Theme.font;
                     font-size: Theme.base-size;
                     horizontal-alignment: center;
                     wrap: word-wrap;
+                }
+                // N7: one big button for the next step.
+                HorizontalLayout {
+                    alignment: center;
+                    padding-top: 10px;
+                    empty-add := Btn {
+                        primary: true;
+                        icon: "plus";
+                        text: @tr("Add to service");
+                        clicked => { root.add(); }
+                    }
                 }
             }
         }
