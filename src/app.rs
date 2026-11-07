@@ -1399,6 +1399,7 @@ impl App {
         }
         a if a.starts_with("usage/") => app.usage_action(a, body).await,
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
+        a if crate::stage::actions::handles(a) => crate::stage::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

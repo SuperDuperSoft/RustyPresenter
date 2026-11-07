@@ -54,11 +54,12 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 #[derive(Clone)]
 struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide> }
 
-/// The layout on stage is the church's stage default (Classic when it names no layout).
-/// The church's own layouts are not stored yet (the stage layout editor adds them), so only the built-ins are found.
+/// The layout on stage is the church's stage default (Classic when it names no layout), built-in or the church's own.
 fn read(app: &App, live: LiveUpdate) -> Shown {
-    let default = app.data.lock().unwrap().settings.stage.layout;
-    let layout = stage::active_layout(&[], None, None, Some(default)).clone();
+    let layout = {
+        let d = app.data.lock().unwrap();
+        stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
+    };
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
     Shown { live, layout, slides }
 }
@@ -426,6 +427,25 @@ mod tests {
         let texts: Vec<String> = i_slint_backend_testing::ElementHandle::find_by_element_id(&stage.ui, "StageWindow::cell-t")
             .map(|e| e.accessible_label().unwrap_or_default().to_string()).collect();
         assert!(texts.iter().any(|t| t == "Grace and peace to you"), "{texts:?}");
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn church_layout_as_the_default_is_drawn() {
+        i_slint_backend_testing::init_no_event_loop();
+        let ours = crate::stage::StageLayout {
+            id: Uuid::new_v4(), name: "Ours".into(), background: "#102030".into(), font: String::new(),
+            elements: vec![crate::lenient::Lenient::Known(crate::stage::StageElement {
+                id: Uuid::new_v4(), kind: crate::stage::ElementKind::ItemTitle, rect: crate::stage::PctRect::new(10.0, 20.0, 50.0, 10.0), style: Default::default(),
+            })],
+        };
+        let app = app_with_layout(ours.id);
+        app.data.lock().unwrap().stage_layouts.push(ours);
+        let stage = Stage::open(app, None).unwrap();
+        assert!(stage.ui.get_use_cells());
+        let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+        assert_eq!(cells.len(), 1);
+        assert_eq!((cells[0].text.as_str(), cells[0].x, cells[0].y), ("Welcome", 10.0, 20.0));
         stage.ui.hide().unwrap();
     }
 
