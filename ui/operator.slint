@@ -7,6 +7,7 @@ import { ServiceColumn, ServiceRow } from "operator/service.slint";
 import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slides.slint";
 import { MediaBin, BinRow, BinFolder } from "operator/media.slint";
 import { LiveColumn, TransportCell, LiveSong } from "operator/live.slint";
+import { OutputsState } from "operator/outputs.slint";
 import { Side } from "room.slint";
 import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell } from "dialogs/shell.slint";
@@ -447,6 +448,15 @@ export component OperatorWindow inherits Window {
                 enabled: !root.covered;
                 activated => { bin.open = !bin.open; }
             }
+            MenuItem {
+                title: OutputsState.view == 1 ? @tr("Preview the room screen") : @tr("Preview the stage screen");
+                activated => { OutputsState.view-changed(OutputsState.view == 1 ? 0 : 1); }
+            }
+            MenuItem {
+                title: OutputsState.show-perf ? @tr("Hide performance") : @tr("Show performance");
+                enabled: root.menu-ready;
+                activated => { OutputsState.toggle-perf(); }
+            }
             MenuSeparator {}
             MenuItem {
                 title: @tr("Zoom in");
@@ -470,6 +480,11 @@ export component OperatorWindow inherits Window {
                 title: @tr("Screens…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.screens(); }
+            }
+            MenuItem {
+                title: OutputsState.room-windowed ? @tr("Close the room window") : @tr("Room screen in a window");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); OutputsState.toggle-room-window(); }
             }
             MenuItem {
                 title: @tr("Phone remote…");

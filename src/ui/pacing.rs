@@ -52,7 +52,7 @@ pub fn set_swap_interval(get_proc_address: &dyn Fn(&CStr) -> *const c_void, inte
 type Setter = fn(&dyn Fn(&CStr) -> *const c_void, i32) -> bool;
 
 /// A usable function pointer: `wglGetProcAddress` may return 1, 2, 3 or -1 instead of null for "not found".
-fn found(p: *const c_void) -> Option<*const c_void> { (!matches!(p as isize, -1..=3)).then_some(p) }
+pub(crate) fn found(p: *const c_void) -> Option<*const c_void> { (!matches!(p as isize, -1..=3)).then_some(p) }
 
 fn wgl(gpa: &dyn Fn(&CStr) -> *const c_void, interval: i32) -> bool {
     let Some(f) = found(gpa(c"wglSwapIntervalEXT")) else { return false };
@@ -107,6 +107,7 @@ pub(crate) fn on_render(label: &'static str, vsync: bool, state: &RenderingState
             None => eprintln!("{label} screen: no swap-interval call in this OpenGL driver; it keeps the driver's default"),
         }
     }
+    super::perf::observe(label, state, api);
     probe(label, state, api);
 }
 

@@ -14,6 +14,7 @@ pub mod keys;
 pub mod live;
 pub mod media_bin;
 pub mod menu;
+pub mod outputs;
 pub mod overlay_strip;
 pub mod overlays;
 pub mod service;

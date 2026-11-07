@@ -1,0 +1,23 @@
+// The live preview's screen picker (N5), the performance line (N33) and the room-in-a-window switch (N30).
+// Rust: `src/ui/operator/outputs.rs`.
+
+export global OutputsState {
+    /// What the preview shows: 0 the room screen, 1 the stage screen. (A stream output would be the next.)
+    in-out property <int> view;
+    in property <[string]> view-names: [@tr("Room screen"), @tr("Stage screen")];
+    /// The stage window as it is now, a few times a second, while `view` is 1.
+    in property <image> stage-frame;
+    /// The stage window is not open, so there is nothing to show.
+    in property <bool> stage-off;
+    /// "Room 60 fps · …", or empty while Show performance is off.
+    in property <string> perf;
+    /// The room screen is moving, but slowly: the line turns red.
+    in property <bool> perf-warn;
+    /// View → Show performance is ticked.
+    in property <bool> show-perf;
+    /// The room screen shows in a window (Window → Room screen in a window is ticked).
+    in property <bool> room-windowed;
+    callback view-changed(int);
+    callback toggle-perf();
+    callback toggle-room-window();
+}

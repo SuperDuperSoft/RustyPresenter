@@ -34,12 +34,16 @@ pub trait OperatorScreens {
     /// The grabber of the video the room is drawing, for the live preview; `None` when the room is closed or draws
     /// no video. Called on the Slint thread.
     fn preview_grabber(&self) -> Option<FrameGrabber>;
+    /// N5: a picture of the stage window as it is now, at most `max_w` wide, for the preview's Stage view; `None`
+    /// while the stage window is closed. Called on the Slint thread.
+    fn stage_snapshot(&self, max_w: u32) -> Option<slint::SharedPixelBuffer<slint::Rgba8Pixel>> { let _ = max_w; None }
 }
 
 /// `NativeScreens` lives in an `Arc`: `Rc::new(screens.clone())` is then an `Rc<dyn OperatorScreens>`.
 impl<T: OperatorScreens + ?Sized> OperatorScreens for Arc<T> {
     fn video_info(&self) -> VideoInfo { (**self).video_info() }
     fn preview_grabber(&self) -> Option<FrameGrabber> { (**self).preview_grabber() }
+    fn stage_snapshot(&self, max_w: u32) -> Option<slint::SharedPixelBuffer<slint::Rgba8Pixel>> { (**self).stage_snapshot(max_w) }
 }
 
 pub use crate::ui::dialogs::DialogKind;
@@ -98,6 +102,8 @@ pub struct Operator {
     pub(super) files: FilesState,
     /// N2: re-runs the service check for the status pill.
     pub(super) check_timer: slint::Timer,
+    /// N5, N30, N33: the preview's screen picker and the performance line (see `outputs`).
+    pub(super) outputs_ui: RefCell<super::outputs::OutputsUi>,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -128,7 +134,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -149,6 +155,7 @@ impl Operator {
         checks::wire(&op);
         checks::start_watch(&op);
         menu::wire(&op);
+        super::outputs::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
@@ -274,6 +281,7 @@ impl Operator {
         ui.set_phones_label(view::phones_label(s.phones).unwrap_or_default().into());
         ui.set_has_service(s.service_id.is_some());
         super::menu::render(self, s);
+        super::outputs::render(self, s);
     }
 }
 

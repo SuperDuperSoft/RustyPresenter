@@ -6,6 +6,8 @@ import { Side } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 import { OverlaysStrip } from "overlay-strip.slint";
+import { OutputsState } from "outputs.slint";
+import { Select } from "../dialogs/form.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -118,6 +120,37 @@ export component LiveColumn inherits Rectangle {
                 video-cover: root.monitor-video-cover;
                 black: root.monitor-black;
                 room-off: root.monitor-room-off;
+                show-stage: OutputsState.view == 1;
+                stage-frame: OutputsState.stage-frame;
+                stage-off: OutputsState.stage-off;
+            }
+
+            // N5: which screen the preview shows; N33: how smoothly the screens draw.
+            HorizontalLayout {
+                spacing: 8px;
+                Text {
+                    text: @tr("Preview shows");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                }
+                preview-view := Select {
+                    width: 180px;
+                    options: OutputsState.view-names;
+                    index <=> OutputsState.view;
+                    changed(i) => { OutputsState.view-changed(i); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+            }
+            if OutputsState.perf != "": perf := Text {
+                text: OutputsState.perf;
+                color: OutputsState.perf-warn ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 11.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
             }
 
             // `.transport`: one box holding a row per playing video or audio.

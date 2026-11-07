@@ -106,6 +106,21 @@ component SettingsVideo inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("At start");
+        screens-at-start := Check {
+            text: @tr("Turn the screens on when RustyPresenter starts");
+            checked <=> SettingsDlg.screens-at-start;
+        }
+    }
+    Field {
+        label: @tr("Performance");
+        help: @tr("Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling.");
+        show-performance := Check {
+            text: @tr("Show performance");
+            checked <=> SettingsDlg.show-performance;
+        }
+    }
+    Field {
         label: @tr("Stage layout");
         help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
         stage-layout := Select {
