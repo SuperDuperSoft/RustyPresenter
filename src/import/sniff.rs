@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::io::{self, Read, Seek};
 use std::path::Path;
 
-pub use super::strings::{ENCRYPTED, NOT_PRESENTATION};
+pub use super::strings::{encrypted, not_presentation};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Variant {
@@ -491,7 +491,7 @@ mod tests {
         let k = kind(cfb_of(&["/EncryptionInfo", "/EncryptedPackage"]));
         assert_eq!(k, Kind::Encrypted);
         assert_eq!(staged_ext(&k), None);
-        assert!(ENCRYPTED.contains("File → Info → Protect"));
+        assert!(encrypted().contains("File → Info → Protect"));
         // Word and Excel files are compound files too.
         assert_eq!(kind(cfb_of(&["/WordDocument"])), Kind::NotPresentation);
     }
@@ -516,7 +516,7 @@ mod tests {
         let p = d.join("Sunday.pptx");
         std::fs::write(&p, "Amazing grace, how sweet the sound\r\n").unwrap();
         assert_eq!(sniff(&p).unwrap(), Kind::NotPresentation);
-        assert_eq!(NOT_PRESENTATION, "This doesn't look like a PowerPoint file.");
+        assert_eq!(not_presentation(), "This doesn't look like a PowerPoint file.");
     }
 
     #[test]

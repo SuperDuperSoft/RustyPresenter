@@ -93,7 +93,7 @@ fn ninth_saved_overlay_is_rejected() {
     let p = plan_with((0..9).map(|i| sign(&format!("s{i}"))).collect());
     let mut l = Live::new();
     for o in &p.overlays[..8] { on(&mut l, &p, o.id).unwrap() }
-    assert_eq!(on(&mut l, &p, p.overlays[8].id).unwrap_err(), strings::OVERLAY_CAP);
+    assert_eq!(on(&mut l, &p, p.overlays[8].id).unwrap_err(), strings::overlay_cap());
     on(&mut l, &p, p.overlays[0].id).unwrap();
 }
 
@@ -161,8 +161,8 @@ fn overlay_on_with_stale_or_missing_seen_clear_is_refused() {
     let mut l = Live::new();
     run(&mut l, &p, Command::ClearAll).unwrap();
     let id = p.overlays[0].id;
-    assert_eq!(run(&mut l, &p, Command::Overlay { id, on: true, seen_clear: Some(0) }).unwrap_err(), strings::SCREEN_CLEARED);
-    assert_eq!(run(&mut l, &p, Command::Overlay { id, on: true, seen_clear: None }).unwrap_err(), strings::SCREEN_CLEARED);
+    assert_eq!(run(&mut l, &p, Command::Overlay { id, on: true, seen_clear: Some(0) }).unwrap_err(), strings::screen_cleared());
+    assert_eq!(run(&mut l, &p, Command::Overlay { id, on: true, seen_clear: None }).unwrap_err(), strings::screen_cleared());
     on(&mut l, &p, id).unwrap();
 }
 
@@ -221,7 +221,7 @@ fn deleted_overlay_stays_on_screen_until_off() {
     p.overlays.clear();
     run(&mut l, &p, Command::Next).unwrap();
     assert_eq!(keys(&l), ["A"]);
-    assert_eq!(on(&mut l, &p, id).unwrap_err(), strings::OVERLAY_GONE);
+    assert_eq!(on(&mut l, &p, id).unwrap_err(), strings::overlay_gone());
     run(&mut l, &p, Command::Overlay { id, on: false, seen_clear: None }).unwrap();
     assert!(l.frame.overlays.is_empty());
 }
@@ -252,7 +252,7 @@ fn logo_bug_follows_logo_change_on_next_toggle_and_needs_a_logo() {
     assert_eq!(asset(&l), "new.png");
     p.logo = None;
     run(&mut l, &p, Command::ClearOverlays).unwrap();
-    assert_eq!(on(&mut l, &p, id).unwrap_err(), strings::LOGO_FIRST);
+    assert_eq!(on(&mut l, &p, id).unwrap_err(), strings::logo_first());
 }
 
 #[test]
@@ -264,10 +264,10 @@ fn overlay_failed_removes_slot_and_sets_notice_unless_stale() {
     assert!(!l.report(RoomEvent::OverlayFailed { key: slot.key.clone(), inst: slot.inst + 7, reason: "x".into() }), "stale report");
     assert_eq!(l.frame.overlays.len(), 1);
     let v = l.version;
-    assert!(l.report(RoomEvent::OverlayFailed { key: slot.key.clone(), inst: slot.inst, reason: strings::PICTURE_UNREADABLE.into() }));
+    assert!(l.report(RoomEvent::OverlayFailed { key: slot.key.clone(), inst: slot.inst, reason: strings::picture_unreadable().into() }));
     assert!(l.frame.overlays.is_empty());
     assert_eq!(l.version, v + 1);
-    assert_eq!(l.notice.as_deref(), Some(strings::overlay_failed("Logo", strings::PICTURE_UNREADABLE).as_str()));
+    assert_eq!(l.notice.as_deref(), Some(strings::overlay_failed("Logo", &strings::picture_unreadable()).as_str()));
     run(&mut l, &p, Command::Next).unwrap();
     assert_eq!(l.notice, None, "short-lived: the next slide clears it");
 }

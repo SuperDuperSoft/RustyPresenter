@@ -145,7 +145,7 @@ pub(crate) fn picker_rows(s: &view::OperatorSnapshot, query: &str, chosen: &str)
         view::PickerLine::Heading(h) => TranslationChip { heading: h.as_str().into(), ..Default::default() },
         view::PickerLine::Bible(c) => chip(c, c.id == chosen),
     }).collect();
-    let note = if rows.is_empty() { tr::PICKER_NO_MATCH.into() } else { SharedString::new() };
+    let note = if rows.is_empty() { tr::picker_no_match().into() } else { SharedString::new() };
     (ModelRc::new(VecModel::from(rows)), note)
 }
 
@@ -442,7 +442,7 @@ mod tests {
         assert_eq!(picker(&op), ["# Favourites", "WEB *"], "by name");
         search_picker(&op, "zzz");
         assert!(picker(&op).is_empty());
-        assert_eq!(op.ui.get_picker_note(), tr::PICKER_NO_MATCH);
+        assert_eq!(op.ui.get_picker_note(), tr::picker_no_match());
         search_picker(&op, "bsb");
         accept_picker(&op);
         assert_eq!(app.data.lock().unwrap().settings.translation, "BSB", "Enter picks the first Bible listed");

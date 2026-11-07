@@ -61,7 +61,7 @@ pub(super) fn choose(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
 }
 
 /// "Help translate RustyPresenter": the guide's address goes to the clipboard.
-pub(super) fn help_translate(op: &Rc<Operator>, _edit: &Rc<Edit>) { copy(op, strings::TRANSLATING_URL, strings::LINK_COPIED) }
+pub(super) fn help_translate(op: &Rc<Operator>, _edit: &Rc<Edit>) { copy(op, strings::TRANSLATING_URL, &strings::link_copied()) }
 
 #[cfg(test)]
 mod tests {

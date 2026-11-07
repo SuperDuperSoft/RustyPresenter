@@ -290,7 +290,7 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
 mod tests {
     use super::*;
     use crate::automation::messages::{MessagePlace, MessageTemplate};
-    use crate::automation::strings::NO_START_TIME;
+    use crate::automation::strings::no_start_time;
     use crate::lenient::Lenient;
     use crate::timers::{RunState, TimeTarget, TimerDef, TimerKind, TimerRun};
     use chrono::{DateTime, TimeZone, Utc};
@@ -470,13 +470,13 @@ mod tests {
         let mut w = World::new();
         w.timers[0].kind = TimerKind::UntilTime { target: TimeTarget::ServiceStart }.into();
         let m = walk_in(vec![MacroStep::TimerStart { timer: TIMER }]);
-        assert_eq!(w.resolve(&m).unwrap_err(), NO_START_TIME);
+        assert_eq!(w.resolve(&m).unwrap_err(), no_start_time());
         let running = TimerRun { state: RunState::RunningTo { target: now() }, ..TimerRun::default() };
         w.runs.insert(TIMER, running);
         let r = w.resolve(&m).unwrap();
         assert_eq!(r.steps[0].step, PlannedStep::TimerStart { timer: TIMER, target: None });
         // Restart always computes a target for a countdown to a time.
-        assert_eq!(w.resolve(&walk_in(vec![MacroStep::TimerRestart { timer: TIMER }])).unwrap_err(), NO_START_TIME);
+        assert_eq!(w.resolve(&walk_in(vec![MacroStep::TimerRestart { timer: TIMER }])).unwrap_err(), no_start_time());
         w.starts_at = Some(crate::timers::TimeOfDay::new(16, 30));
         let r = w.resolve(&walk_in(vec![MacroStep::TimerRestart { timer: TIMER }])).unwrap();
         let at = Utc.with_ymd_and_hms(2026, 11, 8, 16, 30, 0).unwrap();

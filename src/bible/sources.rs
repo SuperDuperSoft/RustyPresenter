@@ -3,7 +3,7 @@
 //! Keys live in `secrets.json` beside `data.json`: never in backups, the app state or the repo.
 //! Fetched passages go into a small cache per provider and translation whose size and age follow each provider's terms.
 use super::{Part, Reference, api_bible, blocklist, canonical, display_name, esv, kjv, nlt, parse_reference, youversion};
-use crate::{model::VerseText, scripture::strings::BLOCKED};
+use crate::{model::VerseText, scripture::strings::blocked};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, io, path::Path, sync::{Mutex, OnceLock}, time::Duration};
 
@@ -347,7 +347,7 @@ impl Cache {
 
 /// Looks up a passage in a copyrighted translation: cache first, then the provider.
 pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(String, Vec<VerseText>), String> {
-    if blocklist::blocked(translation, &[], &[], &[translation, &format!("yv:{}", translation.trim())]) { return Err(BLOCKED.into()); }
+    if blocklist::blocked(translation, &[], &[], &[translation, &format!("yv:{}", translation.trim())]) { return Err(blocked().into()); }
     let secrets = Secrets::load(root);
     let src = source_with(translation, &secrets)
         .ok_or_else(|| format!("{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."))?;
@@ -377,12 +377,12 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
                     }
                 };
                 if f.verses.is_empty() { return Err("No verses found.".into()); }
-                if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
+                if refused(provider, translation, r.book, &f) { return Err(blocked().into()); }
                 remember(root, src, &key, now, (r.book, part), &f);
                 f
             }
         };
-        if refused(provider, translation, r.book, &f) { return Err(BLOCKED.into()); }
+        if refused(provider, translation, r.book, &f) { return Err(blocked().into()); }
         provider.report(root, &f.fums);
         out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text, id: Some(crate::scripture::VerseId(r.book, c, v)) }));
         if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
@@ -642,7 +642,7 @@ mod tests {
     #[tokio::test]
     async fn blocked_names_are_refused_before_any_key_is_needed() {
         let root = crate::store::test_dir();
-        for t in ["TPT", "nwt", "1849"] { assert_eq!(lookup(&root, t, "John 3:16").await.unwrap_err(), BLOCKED, "{t}"); }
+        for t in ["TPT", "nwt", "1849"] { assert_eq!(lookup(&root, t, "John 3:16").await.unwrap_err(), blocked(), "{t}"); }
     }
 
     #[tokio::test]
@@ -655,7 +655,7 @@ mod tests {
         let mut c = Cache::default();
         c.put(b, &p, crate::app::now_secs(), Fetched { verses: vec![(1, 1, "and the Word was a god".into())], fums: vec![] }, ESV, 879);
         c.save(&root, Provider::Esv, "ESV").unwrap();
-        assert_eq!(lookup(&root, "ESV", "John 1:1").await.unwrap_err(), BLOCKED);
+        assert_eq!(lookup(&root, "ESV", "John 1:1").await.unwrap_err(), blocked());
     }
 
     #[test]

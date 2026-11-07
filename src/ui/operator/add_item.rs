@@ -20,7 +20,7 @@ pub fn add_item(op: &Rc<Operator>, item: Value, quiet: bool, done: impl FnOnce(R
         let (r, left_out) = match r { Ok(Added { id, toast }) => (Ok(id), toast), Err(e) => (Err(e), None) };
         if let Ok(id) = r {
             op.select_added(id);
-            if !quiet { op.toast(tr::ADDED_TO_SERVICE, false); }
+            if !quiet { op.toast(tr::added_to_service(), false); }
         }
         done(r);
         if let Some(t) = left_out { op.toast(t, true) }

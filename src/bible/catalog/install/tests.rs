@@ -121,7 +121,7 @@ async fn no_licence_means_nothing_kept_and_the_row_is_hidden() {
     let s = server(Answer::ok(zip_of(&[("engx_vpl.xml", XML), ("engx_about.htm", "<p>All rights reserved.</p>")]))).await;
     let e = install(&root, &s.base, &row("engx", "2026-01-01")).await.unwrap_err();
     assert_eq!(e, InstallError::Licence);
-    assert_eq!(e.message("X", false), strings::LICENCE_REFUSED);
+    assert_eq!(e.message("X", false), strings::licence_refused());
     assert!(!root.join("bibles/ebible~engx.json").exists());
     assert_eq!(partials_left(&root), 0);
     let r = ebible::Row { translation_id: "engx".into(), redistributable: true, downloadable: true, language_code: "eng".into(),
@@ -140,7 +140,7 @@ async fn blocked_text_is_refused_even_under_another_name() {
     let s = server(Answer::ok(zip_of(&[("engz_vpl.xml", xml), ("engz_about.htm", CC_BY_SA)]))).await;
     let e = install(&root, &s.base, &row("engz", "2026-01-01")).await.unwrap_err();
     assert_eq!(e, InstallError::Blocked);
-    assert_eq!(e.message("X", true), crate::scripture::strings::BLOCKED, "blocked says so, even for an update");
+    assert_eq!(e.message("X", true), crate::scripture::strings::blocked(), "blocked says so, even for an update");
     assert!(!root.join("bibles/ebible~engz.json").exists());
     assert_eq!(partials_left(&root), 0);
 }
@@ -181,7 +181,7 @@ async fn too_large_stops_at_the_header_or_at_the_cap() {
     let s = server(Answer { status: 200, body: vec![0; 10], length: Some(MAX_ZIP + 1), stall: false }).await;
     let e = install(&root, &s.base, &row("engl", "2026-01-01")).await.unwrap_err();
     assert_eq!(e, InstallError::TooLarge);
-    assert_eq!(e.message("X", false), strings::TOO_LARGE);
+    assert_eq!(e.message("X", false), strings::too_large());
     assert_eq!(s.hits.lock().unwrap().len(), 1);
 
     // No length given: stops once more than the cap has arrived.

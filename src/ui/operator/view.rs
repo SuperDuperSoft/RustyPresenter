@@ -128,7 +128,7 @@ impl OperatorSnapshot {
         }).collect()).unwrap_or_default();
         let mut snap = Self {
             service_id: data.service().map(|s| s.id),
-            service_name: data.service().map_or(tr::SERVICE, |s| s.name.as_str()).into(),
+            service_name: data.service().map_or_else(tr::service, |s| s.name.clone()).into(),
             items,
             translations,
             available,
@@ -191,15 +191,15 @@ pub fn subtitle(row: &ItemRow, media: &[MediaFile], player_missing: bool) -> Str
             ItemKind::Media { media_id, end, looped, .. } => (Some(*media_id), *end, *looped),
             _ => (None, EndAction::Stop, false),
         };
-        if player_missing && row.kind != "image" { return tr::player_missing(name); }
+        if player_missing && row.kind != "image" { return tr::player_missing(&name); }
         match media.iter().find(|m| Some(m.id) == media_id).map(|m| &m.status) {
-            Some(MediaStatus::Failed { .. }) => return tr::cant_be_played(name),
+            Some(MediaStatus::Failed { .. }) => return tr::cant_be_played(&name),
             // `Converting` and `Unconverted` only come from an old `data.json`, and `upgrade_media` removes them.
             _ => {}
         }
-        return format!("{name}{}", if end == EndAction::Loop || looped { tr::LOOPS } else { "" });
+        return format!("{name}{}", if end == EndAction::Loop || looped { tr::loops() } else { String::new() });
     }
-    tr::slide_count(name, row.slides.len())
+    tr::slide_count(&name, row.slides.len())
 }
 
 /// Which item stays selected after the list changes: the same one, else the live one, else the first (`operator.js:73`).
@@ -217,27 +217,27 @@ pub fn insert_position(items: &[ItemRow], live_item: Option<Uuid>) -> Option<usi
 /// The "what is live" line over the monitor (`operator.js:224-225`).
 pub fn live_what(view: &LiveView) -> String {
     let f = &view.frame;
-    if f.logo { return tr::LOGO.into(); }
+    if f.logo { return tr::logo().into(); }
     if f.slide.is_some() || f.media.is_some() {
         let Some(item) = &view.item else { return String::new() };
         return match &view.slide { Some(s) => format!("{} · {}", item.title, s.label), None => item.title.clone() };
     }
-    match &f.audio { Some(a) => tr::audio_title(&a.v.title), None => tr::CLEAR.into() }
+    match &f.audio { Some(a) => tr::audio_title(&a.v.title), None => tr::clear().into() }
 }
 
 /// The Up next box: the small title · label line and the body (`operator.js:231-236`).
 pub fn next_up(view: &LiveView) -> (String, String) {
     let Some(n) = &view.next else {
-        return (String::new(), if view.item.is_some() { tr::END_OF_SERVICE } else { tr::NOTHING }.into());
+        return (String::new(), if view.item.is_some() { tr::end_of_service() } else { tr::NOTHING.into() });
     };
     let body = match &n.slide.content {
-        SlideContent::Text { text, .. } => text.as_str(),
-        SlideContent::Image { .. } => tr::SLIDE_PICTURE,
-        SlideContent::Video { .. } => tr::VIDEO,
-        SlideContent::Still { .. } => tr::PICTURE,
-        SlideContent::Audio { .. } => tr::AUDIO,
+        SlideContent::Text { text, .. } => text.clone(),
+        SlideContent::Image { .. } => tr::slide_picture(),
+        SlideContent::Video { .. } => tr::video(),
+        SlideContent::Still { .. } => tr::picture(),
+        SlideContent::Audio { .. } => tr::audio(),
     };
-    (format!("{} · {}", n.title, n.slide.label), body.into())
+    (format!("{} · {}", n.title, n.slide.label), body)
 }
 
 /// The thumbnail to mark live: the cursor's slide when it is on the selected item and something is on air (`markLive`).
@@ -266,7 +266,7 @@ pub fn transport(view: &LiveView) -> Vec<TransportRow> {
     let f = &view.frame;
     let mut rows = vec![];
     if let Some(m) = &f.media && let crate::live::MediaLayer::Video { paused, .. } = m.v {
-        rows.push(row(TransportKind::Video, m.inst, paused, view.media.as_ref(), tr::VIDEO.into()));
+        rows.push(row(TransportKind::Video, m.inst, paused, view.media.as_ref(), tr::video().into()));
     }
     if let Some(a) = &f.audio {
         rows.push(row(TransportKind::Audio, a.inst, a.v.paused, view.audio.as_ref(), tr::audio_title(&a.v.title)));
@@ -319,7 +319,7 @@ pub fn bible_labels(s: &OperatorSnapshot) -> std::collections::HashMap<String, S
     for t in &s.translations {
         let l = &labels[t];
         if count[&l.to_lowercase()] > 1 && source(t).is_some_and(|b| b.imported && !b.downloaded) {
-            let l = format!("{l} · {}", tr::BIBLE_IMPORTED);
+            let l = format!("{l} · {}", tr::bible_imported());
             labels.insert(t.clone(), l);
         }
     }
@@ -383,7 +383,7 @@ pub fn picker_lines(s: &OperatorSnapshot, query: &str) -> Vec<PickerLine> {
     };
     let favourites: Vec<String> = installed(s, &s.settings.favourites, &[]).cloned().collect();
     let recent: Vec<String> = installed(s, &s.settings.recent, &favourites).take(QUICK_CHIPS).cloned().collect();
-    let mut groups: Vec<(String, Vec<String>)> = vec![(tr::PICKER_FAVOURITES.into(), favourites.clone()), (tr::PICKER_RECENT.into(), recent.clone())];
+    let mut groups: Vec<(String, Vec<String>)> = vec![(tr::picker_favourites().into(), favourites.clone()), (tr::picker_recent().into(), recent.clone())];
     let shown: Vec<String> = favourites.into_iter().chain(recent).collect();
     let mut by_language: Vec<(String, Vec<String>)> = Vec::new();
     for t in s.translations.iter().filter(|t| !shown.contains(t)) {
@@ -391,7 +391,7 @@ pub fn picker_lines(s: &OperatorSnapshot, query: &str) -> Vec<PickerLine> {
         match by_language.iter_mut().find(|(k, _)| *k == l) { Some((_, v)) => v.push(t.clone()), None => by_language.push((l, vec![t.clone()])) }
     }
     by_language.sort_by_key(|(l, _)| (l != "English", l.is_empty(), l.to_lowercase()));
-    groups.extend(by_language.into_iter().map(|(l, v)| (if l.is_empty() { tr::PICKER_OTHER.to_string() } else { l }, v)));
+    groups.extend(by_language.into_iter().map(|(l, v)| (if l.is_empty() { tr::picker_other() } else { l }, v)));
     let mut out = Vec::new();
     for (heading, ids) in groups {
         let rows: Vec<BibleChoice> = ids.iter().map(|t| bible_choice(s, &labels, t)).filter(|c| matches(c)).collect();

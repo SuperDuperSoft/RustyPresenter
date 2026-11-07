@@ -210,7 +210,7 @@ fn template_from_service_keep_and_blank() {
 
 #[test]
 fn template_blank_labels_default_by_kind() {
-    let labels: Vec<&str> = [BlankKind::Song, BlankKind::Scripture, BlankKind::Media, BlankKind::Deck, BlankKind::Text, BlankKind::Any]
+    let labels: Vec<String> = [BlankKind::Song, BlankKind::Scripture, BlankKind::Media, BlankKind::Deck, BlankKind::Text, BlankKind::Any]
         .into_iter().map(strings::blank_label).collect();
     assert_eq!(labels, ["Song", "Bible reading", "Media", "Slides", "Announcement", "Something"]);
     assert_eq!(blank_title("", BlankKind::Song), "Song (blank)");

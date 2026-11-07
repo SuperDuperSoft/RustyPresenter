@@ -24,16 +24,16 @@ pub fn stage_text(view: &LiveView) -> StageText {
     let on_air = f.slide.is_some() || f.media.is_some();
     let now = match &view.slide {
         Some(s) if on_air => label(s),
-        _ if f.logo => s::LOGO.into(),
+        _ if f.logo => s::logo().into(),
         _ => String::new(),
     };
     let timer = view.media.as_ref().or(view.audio.as_ref()).filter(|m| m.duration > 0.0).map(|m| view::countdown(m.duration - m.position));
     StageText {
-        title: view.item.as_ref().map_or(s::NOTHING_LIVE, |i| i.title.as_str()).into(),
+        title: view.item.as_ref().map_or_else(s::nothing_live, |i| i.title.clone()).into(),
         now,
         now_dim: !on_air,
         notes: view.slide.as_ref().map(|s| s.notes.clone()).unwrap_or_default(),
-        next: view.next.as_ref().map_or_else(|| s::END_OF_SERVICE.into(), |n| label(&n.slide)),
+        next: view.next.as_ref().map_or_else(|| s::end_of_service().into(), |n| label(&n.slide)),
         timer: timer.unwrap_or_default(),
         message: view.stage_message.clone(),
     }
@@ -134,7 +134,7 @@ fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell) -> Option<Sta
         CellContent::Empty => return None,
         CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
         // Pictures on stage are not drawn yet: the box names the slide instead.
-        CellContent::Picture { caption, .. } => (s::SLIDE_PICTURE.to_string(), caption.clone().unwrap_or_default(), false, false, false),
+        CellContent::Picture { caption, .. } => (s::slide_picture(), caption.clone().unwrap_or_default(), false, false, false),
         CellContent::Message { text } => (text.clone(), String::new(), false, false, true),
     };
     let st = &c.style;

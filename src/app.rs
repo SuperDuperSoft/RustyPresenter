@@ -1,6 +1,6 @@
 //! The app's state and every operator action, independent of how the screens are drawn.
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
-use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, scripture::strings::{BLOCKED, passages_removed}, slides::build_item, songselect, store::Store};
+use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, scripture::strings::{blocked, passages_removed}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -140,7 +140,7 @@ pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crat
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone { pub(crate) id: Uuid, pub(crate) name: String, pub(crate) hash: String, pub(crate) last_seen: u64 }
 
-use crate::import::strings::FALLBACK_NOTE;
+use crate::import::strings::fallback_note;
 
 /// `App::job_ends` keeps this many. Far more than can end between two operator reads.
 const JOB_ENDS_KEPT: usize = 64;
@@ -164,10 +164,10 @@ pub struct Job {
     /// The job ended well and is only still listed for its note.
     #[serde(skip)]
     pub(crate) done: bool,
-    /// `FALLBACK_NOTE` was given; `note` starts with it.
+    /// `fallback_note()` was given; `note` starts with it.
     #[serde(skip)]
     pub(crate) fell_back: bool,
-    /// The latest note other than `FALLBACK_NOTE`.
+    /// The latest note other than `fallback_note()`.
     #[serde(skip)]
     pub(crate) other_note: Option<String>,
     /// What the job works on, so a list can show its progress in the right row: a Bible download's translation id.
@@ -358,7 +358,7 @@ impl App {
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> {
-        if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
+        if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
         self.store.save(data).map_err(|e| format!("Could not save: {e}"))
     }
 
@@ -370,7 +370,7 @@ impl App {
     /// Mutate data, save, and tell every screen. The live item is checked against the new data even when the save
     /// failed, as memory has changed (FEAT-4 spec §5.4).
     pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
-        if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
+        if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
         let r = {
             let mut data = self.data.lock().unwrap();
             f(&mut data).and_then(|r| self.save(&data).map(|()| r))
@@ -523,14 +523,14 @@ impl App {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) { j.label = label.into(); }
         self.broadcast_data();
     }
-    /// Sets the job's note. The last one wins, except that `FALLBACK_NOTE` and any other note are both kept, the
+    /// Sets the job's note. The last one wins, except that `fallback_note()` and any other note are both kept, the
     /// fallback first. So the deck pipeline sends "Imported with LibreOffice" only when it did not fall back.
     pub(crate) fn job_note(&self, id: Uuid, note: String) {
         if let Some(j) = self.jobs.lock().unwrap().iter_mut().find(|j| j.id == id) {
-            if note == FALLBACK_NOTE { j.fell_back = true } else { j.other_note = Some(note) }
+            if note == fallback_note() { j.fell_back = true } else { j.other_note = Some(note) }
             j.note = match (j.fell_back, &j.other_note) {
-                (true, Some(other)) => Some(format!("{FALLBACK_NOTE} {other}")),
-                (true, None) => Some(FALLBACK_NOTE.into()),
+                (true, Some(other)) => Some(format!("{} {other}", fallback_note())),
+                (true, None) => Some(fallback_note().into()),
                 (false, other) => other.clone(),
             };
         }
@@ -647,15 +647,15 @@ impl App {
 
     /// One look at the chosen sound output. Asks the system, so never call it on the UI thread.
     pub fn watch_sound(&self) {
-        use crate::{preflight::strings::SOUND_GONE, sound};
+        use crate::{preflight::strings::sound_gone, sound};
         let chosen = self.data.lock().unwrap().settings.audio_device.clone();
-        let told = || self.live.lock().unwrap().notice.as_deref() == Some(SOUND_GONE);
+        let told = || self.live.lock().unwrap().notice.as_deref() == Some(&*sound_gone());
         let heard = || sound::pauses(&self.live.lock().unwrap().frame);
         if !told() && (chosen.is_empty() || heard().is_empty()) { return }
         let found = if chosen.is_empty() { vec![] } else { self.audio_devices() };
         if !chosen.is_empty() && found.is_empty() { return } // The list could not be read: nothing has changed.
         if !sound::missing(&chosen, &found) {
-            let cleared = self.live.lock().unwrap().notice.take_if(|n| n == SOUND_GONE).is_some();
+            let cleared = self.live.lock().unwrap().notice.take_if(|n| *n == sound_gone()).is_some();
             if cleared { self.broadcast_live(); }
             return;
         }
@@ -663,7 +663,7 @@ impl App {
         let pauses = heard();
         if pauses.is_empty() { return }
         for cmd in pauses { self.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd }); }
-        self.set_notice(SOUND_GONE);
+        self.set_notice(&sound_gone());
     }
 
     pub(crate) fn monitors(&self) -> Vec<Monitor> { self.screens.get().map(|s| s.monitors()).unwrap_or_default() }
@@ -997,7 +997,7 @@ impl App {
             #[derive(Deserialize)] struct P { reference: String, translation: String, text: String }
             let P { reference, translation, text } = parse(body)?;
             let (label, verses) = tryr!(bible::pasted(&reference, &text));
-            if bible::blocklist::blocked_passage(translation.trim(), &verses) { return Err(ActionError::bad(BLOCKED)); }
+            if bible::blocklist::blocked_passage(translation.trim(), &verses) { return Err(ActionError::bad(blocked())); }
             Ok(json!({ "label": label, "verses": verses, "translation": bible::normalise_id(&translation) }))
         }
         "bible/key" => {
@@ -1175,7 +1175,7 @@ impl App {
         "settings/translation" => {
             #[derive(Deserialize)] struct T { translation: String }
             let T { translation } = parse(body)?;
-            if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
+            if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(blocked())); }
             if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
             // A main Bible that was also an Also Bible stops being one (Nov 5 spec §3).
             let turned_off = tryr!(app.edit(|d| {
@@ -1208,7 +1208,7 @@ impl App {
             #[derive(Deserialize)] struct A { also_show: Vec<String>, #[serde(default)] parallel_layout: crate::scripture::ParallelLayout }
             let A { mut also_show, parallel_layout } = parse(body)?;
             let known = app.translations();
-            if also_show.iter().any(|t| bible::blocklist::blocked(t, &[], &[], &[t])) { return Err(ActionError::bad(BLOCKED)); }
+            if also_show.iter().any(|t| bible::blocklist::blocked(t, &[], &[], &[t])) { return Err(ActionError::bad(blocked())); }
             if also_show.iter().any(|t| !known.contains(t)) { return Err(ActionError::bad("Unknown translation.")); }
             tryr!(app.edit(|d| {
                 crate::scripture::also::tidy_ids(&d.settings.translation, &mut also_show, &|_| false);
@@ -1223,7 +1223,7 @@ impl App {
             #[derive(Deserialize)] struct F { translation: String, on: bool }
             let F { translation, on } = parse(body)?;
             if on {
-                if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
+                if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(blocked())); }
                 if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
             }
             tryr!(app.edit(|d| { d.settings.set_favourite(&translation, on); Ok(()) }));
@@ -1363,7 +1363,7 @@ impl App {
         "backup/restore" => {
             #[derive(Deserialize)] struct B { name: String }
             let B { name } = parse(body)?;
-            if app.read_only() { return Err(ActionError::bad(crate::theme::strings::NEWER_DATA)); }
+            if app.read_only() { return Err(ActionError::bad(crate::theme::strings::newer_data())); }
             let mut restored = tryr!(app.store.restore(&name));
             let removed = bible::blocklist::strip(&mut restored);
             if removed > 0 {
@@ -1529,7 +1529,7 @@ impl App {
         let app = self.clone();
         let check = tokio::task::spawn_blocking(move || bundle::gather(&data, id, &|a| app.store.asset_path(a).is_file()));
         let (contents, assets) = check.await.map_err(|e| ExportError::Failed(e.to_string()))?.map_err(ExportError::Missing)?;
-        let (job, cancel) = self.job_start_cancellable(bundle::strings::SAVING);
+        let (job, cancel) = self.job_start_cancellable(&bundle::strings::saving());
         let app = self.clone();
         let work = tokio::task::spawn_blocking(move || bundle::write(&app.store, &contents, &assets, &dest, &cancel, &|p| app.job_progress(job, p)));
         self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r)).map_err(ExportError::Failed)
@@ -1539,7 +1539,7 @@ impl App {
     /// adds nothing and its error stays on the job.
     pub async fn import_service(self: &Arc<Self>, path: PathBuf) -> Result<crate::bundle::Opened, String> {
         use crate::bundle;
-        let (job, cancel) = self.job_start_cancellable(bundle::strings::OPENING);
+        let (job, cancel) = self.job_start_cancellable(&bundle::strings::opening());
         let app = self.clone();
         let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &path, &cancel, &|p| app.job_progress(job, p)));
         let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
@@ -1587,18 +1587,18 @@ impl App {
         use bible::catalog::{CatalogSource, Ctx, strings};
         let ctx = Ctx::new(self.store.root.clone(), CatalogSource::Ebible);
         let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
-        if listing.offline { return Err(strings::OFFLINE_NO_ADD.into()); }
-        let row = listing.rows.into_iter().find(|r| r.id() == id).ok_or(strings::NOT_IN_LIST)?;
+        if listing.offline { return Err(strings::offline_no_add().into()); }
+        let row = listing.rows.into_iter().find(|r| r.id() == id).ok_or(strings::not_in_list())?;
         let name = row.title().to_string();
         let update = bible::import::meta(&self.store.root, id).is_some();
-        let (job, cancel) = self.job_start_cancellable(&strings::WAITING.replace("{name}", &name));
+        let (job, cancel) = self.job_start_cancellable(&strings::waiting().replace("{name}", &name));
         self.job_subject(job, id);
         let turn = tokio::select! {
             t = self.bible_downloads.lock() => Some(t),
             _ = cancel.cancelled() => None,
         };
         let Some(_turn) = turn else { self.job_end_cancelled(job); return Err(import::CANCELLED.into()) };
-        self.job_label(job, &strings::DOWNLOADING.replace("{name}", &name));
+        self.job_label(job, &strings::downloading_name().replace("{name}", &name));
         let app = self.clone();
         let r = row.source().install(&ctx, &row, &cancel, &move |p| app.job_progress(job, p)).await
             .map_err(|e| { eprintln!("Bible download {id}: {e:?}"); e.message(&name, update) });
@@ -1701,7 +1701,7 @@ fn refuse_blocked(item: &ServiceItem) -> Result<(), ActionError> {
     match &item.kind {
         ItemKind::Scripture { translation, verses, also, .. }
             if bible::blocklist::blocked_passage(translation, verses) || also.iter().any(|a| bible::blocklist::blocked_passage(&a.translation, &a.verses)) =>
-            Err(ActionError::bad(BLOCKED)),
+            Err(ActionError::bad(blocked())),
         _ => Ok(()),
     }
 }
@@ -1959,7 +1959,7 @@ mod tests {
         let empty = app.store.import_file(&write_temp(b""), "jpg").unwrap();
         let check = |logo: &str| {
             app.data.lock().unwrap().settings.logo = Some(logo.to_string());
-            app.preflight().contains(&crate::preflight::strings::LOGO_MISSING.to_string())
+            app.preflight().contains(&crate::preflight::strings::logo_missing())
         };
         assert!(!check(&good));
         assert!(check(&empty), "an empty file cannot be shown");
@@ -2066,14 +2066,14 @@ mod tests {
         let app = test_app();
         let refused = |action: &'static str, body: String| { let app = app.clone(); async move { app.do_action(action, body.as_bytes()).await.unwrap_err().message } };
         for t in ["TPT", "nwt", "JST"] {
-            assert_eq!(refused("bible/lookup", format!(r#"{{"reference":"John 3:16","translation":"{t}"}}"#)).await, BLOCKED, "{t}");
-            assert_eq!(refused("bible/paste", format!(r#"{{"reference":"John 3:16","translation":"{t}","text":"16 For God loved."}}"#)).await, BLOCKED, "{t}");
-            assert_eq!(refused("settings/translation", format!(r#"{{"translation":"{t}"}}"#)).await, BLOCKED, "{t}");
+            assert_eq!(refused("bible/lookup", format!(r#"{{"reference":"John 3:16","translation":"{t}"}}"#)).await, blocked(), "{t}");
+            assert_eq!(refused("bible/paste", format!(r#"{{"reference":"John 3:16","translation":"{t}","text":"16 For God loved."}}"#)).await, blocked(), "{t}");
+            assert_eq!(refused("settings/translation", format!(r#"{{"translation":"{t}"}}"#)).await, blocked(), "{t}");
         }
         let passage = |t: &str| format!(r#""kind":"scripture","reference":"John 3:16","translation":"{t}","verses":[]"#);
-        assert_eq!(refused("service/add", format!(r#"{{"item":{{{}}}}}"#, passage("TPT"))).await, BLOCKED);
+        assert_eq!(refused("service/add", format!(r#"{{"item":{{{}}}}}"#, passage("TPT"))).await, blocked());
         let item = format!(r#"{{"id":"{}",{}}}"#, Uuid::new_v4(), passage("NWT"));
-        assert_eq!(refused("service/update", item).await, BLOCKED);
+        assert_eq!(refused("service/update", item).await, blocked());
         assert!(app.data.lock().unwrap().services.iter().all(|s| s.items.is_empty()), "nothing went in");
     }
 
@@ -2082,10 +2082,10 @@ mod tests {
         let app = test_app();
         let text = "1 In the beginning was the Word, and the Word was with God, and the Word was a god.";
         let body = json!({ "reference": "John 1:1", "translation": "ABC", "text": text });
-        assert_eq!(app.do_action("bible/paste", body.to_string().as_bytes()).await.unwrap_err().message, BLOCKED);
+        assert_eq!(app.do_action("bible/paste", body.to_string().as_bytes()).await.unwrap_err().message, blocked());
         let body = json!({ "item": { "kind": "scripture", "reference": "John 1:1", "translation": "ABC",
             "verses": [{ "reference": "John 1:1", "text": text }] } });
-        assert_eq!(app.do_action("service/add", body.to_string().as_bytes()).await.unwrap_err().message, BLOCKED);
+        assert_eq!(app.do_action("service/add", body.to_string().as_bytes()).await.unwrap_err().message, blocked());
     }
 
     #[tokio::test]
@@ -2243,7 +2243,7 @@ mod tests {
         app.do_action("settings/favourite", star("ESV", true).as_bytes()).await.unwrap();
         assert_eq!(app.store.load().unwrap().settings.favourites, ["ESV", "KJV"], "once each, in the order starred");
         assert_eq!(app.do_action("settings/favourite", star("XYZ", true).as_bytes()).await.unwrap_err().message, "Unknown translation.");
-        assert_eq!(app.do_action("settings/favourite", star("NWT", true).as_bytes()).await.unwrap_err().message, BLOCKED);
+        assert_eq!(app.do_action("settings/favourite", star("NWT", true).as_bytes()).await.unwrap_err().message, blocked());
         // A form opened before the star is saved: the star stays.
         let mut form = crate::model::Settings::default();
         form.lines_per_slide = 3;
@@ -2591,32 +2591,36 @@ mod tests {
     #[test]
     fn fallback_note_and_another_are_joined_fallback_first() {
         let count = "12 slides were expected but 11 were imported.";
-        for notes in [[FALLBACK_NOTE, count], [count, FALLBACK_NOTE]] {
+        let fallback = fallback_note();
+        let fallback = fallback.as_str();
+        for notes in [[fallback, count], [count, fallback]] {
             let app = test_app();
             let id = app.job_start("Importing");
             for n in notes { app.job_note(id, n.into()); }
-            assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(format!("{FALLBACK_NOTE} {count}").as_str()));
+            assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(format!("{fallback} {count}").as_str()));
         }
         let app = test_app();
         let id = app.job_start("Importing");
-        app.job_note(id, FALLBACK_NOTE.into());
-        app.job_note(id, FALLBACK_NOTE.into());
-        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(FALLBACK_NOTE), "not doubled");
+        app.job_note(id, fallback_note().into());
+        app.job_note(id, fallback_note().into());
+        assert_eq!(app.jobs.lock().unwrap()[0].note.as_deref(), Some(fallback_note().as_str()), "not doubled");
     }
 
     #[test]
     fn fallback_note_survives_later_notes_and_is_never_doubled() {
         let count = "12 slides were expected but 11 were imported.";
         let other = "Imported with LibreOffice — check the slides.";
+        let fallback = fallback_note();
+        let fallback = fallback.as_str();
         let note = |notes: &[&str]| {
             let app = test_app();
             let id = app.job_start("Importing");
             for n in notes { app.job_note(id, (*n).into()); }
             app.jobs.lock().unwrap()[0].note.clone().unwrap()
         };
-        assert_eq!(note(&[FALLBACK_NOTE, count, other]), format!("{FALLBACK_NOTE} {other}"));
-        assert_eq!(note(&[FALLBACK_NOTE, count, FALLBACK_NOTE]), format!("{FALLBACK_NOTE} {count}"));
-        assert_eq!(note(&[count, FALLBACK_NOTE, other]), format!("{FALLBACK_NOTE} {other}"));
+        assert_eq!(note(&[fallback, count, other]), format!("{fallback} {other}"));
+        assert_eq!(note(&[fallback, count, fallback]), format!("{fallback} {count}"));
+        assert_eq!(note(&[count, fallback, other]), format!("{fallback} {other}"));
     }
 
     #[test]
@@ -2634,9 +2638,9 @@ mod tests {
         let app = test_app();
         let bad = app.store.root.join("x.rpservice");
         std::fs::write(&bad, b"no").unwrap();
-        assert_eq!(block_on(app.import_service(bad)).unwrap_err(), crate::bundle::strings::NOT_A_SERVICE_FILE);
+        assert_eq!(block_on(app.import_service(bad)).unwrap_err(), crate::bundle::strings::not_a_service_file());
         assert_eq!(app.data.lock().unwrap().services.len(), 1);
-        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::NOT_A_SERVICE_FILE));
+        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::not_a_service_file().as_str()));
     }
 
     #[test]
@@ -2704,7 +2708,7 @@ mod tests {
         app.do_action("settings/also", br#"{"also_show":["WEB","KJV","BSB","WEB"]}"#).await.unwrap();
         assert_eq!(app.data.lock().unwrap().settings.also_show, ["WEB", "BSB"]);
         let err = app.do_action("settings/also", br#"{"also_show":["TPT"]}"#).await.unwrap_err();
-        assert_eq!(err.message, BLOCKED);
+        assert_eq!(err.message, blocked());
     }
 
     #[tokio::test]

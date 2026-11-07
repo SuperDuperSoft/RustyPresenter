@@ -93,7 +93,7 @@ pub fn select(rows: &[CatRow], query: &str, filter: i32, lang: &str) -> Shown {
         lines.push(Some(i));
     }
     let note = if matched.is_empty() {
-        if filter == 0 && words.is_empty() && lang.is_empty() { cat::NONE_INSTALLED.into() } else { cat::NO_MATCH.into() }
+        if filter == 0 && words.is_empty() && lang.is_empty() { cat::none_installed().into() } else { cat::no_match().into() }
     } else if matched.len() > MAX_SHOWN { cat::showing(MAX_SHOWN, matched.len()) } else { String::new() };
     Shown { lines, note }
 }
@@ -147,38 +147,38 @@ fn no_font(memo: &RefCell<HashMap<String, bool>>, r: &CatRow) -> bool {
 #[allow(clippy::too_many_arguments)]
 pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed: Option<&str>, offline: bool, same_abbr: bool,
     no_font: bool) -> SettingsCatalogRow {
-    let mut tag = vec![cat::TAG_OFFLINE.to_string(), r.scope.clone()];
-    if r.apocrypha { tag.push(cat::INCLUDES_APOCRYPHA.into()) }
-    if r.licence_on_download && !r.installed { tag.push(cat::LICENCE_ON_DOWNLOAD.into()) }
+    let mut tag = vec![cat::tag_offline(), r.scope.clone()];
+    if r.apocrypha { tag.push(cat::includes_apocrypha().into()) }
+    if r.licence_on_download && !r.installed { tag.push(cat::licence_on_download().into()) }
     let abbr = if same_abbr { format!("{} · {}", r.abbr, r.lang) } else { r.abbr.clone() };
     let mut row = SettingsCatalogRow {
         heading: SharedString::new(), abbr: abbr.into(), title: r.title.as_str().into(), tag: tag.join(" · ").into(),
         status: SharedString::new(), button: SharedString::new(), progress: -1.0, enabled: true, primary: false,
-        font_warning: if no_font { cat::NO_FONT.into() } else { SharedString::new() },
+        font_warning: if no_font { cat::no_font().into() } else { SharedString::new() },
     };
     let running = job.filter(|j| j.error.is_none() && !j.done);
     if let Some(j) = running {
-        let waiting = j.label.starts_with(cat::WAITING.split('{').next().unwrap_or(""));
-        row.status = if waiting { cat::WAITING_SHORT.into() } else { cat::downloading(j.percent).into() };
+        let waiting = j.label.starts_with(cat::waiting().split('{').next().unwrap_or(""));
+        row.status = if waiting { cat::waiting_short().into() } else { cat::downloading(j.percent).into() };
         row.progress = if waiting { -1.0 } else { f32::from(j.percent) };
-        row.button = cat::CANCEL.into();
+        row.button = cat::cancel().into();
         row.enabled = j.cancellable;
         return row;
     }
     if pending {
-        row.status = cat::WAITING_SHORT.into();
+        row.status = cat::waiting_short().into();
         row.progress = 0.0;
         return row;
     }
     if let Some(e) = failed { row.status = e.into() }
     if r.installed && r.update {
-        if row.status.is_empty() { row.status = cat::UPDATE_READY.into() }
-        (row.button, row.primary, row.enabled) = (cat::UPDATE.into(), true, !offline);
+        if row.status.is_empty() { row.status = cat::update_ready().into() }
+        (row.button, row.primary, row.enabled) = (cat::update().into(), true, !offline);
     } else if r.installed {
-        if added { row.status = cat::ADDED.into() }
-        row.button = cat::REMOVE.into();
+        if added { row.status = cat::added_tag().into() }
+        row.button = cat::remove().into();
     } else {
-        (row.button, row.primary, row.enabled) = (cat::ADD.into(), true, !offline);
+        (row.button, row.primary, row.enabled) = (cat::add().into(), true, !offline);
     }
     row
 }
@@ -192,7 +192,7 @@ thread_local! {
 pub(super) fn reset(g: &SettingsDlg) {
     g.set_catalog_search(SharedString::new());
     g.set_catalog_filter(1);
-    g.set_catalog_languages(ModelRc::new(VecModel::from(vec![SharedString::from(cat::ALL_LANGUAGES)])));
+    g.set_catalog_languages(ModelRc::new(VecModel::from(vec![SharedString::from(cat::all_languages())])));
     g.set_catalog_language(0);
     g.set_catalog_note(SharedString::new());
     g.set_catalog_rows(ModelRc::default());
@@ -226,7 +226,7 @@ pub(super) fn load_catalog(op: &Rc<Operator>, edit: &Rc<super::settings::Edit>) 
                 *c.error.borrow_mut() = None;
                 let (codes, labels) = languages(&c.rows.borrow());
                 *c.langs.borrow_mut() = codes;
-                let mut options: Vec<SharedString> = vec![cat::ALL_LANGUAGES.into()];
+                let mut options: Vec<SharedString> = vec![cat::all_languages().into()];
                 options.extend(labels.into_iter().map(SharedString::from));
                 let g = op.ui.global::<SettingsDlg>();
                 g.set_catalog_languages(ModelRc::new(VecModel::from(options)));
@@ -244,7 +244,7 @@ pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
     let c = &edit.bible.catalog;
     g.set_catalog_loading(c.loading.get());
     if c.loading.get() {
-        g.set_catalog_note(cat::LIST_LOADING.into());
+        g.set_catalog_note(cat::list_loading().into());
         g.set_catalog_rows(ModelRc::default());
         return;
     }
@@ -275,7 +275,7 @@ pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
         }
     }).collect();
     let note = if c.offline.get() {
-        if shown.note.is_empty() { cat::CATALOG_OFFLINE.to_string() } else { format!("{} {}", cat::CATALOG_OFFLINE, shown.note) }
+        if shown.note.is_empty() { cat::catalog_offline() } else { format!("{} {}", cat::catalog_offline(), shown.note) }
     } else { shown.note.clone() };
     g.set_catalog_note(note.into());
     g.set_catalog_rows(ModelRc::new(VecModel::from(lines)));
@@ -348,7 +348,7 @@ pub fn hint(b: &BibleSource, providers: &[BibleProvider]) -> String {
     match b.status.as_str() {
         "needs_key" => strings::connect_below(&b.providers.iter()
             .filter_map(|id| providers.iter().find(|p| p.id == *id).map(|p| p.label.clone())).collect::<Vec<_>>()),
-        "unavailable" => strings::NO_ONLINE_SOURCE.into(),
+        "unavailable" => strings::no_online_source().into(),
         _ => b.provider.clone().unwrap_or_default(),
     }
 }
@@ -382,7 +382,7 @@ pub(super) fn default_bible(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     op.ops().call::<serde_json::Value>("settings/translation", serde_json::json!({ "translation": id }), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(_) => op.toast(cat::DEFAULT_SET, false),
+            Ok(_) => op.toast(cat::default_set(), false),
             Err(e) => op.toast(e, true),
         }
         redraw_on_next_read(&op, &edit);
@@ -406,7 +406,7 @@ pub(super) fn toggle_also(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     if picked.iter().any(|t| crate::bible::id::same_id(t, &id)) {
         picked.retain(|t| !crate::bible::id::same_id(t, &id));
     } else if picked.len() >= crate::scripture::MAX_ALSO {
-        op.toast(cat::ALSO_FULL, true);
+        op.toast(cat::also_full(), true);
         return;
     } else {
         picked.push(id);
@@ -480,7 +480,7 @@ pub(super) fn save_key(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize, key: &str) 
 
 pub(super) fn copy_link(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     let Some(url) = edit.bible.providers.borrow().get(i).map(|p| p.signup_url.clone()) else { return };
-    copy(op, &url, strings::LINK_COPIED);
+    copy(op, &url, &strings::link_copied());
 }
 
 /// Import a Bible file: pick `.xml .usx .osis .zef` files and import each under the short name typed (or the file's
@@ -508,7 +508,7 @@ pub(crate) fn import_files(op: &Rc<Operator>, edit: &Rc<Edit>, mut paths: Vec<Pa
             }
             Err(e) => {
                 redraw_on_next_read(&op, &edit);
-                op.toast(if e.is_empty() { strings::IMPORT_FAILED.to_string() } else { e }, true);
+                op.toast(if e.is_empty() { strings::import_failed() } else { e }, true);
             }
         }
     });
@@ -550,7 +550,7 @@ mod catalog_tests {
         assert_eq!(select(&rows, "", 0, "").lines, [None, Some(1)], "Installed");
         assert_eq!(select(&rows, "", 1, "spa").lines, [None, Some(2)]);
         assert_eq!(select(&rows, "gamma spa", 1, "").lines, [None, Some(2)], "every word, across fields");
-        assert_eq!(select(&rows, "gamma eng", 1, "").note, cat::NO_MATCH);
+        assert_eq!(select(&rows, "gamma eng", 1, "").note, cat::no_match());
         let many: Vec<CatRow> = (0..MAX_SHOWN + 5).map(|i| row(&format!("e:{i}"), "X", "X", "eng", false)).collect();
         let s = select(&many, "", 1, "");
         assert_eq!(s.lines.len(), MAX_SHOWN + 1);
@@ -605,9 +605,9 @@ mod catalog_tests {
         r.lang_name = "አማርኛ".into();
         assert!(needs_font(&mut f, &r), "the language's own name, shown in its heading");
         let l = line(&r, None, false, false, None, false, false, true);
-        assert_eq!((l.font_warning.as_str(), l.button.as_str()), (cat::NO_FONT, "Add"), "shown before Add, and Add still works");
+        assert_eq!((l.font_warning.as_str(), l.button.as_str()), (cat::no_font().as_str(), "Add"), "shown before Add, and Add still works");
         let d = line(&r, Some(&job("ebible:amh", "Downloading Amharic Bible…", 10)), true, false, None, false, false, true);
-        assert_eq!(d.font_warning, cat::NO_FONT, "and while downloading");
+        assert_eq!(d.font_warning, cat::no_font(), "and while downloading");
         assert!(line(&r, None, false, false, None, false, false, false).font_warning.is_empty());
     }
 

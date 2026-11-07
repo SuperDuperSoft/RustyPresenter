@@ -116,7 +116,7 @@ mod tests {
         play_audio(&app);
         app.watch_sound();
         assert!(audio_paused(&app));
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::SOUND_GONE));
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::sound_gone().as_str()));
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod tests {
         app.watch_sound();
         outputs.found.lock().unwrap().clear();
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::SOUND_GONE));
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::sound_gone().as_str()));
     }
 
     #[test]

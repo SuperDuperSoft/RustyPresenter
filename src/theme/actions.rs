@@ -72,7 +72,7 @@ struct Standard {
 /// A theme id that must name a theme (Standard, saved or built-in).
 fn known(d: &Data, id: Option<ThemeId>) -> Result<(), String> {
     match id {
-        Some(id) if theme::find(d, id).is_none() => Err(strings::THEME_GONE.into()),
+        Some(id) if theme::find(d, id).is_none() => Err(strings::theme_gone().into()),
         _ => Ok(()),
     }
 }
@@ -146,7 +146,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
                 .edit(|d| {
                     known(d, id)?;
                     let has_background = id.and_then(|id| theme::find(d, id)).is_some_and(|t| t.background.is_some());
-                    let s = d.services.iter_mut().find(|s| s.id == service_id).ok_or(strings::SERVICE_GONE)?;
+                    let s = d.services.iter_mut().find(|s| s.id == service_id).ok_or(strings::service_gone())?;
                     s.theme = id;
                     let own = s.items.iter().filter(|i| theme::draws_text(i) && i.background.is_some()).count();
                     Ok(if has_background { own } else { 0 })
@@ -162,7 +162,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             let S { service_id } = parse(body)?;
             let cleared = app
                 .edit(|d| {
-                    let s = d.services.iter_mut().find(|s| s.id == service_id).ok_or(strings::SERVICE_GONE)?;
+                    let s = d.services.iter_mut().find(|s| s.id == service_id).ok_or(strings::service_gone())?;
                     let mut n = 0;
                     for i in s.items.iter_mut().filter(|i| theme::draws_text(i) && i.background.is_some()) {
                         i.background = None;
@@ -177,9 +177,9 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             let ItemTheme { item_id, theme: id } = parse(body)?;
             app.edit(|d| {
                 known(d, id)?;
-                let item = d.services.iter_mut().flat_map(|s| s.items.iter_mut()).find(|i| i.id == item_id).ok_or(strings::ITEM_GONE)?;
+                let item = d.services.iter_mut().flat_map(|s| s.items.iter_mut()).find(|i| i.id == item_id).ok_or(strings::item_gone())?;
                 if id.is_some() && !theme::draws_text(item) {
-                    return Err(strings::ITEM_NO_THEME.into());
+                    return Err(strings::item_no_theme().into());
                 }
                 item.theme = id;
                 Ok(())
@@ -196,7 +196,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             let Add { name, background } = parse(body)?;
             let name = name.trim().to_string();
             if name.is_empty() {
-                return Err(ActionError::bad(strings::BACKGROUND_NAME_REQUIRED));
+                return Err(ActionError::bad(strings::background_name_required()));
             }
             let dim = background.dim();
             let entry = BackgroundEntry::new(&name, background.with_dim(dim), MediaStatus::Ready, chrono::Utc::now());
@@ -217,10 +217,10 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             let R { id, name } = parse(body)?;
             let name = name.trim().to_string();
             if name.is_empty() {
-                return Err(ActionError::bad(strings::BACKGROUND_NAME_REQUIRED));
+                return Err(ActionError::bad(strings::background_name_required()));
             }
             app.edit(|d| {
-                d.backgrounds.iter_mut().find(|e| e.id == id).ok_or(strings::BACKGROUND_GONE)?.name = name;
+                d.backgrounds.iter_mut().find(|e| e.id == id).ok_or(strings::background_gone())?.name = name;
                 Ok(())
             })
             .map_err(bad)?;
@@ -231,7 +231,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             app.edit(|d| {
                 let before = d.backgrounds.len();
                 d.backgrounds.retain(|e| e.id != id);
-                if d.backgrounds.len() == before { Err(strings::BACKGROUND_GONE.into()) } else { Ok(()) }
+                if d.backgrounds.len() == before { Err(strings::background_gone().into()) } else { Ok(()) }
             })
             .map_err(bad)?;
             Ok(json!({}))
@@ -268,7 +268,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             app.edit(|d| {
                 let before = d.overlays.len();
                 d.overlays.retain(|o| o.id != id);
-                if d.overlays.len() == before { Err(strings::OVERLAY_GONE.into()) } else { Ok(()) }
+                if d.overlays.len() == before { Err(strings::overlay_gone().into()) } else { Ok(()) }
             })
             .map_err(bad)?;
             Ok(json!({}))
@@ -281,7 +281,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             }
             let Mv { id, to } = parse(body)?;
             app.edit(|d| {
-                let from = d.overlays.iter().position(|o| o.id == id).ok_or(strings::OVERLAY_GONE)?;
+                let from = d.overlays.iter().position(|o| o.id == id).ok_or(strings::overlay_gone())?;
                 let o = d.overlays.remove(from);
                 let to = to.min(d.overlays.len());
                 d.overlays.insert(to, o);
@@ -300,9 +300,9 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
             if let Some(a) = &asset
                 && !app.store.asset_path(a).exists()
             {
-                return Err(ActionError::bad(strings::PICTURE_GONE));
+                return Err(ActionError::bad(strings::picture_gone()));
             }
-            let toast = if asset.is_some() { strings::LOGO_SAVED } else { strings::LOGO_REMOVED };
+            let toast = if asset.is_some() { strings::logo_saved() } else { strings::logo_removed() };
             app.edit(|d| {
                 d.settings.logo = asset;
                 Ok(())

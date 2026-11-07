@@ -27,7 +27,7 @@ pub fn confirm(op: &Rc<Operator>, text: &str, ok_label: &str, cancel_label: &str
 
 /// Shows a report with one button; nothing depends on the answer.
 pub fn notice(op: &Rc<Operator>, text: &str) {
-    confirm(op, text, super::strings::OK, "", false, |_| {});
+    confirm(op, text, &super::strings::ok(), "", false, |_| {});
 }
 
 /// Asks which of two things to do, with Cancel as the way out of both. `done(Some(true))` on `first` or Enter,
@@ -35,7 +35,7 @@ pub fn notice(op: &Rc<Operator>, text: &str) {
 pub fn choose(op: &Rc<Operator>, text: &str, first: &str, second: &str, done: impl FnOnce(Option<bool>) + 'static) {
     let row = AskRow {
         prompt: false, text: text.into(), value: "".into(), ok_label: first.into(), other_label: second.into(),
-        cancel_label: super::strings::CANCEL.into(), danger: false,
+        cancel_label: super::strings::cancel().into(), danger: false,
     };
     push(op, Ask { row, done: Done::Choose(Box::new(done)) });
 }
@@ -45,7 +45,7 @@ pub fn choose(op: &Rc<Operator>, text: &str, first: &str, second: &str, done: im
 pub fn prompt(op: &Rc<Operator>, title: &str, initial: &str, done: impl FnOnce(Option<String>) + 'static) {
     let row = AskRow {
         prompt: true, text: title.into(), value: initial.into(),
-        ok_label: super::strings::OK.into(), cancel_label: super::strings::CANCEL.into(), other_label: "".into(), danger: false,
+        ok_label: super::strings::ok().into(), cancel_label: super::strings::cancel().into(), other_label: "".into(), danger: false,
     };
     push(op, Ask { row, done: Done::Prompt(Box::new(done)) });
 }

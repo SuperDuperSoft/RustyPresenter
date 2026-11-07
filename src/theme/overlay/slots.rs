@@ -58,7 +58,7 @@ pub fn saved_on(slots: &[OverlaySlot]) -> usize {
 pub fn check_seen_clear(seen: Option<u64>, epoch: u64) -> Result<(), String> {
     match seen {
         Some(seen) if seen >= epoch => Ok(()),
-        _ => Err(strings::SCREEN_CLEARED.into()),
+        _ => Err(strings::screen_cleared().into()),
     }
 }
 
@@ -75,8 +75,8 @@ fn with_logo(source: &OverlaySource, logo: Option<&AssetId>) -> Option<OverlaySo
 /// The slot for saved overlay `id`: key `saved:<id>`, z = its library index, `ChurchLogo` resolved
 /// to the current logo.
 pub fn saved_slot(id: Uuid, library: &[Overlay], logo: Option<&AssetId>, inst: u64) -> Result<OverlaySlot, String> {
-    let (index, o) = library.iter().enumerate().find(|(_, o)| o.id == id).ok_or_else(|| strings::OVERLAY_GONE.to_string())?;
-    let source = with_logo(&o.source, logo).ok_or_else(|| strings::LOGO_FIRST.to_string())?;
+    let (index, o) = library.iter().enumerate().find(|(_, o)| o.id == id).ok_or_else(|| strings::overlay_gone())?;
+    let source = with_logo(&o.source, logo).ok_or_else(|| strings::logo_first())?;
     Ok(OverlaySlot { key: saved_key(id), z: index as u32, inst, name: o.name.clone(), source, place: o.place })
 }
 
@@ -84,7 +84,7 @@ pub fn saved_slot(id: Uuid, library: &[Overlay], logo: Option<&AssetId>, inst: u
 /// Then `show`; the result says whether anything changed.
 pub fn turn_on(slots: &mut Vec<OverlaySlot>, slot: OverlaySlot) -> Result<bool, String> {
     if saved_on(slots) >= MAX_SAVED_ON && !slots.iter().any(|s| s.key == slot.key) {
-        return Err(strings::OVERLAY_CAP.into());
+        return Err(strings::overlay_cap().into());
     }
     Ok(show(slots, slot))
 }
@@ -260,7 +260,7 @@ mod tests {
             assert_eq!(turn_on(&mut slots, slot(&format!("saved:{i}"), i, i as u64)), Ok(true));
         }
         assert_eq!(saved_on(&slots), MAX_SAVED_ON);
-        assert_eq!(turn_on(&mut slots, slot("saved:9", 9, 9)).unwrap_err(), OVERLAY_CAP);
+        assert_eq!(turn_on(&mut slots, slot("saved:9", 9, 9)).unwrap_err(), overlay_cap());
         assert_eq!(slots.len(), 8);
         let mut edited = slot("saved:3", 3, 10);
         edited.name = "Edited".into();
@@ -280,14 +280,14 @@ mod tests {
 
     #[test]
     fn overlay_on_with_stale_seen_clear_is_refused() {
-        assert_eq!(check_seen_clear(Some(3), 4).unwrap_err(), SCREEN_CLEARED);
+        assert_eq!(check_seen_clear(Some(3), 4).unwrap_err(), screen_cleared());
         assert!(check_seen_clear(Some(4), 4).is_ok());
         assert!(check_seen_clear(Some(5), 4).is_ok());
     }
 
     #[test]
     fn overlay_on_without_seen_clear_is_refused() {
-        assert_eq!(check_seen_clear(None, 0).unwrap_err(), SCREEN_CLEARED);
+        assert_eq!(check_seen_clear(None, 0).unwrap_err(), screen_cleared());
     }
 
     #[test]
@@ -324,7 +324,7 @@ mod tests {
     #[test]
     fn logo_bug_without_logo_errors() {
         let lib = [logo_bug()];
-        assert_eq!(saved_slot(lib[0].id, &lib, None, 1).unwrap_err(), LOGO_FIRST);
+        assert_eq!(saved_slot(lib[0].id, &lib, None, 1).unwrap_err(), logo_first());
         // a picture with its own asset needs no logo
         let own = Overlay { source: OverlaySource::Image { source: ImageSource::Asset { asset: "p.png".into() }, opacity: 50 }, ..logo_bug() };
         assert!(saved_slot(own.id, std::slice::from_ref(&own), None, 1).is_ok());
@@ -333,7 +333,7 @@ mod tests {
     #[test]
     fn gone_overlay_errors() {
         let lib = [text("Wi-Fi", "Guest")];
-        assert_eq!(saved_slot(Uuid::new_v4(), &lib, None, 1).unwrap_err(), OVERLAY_GONE);
+        assert_eq!(saved_slot(Uuid::new_v4(), &lib, None, 1).unwrap_err(), overlay_gone());
     }
 
     #[test]
@@ -343,7 +343,7 @@ mod tests {
         let mut slots = vec![saved_slot(lib[0].id, &lib, None, 4).unwrap(), saved_slot(lib[1].id, &lib, Some(&logo), 5).unwrap()];
         let key = saved_key(lib[1].id);
         let name = failed(&mut slots, &key, 5).unwrap();
-        assert_eq!(overlay_failed(&name, PICTURE_UNREADABLE), "Couldn't show the overlay “Logo”: the picture could not be loaded.");
+        assert_eq!(overlay_failed(&name, &picture_unreadable()), "Couldn't show the overlay “Logo”: the picture could not be loaded.");
         assert_eq!(keys(&slots), [saved_key(lib[0].id).as_str()]);
     }
 

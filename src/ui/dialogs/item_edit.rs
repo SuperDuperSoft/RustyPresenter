@@ -91,7 +91,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
                 g.set_name(m.name.as_str().into());
                 name = Some(Name::Media { id: m.id, was: m.name.clone() });
                 let chip = match &m.status {
-                    MediaStatus::Failed { reason } => Some((strings::FAILED.to_string(), "bad", reason.clone())),
+                    MediaStatus::Failed { reason } => Some((strings::failed(), "bad", reason.clone())),
                     _ => None,
                 };
                 if let Some((text, state, reason)) = chip {
@@ -356,7 +356,7 @@ fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'st
             match r {
                 Ok(_) => {
                     if op.dialog() == Some(DialogKind::ItemEdit(id)) { op.close_dialog() }
-                    op.toast(strings::SAVED, false);
+                    op.toast(strings::saved(), false);
                     if let Some(n) = note { op.toast(n, true) }
                 }
                 Err(e) => op.toast(e, true),

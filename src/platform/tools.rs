@@ -122,11 +122,11 @@ fn lock(cache: &Mutex<Option<Soffice>>) -> std::sync::MutexGuard<'_, Option<Soff
     cache.lock().unwrap_or_else(|e| e.into_inner())
 }
 
-pub fn install_hint(os: Os) -> &'static str {
+pub fn install_hint(os: Os) -> String {
     match os {
-        Os::Windows => strings::INSTALL_HINT_WINDOWS,
-        Os::MacOs => strings::INSTALL_HINT_MACOS,
-        Os::Linux => strings::INSTALL_HINT_LINUX,
+        Os::Windows => strings::install_hint_windows(),
+        Os::MacOs => strings::install_hint_macos(),
+        Os::Linux => strings::install_hint_linux(),
     }
 }
 

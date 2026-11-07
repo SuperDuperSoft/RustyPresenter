@@ -174,19 +174,19 @@ impl Operator {
 
     fn dialog_title(&self, kind: DialogKind) -> String {
         match kind {
-            DialogKind::Add(_) => strings::ADD.into(),
-            DialogKind::SongEditor { song_id: None, .. } => strings::NEW_SONG.into(),
-            DialogKind::SongEditor { .. } => strings::EDIT_SONG.into(),
+            DialogKind::Add(_) => strings::add().into(),
+            DialogKind::SongEditor { song_id: None, .. } => strings::new_song().into(),
+            DialogKind::SongEditor { .. } => strings::edit_song().into(),
             // `dialog(it.title, …)` (`operator.js:796`).
             DialogKind::ItemEdit(id) => self.state.borrow().snap.as_ref()
                 .and_then(|s| s.items.iter().find(|i| i.id == id).map(|i| i.title.clone()))
                 .unwrap_or_default(),
-            DialogKind::Services => strings::SERVICES.into(),
-            DialogKind::Print(_) => print::TITLE.into(),
-            DialogKind::Screens => strings::SCREENS.into(),
-            DialogKind::Phone => strings::PHONE.into(),
-            DialogKind::Settings(_) => strings::SETTINGS.into(),
-            DialogKind::Usage => crate::usage::strings::TITLE.into(),
+            DialogKind::Services => strings::services().into(),
+            DialogKind::Print(_) => print::title().into(),
+            DialogKind::Screens => strings::screens().into(),
+            DialogKind::Phone => strings::phone().into(),
+            DialogKind::Settings(_) => strings::settings().into(),
+            DialogKind::Usage => crate::usage::strings::title().into(),
         }
     }
 }
@@ -317,7 +317,7 @@ mod tests {
     fn confirm_cell(op: &Rc<Operator>) -> Rc<Cell<Option<bool>>> {
         let answer = Rc::new(Cell::new(None));
         let got = answer.clone();
-        confirm(op, "Delete “Amazing Grace” from the library?", strings::OK, strings::CANCEL, false, move |ok| got.set(Some(ok)));
+        confirm(op, "Delete “Amazing Grace” from the library?", &strings::ok(), &strings::cancel(), false, move |ok| got.set(Some(ok)));
         settle(op);
         answer
     }

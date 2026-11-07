@@ -366,7 +366,7 @@ impl Live {
                 let order = plan.order();
                 let index = order.iter().position(|i| i == item_id).ok_or("That item is not in the service.")?;
                 let item = plan.build(*item_id).ok_or("That item has nothing to show.")?;
-                if item.slides.is_empty() { return Err(if item.kind == "blank" { crate::planning::strings::BLANK_CHOOSE_FIRST } else { "That item has no slides." }.into()); }
+                if item.slides.is_empty() { return Err(if item.kind == "blank" { crate::planning::strings::blank_choose_first() } else { "That item has no slides.".into() }); }
                 let slide = (*slide).min(item.slides.len() - 1);
                 self.go(item, index, slide);
                 Ok(())
@@ -384,7 +384,7 @@ impl Live {
             }
             Command::Overlay { id, on: true, seen_clear } => {
                 slots::check_seen_clear(*seen_clear, self.clear_epoch)?;
-                let (z, o) = plan.saved_overlay(*id).ok_or(theme_strings::OVERLAY_GONE)?;
+                let (z, o) = plan.saved_overlay(*id).ok_or(theme_strings::overlay_gone())?;
                 let inst = self.inst();
                 let mut slot = slots::saved_slot(*id, std::slice::from_ref(&o), plan.logo().as_ref(), inst)?;
                 slot.z = z;

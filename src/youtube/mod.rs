@@ -89,7 +89,7 @@ pub enum Quality {
 }
 
 impl Quality {
-    /// The Quality drop-down's index (`strings::QUALITIES`).
+    /// The Quality drop-down's index (`strings::qualities()`).
     pub fn from_index(i: i32) -> Quality {
         match i { 1 => Quality::Smaller, 2 => Quality::Smallest, 3 => Quality::Sound, _ => Quality::Best }
     }
@@ -148,24 +148,24 @@ pub enum YtError {
 impl YtError {
     pub fn message(&self) -> String {
         match self {
-            YtError::Offline => tr::OFFLINE.into(),
-            YtError::Private => tr::PRIVATE.into(),
-            YtError::SignIn => tr::SIGN_IN.into(),
-            YtError::Members => tr::MEMBERS.into(),
-            YtError::BotCheck => tr::BOT_CHECK.into(),
-            YtError::Live => tr::LIVE.into(),
-            YtError::Upcoming => tr::UPCOMING.into(),
-            YtError::Processing => tr::PROCESSING.into(),
-            YtError::NotAVideo => tr::NOT_A_VIDEO.into(),
-            YtError::Unavailable => tr::UNAVAILABLE.into(),
-            YtError::EmptyPlaylist => tr::EMPTY_PLAYLIST.into(),
-            YtError::DiskFull => tr::DISK_FULL.into(),
-            YtError::Broken => tr::BROKEN.into(),
-            YtError::Setup(FetchError::Offline | FetchError::Http(_)) => tr::SETUP_OFFLINE.into(),
-            YtError::Setup(FetchError::Checksum) => tr::SETUP_CHECKSUM.into(),
-            YtError::Setup(FetchError::NoBuild) => tr::SETUP_NO_BUILD.into(),
-            YtError::Setup(FetchError::DiskFull) => tr::DISK_FULL.into(),
-            YtError::Setup(FetchError::Cancelled) | YtError::Cancelled => tr::CANCELLED.into(),
+            YtError::Offline => tr::offline().into(),
+            YtError::Private => tr::private().into(),
+            YtError::SignIn => tr::sign_in().into(),
+            YtError::Members => tr::members().into(),
+            YtError::BotCheck => tr::bot_check().into(),
+            YtError::Live => tr::live().into(),
+            YtError::Upcoming => tr::upcoming().into(),
+            YtError::Processing => tr::processing().into(),
+            YtError::NotAVideo => tr::not_a_video().into(),
+            YtError::Unavailable => tr::unavailable().into(),
+            YtError::EmptyPlaylist => tr::empty_playlist().into(),
+            YtError::DiskFull => tr::disk_full().into(),
+            YtError::Broken => tr::broken().into(),
+            YtError::Setup(FetchError::Offline | FetchError::Http(_)) => tr::setup_offline().into(),
+            YtError::Setup(FetchError::Checksum) => tr::setup_checksum().into(),
+            YtError::Setup(FetchError::NoBuild) => tr::setup_no_build().into(),
+            YtError::Setup(FetchError::DiskFull) => tr::disk_full().into(),
+            YtError::Setup(FetchError::Cancelled) | YtError::Cancelled => tr::cancelled().into(),
             YtError::Setup(FetchError::Other(e)) => tr::setup_failed(e),
             YtError::Other(e) => tr::other(e),
         }
@@ -719,8 +719,8 @@ async fn download(app: &Arc<App>, job: Uuid, video: &Video, title: &str, quality
     };
     app.job_result(job, media.id);
     let added = service.is_some_and(|s| add_to_service(app, s, media.id));
-    let note = if added { tr::IN_SERVICE } else { tr::IN_LIBRARY };
-    Ok(if low_quality { format!("{note} {}", tr::LOW_QUALITY) } else { note.to_string() })
+    let note = if added { tr::in_service() } else { tr::in_library() };
+    Ok(if low_quality { format!("{note} {}", tr::low_quality()) } else { note.to_string() })
 }
 
 /// Puts the media at the end of the service it was asked for in, if that service is still there.

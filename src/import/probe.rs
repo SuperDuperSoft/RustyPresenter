@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 use tokio::sync::{Semaphore, SemaphorePermit};
 use tokio_util::sync::CancellationToken;
 
-pub use super::strings::{BAD_PICTURE, CANT_PLAY, TOO_SLOW};
+pub use super::strings::{bad_picture, cant_play, too_slow};
 
 /// A probe's time limit, from opening the file to the thumbnail.
 const DEADLINE: Duration = Duration::from_secs(20);
@@ -87,8 +87,8 @@ pub fn thumb_jpeg(img: &image::RgbImage) -> Vec<u8> {
 }
 
 pub fn probe_image(path: &Path) -> Result<Probe, String> {
-    let reader = image::ImageReader::open(path).map_err(|_| BAD_PICTURE.to_string())?;
-    let picture = reader.with_guessed_format().map_err(|_| BAD_PICTURE.to_string())?.decode().map_err(|_| BAD_PICTURE.to_string())?;
+    let reader = image::ImageReader::open(path).map_err(|_| bad_picture())?;
+    let picture = reader.with_guessed_format().map_err(|_| bad_picture())?.decode().map_err(|_| bad_picture())?;
     let thumb = picture.to_rgb8();
     Ok(Probe { kind: MediaKind::Image, duration: None, size: Some(thumb.dimensions()), thumb: Some(thumb), tracks: Node::None })
 }
@@ -99,9 +99,9 @@ fn may_ignore(option: &str, code: c_int) -> bool {
 }
 
 /// The operator sees "This file can't be played."; what went wrong goes to the log.
-fn cant_play(what: &str, e: impl std::fmt::Display) -> String {
+fn cant_play_logged(what: &str, e: impl std::fmt::Display) -> String {
     eprintln!("probe: {what}: {e}");
-    CANT_PLAY.to_string()
+    cant_play()
 }
 
 /// One mpv core, destroyed on drop.
@@ -117,20 +117,20 @@ impl Core {
     fn new(mpv: &Arc<Mpv>) -> Result<Core, String> {
         let h = unsafe { (mpv.create)() };
         if h.is_null() {
-            return Err(CANT_PLAY.into());
+            return Err(cant_play().into());
         }
         let core = Core { mpv: mpv.clone(), h };
         for (k, v) in OPTIONS {
             let option = || format!("mpv option {k}={v}");
-            let (key, value) = (CString::new(*k).map_err(|e| cant_play(&option(), e))?, CString::new(*v).map_err(|e| cant_play(&option(), e))?);
+            let (key, value) = (CString::new(*k).map_err(|e| cant_play_logged(&option(), e))?, CString::new(*v).map_err(|e| cant_play_logged(&option(), e))?);
             let code = unsafe { (mpv.set_option_string)(h, key.as_ptr(), value.as_ptr()) };
             if code < 0 && !may_ignore(k, code) {
-                return Err(cant_play(&option(), mpv.err(code)));
+                return Err(cant_play_logged(&option(), mpv.err(code)));
             }
         }
         let code = unsafe { (mpv.initialize)(h) };
         if code < 0 {
-            return Err(cant_play("mpv start", mpv.err(code)));
+            return Err(cant_play_logged("mpv start", mpv.err(code)));
         }
         Ok(core)
     }
@@ -165,7 +165,7 @@ fn probe_holding(mpv: &Arc<Mpv>, path: &Path, deadline: Duration, cancel: &Cance
     let core = Core::new(mpv)?;
     let result = run(&core, path, deadline, cancel);
     // A file stuck in opening can hold mpv's shutdown for good, so a probe that gave up never waits for it.
-    if matches!(&result, Err(e) if e == TOO_SLOW || e == CANCELLED) {
+    if matches!(&result, Err(e) if *e == too_slow() || e == CANCELLED) {
         drop_later(core, slot);
     }
     result
@@ -183,8 +183,8 @@ fn drop_later<T: Send + 'static>(core: T, slot: Option<SemaphorePermit<'static>>
 fn run(core: &Core, path: &Path, deadline: Duration, cancel: &CancellationToken) -> Result<Probe, String> {
     let (mpv, h) = (&core.mpv, core.h);
     let end = Instant::now() + deadline;
-    let file = path.to_str().ok_or(CANT_PLAY)?;
-    unsafe { mpv.command(h, &["loadfile", file]) }.map_err(|_| CANT_PLAY.to_string())?;
+    let file = path.to_str().ok_or(cant_play())?;
+    unsafe { mpv.command(h, &["loadfile", file]) }.map_err(|_| cant_play())?;
     let mut stage = Stage::Loading;
     let mut found = None;
     loop {
@@ -193,7 +193,7 @@ fn run(core: &Core, path: &Path, deadline: Duration, cancel: &CancellationToken)
         }
         if Instant::now() >= end {
             // A video whose thumbnail never came still plays.
-            return found.ok_or_else(|| TOO_SLOW.to_string());
+            return found.ok_or_else(|| too_slow());
         }
         let ev = unsafe { &*(mpv.wait_event)(h, TICK_SECONDS) };
         match ev.event_id {
@@ -221,10 +221,10 @@ fn run(core: &Core, path: &Path, deadline: Duration, cancel: &CancellationToken)
                 return match found {
                     Some(_) if reason != Some(ffi::END_FILE_ERROR) => finish(core, found),
                     Some(probe) => Ok(probe),
-                    None => Err(CANT_PLAY.into()),
+                    None => Err(cant_play().into()),
                 };
             }
-            ffi::EVENT_SHUTDOWN => return Err(CANT_PLAY.into()),
+            ffi::EVENT_SHUTDOWN => return Err(cant_play().into()),
             _ => {}
         }
     }
@@ -233,8 +233,8 @@ fn run(core: &Core, path: &Path, deadline: Duration, cancel: &CancellationToken)
 /// What mpv knows once a file has opened.
 fn loaded(core: &Core) -> Result<Probe, String> {
     let (mpv, h) = (&core.mpv, core.h);
-    let tracks = unsafe { mpv.get_node(h, "track-list") }.ok_or(CANT_PLAY)?;
-    let kind = classify(&tracks).ok_or(CANT_PLAY)?;
+    let tracks = unsafe { mpv.get_node(h, "track-list") }.ok_or(cant_play())?;
+    let kind = classify(&tracks).ok_or(cant_play())?;
     // Read once, here: a source that states no length (lavfi while paused) reports only the part demuxed so far
     // later on (0.17 s of a 3 s clip, check C6), which is worse than no duration.
     let duration = unsafe { mpv.get_double(h, "duration") }.filter(|d| d.is_finite() && *d > 0.0);
@@ -243,7 +243,7 @@ fn loaded(core: &Core) -> Result<Probe, String> {
 
 /// Adds the thumbnail and the size as shown, when mpv has them.
 fn finish(core: &Core, found: Option<Probe>) -> Result<Probe, String> {
-    let mut probe = found.ok_or(CANT_PLAY)?;
+    let mut probe = found.ok_or(cant_play())?;
     let shown = |name| unsafe { core.mpv.get_double(core.h, name) }.filter(|v| *v > 0.0).map(|v| v as u32);
     probe.thumb = core.grab();
     probe.size = probe.thumb.as_ref().map(|t| t.dimensions()).or(shown("dwidth").zip(shown("dheight")));
@@ -292,7 +292,7 @@ pub async fn probe_waiting(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: Cancell
     if is_picture(&path) {
         let joined = |e: tokio::task::JoinError| {
             eprintln!("probe: picture thread: {e}");
-            BAD_PICTURE.to_string()
+            bad_picture()
         };
         return tokio::task::spawn_blocking(move || probe_image(&path)).await.map_err(joined)?;
     }
@@ -303,7 +303,7 @@ pub async fn probe_waiting(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: Cancell
     let mpv = mpv.ok_or(ffi::MISSING)?;
     let slot = turn(&PROBES, &cancel, &waiting).await?;
     let probing = tokio::task::spawn_blocking(move || probe_holding(&mpv, &path, DEADLINE, &cancel, Some(slot)));
-    probing.await.map_err(|e| cant_play("probe thread", e))?
+    probing.await.map_err(|e| cant_play_logged("probe thread", e))?
 }
 
 #[cfg(test)]
@@ -430,12 +430,12 @@ mod tests {
         image::RgbImage::new(64, 64).save(&p).unwrap();
         let bytes = std::fs::read(&p).unwrap();
         std::fs::write(&p, &bytes[..bytes.len() / 2]).unwrap();
-        assert_eq!(probe_image(&p).unwrap_err(), BAD_PICTURE);
+        assert_eq!(probe_image(&p).unwrap_err(), bad_picture());
         // AVIF is not among the enabled `image` features.
         let avif = temp("a.avif");
         std::fs::write(&avif, b"\0\0\0\x1cftypavif\0\0\0\0avifmif1miaf").unwrap();
-        assert_eq!(probe_image(&avif).unwrap_err(), BAD_PICTURE);
-        assert_eq!(probe_image(&temp("gone.png")).unwrap_err(), BAD_PICTURE);
+        assert_eq!(probe_image(&avif).unwrap_err(), bad_picture());
+        assert_eq!(probe_image(&temp("gone.png")).unwrap_err(), bad_picture());
     }
 
     #[test]
@@ -586,7 +586,7 @@ mod tests {
         let p = temp("junk.mp4");
         std::fs::write(&p, [0x5a; 4096]).unwrap();
         let e = probe_blocking(&mpv, &p, Duration::from_secs(10), &CancellationToken::new()).unwrap_err();
-        assert_eq!(e, CANT_PLAY);
+        assert_eq!(e, cant_play());
     }
 
     #[test]
@@ -594,7 +594,7 @@ mod tests {
         let Some(mpv) = real_mpv() else { return };
         let started = Instant::now();
         let e = probe_blocking(&mpv, &silent_source(), Duration::from_secs(1), &CancellationToken::new()).unwrap_err();
-        assert_eq!(e, TOO_SLOW);
+        assert_eq!(e, too_slow());
         assert!(started.elapsed() < Duration::from_secs(2));
     }
 

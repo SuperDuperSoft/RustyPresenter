@@ -24,7 +24,7 @@ fn today() -> NaiveDate { chrono::Local::now().date_naive() }
 
 /// A date sent as "YYYY-MM-DD".
 fn iso(text: &str) -> Result<NaiveDate, ActionError> {
-    NaiveDate::parse_from_str(text.trim(), "%Y-%m-%d").map_err(|_| ActionError::bad(tr::BAD_DATE))
+    NaiveDate::parse_from_str(text.trim(), "%Y-%m-%d").map_err(|_| ActionError::bad(tr::bad_date()))
 }
 
 /// The template that names something in the library, for the delete guards (`song/delete` and the others).
@@ -50,8 +50,8 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             let today = today();
             app.edit(|d| {
                 let order = super::date_order(&d.settings);
-                let id = source.or_else(|| super::week_source(&d.services, d.current_service, today)).ok_or(tr::NO_SERVICE_TO_COPY)?;
-                let src = d.services.iter().find(|s| s.id == id).ok_or(tr::NO_SERVICE_TO_COPY)?;
+                let id = source.or_else(|| super::week_source(&d.services, d.current_service, today)).ok_or(tr::no_service_to_copy())?;
+                let src = d.services.iter().find(|s| s.id == id).ok_or(tr::no_service_to_copy())?;
                 let date = date.unwrap_or_else(|| super::next_week_date(src.date, today));
                 let new = super::copy_week(src, date, blanks, order);
                 Ok(add_service(d, new))
@@ -64,7 +64,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             let today = today();
             app.edit(|d| {
                 let order = super::date_order(&d.settings);
-                let t = d.templates.iter().find(|t| t.id == template).ok_or(tr::TEMPLATE_GONE)?;
+                let t = d.templates.iter().find(|t| t.id == template).ok_or(tr::template_gone())?;
                 let date = date.unwrap_or_else(|| super::default_date(t.day, today));
                 let name = name.filter(|n| !n.trim().is_empty()).unwrap_or_else(|| format!("{} {}", t.name, super::format_date(date, order)));
                 let new = super::service_from_template(t, name.trim(), date);
@@ -75,7 +75,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             #[derive(Deserialize)] struct S { id: Uuid, date: Option<String> }
             let S { id, date } = parse(body)?;
             let date = date.filter(|t| !t.trim().is_empty()).as_deref().map(iso).transpose()?;
-            app.edit(|d| { d.services.iter_mut().find(|s| s.id == id).ok_or(tr::SERVICE_GONE)?.date = date; Ok(json!({})) }).map_err(bad)
+            app.edit(|d| { d.services.iter_mut().find(|s| s.id == id).ok_or(tr::service_gone())?.date = date; Ok(json!({})) }).map_err(bad)
         }
         "service/fill" => {
             #[derive(Deserialize)] struct F { id: Uuid, item: Value }
@@ -85,11 +85,11 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
                 item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
             }
             let chosen: ServiceItem = serde_json::from_value(item).map_err(|e| bad(e.to_string()))?;
-            if matches!(chosen.kind, ItemKind::Blank { .. } | ItemKind::Header { .. }) { return Err(ActionError::bad(tr::NOT_A_BLANK)) }
-            if crate::bible::blocklist::strip_items(&mut vec![chosen.clone()]) > 0 { return Err(ActionError::bad(crate::scripture::strings::BLOCKED)) }
+            if matches!(chosen.kind, ItemKind::Blank { .. } | ItemKind::Header { .. }) { return Err(ActionError::bad(tr::not_a_blank())) }
+            if crate::bible::blocklist::strip_items(&mut vec![chosen.clone()]) > 0 { return Err(ActionError::bad(crate::scripture::strings::blocked())) }
             app.edit(|d| {
-                let slot = d.services.iter_mut().flat_map(|s| s.items.iter_mut()).find(|i| i.id == id).ok_or(tr::BLANK_GONE)?;
-                if !super::is_blank(slot) { return Err(tr::NOT_A_BLANK.into()) }
+                let slot = d.services.iter_mut().flat_map(|s| s.items.iter_mut()).find(|i| i.id == id).ok_or(tr::blank_gone())?;
+                if !super::is_blank(slot) { return Err(tr::not_a_blank().into()) }
                 *slot = super::fill(slot, chosen);
                 Ok(json!({ "id": id }))
             }).map_err(bad)
@@ -97,8 +97,8 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "template/save" => {
             let mut t: ServiceTemplate = parse(body)?;
             t.name = t.name.trim().to_string();
-            if t.name.is_empty() { return Err(ActionError::bad(tr::TEMPLATE_NEEDS_NAME)) }
-            if t.items.is_empty() { return Err(ActionError::bad(tr::TEMPLATE_NEEDS_PARTS)) }
+            if t.name.is_empty() { return Err(ActionError::bad(tr::template_needs_name())) }
+            if t.items.is_empty() { return Err(ActionError::bad(tr::template_needs_parts())) }
             if t.id.is_nil() { t.id = Uuid::new_v4() }
             let id = t.id;
             app.edit(|d| { match d.templates.iter_mut().find(|x| x.id == id) { Some(x) => *x = t, None => d.templates.push(t) } Ok(json!({ "id": id })) }).map_err(bad)
@@ -107,10 +107,10 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "template/from-service" => {
             #[derive(Deserialize)] struct F { service: Uuid, name: String }
             let F { service, name } = parse(body)?;
-            if name.trim().is_empty() { return Err(ActionError::bad(tr::TEMPLATE_NEEDS_NAME)) }
+            if name.trim().is_empty() { return Err(ActionError::bad(tr::template_needs_name())) }
             app.edit(|d| {
-                let s = d.services.iter().find(|s| s.id == service).ok_or(tr::SERVICE_GONE)?;
-                if s.items.is_empty() { return Err(tr::TEMPLATE_NEEDS_PARTS.into()) }
+                let s = d.services.iter().find(|s| s.id == service).ok_or(tr::service_gone())?;
+                if s.items.is_empty() { return Err(tr::template_needs_parts().into()) }
                 let t = super::template_from_service(s, &name);
                 let v = json!({ "id": t.id, "name": t.name });
                 d.templates.push(t);
@@ -120,13 +120,13 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "template/rename" => {
             #[derive(Deserialize)] struct R { id: Uuid, name: String }
             let R { id, name } = parse(body)?;
-            if name.trim().is_empty() { return Err(ActionError::bad(tr::TEMPLATE_NEEDS_NAME)) }
-            app.edit(|d| { d.templates.iter_mut().find(|t| t.id == id).ok_or(tr::TEMPLATE_GONE)?.name = name.trim().into(); Ok(json!({})) }).map_err(bad)
+            if name.trim().is_empty() { return Err(ActionError::bad(tr::template_needs_name())) }
+            app.edit(|d| { d.templates.iter_mut().find(|t| t.id == id).ok_or(tr::template_gone())?.name = name.trim().into(); Ok(json!({})) }).map_err(bad)
         }
         "template/day" => {
             #[derive(Deserialize)] struct D { id: Uuid, day: Option<chrono::Weekday> }
             let D { id, day } = parse(body)?;
-            app.edit(|d| { d.templates.iter_mut().find(|t| t.id == id).ok_or(tr::TEMPLATE_GONE)?.day = day; Ok(json!({})) }).map_err(bad)
+            app.edit(|d| { d.templates.iter_mut().find(|t| t.id == id).ok_or(tr::template_gone())?.day = day; Ok(json!({})) }).map_err(bad)
         }
         "template/delete" => {
             #[derive(Deserialize)] struct I { id: Uuid }
@@ -140,7 +140,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             let (html, stem) = {
                 let mut d = app.data.lock().unwrap();
                 d.settings.print = options.clone();
-                let s = d.services.iter().find(|s| s.id == service).ok_or_else(|| ActionError::bad(tr::SERVICE_GONE))?;
+                let s = d.services.iter().find(|s| s.id == service).ok_or_else(|| ActionError::bad(tr::service_gone()))?;
                 let html = crate::print::html(&d, s, &options, today());
                 let stem = crate::print::file_stem(&s.name, options.what);
                 app.save(&d).map_err(bad)?;

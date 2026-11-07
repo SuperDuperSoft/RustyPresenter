@@ -114,7 +114,7 @@ fn gather_names_everything_missing_and_saves_nothing() {
 #[test]
 fn gather_of_an_unknown_service_says_so() {
     let d = Data::default();
-    assert_eq!(gather(&d, Uuid::new_v4(), &|_| true).unwrap_err(), vec![strings::SERVICE_GONE.to_string()]);
+    assert_eq!(gather(&d, Uuid::new_v4(), &|_| true).unwrap_err(), vec![strings::service_gone()]);
 }
 
 #[test]
@@ -250,7 +250,7 @@ fn a_file_that_is_not_a_zip_is_refused() {
     let s = store();
     let p = s.root.join("x.rpservice");
     fs::write(&p, b"hello").unwrap();
-    assert_eq!(open_in(&s, &p).unwrap_err(), strings::NOT_A_SERVICE_FILE);
+    assert_eq!(open_in(&s, &p).unwrap_err(), strings::not_a_service_file());
 }
 
 #[test]
@@ -258,7 +258,7 @@ fn a_zip_without_the_contents_is_refused() {
     let s = store();
     let p = s.root.join("x.rpservice");
     zip_of(&p, &[("other.txt", b"hi")]);
-    assert_eq!(open_in(&s, &p).unwrap_err(), strings::NOT_A_SERVICE_FILE);
+    assert_eq!(open_in(&s, &p).unwrap_err(), strings::not_a_service_file());
 }
 
 #[test]
@@ -266,7 +266,7 @@ fn a_newer_format_is_refused() {
     let s = store();
     let a = format!("{}.mp4", crate::sha256::digest_hex(b"v"));
     let p = crafted(&s, &a, |c| c.format = FORMAT + 1, &[(&format!("assets/{a}"), b"v")]);
-    assert_eq!(open_in(&s, &p).unwrap_err(), strings::NEWER_FILE);
+    assert_eq!(open_in(&s, &p).unwrap_err(), strings::newer_file());
 }
 
 #[test]
@@ -274,7 +274,7 @@ fn a_changed_file_is_refused_and_nothing_stays() {
     let s = store();
     let a = format!("{}.mp4", crate::sha256::digest_hex(b"v"));
     let p = crafted(&s, &a, |_| {}, &[(&format!("assets/{a}"), b"changed")]);
-    assert_eq!(open_in(&s, &p).unwrap_err(), strings::DAMAGED);
+    assert_eq!(open_in(&s, &p).unwrap_err(), strings::damaged());
     assert!(!s.asset_path(&a).exists());
     assert_eq!(fs::read_dir(s.tmp()).unwrap().count(), 0, "the stage is cleaned up");
     assert_eq!(fs::read_dir(s.assets()).unwrap().count(), 0, "one bad file publishes none of them");
@@ -287,7 +287,7 @@ fn a_bad_file_after_a_good_one_publishes_neither() {
     let a = format!("{}.mp4", crate::sha256::digest_hex(b"v"));
     let g2 = good.clone();
     let p = crafted(&s, &a, move |c| c.media.push(media("g", &g2)), &[(&format!("assets/{good}"), b"g"), (&format!("assets/{a}"), b"changed")]);
-    assert_eq!(open_in(&s, &p).unwrap_err(), strings::DAMAGED);
+    assert_eq!(open_in(&s, &p).unwrap_err(), strings::damaged());
     assert_eq!(fs::read_dir(s.assets()).unwrap().count(), 0);
 }
 
@@ -295,7 +295,7 @@ fn a_bad_file_after_a_good_one_publishes_neither() {
 fn a_file_the_contents_name_but_the_zip_lacks_is_refused() {
     let s = store();
     let a = format!("{}.mp4", crate::sha256::digest_hex(b"v"));
-    assert_eq!(open_in(&s, &crafted(&s, &a, |_| {}, &[])).unwrap_err(), strings::DAMAGED);
+    assert_eq!(open_in(&s, &crafted(&s, &a, |_| {}, &[])).unwrap_err(), strings::damaged());
 }
 
 #[test]
@@ -303,10 +303,10 @@ fn asset_names_that_leave_the_store_are_refused() {
     let s = store();
     for bad in ["../../evil.mp4", "..\\evil.mp4", "C:\\evil.mp4", "/etc/passwd", "short.mp4", "", "nodot"] {
         let p = crafted(&s, bad, |_| {}, &[]);
-        assert_eq!(open_in(&s, &p).unwrap_err(), strings::DAMAGED, "{bad}");
+        assert_eq!(open_in(&s, &p).unwrap_err(), strings::damaged(), "{bad}");
     }
     let hexdot = format!("{}.m/p", HEX);
-    assert_eq!(open_in(&s, &crafted(&s, &hexdot, |_| {}, &[])).unwrap_err(), strings::DAMAGED);
+    assert_eq!(open_in(&s, &crafted(&s, &hexdot, |_| {}, &[])).unwrap_err(), strings::damaged());
 }
 
 #[test]
@@ -322,7 +322,7 @@ fn every_asset_field_is_checked() {
     ];
     for edit in cases {
         let p = crafted(&s, &a, edit, &[(&entry, b"v")]);
-        assert_eq!(open_in(&s, &p).unwrap_err(), strings::DAMAGED);
+        assert_eq!(open_in(&s, &p).unwrap_err(), strings::damaged());
     }
 }
 

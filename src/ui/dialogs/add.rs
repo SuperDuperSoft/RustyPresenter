@@ -144,7 +144,7 @@ fn pick_bible(op: &Operator, ctx: &AddCtx, id: String) {
 
 /// "Nothing matches." while searching, "Nothing here yet." otherwise, when no row is shown.
 fn show_empty(op: &Operator, ctx: &AddCtx) {
-    let empty = if ctx.shown.row_count() > 0 { "" } else if ctx.term.borrow().is_empty() { tr::NOTHING_YET } else { tr::NOTHING_MATCHES };
+    let empty = if ctx.shown.row_count() > 0 { String::new() } else if ctx.term.borrow().is_empty() { tr::nothing_yet() } else { tr::nothing_matches() };
     op.ui.global::<AddState>().set_empty(empty.into());
 }
 
@@ -216,7 +216,7 @@ fn add_verses(op: &Rc<Operator>, ctx: &AddCtx, pasted: bool) {
 fn add_text(op: &Rc<Operator>) {
     let st = op.ui.global::<AddState>();
     let title = st.get_text_title().trim().to_string();
-    if title.is_empty() { return op.toast(tr::GIVE_IT_A_TITLE, true) }
+    if title.is_empty() { return op.toast(tr::give_it_a_title(), true) }
     let item = json!({ "kind": "text", "title": title, "body": st.get_text_body().as_str() });
     add_item_then(op, item, false, |op, _| op.close_dialog());
 }
@@ -283,7 +283,7 @@ fn import_easyworship(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     files::pick_folder(op, std::path::Path::new(tr::EASYWORSHIP_FOLDER), move |folder| {
         let Some(op) = me.upgrade() else { return };
-        op.toast(tr::READING_EASYWORSHIP, false);
+        op.toast(tr::reading_easyworship(), false);
         let me = Rc::downgrade(&op);
         op.ops().import_easyworship(folder, move |done| {
             let Some(op) = me.upgrade() else { return };

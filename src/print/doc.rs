@@ -52,8 +52,8 @@ fn first_line(body: &str) -> String {
 }
 
 fn order_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &mut Vec<Block>) {
-    out.push(Block::Heading(tr::ORDER_HEADING.into()));
-    if service.items.is_empty() { out.push(Block::Para(tr::EMPTY_SERVICE.into())); return }
+    out.push(Block::Heading(tr::order_heading().into()));
+    if service.items.is_empty() { out.push(Block::Para(tr::empty_service().into())); return }
     let mut n = 0;
     for item in &service.items {
         let (kind, title, detail, blank) = match &item.kind {
@@ -68,7 +68,7 @@ fn order_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
                     }
                     ("song", s.title.clone(), detail, false)
                 }
-                None => ("song", tr::MISSING_SONG.into(), String::new(), false),
+                None => ("song", tr::missing_song().into(), String::new(), false),
             },
             ItemKind::Scripture { reference, translation, also, .. } => {
                 let mut code = translation.clone();
@@ -77,20 +77,21 @@ fn order_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
             }
             ItemKind::Media { media_id, end, looped, .. } => match data.media.iter().find(|m| m.id == *media_id) {
                 Some(m) => {
-                    let what = match m.kind { MediaKind::Video => tr::VIDEO, MediaKind::Image => tr::PICTURE, MediaKind::Audio => tr::AUDIO };
+                    let what = match m.kind { MediaKind::Video => tr::video(), MediaKind::Image => tr::picture(), MediaKind::Audio => tr::audio() };
                     let loops = *looped || *end == crate::model::EndAction::Loop;
-                    ("media", m.name.clone(), format!("{what}{}", if loops { tr::LOOPS } else { "" }), false)
+                    ("media", m.name.clone(), format!("{what}{}", if loops { tr::loops() } else { String::new() }), false)
                 }
-                None => ("media", tr::MISSING_MEDIA.into(), String::new(), false),
+                None => ("media", tr::missing_media().into(), String::new(), false),
             },
             ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
                 Some(d) => ("deck", d.title.clone(), tr::slides(d.slides.len()), false),
-                None => ("deck", tr::MISSING_SLIDES.into(), String::new(), false),
+                None => ("deck", tr::missing_slides().into(), String::new(), false),
             },
             ItemKind::Text { title, body } => ("text", title.clone(), first_line(body), false),
             ItemKind::Blank { label, want } => {
-                let label = if label.trim().is_empty() { planning::strings::blank_label(*want) } else { label.trim() };
-                ("blank", tr::blank_title(label), tr::NOT_CHOSEN.into(), true)
+                let asked;
+                let label = if label.trim().is_empty() { asked = planning::strings::blank_label(*want); &asked } else { label.trim() };
+                ("blank", tr::blank_title(label), tr::not_chosen().into(), true)
             }
         };
         n += 1;
@@ -108,7 +109,7 @@ fn verses_para(verses: &[VerseText]) -> String {
 }
 
 fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &mut Vec<Block>) {
-    out.push(Block::Heading(tr::LYRICS_HEADING.into()));
+    out.push(Block::Heading(tr::lyrics_heading().into()));
     let mut songs = 0;
     let mut any = false;
     for item in &service.items {
@@ -123,7 +124,7 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
                 if !s.copyright.trim().is_empty() { out.push(Block::Credit(tr::copyright(&s.copyright))) }
                 if !s.ccli.trim().is_empty() { out.push(Block::Credit(tr::ccli_song(s.ccli.trim()))) }
                 let sections = parse_sections(&s.lyrics);
-                if sections.is_empty() { out.push(Block::Para(tr::NO_LYRICS.into())); continue }
+                if sections.is_empty() { out.push(Block::Para(tr::no_lyrics().into())); continue }
                 let order = song_order(s, &sections);
                 out.push(Block::Order(tr::order_line(&order.iter().map(|i| sections[*i].label.as_str()).collect::<Vec<_>>().join(" · "))));
                 let mut seen = vec![];
@@ -142,7 +143,7 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
             ItemKind::Scripture { reference, translation, verses, also, .. } if options.scripture => {
                 any = true;
                 out.push(Block::Heading(format!("{reference} ({translation})")));
-                out.push(Block::Para(if verses.is_empty() { tr::NO_VERSE_TEXT.into() } else { verses_para(verses) }));
+                out.push(Block::Para(if verses.is_empty() { tr::no_verse_text().into() } else { verses_para(verses) }));
                 for a in also.iter().filter(|a| !a.verses.is_empty()) {
                     out.push(Block::Credit(a.translation.clone()));
                     out.push(Block::Para(verses_para(&a.verses)));
@@ -152,5 +153,5 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
             _ => {}
         }
     }
-    if !any { out.push(Block::Para(tr::NOTHING_TO_PRINT.into())) }
+    if !any { out.push(Block::Para(tr::nothing_to_print().into())) }
 }

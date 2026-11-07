@@ -116,7 +116,7 @@ fn quality_picks_h264_mp4_up_to_1080p() {
     assert_eq!(format_args(Quality::Sound, true), ["-f", "ba[ext=m4a]/ba[acodec^=mp4a]/ba"]);
     assert_eq!(format_args(Quality::Best, false)[1], "b[ext=mp4][height<=1080]/b[ext=mp4]/b", "no joiner: one file with both");
     assert_eq!((Quality::from_index(0), Quality::from_index(3), Quality::from_index(9)), (Quality::Best, Quality::Sound, Quality::Best));
-    assert_eq!(tr::QUALITIES.len(), 4);
+    assert_eq!(tr::qualities().len(), 4);
 }
 
 #[test]
@@ -140,8 +140,8 @@ fn errors_in_plain_words() {
     for (stderr, want) in cases { assert_eq!(classify(stderr), want, "{stderr}") }
     // Every error has its own words, never yt-dlp's jargon.
     assert_eq!(YtError::Offline.message(), "Can't reach YouTube. Check the internet connection and try again.");
-    assert_eq!(YtError::Setup(FetchError::Checksum).message(), tr::SETUP_CHECKSUM);
-    assert_eq!(YtError::Setup(FetchError::Offline).message(), tr::SETUP_OFFLINE);
+    assert_eq!(YtError::Setup(FetchError::Checksum).message(), tr::setup_checksum());
+    assert_eq!(YtError::Setup(FetchError::Offline).message(), tr::setup_offline());
     assert_eq!(YtError::Other("x".into()).message(), "The download didn't work: x");
 }
 
@@ -394,7 +394,7 @@ async fn it_is_tried_once_more_only() {
     server.yt_dlp_release("2026.11.01", b"newer");
     let before = runs(&log).len();
     let r = app.youtube.look_up(&link("youtu.be/aqz-KE-bpKQ").unwrap(), Quality::Best, &quiet, &CancellationToken::new()).await;
-    assert_eq!(r.err().map(|e| e.message()), Some(tr::BROKEN.to_string()));
+    assert_eq!(r.err().map(|e| e.message()), Some(tr::broken()));
     assert_eq!(runs(&log).len() - before, 2);
 }
 

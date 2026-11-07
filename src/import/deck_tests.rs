@@ -128,11 +128,11 @@ fn ooxml() -> Kind {
 
 #[test]
 fn route_table() {
-    let snap = || Err(LO_SNAP.to_string());
+    let snap = || Err(lo_snap());
     for ppt in [false, true] {
         for lo in [Lo::None, Lo::Snap, Lo::Ok] {
-            assert_eq!(route(&Kind::Encrypted, ppt, lo), Err(ENCRYPTED.to_string()));
-            assert_eq!(route(&Kind::NotPresentation, ppt, lo), Err(NOT_PRESENTATION.to_string()));
+            assert_eq!(route(&Kind::Encrypted, ppt, lo), Err(encrypted()));
+            assert_eq!(route(&Kind::NotPresentation, ppt, lo), Err(not_presentation()));
             assert_eq!(route(&Kind::Pdf, ppt, lo), Ok(Route::Pdf));
             let by_lo = match lo { Lo::None => Ok(Route::Missing), Lo::Snap => snap(), Lo::Ok => Ok(Route::LibreOffice) };
             assert_eq!(route(&Kind::Keynote, ppt, lo), by_lo, "PowerPoint can't open Keynote");
@@ -159,7 +159,7 @@ async fn not_presentation_adds_no_deck_and_ends_job_with_message() {
     let file = staged(&app, b"just some text");
     let id = start(app.clone(), file, "Notes".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(NOT_PRESENTATION));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(not_presentation().as_str()));
     assert_eq!(decks(&app), 0);
     assert!(tmp_empty(&app));
 }
@@ -172,7 +172,7 @@ async fn keynote_package_directory_gives_plain_message() {
     std::fs::write(package.join("Index.zip"), b"x").unwrap();
     let Imported::Job(id) = app.import_path(&package, ImportPurpose::PowerPoint, |_| {}).await.unwrap() else { panic!("no job") };
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(KEYNOTE_PACKAGE));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(keynote_package().as_str()));
     assert!(package.join("Index.zip").exists(), "the operator's folder stays");
 }
 
@@ -198,7 +198,7 @@ async fn pdf_route_without_pdfium_gives_reinstall_message() {
         let file = staged(&app, b"%PDF-1.7\n");
         let id = start(app.clone(), file, "x".into());
         finished(&app, id).await;
-        assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(PDFIUM_MISSING));
+        assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(pdfium_missing().as_str()));
         assert!(tmp_empty(&app));
     }
 }
@@ -210,7 +210,7 @@ async fn no_converter_says_how_to_install_one() {
     let id = start(app.clone(), file, "x".into());
     finished(&app, id).await;
     let error = job(&app, id).unwrap().error.unwrap();
-    assert!(error.starts_with("To import presentations, install LibreOffice. ") && error.contains(tools::install_hint(tools::OS)), "{error}");
+    assert!(error.starts_with("To import presentations, install LibreOffice. ") && error.contains(&tools::install_hint(tools::OS)), "{error}");
 }
 
 #[tokio::test]
@@ -221,7 +221,7 @@ async fn libreoffice_import_adds_note() {
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
     let j = job(&app, id).expect("a note keeps the card");
-    assert_eq!((j.note.as_deref(), j.error), (Some(strings::LIBREOFFICE_NOTE), None));
+    assert_eq!((j.note.as_deref(), j.error), (Some(strings::libreoffice_note().as_str()), None));
     let deck = app.data.lock().unwrap().decks[0].clone();
     assert_eq!((j.result, deck.slides.len()), (Some(deck.id), 2));
     assert!(tmp_empty(&app));
@@ -244,7 +244,7 @@ async fn hidden_slides_are_not_expected() {
     let file = staged(&app, &pptx(4, 1));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().note.as_deref(), Some(strings::LIBREOFFICE_NOTE));
+    assert_eq!(job(&app, id).unwrap().note.as_deref(), Some(strings::libreoffice_note().as_str()));
 }
 
 #[tokio::test]
@@ -270,7 +270,7 @@ async fn waiting_label_shows_then_restores() {
     let a = start(app.clone(), first, "One".into());
     until("the first to start", || std::fs::read_to_string(d.join("mark")).is_ok_and(|m| m.contains("start"))).await;
     let b = start(app.clone(), second, "Two".into());
-    until("the wait", || job(&app, b).is_some_and(|j| j.label == strings::WAITING_FOR_LIBREOFFICE)).await;
+    until("the wait", || job(&app, b).is_some_and(|j| j.label == strings::waiting_for_libreoffice())).await;
     until("the label to return", || job(&app, b).is_some_and(|j| j.label == "Importing “Two”")).await;
     finished(&app, a).await;
     finished(&app, b).await;
@@ -351,7 +351,7 @@ async fn failed_powerpoint_without_libreoffice_shows_its_own_message() {
     let file = staged(&app, &pptx(1, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_READ));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::ppt_cannot_read().as_str()));
     assert_eq!(decks(&app), 0);
 }
 
@@ -363,7 +363,7 @@ async fn failed_powerpoint_does_not_fall_back_without_pdfium() {
     let file = staged(&app, &pptx(1, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::PPT_CANNOT_READ));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(strings::ppt_cannot_read().as_str()));
     assert!(!d.join("mark").exists(), "LibreOffice's PDF could not have been rendered");
 }
 
@@ -387,7 +387,7 @@ async fn a_pdf_without_pages_adds_no_deck() {
     let file = staged(&app, b"%PDF-1.7\n");
     let id = start(app.clone(), file, "x".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(PDF_NO_SLIDES));
+    assert_eq!(job(&app, id).unwrap().error.as_deref(), Some(pdf_no_slides().as_str()));
     assert_eq!(decks(&app), 0);
 }
 
@@ -439,7 +439,7 @@ async fn real_converters_make_a_deck() {
         tokio::time::sleep(Duration::from_millis(20)).await;
     }
     let j = job(&app, id).expect("LibreOffice leaves a note");
-    assert_eq!((j.error, j.note.as_deref()), (None, Some(strings::LIBREOFFICE_NOTE)));
+    assert_eq!((j.error, j.note.as_deref()), (None, Some(strings::libreoffice_note().as_str())));
     let deck = app.data.lock().unwrap().decks[0].clone();
     let Kind::Ooxml { slides: Some(n), .. } = sniff::sniff(Path::new(&std::env::var_os("RP_TEST_DECK").unwrap())).unwrap() else { panic!("not a pptx") };
     assert_eq!(deck.slides.len(), n);

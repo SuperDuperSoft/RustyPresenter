@@ -2,7 +2,7 @@
 //! and slides libraries, newest first, with a small picture of each, and their Upload / Import buttons.
 use super::{AddTab, add::AddCtx, add::search_key, add_strings as tr, confirm, settings};
 use crate::{
-    import::{deck::{ConverterStatus, Lo}, strings::LO_SNAP},
+    import::{deck::{ConverterStatus, Lo}, strings::lo_snap},
     model::{Background, MediaFile, MediaKind, MediaStatus},
     platform::tools::{OS, install_command},
     ui::{
@@ -35,7 +35,7 @@ pub(crate) fn rows(snap: &OperatorSnapshot, tab: AddTab) -> (Vec<AddRow>, String
                 can_delete: true, key: search_key(d), ..Default::default()
             }).collect();
             let pictures = decks.iter().rev().filter_map(|d| Some((d.id.to_string(), d.slides.first()?.clone()))).collect();
-            (rows, tr::SEARCH_SLIDES.into(), pictures)
+            (rows, tr::search_slides().into(), pictures)
         }
         _ => (Vec::new(), String::new(), Vec::new()),
     }
@@ -69,14 +69,14 @@ fn row_picture(m: &MediaFile) -> Option<String> {
 /// One media file: its kind (or the missing-player note), its status chip and its buttons.
 fn media_row(m: &MediaFile, player_missing: bool) -> AddRow {
     let kind = match m.kind { MediaKind::Video => "video", MediaKind::Image => "image", MediaKind::Audio => "audio" };
-    let subtitle = if player_missing && m.kind != MediaKind::Image { tr::PLAYER_MISSING.to_string() } else { kind_name(kind).to_string() };
+    let subtitle = if player_missing && m.kind != MediaKind::Image { tr::player_missing() } else { kind_name(kind).to_string() };
     let (chip, state, tip) = status_chip(&m.status);
     AddRow {
         id: m.id.to_string().into(), title: m.name.as_str().into(), subtitle: subtitle.into(),
         thumb_icon: if row_picture(m).is_some() { "" } else { kind }.into(),
         chip: chip.into(), chip_state: state.into(), chip_tip: tip.into(),
         can_try_again: matches!(m.status, MediaStatus::Failed { .. }),
-        can_delete: true, delete_tip: tr::DELETE_FROM_LIBRARY.into(), key: search_key(m), ..Default::default()
+        can_delete: true, delete_tip: tr::delete_from_library_tip().into(), key: search_key(m), ..Default::default()
     }
 }
 
@@ -84,8 +84,8 @@ fn media_row(m: &MediaFile, player_missing: bool) -> AddRow {
 /// `upgrade_media` cleans, so they show as ready.
 pub fn status_chip(s: &MediaStatus) -> (String, &'static str, String) {
     match s {
-        MediaStatus::Failed { .. } => (tr::FAILED.into(), "bad", tr::CANT_BE_PLAYED.into()),
-        _ => (tr::READY.into(), "ok", String::new()),
+        MediaStatus::Failed { .. } => (tr::failed().into(), "bad", tr::cant_be_played().into()),
+        _ => (tr::ready().into(), "ok", String::new()),
     }
 }
 
@@ -94,7 +94,7 @@ fn try_again(op: &Rc<Operator>, id: Uuid) {
     let me = Rc::downgrade(op);
     op.ops().call::<Value>("media/reprobe", json!({ "id": id }), move |r| {
         let Some(op) = me.upgrade() else { return };
-        match r { Ok(_) => op.toast(tr::CHECKING_AGAIN, false), Err(e) => op.toast(e, true) }
+        match r { Ok(_) => op.toast(tr::checking_again(), false), Err(e) => op.toast(e, true) }
     });
 }
 
@@ -113,7 +113,7 @@ fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
         _ => return,
     };
     let me = Rc::downgrade(op);
-    confirm(op, &question, tr::OK, tr::CANCEL, true, move |yes| {
+    confirm(op, &question, &tr::ok(), &tr::cancel(), true, move |yes| {
         let Some(op) = me.upgrade().filter(|_| yes) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<Value>(action, json!({ "id": id }), move |r| {
@@ -124,11 +124,11 @@ fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
 
 /// The Slides tab's help and the command in it: empty when PowerPoint or a usable LibreOffice is here. A PDF needs
 /// neither, but a volunteer with a `.pptx` needs to be told before they try.
-pub(crate) fn deck_help(status: Option<ConverterStatus>) -> (&'static str, &'static str) {
+pub(crate) fn deck_help(status: Option<ConverterStatus>) -> (String, &'static str) {
     match status {
-        Some(ConverterStatus { libreoffice: Lo::Snap, .. }) => (LO_SNAP, ""),
-        Some(ConverterStatus { powerpoint: false, libreoffice: Lo::None, .. }) => (tr::INSTALL_LIBREOFFICE, install_command(OS).unwrap_or("")),
-        _ => ("", ""),
+        Some(ConverterStatus { libreoffice: Lo::Snap, .. }) => (lo_snap(), ""),
+        Some(ConverterStatus { powerpoint: false, libreoffice: Lo::None, .. }) => (tr::install_libreoffice(), install_command(OS).unwrap_or("")),
+        _ => (String::new(), ""),
     }
 }
 
@@ -169,14 +169,14 @@ pub(crate) fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
     st.on_copy_install(move || {
         let Some(op) = c.op.upgrade() else { return };
         let command = op.ui.global::<AddState>().get_install_command();
-        settings::copy(&op, &command, tr::COPIED);
+        settings::copy(&op, &command, &tr::copied());
     });
     let c = ctx.clone();
     st.on_check_libreoffice(move || {
         let Some(op) = c.op.upgrade() else { return };
         show_deck_help(&op, |op, status| {
             let found = status.is_some_and(|s| s.libreoffice == Lo::Ok);
-            op.toast(if found { tr::LIBREOFFICE_FOUND } else { tr::LIBREOFFICE_NOT_FOUND }, false);
+            op.toast(if found { tr::libreoffice_found() } else { tr::libreoffice_not_found() }, false);
         });
     });
     let c = ctx.clone();
@@ -375,12 +375,12 @@ mod tests {
     #[test]
     fn deck_help_by_what_this_computer_has() {
         let status = |powerpoint, libreoffice| Some(ConverterStatus { powerpoint, libreoffice, pdfium: true });
-        assert_eq!(deck_help(status(true, Lo::None)), ("", ""), "PowerPoint is enough");
-        assert_eq!(deck_help(status(false, Lo::Ok)), ("", ""));
-        assert_eq!(deck_help(status(false, Lo::None)).0, tr::INSTALL_LIBREOFFICE);
+        assert_eq!(deck_help(status(true, Lo::None)), (String::new(), ""), "PowerPoint is enough");
+        assert_eq!(deck_help(status(false, Lo::Ok)), (String::new(), ""));
+        assert_eq!(deck_help(status(false, Lo::None)).0, tr::install_libreoffice());
         assert_eq!(deck_help(status(false, Lo::None)).1, install_command(OS).unwrap());
-        assert_eq!(deck_help(status(false, Lo::Snap)), (LO_SNAP, ""));
-        assert_eq!(deck_help(None), ("", ""), "still starting");
+        assert_eq!(deck_help(status(false, Lo::Snap)), (lo_snap(), ""));
+        assert_eq!(deck_help(None), (String::new(), ""), "still starting");
     }
 
     #[test]
@@ -392,16 +392,16 @@ mod tests {
         open_add(&op, AddTab::Deck);
         settle(&op);
         let st = op.ui.global::<AddState>();
-        assert_eq!(st.get_deck_help(), tr::INSTALL_LIBREOFFICE);
+        assert_eq!(st.get_deck_help(), tr::install_libreoffice());
         assert_eq!(st.get_install_command(), install_command(OS).unwrap());
         assert_eq!(find_all(&op, "AddDeckTab::copy").len(), 1);
         click(&op, "AddDeckTab::check");
         settle(&op);
-        assert_eq!(last_toast(&op), Some((tr::LIBREOFFICE_NOT_FOUND.into(), false)));
+        assert_eq!(last_toast(&op), Some((tr::libreoffice_not_found().into(), false)));
         here.store(true, std::sync::atomic::Ordering::SeqCst);
         click(&op, "AddDeckTab::check");
         settle(&op);
-        assert_eq!(last_toast(&op), Some((tr::LIBREOFFICE_FOUND.into(), false)));
+        assert_eq!(last_toast(&op), Some((tr::libreoffice_found().into(), false)));
         assert_eq!(st.get_deck_help(), "", "the help goes away");
         assert!(find_all(&op, "AddDeckTab::check").is_empty());
     }

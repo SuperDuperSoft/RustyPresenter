@@ -57,14 +57,14 @@ pub fn seed(a: &mut Automation) -> bool {
     a.timers.extend([
         builtin_timer(
             SERVICE_START_ID,
-            strings::SERVICE_START_NAME,
+            &strings::service_start_name(),
             TimerKind::UntilTime { target: TimeTarget::ServiceStart },
             Overrun::Stop,
-            strings::SERVICE_STARTS_IN,
+            &strings::service_starts_in(),
             false,
         ),
-        builtin_timer(SERMON_ID, strings::SERMON_NAME, TimerKind::Duration { secs: 1800 }, Overrun::CountUp, "", true),
-        builtin_timer(STOPWATCH_ID, strings::STOPWATCH_NAME, TimerKind::CountUp, Overrun::Stop, "", false),
+        builtin_timer(SERMON_ID, &strings::sermon_name(), TimerKind::Duration { secs: 1800 }, Overrun::CountUp, "", true),
+        builtin_timer(STOPWATCH_ID, &strings::stopwatch_name(), TimerKind::CountUp, Overrun::Stop, "", false),
     ]);
     a.messages.extend(messages::builtin());
     a.seeded = true;

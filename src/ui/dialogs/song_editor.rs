@@ -215,7 +215,7 @@ fn save(op: &Rc<Operator>, ctx: &EditorCtx, show_now: bool) {
         } else if add_after {
             add_item_then(&op, json!({ "kind": "song", "song_id": id }), false, |op, _| op.close_dialog());
         } else {
-            op.toast(tr::SONG_SAVED, false);
+            op.toast(tr::song_saved(), false);
             op.close_dialog();
         }
     });
@@ -228,7 +228,7 @@ pub fn refresh_live(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ops().cmd(crate::live::Command::Refresh { item_id }, None, move |o| {
         let Some(op) = me.upgrade() else { return };
-        if o.ok && cleared { op.toast(crate::sections::strings::SAVED_TEXT_CLEARED, false) }
+        if o.ok && cleared { op.toast(crate::sections::strings::saved_text_cleared(), false) }
         else if let Some((msg, err)) = crate::ui::ops::outcome_toast(&o) { op.toast(msg, err) }
     });
 }
@@ -237,7 +237,7 @@ pub fn refresh_live(op: &Rc<Operator>) {
 fn delete(op: &Rc<Operator>, ctx: &EditorCtx) {
     let Some(id) = ctx.song_id else { return };
     let me = Rc::downgrade(op);
-    confirm(op, &tr::delete_from_library(&ctx.saved_title), tr::OK, tr::CANCEL, true, move |yes| {
+    confirm(op, &tr::delete_from_library(&ctx.saved_title), &tr::ok(), &tr::cancel(), true, move |yes| {
         let Some(op) = me.upgrade().filter(|_| yes) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<Value>("song/delete", json!({ "id": id }), move |r| {

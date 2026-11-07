@@ -97,7 +97,7 @@ fn start(op: &Rc<Operator>, state: &Rc<PairState>) {
 /// One second of the countdown: "Code works for N more seconds", then "Code expired — …" (`operator.js:856`).
 fn tick(op: &Operator, state: &PairState) {
     let left = state.left.get();
-    let text = if left > 0 { strings::code_works_for(left) } else { strings::CODE_EXPIRED.to_string() };
+    let text = if left > 0 { strings::code_works_for(left) } else { strings::code_expired() };
     op.ui.global::<PhoneDialogState>().set_countdown(text.into());
     state.left.set(left - 1);
     if left - 1 < -1 { state.timer.stop() }

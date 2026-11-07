@@ -168,7 +168,7 @@ pub fn send_to_back(els: &mut Vec<Lenient<StageElement>>, id: Uuid) -> bool {
 /// An unknown or missing box gives an empty error (the menu item is off for those).
 pub fn duplicate_box(els: &mut Vec<Lenient<StageElement>>, id: Uuid, new_id: Uuid) -> Result<Uuid, String> {
     let i = known_at(els, id).ok_or_else(String::new)?;
-    if els.len() >= MAX_BOXES { return Err(s::TOO_MANY_BOXES.into()); }
+    if els.len() >= MAX_BOXES { return Err(s::too_many_boxes().into()); }
     let mut copy = els[i].known().cloned().ok_or_else(String::new)?;
     (copy.id, copy.rect) = (new_id, move_by(copy.rect, GRID, GRID));
     els.insert(i + 1, Lenient::Known(copy));

@@ -29,8 +29,8 @@ pub fn kind_defaults(kind: &ElementKind) -> ResolvedStyle {
         SectionName | NextSection | ItemTitle | SlidesLeft | Notes | MediaTimeLeft => 4.0,
     };
     let caption = match kind {
-        NextSlide { .. } => Some(s::NEXT.to_string()),
-        NextSection => Some(s::NEXT_SECTION.to_string()),
+        NextSlide { .. } => Some(s::next()),
+        NextSection => Some(s::next_section()),
         Timer { .. } => Some(String::new()), // the timer's name, filled in by the view
         _ => None,
     };
@@ -79,14 +79,14 @@ pub fn all_layouts(church: &[StageLayout]) -> impl Iterator<Item = &StageLayout>
     builtins().iter().chain(church.iter().filter(|l| !is_builtin(l.id)))
 }
 
-/// One box of every kind, in `ElementKind` order (the editor's Add menu; names in `strings::KIND_NAMES`).
+/// One box of every kind, in `ElementKind` order (the editor's Add menu; names in `strings::kind_names`).
 pub fn all_kinds() -> [ElementKind; 12] {
     use ElementKind::*;
     [CurrentSlide { pictures: false, keep_after_clear: false }, NextSlide { pictures: false }, SectionName, NextSection, ItemTitle,
      SlidesLeft, Notes, Clock { seconds: false, h24: false }, current_timer(), MediaTimeLeft, StageMessage, Text { text: String::new() }]
 }
 
-/// Where `kind` sits in `all_kinds` (and `strings::KIND_NAMES`).
+/// Where `kind` sits in `all_kinds` (and `strings::kind_names`).
 pub fn kind_index(kind: &ElementKind) -> usize {
     use ElementKind::*;
     match kind {
@@ -136,7 +136,7 @@ fn classic_layout() -> StageLayout {
         .add(StageMessage, (3.0, 63.0, 94.0, 11.0), ElementStyle::default())
         .add(Notes, (3.0, 63.0, 94.0, 11.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.bold = Some(false); }))
         .add(NextSlide { pictures: false }, (3.0, 76.0, 94.0, 22.0), st(|s| { s.color = color(GOLD); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.bold = Some(false); }))
-        .done(s::CLASSIC)
+        .done(&s::classic())
 }
 
 /// Just the words, big, and what comes next.
@@ -146,7 +146,7 @@ fn lyrics_only_layout() -> StageLayout {
         .add(CurrentSlide { pictures: false, keep_after_clear: false }, (3.0, 3.0, 94.0, 62.0), st(|s| s.max_size = Some(12.0)))
         .add(NextSlide { pictures: false }, (3.0, 68.0, 94.0, 29.0), st(|s| s.color = color(GOLD)))
         .add(StageMessage, (3.0, 3.0, 94.0, 14.0), ElementStyle::default())
-        .done(s::LYRICS_ONLY)
+        .done(&s::lyrics_only())
 }
 
 /// A big clock and the current countdown, for the back of the room or a speaker's timer screen.
@@ -156,7 +156,7 @@ fn clock_countdown_layout() -> StageLayout {
         .add(Clock { seconds: false, h24: false }, (5.0, 8.0, 90.0, 40.0), st(|s| s.max_size = Some(30.0)))
         .add(current_timer(), (5.0, 52.0, 90.0, 30.0), st(|s| s.max_size = Some(22.0)))
         .add(StageMessage, (5.0, 84.0, 90.0, 13.0), ElementStyle::default())
-        .done(s::CLOCK_COUNTDOWN)
+        .done(&s::clock_countdown())
 }
 
 /// For singers and the band: where they are in the song and what comes next, big words, the clock.
@@ -172,7 +172,7 @@ fn band_layout() -> StageLayout {
         .add(MediaTimeLeft, (68.0, 76.0, 29.0, 11.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.max_size = Some(6.0); }))
         .add(current_timer(), (68.0, 76.0, 29.0, 11.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.max_size = Some(6.0); s.caption = Some(false); }))
         .add(StageMessage, (3.0, 88.0, 94.0, 10.0), ElementStyle::default())
-        .done(s::BAND)
+        .done(&s::band())
 }
 
 /// For the preacher: the clock, a big countdown, the room's slide (pictures too) and the notes.
@@ -185,7 +185,7 @@ fn speaker_layout() -> StageLayout {
         .add(Notes, (51.0, 24.0, 46.0, 56.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.max_size = Some(6.0); s.bold = Some(false); }))
         .add(SlidesLeft, (3.0, 66.0, 45.0, 14.0), st(|s| s.color = color(GREY)))
         .add(StageMessage, (3.0, 82.0, 94.0, 16.0), ElementStyle::default())
-        .done(s::SPEAKER)
+        .done(&s::speaker())
 }
 
 #[cfg(test)]
@@ -288,10 +288,10 @@ mod tests {
     #[test]
     fn every_kind_has_a_name_and_help() {
         let all = all_kinds();
-        assert_eq!(all.len(), s::KIND_NAMES.len());
-        assert_eq!(all.len(), s::KIND_HELP.len());
+        assert_eq!(all.len(), s::kind_names().len());
+        assert_eq!(all.len(), s::kind_help().len());
         assert_eq!(kind_index(&all[8]), 8);
-        assert_eq!(s::KIND_NAMES[kind_index(&ElementKind::Notes)], "Notes");
+        assert_eq!(s::kind_names()[kind_index(&ElementKind::Notes)], "Notes");
         let b = new_box(ElementKind::Clock { seconds: false, h24: false }, Uuid::from_u128(9));
         assert_eq!((b.id, b.rect, b.style.clone()), (Uuid::from_u128(9), PctRect::new(35.0, 42.5, 30.0, 15.0), ElementStyle::default()));
     }

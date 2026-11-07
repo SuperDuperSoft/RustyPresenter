@@ -296,7 +296,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             // An online Bible may simply need the internet; any other has left the library.
             notes.extend(also.iter().filter(|a| a.verses.is_empty()).map(|a| {
                 if crate::bible::sources::is_online(&a.translation) { crate::scripture::strings::needs_internet(&abbr_of(&a.translation)) }
-                else { crate::scripture::strings::BIBLE_REMOVED.to_string() }
+                else { crate::scripture::strings::bible_removed() }
             }));
             let mut slides = if shown.is_empty() { scripture_slides(verses, *per_slide, &abbr) } else {
                 let (slides, missing) = parallel_slides(verses, &abbr, &shown, *per_slide, *layout, &s.theme);

@@ -4,7 +4,7 @@ use super::index::{Hit, Order, Scope, SearchIndex, build};
 use super::query::SearchQuery;
 use crate::scripture::fetch::BibleReaders;
 use crate::scripture::sources::{SourceStatus, Sources, status_of};
-use crate::scripture::strings::{SEARCH_CHIP_ESV, SEARCH_CHIP_READY, search_chip_none, search_unavailable};
+use crate::scripture::strings::{search_chip_esv, search_chip_ready, search_chip_none, search_unavailable};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -34,8 +34,8 @@ pub fn search_access(sources: &Sources, tr: &str, esv_search: bool) -> SearchAcc
 /// The search status chip under the search box.
 pub fn search_chip(access: SearchAccess, tr: &str) -> String {
     match access {
-        SearchAccess::Local => SEARCH_CHIP_READY.to_string(),
-        SearchAccess::EsvOnline => SEARCH_CHIP_ESV.to_string(),
+        SearchAccess::Local => search_chip_ready(),
+        SearchAccess::EsvOnline => search_chip_esv(),
         SearchAccess::None => search_chip_none(tr),
     }
 }

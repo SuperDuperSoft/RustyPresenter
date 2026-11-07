@@ -273,9 +273,9 @@ async fn report_action_checks_dates_and_lists_entries() {
     assert_eq!(v["rows"][0]["shown"], 1);
     assert_eq!(v["entries"][0]["song"], "Amazing Grace");
     let bad = act(&app, "usage/report", serde_json::json!({ "from": "2026-11-02", "to": "2026-11-01" })).await;
-    assert_eq!(bad.unwrap_err(), strings::FROM_AFTER_TO);
+    assert_eq!(bad.unwrap_err(), strings::from_after_to());
     let bad = act(&app, "usage/report", serde_json::json!({ "from": "11/02/2026" })).await;
-    assert_eq!(bad.unwrap_err(), strings::BAD_DATE);
+    assert_eq!(bad.unwrap_err(), strings::bad_date());
 }
 
 #[tokio::test]

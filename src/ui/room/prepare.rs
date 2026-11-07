@@ -195,7 +195,7 @@ pub(in crate::ui) fn overlays(fonts: &mut Fonts, slots: &[OverlaySlot], theme_fo
         let picture = match &slot.source {
             OverlaySource::Image { source: ImageSource::Asset { asset }, .. } => match decode(&path(asset)) {
                 Ok(p) => Some(p),
-                Err(_) => { failed.push((slot.key.clone(), slot.inst, crate::theme::strings::PICTURE_UNREADABLE.to_string())); continue }
+                Err(_) => { failed.push((slot.key.clone(), slot.inst, crate::theme::strings::picture_unreadable())); continue }
             },
             _ => None,
         };

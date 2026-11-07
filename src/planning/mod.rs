@@ -23,7 +23,8 @@ pub fn next_header_color(color: &str) -> &'static str {
 }
 
 pub fn blank_title(label: &str, want: BlankKind) -> String {
-    strings::blank_title(if label.trim().is_empty() { strings::blank_label(want) } else { label })
+    let asked;
+    strings::blank_title(if label.trim().is_empty() { asked = strings::blank_label(want); &asked } else { label })
 }
 
 // ---------- region ----------
@@ -66,13 +67,13 @@ pub fn format_date(d: NaiveDate, order: DateOrder) -> String {
 
 /// "Sun 11/8/2026".
 pub fn format_day_date(d: NaiveDate, order: DateOrder) -> String {
-    format!("{} {}", strings::DAYS_SHORT[d.weekday().num_days_from_monday() as usize], format_date(d, order))
+    format!("{} {}", strings::days_short()[d.weekday().num_days_from_monday() as usize], format_date(d, order))
 }
 
 /// "Sunday, November 8, 2026", "Sunday 8 November 2026" or "Sunday, 2026-11-08".
 pub fn format_date_long(d: NaiveDate, order: DateOrder) -> String {
-    let day = strings::DAYS_LONG[d.weekday().num_days_from_monday() as usize];
-    let month = strings::MONTHS[d.month0() as usize];
+    let day = strings::days_long()[d.weekday().num_days_from_monday() as usize].clone();
+    let month = strings::months()[d.month0() as usize].clone();
     match order {
         DateOrder::Mdy => format!("{day}, {month} {}, {}", d.day(), d.year()),
         DateOrder::Dmy => format!("{day} {} {month} {}", d.day(), d.year()),
@@ -121,7 +122,7 @@ pub fn strip_date(name: &str, old: Option<NaiveDate>, order: DateOrder) -> Strin
         None => r.iter().any(|(o, _)| *o == order || *o == DateOrder::Ymd),
     };
     let base = if strip { head.trim_end().trim_end_matches(['-', '–']).trim_end() } else { trimmed };
-    if base.is_empty() { strings::SERVICE.into() } else { base.into() }
+    if base.is_empty() { strings::service().into() } else { base.into() }
 }
 
 /// `name` with its trailing date replaced by `new`, or with `new` added.
@@ -237,8 +238,8 @@ pub fn service_from_template(t: &ServiceTemplate, name: &str, date: NaiveDate) -
 }
 
 /// "Sundays" or "Any day".
-pub fn day_label(day: Option<Weekday>) -> &'static str {
-    day.map_or(strings::ANY_DAY, |d| strings::DAYS_PLURAL[d.num_days_from_monday() as usize])
+pub fn day_label(day: Option<Weekday>) -> String {
+    day.map_or_else(strings::any_day, |d| strings::days_plural()[d.num_days_from_monday() as usize].clone())
 }
 
 /// The item that fills `blank` (§5.6): the blank's id; its notes, then the chosen item's after a blank line; the

@@ -41,7 +41,7 @@ impl Default for PreService {
             loop_title: None,
             music_title: None,
             place: OverlayPlace::TopRight,
-            caption: strings::SERVICE_STARTS_IN.into(),
+            caption: strings::service_starts_in().into(),
             end: PreServiceEnd::Hide,
         }
     }
@@ -66,7 +66,7 @@ pub fn build(p: &PreService) -> Vec<MacroStep> {
 pub fn timer_def(p: &PreService) -> TimerDef {
     TimerDef {
         id: PRE_SERVICE_TIMER_ID,
-        name: strings::PRE_SERVICE_TIMER_NAME.into(),
+        name: strings::pre_service_timer_name().into(),
         kind: Lenient::Known(TimerKind::UntilTime { target: TimeTarget::ServiceStart }),
         overrun: Overrun::Stop,
         at_zero: Lenient::Known(AtZero::Nothing),
@@ -83,7 +83,7 @@ pub fn timer_def(p: &PreService) -> TimerDef {
 pub fn macro_def(p: &PreService, existing: Option<&Macro>) -> Macro {
     Macro {
         id: PRE_SERVICE_MACRO_ID,
-        name: strings::START_COUNTDOWN.into(),
+        name: strings::start_countdown().into(),
         color: existing.map_or(MacroColor::Amber, |m| m.color),
         steps: build(p).into_iter().map(Lenient::Known).collect(),
         remote: existing.is_some_and(|m| m.remote),
@@ -112,7 +112,7 @@ pub struct EndInput {
 #[derive(Debug, PartialEq)]
 pub struct EndPlan {
     pub extra: Option<PreServiceEnd>,
-    pub notice: Option<&'static str>,
+    pub notice: Option<String>,
 }
 
 /// The guarded end: the extra action runs only if this is the run "Start countdown" began, the
@@ -129,7 +129,7 @@ pub fn end_plan(end: PreServiceEnd, pre: Option<&PreRun>, input: &EndInput) -> E
     if untouched {
         EndPlan { extra: Some(end), notice: None }
     } else {
-        EndPlan { extra: None, notice: Some(strings::COUNTDOWN_ENDED_NOTHING_ELSE) }
+        EndPlan { extra: None, notice: Some(strings::countdown_ended_nothing_else()) }
     }
 }
 
@@ -150,10 +150,9 @@ mod tests {
         EndInput { timer_run: 3, manual_version: 7, cursor_item: cursor, visual_live }
     }
 
-    const NOTICE: EndPlan = EndPlan {
-        extra: None,
-        notice: Some("Countdown ended — nothing else changed because the service has started."),
-    };
+    fn notice() -> EndPlan {
+        EndPlan { extra: None, notice: Some("Countdown ended — nothing else changed because the service has started.".into()) }
+    }
 
     #[test]
     fn build_puts_music_before_loop() {
@@ -234,19 +233,19 @@ mod tests {
     #[test]
     fn preservice_end_does_nothing_after_operator_took_an_item() {
         let moved = EndInput { manual_version: 8, ..input(Some(LOOP), true) };
-        assert_eq!(end_plan(PreServiceEnd::FirstItem, Some(&pre()), &moved), NOTICE);
-        assert_eq!(end_plan(PreServiceEnd::Logo, Some(&pre()), &input(Some(OTHER), true)), NOTICE);
+        assert_eq!(end_plan(PreServiceEnd::FirstItem, Some(&pre()), &moved), notice());
+        assert_eq!(end_plan(PreServiceEnd::Logo, Some(&pre()), &input(Some(OTHER), true)), notice());
     }
 
     #[test]
     fn preservice_end_after_restart_only_hides() {
-        assert_eq!(end_plan(PreServiceEnd::ClearAll, None, &input(Some(LOOP), true)), NOTICE);
+        assert_eq!(end_plan(PreServiceEnd::ClearAll, None, &input(Some(LOOP), true)), notice());
     }
 
     #[test]
     fn preservice_end_other_timer_run_only_hides() {
         let other_run = EndInput { timer_run: 4, ..input(Some(LOOP), true) };
-        assert_eq!(end_plan(PreServiceEnd::Logo, Some(&pre()), &other_run), NOTICE);
+        assert_eq!(end_plan(PreServiceEnd::Logo, Some(&pre()), &other_run), notice());
     }
 
     #[test]

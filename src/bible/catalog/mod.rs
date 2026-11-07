@@ -115,9 +115,9 @@ pub enum CatalogError {
 impl CatalogError {
     pub fn message(&self) -> String {
         match self {
-            CatalogError::Offline => strings::CATALOG_OFFLINE.into(),
-            CatalogError::Bad(why) => format!("{} ({why})", strings::CATALOG_BAD),
-            CatalogError::Disk(why) => format!("{} ({why})", strings::CATALOG_DISK),
+            CatalogError::Offline => strings::catalog_offline().into(),
+            CatalogError::Bad(why) => format!("{} ({why})", strings::catalog_bad()),
+            CatalogError::Disk(why) => format!("{} ({why})", strings::catalog_disk()),
         }
     }
 }
@@ -128,12 +128,12 @@ pub enum Scope { Full, NewTestament, OldTestament, Portions }
 
 impl Scope {
     /// The row's tag in Settings → Bibles.
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         match self {
-            Scope::Full => strings::SCOPE_FULL,
-            Scope::NewTestament => strings::SCOPE_NT,
-            Scope::OldTestament => strings::SCOPE_OT,
-            Scope::Portions => strings::SCOPE_PORTIONS,
+            Scope::Full => strings::scope_full(),
+            Scope::NewTestament => strings::scope_nt(),
+            Scope::OldTestament => strings::scope_ot(),
+            Scope::Portions => strings::scope_portions(),
         }
     }
 }

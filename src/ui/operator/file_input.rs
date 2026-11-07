@@ -65,17 +65,17 @@ pub fn drop_plan(paths: Vec<PathBuf>) -> Option<DropPlan> {
 pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv, WebPage }
 
 impl Filter {
-    pub fn name(self) -> &'static str {
+    pub fn name(self) -> String {
         match self {
-            Filter::Media => tr::FILTER_MEDIA,
-            Filter::PowerPoint => tr::FILTER_POWERPOINT,
-            Filter::Lyrics => tr::FILTER_LYRICS,
-            Filter::Pictures => tr::FILTER_PICTURES,
-            Filter::PicturesAndVideos => tr::FILTER_PICTURES_AND_VIDEOS,
-            Filter::Bibles => tr::FILTER_BIBLES,
-            Filter::Services => tr::FILTER_SERVICES,
-            Filter::Csv => crate::usage::strings::FILTER_CSV,
-            Filter::WebPage => crate::print::strings::FILTER_PAGE,
+            Filter::Media => tr::filter_media(),
+            Filter::PowerPoint => tr::filter_powerpoint(),
+            Filter::Lyrics => tr::filter_lyrics(),
+            Filter::Pictures => tr::filter_pictures(),
+            Filter::PicturesAndVideos => tr::filter_pictures_and_videos(),
+            Filter::Bibles => tr::filter_bibles(),
+            Filter::Services => tr::filter_services(),
+            Filter::Csv => crate::usage::strings::filter_csv(),
+            Filter::WebPage => crate::print::strings::filter_page(),
         }
     }
 

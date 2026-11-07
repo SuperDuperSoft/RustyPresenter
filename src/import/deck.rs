@@ -3,8 +3,8 @@
 //! cancelled import adds nothing.
 use super::{
     CANCELLED, Stage, WorkDir, libreoffice::LibreOffice, pdf::PdfRenderer, percent, powerpoint::PowerPoint,
-    sniff::{self, ENCRYPTED, Kind, NOT_PRESENTATION},
-    strings::{self, FALLBACK_NOTE, KEYNOTE_PACKAGE, LO_SNAP, PDF_NO_SLIDES, PDFIUM_MISSING, SLIDE_NOT_SAVED},
+    sniff::{self, encrypted, Kind, not_presentation},
+    strings::{self, fallback_note, keynote_package, lo_snap, pdf_no_slides, pdfium_missing, slide_not_saved},
 };
 use crate::{
     app::App,
@@ -39,12 +39,12 @@ pub enum Route {
 pub fn route(kind: &Kind, ppt: bool, lo: Lo) -> Result<Route, String> {
     let by_libreoffice = || match lo {
         Lo::Ok => Ok(Route::LibreOffice),
-        Lo::Snap => Err(LO_SNAP.to_string()),
+        Lo::Snap => Err(lo_snap()),
         Lo::None => Ok(Route::Missing),
     };
     match kind {
-        Kind::Encrypted => Err(ENCRYPTED.to_string()),
-        Kind::NotPresentation => Err(NOT_PRESENTATION.to_string()),
+        Kind::Encrypted => Err(encrypted()),
+        Kind::NotPresentation => Err(not_presentation()),
         Kind::Pdf => Ok(Route::Pdf),
         Kind::Keynote => by_libreoffice(),
         Kind::Ooxml { .. } | Kind::Ppt | Kind::Odp if ppt => Ok(Route::PowerPoint { fallback: lo == Lo::Ok }),
@@ -145,25 +145,25 @@ struct Made {
 impl Import<'_> {
     async fn run(&self, file: &Path, display: String) -> Result<(), String> {
         if file.is_dir() {
-            return Err(KEYNOTE_PACKAGE.to_string());
+            return Err(keynote_package());
         }
         let kind = sniff_off_thread(file.to_path_buf()).await?;
         let converters = self.app.converters();
         let (ppt, lo) = converters.as_ref().map_or((false, Lo::None), |c| (c.powerpoint.is_some(), c.lo()));
         let route = route(&kind, ppt, lo)?;
         if route == Route::Missing {
-            return Err(strings::install_libreoffice(tools::install_hint(tools::OS)));
+            return Err(strings::install_libreoffice(&tools::install_hint(tools::OS)));
         }
-        let converters = converters.ok_or(PDFIUM_MISSING)?;
+        let converters = converters.ok_or(pdfium_missing())?;
         let has_pdfium = converters.pdf.is_some();
         if !has_pdfium && !matches!(route, Route::PowerPoint { .. }) {
-            return Err(PDFIUM_MISSING.to_string());
+            return Err(pdfium_missing());
         }
 
         self.app.job_progress(self.job, percent(Stage::Prepare, 0.0));
-        let work = WorkDir::new(&self.app.store.tmp()).map_err(|_| SLIDE_NOT_SAVED.to_string())?;
-        let input = work.path().join(format!("input.{}", sniff::staged_ext(&kind).ok_or(NOT_PRESENTATION)?));
-        move_or_copy(file, &input).map_err(|_| SLIDE_NOT_SAVED.to_string())?;
+        let work = WorkDir::new(&self.app.store.tmp()).map_err(|_| slide_not_saved())?;
+        let input = work.path().join(format!("input.{}", sniff::staged_ext(&kind).ok_or(not_presentation())?));
+        move_or_copy(file, &input).map_err(|_| slide_not_saved())?;
         self.app.job_progress(self.job, percent(Stage::Prepare, 1.0));
 
         let made = match route {
@@ -173,7 +173,7 @@ impl Import<'_> {
             Route::Missing => unreachable!("answered above"),
         };
         if made.slides.is_empty() {
-            return Err(PDF_NO_SLIDES.to_string());
+            return Err(pdf_no_slides());
         }
         let slides = self.publish(made.slides).await?;
         let id = Uuid::new_v4();
@@ -190,29 +190,29 @@ impl Import<'_> {
     }
 
     /// The label while this import is behind another one, and back.
-    fn waiting(&self, behind: &'static str) -> impl Fn(bool) + Sync + '_ {
-        move |waiting| self.app.job_label(self.job, if waiting { behind } else { &self.label })
+    fn waiting(&self, behind: String) -> impl Fn(bool) + Sync + '_ {
+        move |waiting| self.app.job_label(self.job, if waiting { &behind } else { &self.label })
     }
 
     async fn by_powerpoint(&self, converters: &Converters, kind: &Kind, input: &Path, work: &Path, fallback: bool) -> Result<Made, String> {
-        let powerpoint = converters.powerpoint.as_ref().ok_or(PDFIUM_MISSING)?;
-        let waiting = self.waiting(strings::WAITING_FOR_POWERPOINT);
+        let powerpoint = converters.powerpoint.as_ref().ok_or(pdfium_missing())?;
+        let waiting = self.waiting(strings::waiting_for_powerpoint());
         let progress = |done: usize, total: usize| self.progress(Stage::Convert, done as f32 / total.max(1) as f32);
         match powerpoint.export(input, &work.join("out"), &waiting, &progress, &self.cancel).await {
             Ok(slides) => Ok(Made { slides, note: None }),
             // A password stops LibreOffice too, and a cancel means stop.
-            Err(e) if e == CANCELLED || e == ENCRYPTED || !fallback => Err(e),
+            Err(e) if e == CANCELLED || e == encrypted() || !fallback => Err(e),
             Err(e) => {
                 eprintln!("PowerPoint import failed, trying LibreOffice: {e}");
-                self.app.job_note(self.job, FALLBACK_NOTE.to_string());
+                self.app.job_note(self.job, fallback_note());
                 self.by_libreoffice(converters, kind, input, work, true).await
             }
         }
     }
 
     async fn by_libreoffice(&self, converters: &Converters, kind: &Kind, input: &Path, work: &Path, fell_back: bool) -> Result<Made, String> {
-        let lo = converters.libreoffice().ok_or(PDFIUM_MISSING)?;
-        let waiting = self.waiting(strings::WAITING_FOR_LIBREOFFICE);
+        let lo = converters.libreoffice().ok_or(pdfium_missing())?;
+        let waiting = self.waiting(strings::waiting_for_libreoffice());
         self.progress(Stage::Convert, 0.0);
         let pdf = lo.to_pdf(input, work, &waiting, &self.cancel).await?;
         self.progress(Stage::Convert, 1.0);
@@ -221,16 +221,16 @@ impl Import<'_> {
         // After a fallback the job already says which program made these.
         let note = match (fell_back, count) {
             (true, count) => count,
-            (false, None) => Some(strings::LIBREOFFICE_NOTE.to_string()),
-            (false, Some(count)) => Some(format!("{} {count}", strings::LIBREOFFICE_NOTE)),
+            (false, None) => Some(strings::libreoffice_note()),
+            (false, Some(count)) => Some(format!("{} {count}", strings::libreoffice_note())),
         };
         Ok(Made { slides, note })
     }
 
     async fn render(&self, converters: &Converters, pdf: PathBuf, work: &Path, ratio: Option<f32>) -> Result<Vec<PathBuf>, String> {
-        let renderer = converters.pdf.as_ref().ok_or(PDFIUM_MISSING)?;
+        let renderer = converters.pdf.as_ref().ok_or(pdfium_missing())?;
         let out = work.join("slides");
-        std::fs::create_dir_all(&out).map_err(|_| SLIDE_NOT_SAVED.to_string())?;
+        std::fs::create_dir_all(&out).map_err(|_| slide_not_saved())?;
         let (app, job) = (self.app.clone(), self.job);
         let progress = Box::new(move |done: usize, total: usize| app.job_progress(job, percent(Stage::Render, done as f32 / total.max(1) as f32)));
         renderer.render(pdf, out, ratio, progress, self.cancel.clone()).await
@@ -245,11 +245,11 @@ impl Import<'_> {
                 if cancel.is_cancelled() {
                     return Err(CANCELLED.to_string());
                 }
-                assets.push(app.store.import_file(slide, "png").map_err(|_| SLIDE_NOT_SAVED.to_string())?);
+                assets.push(app.store.import_file(slide, "png").map_err(|_| slide_not_saved())?);
                 app.job_progress(job, percent(Stage::Publish, (i + 1) as f32 / slides.len() as f32));
             }
             if cancel.is_cancelled() { Err(CANCELLED.to_string()) } else { Ok(assets) }
-        }).await.map_err(|_| SLIDE_NOT_SAVED.to_string())?
+        }).await.map_err(|_| slide_not_saved())?
     }
 }
 
@@ -259,11 +259,11 @@ async fn sniff_off_thread(file: PathBuf) -> Result<Kind, String> {
         Ok(Ok(kind)) => Ok(kind),
         Ok(Err(e)) => {
             eprintln!("Could not read the presentation: {e}");
-            Err(NOT_PRESENTATION.to_string())
+            Err(not_presentation())
         }
         Err(e) => {
             eprintln!("Could not read the presentation: {e}");
-            Err(NOT_PRESENTATION.to_string())
+            Err(not_presentation())
         }
     }
 }

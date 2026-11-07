@@ -45,15 +45,15 @@ pub fn builtin() -> Vec<MessageTemplate> {
         id, name: name.to_string(), text: text.to_string(), ..MessageTemplate::default()
     };
     vec![
-        make(NURSERY_ID, strings::NURSERY_NAME, strings::NURSERY_TEXT),
-        make(VEHICLE_ID, strings::VEHICLE_NAME, strings::VEHICLE_TEXT),
-        make(CUSTOM_ID, strings::CUSTOM_NAME, strings::CUSTOM_TEXT),
+        make(NURSERY_ID, &strings::nursery_name(), &strings::nursery_text()),
+        make(VEHICLE_ID, &strings::vehicle_name(), &strings::vehicle_text()),
+        make(CUSTOM_ID, &strings::custom_name(), strings::CUSTOM_TEXT),
     ]
 }
 
 /// A template's fields in order of first appearance, and the stray-brace warning if any.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Parsed { pub fields: Vec<String>, pub warning: Option<&'static str> }
+pub struct Parsed { pub fields: Vec<String>, pub warning: Option<String> }
 
 enum Segment { Text(String), Field(String) }
 
@@ -95,7 +95,7 @@ pub fn parse(text: &str) -> Parsed {
     for s in segs {
         if let Segment::Field(f) = s && !fields.contains(&f) { fields.push(f); }
     }
-    Parsed { fields, warning: stray.then_some(strings::UNMATCHED_BRACE) }
+    Parsed { fields, warning: stray.then(strings::unmatched_brace) }
 }
 
 /// Line breaks of any kind become one space each.
@@ -122,7 +122,7 @@ fn substitute(text: &str, values: &BTreeMap<String, String>) -> Result<String, S
 /// 200 letters. The error is the text to show the volunteer.
 pub fn fill(text: &str, values: &BTreeMap<String, String>) -> Result<String, String> {
     let out = substitute(text, values).map_err(|f| strings::fill_in(&f))?;
-    if out.chars().count() > MAX_CHARS { return Err(strings::MESSAGE_TOO_LONG.to_string()) }
+    if out.chars().count() > MAX_CHARS { return Err(strings::message_too_long()) }
     Ok(out)
 }
 
@@ -142,7 +142,7 @@ pub fn preview(text: &str, values: &BTreeMap<String, String>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::automation::strings::{MESSAGE_TOO_LONG, PRACTICE_WARNING, UNMATCHED_BRACE};
+    use crate::automation::strings::{message_too_long, practice_warning, unmatched_brace};
     use std::collections::BTreeMap;
 
     fn values(pairs: &[(&str, &str)]) -> BTreeMap<String, String> {
@@ -172,12 +172,12 @@ mod tests {
     fn stray_brace_is_literal_with_warning() {
         let p = parse("50% off {today");
         assert!(p.fields.is_empty());
-        assert_eq!(p.warning, Some(UNMATCHED_BRACE));
+        assert_eq!(p.warning, Some(unmatched_brace()));
         assert_eq!(fill("50% off {today", &values(&[])), Ok("50% off {today".to_string()));
         let long = format!("{{{}}}", "x".repeat(31));
         let p = parse(&long);
         assert!(p.fields.is_empty());
-        assert_eq!(p.warning, Some(UNMATCHED_BRACE));
+        assert_eq!(p.warning, Some(unmatched_brace()));
         assert_eq!(fill(&long, &values(&[])), Ok(long.clone()));
         assert_eq!(parse(&format!("{{{}}}", "x".repeat(30))).fields, ["x".repeat(30)]);
         assert_eq!(parse("a } b").warning, None);
@@ -202,7 +202,7 @@ mod tests {
     #[test]
     fn fill_rejects_over_200_chars() {
         let t = template(CUSTOM_ID);
-        assert_eq!(fill(&t.text, &values(&[("Message", &"a".repeat(201))])), Err(MESSAGE_TOO_LONG.to_string()));
+        assert_eq!(fill(&t.text, &values(&[("Message", &"a".repeat(201))])), Err(message_too_long()));
         assert_eq!(fill(&t.text, &values(&[("Message", &"a".repeat(200))])), Ok("a".repeat(200)));
     }
 
@@ -256,7 +256,7 @@ mod tests {
 
     #[test]
     fn practice_warning_is_exact() {
-        assert_eq!(PRACTICE_WARNING,
+        assert_eq!(practice_warning(),
                    "Practice mode is on — this shows only in your preview. End practice to show it in the room.");
     }
 }

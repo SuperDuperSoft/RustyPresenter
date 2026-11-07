@@ -72,7 +72,7 @@ impl Choice {
 /// **ready** picture or video in library order (videos captioned "▶ name"; the tooltip is the name), "+ Upload…".
 pub fn choices(media: &[MediaFile], allow_default: bool) -> Vec<Choice> {
     let mut out = Vec::new();
-    if allow_default { out.push(Choice::new(ChoiceKind::Default, strings::THEME_DEFAULT, "")); }
+    if allow_default { out.push(Choice::new(ChoiceKind::Default, strings::theme_default(), "")); }
     out.extend(SWATCHES.iter().map(|c| Choice::new(ChoiceKind::Color((*c).into()), "", "")));
     out.push(Choice::new(ChoiceKind::Custom, "", ""));
     for m in media.iter().filter(|m| m.status == MediaStatus::Ready) {
@@ -82,7 +82,7 @@ pub fn choices(media: &[MediaFile], allow_default: bool) -> Vec<Choice> {
             MediaKind::Audio => {}
         }
     }
-    out.push(Choice::new(ChoiceKind::Upload, strings::UPLOAD, ""));
+    out.push(Choice::new(ChoiceKind::Upload, strings::upload(), ""));
     out
 }
 
@@ -224,7 +224,7 @@ pub fn upload_files(op: &Rc<Operator>, paths: Vec<PathBuf>, done: impl FnOnce(Ve
     fn next(op: &Rc<Operator>, mut rest: std::vec::IntoIter<PathBuf>, mut got: Vec<MediaFile>, done: Box<dyn FnOnce(Vec<MediaFile>)>) {
         let Some(path) = rest.next() else {
             done(got);
-            op.toast(strings::UPLOADED, false);
+            op.toast(strings::uploaded(), false);
             return;
         };
         let me = Rc::downgrade(op);

@@ -53,7 +53,7 @@ fn draw(op: &Operator) {
                 name: svc.name.as_str().into(),
                 count: strings::item_count(svc.items.iter().filter(|i| !matches!(i.kind, ItemKind::Header { .. })).count()).into(),
                 current: current == Some(svc.id),
-                date: svc.date.map_or(ptr::NO_DATE.into(), |d| planning::format_day_date(d, order)).into(),
+                date: svc.date.map_or(ptr::no_date().into(), |d| planning::format_day_date(d, order)).into(),
                 dated: svc.date.is_some(),
                 blanks: if blanks > 0 { ptr::blanks_chip(blanks).into() } else { "".into() },
             }
@@ -73,8 +73,8 @@ fn draw(op: &Operator) {
     g.set_rows(ModelRc::new(VecModel::from(rows)));
     g.set_older_text(if older > 0 { ptr::show_older(older).into() } else { "".into() });
     g.set_templates(ModelRc::new(VecModel::from(templates)));
-    g.set_no_templates_text(ptr::NO_TEMPLATES.into());
-    g.set_need_template_text(ptr::NEED_TEMPLATE.into());
+    g.set_no_templates_text(ptr::no_templates().into());
+    g.set_need_template_text(ptr::need_template().into());
 }
 
 /// Rebuilds the dialog if it is still the one open.
@@ -98,8 +98,8 @@ fn call(op: &Rc<Operator>, action: &'static str, body: Value, then: impl FnOnce(
 /// Cancel does nothing; an empty answer is still sent (the core names it).
 fn new_service(op: &Rc<Operator>, copy: bool) {
     let me = Rc::downgrade(op);
-    let title = if copy { strings::COPY_PROMPT } else { strings::NEW_PROMPT };
-    prompt(op, title, &today_name(op), move |name| {
+    let title = if copy { strings::copy_prompt() } else { strings::new_prompt() };
+    prompt(op, &title, &today_name(op), move |name| {
         let (Some(op), Some(name)) = (me.upgrade(), name) else { return };
         let copy_from = copy.then(|| op.state.borrow().snap.as_ref().and_then(|s| s.service_id)).flatten();
         let body = if copy { json!({ "name": name, "copy_from": copy_from }) } else { json!({ "name": name }) };
@@ -112,7 +112,7 @@ fn new_service(op: &Rc<Operator>, copy: bool) {
 fn rename(op: &Rc<Operator>, id: Uuid) {
     let Some(current) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
-    prompt(op, strings::RENAME_PROMPT, &current, move |name| {
+    prompt(op, &strings::rename_prompt(), &current, move |name| {
         let Some(op) = me.upgrade() else { return };
         let Some(name) = name.filter(|n| !n.is_empty()) else { return redraw(&op) };
         call(&op, "service/rename", json!({ "id": id, "name": name }), |op, _| redraw(op));
@@ -123,7 +123,7 @@ fn rename(op: &Rc<Operator>, id: Uuid) {
 fn delete(op: &Rc<Operator>, id: Uuid) {
     let Some(name) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
-    confirm(op, &strings::delete_question(&name), dtr::OK, dtr::CANCEL, false, move |ok| {
+    confirm(op, &strings::delete_question(&name), &dtr::ok(), &dtr::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         call(&op, "service/delete", json!({ "id": id }), |op, _| redraw(op));
     });
@@ -156,10 +156,10 @@ fn copy_week(op: &Rc<Operator>) {
             (src.id, src.name.clone(), date, planning::format_day_date(date, order), existing)
         })
     };
-    let Some((source, name, date, date_text, existing)) = found else { return op.toast(ptr::NO_SERVICE_TO_COPY, true) };
+    let Some((source, name, date, date_text, existing)) = found else { return op.toast(ptr::no_service_to_copy(), true) };
     let ask = move |op: &Rc<Operator>| {
         let me = Rc::downgrade(op);
-        choose(op, &ptr::copy_week_question(&date_text, &name), ptr::COPY, ptr::COPY_WITH_BLANKS, move |answer| {
+        choose(op, &ptr::copy_week_question(&date_text, &name), &ptr::copy(), &ptr::copy_with_blanks(), move |answer| {
             let (Some(op), Some(plain)) = (me.upgrade(), answer) else { return };
             let body = json!({ "source": source, "date": date.format("%Y-%m-%d").to_string(), "blanks": !plain });
             call(&op, "service/copy-week", body, made);
@@ -170,7 +170,7 @@ fn copy_week(op: &Rc<Operator>) {
         Some((id, existing_name)) => {
             let me = Rc::downgrade(op);
             let date_text = planning::format_day_date(date, order(op));
-            choose(op, &ptr::already_on_date(&date_text, &existing_name), ptr::OPEN_IT, ptr::MAKE_ANOTHER, move |answer| {
+            choose(op, &ptr::already_on_date(&date_text, &existing_name), &ptr::open_it(), &ptr::make_another(), move |answer| {
                 let Some(op) = me.upgrade() else { return };
                 match answer {
                     Some(true) => select(&op, id),
@@ -193,7 +193,7 @@ fn from_template(op: &Rc<Operator>, template: Uuid) {
         })
     }) else { return };
     let me = Rc::downgrade(op);
-    prompt(op, ptr::NEW_FROM_TEMPLATE_PROMPT, &name, move |answer| {
+    prompt(op, &ptr::new_from_template_prompt(), &name, move |answer| {
         let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
         call(&op, "service/from-template", json!({ "template": template, "name": name, "date": date.format("%Y-%m-%d").to_string() }), made);
     });
@@ -208,12 +208,12 @@ fn new_from_template(op: &Rc<Operator>) {
         [(a, an), (b, bn)] => {
             let (a, b) = (*a, *b);
             let me = Rc::downgrade(op);
-            choose(op, ptr::PICK_TEMPLATE, an, bn, move |answer| {
+            choose(op, &ptr::pick_template(), an, bn, move |answer| {
                 let (Some(op), Some(first)) = (me.upgrade(), answer) else { return };
                 from_template(&op, if first { a } else { b });
             });
         }
-        _ => notice(op, ptr::PICK_TEMPLATE_BELOW),
+        _ => notice(op, &ptr::pick_template_below()),
     }
 }
 
@@ -228,7 +228,7 @@ fn set_date(op: &Rc<Operator>, id: Uuid) {
         let date = if text.trim().is_empty() { None } else {
             match planning::parse_date(&text, order) {
                 Some(d) => Some(d.format("%Y-%m-%d").to_string()),
-                None => { op.toast(ptr::BAD_DATE, true); return redraw(&op) }
+                None => { op.toast(ptr::bad_date(), true); return redraw(&op) }
             }
         };
         call(&op, "service/set-date", json!({ "id": id, "date": date }), |op, _| redraw(op));
@@ -243,7 +243,7 @@ fn save_template(op: &Rc<Operator>, id: Uuid) {
         d.services.iter().find(|s| s.id == id).map(|s| planning::template_name(s, order))
     }) else { return };
     let me = Rc::downgrade(op);
-    prompt(op, ptr::TEMPLATE_NAME_PROMPT, &name, move |answer| {
+    prompt(op, &ptr::template_name_prompt(), &name, move |answer| {
         let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
         call(&op, "template/from-service", json!({ "service": id, "name": name }), |op, v| {
             op.toast(ptr::template_saved(v["name"].as_str().unwrap_or_default()), false);
@@ -259,7 +259,7 @@ fn template_name(op: &Operator, id: Uuid) -> Option<String> {
 fn rename_template(op: &Rc<Operator>, id: Uuid) {
     let Some(name) = template_name(op, id) else { return };
     let me = Rc::downgrade(op);
-    prompt(op, ptr::RENAME_TEMPLATE, &name, move |answer| {
+    prompt(op, &ptr::rename_template(), &name, move |answer| {
         let (Some(op), Some(name)) = (me.upgrade(), answer) else { return };
         call(&op, "template/rename", json!({ "id": id, "name": name }), |op, _| redraw(op));
     });
@@ -271,16 +271,16 @@ pub fn parse_day(text: &str) -> Option<Option<chrono::Weekday>> {
     let t = t.trim_end_matches('s');
     if t.is_empty() || t.starts_with("any") { return Some(None) }
     if t.chars().count() < 2 { return None }
-    ptr::DAYS_LONG.iter().position(|d| d.to_lowercase().starts_with(t)).and_then(|i| chrono::Weekday::try_from(i as u8).ok()).map(Some)
+    ptr::days_long().iter().position(|d| d.to_lowercase().starts_with(t)).and_then(|i| chrono::Weekday::try_from(i as u8).ok()).map(Some)
 }
 
 fn template_day(op: &Rc<Operator>, id: Uuid) {
     let Some((name, day)) = op.app().data.lock().unwrap().templates.iter().find(|t| t.id == id).map(|t| (t.name.clone(), t.day)) else { return };
     let me = Rc::downgrade(op);
-    let current = day.map_or("", |d| ptr::DAYS_LONG[d.num_days_from_monday() as usize]);
-    prompt(op, &ptr::template_day_question(&name), current, move |answer| {
+    let current = day.map_or_else(String::new, |d| ptr::days_long()[d.num_days_from_monday() as usize].clone());
+    prompt(op, &ptr::template_day_question(&name), &current, move |answer| {
         let (Some(op), Some(text)) = (me.upgrade(), answer) else { return };
-        let Some(day) = parse_day(&text) else { op.toast(ptr::BAD_DAY, true); return redraw(&op) };
+        let Some(day) = parse_day(&text) else { op.toast(ptr::bad_day(), true); return redraw(&op) };
         call(&op, "template/day", json!({ "id": id, "day": day }), |op, _| redraw(op));
     });
 }
@@ -288,7 +288,7 @@ fn template_day(op: &Rc<Operator>, id: Uuid) {
 fn delete_template(op: &Rc<Operator>, id: Uuid) {
     let Some(name) = template_name(op, id) else { return };
     let me = Rc::downgrade(op);
-    confirm(op, &ptr::delete_template_question(&name), dtr::OK, dtr::CANCEL, true, move |ok| {
+    confirm(op, &ptr::delete_template_question(&name), &dtr::ok(), &dtr::cancel(), true, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         call(&op, "template/delete", json!({ "id": id }), |op, _| redraw(op));
     });
@@ -400,7 +400,7 @@ pub(crate) fn edit_header(op: &Rc<Operator>, id: Uuid) -> bool {
     let ItemKind::Header { title, color } = &it.kind else { return false };
     let color = color.clone();
     let me = Rc::downgrade(op);
-    prompt(op, ptr::RENAME_HEADER, title, move |answer| {
+    prompt(op, &ptr::rename_header(), title, move |answer| {
         let (Some(op), Some(title)) = (me.upgrade(), answer.filter(|t| !t.trim().is_empty())) else { return };
         let item = crate::model::ServiceItem { kind: ItemKind::Header { title: title.trim().into(), color }, ..it };
         call(&op, "service/update", serde_json::to_value(&item).unwrap_or_default(), |_, _| {});
@@ -419,7 +419,7 @@ fn recolor(op: &Rc<Operator>, id: Uuid) {
 /// Header: a name, then a header above the selected item (or at the end).
 fn add_header(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
-    prompt(op, ptr::HEADER_PROMPT, ptr::HEADER_DEFAULT, move |answer| {
+    prompt(op, &ptr::header_prompt(), &ptr::header_default(), move |answer| {
         let (Some(op), Some(title)) = (me.upgrade(), answer.filter(|t| !t.trim().is_empty())) else { return };
         let position = {
             let sel = op.state.borrow().selected;
@@ -557,7 +557,7 @@ mod tests {
         let op = open_services(&app);
         let before = app.data.lock().unwrap().services.len();
         click(&op, "ServicesDialog::new-btn", 0);
-        assert_eq!(asked(&op), Some((strings::NEW_PROMPT.into(), today_name(&op))));
+        assert_eq!(asked(&op), Some((strings::new_prompt().into(), today_name(&op))));
         key(&op, Key::Escape);
         assert_eq!(app.data.lock().unwrap().services.len(), before, "Cancel does nothing");
         assert_eq!(op.dialog(), Some(DialogKind::Services));
@@ -584,7 +584,7 @@ mod tests {
         let op = open_services(&app);
         click(&op, "ServicesDialog::copy-btn", 0);
         let today = today_name(&op);
-        assert_eq!(asked(&op), Some((strings::COPY_PROMPT.into(), today.clone())));
+        assert_eq!(asked(&op), Some((strings::copy_prompt().into(), today.clone())));
         key(&op, Key::Return);
         let (id, name) = current(&app);
         assert_ne!(id, from);
@@ -599,7 +599,7 @@ mod tests {
         let (id, name) = current(&app);
         let op = open_services(&app);
         click(&op, "ServicesDialog::rename-btn", 0);
-        assert_eq!(asked(&op), Some((strings::RENAME_PROMPT.into(), name)));
+        assert_eq!(asked(&op), Some((strings::rename_prompt().into(), name)));
         typed(&op, " Easter ");
         key(&op, Key::Return);
         assert_eq!(current(&app), (id, " Easter ".into()), "sent as typed");
@@ -730,7 +730,7 @@ mod tests {
         let op = open_services(&app);
         crate::ui::operator::files::testing::will_pick(vec![bad]);
         click(&op, "ServicesDialog::open-file-btn", 0);
-        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::NOT_A_SERVICE_FILE));
+        assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::not_a_service_file().as_str()));
         assert_eq!(op.ui.get_ask().row_count(), 0, "no report");
         assert_eq!(app.data.lock().unwrap().services.len(), 1);
     }
@@ -872,7 +872,7 @@ mod tests {
         click(&op, "ServicesDialog::older-btn", 0);
         let r = rows(&op);
         assert_eq!(r.len(), 11);
-        assert_eq!((r[10].name.as_str(), r[10].date.as_str(), r[10].dated), ("Sunday Service", ptr::NO_DATE, false), "undated last");
+        assert_eq!((r[10].name.as_str(), r[10].date.as_str(), r[10].dated), ("Sunday Service", ptr::no_date().as_str(), false), "undated last");
         assert!(find(&op, "ServicesDialog::older-btn").is_none());
     }
 
@@ -891,7 +891,7 @@ mod tests {
         assert_eq!(asked(&op).map(|a| a.1), Some("11/8/2026".into()));
         typed(&op, "soon");
         key(&op, Key::Return);
-        assert!(op.toast_log().iter().any(|(t, e)| t == ptr::BAD_DATE && *e));
+        assert!(op.toast_log().iter().any(|(t, e)| *t == ptr::bad_date() && *e));
         click(&op, "ServicesDialog::date-btn", 0);
         key(&op, Key::Backspace);
         key(&op, Key::Return);
@@ -908,7 +908,7 @@ mod tests {
         let op = open_services(&app);
         assert!(find(&op, "ServicesDialog::no-templates").is_some());
         click(&op, "ServicesDialog::template-btn", 0);
-        assert_eq!(asked(&op), Some((ptr::TEMPLATE_NAME_PROMPT.into(), "Sunday Service".into())));
+        assert_eq!(asked(&op), Some((ptr::template_name_prompt().into(), "Sunday Service".into())));
         key(&op, Key::Return);
         {
             let d = app.data.lock().unwrap();
@@ -950,7 +950,7 @@ mod tests {
         let op = opened(&app);
         let row = op.ui.get_service_rows().row_data(0).unwrap();
         assert!(row.blank && !row.header);
-        assert_eq!((row.title.as_str(), row.subtitle.as_str()), ("Song (blank)", ptr::BLANK_SUBTITLE));
+        assert_eq!((row.title.as_str(), row.subtitle.as_str()), ("Song (blank)", ptr::blank_subtitle().as_str()));
         click(&op, "ServiceColumn::choose-btn", 0);
         assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
         assert_eq!(op.ui.get_dialog_title(), "Fill in: Song");
@@ -972,7 +972,7 @@ mod tests {
         app.data.lock().unwrap().services[0].items.push(blank);
         let op = opened(&app);
         key(&op, Key::Return);
-        assert!(op.toast_log().iter().any(|(t, _)| t == ptr::BLANK_CHOOSE_FIRST), "{:?}", op.toast_log());
+        assert!(op.toast_log().iter().any(|(t, _)| *t == ptr::blank_choose_first()), "{:?}", op.toast_log());
     }
 
     #[test]
@@ -981,7 +981,7 @@ mod tests {
         app.data.lock().unwrap().services[0].items.push(song_item());
         let op = opened(&app);
         click(&op, "ServiceColumn::header-btn", 0);
-        assert_eq!(asked(&op), Some((ptr::HEADER_PROMPT.into(), ptr::HEADER_DEFAULT.into())));
+        assert_eq!(asked(&op), Some((ptr::header_prompt().into(), ptr::header_default().into())));
         key(&op, Key::Return);
         refresh(&op);
         let first = |app: &App| app.data.lock().unwrap().services[0].items[0].clone();

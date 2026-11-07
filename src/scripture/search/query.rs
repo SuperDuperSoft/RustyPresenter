@@ -1,5 +1,5 @@
 //! Search queries, the tokenizer shared by verses and queries, and result snippets (spec §3.1, §5.5).
-use crate::scripture::strings::EMPTY_SEARCH;
+use crate::scripture::strings::empty_search;
 
 /// Most terms a query uses; later ones are ignored.
 pub const MAX_TERMS: usize = 12;
@@ -48,7 +48,7 @@ impl SearchQuery {
             }
         }
         terms.truncate(MAX_TERMS);
-        if terms.is_empty() { return Err(EMPTY_SEARCH.to_string()); }
+        if terms.is_empty() { return Err(empty_search()); }
         Ok(Self { terms })
     }
 
