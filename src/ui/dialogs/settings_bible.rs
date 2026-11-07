@@ -158,7 +158,7 @@ pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed
     };
     let running = job.filter(|j| j.error.is_none() && !j.done);
     if let Some(j) = running {
-        let waiting = j.label.starts_with(cat::waiting().split('{').next().unwrap_or(""));
+        let waiting = j.label == cat::waiting(&r.title);
         row.status = if waiting { cat::waiting_short().into() } else { cat::downloading(j.percent).into() };
         row.progress = if waiting { -1.0 } else { f32::from(j.percent) };
         row.button = cat::cancel().into();

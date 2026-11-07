@@ -55,16 +55,15 @@ pub enum InstallError {
 impl InstallError {
     /// What the job card says. `update` is true when a copy is installed already and stays.
     pub fn message(&self, name: &str, update: bool) -> String {
-        let named = |s: &str| s.replace("{name}", name);
         match self {
             InstallError::Cancelled => crate::import::CANCELLED.into(),
-            InstallError::Download(_) => named(&strings::download_failed()),
-            InstallError::NoSpace(mb) => strings::no_space().replace("{n}", &mb.to_string()),
+            InstallError::Download(_) => strings::download_failed(name),
+            InstallError::NoSpace(mb) => strings::no_space(*mb),
             InstallError::Blocked => crate::scripture::strings::blocked().into(),
-            _ if update => named(&strings::update_unusable()),
+            _ if update => strings::update_unusable(name),
             InstallError::Licence => strings::licence_refused().into(),
             InstallError::TooLarge => strings::too_large().into(),
-            InstallError::Unusable(_) => named(&strings::unusable()),
+            InstallError::Unusable(_) => strings::unusable(name),
         }
     }
 }

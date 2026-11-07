@@ -1591,14 +1591,14 @@ impl App {
         let row = listing.rows.into_iter().find(|r| r.id() == id).ok_or(strings::not_in_list())?;
         let name = row.title().to_string();
         let update = bible::import::meta(&self.store.root, id).is_some();
-        let (job, cancel) = self.job_start_cancellable(&strings::waiting().replace("{name}", &name));
+        let (job, cancel) = self.job_start_cancellable(&strings::waiting(&name));
         self.job_subject(job, id);
         let turn = tokio::select! {
             t = self.bible_downloads.lock() => Some(t),
             _ = cancel.cancelled() => None,
         };
         let Some(_turn) = turn else { self.job_end_cancelled(job); return Err(import::CANCELLED.into()) };
-        self.job_label(job, &strings::downloading_name().replace("{name}", &name));
+        self.job_label(job, &strings::downloading_name(&name));
         let app = self.clone();
         let r = row.source().install(&ctx, &row, &cancel, &move |p| app.job_progress(job, p)).await
             .map_err(|e| { eprintln!("Bible download {id}: {e:?}"); e.message(&name, update) });
@@ -2346,7 +2346,7 @@ mod tests {
         let p = std::env::temp_dir().join(format!("{}.xyz", Uuid::new_v4()));
         std::fs::write(&p, b"x").unwrap();
         let e = test_app().import_path(&p, ImportPurpose::Media, |_| {}).await.unwrap_err();
-        assert_eq!(e.message, crate::video::ffi::MISSING);
+        assert_eq!(e.message, crate::video::ffi::missing());
     }
 
     #[tokio::test]

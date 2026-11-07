@@ -11,16 +11,19 @@ pub fn scope_ot() -> String { tr!("Old Testament") }
 pub fn scope_portions() -> String { tr!("Portions") }
 pub fn includes_apocrypha() -> String { tr!("Includes Apocrypha") }
 
-// Downloads (§13). These keep their `{name}` (the Bible's title) and `{n}` (megabytes) gaps for the caller to fill.
-pub fn downloading_name() -> String { tr!("Downloading {name}…") }
-pub fn waiting() -> String { tr!("Waiting to download {name}…") }
-pub fn checking() -> String { tr!("Checking {name}…") }
-pub fn download_failed() -> String { tr!("Couldn't download {name}. Check the internet and try again.") }
+// Downloads (§13). `name` is the Bible's title.
+pub fn downloading_name(name: &str) -> String { tr!("Downloading {name}…", name = name) }
+pub fn waiting(name: &str) -> String { tr!("Waiting to download {name}…", name = name) }
+pub fn checking(name: &str) -> String { tr!("Checking {name}…", name = name) }
+pub fn download_failed(name: &str) -> String { tr!("Couldn't download {name}. Check the internet and try again.", name = name) }
 pub fn licence_refused() -> String { tr!("This Bible's licence doesn't allow us to keep it. It has been removed.") }
-pub fn update_unusable() -> String { tr!("The update for {name} couldn't be used. The copy you have still works.") }
+pub fn update_unusable(name: &str) -> String {
+    tr!("The update for {name} couldn't be used. The copy you have still works.", name = name)
+}
 pub fn too_large() -> String { tr!("This Bible is larger than expected, so it wasn't added.") }
-pub fn no_space() -> String { tr!("Not enough disk space for this Bible (needs about {n} MB).") }
-pub fn unusable() -> String { tr!("{name} couldn't be used, so it wasn't added.") }
+/// `mb`: megabytes it needs.
+pub fn no_space(mb: u64) -> String { tr!("Not enough disk space for this Bible (needs about {n} MB).", n = mb) }
+pub fn unusable(name: &str) -> String { tr!("{name} couldn't be used, so it wasn't added.", name = name) }
 pub fn not_in_list() -> String { tr!("That Bible is no longer in the list. Open Settings → Bibles again to see the current list.") }
 pub fn offline_no_add() -> String { tr!("You're offline, so Bibles can't be added right now.") }
 
