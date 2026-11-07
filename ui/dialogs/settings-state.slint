@@ -139,6 +139,9 @@ export global SettingsDlg {
     /// Settings → Language: a row's Use button (applied at once), and the translators' guide link.
     callback choose-language(int);
     callback help-translate();
+    /// The translation editor for the language in use, or on "Add a language".
+    callback edit-translation();
+    callback add-language();
     /// Settings → Video → Graphics: saved at once (`settings/graphics`), used from the next start.
     callback graphics-changed(int);
     /// Any Look edit: the preview is drawn again 150 ms later.

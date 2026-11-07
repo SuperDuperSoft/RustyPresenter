@@ -1,14 +1,14 @@
 const $ = id => document.getElementById(id);
 // The words in the computer's language, from /i18n.json (listed in src/i18n/remote_strings.rs). `t` takes the English word and
 // gives the shown text; `{name}` gaps are filled from `args`. A word not there stays English.
-let T = {}, lang = null;
+let T = {}, lang = null, words = null;
 const t = (en, args = {}) => (T[en] || en).replace(/\{(\w+)\}/g, (m, k) => k in args ? args[k] : m);
 const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
 let es = null, V = null;
 
 function toast(msg, good = false) { const el = $('toast'); el.textContent = msg; el.classList.toggle('good', good); el.style.display = 'block'; clearTimeout(el._h); el._h = setTimeout(() => el.style.display = 'none', 2500); }
 
-// Reads the words again (at start, and when the computer's language changes) and puts them on the page.
+// Reads the words again (at start, and when the computer's language or a translation changes) and puts them on the page.
 async function loadWords() {
   const r = await fetch('/i18n.json').catch(() => null);
   if (r && r.ok) { T = await r.json().catch(() => T); lang = r.headers.get('content-language') || lang; }
@@ -92,7 +92,7 @@ function connect() {
     if (m.type !== 'remote') return;
     V = m;
     render();
-    if (m.lang && m.lang !== lang) { lang = m.lang; loadWords(); }
+    if (m.lang && (m.lang !== lang || m.words !== words)) { lang = m.lang; words = m.words; loadWords(); }
   };
   es.onerror = async () => {
     $('dot').classList.remove('on');

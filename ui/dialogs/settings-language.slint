@@ -1,5 +1,6 @@
 // Settings → Language (I18N spec D7): follow the computer, or pick a built-in language. Picking one changes the
-// whole app at once. The rows come from `src/ui/dialogs/settings_language.rs`.
+// whole app at once. The rows come from `src/ui/dialogs/settings_language.rs`. "Edit this translation…" and "Add a
+// language…" open the translation editor (`translation-editor.slint`).
 import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { Note, ListRow, RowMain } from "form.slint";
@@ -42,6 +43,17 @@ export component SettingsLanguage inherits VerticalLayout {
         HorizontalLayout {
             alignment: start;
             padding-top: 4px;
+            spacing: 8px;
+            edit-translation := Btn {
+                small: true;
+                text: @tr("Edit this translation…");
+                clicked => { SettingsDlg.edit-translation(); }
+            }
+            add-language := Btn {
+                small: true;
+                text: @tr("Add a language…");
+                clicked => { SettingsDlg.add-language(); }
+            }
             help-translate := Btn {
                 small: true;
                 text: @tr("Help translate RustyPresenter");

@@ -26,6 +26,7 @@ pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
+pub mod translation_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
@@ -73,6 +74,8 @@ pub enum DialogKind {
     FindVerse,
     /// Where a passage's slides break (FEAT-5 §3.3).
     SlideBreaks(Uuid),
+    /// The app's words in a language, edited in the app (Settings → Translations…).
+    Translations,
 }
 
 impl DialogKind {
@@ -81,7 +84,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_)) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -101,6 +104,7 @@ impl DialogKind {
             DialogKind::ShowMessage => "show-message",
             DialogKind::FindVerse => "find-verse",
             DialogKind::SlideBreaks(_) => "slide-breaks",
+            DialogKind::Translations => "translations",
         }
     }
 }
@@ -219,6 +223,7 @@ impl Operator {
             DialogKind::ShowMessage => crate::tr!("Show message"),
             DialogKind::FindVerse => crate::scripture::strings::find_a_verse(),
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
+            DialogKind::Translations => translation_editor::title(),
         }
     }
 }

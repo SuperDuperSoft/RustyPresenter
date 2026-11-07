@@ -30,6 +30,8 @@ pub enum MenuAction {
     Automation,
     /// Edit → Find a verse… (FEAT-5).
     FindVerse,
+    /// Settings → Translations…: the translation editor on the language in use.
+    Translations,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -61,6 +63,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "stage-layouts" => MenuAction::StageLayouts,
         "automation" => MenuAction::Automation,
         "find-verse" => MenuAction::FindVerse,
+        "translations" => MenuAction::Translations,
         _ => return None,
     })
 }
@@ -87,6 +90,7 @@ impl Operator {
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
+            Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
             None => {}
         }
     }

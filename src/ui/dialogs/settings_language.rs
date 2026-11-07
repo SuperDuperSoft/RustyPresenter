@@ -30,8 +30,9 @@ pub fn rows(setting: &str, system: Option<&str>, langs: &[LanguageInfo], lacks_f
     out
 }
 
-/// Draws the list for the edited settings.
+/// Draws the list for the edited settings, with the user's translation files as they are now.
 pub(super) fn fill(op: &Operator, edit: &Edit) {
+    super::translation_editor::reload(op);
     let setting = edit.settings.borrow().ui_language.clone();
     let rows = rows(&setting, i18n::system_language().as_deref(), &i18n::languages(), &mut |t| super::settings_bible::lacks_font(t));
     let (codes, rows): (Vec<String>, Vec<SettingsLanguageRow>) = rows.into_iter().unzip();

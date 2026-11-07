@@ -56,7 +56,7 @@ pub(crate) struct OpState {
     /// The open dialog, and how many confirm/prompt overlays are up; either one blocks the operator keys.
     pub(crate) dialog: Option<DialogKind>,
     pub(crate) asks: usize,
-    /// The language the window's Rust-made text was last drawn in (`crate::i18n::current`).
+    /// The language (and its edits) the window's Rust-made text was last drawn in (`crate::i18n::current`, `revision`).
     pub(super) lang: Option<String>,
     /// The blank the open Add dialog fills (FEAT-6a): its add buttons replace that blank instead of adding.
     pub(crate) fill: Option<Uuid>,
@@ -150,6 +150,8 @@ impl Operator {
         checks::start_watch(&op);
         menu::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
+        // User translation files that could not be read at start (`i18n::load_user_folder`).
+        for p in crate::i18n::take_problems() { op.toast(p, true) }
         if op.feed.is_some() { follow(feed, rx); }
         Ok(op)
     }
@@ -209,7 +211,7 @@ impl Operator {
         let data_changed = st.snap.as_ref().is_none_or(|old| !Arc::ptr_eq(&old.data, &s.data));
         // Settings → Language switched the app (maybe on another thread): this thread's windows follow, and every
         // Rust-made text below is drawn again in the new language.
-        let lang = crate::i18n::current();
+        let lang = format!("{}#{}", crate::i18n::current(), crate::i18n::revision());
         let lang_changed = st.lang.replace(lang.clone()).is_some_and(|old| old != lang);
         if lang_changed { crate::i18n::sync_slint() }
         st.snap = Some(s.clone());
