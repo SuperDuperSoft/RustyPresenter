@@ -3,6 +3,7 @@
 use super::Msg;
 use crate::{app::App, live::{Frame, Live, MediaLayer, SlideLayer}, model::{Background, SlideContent, Theme}, render::{Generation, RenderKey, Renderer, Wanted, parse_color}};
 use crate::room::{Kind, Want};
+use crate::media_prefs::{Scale, mpv_options};
 use crate::video::{Player, Players, Role};
 use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
 use crate::ui::block_on;
@@ -92,7 +93,8 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
         Kind::Media => {
             let m = f.media.as_ref()?;
             match &m.v {
-                MediaLayer::Still { asset } => picture(asset, false, 1.0),
+                // Fill and Stretch need the whole screen covered; the room's `media-fit` crops or stretches it.
+                MediaLayer::Still { asset } => picture(asset, app.data.lock().unwrap().settings.media.scale != Scale::Fit, 1.0),
                 MediaLayer::Video { asset: a, end, .. } => Source::Player { role: Role::Foreground(*end), inst: m.inst, path: asset(a) },
             }
         }
@@ -145,8 +147,8 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
             }
             Source::Player { role, inst, path } => {
                 let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };
-                let device = work.app.data.lock().unwrap().settings.audio_device.clone();
-                let Some(p) = players.create(role, inst, &device) else { continue };
+                let (sound, scale) = (work.app.sound_out(), work.app.data.lock().unwrap().settings.media.scale);
+                let Some(p) = players.create(role, inst, &sound.device, mpv_options(role, scale, &sound)) else { continue };
                 p.set_paused(true); // starts at the swap, like `startMedia` in `output.js`
                 if role == Role::Background {
                     // Fill the screen like CSS `object-fit: cover`.

@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_themes, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_media, settings_themes, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -33,9 +33,10 @@ pub fn tab_index(tab: SettingsTab) -> i32 {
         SettingsTab::Songs => 3,
         SettingsTab::Bible => 4,
         SettingsTab::Video => 5,
-        SettingsTab::Backups => 6,
-        SettingsTab::Help => 7,
-        SettingsTab::About => 8,
+        SettingsTab::Media => 6,
+        SettingsTab::Backups => 7,
+        SettingsTab::Help => 8,
+        SettingsTab::About => 9,
     }
 }
 
@@ -134,6 +135,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_section_keys(s.section_keys);
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
+    settings_media::fill_form(g, &s.media, &[]);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -145,6 +147,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.room_on_top = g.get_room_on_top();
     s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
+    settings_media::read_form(g, &mut s.media);
     super::stage_layouts::read_settings(g, s);
 }
 
@@ -272,6 +275,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
+    g.on_cleanup_media(with(|op, _| settings_media::clean_up(op)));
     settings_themes::connect(op, edit);
 }
 

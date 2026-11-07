@@ -6,6 +6,8 @@ pub mod i18n;
 pub mod import;
 pub mod lenient;
 pub mod live;
+pub mod media_care;
+pub mod media_prefs;
 pub mod model;
 pub mod planning;
 pub mod print;

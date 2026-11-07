@@ -92,6 +92,8 @@ export component RoomWindow inherits Window {
     in property <Side> media-b;
     in property <float> media-a-op;
     in property <float> media-b-op;
+    /// How a picture on the media layer fills the screen (Settings → Media): 0 fit, 1 fill (crop), 2 stretch.
+    in property <int> media-fit;
     in property <Side> slide-a;
     in property <Side> slide-b;
     in property <float> slide-a-op;
@@ -144,6 +146,7 @@ export component RoomWindow inherits Window {
         b: root.media-b;
         a-op: root.media-a-op;
         b-op: root.media-b-op;
+        fit: root.media-fit == 1 ? ImageFit.cover : root.media-fit == 2 ? ImageFit.fill : ImageFit.contain;
     }
     slide := FadeLayer {
         width: root.width;

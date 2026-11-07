@@ -30,6 +30,10 @@ pub enum MenuAction {
     Automation,
     /// Edit → Find a verse… (FEAT-5).
     FindVerse,
+    /// File → Clean up unused media… (N23).
+    CleanUpMedia,
+    /// View → Listen in headphones, or Stop listening (N21).
+    Listen,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -46,6 +50,9 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "settings-songs" => Settings(SettingsTab::Songs),
         "settings-bible" => Settings(SettingsTab::Bible),
         "settings-video" => Settings(SettingsTab::Video),
+        "settings-media" => Settings(SettingsTab::Media),
+        "media-cleanup" => MenuAction::CleanUpMedia,
+        "listen" => MenuAction::Listen,
         "settings-backups" => Settings(SettingsTab::Backups),
         "settings-help" => Settings(SettingsTab::Help),
         "settings-about" => Settings(SettingsTab::About),
@@ -87,6 +94,8 @@ impl Operator {
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
+            Some(MenuAction::CleanUpMedia) => crate::ui::dialogs::settings_media::clean_up(self),
+            Some(MenuAction::Listen) => self.listen(),
             None => {}
         }
     }
@@ -145,6 +154,22 @@ impl Operator {
         self.ui.set_zoom_percent((zoom_of(next) * 100.0).round() as i32);
     }
 
+    /// View → Listen in headphones (N21): turns Listen on or off and says where the sound goes now.
+    fn listen(self: &Rc<Self>) {
+        let on = !self.ui.get_listening();
+        let me = Rc::downgrade(self);
+        self.ops.call::<serde_json::Value>("sound/listen", serde_json::json!({ "on": on }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            match r {
+                Ok(_) => {
+                    op.ui.set_listening(on);
+                    op.toast(if on { tr::listening() } else { tr::not_listening() }, false);
+                }
+                Err(e) => op.toast(e, true),
+            }
+        });
+    }
+
     /// File → Open recent: the `i`th file there.
     fn open_recent(self: &Rc<Self>, i: usize) {
         let path = self.state.borrow().snap.as_ref().and_then(|s| s.settings.recent_files.get(i).cloned());
@@ -175,6 +200,8 @@ mod tr {
     use crate::tr;
     pub fn logs_not_opened(dir: &str) -> String { tr!("Could not open the logs folder. It is at {path}", path = dir) }
     pub fn window_too_small_to_zoom() -> String { tr!("Make the window bigger to zoom in further.") }
+    pub fn listening() -> String { tr!("Listening: the sound goes to your headphones only. The room hears nothing.") }
+    pub fn not_listening() -> String { tr!("The sound goes to the room again.") }
 }
 
 /// Connects the menu bar's `menu` callback. It holds a `Weak`, so the window does not keep itself alive.
@@ -248,6 +275,9 @@ mod tests {
         assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
         assert_eq!(action("automation"), Some(MenuAction::Automation));
         assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
+        assert_eq!(action("settings-media"), Some(MenuAction::Settings(SettingsTab::Media)));
+        assert_eq!(action("media-cleanup"), Some(MenuAction::CleanUpMedia));
+        assert_eq!(action("listen"), Some(MenuAction::Listen));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }

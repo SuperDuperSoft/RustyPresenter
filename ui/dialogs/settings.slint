@@ -10,6 +10,7 @@ import { SettingsBible } from "settings-bible.slint";
 import { SettingsAbout } from "settings-about.slint";
 import { SettingsLanguage } from "settings-language.slint";
 import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
+import { SettingsMedia } from "settings-media.slint";
 
 export { SettingsDlg }
 
@@ -204,7 +205,7 @@ component SettingsHelp inherits HorizontalLayout {
 export component SettingsDialog inherits VerticalLayout {
     DialogBody {
         tabs := Tabs {
-            labels: [@tr("Look"), @tr("Themes"), @tr("Language"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Backups"), @tr("Help"), @tr("About")];
+            labels: [@tr("Look"), @tr("Themes"), @tr("Language"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Media"), @tr("Backups"), @tr("Help"), @tr("About")];
             index <=> SettingsDlg.tab;
             changed(i) => { SettingsDlg.tab-changed(i); }
         }
@@ -215,9 +216,10 @@ export component SettingsDialog inherits VerticalLayout {
         if SettingsDlg.tab == 3: songs := SettingsSongs {}
         if SettingsDlg.tab == 4: bible := SettingsBible {}
         if SettingsDlg.tab == 5: video := SettingsVideo {}
-        if SettingsDlg.tab == 6: backups := SettingsBackups {}
-        if SettingsDlg.tab == 7: help := SettingsHelp {}
-        if SettingsDlg.tab == 8: about := SettingsAbout {}
+        if SettingsDlg.tab == 6: media := SettingsMedia {}
+        if SettingsDlg.tab == 7: backups := SettingsBackups {}
+        if SettingsDlg.tab == 8: help := SettingsHelp {}
+        if SettingsDlg.tab == 9: about := SettingsAbout {}
     }
     // While a theme is being edited, the footer saves the theme instead of the settings.
     if SettingsDlg.tab == 1 && ThemesDlg.editing: DialogFoot {

@@ -42,6 +42,7 @@ pub(super) fn load(op: &Rc<Operator>) {
         let Some(op) = me.upgrade() else { return };
         let g = op.ui.global::<SettingsDlg>();
         fill(&g, &devices, &read(&g));
+        super::settings_media::fill_listen(&g, &devices, &super::settings_media::read_listen(&g));
     });
 }
 

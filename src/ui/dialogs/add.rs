@@ -225,7 +225,7 @@ fn add_text(op: &Rc<Operator>) {
 fn add_row(op: &Rc<Operator>, id: Uuid) {
     let item = match op.dialog() {
         Some(DialogKind::Add(AddTab::Song)) => json!({ "kind": "song", "song_id": id }),
-        Some(DialogKind::Add(AddTab::Media)) => json!({ "kind": "media", "media_id": id, "autoplay": true, "end": "stop", "looped": false }),
+        Some(DialogKind::Add(AddTab::Media)) => json!({ "kind": "media", "media_id": id, "autoplay": true, "looped": false }),
         Some(DialogKind::Add(AddTab::Deck)) => json!({ "kind": "deck", "deck_id": id }),
         _ => return,
     };

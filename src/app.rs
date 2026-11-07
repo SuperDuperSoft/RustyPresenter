@@ -241,6 +241,8 @@ pub struct App {
     pub(crate) automation_watching: AtomicBool,
     /// Bible keyword search indexes, made on the first search (FEAT-5).
     pub(crate) search: OnceLock<crate::scripture::search::SearchService>,
+    /// Listen (N21): the sound goes to the operator's headphones only. Never saved, so every start has it off.
+    pub(crate) listening: AtomicBool,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -288,6 +290,7 @@ impl App {
             bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
+            listening: AtomicBool::new(false),
         });
         app.publish_timers(chrono::Utc::now(), true);
         app.refresh_bible_credits();
@@ -510,9 +513,18 @@ impl App {
             let mut live = self.live.lock().unwrap();
             let before = live.committed_version;
             let failed = matches!(ev, RoomEvent::Failed { .. });
-            let changed = live.report(ev);
+            let ended = match &ev { RoomEvent::Media { inst, state: PlayState::Ended, .. } => Some(*inst), _ => None };
+            let mut changed = live.report(ev);
             // A revert can go back to a snapshot older than a quiet adoption: check it against the library again.
             if changed && failed { live.reconcile(&DataPlan(&data)); }
+            // N24 "Go to the next slide": the last frame stays up until the next slide is shown, or for good at the
+            // end of the service, where the video is taken down as "Clear the screen" would.
+            if let Some(inst) = ended.filter(|i| live.ends_with_next(*i)) {
+                let base = Some(live.version);
+                let next = live.apply(Envelope { id: Uuid::new_v4().to_string(), base, cmd: Command::Next }, &DataPlan(&data));
+                if !next.ok { live.retire_ended(inst); }
+                changed = true;
+            }
             (changed, live.committed_version != before)
         };
         if changed { self.broadcast_live(); }
@@ -709,10 +721,16 @@ impl App {
 
     pub fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { self.screens.get().map(|s| s.audio_devices()).unwrap_or_default() }
 
+    /// Where the room's sound goes now: the main output, or the headphones while Listen is on (N21).
+    pub fn sound_out(&self) -> crate::media_prefs::SoundOut {
+        let s = &self.data.lock().unwrap().settings;
+        crate::media_prefs::sound_out(&s.audio_device, &s.media, self.listening.load(Ordering::Relaxed))
+    }
+
     /// One look at the chosen sound output. Asks the system, so never call it on the UI thread.
     pub fn watch_sound(&self) {
         use crate::{preflight::strings::sound_gone, sound};
-        let chosen = self.data.lock().unwrap().settings.audio_device.clone();
+        let chosen = self.sound_out().device;
         let told = || self.live.lock().unwrap().notice.as_deref() == Some(&*sound_gone());
         let heard = || sound::pauses(&self.live.lock().unwrap().frame);
         if !told() && (chosen.is_empty() || heard().is_empty()) { return }
@@ -951,6 +969,12 @@ impl App {
             #[derive(Deserialize)] struct Add { item: Value, position: Option<usize> }
             let Add { mut item, position } = parse(body)?;
             if item.get("id").is_none() { item["id"] = json!(Uuid::new_v4()); }
+            // Pictures added together as one item (`"slideshow": true` beside the item's fields).
+            let slideshow = item.as_object_mut().and_then(|o| o.remove("slideshow")).and_then(|v| v.as_bool()).unwrap_or(false);
+            // A video added without a choice does what Settings → Media says when it ends (N24).
+            if item.get("kind").and_then(Value::as_str) == Some("media") && item.get("end").is_none() {
+                item["end"] = json!(app.data.lock().unwrap().settings.media.video_end);
+            }
             // A passage added without a choice gets the church's verses per slide (Settings → Look).
             if item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("per_slide").is_none() {
                 item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
@@ -967,6 +991,11 @@ impl App {
                 let s = d.service_mut().ok_or_else(|| tr!("No service is open."))?;
                 let pos = position.unwrap_or(s.items.len()).min(s.items.len());
                 s.items.insert(pos, item);
+                // Pictures added as one slideshow turn by themselves (Settings → Media, N24).
+                let secs = d.settings.media.picture_secs;
+                if slideshow && crate::automation::advance::AutoAdvance::validate(secs).is_ok() {
+                    d.automation.advance.insert(id, crate::automation::advance::AutoAdvance { secs, loop_item: true });
+                }
                 Ok(())
             }));
             Ok(json!({ "id": id, "toast": toast }))
@@ -1473,6 +1502,7 @@ impl App {
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         a if crate::stage::actions::handles(a) => crate::stage::actions::run(app, a, body).await,
         a if crate::automation::actions::handles(a) => crate::automation::actions::run(app, a, body).await,
+        a if crate::media_care::handles(a) => crate::media_care::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,
