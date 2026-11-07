@@ -55,6 +55,7 @@ impl Operator {
         st.rows = rows;
         drop(st);
         self.render_monitor(v);
+        self.render_overlay_strip();
     }
 
     /// The live view as this window last drew it.
@@ -198,6 +199,7 @@ fn clear_command(name: &str) -> Option<Command> {
         "clear_media" => Command::ClearMedia,
         "clear_audio" => Command::ClearAudio,
         "logo" => Command::Logo,
+        "clear_overlays" => Command::ClearOverlays,
         _ => return None,
     })
 }

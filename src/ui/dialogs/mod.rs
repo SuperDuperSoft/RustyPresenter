@@ -8,6 +8,7 @@ pub mod add_youtube;
 pub mod ask;
 pub mod background;
 pub mod item_edit;
+pub mod overlays;
 pub mod phone;
 pub mod print;
 pub mod screens;
@@ -17,6 +18,7 @@ pub mod settings_audio;
 pub mod settings_bible;
 pub mod settings_language;
 pub mod settings_look;
+pub mod settings_themes;
 pub mod song_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
@@ -36,7 +38,7 @@ pub enum AddTab { #[default] Song, Scripture, Media, Deck, Text }
 
 /// The tabs of Settings (`operator.js:883`), and About (native spec §7).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum SettingsTab { #[default] Look, Language, Songs, Bible, Video, Backups, Help, About }
+pub enum SettingsTab { #[default] Look, Themes, Language, Songs, Bible, Video, Backups, Help, About }
 
 /// The dialogs of the web operator; one at a time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -53,6 +55,8 @@ pub enum DialogKind {
     Settings(SettingsTab),
     /// The song use report (FEAT-7 §3.3).
     Usage,
+    /// The saved overlays and the overlay editor (FEAT-1 §3.6).
+    Overlays,
 }
 
 impl DialogKind {
@@ -61,7 +65,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::Overlays) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -75,6 +79,7 @@ impl DialogKind {
             DialogKind::Phone => "phone",
             DialogKind::Settings(_) => "settings",
             DialogKind::Usage => "usage",
+            DialogKind::Overlays => "overlays",
         }
     }
 }
@@ -187,6 +192,7 @@ impl Operator {
             DialogKind::Phone => strings::phone().into(),
             DialogKind::Settings(_) => strings::settings().into(),
             DialogKind::Usage => crate::usage::strings::title().into(),
+            DialogKind::Overlays => crate::theme::strings::overlays_title(),
         }
     }
 }

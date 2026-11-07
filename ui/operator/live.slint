@@ -5,6 +5,7 @@ import { Bar, ScrollBox, Btn } from "../widgets.slint";
 import { Side } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
+import { OverlaysStrip } from "overlay-strip.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -244,6 +245,8 @@ export component LiveColumn inherits Rectangle {
                     }
                 }
             }
+
+            overlays := OverlaysStrip {}
 
             // `.nav`: 1fr 1.6fr.
             HorizontalLayout {

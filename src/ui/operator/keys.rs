@@ -50,6 +50,7 @@ pub fn key_name(text: &str) -> Option<&'static str> {
         (Key::F3, "F3"),
         (Key::F4, "F4"),
         (Key::F5, "F5"),
+        (Key::F6, "F6"),
     ]
     .into_iter()
     .find_map(|(key, name)| (char::from(key) == c).then_some(name))
@@ -64,6 +65,7 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
         "F3" => Some(Command::ClearMedia),
         "F4" => Some(Command::ClearAudio),
         "F5" => Some(Command::Logo),
+        "F6" => Some(Command::ClearOverlays),
         _ => None,
     };
     if let Some(command) = clear {
@@ -216,6 +218,7 @@ mod tests {
         assert_eq!(route("F3", false, false, ctx), KeyAction::Clear(Command::ClearMedia));
         assert_eq!(route("F4", false, false, ctx), KeyAction::Clear(Command::ClearAudio));
         assert_eq!(route("F5", false, false, ctx), KeyAction::Clear(Command::Logo));
+        assert_eq!(route("F6", false, false, ctx), KeyAction::Clear(Command::ClearOverlays), "F6 clears the overlays (FEAT-1)");
     }
 
     #[test]
@@ -343,6 +346,7 @@ mod tests {
         assert_eq!(name(Key::F3), Some("F3"));
         assert_eq!(name(Key::F4), Some("F4"));
         assert_eq!(name(Key::F5), Some("F5"));
+        assert_eq!(name(Key::F6), Some("F6"));
     }
 
     #[test]

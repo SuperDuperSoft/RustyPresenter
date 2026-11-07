@@ -20,6 +20,7 @@ import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
+import { OverlaysDialog } from "dialogs/overlays.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -361,6 +362,11 @@ export component OperatorWindow inherits Window {
                 shortcut: @keys(F5);
                 activated => { root.live-clear("logo"); }
             }
+            MenuItem {
+                title: @tr("Clear overlays");
+                shortcut: @keys(F6);
+                activated => { root.live-clear("clear_overlays"); }
+            }
             MenuSeparator {}
             MenuItem {
                 title: bin.open ? @tr("Hide media library") : @tr("Show media library");
@@ -394,6 +400,16 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.settings(); }
             }
             MenuSeparator {}
+            MenuItem {
+                title: @tr("Themes and backgrounds…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-themes"); }
+            }
+            MenuItem {
+                title: @tr("Overlays…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("overlays"); }
+            }
             MenuItem {
                 title: @tr("Songs…");
                 enabled: root.menu-ready;
@@ -628,6 +644,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "phone": PhoneDialog {}
             if root.dialog-kind == "settings": SettingsDialog {}
             if root.dialog-kind == "usage": UsageDialog {}
+            if root.dialog-kind == "overlays": OverlaysDialog {}
         }
 
         for a in root.ask: AskOverlay {
