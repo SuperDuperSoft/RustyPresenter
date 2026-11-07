@@ -11,7 +11,16 @@
 # Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
 # Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: sw\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kiswahili\nX-English-Name: Swahili\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sw\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Kiswahili\n"
+"X-English-Name: Swahili\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -922,8 +931,20 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— majina ya sehemu kwenye mstari wake; mstari mtupu ndani ya sehemu huanza slaidi mpya"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Ubeti 1]\nNeema ya ajabu, sauti tamu\nIliyoniokoa mimi\n\n[Kiitikio]\nMinyororo imekatika…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Ubeti 1]\n"
+"Neema ya ajabu, sauti tamu\n"
+"Iliyoniokoa mimi\n"
+"\n"
+"[Kiitikio]\n"
+"Minyororo imekatika…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1070,6 +1091,30 @@ msgid "updating…"
 msgstr "inasasisha…"
 
 #: ui/operator/live.slint
+msgid "−15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Edit words"
 msgstr "Hariri maneno"
 
@@ -1158,8 +1203,12 @@ msgid "Delete folder"
 msgstr "Futa folda"
 
 #: ui/operator/media.slint
-msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr "Bado hakuna kitu hapa. Bofya Leta, au jaribu folda au neno lingine."
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import media"
+msgstr ""
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -1169,7 +1218,7 @@ msgstr "Chagua faili"
 msgid "Use as background"
 msgstr "Tumia kama mandharinyuma"
 
-#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
 msgstr "Ongeza kwenye ibada"
 
@@ -1222,8 +1271,8 @@ msgid "Your service is empty"
 msgstr "Ibada yako haina kitu"
 
 #: ui/operator/service.slint
-msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr "Bofya “Ongeza kwenye ibada” hapa chini, andika mstari wa Biblia juu, au buruta faili kwenye dirisha hili."
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
+msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -1248,6 +1297,10 @@ msgstr "Andika mstari kama “Yohana 3:16” kwenye kisanduku cha Biblia na ubon
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "Tumia kitufe kikubwa cha Ifuatayo (au kitufe →) wakati wa ibada."
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Skrini"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
@@ -1332,10 +1385,6 @@ msgstr "Simu za kudhibiti zilizounganishwa"
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
 msgstr "Onyesha ujumbe kwenye skrini ya jukwaa"
-
-#: ui/operator/topbar.slint
-msgid "Screens"
-msgstr "Skrini"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
@@ -2153,6 +2202,10 @@ msgstr "Video hiyo haichezi tena."
 msgid "That audio is no longer playing."
 msgstr "Sauti hiyo haichezi tena."
 
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr ""
+
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
 msgstr "Bado hakuna kilicho hewani."
@@ -2411,7 +2464,7 @@ msgstr "{passage} kimeongezwa"
 msgid "Give it a title."
 msgstr "Kipe kichwa."
 
-#: src/strings/add.rs
+#: src/strings/add.rs src/ui/operator/checks.rs
 msgid "Ready"
 msgstr "Tayari"
 
@@ -3632,9 +3685,11 @@ msgstr[1] "slaidi {missing} kati ya {n} hazipo"
 msgid "{number}. {title}: {problem}"
 msgstr "{number}. {title}: {problem}"
 
-#: src/strings/preflight.rs
+#: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
-msgstr "…na {n} zaidi"
+msgid_plural "…and {n} more"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -5170,6 +5225,20 @@ msgstr "{day} saa {time} UTC"
 msgid "{time} UTC"
 msgstr "{time} UTC"
 
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
 msgstr "picha haikuweza kupakiwa"
@@ -5333,3 +5402,9 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Nothing here yet. Click Import, or try another folder or word."
+#~ msgstr "Bado hakuna kitu hapa. Bofya Leta, au jaribu folda au neno lingine."
+
+#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+#~ msgstr "Bofya “Ongeza kwenye ibada” hapa chini, andika mstari wa Biblia juu, au buruta faili kwenye dirisha hili."

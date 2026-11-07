@@ -69,6 +69,9 @@ export component OperatorWindow inherits Window {
     in property <bool> room-on;
     in property <string> room-state: "warn";
     in property <string> room-tip;
+    in property <string> check-state: "off";
+    in property <string> check-label;
+    in property <string> check-tip;
     in property <bool> stage-shown;
     in property <bool> stage-on;
     in property <string> phones-label;
@@ -162,6 +165,7 @@ export component OperatorWindow inherits Window {
     callback live-prev();
     callback live-clear(string);
     callback transport-toggle(int);
+    callback transport-seek(int, string);
     callback monitor-resized(length);
 
     // Toasts and the jobs box (see `overlays.slint`).
@@ -467,6 +471,10 @@ export component OperatorWindow inherits Window {
                 room-on: root.room-on;
                 room-state: root.room-state;
                 room-tip: root.room-tip;
+                check-state: root.check-state;
+                check-label: root.check-label;
+                check-tip: root.check-tip;
+                check => { root.focus-keys(); root.check-service(); }
                 stage-shown: root.stage-shown;
                 stage-on: root.stage-on;
                 phones-label: root.phones-label;
@@ -547,6 +555,8 @@ export component OperatorWindow inherits Window {
                                 text-larger => { root.focus-keys(); root.slides-text-larger(); }
                                 text-auto => { root.focus-keys(); root.slides-text-auto(); }
                                 grid-resized(w) => { root.slides-grid-resized(w); }
+                                welcome-add => { root.focus-keys(); root.service-add(); }
+                                welcome-screens => { root.focus-keys(); root.screens(); }
                             }
                         }
                     }
@@ -604,6 +614,7 @@ export component OperatorWindow inherits Window {
                         prev => { root.focus-keys(); root.live-prev(); }
                         clear(cmd) => { root.focus-keys(); root.live-clear(cmd); }
                         transport-toggle(i) => { root.focus-keys(); root.transport-toggle(i); }
+                        transport-seek(i, which) => { root.focus-keys(); root.transport-seek(i, which); }
                         monitor-resized(w) => { root.monitor-resized(w); }
                     }
                 }

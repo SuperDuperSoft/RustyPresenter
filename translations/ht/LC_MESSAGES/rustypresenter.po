@@ -7,7 +7,16 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ht\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Kreyòl ayisyen\n"
+"X-English-Name: Haitian Creole\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -918,8 +927,20 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyon kòmanse yon nouvo diapo"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Kouplè 1]\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"[Koral]\n"
+"My chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1066,6 +1087,30 @@ msgid "updating…"
 msgstr "ap mete ajou…"
 
 #: ui/operator/live.slint
+msgid "−15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Edit words"
 msgstr "Modifye mo yo"
 
@@ -1154,8 +1199,12 @@ msgid "Delete folder"
 msgstr "Efase dosye"
 
 #: ui/operator/media.slint
-msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr "Poko gen anyen la a. Klike Enpòte, oswa eseye yon lòt dosye oswa yon lòt mo."
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import media"
+msgstr ""
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -1165,7 +1214,7 @@ msgstr "Chwazi yon fichye"
 msgid "Use as background"
 msgstr "Itilize kòm fon"
 
-#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
 msgstr "Ajoute nan sèvis"
 
@@ -1218,8 +1267,8 @@ msgid "Your service is empty"
 msgstr "Sèvis ou a vid"
 
 #: ui/operator/service.slint
-msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr "Klike “Ajoute nan sèvis” anba a, tape yon vèsè Bib anwo a, oswa trennen fichye sou fenèt sa a."
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
+msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -1244,6 +1293,10 @@ msgstr "Tape yon vèsè tankou “Jan 3:16” nan bwat Bib la epi peze Enter."
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Ekran"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
@@ -1328,10 +1381,6 @@ msgstr "Telefòn kontwòl ki konekte"
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
 msgstr "Montre yon mesaj sou ekran sèn nan"
-
-#: ui/operator/topbar.slint
-msgid "Screens"
-msgstr "Ekran"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
@@ -2149,6 +2198,10 @@ msgstr "Videyo sa a pa jwe ankò."
 msgid "That audio is no longer playing."
 msgstr "Son sa a pa jwe ankò."
 
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr ""
+
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
 msgstr "Anyen poko sou ekran."
@@ -2407,7 +2460,7 @@ msgstr "{passage} ajoute"
 msgid "Give it a title."
 msgstr "Ba l yon tit."
 
-#: src/strings/add.rs
+#: src/strings/add.rs src/ui/operator/checks.rs
 msgid "Ready"
 msgstr "Pare"
 
@@ -3628,9 +3681,11 @@ msgstr[1] "{missing} sou {n} diapo manke"
 msgid "{number}. {title}: {problem}"
 msgstr "{number}. {title}: {problem}"
 
-#: src/strings/preflight.rs
+#: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
-msgstr "…ak {n} lòt ankò"
+msgid_plural "…and {n} more"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -5166,6 +5221,20 @@ msgstr "{day} a {time} UTC"
 msgid "{time} UTC"
 msgstr "{time} UTC"
 
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr ""
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
 msgstr "foto a pa t ka chaje"
@@ -5329,3 +5398,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Nothing here yet. Click Import, or try another folder or word."
+#~ msgstr "Poko gen anyen la a. Klike Enpòte, oswa eseye yon lòt dosye oswa yon lòt mo."
+
+#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+#~ msgstr "Klike “Ajoute nan sèvis” anba a, tape yon vèsè Bib anwo a, oswa trennen fichye sou fenèt sa a."

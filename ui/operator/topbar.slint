@@ -34,6 +34,10 @@ export component TopBar inherits Rectangle {
     /// "on" or "warn".
     in property <string> room-state: "warn";
     in property <string> room-tip;
+    /// N2: the service check, run by itself. "on" all clear, "warn" something is wrong, "off" not checked yet.
+    in property <string> check-state: "off";
+    in property <string> check-label;
+    in property <string> check-tip;
     in property <bool> stage-shown;
     in property <bool> stage-on;
     /// "1 phone", "2 phones"; empty hides the pill.
@@ -43,6 +47,7 @@ export component TopBar inherits Rectangle {
     callback screens();
     callback phone();
     callback stage-message();
+    callback check();
     callback settings();
     callback bible-submit(string);
     callback pick-translation(int);
@@ -442,6 +447,16 @@ export component TopBar inherits Rectangle {
                     state: root.stage-on ? "on" : "off";
                     tooltip: @tr("Stage display");
                     narrow: root.narrow;
+                }
+            }
+            if root.check-label != "": VerticalLayout {
+                alignment: center;
+                status-check := Pill {
+                    label: root.check-label;
+                    state: root.check-state;
+                    tooltip: root.check-tip;
+                    narrow: root.narrow;
+                    clicked => { root.check(); }
                 }
             }
             if root.phones-label != "": VerticalLayout {

@@ -42,6 +42,8 @@ export component LiveColumn inherits Rectangle {
     /// `clear_all`, `clear_slide`, `clear_media`, `clear_audio` or `logo` (the web's `data-cmd`).
     callback clear(string);
     callback transport-toggle(int);
+    /// N4: jump in transport row `int`: "back" (15 s), "forward" (15 s) or "end" (10 s before the end).
+    callback transport-seek(int, string);
     /// The monitor's width changed (Rust redraws the preview at the new size).
     callback monitor-resized(length);
 
@@ -150,6 +152,29 @@ export component LiveColumn inherits Rectangle {
                                 overflow: elide;
                             }
                             Bar { progress: row.percent; }
+                            // N4: skip buttons, so a video's ending can be checked before the service.
+                            HorizontalLayout {
+                                spacing: 6px;
+                                alignment: start;
+                                seek-back := Btn {
+                                    small: true;
+                                    text: @tr("−15 s");
+                                    tooltip: @tr("Back 15 seconds");
+                                    clicked => { root.transport-seek(i, "back"); }
+                                }
+                                seek-forward := Btn {
+                                    small: true;
+                                    text: @tr("+15 s");
+                                    tooltip: @tr("Forward 15 seconds");
+                                    clicked => { root.transport-seek(i, "forward"); }
+                                }
+                                seek-end := Btn {
+                                    small: true;
+                                    text: @tr("Last 10 s");
+                                    tooltip: @tr("Jump to 10 seconds before the end, to check how it finishes");
+                                    clicked => { root.transport-seek(i, "end"); }
+                                }
+                            }
                         }
                         Text {
                             min-width: 92px;

@@ -149,11 +149,33 @@ impl Operator {
         self.command(cmd, None);
     }
 
+    /// N4: back 15 s, forward 15 s or 10 s before the end, in transport row `i`.
+    fn seek_transport(self: &Rc<Self>, i: usize, which: &str) {
+        let Some(row) = self.live.borrow().rows.get(i).cloned() else { return };
+        if let Some(cmd) = seek_command(&row, which) { self.command(cmd, None) }
+    }
+
     /// The monitor was resized: draw its layers again at the new size.
     fn monitor_resized(&self) {
         let v = self.state.borrow().live.clone();
         if let Some(v) = v { self.render_monitor(v.view()) }
     }
+}
+
+/// How far each skip button jumps (N4).
+pub const SKIP_SECS: f64 = 15.0;
+pub const BEFORE_END_SECS: f64 = 10.0;
+
+/// The command for a skip button: "back", "forward" or "end". Anything else does nothing.
+pub fn seek_command(row: &TransportRow, which: &str) -> Option<Command> {
+    use crate::live::SeekTo;
+    let to = match which {
+        "back" => SeekTo::By { secs: -SKIP_SECS },
+        "forward" => SeekTo::By { secs: SKIP_SECS },
+        "end" => SeekTo::BeforeEnd { secs: BEFORE_END_SECS },
+        _ => return None,
+    };
+    Some(Command::Seek { inst: row.inst, to })
 }
 
 /// The live song's line, Edit words and the change banner (FEAT-4 §3.4).
@@ -216,6 +238,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     ui.on_transport_toggle(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.toggle_transport(i) });
     let me = Rc::downgrade(op);
+    ui.on_transport_seek(move |i, which| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.seek_transport(i, &which) });
+    let me = Rc::downgrade(op);
     ui.on_live_song_action(move |a| {
         let Some(op) = me.upgrade() else { return };
         match a.as_str() {
@@ -242,6 +266,16 @@ mod tests {
     use slint::platform::{PointerEventButton, WindowEvent};
     use std::sync::Arc;
     use uuid::Uuid;
+
+    #[test]
+    fn skip_buttons_make_seek_commands_for_their_row() {
+        use crate::live::SeekTo;
+        let row = TransportRow { kind: TransportKind::Video, inst: 7, label: "Video".into(), paused: false, percent: 0.0, time: String::new() };
+        assert_eq!(seek_command(&row, "back"), Some(Command::Seek { inst: 7, to: SeekTo::By { secs: -15.0 } }));
+        assert_eq!(seek_command(&row, "forward"), Some(Command::Seek { inst: 7, to: SeekTo::By { secs: 15.0 } }));
+        assert_eq!(seek_command(&row, "end"), Some(Command::Seek { inst: 7, to: SeekTo::BeforeEnd { secs: 10.0 } }));
+        assert_eq!(seek_command(&row, "sideways"), None);
+    }
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };

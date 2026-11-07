@@ -82,6 +82,23 @@ pub struct Frame {
     /// Each is a copy of what was shown (FEAT-1 spec §4.5).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub overlays: Vec<OverlaySlot>,
+    /// The newest jump asked of the playing video or audio (N4). An instant, not a state: never saved or sent, so a
+    /// restart never replays it. The room applies each `n` once, and only to the player with `inst`.
+    #[serde(skip)]
+    pub seek: Option<Seek>,
+}
+
+/// A jump in a playing video or audio (N4: back 15 s, forward 15 s, 10 s before the end).
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct Seek { pub inst: u64, pub n: u64, pub to: SeekTo }
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SeekTo {
+    /// Forward (positive) or back (negative) from where it is.
+    By { secs: f64 },
+    /// This many seconds before the end, to check what happens when it finishes.
+    BeforeEnd { secs: f64 },
 }
 
 /// Which layers a frame shows, for clear buttons that light up while their layer is on screen.
@@ -161,6 +178,8 @@ pub enum Command {
     /// Pause/resume the foreground video (`paused`), naming the playback instance.
     MediaPause { inst: u64, paused: bool },
     AudioPause { inst: u64, paused: bool },
+    /// Jump in the playing video or audio with this instance (N4).
+    Seek { inst: u64, to: SeekTo },
     /// Turn saved overlay `id` on or off. Turning on carries `seen_clear`, the `clear_epoch` of the sender's newest
     /// view: a show sent before a clear the sender had not seen is refused (FEAT-1 spec §5.2). No `base`. In JSON the
     /// overlay's id is `"overlay"`, as the envelope's `"id"` is the command's own.
@@ -412,6 +431,15 @@ impl Live {
                     Some(a) if a.inst == *inst => a.v.paused = *paused,
                     _ => return Err(crate::tr!("That audio is no longer playing.")),
                 }
+                self.bump();
+                Ok(())
+            }
+            Command::Seek { inst, to } => {
+                let video = self.frame.media.as_ref().is_some_and(|m| m.inst == *inst && matches!(m.v, MediaLayer::Video { .. }));
+                let audio = self.frame.audio.as_ref().is_some_and(|a| a.inst == *inst);
+                if !video && !audio { return Err(crate::tr!("That video or audio is no longer playing.")) }
+                let n = self.frame.seek.map_or(0, |s| s.n) + 1;
+                self.frame.seek = Some(Seek { inst: *inst, n, to: *to });
                 self.bump();
                 Ok(())
             }
@@ -864,6 +892,37 @@ mod tests {
         assert!(l.apply(env(Command::Next, Some(b)), &p).ok);
         assert!(!l.apply(env(Command::Next, Some(b)), &p).ok);
         assert_eq!(shown(&l).as_deref(), Some("2"));
+    }
+
+    #[test]
+    fn seek_moves_a_playing_video_or_audio_and_counts_up() {
+        let p = plan(vec![("V", vec![video("v.mp4", EndAction::Stop)]), ("A", vec![audio("a.mp3")])]);
+        let (v, a) = (p.order[0], p.order[1]);
+        let mut l = Live::new();
+        l.apply(env(Command::Show { item_id: v, slide: 0 }, None), &p);
+        let vi = l.frame.media.as_ref().unwrap().inst;
+        let before = l.version;
+        assert!(l.apply(env(Command::Seek { inst: vi, to: SeekTo::By { secs: 15.0 } }, None), &p).ok);
+        assert_eq!(l.frame.seek, Some(Seek { inst: vi, n: 1, to: SeekTo::By { secs: 15.0 } }));
+        assert!(l.version > before, "a seek is a change the room must see");
+        assert!(l.apply(env(Command::Seek { inst: vi, to: SeekTo::BeforeEnd { secs: 10.0 } }, None), &p).ok);
+        assert_eq!(l.frame.seek.as_ref().unwrap().n, 2, "the same jump twice must still count");
+        l.apply(env(Command::Show { item_id: a, slide: 0 }, None), &p);
+        let ai = l.frame.audio.as_ref().unwrap().inst;
+        assert!(l.apply(env(Command::Seek { inst: ai, to: SeekTo::By { secs: -15.0 } }, None), &p).ok);
+        assert_eq!(l.frame.seek, Some(Seek { inst: ai, n: 3, to: SeekTo::By { secs: -15.0 } }));
+    }
+
+    #[test]
+    fn seek_on_something_not_playing_is_refused_and_not_saved() {
+        let p = plan(vec![("T", vec![text("1")])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        let out = l.apply(env(Command::Seek { inst: 99, to: SeekTo::By { secs: 15.0 } }, None), &p);
+        assert!(!out.ok);
+        assert_eq!(l.frame.seek, None);
+        let json = serde_json::to_string(&Frame { seek: Some(Seek { inst: 1, n: 4, to: SeekTo::By { secs: 1.0 } }), ..Frame::default() }).unwrap();
+        assert!(!json.contains("seek"), "a seek is an instant; it is never saved or replayed after a restart");
     }
 
     #[test]
