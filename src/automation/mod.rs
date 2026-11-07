@@ -6,10 +6,14 @@
 #[path = "../strings/automation.rs"]
 pub mod strings;
 
+pub mod actions;
 pub mod advance;
 pub mod macros;
 pub mod messages;
 pub mod preservice;
+pub mod runtime;
+pub mod slots;
+pub mod task;
 
 use crate::automation::macros::Macro;
 use crate::automation::messages::MessageTemplate;
@@ -20,6 +24,8 @@ use crate::timers::{
     TimerDef, TimerKind,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use uuid::Uuid;
 
 /// Everything FEAT-2 saves: the timers, message templates and macros, plus the Pre-service tab.
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -31,6 +37,28 @@ pub struct Automation {
     pub pre_service: Option<PreService>,
     /// The built-ins were added once; deleting one doesn't bring it back.
     pub seeded: bool,
+    /// Each service's start time, by service id. Kept here rather than on `Service`, so the many places that
+    /// build services don't change.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
+    pub starts_at: BTreeMap<Uuid, crate::timers::TimeOfDay>,
+    /// Each service item's slide auto-advance, by item id (spec §3.5).
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
+    pub advance: BTreeMap<Uuid, advance::AutoAdvance>,
+}
+
+/// A map whose entries this version can't read are left out instead of failing the load (spec §4.1).
+fn good_entries<'de, D: serde::Deserializer<'de>, V: serde::de::DeserializeOwned>(d: D) -> Result<BTreeMap<Uuid, V>, D::Error> {
+    let raw: BTreeMap<String, serde_json::Value> = crate::lenient::or_default(d)?;
+    Ok(raw.into_iter().filter_map(|(k, v)| Some((Uuid::parse_str(&k).ok()?, serde_json::from_value(v).ok()?))).collect())
+}
+
+impl Automation {
+    /// A new install: the built-ins are already there.
+    pub fn seeded() -> Self {
+        let mut a = Automation::default();
+        seed(&mut a);
+        a
+    }
 }
 
 fn builtin_timer(id: uuid::Uuid, name: &str, kind: TimerKind, overrun: Overrun, caption: &str, on_stage: bool) -> TimerDef {

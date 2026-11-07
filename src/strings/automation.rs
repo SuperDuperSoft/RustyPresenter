@@ -1,6 +1,6 @@
 //! FEAT-2's user-facing strings (FEAT-4 §7 convention: one strings file per feature).
 //! Copied verbatim from the spec; strings marked *(plan copy)* can be reworded.
-use crate::tr;
+use crate::{tr, trn};
 
 pub fn stale_try_again() -> String { tr!("The screen changed — try again.") }
 pub fn cleared_try_again() -> String { tr!("The screen was cleared — try again.") }
@@ -88,3 +88,45 @@ pub fn restart_for_new_time() -> String { tr!("Restart the countdown to use the 
 pub fn service_start_name() -> String { tr!("Service start") }
 pub fn sermon_name() -> String { tr!("Sermon") }
 pub fn stopwatch_name() -> String { tr!("Stopwatch") }
+
+// ---- Part B (plan copy unless the spec has the words) ----
+pub fn too_many_room_timers() -> String { tr!("Up to 4 timers can be on the screen at once.") }
+/// *(plan copy)*
+pub fn timer_gone() -> String { tr!("That timer was deleted.") }
+/// *(plan copy)*
+pub fn message_gone() -> String { tr!("That message was deleted.") }
+/// *(plan copy)*
+pub fn macro_gone() -> String { tr!("That macro was deleted.") }
+/// *(plan copy)* Never seen by people: the App runs macros before the engine.
+pub fn macro_needs_app() -> String { tr!("Macros run in the app.") }
+pub fn too_fast() -> String { tr!("Too fast — try again.") }
+pub fn not_allowed_from_phone() -> String { tr!("Not allowed from the phone.") }
+/// *(plan copy)*
+pub fn name_length() -> String { tr!("Give it a name of 1 to 40 letters.") }
+/// *(plan copy)*
+pub fn too_many_timers() -> String { tr!("You can have up to 50 timers.") }
+/// *(plan copy)*
+pub fn too_many_messages() -> String { tr!("You can have up to 100 messages.") }
+/// *(plan copy)*
+pub fn too_many_macros() -> String { tr!("You can have up to 100 macros.") }
+/// *(plan copy)*
+pub fn too_many_steps() -> String { tr!("A macro can have up to 30 steps.") }
+/// *(plan copy)*
+pub fn at_zero_macro_missing() -> String { tr!("That macro was deleted. Pick another one.") }
+pub fn at_zero_overlay_only() -> String {
+    tr!("A timer can only run a macro that shows or hides things (timers, messages, overlays).")
+}
+pub fn used_by(name: &str, n: usize) -> String {
+    trn!("“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working.",
+        "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working.", n, name = name)
+}
+/// *(plan copy)*
+pub fn used_at_zero(name: &str, n: usize) -> String {
+    trn!("“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero.",
+        "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero.", n, name = name)
+}
+/// *(plan copy)* Stage layouts that follow the slides come with the stage layout editor (FEAT-3).
+pub fn stage_auto_not_yet() -> String { tr!("The stage layout can't follow the slides yet.") }
+/// *(plan copy)* FEAT-7 screen views.
+pub fn screen_views_not_yet() -> String { tr!("Screen views aren't available yet.") }
+pub fn confirm_run(name: &str) -> String { tr!("Run “{name}”?", name = name) }

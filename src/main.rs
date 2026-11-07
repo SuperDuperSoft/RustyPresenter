@@ -90,6 +90,7 @@ fn main() {
     rt.spawn(startup::serve(app.clone(), listener));
     rt.spawn(startup::save_playing(app.clone()));
     rt.spawn(startup::watch_sound(app.clone()));
+    rt.spawn(rustypresenter::automation::task::ticker(app.clone()));
     rt.spawn(rustypresenter::import::init(&app));
     // The open service's online Bible text that isn't in the cache yet (Nov 5 spec §5).
     { let app = app.clone(); rt.spawn(async move { app.fetch_online_text().await }); }

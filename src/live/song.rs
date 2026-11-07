@@ -28,7 +28,7 @@ impl Live {
         } else {
             self.item = Some(new);
             self.cursor = Some(Cursor { slide, ..cursor });
-            self.bump();
+            self.commit_change(super::Change::Silent);
         }
         Ok(())
     }
@@ -52,12 +52,13 @@ impl Live {
                 self.changed = None;
                 return true;
             }
-            Decision::Adopt { slide, .. } => {
-                // FEAT-2: hand the old → new map to `AutoAdvance::on_adopt` once auto-advance runs live.
+            Decision::Adopt { slide, map } => {
+                // FEAT-2: the App hands the old → new map to auto-advance (`AutomationRuntime::on_adopt`).
                 if let Some(item) = self.item.as_mut() { item.slides = new.slides }
                 self.cursor = Some(Cursor { slide, ..cursor });
                 self.changed = None;
-                self.bump();
+                self.adopted = Some((cursor.item_id, map));
+                self.commit_change(super::Change::Silent);
                 return true;
             }
             Decision::Banner(reason) => self.changed = Some(LiveChange { item_id: cursor.item_id, reason }),

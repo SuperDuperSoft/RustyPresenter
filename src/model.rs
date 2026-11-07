@@ -542,6 +542,9 @@ pub struct Data {
     /// Service templates (FEAT-6).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub templates: Vec<ServiceTemplate>,
+    /// Timers, messages, macros and auto-advance (FEAT-2).
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub automation: crate::automation::Automation,
     /// Each Bible's credit for its scripture slides, by translation id (`App::refresh_bible_credits`). Worked out
     /// from the Bibles on this computer, so never saved: a Bible added or removed changes it.
     #[serde(skip)]
@@ -574,7 +577,7 @@ impl Default for Data {
         Self {
             format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
             current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![],
-            bible_credits: BTreeMap::new(),
+            automation: crate::automation::Automation::seeded(), bible_credits: BTreeMap::new(),
         }
     }
 }
@@ -600,6 +603,8 @@ impl Data {
                 if tidy != *styles { *styles = tidy; changed = true; }
             }
         }
+        // FEAT-2: the built-in timers and messages, once.
+        changed |= crate::automation::seed(&mut self.automation);
         changed
     }
 

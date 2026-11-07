@@ -69,6 +69,13 @@ pub fn draw(fonts: &mut Fonts, slot: &OverlaySlot, text: Option<&str>, theme_fon
         OverlaySource::Text { text: own, look, .. } => draw_text(fonts, text.unwrap_or(own), look, &slot.place, theme_font, canvas),
         OverlaySource::Clock { look, .. } => draw_text(fonts, text?, look, &slot.place, theme_font, canvas),
         OverlaySource::Image { opacity, .. } => draw_picture(picture?, *opacity, &slot.place, canvas),
+        // FEAT-2: the caption on its own line above the time.
+        OverlaySource::Timer { caption, look, .. } => {
+            let time = text?;
+            let shown = if caption.trim().is_empty() { time.to_string() } else { format!("{}\n{time}", caption.trim()) };
+            draw_text(fonts, &shown, look, &slot.place, theme_font, canvas)
+        }
+        OverlaySource::Message { text: own, look, .. } => draw_text(fonts, own, look, &slot.place, theme_font, canvas),
         OverlaySource::Unknown => None,
     }
 }
