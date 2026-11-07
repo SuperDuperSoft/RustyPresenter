@@ -1,0 +1,5301 @@
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ko\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 한국어\nX-English-Name: Korean\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr "성경 검색"
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr "연결 안 됨"
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr "즐겨찾기"
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr "성경 더 찾기…"
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr "성경 선택"
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr "다시 시도"
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr "편집"
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr "추가"
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr "교회에 사용 권한이 있는 동영상만 다운로드하세요(직접 만든 것, 라이선스가 있는 것, 또는 크리에이티브 커먼즈)."
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr "여기에 YouTube 링크를 붙여 넣으세요"
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr "다운로드"
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr "완료되면 예배에 추가"
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr "화질"
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr "파일 업로드"
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr "YouTube에서 다운로드"
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr "어떤 동영상 형식이든 괜찮아요."
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr "프레젠테이션 가져오기"
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr "사진으로 슬라이드 만들기"
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr "Google 프레젠테이션: Google 프레젠테이션에서 파일 → 다운로드 → Microsoft PowerPoint(.pptx) 또는 PDF를 선택한 다음, 그 파일을 여기서 가져오세요. Keynote와 PDF 파일도 사용할 수 있어요."
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr "복사"
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr "다시 확인"
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr "새 찬양"
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr "SongSelect 가사 가져오기(.txt)"
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr "EasyWorship에서 가져오기"
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr "성경 구절({})"
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr "예: John 3:16-18, Psalm 23, Romans 8:28,31-39"
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr "구절 추가"
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr "대신 구절 붙여 넣기"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr "슬라이드당 구절 수"
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr "자동"
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr "구절({}) — 절 번호를 남겨 두면 절마다 슬라이드가 따로 만들어져요"
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr "16 하나님이 세상을 이처럼 사랑하사… 17 하나님이 그 아들을 세상에 보내신 것은…"
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr "붙여 넣은 구절 추가"
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr "팁: 이 창은 없어도 돼요. 맨 위의 성경 상자에 구절을 입력하고(또는 Ctrl+B를 누르고) Enter를 누르면 추가되고, Enter를 한 번 더 누르면 화면에 표시돼요."
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr "제목"
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr "예: 환영, 광고, 헌금"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Text"
+msgstr "텍스트"
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr "텍스트를 입력하세요. 빈 줄을 넣으면 새 슬라이드가 시작돼요."
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr "광고 추가"
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr "찬양"
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr "가사"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr "성경"
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr "구절"
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr "동영상 및 미디어"
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr "동영상, 사진, 음악"
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr "슬라이드"
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr "PowerPoint, 사진"
+
+#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr "광고"
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr "직접 입력한 텍스트"
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr "Hex"
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr "원하는 색 선택"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr "가사, 순서, 저작권 정보는 라이브러리의 찬양에 저장돼요."
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr "가사, 순서, 저작권 정보는 라이브러리의 찬양에 저장돼요. 이 찬양은 라이브러리에서 삭제되었어요."
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr "찬양 편집"
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr "저장하면 이 성경에서 구절을 다시 찾아와요."
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr "함께 표시"
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr "없음"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr "이 성경 표시 중지"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr "좌우로"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr "위아래로"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr "자동"
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr "1절"
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr "2절"
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr "3절"
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr "4절"
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr "글자 크기"
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr "(최대 크기이며, 슬라이드에 글이 많으면 자동으로 작아져요)"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr "선택"
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr "설정 → 모양과 동일"
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr "— 빈 줄을 넣으면 새 슬라이드가 시작돼요"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr "표시되면 바로 재생 시작"
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr "동영상이 끝나면"
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr "화면 지우기"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr "마지막 장면에서 멈춤"
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr "다시 재생(반복)"
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr "멈출 때까지 반복"
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr "슬라이드를 바꿔도 오디오는 계속 재생돼요. 오디오 지우기(F4)나 모두 지우기로 멈추세요."
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr "이름"
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr "라이브러리 이름"
+
+#: ui/dialogs/item-edit.slint src/strings/themes.rs
+msgid "Background"
+msgstr "배경"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr "무대 메모"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr "무대 화면에만 표시돼요"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr "예배에서 제거"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr "취소"
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr "저장"
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr "교회 Wi-Fi에 연결된 휴대폰으로 슬라이드를 조작할 수 있어요. 휴대폰이 이 컴퓨터와 같은 네트워크에 있어야 해요."
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr " (네트워크가 없어요 — 이 컴퓨터를 Wi-Fi에 연결하세요.)"
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr "주소: "
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr "휴대폰 연결"
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr "QR 코드"
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr "휴대폰 카메라로 스캔하세요. 그게 다예요."
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr "또는 {}을(를) 열고 입력하세요"
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr "1. 휴대폰에서 카메라를 열고 코드를 스캔하세요(또는 주소를 입력하세요)."
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr "2. 휴대폰에 이 코드를 입력하세요:"
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr "연결된 휴대폰"
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "제거"
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr "아직 없어요."
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr "인쇄할 내용"
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr "예배 순서"
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr "둘 다"
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr "옵션"
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr "항목 메모 포함"
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr "가사와 함께 성경 봉독 포함"
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr "찬양마다 새 페이지에서 시작"
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr "용지"
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr "Letter"
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr "A4"
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr "인쇄…"
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr "웹 브라우저에서 페이지를 열어요. 거기서 인쇄하거나 PDF로 저장할 수 있어요"
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr "웹 페이지 저장…"
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "닫기"
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr "{}에 화면 추가"
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr "출력"
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr "크기"
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr "너비"
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr "높이"
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr "화면 비율: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr "화면이 하나만 연결되어 있어요. 프로젝터/TV를 연결하고(Win+P로 Windows를 “확장”으로 설정한 다음) 새로 고침을 클릭하세요."
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr "이 화면 제거"
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr "식별"
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr "각 화면에 번호를 몇 초 동안 표시해요"
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr "새로 고침"
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr "지난주 복사"
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr "지난 예배로 다음 주 예배 만들기"
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr "템플릿으로 새로 만들기…"
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr "빈 예배 새로 만들기"
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr "이 예배 복사"
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr "파일로 저장"
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr "열린 예배와 모든 파일을 저장해서 다른 컴퓨터로 옮길 수 있어요"
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr "파일에서 열기"
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr "열기"
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr "이름 바꾸기"
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr "날짜…"
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr "예배 순서와 가사를 인쇄하거나 웹 페이지로 저장해요"
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr "템플릿으로 저장"
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr "삭제"
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr "템플릿"
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr "예배 만들기"
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr "요일…"
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr "내 데이터:"
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr "라이선스 보기"
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "뒤로"
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr "기본 성경"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr "새 본문마다 함께 표시"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr "최대 두 개까지 고르세요. 그러면 슬라이드마다 각 성경의 같은 구절이 표시돼요."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr "성경 추가"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr "이름, 약칭 또는 언어로 검색"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr "설치됨"
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr "전체"
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr "KJV, WEB, BSB는 기본 제공되며 오프라인에서도 작동해요."
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr "나머지는 저작권이 있어요. 교회에서 한 번 발급받은 키로 출판사의 무료 서비스에 연결하세요. 예배에 추가한 본문은 예배와 함께 저장되므로 인터넷이 끊겨도 계속 표시돼요."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr "번역본"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr "온라인 서비스"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr "연결됨"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr "연결 안 됨"
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr "1. 무료로 가입하세요:"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr "링크 복사"
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr "2. {}"
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr "3. 여기에 키를 붙여 넣으세요. RustyPresenter가 한 번 조회해서 확인한 다음, 이 컴퓨터에만 보관해요."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr "키 저장됨 — 바꾸려면 새 키를 붙여 넣으세요"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr "여기에 키 붙여 넣기"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr "키 저장"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr "연결 해제"
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr "성경 파일"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr "Zefania, OSIS, USX 또는 OpenSong 파일(.xml 또는 .usx)을 가져오세요. 퍼블릭 도메인이거나 교회에 사용 라이선스가 있는 성경만 가져오세요. 위에 있는 번역본의 약칭(예: HCSB)을 지정하면 그 번역본에 이 파일을 사용해요."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr "약칭, 예: HCSB(선택 사항)"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr "성경 파일 가져오기"
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr "저작권 표시"
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr "사용 중"
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr "사용"
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr "번역은 자원봉사자들이 해요. 내 언어가 없거나 오류가 있으면 도와주세요."
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr "RustyPresenter 번역 돕기"
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr "글꼴"
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr "가사 크기"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr "(최대 크기이며, 긴 줄은 맞게 줄어들어요)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr "성경 구절"
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr "(새 본문에 적용)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr "성경 글자 크기"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr "(최대 크기)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr "슬라이드에 글이 많으면 글자가 자동으로 작아져요."
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr "글자 색"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr "글자 위치"
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr "가운데"
+
+#: ui/dialogs/settings-look.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr "하단 자막"
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "글자 그림자(사진 위에서 더 잘 보여요)"
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr "가사 모두 대문자"
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr "로고"
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr "로고 없음(로고 버튼은 검은 화면 표시)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr "로고 선택"
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "미리 보기"
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr "기본 배경"
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr "모든 언어"
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr "슬라이드당 줄 수"
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "찬양과 성경 본문에 적용돼요. 일부 성경은 저작권 표시가 필요하며, 본문마다 한 번 표시돼요."
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr "첫 슬라이드에"
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr "마지막 슬라이드에"
+
+#: ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "끔"
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr "교회 CCLI 라이선스 번호"
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr "섹션 키(C, B, 1–9…)"
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "실수로 입력한 글자 때문에 화면이 바뀐다면 끄세요."
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr "글자와 숫자 키로 라이브 중인 찬양의 섹션으로 이동해요"
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
+msgstr "찬양 사용 보고서…"
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr "소리 출력 장치"
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr "예배당 화면"
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr "예배당 화면에 전용 모니터가 있으면 맨 앞에 유지(전환이 더 부드러워요)"
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "RustyPresenter가 시작될 때마다, 그리고 하루에 한 번 전체 백업(찬양, 예배, 설정, 모든 동영상·사진·슬라이드)이 만들어져요. 최근 10개는 다음 위치에 보관돼요:"
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr "지금 백업"
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr "복원"
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr "아직 백업이 없어요."
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr "키보드"
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr "팁: 슬라이드를 클릭하면 바로 화면에 표시돼요. 빨간 테두리는 예배당에 보이는 화면이에요."
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr "모양"
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "언어"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr "찬양"
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+msgid "Video"
+msgstr "동영상"
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr "백업"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr "도움말"
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr "정보"
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr "설정 저장"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr "이 찬양이 화면에 표시 중이에요. 저장 후 바로 표시나 화면 업데이트를 선택하기 전까지는 화면이 바뀌지 않아요."
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr "나 같은 죄인 살리신"
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr "작사·작곡"
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr "CCLI 곡 번호"
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr "4768151"
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr "저작권"
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr "© 2006 …"
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr "— 섹션 이름은 한 줄에 따로 쓰고, 섹션 안의 빈 줄은 새 슬라이드를 시작해요"
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n나 같은 죄인 살리신\n주 은혜 놀라워\n\nChorus\n잃었던 생명 찾았고…"
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr "순서"
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr "(선택 사항)"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "가사에 없어서 건너뛰어요"
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr "끝"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "작성 순서 — 끌어서 변경"
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr "⟲ 작성 순서 사용"
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr "비워 두면 작성 순서를 사용해요"
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr "입력하는 대로 여기에 슬라이드가 나타나요. “Verse 1”이나 “Chorus” 같은 섹션 이름은 한 줄에 따로 쓰세요."
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr "찬양 삭제"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr "저장 후 예배에 추가"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr "찬양 저장"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr "저장 후 바로 표시"
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr "CCLI 보고용 찬양 사용 기록 남기기"
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr "시작"
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr "끝"
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr "지난 보고 이후"
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr "최근 3개월"
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr "최근 6개월"
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr "올해"
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr "CCLI 번호가 없는 찬양 포함"
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr "퍼블릭 도메인 찬양은 보고하지 않아도 돼요."
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr "CCLI 번호"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr "표시 횟수"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr "스트리밍 횟수"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr "마지막 사용"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr "이 기간에는 찬양이 없어요."
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr "자세히({})"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr "스트리밍됨"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr "이 숫자를 CCLI 보고 사이트에 입력하세요. 화면 표시 횟수는 “Digital” 항목에, 스트리밍 횟수는 스트리밍 라이선스 항목에 넣으세요. “스트리밍됨”은 라이브 방송 페이지나 창이 열려 있었다는 뜻이지, 실제로 방송 중이었다는 뜻은 아니에요."
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr "인쇄용 페이지 열기"
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr "스프레드시트로 저장(CSV)…"
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr "화면 식별"
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr "—"
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr "라이브"
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr "업데이트 중…"
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr "가사 수정"
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr "라이브 중인 찬양의 가사를 고쳐요. 원할 때만 화면이 바뀌어요."
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr "화면 업데이트"
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr "이전(← 또는 Page Up)"
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "다음"
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr "다음(→, Space 또는 Page Down)"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "다음 순서"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr "모두 지우기"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "미디어"
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr "오디오"
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr "재생"
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "일시 정지"
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr "화면 표시 중"
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr "미디어 라이브러리"
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr "동영상"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr "사진"
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr "미디어 검색"
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr "작은 미리 보기"
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr "큰 미리 보기"
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr "가져오기"
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr "새 폴더"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr "폴더 삭제"
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr "아직 아무것도 없어요. 가져오기를 클릭하거나 다른 폴더나 검색어를 시도해 보세요."
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr "파일 선택"
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr "배경으로 사용"
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr "예배에 추가"
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr "폴더로 이동"
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr "예배당 화면 꺼짐"
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr "놓으면 예배에 추가돼요"
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr "동영상, 사진, 음악, 프레젠테이션(PowerPoint, Keynote, PDF), SongSelect 가사 파일"
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr "예배"
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr "제목 추가"
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr "예배 목록에 “찬양”이나 “말씀” 같은 색깔 제목을 추가해요"
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr "점검"
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr "예배 전 점검: 찬양, 파일, 화면이 모두 준비되었나요?"
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr "여기에 넣을 항목 선택"
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr "색 변경"
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr "예배가 비어 있어요"
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr "아래의 “예배에 추가”를 클릭하거나, 위쪽에 성경 구절을 입력하거나, 이 창으로 파일을 끌어다 놓으세요."
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr "이번 주일 예배를 준비해 볼까요"
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr "추가한 항목은 모두 왼쪽에 나타나요. 슬라이드를 클릭하면 화면에 표시돼요."
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr "“화면”을 클릭하고 프로젝터나 TV를 선택하세요."
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr "찬양, 동영상, 슬라이드는 “예배에 추가”를 클릭하거나 파일을 끌어다 놓으세요."
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr "성경 상자에 “John 3:16” 같은 구절을 입력하고 Enter를 누르세요."
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr "예배 중에는 큰 다음 버튼(또는 → 키)을 사용하세요."
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr "선택된 항목 없음"
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr "이 본문 글자 작게"
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr "이 본문 글자 크게"
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr "설정의 크기로 되돌리기"
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr "예배 목록에서 항목을 선택하세요."
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr "표시할 내용 없음"
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr "이 항목에는 아직 슬라이드가 없어요. 편집을 클릭해서 추가하세요."
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr "예배 전환 또는 만들기"
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "성경 구절 — John 3:16 입력 후 Enter"
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{}은(는) 아직 연결되지 않았어요(설정 → 성경). 추가 → 성경에서 구절을 붙여 넣을 수는 있어요."
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "다음 본문의 슬라이드당 구절 수예요. 클릭해서 바꾸세요."
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr "구절: {}"
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr "예배당"
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr "무대"
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr "무대 화면"
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr "연결된 휴대폰 리모컨"
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr "무대 화면에 메시지 표시"
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr "화면"
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "휴대폰"
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr "설정"
+
+#: ui/operator.slint
+msgid "File"
+msgstr "파일"
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr "새 예배…"
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr "예배 목록…"
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr "예배 파일 열기…"
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr "이 예배를 파일로 저장…"
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr "찬양…"
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr "성경 본문…"
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr "동영상 및 미디어…"
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr "슬라이드…"
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr "광고…"
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr "미디어 가져오기…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "종료"
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr "선택한 항목 편집…"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr "성경 상자"
+
+#: ui/operator.slint
+msgid "View"
+msgstr "보기"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr "모두 지우기"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr "텍스트 지우기"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr "미디어 및 배경 지우기"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr "오디오 중지"
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr "미디어 라이브러리 숨기기"
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr "미디어 라이브러리 표시"
+
+#: ui/operator.slint
+msgid "Window"
+msgstr "창"
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr "화면…"
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr "휴대폰 리모컨…"
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr "무대 메시지…"
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr "설정…"
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr "찬양…"
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr "성경…"
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr "동영상…"
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr "백업…"
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr "바로 가기 키"
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr "예배 점검"
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr "RustyPresenter 정보"
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr "RustyPresenter — 예배당"
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr "RustyPresenter — 무대"
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr "예배를 기다리는 중…"
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr "예배 끝"
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr "다음"
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr "잘라내기"
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr "붙여넣기"
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr "모두 선택"
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr "저장하지 못했어요: {error}"
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr "예배당 화면이 다시 시작되었어요. 동영상/오디오가 멈췄으니 다시 재생하려면 한 번 더 클릭하세요."
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr "예배당 화면이 다시 시작되었어요."
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr "RustyPresenter가 아직 시작 중이에요. 잠시 후 다시 시도하세요."
+
+#: src/app.rs
+msgid "This computer"
+msgstr "이 컴퓨터"
+
+#: src/app.rs
+msgid "Not used"
+msgstr "사용 안 함"
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr "{name} — 기본 제공, 퍼블릭 도메인"
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr "{name} — 가져온 파일"
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr "찬양 제목을 입력하세요."
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "이 찬양은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
+#: src/app.rs
+msgid "No service is open."
+msgstr "열린 예배가 없어요."
+
+#: src/app.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr "잘못된 요청: {error}"
+
+#: src/app.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "그 항목이 없어졌어요."
+
+#: src/app.rs
+msgid "New Service"
+msgstr "새 예배"
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "그 예배가 없어졌어요."
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr "예배가 하나 이상 있어야 해요."
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr "알 수 없는 성경 서비스예요."
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr "그 파일이 없어졌어요."
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr "폴더 이름을 입력하세요."
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "이 항목은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "잘못된 요청: 알 수 없는 용도 {purpose}"
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr "사진을 하나 이상 선택하세요."
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "사진이 하나 빠졌어요. 다시 업로드해 보세요."
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "이 슬라이드는 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "알 수 없는 번역본이에요."
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr "알 수 없는 언어예요."
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "언어가 바뀌었어요"
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr "알 수 없는 화면이에요."
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr "먼저 이 화면의 출력을 선택하세요."
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr "먼저 화면을 추가하세요."
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr "회중 화면 {number}"
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr "무대 화면 {number}"
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr "그 화면이 없어졌어요."
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr "목록마다 화면이 하나 이상 있어야 해요."
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr "백업하지 못했어요."
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr "파일을 저장하지 못했어요(디스크가 가득 찼나요?)."
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr "“{file}”을(를) 열지 못했어요: {error}"
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr "“{file}”을(를) 읽지 못했어요: {error}"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr "API.Bible은 한 번에 최대 200절까지만 보내요. 더 짧은 본문을 선택하세요"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr "{translation}은(는) 이 키의 API.Bible 요금제에 없어요. API.Bible 대시보드의 Plan에서 추가하세요"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr "이 API.Bible 키로는 {translation}을(를) 사용할 수 없어요. API.Bible 대시보드의 Plan에서 추가하세요"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr "API.Bible이 다른 책을 보냈어요"
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr "행 없음"
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr "eBible 응답: {status}"
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr "목록이 예상보다 훨씬 커요"
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr "빈 파일"
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr "{column} 열 없음"
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr "ESV 서비스가 다른 책을 보냈어요"
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr "Zefania, OSIS, USX 또는 OpenSong 성경 파일(.xml 또는 .usx)을 사용하세요."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr "이 파일에서 성경 구절을 찾지 못했어요. {formats}"
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr "{reference}은(는) 없는 구절이에요."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr "본문이 너무 길어요. 약 400절 이내로 선택하세요."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "구절을 찾지 못했어요."
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr "성경 약칭을 2~10자의 영문자나 숫자로 입력하세요(예: WEB)."
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr "{abbr}은(는) 이미 기본 제공돼요. 이 성경에 다른 약칭을 지정하세요."
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr "다운로드한 성경에 세부 정보가 필요해요."
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr "이 성경의 ID는 사용할 수 없어요."
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr "성경 구절을 찾지 못했어요."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr "다운로드한 파일에서 성경 구절을 찾지 못했어요."
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr "올바른 XML 파일이 아니에요({at}바이트 근처: {error}). {formats}"
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr "교회는 무료예요. “API application”을 만든 다음 키를 복사하세요."
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr "비상업적 용도는 무료예요. 가입한 다음 계정에서 키를 복사하세요."
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr "무료 Starter 요금제에서는 저작권 있는 성경 3개를 쓸 수 있어요. Plan에서 CSB를 선택하세요(NIV나 NLT를 여기서 받으려면 그것도 선택하세요)."
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "앱을 만든 다음 포털에서 각 성경의 라이선스에 동의하세요(Biblica의 NIV, 제공되는 경우 HCSB)."
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr "서비스 응답: {status}"
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr "{translation}을(를) 위해 {service}에 연결하지 못했어요. 인터넷 연결을 확인하세요."
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr "{service}에서 키를 거부했어요. 설정 → 성경에서 확인하세요."
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr "{service}에서 조회가 너무 많다고 해요. 1분 정도 기다렸다가 다시 시도하세요."
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr "{translation} 조회 실패: {error}."
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr "{translation}은(는) 온라인 소스가 없어요. 추가 → 성경에서 구절을 붙여 넣거나, 설정 → 성경에서 라이선스가 있는 파일을 가져오세요."
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation}을(를) 쓰려면 {service}의 무료 키가 필요해요. 설정 → 성경에서 추가하거나, 추가 → 성경에서 구절을 붙여 넣으세요."
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr "YouVersion에 {translation}의 성경 ID가 없어요"
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr "본문이 너무 많은 장에 걸쳐 있어요. 장을 줄여 주세요"
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr "이 YouVersion 앱에는 성경 {bible}의 라이선스가 없어요. platform.youversion.com에서 출판사 라이선스에 동의하세요"
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr "YouVersion 앱이 보관되었거나 삭제되었어요. platform.youversion.com에서 확인하세요"
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr "YouVersion이 다른 책을 보냈어요"
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr "John 3:16처럼 구절을 입력하세요."
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr "\"{book}\"은(는) 알 수 없는 책이에요."
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr "John 3이나 John 3:16처럼 장을 넣어 주세요."
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr "구절 형식이 맞지 않아요. John 3:16-18처럼 입력해 보세요."
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr "범위의 끝이 시작보다 앞에 있어요."
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr "먼저 구절 텍스트를 붙여 넣으세요."
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr "RustyPresenter 리모컨"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr "휴대폰 리모컨"
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "프레젠테이션 컴퓨터에서 {phone} → {pair}을(를) 클릭한 다음, 여기에 6자리 코드를 입력하세요."
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr "연결"
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr "연결 중…"
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr "화면 표시 중"
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr "동영상 일시 정지"
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr "동영상 재생"
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr "슬라이드를 탭하면 화면에 표시돼요."
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr "화면이 바뀌었어요 — 다시 시도하세요."
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr "방금 화면이 바뀌었어요 — 슬라이드를 다시 탭하세요."
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr "QR 코드가 만료되었어요. 컴퓨터에서 휴대폰 연결을 다시 클릭하세요."
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr "연결하지 못했어요."
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr "(로고)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr "(음악 재생 중)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr "(지움)"
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr "Android 휴대폰"
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr "제목 없는 찬양"
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr "섹션이 {max}개를 넘어서 찬양이 아니에요"
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr "가사 없음"
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr "{block} 블록이 끝나지 않아서 그 뒤의 내용은 모두 빠졌어요"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr "찬양 파일이라기엔 너무 커요"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr "읽지 못했어요: {error}"
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr "ChordPro 파일이 아닌 것 같아요"
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr "찬양이 없어요"
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr "{path}을(를) 찾지 못했어요."
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr "{path}에서 ChordPro 파일(.cho, .chordpro, .chopro, .crd, .pro)을 찾지 못했어요."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr "폴더에 파일과 폴더가 {max}개를 넘어서 처음 {max}개만 확인했어요"
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr "{path}을(를) 읽지 못했어요: {error}."
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr "라이브러리를 읽는 동안 {app}이(가) 계속 변경 내용을 저장했어요. {app}을(를) 닫고 다시 시도하세요."
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr "임시 폴더를 만들지 못했어요: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr "{path}을(를) 복사하지 못했어요: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr "{path}을(를) 열지 못했어요: {error}."
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr "데이터베이스가 계속 잠겨 있었어요"
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr "{path}이(가) 비어 있거나 손상되어서 가져올 내용이 없어요."
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr "가사 없음(아마 동영상이나 광고 항목)"
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr "가사가 비어 있어요"
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr "EasyWorship 2009(또는 그 이전) 라이브러리 같아요. EasyWorship 6과 7 라이브러리만 가져올 수 있어요."
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr "{folder}에서 Songs.db는 찾았지만 옆에 SongWords.db가 없어요."
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr "여기에 EasyWorship Songs.db가 없어요. 프로필의 Databases\\Data 폴더를 선택하세요(보통 C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr "EasyWorship 라이브러리를 읽지 못했어요: {error}"
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr "Songs.db에 찬양 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr "SongWords.db에 가사 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr "가사가 올바른 XML이 아니에요({error})"
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr "가사의 절이 너무 많아요({max}개 초과)"
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr "찬양 가사라기엔 너무 길어요"
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr "가사에 절이 없어요"
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr "OpenLP가 예배 파일용으로 보관하는 임시 사본"
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr "이 파일은 OpenLP 찬양 데이터베이스(songs.sqlite)가 아니에요."
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr "OpenLP 데이터베이스를 열지 못했어요."
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr "여기에 OpenLP songs.sqlite가 없어요. OpenLP 데이터 폴더를 선택하세요(Windows는 보통 %APPDATA%\\openlp\\data, macOS는 ~/Library/Application Support/openlp/Data, Linux는 ~/.local/share/openlp)."
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr "OpenLP 데이터베이스를 읽지 못했어요: {error}"
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr "OpenLP 찬양 데이터베이스가 아니에요. songs 테이블이 없어요."
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr "올바른 XML이 아니에요({error})"
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr "찬양이라기엔 절이 너무 많아요"
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr "OpenLyrics가 아니라 OpenSong 찬양이에요"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr "OpenLyrics 찬양이 아니에요"
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr "XML 아님"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr "OpenLyrics나 OpenSong 찬양이 아니에요"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr "찬양이 없어요"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr "{path}에서 OpenLyrics나 OpenSong 찬양을 찾지 못했어요."
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr "찬양이라기엔 가사의 섹션이 너무 많아요"
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr "OpenSong이 아니라 OpenLyrics 찬양이에요"
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr "OpenSong 찬양이 아니에요"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr "ProPresenter 7 파일은 아직 지원하지 않아요. 텍스트나 ProPresenter 6 형식으로 내보내세요"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr "ProPresenter 6 번들(.pro6x)은 아직 지원하지 않아요. 확장자를 .zip으로 바꿔 압축을 풀고 안에 있는 .pro6 파일을 가져오세요"
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr "찬양의 그룹이 너무 많아요({max}개 초과)"
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr "찬양의 슬라이드가 너무 많아요({max}개 초과)"
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr "찬양 슬라이드에 가사가 없어요"
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr "찬양이 아니라 ProPresenter 재생 목록이에요"
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr "ProPresenter 6 찬양이 아니에요"
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr "{path}에서 ProPresenter 찬양을 찾지 못했어요."
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr "그 항목은 예배에 없어요."
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr "그 항목에는 표시할 내용이 없어요."
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr "그 항목에는 슬라이드가 없어요."
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr "그 동영상은 더 이상 재생 중이 아니에요."
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr "그 오디오는 더 이상 재생 중이 아니에요."
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr "아직 라이브 중인 항목이 없어요."
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr "예배 시작"
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr "표시하지 못했어요: {reason}"
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr "재생이 멈췄어요: {reason}"
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr "파일을 재생할 수 없어요"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr "RustyPresenter가 로그를 열지 못했어요: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr "RustyPresenter를 시작하지 못했어요: {reason}"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr "설정에서 고른 언어가 이 버전에 없어서 RustyPresenter가 영어로 표시돼요."
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr "RustyPresenter가 창을 열지 못했어요: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr "RustyPresenter가 창을 실행하지 못했어요: {reason}"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr "화면이 실행되고 있지 않아요."
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr "화면이 제때 응답하지 않았어요."
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr "다른 프로그램이 포트 {port}을(를) 사용 중이라 RustyPresenter를 시작할 수 없어요."
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr "그 화면은 지금 연결되어 있지 않아요."
+
+#: src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "성경 말씀"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr "문제가 생겨서 RustyPresenter가 다시 시작되었어요."
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr "문제가 생겨서 RustyPresenter가 다시 시작되었어요. 동영상/오디오가 멈췄으니 다시 재생하려면 한 번 더 클릭하세요."
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr "1분 안에 3번 충돌해서 RustyPresenter가 멈췄어요. 로그 위치: {path}"
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr "이 페이지는 프레젠테이션 컴퓨터에서만 열려요."
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr "너무 빨라요 — 잠시 후 다시 시도하세요."
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr "연결 대기 중이 아니에요. 컴퓨터에서 “휴대폰 리모컨” → “휴대폰 연결”을 클릭하세요."
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr "잘못된 코드를 너무 많이 입력했어요. 컴퓨터에서 연결을 다시 시작하세요."
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr "코드가 맞지 않아요."
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr "휴대폰 {number}"
+
+#: src/server.rs
+msgid "Bad command."
+msgstr "잘못된 명령이에요."
+
+#: src/server.rs
+msgid "Not allowed from the phone."
+msgstr "휴대폰에서는 할 수 없어요."
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "슬라이드 {n}장"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr "(슬라이드 그림)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr "(동영상)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr "(사진)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr "(오디오)"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr "없는 찬양"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr "없는 미디어"
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr "슬라이드 {n}"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr "없는 슬라이드"
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr "가사 파일이라기엔 너무 커요."
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr "가사 파일이 비어 있어요."
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr "이 파일에는 Verse/Chorus 제목이 없어요. SongSelect의 \"Lyrics (.txt)\" 다운로드를 사용하세요."
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "이 파일에서 가사를 찾지 못했어요."
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr "데이터를 보관할 폴더를 찾을 수 없어요. RUSTYPRESENTER_DATA를 설정하세요."
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr "데이터 폴더 {path}을(를) 사용할 수 없어요: {reason}"
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr "{path}에 저장된 데이터를 읽지 못했어요({reason}). 덮어쓴 것은 없어요. 백업 폴더에서 백업을 복원하거나 파일을 다른 곳으로 옮기세요."
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr "{path}을(를) 읽을 수 없어요: {reason}"
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr "저장하지 못했어요: {reason}"
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr "알 수 없는 백업이에요."
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr "그 백업은 불완전해서 복원할 수 없어요."
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr "일치하는 항목이 없어요."
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr "아직 아무것도 없어요."
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] "찬양 {n}곡 검색…"
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] "파일 {n}개 검색…"
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr "슬라이드 검색…"
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr "PowerPoint나 Keynote 파일을 가져오려면 LibreOffice(무료)를 설치하세요. PDF 파일은 없어도 돼요."
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr "복사됨"
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…외 {n}개."
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] "찬양 {n}곡을 가져왔어요."
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] "{n}곡은 이미 라이브러리에 있어요: {titles}"
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr "가져오지 않음:"
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr "EasyWorship 라이브러리를 읽는 중…"
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr "LibreOffice를 찾았어요!"
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr "아직 찾지 못했어요 — 설치를 마친 다음 다시 확인을 클릭하세요."
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr "{passage} 추가됨"
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr "제목을 입력하세요."
+
+#: src/strings/add.rs
+msgid "Ready"
+msgstr "준비됨"
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr "실패"
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr "이 파일은 재생할 수 없어요."
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr "파일을 다시 확인하는 중…"
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr "라이브러리에서 삭제"
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr "라이브러리에서 “{name}”을(를) 삭제할까요?"
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr "동영상 플레이어가 없어요 — RustyPresenter를 다시 설치하세요"
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr "“{name}”을(를) 삭제할까요?"
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr "확인"
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr "찬양 저장됨"
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr "가사에 없음: {sections}"
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr "화면이 지워졌어요 — 다시 시도하세요."
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr "먼저 이 예배의 시작 시간을 설정하세요(예배 목록 → 시작 시간)."
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr "예배 시작 시간({time})이 지났어요."
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr "그 시간({time})이 지났어요."
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr "이 타이머를 쓰려면 더 새로운 RustyPresenter가 필요해요."
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr "특정 시각까지의 카운트다운은 일시 정지할 수 없어요."
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr "1초에서 23:59:59 사이의 길이를 선택하세요."
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr "이 타이머는 그렇게 설정할 수 없어요."
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr "“{field}”을(를) 입력하세요."
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr "메시지가 화면에 비해 너무 길어요(최대 200자)."
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr "이 메시지에 짝이 맞는 }가 없는 {가 있어요."
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr "메시지 표시 중"
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr "연습 모드가 켜져 있어요 — 미리 보기에만 표시돼요. 예배당에 표시하려면 연습을 끝내세요."
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr "유아실"
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr "#{Number}번 어린이의 부모님은 유아실로 와 주세요."
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr "차량"
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr "{Plate} 차량의 전조등이 켜져 있어요."
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr "직접 입력"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 항목이 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 타이머가 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 오버레이가 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 화면 보기가 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 메시지가 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 무대 레이아웃이 삭제되었어요. 매크로를 편집하세요."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계에는 더 새로운 RustyPresenter가 필요해요."
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr "“{name}” 실행함"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr "“{name}”을(를) 실행했지만 {step}단계가 작동하지 않았어요: {reason}"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr "“{name}”을(를) 실행했지만 화면이 지워져 있어서 표시는 건너뛰었어요."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr "“{timer}”이(가) 0이 되었지만 “{macro_name}”은(는) 슬라이드를 바꾸므로 실행하지 않았어요."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr "“{timer}”이(가) 0이 되었지만 화면이 지워져 있어서 “{macro_name}”이(가) 아무것도 표시하지 않았어요."
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr "2초에서 600초 사이로 선택하세요."
+
+#: src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "슬라이드가 두 장 이상 필요해요."
+
+#: src/strings/automation.rs
+msgid "Service starts in"
+msgstr "예배 시작까지"
+
+#: src/strings/automation.rs
+msgid "Pre-service"
+msgstr "예배 전"
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr "카운트다운 시작"
+
+#: src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "예배 전 탭에서 바꾸세요"
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr "카운트다운이 끝났어요 — 예배가 시작되어서 다른 것은 바꾸지 않았어요."
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr "새 시간을 적용하려면 카운트다운을 다시 시작하세요."
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr "예배 시작"
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr "설교"
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr "스톱워치"
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr "RustyPresenter 예배 파일이 아니에요."
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr "더 새로운 버전의 RustyPresenter에서 만든 예배 파일이에요."
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr "예배 파일이 손상되어서 아무것도 추가하지 않았어요."
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr "예배를 저장하는 중…"
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr "예배 파일을 여는 중…"
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr "이 예배의 찬양 중 하나가 더 이상 라이브러리에 없어요."
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr "이 예배의 동영상, 사진 또는 소리 중 하나가 더 이상 라이브러리에 없어요."
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr "이 예배의 슬라이드 묶음 중 하나가 더 이상 라이브러리에 없어요."
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr "이 예배의 배경 중 하나에 파일이 없어요."
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr "{name}에 파일이 없어요."
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] "이 예배는 이 컴퓨터에 없는 글꼴로 만들어져서 다른 글꼴로 표시돼요: {fonts}. 원래대로 보려면 글꼴을 설치하세요."
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr "“{name}”을(를) 파일로 저장했어요."
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr "필요한 항목이 없어서 이 예배를 저장하지 못했어요:"
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr "“{name}”을(를) 열었어요."
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "찬양 {n}곡"
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] "미디어 파일 {n}개"
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] "슬라이드 묶음 {n}개"
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr "라이브러리에 새로 추가됨: {things}."
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr "이미 있는 찬양과 내용이 달라서 예배에서는 두 번째 사본을 사용해요: {titles}"
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr "오프라인 상태예요. 추가한 성경은 계속 사용할 수 있어요."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr "성경 목록을 읽지 못했어요. 나중에 다시 시도하세요."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr "성경 목록을 이 컴퓨터에 저장하지 못했어요."
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr "다운로드할 때 라이선스 확인"
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr "신구약 전체"
+
+#: src/strings/catalog.rs
+msgid "New Testament"
+msgstr "신약"
+
+#: src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "구약"
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr "일부"
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr "외경 포함"
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr "{name} 다운로드 중…"
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr "{name} 다운로드 대기 중…"
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr "{name} 확인 중…"
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr "{name}을(를) 다운로드하지 못했어요. 인터넷을 확인하고 다시 시도하세요."
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr "이 성경의 라이선스상 보관할 수 없어서 삭제했어요."
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr "{name} 업데이트를 사용할 수 없었어요. 지금 있는 사본은 계속 사용할 수 있어요."
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr "이 성경이 예상보다 커서 추가하지 않았어요."
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr "이 성경을 위한 디스크 공간이 부족해요(약 {n}MB 필요)."
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr "{name}을(를) 사용할 수 없어서 추가하지 않았어요."
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr "그 성경은 더 이상 목록에 없어요. 최신 목록을 보려면 설정 → 성경을 다시 여세요."
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr "오프라인 상태라서 지금은 성경을 추가할 수 없어요."
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr "성경 목록을 불러오는 중…"
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr "일치하는 성경이 없어요. 검색어를 줄이거나 전체를 선택해 보세요."
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr "아직 추가한 성경이 없어요. 추가할 수 있는 성경을 보려면 전체를 선택하세요."
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr "오프라인"
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr "업데이트"
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr "추가됨"
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr "컴퓨터에 이 언어용 글꼴이 없을 수도 있어요."
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr "대기 중"
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr "새 판이 준비되었어요"
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr "기본 성경이 바뀌었어요"
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr "성경은 최대 두 개까지 더 표시할 수 있어요. 먼저 하나를 끄세요."
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr "{name} — eBible.org에서 다운로드"
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr "성경 {total}개 중 {shown}개를 표시하고 있어요. 다른 성경은 검색하세요."
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr "다운로드 중… {percent}%"
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr "{bible} 추가됨"
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr "{bible} 제거됨"
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr "{sources}에도 있음"
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr "예배 목록"
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr "화면 구성"
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr "이 프레젠테이션에는 암호가 있어요. PowerPoint에서 열어 암호를 제거하고(파일 → 정보 → 보호) 저장한 다음 다시 가져오세요."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr "PowerPoint 파일이 아닌 것 같아요."
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr "LibreOffice가 너무 오래 걸려서 중지했어요. 다시 시도하세요. 컴퓨터를 켠 뒤 처음 가져올 때는 더 느려요."
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr "LibreOffice가 이 프레젠테이션을 읽지 못했어요."
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr "Snap으로 설치한 LibreOffice는 RustyPresenter의 파일을 읽을 수 없어요. 대신 배포판의 LibreOffice를 설치하세요(sudo apt install libreoffice-impress)."
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr "LibreOffice를 시작하지 못했어요. 다시 설치한 다음 시도하세요."
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr "PowerPoint가 너무 오래 걸려서 중지했어요. 다시 시도하세요."
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr "PowerPoint가 이 프레젠테이션을 열지 못했어요."
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr "PowerPoint를 시작하지 못했어요."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr "PDF 파일이 아닌 것 같아요."
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr "파일을 여는 데 너무 오래 걸렸어요."
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr "이 사진을 열 수 없어요. PNG나 JPEG로 저장한 다음 다시 시도하세요."
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr "이 프레젠테이션에는 슬라이드가 없어요."
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr "이 프레젠테이션은 슬라이드 크기가 섞여 있어서 RustyPresenter로 표시할 수 없어요."
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr "슬라이드 변환기(pdfium)가 없어요. RustyPresenter를 다시 설치하세요."
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr "슬라이드 변환기가 응답하지 않아요. RustyPresenter를 다시 시작한 다음 시도하세요."
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr "슬라이드 {page}을(를) 그림으로 바꾸지 못했어요."
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr "이 PDF를 열 수 없어요. 암호가 있으면 제거한 다음 다시 가져오세요."
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr "슬라이드를 저장하지 못했어요. 디스크 여유 공간을 확인한 다음 다시 시도하세요."
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr "다른 파일을 기다리는 중…"
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr "“{name}” 추가 중"
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr "“{name}” 가져오는 중"
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr "Keynote 파일을 단일 파일로 저장한 다음 다시 가져오세요."
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr "LibreOffice를 기다리는 중…"
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr "PowerPoint를 기다리는 중…"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr "PowerPoint가 열지 못해서 LibreOffice를 사용했어요."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr "LibreOffice로 가져왔어요 — 슬라이드를 확인하세요."
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr "슬라이드 {expected}장을 예상했지만 {imported}장만 가져왔어요."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr "LibreOffice로 가져왔어요 — 슬라이드를 확인하세요. 슬라이드 {expected}장을 예상했지만 {imported}장만 가져왔어요."
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr "프레젠테이션을 가져오려면 LibreOffice를 설치하세요. {hint}"
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr "저장됨"
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr "테마 기본값"
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr "+ 업로드…"
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr "미디어 라이브러리에 추가됐어요 — 여기서 선택하세요"
+
+#: src/strings/operator.rs src/strings/print.rs
+msgid "Picture"
+msgstr "사진"
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr "{kind} · 재생할 수 없음"
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr " · 반복"
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr "{kind} · 동영상 플레이어가 없어요 — RustyPresenter를 다시 설치하세요"
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] "{kind} · 슬라이드 {n}장"
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] "항목 {n}개"
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] "휴대폰 {n}대"
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr "지우기"
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr "슬라이드 그림"
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr "글자가 이미 들어갈 수 있는 최대 크기예요. 더 크게 하려면 슬라이드당 구절 수를 줄이세요(편집)."
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr "왼쪽에서 항목을 선택하세요"
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr "환영합니다"
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr "문제가 발생했어요."
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr "예배당 화면 표시 중"
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr "예배당 화면 시작 중…"
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr "예배당 화면이 열려 있지 않아요 — 화면을 클릭하세요"
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr "운영자 창을 열지 못했어요: {error}"
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] "사진 {n}장을 슬라이드 묶음 하나로 만들까요?"
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr "슬라이드 묶음 하나"
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr "개별 사진"
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr "동영상, 사진, 음악"
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr "프레젠테이션"
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr "SongSelect 가사 파일"
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr "사진 및 동영상"
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr "예배 파일"
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr "{passage} 추가됨 — Enter를 누르면 표시돼요"
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr "예배에 추가됨"
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr "{name} 업로드 중"
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] "사진 {n}장 업로드 중"
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr "{name} 추가됨"
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr "“{title}” 가져옴"
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr "“{title}”은(는) 이미 라이브러리에 있어요."
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr "“{title}” 업데이트됨"
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr "기존 항목 업데이트"
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr "둘 다 유지"
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr "“{title}” 준비됨"
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr "슬라이드 이름 지정"
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr "무대 화면에 표시할 메시지예요. 내리려면 비워 두세요."
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr "즐겨찾기"
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr "최근"
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr "다른 성경"
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr "가져옴"
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr "가지고 있는 성경 중 일치하는 것이 없어요. 아래에서 성경을 더 찾아보세요."
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr "{bible}을(를) 즐겨찾기에 추가했어요"
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr "{bible}을(를) 즐겨찾기에서 제거했어요"
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr "모든 미디어"
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr "변환 중 {percent}%"
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr "미리 보기를 클릭해서 선택하세요."
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr "미리 보기를 두 번 클릭하면 선택한 항목의 배경으로 사용해요."
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr "재생하려면 예배에 추가하세요."
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr "이 파일은 아직 재생할 준비가 안 됐어요."
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr "먼저 예배 항목을 선택한 다음 배경을 고르세요."
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr "배경을 {name}(으)로 설정했어요"
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr "폴더 이름(없으면 비워 두세요)"
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr "새 폴더 이름"
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr "“{name}” 폴더를 삭제할까요? 안의 파일은 라이브러리에 남아 있어요."
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] "코드 유효 시간: {n}초 남음"
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr "코드가 만료되었어요 — 휴대폰 연결을 다시 클릭하세요."
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr "날짜 없음"
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr "월"
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr "화"
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr "수"
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr "목"
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr "금"
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr "토"
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr "일"
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr "월요일"
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr "화요일"
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr "수요일"
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr "목요일"
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr "금요일"
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr "토요일"
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr "일요일"
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr "매주 월요일"
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr "매주 화요일"
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr "매주 수요일"
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr "매주 목요일"
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr "매주 금요일"
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr "매주 토요일"
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr "매주 일요일"
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr "아무 요일"
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr "아무"
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr "1월"
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr "2월"
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr "3월"
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr "4월"
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr "5월"
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr "6월"
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr "7월"
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr "8월"
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr "9월"
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr "10월"
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr "11월"
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr "12월"
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr "성경 봉독"
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr "기타 항목"
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr "빈칸"
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr "{label}(빈칸)"
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr "선택을 클릭해서 채우세요"
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr "빈칸이에요 — 먼저 여기에 넣을 항목을 선택하세요."
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr "채우기: {label}"
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr "복사할 예배가 없어요."
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr "그 템플릿이 없어졌어요."
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr "올바른 날짜가 아니에요."
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr "그 빈칸이 없어졌어요."
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr "그 항목은 더 이상 빈칸이 아니에요."
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr "템플릿에 이름이 필요해요."
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr "템플릿에는 순서가 하나 이상 필요해요."
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr "이 항목은 “{name}” 템플릿에 들어 있어요. 먼저 템플릿에서 제거하세요."
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] "빈칸 {n}개"
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] "이전 예배 {n}개 보기"
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] "순서 {n}개, {blanks}"
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr "아직 템플릿이 없어요. 예배에서 “템플릿으로 저장”을 사용해 만드세요."
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr "먼저 예배를 템플릿으로 저장하세요"
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr "“{service}”(으)로 {date} 예배를 만들까요?"
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr "복사하되 찬양과 성경 봉독은 빈칸으로"
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr "{date}에 이미 예배가 있어요(“{name}”)."
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr "열기"
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr "하나 더 만들기"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr "“{name}” 준비됨"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr "“{name}” 준비됨 — {blanks}을(를) 채우세요"
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr "예배 날짜(날짜가 없으면 비워 두세요)"
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr "예배 날짜, 예: {example}(날짜가 없으면 비워 두세요)"
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr "템플릿 이름"
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr "“{name}” 템플릿 저장됨"
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr "템플릿 이름 바꾸기"
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr "“{name}” 템플릿을 삭제할까요? (이 템플릿으로 만든 예배는 남아 있어요.)"
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr "어떤 템플릿인가요?"
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr "새 예배 이름"
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr "“{name}” 템플릿은 무슨 요일용인가요?"
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr "제목 이름"
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr "찬양"
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr "제목 이름 바꾸기"
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr "템플릿에서 원하는 템플릿의 “예배 만들기”를 클릭하세요."
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr "일요일처럼 요일을 입력하거나, 아무 요일이면 비워 두세요."
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr "준비 완료! 이 예배의 찬양, 파일, 화면을 모두 찾았어요."
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr "이 예배에는 아직 항목이 없어요."
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr "예배당 화면이 선택되지 않았어요. 화면에서 선택하세요."
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr "예배당 화면이 연결되어 있지 않아요. 케이블을 확인하거나 화면에서 다른 화면을 선택하세요."
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr "무대 화면이 연결되어 있지 않아요. 무대 화면 없이도 예배를 진행할 수 있어요."
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr "설정에서 선택한 소리 출력 장치가 연결되어 있지 않아요. 연결하거나 설정 → 동영상에서 다른 장치를 선택하세요."
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr "소리 출력 장치가 연결되어 있지 않아서 동영상이나 오디오를 일시 정지했어요. 연결하거나 설정 → 동영상에서 다른 장치를 선택한 다음 재생을 누르세요."
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr "로고 파일이 없어요. 설정에서 다시 선택하세요."
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr "기본 배경 파일이 없어요. 설정에서 다시 선택하세요."
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr "찬양이 더 이상 라이브러리에 없어요"
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr "찬양에 가사가 없어요"
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr "구절 텍스트가 없어요"
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr "더 이상 라이브러리에 없어요"
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr "파일이 없어요"
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr "이 슬라이드는 더 이상 라이브러리에 없어요"
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr "배경 파일이 없어요"
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr "재생할 수 없어요({reason})"
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] "슬라이드 {n}장 중 {missing}장이 없어요"
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr "{number}. {title}: {problem}"
+
+#: src/strings/preflight.rs
+msgid "…and {n} more"
+msgstr "…외 {n}개"
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] "예배 전에 고칠 것 {n}개:"
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr "{passage}에 대한 {bible}을(를) 오프라인으로 쓸 준비가 안 됐어요. 인터넷이 연결된 상태로 이 예배를 한 번 여세요."
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr "순서: {sections}"
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr "빈칸 — {label}"
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr "(아직 선택 안 함)"
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr "(가사 없음)"
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr "(구절 텍스트가 이 예배와 함께 저장되지 않았어요)"
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr " (반복)"
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr "이 예배에는 찬양이나 성경 봉독이 없어요."
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr "이 예배는 비어 있어요."
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr "RustyPresenter에서 인쇄 · {date}"
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr "웹 브라우저에서 열었어요 — 거기서 인쇄하세요(인쇄 창에서 PDF로 저장할 수도 있어요)"
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr "{file} 저장됨"
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr "페이지를 만들지 못했어요: {reason}."
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr "그 폴더에 저장하지 못했어요: {reason}."
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr "페이지가 {path}에 저장되었지만 열어 준 프로그램이 없어요. 거기서 열어서 인쇄하세요."
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr "웹 페이지"
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr "인쇄 또는 저장"
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr "회중"
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr "회중 화면"
+
+#: src/strings/screens.rs
+msgid "Stage screen"
+msgstr "무대 화면"
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr "표시 중"
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr "출력 없음"
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr "연결 끊김"
+
+#: src/strings/screens.rs
+msgid "None"
+msgstr "없음"
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr "창으로(테스트용)"
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr "지금 연결 안 됨"
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr "지금 작업 중인 화면이에요. 켜면 이 화면이 가려져요."
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr "{screen}과(와) 같은 화면을 보여 줘요. 소리는 {screen}에서만 나와요."
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr "“{name}”을(를) 제거할까요?"
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr "검색할 단어를 하나 이상 입력하세요."
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr "Job 1이나 Job 1:1처럼 장을 넣어 주세요."
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr "다른 두 번째 번역본을 선택하세요."
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr "두 번째 번역본을 껐어요(기본 번역본과 같음)."
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr "너무 길어요 — 절 중간에서 나뉘어요"
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr "함께 두면 슬라이드가 너무 길어져서 절 중간에서 나뉘어요."
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr "이제 성경 슬라이드가 화면에 맞춰져서 일부 본문은 나뉘는 위치가 달라질 수 있어요."
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr "슬라이드 맞추는 중…"
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr "이 번역본은 RustyPresenter에서 사용할 수 없어요. 다른 성경을 선택하세요."
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr "이 구절은 이전 버전에서 가져온 거예요. 여기서 나눌 위치를 정하려면 본문을 다시 찾아오세요."
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] "본문 {n}개가 RustyPresenter에서 사용할 수 없는 번역본이라 제거했어요."
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr "이 컴퓨터에서 사용 가능"
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr "사용 가능(인터넷 필요)"
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr "키 필요 — 받기"
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr "사용 불가"
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr "검색: 가능"
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr "검색: 온라인(ESV)"
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr "검색은 이 컴퓨터에 저장된 번역본(KJV와 기본 제공되거나 가져온 성경)에서만 돼요. 온라인 번역본은 저작권자가 허용하지 않아서 검색할 수 없어요(ESV는 자체 온라인 검색을 제공할 수도 있어요)."
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr "모든 단어가 구절에 있어야 해요(love neighbour는 두 단어가 모두 있는 구절을 찾아요)."
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr "단어의 앞부분이 일치하면 찾아요. love는 love, loved, loveth, lovest, loving을 찾아요. 3글자보다 짧은 단어는 정확히 일치해야 해요."
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr "정확한 구문을 찾으려면 따옴표로 묶으세요: \"be still\"."
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr "대소문자와 문장 부호는 상관없어요. lord는 LORD를 찾아요."
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr "가장 잘 맞는 결과가 먼저 나와요. 단어가 순서대로 정확히 있는 구절, 단어가 가까이 있는 구절, 나머지는 성경 순서예요. 창세기부터 보려면 성경 순서로 바꾸세요."
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr "성경 상자에서 Ctrl+Enter를 누르면 \"Job\" 같은 책 이름이라도 항상 검색해요."
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr "함께 표시…"
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr "단어로 검색…"
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr "슬라이드 나누기"
+
+#: src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "슬라이드 나누기 선택…"
+
+#: src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "자동으로 재설정"
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr "새 슬라이드(자동)"
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr "새 슬라이드(직접 추가)"
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr "함께 유지"
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr "+ 여기서 새 슬라이드"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr "하단 자막 테마는 두 번역본을 항상 위아래로 쌓아요."
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr "이 단어로 검색"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr "{bible}에 그 단어가 모두 있는 구절이 없어요."
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr "{bible}에 그 단어가 있는 구절이 없어요. 책 이름이라면 철자를 확인하고 John 3처럼 장을 넣어 주세요."
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr "구절 {total}개 중 처음 {shown}개를 표시하고 있어요 — 단어를 더 넣어서 범위를 좁히세요."
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] "{bible}에서 구절 {count}개를 찾았어요"
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr "{bible} 검색 준비 중…"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr "{bible}은(는) 검색할 수 없어요. KJV처럼 이 컴퓨터에 저장된 번역본으로 해 보세요."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr "{bible}은(는) 검색할 수 없어서 {local}에서 검색해요."
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr "ESV를 검색하려면 인터넷이 필요해요. 연결을 확인하거나 KJV에서 검색하세요."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr "{bible}은(는) 검색할 수 없어요"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr "{bible}에는 키가 필요해요. 설정 → 성경에서 추가하세요."
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr "{bible}을(를) 사용할 수 없어요."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr "{bible} 본문을 가져오지 못했어요 — 인터넷을 확인하세요."
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr "지금 {second}을(를) 사용할 수 없어서 {main}만 추가했어요. X를 눌러 두 번째 번역본을 끄세요."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr "{bible}을(를) 가져오지 못했어요: {error}"
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr "{bible}에는 {passage}이(가) 없어요."
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr "{passage} 추가"
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr "대신 \"{word}\" 검색"
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr "본문이 너무 길어요. 약 {n}절 이내로 선택하세요."
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr "{bible}을(를) 껐어요(기본 번역본과 같음)."
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr "지금 {left}을(를) 사용할 수 없어서 {kept}만 추가했어요."
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr "하단 자막 테마는 성경을 두 개만 보여 줘요. {bible}은(는) 빠졌어요."
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr "이 본문에는 {bible}용 인터넷 연결이 필요해요."
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr "그 성경은 제거되었어요. 설정 → 성경에서 다시 추가하세요."
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr "사본 이름"
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr "예배 이름 바꾸기"
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr "{date} 예배"
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr "“{name}” 예배를 삭제할까요? (찬양과 미디어는 라이브러리에 남아 있어요.)"
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr "설정 저장됨"
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr "이 컴퓨터에 “{font}”이(가) 설치되어 있지 않아서 슬라이드에 Noto Sans를 사용해요."
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr "사용 가능 — 오프라인"
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr "사용 가능 — 온라인"
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr "무료 키 필요"
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr "아직 소스 없음"
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr "또는"
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr "아래에서 {sources} 연결"
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr "이 번역본을 제공하는 온라인 소스가 없어요. 라이선스가 있는 파일을 가져오거나, 추가할 때 구절을 붙여 넣으세요."
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr "{bibles}용"
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr "{source} 연결됨"
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr "{source} 연결 해제됨"
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr "링크 복사됨 — 브라우저에 붙여 넣으세요"
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] "{bible} 추가됨({count}절)"
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr "가져오지 못했어요."
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr "{bible} 제거됨"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr "동영상 플레이어: libmpv(LGPL 빌드)"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr "동영상 플레이어: libmpv {version}(LGPL 빌드)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr "동영상 그리기: GPU(OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr "동영상 그리기: 소프트웨어"
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr "복사하지 못했어요: {error}"
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr "백업 완료"
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr "이 백업을 복원할까요? 지금의 찬양과 예배가 바뀌어요(현재 내용의 사본은 보관돼요)."
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr "백업 복원됨"
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr "찬양 {songs}곡 · 예배 {services}개 · 파일 {files}개"
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr "→  ↓  Space  Page Down"
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr "←  ↑  Page Up"
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr "Enter"
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr "Ctrl + B"
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr "Alt + 1–5"
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr "Ctrl + V"
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr "라이브 중인 찬양을 1–9절, 후렴, 프리코러스, 브리지, 태그, 전주, 엔딩, 간주 또는 다음 절로 이동"
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr "복사한 YouTube 링크 추가"
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr "Esc"
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr "선택한 항목 표시"
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr "성경 칩 선택(성경 상자에서)"
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr "텍스트 상자에서 나가기"
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr "동영상: GPU(OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr "동영상: 소프트웨어 그리기"
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr "동영상 플레이어 없음"
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr "libmpv(클라이언트 API {major}.{minor}) — {path}"
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr "LGPL 빌드"
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr "LGPL 빌드 아님"
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr "libmpv {version}({build}) · 클라이언트 API {major}.{minor} — {path}"
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr "찾음"
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr "없음"
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr "Snap — 사용 불가"
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr "설치 안 됨"
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr "찾지 못함"
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr "동영상 재생에는 LGPLv2.1에 따른 libmpv(LGPL-2.1+)와 FFmpeg 라이브러리를 사용해요 — 소스: {url}"
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr "컴퓨터 언어 사용({name})"
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr "{name}(검토 필요)"
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr "{english_name} · {percent}% 번역됨"
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr "이 컴퓨터의 기본 소리 출력 장치"
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr "저장된 소리 출력 장치(연결 안 됨)"
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr "절"
+
+#: src/strings/song.rs
+msgid "Chorus"
+msgstr "후렴"
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "프리코러스"
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr "브리지"
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr "태그"
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr "전주"
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr "엔딩"
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr "간주"
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr "기타"
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr "섹션 키는 찬양에서만 작동해요."
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr "찬양이 바뀌었어요 — 다시 시도하세요."
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr "라이브 중인 찬양이 바뀌었어요 — 다시 시도하세요."
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr "그 찬양은 더 이상 라이브 중이 아니에요."
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr "이제 그 찬양에는 슬라이드가 없어요. 화면에는 이전 가사가 그대로 있어요."
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr "저장했어요. 텍스트를 다시 표시하면 새 가사가 나와요."
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr "화면에 표시 중인 가사를 바꿨어요. 화면 업데이트를 누르면 지금 바로 표시돼요. 슬라이드를 클릭해도 새 버전이 표시돼요."
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr "라이브 중인 찬양이 바뀌었어요. 표시하려면 화면 업데이트를 누르세요."
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr "화면에 표시 중인 부분이 삭제되었어요. 화면 업데이트를 누르면 찬양이 처음부터 시작돼요."
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr "이제 이 찬양에는 가사가 없어요. 화면에는 이전 가사가 그대로 있어요."
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr "클릭해서 이 부분 표시"
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr "이 찬양에는 {section} {number}이(가) 없어요."
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr "이 찬양에는 {section}이(가) 없어요."
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr "{section}(으)로 이동({key})"
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr "{section} — {key} 누르기"
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr "{section} · 슬라이드 {page}/{pages}"
+
+#: src/strings/stage.rs
+msgid "Stage layout"
+msgstr "무대 레이아웃"
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr "클래식"
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr "가사만"
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr "밴드"
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr "설교자"
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr "시계 및 카운트다운"
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr "현재 슬라이드"
+
+#: src/strings/stage.rs
+msgid "Next slide"
+msgstr "다음 슬라이드"
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr "섹션"
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr "다음 섹션"
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr "항목 제목"
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr "남은 슬라이드"
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr "메모"
+
+#: src/strings/stage.rs
+msgid "Clock"
+msgstr "시계"
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr "타이머"
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr "동영상 남은 시간"
+
+#: src/strings/stage.rs
+msgid "Message"
+msgstr "메시지"
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr "지금 화면의 가사"
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr "다음에 나올 가사"
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr "절, 후렴, 브리지…"
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr "찬양의 다음 부분"
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr "라이브 항목의 이름"
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr "“슬라이드 3장 남음”"
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr "슬라이드의 무대 메모"
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr "현재 시각"
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr "카운트다운 또는 카운트업"
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr "동영상이나 오디오의 남은 시간"
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr "뒤에서 보낸 메시지"
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr "한 번 입력해 두는 글"
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr "(로고)"
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr "라이브 항목 없음"
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr "다음 섹션"
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr "다음 · {title}"
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr "마지막 슬라이드"
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] "슬라이드 {n}장 남음"
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr "타이머 제거됨"
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr "{timer} · 일시 정지됨"
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr "그 무대 레이아웃이 없어졌어요."
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr "기본 제공 무대 레이아웃은 바꿀 수 없어요. 먼저 사본을 만드세요."
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr "무대 레이아웃 이름을 입력하세요."
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr "“{name}”(이)라는 무대 레이아웃이 이미 있어요."
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr "무대 레이아웃에는 상자를 최대 24개까지 넣을 수 있어요."
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr "{question} {things}에서 사용 중이에요. {what_happens}."
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr "{first}, {second}"
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr "{first}, {second}, {third}"
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr "{items_effect}. {macros_effect}"
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] "예배 항목 {n}개"
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr "무대 기본값"
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] "매크로 {n}개"
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr "항목과 기본값은 클래식을 사용하게 돼요"
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr "그 항목은 무대 기본값을 사용하게 돼요"
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr "그 항목들은 무대 기본값을 사용하게 돼요"
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr "기본값은 클래식을 사용하게 돼요"
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr "매크로는 편집하기 전까지 실행되지 않아요"
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr "매크로들은 편집하기 전까지 실행되지 않아요"
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr "매크로는 편집하기 전까지 실행되지 않아요"
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr "매크로들은 편집하기 전까지 실행되지 않아요"
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr "테마 이름을 입력하세요."
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr "기본 제공 테마가 쓰는 이름이에요. 다른 이름을 고르세요."
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr "그 테마가 없어졌어요."
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr "기본 제공 테마는 삭제할 수 없어요."
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr "표준 테마는 자체 편집기의 저장으로 바꿔요."
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr "테마 저장됨"
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr "테마 삭제됨"
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr "표준"
+
+#: src/strings/themes.rs
+msgid "Church default"
+msgstr "교회 기본값"
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr "기본 제공 — RustyPresenter의 처음 스타일"
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr "교회 기본값 — 따로 선택하지 않으면 항상 사용"
+
+#: src/strings/themes.rs
+msgid "New theme"
+msgstr "새 테마"
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr "테마는 찬양, 성경 본문, 광고에만 적용돼요."
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr "이 테마에서는 글자가 이미 굵게 표시돼요"
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr "모든 컴퓨터에서 작동"
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr "배경은 사진이나 동영상일 수 있어요."
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr "배경 이름을 입력하세요."
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr "그 배경이 없어졌어요."
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr "배경에 추가됨"
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr " · 자체 배경"
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr "테마 따름"
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr "표준 배경"
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr "현재(내 배경에 없음)"
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr "변환 실패"
+
+#: src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "글자를 더 읽기 쉽게 해요"
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr "오버레이 이름을 입력하세요."
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr "오버레이 텍스트를 입력하세요."
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr "그 오버레이가 없어졌어요."
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr "텍스트, 사진, 시계 오버레이만 저장할 수 있어요."
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr "오버레이는 한 번에 최대 8개까지 켤 수 있어요. 먼저 하나를 끄세요."
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr "먼저 교회 로고를 선택하세요(설정 → 테마)."
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr "그 사진이 없어졌어요."
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr "사진을 불러오지 못했어요."
+
+#: src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "변경됨 — 업데이트하려면 껐다가 다시 켜세요."
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr "로고 저장됨"
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr "로고 제거됨"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr "계속 띄워 두는 안내용이에요."
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr "계속 띄워 두는 안내용이에요. 부모님 호출 같은 알림에는 메시지를 사용하세요(사용 가능해지면)."
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr "더 새로운 RustyPresenter에서 저장한 데이터예요. 최신 버전을 설치하세요."
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr "객체가 필요해요."
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr "같은 항목이 두 번 들어 있어요."
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr "“{name}”(이)라는 테마가 이미 있어요."
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr "“{name}” 오버레이를 표시하지 못했어요: {reason}"
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr "(삭제됨) {name}"
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] "항목 {n}개에 자체 배경이 있어요. 이 항목에도 테마 배경을 사용할까요?"
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] "항목 {n}개에서 사용 중"
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr "배경 {n}"
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr "“{name}”을(를) 교회 기본값으로 할까요? 자체 테마가 없는 모든 항목이 이 테마를 사용해요. 언제든 되돌릴 수 있어요."
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr "이제 “{name}”이(가) 교회 기본값이에요"
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr "“{name}” 테마를 삭제할까요?"
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "예배 {n}개"
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] "{things}에서 사용 중이에요. 대신 교회 기본값을 사용하게 돼요."
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr "{items}, {services}에서 사용 중이에요. 대신 교회 기본값을 사용하게 돼요."
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr "교회 기본값이라서 표준이 교회 기본값이 돼요."
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr "배경에서 “{name}”을(를) 제거할까요? 사용 중인 항목에는 그대로 남아요."
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr "사용 중인 화면 보기: {views}"
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr "변환 중 {percent}%"
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr "테마: {name}"
+
+#: src/strings/themes.rs
+msgid "Bold"
+msgstr "굵게"
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr "기울임꼴"
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr "밑줄"
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr "금색"
+
+#: src/strings/themes.rs
+msgid "Red"
+msgstr "빨간색"
+
+#: src/strings/themes.rs
+msgid "Color"
+msgstr "색"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "작게"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "크게"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr "아주 크게"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr "libreoffice.org에서 LibreOffice(무료)를 설치하거나 다음을 실행하세요: winget install TheDocumentFoundation.LibreOffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr "libreoffice.org에서 LibreOffice(무료)를 설치하거나 다음을 실행하세요: brew install --cask libreoffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr "LibreOffice Impress를 설치하세요. 예: sudo apt install libreoffice-impress"
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr "{path}(으)로 파일 주소를 만들 수 없어요"
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr "찬양 사용 보고서"
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr "CCLI 라이선스 번호: {license}"
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr "설정 → 찬양에서 교회의 CCLI 라이선스 번호를 추가하세요."
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr "{date}까지 보고 완료로 표시"
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr "다음 보고서는 {date} 다음 날부터 시작해요."
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr "보고 완료로 표시"
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr "{date}까지 보고 완료로 표시했어요."
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr "이 기록을 제거할까요? 집계하지 않을 리허설에 사용하세요."
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr "기록 제거됨"
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr "설정 변경 내용을 저장하고 보고서를 열까요?"
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr "저장 후 열기"
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr "시작 날짜를 끝 날짜보다 앞으로 선택하세요."
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr "날짜는 2026-11-01처럼 연-월-일로 입력하세요."
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr "보고서를 저장하지 못했어요: {reason}."
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr "{path} 저장됨"
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr "스프레드시트(CSV)"
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr "CCLI 곡 번호"
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr "{from} ~ {to}"
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr "이 페이지를 인쇄하거나 브라우저의 인쇄 창에서 PDF로 저장하세요."
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr "동영상을 찾는 중…"
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr "YouTube 다운로드 준비 중 — 처음 한 번만({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr "YouTube 다운로드 업데이트 중({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr "동영상 합치기 도구 준비 중 — 처음 한 번만({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr "YouTube 동영상 링크를 붙여 넣으세요. https://www.youtube.com이나 https://youtu.be로 시작해요."
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] "이 링크는 동영상 {n}개가 있는 재생 목록이에요. 첫 번째 동영상만 다운로드해요."
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr "최고(최대 1080p)"
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr "작게(720p)"
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr "가장 작게(480p)"
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr "소리만"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr "“{title}” 다운로드 중이에요. 완료되면 동영상 및 미디어에 들어가요."
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr "“{title}” 다운로드 중"
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr "1분 미만 남음"
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr "약 1분 남음"
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] "약 {n}분 남음"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr "“{title}” 다운로드 중 — {left}"
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr "“{title}” 마무리 중…"
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr "“{title}”을(를) 라이브러리에 추가하는 중…"
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr "“{title}” 다운로드 완료"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr "동영상 및 미디어와 예배에 들어갔어요."
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr "동영상 및 미디어에 들어갔어요."
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr "동영상 합치기 도구를 준비하지 못해서 낮은 화질(360p)로 저장했어요."
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr "YouTube에 연결할 수 없어요. 인터넷 연결을 확인하고 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr "비공개 동영상이라 소유자만 다운로드할 수 있어요."
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr "YouTube에서 로그인한 사용자에게만 보여 주는 동영상이라(예: 연령 제한) 여기서는 다운로드할 수 없어요."
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr "채널 멤버 전용 동영상이라 여기서는 다운로드할 수 없어요."
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr "YouTube가 로봇이 아닌지 확인하려고 로그인을 요구해요. 잠시 기다렸다가 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr "라이브 방송이 아직 끝나지 않았어요. 끝난 뒤에 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr "라이브 방송이나 최초 공개가 아직 시작되지 않았어요."
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr "라이브 방송이 막 끝나서 YouTube가 아직 준비 중이에요. 잠시 후 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr "YouTube 동영상 링크가 아니에요. 동영상 페이지에서 링크를 복사해 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr "이 동영상을 볼 수 없어요. 삭제되었거나 이 국가에서 차단되었을 수 있어요."
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr "이 재생 목록에는 다운로드할 수 있는 동영상이 없어요."
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr "컴퓨터 디스크가 가득 찼어요. 공간을 확보한 다음 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr "YouTube에 변경 사항이 있어서 다운로더가 아직 이 동영상을 읽을 수 없어요. 나중에 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr "YouTube 다운로드를 준비하지 못했어요. 인터넷 연결을 확인하고 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr "받은 YouTube 다운로더가 공식 지문과 일치하지 않아서 사용하지 않았어요. 나중에 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr "이런 종류의 컴퓨터에서는 아직 YouTube 다운로드가 작동하지 않아요."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr "YouTube 다운로드를 준비하지 못했어요({detail}). 나중에 다시 시도하세요."
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr "다운로드하지 못했어요: {detail}"
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr "취소했어요."
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr "검은색"
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr "밤하늘색"
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr "진녹색"
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr "자두색"
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr "갈색"
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr "흰색"
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr "자정"
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr "진보라"
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr "숲"
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr "불씨"
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr "바다"
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr "슬레이트"
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr "보통"
+
+#: src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} 사본"
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr "{name} 사본 {number}"
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr "{day} {time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr "{time} UTC"
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr "사진을 불러오지 못했어요"
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr "배경을 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr "사진을 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr "동영상을 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr "슬라이드를 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr "로고를 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr "오버레이를 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr "오디오를 불러오는 데 너무 오래 걸렸어요"
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr "예배당 화면에서 준비하지 못했어요"
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr "예배당 화면을 열지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr "프레젠테이션 표시 중"
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "예배당 화면 연결이 끊겼어요. 다시 연결하면 자동으로 돌아와요."
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "추가 회중 화면 연결이 끊겼어요. 다시 연결하면 자동으로 돌아와요."
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "무대 화면 연결이 끊겼어요. 다시 연결하면 자동으로 돌아와요."
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "추가 무대 화면 연결이 끊겼어요. 다시 연결하면 자동으로 돌아와요."
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr "예배당 화면이 다시 연결되었지만 열지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr "추가 회중 화면이 다시 연결되었지만 열지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr "무대 화면이 다시 연결되었지만 열지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr "추가 무대 화면이 다시 연결되었지만 열지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr "화면 번호를 표시하지 못했어요: {error}"
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr "RustyPresenter를 종료하는 중이에요."
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr "무대 화면을 열지 못했어요: {error}"
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr "동영상 플레이어가 없어요. RustyPresenter를 다시 설치하세요."
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr "{path}에서 동영상 플레이어를 불러올 수 없어요: {reason}"
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr "이 libmpv는 너무 오래됐어요(클라이언트 API {major}.{minor}). RustyPresenter에는 2.x가 필요해요."
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr "동영상 플레이어를 시작하지 못했어요."
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr "동영상 플레이어를 시작하지 못했어요: {reason}"
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr "{name}을(를) 재생하지 못했어요({reason})"
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr "동영상을 표시할 수 없어요: {reason}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "{address}에 릴리스 없음"
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr "{file}의 지문 없음"
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr "다운로드에 {file}이(가) 없어요"
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr "{address}이(가) 너무 커요"
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr "읽을 수 없는 압축 파일: {error}"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr "yt-dlp가 멈췄어요"
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr "읽을 수 없는 정보({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr "yt-dlp를 시작하지 못했어요({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr "yt-dlp를 시작하지 못했어요"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr "yt-dlp가 정보를 주지 않았어요"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr "yt-dlp가 동영상을 저장하지 않았어요"
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr "미디어 파일 아님"

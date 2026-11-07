@@ -1,0 +1,5331 @@
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr "Chèche nan Bib ou yo"
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr "pa konekte"
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr "Favori"
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr "Jwenn plis Bib…"
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr "Chwazi yon Bib"
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr "Eseye ankò"
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr "Modifye"
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr "Ajoute"
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr "Telechaje sèlman videyo legliz ou gen dwa itilize (pa w, ak lisans, oswa Creative Commons)."
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr "Kole yon lyen YouTube la a"
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr "Telechaje"
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr "Ajoute nan sèvis la lè li fini"
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr "Kalite"
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr "Voye fichye"
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr "Telechaje sou YouTube"
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr "Nenpòt fòma videyo mache."
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr "Enpòte prezantasyon"
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr "Fè diapo ak foto"
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Microsoft PowerPoint (.pptx) oswa PDF, epi enpòte fichye sa a isit la. Fichye Keynote ak PDF mache tou."
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr "Kopye"
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr "Tcheke ankò"
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr "Nouvo chante"
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr "Enpòte pawòl SongSelect (.txt)"
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr "Enpòte sou EasyWorship"
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr "Referans ({})"
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr "egz. Jan 3:16-18, Sòm 23, Women 8:28,31-39"
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr "Ajoute vèsè"
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr "Kole vèsè yo pito"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr "Vèsè pou chak diapo"
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr "Oto"
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr "Vèsè ({}) — kenbe nimewo vèsè yo pou chak vèsè gen pwòp diapo pa l"
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr "16 Paske, Bondye sitèlman renmen lemonn… 17 Bondye pa voye…"
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr "Ajoute vèsè ou kole yo"
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr "Konsèy: ou pa bezwen fenèt sa a. Tape yon vèsè nan bwat Bib la anwo a (oswa peze Ctrl+B), Enter ajoute l, epi Enter ankò montre l."
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr "Tit"
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr "egz. Byenveni, Anons, Ofrann"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Text"
+msgstr "Tèks"
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr "Tape tèks ou. Kite yon liy vid pou kòmanse yon nouvo diapo."
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr "Ajoute anons"
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr "Chante"
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr "Pawòl"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr "Bib"
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr "Vèsè"
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr "Videyo ak medya"
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr "Videyo, foto, mizik"
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr "Diapo"
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr "PowerPoint, foto"
+
+#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr "Anons"
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr "Pwòp tèks ou"
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr "Hex"
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr "Chwazi nenpòt koulè"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr "Pawòl, lòd ak kredi yo se pou chante a nan bibliyotèk ou."
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr "Pawòl, lòd ak kredi yo se pou chante a nan bibliyotèk ou. Yo te efase chante sa a nan bibliyotèk la."
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr "Modifye chante"
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr "Lè ou anrejistre, n ap chèche vèsè yo ankò nan Bib sa a."
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr "Montre tou"
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr "okenn"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr "Sispann montre Bib sa a"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr "Kòt a kòt"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr "Anwo ak anba"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr "Otomatik"
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr "1 vèsè"
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr "2 vèsè"
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr "3 vèsè"
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr "4 vèsè"
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr "Gwosè tèks"
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr "(pi gwo; tèks la vin pi piti otomatikman lè yon diapo gen plis mo)"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr "Chwazi"
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr "Menm jan ak Paramèt → Aparans"
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr "— yon liy vid kòmanse yon nouvo diapo"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr "Kòmanse jwe depi li parèt"
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr "Lè videyo a fini"
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr "Efase ekran an"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr "Rete sou dènye imaj la"
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr "Jwe ankò (an bouk)"
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr "Repete jiskaske yo kanpe l"
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr "Son an kontinye jwe pandan ou chanje diapo. Kanpe l ak Efase Son (F4) oswa Efase Tout."
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr "Non"
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr "Non nan bibliyotèk"
+
+#: ui/dialogs/item-edit.slint src/strings/themes.rs
+msgid "Background"
+msgstr "Fon"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr "Nòt pou sèn"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr "Parèt sou ekran sèn nan sèlman"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr "Retire nan sèvis la"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr "Anile"
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr "Anrejistre"
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr "Kontwole diapo yo ak nenpòt telefòn ki sou Wi-Fi legliz la. Telefòn nan dwe sou menm rezo ak òdinatè sa a."
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr " (Pa jwenn okenn rezo — konekte òdinatè sa a sou Wi-Fi.)"
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr "Adrès: "
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr "Konekte yon telefòn"
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr "Kòd QR"
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr "Eskane sa a ak kamera telefòn ou. Se tout."
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr "Oswa louvri {} epi tape"
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr "1. Sou telefòn nan, louvri kamera a epi eskane kòd la (oswa tape adrès la)."
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr "2. Antre kòd sa a sou telefòn nan:"
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr "Telefòn ki konekte"
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "Retire"
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr "Poko genyen."
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr "Kisa pou enprime"
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr "Lòd sèvis la"
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr "Toude"
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr "Opsyon"
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr "Mete nòt eleman yo"
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr "Mete lekti Bib yo ak pawòl yo"
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr "Kòmanse chak chante sou yon nouvo paj"
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr "Papye"
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr "Letter"
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr "A4"
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr "Enprime…"
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr "Louvri paj la nan navigatè w, kote ou ka enprime l oswa anrejistre l kòm PDF"
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr "Anrejistre paj wèb…"
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Fèmen"
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr "Ajoute yon ekran pou {}"
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr "Sòti"
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr "Gwosè"
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr "Lajè"
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr "Wotè"
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr "Pwopòsyon: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr "Se yon sèl ekran ki konekte. Ploge pwojektè a/televizyon an (epi mete Windows sou “Elaji ekran sa yo” ak Win+P), apre sa klike Rafrechi."
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr "Retire ekran sa a"
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr "Idantifye"
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr "Montre nimewo chak ekran sou li pou kèk segonn"
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr "Rafrechi"
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr "Kopye semèn pase"
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr "Fè sèvis semèn pwochèn nan ak dènye a"
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr "Nouvo apati modèl…"
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr "Nouvo sèvis vid"
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr "Kopye sèvis sa a"
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr "Anrejistre nan fichye"
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr "Anrejistre sèvis ki louvri a ak tout fichye li yo, pou mennen l sou yon lòt òdinatè"
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr "Louvri yon fichye"
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr "Louvri"
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr "Chanje non"
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr "Dat…"
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr "Enprime lòd sèvis la ak pawòl yo, oswa anrejistre yo kòm paj wèb"
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr "Anrejistre kòm modèl"
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr "Efase"
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr "Modèl"
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr "Fè yon sèvis"
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr "Jou…"
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr "Done ou yo:"
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr "Montre lisans yo"
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Retounen"
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr "Bib pa defo"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr "Montre tou ak chak nouvo pasaj"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr "Chwazi jiska de. Chak diapo ap montre menm vèsè yo nan chak Bib."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr "Ajoute Bib"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr "Chèche pa non, non kout oswa lang"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr "Enstale"
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr "Tout"
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr "KJV, WEB ak BSB enstale ladan l epi yo mache san entènèt."
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr "Lòt yo gen dwa otè: konekte sèvis gratis piblikatè a ak yon kle legliz ou fè yon sèl fwa. Pasaj ou ajoute nan yon sèvis anrejistre avè l, kidonk yo toujou parèt si entènèt la tonbe."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr "Tradiksyon"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr "Sèvis sou entènèt"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr "Konekte"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr "Pa konekte"
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr "1. Enskri gratis sou"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr "Kopye lyen"
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr "2. {}"
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr "3. Kole kle a la a. RustyPresenter tcheke l ak yon sèl rechèch, epi li kenbe l sou òdinatè sa a sèlman."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr "Kle anrejistre — kole yon nouvo pou ranplase l"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr "Kole kle a la a"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr "Anrejistre kle"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr "Dekonekte"
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr "Fichye Bib"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr "Enpòte yon fichye Zefania, OSIS, USX oswa OpenSong (.xml oswa .usx). Enpòte sèlman Bib ki nan domèn piblik oswa legliz ou gen lisans pou itilize. Ba li non kout yon tradiksyon anwo a (tankou HCSB) pou itilize fichye a pou tradiksyon sa a."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr "Non kout, egz. HCSB (si ou vle)"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr "Enpòte yon fichye Bib"
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr "Kredi"
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr "Ap itilize"
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr "Itilize"
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr "Se volontè ki fè tradiksyon yo. Si pa w la manke oswa li gen erè, ou ka ede."
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr "Ede tradui RustyPresenter"
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr "Polis"
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr "Gwosè pawòl"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr "(pi gwo; liy ki long yo vin pi piti pou yo antre)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr "Vèsè Bib"
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr "(pou nouvo pasaj)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr "Gwosè tèks Bib"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr "(pi gwo)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr "Tèks la vin pi piti otomatikman lè yon diapo gen plis mo."
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr "Koulè tèks"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr "Pozisyon tèks"
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr "Mitan"
+
+#: ui/dialogs/settings-look.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr "Tyè anba"
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "Lonbraj dèyè tèks (pi fasil pou li sou foto)"
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr "Pawòl an MAJISKIL"
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr "Logo"
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr "Pa gen logo (bouton Logo montre nwa)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr "Chwazi logo"
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "Apèsi"
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr "Fon pa defo"
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr "Tout lang"
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr "Liy pou chak diapo"
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "Chante ak pasaj Bib. Gen Bib ki mande pou yo montre kredi yo; li parèt yon fwa pou chak pasaj."
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr "Sou premye diapo"
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr "Sou dènye diapo"
+
+#: ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "Etenn"
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr "Nimewo lisans CCLI legliz la"
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr "Kle seksyon (C, B, 1–9…)"
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "Etenn sa si lèt ou tape pa erè fè ekran an bouje."
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr "Lèt ak chif fè chante k ap pase a sote nan yon seksyon"
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
+msgstr "Rapò itilizasyon chante…"
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr "Son an ale nan"
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr "Ekran sal la"
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr "Kenbe ekran sal la devan lè li gen pwòp monitè pa l (tranzisyon pi dous)"
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "Yon sovgad konplè (chante, sèvis, paramèt ak chak videyo, foto ak diapo) fèt chak fwa RustyPresenter demare ak yon fwa pa jou. Dènye 10 yo kenbe nan"
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr "Fè sovgad kounye a"
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr "Retabli"
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr "Poko gen sovgad."
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr "Klavye"
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr "Konsèy: lè ou klike sou nenpòt diapo, li mete l sou ekran an touswit. Kad wouj la montre sa sal la wè."
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr "Aparans"
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "Lang"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr "Chante"
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+msgid "Video"
+msgstr "Videyo"
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr "Sovgad"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr "Èd"
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr "Konsènan"
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr "Anrejistre paramèt"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr "Chante sa a sou ekran an. Anyen p ap chanje sou ekran an jiskaske ou chwazi Anrejistre epi montre kounye a oswa Mete ekran ajou."
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr "Amazing Grace (My Chains Are Gone)"
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr "Otè"
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr "Nimewo chante CCLI"
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr "4768151"
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr "Dwa otè"
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr "© 2006 …"
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyon kòmanse yon nouvo diapo"
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr "Lòd"
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr "(si ou vle)"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "Pa nan pawòl yo — y ap sote l"
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr "Fen"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "Lòd jan l ekri a — trennen pou chanje"
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr "⟲ Itilize lòd jan l ekri a"
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr "Kite l vid pou itilize lòd jan l ekri a"
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr "Diapo yo parèt la a pandan w ap tape. Mete non seksyon tankou “[Kouplè 1]” oswa “[Koral]” sou pwòp liy pa yo."
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr "Efase chante"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr "Anrejistre epi ajoute nan sèvis"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr "Anrejistre chante"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr "Anrejistre epi montre kounye a"
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr "Kenbe yon jounal itilizasyon chante pou rapò CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr "Depi"
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr "AAAA-MM-JJ"
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr "Jiska"
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr "Depi dènye rapò"
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr "3 dènye mwa"
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr "6 dènye mwa"
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr "Ane sa a"
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr "Mete chante ki pa gen nimewo CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr "Chante ki nan domèn piblik pa bezwen rapò."
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr "Nimewo CCLI"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr "Kantite fwa montre"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr "Kantite fwa difize"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr "Dènye fwa itilize"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr "Pa gen chante nan dat sa yo."
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr "Detay ({})"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr "difize"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr "Antre nimewo sa yo sou sit rapò CCLI a: itilizasyon pwojte yo ale anba “Digital”, itilizasyon difize yo anba Streaming License ou. “Difize” vle di yon paj oswa fenèt livestream te louvri, pa vle di ou te an dirèk."
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr "Louvri paj pou enprime"
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr "Anrejistre kòm tablo (CSV)…"
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr "Idantifye ekran"
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr "—"
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr "AN DIRÈK"
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr "ap mete ajou…"
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr "Modifye mo yo"
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr "Korije mo chante k ap pase a. Ekran an chanje sèlman lè ou di l."
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr "Mete ekran ajou"
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr "Retounen (← oswa Page Up)"
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Pwochen"
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr "Pwochen (→, Espas oswa Page Down)"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Apre sa"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr "Efase Tout"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "Medya"
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr "Son"
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr "Jwe"
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "Poz"
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr "SOU EKRAN"
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr "Bibliyotèk medya"
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr "Videyo"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr "Foto"
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr "Chèche medya"
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr "Ti imaj pi piti"
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr "Ti imaj pi gwo"
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr "Enpòte"
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr "Nouvo dosye"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr "Efase dosye"
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr "Poko gen anyen la a. Klike Enpòte, oswa eseye yon lòt dosye oswa yon lòt mo."
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr "Chwazi yon fichye"
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr "Itilize kòm fon"
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr "Ajoute nan sèvis"
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr "Mete nan dosye"
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr "Ekran sal la etenn"
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr "Lage l pou ajoute l nan sèvis la"
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr "Videyo, foto, mizik, prezantasyon (PowerPoint, Keynote, PDF), fichye pawòl SongSelect"
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr "Sèvis"
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr "Ajoute yon tit"
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr "Ajoute yon tit ak koulè nan lis sèvis la, tankou “Adorasyon” oswa “Mesaj”"
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr "Tcheke"
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr "Anvan sèvis la: èske tout chante, fichye ak ekran yo la?"
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr "Chwazi sa k ale la a"
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr "Chanje koulè"
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr "Sèvis ou a vid"
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr "Klike “Ajoute nan sèvis” anba a, tape yon vèsè Bib anwo a, oswa trennen fichye sou fenèt sa a."
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr "Ann prepare sèvis dimanch sa a"
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr "Tout sa ou ajoute parèt sou bò gòch. Klike sou yon diapo pou mete l sou ekran an."
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr "Klike “Ekran” epi chwazi pwojektè a oswa televizyon an."
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr "Klike “Ajoute nan sèvis” pou chante, videyo ak diapo — oswa trennen fichye vin ladan l."
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr "Tape yon vèsè tankou “Jan 3:16” nan bwat Bib la epi peze Enter."
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr "Anyen pa chwazi"
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr "Tèks pi piti pou pasaj sa a"
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr "Tèks pi gwo pou pasaj sa a"
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr "Retounen nan gwosè ki nan Paramèt"
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr "Chwazi yon bagay nan lis sèvis la."
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr "Pa gen anyen pou montre"
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr "Eleman sa a poko gen diapo. Klike Modifye pou ajoute kèk."
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr "Chanje oswa kreye sèvis"
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Vèsè Bib — tape Jan 3:16 epi peze Enter"
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} poko konekte (Paramèt → Bib). Ou ka toujou kole vèsè li yo ak Ajoute → Bib."
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Vèsè pou chak diapo pou pwochen pasaj la. Klike pou chanje."
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr "Vèsè: {}"
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr "Sal"
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr "Sèn"
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr "Ekran sèn"
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr "Telefòn kontwòl ki konekte"
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr "Montre yon mesaj sou ekran sèn nan"
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Ekran"
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Telefòn"
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr "Paramèt"
+
+#: ui/operator.slint
+msgid "File"
+msgstr "Fichye"
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr "Nouvo sèvis…"
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr "Sèvis…"
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr "Louvri yon fichye sèvis…"
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr "Anrejistre sèvis sa a nan yon fichye…"
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr "Chante…"
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr "Pasaj Bib…"
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr "Videyo ak medya…"
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr "Diapo…"
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr "Anons…"
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr "Enpòte medya…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Sòti"
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr "Modifye eleman ki chwazi a…"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr "Bwat Bib"
+
+#: ui/operator.slint
+msgid "View"
+msgstr "Afichaj"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr "Efase tout"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr "Efase tèks"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr "Efase medya ak fon"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr "Kanpe son"
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr "Kache bibliyotèk medya"
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr "Montre bibliyotèk medya"
+
+#: ui/operator.slint
+msgid "Window"
+msgstr "Fenèt"
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr "Ekran…"
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr "Telefòn kontwòl…"
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr "Mesaj pou sèn…"
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr "Paramèt…"
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr "Chante…"
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr "Bib…"
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr "Videyo…"
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr "Sovgad…"
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr "Rakousi klavye"
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr "Tcheke sèvis la"
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr "Konsènan RustyPresenter"
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr "RustyPresenter — Sal"
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr "RustyPresenter — Sèn"
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr "N ap tann sèvis la…"
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr "Fen sèvis la"
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr "PWOCHEN"
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr "Koupe"
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr "Kole"
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr "Chwazi tout"
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr "Pa t ka anrejistre: {error}"
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr "Ekran sal la te redemare. Videyo/son kanpe — klike sou li ankò pou rejwe l."
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr "Ekran sal la te redemare."
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr "RustyPresenter ap demare toujou. Eseye ankò nan yon ti moman."
+
+#: src/app.rs
+msgid "This computer"
+msgstr "Òdinatè sa a"
+
+#: src/app.rs
+msgid "Not used"
+msgstr "Pa itilize"
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr "{name} — enstale ladan l, domèn piblik"
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr "{name} — fichye enpòte"
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr "Bay chante a yon tit."
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Chante sa a nan yon sèvis. Retire l nan sèvis la anvan."
+
+#: src/app.rs
+msgid "No service is open."
+msgstr "Pa gen sèvis ki louvri."
+
+#: src/app.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr "Move demann: {error}"
+
+#: src/app.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Eleman sa a pa la ankò."
+
+#: src/app.rs
+msgid "New Service"
+msgstr "Nouvo Sèvis"
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Sèvis sa a pa la ankò."
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr "Ou bezwen omwen yon sèvis."
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr "Sèvis Bib enkoni."
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr "Fichye sa a pa la ankò."
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr "Bay dosye a yon non."
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Sa a nan yon sèvis. Retire l nan sèvis la anvan."
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Move demann: objektif enkoni {purpose}"
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr "Chwazi omwen yon foto."
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Gen yon foto ki manke. Eseye voye l ankò."
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Diapo sa yo nan yon sèvis. Retire yo nan sèvis la anvan."
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Tradiksyon enkoni."
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr "Lang enkoni."
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "Lang lan chanje"
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr "Ekran enkoni."
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr "Chwazi yon sòti pou ekran sa a anvan."
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr "Ajoute yon ekran anvan."
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr "Asistans {number}"
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr "Ekran sèn {number}"
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr "Ekran sa a pa la ankò."
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr "Chak lis kenbe omwen yon ekran."
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr "Sovgad la echwe."
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr "Pa t ka anrejistre fichye a (disk la plen?)."
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr "Pa t ka louvri “{file}”: {error}"
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr "Pa t ka li “{file}”: {error}"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr "API.Bible voye 200 vèsè pi plis chak fwa; chwazi yon pasaj pi kout"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} pa nan plan kle API.Bible sa a; ajoute l anba Plan nan tablo bò API.Bible la"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} pa disponib ak kle API.Bible sa a; ajoute l anba Plan nan tablo bò API.Bible la"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr "API.Bible voye yon lòt liv"
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr "pa gen liy"
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr "eBible reponn {status}"
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr "lis la pi gwo anpil pase jan nou te panse"
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr "fichye vid"
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr "pa gen kolòn {column}"
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr "sèvis ESV a voye yon lòt liv"
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr "Itilize yon fichye Bib Zefania, OSIS, USX oswa OpenSong (.xml oswa .usx)."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr "Pa jwenn okenn vèsè Bib nan fichye sa a. {formats}"
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr "{reference} pa egziste."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr "Pasaj sa a twò long. Chwazi jiska anviwon 400 vèsè."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Pa jwenn okenn vèsè."
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr "Bay Bib la yon non kout 2-10 lèt oswa chif, tankou WEB."
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr "{abbr} enstale deja. Bay Bib sa a yon lòt non kout."
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr "Yon Bib ki telechaje bezwen detay li yo."
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr "Yo pa ka itilize id Bib sa a."
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr "Pa jwenn okenn vèsè Bib."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr "Pa jwenn okenn vèsè Bib nan sa ki telechaje a."
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr "Fichye sa a pa yon XML ki valab (toupre bit {at}: {error}). {formats}"
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr "Gratis pou legliz. Kreye yon “API application”, epi kopye kle li."
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr "Gratis pou itilizasyon ki pa komèsyal. Enskri, epi kopye kle a nan kont ou."
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr "Plan gratis Starter la pèmèt 3 Bib ki gen dwa otè: anba Plan, chwazi CSB (ak NIV oswa NLT si ou vle yo soti la)."
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Kreye yon app, epi aksepte lisans chak Bib nan pòtay la (NIV soti nan Biblica; HCSB si yo ofri l)."
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr "sèvis la reponn {status}"
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr "Pa t ka jwenn {service} pou {translation}. Tcheke koneksyon entènèt la."
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr "{service} refize kle a. Tcheke l nan Paramèt → Bib."
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr "{service} di gen twòp rechèch. Tann yon minit epi eseye ankò."
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr "Rechèch {translation} echwe: {error}."
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr "{translation} pa gen sous sou entènèt. Kole vèsè li yo ak Ajoute → Bib, oswa enpòte yon fichye ak lisans nan Paramèt → Bib."
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} bezwen yon kle gratis nan {service}. Ajoute l nan Paramèt → Bib, oswa kole vèsè yo ak Ajoute → Bib."
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr "YouVersion pa gen id Bib pou {translation}"
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr "pasaj sa a kouvri twòp chapit; chwazi mwens"
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr "app YouVersion sa a pa gen lisans pou Bib {bible}; aksepte lisans piblikatè a sou platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr "app YouVersion nan achive oswa retire; tcheke l sou platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr "YouVersion voye yon lòt liv"
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr "Tape yon referans, tankou Jan 3:16."
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr "Mwen pa rekonèt liv \"{book}\" la."
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr "Ajoute yon chapit, tankou Jan 3 oswa Jan 3:16."
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr "Referans sa a pa sanble kòrèk. Eseye yon bagay tankou Jan 3:16-18."
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr "Fen entèval la vini anvan kòmansman an."
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr "Kole tèks vèsè a anvan."
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr "RustyPresenter Remote"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr "Telefòn kontwòl"
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "Sou òdinatè prezantasyon an, klike {phone} → {pair}, epi tape kòd 6 chif la la a."
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr "Konekte"
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr "Ap konekte…"
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr "Sou ekran"
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr "Poz videyo"
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr "Jwe videyo"
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr "Tape sou yon diapo pou mete l sou ekran an."
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr "Ekran an chanje — eseye ankò."
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr "Ekran an fèk chanje — tape sou diapo a ankò."
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr "Kòd QR sa a ekspire. Sou òdinatè a, klike Konekte yon telefòn ankò."
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr "Pa t ka konekte."
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr "(Logo)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr "(Mizik ap jwe)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr "(Vid)"
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr "Telefòn Android"
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr "Chante san tit"
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr "plis pase {max} seksyon, kidonk se pa yon chante"
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr "pa gen pawòl"
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr "yon blòk {block} pa janm fini, kidonk tout sa ki vin apre l pa antre"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr "fichye a twò gwo pou se yon chante"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr "pa t ka li l: {error}"
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr "li pa sanble yon fichye ChordPro"
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr "pa gen chante ladan l"
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr "Pa t ka li okenn chante nan {path}: {why}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr "Pa t ka jwenn {path}."
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr "Pa jwenn okenn fichye ChordPro (.cho, .chordpro, .chopro, .crd, .pro) nan {path}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr "dosye a gen plis pase {max} fichye ak dosye ladan l, kidonk se sèlman premye {max} yo ki te gade"
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr "Pa t ka li {path}: {error}."
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr "{app} te kontinye anrejistre chanjman pandan n t ap li bibliyotèk la. Fèmen {app} epi eseye ankò."
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr "Pa t ka fè yon dosye tanporè: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr "Pa t ka kopye {path}: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr "Pa t ka louvri {path}: {error}."
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr "baz done a te rete bloke"
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr "{path} vid oswa domaje, kidonk pa gen anyen pou enpòte."
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr "pa gen pawòl (petèt se yon videyo oswa yon anons)"
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr "pawòl yo vid"
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr "Sa sanble yon bibliyotèk EasyWorship 2009 (oswa pi ansyen). Se sèlman bibliyotèk EasyWorship 6 ak 7 ki ka enpòte."
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr "Jwenn Songs.db men pa SongWords.db bò kote l nan {folder}."
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr "Pa jwenn okenn Songs.db EasyWorship la a. Chwazi dosye Databases\\Data pwofil la (anjeneral C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr "Pa t ka li bibliyotèk EasyWorship la: {error}"
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr "Songs.db pa gen tab chante. Èske se yon bibliyotèk EasyWorship?"
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr "SongWords.db pa gen tab mo. Èske se yon bibliyotèk EasyWorship?"
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr "pawòl yo pa yon XML ki valab ({error})"
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr "pawòl yo gen twòp kouplè (plis pase {max})"
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr "pawòl yo twò long pou se yon chante"
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr "pawòl yo pa gen kouplè"
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr "yon kopi tanporè OpenLP kenbe pou yon fichye sèvis"
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr "Fichye sa a pa yon baz done chante OpenLP (songs.sqlite)."
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr "Pa t ka louvri baz done OpenLP a."
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr "Pa jwenn okenn songs.sqlite OpenLP la a. Chwazi dosye done OpenLP a (sou Windows anjeneral %APPDATA%\\openlp\\data, sou macOS ~/Library/Application Support/openlp/Data, sou Linux ~/.local/share/openlp)."
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr "Pa t ka li baz done OpenLP a: {error}"
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr "Sa a pa yon baz done chante OpenLP: li pa gen tab songs."
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr "li pa yon XML ki valab ({error})"
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr "twòp kouplè pou se yon chante"
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr "se yon chante OpenSong, pa OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr "se pa yon chante OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr "pa XML"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr "se pa yon chante OpenLyrics oswa OpenSong"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr "pa gen chante ladan l"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr "Pa t ka li okenn chante nan {path}: {why}."
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr "Pa jwenn okenn chante OpenLyrics oswa OpenSong nan {path}."
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr "pawòl yo gen twòp seksyon pou se yon chante"
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr "se yon chante OpenLyrics, pa OpenSong"
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr "se pa yon chante OpenSong"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr "Fichye ProPresenter 7 poko sipòte; ekspòte kòm tèks oswa ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr "Pakè ProPresenter 6 (.pro6x) poko sipòte; chanje non l an .zip, dekonprese l, epi enpòte fichye .pro6 ki anndan an"
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr "chante a gen twòp gwoup (plis pase {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr "chante a gen twòp diapo (plis pase {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr "chante a pa gen mo sou diapo li yo"
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr "se yon lis lekti ProPresenter, pa yon chante"
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr "se pa yon chante ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr "Pa jwenn okenn chante ProPresenter nan {path}."
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr "Eleman sa a pa nan sèvis la."
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr "Eleman sa a pa gen anyen pou montre."
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr "Eleman sa a pa gen diapo."
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr "Videyo sa a pa jwe ankò."
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr "Son sa a pa jwe ankò."
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr "Anyen poko sou ekran."
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr "Kòmansman sèvis la"
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr "Pa t ka montre sa: {reason}"
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr "Lekti a kanpe: {reason}"
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr "yo pa t ka jwe fichye a"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr "RustyPresenter pa t ka louvri jounal li: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr "RustyPresenter pa t ka demare: {reason}"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr "Lang ki chwazi nan Paramèt la pa nan vèsyon sa a, kidonk RustyPresenter an anglè."
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr "RustyPresenter pa t ka louvri fenèt li: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr "RustyPresenter pa t ka fè fenèt li yo mache: {reason}"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr "Ekran yo pa mache."
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr "Ekran yo pa t reponn alè."
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr "Yon lòt pwogram ap itilize pò {port}, kidonk RustyPresenter pa ka demare."
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr "Ekran sa a pa konekte kounye a."
+
+#: src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "Ekriti"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr "RustyPresenter redemare apre yon pwoblèm."
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr "RustyPresenter redemare apre yon pwoblèm. Videyo/son kanpe — klike sou li ankò pou rejwe l."
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr "RustyPresenter kanpe apre li te tonbe 3 fwa nan yon minit. Jounal la nan {path}."
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr "Paj sa a louvri sèlman sou òdinatè prezantasyon an."
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr "Twò vit — tann yon segonn epi eseye ankò."
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr "Koneksyon telefòn pa louvri. Sou òdinatè a, klike “Telefòn kontwòl” → “Konekte yon telefòn”."
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr "Twòp move kòd. Rekòmanse koneksyon an sou òdinatè a."
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr "Kòd sa a pa bon."
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr "Telefòn {number}"
+
+#: src/server.rs
+msgid "Bad command."
+msgstr "Move kòmand."
+
+#: src/server.rs
+msgid "Not allowed from the phone."
+msgstr "Pa pèmèt sou telefòn nan."
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "{n} diapo"
+msgstr[1] "{n} diapo"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr "(foto diapo)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr "(videyo)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr "(foto)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr "(son)"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr "Chante ki manke"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr "Medya ki manke"
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr "Diapo {n}"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr "Diapo ki manke"
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr "Fichye sa a twò gwo pou se yon fichye pawòl."
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr "Fichye pawòl la vid."
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr "Fichye sa a pa gen tit Kouplè/Koral. Itilize telechajman \"Lyrics (.txt)\" SongSelect la."
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Pa jwenn okenn pawòl nan fichye sa a."
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr "Pa ka jwenn yon dosye pou kenbe done ou yo. Mete RUSTYPRESENTER_DATA."
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr "Pa ka itilize dosye done {path}: {reason}"
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr "Done ou anrejistre nan {path} yo pa t ka li ({reason}). Anyen pa t ranplase. Retabli yon sovgad nan dosye sovgad la oswa mete fichye a sou kote."
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr "Pa ka li {path}: {reason}"
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Pa t ka anrejistre: {reason}"
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr "Sovgad enkoni."
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr "Sovgad sa a pa konplè, yo pa ka retabli l."
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr "Anyen pa koresponn."
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr "Poko gen anyen la a."
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] "Chèche nan {n} chante…"
+msgstr[1] "Chèche nan {n} chante…"
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] "Chèche nan {n} fichye…"
+msgstr[1] "Chèche nan {n} fichye…"
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr "Chèche diapo…"
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr "Pou enpòte fichye PowerPoint oswa Keynote, enstale LibreOffice (gratis). Fichye PDF mache san li."
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr "Kopye"
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…ak {n} lòt ankò."
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] "{n} chante enpòte."
+msgstr[1] "{n} chante enpòte."
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] "{n} deja nan bibliyotèk la: {titles}"
+msgstr[1] "{n} deja nan bibliyotèk la: {titles}"
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr "Pa enpòte:"
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr "N ap li bibliyotèk EasyWorship la…"
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr "Nou jwenn LibreOffice!"
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr "Poko jwenn li — fini enstale l, epi klike Tcheke ankò."
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr "{passage} ajoute"
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr "Ba l yon tit."
+
+#: src/strings/add.rs
+msgid "Ready"
+msgstr "Pare"
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr "Echwe"
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr "Fichye sa a pa ka jwe."
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr "N ap tcheke fichye a ankò…"
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr "Efase nan bibliyotèk la"
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr "Efase “{name}” nan bibliyotèk la?"
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr "Lektè videyo a manke — reenstale RustyPresenter"
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr "Efase “{name}”?"
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr "OK"
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr "Chante anrejistre"
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr "Pa nan pawòl yo: {sections}"
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr "Ekran an te efase — eseye ankò."
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr "Mete yon lè kòmansman pou sèvis sa a anvan (Sèvis → Kòmanse a)."
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr "Lè kòmansman sèvis la ({time}) pase deja."
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr "Lè sa a ({time}) pase deja."
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr "Kontè sa a bezwen yon RustyPresenter ki pi nouvo."
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr "Yon dekont pou yon lè pa ka mete an poz."
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr "Chwazi yon dire ant 1 segonn ak 23:59:59."
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr "Kontè sa a pa ka regle konsa."
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr "Ranpli “{field}”."
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr "Mesaj sa a twò long pou ekran an (200 lèt pi plis)."
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr "Mesaj sa a gen yon { san } ki ale avè l."
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr "Mesaj ap parèt"
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr "Mòd pratik la limen — sa parèt sèlman nan apèsi ou. Fini pratik la pou montre l nan sal la."
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr "Gadri"
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr "Paran timoun #{Number}, tanpri vin nan gadri a."
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr "Machin"
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr "Machin {Plate}: limyè ou limen."
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr "Pèsonalize"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase eleman etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase kontè etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase kouch etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase vi ekran etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase mesaj etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr "Pa t ka egzekite “{name}”: yo te efase aranjman sèn etap {step} la. Modifye makwo a."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr "Pa t ka egzekite “{name}”: etap {step} bezwen yon RustyPresenter ki pi nouvo."
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr "“{name}” egzekite"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr "“{name}” egzekite, men etap {step} pa t mache: {reason}"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr "“{name}” egzekite, men li pa t montre anyen paske ekran an te efase."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr "“{timer}” rive a zewo, men “{macro_name}” chanje diapo, kidonk li pa t egzekite."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr "“{timer}” rive a zewo, men “{macro_name}” pa t montre anyen paske ekran an te efase."
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr "Chwazi 2 a 600 segonn."
+
+#: src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "Bezwen omwen de diapo."
+
+#: src/strings/automation.rs
+msgid "Service starts in"
+msgstr "Sèvis la kòmanse nan"
+
+#: src/strings/automation.rs
+msgid "Pre-service"
+msgstr "Anvan sèvis"
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr "Kòmanse dekont"
+
+#: src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "Chanje l nan onglè Anvan sèvis la"
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr "Dekont la fini — anyen pa chanje paske sèvis la kòmanse."
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr "Rekòmanse dekont la pou itilize nouvo lè a."
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr "Kòmansman sèvis"
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr "Prèch"
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr "Kwonomèt"
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr "Sa a pa yon fichye sèvis RustyPresenter."
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr "Se yon vèsyon RustyPresenter ki pi nouvo ki fè fichye sèvis sa a."
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr "Fichye sèvis sa a domaje, kidonk anyen pa t ajoute."
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr "N ap anrejistre sèvis la…"
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr "N ap louvri fichye sèvis la…"
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr "Yon chante nan sèvis sa a pa nan bibliyotèk la ankò."
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr "Yon videyo, foto oswa son nan sèvis sa a pa nan bibliyotèk la ankò."
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr "Yon gwoup diapo nan sèvis sa a pa nan bibliyotèk la ankò."
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr "Yon fon nan sèvis sa a manke fichye li."
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr "{name} manke fichye li."
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] "Yo te fè sèvis sa a ak yon polis òdinatè sa a pa genyen, kidonk mo li yo parèt nan yon lòt polis: {fonts}. Enstale l pou wè yo jan yo te fèt la."
+msgstr[1] "Yo te fè sèvis sa a ak polis òdinatè sa a pa genyen, kidonk mo li yo parèt nan yon lòt polis: {fonts}. Enstale yo pou wè yo jan yo te fèt la."
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr "“{name}” anrejistre nan yon fichye."
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr "Sèvis sa a pa t anrejistre, paske yon bagay li bezwen manke:"
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr "“{name}” louvri."
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "{n} chante"
+msgstr[1] "{n} chante"
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] "{n} fichye medya"
+msgstr[1] "{n} fichye medya"
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] "{n} gwoup diapo"
+msgstr[1] "{n} gwoup diapo"
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr "Nouvo nan bibliyotèk la: {things}."
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr "Sa yo diferan de chante ki deja la yo, kidonk sèvis la itilize yon dezyèm kopi: {titles}"
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr "Ou pa sou entènèt. Bib ou te ajoute yo toujou mache."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr "Yo pa t ka li lis Bib yo. Eseye ankò pita."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr "Yo pa t ka anrejistre lis Bib yo sou òdinatè sa a."
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr "Lisans tcheke lè telechaje"
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr "Bib konplè"
+
+#: src/strings/catalog.rs
+msgid "New Testament"
+msgstr "Nouvo Testaman"
+
+#: src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "Ansyen Testaman"
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr "Kèk pòsyon"
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr "Gen Apokrif ladan l"
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr "N ap telechaje {name}…"
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr "N ap tann pou telechaje {name}…"
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr "N ap tcheke {name}…"
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr "Pa t ka telechaje {name}. Tcheke entènèt la epi eseye ankò."
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr "Lisans Bib sa a pa pèmèt nou kenbe l. Nou retire l."
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr "Mizajou pou {name} pa t ka itilize. Kopi ou genyen an toujou mache."
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr "Bib sa a pi gwo pase jan nou te panse, kidonk li pa t ajoute."
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr "Pa gen ase espas sou disk la pou Bib sa a (li bezwen anviwon {n} MB)."
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr "{name} pa t ka itilize, kidonk li pa t ajoute."
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr "Bib sa a pa nan lis la ankò. Louvri Paramèt → Bib ankò pou wè lis kounye a."
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr "Ou pa sou entènèt, kidonk ou pa ka ajoute Bib kounye a."
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr "N ap chaje lis Bib yo…"
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr "Pa gen Bib ki koresponn. Eseye mwens mo, oswa Tout."
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr "Poko gen Bib ajoute. Chwazi Tout pou wè Bib ou ka ajoute."
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr "San entènèt"
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr "Mete ajou"
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr "Ajoute"
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr "Òdinatè ou ka pa gen polis pou lang sa a."
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr "Ap tann"
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr "Yon nouvo edisyon pare"
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr "Bib pa defo chanje"
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr "Ou ka montre jiska de lòt Bib. Etenn youn anvan."
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr "{name} — telechaje sou eBible.org"
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr "N ap montre {shown} sou {total} Bib. Chèche pou jwenn lòt yo."
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr "Ap telechaje… {percent}%"
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr "{bible} ajoute"
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr "{bible} retire"
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr "Disponib tou sou {sources}"
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr "Sèvis"
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr "Konfigirasyon ekran"
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr "Prezantasyon sa a gen yon modpas. Louvri l nan PowerPoint, retire modpas la (Fichye → Enfo → Pwoteje), anrejistre, epi enpòte ankò."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr "Sa a pa sanble yon fichye PowerPoint."
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr "LibreOffice te pran twòp tan, yo kanpe l. Eseye ankò; premye enpòtasyon apre òdinatè a fin demare pi lan."
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr "LibreOffice pa t ka li prezantasyon sa a."
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr "LibreOffice ki soti nan Snap pa ka li fichye RustyPresenter yo. Enstale LibreOffice ki soti nan distribisyon ou pito (sudo apt install libreoffice-impress)."
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr "LibreOffice pa t ka demare. Reenstale l epi eseye ankò."
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr "PowerPoint te pran twòp tan, yo kanpe l. Eseye ankò."
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr "PowerPoint pa t ka louvri prezantasyon sa a."
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr "PowerPoint pa t ka demare."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr "Sa a pa sanble yon fichye PDF."
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr "Fichye sa a te pran twòp tan pou louvri."
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr "Foto sa a pa ka louvri. Anrejistre l kòm PNG oswa JPEG epi eseye ankò."
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr "Prezantasyon sa a pa gen diapo."
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr "Prezantasyon sa a melanje gwosè diapo, RustyPresenter pa ka montre sa."
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr "Konvètisè diapo a (pdfium) manke. Reenstale RustyPresenter."
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr "Konvètisè diapo a sispann reponn. Redemare RustyPresenter epi eseye ankò."
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr "Diapo {page} pa t ka tounen yon foto."
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr "PDF sa a pa ka louvri. Si li gen yon modpas, retire l epi enpòte ankò."
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr "Yon diapo pa t ka anrejistre. Tcheke si disk la gen espas lib, epi eseye ankò."
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr "N ap tann yon lòt fichye…"
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr "N ap ajoute “{name}”"
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr "N ap enpòte “{name}”"
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr "Anrejistre fichye Keynote la kòm yon sèl fichye epi enpòte ankò."
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr "N ap tann LibreOffice…"
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr "N ap tann PowerPoint…"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr "PowerPoint pa t ka louvri l; nou itilize LibreOffice."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr "Enpòte ak LibreOffice — tcheke diapo yo."
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr "Nou te tann {expected} diapo men se {imported} ki enpòte."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr "Enpòte ak LibreOffice — tcheke diapo yo. Nou te tann {expected} diapo men se {imported} ki enpòte."
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr "Pou enpòte prezantasyon, enstale LibreOffice. {hint}"
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr "Anrejistre"
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr "Pa defo tèm nan"
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr "+ Voye…"
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr "Ajoute nan bibliyotèk medya a — chwazi l la a"
+
+#: src/strings/operator.rs src/strings/print.rs
+msgid "Picture"
+msgstr "Foto"
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr "{kind} · pa ka jwe"
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr " · an bouk"
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr "{kind} · Lektè videyo a manke — reenstale RustyPresenter"
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] "{kind} · {n} diapo"
+msgstr[1] "{kind} · {n} diapo"
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] "{n} eleman"
+msgstr[1] "{n} eleman"
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] "{n} telefòn"
+msgstr[1] "{n} telefòn"
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr "Efase"
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr "Foto diapo"
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr "Tèks la deja gwo otan ke li ka antre. Chwazi mwens vèsè pou chak diapo (Modifye) pou fè l pi gwo."
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr "Chwazi yon eleman sou bò gòch"
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr "Byenveni"
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr "Yon bagay pa mache."
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr "Ekran sal la ap montre"
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr "Ekran sal la ap demare…"
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr "Ekran sal la pa louvri — klike Ekran"
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr "Pa t ka louvri fenèt operatè a: {error}"
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] "Fè {n} foto yo tounen yon sèl gwoup diapo?"
+msgstr[1] "Fè {n} foto yo tounen yon sèl gwoup diapo?"
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr "Yon sèl gwoup"
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr "Foto separe"
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr "Videyo, foto ak mizik"
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr "Prezantasyon"
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr "Fichye pawòl SongSelect"
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr "Foto ak videyo"
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr "Fichye sèvis"
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr "{passage} ajoute — peze Enter pou montre l"
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr "Ajoute nan sèvis la"
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr "N ap voye {name}"
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] "N ap voye {n} foto"
+msgstr[1] "N ap voye {n} foto"
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr "{name} ajoute"
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr "“{title}” enpòte"
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr "“{title}” deja nan bibliyotèk la."
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr "“{title}” mete ajou"
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr "Mete sa ki la ajou"
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr "Kenbe toude"
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr "“{title}” pare"
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr "Bay diapo sa yo yon non"
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr "Mesaj pou ekran sèn nan. Kite l vid pou retire l."
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr "Favori"
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr "Resan"
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr "Lòt Bib"
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr "enpòte"
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr "Okenn Bib ou genyen pa koresponn. Jwenn plis Bib anba a."
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr "{bible} ajoute nan favori"
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr "{bible} retire nan favori"
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr "Tout medya"
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr "Ap konvèti {percent}%"
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr "Klike sou yon ti imaj pou chwazi l."
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr "Klike de fwa sou yon ti imaj pou itilize l kòm fon eleman ki chwazi a."
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr "Ajoute l nan sèvis la pou jwe l."
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr "Fichye sa a poko pare pou jwe."
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr "Chwazi yon eleman nan sèvis la anvan, epi chwazi fon li."
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr "Fon an se {name} kounye a"
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr "Non dosye (kite l vid si pa gen)"
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr "Non pou nouvo dosye a"
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr "Efase dosye “{name}”? Fichye li yo rete nan bibliyotèk la."
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] "Kòd la mache pou {n} segonn ankò"
+msgstr[1] "Kòd la mache pou {n} segonn ankò"
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr "Kòd la ekspire — klike Konekte yon telefòn ankò."
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr "Pa gen dat"
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr "Len"
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr "Mad"
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr "Mèk"
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr "Jed"
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr "Van"
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr "Sam"
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr "Dim"
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr "Lendi"
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr "Madi"
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr "Mèkredi"
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr "Jedi"
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr "Vandredi"
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr "Samdi"
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr "Dimanch"
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr "Chak lendi"
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr "Chak madi"
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr "Chak mèkredi"
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr "Chak jedi"
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr "Chak vandredi"
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr "Chak samdi"
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr "Chak dimanch"
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr "Nenpòt jou"
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr "nenpòt"
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr "Janvye"
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr "Fevriye"
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr "Mas"
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr "Avril"
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr "Me"
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr "Jen"
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr "Jiyè"
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr "Out"
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr "Septanm"
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr "Oktòb"
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr "Novanm"
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr "Desanm"
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr "Lekti Bib"
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr "Yon bagay"
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr "Vid"
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr "{label} (vid)"
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr "Klike Chwazi pou ranpli sa a"
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr "Sa a vid — chwazi sa k ale la a anvan."
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr "Ranpli: {label}"
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr "Pa gen sèvis pou kopye."
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr "Modèl sa a pa la ankò."
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr "Dat sa a pa valab."
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr "Espas vid sa a pa la ankò."
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr "Eleman sa a pa vid ankò."
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr "Yon modèl bezwen yon non."
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr "Yon modèl bezwen omwen yon pati."
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr "Sa a nan modèl “{name}”. Retire l nan modèl la anvan."
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] "{n} vid"
+msgstr[1] "{n} vid"
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] "Montre {n} sèvis ki pi ansyen"
+msgstr[1] "Montre {n} sèvis ki pi ansyen"
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] "{n} pati, {blanks}"
+msgstr[1] "{n} pati, {blanks}"
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr "Poko gen modèl. Itilize “Anrejistre kòm modèl” sou yon sèvis pou fè youn."
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr "Anrejistre yon sèvis kòm modèl anvan"
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr "Fè yon sèvis pou {date} apati “{service}”?"
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr "Kopye, ak espas vid pou chante ak lekti Bib"
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr "Gen yon sèvis deja pou {date} (“{name}”)."
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr "Louvri l"
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr "Fè yon lòt"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr "“{name}” pare"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr "“{name}” pare — ranpli {blanks}"
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr "Dat sèvis la (kite l vid si pa gen dat)"
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr "Dat sèvis la, tankou {example} (kite l vid si pa gen dat)"
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr "Non pou modèl la"
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr "Modèl “{name}” anrejistre"
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr "Chanje non modèl"
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr "Efase modèl “{name}”? (Sèvis ki fèt ak li yo ap rete.)"
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr "Ki modèl?"
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr "Non pou nouvo sèvis la"
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr "Pou ki jou modèl “{name}” la ye?"
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr "Non pou tit la"
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr "Adorasyon"
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr "Chanje non tit"
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr "Klike “Fè yon sèvis” sou modèl ou vle a, anba Modèl."
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr "Tape yon jou nan semèn nan, tankou Dimanch, oswa kite l vid pou nenpòt jou."
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr "Tout bagay pare. Nou jwenn chak chante, fichye ak ekran pou sèvis sa a."
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr "Sèvis sa a poko gen eleman."
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr "Pa gen ekran sal ki chwazi. Chwazi youn nan Ekran."
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr "Ekran sal la pa konekte. Tcheke kab li, oswa chwazi yon lòt nan Ekran."
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr "Ekran sèn nan pa konekte. Sèvis la ka fèt san li."
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr "Sòti son ki chwazi nan Paramèt la pa konekte. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo."
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr "Sòti son an pa konekte, kidonk videyo a oswa son an mete an poz. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo, epi peze jwe."
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr "Fichye logo a manke. Chwazi l ankò nan Paramèt."
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr "Fichye fon pa defo a manke. Chwazi l ankò nan Paramèt."
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr "chante a pa nan bibliyotèk la ankò"
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr "chante a pa gen mo"
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr "pa gen tèks vèsè"
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr "li pa nan bibliyotèk la ankò"
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr "fichye li manke"
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr "diapo sa yo pa nan bibliyotèk la ankò"
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr "fichye fon li manke"
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr "li pa ka jwe ({reason})"
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] "{missing} sou {n} diapo manke"
+msgstr[1] "{missing} sou {n} diapo manke"
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr "{number}. {title}: {problem}"
+
+#: src/strings/preflight.rs
+msgid "…and {n} more"
+msgstr "…ak {n} lòt ankò"
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] "{n} bagay pou korije anvan sèvis la:"
+msgstr[1] "{n} bagay pou korije anvan sèvis la:"
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr "{bible} pa pare san entènèt pou {passage}. Louvri sèvis sa a yon fwa ak entènèt."
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr "Lòd: {sections}"
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr "Vid — {label}"
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr "(poko chwazi)"
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr "(pa gen pawòl)"
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr "(tèks vèsè a pa anrejistre ak sèvis sa a)"
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr " (an bouk)"
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr "Pa gen chante ni lekti Bib nan sèvis sa a."
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr "Sèvis sa a vid."
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr "Enprime nan RustyPresenter · {date}"
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr "Louvri nan navigatè w — itilize Enprime la (ou ka anrejistre kòm PDF tou nan fenèt enprime a)"
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr "{file} anrejistre"
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr "Pa t ka fè paj la: {reason}."
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr "Pa t ka anrejistre nan dosye sa a: {reason}."
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr "Paj la anrejistre nan {path} men okenn pwogram pa t louvri l. Louvri l la pou enprime."
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr "Paj wèb"
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr "Enprime oswa anrejistre"
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr "Asistans"
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr "Ekran asistans"
+
+#: src/strings/screens.rs
+msgid "Stage screen"
+msgstr "Ekran sèn"
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr "Ap montre"
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr "Pa gen sòti"
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr "Dekonekte"
+
+#: src/strings/screens.rs
+msgid "None"
+msgstr "Okenn"
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr "Nan yon fenèt (pou teste)"
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr "Pa konekte kounye a"
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr "Se ekran w ap travay sou li a. Si ou limen sa, l ap kouvri l."
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr "Montre menm imaj ak {screen}. Son an jwe sèlman sou {screen}."
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr "Retire “{name}”?"
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr "Tape omwen yon mo pou chèche."
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr "Ajoute yon chapit, tankou Jòb 1 oswa Jòb 1:1."
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr "Chwazi yon lòt dezyèm tradiksyon."
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr "Dezyèm tradiksyon an etenn (menm ak prensipal la)."
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr "Twò long — l ap koupe nan mitan yon vèsè"
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr "Si yo rete ansanm, diapo a ap twò long, kidonk l ap koupe nan mitan yon vèsè."
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr "Diapo Bib yo ajiste ak ekran an kounye a, kidonk kèk pasaj ka koupe nan lòt kote."
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr "N ap ajiste diapo yo…"
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr "Tradiksyon sa a pa ka itilize nan RustyPresenter. Tanpri chwazi yon lòt Bib."
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr "Vèsè sa a soti nan yon vèsyon ki pi ansyen; chèche pasaj la ankò pou chwazi koupi isit la."
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] "Yon pasaj te itilize yon tradiksyon ki pa ka itilize nan RustyPresenter, yo retire l."
+msgstr[1] "{n} pasaj te itilize yon tradiksyon ki pa ka itilize nan RustyPresenter, yo retire yo."
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr "Pare sou òdinatè sa a"
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr "Pare (bezwen entènèt)"
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr "Bezwen yon kle — Jwenn youn"
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr "Pa disponib"
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr "Rechèch: Pare"
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr "Rechèch: sou entènèt (ESV)"
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr "Rechèch mache pou tradiksyon ki sou òdinatè sa a (KJV ak nenpòt Bib ki enstale ladan l oswa enpòte). Ou pa ka chèche nan tradiksyon sou entènèt, paske mèt yo pa pèmèt sa (ESV ka ofri pwòp rechèch sou entènèt li)."
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr "Chak mo dwe parèt nan vèsè a (love neighbour jwenn vèsè ki gen toude)."
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr "Mo yo koresponn ak kòmansman yo: love jwenn love, loved, loveth, lovest, loving. Mo ki gen mwens pase 3 lèt dwe koresponn egzakteman."
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr "Mete mo yo ant gimè pou yon fraz egzak: \"be still\"."
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr "Majiskil ak ponktiyasyon pa konte. lord jwenn LORD."
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr "Pi bon rezilta yo vini anvan: vèsè ki gen mo egzak ou yo nan lòd, apre sa vèsè kote mo yo pre youn ak lòt, apre sa rès yo nan lòd Bib la. Chanje pou lòd Bib la pou wè Jenèz an premye."
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr "Ctrl+Enter nan bwat Bib la toujou chèche, menm pou yon non liv tankou \"Jòb\"."
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr "Montre tou…"
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr "Chèche pa mo…"
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr "Koupi diapo"
+
+#: src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "Chwazi koupi diapo…"
+
+#: src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "Remete otomatik"
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr "Nouvo diapo (otomatik)"
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr "Nouvo diapo (ou ajoute)"
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr "Rete ansanm"
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr "+ Nouvo diapo isit la"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr "Tèm tyè anba yo toujou mete de tradiksyon youn sou lòt."
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr "Chèche mo sa yo"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr "Pa gen vèsè nan {bible} ki gen tout mo sa yo."
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr "Pa gen vèsè nan {bible} ki gen mo sa a. Si se yon non liv, tcheke òtograf la epi ajoute yon chapit, tankou Jan 3."
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr "N ap montre premye {shown} sou {total} vèsè — ajoute plis mo pou jwenn mwens."
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] "{count} vèsè jwenn nan {bible}"
+msgstr[1] "{count} vèsè jwenn nan {bible}"
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr "N ap prepare {bible} pou rechèch…"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr "Rechèch pa disponib pou {bible}. Eseye yon tradiksyon ki sou òdinatè sa a, tankou KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr "Rechèch pa disponib pou {bible}, kidonk sa chèche nan {local}."
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr "Pou chèche nan ESV, ou bezwen entènèt. Tcheke koneksyon an, oswa chèche nan KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr "Rechèch pa disponib pou {bible}"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr "{bible} bezwen yon kle. Ajoute youn nan Paramèt → Bib."
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr "{bible} pa disponib."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr "Pa t ka jwenn tèks {bible} — tcheke entènèt la."
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr "{second} pa disponib kounye a, kidonk se sèlman {main} ki ajoute. Etenn dezyèm tradiksyon an ak X la."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr "Pa t ka jwenn {bible}: {error}"
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr "{bible} pa gen {passage}."
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr "Ajoute {passage}"
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr "Chèche \"{word}\" pito"
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr "Pasaj sa a twò long. Chwazi jiska anviwon {n} vèsè."
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr "{bible} etenn (menm ak prensipal la)."
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr "{left} pa disponib kounye a, kidonk se sèlman {kept} ki ajoute."
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr "Tèm tyè anba yo montre de Bib. {bible} pa ladan l."
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr "{bible} bezwen entènèt pou pasaj sa a."
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr "Bib sa a te retire. Ajoute l ankò nan Paramèt → Bib."
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr "Non pou kopi a"
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr "Chanje non sèvis"
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr "Sèvis {date}"
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr "Efase sèvis “{name}”? (Chante ak medya yo rete nan bibliyotèk la.)"
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr "Paramèt anrejistre"
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr "“{font}” pa enstale sou òdinatè sa a, kidonk diapo yo itilize Noto Sans."
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr "Pare — san entènèt"
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr "Pare — sou entènèt"
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr "Bezwen yon kle gratis"
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr "Poko gen sous"
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr "oswa"
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr "Konekte {sources} anba a"
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr "Okenn sous sou entènèt pa ofri sa a. Enpòte yon fichye ak lisans, oswa kole vèsè yo lè w ap ajoute yo."
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr "Pou {bibles}"
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr "{source} konekte"
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr "{source} dekonekte"
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr "Lyen kopye — kole l nan navigatè w"
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] "{bible} ajoute ({count} vèsè)"
+msgstr[1] "{bible} ajoute ({count} vèsè)"
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr "Enpòtasyon an echwe."
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr "{bible} retire"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr "Lektè videyo: libmpv (vèsyon LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr "Lektè videyo: libmpv {version} (vèsyon LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr "Desen videyo: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr "Desen videyo: Lojisyèl"
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr "Pa t ka kopye: {error}"
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr "Sovgad fèt"
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr "Retabli sovgad sa a? Chante ak sèvis ou genyen kounye a ap ranplase (yon kopi yo kenbe)."
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr "Sovgad retabli"
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr "{songs} chante · {services} sèvis · {files} fichye"
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr "→  ↓  Espas  Page Down"
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr "←  ↑  Page Up"
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr "Enter"
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr "Ctrl + B"
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr "Alt + 1–5"
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr "Ctrl + V"
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr "Fè chante k ap pase a sote nan Kouplè 1–9, Koral, Pre-koral, Pon, Repriz, Entwo, Final, Entèlid oswa pwochen Kouplè a"
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr "Ajoute yon lyen YouTube ou kopye"
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr "Esc"
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr "Montre eleman ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr "Chwazi yon Bib (nan bwat Bib la)"
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr "Kite yon bwat tèks"
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr "Videyo: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr "Videyo: desen pa lojisyèl"
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr "Lektè videyo manke"
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr "libmpv (client API {major}.{minor}) — {path}"
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr "vèsyon LGPL"
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr "se pa yon vèsyon LGPL"
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr "jwenn"
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr "manke"
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr "Snap — pa ka itilize"
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr "pa enstale"
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr "pa jwenn"
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr "Lekti videyo itilize libmpv (LGPL-2.1+) ak bibliyotèk FFmpeg anba LGPLv2.1 — sous: {url}"
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr "Itilize lang òdinatè a ({name})"
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr "{name} (bezwen revizyon)"
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr "{english_name} · {percent}% tradui"
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr "Sòti son pa defo òdinatè sa a"
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr "Sòti son ki anrejistre a (pa konekte)"
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr "Kouplè"
+
+#: src/strings/song.rs
+msgid "Chorus"
+msgstr "Koral"
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Pre-koral"
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr "Pon"
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr "Repriz"
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr "Entwo"
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr "Final"
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr "Entèlid"
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr "Lòt"
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr "Kle seksyon yo mache sou chante."
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr "Chante a chanje — eseye ankò."
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr "Chante k ap pase a chanje — eseye ankò."
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr "Chante sa a pa sou ekran ankò."
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr "Chante sa a pa gen diapo kounye a. Ekran an kenbe ansyen mo yo."
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr "Anrejistre. Nouvo mo yo parèt lè ou remete tèks la."
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr "Ou chanje mo ki sou ekran an. Mete ekran ajou montre yo kounye a. Lè ou klike sou yon diapo, sa montre nouvo vèsyon an tou."
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr "Chante k ap pase a diferan kounye a. Mete ekran ajou pou montre l."
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr "Pati chante ki te sou ekran an retire. Mete ekran ajou rekòmanse chante a depi nan kòmansman."
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr "Chante sa a pa gen mo kounye a. Ekran an kenbe ansyen mo yo."
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr "Klike pou montre pati sa a"
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr "Chante sa a pa gen {section} {number}."
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr "Chante sa a pa gen {section}."
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr "Sote nan {section} ({key})"
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr "{section} — peze {key}"
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr "{section} · diapo {page} sou {pages}"
+
+#: src/strings/stage.rs
+msgid "Stage layout"
+msgstr "Aranjman sèn"
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr "Klasik"
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr "Pawòl sèlman"
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr "Gwoup mizik"
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr "Predikatè"
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr "Lè ak dekont"
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr "Diapo kounye a"
+
+#: src/strings/stage.rs
+msgid "Next slide"
+msgstr "Pwochen diapo"
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr "Seksyon"
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr "Pwochen seksyon"
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr "Tit eleman"
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr "Diapo ki rete"
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr "Nòt"
+
+#: src/strings/stage.rs
+msgid "Clock"
+msgstr "Lè"
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr "Kontè"
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr "Tan ki rete nan videyo"
+
+#: src/strings/stage.rs
+msgid "Message"
+msgstr "Mesaj"
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr "mo ki sou ekran an kounye a"
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr "mo k ap vini apre yo"
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr "Kouplè, Koral, Pon…"
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr "pwochen pati chante a"
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr "non eleman k ap pase a"
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr "“3 diapo ki rete”"
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr "nòt sèn diapo a"
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr "lè nan jounen an"
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr "yon dekont oswa yon kontaj"
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr "tan ki rete nan videyo a oswa son an"
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr "mesaj ki voye soti dèyè"
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr "mo ou tape yon sèl fwa"
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr "(logo)"
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr "Anyen pa sou ekran"
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr "PWOCHEN SEKSYON"
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr "PWOCHEN · {title}"
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr "Dènye diapo"
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] "{n} diapo ki rete"
+msgstr[1] "{n} diapo ki rete"
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr "Kontè retire"
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr "{timer} · an poz"
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr "Aranjman sèn sa a pa la ankò."
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr "Aranjman sèn ki enstale ladan l yo pa ka chanje. Fè yon kopi anvan."
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr "Bay aranjman sèn nan yon non."
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr "Gen yon aranjman sèn deja ki rele “{name}”."
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr "Yon aranjman sèn ka gen 24 bwat pi plis."
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr "{question} {things} itilize l. {what_happens}."
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr "{first} ak {second}"
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr "{first}, {second} ak {third}"
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr "{items_effect}; {macros_effect}"
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] "{n} eleman sèvis"
+msgstr[1] "{n} eleman sèvis"
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr "sèn pa defo a"
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] "{n} makwo"
+msgstr[1] "{n} makwo"
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr "Eleman yo ak pa defo a ap itilize Klasik"
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr "Eleman sa a ap itilize sèn pa defo a"
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr "Eleman sa yo ap itilize sèn pa defo a"
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr "Pa defo a ap itilize Klasik"
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr "makwo a p ap mache jiskaske yo modifye l"
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr "makwo yo p ap mache jiskaske yo modifye yo"
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr "Makwo a p ap mache jiskaske yo modifye l"
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr "Makwo yo p ap mache jiskaske yo modifye yo"
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr "Bay tèm nan yon non."
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr "Yon tèm ki enstale ladan l deja gen non sa a. Chwazi yon lòt."
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr "Tèm sa a pa la ankò."
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr "Tèm ki enstale ladan l yo pa ka efase."
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr "Ou chanje Estanda ak Anrejistre nan pwòp editè pa l."
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr "Tèm anrejistre"
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr "Tèm efase"
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr "Estanda"
+
+#: src/strings/themes.rs
+msgid "Church default"
+msgstr "Pa defo legliz la"
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr "Enstale ladan l — stil RustyPresenter te kòmanse avè l"
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr "Pa defo legliz la — itilize chak fwa pa gen lòt ki chwazi"
+
+#: src/strings/themes.rs
+msgid "New theme"
+msgstr "Nouvo tèm"
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr "Se sèlman chante, pasaj Bib ak anons ki itilize yon tèm."
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr "Tèks la deja an gra nan tèm sa a"
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr "mache sou tout òdinatè"
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr "Fon yo ka foto oswa videyo."
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr "Bay fon an yon non."
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr "Fon sa a pa la ankò."
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr "Ajoute nan fon yo"
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr " · pwòp fon"
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr "Soti nan tèm nan"
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr "Fon estanda"
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr "Kounye a (pa nan fon ou yo)"
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr "Pa t ka konvèti"
+
+#: src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "Fè tèks la pi fasil pou li"
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr "Bay kouch la yon non."
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr "Tape tèks kouch la."
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr "Kouch sa a pa la ankò."
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr "Se sèlman kouch tèks, foto ak lè ki ka anrejistre."
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr "Jiska 8 kouch ka limen an menm tan. Etenn youn anvan."
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr "Chwazi yon logo legliz anvan (Paramèt → Tèm)."
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr "Foto sa a pa la ankò."
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr "foto a pa t ka chaje."
+
+#: src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "Chanje — etenn li epi limen l pou mete l ajou."
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr "Logo anrejistre"
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr "Logo retire"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr "Pou yon afich ki rete parèt."
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr "Pou yon afich ki rete parèt. Pou yon avi tankou non yon paran, itilize Mesaj (lè l disponib)."
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr "Se yon RustyPresenter ki pi nouvo ki te anrejistre done sa yo. Tanpri enstale dènye vèsyon an."
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr "Nou te tann yon objè."
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr "Menm eleman an parèt de fwa nan lis la."
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr "Gen yon tèm deja ki rele “{name}”."
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr "Pa t ka montre kouch “{name}”: {reason}"
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr "(efase) {name}"
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] "{n} eleman gen pwòp fon pa l. Itilize fon tèm nan pou li tou?"
+msgstr[1] "{n} eleman gen pwòp fon pa yo. Itilize fon tèm nan pou yo tou?"
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] "{n} eleman itilize l"
+msgstr[1] "{n} eleman itilize l"
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr "Fon {n}"
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr "Fè “{name}” tounen pa defo legliz la? Tout sa ki pa gen pwòp tèm pa yo ap itilize l. Ou ka chanje l ankò nenpòt lè."
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr "“{name}” se pa defo legliz la kounye a"
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr "Efase tèm “{name}”?"
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "{n} sèvis"
+msgstr[1] "{n} sèvis"
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] "{things} itilize l; l ap itilize pa defo legliz la pito."
+msgstr[1] "{things} itilize l; y ap itilize pa defo legliz la pito."
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr "{items} ak {services} itilize l; y ap itilize pa defo legliz la pito."
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr "Se pa defo legliz la, kidonk Estanda ap vin pa defo legliz la."
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr "Retire “{name}” nan fon yo? Eleman ki itilize l yo kenbe l."
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr "Vi ekran ki itilize l: {views}"
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr "Ap konvèti {percent} %"
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr "Tèm: {name}"
+
+#: src/strings/themes.rs
+msgid "Bold"
+msgstr "Gra"
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr "Italik"
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr "Souliye"
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr "Lò"
+
+#: src/strings/themes.rs
+msgid "Red"
+msgstr "Wouj"
+
+#: src/strings/themes.rs
+msgid "Color"
+msgstr "Koulè"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Piti"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Gwo"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr "Trè gwo"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr "Enstale LibreOffice (gratis) sou libreoffice.org, oswa egzekite: winget install TheDocumentFoundation.LibreOffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr "Enstale LibreOffice (gratis) sou libreoffice.org, oswa egzekite: brew install --cask libreoffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr "Enstale LibreOffice Impress, pa egzanp: sudo apt install libreoffice-impress"
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr "Pa ka fè yon adrès fichye ak {path}"
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr "Rapò itilizasyon chante"
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr "Nimewo lisans CCLI: {license}"
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr "Ajoute nimewo lisans CCLI legliz ou nan Paramèt → Chante."
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr "Make kòm rapòte jiska {date}"
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr "Pwochen fwa, rapò a ap kòmanse jou apre {date}."
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr "Make kòm rapòte"
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr "Make kòm rapòte jiska {date}."
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr "Retire liy sa a? Itilize sa pou repetisyon ki pa dwe konte."
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr "Liy retire"
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr "Anrejistre chanjman paramèt ou yo epi louvri rapò a?"
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr "Anrejistre epi louvri"
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr "Chwazi yon dat Depi ki anvan dat Jiska a."
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr "Tape dat yo kòm ane-mwa-jou, tankou 2026-11-01."
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr "Pa t ka anrejistre rapò a: {reason}."
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr "{path} anrejistre"
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr "Tablo (CSV)"
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr "Nimewo chante CCLI"
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr "{from} rive {to}"
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr "Enprime paj sa a, oswa anrejistre l kòm PDF nan fenèt Enprime navigatè w la."
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr "N ap chèche videyo a…"
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr "N ap prepare telechajman YouTube — premye fwa sèlman ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr "N ap mete telechajman YouTube ajou ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr "N ap prepare zouti ki konbine videyo a — premye fwa sèlman ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr "Kole yon lyen yon videyo YouTube. Li kòmanse ak https://www.youtube.com oswa https://youtu.be."
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] "Lyen sa a se yon lis {n} videyo. Se sèlman premye videyo sa a ki ap telechaje."
+msgstr[1] "Lyen sa a se yon lis {n} videyo. Se sèlman premye videyo sa a ki ap telechaje."
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr "Pi bon (jiska 1080p)"
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr "Pi piti (720p)"
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr "Pi piti a (480p)"
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr "Son sèlman"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr "N ap telechaje “{title}”. L ap nan Videyo ak medya lè l fini."
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr "N ap telechaje “{title}”"
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr "mwens pase yon minit ki rete"
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr "anviwon yon minit ki rete"
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] "anviwon {n} minit ki rete"
+msgstr[1] "anviwon {n} minit ki rete"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr "N ap telechaje “{title}” — {left}"
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr "N ap fini “{title}”…"
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr "N ap ajoute “{title}” nan bibliyotèk la…"
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr "“{title}” telechaje"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr "Li nan Videyo ak medya epi nan sèvis la."
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr "Li nan Videyo ak medya."
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr "Anrejistre nan pi ba kalite (360p) paske zouti ki konbine videyo a pa t ka enstale."
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr "Pa ka jwenn YouTube. Tcheke koneksyon entènèt la epi eseye ankò."
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr "Videyo sa a prive, se sèlman mèt li ki ka telechaje l."
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr "YouTube montre videyo sa a sèlman bay moun ki konekte (pa egzanp, li gen limit laj), kidonk li pa ka telechaje isit la."
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr "Videyo sa a se pou manm chanèl la sèlman, kidonk li pa ka telechaje isit la."
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr "YouTube vle yon koneksyon pou tcheke se pa yon wobo. Tann yon ti tan epi eseye ankò."
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr "Emisyon an dirèk sa a poko fini. Eseye ankò apre l fini."
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr "Emisyon an dirèk oswa premye difizyon sa a poko kòmanse."
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr "Emisyon an dirèk sa a fèk fini epi YouTube ap prepare l toujou. Eseye ankò pita."
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr "Lyen sa a se pa yon videyo YouTube. Kopye lyen an nan paj videyo a epi eseye ankò."
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr "Videyo sa a pa disponib. Yo ka retire l, oswa bloke l nan peyi sa a."
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr "Lis sa a pa gen videyo ki ka telechaje."
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr "Disk òdinatè a plen. Libere kèk espas epi eseye ankò."
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr "YouTube chanje yon bagay epi telechajè a poko ka li videyo sa a. Eseye ankò pita."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr "Pa t ka prepare telechajman YouTube. Tcheke koneksyon entènèt la epi eseye ankò."
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr "Telechajè YouTube ki rive a pa t koresponn ak anprent ofisyèl li, kidonk yo pa t itilize l. Eseye ankò pita."
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr "Telechajman YouTube poko mache sou kalite òdinatè sa a."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr "Pa t ka prepare telechajman YouTube ({detail}). Eseye ankò pita."
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr "Telechajman an pa t mache: {detail}"
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr "Anile."
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Nwa"
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr "Ble lannwit"
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr "Vèt fonse"
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr "Prin"
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr "Mawon"
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr "Blan"
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr "Minwi"
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr "Vyolèt fonse"
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr "Forè"
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr "Chabon dife"
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr "Oseyan"
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr "Adwaz"
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr "Nòmal"
+
+#: src/theme/saved.rs
+msgid "{name} copy"
+msgstr "Kopi {name}"
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr "Kopi {name} {number}"
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr "{day} a {time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr "{time} UTC"
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr "foto a pa t ka chaje"
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr "fon an te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr "foto a te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr "videyo a te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr "diapo a te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr "logo a te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr "kouch la te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr "son an te pran twòp tan pou chaje"
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr "ekran sal la pa t ka prepare l"
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr "Pa t ka louvri ekran sal la: {error}"
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr "Yon prezantasyon sou ekran an"
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Ekran sal la te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Ekran asistans siplemantè a te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Ekran sèn nan te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Ekran sèn siplemantè a te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr "Ekran sal la ploge ankò, men li pa t ka louvri: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr "Ekran asistans siplemantè a ploge ankò, men li pa t ka louvri: {error}"
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr "Ekran sèn nan ploge ankò, men li pa t ka louvri: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr "Ekran sèn siplemantè a ploge ankò, men li pa t ka louvri: {error}"
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr "Pa t ka montre nimewo ekran yo: {error}"
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr "RustyPresenter ap fèmen."
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr "Pa t ka louvri ekran sèn nan: {error}"
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr "Lektè videyo a manke. Reenstale RustyPresenter."
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr "Pa ka chaje lektè videyo a nan {path}: {reason}"
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr "libmpv sa a twò ansyen (client API {major}.{minor}); RustyPresenter bezwen 2.x."
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr "Lektè videyo a pa t ka demare."
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr "Lektè videyo a pa t ka demare: {reason}"
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr "{name} pa t ka jwe ({reason})"
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr "Videyo a pa ka parèt: {reason}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "pa gen vèsyon nan {address}"
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr "pa gen anprent pou {file}"
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr "{file} manke nan telechajman an"
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr "{address} twò gwo"
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr "achiv ki pa ka li: {error}"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr "yt-dlp kanpe"
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr "detay ki pa ka li ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr "yt-dlp pa t ka demare ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr "yt-dlp pa t ka demare"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr "yt-dlp pa bay okenn detay"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr "yt-dlp pa anrejistre okenn videyo"
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr "se pa yon fichye medya"

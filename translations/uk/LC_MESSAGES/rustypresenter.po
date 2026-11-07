@@ -1,0 +1,5366 @@
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: uk\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Українська\nX-English-Name: Ukrainian\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr "Пошук у ваших Бібліях"
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr "не під’єднано"
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr "Улюблене"
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr "Знайти інші Біблії…"
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr "Виберіть Біблію"
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr "Спробувати ще"
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr "Змінити"
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr "Додати"
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr "Завантажуйте лише ті відео, які ваша церква має право використовувати (власні, ліцензовані або Creative Commons)."
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr "Вставте сюди посилання YouTube"
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr "Завантажити"
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr "Додати до служіння після завершення"
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr "Якість"
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr "Додати файли"
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr "Завантажити з YouTube"
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr "Підходить будь-який формат відео."
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr "Імпортувати презентацію"
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr "Створити слайди із зображень"
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr "Google Slides: у Google Slides виберіть Файл → Завантажити → Microsoft PowerPoint (.pptx) або PDF, а потім імпортуйте цей файл сюди. Файли Keynote і PDF теж підходять."
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr "Копіювати"
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr "Перевірити ще раз"
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr "Нова пісня"
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr "Імпортувати текст із SongSelect (.txt)"
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr "Імпортувати з EasyWorship"
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr "Посилання ({})"
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr "напр. Івана 3:16-18, Псалом 23, Римлян 8:28,31-39"
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr "Додати вірші"
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr "Натомість вставити вірші"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr "Віршів на слайд"
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr "Авто"
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr "Вірші ({}) — залиште номери віршів, щоб кожен вірш мав свій слайд"
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr "16 Бо так полюбив Бог світ… 17 Бо Бог не послав…"
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr "Додати вставлені вірші"
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr "Порада: це вікно не обов’язкове. Введіть вірш у поле Біблії вгорі (або натисніть Ctrl+B): Enter додає його, а повторний Enter показує."
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr "Назва"
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr "напр. Вітання, Оголошення, Пожертва"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Text"
+msgstr "Текст"
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr "Введіть текст. Порожній рядок починає новий слайд."
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr "Додати оголошення"
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr "Пісня"
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr "Текст пісні"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr "Біблія"
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr "Вірші"
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr "Відео й медіа"
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr "Відео, зображення, музика"
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr "Слайди"
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr "PowerPoint, зображення"
+
+#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr "Оголошення"
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr "Ваш власний текст"
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr "Hex"
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr "Виберіть будь-який колір"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr "Текст, порядок і автори належать пісні у вашій бібліотеці."
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr "Текст, порядок і автори належать пісні у вашій бібліотеці. Цю пісню видалено з бібліотеки."
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr "Змінити пісню"
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr "Під час збереження вірші буде знову знайдено в цій Біблії."
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr "Також показати"
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr "немає"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr "Більше не показувати цю Біблію"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr "Поруч"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr "Згори й знизу"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr "Автоматично"
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr "1 вірш"
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr "2 вірші"
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr "3 вірші"
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr "4 вірші"
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr "Розмір тексту"
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr "(найбільший; текст автоматично зменшується, коли на слайді більше слів)"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr "Вибрати"
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr "Як у Налаштування → Вигляд"
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr "— порожній рядок починає новий слайд"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr "Почати відтворення, щойно його показано"
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr "Коли відео закінчиться"
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr "Очистити екран"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr "Залишити останній кадр"
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr "Повторити (по колу)"
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr "Повторювати до зупинки"
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr "Аудіо грає й далі, поки ви змінюєте слайди. Зупиніть його кнопкою «Очистити аудіо» (F4) або «Очистити все»."
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr "Назва"
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr "Назва в бібліотеці"
+
+#: ui/dialogs/item-edit.slint src/strings/themes.rs
+msgid "Background"
+msgstr "Тло"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr "Нотатки для сцени"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr "Показується лише на сценічному екрані"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr "Прибрати зі служіння"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr "Зберегти"
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr "Керуйте слайдами з будь-якого телефона в церковній мережі Wi-Fi. Телефон має бути в тій самій мережі, що й цей комп’ютер."
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr " (Мережу не знайдено — під’єднайте цей комп’ютер до Wi-Fi.)"
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr "Адреса: "
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr "Під’єднати телефон"
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr "QR-код"
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr "Відскануйте це камерою телефона. От і все."
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr "Або відкрийте {} і введіть"
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr "1. На телефоні відкрийте камеру й відскануйте код (або введіть адресу)."
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr "2. Введіть цей код на телефоні:"
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr "Під’єднані телефони"
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "Вилучити"
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr "Поки що немає."
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr "Що друкувати"
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr "Порядок служіння"
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr "Обидва"
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr "Параметри"
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr "Додати нотатки до пунктів"
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr "Додати біблійні читання до текстів пісень"
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr "Кожну пісню з нової сторінки"
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr "Папір"
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr "Letter"
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr "A4"
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr "Друк…"
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr "Відкриває сторінку у вебпереглядачі, де її можна надрукувати або зберегти як PDF"
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr "Зберегти вебсторінку…"
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Закрити"
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr "Додати екран до {}"
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr "Вихід"
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr "Розмір"
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr "Ширина"
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr "Висота"
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr "Співвідношення сторін: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr "Під’єднано лише один екран. Під’єднайте проєктор/телевізор (і в Windows виберіть «Розширити ці дисплеї» через Win+P), а потім натисніть «Оновити»."
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr "Вилучити цей екран"
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr "Визначити"
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr "Показати номер кожного екрана на ньому кілька секунд"
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr "Оновити"
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr "Копія минулого тижня"
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr "Створити служіння наступного тижня на основі останнього"
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr "Нове із шаблону…"
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr "Нове порожнє служіння"
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr "Копіювати це служіння"
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr "Зберегти у файл"
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr "Зберегти відкрите служіння з усіма файлами, щоб перенести його на інший комп’ютер"
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr "Відкрити з файлу"
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr "Відкрити"
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr "Перейменувати"
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr "Дата…"
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr "Надрукувати порядок служіння й тексти пісень або зберегти їх як вебсторінку"
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr "Зберегти як шаблон"
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr "Видалити"
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr "Шаблони"
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr "Створити служіння"
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr "День…"
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr "Ваші дані:"
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr "Показати ліцензії"
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Назад"
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr "Біблія за замовчуванням"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr "Також показувати з кожним новим уривком"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr "Виберіть до двох. Тоді кожен слайд показуватиме ті самі вірші з кожної Біблії."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr "Додати Біблії"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr "Пошук за назвою, скороченням або мовою"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr "Встановлені"
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr "Усі"
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr "KJV, WEB і BSB вбудовані й працюють без інтернету."
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr "Решта захищені авторським правом: під’єднайте безкоштовний сервіс видавця за допомогою ключа, який ваша церква створює один раз. Уривки, додані до служіння, зберігаються разом із ним, тож вони показуватимуться, навіть якщо зникне інтернет."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr "Переклади"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr "Онлайн-сервіси"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr "Під’єднано"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr "Не під’єднано"
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr "1. Безкоштовно зареєструйтеся на"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr "Копіювати посилання"
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr "2. {}"
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr "3. Вставте ключ сюди. RustyPresenter перевірить його одним запитом і зберігатиме лише на цьому комп’ютері."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr "Ключ збережено — вставте новий, щоб замінити"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr "Вставте ключ сюди"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr "Зберегти ключ"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr "Від’єднати"
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr "Файли Біблії"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr "Імпортуйте файл Zefania, OSIS, USX або OpenSong (.xml чи .usx). Імпортуйте лише ті Біблії, що є суспільним надбанням або на які ваша церква має ліцензію. Укажіть скорочену назву перекладу вище (наприклад, HCSB), щоб використовувати файл для цього перекладу."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr "Скорочення, напр. HCSB (необов’язково)"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr "Імпортувати файл Біблії"
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr "Автори"
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr "Використовується"
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr "Використати"
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr "Переклади створюють волонтери. Якщо вашої мови немає або в перекладі є помилки, ви можете допомогти."
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr "Допомогти перекласти RustyPresenter"
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr "Шрифт"
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr "Розмір тексту пісень"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr "(найбільший; довгі рядки зменшуються, щоб уміститися)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr "Біблійні вірші"
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr "(для нових уривків)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr "Розмір тексту Писання"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr "(найбільший)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr "Текст автоматично зменшується, коли на слайді більше слів."
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr "Колір тексту"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr "Розташування тексту"
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr "Посередині"
+
+#: ui/dialogs/settings-look.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr "Нижня третина"
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "Тінь під текстом (легше читати на зображеннях)"
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr "Текст пісень ВЕЛИКИМИ ЛІТЕРАМИ"
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr "Логотип"
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr "Без логотипа (кнопка «Логотип» показує чорний екран)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr "Вибрати логотип"
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "Попередній перегляд"
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr "Тло за замовчуванням"
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr "Усі мови"
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr "Рядків на слайд"
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "Пісні та біблійні уривки. Деякі Біблії вимагають показувати джерело; воно з’являється один раз на уривок."
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr "На першому слайді"
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr "На останньому слайді"
+
+#: ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "Вимк."
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr "Номер ліцензії CCLI церкви"
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr "Клавіші частин (C, B, 1–9…)"
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "Вимкніть, якщо випадково натиснуті літери змінюють екран."
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr "Літери й цифри переходять до частини пісні в ефірі"
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
+msgstr "Звіт про використання пісень…"
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr "Вивід звуку"
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr "Екран у залі"
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr "Тримати екран у залі поверх інших вікон, коли він має власний монітор (плавніші переходи)"
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "Повна резервна копія (пісні, служіння, налаштування та всі відео, зображення й слайди) створюється під час кожного запуску RustyPresenter і раз на день. Останні 10 зберігаються в"
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr "Створити копію зараз"
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr "Відновити"
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr "Резервних копій поки немає."
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr "Клавіатура"
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr "Порада: клацання на будь-якому слайді одразу виводить його на екран. Червона рамка показує те, що бачить зал."
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr "Вигляд"
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "Мова"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr "Пісні"
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+msgid "Video"
+msgstr "Відео"
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr "Резервні копії"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr "Довідка"
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr "Про програму"
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr "Зберегти налаштування"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr "Ця пісня зараз на екрані. На екрані нічого не зміниться, доки ви не виберете «Зберегти й показати» або «Оновити екран»."
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr "Дивна благодать"
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr "Автори"
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr "Номер пісні CCLI"
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr "4768151"
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr "Авторські права"
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr "© 2006 …"
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr "— назви частин в окремому рядку; порожній рядок усередині частини починає новий слайд"
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Куплет 1]\nО благодать, спасла мене,\nЯ був пропащий, а тепер\n\n[Приспів]\nКайдани впали…"
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr "Порядок"
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr "(необов’язково)"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "Немає в тексті — буде пропущено"
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr "Кінець"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "Порядок як у тексті — перетягніть, щоб змінити"
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr "⟲ Порядок як у тексті"
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr "Залиште порожнім, щоб використати порядок як у тексті"
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr "Слайди з’являються тут, поки ви вводите текст. Пишіть назви частин, як-от «[Куплет 1]» чи «[Приспів]», в окремому рядку."
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr "Видалити пісню"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr "Зберегти й додати до служіння"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr "Зберегти пісню"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr "Зберегти й показати"
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr "Вести журнал використання пісень для звітів CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr "Від"
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr "РРРР-ММ-ДД"
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr "До"
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr "Від останнього звіту"
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr "Останні 3 місяці"
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr "Останні 6 місяців"
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr "Цей рік"
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr "Включити пісні без номера CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr "Про пісні, що є суспільним надбанням, звітувати не потрібно."
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr "CCLI №"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr "Показів"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr "Трансляцій"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr "Востаннє"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr "За ці дати пісень немає."
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr "Подробиці ({})"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr "трансляція"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr "Введіть ці числа на сайті звітності CCLI: покази на екрані — у розділ «Digital», трансляції — у вашу Streaming License. «Трансляція» означає, що була відкрита сторінка чи вікно трансляції, а не обов’язково, що ви були в ефірі."
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr "Відкрити сторінку для друку"
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr "Зберегти як таблицю (CSV)…"
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr "Визначити екран"
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr "—"
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr "ЕФІР"
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr "оновлення…"
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr "Змінити текст"
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr "Виправте текст пісні в ефірі. Екран зміниться лише тоді, коли ви скажете."
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr "Оновити екран"
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr "Назад (← або Page Up)"
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Далі"
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr "Далі (→, Пробіл або Page Down)"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Наступне"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr "Очистити все"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "Медіа"
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr "Аудіо"
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr "Відтворити"
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "Пауза"
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr "НА ЕКРАНІ"
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr "Медіатека"
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr "Відео"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr "Зображення"
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr "Пошук медіа"
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr "Менші ескізи"
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr "Більші ескізи"
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr "Імпорт"
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr "Нова папка"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr "Видалити папку"
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr "Тут поки нічого немає. Натисніть «Імпорт» або спробуйте іншу папку чи слово."
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr "Виберіть файл"
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr "Зробити тлом"
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr "Додати до служіння"
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr "Перемістити в папку"
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr "Екран у залі вимкнено"
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr "Відпустіть, щоб додати до служіння"
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr "Відео, зображення, музика, презентації (PowerPoint, Keynote, PDF), файли текстів SongSelect"
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr "Служіння"
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr "Додати заголовок"
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr "Додати кольоровий заголовок до списку служіння, як-от «Прославлення» чи «Проповідь»"
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr "Перевірка"
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr "Перед служінням: чи всі пісні, файли й екрани на місці?"
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr "Виберіть, що тут буде"
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr "Змінити колір"
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr "Ваше служіння порожнє"
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr "Натисніть «Додати до служіння» нижче, введіть біблійний вірш угорі або перетягніть файли в це вікно."
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr "Підготуймо недільне служіння"
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr "Усе, що ви додаєте, з’являється ліворуч. Клацніть слайд, щоб вивести його на екран."
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr "Натисніть «Екрани» й виберіть проєктор або телевізор."
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr "Натисніть «Додати до служіння», щоб додати пісні, відео й слайди, — або перетягніть файли."
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr "Введіть вірш, як-от «Івана 3:16», у поле Біблії й натисніть Enter."
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr "Під час служіння користуйтеся великою кнопкою «Далі» (або клавішею →)."
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr "Нічого не вибрано"
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr "Менший текст для цього уривка"
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr "Більший текст для цього уривка"
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr "Повернути розмір із налаштувань"
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr "Виберіть щось зі списку служіння."
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr "Нічого показувати"
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr "У цьому пункті ще немає слайдів. Натисніть «Змінити», щоб додати."
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr "Перейти до іншого служіння або створити нове"
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Біблійний вірш — введіть Івана 3:16 і натисніть Enter"
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} ще не під’єднано (Налаштування → Біблія). Ви все одно можете вставити вірші через Додати → Біблія."
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Віршів на слайд для наступного уривка. Клацніть, щоб змінити."
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr "Віршів: {}"
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr "Зал"
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr "Сцена"
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr "Сценічний екран"
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr "Під’єднані телефони-пульти"
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr "Показати повідомлення на сценічному екрані"
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Екрани"
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Телефон"
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr "Налаштування"
+
+#: ui/operator.slint
+msgid "File"
+msgstr "Файл"
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr "Нове служіння…"
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr "Служіння…"
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr "Відкрити файл служіння…"
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr "Зберегти це служіння у файл…"
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr "Пісня…"
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr "Біблійний уривок…"
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr "Відео й медіа…"
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr "Слайди…"
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr "Оголошення…"
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr "Імпортувати медіа…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Вихід"
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr "Змінити вибраний пункт…"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr "Поле Біблії"
+
+#: ui/operator.slint
+msgid "View"
+msgstr "Вигляд"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr "Очистити все"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr "Очистити текст"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr "Очистити медіа й тло"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr "Зупинити аудіо"
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr "Сховати медіатеку"
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr "Показати медіатеку"
+
+#: ui/operator.slint
+msgid "Window"
+msgstr "Вікно"
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr "Екрани…"
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr "Телефон-пульт…"
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr "Повідомлення на сцену…"
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr "Налаштування…"
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr "Пісні…"
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr "Біблія…"
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr "Відео…"
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr "Резервні копії…"
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr "Клавіатурні скорочення"
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr "Перевірити служіння"
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr "Про RustyPresenter"
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr "RustyPresenter — Зал"
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr "RustyPresenter — Сцена"
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr "Очікування служіння…"
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr "Кінець служіння"
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr "ДАЛІ"
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr "Вирізати"
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr "Вставити"
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr "Виділити все"
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr "Не вдалося зберегти: {error}"
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr "Екран у залі перезапустився. Відео/аудіо зупинено — клацніть ще раз, щоб відтворити знову."
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr "Екран у залі перезапустився."
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr "RustyPresenter ще запускається. Спробуйте за мить."
+
+#: src/app.rs
+msgid "This computer"
+msgstr "Цей комп’ютер"
+
+#: src/app.rs
+msgid "Not used"
+msgstr "Не використовується"
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr "{name} — вбудована, суспільне надбання"
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr "{name} — імпортований файл"
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr "Дайте пісні назву."
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Ця пісня є в служінні. Спочатку приберіть її зі служіння."
+
+#: src/app.rs
+msgid "No service is open."
+msgstr "Жодне служіння не відкрито."
+
+#: src/app.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr "Неправильний запит: {error}"
+
+#: src/app.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Цього пункту більше немає."
+
+#: src/app.rs
+msgid "New Service"
+msgstr "Нове служіння"
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Цього служіння більше немає."
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr "Потрібне хоча б одне служіння."
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr "Невідомий біблійний сервіс."
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr "Цього файлу більше немає."
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr "Дайте папці назву."
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Це є в служінні. Спочатку приберіть його зі служіння."
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Неправильний запит: невідоме призначення {purpose}"
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr "Виберіть хоча б одне зображення."
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Бракує зображення. Спробуйте додати ще раз."
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Ці слайди є в служінні. Спочатку приберіть їх зі служіння."
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Невідомий переклад."
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr "Невідома мова."
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "Мову змінено"
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr "Невідомий екран."
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr "Спочатку виберіть вихід для цього екрана."
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr "Спочатку додайте екран."
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr "Зал {number}"
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr "Сценічний екран {number}"
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr "Цього екрана більше немає."
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr "У кожному списку має бути хоча б один екран."
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr "Не вдалося створити резервну копію."
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr "Не вдалося зберегти файл (диск заповнений?)."
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr "Не вдалося відкрити «{file}»: {error}"
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr "Не вдалося прочитати «{file}»: {error}"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr "API.Bible надсилає не більше 200 віршів за раз; виберіть коротший уривок"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} немає в плані API.Bible для цього ключа; додайте його в розділі Plan на панелі API.Bible"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} недоступний із цим ключем API.Bible; додайте його в розділі Plan на панелі API.Bible"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr "API.Bible повернув іншу книгу"
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr "немає рядків"
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr "eBible відповів {status}"
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr "список значно більший, ніж очікувалося"
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr "порожній файл"
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr "немає стовпця {column}"
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr "сервіс ESV повернув іншу книгу"
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr "Використайте файл Біблії Zefania, OSIS, USX або OpenSong (.xml чи .usx)."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr "У цьому файлі не знайдено біблійних віршів. {formats}"
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr "{reference} не існує."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr "Цей уривок задовгий. Виберіть приблизно до 400 віршів."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Віршів не знайдено."
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr "Дайте Біблії скорочену назву з 2–10 літер або цифр, наприклад WEB."
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr "{abbr} уже вбудована. Дайте цій Біблії іншу скорочену назву."
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr "Для завантаженої Біблії потрібні її дані."
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr "Ідентифікатор цієї Біблії не можна використати."
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr "Біблійних віршів не знайдено."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr "У завантаженні не знайдено біблійних віршів."
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr "Цей файл не є коректним XML (біля байта {at}: {error}). {formats}"
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr "Безкоштовно для церков. Створіть «API application», а потім скопіюйте його ключ."
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr "Безкоштовно для некомерційного використання. Зареєструйтеся, а потім скопіюйте ключ зі свого облікового запису."
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr "Безкоштовний план Starter дозволяє 3 Біблії з авторським правом: у розділі Plan виберіть CSB (і NIV чи NLT, якщо хочете брати їх звідси)."
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Створіть застосунок, а потім прийміть ліцензію кожної Біблії на порталі (NIV від Biblica; HCSB, якщо вона доступна)."
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr "сервіс відповів {status}"
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr "Не вдалося зв’язатися з {service} для {translation}. Перевірте підключення до інтернету."
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr "{service} відхилив ключ. Перевірте його в Налаштування → Біблія."
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr "{service} повідомляє про забагато запитів. Зачекайте хвилину й спробуйте знову."
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr "Не вдалося знайти в {translation}: {error}."
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr "{translation} не має онлайн-джерела. Вставте вірші через Додати → Біблія або імпортуйте ліцензований файл у Налаштування → Біблія."
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "Для {translation} потрібен безкоштовний ключ від {service}. Додайте його в Налаштування → Біблія або вставте вірші через Додати → Біблія."
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr "YouVersion не має ідентифікатора Біблії для {translation}"
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr "цей уривок охоплює забагато розділів; виберіть менше"
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr "цей застосунок YouVersion не має ліцензії на Біблію {bible}; прийміть ліцензію видавця на platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr "застосунок YouVersion архівовано або видалено; перевірте його на platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr "YouVersion повернув іншу книгу"
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr "Введіть посилання, наприклад Івана 3:16."
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr "Не вдається розпізнати книгу «{book}»."
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr "Додайте розділ, наприклад Івана 3 або Івана 3:16."
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr "Посилання виглядає неправильним. Спробуйте щось на кшталт Івана 3:16-18."
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr "Кінець діапазону стоїть перед початком."
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr "Спочатку вставте текст віршів."
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr "Пульт RustyPresenter"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr "Телефон-пульт"
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "На комп’ютері з презентацією натисніть {phone} → {pair}, а потім введіть тут 6-значний код."
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr "Під’єднати"
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr "Під’єднання…"
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr "На екрані"
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr "Призупинити відео"
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr "Відтворити відео"
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr "Торкніться слайда, щоб вивести його на екран."
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr "Екран змінився — спробуйте ще раз."
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr "Екран щойно змінився — торкніться слайда ще раз."
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr "Термін дії цього QR-коду минув. На комп’ютері знову натисніть «Під’єднати телефон»."
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr "Не вдалося під’єднатися."
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr "(Логотип)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr "(Грає музика)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr "(Порожньо)"
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr "Телефон Android"
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr "Пісня без назви"
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr "понад {max} частин, тож це не пісня"
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr "немає тексту"
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr "блок {block} не закінчується, тому все після нього пропущено"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr "файл завеликий для пісні"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr "не вдалося прочитати: {error}"
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr "це не схоже на файл ChordPro"
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr "у ньому немає пісень"
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr "Не вдалося прочитати жодної пісні з {path}: {why}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr "Не вдалося знайти {path}."
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr "У {path} не знайдено файлів ChordPro (.cho, .chordpro, .chopro, .crd, .pro)."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr "у папці понад {max} файлів і папок, тому переглянуто лише перші {max}"
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr "Не вдалося прочитати {path}: {error}."
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr "{app} зберігав зміни, поки читалася бібліотека. Закрийте {app} і спробуйте ще раз."
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr "Не вдалося створити тимчасову папку: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr "Не вдалося скопіювати {path}: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr "Не вдалося відкрити {path}: {error}."
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr "база даних залишалася заблокованою"
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr "{path} порожній або пошкоджений, тож імпортувати нічого."
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr "немає тексту (мабуть, це відео чи оголошення)"
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr "текст порожній"
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr "Схоже, це бібліотека EasyWorship 2009 (або старіша). Імпортувати можна лише бібліотеки EasyWorship 6 і 7."
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr "У {folder} знайдено Songs.db, але поруч немає SongWords.db."
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr "Тут не знайдено Songs.db від EasyWorship. Виберіть папку профілю Databases\\Data (зазвичай C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr "Не вдалося прочитати бібліотеку EasyWorship: {error}"
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr "У Songs.db немає таблиці пісень. Це точно бібліотека EasyWorship?"
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr "У SongWords.db немає таблиці текстів. Це точно бібліотека EasyWorship?"
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr "текст не є коректним XML ({error})"
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr "у тексті забагато куплетів (понад {max})"
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr "текст задовгий для пісні"
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr "у тексті немає куплетів"
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr "тимчасова копія, яку OpenLP зберігає для файлу служіння"
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr "Цей файл не є базою пісень OpenLP (songs.sqlite)."
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr "Не вдалося відкрити базу даних OpenLP."
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr "Тут не знайдено songs.sqlite від OpenLP. Виберіть папку даних OpenLP (у Windows зазвичай %APPDATA%\\openlp\\data, у macOS ~/Library/Application Support/openlp/Data, у Linux ~/.local/share/openlp)."
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr "Не вдалося прочитати базу даних OpenLP: {error}"
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr "Це не база пісень OpenLP: у ній немає таблиці songs."
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr "це не коректний XML ({error})"
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr "забагато куплетів для пісні"
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr "це пісня OpenSong, а не OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr "це не пісня OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr "не XML"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr "це не пісня OpenLyrics чи OpenSong"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr "у ньому немає пісні"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr "Не вдалося прочитати пісню з {path}: {why}."
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr "У {path} не знайдено пісень OpenLyrics чи OpenSong."
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr "у тексті забагато частин для пісні"
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr "це пісня OpenLyrics, а не OpenSong"
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr "це не пісня OpenSong"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr "Файли ProPresenter 7 поки не підтримуються; експортуйте як текст або у ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr "Пакети ProPresenter 6 (.pro6x) поки не підтримуються; перейменуйте файл на .zip, розпакуйте його й імпортуйте файл .pro6 усередині"
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr "у пісні забагато груп (понад {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr "у пісні забагато слайдів (понад {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr "на слайдах пісні немає слів"
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr "це список відтворення ProPresenter, а не пісня"
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr "це не пісня ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr "У {path} не знайдено пісень ProPresenter."
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr "Цього пункту немає в служінні."
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr "У цьому пункті нічого показувати."
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr "У цьому пункті немає слайдів."
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr "Це відео вже не відтворюється."
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr "Це аудіо вже не відтворюється."
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr "В ефірі поки нічого немає."
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr "Початок служіння"
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr "Не вдалося показати: {reason}"
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr "Відтворення зупинено: {reason}"
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr "файл не вдалося відтворити"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr "RustyPresenter не вдалося відкрити журнал: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr "RustyPresenter не вдалося запустити: {reason}"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr "Мови, вибраної в налаштуваннях, немає в цій версії, тому RustyPresenter працює англійською."
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr "RustyPresenter не вдалося відкрити вікно: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr "RustyPresenter не вдалося запустити вікна: {reason}"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr "Екрани не працюють."
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr "Екрани не відповіли вчасно."
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr "Порт {port} зайнятий іншою програмою, тому RustyPresenter не може запуститися."
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr "Цей екран зараз не під’єднано."
+
+#: src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "Писання"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr "RustyPresenter перезапустився після збою."
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr "RustyPresenter перезапустився після збою. Відео/аудіо зупинено — клацніть ще раз, щоб відтворити знову."
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr "RustyPresenter зупинився після 3 збоїв за хвилину. Журнал: {path}."
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr "Ця сторінка відкривається лише на комп’ютері з презентацією."
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr "Занадто швидко — зачекайте секунду й спробуйте ще раз."
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr "Під’єднання не відкрито. На комп’ютері натисніть «Телефон-пульт» → «Під’єднати телефон»."
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr "Забагато неправильних кодів. Почніть під’єднання на комп’ютері знову."
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr "Код неправильний."
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr "Телефон {number}"
+
+#: src/server.rs
+msgid "Bad command."
+msgstr "Неправильна команда."
+
+#: src/server.rs
+msgid "Not allowed from the phone."
+msgstr "З телефона це заборонено."
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "{n} слайд"
+msgstr[1] "{n} слайди"
+msgstr[2] "{n} слайдів"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr "(зображення слайда)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr "(відео)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr "(зображення)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr "(аудіо)"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr "Пісня відсутня"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr "Медіа відсутнє"
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr "Слайд {n}"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr "Слайди відсутні"
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr "Файл завеликий для файлу з текстом пісні."
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr "Файл із текстом порожній."
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr "У цьому файлі немає заголовків Verse/Chorus. Використайте завантаження «Lyrics (.txt)» із SongSelect."
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "У цьому файлі не знайдено тексту пісні."
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr "Не вдається знайти папку для ваших даних. Задайте RUSTYPRESENTER_DATA."
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr "Не вдається використати папку даних {path}: {reason}"
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr "Не вдалося прочитати ваші збережені дані в {path} ({reason}). Нічого не перезаписано. Відновіть резервну копію з папки копій або перемістіть файл в інше місце."
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr "Не вдається прочитати {path}: {reason}"
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Не вдалося зберегти: {reason}"
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr "Невідома резервна копія."
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr "Ця резервна копія неповна, її не можна відновити."
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr "Нічого не знайдено."
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr "Тут поки нічого немає."
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] "Пошук у {n} пісні…"
+msgstr[1] "Пошук у {n} піснях…"
+msgstr[2] "Пошук у {n} піснях…"
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] "Пошук у {n} файлі…"
+msgstr[1] "Пошук у {n} файлах…"
+msgstr[2] "Пошук у {n} файлах…"
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr "Пошук слайдів…"
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr "Щоб імпортувати файли PowerPoint чи Keynote, встановіть LibreOffice (безкоштовно). Файли PDF працюють і без нього."
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr "Скопійовано"
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…і ще {n}."
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] "Імпортовано {n} пісню."
+msgstr[1] "Імпортовано {n} пісні."
+msgstr[2] "Імпортовано {n} пісень."
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] "{n} пісня вже є в бібліотеці: {titles}"
+msgstr[1] "{n} пісні вже є в бібліотеці: {titles}"
+msgstr[2] "{n} пісень уже є в бібліотеці: {titles}"
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr "Не імпортовано:"
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr "Читання бібліотеки EasyWorship…"
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr "LibreOffice знайдено!"
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr "Поки не знайдено — завершіть встановлення, а потім натисніть «Перевірити ще раз»."
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr "{passage} додано"
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr "Дайте назву."
+
+#: src/strings/add.rs
+msgid "Ready"
+msgstr "Готово"
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr "Помилка"
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr "Цей файл не можна відтворити."
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr "Повторна перевірка файлу…"
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr "Видалити з бібліотеки"
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr "Видалити «{name}» з бібліотеки?"
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr "Бракує відеопрогравача — перевстановіть RustyPresenter"
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr "Видалити «{name}»?"
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr "OK"
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr "Пісню збережено"
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr "Немає в тексті: {sections}"
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr "Екран очищено — спробуйте ще раз."
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr "Спочатку задайте час початку цього служіння (Служіння → Початок о)."
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr "Час початку служіння ({time}) уже минув."
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr "Цей час ({time}) уже минув."
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr "Для цього таймера потрібна новіша версія RustyPresenter."
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr "Відлік до певного часу не можна призупинити."
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr "Виберіть тривалість від 1 секунди до 23:59:59."
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr "Цей таймер не можна так налаштувати."
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr "Заповніть «{field}»."
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr "Повідомлення задовге для екрана (не більше 200 символів)."
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr "У цьому повідомленні є { без відповідної }."
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr "Повідомлення показується"
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr "Увімкнено режим репетиції — це видно лише у вашому попередньому перегляді. Завершіть репетицію, щоб показати в залі."
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr "Дитяча кімната"
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr "Батьків дитини №{Number} просимо підійти до дитячої кімнати."
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr "Автомобіль"
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr "Автомобіль {Plate}: у вас увімкнені фари."
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr "Власне"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: пункт кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: таймер кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: накладання кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: вигляд екрана кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: повідомлення кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr "Не вдалося виконати «{name}»: макет сцени кроку {step} видалено. Змініть макрос."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr "Не вдалося виконати «{name}»: для кроку {step} потрібна новіша версія RustyPresenter."
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr "Виконано «{name}»"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr "Виконано «{name}», але крок {step} не спрацював: {reason}"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr "Виконано «{name}», але показ пропущено, бо екран очищено."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr "«{timer}» дійшов до нуля, але «{macro_name}» змінює слайди, тому його не виконано."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr "«{timer}» дійшов до нуля, але «{macro_name}» нічого не показав, бо екран очищено."
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr "Виберіть від 2 до 600 секунд."
+
+#: src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "Потрібно щонайменше два слайди."
+
+#: src/strings/automation.rs
+msgid "Service starts in"
+msgstr "Служіння почнеться через"
+
+#: src/strings/automation.rs
+msgid "Pre-service"
+msgstr "Перед служінням"
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr "Почати відлік"
+
+#: src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "Змініть це на вкладці «Перед служінням»"
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr "Відлік завершено — більше нічого не змінено, бо служіння вже почалося."
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr "Перезапустіть відлік, щоб застосувати новий час."
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr "Початок служіння"
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr "Проповідь"
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr "Секундомір"
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr "Це не файл служіння RustyPresenter."
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr "Цей файл служіння створено новішою версією RustyPresenter."
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr "Цей файл служіння пошкоджено, тому нічого не додано."
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr "Збереження служіння…"
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr "Відкриття файлу служіння…"
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr "Пісні з цього служіння вже немає в бібліотеці."
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr "Відео, зображення чи звуку з цього служіння вже немає в бібліотеці."
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr "Набору слайдів із цього служіння вже немає в бібліотеці."
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr "Для тла в цьому служінні бракує файлу."
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr "Для {name} бракує файлу."
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] "Це служіння створено зі шрифтом, якого немає на цьому комп’ютері, тому текст показується іншим шрифтом: {fonts}. Встановіть його, щоб бачити все як задумано."
+msgstr[1] "Це служіння створено зі шрифтами, яких немає на цьому комп’ютері, тому текст показується іншим шрифтом: {fonts}. Встановіть їх, щоб бачити все як задумано."
+msgstr[2] "Це служіння створено зі шрифтами, яких немає на цьому комп’ютері, тому текст показується іншим шрифтом: {fonts}. Встановіть їх, щоб бачити все як задумано."
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr "«{name}» збережено у файл."
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr "Служіння не збережено, бо бракує потрібного:"
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr "Відкрито «{name}»."
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "{n} пісня"
+msgstr[1] "{n} пісні"
+msgstr[2] "{n} пісень"
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] "{n} медіафайл"
+msgstr[1] "{n} медіафайли"
+msgstr[2] "{n} медіафайлів"
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] "{n} набір слайдів"
+msgstr[1] "{n} набори слайдів"
+msgstr[2] "{n} наборів слайдів"
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr "Нове в бібліотеці: {things}."
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr "Вони відрізняються від наявних пісень, тому служіння використовує другу копію: {titles}"
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr "Ви не в мережі. Додані Біблії й далі працюють."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr "Не вдалося прочитати список Біблій. Спробуйте пізніше."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr "Не вдалося зберегти список Біблій на цьому комп’ютері."
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr "Ліцензія перевіряється під час завантаження"
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr "Уся Біблія"
+
+#: src/strings/catalog.rs
+msgid "New Testament"
+msgstr "Новий Заповіт"
+
+#: src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "Старий Заповіт"
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr "Частини"
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr "З апокрифами"
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr "Завантаження {name}…"
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr "Очікування завантаження {name}…"
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr "Перевірка {name}…"
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr "Не вдалося завантажити {name}. Перевірте інтернет і спробуйте ще раз."
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr "Ліцензія цієї Біблії не дозволяє її зберігати. Її вилучено."
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr "Не вдалося застосувати оновлення для {name}. Ваша наявна копія й далі працює."
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr "Ця Біблія більша, ніж очікувалося, тому її не додано."
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr "Недостатньо місця на диску для цієї Біблії (потрібно близько {n} МБ)."
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr "{name} не вдалося використати, тому її не додано."
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr "Цієї Біблії вже немає в списку. Знову відкрийте Налаштування → Біблії, щоб побачити актуальний список."
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr "Ви не в мережі, тому зараз не можна додавати Біблії."
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr "Завантаження списку Біблій…"
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr "Немає відповідних Біблій. Спробуйте менше слів або «Усі»."
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr "Біблій ще не додано. Виберіть «Усі», щоб побачити Біблії, які можна додати."
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr "Офлайн"
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr "Оновити"
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr "Додано"
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr "На вашому комп’ютері може не бути шрифту для цієї мови."
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr "Очікування"
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr "Доступне новіше видання"
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr "Біблію за замовчуванням змінено"
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr "Можна показувати не більше двох додаткових Біблій. Спочатку вимкніть одну."
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr "{name} — завантажено з eBible.org"
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr "Показано {shown} з {total} Біблій. Скористайтеся пошуком, щоб знайти інші."
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr "Завантаження… {percent}%"
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr "Додано {bible}"
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr "Вилучено {bible}"
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr "Також на {sources}"
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr "Служіння"
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr "Налаштування екранів"
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr "Ця презентація захищена паролем. Відкрийте її в PowerPoint, зніміть пароль (Файл → Відомості → Захист), збережіть і імпортуйте знову."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr "Це не схоже на файл PowerPoint."
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr "LibreOffice працював задовго, і його зупинено. Спробуйте ще раз; перший імпорт після увімкнення комп’ютера повільніший."
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr "LibreOffice не вдалося прочитати цю презентацію."
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr "LibreOffice зі Snap не може читати файли RustyPresenter. Натомість встановіть LibreOffice зі свого дистрибутива (sudo apt install libreoffice-impress)."
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr "Не вдалося запустити LibreOffice. Перевстановіть його й спробуйте ще раз."
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr "PowerPoint працював задовго, і його зупинено. Спробуйте ще раз."
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr "PowerPoint не вдалося відкрити цю презентацію."
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr "Не вдалося запустити PowerPoint."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr "Це не схоже на файл PDF."
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr "Цей файл відкривався задовго."
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr "Це зображення не вдається відкрити. Збережіть його як PNG або JPEG і спробуйте ще раз."
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr "У цій презентації немає слайдів."
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr "У цій презентації слайди різних розмірів, а RustyPresenter таке не показує."
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr "Бракує конвертера слайдів (pdfium). Перевстановіть RustyPresenter."
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr "Конвертер слайдів перестав відповідати. Перезапустіть RustyPresenter і спробуйте ще раз."
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr "Не вдалося перетворити слайд {page} на зображення."
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr "Цей PDF не вдається відкрити. Якщо він має пароль, зніміть його й імпортуйте знову."
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr "Не вдалося зберегти слайд. Перевірте, чи є вільне місце на диску, і спробуйте ще раз."
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr "Очікування іншого файлу…"
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr "Додавання «{name}»"
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr "Імпорт «{name}»"
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr "Збережіть файл Keynote як один файл і імпортуйте знову."
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr "Очікування LibreOffice…"
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr "Очікування PowerPoint…"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr "PowerPoint не вдалося відкрити файл; використано LibreOffice."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr "Імпортовано через LibreOffice — перевірте слайди."
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr "Очікувалося слайдів: {expected}, а імпортовано: {imported}."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr "Імпортовано через LibreOffice — перевірте слайди. Очікувалося слайдів: {expected}, а імпортовано: {imported}."
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr "Щоб імпортувати презентації, встановіть LibreOffice. {hint}"
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr "Збережено"
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr "Як у темі"
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr "+ Додати…"
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr "Додано до медіатеки — виберіть тут"
+
+#: src/strings/operator.rs src/strings/print.rs
+msgid "Picture"
+msgstr "Зображення"
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr "{kind} · не відтворюється"
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr " · по колу"
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr "{kind} · Бракує відеопрогравача — перевстановіть RustyPresenter"
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] "{kind} · {n} слайд"
+msgstr[1] "{kind} · {n} слайди"
+msgstr[2] "{kind} · {n} слайдів"
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] "{n} пункт"
+msgstr[1] "{n} пункти"
+msgstr[2] "{n} пунктів"
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] "{n} телефон"
+msgstr[1] "{n} телефони"
+msgstr[2] "{n} телефонів"
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr "Очистити"
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr "Зображення слайда"
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr "Текст уже максимального розміру, що вміщується. Виберіть менше віршів на слайд («Змінити»), щоб збільшити його."
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr "Виберіть пункт ліворуч"
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr "Ласкаво просимо"
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr "Щось пішло не так."
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr "Екран у залі працює"
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr "Екран у залі запускається…"
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr "Екран у залі не відкрито — натисніть «Екрани»"
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr "Не вдалося відкрити вікно оператора: {error}"
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] "Об’єднати {n} зображення в один набір слайдів?"
+msgstr[1] "Об’єднати {n} зображення в один набір слайдів?"
+msgstr[2] "Об’єднати {n} зображень в один набір слайдів?"
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr "Один набір слайдів"
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr "Окремі зображення"
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr "Відео, зображення й музика"
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr "Презентації"
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr "Файли текстів SongSelect"
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr "Зображення й відео"
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr "Файли служінь"
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr "{passage} додано — натисніть Enter, щоб показати"
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr "Додано до служіння"
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr "Додавання {name}"
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] "Додавання {n} зображення"
+msgstr[1] "Додавання {n} зображень"
+msgstr[2] "Додавання {n} зображень"
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr "{name} додано"
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr "Імпортовано «{title}»"
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr "«{title}» уже є в бібліотеці."
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr "Оновлено «{title}»"
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr "Оновити наявну"
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr "Залишити обидві"
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr "«{title}» готово"
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr "Назвіть ці слайди"
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr "Повідомлення для сценічного екрана. Залиште порожнім, щоб прибрати його."
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr "Улюблені"
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr "Нещодавні"
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr "Інші Біблії"
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr "імпортовано"
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr "Жодна з ваших Біблій не підходить. Знайдіть інші Біблії нижче."
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr "{bible} додано до улюблених"
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr "{bible} вилучено з улюблених"
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr "Усі медіа"
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr "Перетворення {percent}%"
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr "Клацніть ескіз, щоб вибрати його."
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr "Двічі клацніть ескіз, щоб зробити його тлом вибраного пункту."
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr "Додайте до служіння, щоб відтворити."
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr "Цей файл ще не готовий до відтворення."
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr "Спочатку виберіть пункт служіння, а потім його тло."
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr "Тло: {name}"
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr "Назва папки (залиште порожнім, якщо без папки)"
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr "Назва нової папки"
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr "Видалити папку «{name}»? Її файли залишаться в бібліотеці."
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] "Код дійсний ще {n} секунду"
+msgstr[1] "Код дійсний ще {n} секунди"
+msgstr[2] "Код дійсний ще {n} секунд"
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr "Термін дії коду минув — знову натисніть «Під’єднати телефон»."
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr "Без дати"
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr "Пн"
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr "Вт"
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr "Ср"
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr "Чт"
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr "Пт"
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr "Сб"
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr "Нд"
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr "Понеділок"
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr "Вівторок"
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr "Середа"
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr "Четвер"
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr "П’ятниця"
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr "Субота"
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr "Неділя"
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr "По понеділках"
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr "По вівторках"
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr "По середах"
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr "По четвергах"
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr "По п’ятницях"
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr "По суботах"
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr "По неділях"
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr "Будь-який день"
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr "будь-який"
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr "Січень"
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr "Лютий"
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr "Березень"
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr "Квітень"
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr "Травень"
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr "Червень"
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr "Липень"
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr "Серпень"
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr "Вересень"
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr "Жовтень"
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr "Листопад"
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr "Грудень"
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr "Читання Біблії"
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr "Щось"
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr "Пропуск"
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr "{label} (пропуск)"
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr "Натисніть «Вибрати», щоб заповнити"
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr "Це пропуск — спочатку виберіть, що тут буде."
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr "Заповніть: {label}"
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr "Немає служіння, яке можна скопіювати."
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr "Цього шаблону більше немає."
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr "Ця дата неправильна."
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr "Цього пропуску більше немає."
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr "Цей пункт уже не є пропуском."
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr "Шаблону потрібна назва."
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr "Шаблону потрібна хоча б одна частина."
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr "Це є в шаблоні «{name}». Спочатку приберіть його із шаблону."
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] "{n} пропуск"
+msgstr[1] "{n} пропуски"
+msgstr[2] "{n} пропусків"
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] "Показати ще {n} старіше служіння"
+msgstr[1] "Показати ще {n} старіші служіння"
+msgstr[2] "Показати ще {n} старіших служінь"
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] "{n} частина, {blanks}"
+msgstr[1] "{n} частини, {blanks}"
+msgstr[2] "{n} частин, {blanks}"
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr "Шаблонів ще немає. Щоб створити шаблон, виберіть «Зберегти як шаблон» у служінні."
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr "Спочатку збережіть служіння як шаблон"
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr "Створити служіння на {date} з «{service}»?"
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr "Копія з пропусками для пісень і читань Біблії"
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr "На {date} уже є служіння («{name}»)."
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr "Відкрити його"
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr "Створити ще одне"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr "«{name}» готове"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr "«{name}» готове — заповніть {blanks}"
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr "Дата служіння (залиште порожнім, якщо без дати)"
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr "Дата служіння, наприклад {example} (залиште порожнім, якщо без дати)"
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr "Назва шаблону"
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr "Шаблон «{name}» збережено"
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr "Перейменувати шаблон"
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr "Видалити шаблон «{name}»? (Служіння, створені з нього, залишаться.)"
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr "Який шаблон?"
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr "Назва нового служіння"
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr "Для якого дня шаблон «{name}»?"
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr "Назва заголовка"
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr "Прославлення"
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr "Перейменувати заголовок"
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr "У розділі «Шаблони» натисніть «Створити служіння» біля потрібного шаблону."
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr "Введіть день тижня, наприклад неділя, або залиште порожнім для будь-якого дня."
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr "Усе готово. Усі пісні, файли й екрани для цього служіння знайдено."
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr "У цьому служінні ще немає пунктів."
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr "Екран у залі не вибрано. Виберіть його в «Екранах»."
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr "Екран у залі не під’єднано. Перевірте кабель або виберіть інший в «Екранах»."
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr "Сценічний екран не під’єднано. Служіння може йти й без нього."
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr "Вибраний у налаштуваннях вивід звуку не під’єднано. Під’єднайте його або виберіть інший у Налаштування → Відео."
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr "Вивід звуку не під’єднано, тому відео чи аудіо призупинено. Під’єднайте його або виберіть інший у Налаштування → Відео, а потім натисніть «Відтворити»."
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr "Бракує файлу логотипа. Виберіть його знову в налаштуваннях."
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr "Бракує файлу тла за замовчуванням. Виберіть його знову в налаштуваннях."
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr "пісні вже немає в бібліотеці"
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr "у пісні немає тексту"
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr "немає тексту віршів"
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr "цього вже немає в бібліотеці"
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr "бракує файлу"
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr "цих слайдів уже немає в бібліотеці"
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr "бракує файлу тла"
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr "не відтворюється ({reason})"
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] "Бракує {missing} з {n} слайда"
+msgstr[1] "Бракує {missing} з {n} слайдів"
+msgstr[2] "Бракує {missing} з {n} слайдів"
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr "{number}. {title}: {problem}"
+
+#: src/strings/preflight.rs
+msgid "…and {n} more"
+msgstr "…і ще {n}"
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] "Перед служінням треба виправити {n} проблему:"
+msgstr[1] "Перед служінням треба виправити {n} проблеми:"
+msgstr[2] "Перед служінням треба виправити {n} проблем:"
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr "{bible} для {passage} ще не доступна без інтернету. Відкрийте це служіння один раз з інтернетом."
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr "Порядок: {sections}"
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr "Пропуск — {label}"
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr "(ще не вибрано)"
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr "(без тексту)"
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr "(текст віршів не збережено з цим служінням)"
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr " (по колу)"
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr "У цьому служінні немає пісень чи читань Біблії."
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr "Це служіння порожнє."
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr "Надруковано з RustyPresenter · {date}"
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr "Відкрито у вебпереглядачі — скористайтеся там друком (у вікні друку можна також зберегти як PDF)"
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr "Збережено {file}"
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr "Не вдалося створити сторінку: {reason}."
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr "Не вдалося зберегти в цю папку: {reason}."
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr "Сторінку збережено в {path}, але жодна програма її не відкрила. Відкрийте її звідти, щоб надрукувати."
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr "Вебсторінка"
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr "Друк або збереження"
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr "Зал"
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr "Екран для залу"
+
+#: src/strings/screens.rs
+msgid "Stage screen"
+msgstr "Сценічний екран"
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr "Показується"
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr "Без виходу"
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr "Від’єднано"
+
+#: src/strings/screens.rs
+msgid "None"
+msgstr "Немає"
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr "У вікні (для перевірки)"
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr "Зараз не під’єднано"
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr "Це екран, на якому ви працюєте. Якщо це ввімкнути, його буде закрито."
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr "Показує те саме, що й {screen}. Звук відтворюється лише з {screen}."
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr "Вилучити «{name}»?"
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr "Введіть хоча б одне слово для пошуку."
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr "Додайте розділ, наприклад Йова 1 або Йова 1:1."
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr "Виберіть інший другий переклад."
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr "Другий переклад вимкнено (збігається з основним)."
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr "Задовго — розділиться посеред вірша"
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr "Якщо тримати їх разом, слайд буде задовгим, тому він розділиться посеред вірша."
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr "Біблійні слайди тепер підлаштовуються під екран, тому деякі уривки можуть розбиватися в інших місцях."
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr "Підлаштування слайдів…"
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr "Цей переклад не можна використовувати в RustyPresenter. Виберіть, будь ласка, іншу Біблію."
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr "Цей вірш зі старішої версії; знайдіть уривок знову, щоб вибрати тут розриви."
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] "{n} уривок використовував переклад, недоступний у RustyPresenter, і його вилучено."
+msgstr[1] "{n} уривки використовували переклад, недоступний у RustyPresenter, і їх вилучено."
+msgstr[2] "{n} уривків використовували переклад, недоступний у RustyPresenter, і їх вилучено."
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr "Готово на цьому комп’ютері"
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr "Готово (потрібен інтернет)"
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr "Потрібен ключ — Отримати"
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr "Недоступно"
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr "Пошук: готово"
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr "Пошук: онлайн (ESV)"
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr "Пошук працює для перекладів, збережених на цьому комп’ютері (KJV і будь-яка вбудована чи імпортована Біблія). В онлайн-перекладах шукати не можна, бо їхні власники цього не дозволяють (ESV може пропонувати власний онлайн-пошук)."
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr "Кожне слово має бути у вірші (любов ближній знайде вірші з обома словами)."
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr "Слова шукаються за початком: любов знайде любов, любові, любов’ю. Слова, коротші за 3 літери, мають збігатися точно."
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr "Візьміть слова в лапки для точної фрази: \"замовкніть\"."
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr "Великі літери й розділові знаки не мають значення. господь знайде ГОСПОДЬ."
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr "Найкращі збіги йдуть першими: вірші з вашими словами в точному порядку, потім вірші, де слова поруч, а далі решта в біблійному порядку. Перейдіть на біблійний порядок, щоб спершу побачити Буття."
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr "Ctrl+Enter у полі Біблії завжди виконує пошук, навіть для назви книги, як-от \"Йов\"."
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr "Також показати…"
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr "Пошук за словами…"
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr "Розриви слайдів"
+
+#: src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "Вибрати розриви слайдів…"
+
+#: src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "Скинути на автоматичні"
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr "Новий слайд (автоматично)"
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr "Новий слайд (додали ви)"
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr "Разом"
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr "+ Новий слайд тут"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr "Теми нижньої третини завжди розміщують два переклади один над одним."
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr "Шукати ці слова"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr "У {bible} немає віршів з усіма цими словами."
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr "У {bible} немає віршів із цим словом. Якщо це назва книги, перевірте написання й додайте розділ, наприклад Івана 3."
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr "Показано перші {shown} з {total} віршів — додайте слова, щоб звузити пошук."
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] "Знайдено {count} вірш у {bible}"
+msgstr[1] "Знайдено {count} вірші у {bible}"
+msgstr[2] "Знайдено {count} віршів у {bible}"
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr "Підготовка {bible} до пошуку…"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr "Пошук недоступний для {bible}. Спробуйте переклад, збережений на цьому комп’ютері, наприклад KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr "Пошук недоступний для {bible}, тому шукаємо в {local}."
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr "Для пошуку в ESV потрібен інтернет. Перевірте з’єднання або шукайте в KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr "Пошук недоступний для {bible}"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr "Для {bible} потрібен ключ. Додайте його в Налаштування → Біблія."
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr "{bible} недоступна."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr "Не вдалося отримати текст {bible} — перевірте інтернет."
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr "{second} зараз недоступна, тому додано лише {main}. Вимкніть другий переклад кнопкою X."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr "Не вдалося отримати {bible}: {error}"
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr "У {bible} немає {passage}."
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr "Додати {passage}"
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr "Натомість шукати \"{word}\""
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr "Цей уривок задовгий. Виберіть приблизно до {n} віршів."
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr "{bible} вимкнено (збігається з основною)."
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr "{left} зараз недоступна, тому додано лише {kept}."
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr "Теми нижньої третини показують дві Біблії. {bible} не показується."
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr "Для цього уривка {bible} потрібен інтернет."
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr "Цю Біблію вилучено. Додайте її знову в Налаштування → Біблії."
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr "Назва копії"
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr "Перейменувати служіння"
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr "Служіння {date}"
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr "Видалити служіння «{name}»? (Пісні й медіа залишаться в бібліотеці.)"
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr "Налаштування збережено"
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr "Шрифт «{font}» не встановлено на цьому комп’ютері, тому слайди використовують Noto Sans."
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr "Готово — офлайн"
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr "Готово — онлайн"
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr "Потрібен безкоштовний ключ"
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr "Джерела ще немає"
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr "або"
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr "Під’єднайте {sources} нижче"
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr "Жодне онлайн-джерело її не пропонує. Імпортуйте ліцензований файл або вставляйте вірші під час додавання."
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr "Для {bibles}"
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr "{source} під’єднано"
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr "{source} від’єднано"
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr "Посилання скопійовано — вставте його у вебпереглядач"
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] "Додано {bible} ({count} вірш)"
+msgstr[1] "Додано {bible} ({count} вірші)"
+msgstr[2] "Додано {bible} ({count} віршів)"
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr "Не вдалося імпортувати."
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr "{bible} вилучено"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr "Відеопрогравач: libmpv (збірка LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr "Відеопрогравач: libmpv {version} (збірка LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr "Малювання відео: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr "Малювання відео: програмне"
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr "Не вдалося скопіювати: {error}"
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr "Резервну копію створено"
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr "Відновити цю резервну копію? Ваші поточні пісні й служіння буде замінено (їхню копію збережено)."
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr "Резервну копію відновлено"
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr "Пісень: {songs} · Служінь: {services} · Файлів: {files}"
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr "→  ↓  Пробіл  Page Down"
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr "←  ↑  Page Up"
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr "Enter"
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr "Ctrl + B"
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr "Alt + 1–5"
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr "Ctrl + V"
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr "Перейти в пісні в ефірі до куплету 1–9, приспіву, передприспіву, бріджу, тегу, вступу, закінчення, програшу або наступного куплету"
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr "Додати скопійоване посилання YouTube"
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr "Esc"
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr "Показати вибраний пункт"
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr "Вибрати позначку Біблії (у полі Біблії)"
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr "Вийти з текстового поля"
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr "Відео: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr "Відео: програмне малювання"
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr "Бракує відеопрогравача"
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr "libmpv (клієнтський API {major}.{minor}) — {path}"
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr "збірка LGPL"
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr "не збірка LGPL"
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr "libmpv {version} ({build}) · клієнтський API {major}.{minor} — {path}"
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr "знайдено"
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr "відсутній"
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr "Snap — не підходить"
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr "не встановлено"
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr "не знайдено"
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr "Для відтворення відео використовуються бібліотеки libmpv (LGPL-2.1+) і FFmpeg за ліцензією LGPLv2.1 — сирці: {url}"
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr "Мова комп’ютера ({name})"
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr "{name} (потребує перевірки)"
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr "{english_name} · перекладено {percent}%"
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr "Типовий вивід звуку цього комп’ютера"
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr "Збережений вивід звуку (не під’єднано)"
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr "Куплет"
+
+#: src/strings/song.rs
+msgid "Chorus"
+msgstr "Приспів"
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Передприспів"
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr "Брідж"
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr "Тег"
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr "Вступ"
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr "Закінчення"
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr "Програш"
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr "Інше"
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr "Клавіші частин працюють для пісень."
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr "Пісня змінилася — спробуйте ще раз."
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr "Пісня в ефірі змінилася — спробуйте ще раз."
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr "Ця пісня вже не в ефірі."
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr "У пісні тепер немає слайдів. На екрані залишається старий текст."
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr "Збережено. Новий текст з’явиться, коли ви повернете текст на екран."
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr "Ви змінили текст, який зараз на екрані. «Оновити екран» покаже його одразу. Клацання на слайді теж покаже нову версію."
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr "Пісня в ефірі тепер виглядає інакше. Натисніть «Оновити екран», щоб показати її."
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr "Частину пісні, що була на екрані, видалено. «Оновити екран» почне пісню спочатку."
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr "У пісні тепер немає тексту. На екрані залишається старий текст."
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr "Клацніть, щоб показати цю частину"
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr "У цій пісні немає частини «{section} {number}»."
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr "У цій пісні немає частини «{section}»."
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr "Перехід до: {section} ({key})"
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr "{section} — натисніть {key}"
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr "{section} · слайд {page} з {pages}"
+
+#: src/strings/stage.rs
+msgid "Stage layout"
+msgstr "Макет сцени"
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr "Класичний"
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr "Лише текст"
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr "Гурт"
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr "Проповідник"
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr "Годинник і відлік"
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr "Поточний слайд"
+
+#: src/strings/stage.rs
+msgid "Next slide"
+msgstr "Наступний слайд"
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr "Частина"
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr "Наступна частина"
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr "Назва пункту"
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr "Залишилося слайдів"
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr "Нотатки"
+
+#: src/strings/stage.rs
+msgid "Clock"
+msgstr "Годинник"
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr "Таймер"
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr "Залишок відео"
+
+#: src/strings/stage.rs
+msgid "Message"
+msgstr "Повідомлення"
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr "текст, що зараз на екрані"
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr "наступний текст"
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr "Куплет, Приспів, Брідж…"
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr "наступна частина пісні"
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr "назва пункту в ефірі"
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr "«Залишилося 3 слайди»"
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr "нотатки слайда для сцени"
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr "поточний час"
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr "зворотний або прямий відлік"
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr "скільки лишилося відео чи аудіо"
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr "повідомлення з пульта"
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr "текст, який ви вводите один раз"
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr "(логотип)"
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr "В ефірі нічого"
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr "НАСТУПНА ЧАСТИНА"
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr "ДАЛІ · {title}"
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr "Останній слайд"
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] "Залишився {n} слайд"
+msgstr[1] "Залишилося {n} слайди"
+msgstr[2] "Залишилося {n} слайдів"
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr "Таймер вилучено"
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr "{timer} · пауза"
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr "Цього макета сцени більше немає."
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr "Вбудовані макети сцени не можна змінювати. Спочатку створіть копію."
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr "Дайте макету сцени назву."
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr "Макет сцени «{name}» уже існує."
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr "Макет сцени може мати не більше 24 блоків."
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr "{question} Його використовують: {things}. {what_happens}."
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr "{first} і {second}"
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr "{first}, {second} і {third}"
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr "{items_effect}; {macros_effect}"
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] "{n} пункт служіння"
+msgstr[1] "{n} пункти служіння"
+msgstr[2] "{n} пунктів служіння"
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr "типовий макет сцени"
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] "{n} макрос"
+msgstr[1] "{n} макроси"
+msgstr[2] "{n} макросів"
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr "Пункти й типовий макет використовуватимуть «Класичний»"
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr "Цей пункт використовуватиме типовий макет сцени"
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr "Ці пункти використовуватимуть типовий макет сцени"
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr "Типовим стане «Класичний»"
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr "макрос не виконуватиметься, доки його не змінять"
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr "макроси не виконуватимуться, доки їх не змінять"
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr "Макрос не виконуватиметься, доки його не змінять"
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr "Макроси не виконуватимуться, доки їх не змінять"
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr "Дайте темі назву."
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr "Цю назву має вбудована тема. Виберіть іншу."
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr "Цієї теми більше немає."
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr "Вбудовані теми не можна видалити."
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr "«Стандартна» змінюється кнопкою «Зберегти» у власному редакторі."
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr "Тему збережено"
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr "Тему видалено"
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr "Стандартна"
+
+#: src/strings/themes.rs
+msgid "Church default"
+msgstr "Основна тема церкви"
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr "Вбудована — стиль, з якого почався RustyPresenter"
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr "Основна тема церкви — використовується, коли не вибрано іншої"
+
+#: src/strings/themes.rs
+msgid "New theme"
+msgstr "Нова тема"
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr "Тему використовують лише пісні, біблійні уривки й оголошення."
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr "У цій темі текст уже жирний"
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr "працює на будь-якому комп’ютері"
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr "Тлом можуть бути зображення або відео."
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr "Дайте тлу назву."
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr "Цього тла більше немає."
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr "Додано до тел"
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr " · власне тло"
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr "З теми"
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr "Стандартне тло"
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr "Поточне (немає серед ваших тел)"
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr "Не вдалося перетворити"
+
+#: src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "Полегшує читання тексту"
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr "Дайте накладанню назву."
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr "Введіть текст накладання."
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr "Цього накладання більше немає."
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr "Зберігати можна лише накладання з текстом, зображенням чи годинником."
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr "Одночасно може бути ввімкнено до 8 накладань. Спочатку вимкніть одне."
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr "Спочатку виберіть логотип церкви (Налаштування → Теми)."
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr "Цього зображення більше немає."
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr "не вдалося завантажити зображення."
+
+#: src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "Змінено — вимкніть і ввімкніть, щоб оновити."
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr "Логотип збережено"
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr "Логотип вилучено"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr "Для напису, що залишається на екрані."
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr "Для напису, що залишається на екрані. Для сповіщень, як-от виклику батьків, використовуйте «Повідомлення» (коли воно буде доступне)."
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr "Ці дані збережено новішою версією RustyPresenter. Встановіть, будь ласка, найновішу версію."
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr "Очікувався об’єкт."
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr "Той самий пункт указано двічі."
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr "Тема «{name}» уже існує."
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr "Не вдалося показати накладання «{name}»: {reason}"
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr "(видалено) {name}"
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] "{n} пункт має власне тло. Використати для нього тло теми?"
+msgstr[1] "{n} пункти мають власне тло. Використати для них тло теми?"
+msgstr[2] "{n} пунктів мають власне тло. Використати для них тло теми?"
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] "Використовується в {n} пункті"
+msgstr[1] "Використовується в {n} пунктах"
+msgstr[2] "Використовується в {n} пунктах"
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr "Тло {n}"
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr "Зробити «{name}» основною темою церкви? Усе без власної теми використовуватиме її. Повернути можна будь-коли."
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr "«{name}» тепер основна тема церкви"
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr "Видалити тему «{name}»?"
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "{n} служіння"
+msgstr[1] "{n} служіння"
+msgstr[2] "{n} служінь"
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] "Її використовує {things}; натомість буде використано основну тему церкви."
+msgstr[1] "Її використовують {things}; натомість буде використано основну тему церкви."
+msgstr[2] "Її використовують {things}; натомість буде використано основну тему церкви."
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr "Її використовують {items} і {services}; натомість буде використано основну тему церкви."
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr "Це основна тема церкви, тому основною стане «Стандартна»."
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr "Вилучити «{name}» з тел? Пункти, які його використовують, збережуть його."
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr "Використовується у виглядах екрана: {views}"
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr "Перетворення {percent} %"
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr "Тема: {name}"
+
+#: src/strings/themes.rs
+msgid "Bold"
+msgstr "Жирний"
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr "Курсив"
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr "Підкреслений"
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr "Золотий"
+
+#: src/strings/themes.rs
+msgid "Red"
+msgstr "Червоний"
+
+#: src/strings/themes.rs
+msgid "Color"
+msgstr "Колір"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Малий"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Великий"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr "Величезний"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr "Встановіть LibreOffice (безкоштовно) з libreoffice.org або виконайте: winget install TheDocumentFoundation.LibreOffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr "Встановіть LibreOffice (безкоштовно) з libreoffice.org або виконайте: brew install --cask libreoffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr "Встановіть LibreOffice Impress, наприклад: sudo apt install libreoffice-impress"
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr "Не вдається створити адресу файлу з {path}"
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr "Звіт про використання пісень"
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr "Номер ліцензії CCLI: {license}"
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr "Додайте номер ліцензії CCLI вашої церкви в Налаштування → Пісні."
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr "Позначити як звітовано по {date}"
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr "Наступного разу звіт почнеться з дня після {date}."
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr "Позначити як звітовано"
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr "Позначено як звітовано по {date}."
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr "Вилучити цей запис? Використовуйте це для репетицій, які не мають враховуватися."
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr "Запис вилучено"
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr "Зберегти зміни налаштувань і відкрити звіт?"
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr "Зберегти й відкрити"
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr "Дата «Від» має бути раніше за дату «До»."
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr "Вводьте дати як рік-місяць-день, наприклад 2026-11-01."
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr "Не вдалося зберегти звіт: {reason}."
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr "Збережено {path}"
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr "Таблиця (CSV)"
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr "Номер пісні CCLI"
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr "з {from} по {to}"
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr "Надрукуйте цю сторінку або збережіть її як PDF у вікні друку вебпереглядача."
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr "Пошук відео…"
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr "Підготовка завантажень з YouTube — лише першого разу ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr "Оновлення завантажувача YouTube ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr "Підготовка засобу об’єднання відео — лише першого разу ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr "Вставте посилання на відео YouTube. Воно починається з https://www.youtube.com або https://youtu.be."
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] "Це посилання — список відтворення з {n} відео. Буде завантажено лише перше відео."
+msgstr[1] "Це посилання — список відтворення з {n} відео. Буде завантажено лише перше відео."
+msgstr[2] "Це посилання — список відтворення з {n} відео. Буде завантажено лише перше відео."
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr "Найкраща (до 1080p)"
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr "Менша (720p)"
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr "Найменша (480p)"
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr "Лише звук"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr "Завантаження «{title}». Після завершення воно буде у «Відео й медіа»."
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr "Завантаження «{title}»"
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr "залишилося менше хвилини"
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr "залишилося близько хвилини"
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] "залишилося близько {n} хвилини"
+msgstr[1] "залишилося близько {n} хвилин"
+msgstr[2] "залишилося близько {n} хвилин"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr "Завантаження «{title}» — {left}"
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr "Завершення «{title}»…"
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr "Додавання «{title}» до бібліотеки…"
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr "Завантажено «{title}»"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr "Воно у «Відео й медіа» та в служінні."
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr "Воно у «Відео й медіа»."
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr "Збережено в нижчій якості (360p), бо не вдалося налаштувати засіб об’єднання відео."
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr "Не вдається зв’язатися з YouTube. Перевірте підключення до інтернету й спробуйте ще раз."
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr "Це відео приватне, тому завантажити його може лише власник."
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr "YouTube показує це відео лише користувачам, що ввійшли в обліковий запис (наприклад, воно має вікові обмеження), тому тут його не завантажити."
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr "Це відео лише для учасників каналу, тому тут його не завантажити."
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr "YouTube просить увійти, щоб перевірити, що ви не робот. Зачекайте трохи й спробуйте ще раз."
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr "Ця пряма трансляція ще не завершилася. Спробуйте після її закінчення."
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr "Ця пряма трансляція чи прем’єра ще не почалася."
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr "Ця трансляція щойно завершилася, і YouTube ще її обробляє. Спробуйте трохи згодом."
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr "Це посилання не на відео YouTube. Скопіюйте посилання зі сторінки відео й спробуйте ще раз."
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr "Це відео недоступне. Можливо, його видалено або заблоковано в цій країні."
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr "У цьому списку відтворення немає відео, які можна завантажити."
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr "Диск комп’ютера заповнений. Звільніть місце й спробуйте ще раз."
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr "YouTube щось змінив, і завантажувач поки не може прочитати це відео. Спробуйте пізніше."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr "Не вдалося підготувати завантаження з YouTube. Перевірте підключення до інтернету й спробуйте ще раз."
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr "Отриманий завантажувач YouTube не збігся з офіційним відбитком, тому його не використано. Спробуйте пізніше."
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr "Завантаження з YouTube поки не працюють на такому комп’ютері."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr "Не вдалося підготувати завантаження з YouTube ({detail}). Спробуйте пізніше."
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr "Завантаження не вдалося: {detail}"
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr "Скасовано."
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Чорний"
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr "Нічний синій"
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr "Темно-зелений"
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr "Сливовий"
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr "Коричневий"
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr "Білий"
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr "Опівніч"
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr "Темно-фіолетовий"
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr "Ліс"
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr "Жар"
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr "Океан"
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr "Сланець"
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr "Звичайний"
+
+#: src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} (копія)"
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr "{name} (копія {number})"
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr "{day} о {time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr "{time} UTC"
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr "не вдалося завантажити зображення"
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr "тло завантажувалося задовго"
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr "зображення завантажувалося задовго"
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr "відео завантажувалося задовго"
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr "слайд завантажувався задовго"
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr "логотип завантажувався задовго"
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr "накладання завантажувалося задовго"
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr "аудіо завантажувалося задовго"
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr "екран у залі не зміг це підготувати"
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr "Не вдалося відкрити екран у залі: {error}"
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr "На екрані презентація"
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Екран у залі від’єднано. Він повернеться сам, коли екран знову під’єднають."
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Додатковий екран для залу від’єднано. Він повернеться сам, коли екран знову під’єднають."
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Сценічний екран від’єднано. Він повернеться сам, коли екран знову під’єднають."
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Додатковий сценічний екран від’єднано. Він повернеться сам, коли екран знову під’єднають."
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr "Екран у залі знову під’єднано, але його не вдалося відкрити: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr "Додатковий екран для залу знову під’єднано, але його не вдалося відкрити: {error}"
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr "Сценічний екран знову під’єднано, але його не вдалося відкрити: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr "Додатковий сценічний екран знову під’єднано, але його не вдалося відкрити: {error}"
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr "Не вдалося показати номери екранів: {error}"
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr "RustyPresenter закривається."
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr "Не вдалося відкрити сценічний екран: {error}"
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr "Бракує відеопрогравача. Перевстановіть RustyPresenter."
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr "Не вдається завантажити відеопрогравач з {path}: {reason}"
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr "Ця версія libmpv застара (клієнтський API {major}.{minor}); RustyPresenter потрібна 2.x."
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr "Не вдалося запустити відеопрогравач."
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr "Не вдалося запустити відеопрогравач: {reason}"
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr "Не вдалося відтворити {name} ({reason})"
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr "Не вдається показати відео: {reason}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "немає випуску в {address}"
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr "немає відбитка для {file}"
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr "у завантаженні бракує {file}"
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr "{address} завеликий"
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr "архів не читається: {error}"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr "yt-dlp зупинився"
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr "дані не читаються ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr "не вдалося запустити yt-dlp ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr "не вдалося запустити yt-dlp"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr "yt-dlp не надав даних"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr "yt-dlp не зберіг відео"
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr "не медіафайл"

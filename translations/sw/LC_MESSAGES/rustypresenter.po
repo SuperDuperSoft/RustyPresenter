@@ -1,0 +1,5335 @@
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: sw\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kiswahili\nX-English-Name: Swahili\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr "Tafuta katika Biblia zako"
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr "haijaunganishwa"
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr "Pendwa"
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr "Tafuta Biblia zaidi…"
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr "Chagua Biblia"
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr "Jaribu tena"
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr "Hariri"
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr "Ongeza"
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr "Pakua tu video ambazo kanisa lako lina haki ya kutumia (zako mwenyewe, zenye leseni, au za Creative Commons)."
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr "Bandika kiungo cha YouTube hapa"
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr "Pakua"
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr "Ongeza kwenye ibada ikikamilika"
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr "Ubora"
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr "Pakia faili"
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr "Pakua kutoka YouTube"
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr "Muundo wowote wa video unafaa."
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr "Leta wasilisho"
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr "Tengeneza slaidi kutoka picha"
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr "Google Slides: katika Google Slides chagua File → Download → Microsoft PowerPoint (.pptx) au PDF, kisha leta faili hiyo hapa. Faili za Keynote na PDF zinafaa pia."
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr "Nakili"
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr "Angalia tena"
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr "Wimbo mpya"
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr "Leta maneno ya SongSelect (.txt)"
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr "Leta kutoka EasyWorship"
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr "Kifungu ({})"
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr "mf. Yohana 3:16-18, Zaburi 23, Warumi 8:28,31-39"
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr "Ongeza mistari"
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr "Bandika mistari badala yake"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr "Mistari kwa kila slaidi"
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr "Otomatiki"
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr "Mistari ({}) — acha namba za mistari ili kila mstari upate slaidi yake"
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr "16 Kwa maana jinsi hii Mungu aliupenda ulimwengu… 17 Kwa maana Mungu hakumtuma…"
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr "Ongeza mistari iliyobandikwa"
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr "Kidokezo: huhitaji dirisha hili. Andika mstari kwenye kisanduku cha Biblia juu (au bonyeza Ctrl+B), kisha Enter huuongeza, na Enter tena huuonyesha."
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr "Kichwa"
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr "mf. Karibu, Matangazo, Sadaka"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Text"
+msgstr "Maandishi"
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr "Andika maandishi yako. Acha mstari mtupu ili kuanza slaidi mpya."
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr "Ongeza tangazo"
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr "Wimbo"
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr "Maneno ya wimbo"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr "Biblia"
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr "Mistari"
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr "Video na midia"
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr "Video, picha, muziki"
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr "Slaidi"
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr "PowerPoint, picha"
+
+#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr "Tangazo"
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr "Maandishi yako mwenyewe"
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr "Hex"
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr "Chagua rangi yoyote"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr "Maneno, mpangilio na sifa ni sehemu ya wimbo ulio kwenye maktaba yako."
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr "Maneno, mpangilio na sifa ni sehemu ya wimbo ulio kwenye maktaba yako. Wimbo huu ulifutwa kwenye maktaba."
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr "Hariri wimbo"
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr "Mistari itatafutwa tena katika Biblia hii utakapohifadhi."
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr "Onyesha pia"
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr "hakuna"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr "Acha kuonyesha Biblia hii"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr "Kando kwa kando"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr "Juu na chini"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr "Otomatiki"
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr "Mstari 1"
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr "Mistari 2"
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr "Mistari 3"
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr "Mistari 4"
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr "Ukubwa wa maandishi"
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr "(kubwa kabisa; maandishi hujipunguza yenyewe slaidi ikiwa na maneno mengi zaidi)"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr "Chagua"
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr "Sawa na Mipangilio → Mwonekano"
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr "— mstari mtupu huanza slaidi mpya"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr "Anza kucheza mara tu inapoonyeshwa"
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr "Video ikiisha"
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr "Safisha skrini"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr "Baki kwenye picha ya mwisho"
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr "Cheza tena (rudia)"
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr "Rudia hadi isimamishwe"
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr "Sauti inaendelea kucheza unapobadilisha slaidi. Isimamishe kwa Safisha Sauti (F4) au Safisha Zote."
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr "Jina"
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr "Jina kwenye maktaba"
+
+#: ui/dialogs/item-edit.slint src/strings/themes.rs
+msgid "Background"
+msgstr "Mandharinyuma"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr "Maelezo ya jukwaa"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr "Huonyeshwa kwenye skrini ya jukwaa pekee"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr "Ondoa kwenye ibada"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr "Ghairi"
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr "Hifadhi"
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr "Dhibiti slaidi kutoka simu yoyote iliyo kwenye Wi-Fi ya kanisa. Simu lazima iwe kwenye mtandao mmoja na kompyuta hii."
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr " (Hakuna mtandao uliopatikana — unganisha kompyuta hii na Wi-Fi.)"
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr "Anwani: "
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr "Unganisha simu"
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr "Msimbo wa QR"
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr "Changanua huu kwa kamera ya simu yako. Basi hivyo tu."
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr "Au fungua {} kisha uandike"
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr "1. Kwenye simu, fungua kamera na uchanganue msimbo (au andika anwani)."
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr "2. Weka msimbo huu kwenye simu:"
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr "Simu zilizounganishwa"
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "Ondoa"
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr "Bado hakuna."
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr "Nini cha kuchapisha"
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr "Mpangilio wa ibada"
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr "Zote mbili"
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr "Chaguo"
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr "Jumuisha maelezo ya vipengele"
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr "Jumuisha masomo ya Biblia pamoja na maneno ya nyimbo"
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr "Anza kila wimbo kwenye ukurasa mpya"
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr "Karatasi"
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr "Letter"
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr "A4"
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr "Chapisha…"
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr "Hufungua ukurasa kwenye kivinjari chako, ambapo unaweza kuuchapisha au kuuhifadhi kama PDF"
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr "Hifadhi ukurasa wa wavuti…"
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Funga"
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr "Ongeza skrini kwa {}"
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr "Onyesho"
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr "Ukubwa"
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr "Upana"
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr "Urefu"
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr "Uwiano wa vipimo: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr "Skrini moja tu imeunganishwa. Chomeka projekta/TV (na weka Windows kwenye “Extend these displays” kwa Win+P), kisha bofya Onyesha upya."
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr "Ondoa skrini hii"
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr "Tambua"
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr "Onyesha namba ya kila skrini juu yake kwa sekunde chache"
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr "Onyesha upya"
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr "Nakili ya wiki iliyopita"
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr "Tengeneza ibada ya wiki ijayo kutoka ile ya mwisho"
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr "Mpya kutoka kiolezo…"
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr "Ibada mpya tupu"
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr "Nakili ibada hii"
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr "Hifadhi kwenye faili"
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr "Hifadhi ibada iliyofunguliwa pamoja na faili zake zote, ili kuihamishia kompyuta nyingine"
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr "Fungua kutoka faili"
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr "Fungua"
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr "Badilisha jina"
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr "Tarehe…"
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr "Chapisha mpangilio wa ibada na maneno ya nyimbo, au yahifadhi kama ukurasa wa wavuti"
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr "Hifadhi kama kiolezo"
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr "Futa"
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr "Violezo"
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr "Tengeneza ibada"
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr "Siku…"
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr "Data yako:"
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr "Onyesha leseni"
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Rudi"
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr "Biblia chaguo-msingi"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr "Onyesha pia kwa kila kifungu kipya"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr "Chagua hadi mbili. Kila slaidi itaonyesha mistari ileile kutoka kila Biblia."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr "Ongeza Biblia"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr "Tafuta kwa jina, jina fupi au lugha"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr "Zilizosakinishwa"
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr "Zote"
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr "KJV, WEB na BSB zimejengwa ndani na hufanya kazi bila mtandao."
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr "Nyingine zina hakimiliki: unganisha huduma ya bure ya mchapishaji kwa ufunguo ambao kanisa lako hutengeneza mara moja. Vifungu unavyoongeza kwenye ibada huhifadhiwa pamoja nayo, kwa hiyo bado vitaonekana mtandao ukikatika."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr "Tafsiri"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr "Huduma za mtandaoni"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr "Imeunganishwa"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr "Haijaunganishwa"
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr "1. Jisajili bure kwenye"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr "Nakili kiungo"
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr "2. {}"
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr "3. Bandika ufunguo hapa. RustyPresenter huukagua kwa utafutaji mmoja, kisha huuhifadhi kwenye kompyuta hii tu."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr "Ufunguo umehifadhiwa — bandika mpya ili kuubadilisha"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr "Bandika ufunguo hapa"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr "Hifadhi ufunguo"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr "Tenganisha"
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr "Faili za Biblia"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr "Leta faili ya Zefania, OSIS, USX au OpenSong (.xml au .usx). Leta tu Biblia zisizo na hakimiliki au ambazo kanisa lako lina leseni ya kutumia. Ipe jina fupi la tafsiri iliyo juu (kama HCSB) ili kutumia faili hiyo kwa tafsiri hiyo."
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr "Jina fupi, mf. HCSB (si lazima)"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr "Leta faili ya Biblia"
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr "Sifa"
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr "Inatumika"
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr "Tumia"
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr "Tafsiri hufanywa na watu wa kujitolea. Kama lugha yako haipo au ina makosa, unaweza kusaidia."
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr "Saidia kutafsiri RustyPresenter"
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr "Fonti"
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr "Ukubwa wa maneno"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr "(kubwa kabisa; mistari mirefu hupunguzwa ili itoshe)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr "Mistari ya Biblia"
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr "(kwa vifungu vipya)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr "Ukubwa wa maandiko"
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr "(kubwa kabisa)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr "Maandishi hujipunguza yenyewe slaidi ikiwa na maneno mengi zaidi."
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr "Rangi ya maandishi"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr "Mahali pa maandishi"
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr "Katikati"
+
+#: ui/dialogs/settings-look.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr "Theluthi ya chini"
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "Kivuli nyuma ya maandishi (rahisi kusoma juu ya picha)"
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr "Maneno kwa HERUFI KUBWA"
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr "Nembo"
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr "Hakuna nembo (kitufe cha Nembo huonyesha cheusi)"
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr "Chagua nembo"
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "Hakiki"
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr "Mandharinyuma chaguo-msingi"
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr "Lugha zote"
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr "Mistari kwa kila slaidi"
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "Nyimbo na vifungu vya Biblia. Baadhi ya Biblia zinahitaji sifa zao zionyeshwe; huonekana mara moja kwa kila kifungu."
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr "Kwenye slaidi ya kwanza"
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr "Kwenye slaidi ya mwisho"
+
+#: ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "Imezimwa"
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr "Namba ya leseni ya CCLI ya kanisa"
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr "Vitufe vya sehemu (C, B, 1–9…)"
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "Zima kama herufi zinazoandikwa kwa makosa zinasogeza skrini."
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr "Herufi na namba hupeleka wimbo ulio hewani kwenye sehemu fulani"
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
+msgstr "Ripoti ya matumizi ya nyimbo…"
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr "Sauti inaenda kwa"
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr "Skrini ya ukumbi"
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr "Weka skrini ya ukumbi mbele ikiwa na monita yake (mfifio laini zaidi)"
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "Nakala kamili ya akiba (nyimbo, ibada, mipangilio na kila video, picha na slaidi) hutengenezwa kila RustyPresenter inapoanza na mara moja kwa siku. Nakala 10 za mwisho huhifadhiwa katika"
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr "Hifadhi nakala sasa"
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr "Rejesha"
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr "Bado hakuna nakala za akiba."
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr "Kibodi"
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr "Kidokezo: kubofya slaidi yoyote huiweka kwenye skrini mara moja. Mstari mwekundu unaonyesha kile ukumbi unachokiona."
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr "Mwonekano"
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "Lugha"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr "Nyimbo"
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+msgid "Video"
+msgstr "Video"
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr "Nakala za akiba"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr "Msaada"
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr "Kuhusu"
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr "Hifadhi mipangilio"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr "Wimbo huu uko kwenye skrini. Hakuna kinachobadilika kwenye skrini hadi uchague Hifadhi na uonyeshe sasa au Sasisha skrini."
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr "Neema ya Ajabu (Minyororo Imekatika)"
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr "Watunzi"
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr "Namba ya wimbo ya CCLI"
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr "4768151"
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr "Hakimiliki"
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr "© 2006 …"
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr "— majina ya sehemu kwenye mstari wake; mstari mtupu ndani ya sehemu huanza slaidi mpya"
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Ubeti 1]\nNeema ya ajabu, sauti tamu\nIliyoniokoa mimi\n\n[Kiitikio]\nMinyororo imekatika…"
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr "Mpangilio"
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr "(si lazima)"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "Haipo kwenye maneno — inarukwa"
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr "Mwisho"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr "⟲ Tumia mpangilio ulioandikwa"
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr "Slaidi huonekana hapa unapoandika. Weka majina ya sehemu kama “[Ubeti 1]” au “[Kiitikio]” kwenye mstari wake."
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr "Futa wimbo"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr "Hifadhi na uongeze kwenye ibada"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr "Hifadhi wimbo"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr "Hifadhi na uonyeshe sasa"
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr "Weka kumbukumbu ya matumizi ya nyimbo kwa ripoti ya CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr "Kuanzia"
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr "Hadi"
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr "Tangu ripoti iliyopita"
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr "Miezi 3 iliyopita"
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr "Miezi 6 iliyopita"
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr "Mwaka huu"
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr "Jumuisha nyimbo zisizo na namba ya CCLI"
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr "Nyimbo zisizo na hakimiliki hazihitaji kuripotiwa."
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr "CCLI #"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr "Mara zilizoonyeshwa"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr "Mara zilizotiririshwa"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr "Ilitumika mwisho"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr "Hakuna nyimbo katika tarehe hizi."
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr "Maelezo ({})"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr "imetiririshwa"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr "Weka namba hizi kwenye tovuti ya ripoti ya CCLI: matumizi ya kuonyeshwa huenda chini ya “Digital”, matumizi ya kutiririshwa chini ya Leseni yako ya Kutiririsha. “Imetiririshwa” maana yake ukurasa au dirisha la mtiririko lilikuwa wazi, si kwamba mlikuwa hewani."
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr "Fungua ukurasa wa kuchapisha"
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr "Hifadhi kama jedwali (CSV)…"
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr "Tambua skrini"
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr "—"
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr "HEWANI"
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr "inasasisha…"
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr "Hariri maneno"
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr "Rekebisha maneno ya wimbo ulio hewani. Skrini hubadilika tu utakaposema."
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr "Sasisha skrini"
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr "Nyuma (← au Page Up)"
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Ifuatayo"
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr "Ifuatayo (→, Space au Page Down)"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Kinachofuata"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr "Safisha Zote"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "Midia"
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr "Sauti"
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr "Cheza"
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "Sitisha"
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr "KWENYE SKRINI"
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr "Maktaba ya midia"
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr "Video"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr "Picha"
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr "Tafuta midia"
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr "Vijipicha vidogo zaidi"
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr "Vijipicha vikubwa zaidi"
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr "Leta"
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr "Folda mpya"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr "Futa folda"
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr "Bado hakuna kitu hapa. Bofya Leta, au jaribu folda au neno lingine."
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr "Chagua faili"
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr "Tumia kama mandharinyuma"
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr "Ongeza kwenye ibada"
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr "Hamishia kwenye folda"
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr "Skrini ya ukumbi imezimwa"
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr "Achilia hapa ili kuongeza kwenye ibada"
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr "Video, picha, muziki, mawasilisho (PowerPoint, Keynote, PDF), faili za maneno za SongSelect"
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr "Ibada"
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr "Ongeza kichwa"
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr "Ongeza kichwa cha rangi kwenye orodha ya ibada, kama “Kuabudu” au “Ujumbe”"
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr "Kagua"
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr "Kabla ya ibada: je, nyimbo zote, faili na skrini zipo?"
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr "Chagua kitakachowekwa hapa"
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr "Badilisha rangi"
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr "Ibada yako haina kitu"
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr "Bofya “Ongeza kwenye ibada” hapa chini, andika mstari wa Biblia juu, au buruta faili kwenye dirisha hili."
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr "Tuandae ibada ya Jumapili hii"
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr "Kila unachoongeza huonekana upande wa kushoto. Bofya slaidi ili kuiweka kwenye skrini."
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr "Bofya “Skrini” na uchague projekta au TV."
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr "Bofya “Ongeza kwenye ibada” kwa nyimbo, video na slaidi — au buruta faili ndani."
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr "Andika mstari kama “Yohana 3:16” kwenye kisanduku cha Biblia na ubonyeze Enter."
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr "Tumia kitufe kikubwa cha Ifuatayo (au kitufe →) wakati wa ibada."
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr "Hakuna kilichochaguliwa"
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr "Maandishi madogo zaidi kwa kifungu hiki"
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr "Maandishi makubwa zaidi kwa kifungu hiki"
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr "Rudi kwenye ukubwa ulio katika Mipangilio"
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr "Chagua kitu kwenye orodha ya ibada."
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr "Hakuna cha kuonyesha"
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr "Kipengele hiki bado hakina slaidi. Bofya Hariri ili kuongeza."
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr "Badilisha au unda ibada"
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Mstari wa Biblia — andika Yohana 3:16 na ubonyeze Enter"
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} bado haijaunganishwa (Mipangilio → Biblia). Bado unaweza kubandika mistari yake kwa Ongeza → Biblia."
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Mistari kwa kila slaidi kwa kifungu kijacho. Bofya kubadilisha."
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr "Mistari: {}"
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr "Ukumbi"
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr "Jukwaa"
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr "Skrini ya jukwaa"
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr "Simu za kudhibiti zilizounganishwa"
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr "Onyesha ujumbe kwenye skrini ya jukwaa"
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr "Skrini"
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Simu"
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr "Mipangilio"
+
+#: ui/operator.slint
+msgid "File"
+msgstr "Faili"
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr "Ibada mpya…"
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr "Ibada…"
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr "Fungua faili ya ibada…"
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr "Hifadhi ibada hii kwenye faili…"
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr "Wimbo…"
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr "Kifungu cha Biblia…"
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr "Video na midia…"
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr "Slaidi…"
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr "Tangazo…"
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr "Leta midia…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Toka"
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr "Hariri kipengele kilichochaguliwa…"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr "Kisanduku cha Biblia"
+
+#: ui/operator.slint
+msgid "View"
+msgstr "Tazama"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr "Safisha zote"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr "Safisha maandishi"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr "Safisha midia na mandharinyuma"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr "Simamisha sauti"
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr "Ficha maktaba ya midia"
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr "Onyesha maktaba ya midia"
+
+#: ui/operator.slint
+msgid "Window"
+msgstr "Dirisha"
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr "Skrini…"
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr "Simu ya kudhibiti…"
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr "Ujumbe wa jukwaa…"
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr "Mipangilio…"
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr "Nyimbo…"
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr "Biblia…"
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr "Video…"
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr "Nakala za akiba…"
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr "Mikato ya kibodi"
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr "Kagua ibada"
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr "Kuhusu RustyPresenter"
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr "RustyPresenter — Ukumbi"
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr "RustyPresenter — Jukwaa"
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr "Inasubiri ibada…"
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr "Mwisho wa ibada"
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr "IFUATAYO"
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr "Kata"
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr "Bandika"
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr "Chagua zote"
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr "Imeshindwa kuhifadhi: {error}"
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr "Skrini ya ukumbi imeanza upya. Video/sauti imesimama — ibofye tena ili kucheza upya."
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr "Skrini ya ukumbi imeanza upya."
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr "RustyPresenter bado inaanza. Jaribu tena baada ya muda mfupi."
+
+#: src/app.rs
+msgid "This computer"
+msgstr "Kompyuta hii"
+
+#: src/app.rs
+msgid "Not used"
+msgstr "Haitumiki"
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr "{name} — imejengwa ndani, haina hakimiliki"
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr "{name} — faili iliyoletwa"
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr "Upe wimbo kichwa."
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Wimbo huu uko kwenye ibada. Uondoe kwenye ibada kwanza."
+
+#: src/app.rs
+msgid "No service is open."
+msgstr "Hakuna ibada iliyofunguliwa."
+
+#: src/app.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr "Ombi baya: {error}"
+
+#: src/app.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Kipengele hicho hakipo tena."
+
+#: src/app.rs
+msgid "New Service"
+msgstr "Ibada Mpya"
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Ibada hiyo haipo tena."
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr "Unahitaji angalau ibada moja."
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr "Huduma ya Biblia isiyojulikana."
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr "Faili hiyo haipo tena."
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr "Ipe folda jina."
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Hiki kiko kwenye ibada. Kiondoe kwenye ibada kwanza."
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Ombi baya: lengo lisilojulikana {purpose}"
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr "Chagua angalau picha moja."
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Picha moja haipo. Jaribu kupakia tena."
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Slaidi hizi ziko kwenye ibada. Ziondoe kwenye ibada kwanza."
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Tafsiri isiyojulikana."
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr "Lugha isiyojulikana."
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "Lugha imebadilishwa"
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr "Skrini isiyojulikana."
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr "Chagua onyesho la skrini hii kwanza."
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr "Ongeza skrini kwanza."
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr "Hadhira {number}"
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr "Skrini ya Jukwaa {number}"
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr "Skrini hiyo haipo tena."
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr "Kila orodha huwa na angalau skrini moja."
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr "Nakala ya akiba imeshindwa."
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr "Imeshindwa kuhifadhi faili (diski imejaa?)."
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr "Imeshindwa kufungua “{file}”: {error}"
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr "Imeshindwa kusoma “{file}”: {error}"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr "API.Bible hutuma mistari isiyozidi 200 kwa wakati mmoja; chagua kifungu kifupi zaidi"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} haimo kwenye mpango wa API.Bible wa ufunguo huu; iongeze chini ya Plan kwenye dashibodi ya API.Bible"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} haipatikani kwa ufunguo huu wa API.Bible; iongeze chini ya Plan kwenye dashibodi ya API.Bible"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr "API.Bible ilirudisha kitabu tofauti"
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr "hakuna safu"
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr "eBible ilijibu {status}"
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr "orodha ni kubwa mno kuliko ilivyotarajiwa"
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr "faili tupu"
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr "hakuna safu wima ya {column}"
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr "huduma ya ESV ilirudisha kitabu tofauti"
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr "Tumia faili ya Biblia ya Zefania, OSIS, USX au OpenSong (.xml au .usx)."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr "Hakuna mistari ya Biblia iliyopatikana kwenye faili hii. {formats}"
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr "{reference} haipo."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr "Kifungu hicho ni kirefu mno. Chagua hadi takriban mistari 400."
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Hakuna mistari iliyopatikana."
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr "Ipe Biblia jina fupi la herufi au tarakimu 2-10, kama WEB."
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr "{abbr} tayari imejengwa ndani. Ipe Biblia hii jina fupi lingine."
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr "Biblia iliyopakuliwa inahitaji maelezo yake."
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr "Kitambulisho cha Biblia hii hakiwezi kutumika."
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr "Hakuna mistari ya Biblia iliyopatikana."
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr "Hakuna mistari ya Biblia iliyopatikana kwenye upakuaji huu."
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr "Faili hii si XML halali (karibu na baiti {at}: {error}). {formats}"
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr "Bure kwa makanisa. Unda “API application”, kisha nakili ufunguo wake."
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr "Bure kwa matumizi yasiyo ya kibiashara. Jisajili, kisha nakili ufunguo kutoka akaunti yako."
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr "Mpango wa bure wa Starter unaruhusu Biblia 3 zenye hakimiliki: chini ya Plan, chagua CSB (na NIV au NLT ukitaka kuzitumia kutoka hapa)."
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Unda programu, kisha ukubali leseni ya kila Biblia kwenye tovuti (NIV kutoka Biblica; HCSB ikiwa inatolewa)."
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr "huduma ilijibu {status}"
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr "Imeshindwa kufikia {service} kwa {translation}. Kagua muunganisho wa intaneti."
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr "{service} imekataa ufunguo. Ukague katika Mipangilio → Biblia."
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr "{service} inasema utafutaji ni mwingi mno. Subiri dakika moja kisha ujaribu tena."
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr "Utafutaji wa {translation} umeshindwa: {error}."
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr "{translation} haina chanzo cha mtandaoni. Bandika mistari yake kwa Ongeza → Biblia, au leta faili yenye leseni katika Mipangilio → Biblia."
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} inahitaji ufunguo wa bure kutoka {service}. Uongeze katika Mipangilio → Biblia, au bandika mistari kwa Ongeza → Biblia."
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr "YouVersion haina kitambulisho cha Biblia kwa {translation}"
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr "kifungu hicho kinapita sura nyingi mno; chagua chache zaidi"
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr "programu hii ya YouVersion haina leseni ya Biblia {bible}; kubali leseni ya mchapishaji kwenye platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr "programu ya YouVersion imehifadhiwa kwenye kumbukumbu au imeondolewa; ikague kwenye platform.youversion.com"
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr "YouVersion ilirudisha kitabu tofauti"
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr "Andika kifungu, kama Yohana 3:16."
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr "Sikitambui kitabu \"{book}\"."
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr "Ongeza sura, kama Yohana 3 au Yohana 3:16."
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr "Kifungu hicho hakionekani sawa. Jaribu kitu kama Yohana 3:16-18."
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr "Mwisho wa masafa unakuja kabla ya mwanzo."
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr "Bandika maandishi ya mistari kwanza."
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr "Kidhibiti cha RustyPresenter"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr "Simu ya kudhibiti"
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "Kwenye kompyuta ya maonyesho, bofya {phone} → {pair}, kisha andika msimbo wa tarakimu 6 hapa."
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr "Unganisha"
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr "Inaunganisha…"
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr "Kwenye skrini"
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr "Sitisha video"
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr "Cheza video"
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr "Gusa slaidi ili kuiweka kwenye skrini."
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr "Skrini imebadilika — jaribu tena."
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr "Skrini imebadilika sasa hivi — gusa slaidi tena."
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr "Msimbo huo wa QR umeisha muda. Kwenye kompyuta, bofya Unganisha simu tena."
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr "Imeshindwa kuunganisha."
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr "(Nembo)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr "(Muziki unacheza)"
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr "(Tupu)"
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr "Simu ya Android"
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr "Wimbo usio na kichwa"
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr "zaidi ya sehemu {max}, kwa hiyo si wimbo"
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr "hakuna maneno"
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr "kizuizi cha {block} hakiishi, kwa hiyo kila kitu baada yake kiliachwa"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr "faili ni kubwa mno kuwa wimbo"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr "imeshindwa kuisoma: {error}"
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr "haionekani kuwa faili ya ChordPro"
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr "hakuna nyimbo ndani yake"
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr "Hakuna nyimbo zilizoweza kusomwa kutoka {path}: {why}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr "Imeshindwa kupata {path}."
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr "Hakuna faili za ChordPro (.cho, .chordpro, .chopro, .crd, .pro) zilizopatikana katika {path}."
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr "folda ina zaidi ya faili na folda {max}, kwa hiyo ni {max} za kwanza tu zilizoangaliwa"
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr "Imeshindwa kusoma {path}: {error}."
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr "{app} iliendelea kuhifadhi mabadiliko wakati maktaba ikisomwa. Funga {app} kisha ujaribu tena."
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr "Imeshindwa kutengeneza folda ya muda: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr "Imeshindwa kunakili {path}: {error}."
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr "Imeshindwa kufungua {path}: {error}."
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr "hifadhidata iliendelea kufungwa"
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr "{path} ni tupu au imeharibika, kwa hiyo hakuna cha kuleta."
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr "hakuna maneno (huenda ni video au tangazo)"
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr "maneno ni tupu"
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr "Hii inaonekana kuwa maktaba ya EasyWorship 2009 (au ya zamani zaidi). Maktaba za EasyWorship 6 na 7 pekee ndizo zinaweza kuletwa."
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr "Songs.db imepatikana lakini si SongWords.db kando yake katika {folder}."
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr "Hakuna Songs.db ya EasyWorship iliyopatikana hapa. Chagua folda ya Databases\\Data ya wasifu (kwa kawaida C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr "Imeshindwa kusoma maktaba ya EasyWorship: {error}"
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr "Songs.db haina jedwali la nyimbo. Je, hii ni maktaba ya EasyWorship?"
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr "SongWords.db haina jedwali la maneno. Je, hii ni maktaba ya EasyWorship?"
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr "maneno si XML halali ({error})"
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr "maneno yana beti nyingi mno (zaidi ya {max})"
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr "maneno ni marefu mno kuwa wimbo"
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr "maneno hayana beti"
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr "nakala ya muda ambayo OpenLP huweka kwa faili ya ibada"
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr "Faili hii si hifadhidata ya nyimbo ya OpenLP (songs.sqlite)."
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr "Imeshindwa kufungua hifadhidata ya OpenLP."
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr "Hakuna songs.sqlite ya OpenLP iliyopatikana hapa. Chagua folda ya data ya OpenLP (kwenye Windows kwa kawaida %APPDATA%\\openlp\\data, kwenye macOS ~/Library/Application Support/openlp/Data, kwenye Linux ~/.local/share/openlp)."
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr "Imeshindwa kusoma hifadhidata ya OpenLP: {error}"
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr "Hii si hifadhidata ya nyimbo ya OpenLP: haina jedwali la nyimbo."
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr "si XML halali ({error})"
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr "beti nyingi mno kuwa wimbo"
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr "ni wimbo wa OpenSong, si OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr "si wimbo wa OpenLyrics"
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr "si XML"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr "si wimbo wa OpenLyrics wala OpenSong"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr "hakuna wimbo ndani yake"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr "Hakuna wimbo ulioweza kusomwa kutoka {path}: {why}."
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr "Hakuna nyimbo za OpenLyrics au OpenSong zilizopatikana katika {path}."
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr "maneno yana sehemu nyingi mno kuwa wimbo"
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr "ni wimbo wa OpenLyrics, si OpenSong"
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr "si wimbo wa OpenSong"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr "Faili za ProPresenter 7 bado hazitumiki; hamisha kama maandishi au ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr "Vifurushi vya ProPresenter 6 (.pro6x) bado havitumiki; badilisha jina kuwa .zip, kifungue, kisha leta faili ya .pro6 iliyo ndani"
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr "wimbo una vikundi vingi mno (zaidi ya {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr "wimbo una slaidi nyingi mno (zaidi ya {max})"
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr "wimbo hauna maneno kwenye slaidi zake"
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr "ni orodha ya kucheza ya ProPresenter, si wimbo"
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr "si wimbo wa ProPresenter 6"
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr "Hakuna nyimbo za ProPresenter zilizopatikana katika {path}."
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr "Kipengele hicho hakimo kwenye ibada."
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr "Kipengele hicho hakina cha kuonyesha."
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr "Kipengele hicho hakina slaidi."
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr "Video hiyo haichezi tena."
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr "Sauti hiyo haichezi tena."
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr "Bado hakuna kilicho hewani."
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr "Mwanzo wa ibada"
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr "Imeshindwa kuonyesha hicho: {reason}"
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr "Uchezaji umesimama: {reason}"
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr "faili haikuweza kuchezwa"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr "RustyPresenter imeshindwa kufungua kumbukumbu yake: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr "RustyPresenter imeshindwa kuanza: {reason}"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr "Lugha iliyochaguliwa katika Mipangilio haimo kwenye toleo hili, kwa hiyo RustyPresenter iko kwa Kiingereza."
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr "RustyPresenter imeshindwa kufungua dirisha lake: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr "RustyPresenter imeshindwa kuendesha madirisha yake: {reason}"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr "Skrini hazifanyi kazi."
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr "Skrini hazikujibu kwa wakati."
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr "Mlango {port} unatumiwa na programu nyingine, kwa hiyo RustyPresenter haiwezi kuanza."
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr "Skrini hiyo haijaunganishwa kwa sasa."
+
+#: src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "Maandiko"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr "RustyPresenter imeanza upya baada ya tatizo."
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr "RustyPresenter imeanza upya baada ya tatizo. Video/sauti imesimama — ibofye tena ili kucheza upya."
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr "RustyPresenter imesimama baada ya kuanguka mara 3 ndani ya dakika moja. Kumbukumbu iko katika {path}."
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr "Ukurasa huu hufunguka kwenye kompyuta ya maonyesho pekee."
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr "Haraka mno — subiri sekunde moja kisha ujaribu tena."
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr "Kuunganisha hakujafunguliwa. Kwenye kompyuta, bofya “Simu ya kudhibiti” → “Unganisha simu”."
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr "Misimbo mingi mno isiyo sahihi. Anza kuunganisha tena kwenye kompyuta."
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr "Msimbo huo si sahihi."
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr "Simu {number}"
+
+#: src/server.rs
+msgid "Bad command."
+msgstr "Amri mbaya."
+
+#: src/server.rs
+msgid "Not allowed from the phone."
+msgstr "Hairuhusiwi kutoka kwenye simu."
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "Slaidi {n}"
+msgstr[1] "Slaidi {n}"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr "(picha ya slaidi)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr "(video)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr "(picha)"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr "(sauti)"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr "Wimbo haupo"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr "Midia haipo"
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr "Slaidi {n}"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr "Slaidi hazipo"
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr "Faili hiyo ni kubwa mno kuwa faili ya maneno."
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr "Faili ya maneno ni tupu."
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr "Faili hii haina vichwa vya Verse/Chorus. Tumia upakuaji wa \"Lyrics (.txt)\" wa SongSelect."
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Hakuna maneno yaliyopatikana kwenye faili hii."
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr "Imeshindwa kupata folda ya kuhifadhi data yako. Weka RUSTYPRESENTER_DATA."
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr "Imeshindwa kutumia folda ya data {path}: {reason}"
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr "Data yako iliyohifadhiwa katika {path} haikuweza kusomwa ({reason}). Hakuna kilichoandikwa juu yake. Rejesha nakala ya akiba kutoka folda ya nakala au hamisha faili pembeni."
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr "Imeshindwa kusoma {path}: {reason}"
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Imeshindwa kuhifadhi: {reason}"
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr "Nakala ya akiba isiyojulikana."
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr "Nakala hiyo ya akiba haijakamilika na haiwezi kurejeshwa."
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr "Hakuna kinacholingana."
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr "Bado hakuna kitu hapa."
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] "Tafuta katika wimbo {n}…"
+msgstr[1] "Tafuta katika nyimbo {n}…"
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] "Tafuta katika faili {n}…"
+msgstr[1] "Tafuta katika faili {n}…"
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr "Tafuta slaidi…"
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr "Ili kuleta faili za PowerPoint au Keynote, sakinisha LibreOffice (bure). Faili za PDF zinafanya kazi bila hiyo."
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr "Imenakiliwa"
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…na {n} zaidi."
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] "Wimbo {n} umeletwa."
+msgstr[1] "Nyimbo {n} zimeletwa."
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] "{n} tayari umo kwenye maktaba: {titles}"
+msgstr[1] "{n} tayari zimo kwenye maktaba: {titles}"
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr "Hazikuletwa:"
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr "Inasoma maktaba ya EasyWorship…"
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr "LibreOffice imepatikana!"
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr "Bado haijapatikana — maliza kusakinisha, kisha bofya Angalia tena."
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr "{passage} kimeongezwa"
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr "Kipe kichwa."
+
+#: src/strings/add.rs
+msgid "Ready"
+msgstr "Tayari"
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr "Imeshindwa"
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr "Faili hii haiwezi kuchezwa."
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr "Inakagua faili tena…"
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr "Futa kwenye maktaba"
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr "Futa “{name}” kwenye maktaba?"
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr "Kicheza video hakipo — sakinisha RustyPresenter upya"
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr "Futa “{name}”?"
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr "Sawa"
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr "Wimbo umehifadhiwa"
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr "Haipo kwenye maneno: {sections}"
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr "Skrini ilisafishwa — jaribu tena."
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr "Weka kwanza muda wa kuanza kwa ibada hii (Ibada → Inaanza saa)."
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr "Muda wa kuanza ibada ({time}) umepita."
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr "Muda huo ({time}) umepita."
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr "Kipima muda hiki kinahitaji RustyPresenter mpya zaidi."
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr "Kuhesabu kurudi nyuma hadi saa fulani hakuwezi kusitishwa."
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr "Chagua urefu kuanzia sekunde 1 hadi 23:59:59."
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr "Kipima muda hiki hakiwezi kuwekwa hivyo."
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr "Jaza “{field}”."
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr "Ujumbe huo ni mrefu mno kwa skrini (isizidi herufi 200)."
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr "Ujumbe huu una { bila } inayolingana."
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr "Ujumbe unaonyeshwa"
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr "Hali ya mazoezi imewashwa — hiki kinaonekana kwenye hakikisho lako tu. Maliza mazoezi ili kukionyesha ukumbini."
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr "Chumba cha watoto"
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr "Mzazi wa mtoto #{Number}, tafadhali njoo chumba cha watoto."
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr "Gari"
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr "Gari {Plate}: taa zako zinawaka."
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr "Maalum"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: kipengele cha hatua {step} kilifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: kipima muda cha hatua {step} kilifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: tabaka la hatua {step} lilifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: mwonekano wa skrini wa hatua {step} ulifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: ujumbe wa hatua {step} ulifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr "Imeshindwa kuendesha “{name}”: mpangilio wa jukwaa wa hatua {step} ulifutwa. Hariri makro."
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr "Imeshindwa kuendesha “{name}”: hatua {step} inahitaji RustyPresenter mpya zaidi."
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr "“{name}” imeendeshwa"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr "“{name}” imeendeshwa, lakini hatua {step} haikufanya kazi: {reason}"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr "“{name}” imeendeshwa, lakini haikuonyesha vitu kwa sababu skrini ilisafishwa."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr "“{timer}” imefika sifuri, lakini “{macro_name}” hubadilisha slaidi, kwa hiyo haikuendeshwa."
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr "“{timer}” imefika sifuri, lakini “{macro_name}” haikuonyesha chochote kwa sababu skrini ilisafishwa."
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr "Chagua sekunde 2 hadi 600."
+
+#: src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "Inahitaji angalau slaidi mbili."
+
+#: src/strings/automation.rs
+msgid "Service starts in"
+msgstr "Ibada inaanza baada ya"
+
+#: src/strings/automation.rs
+msgid "Pre-service"
+msgstr "Kabla ya ibada"
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr "Anza kuhesabu"
+
+#: src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "Ibadilishe kwenye kichupo cha Kabla ya ibada"
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr "Kuhesabu kumekwisha — hakuna kingine kilichobadilika kwa sababu ibada imeanza."
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr "Anzisha kuhesabu upya ili kutumia muda mpya."
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr "Mwanzo wa ibada"
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr "Mahubiri"
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr "Saa ya kupima"
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr "Hiyo si faili ya ibada ya RustyPresenter."
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr "Faili hiyo ya ibada ilitengenezwa na toleo jipya zaidi la RustyPresenter."
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr "Faili hiyo ya ibada imeharibika, kwa hiyo hakuna kilichoongezwa."
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr "Inahifadhi ibada…"
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr "Inafungua faili ya ibada…"
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr "Wimbo mmoja katika ibada hii haupo tena kwenye maktaba."
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr "Video, picha au sauti katika ibada hii haipo tena kwenye maktaba."
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr "Seti ya slaidi katika ibada hii haipo tena kwenye maktaba."
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr "Mandharinyuma katika ibada hii hayana faili yake."
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr "{name} haina faili yake."
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] "Ibada hii ilitengenezwa kwa fonti ambayo kompyuta hii haina, kwa hiyo maneno yake yanaonekana kwa fonti nyingine: {fonts}. Isakinishe ili kuyaona kama yalivyotengenezwa."
+msgstr[1] "Ibada hii ilitengenezwa kwa fonti ambazo kompyuta hii haina, kwa hiyo maneno yake yanaonekana kwa fonti nyingine: {fonts}. Zisakinishe ili kuyaona kama yalivyotengenezwa."
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr "“{name}” imehifadhiwa kwenye faili."
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr "Ibada hii haikuhifadhiwa, kwa sababu kitu inachohitaji hakipo:"
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr "“{name}” imefunguliwa."
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "wimbo {n}"
+msgstr[1] "nyimbo {n}"
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] "faili {n} ya midia"
+msgstr[1] "faili {n} za midia"
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] "seti {n} ya slaidi"
+msgstr[1] "seti {n} za slaidi"
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr "Mpya kwenye maktaba: {things}."
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr "Hizi zinatofautiana na nyimbo zilizopo tayari, kwa hiyo ibada inatumia nakala ya pili: {titles}"
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr "Huko nje ya mtandao. Biblia ulizoongeza bado zinafanya kazi."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr "Orodha ya Biblia haikuweza kusomwa. Jaribu tena baadaye."
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr "Orodha ya Biblia haikuweza kuhifadhiwa kwenye kompyuta hii."
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr "Leseni hukaguliwa wakati wa kupakua"
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr "Biblia nzima"
+
+#: src/strings/catalog.rs
+msgid "New Testament"
+msgstr "Agano Jipya"
+
+#: src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "Agano la Kale"
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr "Sehemu"
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr "Ina Apokrifa"
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr "Inapakua {name}…"
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr "Inasubiri kupakua {name}…"
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr "Inakagua {name}…"
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr "Imeshindwa kupakua {name}. Kagua intaneti kisha ujaribu tena."
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr "Leseni ya Biblia hii haituruhusu kuihifadhi. Imeondolewa."
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr "Sasisho la {name} halikuweza kutumika. Nakala uliyo nayo bado inafanya kazi."
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr "Biblia hii ni kubwa kuliko ilivyotarajiwa, kwa hiyo haikuongezwa."
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr "Hakuna nafasi ya kutosha kwenye diski kwa Biblia hii (inahitaji takriban MB {n})."
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr "{name} haikuweza kutumika, kwa hiyo haikuongezwa."
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr "Biblia hiyo haimo tena kwenye orodha. Fungua Mipangilio → Biblia tena ili kuona orodha ya sasa."
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr "Huko nje ya mtandao, kwa hiyo Biblia haziwezi kuongezwa sasa hivi."
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr "Inapakia orodha ya Biblia…"
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr "Hakuna Biblia inayolingana. Jaribu maneno machache zaidi, au Zote."
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr "Bado hakuna Biblia zilizoongezwa. Chagua Zote ili kuona Biblia unazoweza kuongeza."
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr "Nje ya mtandao"
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr "Sasisha"
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr "Imeongezwa"
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr "Huenda kompyuta yako haina fonti ya lugha hii."
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr "Inasubiri"
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr "Toleo jipya zaidi liko tayari"
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr "Biblia chaguo-msingi imebadilishwa"
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr "Unaweza kuonyesha hadi Biblia mbili zaidi. Zima moja kwanza."
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr "{name} — imepakuliwa kutoka eBible.org"
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr "Inaonyesha Biblia {shown} kati ya {total}. Tafuta ili kupata nyingine."
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr "Inapakua… {percent}%"
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr "{bible} imeongezwa"
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr "{bible} imeondolewa"
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr "Pia kwenye {sources}"
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr "Ibada"
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr "Mpangilio wa Skrini"
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr "Wasilisho hili lina nenosiri. Lifungue katika PowerPoint, ondoa nenosiri (File → Info → Protect), hifadhi, kisha leta tena."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr "Hii haionekani kuwa faili ya PowerPoint."
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr "LibreOffice ilichukua muda mrefu mno na ikasimamishwa. Jaribu tena; uletaji wa kwanza baada ya kuwasha kompyuta ni wa polepole zaidi."
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr "LibreOffice imeshindwa kusoma wasilisho hili."
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr "LibreOffice kutoka Snap haiwezi kusoma faili za RustyPresenter. Sakinisha LibreOffice kutoka kwa usambazaji wako badala yake (sudo apt install libreoffice-impress)."
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr "LibreOffice haikuweza kuanzishwa. Isakinishe upya kisha ujaribu tena."
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr "PowerPoint ilichukua muda mrefu mno na ikasimamishwa. Jaribu tena."
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr "PowerPoint imeshindwa kufungua wasilisho hili."
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr "PowerPoint haikuweza kuanzishwa."
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr "Hii haionekani kuwa faili ya PDF."
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr "Faili hii ilichukua muda mrefu mno kufunguka."
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr "Picha hii haiwezi kufunguliwa. Ihifadhi kama PNG au JPEG kisha ujaribu tena."
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr "Wasilisho hili halina slaidi."
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr "Wasilisho hili lina slaidi za ukubwa tofauti, ambazo RustyPresenter haiwezi kuonyesha."
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr "Kigeuzi cha slaidi (pdfium) hakipo. Sakinisha RustyPresenter upya."
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr "Kigeuzi cha slaidi kimeacha kujibu. Anzisha RustyPresenter upya kisha ujaribu tena."
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr "Slaidi {page} haikuweza kugeuzwa kuwa picha."
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr "PDF hii haiwezi kufunguliwa. Ikiwa ina nenosiri, liondoe kisha leta tena."
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr "Slaidi moja haikuweza kuhifadhiwa. Hakikisha diski ina nafasi, kisha ujaribu tena."
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr "Inasubiri faili nyingine…"
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr "Inaongeza “{name}”"
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr "Inaleta “{name}”"
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr "Hifadhi faili ya Keynote kama faili moja kisha leta tena."
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr "Inasubiri LibreOffice…"
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr "Inasubiri PowerPoint…"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr "PowerPoint imeshindwa kuifungua; LibreOffice imetumika."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr "Imeletwa kwa LibreOffice — kagua slaidi."
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr "Slaidi {expected} zilitarajiwa lakini {imported} zimeletwa."
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr "Imeletwa kwa LibreOffice — kagua slaidi. Slaidi {expected} zilitarajiwa lakini {imported} zimeletwa."
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr "Ili kuleta mawasilisho, sakinisha LibreOffice. {hint}"
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr "Imehifadhiwa"
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr "Chaguo-msingi la mandhari"
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr "+ Pakia…"
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr "Imeongezwa kwenye maktaba ya midia — ichague hapa"
+
+#: src/strings/operator.rs src/strings/print.rs
+msgid "Picture"
+msgstr "Picha"
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr "{kind} · haiwezi kuchezwa"
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr " · inajirudia"
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr "{kind} · Kicheza video hakipo — sakinisha RustyPresenter upya"
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] "{kind} · slaidi {n}"
+msgstr[1] "{kind} · slaidi {n}"
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] "kipengele {n}"
+msgstr[1] "vipengele {n}"
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] "simu {n}"
+msgstr[1] "simu {n}"
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr "Safisha"
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr "Picha ya slaidi"
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr "Maandishi tayari ni makubwa kadiri yanavyotosha. Chagua mistari michache kwa kila slaidi (Hariri) ili yawe makubwa zaidi."
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr "Chagua kipengele upande wa kushoto"
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr "Karibu"
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr "Hitilafu fulani imetokea."
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr "Skrini ya ukumbi inaonyesha"
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr "Skrini ya ukumbi inaanza…"
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr "Skrini ya ukumbi haijafunguliwa — bofya Skrini"
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr "Imeshindwa kufungua dirisha la mwendeshaji: {error}"
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] "Geuza picha {n} kuwa seti moja ya slaidi?"
+msgstr[1] "Geuza picha {n} kuwa seti moja ya slaidi?"
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr "Seti moja ya slaidi"
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr "Picha tofauti"
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr "Video, picha na muziki"
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr "Mawasilisho"
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr "Faili za maneno za SongSelect"
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr "Picha na video"
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr "Faili za ibada"
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr "{passage} kimeongezwa — bonyeza Enter ili kukionyesha"
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr "Imeongezwa kwenye ibada"
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr "Inapakia {name}"
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] "Inapakia picha {n}"
+msgstr[1] "Inapakia picha {n}"
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr "{name} imeongezwa"
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr "“{title}” imeletwa"
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr "“{title}” tayari umo kwenye maktaba."
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr "“{title}” umesasishwa"
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr "Sasisha uliopo"
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr "Weka zote mbili"
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr "“{title}” uko tayari"
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr "Zipe slaidi hizi jina"
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr "Ujumbe kwa skrini ya jukwaa. Uache tupu ili kuuondoa."
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr "Vipendwa"
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr "Za karibuni"
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr "Biblia nyingine"
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr "iliyoletwa"
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr "Hakuna Biblia uliyo nayo inayolingana. Tafuta Biblia zaidi hapa chini."
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr "{bible} imeongezwa kwenye vipendwa"
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr "{bible} imeondolewa kwenye vipendwa"
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr "Midia zote"
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr "Inageuza {percent}%"
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr "Bofya kijipicha ili kukichagua."
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr "Bofya mara mbili kijipicha ili kukitumia kama mandharinyuma ya kipengele kilichochaguliwa."
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr "Iongeze kwenye ibada ili kuicheza."
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr "Faili hii bado haiko tayari kuchezwa."
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr "Chagua kipengele cha ibada kwanza, kisha uchague mandharinyuma yake."
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr "Mandharinyuma yamewekwa kuwa {name}"
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr "Jina la folda (acha tupu kama hakuna)"
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr "Jina la folda mpya"
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr "Futa folda “{name}”? Faili zake zitabaki kwenye maktaba."
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] "Msimbo unafanya kazi kwa sekunde {n} zaidi"
+msgstr[1] "Msimbo unafanya kazi kwa sekunde {n} zaidi"
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr "Msimbo umeisha muda — bofya Unganisha simu tena."
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr "Hakuna tarehe"
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr "Jtt"
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr "Jnn"
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr "Jtn"
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr "Alh"
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr "Iju"
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr "Jmo"
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr "Jpi"
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr "Jumatatu"
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr "Jumanne"
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr "Jumatano"
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr "Alhamisi"
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr "Ijumaa"
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr "Jumamosi"
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr "Jumapili"
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr "Kila Jumatatu"
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr "Kila Jumanne"
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr "Kila Jumatano"
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr "Kila Alhamisi"
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr "Kila Ijumaa"
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr "Kila Jumamosi"
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr "Kila Jumapili"
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr "Siku yoyote"
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr "yoyote"
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr "Januari"
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr "Februari"
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr "Machi"
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr "Aprili"
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr "Mei"
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr "Juni"
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr "Julai"
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr "Agosti"
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr "Septemba"
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr "Oktoba"
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr "Novemba"
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr "Desemba"
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr "Somo la Biblia"
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr "Kitu fulani"
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr "Nafasi tupu"
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr "{label} (tupu)"
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr "Bofya Chagua ili kujaza hii"
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr "Hii ni nafasi tupu — chagua kitakachowekwa hapa kwanza."
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr "Jaza: {label}"
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr "Hakuna ibada ya kunakili."
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr "Kiolezo hicho hakipo tena."
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr "Tarehe hiyo si sahihi."
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr "Nafasi hiyo tupu haipo tena."
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr "Kipengele hicho si nafasi tupu tena."
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr "Kiolezo kinahitaji jina."
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr "Kiolezo kinahitaji angalau sehemu moja."
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr "Hiki kiko kwenye kiolezo “{name}”. Kiondoe kwenye kiolezo kwanza."
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] "nafasi tupu {n}"
+msgstr[1] "nafasi tupu {n}"
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] "Onyesha ibada {n} ya zamani zaidi"
+msgstr[1] "Onyesha ibada {n} za zamani zaidi"
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] "sehemu {n}, {blanks}"
+msgstr[1] "sehemu {n}, {blanks}"
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr "Bado hakuna violezo. Tumia “Hifadhi kama kiolezo” kwenye ibada ili kutengeneza kimoja."
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr "Hifadhi ibada kama kiolezo kwanza"
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr "Tengeneza ibada ya {date} kutoka “{service}”?"
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr "Nakili, pamoja na nafasi tupu kwa nyimbo na masomo ya Biblia"
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr "Tayari kuna ibada ya {date} (“{name}”)."
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr "Ifungue"
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr "Tengeneza nyingine"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr "“{name}” iko tayari"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr "“{name}” iko tayari — jaza {blanks}"
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr "Tarehe ya ibada (acha tupu kama hakuna tarehe)"
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr "Tarehe ya ibada, kama {example} (acha tupu kama hakuna tarehe)"
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr "Jina la kiolezo"
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr "Kiolezo “{name}” kimehifadhiwa"
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr "Badilisha jina la kiolezo"
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr "Futa kiolezo “{name}”? (Ibada zilizotengenezwa kutoka kwake zitabaki.)"
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr "Kiolezo kipi?"
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr "Jina la ibada mpya"
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr "Kiolezo “{name}” ni cha siku gani?"
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr "Jina la kichwa"
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr "Kuabudu"
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr "Badilisha jina la kichwa"
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr "Bofya “Tengeneza ibada” kwenye kiolezo unachotaka, chini ya Violezo."
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr "Andika siku ya wiki, kama Jumapili, au uache tupu kwa siku yoyote."
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr "Kila kitu kiko tayari. Kila wimbo, faili na skrini ya ibada hii imepatikana."
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr "Ibada hii bado haina vipengele."
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr "Hakuna skrini ya ukumbi iliyochaguliwa. Chagua moja katika Skrini."
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr "Skrini ya ukumbi haijaunganishwa. Kagua kebo yake, au chagua nyingine katika Skrini."
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr "Skrini ya jukwaa haijaunganishwa. Ibada inaweza kuendelea bila hiyo."
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr "Kifaa cha sauti kilichochaguliwa katika Mipangilio hakijaunganishwa. Kichomeke, au chagua kingine katika Mipangilio → Video."
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr "Kifaa cha sauti hakijaunganishwa, kwa hiyo video au sauti imesitishwa. Kichomeke, au chagua kingine katika Mipangilio → Video, kisha bonyeza cheza."
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr "Faili ya nembo haipo. Ichague tena katika Mipangilio."
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr "Faili ya mandharinyuma chaguo-msingi haipo. Ichague tena katika Mipangilio."
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr "wimbo haupo tena kwenye maktaba"
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr "wimbo hauna maneno"
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr "hakuna maandishi ya mstari"
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr "hakipo tena kwenye maktaba"
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr "faili yake haipo"
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr "slaidi hizi hazipo tena kwenye maktaba"
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr "faili ya mandharinyuma yake haipo"
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr "hakiwezi kuchezwa ({reason})"
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] "slaidi {missing} kati ya {n} hazipo"
+msgstr[1] "slaidi {missing} kati ya {n} hazipo"
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr "{number}. {title}: {problem}"
+
+#: src/strings/preflight.rs
+msgid "…and {n} more"
+msgstr "…na {n} zaidi"
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] "Jambo {n} la kurekebisha kabla ya ibada:"
+msgstr[1] "Mambo {n} ya kurekebisha kabla ya ibada:"
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr "{bible} haiko tayari nje ya mtandao kwa {passage}. Fungua ibada hii mara moja ukiwa na intaneti."
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr "Mpangilio: {sections}"
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr "Tupu — {label}"
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr "(bado haijachaguliwa)"
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr "(hakuna maneno)"
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr "(maandishi ya mstari hayajahifadhiwa pamoja na ibada hii)"
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr " (inajirudia)"
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr "Hakuna nyimbo wala masomo ya Biblia katika ibada hii."
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr "Ibada hii haina kitu."
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr "Imechapishwa kutoka RustyPresenter · {date}"
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr "Imefunguliwa kwenye kivinjari chako — tumia Chapisha hapo (unaweza pia kuhifadhi kama PDF kutoka dirisha la kuchapisha)"
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr "{file} imehifadhiwa"
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr "Imeshindwa kutengeneza ukurasa: {reason}."
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr "Imeshindwa kuhifadhi kwenye folda hiyo: {reason}."
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr "Ukurasa umehifadhiwa katika {path} lakini hakuna programu iliyoufungua. Ufungue kutoka hapo ili kuchapisha."
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr "Ukurasa wa wavuti"
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr "Chapisha au hifadhi"
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr "Hadhira"
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr "Skrini ya hadhira"
+
+#: src/strings/screens.rs
+msgid "Stage screen"
+msgstr "Skrini ya jukwaa"
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr "Inaonyesha"
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr "Hakuna onyesho"
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr "Haijachomekwa"
+
+#: src/strings/screens.rs
+msgid "None"
+msgstr "Hakuna"
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr "Kwenye dirisha (kwa majaribio)"
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr "Haijaunganishwa kwa sasa"
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr "Hii ndiyo skrini unayoifanyia kazi. Kuwasha hii kutaifunika."
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr "Huonyesha picha ileile kama {screen}. Sauti hucheza kutoka {screen} pekee."
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr "Ondoa “{name}”?"
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr "Andika angalau neno moja la kutafuta."
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr "Ongeza sura, kama Ayubu 1 au Ayubu 1:1."
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr "Chagua tafsiri ya pili tofauti."
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr "Tafsiri ya pili imezimwa (sawa na ile kuu)."
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr "Ndefu mno — itagawanywa ndani ya mstari"
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr "Kuweka hizi pamoja kunafanya slaidi kuwa ndefu mno, kwa hiyo itagawanywa ndani ya mstari."
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr "Slaidi za Biblia sasa zinapimwa kutoshea skrini, kwa hiyo baadhi ya vifungu vinaweza kugawanyika mahali tofauti."
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr "Inapima slaidi…"
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr "Tafsiri hii haiwezi kutumika katika RustyPresenter. Tafadhali chagua Biblia nyingine."
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr "Mstari huu ulitoka toleo la zamani; tafuta kifungu tena ili kuchagua migawanyiko hapa."
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] "Kifungu kimoja kilitumia tafsiri isiyoweza kutumika katika RustyPresenter na kimeondolewa."
+msgstr[1] "Vifungu {n} vilitumia tafsiri isiyoweza kutumika katika RustyPresenter na vimeondolewa."
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr "Tayari kwenye kompyuta hii"
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr "Tayari (inahitaji intaneti)"
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr "Inahitaji ufunguo — Upate"
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr "Haipatikani"
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr "Utafutaji: Tayari"
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr "Utafutaji: mtandaoni (ESV)"
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr "Utafutaji unafanya kazi kwa tafsiri zilizohifadhiwa kwenye kompyuta hii (KJV na Biblia yoyote iliyojumuishwa au iliyoletwa). Tafsiri za mtandaoni haziwezi kutafutwa, kwa sababu wamiliki wake hawaruhusu (ESV inaweza kuwa na utafutaji wake wa mtandaoni)."
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr "Kila neno lazima liwe kwenye mstari (upendo jirani hupata mistari yenye maneno yote mawili)."
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr "Maneno hulinganishwa kwa mwanzo wake: mwanga hupata mwanga, mwangaza, mwangavu. Maneno yenye herufi chini ya 3 lazima yalingane kamili."
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr "Weka maneno ndani ya alama za nukuu kwa kifungu kamili: \"Bwana ndiye mchungaji\"."
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr "Herufi kubwa na alama za uakifishaji hazijalishi. bwana hupata BWANA."
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr "Yanayolingana zaidi huja kwanza: mistari yenye maneno yako kamili kwa mpangilio, kisha mistari ambayo maneno yako karibu, kisha mingine kwa mpangilio wa Biblia. Badilisha kuwa mpangilio wa Biblia ili kuona Mwanzo kwanza."
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr "Ctrl+Enter kwenye kisanduku cha Biblia hutafuta kila wakati, hata kwa jina la kitabu kama \"Ayubu\"."
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr "Onyesha pia…"
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr "Tafuta kwa maneno…"
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr "Migawanyiko ya slaidi"
+
+#: src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "Chagua migawanyiko ya slaidi…"
+
+#: src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "Rudisha kuwa otomatiki"
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr "Slaidi mpya (otomatiki)"
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr "Slaidi mpya (umeongeza)"
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr "Zimewekwa pamoja"
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr "+ Slaidi mpya hapa"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr "Mandhari ya theluthi ya chini daima hupanga tafsiri mbili juu na chini."
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr "Tafuta maneno haya"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr "Hakuna mistari katika {bible} yenye maneno hayo yote."
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr "Hakuna mistari katika {bible} yenye neno hilo. Ikiwa ni jina la kitabu, kagua tahajia na uongeze sura, kama Yohana 3."
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr "Inaonyesha mistari {shown} ya kwanza kati ya {total} — ongeza maneno zaidi ili kupunguza."
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] "Mstari {count} umepatikana katika {bible}"
+msgstr[1] "Mistari {count} imepatikana katika {bible}"
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr "Inaandaa {bible} kwa utafutaji…"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr "Utafutaji haupatikani kwa {bible}. Jaribu tafsiri iliyohifadhiwa kwenye kompyuta hii, kama KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr "Utafutaji haupatikani kwa {bible}, kwa hiyo hii inatafuta katika {local}."
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr "Kutafuta katika ESV kunahitaji intaneti. Kagua muunganisho, au tafuta katika KJV."
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr "Utafutaji haupatikani kwa {bible}"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr "{bible} inahitaji ufunguo. Ongeza mmoja katika Mipangilio → Biblia."
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr "{bible} haipatikani."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr "Imeshindwa kupata maandishi ya {bible} — kagua intaneti."
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr "{second} haipatikani kwa sasa, kwa hiyo {main} pekee imeongezwa. Zima tafsiri ya pili kwa X."
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr "Imeshindwa kupata {bible}: {error}"
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr "{bible} haina {passage}."
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr "Ongeza {passage}"
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr "Tafuta \"{word}\" badala yake"
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr "Kifungu hicho ni kirefu mno. Chagua hadi takriban mistari {n}."
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr "{bible} imezimwa (sawa na ile kuu)."
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr "{left} haipatikani kwa sasa, kwa hiyo {kept} pekee imeongezwa."
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr "Mandhari ya theluthi ya chini huonyesha Biblia mbili. {bible} imeachwa."
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr "{bible} inahitaji intaneti kwa kifungu hiki."
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr "Biblia hiyo iliondolewa. Iongeze tena katika Mipangilio → Biblia."
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr "Jina la nakala"
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr "Badilisha jina la ibada"
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr "Ibada {date}"
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr "Futa ibada “{name}”? (Nyimbo na midia zitabaki kwenye maktaba.)"
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr "Mipangilio imehifadhiwa"
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr "“{font}” haijasakinishwa kwenye kompyuta hii, kwa hiyo slaidi zinatumia Noto Sans."
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr "Tayari — nje ya mtandao"
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr "Tayari — mtandaoni"
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr "Inahitaji ufunguo wa bure"
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr "Bado hakuna chanzo"
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr "au"
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr "Unganisha {sources} hapa chini"
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr "Hakuna chanzo cha mtandaoni kinachotoa hii. Leta faili yenye leseni, au bandika mistari unapoiongeza."
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr "Kwa {bibles}"
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr "{source} imeunganishwa"
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr "{source} imetenganishwa"
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr "Kiungo kimenakiliwa — kibandike kwenye kivinjari chako"
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] "{bible} imeongezwa (mstari {count})"
+msgstr[1] "{bible} imeongezwa (mistari {count})"
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr "Kuleta kumeshindwa."
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr "{bible} imeondolewa"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr "Kicheza video: libmpv (toleo la LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr "Kicheza video: libmpv {version} (toleo la LGPL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr "Uchoraji wa video: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr "Uchoraji wa video: Programu"
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr "Imeshindwa kunakili: {error}"
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr "Nakala ya akiba imetengenezwa"
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr "Rejesha nakala hii ya akiba? Nyimbo na ibada zako za sasa zitabadilishwa (nakala yake itahifadhiwa)."
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr "Nakala ya akiba imerejeshwa"
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr "Nyimbo {songs} · ibada {services} · faili {files}"
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr "→  ↓  Space  Page Down"
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr "←  ↑  Page Up"
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr "Enter"
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr "Ctrl + B"
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr "Alt + 1–5"
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr "Ctrl + V"
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr "Peleka wimbo ulio hewani kwenye Ubeti 1–9, Kiitikio, Kabla ya kiitikio, Daraja, Kiambatisho, Utangulizi, Mwisho, Kipindi cha kati au Ubeti unaofuata"
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr "Ongeza kiungo cha YouTube ulichonakili"
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr "Esc"
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr "Onyesha kipengele kilichochaguliwa"
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr "Chagua kibonye cha Biblia (kwenye kisanduku cha Biblia)"
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr "Toka kwenye kisanduku cha maandishi"
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr "Video: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr "Video: uchoraji wa programu"
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr "Kicheza video hakipo"
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr "libmpv (client API {major}.{minor}) — {path}"
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr "Toleo la LGPL"
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr "si toleo la LGPL"
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr "imepatikana"
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr "haipo"
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr "Snap — haiwezi kutumika"
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr "haijasakinishwa"
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr "haijapatikana"
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr "Uchezaji wa video unatumia libmpv (LGPL-2.1+) na maktaba za FFmpeg chini ya LGPLv2.1 — chanzo: {url}"
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr "Tumia lugha ya kompyuta ({name})"
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr "{name} (inahitaji kukaguliwa)"
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr "{english_name} · {percent}% imetafsiriwa"
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr "Kifaa cha sauti chaguo-msingi cha kompyuta hii"
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr "Kifaa cha sauti kilichohifadhiwa (hakijaunganishwa)"
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr "Ubeti"
+
+#: src/strings/song.rs
+msgid "Chorus"
+msgstr "Kiitikio"
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Kabla ya kiitikio"
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr "Daraja"
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr "Kiambatisho"
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr "Utangulizi"
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr "Mwisho"
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr "Kipindi cha kati"
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr "Nyingine"
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr "Vitufe vya sehemu hufanya kazi kwenye nyimbo."
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr "Wimbo umebadilika — jaribu tena."
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr "Wimbo ulio hewani umebadilika — jaribu tena."
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr "Wimbo huo hauko hewani tena."
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr "Wimbo huo sasa hauna slaidi. Skrini inabaki na maneno ya zamani."
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr "Imehifadhiwa. Maneno mapya yataonekana utakaporudisha maandishi."
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr "Umebadilisha maneno yaliyo kwenye skrini. Sasisha skrini huyaonyesha sasa. Kubofya slaidi pia huonyesha toleo jipya."
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr "Wimbo ulio hewani sasa unaonekana tofauti. Sasisha skrini ili kuuonyesha."
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr "Sehemu ya wimbo iliyo kwenye skrini iliondolewa. Sasisha skrini huanza wimbo kutoka mwanzo."
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr "Wimbo huu sasa hauna maneno. Skrini inabaki na maneno ya zamani."
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr "Bofya ili kuonyesha sehemu hii"
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr "Wimbo huu hauna {section} {number}."
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr "Wimbo huu hauna {section}."
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr "Imeruka hadi {section} ({key})"
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr "{section} — bonyeza {key}"
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr "{section} · slaidi {page} kati ya {pages}"
+
+#: src/strings/stage.rs
+msgid "Stage layout"
+msgstr "Mpangilio wa jukwaa"
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr "Asili"
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr "Maneno tu"
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr "Bendi"
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr "Mhubiri"
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr "Saa na kuhesabu"
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr "Slaidi ya sasa"
+
+#: src/strings/stage.rs
+msgid "Next slide"
+msgstr "Slaidi ifuatayo"
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr "Sehemu"
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr "Sehemu ifuatayo"
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr "Kichwa cha kipengele"
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr "Slaidi zilizobaki"
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr "Maelezo"
+
+#: src/strings/stage.rs
+msgid "Clock"
+msgstr "Saa"
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr "Kipima muda"
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr "Muda wa video uliobaki"
+
+#: src/strings/stage.rs
+msgid "Message"
+msgstr "Ujumbe"
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr "maneno yaliyo kwenye skrini sasa"
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr "maneno yanayofuata"
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr "Ubeti, Kiitikio, Daraja…"
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr "sehemu inayofuata ya wimbo"
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr "jina la kipengele kilicho hewani"
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr "“slaidi 3 zimebaki”"
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr "maelezo ya jukwaa ya slaidi"
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr "saa ya siku"
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr "kuhesabu kurudi nyuma au kwenda mbele"
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr "muda uliobaki wa video au sauti"
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr "jumbe zilizotumwa kutoka nyuma"
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr "maneno unayoandika mara moja"
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr "(nembo)"
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr "Hakuna kilicho hewani"
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr "SEHEMU IFUATAYO"
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr "IFUATAYO · {title}"
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr "Slaidi ya mwisho"
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] "Slaidi {n} imebaki"
+msgstr[1] "Slaidi {n} zimebaki"
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr "Kipima muda kimeondolewa"
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr "{timer} · imesitishwa"
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr "Mpangilio huo wa jukwaa haupo tena."
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr "Mipangilio ya jukwaa iliyojengwa ndani haiwezi kubadilishwa. Tengeneza nakala kwanza."
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr "Upe mpangilio wa jukwaa jina."
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr "Tayari kuna mpangilio wa jukwaa unaoitwa “{name}”."
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr "Mpangilio wa jukwaa hauwezi kuwa na zaidi ya visanduku 24."
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr "{question} Inatumiwa na {things}. {what_happens}."
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr "{first} na {second}"
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr "{first}, {second} na {third}"
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr "{items_effect}; {macros_effect}"
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] "kipengele {n} cha ibada"
+msgstr[1] "vipengele {n} vya ibada"
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr "chaguo-msingi la jukwaa"
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] "makro {n}"
+msgstr[1] "makro {n}"
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr "Vipengele na chaguo-msingi vitatumia Asili"
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr "Kipengele hicho kitatumia chaguo-msingi la jukwaa"
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr "Vipengele hivyo vitatumia chaguo-msingi la jukwaa"
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr "Chaguo-msingi litatumia Asili"
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr "makro haitaendeshwa hadi ihaririwe"
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr "makro hazitaendeshwa hadi zihaririwe"
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr "Makro haitaendeshwa hadi ihaririwe"
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr "Makro hazitaendeshwa hadi zihaririwe"
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr "Ipe mandhari jina."
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr "Jina hilo linatumiwa na mandhari iliyojengwa ndani. Chagua jingine."
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr "Mandhari hiyo haipo tena."
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr "Mandhari zilizojengwa ndani haziwezi kufutwa."
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr "Kawaida hubadilishwa kwa Hifadhi kwenye kihariri chake."
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr "Mandhari imehifadhiwa"
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr "Mandhari imefutwa"
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr "Kawaida"
+
+#: src/strings/themes.rs
+msgid "Church default"
+msgstr "Chaguo-msingi la kanisa"
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr "Imejengwa ndani — mtindo ambao RustyPresenter ilianza nao"
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr "Chaguo-msingi la kanisa — hutumika kila wakati hakuna kingine kilichochaguliwa"
+
+#: src/strings/themes.rs
+msgid "New theme"
+msgstr "Mandhari mpya"
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr "Nyimbo, vifungu vya Biblia na matangazo pekee ndivyo hutumia mandhari."
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr "Maandishi tayari ni mazito katika mandhari hii"
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr "hufanya kazi kwenye kila kompyuta"
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr "Mandharinyuma yanaweza kuwa picha au video."
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr "Yape mandharinyuma jina."
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr "Mandharinyuma hayo hayapo tena."
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr "Imeongezwa kwenye mandharinyuma"
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr " · mandharinyuma yake"
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr "Kutoka mandhari"
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr "Mandharinyuma ya kawaida"
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr "Ya sasa (hayamo kwenye mandharinyuma yako)"
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr "Imeshindwa kugeuza"
+
+#: src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "Hufanya maandishi kusomeka kwa urahisi"
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr "Ipe tabaka jina."
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr "Andika maandishi ya tabaka."
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr "Tabaka hilo halipo tena."
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr "Tabaka za maandishi, picha na saa pekee ndizo zinaweza kuhifadhiwa."
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr "Hadi tabaka 8 zinaweza kuwashwa kwa wakati mmoja. Zima moja kwanza."
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr "Chagua nembo ya kanisa kwanza (Mipangilio → Mandhari)."
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr "Picha hiyo haipo tena."
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr "picha haikuweza kupakiwa."
+
+#: src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "Imebadilishwa — izime na uiwashe ili kusasisha."
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr "Nembo imehifadhiwa"
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr "Nembo imeondolewa"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr "Kwa ishara inayobaki juu."
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr "Kwa ishara inayobaki juu. Kwa tangazo kama jina la mzazi, tumia Ujumbe (ukipatikana)."
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr "Data hii ilihifadhiwa na RustyPresenter mpya zaidi. Tafadhali sakinisha toleo la karibuni."
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr "Kitu (object) kilitarajiwa."
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr "Kipengele kilekile kimeorodheshwa mara mbili."
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr "Tayari kuna mandhari inayoitwa “{name}”."
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr "Imeshindwa kuonyesha tabaka “{name}”: {reason}"
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr "(imefutwa) {name}"
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] "Kipengele {n} kina mandharinyuma yake. Kitumie mandharinyuma ya mandhari pia?"
+msgstr[1] "Vipengele {n} vina mandharinyuma yake. Vitumie mandharinyuma ya mandhari pia?"
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] "Inatumiwa na kipengele {n}"
+msgstr[1] "Inatumiwa na vipengele {n}"
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr "Mandharinyuma {n}"
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr "Fanya “{name}” kuwa chaguo-msingi la kanisa? Kila kitu kisicho na mandhari yake kitaitumia. Unaweza kurudisha wakati wowote."
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr "“{name}” sasa ni chaguo-msingi la kanisa"
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr "Futa mandhari “{name}”?"
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "ibada {n}"
+msgstr[1] "ibada {n}"
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] "{things} inaitumia; itatumia chaguo-msingi la kanisa badala yake."
+msgstr[1] "{things} zinaitumia; zitatumia chaguo-msingi la kanisa badala yake."
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr "{items} na {services} zinaitumia; zitatumia chaguo-msingi la kanisa badala yake."
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr "Ndiyo chaguo-msingi la kanisa, kwa hiyo Kawaida itakuwa chaguo-msingi la kanisa."
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr "Ondoa “{name}” kwenye mandharinyuma? Vipengele vinavyoyatumia vitaendelea nayo."
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr "Inatumiwa na mwonekano wa skrini: {views}"
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr "Inageuza {percent} %"
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr "Mandhari: {name}"
+
+#: src/strings/themes.rs
+msgid "Bold"
+msgstr "Nzito"
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr "Italiki"
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr "Pigia mstari"
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr "Dhahabu"
+
+#: src/strings/themes.rs
+msgid "Red"
+msgstr "Nyekundu"
+
+#: src/strings/themes.rs
+msgid "Color"
+msgstr "Rangi"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Ndogo"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Kubwa"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr "Kubwa sana"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr "Sakinisha LibreOffice (bure) kutoka libreoffice.org, au endesha: winget install TheDocumentFoundation.LibreOffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr "Sakinisha LibreOffice (bure) kutoka libreoffice.org, au endesha: brew install --cask libreoffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr "Sakinisha LibreOffice Impress, kwa mfano: sudo apt install libreoffice-impress"
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr "Imeshindwa kutengeneza anwani ya faili kutoka {path}"
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr "Ripoti ya matumizi ya nyimbo"
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr "Namba ya leseni ya CCLI: {license}"
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr "Ongeza namba ya leseni ya CCLI ya kanisa lako katika Mipangilio → Nyimbo."
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr "Weka alama kuwa imeripotiwa hadi {date}"
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr "Wakati ujao, ripoti itaanza siku moja baada ya {date}."
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr "Weka alama kuwa imeripotiwa"
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr "Imewekwa alama kuwa imeripotiwa hadi {date}."
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr "Ondoa ingizo hili? Tumia hii kwa mazoezi yasiyopaswa kuhesabiwa."
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr "Ingizo limeondolewa"
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr "Hifadhi mabadiliko ya mipangilio yako na ufungue ripoti?"
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr "Hifadhi na ufungue"
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr "Chagua tarehe ya Kuanzia iliyo kabla ya tarehe ya Hadi."
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr "Andika tarehe kama mwaka-mwezi-siku, kama 2026-11-01."
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr "Imeshindwa kuhifadhi ripoti: {reason}."
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr "{path} imehifadhiwa"
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr "Jedwali (CSV)"
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr "Namba ya Wimbo ya CCLI"
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr "{from} hadi {to}"
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr "Chapisha ukurasa huu, au uhifadhi kama PDF kutoka dirisha la Chapisha la kivinjari chako."
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr "Inatafuta video…"
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr "Inaandaa upakuaji wa YouTube — mara ya kwanza tu ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr "Inasasisha upakuaji wa YouTube ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr "Inaandaa kiunganishi cha video — mara ya kwanza tu ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr "Bandika kiungo cha video ya YouTube. Kinaanza na https://www.youtube.com au https://youtu.be."
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] "Kiungo hiki ni orodha ya video {n}. Video hii ya kwanza pekee ndiyo itapakuliwa."
+msgstr[1] "Kiungo hiki ni orodha ya video {n}. Video hii ya kwanza pekee ndiyo itapakuliwa."
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr "Bora zaidi (hadi 1080p)"
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr "Ndogo zaidi (720p)"
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr "Ndogo kabisa (480p)"
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr "Sauti tu"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr "Inapakua “{title}”. Itakuwa katika Video na midia ikikamilika."
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr "Inapakua “{title}”"
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr "chini ya dakika moja imebaki"
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr "takriban dakika moja imebaki"
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] "takriban dakika {n} imebaki"
+msgstr[1] "takriban dakika {n} zimebaki"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr "Inapakua “{title}” — {left}"
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr "Inamalizia “{title}”…"
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr "Inaongeza “{title}” kwenye maktaba…"
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr "“{title}” imepakuliwa"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr "Iko katika Video na midia na kwenye ibada."
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr "Iko katika Video na midia."
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr "Imehifadhiwa kwa ubora wa chini (360p) kwa sababu kiunganishi cha video hakikuweza kuandaliwa."
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr "Imeshindwa kufikia YouTube. Kagua muunganisho wa intaneti kisha ujaribu tena."
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr "Video hii ni ya faragha, kwa hiyo mmiliki wake pekee ndiye anaweza kuipakua."
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr "YouTube huonyesha video hii kwa watazamaji walioingia tu (kwa mfano, ina kizuizi cha umri), kwa hiyo haiwezi kupakuliwa hapa."
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr "Video hii ni ya wanachama wa chaneli pekee, kwa hiyo haiwezi kupakuliwa hapa."
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr "YouTube inataka uingie ili kuhakikisha kuwa wewe si roboti. Subiri kwa muda kisha ujaribu tena."
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr "Mtiririko huu wa moja kwa moja bado haujaisha. Jaribu tena baada ya kuisha."
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr "Mtiririko huu wa moja kwa moja au onyesho la kwanza bado halijaanza."
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr "Mtiririko huu wa moja kwa moja umeisha sasa hivi na YouTube bado inauandaa. Jaribu tena baada ya muda."
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr "Kiungo hicho si video ya YouTube. Nakili kiungo kutoka ukurasa wa video kisha ujaribu tena."
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr "Video hii haipatikani. Huenda imeondolewa, au imezuiwa katika nchi hii."
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr "Orodha hii haina video zinazoweza kupakuliwa."
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr "Diski ya kompyuta imejaa. Futa vitu ili kupata nafasi kisha ujaribu tena."
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr "YouTube imebadilisha kitu na kipakuaji bado hakiwezi kusoma video hii. Jaribu tena baadaye."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr "Imeshindwa kuandaa upakuaji wa YouTube. Kagua muunganisho wa intaneti kisha ujaribu tena."
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr "Kipakuaji cha YouTube kilichofika hakikulingana na alama yake rasmi ya utambulisho, kwa hiyo hakikutumika. Jaribu tena baadaye."
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr "Upakuaji wa YouTube bado haufanyi kazi kwenye aina hii ya kompyuta."
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr "Imeshindwa kuandaa upakuaji wa YouTube ({detail}). Jaribu tena baadaye."
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr "Upakuaji haukufanya kazi: {detail}"
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr "Imeghairiwa."
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Nyeusi"
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr "Buluu ya usiku"
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr "Kijani kilichokolea"
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr "Zambarau"
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr "Kahawia"
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr "Nyeupe"
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr "Usiku wa manane"
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr "Zambarau iliyokolea"
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr "Msitu"
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr "Kaa la moto"
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr "Bahari"
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr "Kijivu"
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr "Kawaida"
+
+#: src/theme/saved.rs
+msgid "{name} copy"
+msgstr "Nakala ya {name}"
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr "Nakala ya {name} {number}"
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr "{day} saa {time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr "{time} UTC"
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr "picha haikuweza kupakiwa"
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr "mandharinyuma yalichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr "picha ilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr "video ilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr "slaidi ilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr "nembo ilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr "tabaka lilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr "sauti ilichukua muda mrefu mno kupakia"
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr "skrini ya ukumbi haikuweza kukiandaa"
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr "Imeshindwa kufungua skrini ya ukumbi: {error}"
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr "Wasilisho liko kwenye skrini"
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Skrini ya ukumbi ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Skrini ya ziada ya hadhira ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Skrini ya jukwaa ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "Skrini ya ziada ya jukwaa ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr "Skrini ya ukumbi imechomekwa tena, lakini haikuweza kufunguka: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr "Skrini ya ziada ya hadhira imechomekwa tena, lakini haikuweza kufunguka: {error}"
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr "Skrini ya jukwaa imechomekwa tena, lakini haikuweza kufunguka: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr "Skrini ya ziada ya jukwaa imechomekwa tena, lakini haikuweza kufunguka: {error}"
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr "Imeshindwa kuonyesha namba za skrini: {error}"
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr "RustyPresenter inafungwa."
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr "Imeshindwa kufungua skrini ya jukwaa: {error}"
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr "Kicheza video hakipo. Sakinisha RustyPresenter upya."
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr "Imeshindwa kupakia kicheza video kutoka {path}: {reason}"
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr "libmpv hii ni ya zamani mno (client API {major}.{minor}); RustyPresenter inahitaji 2.x."
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr "Kicheza video hakikuweza kuanza."
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr "Kicheza video hakikuweza kuanza: {reason}"
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr "{name} haikuweza kuchezwa ({reason})"
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr "Video haiwezi kuonyeshwa: {reason}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "hakuna toleo katika {address}"
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr "hakuna alama ya utambulisho kwa {file}"
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr "{file} haipo kwenye upakuaji"
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr "{address} ni kubwa mno"
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr "faili iliyobanwa isiyosomeka: {error}"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr "yt-dlp imesimama"
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr "maelezo yasiyosomeka ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr "yt-dlp haikuweza kuanza ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr "yt-dlp haikuweza kuanza"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr "yt-dlp haikutoa maelezo"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr "yt-dlp haikuhifadhi video"
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr "si faili ya midia"
