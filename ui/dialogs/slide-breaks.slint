@@ -75,8 +75,6 @@ component GapLine inherits Rectangle {
 }
 
 export component SlideBreaksDialog inherits VerticalLayout {
-    in property <length> window-height: 800px;
-    property <length> pane-height: clamp(root.window-height - 330px, 200px, 600px);
 
     VerticalLayout {
         padding-top: 8px;
@@ -102,7 +100,9 @@ export component SlideBreaksDialog inherits VerticalLayout {
         }
         HorizontalLayout {
             spacing: 14px;
-            height: root.pane-height;
+            // Takes the dialog's spare height.
+            vertical-stretch: 1;
+            min-height: 200px;
             ScrollBox {
                 horizontal-stretch: 3;
                 track-edge: Theme.panel;

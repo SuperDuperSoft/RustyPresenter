@@ -83,6 +83,10 @@ impl DialogKind {
     /// `dialog(…, { wide: true })`: the song editor and Settings.
     pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_)) }
 
+    /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
+    /// resize or move the dialog).
+    pub fn tall(&self) -> bool { self.wide() || matches!(self, DialogKind::Add(_)) }
+
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
         match self {
@@ -133,6 +137,7 @@ impl Operator {
         drop(old);
         self.ui.set_dialog_title(title.into());
         self.ui.set_dialog_wide(kind.wide());
+        self.ui.set_dialog_tall(kind.tall());
         self.ui.set_dialog_kind(kind.id().into());
         self.ui.set_dialog_open(true);
         // A dialog already up keeps its shell, so its key scope is told to take the keyboard again; a new shell

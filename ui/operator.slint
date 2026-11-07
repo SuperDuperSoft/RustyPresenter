@@ -240,6 +240,7 @@ export component OperatorWindow inherits Window {
     in property <string> dialog-kind;
     in property <string> dialog-title;
     in property <bool> dialog-wide;
+    in property <bool> dialog-tall;
     property <int> dialog-focus-serial;
     callback dialog-close();
     /// Gives the keyboard back to the open dialog (a question over it was answered).
@@ -747,6 +748,7 @@ export component OperatorWindow inherits Window {
             height: root.height;
             title: root.dialog-title;
             wide: root.dialog-wide;
+            tall: root.dialog-tall;
             focus-serial: root.dialog-focus-serial;
             close => { root.dialog-close(); }
             if root.dialog-kind == "add": AddDialog { window-height: root.height; }
@@ -760,10 +762,10 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "usage": UsageDialog {}
             if root.dialog-kind == "stage-layouts": StageLayoutsDialog {}
             if root.dialog-kind == "overlays": OverlaysDialog {}
-            if root.dialog-kind == "automation": AutomationDialog { window-height: root.height; }
+            if root.dialog-kind == "automation": AutomationDialog {}
             if root.dialog-kind == "show-message": ShowMessageDialog {}
-            if root.dialog-kind == "find-verse": FindVerseDialog { window-height: root.height; }
-            if root.dialog-kind == "slide-breaks": SlideBreaksDialog { window-height: root.height; }
+            if root.dialog-kind == "find-verse": FindVerseDialog {}
+            if root.dialog-kind == "slide-breaks": SlideBreaksDialog {}
         }
 
         for a in root.ask: AskOverlay {

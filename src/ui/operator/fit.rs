@@ -1,10 +1,10 @@
 //! The operator fits its window from 1280 × 720 up: the service and live columns and the whole top bar stay inside
-//! it (the slides column gives way), and every dialog is centred in it and inside it.
+//! it (the slides column gives way), and every dialog starts at the same height, is centred across and fits inside it.
 use crate::{
     app::{LiveUpdate, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
-        dialogs::{AddTab, SettingsTab, add, item_edit, phone, screens, services, settings, song_editor},
+        dialogs::{AddTab, SettingsTab, add, ask, automation, find_verse, item_edit, overlays, phone, print, screens, services, settings, show_message, slide_breaks, song_editor, stage_layouts, usage},
         operator::window::{Operator, testing::{find, open, refresh}},
     },
 };
@@ -70,13 +70,51 @@ fn columns_and_top_bar_fit_the_window() {
     }
 }
 
+/// Every dialog's card starts this far below the top of the dialog layer, whatever is in it.
+const DIALOG_TOP: f32 = 40.0;
+
+/// Asserts the open dialog's card starts at `DIALOG_TOP`, is centred across, and that its footer buttons and its X
+/// are inside both the card and the window.
+fn assert_dialog_fits(op: &Operator, name: &str, size: (f32, f32)) {
+    assert_inside(op, "DialogShell::card", size);
+    let (l, t, r, b) = bounds(op, "DialogShell::card");
+    let (_, top, _, _) = bounds(op, "OperatorWindow::keys");
+    assert!((t - top - DIALOG_TOP).abs() <= 0.5, "{name} starts {} below the top at {size:?}, not {DIALOG_TOP}", t - top);
+    assert!((l - (size.0 - r)).abs() <= 1.0, "{name} is centred across at {size:?}");
+    assert!(b <= size.1 - 8.0, "{name} ends at {b}, past the bottom of the {size:?} window");
+    let (_, _, close_r, close_b) = bounds(op, "DialogShell::close-btn");
+    assert!(close_r <= r + 0.5 && close_b <= b + 0.5, "{name}'s close button is inside its card at {size:?}");
+    // The footer: every button under its line is inside the card.
+    if let Some(line) = find(op, "DialogFoot::foot-line") {
+        let line_y = line.absolute_position().y;
+        assert!(line_y >= t, "{name}'s footer line is inside its card at {size:?}");
+        let card = find(op, "DialogShell::card").expect("the card");
+        let buttons: Vec<ElementHandle> = card.query_descendants().match_descendants().match_type_name("Btn").find_all()
+            .into_iter().filter(|e| e.absolute_position().y > line_y).collect();
+        // A footer may have no buttons yet (Automation before a row is picked); its own padding is still inside.
+        assert!(line_y + 31.0 <= b + 0.5, "{name}'s footer at {line_y} is cut off by its card's bottom {b} at {size:?}");
+        for btn in buttons {
+            let (p, s) = (btn.absolute_position(), btn.size());
+            assert!(p.y + s.height <= b + 0.5, "{name}'s footer button {:?} ends at {} past its card's bottom {b} at {size:?}",
+                btn.accessible_label(), p.y + s.height);
+        }
+    }
+}
+
+/// The open dialog's card: left, top, width, height.
+fn card(op: &Operator) -> (f32, f32, f32, f32) {
+    let (l, t, r, b) = bounds(op, "DialogShell::card");
+    (l, t, r - l, b - t)
+}
+
 #[test]
-fn every_dialog_is_centred_and_inside_the_window() {
+fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
     let app = test_app();
     let op = open(&app);
     refresh(&op);
     let item = with_text_item(&op);
-    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 19] = [
+    let service = op.app().data.lock().unwrap().services[0].id;
+    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 27] = [
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),
         ("Add media", Box::new(|op| add::open_add(op, AddTab::Media))),
@@ -85,6 +123,7 @@ fn every_dialog_is_centred_and_inside_the_window() {
         ("Song editor", Box::new(|op| song_editor::open_song_editor(op, None, false))),
         ("Item edit", Box::new(move |op| item_edit::open(op, item))),
         ("Services", Box::new(services::open)),
+        ("Print", Box::new(move |op| print::open(op, service))),
         ("Screens", Box::new(screens::open)),
         ("Phone", Box::new(phone::open)),
         ("Settings look", Box::new(|op| settings::open(op, SettingsTab::Look))),
@@ -96,22 +135,105 @@ fn every_dialog_is_centred_and_inside_the_window() {
         ("Settings backups", Box::new(|op| settings::open(op, SettingsTab::Backups))),
         ("Settings help", Box::new(|op| settings::open(op, SettingsTab::Help))),
         ("Settings about", Box::new(|op| settings::open(op, SettingsTab::About))),
+        ("Usage", Box::new(usage::open)),
+        ("Stage layouts", Box::new(stage_layouts::open)),
+        ("Overlays", Box::new(overlays::open)),
+        ("Automation", Box::new(automation::open)),
+        ("Show message", Box::new(show_message::open)),
+        ("Find verse", Box::new(|op| find_verse::open(op, ""))),
+        ("Slide breaks", Box::new(move |op| slide_breaks::open(op, item))),
     ];
     for (name, show) in &dialogs {
         for size in SIZES {
             show(&op);
             resize(&op, size);
             assert!(op.dialog().is_some(), "{name} opened");
-            assert_inside(&op, "DialogShell::card", size);
-            let (l, t, r, b) = bounds(&op, "DialogShell::card");
-            // Centred in the area under the menu bar (the testing backend draws the bar inside the window).
-            let (_, top, _, _) = bounds(&op, "OperatorWindow::keys");
-            assert!((l - (size.0 - r)).abs() <= 1.0 && (t - top - (size.1 - b)).abs() <= 1.0, "{name} is centred at {size:?}");
-            // The head's X is inside the card, so nothing in the card is wider than the card.
-            let (_, _, close_r, close_b) = bounds(&op, "DialogShell::close-btn");
-            assert!(close_r <= r + 0.5 && close_b <= b + 0.5, "{name}'s close button is inside its card at {size:?}");
+            assert_dialog_fits(&op, name, size);
             op.close_dialog();
         }
+    }
+}
+
+#[test]
+fn questions_start_at_the_dialogs_top_over_a_dialog_or_the_bare_window() {
+    let app = test_app();
+    let op = open(&app);
+    refresh(&op);
+    for size in [(1366.0, 768.0), (1809.0, 1000.0)] {
+        resize(&op, size);
+        for over_dialog in [false, true] {
+            if over_dialog { settings::open(&op, SettingsTab::Language) }
+            ask::confirm(&op, "Delete this?", "Delete", "Cancel", true, |_| {});
+            resize(&op, size);
+            let (_, top, _, _) = bounds(&op, "OperatorWindow::keys");
+            let (l, t, r, b) = bounds(&op, "AskOverlay::card");
+            assert!((t - top - DIALOG_TOP).abs() <= 0.5, "the question starts {} below the top at {size:?}", t - top);
+            assert!((l - (size.0 - r)).abs() <= 1.0 && b <= size.1, "the question is centred across and inside at {size:?}");
+            ask::answer(&op, false, String::new());
+            op.close_dialog();
+        }
+    }
+}
+
+/// Jake's rule: switching tabs never moves or resizes a dialog, and its footer stays in the window.
+#[test]
+fn tabbed_dialogs_keep_their_place_and_size_on_every_tab() {
+    use crate::ui::AddState;
+    use crate::ui::operator::window::testing::find_all;
+    use slint::{ComponentHandle, platform::PointerEventButton};
+    let app = test_app();
+    let op = open(&app);
+    refresh(&op);
+    for size in [(1366.0, 768.0), (1809.0, 1000.0)] {
+        resize(&op, size);
+        // Settings: click through every tab and back.
+        settings::open(&op, SettingsTab::Themes);
+        resize(&op, size);
+        let first = card(&op);
+        let tabs = find_all(&op, "Tabs::tab");
+        assert_eq!(tabs.len(), 9, "the nine Settings tabs");
+        for (i, tab) in tabs.iter().enumerate().chain(tabs.iter().enumerate().rev()) {
+            tab.mock_single_click(PointerEventButton::Left);
+            resize(&op, size);
+            let name = format!("Settings tab {i}");
+            assert_eq!(card(&op), first, "{name} keeps the dialog's place and size at {size:?}");
+            assert_dialog_fits(&op, &name, size);
+        }
+        assert!(first.3 <= 860.5 && first.3 >= (size.1 - 200.0).min(800.0), "Settings is tall: {first:?} at {size:?}");
+        op.close_dialog();
+        // Automation: its four tabs.
+        automation::open(&op);
+        resize(&op, size);
+        let first = card(&op);
+        for tab in [1, 2, 3, 0] {
+            automation::goto(&op, tab, -1);
+            resize(&op, size);
+            let name = format!("Automation tab {tab}");
+            assert_eq!(card(&op), first, "{name} keeps the dialog's place and size at {size:?}");
+            assert_dialog_fits(&op, &name, size);
+        }
+        op.close_dialog();
+        // Add: its five tiles.
+        add::open_add(&op, AddTab::Song);
+        resize(&op, size);
+        let first = card(&op);
+        for tab in [1, 2, 3, 4, 0] {
+            op.ui.global::<AddState>().invoke_pick_tab(tab);
+            resize(&op, size);
+            let name = format!("Add tab {tab}");
+            assert_eq!(card(&op), first, "{name} keeps the dialog's place and size at {size:?}");
+            assert_dialog_fits(&op, &name, size);
+        }
+        op.close_dialog();
+        // Overlays: the list and the editor.
+        overlays::open(&op);
+        resize(&op, size);
+        let first = card(&op);
+        op.ui.global::<crate::ui::OverlaysDlg>().set_editing(true);
+        resize(&op, size);
+        assert_eq!(card(&op), first, "the overlay editor keeps the dialog's place and size at {size:?}");
+        assert_dialog_fits(&op, "Overlay editor", size);
+        op.close_dialog();
     }
 }
 

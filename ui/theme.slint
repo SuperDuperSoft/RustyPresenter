@@ -78,6 +78,8 @@ export global Theme {
     }
 
     out property <length> radius: 12px;
+    /// Every dialog and question starts this far below the top of the window, and stops this far above its bottom.
+    out property <length> dialog-top: 40px;
     /// Missing fonts fall back to Slint's default (the bundled Noto Sans where Segoe is not installed).
     out property <string> font: "Segoe UI Variable Text";
     out property <string> display: "Segoe UI Variable Display";

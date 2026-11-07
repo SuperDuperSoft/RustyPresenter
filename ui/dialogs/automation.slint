@@ -305,8 +305,8 @@ component PreServiceForm inherits VerticalLayout {
 }
 
 export component AutomationDialog inherits VerticalLayout {
-    in property <length> window-height;
     HorizontalLayout {
+        vertical-stretch: 0;
         padding-left: 22px;
         padding-right: 22px;
         padding-bottom: 8px;
@@ -317,7 +317,6 @@ export component AutomationDialog inherits VerticalLayout {
         }
     }
     DialogBody {
-        min-height: min(560px, root.window-height - 220px);
         if AutomationDlg.tab == 3: PreServiceForm {}
         if AutomationDlg.tab != 3: HorizontalLayout {
             spacing: 18px;
