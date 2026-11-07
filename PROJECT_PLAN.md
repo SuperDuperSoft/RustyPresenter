@@ -1271,3 +1271,19 @@ Jake asked: "finish the whole project … make sure that there is a plan feature
 - Evidence (Linux sandbox): `cargo check --lib --tests --examples` 0 warnings; lib 2115 passed / 2 ignored; all integration tests pass. `translations/` regenerated; the 12 languages have the new texts untranslated (English shows until drafted).
 - Not checked: the mpv seek test skips here (no libmpv) — check on Windows that the three buttons move a real video; the new buttons have not been looked at on screen.
 - Next: N5 (preview picks the screen: likely a snapshot of the stage window), N8 (filter boxes + thumbnail size), then §10c-3's small ones.
+
+### November 7, 2026 — Claude (cloud session, branch `finish-2`)
+
+Jake said to keep adding features ("nah ima keep adding features"). Branch **`finish-2`** = laptop `finish` (3e3ddd0, incl. ProPresenter ideas batch 1 and the Windows PowerPoint fix) + this round, all merged and tested together. Local only; delivered to the laptop as a git bundle.
+
+- **FEAT-1 theme UI:** Settings → Themes (list, star default, editor with live preview), theme pickers (Item edit, service header), background library, overlays strip + F6 + Overlays dialog. Not done: rich text in announcements; overlays on the operator's own monitor.
+- **FEAT-2 Part B:** timers (stage boxes now live, room timer), messages (Ctrl+Shift+M, phone), macros, auto-advance, pre-service countdown, Automation dialog, live `Change`/`commit_change` refactor. Not done: slide actions (idea 6, no spec), announcement loop from a folder (idea 9). Start times and auto-advance live in `Data.automation` (Copy last week does not carry them).
+- **FEAT-3 Part B:** Window → Stage layouts editor (drag/resize/snap, undo, keys), `Data.stage_layouts`, top-bar layout picker.
+- **FEAT-4 (c)+(d):** per-service song order (`ItemKind::Song.arrangement`), order chips with keys; lyrics reader accepts translated section headings (`trc!("song section heading", …)`, `|` alternatives).
+- **FEAT-5:** Find a verse (full-text search, lazy index, Add to service), Slide breaks dialog (`ItemKind::Scripture.breaks`); every passage goes through the planner. Open: A12b real measuring, A14, B5, B8, B11.
+- **Menus:** Undo/Redo (30 steps, never changes the room by itself), Find, Find a verse, Open recent, Export, Print, Song use report, Zoom, Logs folder, Automation, Stage layouts, Themes, Overlays.
+- **Graphics (Jake: "YEP. DO IT"):** Settings → Video → Graphics (Auto/OpenGL/Software today), safe mode after two failed starts, `--safe-mode`. Vulkan/Direct3D/Metal need Skia, which needs prebuilt binaries not available for the MinGW toolchain → **next step: move the Windows build to MSVC** (with the installer work), then Skia modes appear automatically.
+- **Translations:** 1654 texts; all 12 languages filled (machine-drafted, `X-Reviewed: no`).
+- **Evidence (Linux sandbox):** check 0 warnings; tests lib 2299 passed / 2 ignored, all integration tests pass, i18n_catalogs 4/4. Nothing run on Windows.
+- **Bible book names in other languages:** design note `docs/superpowers/specs/2026-11-06-bible-book-names-ui-language-design.md`; not built.
+- **For Jake:** `windows-check.cmd finish-2`. Try Settings → Themes, Window → Automation, Window → Stage layouts, Ctrl+Z, Edit → Find a verse.
