@@ -108,6 +108,7 @@ impl Operator {
         ui.set_has_selection(item.is_some());
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
         ui.set_slides_note(item.map_or_else(String::new, |i| i.notes.join("\n")).into());
+        ui.set_slides_custom_order(item.is_some_and(|i| matches!(i.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. })));
         self.render_text_size();
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),

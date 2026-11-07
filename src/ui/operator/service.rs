@@ -46,6 +46,7 @@ pub fn rows(snap: &OperatorSnapshot, selected: Option<Uuid>, live_item: Option<U
             blank,
             header: header.is_some(),
             color: header.and_then(crate::ui::dialogs::services::parse_color).unwrap_or_default(),
+            custom_order: matches!(it.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. }),
         }
     }).collect()
 }

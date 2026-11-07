@@ -1,11 +1,12 @@
 // The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
 // drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
 import { Theme } from "../theme.slint";
-import { Btn, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Btn, Chip, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
 /// Choose button; a header is a coloured band in `color`.
-export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color }
+/// `custom-order`: a song played in this service's own order (FEAT-4), shown as a "Custom order" badge.
+export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color, custom-order: bool }
 
 /// Blanks and headers in the service list (FEAT-6a, `src/ui/dialogs/services.rs`).
 export global ServicePlanning {
@@ -172,14 +173,25 @@ export component ServiceColumn inherits VerticalLayout {
                         horizontal-stretch: 1;
                         min-width: 0px;
                         alignment: center;
-                        title := Text {
-                            text: it.title;
-                            color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
-                            font-family: Theme.font;
-                            font-size: it.header ? 12.5px : Theme.base-size;
-                            font-weight: it.header ? 800 : 600;
-                            letter-spacing: it.header ? 0.6px : 0px;
-                            overflow: elide;
+                        HorizontalLayout {
+                            spacing: 6px;
+                            title := Text {
+                                horizontal-stretch: 1;
+                                text: it.title;
+                                color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
+                                font-family: Theme.font;
+                                font-size: it.header ? 12.5px : Theme.base-size;
+                                font-weight: it.header ? 800 : 600;
+                                letter-spacing: it.header ? 0.6px : 0px;
+                                overflow: elide;
+                            }
+                            if it.custom-order: VerticalLayout {
+                                alignment: center;
+                                custom-order := Chip {
+                                    text: @tr("Custom order");
+                                    tooltip: @tr("Custom order for this service");
+                                }
+                            }
                         }
                         if !it.header: Text {
                             text: it.subtitle;
