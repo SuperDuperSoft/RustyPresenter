@@ -53,6 +53,8 @@ cfb = "0.10"
 # The computer's language (I18N). Already in Cargo.lock through Slint.
 
 [features]
+# Vulkan, Direct3D 12 and Metal are offered in Settings → Video → Graphics; Auto stays OpenGL.
+default = ["gpu-apis"]
 # PERF EXPERIMENT renderers for RP_RENDERER (see `video::graphics`); off by default, the app uses FemtoVG.
 # FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain (no Microsoft C++ tools).
 renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
