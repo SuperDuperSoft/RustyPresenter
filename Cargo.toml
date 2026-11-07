@@ -47,6 +47,10 @@ tokio-util = "0.7"
 # Plan 4: telling presentations apart by their content (zip packages, OLE compound files).
 zip = { version = "9.2", default-features = false, features = ["deflate"] }
 cfb = "0.10"
+# Slint's internals, pinned to the version slint uses: the run-time translation hook of the patched copy
+# (patches/i-slint-core/PATCHED.md, `i18n::sync_slint`), and the window's layout constraints in tests
+# (ui::operator::fit). Its features come from slint.
+i-slint-core = { version = "=1.18.1", default-features = false }
 # The computer's language (I18N). Already in Cargo.lock through Slint.
 
 [features]
@@ -88,9 +92,6 @@ strip = "debuginfo"
 
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
-# The window's layout constraints, which the winit backend turns into the window's minimum size (ui::operator::fit).
-# Internal API, so pinned to the version slint uses.
-i-slint-core = "=1.18.1"
 
 # examples/slide_bench.rs reads the process CPU time.
 [target.'cfg(windows)'.dev-dependencies]
@@ -100,3 +101,6 @@ windows-sys = { version = "0.61", features = ["Win32_System_Threading"] }
 # refresh late). See patches/i-slint-backend-winit/PATCHED.md; drop this once a Slint release has it.
 [patch.crates-io]
 i-slint-backend-winit = { path = "patches/i-slint-backend-winit" }
+# Slint 1.18.1's core with a hook for translations edited in the app (Settings → Translations…), which Slint's
+# bundled translations cannot show. See patches/i-slint-core/PATCHED.md.
+i-slint-core = { path = "patches/i-slint-core" }
