@@ -53,6 +53,7 @@ component ChipBtn inherits Rectangle {
 }
 
 export component AutomationStrip inherits VerticalLayout {
+    vertical-stretch: 0;
     padding-left: 12px;
     padding-right: 12px;
     padding-top: 6px;
@@ -61,6 +62,7 @@ export component AutomationStrip inherits VerticalLayout {
 
     // Row 1: Message and, while the live item turns its own slides, the Auto chip.
     HorizontalLayout {
+        height: 34px;
         spacing: 6px;
         message-btn := Btn {
             horizontal-stretch: 1;
@@ -89,6 +91,7 @@ export component AutomationStrip inherits VerticalLayout {
 
     // Row 2: timers that run, are paused or finished, or are on the screen.
     if AutoStrip.timers.length > 0: HorizontalLayout {
+        height: 34px;
         spacing: 6px;
         alignment: start;
         for t[i] in AutoStrip.timers: Rectangle {
@@ -153,6 +156,7 @@ export component AutomationStrip inherits VerticalLayout {
 
     // Rows 3–4: macro buttons, three to a row.
     for row in AutoStrip.macros: HorizontalLayout {
+        height: 32px;
         spacing: 6px;
         alignment: start;
         for m in row.buttons: Rectangle {

@@ -217,9 +217,9 @@ component MacroForm inherits VerticalLayout {
                 vertical-alignment: center;
                 overflow: elide;
             }
-            if !AutomationDlg.k-locked: Btn { small: true; icon: "chevron-down"; tooltip: @tr("Move down"); clicked => { AutomationDlg.step-move(i, 1); } }
-            if !AutomationDlg.k-locked: Btn { small: true; text: @tr("Up"); tooltip: @tr("Move up"); clicked => { AutomationDlg.step-move(i, -1); } }
-            if !AutomationDlg.k-locked: Btn { small: true; icon: "trash"; tooltip: @tr("Remove"); clicked => { AutomationDlg.step-remove(i); } }
+            if !AutomationDlg.k-locked: Btn { horizontal-stretch: 0; small: true; text: @tr("Up"); tooltip: @tr("Move up"); clicked => { AutomationDlg.step-move(i, -1); } }
+            if !AutomationDlg.k-locked: Btn { horizontal-stretch: 0; small: true; text: @tr("Down"); tooltip: @tr("Move down"); clicked => { AutomationDlg.step-move(i, 1); } }
+            if !AutomationDlg.k-locked: Btn { horizontal-stretch: 0; small: true; icon: "trash"; tooltip: @tr("Remove"); clicked => { AutomationDlg.step-remove(i); } }
         }
     }
     if AutomationDlg.k-steps.length == 0: Text {

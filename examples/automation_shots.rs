@@ -48,7 +48,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     rt.block_on(app.do_action("timer/start", format!(r#"{{"id":"{SERMON_ID}"}}"#).as_bytes())).unwrap();
-    cmd(&app, Command::Show { item_id: item, slide: 0 }, Some(app.live.lock().unwrap().version));
+    let v = app.live.lock().unwrap().version;
+    cmd(&app, Command::Show { item_id: item, slide: 0 }, Some(v));
     let epoch = Some(app.live.lock().unwrap().clear_epoch);
     cmd(&app, Command::ShowTimer { timer: SERMON_ID, seen_clear: epoch }, None);
     cmd(&app, Command::ShowMessage { template: NURSERY_ID, values: BTreeMap::from([("Number".into(), "27".into())]), seen_clear: epoch }, None);
