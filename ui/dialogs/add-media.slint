@@ -201,8 +201,16 @@ export component AddDeckTab inherits VerticalLayout {
                 padding-bottom: 12px;
                 padding-left: 14px;
                 padding-right: 14px;
+                spacing: 6px;
                 note := Text {
                     text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+                notes-tip := Text {
+                    text: @tr("Download it as PowerPoint (.pptx) to keep your speaker notes.");
                     color: Theme.muted;
                     font-family: Theme.font;
                     font-size: Theme.base-size;

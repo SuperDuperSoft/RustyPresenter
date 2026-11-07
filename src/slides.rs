@@ -313,7 +313,10 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             None => (crate::tr!("Missing media"), "video", vec![]),
         },
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
-            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone() })).collect()),
+            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide {
+                notes: d.notes.get(i).cloned().unwrap_or_default(),
+                ..Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone() })
+            }).collect()),
             None => (crate::tr!("Missing slides"), "deck", vec![]),
         },
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),

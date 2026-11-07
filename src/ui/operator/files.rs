@@ -744,8 +744,8 @@ mod window_tests {
     #[test]
     fn deck_watch_takes_only_its_own_result() {
         let (job, other) = (Uuid::new_v4(), Uuid::new_v4());
-        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![] };
-        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![] };
+        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![], notes: vec![] };
+        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![] };
         let w = DeckWatch(job);
         assert_eq!(w.step(&[(other, Some(old.id))], &[old.clone(), new.clone()]), DeckWatchStep::Wait, "another job's end, and a new deck that may be anyone's");
         assert_eq!(w.step(&[(job, Some(new.id))], std::slice::from_ref(&old)), DeckWatchStep::Wait, "a read that has the end but not yet the deck");
@@ -779,7 +779,7 @@ mod window_tests {
         let op = opened(&app);
         let (bad, stopped) = (app.job_start("a"), app.job_start_cancellable("b").0);
         op.files.watches.borrow_mut().extend([DeckWatch(bad), DeckWatch(stopped)]);
-        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Someone else's".into(), slides: vec![] }); Ok(()) }).unwrap();
+        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Someone else's".into(), slides: vec![], notes: vec![] }); Ok(()) }).unwrap();
         app.job_end(bad, Some("No.".into()));
         app.job_end_cancelled(stopped);
         refresh(&op);
@@ -807,7 +807,7 @@ mod window_tests {
         refresh(&op);
         assert!(items(&app).is_empty(), "still converting");
         let id = Uuid::new_v4();
-        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![] }); Ok(()) }).unwrap();
+        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![] }); Ok(()) }).unwrap();
         app.job_result(job, id);
         app.job_end(job, None);
         refresh(&op);
@@ -820,7 +820,7 @@ mod window_tests {
     #[test]
     fn import_powerpoint_adds_only_the_decks_its_jobs_made() {
         let app = test_app();
-        let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![] };
+        let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![], notes: vec![] };
         app.edit(|d| { d.decks.push(old.clone()); Ok(()) }).unwrap();
         let op = opened(&app);
         let jobs = [app.job_start("Importing “Talk” from PowerPoint"), app.job_start("Importing “Notices” from PowerPoint")];
@@ -832,7 +832,7 @@ mod window_tests {
         assert!(items(&app).is_empty(), "both decks are still converting");
         let decks = [("Talk", jobs[0]), ("Notices", jobs[1])].map(|(title, job)| {
             let id = Uuid::new_v4();
-            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![] }); Ok(()) }).unwrap();
+            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![], notes: vec![] }); Ok(()) }).unwrap();
             app.job_result(job, id);
             app.job_end(job, None);
             refresh(&op);

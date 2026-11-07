@@ -151,6 +151,17 @@ pub struct Deck {
     pub id: Uuid,
     pub title: String,
     pub slides: Vec<AssetId>,
+    /// Speaker notes by slide, from the presentation or typed in Item edit. Shorter than `slides` (or empty)
+    /// when the last slides have none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub notes: Vec<String>,
+}
+
+/// Notes for a deck of `slides` slides, kept short: none past the last slide, no empty ones at the end.
+pub fn deck_notes(mut notes: Vec<String>, slides: usize) -> Vec<String> {
+    notes.truncate(slides);
+    while notes.last().is_some_and(|n| n.trim().is_empty()) { notes.pop(); }
+    notes
 }
 
 // ---------- Service plan ----------
@@ -856,5 +867,29 @@ mod feat1_tests {
             background: Some(Background::Gradient { from: "#000".into(), to: "#fff".into(), angle: 90, dim: 0 }), notes: String::new(), theme: None });
         let set = d.referenced_assets();
         for a in ["t.png", "b.mp4", "o.png"] { assert!(set.contains(a), "{a}"); }
+    }
+}
+
+#[cfg(test)]
+mod deck_notes_tests {
+    use super::*;
+
+    #[test]
+    fn a_deck_saved_without_notes_still_loads_and_saves_none() {
+        let id = Uuid::new_v4();
+        let old = serde_json::json!({ "id": id, "title": "Talk", "slides": ["1.png", "2.png"] });
+        let deck: Deck = serde_json::from_value(old.clone()).unwrap();
+        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![] });
+        assert_eq!(serde_json::to_value(&deck).unwrap(), old, "no notes key when there are none");
+        let with = Deck { notes: vec!["Hi".into()], ..deck };
+        assert_eq!(serde_json::from_value::<Deck>(serde_json::to_value(&with).unwrap()).unwrap(), with);
+    }
+
+    #[test]
+    fn deck_notes_are_kept_short() {
+        let n = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        assert_eq!(deck_notes(n(&["a", "", "b", "c"]), 3), n(&["a", "", "b"]));
+        assert_eq!(deck_notes(n(&["a", "", " "]), 3), n(&["a"]));
+        assert_eq!(deck_notes(n(&["", ""]), 2), Vec::<String>::new());
     }
 }

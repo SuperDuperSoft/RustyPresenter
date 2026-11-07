@@ -152,6 +152,7 @@ export component OperatorWindow inherits Window {
     in property <bool> live-pending;
     in property <string> live-what;
     in property <string> live-notice;
+    in property <string> live-notes;
     in property <LiveSong> live-song;
     callback live-song-action(string);
     in property <bool> logo-on;
@@ -711,6 +712,7 @@ export component OperatorWindow inherits Window {
                         pending: root.live-pending;
                         live-what: root.live-what;
                         notice: root.live-notice;
+                        notes: root.live-notes;
                         song: root.live-song;
                         song-action(a) => { root.focus-keys(); root.live-song-action(a); }
                         logo-on: root.logo-on;
