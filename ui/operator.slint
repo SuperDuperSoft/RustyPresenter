@@ -380,6 +380,11 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("find"); }
             }
+            MenuItem {
+                title: @tr("Find a verse…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("find-verse"); }
+            }
             MenuSeparator {}
             MenuItem {
                 title: @tr("Edit the selected item…");
@@ -480,6 +485,11 @@ export component OperatorWindow inherits Window {
                 title: @tr("Stage layouts…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("stage-layouts"); }
+            }
+            MenuItem {
+                title: @tr("Automation…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("automation"); }
             }
         }
         Menu {

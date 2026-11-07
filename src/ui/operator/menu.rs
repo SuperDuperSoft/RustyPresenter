@@ -26,6 +26,10 @@ pub enum MenuAction {
     Exit,
     /// Window → Stage layouts… (FEAT-3).
     StageLayouts,
+    /// Window → Automation… (FEAT-2).
+    Automation,
+    /// Edit → Find a verse… (FEAT-5).
+    FindVerse,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -55,6 +59,8 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "zoom-reset" => MenuAction::Zoom(0),
         "exit" => MenuAction::Exit,
         "stage-layouts" => MenuAction::StageLayouts,
+        "automation" => MenuAction::Automation,
+        "find-verse" => MenuAction::FindVerse,
         _ => return None,
     })
 }
@@ -79,6 +85,8 @@ impl Operator {
             Some(MenuAction::Overlays) => crate::ui::dialogs::overlays::open(self),
             Some(MenuAction::Exit) => self.window().dispatch_event(WindowEvent::CloseRequested),
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
+            Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
+            Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
             None => {}
         }
     }
@@ -238,6 +246,8 @@ mod tests {
         assert_eq!(action("zoom-reset"), Some(MenuAction::Zoom(0)));
         assert_eq!(action("exit"), Some(MenuAction::Exit));
         assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
+        assert_eq!(action("automation"), Some(MenuAction::Automation));
+        assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }
@@ -441,6 +451,20 @@ mod window_tests {
         op.close_dialog();
         ctrl(&op, "f");
         assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
+    }
+
+    #[test]
+    fn find_a_verse_and_automation_open_from_the_menu() {
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        op.ui.invoke_menu("find-verse".into());
+        assert_eq!(op.dialog(), Some(DialogKind::FindVerse));
+        op.close_dialog();
+        op.ui.invoke_menu("automation".into());
+        assert_eq!(op.dialog(), Some(DialogKind::Automation));
+        let bar = include_str!("../../../ui/operator.slint");
+        assert!(bar.contains("root.menu(\"find-verse\")") && bar.contains("root.menu(\"automation\")"), "the bar has both items");
     }
 
     #[test]
