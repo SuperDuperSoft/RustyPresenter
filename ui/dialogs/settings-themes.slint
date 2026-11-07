@@ -1,0 +1,572 @@
+// Settings → Themes (FEAT-1 spec §3.1, §3.4): the saved themes with a star for the church default, a theme editor with
+// a live preview, and the church's background library. Rust (`src/ui/dialogs/settings_themes.rs`) fills `ThemesDlg`;
+// every button here runs an action at once (Save settings is not needed).
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented, Icon, TipBox } from "../widgets.slint";
+import { Check, RangeSlider, Select, Lbl, ListRow, RowMain, TextField, Note } from "form.slint";
+import { BackgroundPicker, BgChoice, ColorPicker } from "background-picker.slint";
+
+/// A theme in the list. `standard` is the built-in Standard (edited on the Look tab); `delete-label` is "Delete",
+/// "Reset" or empty when the theme can't be removed.
+export struct ThemeListRow { name: string, sub: string, is-default: bool, standard: bool, delete-label: string }
+
+/// A background in the library: its picture (or colour), name and what it is ("Picture", "Converting 40 %"…).
+export struct BgLibraryRow { name: string, sub: string, swatch: color, image: image, has-image: bool }
+
+export global ThemesDlg {
+    in property <[ThemeListRow]> rows;
+    in property <[BgLibraryRow]> library;
+
+    // ---- The theme editor (shown instead of the list while `editing`) ----
+    in-out property <bool> editing;
+    in-out property <string> name;
+    in property <[string]> fonts;
+    in-out property <int> font-index;
+    /// "works on every computer" under the font box, or empty.
+    in property <string> font-hint;
+    /// "“F” isn't installed on this computer…", or empty.
+    in property <string> font-note;
+    /// 0 Regular, 1 Semibold, 2 Bold.
+    in-out property <int> weight;
+    in-out property <int> size: 84;
+    in-out property <int> scripture-size: 64;
+    in property <color> color-swatch;
+    /// 0 Left, 1 Center, 2 Right.
+    in-out property <int> align: 1;
+    /// 0 Top, 1 Middle, 2 Lower third.
+    in-out property <int> position: 1;
+    in-out property <bool> uppercase;
+    in-out property <bool> shadow: true;
+    /// 0 Off, 1 Thin, 2 Thick.
+    in-out property <int> outline;
+    in property <color> outline-swatch;
+    in-out property <bool> band;
+    in property <color> band-swatch;
+    /// How see-through the text band is, 0–90 %.
+    in-out property <int> band-clear: 45;
+    in property <[BgChoice]> backgrounds;
+    /// Darken (0–80 %), shown for pictures, videos and gradients.
+    in property <bool> darken-shown;
+    in-out property <int> darken;
+    /// 0 Lyrics, 1 Scripture, 2 Announcement.
+    in-out property <int> preview-tab;
+    in property <image> preview;
+    in property <[color]> palette;
+
+    // ---- Adding a colour or gradient to the library ----
+    in-out property <bool> adding;
+    in-out property <string> add-name;
+    /// 0 Color, 1 Gradient.
+    in-out property <int> add-kind;
+    in property <color> add-from;
+    in property <color> add-to;
+    /// The gradient's direction: 0 ↓, 1 ↘, 2 →, 3 ↗, 4 ↑.
+    in-out property <int> add-angle;
+    in property <image> add-preview;
+
+    callback make-default(int);
+    callback edit(int);
+    callback duplicate(int);
+    callback delete(int);
+    callback new-theme();
+    /// Any editor field changed: the preview is drawn again 150 ms later.
+    callback changed();
+    callback text-color(color);
+    callback text-hex(string);
+    callback outline-color(color);
+    callback outline-hex(string);
+    callback band-color(color);
+    callback band-hex(string);
+    callback pick-background(int);
+    callback background-color(color);
+    callback background-hex(string);
+    callback upload-background();
+    callback cancel-edit();
+    callback save-theme();
+
+    callback add-pictures();
+    callback rename-background(int);
+    callback remove-background(int);
+    callback add-from-color(color);
+    callback add-from-hex(string);
+    callback add-to-color(color);
+    callback add-to-hex(string);
+    callback add-changed();
+    callback add-save();
+}
+
+/// The star of a row: filled and gold for the church default, else an outline button that makes it the default.
+component Star inherits Rectangle {
+    in property <bool> on;
+    callback clicked();
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: ta.has-hover && !root.on ? Theme.line : transparent;
+    accessible-role: button;
+    accessible-label: root.on ? @tr("Church default") : @tr("Make this the church default");
+    accessible-checked: root.on;
+    accessible-action-default => { if !root.on { root.clicked(); } }
+    Icon {
+        x: 6px;
+        y: 6px;
+        name: "star";
+        color: root.on ? Theme.accent : ta.has-hover ? Theme.text : Theme.faint;
+    }
+    ta := TouchArea {
+        mouse-cursor: root.on ? default : pointer;
+        clicked => { if !root.on { root.clicked(); } }
+    }
+    if !root.on: Tooltip {
+        TipBox { text: @tr("Make this the church default"); }
+    }
+}
+
+/// The list of themes and the background library.
+component ThemeList inherits VerticalLayout {
+    spacing: 4px;
+    Note {
+        text: @tr("A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own.");
+    }
+    Rectangle { height: 10px; }
+    for t[i] in ThemesDlg.rows: theme-row := ListRow {
+        accessible-role: list-item;
+        accessible-label: t.name;
+        accessible-value: t.sub;
+        accessible-item-selected: t.is-default;
+        VerticalLayout {
+            alignment: center;
+            star := Star {
+                on: t.is-default;
+                clicked => { ThemesDlg.make-default(i); }
+            }
+        }
+        RowMain {
+            title: t.name;
+            sub: t.sub;
+        }
+        VerticalLayout {
+            alignment: center;
+            edit := Btn {
+                small: true;
+                text: @tr("Edit");
+                clicked => { ThemesDlg.edit(i); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            duplicate := Btn {
+                small: true;
+                text: @tr("Duplicate");
+                clicked => { ThemesDlg.duplicate(i); }
+            }
+        }
+        if t.delete-label != "": VerticalLayout {
+            alignment: center;
+            delete := Btn {
+                small: true;
+                danger: true;
+                text: t.delete-label;
+                clicked => { ThemesDlg.delete(i); }
+            }
+        }
+    }
+    Rectangle { height: 8px; }
+    HorizontalLayout {
+        alignment: start;
+        new-theme := Btn {
+            icon: "plus";
+            text: @tr("New theme");
+            clicked => { ThemesDlg.new-theme(); }
+        }
+    }
+
+    Rectangle { height: 22px; }
+    Lbl { label: @tr("Background library"); }
+    Rectangle { height: 4px; }
+    Text {
+        text: @tr("Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item.");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+    Rectangle { height: 8px; }
+    for b[i] in ThemesDlg.library: bg-row := ListRow {
+        accessible-role: list-item;
+        accessible-label: b.name;
+        accessible-value: b.sub;
+        Rectangle {
+            width: 64px;
+            height: 36px;
+            border-radius: 6px;
+            border-width: 1px;
+            border-color: Theme.line;
+            background: b.has-image ? Theme.black : b.swatch;
+            clip: true;
+            if b.has-image: Image {
+                width: parent.width;
+                height: parent.height;
+                source: b.image;
+                image-fit: cover;
+            }
+        }
+        RowMain {
+            title: b.name;
+            sub: b.sub;
+        }
+        VerticalLayout {
+            alignment: center;
+            rename := Btn {
+                small: true;
+                text: @tr("Rename");
+                clicked => { ThemesDlg.rename-background(i); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            remove := Btn {
+                small: true;
+                danger: true;
+                text: @tr("Remove");
+                clicked => { ThemesDlg.remove-background(i); }
+            }
+        }
+    }
+    if ThemesDlg.library.length == 0: no-backgrounds := Text {
+        text: @tr("No backgrounds yet.");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+    }
+    Rectangle { height: 8px; }
+    HorizontalLayout {
+        alignment: start;
+        spacing: 8px;
+        add-pictures := Btn {
+            icon: "upload";
+            text: @tr("Add picture or video…");
+            clicked => { ThemesDlg.add-pictures(); }
+        }
+        add-color := Btn {
+            icon: "plus";
+            text: @tr("Add colour or gradient…");
+            clicked => {
+                ThemesDlg.adding = !ThemesDlg.adding;
+                ThemesDlg.add-changed();
+            }
+        }
+    }
+    if ThemesDlg.adding: add-box := Rectangle {
+        background: Theme.panel-2;
+        border-radius: 10px;
+        HorizontalLayout {
+            padding: 12px;
+            spacing: 16px;
+            VerticalLayout {
+                horizontal-stretch: 1;
+                Field {
+                    label: @tr("Name");
+                    add-name := TextField {
+                        label: @tr("Name");
+                        text <=> ThemesDlg.add-name;
+                    }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    padding-bottom: 10px;
+                    add-kind := Segmented {
+                        labels: [@tr("Color"), @tr("Gradient")];
+                        index <=> ThemesDlg.add-kind;
+                        changed => { ThemesDlg.add-changed(); }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 14px;
+                    Field {
+                        horizontal-stretch: 1;
+                        label: ThemesDlg.add-kind == 1 ? @tr("From") : @tr("Color");
+                        add-from := ColorPicker {
+                            value: ThemesDlg.add-from;
+                            palette: ThemesDlg.palette;
+                            picked(c) => { ThemesDlg.add-from-color(c); }
+                            hex(t) => { ThemesDlg.add-from-hex(t); }
+                        }
+                    }
+                    if ThemesDlg.add-kind == 1: Field {
+                        horizontal-stretch: 1;
+                        label: @tr("To");
+                        add-to := ColorPicker {
+                            value: ThemesDlg.add-to;
+                            palette: ThemesDlg.palette;
+                            picked(c) => { ThemesDlg.add-to-color(c); }
+                            hex(t) => { ThemesDlg.add-to-hex(t); }
+                        }
+                    }
+                }
+                if ThemesDlg.add-kind == 1: Field {
+                    label: @tr("Direction");
+                    HorizontalLayout {
+                        alignment: start;
+                        add-angle := Segmented {
+                            labels: ["↓", "↘", "→", "↗", "↑"];
+                            index <=> ThemesDlg.add-angle;
+                            changed => { ThemesDlg.add-changed(); }
+                        }
+                    }
+                }
+            }
+            VerticalLayout {
+                alignment: start;
+                spacing: 10px;
+                Rectangle {
+                    width: 160px;
+                    height: 90px;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: Theme.line;
+                    clip: true;
+                    Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: ThemesDlg.add-preview;
+                        image-fit: fill;
+                    }
+                }
+                add-save := Btn {
+                    primary: true;
+                    text: @tr("Add to backgrounds");
+                    clicked => { ThemesDlg.add-save(); }
+                }
+            }
+        }
+    }
+}
+
+/// The theme editor: the fields on the left, a 16:9 preview on the right.
+component ThemeEditor inherits HorizontalLayout {
+    spacing: 20px;
+
+    VerticalLayout {
+        horizontal-stretch: 1;
+        min-width: 0px;
+        Field {
+            label: @tr("Name");
+            theme-name := TextField {
+                label: @tr("Name");
+                text <=> ThemesDlg.name;
+            }
+        }
+        Field {
+            label: @tr("Font");
+            font := Select {
+                options: ThemesDlg.fonts;
+                index <=> ThemesDlg.font-index;
+                font-preview: true;
+                changed => { ThemesDlg.changed(); }
+            }
+            if ThemesDlg.font-hint != "": Text {
+                text: ThemesDlg.font-hint;
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 12px;
+            }
+            if ThemesDlg.font-note != "": font-note := Text {
+                text: ThemesDlg.font-note;
+                color: Theme.danger-text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+        Field {
+            label: @tr("Weight");
+            help: @tr("(for songs and announcements)");
+            HorizontalLayout {
+                alignment: start;
+                weight := Segmented {
+                    labels: [@tr("Regular"), @tr("Semibold"), @tr("Bold")];
+                    index <=> ThemesDlg.weight;
+                    changed => { ThemesDlg.changed(); }
+                }
+            }
+        }
+        Field {
+            label: @tr("Lyrics size");
+            help: @tr("(biggest; long lines shrink to fit)");
+            size := RangeSlider {
+                minimum: 40;
+                maximum: 150;
+                value <=> ThemesDlg.size;
+                changed => { ThemesDlg.changed(); }
+            }
+        }
+        Field {
+            label: @tr("Scripture text size");
+            help: @tr("(biggest)");
+            scripture-size := RangeSlider {
+                minimum: 36;
+                maximum: 120;
+                value <=> ThemesDlg.scripture-size;
+                changed => { ThemesDlg.changed(); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text color");
+                color := ColorPicker {
+                    value: ThemesDlg.color-swatch;
+                    palette: ThemesDlg.palette;
+                    picked(c) => { ThemesDlg.text-color(c); }
+                    hex(t) => { ThemesDlg.text-hex(t); }
+                }
+            }
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("Align");
+                HorizontalLayout {
+                    alignment: start;
+                    align := Segmented {
+                        labels: [@tr("Left"), @tr("Center"), @tr("Right")];
+                        index <=> ThemesDlg.align;
+                        changed => { ThemesDlg.changed(); }
+                    }
+                }
+            }
+        }
+        Field {
+            label: @tr("Text position");
+            HorizontalLayout {
+                alignment: start;
+                position := Segmented {
+                    labels: [@tr("Top"), @tr("Middle"), @tr("Lower third")];
+                    index <=> ThemesDlg.position;
+                    changed => { ThemesDlg.changed(); }
+                }
+            }
+        }
+        caps := Check {
+            text: @tr("ALL CAPS lyrics");
+            checked <=> ThemesDlg.uppercase;
+            toggled => { ThemesDlg.changed(); }
+        }
+        shadow := Check {
+            text: @tr("Shadow behind text (easier to read on pictures)");
+            checked <=> ThemesDlg.shadow;
+            toggled => { ThemesDlg.changed(); }
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("Outline");
+                HorizontalLayout {
+                    alignment: start;
+                    outline := Segmented {
+                        labels: [@tr("Off"), @tr("Thin"), @tr("Thick")];
+                        index <=> ThemesDlg.outline;
+                        changed => { ThemesDlg.changed(); }
+                    }
+                }
+            }
+            if ThemesDlg.outline > 0: Field {
+                horizontal-stretch: 1;
+                label: @tr("Outline color");
+                outline-color := ColorPicker {
+                    value: ThemesDlg.outline-swatch;
+                    palette: ThemesDlg.palette;
+                    picked(c) => { ThemesDlg.outline-color(c); }
+                    hex(t) => { ThemesDlg.outline-hex(t); }
+                }
+            }
+        }
+        band := Check {
+            text: @tr("Text band (a see-through strip behind the words)");
+            checked <=> ThemesDlg.band;
+            toggled => { ThemesDlg.changed(); }
+        }
+        if ThemesDlg.band: HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Band color");
+                band-color := ColorPicker {
+                    value: ThemesDlg.band-swatch;
+                    palette: ThemesDlg.palette;
+                    picked(c) => { ThemesDlg.band-color(c); }
+                    hex(t) => { ThemesDlg.band-hex(t); }
+                }
+            }
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("See-through");
+                band-clear := RangeSlider {
+                    minimum: 0;
+                    maximum: 90;
+                    value <=> ThemesDlg.band-clear;
+                    changed => { ThemesDlg.changed(); }
+                }
+            }
+        }
+    }
+
+    VerticalLayout {
+        horizontal-stretch: 1.1;
+        min-width: 0px;
+        alignment: start;
+        HorizontalLayout {
+            alignment: start;
+            preview-tab := Segmented {
+                labels: [@tr("Lyrics"), @tr("Scripture"), @tr("Announcement")];
+                index <=> ThemesDlg.preview-tab;
+                changed => { ThemesDlg.changed(); }
+            }
+        }
+        Rectangle { height: 8px; }
+        preview-box := Rectangle {
+            height: self.width * 9 / 16;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.line;
+            background: Theme.black;
+            clip: true;
+            preview := Image {
+                width: parent.width;
+                height: parent.height;
+                source: ThemesDlg.preview;
+                image-fit: contain;
+            }
+        }
+        Rectangle { height: 14px; }
+        Field {
+            label: @tr("Background");
+            backgrounds := BackgroundPicker {
+                choices: ThemesDlg.backgrounds;
+                palette: ThemesDlg.palette;
+                pick(i) => { ThemesDlg.pick-background(i); }
+                custom-color(c) => { ThemesDlg.background-color(c); }
+                custom-hex(t) => { ThemesDlg.background-hex(t); }
+                upload => { ThemesDlg.upload-background(); }
+            }
+        }
+        if ThemesDlg.darken-shown: Field {
+            label: @tr("Darken");
+            help: @tr("Makes text easier to read");
+            darken := RangeSlider {
+                minimum: 0;
+                maximum: 80;
+                value <=> ThemesDlg.darken;
+                changed => { ThemesDlg.changed(); }
+            }
+        }
+    }
+}
+
+export component SettingsThemes inherits VerticalLayout {
+    if !ThemesDlg.editing: list := ThemeList {}
+    if ThemesDlg.editing: editor := ThemeEditor {}
+}

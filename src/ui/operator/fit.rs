@@ -88,6 +88,7 @@ fn every_dialog_is_centred_and_inside_the_window() {
         ("Screens", Box::new(screens::open)),
         ("Phone", Box::new(phone::open)),
         ("Settings look", Box::new(|op| settings::open(op, SettingsTab::Look))),
+        ("Settings themes", Box::new(|op| settings::open(op, SettingsTab::Themes))),
         ("Settings language", Box::new(|op| settings::open(op, SettingsTab::Language))),
         ("Settings songs", Box::new(|op| settings::open(op, SettingsTab::Songs))),
         ("Settings Bible", Box::new(|op| settings::open(op, SettingsTab::Bible))),
