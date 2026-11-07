@@ -374,7 +374,11 @@ impl App {
         };
         let ok = out.ok && !out.duplicate;
         for s in stage { self.stage_step(s) }
-        if ok { self.after_command() }
+        if ok {
+            self.after_command();
+            // Its timer steps show at once, not on the ticker's next wake.
+            self.publish_timers(Utc::now(), true);
+        }
         (out, toast)
     }
 

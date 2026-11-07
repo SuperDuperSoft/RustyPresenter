@@ -304,7 +304,8 @@ fn auto_advances_with_room_closed_and_loops() {
     assert_eq!(slide(&app), Some((item, 0)));
     app.automation_tick(t + TimeDelta::seconds(9));
     assert_eq!(slide(&app), Some((item, 1)));
-    assert_eq!(app.live.lock().unwrap().manual_version, app.live.lock().unwrap().version - 1, "a slide turn isn't a hand change");
+    let (manual, v) = { let l = app.live.lock().unwrap(); (l.manual_version, l.version) };
+    assert_eq!(manual, v - 1, "a slide turn isn't a hand change");
     // The interval starts again when the slide turned (now), so 8 s after now.
     app.automation_tick(Utc::now() + TimeDelta::seconds(9));
     assert_eq!(slide(&app), Some((item, 2)));
