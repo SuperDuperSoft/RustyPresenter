@@ -516,6 +516,11 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.menu("settings-songs"); }
             }
             MenuItem {
+                title: @tr("Sections and slide labels…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-sections"); }
+            }
+            MenuItem {
                 title: @tr("Bible…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("settings-bible"); }

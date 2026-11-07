@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_themes, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_sections, settings_themes, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -30,7 +30,7 @@ pub fn tab_index(tab: SettingsTab) -> i32 {
         SettingsTab::Look => 0,
         SettingsTab::Themes => 1,
         SettingsTab::Language => 2,
-        SettingsTab::Songs => 3,
+        SettingsTab::Songs | SettingsTab::Sections => 3,
         SettingsTab::Bible => 4,
         SettingsTab::Video => 5,
         SettingsTab::Backups => 6,
@@ -104,10 +104,12 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     fill_form(&g, &edit.settings.borrow());
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_tab(tab_index(tab));
+    g.set_songs_page(i32::from(tab == SettingsTab::Sections));
     super::stage_layouts::fill_settings(&g, &snap.data.stage_layouts, snap.settings.stage.layout);
     about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
+    settings_sections::open(op, &edit);
     settings_bible::remember(&edit);
     settings_bible::reset(&g);
     settings_audio::load(op);
@@ -128,7 +130,11 @@ pub fn open_bible_search(op: &Rc<Operator>, query: &str) {
 fn fill_form(g: &SettingsDlg, s: &Settings) {
     settings_look::fill_form(g, s);
     g.set_lines(i32::from(s.lines_per_slide.clamp(1, 6)) - 1);
-    g.set_credits(match s.credits.as_str() { "last" => 1, "none" => 2, _ => 0 });
+    g.set_credits_on(s.credits != "none");
+    g.set_credits(match s.credits.as_str() { "first" => 1, "last" => 2, _ => 0 });
+    g.set_credit_template(s.credit_template.as_str().into());
+    g.set_credit_usual(crate::slides::DEFAULT_CREDIT_TEMPLATE.into());
+    g.set_credit_sample(settings_sections::credit_sample(s).into());
     g.set_ccli(s.church_ccli.as_str().into());
     g.set_room_on_top(s.room_on_top);
     g.set_section_keys(s.section_keys);
@@ -140,7 +146,8 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
 pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     settings_look::read_form(g, s);
     s.lines_per_slide = (g.get_lines().clamp(0, 5) + 1) as u8;
-    s.credits = ["first", "last", "none"][g.get_credits().clamp(0, 2) as usize].into();
+    s.credits = if g.get_credits_on() { ["both", "first", "last"][g.get_credits().clamp(0, 2) as usize] } else { "none" }.into();
+    s.credit_template = g.get_credit_template().trim().into();
     s.church_ccli = g.get_ccli().into();
     s.room_on_top = g.get_room_on_top();
     s.section_keys = g.get_section_keys();
@@ -272,6 +279,12 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
+    g.on_credit_template_edited(with(|op, edit| {
+        let g = op.ui.global::<SettingsDlg>();
+        let mut s = edit.settings.borrow().clone();
+        read_form(&g, &mut s);
+        g.set_credit_sample(settings_sections::credit_sample(&s).into());
+    }));
     settings_themes::connect(op, edit);
 }
 
@@ -339,6 +352,7 @@ fn usage_report(op: &Rc<Operator>, edit: &Rc<Edit>) {
 fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>) + 'static) {
     let mut s = edit.settings.borrow().clone();
     read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if let Some(problem) = s.sections.problem() { return op.toast(problem, true) }
     if let Some(latest) = snap(op) {
         s.translation = latest.settings.translation.clone();
         s.screens = latest.settings.screens.clone();

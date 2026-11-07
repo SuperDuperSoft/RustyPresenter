@@ -77,7 +77,7 @@ fn theme_section_tokens_match_rust_palette() {
     let w = crate::ui::OperatorWindow::new().unwrap();
     let t = w.global::<crate::ui::Theme>();
     for k in SectionKind::ALL {
-        let h = k.color().trim_start_matches('#');
+        let h = k.default_color().trim_start_matches('#');
         let c = |i: usize| u8::from_str_radix(&h[i..i + 2], 16).unwrap();
         assert_eq!(t.invoke_section_color(k.id().into()), slint::Color::from_rgb_u8(c(0), c(2), c(4)), "{k:?}");
     }

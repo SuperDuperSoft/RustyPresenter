@@ -136,7 +136,7 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
                     let mut lines = vec![];
                     for (g, group) in sec.groups.iter().enumerate() {
                         if g > 0 { lines.push(String::new()) }
-                        lines.extend(group.iter().cloned());
+                        lines.extend(group.iter().filter(|l| crate::sections::label_line(l).is_none()).cloned());
                     }
                     out.push(Block::Section { label: sec.label.clone(), lines });
                 }

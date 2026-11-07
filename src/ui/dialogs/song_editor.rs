@@ -74,7 +74,13 @@ fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool
     st.set_writers(s.writers.as_str().into());
     st.set_ccli(s.ccli.as_str().into());
     st.set_copyright(s.copyright.as_str().into());
+    st.set_artist(s.artist.as_str().into());
+    st.set_publisher(s.publisher.as_str().into());
+    st.set_year(s.year.as_str().into());
     st.set_lyrics(s.lyrics.as_str().into());
+    let labels: Vec<SharedString> = std::iter::once(crate::sections::strings::label_this_slide())
+        .chain(label_names(op)).map(SharedString::from).collect();
+    st.set_labels(ModelRc::new(VecModel::from(labels)));
     st.set_order(s.arrangement.join(", ").into());
     st.set_existing(song.is_some());
     st.set_add_after(add_after);
@@ -93,6 +99,62 @@ fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool
     // A preview still waiting when the editor closes is not drawn.
     let c = Rc::downgrade(&ctx);
     op.on_dialog_close(move |_| if let Some(c) = c.upgrade() { c.timer.stop() });
+}
+
+/// The slide labels Settings → Sections lists.
+fn label_names(op: &Operator) -> Vec<String> {
+    let look = op.state.borrow().snap.as_ref().map(|s| s.settings.sections.clone()).unwrap_or_default();
+    look.labels().into_iter().map(|l| l.name).collect()
+}
+
+/// The byte offset `caret` moved back to a character boundary of `text`.
+fn at_char(text: &str, caret: usize) -> usize {
+    let mut c = caret.min(text.len());
+    while !text.is_char_boundary(c) { c -= 1 }
+    c
+}
+
+/// Insert slide break (N34): the words before the caret end a slide and the rest start the next one (one empty line
+/// between them). Gives the new text and the caret, at the start of the new slide. Nothing before the caret: no change.
+pub fn insert_slide_break(text: &str, caret: usize) -> (String, usize) {
+    let caret = at_char(text, caret);
+    let space = [' ', '\t', '\r', '\n'];
+    let before = text[..caret].trim_end_matches(space);
+    if before.is_empty() { return (text.to_string(), caret) }
+    let after = text[caret..].trim_start_matches(space);
+    (format!("{before}\n\n{after}"), before.len() + 2)
+}
+
+/// Label this slide (N19): `{name}` on top of the slide the caret is in, in place of a label already there. On a
+/// section name or an empty line, the slide after it. Gives the new text and the caret, just after the label.
+pub fn label_slide(text: &str, caret: usize, name: &str) -> (String, usize) {
+    let caret = at_char(text, caret);
+    // Each line's start and its text (no line break).
+    let mut lines: Vec<(usize, &str)> = Vec::new();
+    let mut at = 0;
+    for l in text.split_inclusive('\n') { lines.push((at, l.trim_end_matches(['\r', '\n']))); at += l.len() }
+    // The empty line after a last line break (or of an empty text).
+    if text.is_empty() || text.ends_with('\n') { lines.push((text.len(), "")) }
+    let breaks = |l: &str| l.trim().is_empty() || crate::slides::section_label(l).is_some();
+    let here = lines.iter().rposition(|(start, _)| *start <= caret).unwrap_or(0);
+    let mut first = here;
+    if lines.get(here).is_some_and(|(_, l)| breaks(l)) {
+        first = here + 1;
+        while lines.get(first).is_some_and(|(_, l)| l.trim().is_empty()) { first += 1 }
+    } else {
+        while first > 0 && !breaks(lines[first - 1].1) { first -= 1 }
+    }
+    let mark = format!("{{{}}}", name.trim());
+    match lines.get(first) {
+        Some((start, l)) if crate::sections::label_line(l).is_some() => {
+            (format!("{}{mark}{}", &text[..*start], &text[start + l.len()..]), start + mark.len())
+        }
+        Some((start, _)) => (format!("{}{mark}\n{}", &text[..*start], &text[*start..]), start + mark.len()),
+        None => {
+            let gap = if text.is_empty() || text.ends_with('\n') { "" } else { "\n" };
+            (format!("{text}{gap}{mark}"), text.len() + gap.len() + mark.len())
+        }
+    }
 }
 
 /// Order as typed: split on commas, trimmed, empties dropped (`operator.js:699`).
@@ -117,6 +179,7 @@ fn song_from_fields(st: &SongEditorState, id: Option<Uuid>, trim: bool) -> Song 
     Song {
         id: id.unwrap_or_else(Uuid::nil), title: f(st.get_title()), writers: f(st.get_writers()), ccli: f(st.get_ccli()),
         copyright: f(st.get_copyright()), lyrics: st.get_lyrics().to_string(), arrangement: parse_order(&st.get_order()),
+        artist: f(st.get_artist()), publisher: f(st.get_publisher()), year: f(st.get_year()),
     }
 }
 
@@ -144,7 +207,9 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     let generation = ctx.generation.get() + 1;
     ctx.generation.set(generation);
     ctx.thumbs.cancel_pending();
-    ctx.previews.set_vec(slides.iter().map(|s| PreviewSlide { image: Image::default(), label: s.label.as_str().into() }).collect::<Vec<_>>());
+    // A slide's label (N19) shows after its section: "Verse 1 · Instrumental".
+    let caption = |s: &crate::model::Slide| match &s.tag { Some(t) => format!("{} · {t}", s.label), None => s.label.clone() };
+    ctx.previews.set_vec(slides.iter().map(|s| PreviewSlide { image: Image::default(), label: caption(s).into() }).collect::<Vec<_>>());
     let size = thumb_size(PREVIEW_W, op.window().scale_factor());
     let media = op.state.borrow().snap.as_ref().map(|s| s.data.media.clone()).unwrap_or_default();
     for (i, slide) in slides.iter().enumerate() {
@@ -260,6 +325,16 @@ fn delete(op: &Rc<Operator>, ctx: &EditorCtx) {
     });
 }
 
+/// A button's change to the lyrics at the caret; the preview follows at once. Gives the caret's new place.
+fn edit_lyrics(ctx: &EditorCtx, caret: i32, f: impl FnOnce(&str, usize) -> (String, usize)) -> i32 {
+    let Some(op) = ctx.op.upgrade() else { return caret };
+    let st = op.ui.global::<SongEditorState>();
+    let (text, at) = f(&st.get_lyrics(), usize::try_from(caret).unwrap_or(0));
+    st.set_lyrics(text.into());
+    draw(&op, ctx);
+    i32::try_from(at).unwrap_or(caret)
+}
+
 /// Points `SongEditorState`'s callbacks at this editor. Set on each open.
 fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     let st = op.ui.global::<SongEditorState>();
@@ -280,6 +355,13 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     });
     st.on_arr_drag_data(arr_drag_data);
     st.on_arr_drag_index(|d| arr_drag_index(&d));
+    let c = ctx.clone();
+    st.on_slide_break(move |caret| edit_lyrics(&c, caret, insert_slide_break));
+    let c = ctx.clone();
+    st.on_label_slide(move |caret, i| {
+        let Some(name) = c.op.upgrade().and_then(|op| label_names(&op).into_iter().nth(usize::try_from(i).unwrap_or(usize::MAX))) else { return caret };
+        edit_lyrics(&c, caret, |t, at| label_slide(t, at, &name))
+    });
     let c = ctx.clone();
     st.on_save(move || if let Some(op) = c.op.upgrade() { save(&op, &c, false) });
     let c = ctx.clone();
@@ -424,6 +506,71 @@ mod tests {
         key(&op, Key::Backspace);
         assert_eq!(st(&op).get_order(), "Verse 1");
         assert_eq!(op.dialog(), Some(DialogKind::SongEditor { song_id: Some(id), add_after: false }), "the dialog stays open");
+    }
+
+    #[test]
+    fn insert_slide_break_splits_at_the_caret() {
+        let t = "Verse 1\nline one\nline two";
+        let at = t.find("line two").unwrap();
+        assert_eq!(insert_slide_break(t, at), ("Verse 1\nline one\n\nline two".into(), at + 1));
+        let mid = t.find("one").unwrap();
+        assert_eq!(insert_slide_break(t, mid).0, "Verse 1\nline\n\none\nline two", "mid-line: the line splits");
+        let gap = "Verse 1\na\n\nb";
+        assert_eq!(insert_slide_break(gap, gap.find('b').unwrap()).0, gap, "one empty line, never two");
+        assert_eq!(insert_slide_break("abc", 0), ("abc".into(), 0), "nothing before the caret");
+        assert_eq!(insert_slide_break("é", 1), ("é".into(), 0), "a caret inside a letter moves back");
+    }
+
+    #[test]
+    fn label_slide_puts_the_label_on_top_of_the_caret_slide() {
+        let t = "Verse 1\na\nb\n\nc\nd";
+        let (out, at) = label_slide(t, t.find('d').unwrap(), "Repeat");
+        assert_eq!(out, "Verse 1\na\nb\n\n{Repeat}\nc\nd");
+        assert_eq!(&out[at - "{Repeat}".len()..at], "{Repeat}");
+        assert_eq!(label_slide(&out, out.find('d').unwrap(), "Blank").0, "Verse 1\na\nb\n\n{Blank}\nc\nd", "replaces the label there");
+        assert_eq!(label_slide(t, 2, "Instrumental").0, "Verse 1\n{Instrumental}\na\nb\n\nc\nd", "on the section name: its first slide");
+        assert_eq!(label_slide("Verse 1\na\n", 10, "Blank").0, "Verse 1\na\n{Blank}", "on the empty end: a new slide");
+    }
+
+    #[test]
+    fn buttons_change_the_lyrics_and_the_preview_follows_at_once() {
+        let app = test_app();
+        let op = opened(&app);
+        open_song_editor(&op, None, false);
+        settle(&op);
+        let options: Vec<String> = st(&op).get_labels().iter().map(|l| l.to_string()).collect();
+        assert_eq!(options, ["Label this slide…", "Blank", "Instrumental", "Repeat", "Spoken Word"]);
+        st(&op).set_lyrics("Verse 1\na\nb".into());
+        st(&op).invoke_edited();
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        assert_eq!(labels(&op), ["Verse 1"]);
+        let caret = st(&op).invoke_slide_break(10);
+        assert_eq!(st(&op).get_lyrics(), "Verse 1\na\n\nb");
+        assert_eq!(caret, 11);
+        assert_eq!(labels(&op), ["Verse 1", "Verse 1"], "two slides, with no wait");
+        st(&op).invoke_label_slide(caret, 1);
+        assert_eq!(st(&op).get_lyrics(), "Verse 1\na\n\n{Instrumental}\nb");
+        assert_eq!(labels(&op), ["Verse 1", "Verse 1 · Instrumental"], "the preview names the label");
+        assert!(find(&op, "SongEditor::slide-break").is_some());
+    }
+
+    #[test]
+    fn artist_publisher_and_year_are_saved() {
+        let app = test_app();
+        let op = opened(&app);
+        open_song_editor(&op, None, false);
+        settle(&op);
+        st(&op).set_title("Grace".into());
+        st(&op).set_artist(" Chris Tomlin ".into());
+        st(&op).set_publisher("sixsteps".into());
+        st(&op).set_year("2006".into());
+        click(&op, "SongEditor::save");
+        let s = &library(&app)[0];
+        assert_eq!((s.artist.as_str(), s.publisher.as_str(), s.year.as_str()), ("Chris Tomlin", "sixsteps", "2006"));
+        refresh(&op);
+        open_song_editor(&op, Some(s.id), false);
+        assert_eq!(st(&op).get_artist(), "Chris Tomlin");
+        assert_eq!(st(&op).get_year(), "2006");
     }
 
     #[test]

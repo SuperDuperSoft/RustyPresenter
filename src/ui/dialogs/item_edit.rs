@@ -1206,7 +1206,7 @@ mod tests {
     #[test]
     fn song_item_offers_edit_song_or_says_deleted() {
         let app = test_app();
-        let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: String::new(), ccli: String::new(), copyright: String::new(), lyrics: "Verse 1\nAmazing grace".into(), arrangement: vec![] };
+        let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: String::new(), ccli: String::new(), copyright: String::new(), lyrics: "Verse 1\nAmazing grace".into(), arrangement: vec![], ..Default::default() };
         app.data.lock().unwrap().songs.push(song.clone());
         let id = push(&app, ItemKind::Song { song_id: song.id, arrangement: None });
         let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None });

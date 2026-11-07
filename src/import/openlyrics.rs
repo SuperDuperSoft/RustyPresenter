@@ -178,7 +178,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     }).collect();
     let song = lyrics_from_verses(parts, &prop("verseOrder")).map(|(lyrics, arrangement)| Song {
         id: Uuid::new_v4(), title: title.clone(), writers: writers.join(" | "), ccli: ccli_number(&prop("ccliNo")),
-        copyright: prop("copyright"), lyrics, arrangement,
+        copyright: prop("copyright"), lyrics, arrangement, ..Default::default()
     });
     (title, song)
 }

@@ -51,8 +51,11 @@ impl SectionKind {
         match number { Some(n) => format!("{letter}{n}"), None => letter.into() }
     }
 
-    /// The fixed colour. `ui/theme.slint` copies these; a test compares the two.
-    pub fn color(self) -> &'static str {
+    /// The colour: the church's (Settings → Sections), else the usual one.
+    pub fn color(self) -> String { super::look::current().color(self).unwrap_or_else(|| self.default_color().into()) }
+
+    /// The usual colour. `ui/theme.slint` copies these; a test compares the two.
+    pub fn default_color(self) -> &'static str {
         match self {
             SectionKind::Verse => "#6aa8ff",
             SectionKind::Chorus => "#ff8f93",
@@ -66,8 +69,14 @@ impl SectionKind {
         }
     }
 
-    /// The jump key, lower case: Verse `v` (next verse), Interlude `l`; Other has none.
+    /// The jump key, lower case: the church's (Settings → Sections), else the usual one. Other has none.
     pub fn key(self) -> Option<char> {
+        if self == SectionKind::Other { return None }
+        super::look::current().key(self).or_else(|| self.default_key())
+    }
+
+    /// The usual jump key: Verse `v` (next verse), Interlude `l`; Other has none.
+    pub fn default_key(self) -> Option<char> {
         Some(match self {
             SectionKind::Verse => 'v',
             SectionKind::Chorus => 'c',
@@ -81,7 +90,11 @@ impl SectionKind {
         })
     }
 
-    pub fn name(self) -> String {
+    /// The name the app gives this kind: the church's (Settings → Sections), else the usual one.
+    pub fn name(self) -> String { super::look::current().name(self).unwrap_or_else(|| self.default_name()) }
+
+    /// The usual name, in the app's language.
+    pub fn default_name(self) -> String {
         match self {
             SectionKind::Verse => strings::verse(),
             SectionKind::Chorus => strings::chorus(),
@@ -134,6 +147,8 @@ fn translated_heads() -> Vec<(String, SectionKind)> {
     let mut out: Vec<(String, SectionKind)> = words.iter().flat_map(|(kind, english, t)| {
         t.split('|').map(|w| w.trim().to_lowercase()).filter(|w| !w.is_empty() && w != english).map(|w| (w, *kind)).collect::<Vec<_>>()
     }).collect();
+    // The church's own words (Settings → Sections).
+    out.extend(super::look::current().words());
     out.sort_by_key(|(w, _)| std::cmp::Reverse(w.chars().count()));
     out
 }
@@ -148,7 +163,7 @@ pub(crate) fn translated_head(lower: &str) -> Option<(SectionKind, &str)> {
 }
 
 /// The colour for a slide label, `None` for Other (for the stage and the phone).
-pub fn color_for_label(label: &str) -> Option<&'static str> {
+pub fn color_for_label(label: &str) -> Option<String> {
     let (kind, _) = SectionKind::from_label(label);
     (kind != SectionKind::Other).then(|| kind.color())
 }
@@ -329,7 +344,7 @@ msgstr "Tag"
     fn palette_is_distinct() {
         for (i, a) in SectionKind::ALL.iter().enumerate() {
             for b in &SectionKind::ALL[i + 1..] {
-                let d = delta_e2000(a.color(), b.color());
+                let d = delta_e2000(&a.color(), &b.color());
                 assert!(d >= 15.0, "{a:?}/{b:?} ΔE {d:.1}");
             }
         }
@@ -338,8 +353,8 @@ msgstr "Tag"
     #[test]
     fn section_colours_read_with_dark_ink_and_on_the_panel() {
         for k in SectionKind::ALL.iter().filter(|k| **k != SectionKind::Other) {
-            assert!(contrast(k.color(), "#0d0f13") >= 4.5, "{k:?} with sec-ink");
-            assert!(contrast(k.color(), "#15181e") >= 3.0, "{k:?} on the panel");
+            assert!(contrast(&k.color(), "#0d0f13") >= 4.5, "{k:?} with sec-ink");
+            assert!(contrast(&k.color(), "#15181e") >= 3.0, "{k:?} on the panel");
         }
     }
 }

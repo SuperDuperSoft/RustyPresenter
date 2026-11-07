@@ -151,7 +151,7 @@ fn settings_link_opens_the_report_at_once_without_changes() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Songs);
     settle();
-    click(&op, "SettingsSongs::usage-report");
+    click(&op, "SettingsSongsGeneral::usage-report");
     assert_eq!(asked(&op), None);
     assert_eq!(op.dialog(), Some(DialogKind::Usage));
 }
@@ -163,7 +163,7 @@ fn settings_edits_survive_opening_usage_report() {
     settings::open(&op, SettingsTab::Songs);
     settle();
     op.ui.global::<crate::ui::SettingsDlg>().set_ccli("998877".into());
-    click(&op, "SettingsSongs::usage-report");
+    click(&op, "SettingsSongsGeneral::usage-report");
     assert_eq!(asked(&op).as_deref(), Some(strings::save_first().as_str()));
     ask::answer(&op, true, String::new());
     settle();

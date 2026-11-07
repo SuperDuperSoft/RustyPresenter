@@ -46,7 +46,7 @@ pub struct OccurrenceView {
     pub label: String,
     pub short: String,
     pub kind: SectionKind,
-    pub color: &'static str,
+    pub color: String,
     pub first_slide: usize,
     pub slides: usize,
     /// The live slide is in this occurrence.

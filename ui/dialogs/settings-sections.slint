@@ -1,0 +1,210 @@
+// Settings → Songs → Sections and labels (N19): each kind of section's name, colour and key, extra section names,
+// and the slide labels. Set from `src/ui/dialogs/settings_sections.rs` through `SectionsDlg`.
+import { Theme } from "../theme.slint";
+import { Btn, Field } from "../widgets.slint";
+import { TextField, Select } from "form.slint";
+
+/// A kind of section: its colour, the name and key typed (empty = the usual, shown as the placeholder).
+export struct SectionKindRow { color: color, name: string, usual-name: string, key: string, usual-key: string }
+/// An added section name and the kind it counts as.
+export struct AddedSectionRow { name: string, family: string, color: color }
+/// A slide label and its colour.
+export struct SlideLabelRow { name: string, color: color }
+/// A row of the colour picker (one family).
+export struct ColorFamily { colors: [color], hexes: [string] }
+
+export global SectionsDlg {
+    in property <[SectionKindRow]> kinds;
+    in property <[AddedSectionRow]> added;
+    in property <[SlideLabelRow]> labels;
+    in property <[ColorFamily]> families;
+    /// The kinds' names, for the new section's family.
+    in property <[string]> family-names;
+    /// Whose colour the picker changes: a kind's row, 100 + a label's row, or -1 (closed).
+    in-out property <int> picking: -1;
+    in-out property <string> new-section;
+    in-out property <int> new-family;
+    in-out property <string> new-label;
+
+    callback name-edited(int, string);
+    callback key-edited(int, string);
+    /// The picker's colour for `picking`.
+    callback pick(string);
+    callback add-section();
+    callback remove-section(int);
+    callback add-label();
+    callback label-edited(int, string);
+    callback remove-label(int);
+    /// Back to the usual names, colours, keys and labels.
+    callback reset();
+}
+
+/// A colour button: clicked to choose a new colour.
+component Swatch inherits Rectangle {
+    in property <color> fill;
+    in property <bool> on;
+    callback clicked();
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: root.fill;
+    border-width: root.on ? 2px : 1px;
+    border-color: root.on ? Theme.accent : Theme.line;
+    accessible-role: button;
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+component Picker inherits VerticalLayout {
+    spacing: 6px;
+    padding: 10px;
+    for f in SectionsDlg.families: HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        for c[i] in f.colors: pick := Swatch {
+            fill: c;
+            accessible-label: f.hexes[i];
+            clicked => { SectionsDlg.pick(f.hexes[i]); }
+        }
+    }
+}
+
+export component SettingsSections inherits VerticalLayout {
+    spacing: 14px;
+    Field {
+        label: @tr("Sections");
+        help: @tr("Each kind of section has a colour and a key. Leave a box empty for the usual name or key.");
+        VerticalLayout {
+            spacing: 6px;
+            for k[i] in SectionsDlg.kinds: VerticalLayout {
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    kind-color := Swatch {
+                        fill: k.color;
+                        on: SectionsDlg.picking == i;
+                        accessible-label: @tr("Colour of {}", k.usual-name);
+                        clicked => { SectionsDlg.picking = SectionsDlg.picking == i ? -1 : i; }
+                    }
+                    kind-name := TextField {
+                        horizontal-stretch: 1;
+                        text: k.name;
+                        placeholder: k.usual-name;
+                        label: @tr("Name of {}", k.usual-name);
+                        edited(t) => { SectionsDlg.name-edited(i, t); }
+                    }
+                    kind-key := TextField {
+                        width: 64px;
+                        text: k.key;
+                        placeholder: k.usual-key;
+                        label: @tr("Key for {}", k.usual-name);
+                        edited(t) => { SectionsDlg.key-edited(i, t); }
+                    }
+                }
+                if SectionsDlg.picking == i: Picker {}
+            }
+        }
+    }
+    Field {
+        label: @tr("More section names");
+        help: @tr("A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose.");
+        VerticalLayout {
+            spacing: 6px;
+            for a[i] in SectionsDlg.added: HorizontalLayout {
+                spacing: 8px;
+                Rectangle {
+                    width: 14px;
+                    height: 14px;
+                    y: (parent.height - self.height) / 2;
+                    border-radius: 4px;
+                    background: a.color;
+                }
+                Text {
+                    horizontal-stretch: 1;
+                    text: a.name + " — " + a.family;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                remove-section := Btn {
+                    small: true;
+                    text: @tr("Remove");
+                    clicked => { SectionsDlg.remove-section(i); }
+                }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                new-section := TextField {
+                    horizontal-stretch: 1;
+                    text <=> SectionsDlg.new-section;
+                    placeholder: @tr("New section name");
+                    accepted => { SectionsDlg.add-section(); }
+                }
+                new-family := Select {
+                    width: 160px;
+                    options: SectionsDlg.family-names;
+                    index <=> SectionsDlg.new-family;
+                }
+                add-section := Btn {
+                    text: @tr("Add");
+                    clicked => { SectionsDlg.add-section(); }
+                }
+            }
+        }
+    }
+    Field {
+        label: @tr("Slide labels");
+        help: @tr("In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail.");
+        VerticalLayout {
+            spacing: 6px;
+            for l[i] in SectionsDlg.labels: VerticalLayout {
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    label-color := Swatch {
+                        fill: l.color;
+                        on: SectionsDlg.picking == 100 + i;
+                        accessible-label: @tr("Colour of {}", l.name);
+                        clicked => { SectionsDlg.picking = SectionsDlg.picking == 100 + i ? -1 : 100 + i; }
+                    }
+                    label-name := TextField {
+                        horizontal-stretch: 1;
+                        text: l.name;
+                        label: @tr("Slide label");
+                        edited(t) => { SectionsDlg.label-edited(i, t); }
+                    }
+                    remove-label := Btn {
+                        small: true;
+                        text: @tr("Remove");
+                        clicked => { SectionsDlg.remove-label(i); }
+                    }
+                }
+                if SectionsDlg.picking == 100 + i: Picker {}
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                new-label := TextField {
+                    horizontal-stretch: 1;
+                    text <=> SectionsDlg.new-label;
+                    placeholder: @tr("New label, like “Choir only”");
+                    accepted => { SectionsDlg.add-label(); }
+                }
+                add-label := Btn {
+                    text: @tr("Add label");
+                    clicked => { SectionsDlg.add-label(); }
+                }
+            }
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+        reset-look := Btn {
+            small: true;
+            text: @tr("Use the usual names, colours and labels");
+            clicked => { SectionsDlg.reset(); }
+        }
+    }
+}

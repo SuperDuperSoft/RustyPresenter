@@ -411,7 +411,7 @@ impl Draft {
         let arrangement = if self.replayed { self.order.clone() } else { vec![] };
         let writers = if self.writers.is_empty() { &self.artists } else { &self.writers };
         let song = Song { id: Uuid::new_v4(), title: title.clone(), writers: writers.join(" | "), ccli: self.ccli.clone(),
-            copyright: self.copyright.trim().to_string(), lyrics, arrangement };
+            copyright: self.copyright.trim().to_string(), lyrics, arrangement, ..Default::default() };
         (title, Ok(song))
     }
 }

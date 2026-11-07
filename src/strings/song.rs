@@ -12,6 +12,22 @@ pub fn ending() -> String { tr!("Ending") }
 pub fn interlude() -> String { tr!("Interlude") }
 pub fn other() -> String { tr!("Other") }
 
+// Slide labels (N19): shown on a slide's thumbnail.
+pub fn label_blank() -> String { tr!("Blank") }
+pub fn label_instrumental() -> String { tr!("Instrumental") }
+pub fn label_repeat() -> String { tr!("Repeat") }
+pub fn label_spoken() -> String { tr!("Spoken Word") }
+/// The song editor's label list, before a label is chosen.
+pub fn label_this_slide() -> String { tr!("Label this slide…") }
+
+/// Settings → Songs, under the copyright line.
+pub fn credit_example(line: &str) -> String { tr!("Example: {line}", line = line) }
+
+/// Settings → Sections, on Save.
+pub fn bad_color(c: &str) -> String { tr!("“{color}” is not a colour. Use #rrggbb, like #6aa8ff.", color = c) }
+pub fn bad_key(k: &str) -> String { tr!("“{key}” is not a letter. Section keys are one letter each.", key = k) }
+pub fn key_taken(key: char, a: &str, b: &str) -> String { tr!("{first} and {second} both use the key {key}.", first = a, second = b, key = key) }
+
 pub fn nothing_live() -> String { tr!("Nothing is live yet.") }
 pub fn keys_songs_only() -> String { tr!("Section keys work on songs.") }
 pub fn song_changed() -> String { tr!("The song changed — try again.") }

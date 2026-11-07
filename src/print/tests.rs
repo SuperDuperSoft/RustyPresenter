@@ -11,7 +11,7 @@ const LYRICS: &str = "Verse 1\nAmazing grace\nHow sweet the sound\n\nChorus\nMy 
 fn sample() -> (Data, Service) {
     let mut d = Data::default();
     let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: "John Newton".into(), ccli: "4768151".into(),
-        copyright: "Public Domain".into(), lyrics: LYRICS.into(), arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into(), "Chorus".into()] };
+        copyright: "Public Domain".into(), lyrics: LYRICS.into(), arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into(), "Chorus".into()], ..Default::default() };
     let media = MediaFile { id: Uuid::new_v4(), name: "Walk-in".into(), kind: MediaKind::Video, asset: "a.mp4".into(), status: MediaStatus::Ready,
         original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
     let deck = Deck { id: Uuid::new_v4(), title: "Sermon".into(), slides: vec!["1.png".into(), "2.png".into()] };

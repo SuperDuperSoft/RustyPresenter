@@ -71,7 +71,7 @@ fn save_settings_round_trips_theme_and_lines() {
     f.set_uppercase(true);
     f.invoke_look_changed();
     f.set_lines(3);
-    f.set_credits(2);
+    f.set_credits_on(false);
     f.set_ccli("12345".into());
     assert!(f.get_room_on_top(), "on by default");
     f.set_room_on_top(false);
@@ -92,7 +92,7 @@ fn save_settings_round_trips_theme_and_lines() {
     // Opening again shows what was saved.
     refresh(&op);
     open(&op, SettingsTab::Songs);
-    assert_eq!((g(&op).get_lines(), g(&op).get_credits(), g(&op).get_ccli().to_string()), (3, 2, "12345".to_string()));
+    assert_eq!((g(&op).get_lines(), g(&op).get_credits_on(), g(&op).get_ccli().to_string()), (3, false, "12345".to_string()));
     assert_eq!(g(&op).get_font_index(), 4);
 }
 

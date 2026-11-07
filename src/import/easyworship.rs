@@ -403,7 +403,7 @@ pub fn to_song(row: &EwSong) -> Result<Song, String> {
         copyright.push_str(&format!("Administered by {admin}"));
     }
     Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers: split_writers(&row.author), ccli: ccli_number(&row.reference_number, row.vendor_id),
-        copyright, lyrics, arrangement })
+        copyright, lyrics, arrangement, ..Default::default() })
 }
 
 fn display_title(row: &EwSong) -> String {

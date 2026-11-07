@@ -44,6 +44,30 @@ pub fn section(slide: &Slide) -> &'static str {
     slide.section.as_ref().filter(|r| r.kind != SectionKind::Other).map_or("", |r| r.kind.id())
 }
 
+/// Settings → Sections' colours into `Theme` (the captions, the section bar and the order chips).
+pub fn apply_section_colors(t: &crate::ui::Theme) {
+    let c = |k: SectionKind| crate::ui::dialogs::services::parse_color(&k.color()).unwrap_or_default();
+    let now = [t.get_sec_verse(), t.get_sec_chorus(), t.get_sec_pre(), t.get_sec_bridge(), t.get_sec_end(), t.get_sec_tag(), t.get_sec_intro(), t.get_sec_interlude()];
+    let want = [c(SectionKind::Verse), c(SectionKind::Chorus), c(SectionKind::PreChorus), c(SectionKind::Bridge), c(SectionKind::Ending), c(SectionKind::Tag),
+        c(SectionKind::Intro), c(SectionKind::Interlude)];
+    if now == want { return }
+    let [verse, chorus, pre, bridge, end, tag, intro, interlude] = want;
+    t.set_sec_verse(verse);
+    t.set_sec_chorus(chorus);
+    t.set_sec_pre(pre);
+    t.set_sec_bridge(bridge);
+    t.set_sec_end(end);
+    t.set_sec_tag(tag);
+    t.set_sec_intro(intro);
+    t.set_sec_interlude(interlude);
+}
+
+/// A slide label's colour on its thumbnail (N19): as Settings → Sections lists it, grey for a label not there.
+pub fn tag_color(look: &crate::sections::SectionLook, name: &str) -> slint::Color {
+    let hex = look.label_color(name).unwrap_or_else(|| "#8d95a8".into());
+    crate::ui::dialogs::services::parse_color(&hex).unwrap_or_default()
+}
+
 /// One chip of the section bar, as a click needs it.
 #[derive(Clone, Debug, PartialEq)]
 pub struct BarChip { pub first_slide: usize, pub occurrence: u16, pub kind: SectionKind }
@@ -219,6 +243,8 @@ impl Operator {
             play: matches!(slide.content, SlideContent::Video { .. } | SlideContent::Audio { .. }),
             // Only songs are coloured: a passage or slide set has no sections.
             section: section(slide).into(),
+            tag: slide.tag.as_deref().unwrap_or("").into(),
+            tag_color: slide.tag.as_deref().map_or_else(slint::Color::default, |t| tag_color(&k.settings.sections, t)),
         }
     }
 

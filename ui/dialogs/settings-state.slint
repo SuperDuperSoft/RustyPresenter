@@ -71,8 +71,15 @@ export global SettingsDlg {
     // ---- Songs ----
     /// Lines per slide minus one (0–5).
     in-out property <int> lines;
-    /// 0 On first slide, 1 On last slide, 2 Off.
+    /// 0 General, 1 Sections and labels (N19).
+    in-out property <int> songs-page;
+    /// Credits shown at all; where: 0 first and last slide, 1 first slide, 2 last slide (N36).
+    in-out property <bool> credits-on: true;
     in-out property <int> credits;
+    /// The copyright line's template (empty = the usual one, shown as its placeholder) and an example of it.
+    in-out property <string> credit-template;
+    in property <string> credit-usual;
+    in property <string> credit-sample;
     in-out property <string> ccli;
 
     // ---- Bible ----
@@ -168,6 +175,8 @@ export global SettingsDlg {
     callback show-licences(bool);
     callback cancel();
     callback save();
+    /// The copyright line was typed into: the example follows.
+    callback credit-template-edited();
     /// Settings → Songs' "Song use report…" (FEAT-7 §3.3).
     callback usage-report();
 }

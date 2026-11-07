@@ -97,7 +97,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
         .and_then(|v| lyrics_from_verses(v, &field("presentation").replace(',', " ")))
         .map(|(lyrics, arrangement)| Song {
             id: Uuid::new_v4(), title: title.clone(), writers: split_writers(&field("author")), ccli: ccli_number(&field("ccli")),
-            copyright: field("copyright"), lyrics, arrangement,
+            copyright: field("copyright"), lyrics, arrangement, ..Default::default()
         });
     (title, song)
 }

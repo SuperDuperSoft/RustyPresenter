@@ -40,7 +40,7 @@ pub fn import_txt(text: &str) -> Result<Song, String> {
     }
     let lyrics = lines[first_section..lyrics_end].join("\n").trim().to_string();
     if lyrics.is_empty() { return Err(crate::tr!("No lyrics were found in this file.")); }
-    Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![] })
+    Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![], ..Default::default() })
 }
 
 #[cfg(test)]

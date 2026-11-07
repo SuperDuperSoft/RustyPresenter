@@ -6,6 +6,7 @@ pub mod strings;
 pub mod arrangement;
 mod jump;
 mod kind;
+pub mod look;
 mod map;
 mod occurrences;
 mod reconcile;
@@ -13,6 +14,7 @@ pub(crate) mod refs;
 
 pub use jump::{JumpError, JumpTarget, jump_for_key, jump_target, jump_toast};
 pub use kind::{SectionKind, color_for_label};
+pub use look::{SectionLook, label_line};
 pub(crate) use kind::translated_head;
 #[cfg(test)]
 pub(crate) fn kind_tests_es() -> &'static str { kind::tests::ES }
