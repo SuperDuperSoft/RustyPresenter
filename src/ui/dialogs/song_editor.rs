@@ -207,7 +207,9 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     let generation = ctx.generation.get() + 1;
     ctx.generation.set(generation);
     ctx.thumbs.cancel_pending();
-    ctx.previews.set_vec(slides.iter().map(|s| PreviewSlide { image: Image::default(), label: s.label.as_str().into() }).collect::<Vec<_>>());
+    // A slide's label (N19) shows after its section: "Verse 1 · Instrumental".
+    let caption = |s: &crate::model::Slide| match &s.tag { Some(t) => format!("{} · {t}", s.label), None => s.label.clone() };
+    ctx.previews.set_vec(slides.iter().map(|s| PreviewSlide { image: Image::default(), label: caption(s).into() }).collect::<Vec<_>>());
     let size = thumb_size(PREVIEW_W, op.window().scale_factor());
     let media = op.state.borrow().snap.as_ref().map(|s| s.data.media.clone()).unwrap_or_default();
     for (i, slide) in slides.iter().enumerate() {
@@ -548,6 +550,7 @@ mod tests {
         assert_eq!(labels(&op), ["Verse 1", "Verse 1"], "two slides, with no wait");
         st(&op).invoke_label_slide(caret, 1);
         assert_eq!(st(&op).get_lyrics(), "Verse 1\na\n\n{Instrumental}\nb");
+        assert_eq!(labels(&op), ["Verse 1", "Verse 1 · Instrumental"], "the preview names the label");
         assert!(find(&op, "SongEditor::slide-break").is_some());
     }
 
