@@ -1,0 +1,24 @@
+// What the slides column and the Bible box add for N6 (Bible extras) and N29 (a slide for the stage only). Rust
+// (`src/ui/operator/bible_extras.rs`, `src/ui/operator/stage_only.rs`) fills it and answers the callbacks.
+
+export global PanelExtras {
+    // ---- N29: the stage screen only ----
+    /// Clicking a slide sends it to the stage screen only (the room keeps what it shows).
+    in property <bool> stage-mode;
+    /// The label of the slide on the stage only, or "" when none is up.
+    in property <string> stage-only;
+    callback toggle-stage-mode();
+    callback stage-down();
+
+    // ---- N6: the Bible box and the selected passage ----
+    /// The Bible box's last references, newest first.
+    in property <[string]> history;
+    callback history-pick(string);
+    /// A Bible passage is selected: Prev and Next verse and Save to song library show.
+    in property <bool> passage;
+    callback prev-verse();
+    callback next-verse();
+    callback save-passage();
+    /// What a Bible is, where it comes from and its licence.
+    callback bible-info(string);
+}

@@ -3,6 +3,7 @@
 // own pop-up; the rows come from Rust (`ui::operator::bible::picker_rows`).
 import { Theme, OperatorState } from "theme.slint";
 import { Icon, ScrollBox } from "widgets.slint";
+import { PanelExtras } from "operator/extras.slint";
 
 /// One Bible in the Bible box: a chip, or a picker row. `name` is what the chip says ("RV1909 · spa"),
 /// `full-name` the title. `on` is the chosen one, `off` is not connected yet. A picker row with a `heading` is only
@@ -22,6 +23,8 @@ export component BiblePickerList inherits Rectangle {
     callback toggle-favourite(string);
     /// "Find more Bibles…" with the search.
     callback find-more(string);
+    /// N6: the ⓘ on a row: what that Bible is and its licence. The owner closes the pop-up.
+    callback info(string);
     Rectangle {
         background: Theme.panel;
         border-color: Theme.line;
@@ -145,6 +148,40 @@ export component BiblePickerList inherits Rectangle {
                                     font-size: 11.5px;
                                     overflow: elide;
                                     vertical-alignment: center;
+                                }
+                                // N6: what this Bible is, where it comes from and its licence.
+                                info := Rectangle {
+                                    width: 22px;
+                                    accessible-role: button;
+                                    accessible-label: @tr("About {}", row.name);
+                                    accessible-action-default => { root.info(row.id); }
+                                    Rectangle {
+                                        width: 15px;
+                                        height: 15px;
+                                        border-radius: 7.5px;
+                                        border-width: 1.3px;
+                                        border-color: row.on ? Theme.accent-ink : info-ta.has-hover ? Theme.accent : Theme.faint;
+                                        // The "i", drawn: a dot over a short bar.
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 3.4px;
+                                            width: 1.8px;
+                                            height: 1.8px;
+                                            border-radius: 0.9px;
+                                            background: parent.border-color;
+                                        }
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 6.2px;
+                                            width: 1.6px;
+                                            height: 5px;
+                                            background: parent.border-color;
+                                        }
+                                    }
+                                    info-ta := TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { root.info(row.id); }
+                                    }
                                 }
                                 // The star: favourites come first as chips.
                                 star := Rectangle {
@@ -276,6 +313,10 @@ export component BiblePickButton inherits Rectangle {
             find-more(q) => {
                 popup.close();
                 root.find-more(q);
+            }
+            info(id) => {
+                popup.close();
+                PanelExtras.bible-info(id);
             }
         }
     }

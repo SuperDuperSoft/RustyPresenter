@@ -100,7 +100,17 @@ pub struct LiveView {
     /// Lines drawn on the live slide from phones (`live::drawing`). Screens only.
     #[serde(skip)]
     pub drawing: Arc<crate::live::drawing::Drawing>,
+    /// N29: a slide shown on the stage screen only (the room keeps what it shows). Never in the JSON.
+    #[serde(skip)]
+    pub stage_only: Option<StageOnly>,
+    /// N9: Settings' look fade, in ms (the room fades this long when only the theme changes).
+    #[serde(skip)]
+    pub look_fade_ms: u32,
 }
+
+/// N29: the slide on the stage screen only, and where it came from (the operator marks its thumbnail).
+#[derive(Clone, Debug, PartialEq)]
+pub struct StageOnly { pub item_id: Uuid, pub index: usize, pub slide: Slide }
 
 #[derive(Serialize, Clone, Debug)]
 pub struct LiveItemSummary {
@@ -223,6 +233,8 @@ pub struct App {
     pub stage_conns: AtomicUsize,
     /// See `LiveView::stage_message`. Gone when the app closes.
     stage_message: Mutex<String>,
+    /// See `LiveView::stage_only`. Gone when the app closes.
+    stage_only: Mutex<Option<StageOnly>>,
     pub remote_conns: AtomicUsize,
     state_writer: Mutex<Option<StateWriter>>,
     /// Numbers saved states, newest highest.
@@ -297,7 +309,7 @@ impl App {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
-            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
+            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
@@ -387,6 +399,8 @@ impl App {
             clear_epoch: live.clear_epoch,
             stage_message: self.stage_message.lock().unwrap().clone(),
             drawing: live.drawing.clone(),
+            stage_only: self.stage_only.lock().unwrap().clone(),
+            look_fade_ms: data.settings.look_fade_ms,
         }
     }
 
@@ -474,6 +488,14 @@ impl App {
     pub fn command(&self, env: Envelope) -> Outcome {
         // Macros need timers and data as well as the engine (FEAT-2).
         if matches!(env.cmd, Command::RunMacro { .. }) { return self.run_macro(&env).0 }
+        // N29: the stage-only slide is the App's, like the stage message; the room never sees it.
+        if let Command::StageOnly { item_id, slide } = env.cmd {
+            let version = self.live.lock().unwrap().version;
+            return match self.set_stage_only(item_id, slide) {
+                Ok(()) => Outcome { ok: true, version, error: None, duplicate: false },
+                Err(e) => Outcome { ok: false, version, error: Some(e), duplicate: false },
+            };
+        }
         let out = {
             let data = self.data.lock().unwrap();
             let mut live = self.live.lock().unwrap();
@@ -526,6 +548,25 @@ impl App {
     pub(crate) fn set_stage_message(&self, text: &str) {
         *self.stage_message.lock().unwrap() = text.to_string();
         self.broadcast_live();
+    }
+
+    /// N29: the stage-only slide, without building a whole live view.
+    pub fn live_view_stage_only(&self) -> Option<StageOnly> { self.stage_only.lock().unwrap().clone() }
+
+    /// N29: shows slide `index` of service item `item_id` on the stage screen only; `None` takes it down.
+    pub(crate) fn set_stage_only(&self, item_id: Option<Uuid>, index: usize) -> Result<(), String> {
+        let shown = match item_id {
+            None => None,
+            Some(id) => {
+                let data = self.data.lock().unwrap();
+                let item = DataPlan(&data).build(id).ok_or_else(|| tr!("That item isn't in the service any more."))?;
+                let slide = item.slides.get(index).cloned().ok_or_else(|| tr!("That slide isn't there any more."))?;
+                Some(StageOnly { item_id: id, index, slide })
+            }
+        };
+        *self.stage_only.lock().unwrap() = shown;
+        self.broadcast_live();
+        Ok(())
     }
 
     pub fn set_notice(&self, text: &str) {
@@ -1288,6 +1329,8 @@ impl App {
                 s.graphics = d.settings.graphics;
                 s.print = std::mem::take(&mut d.settings.print);
                 s.recent_files = std::mem::take(&mut d.settings.recent_files);
+                s.bible_history = std::mem::take(&mut d.settings.bible_history);
+                s.look_fade_ms = s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS);
                 d.settings = s;
                 Ok(())
             }));
@@ -1347,6 +1390,13 @@ impl App {
             Ok(json!({}))
         }
         // The picker's star. A Bible no longer installed can still be unstarred.
+        // N6: a reference added from the Bible box goes first in its history. Not a step for Undo.
+        "settings/bible-history" => {
+            #[derive(Deserialize)] struct H { reference: String }
+            let H { reference } = parse(body)?;
+            tryr!(app.edit_untracked(|d| { d.settings.used_reference(&reference); Ok(()) }));
+            Ok(json!({}))
+        }
         "settings/favourite" => {
             #[derive(Deserialize)] struct F { translation: String, on: bool }
             let F { translation, on } = parse(body)?;
@@ -2115,6 +2165,44 @@ mod tests {
         assert_eq!(app.live_view().stage_message, "Wrap up, please");
         let Ok(Update::Live(u)) = rx.try_recv() else { panic!("no live update") };
         assert_eq!(u.stage_message, "Wrap up, please");
+    }
+
+    #[test]
+    fn stage_only_slide_reaches_the_stage_and_never_the_room() {
+        let app = test_app();
+        let id = Uuid::new_v4();
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me\n\nOne more time".into() }, background: None, notes: String::new(), theme: None });
+        let before = app.live_view();
+        let cmd = |v: Value| app.command(serde_json::from_value(v).unwrap());
+        let out = cmd(json!({ "id": "a", "cmd": "stage_only", "item_id": id, "slide": 1 }));
+        assert!(out.ok, "{out:?}");
+        let v = app.live_view();
+        let only = v.stage_only.clone().expect("on the stage");
+        assert_eq!((only.item_id, only.index, only.slide.label.is_empty()), (id, 1, false));
+        assert_eq!((v.version, v.frame.slide.is_none()), (before.version, true), "the room's frame is untouched");
+        assert!(serde_json::to_string(&v).unwrap().find("One more time").is_none(), "never in the JSON");
+        let gone = cmd(json!({ "id": "b", "cmd": "stage_only", "item_id": Uuid::new_v4(), "slide": 0 }));
+        assert!(!gone.ok && app.live_view().stage_only.is_some(), "an unknown item changes nothing");
+        assert!(cmd(json!({ "id": "c", "cmd": "stage_only" })).ok);
+        assert!(app.live_view().stage_only.is_none(), "no item takes it down");
+    }
+
+    #[test]
+    fn a_stage_only_slide_and_a_phone_drawing_are_on_the_stage_together() {
+        use crate::live::drawing::{DrawCmd, Pen, PALETTE};
+        let app = test_app();
+        let id = Uuid::new_v4();
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me".into() }, background: None, notes: String::new(), theme: None });
+        let phone = Uuid::new_v4();
+        app.phones.lock().unwrap().push(Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
+        app.draw(phone, &DrawCmd::Start { stroke: 1, color: PALETTE[1].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.1, 0.5], [0.9, 0.5]], ink: Default::default() }).unwrap();
+        assert!(app.command(serde_json::from_value(json!({ "id": "a", "cmd": "stage_only", "item_id": id, "slide": 0 })).unwrap()).ok);
+        let v = app.live_view();
+        assert!(v.stage_only.is_some() && !v.drawing.is_empty(), "the stage-only slide does not take the drawing down");
+        let (mut canvas, mut slide, renderer) = (crate::render::drawing::DrawingCanvas::new(), None, crate::ui::thumbs::TextRenderer::new());
+        assert!(crate::ui::stage::drawing_panel(&app, &mut canvas, &mut slide, &renderer).is_some(), "the corner panel still shows the drawing");
+        assert!(app.command(serde_json::from_value(json!({ "id": "b", "cmd": "stage_only" })).unwrap()).ok);
+        assert!(!app.live_view().drawing.is_empty(), "taking it down leaves the drawing too");
     }
 
     #[tokio::test]

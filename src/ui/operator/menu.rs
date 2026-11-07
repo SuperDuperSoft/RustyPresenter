@@ -42,6 +42,8 @@ pub enum MenuAction {
     Listen,
     /// View → Show slides as (N37).
     SlideView(super::slides::SlideView),
+    /// Edit → About this Bible… (N6): the chosen Bible's licence and where it comes from.
+    BibleInfo,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -83,6 +85,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-grid" => MenuAction::SlideView(super::slides::SlideView::Grid),
         "slides-easy" => MenuAction::SlideView(super::slides::SlideView::Easy),
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
+        "bible-info" => MenuAction::BibleInfo,
         _ => return None,
     })
 }
@@ -115,6 +118,10 @@ impl Operator {
             Some(MenuAction::CleanUpMedia) => crate::ui::dialogs::settings_media::clean_up(self),
             Some(MenuAction::Listen) => self.listen(),
             Some(MenuAction::SlideView(view)) => self.set_slide_view(view, None),
+            Some(MenuAction::BibleInfo) => {
+                let chosen = self.state.borrow().snap.as_ref().map(|s| s.translation.clone());
+                if let Some(id) = chosen { super::bible_extras::info(self, &id) }
+            }
             None => {}
         }
     }

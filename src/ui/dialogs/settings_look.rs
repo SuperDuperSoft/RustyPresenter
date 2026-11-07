@@ -56,6 +56,7 @@ pub(super) fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_position(i32::from(s.theme.position == "lower"));
     g.set_shadow(s.theme.shadow);
     g.set_uppercase(s.theme.uppercase);
+    g.set_look_fade((s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS) / 100) as i32);
     g.set_has_logo(s.logo.is_some());
     g.set_logo(Image::default());
     g.set_preview(Image::default());
@@ -73,6 +74,7 @@ pub(super) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.theme.position = if g.get_position() == 1 { "lower" } else { "center" }.into();
     s.theme.shadow = g.get_shadow();
     s.theme.uppercase = g.get_uppercase();
+    s.look_fade_ms = g.get_look_fade().clamp(0, 50) as u32 * 100;
 }
 
 pub(super) fn is_hex_color(c: &str) -> bool {

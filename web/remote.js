@@ -112,6 +112,9 @@ function render() {
   $('nowLabel').textContent = V.current && (air.slide || air.media) ? V.current.label : '';
   renderSections();
   renderAuto();
+  // N29: a slide on the stage screen only.
+  $('stage').classList.toggle('on', !!V.stage_only);
+  $('stageText').textContent = V.stage_only ? V.stage_only.text : '';
   $('nextText').textContent = V.next ? V.next.text : t('End of service');
   $('nextLabel').textContent = V.next ? `${V.next.title} · ${V.next.label}` : '';
   $('logoBtn').classList.toggle('on', air.logo);
@@ -197,9 +200,15 @@ function openSheet(it) {
     b.innerHTML = '<small></small>';
     b.querySelector('small').textContent = s.label;
     b.append(s.text);
-    b.onclick = () => { closeSheet(); post({ id: rid(), base: V.version, cmd: 'show', item_id: it.id, slide: idx }); };
+    b.onclick = () => {
+      closeSheet();
+      // N29: with "Stage screen only" ticked, only the band sees it.
+      if ($('sheetOnly').checked) post({ id: rid(), cmd: 'stage_only', item_id: it.id, slide: idx });
+      else post({ id: rid(), base: V.version, cmd: 'show', item_id: it.id, slide: idx });
+    };
     return b;
   }));
+  $('sheetOnly').checked = false;
   $('sheet').classList.add('on');
 }
 function closeSheet() { $('sheet').classList.remove('on'); }
@@ -210,6 +219,7 @@ $('prev').onclick = () => send('prev', {}, true);
 document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(b.dataset.c));
 $('drawBtn').onclick = () => openDraw(V);
 initDraw({ t, toast, relogin: start });
+$('stageOff').onclick = () => send('stage_only');
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });
 
 loadWords().then(() => pairFromLink()).catch(() => false).then(shown => { if (!shown) start(); });

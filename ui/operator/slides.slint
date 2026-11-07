@@ -3,6 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox, TipBox, Segmented } from "../widgets.slint";
 import { RangeSlider } from "../dialogs/form.slint";
+import { PanelExtras } from "extras.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
@@ -612,6 +613,90 @@ export component SlidesPanel inherits VerticalLayout {
             icon: "edit";
             text: @tr("Edit");
             clicked => { root.edit(); }
+        }
+    }
+
+    // N6 and N29: tools for the selected item's slides, on their own row so the title keeps its room.
+    if root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        spacing: 8px;
+        // N6: the verse before or after this passage, and keeping it in the song library.
+        if PanelExtras.passage: HorizontalLayout {
+            spacing: 4px;
+            prev-verse := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                text: @tr("‹ Verse");
+                tooltip: @tr("Add the verse before this passage");
+                clicked => { PanelExtras.prev-verse(); }
+            }
+            next-verse := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                text: @tr("Verse ›");
+                tooltip: @tr("Add the verse after this passage");
+                clicked => { PanelExtras.next-verse(); }
+            }
+            save-passage := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "download";
+                text: @tr("Save to library");
+                tooltip: @tr("Keep this passage in the song library, to edit it or use it again");
+                clicked => { PanelExtras.save-passage(); }
+            }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        // N29: while on, a click on a slide puts it on the stage screen only.
+        stage-mode := Btn {
+            horizontal-stretch: 0;
+            small: true;
+            primary: PanelExtras.stage-mode;
+            icon: "monitor";
+            text: @tr("Stage only");
+            tooltip: PanelExtras.stage-mode ? @tr("The next slide you click goes to the stage screen only. Click again to cancel.") : @tr("Send the next slide you click to the stage screen only, as a note for the band");
+            clicked => { PanelExtras.toggle-stage-mode(); }
+        }
+    }
+
+    // N29: what is on the stage screen only, and how to take it down.
+    if PanelExtras.stage-mode || PanelExtras.stage-only != "": HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        stage-bar := Rectangle {
+            border-radius: 8px;
+            background: Theme.raise;
+            border-width: 1px;
+            border-color: #ff9f6b;
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 6px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                spacing: 10px;
+                stage-bar-text := Text {
+                    horizontal-stretch: 1;
+                    text: PanelExtras.stage-only != ""
+                        ? @tr("On the stage screen only: {}", PanelExtras.stage-only)
+                        : @tr("Click a slide to show it on the stage screen only. The room won't see it.");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if PanelExtras.stage-only != "": stage-down := Btn {
+                    horizontal-stretch: 0;
+                    small: true;
+                    text: @tr("Take it down");
+                    clicked => { PanelExtras.stage-down(); }
+                }
+            }
         }
     }
 

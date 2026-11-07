@@ -105,6 +105,14 @@ impl Kjv {
         self.verses.range((book, chapter, 0)..=(book, chapter, u16::MAX)).next_back().map(|(k, _)| k.2)
     }
 
+    /// The verse just before (`forward` false) or after `id`, across chapters and books (N6's Prev/Next verse).
+    pub fn neighbour(&self, id: crate::scripture::VerseId, forward: bool) -> Option<crate::scripture::VerseId> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        let key = (id.book(), id.chapter(), id.verse());
+        let near = if forward { self.verses.range((Excluded(key), Unbounded)).next() } else { self.verses.range(..key).next_back() };
+        near.map(|(k, _)| crate::scripture::VerseId(k.0, k.1, k.2))
+    }
+
     pub fn lookup(&self, input: &str) -> Result<(String, Vec<VerseText>), String> {
         let r = parse_reference(input)?;
         let display = display_name(r.book);
@@ -280,6 +288,19 @@ pub fn canonical(r: &Reference, display: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn neighbour_steps_across_chapters_and_stops_at_the_ends() {
+        use crate::scripture::VerseId;
+        let k = Kjv::parse(SAMPLE);
+        let john = find_book("John").unwrap();
+        assert_eq!(k.neighbour(VerseId(john, 3, 16), true), Some(VerseId(john, 3, 17)));
+        assert_eq!(k.neighbour(VerseId(john, 1, 51), true), Some(VerseId(john, 2, 1)), "into the next chapter");
+        assert_eq!(k.neighbour(VerseId(john, 2, 1), false), Some(VerseId(john, 1, 51)), "back into the last one");
+        assert_eq!(k.neighbour(VerseId(0, 1, 1), false), None, "nothing before Genesis 1:1");
+        let rev = find_book("Revelation").unwrap();
+        assert_eq!(kjv().neighbour(VerseId(rev, 22, 21), true), None, "nothing after the last verse");
+    }
 
     const SAMPLE: &str = "GEN 1:1 In the beginning God created the heaven and the earth.\n\
 JOH 3:15 That whosoever believeth in him should not perish, but have eternal life.\n\

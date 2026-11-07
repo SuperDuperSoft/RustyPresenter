@@ -119,6 +119,16 @@ export component SettingsLook inherits HorizontalLayout {
             checked <=> SettingsDlg.uppercase;
             toggled => { SettingsDlg.look-changed(); }
         }
+        // N9: a theme change on screen fades for this long instead of cutting.
+        Field {
+            label: @tr("Fade when the theme changes");
+            help: SettingsDlg.look-fade == 0 ? @tr("(no fade)") : @tr("({} s)", SettingsDlg.look-fade / 10);
+            look-fade := RangeSlider {
+                minimum: 0;
+                maximum: 50;
+                value <=> SettingsDlg.look-fade;
+            }
+        }
         Field {
             label: @tr("Logo");
             HorizontalLayout {

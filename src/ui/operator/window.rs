@@ -146,6 +146,8 @@ impl Operator {
         media_bin::wire(&op);
         keys::wire(&op);
         bible::wire(&op);
+        super::bible_extras::wire(&op);
+        super::stage_only::wire(&op);
         overlays::wire(&op);
         super::overlay_strip::wire(&op);
         super::list_filter::wire(&op);
@@ -249,6 +251,7 @@ impl Operator {
         self.mark_slides();
         self.mark_media();
         self.render_live();
+        super::stage_only::render(self);
         super::automation::render(self);
     }
 

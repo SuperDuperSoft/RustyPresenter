@@ -122,3 +122,8 @@ pub fn new_folder() -> String { tr!("Name for the new folder") }
 pub fn delete_folder(name: &str) -> String { tr!("Delete the folder “{name}”? Its files stay in the library.", name = name) }
 pub fn delete_folder_button() -> String { tr!("Delete folder") }
 pub fn cancel_action() -> String { tr!("Cancel") }
+
+/// N29: what the stage-only bar names when a slide has no label of its own.
+pub fn stage_only_slide(n: usize) -> String { tr!("slide {n}", n = n) }
+/// N29: the stage-only slide went up.
+pub fn on_stage_only() -> String { tr!("On the stage screen only. The room didn't change.") }

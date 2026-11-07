@@ -54,6 +54,8 @@ export global SettingsDlg {
     in-out property <int> position;
     in-out property <bool> shadow;
     in-out property <bool> uppercase;
+    /// N9: how long the room fades when only the theme changes, in tenths of a second (0 = cut).
+    in-out property <int> look-fade: 10;
     /// C, B, 1–9… jump the live song (`Settings::section_keys`).
     in-out property <bool> section-keys: true;
     // ---- Video ----

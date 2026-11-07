@@ -201,6 +201,9 @@ pub enum Command {
     RunMacro { #[serde(rename = "macro")] macro_id: Uuid, #[serde(default)] seen_clear: Option<u64> },
     /// N18: take these layers down at once (a clear group, or F7 / F8), as one change.
     ClearLayers { layers: Vec<ClearLayer> },
+    /// N29: show slide `slide` of `item_id` on the stage screen only; no `item_id` takes it down. The App keeps it
+    /// (`App::set_stage_only`); the room never changes.
+    StageOnly { #[serde(default)] item_id: Option<Uuid>, #[serde(default)] slide: usize },
 }
 
 /// One layer a clear key or clear group takes down (N18). `Overlays` is the saved ones only (pictures, clocks,
@@ -616,6 +619,8 @@ impl Live {
             // The App runs macros before the engine sees them (`App::command`).
             Command::RunMacro { .. } => Err(crate::automation::strings::macro_needs_app()),
             Command::ClearLayers { layers } => { self.clear_layers(layers); Ok(()) }
+            // The App keeps the stage-only slide (`App::command`); the engine never shows it.
+            Command::StageOnly { .. } => Ok(()),
         }
     }
 

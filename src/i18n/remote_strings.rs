@@ -34,6 +34,10 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Message", tr!("Message")),
         ("Timers", tr!("Timers")),
         ("Macros", tr!("Macros")),
+        // N29: a slide on the stage screen only.
+        ("Stage only", tr!("Stage only")),
+        ("Take it off the stage", tr!("Take it off the stage")),
+        ("Stage screen only (the room won't see it)", tr!("Stage screen only (the room won't see it)")),
         // remote.js
         ("Hide message", tr!("Hide message")),
         ("Run “{name}”?", tr!("Run “{name}”?")),

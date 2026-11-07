@@ -494,7 +494,16 @@ pub struct Settings {
     pub drawing_max_per_second: u32,
     /// Settings → Video → "Fading ink disappears after: N seconds" (1–30).
     pub fade_secs: u32,
+    /// N9: how long the room fades when only the look (theme) of what is up changes, in ms; 0 = cut.
+    pub look_fade_ms: u32,
+    /// N6: the Bible box's last references, newest first, at most `BIBLE_HISTORY_MAX`.
+    pub bible_history: Vec<String>,
 }
+
+/// The longest look fade Settings offers (N9).
+pub const LOOK_FADE_MAX_MS: u32 = 5000;
+/// How many references the Bible box's history keeps (N6).
+pub const BIBLE_HISTORY_MAX: usize = 10;
 
 /// How many service files File → Open recent lists.
 pub const RECENT_FILES_MAX: usize = 5;
@@ -536,6 +545,15 @@ impl Settings {
         self.recent_files.retain(|p| p != path);
         self.recent_files.insert(0, path.to_path_buf());
         self.recent_files.truncate(RECENT_FILES_MAX);
+    }
+
+    /// `reference` was just added from the Bible box: first in its history, once (N6).
+    pub fn used_reference(&mut self, reference: &str) {
+        let reference = reference.trim();
+        if reference.is_empty() { return }
+        self.bible_history.retain(|r| !r.eq_ignore_ascii_case(reference));
+        self.bible_history.insert(0, reference.to_string());
+        self.bible_history.truncate(BIBLE_HISTORY_MAX);
     }
 
     /// `translation` was just chosen: it goes to the front of `recent`, once.
@@ -591,6 +609,8 @@ impl Default for Settings {
             media: Default::default(),
             show_performance: false,
             screens_at_start: true,
+            look_fade_ms: 1000,
+            bible_history: Vec::new(),
         }
     }
 }
@@ -728,6 +748,25 @@ impl Data {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bible_history_keeps_the_last_ten_newest_first_once_each() {
+        let mut s = Settings::default();
+        for i in 1..=12 { s.used_reference(&format!("John 3:{i}")) }
+        assert_eq!(s.bible_history.len(), BIBLE_HISTORY_MAX);
+        assert_eq!(s.bible_history[0], "John 3:12");
+        s.used_reference(" john 3:5 ");
+        assert_eq!(s.bible_history[0], "john 3:5");
+        assert_eq!(s.bible_history.iter().filter(|r| r.eq_ignore_ascii_case("John 3:5")).count(), 1);
+        s.used_reference("  ");
+        assert_eq!(s.bible_history[0], "john 3:5", "nothing typed is not kept");
+    }
+
+    #[test]
+    fn old_settings_get_a_one_second_look_fade() {
+        let s: Settings = serde_json::from_str(r#"{"lines_per_slide":2}"#).unwrap();
+        assert_eq!((s.look_fade_ms, s.bible_history.len()), (1000, 0));
+    }
 
     #[test]
     fn old_data_without_item_arrangement_loads() {

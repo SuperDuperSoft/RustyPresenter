@@ -67,6 +67,7 @@ pub(crate) fn add(op: &Rc<Operator>, found: Found) {
                 op.mark_service();
                 op.render_slides();
                 op.toast(&tr::bible_added(&label), false);
+                super::bible_extras::remember(&op, &label);
                 if let Some(t) = toast { op.toast(&t, true) }
             }
             Err(e) => op.toast(&e, true),

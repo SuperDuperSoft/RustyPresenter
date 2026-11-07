@@ -173,6 +173,7 @@ impl Operator {
         ui.set_slides_note(item.map_or_else(String::new, |i| i.notes.join("\n")).into());
         ui.set_slides_custom_order(item.is_some_and(|i| matches!(i.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. })));
         self.render_text_size();
+        super::bible_extras::render(self);
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
@@ -372,6 +373,8 @@ impl Operator {
             st.selected
         };
         let Some(item_id) = item else { return };
+        // N29: armed for the stage only, the click goes there instead.
+        if super::stage_only::take_click(self, item_id, idx) { return }
         let me = Rc::downgrade(self);
         self.ops.cmd(Command::Show { item_id, slide: idx }, None, move |o| {
             if let (Some(op), Some((msg, err))) = (me.upgrade(), outcome_toast(&o)) { op.toast(&msg, err); }
