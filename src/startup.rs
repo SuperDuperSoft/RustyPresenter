@@ -19,6 +19,8 @@ pub fn data_root() -> Result<PathBuf, String> {
 pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> {
     let store = Store::open(root.clone()).map_err(|e| crate::tr!("Cannot use the data folder {path}: {reason}", path = root.display(), reason = e))?;
     store.clean_tmp();
+    // New data names its first service in the computer's language, so that language is set before it is made.
+    if !store.data_path().exists() { let _ = crate::i18n::set_language(&crate::i18n::resolve("")); }
     let crate::store::Loaded { mut data, read_only } = store.load_full()?;
     let removed = crate::bible::blocklist::strip(&mut data);
     if !read_only && (removed > 0 || !store.data_path().exists()) { let _ = store.save(&data); }
@@ -104,5 +106,18 @@ mod tests {
         assert_eq!(started.app.data.lock().unwrap().services[0].items.len(), 1);
         assert_eq!(started.app.store.load().unwrap().services[0].items.len(), 1, "saved as well");
         assert_eq!(started.app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
+    }
+
+    const XX: &str = "msgid \"\"\nmsgstr \"\"\n\"Language: xx\\n\"\n\nmsgid \"Sunday Service\"\nmsgstr \"Culto dominical\"\n";
+
+    #[test]
+    fn only_new_data_names_its_first_service_in_the_app_language() {
+        crate::i18n::testing::with_catalog(XX, || {
+            assert_eq!(Data::default().services[0].name, "Culto dominical");
+            let root = test_dir();
+            Store::open(root.clone()).unwrap().save(&Data { services: vec![Service::new("Sunday Service")], ..Data::default() }).unwrap();
+            assert_eq!(Store::open(root).unwrap().load().unwrap().services[0].name, "Sunday Service", "a saved service keeps its name");
+        });
+        assert_eq!(Data::default().services[0].name, "Sunday Service");
     }
 }

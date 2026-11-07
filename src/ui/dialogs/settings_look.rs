@@ -200,7 +200,7 @@ struct Drawn { preview: Pixels, font_missing: bool, logo: Option<Pixels> }
 static RENDERER: TextRenderer = TextRenderer::new();
 
 fn draw(settings: &Settings, media: &[MediaFile], store_root: PathBuf) -> Drawn {
-    let slide = Slide::new(String::new(), SlideContent::Text { text: strings::SAMPLE_TEXT.into(), footer: Some(strings::SAMPLE_FOOTER.into()), reference: None, size: 0, parallel: None });
+    let slide = Slide::new(String::new(), SlideContent::Text { text: strings::sample_text(), footer: Some(strings::sample_footer()), reference: None, size: 0, parallel: None });
     let (key, job) = thumbs::thumb(&slide, "song", &[], None, settings, media, PREVIEW_SIZE);
     let store = Store { root: store_root };
     let preview = thumbs::compose(&job, key.size, &RENDERER, &store);

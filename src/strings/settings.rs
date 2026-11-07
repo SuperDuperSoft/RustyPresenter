@@ -11,9 +11,10 @@ pub const FONTS: [&str; 20] = [
     "Open Sans", "Lato", "Roboto",
 ];
 
-/// The Look preview's sample slide (`operator.js:889`): a hymn's words, so they stay as written.
-pub const SAMPLE_TEXT: &str = "Amazing grace how sweet the sound\nThat saved a wretch like me";
-pub const SAMPLE_FOOTER: &str = "Amazing Grace · John Newton · Public Domain";
+/// The Look preview's sample slide (`operator.js:889`): a hymn's words, in the app's language (a translator may
+/// use a hymn known there).
+pub fn sample_text() -> String { tr!("Amazing grace how sweet the sound\nThat saved a wretch like me") }
+pub fn sample_footer() -> String { tr!("Amazing Grace · John Newton · Public Domain") }
 
 /// Native spec §4 (Product decision 8): the chosen font is not on this computer.
 pub fn font_missing(font: &str) -> String { tr!("“{font}” isn't installed on this computer, so slides use Noto Sans.", font = font) }
@@ -85,6 +86,12 @@ pub fn key_enter() -> String { tr!("Enter") }
 pub fn key_ctrl_b() -> String { tr!("Ctrl + B") }
 pub fn key_alt_digits() -> String { tr!("Alt + 1–5") }
 pub fn key_ctrl_v() -> String { tr!("Ctrl + V") }
+pub fn key_ctrl_z() -> String { tr!("Ctrl + Z") }
+pub fn key_ctrl_y() -> String { tr!("Ctrl + Y") }
+pub fn key_ctrl_f() -> String { tr!("Ctrl + F") }
+pub fn do_undo() -> String { tr!("Undo the last change to the services or the library") }
+pub fn do_redo() -> String { tr!("Redo what Undo took back") }
+pub fn do_find() -> String { tr!("Find a song") }
 /// The real keys, so not translated.
 pub const KEY_SECTIONS: &str = "1–9  C  P  B  T  I  E  L  V";
 pub fn do_sections() -> String { tr!("Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse") }
