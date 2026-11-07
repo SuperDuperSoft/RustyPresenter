@@ -211,6 +211,26 @@ msgstr "Anunsyo"
 msgid "Your own text"
 msgstr "Sariling teksto"
 
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "Wala sa lyrics — nilalaktawan ito"
+
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "Alisin"
+
+#: ui/dialogs/arrangement.slint
+msgid "End"
+msgstr "Wakas"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "Nakasulat na ayos — i-drag para baguhin"
+
+#: ui/dialogs/arrangement.slint
+msgid "⟲ Use written order"
+msgstr "⟲ Gamitin ang nakasulat na ayos"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "Hex"
@@ -230,6 +250,18 @@ msgstr "Ang lyrics, pagkakasunod-sunod at credits ay nasa kanta sa iyong library
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
 msgstr "I-edit ang kanta"
+
+#: ui/dialogs/item-edit.slint
+msgid "Order for this service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Use the song's usual order"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Make this the song's usual order"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -255,7 +287,7 @@ msgstr "Magkatabi"
 msgid "Top and bottom"
 msgstr "Itaas at ibaba"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "Awtomatiko"
 
@@ -347,11 +379,11 @@ msgstr "Sa stage display lang ipinapakita"
 msgid "Remove from service"
 msgstr "Alisin sa service"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Kanselahin"
 
-#: ui/dialogs/item-edit.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "I-save"
 
@@ -394,10 +426,6 @@ msgstr "2. Ilagay ang code na ito sa phone:"
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
 msgstr "Mga naka-pair na phone"
-
-#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
-msgid "Remove"
-msgstr "Alisin"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -555,7 +583,7 @@ msgstr "I-print ang ayos ng service at ang lyrics, o i-save bilang web page"
 msgid "Save as template"
 msgstr "I-save bilang template"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint src/strings/stage.rs
 msgid "Delete"
 msgstr "Burahin"
 
@@ -819,7 +847,7 @@ msgstr "I-off kung naigagalaw ang screen ng mga letrang napindot nang hindi sina
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Tumatalon sa isang section ng live na kanta ang mga letra at numero"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Ulat ng paggamit ng kanta…"
 
@@ -828,12 +856,28 @@ msgid "Sound goes to"
 msgstr "Saan lalabas ang tunog"
 
 #: ui/dialogs/settings.slint
+msgid "Graphics"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Room screen"
 msgstr "Screen sa silid"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
 msgstr "Panatilihin sa harap ang screen sa silid kapag may sarili itong monitor (mas makinis na fade)"
+
+#: ui/dialogs/settings.slint src/strings/stage.rs
+msgid "Stage layout"
+msgstr "Stage layout"
+
+#: ui/dialogs/settings.slint
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -947,22 +991,6 @@ msgstr "Pagkakasunod-sunod"
 msgid "(optional)"
 msgstr "(opsyonal)"
 
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Not in the lyrics — it is skipped"
-msgstr "Wala sa lyrics — nilalaktawan ito"
-
-#: ui/dialogs/song-editor.slint
-msgid "End"
-msgstr "Wakas"
-
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Written order — drag to change"
-msgstr "Nakasulat na ayos — i-drag para baguhin"
-
-#: ui/dialogs/song-editor.slint
-msgid "⟲ Use written order"
-msgstr "⟲ Gamitin ang nakasulat na ayos"
-
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Iwanang blangko para gamitin ang nakasulat na ayos"
@@ -986,6 +1014,130 @@ msgstr "I-save ang kanta"
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
 msgstr "I-save at ipakita ngayon"
+
+#: ui/dialogs/stage-canvas.slint src/strings/screens.rs
+msgid "Stage screen"
+msgstr "Stage screen"
+
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+msgid "Needs a newer RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint src/strings/stage.rs
+msgid "Stage layouts"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "On stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "New"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate to edit"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Rename…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Delete…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Use on stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Save first"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Boxes"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "No boxes yet. Add one to show something on the stage."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Add box"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Shows"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Words"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Biggest text ({}%)"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Text colour"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Alignment"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Centre"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Undo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Redo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in layouts can't be changed. Duplicate one to make your own."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Choose the stage layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Edit stage layouts…"
+msgstr ""
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1252,6 +1404,14 @@ msgid "Before the service: are all the songs, files and screens there?"
 msgstr "Bago ang service: kumpleto ba ang lahat ng kanta, file at screen?"
 
 #: ui/operator/service.slint
+msgid "Custom order"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator/slides.slint
+msgid "Custom order for this service"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Choose what goes here"
 msgstr "Piliin ang ilalagay dito"
 
@@ -1404,8 +1564,20 @@ msgid "Open a service file…"
 msgstr "Magbukas ng service file…"
 
 #: ui/operator.slint
+msgid "Open recent"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Save this service to a file…"
 msgstr "I-save sa file ang service na ito…"
+
+#: ui/operator.slint
+msgid "Export"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Service bundle…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Song…"
@@ -1432,8 +1604,16 @@ msgid "Import media…"
 msgstr "Mag-import ng media…"
 
 #: ui/operator.slint
+msgid "Print service order…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Exit"
 msgstr "Lumabas"
+
+#: ui/operator.slint
+msgid "Find…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -1472,6 +1652,18 @@ msgid "Show media library"
 msgstr "Ipakita ang media library"
 
 #: ui/operator.slint
+msgid "Zoom in"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Zoom out"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Actual size"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Window"
 msgstr "Window"
 
@@ -1486,6 +1678,10 @@ msgstr "Phone remote…"
 #: ui/operator.slint
 msgid "Stage message…"
 msgstr "Stage message…"
+
+#: ui/operator.slint
+msgid "Stage layouts…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -1514,6 +1710,10 @@ msgstr "Mga keyboard shortcut"
 #: ui/operator.slint
 msgid "Check the service"
 msgstr "Suriin ang service"
+
+#: ui/operator.slint
+msgid "Open logs folder"
+msgstr ""
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2239,6 +2439,10 @@ msgstr "Hindi mabuksan ng RustyPresenter ang window nito: {reason}"
 msgid "RustyPresenter could not run its windows: {reason}"
 msgstr "Hindi mapatakbo ng RustyPresenter ang mga window nito: {reason}"
 
+#: src/model.rs
+msgid "Sunday Service"
+msgstr ""
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Hindi tumatakbo ang mga screen."
@@ -2270,6 +2474,46 @@ msgstr "Nag-restart ang RustyPresenter pagkatapos ng isang problema. Huminto ang
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "Huminto ang RustyPresenter matapos mag-crash nang 3 beses sa loob ng isang minuto. Nasa {path} ang log."
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Verse"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Tag"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Intro"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Ending"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Interlude"
+msgstr ""
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3767,10 +4011,6 @@ msgid "Audience screen"
 msgstr "Screen ng audience"
 
 #: src/strings/screens.rs
-msgid "Stage screen"
-msgstr "Stage screen"
-
-#: src/strings/screens.rs
 msgid "Showing"
 msgstr "Ipinapakita"
 
@@ -4062,6 +4302,16 @@ msgstr "Burahin ang service na “{name}”? (Mananatili sa library ang mga kant
 msgid "Settings saved"
 msgstr "Na-save ang settings"
 
+#: src/strings/settings.rs
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Amazing Grace · John Newton · Public Domain"
+msgstr ""
+
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
 msgstr "Hindi naka-install sa computer na ito ang “{font}”, kaya Noto Sans ang ginagamit ng slides."
@@ -4185,6 +4435,30 @@ msgid "Ctrl + V"
 msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
+msgid "Ctrl + Z"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + Y"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + F"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Undo the last change to the services or the library"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Redo what Undo took back"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Find a song"
+msgstr ""
+
+#: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
 msgstr "Tumalon sa Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude o sa susunod na Verse ng live na kanta"
 
@@ -4284,7 +4558,7 @@ msgstr "Ang naka-save na sound output (hindi nakakonekta)"
 msgid "Verse"
 msgstr "Verse"
 
-#: src/strings/song.rs
+#: src/strings/song.rs src/strings/stage.rs
 msgid "Chorus"
 msgstr "Chorus"
 
@@ -4361,6 +4635,10 @@ msgid "Click to show this part"
 msgstr "I-click para ipakita ang bahaging ito"
 
 #: src/strings/song.rs
+msgid "Saved as the usual order."
+msgstr ""
+
+#: src/strings/song.rs
 msgid "This song has no {section} {number}."
 msgstr "Walang {section} {number} ang kantang ito."
 
@@ -4379,10 +4657,6 @@ msgstr "{section} — pindutin ang {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · slide {page} sa {pages}"
-
-#: src/strings/stage.rs
-msgid "Stage layout"
-msgstr "Stage layout"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -4613,6 +4887,66 @@ msgstr "Hindi tatakbo ang macro hangga’t hindi ito na-e-edit"
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
 msgstr "Hindi tatakbo ang mga macro hangga’t hindi na-e-edit"
+
+#: src/strings/stage.rs
+msgid "New stage layout"
+msgstr ""
+
+#: src/strings/stage.rs src/theme/saved.rs
+msgid "{name} copy"
+msgstr "Kopya ng {name}"
+
+#: src/strings/stage.rs
+msgid "Name of the stage layout"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard your changes to the stage layouts?"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Keep editing"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Stage layouts saved."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The stage shows “{name}”."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Your words here"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing grace, how sweet the sound"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That saved a wretch like me"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Verse 2"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing Grace"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slow down on the last line"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Last chorus"
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5203,10 +5537,6 @@ msgid "Normal"
 msgstr "Normal"
 
 #: src/theme/saved.rs
-msgid "{name} copy"
-msgstr "Kopya ng {name}"
-
-#: src/theme/saved.rs
 msgid "{name} copy {number}"
 msgstr "Kopya ng {name} {number}"
 
@@ -5231,6 +5561,14 @@ msgid "{n} problem"
 msgid_plural "{n} problems"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/ui/operator/menu.rs
+msgid "Could not open the logs folder. It is at {path}"
+msgstr ""
+
+#: src/ui/operator/menu.rs
+msgid "Make the window bigger to zoom in further."
+msgstr ""
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -5320,6 +5658,70 @@ msgstr "Nagsasara ang RustyPresenter."
 msgid "Could not open the stage screen: {error}"
 msgstr "Hindi mabuksan ang stage screen: {error}"
 
+#: src/undo.rs
+msgid "Undone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Redone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't undo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't redo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to redo."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to undo."
+msgstr ""
+
+#: src/undo.rs
+msgid "the new service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "adding “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "removing “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "moving “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the new song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the last change"
+msgstr ""
+
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
 msgstr "Nawawala ang video player. I-install muli ang RustyPresenter."
@@ -5331,6 +5733,34 @@ msgstr "Hindi ma-load ang video player mula sa {path}: {reason}"
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
 msgstr "Masyadong luma ang libmpv na ito (client API {major}.{minor}); kailangan ng RustyPresenter ang 2.x."
+
+#: src/video/graphics.rs
+msgid "Software"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Automatic (recommended)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Software (safe mode)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "In use now: {mode}"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Restart RustyPresenter to use the new graphics setting."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgstr ""
 
 #: src/video/player.rs
 msgid "The video player could not start."

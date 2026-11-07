@@ -216,6 +216,26 @@ msgstr "광고"
 msgid "Your own text"
 msgstr "직접 입력한 텍스트"
 
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "가사에 없어서 건너뛰어요"
+
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "제거"
+
+#: ui/dialogs/arrangement.slint
+msgid "End"
+msgstr "끝"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "작성 순서 — 끌어서 변경"
+
+#: ui/dialogs/arrangement.slint
+msgid "⟲ Use written order"
+msgstr "⟲ 작성 순서 사용"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "Hex"
@@ -235,6 +255,18 @@ msgstr "가사, 순서, 저작권 정보는 라이브러리의 찬양에 저장�
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
 msgstr "찬양 편집"
+
+#: ui/dialogs/item-edit.slint
+msgid "Order for this service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Use the song's usual order"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Make this the song's usual order"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -260,7 +292,7 @@ msgstr "좌우로"
 msgid "Top and bottom"
 msgstr "위아래로"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "자동"
 
@@ -352,11 +384,11 @@ msgstr "무대 화면에만 표시돼요"
 msgid "Remove from service"
 msgstr "예배에서 제거"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "취소"
 
-#: ui/dialogs/item-edit.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "저장"
 
@@ -399,10 +431,6 @@ msgstr "2. 휴대폰에 이 코드를 입력하세요:"
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
 msgstr "연결된 휴대폰"
-
-#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
-msgid "Remove"
-msgstr "제거"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -560,7 +588,7 @@ msgstr "예배 순서와 가사를 인쇄하거나 웹 페이지로 저장해요
 msgid "Save as template"
 msgstr "템플릿으로 저장"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint src/strings/stage.rs
 msgid "Delete"
 msgstr "삭제"
 
@@ -824,7 +852,7 @@ msgstr "실수로 입력한 글자 때문에 화면이 바뀐다면 끄세요."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "글자와 숫자 키로 라이브 중인 찬양의 섹션으로 이동해요"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "찬양 사용 보고서…"
 
@@ -833,12 +861,28 @@ msgid "Sound goes to"
 msgstr "소리 출력 장치"
 
 #: ui/dialogs/settings.slint
+msgid "Graphics"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Room screen"
 msgstr "예배당 화면"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
 msgstr "예배당 화면에 전용 모니터가 있으면 맨 앞에 유지(전환이 더 부드러워요)"
+
+#: ui/dialogs/settings.slint src/strings/stage.rs
+msgid "Stage layout"
+msgstr "무대 레이아웃"
+
+#: ui/dialogs/settings.slint
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -952,22 +996,6 @@ msgstr "순서"
 msgid "(optional)"
 msgstr "(선택 사항)"
 
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Not in the lyrics — it is skipped"
-msgstr "가사에 없어서 건너뛰어요"
-
-#: ui/dialogs/song-editor.slint
-msgid "End"
-msgstr "끝"
-
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Written order — drag to change"
-msgstr "작성 순서 — 끌어서 변경"
-
-#: ui/dialogs/song-editor.slint
-msgid "⟲ Use written order"
-msgstr "⟲ 작성 순서 사용"
-
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "비워 두면 작성 순서를 사용해요"
@@ -991,6 +1019,130 @@ msgstr "찬양 저장"
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
 msgstr "저장 후 바로 표시"
+
+#: ui/dialogs/stage-canvas.slint src/strings/screens.rs
+msgid "Stage screen"
+msgstr "무대 화면"
+
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+msgid "Needs a newer RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint src/strings/stage.rs
+msgid "Stage layouts"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "On stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "New"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate to edit"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Rename…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Delete…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Use on stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Save first"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Boxes"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "No boxes yet. Add one to show something on the stage."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Add box"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Shows"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Words"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Biggest text ({}%)"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Text colour"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Alignment"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Centre"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Undo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Redo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in layouts can't be changed. Duplicate one to make your own."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Choose the stage layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Edit stage layouts…"
+msgstr ""
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1257,6 +1409,14 @@ msgid "Before the service: are all the songs, files and screens there?"
 msgstr "예배 전 점검: 찬양, 파일, 화면이 모두 준비되었나요?"
 
 #: ui/operator/service.slint
+msgid "Custom order"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator/slides.slint
+msgid "Custom order for this service"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Choose what goes here"
 msgstr "여기에 넣을 항목 선택"
 
@@ -1409,8 +1569,20 @@ msgid "Open a service file…"
 msgstr "예배 파일 열기…"
 
 #: ui/operator.slint
+msgid "Open recent"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Save this service to a file…"
 msgstr "이 예배를 파일로 저장…"
+
+#: ui/operator.slint
+msgid "Export"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Service bundle…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Song…"
@@ -1437,8 +1609,16 @@ msgid "Import media…"
 msgstr "미디어 가져오기…"
 
 #: ui/operator.slint
+msgid "Print service order…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Exit"
 msgstr "종료"
+
+#: ui/operator.slint
+msgid "Find…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -1477,6 +1657,18 @@ msgid "Show media library"
 msgstr "미디어 라이브러리 표시"
 
 #: ui/operator.slint
+msgid "Zoom in"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Zoom out"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Actual size"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Window"
 msgstr "창"
 
@@ -1491,6 +1683,10 @@ msgstr "휴대폰 리모컨…"
 #: ui/operator.slint
 msgid "Stage message…"
 msgstr "무대 메시지…"
+
+#: ui/operator.slint
+msgid "Stage layouts…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -1519,6 +1715,10 @@ msgstr "바로 가기 키"
 #: ui/operator.slint
 msgid "Check the service"
 msgstr "예배 점검"
+
+#: ui/operator.slint
+msgid "Open logs folder"
+msgstr ""
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2244,6 +2444,10 @@ msgstr "RustyPresenter가 창을 열지 못했어요: {reason}"
 msgid "RustyPresenter could not run its windows: {reason}"
 msgstr "RustyPresenter가 창을 실행하지 못했어요: {reason}"
 
+#: src/model.rs
+msgid "Sunday Service"
+msgstr ""
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "화면이 실행되고 있지 않아요."
@@ -2275,6 +2479,46 @@ msgstr "문제가 생겨서 RustyPresenter가 다시 시작되었어요. 동영�
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "1분 안에 3번 충돌해서 RustyPresenter가 멈췄어요. 로그 위치: {path}"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Verse"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Tag"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Intro"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Ending"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Interlude"
+msgstr ""
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3751,10 +3995,6 @@ msgid "Audience screen"
 msgstr "회중 화면"
 
 #: src/strings/screens.rs
-msgid "Stage screen"
-msgstr "무대 화면"
-
-#: src/strings/screens.rs
 msgid "Showing"
 msgstr "표시 중"
 
@@ -4044,6 +4284,16 @@ msgstr "“{name}” 예배를 삭제할까요? (찬양과 미디어는 라이�
 msgid "Settings saved"
 msgstr "설정 저장됨"
 
+#: src/strings/settings.rs
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Amazing Grace · John Newton · Public Domain"
+msgstr ""
+
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
 msgstr "이 컴퓨터에 “{font}”이(가) 설치되어 있지 않아서 슬라이드에 Noto Sans를 사용해요."
@@ -4166,6 +4416,30 @@ msgid "Ctrl + V"
 msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
+msgid "Ctrl + Z"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + Y"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + F"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Undo the last change to the services or the library"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Redo what Undo took back"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Find a song"
+msgstr ""
+
+#: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
 msgstr "라이브 중인 찬양을 1–9절, 후렴, 프리코러스, 브리지, 태그, 전주, 엔딩, 간주 또는 다음 절로 이동"
 
@@ -4265,7 +4539,7 @@ msgstr "저장된 소리 출력 장치(연결 안 됨)"
 msgid "Verse"
 msgstr "절"
 
-#: src/strings/song.rs
+#: src/strings/song.rs src/strings/stage.rs
 msgid "Chorus"
 msgstr "후렴"
 
@@ -4342,6 +4616,10 @@ msgid "Click to show this part"
 msgstr "클릭해서 이 부분 표시"
 
 #: src/strings/song.rs
+msgid "Saved as the usual order."
+msgstr ""
+
+#: src/strings/song.rs
 msgid "This song has no {section} {number}."
 msgstr "이 찬양에는 {section} {number}이(가) 없어요."
 
@@ -4360,10 +4638,6 @@ msgstr "{section} — {key} 누르기"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · 슬라이드 {page}/{pages}"
-
-#: src/strings/stage.rs
-msgid "Stage layout"
-msgstr "무대 레이아웃"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -4591,6 +4865,66 @@ msgstr "매크로는 편집하기 전까지 실행되지 않아요"
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
 msgstr "매크로들은 편집하기 전까지 실행되지 않아요"
+
+#: src/strings/stage.rs
+msgid "New stage layout"
+msgstr ""
+
+#: src/strings/stage.rs src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} 사본"
+
+#: src/strings/stage.rs
+msgid "Name of the stage layout"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard your changes to the stage layouts?"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Keep editing"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Stage layouts saved."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The stage shows “{name}”."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Your words here"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing grace, how sweet the sound"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That saved a wretch like me"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Verse 2"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing Grace"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slow down on the last line"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Last chorus"
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5175,10 +5509,6 @@ msgid "Normal"
 msgstr "보통"
 
 #: src/theme/saved.rs
-msgid "{name} copy"
-msgstr "{name} 사본"
-
-#: src/theme/saved.rs
 msgid "{name} copy {number}"
 msgstr "{name} 사본 {number}"
 
@@ -5202,6 +5532,14 @@ msgstr ""
 msgid "{n} problem"
 msgid_plural "{n} problems"
 msgstr[0] ""
+
+#: src/ui/operator/menu.rs
+msgid "Could not open the logs folder. It is at {path}"
+msgstr ""
+
+#: src/ui/operator/menu.rs
+msgid "Make the window bigger to zoom in further."
+msgstr ""
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -5291,6 +5629,70 @@ msgstr "RustyPresenter를 종료하는 중이에요."
 msgid "Could not open the stage screen: {error}"
 msgstr "무대 화면을 열지 못했어요: {error}"
 
+#: src/undo.rs
+msgid "Undone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Redone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't undo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't redo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to redo."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to undo."
+msgstr ""
+
+#: src/undo.rs
+msgid "the new service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "adding “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "removing “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "moving “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the new song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the last change"
+msgstr ""
+
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
 msgstr "동영상 플레이어가 없어요. RustyPresenter를 다시 설치하세요."
@@ -5302,6 +5704,34 @@ msgstr "{path}에서 동영상 플레이어를 불러올 수 없어요: {reason}
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
 msgstr "이 libmpv는 너무 오래됐어요(클라이언트 API {major}.{minor}). RustyPresenter에는 2.x가 필요해요."
+
+#: src/video/graphics.rs
+msgid "Software"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Automatic (recommended)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Software (safe mode)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "In use now: {mode}"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Restart RustyPresenter to use the new graphics setting."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgstr ""
 
 #: src/video/player.rs
 msgid "The video player could not start."

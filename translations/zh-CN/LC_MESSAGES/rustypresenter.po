@@ -213,6 +213,26 @@ msgstr "报告事项"
 msgid "Your own text"
 msgstr "你自己的文字"
 
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "歌词中没有 — 将被跳过"
+
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "移除"
+
+#: ui/dialogs/arrangement.slint
+msgid "End"
+msgstr "结尾"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "书写顺序 — 拖动可更改"
+
+#: ui/dialogs/arrangement.slint
+msgid "⟲ Use written order"
+msgstr "⟲ 使用书写顺序"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "十六进制"
@@ -232,6 +252,18 @@ msgstr "歌词、顺序和版权信息属于诗歌库中的这首诗歌。这首
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
 msgstr "编辑诗歌"
+
+#: ui/dialogs/item-edit.slint
+msgid "Order for this service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Use the song's usual order"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Make this the song's usual order"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -257,7 +289,7 @@ msgstr "左右并排"
 msgid "Top and bottom"
 msgstr "上下排列"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "自动"
 
@@ -349,11 +381,11 @@ msgstr "仅在舞台显示屏上显示"
 msgid "Remove from service"
 msgstr "从聚会中移除"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "取消"
 
-#: ui/dialogs/item-edit.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "保存"
 
@@ -396,10 +428,6 @@ msgstr "2. 在手机上输入此代码："
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
 msgstr "已配对的手机"
-
-#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
-msgid "Remove"
-msgstr "移除"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -557,7 +585,7 @@ msgstr "打印聚会流程和歌词，或另存为网页"
 msgid "Save as template"
 msgstr "另存为模板"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint src/strings/stage.rs
 msgid "Delete"
 msgstr "删除"
 
@@ -821,7 +849,7 @@ msgstr "如果误按字母会切换屏幕，请关闭此项。"
 msgid "Letters and numbers jump the live song to a section"
 msgstr "字母和数字键可将正在显示的诗歌跳到某个段落"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "诗歌使用报告…"
 
@@ -830,12 +858,28 @@ msgid "Sound goes to"
 msgstr "声音输出到"
 
 #: ui/dialogs/settings.slint
+msgid "Graphics"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Room screen"
 msgstr "会众屏幕"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
 msgstr "会众屏幕有独立显示器时保持在最前（淡入淡出更流畅）"
+
+#: ui/dialogs/settings.slint src/strings/stage.rs
+msgid "Stage layout"
+msgstr "舞台布局"
+
+#: ui/dialogs/settings.slint
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -949,22 +993,6 @@ msgstr "顺序"
 msgid "(optional)"
 msgstr "（可选）"
 
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Not in the lyrics — it is skipped"
-msgstr "歌词中没有 — 将被跳过"
-
-#: ui/dialogs/song-editor.slint
-msgid "End"
-msgstr "结尾"
-
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Written order — drag to change"
-msgstr "书写顺序 — 拖动可更改"
-
-#: ui/dialogs/song-editor.slint
-msgid "⟲ Use written order"
-msgstr "⟲ 使用书写顺序"
-
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "留空则使用书写顺序"
@@ -988,6 +1016,130 @@ msgstr "保存诗歌"
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
 msgstr "保存并立即显示"
+
+#: ui/dialogs/stage-canvas.slint src/strings/screens.rs
+msgid "Stage screen"
+msgstr "舞台屏幕"
+
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+msgid "Needs a newer RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint src/strings/stage.rs
+msgid "Stage layouts"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "On stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "New"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate to edit"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Rename…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Delete…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Use on stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Save first"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Boxes"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "No boxes yet. Add one to show something on the stage."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Add box"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Shows"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Words"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Biggest text ({}%)"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Text colour"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Alignment"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Centre"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Undo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Redo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in layouts can't be changed. Duplicate one to make your own."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Choose the stage layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Edit stage layouts…"
+msgstr ""
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1254,6 +1406,14 @@ msgid "Before the service: are all the songs, files and screens there?"
 msgstr "聚会开始前：所有诗歌、文件和屏幕都准备好了吗？"
 
 #: ui/operator/service.slint
+msgid "Custom order"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator/slides.slint
+msgid "Custom order for this service"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Choose what goes here"
 msgstr "选择此处内容"
 
@@ -1406,8 +1566,20 @@ msgid "Open a service file…"
 msgstr "打开聚会文件…"
 
 #: ui/operator.slint
+msgid "Open recent"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Save this service to a file…"
 msgstr "将此聚会保存为文件…"
+
+#: ui/operator.slint
+msgid "Export"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Service bundle…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Song…"
@@ -1434,8 +1606,16 @@ msgid "Import media…"
 msgstr "导入媒体…"
 
 #: ui/operator.slint
+msgid "Print service order…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Exit"
 msgstr "退出"
+
+#: ui/operator.slint
+msgid "Find…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -1474,6 +1654,18 @@ msgid "Show media library"
 msgstr "显示媒体库"
 
 #: ui/operator.slint
+msgid "Zoom in"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Zoom out"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Actual size"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Window"
 msgstr "窗口"
 
@@ -1488,6 +1680,10 @@ msgstr "手机遥控器…"
 #: ui/operator.slint
 msgid "Stage message…"
 msgstr "舞台消息…"
+
+#: ui/operator.slint
+msgid "Stage layouts…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -1516,6 +1712,10 @@ msgstr "键盘快捷键"
 #: ui/operator.slint
 msgid "Check the service"
 msgstr "检查聚会"
+
+#: ui/operator.slint
+msgid "Open logs folder"
+msgstr ""
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2241,6 +2441,10 @@ msgstr "RustyPresenter 无法打开窗口：{reason}"
 msgid "RustyPresenter could not run its windows: {reason}"
 msgstr "RustyPresenter 无法运行窗口：{reason}"
 
+#: src/model.rs
+msgid "Sunday Service"
+msgstr ""
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "屏幕未运行。"
@@ -2272,6 +2476,46 @@ msgstr "RustyPresenter 遇到问题后已重新启动。视频/音频已停止 �
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "RustyPresenter 在一分钟内崩溃 3 次后已停止。日志位于 {path}。"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Verse"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Tag"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Intro"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Ending"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Interlude"
+msgstr ""
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3748,10 +3992,6 @@ msgid "Audience screen"
 msgstr "会众屏幕"
 
 #: src/strings/screens.rs
-msgid "Stage screen"
-msgstr "舞台屏幕"
-
-#: src/strings/screens.rs
 msgid "Showing"
 msgstr "正在显示"
 
@@ -4041,6 +4281,16 @@ msgstr "要删除聚会“{name}”吗？（诗歌和媒体仍保留在库中。
 msgid "Settings saved"
 msgstr "设置已保存"
 
+#: src/strings/settings.rs
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Amazing Grace · John Newton · Public Domain"
+msgstr ""
+
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
 msgstr "这台电脑上未安装“{font}”，因此幻灯片使用 Noto Sans。"
@@ -4163,6 +4413,30 @@ msgid "Ctrl + V"
 msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
+msgid "Ctrl + Z"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + Y"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + F"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Undo the last change to the services or the library"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Redo what Undo took back"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Find a song"
+msgstr ""
+
+#: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
 msgstr "将正在显示的诗歌跳到主歌 1–9、副歌、导歌、桥段、尾句、前奏、结尾、间奏或下一段主歌"
 
@@ -4262,7 +4536,7 @@ msgstr "已保存的声音输出（未连接）"
 msgid "Verse"
 msgstr "主歌"
 
-#: src/strings/song.rs
+#: src/strings/song.rs src/strings/stage.rs
 msgid "Chorus"
 msgstr "副歌"
 
@@ -4339,6 +4613,10 @@ msgid "Click to show this part"
 msgstr "点击显示这一部分"
 
 #: src/strings/song.rs
+msgid "Saved as the usual order."
+msgstr ""
+
+#: src/strings/song.rs
 msgid "This song has no {section} {number}."
 msgstr "这首诗歌没有{section} {number}。"
 
@@ -4357,10 +4635,6 @@ msgstr "{section} — 按 {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · 第 {page}/{pages} 张"
-
-#: src/strings/stage.rs
-msgid "Stage layout"
-msgstr "舞台布局"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -4588,6 +4862,66 @@ msgstr "该宏在编辑之前不会运行"
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
 msgstr "这些宏在编辑之前不会运行"
+
+#: src/strings/stage.rs
+msgid "New stage layout"
+msgstr ""
+
+#: src/strings/stage.rs src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} 副本"
+
+#: src/strings/stage.rs
+msgid "Name of the stage layout"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard your changes to the stage layouts?"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Keep editing"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Stage layouts saved."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The stage shows “{name}”."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Your words here"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing grace, how sweet the sound"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That saved a wretch like me"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Verse 2"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing Grace"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slow down on the last line"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Last chorus"
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5172,10 +5506,6 @@ msgid "Normal"
 msgstr "正常"
 
 #: src/theme/saved.rs
-msgid "{name} copy"
-msgstr "{name} 副本"
-
-#: src/theme/saved.rs
 msgid "{name} copy {number}"
 msgstr "{name} 副本 {number}"
 
@@ -5199,6 +5529,14 @@ msgstr ""
 msgid "{n} problem"
 msgid_plural "{n} problems"
 msgstr[0] ""
+
+#: src/ui/operator/menu.rs
+msgid "Could not open the logs folder. It is at {path}"
+msgstr ""
+
+#: src/ui/operator/menu.rs
+msgid "Make the window bigger to zoom in further."
+msgstr ""
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -5288,6 +5626,70 @@ msgstr "RustyPresenter 正在关闭。"
 msgid "Could not open the stage screen: {error}"
 msgstr "无法打开舞台屏幕：{error}"
 
+#: src/undo.rs
+msgid "Undone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Redone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't undo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't redo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to redo."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to undo."
+msgstr ""
+
+#: src/undo.rs
+msgid "the new service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "adding “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "removing “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "moving “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the new song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the last change"
+msgstr ""
+
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
 msgstr "缺少视频播放器。请重新安装 RustyPresenter。"
@@ -5299,6 +5701,34 @@ msgstr "无法从 {path} 加载视频播放器：{reason}"
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
 msgstr "此 libmpv 版本太旧（客户端 API {major}.{minor}）；RustyPresenter 需要 2.x。"
+
+#: src/video/graphics.rs
+msgid "Software"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Automatic (recommended)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Software (safe mode)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "In use now: {mode}"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Restart RustyPresenter to use the new graphics setting."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgstr ""
 
 #: src/video/player.rs
 msgid "The video player could not start."

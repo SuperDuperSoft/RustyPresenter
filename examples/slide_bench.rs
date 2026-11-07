@@ -288,7 +288,7 @@ fn run() {
         first.unwrap()
     };
 
-    let mode = video::choose_backend();
+    let mode = video::choose_backend(rustypresenter::model::Graphics::Auto).draw;
     let mpv = match video::ffi::Mpv::load() {
         Ok(m) => Some(m),
         Err(e) if scenario == Scenario::Playback => { eprintln!("the playback scenario needs libmpv: {e}"); std::process::exit(2) }

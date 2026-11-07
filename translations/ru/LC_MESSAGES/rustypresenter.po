@@ -212,6 +212,26 @@ msgstr "Объявление"
 msgid "Your own text"
 msgstr "Свой текст"
 
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "Нет в тексте — пропускается"
+
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "Удалить"
+
+#: ui/dialogs/arrangement.slint
+msgid "End"
+msgstr "Конец"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "Порядок в тексте — перетащите, чтобы изменить"
+
+#: ui/dialogs/arrangement.slint
+msgid "⟲ Use written order"
+msgstr "⟲ Порядок как в тексте"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "Hex"
@@ -231,6 +251,18 @@ msgstr "Текст, порядок и авторы хранятся в песн�
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
 msgstr "Изменить песню"
+
+#: ui/dialogs/item-edit.slint
+msgid "Order for this service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Use the song's usual order"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Make this the song's usual order"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -256,7 +288,7 @@ msgstr "Рядом"
 msgid "Top and bottom"
 msgstr "Сверху и снизу"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "Автоматически"
 
@@ -348,11 +380,11 @@ msgstr "Видно только на экране сцены"
 msgid "Remove from service"
 msgstr "Убрать из служения"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Отмена"
 
-#: ui/dialogs/item-edit.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "Сохранить"
 
@@ -395,10 +427,6 @@ msgstr "2. Введите этот код на телефоне:"
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
 msgstr "Подключённые телефоны"
-
-#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
-msgid "Remove"
-msgstr "Удалить"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -556,7 +584,7 @@ msgstr "Напечатать порядок служения и тексты п�
 msgid "Save as template"
 msgstr "Сохранить как шаблон"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint src/strings/stage.rs
 msgid "Delete"
 msgstr "Удалить"
 
@@ -820,7 +848,7 @@ msgstr "Отключите, если случайно нажатые буквы 
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Буквы и цифры переводят текущую песню к разделу"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Отчёт об исполнении песен…"
 
@@ -829,12 +857,28 @@ msgid "Sound goes to"
 msgstr "Звук выводится на"
 
 #: ui/dialogs/settings.slint
+msgid "Graphics"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Room screen"
 msgstr "Экран зала"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
 msgstr "Держать экран зала поверх окон, если у него свой монитор (плавнее переходы)"
+
+#: ui/dialogs/settings.slint src/strings/stage.rs
+msgid "Stage layout"
+msgstr "Макет сцены"
+
+#: ui/dialogs/settings.slint
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -948,22 +992,6 @@ msgstr "Порядок"
 msgid "(optional)"
 msgstr "(необязательно)"
 
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Not in the lyrics — it is skipped"
-msgstr "Нет в тексте — пропускается"
-
-#: ui/dialogs/song-editor.slint
-msgid "End"
-msgstr "Конец"
-
-#: ui/dialogs/song-editor.slint src/strings/song.rs
-msgid "Written order — drag to change"
-msgstr "Порядок в тексте — перетащите, чтобы изменить"
-
-#: ui/dialogs/song-editor.slint
-msgid "⟲ Use written order"
-msgstr "⟲ Порядок как в тексте"
-
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Оставьте пустым, чтобы использовать порядок как в тексте"
@@ -987,6 +1015,130 @@ msgstr "Сохранить песню"
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
 msgstr "Сохранить и показать"
+
+#: ui/dialogs/stage-canvas.slint src/strings/screens.rs
+msgid "Stage screen"
+msgstr "Экран сцены"
+
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+msgid "Needs a newer RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint src/strings/stage.rs
+msgid "Stage layouts"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "On stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "New"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate to edit"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Rename…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Delete…"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Use on stage"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Save first"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Boxes"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "No boxes yet. Add one to show something on the stage."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Add box"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Shows"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Words"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Biggest text ({}%)"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Text colour"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Alignment"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Centre"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Undo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Redo"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in layouts can't be changed. Duplicate one to make your own."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Choose the stage layout"
+msgstr ""
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Edit stage layouts…"
+msgstr ""
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1253,6 +1405,14 @@ msgid "Before the service: are all the songs, files and screens there?"
 msgstr "Перед служением: все ли песни, файлы и экраны на месте?"
 
 #: ui/operator/service.slint
+msgid "Custom order"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator/slides.slint
+msgid "Custom order for this service"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Choose what goes here"
 msgstr "Выберите, что здесь будет"
 
@@ -1405,8 +1565,20 @@ msgid "Open a service file…"
 msgstr "Открыть файл служения…"
 
 #: ui/operator.slint
+msgid "Open recent"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Save this service to a file…"
 msgstr "Сохранить служение в файл…"
+
+#: ui/operator.slint
+msgid "Export"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Service bundle…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Song…"
@@ -1433,8 +1605,16 @@ msgid "Import media…"
 msgstr "Импорт медиа…"
 
 #: ui/operator.slint
+msgid "Print service order…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Exit"
 msgstr "Выход"
+
+#: ui/operator.slint
+msgid "Find…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -1473,6 +1653,18 @@ msgid "Show media library"
 msgstr "Показать медиатеку"
 
 #: ui/operator.slint
+msgid "Zoom in"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Zoom out"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Actual size"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Window"
 msgstr "Окно"
 
@@ -1487,6 +1679,10 @@ msgstr "Телефон-пульт…"
 #: ui/operator.slint
 msgid "Stage message…"
 msgstr "Сообщение на сцену…"
+
+#: ui/operator.slint
+msgid "Stage layouts…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -1515,6 +1711,10 @@ msgstr "Сочетания клавиш"
 #: ui/operator.slint
 msgid "Check the service"
 msgstr "Проверить служение"
+
+#: ui/operator.slint
+msgid "Open logs folder"
+msgstr ""
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2240,6 +2440,10 @@ msgstr "RustyPresenter не смог открыть окно: {reason}"
 msgid "RustyPresenter could not run its windows: {reason}"
 msgstr "RustyPresenter не смог запустить свои окна: {reason}"
 
+#: src/model.rs
+msgid "Sunday Service"
+msgstr ""
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Экраны не работают."
@@ -2271,6 +2475,46 @@ msgstr "RustyPresenter перезапустился после сбоя. Вид�
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "RustyPresenter остановлен после 3 сбоев за минуту. Журнал находится в {path}."
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Verse"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Tag"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Intro"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Ending"
+msgstr ""
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Interlude"
+msgstr ""
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3789,10 +4033,6 @@ msgid "Audience screen"
 msgstr "Экран зала"
 
 #: src/strings/screens.rs
-msgid "Stage screen"
-msgstr "Экран сцены"
-
-#: src/strings/screens.rs
 msgid "Showing"
 msgstr "Показывает"
 
@@ -4086,6 +4326,16 @@ msgstr "Удалить служение «{name}»? (Песни и медиа о
 msgid "Settings saved"
 msgstr "Настройки сохранены"
 
+#: src/strings/settings.rs
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Amazing Grace · John Newton · Public Domain"
+msgstr ""
+
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
 msgstr "Шрифт «{font}» не установлен на этом компьютере, поэтому на слайдах используется Noto Sans."
@@ -4210,6 +4460,30 @@ msgid "Ctrl + V"
 msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
+msgid "Ctrl + Z"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + Y"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + F"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Undo the last change to the services or the library"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Redo what Undo took back"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Find a song"
+msgstr ""
+
+#: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
 msgstr "Перейти в текущей песне к куплету 1–9, припеву, предприпеву, бриджу, тэгу, вступлению, концовке, проигрышу или следующему куплету"
 
@@ -4309,7 +4583,7 @@ msgstr "Сохранённый вывод звука (не подключён)"
 msgid "Verse"
 msgstr "Куплет"
 
-#: src/strings/song.rs
+#: src/strings/song.rs src/strings/stage.rs
 msgid "Chorus"
 msgstr "Припев"
 
@@ -4386,6 +4660,10 @@ msgid "Click to show this part"
 msgstr "Щёлкните, чтобы показать эту часть"
 
 #: src/strings/song.rs
+msgid "Saved as the usual order."
+msgstr ""
+
+#: src/strings/song.rs
 msgid "This song has no {section} {number}."
 msgstr "В этой песне нет раздела «{section} {number}»."
 
@@ -4404,10 +4682,6 @@ msgstr "{section} — нажмите {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · слайд {page} из {pages}"
-
-#: src/strings/stage.rs
-msgid "Stage layout"
-msgstr "Макет сцены"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -4641,6 +4915,66 @@ msgstr "Макрос не будет выполняться, пока его н�
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
 msgstr "Макросы не будут выполняться, пока их не изменят"
+
+#: src/strings/stage.rs
+msgid "New stage layout"
+msgstr ""
+
+#: src/strings/stage.rs src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} (копия)"
+
+#: src/strings/stage.rs
+msgid "Name of the stage layout"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard your changes to the stage layouts?"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Discard"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Keep editing"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Stage layouts saved."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The stage shows “{name}”."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Your words here"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing grace, how sweet the sound"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That saved a wretch like me"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Verse 2"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Amazing Grace"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slow down on the last line"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Last chorus"
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5237,10 +5571,6 @@ msgid "Normal"
 msgstr "Обычный"
 
 #: src/theme/saved.rs
-msgid "{name} copy"
-msgstr "{name} (копия)"
-
-#: src/theme/saved.rs
 msgid "{name} copy {number}"
 msgstr "{name} (копия {number})"
 
@@ -5266,6 +5596,14 @@ msgid_plural "{n} problems"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#: src/ui/operator/menu.rs
+msgid "Could not open the logs folder. It is at {path}"
+msgstr ""
+
+#: src/ui/operator/menu.rs
+msgid "Make the window bigger to zoom in further."
+msgstr ""
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -5355,6 +5693,70 @@ msgstr "RustyPresenter закрывается."
 msgid "Could not open the stage screen: {error}"
 msgstr "Не удалось открыть экран сцены: {error}"
 
+#: src/undo.rs
+msgid "Undone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Redone: {what}"
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't undo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Can't redo {what}: it was changed again since."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to redo."
+msgstr ""
+
+#: src/undo.rs
+msgid "Nothing to undo."
+msgstr ""
+
+#: src/undo.rs
+msgid "the new service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the service “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "adding “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "removing “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "moving “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the new song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "deleting the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "changes to the song “{name}”"
+msgstr ""
+
+#: src/undo.rs
+msgid "the last change"
+msgstr ""
+
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
 msgstr "Нет видеоплеера. Переустановите RustyPresenter."
@@ -5366,6 +5768,34 @@ msgstr "Не удаётся загрузить видеоплеер из {path}:
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
 msgstr "Эта версия libmpv слишком старая (client API {major}.{minor}); RustyPresenter нужна 2.x."
+
+#: src/video/graphics.rs
+msgid "Software"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Automatic (recommended)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Software (safe mode)"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "In use now: {mode}"
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "Restart RustyPresenter to use the new graphics setting."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
+msgstr ""
+
+#: src/video/graphics.rs
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgstr ""
 
 #: src/video/player.rs
 msgid "The video player could not start."
