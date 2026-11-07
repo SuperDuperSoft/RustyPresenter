@@ -129,6 +129,8 @@ impl OperatorSnapshot {
             let (title, kind, slides, notes) = build_item_with_notes(&data, i);
             ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone(), notes }
         }).collect()).unwrap_or_default();
+        // One lock: both in the struct below would hold the first until the end of the statement.
+        let (can_undo, can_redo) = { let h = app.history.lock().unwrap(); (h.can_undo(), h.can_redo()) };
         let mut snap = Self {
             service_id: data.service().map(|s| s.id),
             service_name: data.service().map_or_else(tr::service, |s| s.name.clone()).into(),
@@ -155,8 +157,8 @@ impl OperatorSnapshot {
             version: env!("CARGO_PKG_VERSION").into(),
             data: Arc::new(data),
             read,
-            can_undo: app.history.lock().unwrap().can_undo(),
-            can_redo: app.history.lock().unwrap().can_redo(),
+            can_undo,
+            can_redo,
         };
         snap.refresh_subtitles();
         snap

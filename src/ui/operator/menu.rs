@@ -248,7 +248,7 @@ mod tests {
         for t in titles {
             let t = t.trim();
             // `file`: Open recent's file names, which are not words to translate.
-            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file", "{t:?} is not translatable");
+            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;", "{t:?} is not translatable");
         }
     }
 
