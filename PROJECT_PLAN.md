@@ -190,7 +190,7 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | FEAT-7 | Looks, livestream, reporting | Claude | In progress | Song use log + CCLI report (CSV/HTML) on `finish`. Livestream is **after 1.0** (see §10d). |
 | BIBLE-3 | Three Bibles plan Tasks 8–10 | Claude | Needs review | On `finish`: Item edit "Also show", missing-verse note, online text cache-only (never saved), catalog merge. Not checked against real APIs. |
 | FEAT-2, FEAT-5 | Service automation; Bible extras | Unassigned | Planning | Specs and plans exist; not built. FEAT-3 timers wait on FEAT-2. |
-| IDEAS-PP7-HANDS | 13 ideas from using ProPresenter 7 hands-on, filed under their projects (§10c-2) | Unassigned | Planning | User approved all Nov 6. Small 1.0 ones first: N1, N2, N4, N5, N7, N8. |
+| IDEAS-PP7-HANDS | 13 ideas from using ProPresenter 7 hands-on, filed under their projects (§10c-2) | Unassigned | Planning | **All 13 required for 1.0** (Jake, Nov 6). Small ones first: N1, N2, N4, N5, N7, N8; see §10c-2 for order. |
 | REFACTOR-CRATES | Split the crate into a workspace (core / ui / server …) | Unassigned | Planning | After 1.0. The lib test build needs ~6 GB RAM (the cloud sandbox needed a swap file). |
 
 ## 9. Current workspace handoff
@@ -282,7 +282,9 @@ Claude opened the ProPresenter 7 trial on Jake's PC (main window, Stage Editor, 
 | N12 | **Props** (saved logo/bug overlays, a collection you toggle) and **Masks** (crop or round the output shape) | FEAT-1 overlays | A logo bug can be turned on/off from a side panel |
 | N13 | **Separate audio playlist** with shuffle and its own volume, independent of slides | FEAT-2 (walk-in music, §10c #9) | Walk-in music plays from its own list and keeps going while slides change |
 
-Order: N1, N2, N4, N5, N7, N8 are small and help 1.0 (screens, preflight, playback, UI polish). N3 waits on FEAT-2. The rest go into their FEAT specs. Not copied: ProContent store and MultiTracks chords (paid).
+**All 13 are required for 1.0** (Jake, Nov 6, 21:32). 1.0 does not freeze until every N item is done with evidence.
+Because of that, these are now 1.0 work too: FEAT-2 timers (for N3 and N13), FEAT-3 layout editor (N10), the FEAT-5 Bible panel extras (N6), Looks with fade (N9, part of FEAT-1), camera input (N11) and props/masks (N12).
+Suggested order: small ones first (N1, N2, N4, N5, N7, N8), then N6, N9, N3 + N13 (with FEAT-2), N10, N12, N11 last (needs camera capture on Windows). Not copied: ProContent store and MultiTracks chords (paid).
 
 ### UI-MENU — classic menu bar (user request, November 6, 2026) — *new*
 
@@ -1224,3 +1226,4 @@ Jake asked: "finish the whole project … make sure that there is a plan feature
 - Added §10c-2 (13 ideas, N1–N13), a board row, and `docs/research/` notes (hands-on notes + the earlier beginner's-guide notes that §10c points to).
 - Committed straight onto `finish` with git plumbing so the laptop's working copy (on `native-foundation`, with uncommitted changes) was not touched. Not pushed (GitHub budget).
 - Next: put N1, N2, N4, N5, N7, N8 into the 1.0 work; the rest into the FEAT-1/2/3/5 specs.
+- Later the same evening Jake decided **all 13 §10c-2 ideas are required before 1.0**. §10c-2 and the board row now say so; FEAT-2 timers, the FEAT-3 layout editor and the FEAT-5 Bible panel extras move into 1.0 with them.
