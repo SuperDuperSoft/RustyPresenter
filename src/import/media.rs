@@ -116,7 +116,7 @@ pub(crate) async fn reprobe_all(app: Arc<App>, ids: Vec<Uuid>) {
         found.push((id, look(&app, mpv.clone(), path).await));
     }
     if found.is_empty() { return }
-    let saved = app.edit(|d| {
+    let saved = app.edit_untracked(|d| {
         for (id, found) in found {
             let Some(m) = d.media.iter_mut().find(|m| m.id == id) else { continue };
             match found {
@@ -144,7 +144,7 @@ async fn look(app: &Arc<App>, mpv: Option<Arc<Mpv>>, path: PathBuf) -> Found {
 /// before anything else can read them. The look at those files runs in the background.
 pub fn at_start(app: &Arc<App>, mpv: Option<Arc<Mpv>>, rt: &tokio::runtime::Handle) {
     app.set_probe_mpv(mpv);
-    match app.edit(|d| Ok(upgrade_media(d))) {
+    match app.edit_untracked(|d| Ok(upgrade_media(d))) {
         Ok(ids) if !ids.is_empty() => { rt.spawn(reprobe_all(app.clone(), ids)); }
         Ok(_) => {}
         Err(e) => eprintln!("Could not update the media library: {e}"),

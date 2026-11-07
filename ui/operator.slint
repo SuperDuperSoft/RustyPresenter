@@ -200,6 +200,14 @@ export component OperatorWindow inherits Window {
     out property <bool> menu-ready: root.loaded && !root.covered;
     out property <bool> menu-can-edit: root.menu-ready && root.has-selection;
     out property <bool> menu-can-save: root.menu-ready && root.has-service;
+    /// Edit → Undo / Redo have a step to take (`crate::undo`).
+    in property <bool> can-undo;
+    in property <bool> can-redo;
+    /// File → Open recent: the service files opened lately, as the menu names them.
+    in property <[string]> recent-files;
+    callback open-recent(int);
+    /// View → Zoom: how large the window draws itself, in percent (`menu::ZOOMS`).
+    in property <int> zoom-percent: 100;
 
     /// One key press, for `keys::route` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, whether a text field
     /// has focus and whether that field is the Bible box. True when the key was used.
@@ -249,8 +257,9 @@ export component OperatorWindow inherits Window {
         return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
     }
 
-    // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Only F1–F5 and Ctrl+B are
-    // bound as shortcuts: the window matches them before any text box, and these do the same wherever the focus is.
+    // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Only F1–F5, Ctrl+B, Ctrl+F,
+    // Ctrl+Z and Ctrl+Y are bound as shortcuts: the window matches them before any text box, so they do the same
+    // wherever the focus is, or (Undo, Redo) are off while a text box has the keyboard.
     MenuBar {
         Menu {
             title: @tr("File");
@@ -269,10 +278,26 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); ServicesDialogState.open-file(); }
             }
+            Menu {
+                title: @tr("Open recent");
+                enabled: root.menu-ready && root.recent-files.length > 0;
+                for file[i] in root.recent-files: MenuItem {
+                    title: file;
+                    activated => { root.focus-keys(); root.open-recent(i); }
+                }
+            }
             MenuItem {
                 title: @tr("Save this service to a file…");
                 enabled: root.menu-can-save;
                 activated => { root.focus-keys(); ServicesDialogState.save-file(); }
+            }
+            Menu {
+                title: @tr("Export");
+                enabled: root.menu-can-save;
+                MenuItem {
+                    title: @tr("Service bundle…");
+                    activated => { root.focus-keys(); ServicesDialogState.save-file(); }
+                }
             }
             MenuSeparator {}
             Menu {
@@ -306,12 +331,44 @@ export component OperatorWindow inherits Window {
             }
             MenuSeparator {}
             MenuItem {
+                title: @tr("Print service order…");
+                enabled: root.menu-can-save;
+                activated => { root.focus-keys(); root.menu("print"); }
+            }
+            MenuItem {
+                title: @tr("Song use report…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.usage-report(); }
+            }
+            MenuSeparator {}
+            MenuItem {
                 title: @tr("Exit");
                 activated => { root.menu("exit"); }
             }
         }
         Menu {
             title: @tr("Edit");
+            // A text box keeps Ctrl+Z / Ctrl+Y for its own typing: the items are off while one has the keyboard.
+            MenuItem {
+                title: @tr("Undo");
+                shortcut: @keys(Control + Z);
+                enabled: root.menu-ready && root.can-undo && !OperatorState.focus-in-text;
+                activated => { root.menu("undo"); }
+            }
+            MenuItem {
+                title: @tr("Redo");
+                shortcut: @keys(Control + Y);
+                enabled: root.menu-ready && root.can-redo && !OperatorState.focus-in-text;
+                activated => { root.menu("redo"); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Find…");
+                shortcut: @keys(Control + F);
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("find"); }
+            }
+            MenuSeparator {}
             MenuItem {
                 title: @tr("Edit the selected item…");
                 enabled: root.menu-can-edit;
@@ -367,6 +424,22 @@ export component OperatorWindow inherits Window {
                 title: bin.open ? @tr("Hide media library") : @tr("Show media library");
                 enabled: !root.covered;
                 activated => { bin.open = !bin.open; }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Zoom in");
+                enabled: root.zoom-percent < 150;
+                activated => { root.menu("zoom-in"); }
+            }
+            MenuItem {
+                title: @tr("Zoom out");
+                enabled: root.zoom-percent > 80;
+                activated => { root.menu("zoom-out"); }
+            }
+            MenuItem {
+                title: @tr("Actual size");
+                enabled: root.zoom-percent != 100;
+                activated => { root.menu("zoom-reset"); }
             }
         }
         Menu {
@@ -427,6 +500,10 @@ export component OperatorWindow inherits Window {
                 title: @tr("Check the service");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.check-service(); }
+            }
+            MenuItem {
+                title: @tr("Open logs folder");
+                activated => { root.menu("logs"); }
             }
             MenuSeparator {}
             MenuItem {

@@ -18,6 +18,11 @@ pub enum KeyAction {
     PasteLink,
     /// A section key for the live song (FEAT-4 §3.2): `1`–`9` that verse, or a section letter, lower case.
     JumpSection(char),
+    /// Ctrl+Z / Ctrl+Y outside a text field: Edit → Undo / Redo. A text field keeps them for its own typing.
+    Undo,
+    Redo,
+    /// Ctrl+F: Edit → Find… (a song in the Add dialog).
+    Find,
     None,
 }
 
@@ -72,6 +77,9 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     if ctrl_or_cmd && key.eq_ignore_ascii_case("b") {
         return if ctx.dialog_open { KeyAction::None } else { KeyAction::FocusBible };
     }
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("f") {
+        return if ctx.dialog_open { KeyAction::None } else { KeyAction::Find };
+    }
     if ctx.dialog_open {
         return KeyAction::None;
     }
@@ -83,6 +91,12 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     }
     if ctrl_or_cmd && key.eq_ignore_ascii_case("v") {
         return KeyAction::PasteLink;
+    }
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("z") {
+        return KeyAction::Undo;
+    }
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("y") {
+        return KeyAction::Redo;
     }
     if crate::sections::jump_for_key(key, ctrl_or_cmd, alt).is_some() && let Some(c) = key.chars().next() {
         return KeyAction::JumpSection(c.to_ascii_lowercase());
@@ -160,6 +174,9 @@ impl Operator {
                 None => return false,
             },
             KeyAction::JumpSection(c) => return self.jump_section(c),
+            KeyAction::Undo => self.undo(false),
+            KeyAction::Redo => self.undo(true),
+            KeyAction::Find => self.find(),
             KeyAction::None => return false,
         }
         true
@@ -238,6 +255,26 @@ mod tests {
         assert_eq!(route("v", true, false, BIBLE), KeyAction::None);
         assert_eq!(route("v", true, false, DIALOG), KeyAction::None);
         assert_eq!(route("v", false, false, PLAIN), KeyAction::JumpSection('v'), "a plain V is the next verse (FEAT-4)");
+    }
+
+    #[test]
+    fn ctrl_z_and_ctrl_y_undo_and_redo_outside_text_fields_and_dialogs() {
+        assert_eq!(route("z", true, false, PLAIN), KeyAction::Undo);
+        assert_eq!(route("Z", true, false, PLAIN), KeyAction::Undo);
+        assert_eq!(route("y", true, false, PLAIN), KeyAction::Redo);
+        for ctx in [TYPING, BIBLE, DIALOG] {
+            assert_eq!(route("z", true, false, ctx), KeyAction::None, "a text box undoes its own typing");
+            assert_eq!(route("y", true, false, ctx), KeyAction::None);
+        }
+        assert_eq!(route("z", false, false, PLAIN), KeyAction::None);
+    }
+
+    #[test]
+    fn ctrl_f_finds_from_anywhere_but_a_dialog() {
+        assert_eq!(route("f", true, false, PLAIN), KeyAction::Find);
+        assert_eq!(route("F", true, false, TYPING), KeyAction::Find);
+        assert_eq!(route("f", true, false, BIBLE), KeyAction::Find);
+        assert_eq!(route("f", true, false, DIALOG), KeyAction::None);
     }
 
     /// There is no Blackout toggle (v1 design, clear controls): B is the song's bridge (FEAT-4), never a clear.
