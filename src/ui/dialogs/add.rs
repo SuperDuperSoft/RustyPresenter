@@ -504,7 +504,7 @@ pub(crate) mod tests {
         open_add(&op, AddTab::Song);
         settle(&op);
         click(&op, "AddListRow::add-btn");
-        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id }] if song_id == id));
+        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id, .. }] if song_id == id));
         assert_eq!(op.dialog(), None);
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
         let new_id = app.data.lock().unwrap().services[0].items[0].id;

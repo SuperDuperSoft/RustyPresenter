@@ -19,7 +19,7 @@ fn sample() -> (Data, Service) {
     s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 8);
     s.items = vec![
         item(ItemKind::Header { title: "Worship".into(), color: String::new() }),
-        item(ItemKind::Song { song_id: song.id }),
+        item(ItemKind::Song { song_id: song.id, arrangement: None }),
         item(ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(),
             verses: vec![VerseText::new("John 3:16", "For God so loved the world"), VerseText::new("John 3:17", "For God sent not")],
             per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }),
@@ -67,6 +67,15 @@ fn order_rows_for_every_kind() {
 }
 
 #[test]
+fn print_follows_this_services_song_order() {
+    let (d, mut s) = sample();
+    if let ItemKind::Song { arrangement, .. } = &mut s.items[1].kind { *arrangement = Some(vec!["Chorus".into(), "Verse 2".into()]) }
+    let doc = build(&d, &s, &opts(PrintWhat::Both), DateOrder::Mdy);
+    assert_eq!(rows(&doc.blocks)[0].2, "John Newton · Order: Chorus Verse 2");
+    assert!(doc.blocks.contains(&Block::Order("Order: Chorus · Verse 2".into())));
+}
+
+#[test]
 fn order_includes_notes_only_when_asked() {
     let (d, s) = sample();
     let notes = |o: &PrintSettings| build(&d, &s, o, DateOrder::Mdy).blocks.iter().filter_map(|b| match b { Block::OrderRow { notes, .. } if !notes.is_empty() => Some(notes.clone()), _ => None }).collect::<Vec<_>>();
@@ -101,7 +110,7 @@ fn lyrics_song_per_page_inserts_breaks() {
     let mut second = d.songs[0].clone();
     second.id = Uuid::new_v4();
     second.title = "Second".into();
-    s.items.push(item(ItemKind::Song { song_id: second.id }));
+    s.items.push(item(ItemKind::Song { song_id: second.id, arrangement: None }));
     d.songs.push(second);
     let breaks = |o: &PrintSettings| build(&d, &s, o, DateOrder::Mdy).blocks.iter().filter(|b| **b == Block::PageBreak).count();
     assert_eq!(breaks(&opts(PrintWhat::Lyrics)), 0);

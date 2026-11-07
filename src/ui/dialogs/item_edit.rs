@@ -70,7 +70,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_also_rows(ModelRc::default());
     g.set_also_layout(i32::from(matches!(item.kind, ItemKind::Scripture { layout: ParallelLayout::Stacked, .. })));
     match &item.kind {
-        ItemKind::Song { song_id } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
+        ItemKind::Song { song_id, .. } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
         ItemKind::Scripture { per_slide, text_size, .. } => {
             g.set_per_slide(i32::from(*per_slide));
             if *text_size > 0 {
@@ -424,7 +424,7 @@ fn remove(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 
 /// **Edit song** swaps the dialog for the song editor (`openSongEditor(song)`).
 fn edit_song(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
-    let ItemKind::Song { song_id } = edit.borrow().item.kind else { return };
+    let ItemKind::Song { song_id, .. } = edit.borrow().item.kind else { return };
     super::song_editor::open_song_editor(op, Some(song_id), false);
 }
 
@@ -928,8 +928,8 @@ mod tests {
         let app = test_app();
         let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: String::new(), ccli: String::new(), copyright: String::new(), lyrics: "Verse 1\nAmazing grace".into(), arrangement: vec![] };
         app.data.lock().unwrap().songs.push(song.clone());
-        let id = push(&app, ItemKind::Song { song_id: song.id });
-        let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4() });
+        let id = push(&app, ItemKind::Song { song_id: song.id, arrangement: None });
+        let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None });
         let op = opened(&app);
         open(&op, gone);
         settle();

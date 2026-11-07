@@ -9,7 +9,7 @@ fn dated(name: &str, date: Option<NaiveDate>) -> Service { Service { date, ..Ser
 
 fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None } }
 
-fn song() -> ItemKind { ItemKind::Song { song_id: Uuid::new_v4() } }
+fn song() -> ItemKind { ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None } }
 fn text(t: &str) -> ItemKind { ItemKind::Text { title: t.into(), body: "b".into() } }
 fn reading() -> ItemKind {
     ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }
@@ -156,7 +156,16 @@ fn copy_items_new_ids_keep_all_fields() {
     assert_ne!(out[0].id, a.id);
     assert_eq!(out[0].notes, "Key of G");
     assert_eq!(out[0].background, a.background);
-    assert!(matches!((&out[0].kind, &a.kind), (ItemKind::Song { song_id: x }, ItemKind::Song { song_id: y }) if x == y));
+    assert!(matches!((&out[0].kind, &a.kind), (ItemKind::Song { song_id: x, .. }, ItemKind::Song { song_id: y, .. }) if x == y));
+}
+
+#[test]
+fn copy_last_week_drops_a_custom_song_order_and_copy_this_service_keeps_it() {
+    let a = item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: Some(vec!["Chorus".into()]) });
+    let (out, _) = copy_items(std::slice::from_ref(&a), CopyMode::LastWeek { blanks: false });
+    assert!(matches!(out[0].kind, ItemKind::Song { arrangement: None, .. }));
+    let (out, _) = copy_items(std::slice::from_ref(&a), CopyMode::ThisService);
+    assert!(matches!(&out[0].kind, ItemKind::Song { arrangement: Some(o), .. } if o == &["Chorus"]));
 }
 
 #[test]

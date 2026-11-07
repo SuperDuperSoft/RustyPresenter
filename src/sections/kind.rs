@@ -27,11 +27,12 @@ impl SectionKind {
             "intro" => (SectionKind::Intro, 1),
             "ending" | "end" | "outro" | "coda" => (SectionKind::Ending, 1),
             "interlude" | "instrumental" | "turnaround" | "vamp" => (SectionKind::Interlude, 1),
-            _ => return (SectionKind::Other, None),
+            _ => return match translated_head(&lower) {
+                Some((kind, rest)) => (kind, section_number(rest.split_whitespace().next())),
+                None => (SectionKind::Other, None),
+            },
         };
-        let number = words.get(rest).filter(|w| (1..=2).contains(&w.len()) && w.chars().all(|c| c.is_ascii_digit()))
-            .and_then(|w| w.parse::<u8>().ok()).filter(|n| *n >= 1);
-        (kind, number)
+        (kind, section_number(words.get(rest).copied()))
     }
 
     /// "V2", "C", "PC", "B", "T", "I", "E", "Int"; Other is always "•".
@@ -110,6 +111,42 @@ impl SectionKind {
     }
 }
 
+/// "2" in "Verse 2": one or two digits, not 0.
+fn section_number(word: Option<&str>) -> Option<u8> {
+    word.filter(|w| (1..=2).contains(&w.len()) && w.chars().all(|c| c.is_ascii_digit())).and_then(|w| w.parse::<u8>().ok()).filter(|n| *n >= 1)
+}
+
+/// The section heading words of the language the app is shown in, longest first, with their kinds. Translators
+/// may give several words for one, split by `|` ("Coro|Estribillo"). English words are left to the callers, which
+/// always know them.
+fn translated_heads() -> Vec<(String, SectionKind)> {
+    use crate::trc;
+    let words = [
+        (SectionKind::Verse, "verse", trc!("song section heading", "Verse")),
+        (SectionKind::Chorus, "chorus", trc!("song section heading", "Chorus")),
+        (SectionKind::PreChorus, "pre-chorus", trc!("song section heading", "Pre-chorus")),
+        (SectionKind::Bridge, "bridge", trc!("song section heading", "Bridge")),
+        (SectionKind::Tag, "tag", trc!("song section heading", "Tag")),
+        (SectionKind::Intro, "intro", trc!("song section heading", "Intro")),
+        (SectionKind::Ending, "ending", trc!("song section heading", "Ending")),
+        (SectionKind::Interlude, "interlude", trc!("song section heading", "Interlude")),
+    ];
+    let mut out: Vec<(String, SectionKind)> = words.iter().flat_map(|(kind, english, t)| {
+        t.split('|').map(|w| w.trim().to_lowercase()).filter(|w| !w.is_empty() && w != english).map(|w| (w, *kind)).collect::<Vec<_>>()
+    }).collect();
+    out.sort_by_key(|(w, _)| std::cmp::Reverse(w.chars().count()));
+    out
+}
+
+/// A lower-case heading that starts with a section word of the app's language ("coro", "verso 1"): its kind and
+/// what follows the word.
+pub(crate) fn translated_head(lower: &str) -> Option<(SectionKind, &str)> {
+    translated_heads().into_iter().find_map(|(word, kind)| {
+        let rest = lower.strip_prefix(word.as_str())?;
+        (rest.is_empty() || rest.starts_with(|c: char| c.is_whitespace() || c.is_ascii_digit())).then(|| (kind, rest.trim_start()))
+    })
+}
+
 /// The colour for a slide label, `None` for Other (for the stage and the phone).
 pub fn color_for_label(label: &str) -> Option<&'static str> {
     let (kind, _) = SectionKind::from_label(label);
@@ -173,7 +210,7 @@ pub(crate) mod colour {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::{colour::*, *};
 
     #[test]
@@ -195,6 +232,57 @@ mod tests {
         assert_eq!(t("Verse 0"), (Verse, None));
         assert_eq!(t("Verse 100"), (Verse, None));
         assert_eq!(t("[Bridge]:"), (Bridge, None));
+    }
+
+    /// Spanish heading words, as a translator would give them.
+    pub(crate) const ES: &str = r#"
+msgid ""
+msgstr ""
+"Language: es\n"
+
+msgctxt "song section heading"
+msgid "Verse"
+msgstr "Verso"
+
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr "Coro|Estribillo"
+
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr "Pre-coro"
+
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr "Puente"
+
+msgctxt "song section heading"
+msgid "Tag"
+msgstr "Tag"
+"#;
+
+    #[test]
+    fn from_label_knows_the_ui_languages_heading_words() {
+        use SectionKind::*;
+        crate::i18n::testing::with_catalog(ES, || {
+            let t = SectionKind::from_label;
+            assert_eq!(t("Coro"), (Chorus, None));
+            assert_eq!(t("Verso 1"), (Verse, Some(1)));
+            assert_eq!(t("[Estribillo 2]"), (Chorus, Some(2)));
+            assert_eq!(t("Pre-coro"), (PreChorus, None), "the longer word wins over Coro");
+            assert_eq!(t("puente:"), (Bridge, None));
+            assert_eq!(t("Verse 2"), (Verse, Some(2)), "English is always known");
+            assert_eq!(t("Tag"), (Tag, None));
+            assert_eq!(t("Coronas"), (Other, None), "a word that only starts like one");
+        });
+        assert_eq!(SectionKind::from_label("Coro"), (SectionKind::Other, None), "only in that language");
+    }
+
+    #[test]
+    fn heading_words_reach_the_translation_template() {
+        let msgs = crate::i18n::extract::from_rust(include_str!("kind.rs"), "src/sections/kind.rs").unwrap();
+        let heads: Vec<&str> = msgs.iter().filter(|m| m.ctx.as_deref() == Some("song section heading")).map(|m| m.id.as_str()).collect();
+        assert_eq!(heads, ["Verse", "Chorus", "Pre-chorus", "Bridge", "Tag", "Intro", "Ending", "Interlude"]);
     }
 
     #[test]

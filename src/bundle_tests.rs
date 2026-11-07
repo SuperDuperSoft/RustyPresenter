@@ -21,7 +21,7 @@ fn sample(s: &Store) -> Data {
     let mut d = Data::default();
     let (v, slide, bg, other) = (asset(s, b"video", "mp4"), asset(s, b"slide", "png"), asset(s, b"bg", "jpg"), asset(s, b"not used", "png"));
     let (sg, m, deck) = (song("Amazing Grace", "22025", "Verse 1\nAmazing grace"), media("clip", &v), Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec![slide] });
-    let mut first = item(ItemKind::Song { song_id: sg.id });
+    let mut first = item(ItemKind::Song { song_id: sg.id, arrangement: None });
     first.background = Some(Background::Image { asset: bg, dim: 0 });
     first.notes = "Key of G".into();
     let svc = d.service_mut().unwrap();
@@ -162,11 +162,11 @@ fn the_same_song_under_another_id_is_reused() {
     there.songs.push(local);
     let incoming = song("Amazing Grace", "22025", "words");
     let mut svc = Service::new("S");
-    svc.items = vec![item(ItemKind::Song { song_id: incoming.id })];
+    svc.items = vec![item(ItemKind::Song { song_id: incoming.id, arrangement: None })];
     let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
     assert_eq!(opened.songs_added, 0);
     assert_eq!(there.songs.len(), 1);
-    assert!(matches!(there.service().unwrap().items[0].kind, ItemKind::Song { song_id } if song_id == local_id));
+    assert!(matches!(there.service().unwrap().items[0].kind, ItemKind::Song { song_id, .. } if song_id == local_id));
 }
 
 #[test]
@@ -178,12 +178,12 @@ fn a_song_with_other_words_comes_in_beside_the_library_one() {
     let mut incoming = song("Grace", "22025", "the words as rehearsed");
     incoming.id = same_id;
     let mut svc = Service::new("S");
-    svc.items = vec![item(ItemKind::Song { song_id: same_id })];
+    svc.items = vec![item(ItemKind::Song { song_id: same_id, arrangement: None })];
     let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
     assert_eq!(opened.songs_differ, vec!["Grace".to_string()]);
     assert_eq!(there.songs.len(), 2);
     assert_eq!(there.songs[0].lyrics, "the words here", "the library's own song is untouched");
-    let ItemKind::Song { song_id } = there.service().unwrap().items[0].kind else { panic!() };
+    let ItemKind::Song { song_id, .. } = there.service().unwrap().items[0].kind else { panic!() };
     assert_ne!(song_id, local_id, "the service shows the words it was saved with");
     assert_eq!(there.songs.iter().find(|s| s.id == song_id).unwrap().lyrics, "the words as rehearsed");
 }

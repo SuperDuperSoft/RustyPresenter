@@ -17,7 +17,7 @@ async fn copy_week_action_selects_new_service_and_reports_blanks() {
         let s = &mut d.services[0];
         s.name = "Service 1/4/2026".into();
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 1, 4);
-        s.items = vec![item(ItemKind::Song { song_id: Uuid::new_v4() }), item(ItemKind::Text { title: "Hi".into(), body: "x".into() })];
+        s.items = vec![item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }), item(ItemKind::Text { title: "Hi".into(), body: "x".into() })];
         s.id
     };
     let r = act(&app, "service/copy-week", json!({ "date": "2026-11-08", "blanks": true })).await.unwrap();
@@ -66,7 +66,7 @@ async fn fill_replaces_blank_in_place_and_refuses_non_blank() {
         let d = app.data.lock().unwrap();
         let it = &d.services[0].items[1];
         assert_eq!(it.id, bid);
-        assert!(matches!(it.kind, ItemKind::Song { song_id } if song_id == song));
+        assert!(matches!(it.kind, ItemKind::Song { song_id, .. } if song_id == song));
         assert_eq!(it.notes, "upbeat");
     }
     let again = act(&app, "service/fill", json!({ "id": bid, "item": { "kind": "song", "song_id": song } })).await.unwrap_err();
@@ -81,7 +81,7 @@ async fn templates_save_make_rename_and_delete() {
     let sid = {
         let mut d = app.data.lock().unwrap();
         let s = &mut d.services[0];
-        s.items = vec![item(ItemKind::Text { title: "Welcome".into(), body: "x".into() }), item(ItemKind::Song { song_id: Uuid::new_v4() })];
+        s.items = vec![item(ItemKind::Text { title: "Welcome".into(), body: "x".into() }), item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None })];
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 4); // a Wednesday
         s.id
     };
@@ -120,7 +120,7 @@ async fn library_deletes_are_blocked_by_templates() {
         d.media.push(MediaFile { id: media, name: "M".into(), kind: MediaKind::Image, asset: "a.png".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
         d.decks.push(Deck { id: deck, title: "D".into(), slides: vec![] });
         d.templates.push(ServiceTemplate { id: Uuid::new_v4(), name: "Sunday".into(), day: None, items: vec![
-            item(ItemKind::Song { song_id: song }), item(ItemKind::Media { media_id: media, autoplay: true, end: EndAction::Stop, looped: false }), item(ItemKind::Deck { deck_id: deck }),
+            item(ItemKind::Song { song_id: song, arrangement: None }), item(ItemKind::Media { media_id: media, autoplay: true, end: EndAction::Stop, looped: false }), item(ItemKind::Deck { deck_id: deck }),
         ] });
     }
     let want = tr::in_template("Sunday");

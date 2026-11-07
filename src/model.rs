@@ -184,7 +184,9 @@ impl VerseText {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ItemKind {
-    Song { song_id: Uuid },
+    /// `arrangement`: this service's own order for the song (FEAT-4 D10, or a Planning Center sequence); `None`
+    /// plays the song's usual order, and an empty list the written order.
+    Song { song_id: Uuid, #[serde(default, skip_serializing_if = "Option::is_none")] arrangement: Option<Vec<String>> },
     /// `per_slide`: verses per slide, 0 = automatic (by length). `text_size`: the passage's largest text size in
     /// pixels on a 1080p screen, 0 = automatic (Settings → Look's scripture size).
     Scripture {
@@ -636,6 +638,21 @@ impl Data {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn old_data_without_item_arrangement_loads() {
+        let it: ServiceItem = serde_json::from_str(r#"{"id":"00000000-0000-0000-0000-000000000001","kind":"song","song_id":"00000000-0000-0000-0000-000000000002"}"#).unwrap();
+        assert!(matches!(it.kind, ItemKind::Song { arrangement: None, .. }));
+    }
+
+    #[test]
+    fn item_arrangement_none_is_not_serialized_and_some_round_trips() {
+        let mut it = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None };
+        assert!(serde_json::to_value(&it).unwrap().get("arrangement").is_none());
+        it.kind = ItemKind::Song { song_id: Uuid::new_v4(), arrangement: Some(vec!["Chorus".into(), "Verse 1".into()]) };
+        let back: ServiceItem = serde_json::from_value(serde_json::to_value(&it).unwrap()).unwrap();
+        assert!(matches!(back.kind, ItemKind::Song { arrangement: Some(a), .. } if a == ["Chorus", "Verse 1"]));
+    }
 
     #[test]
     fn old_data_follows_the_computers_language() {

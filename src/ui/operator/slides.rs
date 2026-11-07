@@ -481,7 +481,7 @@ mod tests {
     fn empty_states_text() {
         let app = test_app();
         // A song that is not in the library has no slides.
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let op = opened(&app);
         assert_eq!(find(&op, "Empty::empty-title").unwrap().accessible_label().unwrap(), "Nothing to show");

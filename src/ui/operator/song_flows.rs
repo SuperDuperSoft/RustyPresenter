@@ -16,7 +16,7 @@ const LYRICS: &str = "Verse 1\nv1\nChorus\nc\nVerse 2\nv2";
 /// A song in the library and in the service; returns (song id, item id).
 fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
     let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: lyrics.into(), arrangement: order.iter().map(|s| s.to_string()).collect(), ..Default::default() };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let mut d = app.data.lock().unwrap();
     d.songs.push(song.clone());
     d.services[0].items.push(item.clone());

@@ -14,9 +14,13 @@ pub fn section_label(line: &str) -> Option<String> {
         "pre-chorus", "prechorus", "instrumental", "vamp", "turnaround", "coda", "misc", "post-chorus"];
     let known = WORDS.contains(&head) || lower.starts_with("pre chorus") || lower.starts_with("post chorus");
     // The rest must be a short number/letter suffix ("Verse 1", "Chorus 2a"), not a lyric like "Verse after verse".
-    let rest_ok = inner.split_whitespace().skip(if lower.starts_with("pre chorus") || lower.starts_with("post chorus") { 2 } else { 1 })
-        .all(|w| w.len() <= 3 && w.chars().all(|c| c.is_ascii_alphanumeric()));
-    (known && rest_ok).then(|| inner.to_string())
+    let short = |w: &str| w.len() <= 3 && w.chars().all(|c| c.is_ascii_alphanumeric());
+    let rest_ok = inner.split_whitespace().skip(if lower.starts_with("pre chorus") || lower.starts_with("post chorus") { 2 } else { 1 }).all(short);
+    if known && rest_ok { return Some(inner.to_string()) }
+    // A heading word of the language the app is shown in ("Coro", "Verso 1"), with the same short suffix.
+    let lower = inner.to_lowercase();
+    let (_, rest) = crate::sections::translated_head(&lower)?;
+    rest.split_whitespace().all(short).then(|| inner.to_string())
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -59,17 +63,31 @@ pub fn chunk_lines(lines: &[String], n: usize) -> Vec<String> {
     lines.chunks(n.max(1)).map(|c| c.join("\n")).collect()
 }
 
-pub fn song_order(song: &Song, sections: &[Section]) -> Vec<usize> {
+pub fn song_order(song: &Song, sections: &[Section]) -> Vec<usize> { order_of(&song.arrangement, sections) }
+
+/// The written sections `order` plays (an empty or unmatched order plays them as written).
+pub fn order_of(order: &[String], sections: &[Section]) -> Vec<usize> {
     let labels: Vec<String> = sections.iter().map(|s| s.label.clone()).collect();
-    crate::sections::resolve_order(&song.arrangement, &labels)
+    crate::sections::resolve_order(order, &labels)
 }
 
-pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> {
+/// The order a service item plays its song in: the item's own order for this service, else the song's usual one.
+pub fn item_order<'a>(item: &'a ServiceItem, song: &'a Song) -> &'a [String] {
+    match &item.kind {
+        ItemKind::Song { arrangement: Some(own), .. } => own,
+        _ => &song.arrangement,
+    }
+}
+
+pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> { song_slides_in(song, &song.arrangement, settings) }
+
+/// `song_slides` in `order` instead of the song's usual order.
+pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec<Slide> {
     let sections = parse_sections(&song.lyrics);
     let lps = settings.lines_per_slide as usize;
     let mut slides = Vec::new();
     let credit = credit_line(song, settings);
-    let order = song_order(song, &sections);
+    let order = order_of(order, &sections);
     for &idx in &order {
         let s = &sections[idx];
         for g in &s.groups {
@@ -283,8 +301,8 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
     let s = &data.settings;
     let mut notes = Vec::new();
     let (title, kind, mut slides) = match &item.kind {
-        ItemKind::Song { song_id } => match data.songs.iter().find(|x| x.id == *song_id) {
-            Some(song) => (song.title.clone(), "song", song_slides(song, s)),
+        ItemKind::Song { song_id, .. } => match data.songs.iter().find(|x| x.id == *song_id) {
+            Some(song) => (song.title.clone(), "song", song_slides_in(song, item_order(item, song), s)),
             None => (crate::tr!("Missing song"), "song", vec![]),
         },
         ItemKind::Scripture { reference, translation, verses, per_slide, text_size, also, layout } => {
@@ -350,6 +368,24 @@ mod tests {
     }
 
     #[test]
+    fn spanish_heading_words_are_sections_in_spanish() {
+        let lyrics = "Verso 1\nSublime gracia\nCoro\nYa libre soy\nCoro de ángeles canta\nVerse 2\nb";
+        crate::i18n::testing::with_catalog(crate::sections::kind_tests_es(), || {
+            assert_eq!(section_label("Coro").as_deref(), Some("Coro"));
+            assert_eq!(section_label("Verso 2:").as_deref(), Some("Verso 2"));
+            assert_eq!(section_label("Coro de ángeles canta"), None, "a lyric that starts with the word");
+            let secs = parse_sections(lyrics);
+            assert_eq!(secs.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(), ["Verso 1", "Coro", "Verse 2"]);
+            let song = Song { lyrics: lyrics.into(), ..Default::default() };
+            let slides = song_slides(&song, &Settings { credits: "none".into(), ..Default::default() });
+            let refs: Vec<_> = slides.iter().map(|s| s.section.as_ref().map(|r| (r.kind, r.number)).unwrap()).collect();
+            use crate::sections::SectionKind::*;
+            assert_eq!(refs, [(Verse, Some(1)), (Chorus, None), (Verse, Some(2))]);
+        });
+        assert_eq!(section_label("Coro"), None, "English only, outside Spanish");
+    }
+
+    #[test]
     fn song_slides_follow_arrangement_and_blank_line_breaks() {
         let song = Song { title: "T".into(), lyrics: "Verse 1\na\nb\nc\n\nd\nChorus\nx\ny".into(), arrangement: vec!["Chorus".into(), "Verse 1".into(), "Chorus".into()], ..Default::default() };
         let settings = Settings { credits: "none".into(), ..Default::default() };
@@ -357,6 +393,39 @@ mod tests {
         let texts: Vec<_> = slides.iter().map(|s| match &s.content { SlideContent::Text { text, .. } => text.clone(), _ => unreachable!() }).collect();
         assert_eq!(texts, vec!["x\ny", "a\nb", "c", "d", "x\ny"]);
         assert_eq!(slides[1].label, "Verse 1 (1/2)");
+    }
+
+    fn song_item(song: uuid::Uuid, own: Option<&[&str]>) -> ServiceItem {
+        let arrangement = own.map(|o| o.iter().map(|s| s.to_string()).collect());
+        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Song { song_id: song, arrangement }, background: None, notes: String::new(), theme: None }
+    }
+
+    fn usual_song() -> Song {
+        Song { id: uuid::Uuid::new_v4(), title: "T".into(), lyrics: "Verse 1\na\nChorus\nx\nVerse 2\nb".into(), arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into(), "Chorus".into()], ..Default::default() }
+    }
+
+    #[test]
+    fn item_order_prefers_item_override() {
+        let song = usual_song();
+        assert_eq!(item_order(&song_item(song.id, None), &song), song.arrangement.as_slice());
+        assert_eq!(item_order(&song_item(song.id, Some(&["Chorus"])), &song), ["Chorus"]);
+    }
+
+    fn built_labels(data: &Data, item: &ServiceItem) -> Vec<String> { build_item(data, item).2.into_iter().map(|s| s.label).collect() }
+
+    #[test]
+    fn build_item_uses_item_override() {
+        let song = usual_song();
+        let data = Data { songs: vec![song.clone()], ..Default::default() };
+        assert_eq!(built_labels(&data, &song_item(song.id, None)), ["Verse 1", "Chorus", "Verse 2", "Chorus"]);
+        assert_eq!(built_labels(&data, &song_item(song.id, Some(&["Chorus", "Verse 2"]))), ["Chorus", "Verse 2"]);
+    }
+
+    #[test]
+    fn empty_override_list_means_written_order() {
+        let song = usual_song();
+        let data = Data { songs: vec![song.clone()], ..Default::default() };
+        assert_eq!(built_labels(&data, &song_item(song.id, Some(&[]))), ["Verse 1", "Chorus", "Verse 2"]);
     }
 
     #[test]

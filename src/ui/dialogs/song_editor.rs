@@ -48,12 +48,14 @@ struct EditorCtx {
 pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None) }
 
 /// Edit words on the live song (FEAT-4 §3.4): the editor with the caret at the live section's first lyric line,
-/// found from the live slide's occurrence in the order that built it.
-pub fn edit_live_words(op: &Rc<Operator>, song_id: Uuid, occurrence: Option<u16>) {
+/// found from the live slide's occurrence in the order that built it (service item `item_id`'s own, if it has one).
+pub fn edit_live_words(op: &Rc<Operator>, item_id: Uuid, song_id: Uuid, occurrence: Option<u16>) {
     let caret = occurrence.and_then(|o| {
         let st = op.state.borrow();
-        let song = st.snap.as_ref()?.data.songs.iter().find(|s| s.id == song_id)?;
-        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, &song.arrangement, o)
+        let snap = st.snap.as_ref()?;
+        let song = snap.data.songs.iter().find(|s| s.id == song_id)?;
+        let order = snap.items.iter().find(|i| i.id == item_id).map_or(song.arrangement.as_slice(), |i| crate::slides::item_order(&i.item, song));
+        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, order, o)
     });
     open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)));
 }
@@ -419,7 +421,7 @@ mod tests {
         let s = &songs[0];
         assert_eq!((s.title.as_str(), s.writers.as_str(), s.lyrics.as_str()), ("Amazing Grace", "John Newton", "Verse 1\nAmazing grace \n"));
         assert_eq!(s.arrangement, ["Verse 1"]);
-        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id }] if song_id == s.id));
+        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id, .. }] if song_id == s.id));
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
         assert_eq!(op.dialog(), None);
 
@@ -457,7 +459,7 @@ mod tests {
         let app = test_app();
         let used = song(&app, "Used", "", "", "Verse 1\na");
         let spare = song(&app, "Spare", "", "", "Verse 1\nb");
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used, arrangement: None }, background: None, notes: String::new(), theme: None });
         let op = opened(&app);
         open_song_editor(&op, Some(used), false);
         settle(&op);
