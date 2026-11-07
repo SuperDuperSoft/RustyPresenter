@@ -98,7 +98,7 @@ mod tests {
         let root = test_dir();
         let mut service = Service::new("Sunday");
         let passage = |translation: &str| ServiceItem { id: uuid::Uuid::new_v4(), background: None, notes: String::new(), theme: None,
-            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: translation.into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() } };
+            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: translation.into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() } };
         service.items = vec![passage("KJV"), passage("NWT")];
         Store::open(root.clone()).unwrap().save(&Data { services: vec![service], ..Data::default() }).unwrap();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();

@@ -190,8 +190,8 @@ mod tests {
 
     #[test]
     fn scripture_with_no_verses_is_flagged_and_with_verses_needs_nothing_else() {
-        let empty = ItemKind::Scripture { reference: "John 3:16".into(), translation: "NIV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
-        let full = ItemKind::Scripture { reference: "John 3:17".into(), translation: "NIV".into(), verses: vec![VerseText::new("John 3:17", "For God")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
+        let empty = ItemKind::Scripture { reference: "John 3:16".into(), translation: "NIV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() };
+        let full = ItemKind::Scripture { reference: "John 3:17".into(), translation: "NIV".into(), verses: vec![VerseText::new("John 3:17", "For God")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() };
         let got = run(&data(vec![empty, full]), &all);
         assert_eq!(got.len(), 1, "{got:?}");
         assert!(got[0].starts_with("1. ") && got[0].ends_with(&s::no_verses()), "{got:?}");
@@ -278,7 +278,7 @@ mod tests {
 
     fn niv_item() -> ItemKind {
         ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God")], per_slide: 0, text_size: 0,
-            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }
+            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default(), breaks: Default::default() }
     }
 
     #[test]

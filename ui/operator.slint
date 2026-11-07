@@ -25,6 +25,8 @@ import { OverlaysDialog } from "dialogs/overlays.slint";
 import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
+import { FindVerseDialog } from "dialogs/find-verse.slint";
+import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -750,6 +752,8 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "overlays": OverlaysDialog {}
             if root.dialog-kind == "automation": AutomationDialog { window-height: root.height; }
             if root.dialog-kind == "show-message": ShowMessageDialog {}
+            if root.dialog-kind == "find-verse": FindVerseDialog { window-height: root.height; }
+            if root.dialog-kind == "slide-breaks": SlideBreaksDialog { window-height: root.height; }
         }
 
         for a in root.ask: AskOverlay {

@@ -1,0 +1,222 @@
+// Slide breaks (FEAT-5 §3.3): the passage's verses with the gap between each pair, and the slides they make. Click a
+// gap to add a new slide there, or to keep an automatic break together.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented, ScrollBox } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+
+export struct BreakVerse { number: string, text: string, also-only: bool }
+/// `state`: "auto", "added", "kept" or "none"; `label`: what it says.
+export struct BreakGap { state: string, label: string, enabled: bool }
+export struct BreakSlide { label: string, text: string, too-long: bool }
+
+/// Set and answered by `src/ui/dialogs/slide_breaks.rs`.
+export global SlideBreaksDlg {
+    in property <[BreakVerse]> verses;
+    /// `gaps[i]` is the gap before `verses[i + 1]`.
+    in property <[BreakGap]> gaps;
+    in property <[BreakSlide]> slides;
+    in-out property <int> per-slide;
+    /// "Keeping these together makes a slide too long, …".
+    in property <string> note;
+    in property <string> too-long-chip;
+    in property <string> none-hover;
+    callback gap-clicked(int);
+    callback per-slide-changed(int);
+    callback reset();
+    callback cancel();
+    callback save();
+}
+
+component GapLine inherits Rectangle {
+    in property <BreakGap> gap;
+    in property <string> hover-text;
+    callback clicked();
+    property <bool> on: root.gap.state == "auto" || root.gap.state == "added";
+    height: 26px;
+    accessible-role: button;
+    accessible-label: root.gap.state == "none" ? root.hover-text : root.gap.label;
+    accessible-action-default => { if root.gap.enabled { root.clicked(); } }
+    ta := TouchArea {
+        enabled: root.gap.enabled;
+        mouse-cursor: root.gap.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+    // The line: solid accent for a break you added, dashed accent for an automatic one, faint otherwise.
+    if root.gap.state != "auto": Rectangle {
+        x: 34px;
+        y: (parent.height - self.height) / 2;
+        width: parent.width - 34px;
+        height: root.on ? 2px : 1px;
+        background: root.on ? Theme.accent : Theme.line;
+    }
+    if root.gap.state == "auto": HorizontalLayout {
+        x: 34px;
+        y: (parent.height - 2px) / 2;
+        width: parent.width - 34px;
+        height: 2px;
+        spacing: 5px;
+        for d in 60: Rectangle { width: 8px; background: Theme.accent; }
+    }
+    if root.gap.state != "none" || ta.has-hover: Rectangle {
+        x: 46px;
+        y: (parent.height - self.height) / 2;
+        width: label.preferred-width + 14px;
+        height: 20px;
+        border-radius: 6px;
+        background: Theme.panel;
+        label := Text {
+            text: (root.gap.state == "none" ? root.hover-text : root.gap.label);
+            color: root.on ? Theme.accent : Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    }
+}
+
+export component SlideBreaksDialog inherits VerticalLayout {
+    in property <length> window-height: 800px;
+    property <length> pane-height: clamp(root.window-height - 330px, 200px, 600px);
+
+    VerticalLayout {
+        padding-top: 8px;
+        padding-bottom: 14px;
+        padding-left: 22px;
+        padding-right: 22px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 10px;
+            Text {
+                text: @tr("Verses per slide");
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+            }
+            per-slide := Segmented {
+                labels: [@tr("Automatic"), "1", "2", "3", "4"];
+                index <=> SlideBreaksDlg.per-slide;
+                changed(i) => { SlideBreaksDlg.per-slide-changed(i); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            height: root.pane-height;
+            ScrollBox {
+                horizontal-stretch: 3;
+                track-edge: Theme.panel;
+                VerticalLayout {
+                    alignment: start;
+                    for v[i] in SlideBreaksDlg.verses: VerticalLayout {
+                        if i > 0: gap := GapLine {
+                            gap: SlideBreaksDlg.gaps[i - 1];
+                            hover-text: SlideBreaksDlg.none-hover;
+                            clicked => { SlideBreaksDlg.gap-clicked(i - 1); }
+                        }
+                        HorizontalLayout {
+                            padding-right: 14px;
+                            spacing: 8px;
+                            Text {
+                                width: 26px;
+                                text: v.number;
+                                color: Theme.accent;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                font-weight: 700;
+                                horizontal-alignment: right;
+                            }
+                            Text {
+                                horizontal-stretch: 1;
+                                text: v.text;
+                                color: v.also-only ? Theme.muted : Theme.text;
+                                font-family: Theme.font;
+                                font-size: 14px;
+                                font-italic: v.also-only;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                }
+            }
+            // The slides these breaks make.
+            ScrollBox {
+                horizontal-stretch: 2;
+                track-edge: Theme.panel;
+                VerticalLayout {
+                    alignment: start;
+                    padding-right: 14px;
+                    spacing: 8px;
+                    for s in SlideBreaksDlg.slides: slide := Rectangle {
+                        background: #000;
+                        border-radius: 8px;
+                        border-width: 1px;
+                        border-color: s.too-long ? Theme.danger-text : Theme.line;
+                        accessible-role: list-item;
+                        accessible-label: s.label;
+                        VerticalLayout {
+                            padding: 10px;
+                            spacing: 6px;
+                            HorizontalLayout {
+                                spacing: 8px;
+                                Text {
+                                    text: s.label;
+                                    color: #ffffffcc;
+                                    font-family: Theme.font;
+                                    font-size: 12px;
+                                    font-weight: 700;
+                                    overflow: elide;
+                                }
+                                if s.too-long: Rectangle {
+                                    border-radius: 6px;
+                                    background: Theme.danger-text.with-alpha(0.2);
+                                    width: chip.preferred-width + 12px;
+                                    chip := Text {
+                                        text: SlideBreaksDlg.too-long-chip;
+                                        color: Theme.danger-text;
+                                        font-family: Theme.font;
+                                        font-size: 11px;
+                                        font-weight: 600;
+                                    }
+                                }
+                            }
+                            Text {
+                                text: s.text;
+                                color: #fff;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                wrap: word-wrap;
+                                max-height: 120px;
+                                overflow: elide;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if SlideBreaksDlg.note != "": note := Text {
+            text: SlideBreaksDlg.note;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: 13px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        reset := Btn {
+            text: @tr("Reset to automatic");
+            clicked => { SlideBreaksDlg.reset(); }
+        }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { SlideBreaksDlg.cancel(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { SlideBreaksDlg.save(); }
+        }
+    }
+}

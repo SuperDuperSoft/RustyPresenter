@@ -8,6 +8,7 @@ pub mod add_youtube;
 pub mod ask;
 pub mod automation;
 pub mod background;
+pub mod find_verse;
 pub mod item_edit;
 pub mod overlays;
 pub mod phone;
@@ -15,6 +16,7 @@ pub mod print;
 pub mod screens;
 pub mod services;
 pub mod settings;
+pub mod slide_breaks;
 pub mod settings_audio;
 pub mod settings_bible;
 pub mod settings_graphics;
@@ -67,6 +69,10 @@ pub enum DialogKind {
     Automation,
     /// Show a message on the room screen (FEAT-2 §3.3).
     ShowMessage,
+    /// Find a verse by its words (FEAT-5 §3.1).
+    FindVerse,
+    /// Where a passage's slides break (FEAT-5 §3.3).
+    SlideBreaks(Uuid),
 }
 
 impl DialogKind {
@@ -75,7 +81,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_)) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -93,6 +99,8 @@ impl DialogKind {
             DialogKind::Overlays => "overlays",
             DialogKind::Automation => "automation",
             DialogKind::ShowMessage => "show-message",
+            DialogKind::FindVerse => "find-verse",
+            DialogKind::SlideBreaks(_) => "slide-breaks",
         }
     }
 }
@@ -209,6 +217,8 @@ impl Operator {
             DialogKind::Overlays => crate::theme::strings::overlays_title(),
             DialogKind::Automation => crate::tr!("Automation"),
             DialogKind::ShowMessage => crate::tr!("Show message"),
+            DialogKind::FindVerse => crate::scripture::strings::find_a_verse(),
+            DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
         }
     }
 }

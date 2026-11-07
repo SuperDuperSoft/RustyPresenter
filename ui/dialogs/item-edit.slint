@@ -81,6 +81,8 @@ export global ItemEdit {
 
     callback edit-song();
     callback save();
+    /// Save, then open Slide breaks for this passage.
+    callback choose-breaks();
     callback remove();
     callback pick-background(int);
     callback custom-color(color);
@@ -262,9 +264,15 @@ export component ItemEditDialog inherits VerticalLayout {
             label: @tr("Verses per slide");
             HorizontalLayout {
                 alignment: start;
+                spacing: 12px;
                 per-slide := Segmented {
                     labels: [@tr("Automatic"), @tr("1 verse"), @tr("2 verses"), @tr("3 verses"), @tr("4 verses")];
                     index <=> ItemEdit.per-slide;
+                }
+                choose-breaks := Btn {
+                    small: true;
+                    text: @tr("Choose slide breaks…");
+                    clicked => { ItemEdit.choose-breaks(); }
                 }
             }
         }

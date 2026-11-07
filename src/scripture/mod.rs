@@ -1,8 +1,10 @@
 //! FEAT-5 Bible extras core: keyword search, two translations and slide breaks.
 //! Pure and unit-tested; Part B wires it into the app, slides and render.
 
+pub mod actions;
 pub mod also;
 pub mod breaks;
+pub mod breaks_view;
 pub mod cache;
 pub mod fetch;
 pub mod input;

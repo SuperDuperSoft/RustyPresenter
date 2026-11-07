@@ -373,7 +373,7 @@ mod tests {
         let app = test_app();
         let vs = |n: u16| (16..16 + n).map(|v| crate::model::VerseText::new(format!("John 3:{v}"), "words")).collect::<Vec<_>>();
         let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs(1) }];
-        let kind = ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs(2), per_slide: 0, text_size: 0, also, layout: Default::default() };
+        let kind = ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs(2), per_slide: 0, text_size: 0, also, layout: Default::default(), breaks: Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         let song = add_text(&app, "A", "a");

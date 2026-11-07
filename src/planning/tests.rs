@@ -12,7 +12,7 @@ fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind,
 fn song() -> ItemKind { ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None } }
 fn text(t: &str) -> ItemKind { ItemKind::Text { title: t.into(), body: "b".into() } }
 fn reading() -> ItemKind {
-    ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }
+    ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }
 }
 
 // Sunday November 8, 2026 is a Sunday.
