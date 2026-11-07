@@ -20,6 +20,9 @@ cosmic-text = "0.19.0"
 tiny-skia = "0.12.0"
 libloading = "0.8"
 slint = { version = "1.18", features = ["unstable-winit-030", "raw-window-handle-06"] }
+# Only for the `gpu-apis` feature: `require_wgpu_30` and its settings. Internal API, so pinned to the version slint uses.
+i-slint-backend-selector = { version = "=1.18.1", optional = true, default-features = false }
+i-slint-core = { version = "=1.18.1", optional = true, default-features = false }
 glow = "0.18"
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 # FEAT-6: the computer's region, for date order and paper size. Already in Cargo.lock through slint.
@@ -51,10 +54,12 @@ cfb = "0.10"
 
 [features]
 # PERF EXPERIMENT renderers for RP_RENDERER (see `video::graphics`); off by default, the app uses FemtoVG.
-# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain. Slint 1.18 lets it be
-# told which one only through `slint/unstable-wgpu-30`, which needs crates not vendored here, so it is not offered in
-# Settings → Video → Graphics.
+# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain (no Microsoft C++ tools).
 renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
+# Offers Vulkan, Direct3D (Windows) and Metal (macOS) in Settings → Video → Graphics, drawn by FemtoVG on wgpu.
+# Slint's own `slint/unstable-wgpu-30` would pull `i-slint-backend-android-activity`, which isn't vendored, and Cargo
+# resolves every feature even when off. So this turns on the same switch in the two crates behind it instead.
+gpu-apis = ["renderer-wgpu", "dep:i-slint-backend-selector", "i-slint-backend-selector/unstable-wgpu-30", "dep:i-slint-core", "i-slint-core/unstable-wgpu-30"]
 # Skia: rust-skia has no prebuilt binaries for x86_64-pc-windows-gnu, so on Windows this needs the MSVC toolchain.
 # It downloads Skia while building, so it can't be built offline. With it, Settings → Video → Graphics offers Vulkan,
 # Direct3D (Windows) and Metal (macOS).

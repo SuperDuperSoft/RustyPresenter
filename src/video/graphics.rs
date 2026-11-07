@@ -1,10 +1,9 @@
 //! Settings → Video → Graphics: which Slint renderer draws the windows (`choose_backend`), which choices this build
 //! offers, and what is tried when the chosen one cannot be used (Auto, then Software).
 //!
-//! OpenGL is FemtoVG, which draws video under the scene through OpenGL (`DrawMode::OpenGl`). In Slint 1.18 only Skia
-//! (feature `renderer-skia`) can be asked for Vulkan, Direct3D or Metal (`require_vulkan` and so on); it draws video
-//! into an image, like Software. FemtoVG on wgpu (`renderer-wgpu`) could be steered only through Slint's
-//! `unstable-wgpu-30` feature, which can't be turned on offline here, so it stays an `RP_RENDERER` experiment.
+//! OpenGL is FemtoVG, which draws video under the scene through OpenGL (`DrawMode::OpenGl`). Vulkan, Direct3D (12)
+//! and Metal are FemtoVG on wgpu, told which one through `require_wgpu_30` (feature `gpu-apis`, pure Rust),
+//! or else Skia (feature `renderer-skia`, `require_vulkan` and so on). Both draw video into an image, like Software.
 use super::surface::DrawMode;
 use crate::{model::Graphics, tr};
 
@@ -18,20 +17,31 @@ pub struct Renderer { pub name: &'static str, pub api: Api }
 
 /// What this build has: the optional renderers, and the system it is for.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub struct Build { pub skia: bool, pub windows: bool, pub mac: bool }
+pub struct Build { pub wgpu: bool, pub skia: bool, pub windows: bool, pub mac: bool }
 
 impl Build {
     pub fn this() -> Build {
-        Build { skia: cfg!(feature = "renderer-skia"), windows: cfg!(windows), mac: cfg!(target_os = "macos") }
+        Build {
+            wgpu: cfg!(feature = "gpu-apis"),
+            skia: cfg!(feature = "renderer-skia"),
+            windows: cfg!(windows),
+            mac: cfg!(target_os = "macos"),
+        }
     }
 }
+
+/// FemtoVG on wgpu, which `select` steers with `require_wgpu_30`.
+const WGPU: &str = "femtovg-wgpu";
 
 /// Every choice, in the picker's order.
 pub const ALL: [Graphics; 6] = [Graphics::Auto, Graphics::OpenGl, Graphics::Vulkan, Graphics::Direct3D, Graphics::Metal, Graphics::Software];
 
-/// The renderer that gives `g` in build `b`, or `None` when the build can't.
+/// The renderer that gives `g` in build `b`, or `None` when the build can't. wgpu is preferred to Skia.
 pub fn renderer(g: Graphics, b: Build) -> Option<Renderer> {
-    let gpu = |api| b.skia.then_some(Renderer { name: "skia", api });
+    let gpu = |api| {
+        let name = if b.wgpu { WGPU } else if b.skia { "skia" } else { return None };
+        Some(Renderer { name, api })
+    };
     match g {
         Graphics::Auto | Graphics::OpenGl => Some(Renderer { name: "femtovg", api: Api::Any }),
         Graphics::Software => Some(Renderer { name: "software", api: Api::Any }),
@@ -138,11 +148,27 @@ fn select(name: &str, api: Api) -> Result<(), slint::PlatformError> {
     let sel = slint::BackendSelector::new().backend_name("winit".into()).renderer_name(name.into());
     let sel = match api {
         Api::Any => sel,
+        #[cfg(feature = "gpu-apis")]
+        api if name == WGPU => sel.require_wgpu_30(wgpu_only(api)),
         Api::Vulkan => sel.require_vulkan(),
         Api::Direct3D => sel.require_d3d(),
         Api::Metal => sel.require_metal(),
     };
     sel.select()
+}
+
+/// wgpu with just `api`'s backend; the rest as Slint sets it.
+#[cfg(feature = "gpu-apis")]
+fn wgpu_only(api: Api) -> i_slint_core::graphics::wgpu_30::api::WGPUConfiguration {
+    use i_slint_core::graphics::wgpu_30::api::{wgpu::Backends, WGPUConfiguration, WGPUSettings};
+    let mut settings = WGPUSettings::default();
+    settings.backends = match api {
+        Api::Vulkan => Backends::VULKAN,
+        Api::Direct3D => Backends::DX12,
+        Api::Metal => Backends::METAL,
+        Api::Any => settings.backends,
+    };
+    WGPUConfiguration::Automatic(settings)
 }
 
 /// What `choose_backend` picked; Software when it was never called (tests, other backends).
@@ -193,7 +219,7 @@ mod tests {
     use super::*;
     use Graphics::*;
 
-    const LINUX: Build = Build { skia: false, windows: false, mac: false };
+    const LINUX: Build = Build { wgpu: false, skia: false, windows: false, mac: false };
     const WINDOWS: Build = Build { windows: true, ..LINUX };
     const MAC: Build = Build { mac: true, ..LINUX };
 
@@ -222,6 +248,23 @@ mod tests {
         assert_eq!(renderer(Direct3D, s(WINDOWS)), Some(Renderer { name: "skia", api: Api::Direct3D }));
         assert_eq!(renderer(Vulkan, s(LINUX)), Some(Renderer { name: "skia", api: Api::Vulkan }));
         assert_eq!(renderer(Metal, s(MAC)), Some(Renderer { name: "skia", api: Api::Metal }));
+    }
+
+    #[test]
+    fn wgpu_gives_each_system_its_own_interfaces_and_beats_skia() {
+        let w = |b: Build| Build { wgpu: true, ..b };
+        assert_eq!(available(w(WINDOWS)), [Auto, OpenGl, Vulkan, Direct3D, Software]);
+        assert_eq!(available(w(LINUX)), [Auto, OpenGl, Vulkan, Software]);
+        assert_eq!(available(w(MAC)), [Auto, OpenGl, Metal, Software]);
+        assert_eq!(renderer(Direct3D, w(WINDOWS)), Some(Renderer { name: "femtovg-wgpu", api: Api::Direct3D }));
+        assert_eq!(renderer(Vulkan, w(WINDOWS)), Some(Renderer { name: "femtovg-wgpu", api: Api::Vulkan }));
+        assert_eq!(renderer(Vulkan, w(LINUX)), Some(Renderer { name: "femtovg-wgpu", api: Api::Vulkan }));
+        assert_eq!(renderer(Metal, w(MAC)), Some(Renderer { name: "femtovg-wgpu", api: Api::Metal }));
+        assert_eq!(renderer(Vulkan, Build { skia: true, ..w(LINUX) }), Some(Renderer { name: "femtovg-wgpu", api: Api::Vulkan }));
+        assert_eq!(renderer(Auto, w(WINDOWS)), Some(Renderer { name: "femtovg", api: Api::Any }), "Auto stays OpenGL");
+        assert_eq!(attempts(Direct3D, w(WINDOWS)), [Direct3D, Auto, Software]);
+        assert_eq!(attempts(Metal, w(WINDOWS)), [Auto, Software]);
+        assert_eq!(draw_mode(renderer(Vulkan, w(LINUX)).unwrap().name), DrawMode::Software, "video into an image");
     }
 
     #[test]
