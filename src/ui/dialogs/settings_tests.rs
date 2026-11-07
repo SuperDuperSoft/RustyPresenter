@@ -668,7 +668,10 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     assert_eq!(rows[1].title, "English");
     let es = rows.iter().position(|r| r.title == "Español (needs review)").expect("Spanish is listed by its own name");
     assert!(rows[es].sub.starts_with("Spanish · ") && rows[es].sub.ends_with("% translated"), "{:?}", rows[es].sub);
-    assert_eq!(find_all(&op, "SettingsLanguage::use-language").len(), rows.len() - 1, "every row but the chosen one has Use");
+    // The search skips rows scrolled out of view, so this counts the rows on screen (the chosen one is first).
+    let shown = find_all(&op, "SettingsLanguage::language-row").len();
+    assert!(shown > 2 && shown <= rows.len(), "{shown} of {} rows", rows.len());
+    assert_eq!(find_all(&op, "SettingsLanguage::use-language").len(), shown - 1, "every row but the chosen one has Use");
 
     g(&op).invoke_choose_language(es as i32);
     settle();
