@@ -30,6 +30,7 @@
 pub mod extract;
 pub mod plural;
 pub mod po;
+pub mod remote_strings;
 
 use plural::Plurals;
 use std::{collections::{HashMap, HashSet}, fmt, sync::{Arc, OnceLock, RwLock}};

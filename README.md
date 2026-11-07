@@ -96,4 +96,5 @@ You may use your own build of libmpv: set `RP_LIBMPV` to its path, or replace th
 - The app needs `libmpv-2.dll` next to the exe, in `%LOCALAPPDATA%\RustyPresenter\deps\mpv\`, or named by `RP_LIBMPV`; without it everything but video and audio works. `RP_FORCE_SOFTWARE=1` draws without the GPU. Crashes are written to `logs\native-YYYYMMDD.log` in the data folder.
 - `dev-watch.cmd` waits for `build.request`, `run.request` or `stop.request` files and acts on them. It lets a remote collaborator build on this PC. Close the window to stop it.
 - `scripts/licenses.sh` remakes `THIRD-PARTY-LICENSES.txt`. Run it after changing `Cargo.lock` or `packaging/licenses/`.
+- To add or fix a language (no programming needed), see [docs/TRANSLATING.md](docs/TRANSLATING.md).
 - The design is in `docs/superpowers/specs/`. The work board is `PROJECT_PLAN.md`.
