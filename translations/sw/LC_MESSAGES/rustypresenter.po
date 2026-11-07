@@ -1,26 +1,6 @@
 # Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: sw\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Kiswahili\n"
-"X-English-Name: Swahili\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: sw\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kiswahili\nX-English-Name: Swahili\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -244,75 +224,75 @@ msgstr "Jina"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Aina"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Hesabu kushuka hadi saa fulani"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Hesabu kushuka"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Hesabu kupanda"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Muda wa kuanza ibada hii"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Saa (kama 10:30 au 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Urefu (dakika na sekunde)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Dakika"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Sekunde"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Endelea kuhesabu baada ya sifuri (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Ikifika sifuri"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Mahali kwenye skrini"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Juu kulia"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Juu kushoto"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Chini kulia"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Chini kushoto"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "Katikati (kubwa)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Maelezo"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -320,59 +300,59 @@ msgstr "Ibada inaanza baada ya"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Onyesha jukwaani"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Onyesha kwenye simu ya kudhibiti"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Weka neno ndani ya {{mabano ya kujipinda}} ili kutengeneza kisanduku cha kujaza, kama {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Mahali"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Chini"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Juu"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Ficha baada ya"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Kamwe"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "Sek 15"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "Sek 30"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "Dak 1"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "Dak 2"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "Dak 5"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Kinaweza kuonyeshwa kutoka kwenye simu"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -380,11 +360,11 @@ msgstr "Ibadilishe kwenye kichupo cha Kabla ya ibada"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Rangi"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Kahawia-njano"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -392,123 +372,123 @@ msgstr "Nyekundu"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Chungwa"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Kijani"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Kijani-bahari"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Bluu"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Zambarau"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Kijivu"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Hatua"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Juu"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Sogeza juu"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Chini"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Sogeza chini"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Bado hakuna hatua."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Ongeza hatua"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Cha kujaza, kama Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "Anza kuhesabu huweka muziki na slaidi kwenye skrini na kuhesabu kushuka hadi muda wa kuanza ibada hii."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Hesabu hadi"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Inaanza saa"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Weka muda wa kuanza"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Rudia slaidi hizi"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Cheza muziki"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Mahali pa kuhesabu"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Kuhesabu kukiisha"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Ficha kuhesabu"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Onyesha nembo"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "Safisha kila kitu"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Weka kipengele cha kwanza kwenye skrini"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Hutokea tu ikiwa hakuna aliyebadilisha skrini tangu kuhesabu kuanze."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Vipima muda"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Jumbe"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Makro"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -516,31 +496,31 @@ msgstr "Kabla ya ibada"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Ibada hii inaanza saa"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Weka"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Kipima muda kipya"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Ujumbe mpya"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Makro mpya"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Chagua kimoja upande wa kushoto, au tengeneza kipya."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "Weka upya"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -548,7 +528,7 @@ msgstr "Sitisha"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Anza"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -568,15 +548,15 @@ msgstr "Chagua rangi yoyote"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Maneno ya kutafuta"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "Andika maneno kutoka kwenye mstari, kama tulieni mjue"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Biblia nzima"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -588,15 +568,15 @@ msgstr "Agano Jipya"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Inayofanana zaidi"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "Mpangilio wa Biblia"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Chagua tokeo ili kuona sura yake. Bofya mstari, au Shift+bofya ili kuongeza mfululizo."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -612,15 +592,15 @@ msgstr "Hariri wimbo"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Mpangilio wa ibada hii"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Tumia mpangilio wa kawaida wa wimbo"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Fanya huu kuwa mpangilio wa kawaida wa wimbo"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -724,7 +704,7 @@ msgstr "Jina kwenye maktaba"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Mandhari"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -732,7 +712,7 @@ msgstr "Mandharinyuma"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Badilisha slaidi zenyewe"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -740,15 +720,15 @@ msgstr "Inahitaji angalau slaidi mbili."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "kila"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "sekunde"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Anza upya baada ya slaidi ya mwisho"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -768,7 +748,7 @@ msgstr "Ghairi"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Kushoto"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -776,27 +756,27 @@ msgstr "Katikati"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Kulia"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Viwekelezo hubaki kwenye skrini ya ukumbi slaidi zinapobadilika: nembo pembeni, saa au tangazo fupi. Viwashe na kuvizima kwa vibonye vilivyo chini ya Ifuatayo kwenye safu ya Hewani. Cha mwisho kwenye orodha huchorwa juu."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "Nakili"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Bado hakuna viwekelezo."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Kiwekelezo kipya:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Tangazo linalobaki, kama “Karibu!” au nenosiri la Wi-Fi"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -804,7 +784,7 @@ msgstr "Picha"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Nembo pembeni"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -812,35 +792,35 @@ msgstr "Saa"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Saa ya siku"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Tumia nembo ya kanisa"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Picha yake yenyewe"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Chagua picha…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Uangavu"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Onyesha sekunde"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "Saa ya mfumo wa saa 24"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Wapi"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -848,7 +828,7 @@ msgstr "Ukubwa"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(sehemu ya upana wa skrini)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -860,7 +840,7 @@ msgstr "Kivuli nyuma ya maandishi (rahisi kusoma juu ya picha)"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Kisanduku"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -868,19 +848,19 @@ msgstr "Imezimwa"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Nyuma ya maandishi"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Ukanda wa upana wote"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Rangi ya kisanduku"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Angavu"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -888,7 +868,7 @@ msgstr "Hakiki"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Kuhariri kiwekelezo kilicho kwenye skrini hakubadilishi skrini: kizime na kukiwasha ili kuonyesha kipya."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -896,7 +876,7 @@ msgstr "Rudi"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "Hifadhi kiwekelezo"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1300,11 +1280,11 @@ msgstr "Chaguo-msingi la kanisa"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Fanya hili kuwa chaguo-msingi la kanisa"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Mandhari ni jinsi maandishi ya slaidi yanavyoonekana: fonti, ukubwa, rangi na mahali yalipo. Mandhari yenye nyota hutumika wakati ibada au kipengele hakina yake."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1312,23 +1292,23 @@ msgstr "Mandhari mpya"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Maktaba ya mandharinyuma"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Picha, video, rangi na mchanganyiko wa rangi ambazo kanisa linahifadhi, tayari kuchaguliwa kwa mandhari au kipengele chochote."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Bado hakuna mandharinyuma."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Ongeza picha au video…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Ongeza rangi au mchanganyiko…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1336,7 +1316,7 @@ msgstr "Rangi"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Mchanganyiko wa rangi"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1348,27 +1328,27 @@ msgstr "Hadi"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Mwelekeo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Ongeza kwenye mandharinyuma"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Unene"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(kwa nyimbo na matangazo)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Kawaida"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Nzito kiasi"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1376,35 +1356,35 @@ msgstr "Nzito"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Panga"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "Katikati"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Muhtasari"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Nyembamba"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Nene"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Rangi ya muhtasari"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Ukanda wa maandishi (ukanda angavu nyuma ya maneno)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Rangi ya ukanda"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1412,7 +1392,7 @@ msgstr "Maandiko"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Tia giza"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1460,11 +1440,11 @@ msgstr "Sauti inaenda kwa"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Michoro"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Badilisha hili tu ikiwa skrini zinapepesa, zinabaki nyeusi au RustyPresenter inaanguka. Hutumika kuanzia mara ijayo."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1480,7 +1460,7 @@ msgstr "Mpangilio wa jukwaa"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Kile skrini ya jukwaa inaonyesha. Dirisha → Mipangilio ya jukwaa… hutengeneza yako mwenyewe."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1512,7 +1492,7 @@ msgstr "Mwonekano"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Mandhari"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1540,7 +1520,7 @@ msgstr "Kuhusu"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "Hifadhi mandhari"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1552,11 +1532,11 @@ msgstr "Ujumbe"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Ficha"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Onyesha"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1595,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— majina ya sehemu kwenye mstari wake; mstari mtupu ndani ya sehemu huanza slaidi mpya"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Ubeti 1]\n"
-"Neema ya ajabu, sauti tamu\n"
-"Iliyoniokoa mimi\n"
-"\n"
-"[Kiitikio]\n"
-"Minyororo imekatika…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Ubeti 1]\nNeema ya ajabu, sauti tamu\nIliyoniokoa mimi\n\n[Kiitikio]\nMinyororo imekatika…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1648,111 +1616,111 @@ msgstr "Skrini ya jukwaa"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Inahitaji RustyPresenter mpya zaidi"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Mipangilio ya jukwaa"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "Jukwaani"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Iliyojengwa ndani"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Mpya"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "Nakili ili kuhariri"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Badilisha jina…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Futa…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Tumia jukwaani"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "Hifadhi kwanza"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Visanduku"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Bado hakuna visanduku. Ongeza kimoja ili kuonyesha kitu jukwaani."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Ongeza kisanduku"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Huonyesha"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Maneno"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Maandishi makubwa zaidi ({}%)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Rangi ya maandishi"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Mpangilio"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "Katikati"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "RustyPresenter mpya zaidi ilitengeneza kisanduku hiki. Kinaweza kuondolewa lakini si kubadilishwa hapa."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "Tendua"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "Rudia"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Mipangilio iliyojengwa ndani haiwezi kubadilishwa. Nakili mmoja ili kutengeneza yako."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "Buruta kisanduku ili kukisogeza; buruta pembe ili kubadilisha ukubwa. Vitufe vya mishale husogeza kidogo. Shikilia Alt ili kusogeza kwa uhuru."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Mpangilio"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Chagua mpangilio wa jukwaa"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "Hariri mipangilio ya jukwaa…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1832,31 +1800,31 @@ msgstr "Tambua skrini"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Ujumbe unaonyeshwa — Ficha"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Onyesha ujumbe kwenye skrini (Ctrl+Shift+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Badilisha slaidi zenyewe tena"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Acha kubadilisha slaidi zenyewe"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Vipima muda, jumbe na makro"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Ficha ukumbini"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Onyesha ukumbini"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1872,27 +1840,27 @@ msgstr "inasasisha…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 s"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "Rudi nyuma sekunde 15"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 s"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "Songa mbele sekunde 15"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "Sek 10 za mwisho"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Ruka hadi sekunde 10 kabla ya mwisho, ili kuona jinsi inavyoisha"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1980,11 +1948,11 @@ msgstr "Futa folda"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Bado hakuna kitu hapa. Leta picha, video au muziki, au jaribu folda au neno lingine."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Leta midia"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2012,27 +1980,27 @@ msgstr "Imebadilishwa — izime na uiwashe ili kusasisha."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Viwekelezo"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Viwekelezo"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Nembo pembeni, saa au tangazo fupi"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Safisha"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "Safisha viwekelezo (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Viwekelezo…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2064,15 +2032,15 @@ msgstr "Kabla ya ibada: je, nyimbo zote, faili na skrini zipo?"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Mandhari ya ibada hii"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Mpangilio maalum"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Mpangilio maalum wa ibada hii"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2088,7 +2056,7 @@ msgstr "Ibada yako haina kitu"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Ongeza nyimbo, video na slaidi, andika mstari wa Biblia juu, au buruta faili kwenye dirisha hili."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2228,7 +2196,7 @@ msgstr "Fungua faili ya ibada…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Fungua za hivi karibuni"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2236,11 +2204,11 @@ msgstr "Hifadhi ibada hii kwenye faili…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "Hamisha"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Kifurushi cha ibada…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2268,7 +2236,7 @@ msgstr "Leta midia…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "Chapisha mpangilio wa ibada…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2276,11 +2244,11 @@ msgstr "Toka"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Tafuta…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Tafuta mstari…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2312,7 +2280,7 @@ msgstr "Simamisha sauti"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "Safisha viwekelezo"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2324,15 +2292,15 @@ msgstr "Onyesha maktaba ya midia"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Kuza"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Punguza"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Ukubwa halisi"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2352,11 +2320,11 @@ msgstr "Ujumbe wa jukwaa…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Mipangilio ya jukwaa…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Otomatiki…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2364,7 +2332,7 @@ msgstr "Mipangilio…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Mandhari na mandharinyuma…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2392,7 +2360,7 @@ msgstr "Kagua ibada"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Fungua folda ya kumbukumbu"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2584,7 +2552,7 @@ msgstr "Imeshindwa kusoma “{file}”: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "Andika saa kama 10:30."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2800,19 +2768,19 @@ msgstr "Gusa slaidi ili kuiweka kwenye skrini."
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Ficha ujumbe"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "Endesha “{name}”?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Endesha"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Imekamilika"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3096,7 +3064,7 @@ msgstr "Sauti hiyo haichezi tena."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Video au sauti hiyo haichezwi tena."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3140,7 +3108,7 @@ msgstr "RustyPresenter imeshindwa kuendesha madirisha yake: {reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Ibada ya Jumapili"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3172,47 +3140,47 @@ msgstr "RustyPresenter imesimama baada ya kuanguka mara 3 ndani ya dakika moja. 
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Kitendo kisichojulikana."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Ubeti|Kifungu"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Kiitikio|Korasi"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Kabla ya kiitikio|Kabla ya korasi"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Daraja"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Kiambatisho|Kimalizio"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Utangulizi|Mwanzo"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Mwisho|Hitimisho"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Kipindi cha kati|Kiingilio cha kati"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3594,75 +3562,75 @@ msgstr "Saa ya kupima"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "Hadi vipima muda 4 vinaweza kuwa kwenye skrini kwa wakati mmoja."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Kipima muda hicho kimefutwa."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Ujumbe huo umefutwa."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Makro hiyo imefutwa."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Makro huendeshwa kwenye programu."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Haraka mno — jaribu tena."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Ipe jina la herufi 1 hadi 40."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Unaweza kuwa na hadi vipima muda 50."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Unaweza kuwa na hadi jumbe 100."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Unaweza kuwa na hadi makro 100."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Makro inaweza kuwa na hadi hatua 30."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Makro hiyo imefutwa. Chagua nyingine."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Kipima muda kinaweza kuendesha tu makro inayoonyesha au kuficha vitu (vipima muda, jumbe, viwekelezo)."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "“{name}” inatumiwa na makro {n}. Ifute hata hivyo? Hatua hizo zitaacha kufanya kazi."
+msgstr[1] "“{name}” inatumiwa na makro {n}. Ifute hata hivyo? Hatua hizo zitaacha kufanya kazi."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "“{name}” huendeshwa kipima muda {n} kikifika sifuri. Ifute hata hivyo? Kipima muda hicho hakitafanya kitu kikifika sifuri."
+msgstr[1] "“{name}” huendeshwa vipima muda {n} vikifika sifuri. Ifute hata hivyo? Vipima muda hivyo havitafanya kitu vikifika sifuri."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Mpangilio wa jukwaa hauwezi kufuata slaidi bado."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Mionekano ya skrini bado haipatikani."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4668,8 +4636,8 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "…na {n} zaidi"
+msgstr[1] "…na {n} zaidi"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4897,7 +4865,7 @@ msgstr "Tafuta kwa maneno…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Tafuta mstari"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5042,14 +5010,12 @@ msgid "Settings saved"
 msgstr "Mipangilio imehifadhiwa"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Neema ya ajabu, sauti tamu\nIliyoniokoa mimi"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · Public Domain"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5175,27 +5141,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "Tendua badiliko la mwisho kwenye ibada au maktaba"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Rudia kile Tendua ilichorudisha"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Tafuta wimbo"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5375,7 +5341,7 @@ msgstr "Bofya ili kuonyesha sehemu hii"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Imehifadhiwa kama mpangilio wa kawaida."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5621,7 +5587,7 @@ msgstr "Makro hazitaendeshwa hadi zihaririwe"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Mpangilio mpya wa jukwaa"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5629,55 +5595,55 @@ msgstr "Nakala ya {name}"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Jina la mpangilio wa jukwaa"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Achana na mabadiliko yako kwenye mipangilio ya jukwaa?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Achana nayo"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Endelea kuhariri"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Mipangilio ya jukwaa imehifadhiwa."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "Jukwaa linaonyesha “{name}”."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Maneno yako hapa"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "Neema ya ajabu, sauti tamu"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "Iliyoniokoa mimi"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Ubeti 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Neema ya Ajabu"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Punguza mwendo kwenye mstari wa mwisho"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Kiitikio cha mwisho"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5817,47 +5783,47 @@ msgstr "Kwa ishara inayobaki juu. Kwa tangazo kama jina la mzazi, tumia Ujumbe (
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Fanya chaguo-msingi"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Mandhari imerudishwa kama ilivyokuja"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Jina jipya la mandharinyuma hii"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Tumia mandharinyuma ya mandhari"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Weka mandharinyuma yao"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Dhibiti mandhari…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Kiwekelezo kimehifadhiwa"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Kiwekelezo kimefutwa"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Kiwekelezo kipya"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Karibu!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "Rudisha “{name}” jinsi ilivyokuja? Mabadiliko yako kwake yatapotea."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5867,15 +5833,15 @@ msgstr[1] "ibada {n}"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Chaguo-msingi la kanisa ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Sawa na ibada ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Futa kiwekelezo “{name}”? Kikiwa kwenye skrini, kitabaki hapo hadi ukizime."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6301,141 +6267,141 @@ msgstr "Nakala ya {name} {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Weka kipengele cha ibada kwenye skrini"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Slaidi iliyotangulia"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "Safisha maneno"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "Safisha video na picha"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "Safisha sauti"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Anzisha kipima muda"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "Sitisha kipima muda"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "Weka upya kipima muda"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Anzisha upya kipima muda"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Onyesha kipima muda kwenye skrini"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Ficha kipima muda kwenye skrini"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Onyesha ujumbe"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Ficha ujumbe"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "Washa kiwekelezo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "Zima kiwekelezo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "Sitisha slaidi za otomatiki"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Endeleza slaidi za otomatiki"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Onyesha ujumbe jukwaani"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Ficha ujumbe wa jukwaa"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "kipengele {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Badilisha kile skrini inaonyesha"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Badilisha mpangilio wa jukwaa"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Acha mpangilio wa jukwaa ufuate slaidi"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "Hesabu kushuka {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Hesabu kushuka hadi ibada ianze"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Hesabu kushuka hadi {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "hatua {n}"
+msgstr[1] "hatua {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Usifanye kitu"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Ifiche kwenye skrini"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "Endesha “{name}”"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Visanduku vya kujaza: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Imehifadhiwa."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Otomatiki"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Onyesha ujumbe"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6447,37 +6413,37 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Onyesha ujumbe kwenye skrini"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Otomatiki · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Hakuna kinachokosekana kwa ibada hii."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "Bofya ili kuona kila kitu."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "tatizo {n}"
+msgstr[1] "matatizo {n}"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Imeshindwa kufungua folda ya kumbukumbu. Iko kwenye {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Panua dirisha ili kukuza zaidi."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6569,67 +6535,67 @@ msgstr "Imeshindwa kufungua skrini ya jukwaa: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Imetenduliwa: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Imerudiwa: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "Haiwezi kutendua {what}: imebadilishwa tena tangu hapo."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "Haiwezi kurudia {what}: imebadilishwa tena tangu hapo."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Hakuna cha kurudia."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Hakuna cha kutendua."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "ibada mpya “{name}”"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "kufuta ibada “{name}”"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "kuongeza “{name}”"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "kuondoa “{name}”"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "kusogeza “{name}”"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "mabadiliko kwenye “{name}”"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "wimbo mpya “{name}”"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "kufuta wimbo “{name}”"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "mabadiliko kwenye wimbo “{name}”"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "badiliko la mwisho"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6645,31 +6611,31 @@ msgstr "libmpv hii ni ya zamani mno (client API {major}.{minor}); RustyPresenter
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Programu"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Otomatiki (inapendekezwa)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Programu (hali salama)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Inatumika sasa: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "Anzisha upya RustyPresenter ili kutumia mpangilio mpya wa michoro."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Hali ya michoro {wanted} haikuweza kutumika kwenye kompyuta hii, kwa hiyo RustyPresenter inatumia {mode}."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter ilipata tatizo na kadi ya michoro, kwa hiyo ilianza katika hali salama. Unaweza kubadilisha hili katika Mipangilio → Video."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6734,9 +6700,3 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Bado hakuna kitu hapa. Bofya Leta, au jaribu folda au neno lingine."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "Bofya “Ongeza kwenye ibada” hapa chini, andika mstari wa Biblia juu, au buruta faili kwenye dirisha hili."

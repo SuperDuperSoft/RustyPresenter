@@ -1,25 +1,6 @@
 # German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# German for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Deutsch\n"
-"X-English-Name: German\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: de\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Deutsch\nX-English-Name: German\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -243,75 +224,75 @@ msgstr "Name"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Art"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Countdown bis Uhrzeit"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Herunterzählen"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Hochzählen"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Beginn dieses Gottesdienstes"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Uhrzeit (z. B. 10:30 oder 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Dauer (Minuten und Sekunden)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Minuten"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Sekunden"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Nach null weiterzählen (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Bei null"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Position auf dem Bildschirm"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Oben rechts"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Oben links"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Unten rechts"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Unten links"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "Mitte (groß)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Beschriftung"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -319,59 +300,59 @@ msgstr "Gottesdienst beginnt in"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Auf der Bühne zeigen"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Auf der Handy-Fernbedienung zeigen"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Setzen Sie ein Wort in {{geschweifte Klammern}}, um ein Feld zum Ausfüllen zu erzeugen, z. B. {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Position"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Unten"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Oben"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Ausblenden nach"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Nie"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 s"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 s"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 min"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 min"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 min"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Vom Handy aus anzeigbar"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -379,11 +360,11 @@ msgstr "Im Tab „Vorlauf“ ändern"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Farbe"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Bernstein"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -391,123 +372,123 @@ msgstr "Rot"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Orange"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Grün"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Petrol"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Blau"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Lila"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Grau"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Schritte"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Hoch"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Nach oben"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Runter"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Nach unten"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Noch keine Schritte."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Schritt hinzufügen"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Was eingesetzt wird, z. B. Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "„Countdown starten“ spielt die Musik ab, zeigt die Folien und zählt bis zum Beginn dieses Gottesdienstes herunter."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Countdown bis"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Beginnt um"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Beginn festlegen"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Diese Folien wiederholen"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Musik abspielen"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Position des Countdowns"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Wenn der Countdown endet"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Countdown ausblenden"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Logo zeigen"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "Alles leeren"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Erstes Element anzeigen"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Geschieht nur, wenn seit dem Start des Countdowns niemand den Bildschirm geändert hat."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Timer"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Nachrichten"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Makros"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -515,31 +496,31 @@ msgstr "Vorlauf"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Dieser Gottesdienst beginnt um"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Festlegen"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Neuer Timer"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Neue Nachricht"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Neues Makro"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Wählen Sie links einen Eintrag oder erstellen Sie einen neuen."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "Zurücksetzen"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -547,7 +528,7 @@ msgstr "Pause"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -567,15 +548,15 @@ msgstr "Beliebige Farbe wählen"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Suchbegriffe"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "Wörter aus dem Vers eingeben, z. B. seid stille und erkennt"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Ganze Bibel"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -587,15 +568,15 @@ msgstr "Neues Testament"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Beste Treffer"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "Bibelreihenfolge"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Wählen Sie ein Ergebnis, um das Kapitel zu sehen. Klicken Sie auf einen Vers oder mit Umschalt+Klick, um einen Bereich hinzuzufügen."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -611,15 +592,15 @@ msgstr "Lied bearbeiten"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Reihenfolge für diesen Gottesdienst"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Übliche Reihenfolge des Liedes verwenden"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Als übliche Reihenfolge des Liedes festlegen"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -723,7 +704,7 @@ msgstr "Name in Bibliothek"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Design"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -731,7 +712,7 @@ msgstr "Hintergrund"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Folien automatisch weiterschalten"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -739,15 +720,15 @@ msgstr "Braucht mindestens zwei Folien."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "alle"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "Sekunden"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Nach der letzten Folie von vorn beginnen"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -767,7 +748,7 @@ msgstr "Abbrechen"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Links"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -775,27 +756,27 @@ msgstr "Mitte"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Rechts"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Einblendungen bleiben auf dem Saalbildschirm, während die Folien wechseln: ein Logo in der Ecke, eine Uhr oder ein kurzer Hinweis. Schalten Sie sie mit den Schaltflächen unter „Weiter“ in der Live-Spalte ein und aus. Die letzte in der Liste liegt ganz oben."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "Duplizieren"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Noch keine Einblendungen."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Neue Einblendung:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Ein Hinweis, der stehen bleibt, z. B. „Willkommen!“ oder das WLAN-Passwort"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -803,7 +784,7 @@ msgstr "Bild"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Ein Logo in der Ecke"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -811,35 +792,35 @@ msgstr "Uhr"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Die Uhrzeit"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Gemeindelogo verwenden"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Ein eigenes Bild"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Bild wählen…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Deckkraft"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Sekunden zeigen"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "24-Stunden-Format"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Wo"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -847,7 +828,7 @@ msgstr "Größe"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(Anteil der Bildschirmbreite)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -859,7 +840,7 @@ msgstr "Schatten hinter Text (besser lesbar auf Bildern)"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Kasten"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -867,19 +848,19 @@ msgstr "Aus"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Hinter dem Text"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Balken über ganze Breite"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Kastenfarbe"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Durchsichtig"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -887,7 +868,7 @@ msgstr "Vorschau"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Das Bearbeiten einer angezeigten Einblendung ändert den Bildschirm nicht: Schalten Sie sie aus und wieder ein, um die neue Version zu zeigen."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -895,7 +876,7 @@ msgstr "Zurück"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "Einblendung speichern"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1299,11 +1280,11 @@ msgstr "Gemeindestandard"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Als Gemeindestandard festlegen"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Ein Design legt fest, wie der Folientext aussieht: Schriftart, Größe, Farbe und Position. Das Design mit Stern wird verwendet, wenn ein Gottesdienst oder Element kein eigenes hat."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1311,23 +1292,23 @@ msgstr "Neues Design"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Hintergrundbibliothek"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Bilder, Videos, Farben und Verläufe der Gemeinde – bereit zur Auswahl für jedes Design oder Element."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Noch keine Hintergründe."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Bild oder Video hinzufügen…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Farbe oder Verlauf hinzufügen…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1335,7 +1316,7 @@ msgstr "Farbe"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Verlauf"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1347,27 +1328,27 @@ msgstr "Bis"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Richtung"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Zu Hintergründen hinzufügen"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Stärke"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(für Lieder und Ankündigungen)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Normal"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Halbfett"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1375,35 +1356,35 @@ msgstr "Fett"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Ausrichten"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "Mitte"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Kontur"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Dünn"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Dick"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Konturfarbe"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Textband (ein durchsichtiger Streifen hinter dem Text)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Bandfarbe"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1411,7 +1392,7 @@ msgstr "Bibeltext"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Abdunkeln"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1459,11 +1440,11 @@ msgstr "Tonausgabe über"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Grafik"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Ändern Sie dies nur, wenn die Bildschirme flackern, schwarz bleiben oder RustyPresenter abstürzt. Gilt ab dem nächsten Start."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1479,7 +1460,7 @@ msgstr "Bühnenlayout"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Was der Bühnenmonitor zeigt. Unter Fenster → Bühnenlayouts… erstellen Sie eigene."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1511,7 +1492,7 @@ msgstr "Aussehen"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Designs"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1539,7 +1520,7 @@ msgstr "Info"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "Design speichern"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1551,11 +1532,11 @@ msgstr "Nachricht"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Ausblenden"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Zeigen"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1594,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "– Abschnittsnamen in eigener Zeile; eine Leerzeile im Abschnitt beginnt eine neue Folie"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1647,111 +1616,111 @@ msgstr "Bühnenmonitor"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Erfordert neueres RustyPresenter"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Bühnenlayouts"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "Auf der Bühne"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Integriert"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Neu"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "Zum Bearbeiten duplizieren"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Umbenennen…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Löschen…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Auf Bühne verwenden"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "Erst speichern"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Kästen"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Noch keine Kästen. Fügen Sie einen hinzu, um etwas auf der Bühne zu zeigen."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Kasten hinzufügen"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Zeigt"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Text"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Größter Text ({} %)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Textfarbe"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Ausrichtung"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "Mitte"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "Dieser Kasten stammt aus einem neueren RustyPresenter. Er kann hier entfernt, aber nicht geändert werden."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "Rückgängig"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "Wiederholen"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Integrierte Layouts können nicht geändert werden. Duplizieren Sie eines, um ein eigenes zu erstellen."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "Ziehen Sie einen Kasten, um ihn zu verschieben, oder eine Ecke, um die Größe zu ändern. Pfeiltasten verschieben schrittweise. Alt gedrückt halten für freies Verschieben."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Layout"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Bühnenlayout wählen"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "Bühnenlayouts bearbeiten…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1831,31 +1800,31 @@ msgstr "Bildschirm identifizieren"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Nachricht sichtbar – Ausblenden"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Nachricht auf dem Bildschirm zeigen (Strg+Umschalt+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Folien wieder automatisch weiterschalten"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Automatisches Weiterschalten anhalten"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Timer, Nachrichten und Makros"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Im Saal ausblenden"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Im Saal zeigen"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1871,27 +1840,27 @@ msgstr "wird aktualisiert…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 s"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "15 Sekunden zurück"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 s"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "15 Sekunden vor"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "Letzte 10 s"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Zu 10 Sekunden vor dem Ende springen, um den Schluss zu prüfen"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1979,11 +1948,11 @@ msgstr "Ordner löschen"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Hier ist noch nichts. Importieren Sie Bilder, Videos oder Musik oder versuchen Sie einen anderen Ordner oder Suchbegriff."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Medien importieren"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2011,27 +1980,27 @@ msgstr "Geändert – zum Aktualisieren aus- und einschalten."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Einblendungen"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Einblendungen"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Ein Logo in der Ecke, eine Uhr oder ein kurzer Hinweis"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Leeren"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "Einblendungen leeren (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Einblendungen…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2063,15 +2032,15 @@ msgstr "Vor dem Gottesdienst: Sind alle Lieder, Dateien und Bildschirme da?"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Design für diesen Gottesdienst"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Eigene Reihenfolge"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Eigene Reihenfolge für diesen Gottesdienst"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2087,7 +2056,7 @@ msgstr "Ihr Gottesdienst ist leer"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Fügen Sie Lieder, Videos und Folien hinzu, tippen Sie oben eine Bibelstelle ein oder ziehen Sie Dateien in dieses Fenster."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2227,7 +2196,7 @@ msgstr "Gottesdienstdatei öffnen…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Zuletzt geöffnet"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2235,11 +2204,11 @@ msgstr "Gottesdienst in Datei speichern…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "Exportieren"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Gottesdienst-Paket…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2267,7 +2236,7 @@ msgstr "Medien importieren…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "Ablauf drucken…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2275,11 +2244,11 @@ msgstr "Beenden"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Suchen…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Vers suchen…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2311,7 +2280,7 @@ msgstr "Audio stoppen"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "Einblendungen leeren"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2323,15 +2292,15 @@ msgstr "Medienbibliothek einblenden"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Vergrößern"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Verkleinern"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Originalgröße"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2351,11 +2320,11 @@ msgstr "Bühnennachricht…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Bühnenlayouts…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Automatisierung…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2363,7 +2332,7 @@ msgstr "Einstellungen…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Designs und Hintergründe…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2391,7 +2360,7 @@ msgstr "Gottesdienst prüfen"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Protokollordner öffnen"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2583,7 +2552,7 @@ msgstr "„{file}“ konnte nicht gelesen werden: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "Geben Sie die Uhrzeit z. B. als 10:30 ein."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2799,19 +2768,19 @@ msgstr "Tippen Sie auf eine Folie, um sie anzuzeigen."
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Nachricht ausblenden"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "„{name}“ ausführen?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Ausführen"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Fertig"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3095,7 +3064,7 @@ msgstr "Dieses Audio läuft nicht mehr."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Dieses Video oder Audio wird nicht mehr abgespielt."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3139,7 +3108,7 @@ msgstr "RustyPresenter konnte seine Fenster nicht ausführen: {reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Sonntagsgottesdienst"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3171,47 +3140,47 @@ msgstr "RustyPresenter wurde nach 3 Abstürzen in einer Minute beendet. Das Prot
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Unbekannte Aktion."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Strophe|Vers"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Refrain|Chorus|Kehrvers"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Pre-Chorus|Vorrefrain|Überleitung"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Bridge|Zwischenteil"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Tag|Anhang|Schlusszeile"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Intro|Vorspiel"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Schluss|Ende|Outro"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Zwischenspiel|Interlude"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3593,75 +3562,75 @@ msgstr "Stoppuhr"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "Es können höchstens 4 Timer gleichzeitig auf dem Bildschirm sein."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Dieser Timer wurde gelöscht."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Diese Nachricht wurde gelöscht."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Dieses Makro wurde gelöscht."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Makros laufen in der App."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Zu schnell – bitte erneut versuchen."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Geben Sie einen Namen mit 1 bis 40 Zeichen ein."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Sie können bis zu 50 Timer haben."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Sie können bis zu 100 Nachrichten haben."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Sie können bis zu 100 Makros haben."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Ein Makro kann bis zu 30 Schritte haben."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Dieses Makro wurde gelöscht. Wählen Sie ein anderes."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Ein Timer kann nur ein Makro ausführen, das etwas ein- oder ausblendet (Timer, Nachrichten, Einblendungen)."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "„{name}“ wird von {n} Makro verwendet. Trotzdem löschen? Diese Schritte funktionieren dann nicht mehr."
+msgstr[1] "„{name}“ wird von {n} Makros verwendet. Trotzdem löschen? Diese Schritte funktionieren dann nicht mehr."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "„{name}“ läuft, wenn {n} Timer null erreicht. Trotzdem löschen? Dieser Timer tut dann bei null nichts."
+msgstr[1] "„{name}“ läuft, wenn {n} Timer null erreichen. Trotzdem löschen? Diese Timer tun dann bei null nichts."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Das Bühnenlayout kann den Folien noch nicht folgen."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Bildschirmansichten sind noch nicht verfügbar."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4667,8 +4636,8 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "…und {n} weiteres"
+msgstr[1] "…und {n} weitere"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4896,7 +4865,7 @@ msgstr "Nach Wörtern suchen…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Vers suchen"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5041,14 +5010,12 @@ msgid "Settings saved"
 msgstr "Einstellungen gespeichert"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "O Gnade Gottes, wunderbar\nhast du errettet mich"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · gemeinfrei"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5174,27 +5141,27 @@ msgstr "Strg + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Strg + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Strg + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Strg + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "Letzte Änderung an Gottesdiensten oder Bibliothek rückgängig machen"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Rückgängig Gemachtes wiederherstellen"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Lied suchen"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5374,7 +5341,7 @@ msgstr "Klicken, um diesen Teil zu zeigen"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Als übliche Reihenfolge gespeichert."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5620,7 +5587,7 @@ msgstr "Die Makros laufen erst nach Bearbeitung wieder"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Neues Bühnenlayout"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5628,55 +5595,55 @@ msgstr "{name} Kopie"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Name des Bühnenlayouts"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Änderungen an den Bühnenlayouts verwerfen?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Verwerfen"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Weiter bearbeiten"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Bühnenlayouts gespeichert."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "Die Bühne zeigt „{name}“."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Ihr Text hier"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "O Gnade Gottes, wunderbar"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "hast du errettet mich"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Strophe 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Amazing Grace"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Bei der letzten Zeile langsamer"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Letzter Refrain"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5816,47 +5783,47 @@ msgstr "Für einen dauerhaften Hinweis. Für Durchsagen wie Elternrufe nutzen Si
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Als Standard"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Design auf Original zurückgesetzt"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Neuer Name für diesen Hintergrund"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Design-Hintergrund verwenden"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Eigene Hintergründe behalten"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Designs verwalten…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Einblendung gespeichert"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Einblendung gelöscht"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Neue Einblendung"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Willkommen!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "„{name}“ auf den Originalzustand zurücksetzen? Ihre Änderungen daran gehen verloren."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5866,15 +5833,15 @@ msgstr[1] "{n} Gottesdienste"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Gemeindestandard ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Wie Gottesdienst ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Einblendung „{name}“ löschen? Wenn sie gerade angezeigt wird, bleibt sie sichtbar, bis Sie sie ausschalten."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6300,141 +6267,141 @@ msgstr "{name} Kopie {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Element des Gottesdienstes anzeigen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Vorherige Folie"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "Text leeren"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "Video und Bilder leeren"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "Audio leeren"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Timer starten"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "Timer pausieren"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "Timer zurücksetzen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Timer neu starten"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Timer auf dem Bildschirm zeigen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Timer vom Bildschirm ausblenden"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Nachricht zeigen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Nachricht ausblenden"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "Einblendung einschalten"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "Einblendung ausschalten"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "Automatische Folien anhalten"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Automatische Folien fortsetzen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Nachricht auf der Bühne zeigen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Bühnennachricht ausblenden"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "Element {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Bildschirminhalt ändern"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Bühnenlayout ändern"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Bühnenlayout den Folien folgen lassen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "{time} herunterzählen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Bis zum Gottesdienstbeginn herunterzählen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Bis {time} herunterzählen"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} Schritt"
+msgstr[1] "{n} Schritte"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Nichts tun"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Vom Bildschirm ausblenden"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "„{name}“ ausführen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Felder zum Ausfüllen: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Gespeichert."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Automatisierung"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Nachricht zeigen"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6446,37 +6413,37 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Strg + Umschalt + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Nachricht auf dem Bildschirm zeigen"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Auto · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Für diesen Gottesdienst fehlt nichts."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "Klicken, um alles zu sehen."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} Problem"
+msgstr[1] "{n} Probleme"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Der Protokollordner konnte nicht geöffnet werden. Er liegt unter {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Vergrößern Sie das Fenster, um weiter hineinzuzoomen."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6568,67 +6535,67 @@ msgstr "Bühnenmonitor konnte nicht geöffnet werden: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Rückgängig: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Wiederholt: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "{what} kann nicht rückgängig gemacht werden: Es wurde seitdem erneut geändert."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "{what} kann nicht wiederholt werden: Es wurde seitdem erneut geändert."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Nichts zu wiederholen."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Nichts rückgängig zu machen."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "der neue Gottesdienst „{name}“"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "das Löschen des Gottesdienstes „{name}“"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "das Hinzufügen von „{name}“"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "das Entfernen von „{name}“"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "das Verschieben von „{name}“"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "Änderungen an „{name}“"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "das neue Lied „{name}“"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "das Löschen des Liedes „{name}“"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "Änderungen am Lied „{name}“"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "die letzte Änderung"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6644,31 +6611,31 @@ msgstr "Diese libmpv ist zu alt (Client-API {major}.{minor}); RustyPresenter bra
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Software"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Automatisch (empfohlen)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Software (abgesicherter Modus)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Aktuell verwendet: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "Starten Sie RustyPresenter neu, um die neue Grafikeinstellung zu verwenden."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Der Grafikmodus {wanted} konnte auf diesem Computer nicht verwendet werden, daher verwendet RustyPresenter {mode}."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter hatte Probleme mit der Grafikkarte und wurde daher im abgesicherten Modus gestartet. Sie können dies unter Einstellungen → Video ändern."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6733,9 +6700,3 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Noch nichts hier. Klicken Sie auf „Importieren“ oder versuchen Sie einen anderen Ordner oder Suchbegriff."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "Klicken Sie unten auf „Hinzufügen“, tippen Sie oben eine Bibelstelle ein oder ziehen Sie Dateien in dieses Fenster."

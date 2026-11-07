@@ -1,19 +1,6 @@
 # Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: fil\n"
-"Plural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\n"
-"X-Native-Name: Filipino\n"
-"X-English-Name: Filipino\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fil\nPlural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\nX-Native-Name: Filipino\nX-English-Name: Filipino\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -237,75 +224,75 @@ msgstr "Pangalan"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Uri"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Mag-countdown hanggang sa oras"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Countdown"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Bilang pataas"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Oras ng simula ng service na ito"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Oras (tulad ng 10:30 o 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Haba (minuto at segundo)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Minuto"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Segundo"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Ituloy ang bilang pagkalampas ng zero (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Kapag umabot sa zero"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Lugar sa screen"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Kanang itaas"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Kaliwang itaas"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Kanang ibaba"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Kaliwang ibaba"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "Gitna (malaki)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Caption"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -313,59 +300,59 @@ msgstr "Magsisimula ang service sa loob ng"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Ipakita sa stage"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Ipakita sa phone remote"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Ilagay ang salita sa {{curly brackets}} para gumawa ng box na pupunan, tulad ng {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Posisyon"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Ibaba"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Itaas"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Itago pagkatapos ng"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Hindi kailanman"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 s"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 s"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 min"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 min"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 min"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Maipapakita mula sa phone"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -373,11 +360,11 @@ msgstr "Palitan ito sa tab na Bago ang service"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Kulay"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Amber"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -385,123 +372,123 @@ msgstr "Pula"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Orange"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Berde"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Teal"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Asul"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Lila"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Abo"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Mga hakbang"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Pataas"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Ilipat pataas"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Pababa"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Ilipat pababa"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Wala pang hakbang."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Magdagdag ng hakbang"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Ang pupunan, tulad ng Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "Ang Simulan ang countdown ay nagpapakita ng slides, nagpapatugtog ng musika, at nagbibilang pababa hanggang sa oras ng simula ng service na ito."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Countdown hanggang"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Magsisimula sa"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Itakda ang oras ng simula"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Ulit-ulitin ang slides na ito"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Magpatugtog ng musika"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Posisyon ng countdown"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Kapag natapos ang countdown"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Itago ang countdown"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Ipakita ang logo"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "I-clear lahat"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Ilagay sa screen ang unang item"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Mangyayari lang ito kung walang nagbago sa screen mula nang magsimula ang countdown."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Mga timer"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Mga mensahe"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Mga macro"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -509,31 +496,31 @@ msgstr "Bago ang service"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Magsisimula ang service na ito sa"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Itakda"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Bagong timer"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Bagong mensahe"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Bagong macro"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Pumili ng isa sa kaliwa, o gumawa ng bago."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "I-reset"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -541,7 +528,7 @@ msgstr "I-pause"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Simulan"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -561,15 +548,15 @@ msgstr "Pumili ng anumang kulay"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Mga salitang hahanapin"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "I-type ang mga salita mula sa talata, tulad ng magsitigil kayo at kilalanin"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Buong Bibliya"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -581,15 +568,15 @@ msgstr "Bagong Tipan"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Pinakatugma"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "Ayos ng Bibliya"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Pumili ng resulta para makita ang kabanata nito. Mag-click ng talata, o Shift+click para magdagdag ng range."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -605,15 +592,15 @@ msgstr "I-edit ang kanta"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Ayos para sa service na ito"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Gamitin ang karaniwang ayos ng kanta"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Gawin itong karaniwang ayos ng kanta"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -717,7 +704,7 @@ msgstr "Pangalan sa library"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Theme"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -725,7 +712,7 @@ msgstr "Background"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Kusang ilipat ang slides"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -733,15 +720,15 @@ msgstr "Kailangan ng kahit dalawang slide."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "bawat"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "segundo"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Bumalik sa simula pagkatapos ng huling slide"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -761,7 +748,7 @@ msgstr "Kanselahin"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Kaliwa"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -769,27 +756,27 @@ msgstr "Gitna"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Kanan"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Nananatili ang overlays sa screen ng silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Susunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "I-duplicate"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Wala pang overlay."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Bagong overlay:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Karatulang nananatili, tulad ng “Maligayang pagdating!” o ang Wi-Fi password"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -797,7 +784,7 @@ msgstr "Larawan"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Logo sa sulok"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -805,35 +792,35 @@ msgstr "Orasan"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Ang oras ngayon"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Gamitin ang logo ng simbahan"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Sariling larawan"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Pumili ng larawan…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Opacity"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Ipakita ang segundo"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "24-oras na orasan"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Saan"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -841,7 +828,7 @@ msgstr "Laki"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(bahagi ng lapad ng screen)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -853,7 +840,7 @@ msgstr "Anino sa likod ng teksto (mas madaling basahin sa mga larawan)"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Box"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -861,19 +848,19 @@ msgstr "Off"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Sa likod ng teksto"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Bar na buong lapad"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Kulay ng box"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Malinaw"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -881,7 +868,7 @@ msgstr "Preview"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Hindi nababago ang screen kapag in-edit ang overlay na nasa screen: i-off at i-on ito para ipakita ang bago."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -889,7 +876,7 @@ msgstr "Bumalik"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "I-save ang overlay"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1293,11 +1280,11 @@ msgstr "Default ng simbahan"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Gawin itong default ng simbahan"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Ang theme ay kung paano ang itsura ng teksto sa slide: font, laki, kulay at kung saan ito nakapuwesto. Ginagamit ang theme na may star kapag walang sariling theme ang service o item."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1305,23 +1292,23 @@ msgstr "Bagong theme"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Library ng background"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Mga larawan, video, kulay at gradient na itinatago ng simbahan, handang piliin para sa anumang theme o item."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Wala pang background."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Magdagdag ng larawan o video…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Magdagdag ng kulay o gradient…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1329,7 +1316,7 @@ msgstr "Kulay"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Gradient"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1341,27 +1328,27 @@ msgstr "Hanggang"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Direksyon"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Idagdag sa backgrounds"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Kapal"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(para sa mga kanta at anunsyo)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Regular"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Semibold"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1369,35 +1356,35 @@ msgstr "Bold"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Align"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "Gitna"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Outline"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Manipis"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Makapal"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Kulay ng outline"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Text band (malinaw na guhit sa likod ng mga salita)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Kulay ng band"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1405,7 +1392,7 @@ msgstr "Kasulatan"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Padilimin"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1453,11 +1440,11 @@ msgstr "Saan lalabas ang tunog"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Graphics"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Palitan lang ito kung kumukurap ang screens, nananatiling itim, o nagka-crash ang RustyPresenter. Gagamitin mula sa susunod na pagbukas."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1473,7 +1460,7 @@ msgstr "Stage layout"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Ang ipinapakita ng stage screen. Ang Window → Stage layouts… ay para gumawa ng sarili mo."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1505,7 +1492,7 @@ msgstr "Itsura"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Mga theme"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1533,7 +1520,7 @@ msgstr "Tungkol dito"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "I-save ang theme"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1545,11 +1532,11 @@ msgstr "Mensahe"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Itago"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Ipakita"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1588,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— mga pangalan ng section sa sariling linya; nagsisimula ng bagong slide ang blangkong linya sa loob ng section"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1641,111 +1616,111 @@ msgstr "Stage screen"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Kailangan ng mas bagong RustyPresenter"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Mga stage layout"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "Nasa stage"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Built-in"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Bago"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "I-duplicate para i-edit"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Palitan ang pangalan…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Burahin…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Gamitin sa stage"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "I-save muna"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Mga box"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Wala pang box. Magdagdag ng isa para magpakita ng kahit ano sa stage."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Magdagdag ng box"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Ipinapakita"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Mga salita"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Pinakamalaking teksto ({}%)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Kulay ng teksto"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Alignment"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "Gitna"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "Mas bagong RustyPresenter ang gumawa ng box na ito. Maaari itong alisin pero hindi mababago dito."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "I-undo"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "I-redo"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Hindi mababago ang built-in na layouts. I-duplicate ang isa para gumawa ng sarili mo."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "I-drag ang box para ilipat; i-drag ang sulok para baguhin ang laki. Bahagyang naglilipat ang arrow keys. Pindutin nang matagal ang Alt para malayang ilipat."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Layout"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Piliin ang stage layout"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "I-edit ang stage layouts…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1825,31 +1800,31 @@ msgstr "Kilalanin ang screen"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Ipinapakita ang mensahe — Itago"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Magpakita ng mensahe sa screen (Ctrl+Shift+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Kusang ilipat muli ang slides"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Ihinto ang kusang paglipat ng slides"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Mga timer, mensahe at macro"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Itago sa silid"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Ipakita sa silid"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1865,27 +1840,27 @@ msgstr "nag-a-update…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 s"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "Bumalik nang 15 segundo"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 s"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "Umabante nang 15 segundo"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "Huling 10 s"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Tumalon sa 10 segundo bago matapos, para tingnan kung paano ito nagtatapos"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1973,11 +1948,11 @@ msgstr "Burahin ang folder"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Wala pa rito. Mag-import ng mga larawan, video o musika, o subukan ang ibang folder o salita."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Mag-import ng media"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2005,27 +1980,27 @@ msgstr "Binago — i-off at i-on ito para ma-update."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Overlays"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Overlays"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Logo sa sulok, orasan o maikling karatula"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Clear"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "I-clear ang overlays (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Overlays…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2057,15 +2032,15 @@ msgstr "Bago ang service: kumpleto ba ang lahat ng kanta, file at screen?"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Theme para sa service na ito"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Sariling ayos"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Sariling ayos para sa service na ito"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2081,7 +2056,7 @@ msgstr "Walang laman ang iyong service"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Magdagdag ng mga kanta, video at slides, mag-type ng talata sa Bibliya sa itaas, o i-drag ang mga file sa window na ito."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2221,7 +2196,7 @@ msgstr "Magbukas ng service file…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Buksan ang kamakailan"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2229,11 +2204,11 @@ msgstr "I-save sa file ang service na ito…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "I-export"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Service bundle…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2261,7 +2236,7 @@ msgstr "Mag-import ng media…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "I-print ang ayos ng service…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2269,11 +2244,11 @@ msgstr "Lumabas"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Hanapin…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Maghanap ng talata…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2305,7 +2280,7 @@ msgstr "Ihinto ang audio"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "I-clear ang overlays"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2317,15 +2292,15 @@ msgstr "Ipakita ang media library"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Palakihin"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Paliitin"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Tunay na laki"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2345,11 +2320,11 @@ msgstr "Stage message…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Stage layouts…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Automation…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2357,7 +2332,7 @@ msgstr "Settings…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Mga theme at background…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2385,7 +2360,7 @@ msgstr "Suriin ang service"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Buksan ang logs folder"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2577,7 +2552,7 @@ msgstr "Hindi mabasa ang “{file}”: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "I-type ang oras tulad ng 10:30."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2793,19 +2768,19 @@ msgstr "I-tap ang isang slide para ilabas ito sa screen."
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Itago ang mensahe"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "Patakbuhin ang “{name}”?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Patakbuhin"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Tapos na"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3089,7 +3064,7 @@ msgstr "Hindi na tumutugtog ang audio na iyon."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Hindi na tumutugtog ang video o audio na iyon."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3133,7 +3108,7 @@ msgstr "Hindi mapatakbo ng RustyPresenter ang mga window nito: {reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Service sa Linggo"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3165,47 +3140,47 @@ msgstr "Huminto ang RustyPresenter matapos mag-crash nang 3 beses sa loob ng isa
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Hindi kilalang aksyon."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Verse|Berso|Taludtod"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Chorus|Koro"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Pre-chorus|Pre-koro"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Bridge|Tulay"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Intro|Panimula"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Ending|Wakas|Pagtatapos"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Interlude|Pagitan"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3587,75 +3562,75 @@ msgstr "Stopwatch"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "Hanggang 4 na timer lang ang puwedeng nasa screen nang sabay."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Nabura na ang timer na iyon."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Nabura na ang mensaheng iyon."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Nabura na ang macro na iyon."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Sa app tumatakbo ang macros."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Masyadong mabilis — subukang muli."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Bigyan ito ng pangalang may 1 hanggang 40 titik."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Hanggang 50 timer lang ang puwede."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Hanggang 100 mensahe lang ang puwede."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Hanggang 100 macro lang ang puwede."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Hanggang 30 hakbang lang ang puwede sa isang macro."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Nabura na ang macro na iyon. Pumili ng iba."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Macro lang na nagpapakita o nagtatago ng mga bagay (timers, mensahe, overlays) ang mapapatakbo ng timer."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ginagamit ang “{name}” ng {n} macro. Burahin pa rin? Hihinto sa paggana ang mga hakbang na iyon."
+msgstr[1] "Ginagamit ang “{name}” ng {n} na macro. Burahin pa rin? Hihinto sa paggana ang mga hakbang na iyon."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Tumatakbo ang “{name}” kapag umabot sa zero ang {n} timer. Burahin pa rin? Wala nang gagawin ang mga timer na iyon sa zero."
+msgstr[1] "Tumatakbo ang “{name}” kapag umabot sa zero ang {n} na timer. Burahin pa rin? Wala nang gagawin ang mga timer na iyon sa zero."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Hindi pa masusundan ng stage layout ang slides."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Hindi pa available ang screen views."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4661,8 +4636,8 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "…at {n} pa"
+msgstr[1] "…at {n} pa"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4890,7 +4865,7 @@ msgstr "Hanapin ayon sa salita…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Maghanap ng talata"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5035,14 +5010,12 @@ msgid "Settings saved"
 msgstr "Na-save ang settings"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Amazing grace how sweet the sound\nThat saved a wretch like me"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · Public Domain"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5168,27 +5141,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "I-undo ang huling pagbabago sa mga service o sa library"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Ibalik ang binawi ng I-undo"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Maghanap ng kanta"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5368,7 +5341,7 @@ msgstr "I-click para ipakita ang bahaging ito"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Na-save bilang karaniwang ayos."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5614,7 +5587,7 @@ msgstr "Hindi tatakbo ang mga macro hangga’t hindi na-e-edit"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Bagong stage layout"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5622,55 +5595,55 @@ msgstr "Kopya ng {name}"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Pangalan ng stage layout"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Itapon ang mga pagbabago mo sa stage layouts?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Itapon"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Ituloy ang pag-edit"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Na-save ang stage layouts."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "Ipinapakita ng stage ang “{name}”."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Ang mga salita mo rito"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "Amazing grace, how sweet the sound"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "That saved a wretch like me"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Verse 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Amazing Grace"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Bagalan sa huling linya"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Huling chorus"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5810,47 +5783,47 @@ msgstr "Para sa karatulang nananatiling nakalabas. Para sa abiso tulad ng pangal
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Gawing default"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Naibalik ang theme sa orihinal"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Bagong pangalan para sa background na ito"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Gamitin ang background ng theme"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Panatilihin ang sariling background"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Pamahalaan ang mga theme…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Na-save ang overlay"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Nabura ang overlay"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Bagong overlay"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Maligayang pagdating!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "Ibalik ang “{name}” sa orihinal? Mawawala ang mga pagbabago mo rito."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5860,15 +5833,15 @@ msgstr[1] "{n} na service"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Default ng simbahan ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Pareho sa service ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Burahin ang overlay na “{name}”? Kung nasa screen ito, mananatili ito roon hanggang i-off mo."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6294,141 +6267,141 @@ msgstr "Kopya ng {name} {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Ilagay sa screen ang isang item ng service"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Nakaraang slide"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "I-clear ang mga salita"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "I-clear ang video at larawan"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "I-clear ang audio"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Simulan ang timer"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "I-pause ang timer"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "I-reset ang timer"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Simulan muli ang timer"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Ipakita ang timer sa screen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Itago ang timer sa screen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Magpakita ng mensahe"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Itago ang mensahe"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "I-on ang isang overlay"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "I-off ang isang overlay"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "I-pause ang kusang slides"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Ituloy ang kusang slides"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Magpakita ng mensahe sa stage"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Itago ang stage message"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "item {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Baguhin ang ipinapakita ng isang screen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Palitan ang stage layout"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Hayaang sundan ng stage layout ang slides"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "Countdown {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Countdown hanggang sa simula ng service"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Countdown hanggang {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} hakbang"
+msgstr[1] "{n} na hakbang"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Walang gagawin"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Itago ito sa screen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "Patakbuhin ang “{name}”"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Mga box na pupunan: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Na-save."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Automation"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Ipakita ang mensahe"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6440,37 +6413,37 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Magpakita ng mensahe sa screen"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Auto · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Walang kulang para sa service na ito."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "I-click para makita lahat."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} problema"
+msgstr[1] "{n} na problema"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Hindi mabuksan ang logs folder. Nasa {path} ito"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Palakihin ang window para lalo pang mag-zoom in."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6562,67 +6535,67 @@ msgstr "Hindi mabuksan ang stage screen: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Na-undo: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Na-redo: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "Hindi ma-undo ang {what}: nabago na itong muli mula noon."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "Hindi ma-redo ang {what}: nabago na itong muli mula noon."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Walang ire-redo."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Walang i-a-undo."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "ang bagong service na “{name}”"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "ang pagbura sa service na “{name}”"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "ang pagdagdag ng “{name}”"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "ang pag-alis ng “{name}”"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "ang paglipat ng “{name}”"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "ang mga pagbabago sa “{name}”"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "ang bagong kanta na “{name}”"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "ang pagbura sa kantang “{name}”"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "ang mga pagbabago sa kantang “{name}”"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "ang huling pagbabago"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6638,31 +6611,31 @@ msgstr "Masyadong luma ang libmpv na ito (client API {major}.{minor}); kailangan
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Software"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Awtomatiko (inirerekomenda)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Software (safe mode)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Ginagamit ngayon: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "I-restart ang RustyPresenter para magamit ang bagong graphics setting."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Hindi magamit sa computer na ito ang {wanted} na graphics mode, kaya {mode} ang ginagamit ng RustyPresenter."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "Nagkaproblema ang RustyPresenter sa graphics card, kaya nagsimula ito sa safe mode. Mababago mo ito sa Settings → Video."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6727,9 +6700,3 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Wala pang laman dito. I-click ang Mag-import, o subukan ang ibang folder o salita."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "I-click ang “Idagdag sa service” sa ibaba, mag-type ng talata sa itaas, o mag-drag ng mga file sa window na ito."

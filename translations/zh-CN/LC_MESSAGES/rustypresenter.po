@@ -1,21 +1,6 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: zh-CN\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 简体中文\n"
-"X-English-Name: Chinese (Simplified)\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -239,75 +224,75 @@ msgstr "名称"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "类型"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "倒计时到某个时间"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "倒计时"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "正计时"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "本次聚会的开始时间"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "时间（如 10:30 或 18:45）"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "时长（分和秒）"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "分"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "秒"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "到零后继续计时（+m:ss）"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "到零时"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "屏幕上的位置"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "右上"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "左上"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "右下"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "左下"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "居中（大）"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "说明文字"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -315,59 +300,59 @@ msgstr "距聚会开始还有"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "在舞台上显示"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "在手机遥控器上显示"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "把词放在 {{双花括号}} 中即可生成一个填写框，例如 {{Number}}。"
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "位置"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "底部"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "顶部"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "自动隐藏"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "从不"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 秒"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 秒"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 分钟"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 分钟"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 分钟"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "可从手机显示"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -375,11 +360,11 @@ msgstr "在“聚会前”选项卡中更改"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "颜色"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "琥珀色"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -387,123 +372,123 @@ msgstr "红色"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "橙色"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "绿色"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "青色"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "蓝色"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "紫色"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "灰色"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "步骤"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "上移"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "上移"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "下移"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "下移"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "还没有步骤。"
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "添加步骤"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "要填写的内容，例如 Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "“开始倒计时”会播放音乐、显示幻灯片，并倒计时到本次聚会的开始时间。"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "倒计时到"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "开始于"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "设置开始时间"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "循环播放这些幻灯片"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "播放音乐"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "倒计时位置"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "倒计时结束时"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "隐藏倒计时"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "显示标志"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "全部清空"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "显示第一个项目"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "仅当倒计时开始后没人改动过屏幕时才会执行。"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "计时器"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "消息"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "宏"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -511,31 +496,31 @@ msgstr "聚会前"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "本次聚会开始于"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "设置"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "新建计时器"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "新建消息"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "新建宏"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "在左侧选择一个，或新建一个。"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "重置"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -543,7 +528,7 @@ msgstr "暂停"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "开始"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -563,15 +548,15 @@ msgstr "任选颜色"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "要查找的词"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "输入经文中的词，例如 休息 知道"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "整本圣经"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -583,15 +568,15 @@ msgstr "新约"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "最佳匹配"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "圣经顺序"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "选择一个结果查看该章。点击一节经文，或按住 Shift 点击添加一段范围。"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -607,15 +592,15 @@ msgstr "编辑诗歌"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "本次聚会的顺序"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "使用诗歌的常用顺序"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "设为诗歌的常用顺序"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -719,7 +704,7 @@ msgstr "库中名称"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "主题"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -727,7 +712,7 @@ msgstr "背景"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "自动切换幻灯片"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -735,15 +720,15 @@ msgstr "至少需要两张幻灯片。"
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "每隔"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "秒"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "最后一张后从头开始"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -763,7 +748,7 @@ msgstr "取消"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "左"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -771,27 +756,27 @@ msgstr "居中"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "右"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "叠加层在切换幻灯片时会一直留在会场屏幕上：角落里的标志、时钟或简短标语。用“直播”栏中“下一张”下方的按钮开关它们。列表中最后一个显示在最上层。"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "复制一份"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "还没有叠加层。"
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "新建叠加层："
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "一直显示的标语，例如“欢迎！”或 Wi-Fi 密码"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -799,7 +784,7 @@ msgstr "图片"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "角落里的标志"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -807,35 +792,35 @@ msgstr "时钟"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "当前时间"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "使用教会标志"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "单独的图片"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "选择图片…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "不透明度"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "显示秒"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "24 小时制"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "位置"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -843,7 +828,7 @@ msgstr "尺寸"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "（占屏幕宽度的比例）"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -855,7 +840,7 @@ msgstr "文字阴影（在图片上更易阅读）"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "方框"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -863,19 +848,19 @@ msgstr "关"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "文字后面"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "通栏横条"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "方框颜色"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "半透明"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -883,7 +868,7 @@ msgstr "预览"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "编辑正在屏幕上显示的叠加层不会改变屏幕：关掉再打开即可显示新版本。"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -891,7 +876,7 @@ msgstr "返回"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "保存叠加层"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1295,11 +1280,11 @@ msgstr "教会默认"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "设为教会默认"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "主题决定幻灯片文字的样式：字体、大小、颜色和位置。当聚会或项目没有自己的主题时，就使用带星标的主题。"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1307,23 +1292,23 @@ msgstr "新建主题"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "背景库"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "教会保存的图片、视频、颜色和渐变，可随时用于任何主题或项目。"
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "还没有背景。"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "添加图片或视频…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "添加颜色或渐变…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1331,7 +1316,7 @@ msgstr "颜色"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "渐变"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1343,27 +1328,27 @@ msgstr "至"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "方向"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "添加到背景"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "粗细"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "（用于诗歌和报告）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "常规"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "半粗"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1371,35 +1356,35 @@ msgstr "粗体"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "对齐"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "居中"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "描边"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "细"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "粗"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "描边颜色"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "文字底条（文字后面的半透明横条）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "底条颜色"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1407,7 +1392,7 @@ msgstr "经文"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "调暗"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1455,11 +1440,11 @@ msgstr "声音输出到"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "图形"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "仅当屏幕闪烁、一直黑屏或 RustyPresenter 崩溃时才更改此项。下次启动时生效。"
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1475,7 +1460,7 @@ msgstr "舞台布局"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "舞台屏幕显示的内容。用“窗口 → 舞台布局…”可以自己制作。"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1507,7 +1492,7 @@ msgstr "外观"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "主题"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1535,7 +1520,7 @@ msgstr "关于"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "保存主题"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1547,11 +1532,11 @@ msgstr "消息"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "隐藏"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "显示"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1590,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— 段落名称单独占一行；段落内空一行即开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免\n"
-"\n"
-"Chorus\n"
-"我的锁链已断开…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1643,111 +1616,111 @@ msgstr "舞台屏幕"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "需要更新版本的 RustyPresenter"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "舞台布局"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "舞台上"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "内置"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "新建"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "复制后编辑"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "重命名…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "删除…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "用于舞台"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "请先保存"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "方框"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "还没有方框。添加一个方框即可在舞台上显示内容。"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "添加方框"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "显示"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "文字"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "最大字号（{}%）"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "文字颜色"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "对齐"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "居中"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "这个方框由更新版本的 RustyPresenter 创建。在这里可以删除，但不能修改。"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "撤销"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "重做"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "内置布局不能修改。复制一份即可自己制作。"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "拖动方框可移动；拖动角可调整大小。方向键可微调。按住 Alt 可自由移动。"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "布局"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "选择舞台布局"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "编辑舞台布局…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1827,31 +1800,31 @@ msgstr "识别屏幕"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "消息显示中 — 隐藏"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "在屏幕上显示消息（Ctrl+Shift+M）"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "重新自动切换幻灯片"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "停止自动切换幻灯片"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "计时器、消息和宏"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "在会场隐藏"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "在会场显示"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1867,27 +1840,27 @@ msgstr "正在更新…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 秒"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "后退 15 秒"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 秒"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "前进 15 秒"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "最后 10 秒"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "跳到结束前 10 秒，检查结尾效果"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1975,11 +1948,11 @@ msgstr "删除文件夹"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "这里还没有内容。导入图片、视频或音乐，或换个文件夹或关键词试试。"
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "导入媒体"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2007,27 +1980,27 @@ msgstr "已更改 — 关闭再开启即可更新。"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "叠加层"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ 叠加层"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "角落里的标志、时钟或简短标语"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 清除"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "清除叠加层（F6）"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "叠加层…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2059,15 +2032,15 @@ msgstr "聚会开始前：所有诗歌、文件和屏幕都准备好了吗？"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "本次聚会的主题"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "自定义顺序"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "本次聚会的自定义顺序"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2083,7 +2056,7 @@ msgstr "你的聚会还是空的"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "添加诗歌、视频和幻灯片，在顶部输入经文，或把文件拖到此窗口。"
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2223,7 +2196,7 @@ msgstr "打开聚会文件…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "打开最近"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2231,11 +2204,11 @@ msgstr "将此聚会保存为文件…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "导出"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "聚会打包文件…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2263,7 +2236,7 @@ msgstr "导入媒体…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "打印聚会流程…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2271,11 +2244,11 @@ msgstr "退出"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "查找…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "查找经文…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2307,7 +2280,7 @@ msgstr "停止音频"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "清除叠加层"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2319,15 +2292,15 @@ msgstr "显示媒体库"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "放大"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "缩小"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "实际大小"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2347,11 +2320,11 @@ msgstr "舞台消息…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "舞台布局…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "自动化…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2359,7 +2332,7 @@ msgstr "设置…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "主题和背景…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2387,7 +2360,7 @@ msgstr "检查聚会"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "打开日志文件夹"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2579,7 +2552,7 @@ msgstr "无法读取“{file}”：{error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "请按 10:30 这样的格式输入时间。"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2795,19 +2768,19 @@ msgstr "点击幻灯片即可将其显示到屏幕上。"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "隐藏消息"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "要运行“{name}”吗？"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "运行"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "完成"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3091,7 +3064,7 @@ msgstr "该音频已不在播放。"
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "该视频或音频已不再播放。"
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3135,7 +3108,7 @@ msgstr "RustyPresenter 无法运行窗口：{reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "主日聚会"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3167,47 +3140,47 @@ msgstr "RustyPresenter 在一分钟内崩溃 3 次后已停止。日志位于 {p
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "未知操作。"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "主歌|段落"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "副歌|合唱"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "导歌|副歌前奏|预副歌"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "桥段|过门"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "尾句|重复句"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "前奏|引子"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "结尾|尾奏"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "间奏"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3584,73 +3557,73 @@ msgstr "秒表"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "屏幕上最多可同时显示 4 个计时器。"
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "该计时器已被删除。"
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "该消息已被删除。"
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "该宏已被删除。"
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "宏在应用中运行。"
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "太快了 — 请再试一次。"
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "请输入 1 到 40 个字的名称。"
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "最多可以有 50 个计时器。"
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "最多可以有 100 条消息。"
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "最多可以有 100 个宏。"
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "一个宏最多可以有 30 个步骤。"
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "该宏已被删除。请另选一个。"
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "计时器只能运行显示或隐藏内容（计时器、消息、叠加层）的宏。"
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
+msgstr[0] "“{name}”被 {n} 个宏使用。仍要删除吗？这些步骤将不再起作用。"
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
+msgstr[0] "“{name}”会在 {n} 个计时器到零时运行。仍要删除吗？这些计时器到零时将不执行任何操作。"
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "舞台布局暂时还不能跟随幻灯片切换。"
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "屏幕视图暂不可用。"
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4642,7 +4615,7 @@ msgstr "{number}. {title}：{problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
+msgstr[0] "…还有 {n} 个"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4868,7 +4841,7 @@ msgstr "按词语搜索…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "查找经文"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5012,14 +4985,12 @@ msgid "Settings saved"
 msgstr "设置已保存"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "奇异恩典，何等甘甜\n我罪已得赦免"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · 公有领域"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5144,27 +5115,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "撤销对聚会或库的最后一次更改"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "重做被撤销的操作"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "查找诗歌"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5344,7 +5315,7 @@ msgstr "点击显示这一部分"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "已保存为常用顺序。"
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5587,7 +5558,7 @@ msgstr "这些宏在编辑之前不会运行"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "新建舞台布局"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5595,55 +5566,55 @@ msgstr "{name} 副本"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "舞台布局名称"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "放弃对舞台布局的更改吗？"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "放弃"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "继续编辑"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "舞台布局已保存。"
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "舞台显示“{name}”。"
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "在此输入文字"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "奇异恩典，何等甘甜"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "我罪已得赦免"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "主歌 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "奇异恩典"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "最后一句放慢"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "最后一遍副歌"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5783,47 +5754,47 @@ msgstr "用于持续显示的标识。如需通知某位家长等，请使用“
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "设为默认"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "主题已恢复原样"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "此背景的新名称"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "使用主题背景"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "保留各自的背景"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "管理主题…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "叠加层已保存"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "叠加层已删除"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "新建叠加层"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "欢迎！"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "要把“{name}”恢复原样吗？你对它的更改将丢失。"
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5832,15 +5803,15 @@ msgstr[0] "{n} 个聚会"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "教会默认（{name}）"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "与聚会相同（{name}）"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "要删除叠加层“{name}”吗？如果它正在屏幕上，会一直保留到你关掉它为止。"
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6261,140 +6232,140 @@ msgstr "{name} 副本 {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "将聚会项目显示到屏幕上"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "上一张幻灯片"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "清除文字"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "清除视频和图片"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "清除音频"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "启动计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "暂停计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "重置计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "重新启动计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "在屏幕上显示计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "从屏幕上隐藏计时器"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "显示消息"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "隐藏消息"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "打开叠加层"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "关闭叠加层"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "暂停自动切换幻灯片"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "恢复自动切换幻灯片"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "向舞台显示消息"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "隐藏舞台消息"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "第 {n} 项"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "更改屏幕显示的内容"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "更改舞台布局"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "让舞台布局跟随幻灯片"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "倒计时 {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "倒计时到聚会开始"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "倒计时到 {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
+msgstr[0] "{n} 个步骤"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "不执行任何操作"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "从屏幕上隐藏"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "运行“{name}”"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "填写框：{fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "已保存。"
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "自动化"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "显示消息"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6406,36 +6377,36 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "在屏幕上显示消息"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "自动 · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "本次聚会没有缺少任何内容。"
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "点击查看全部。"
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
+msgstr[0] "{n} 个问题"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "无法打开日志文件夹。它位于 {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "请把窗口调大以进一步放大。"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6527,67 +6498,67 @@ msgstr "无法打开舞台屏幕：{error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "已撤销：{what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "已重做：{what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "无法撤销{what}：之后又被更改过。"
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "无法重做{what}：之后又被更改过。"
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "没有可重做的操作。"
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "没有可撤销的操作。"
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "新聚会“{name}”"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "删除聚会“{name}”"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "添加“{name}”"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "移除“{name}”"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "移动“{name}”"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "对“{name}”的更改"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "新诗歌“{name}”"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "删除诗歌“{name}”"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "对诗歌“{name}”的更改"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "最后一次更改"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6603,31 +6574,31 @@ msgstr "此 libmpv 版本太旧（客户端 API {major}.{minor}）；RustyPresen
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "软件"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "自动（推荐）"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "软件（安全模式）"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "当前使用：{mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "重新启动 RustyPresenter 以使用新的图形设置。"
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "此电脑无法使用 {wanted} 图形模式，因此 RustyPresenter 正在使用 {mode}。"
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter 在使用显卡时遇到问题，因此已以安全模式启动。你可以在“设置 → 视频”中更改。"
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6692,9 +6663,3 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "这里还没有内容。点击“导入”，或换个文件夹或关键词试试。"
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "点击下方的“添加到聚会”，在顶部输入经文，或将文件拖到这个窗口。"

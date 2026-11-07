@@ -1,22 +1,6 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ht\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Kreyòl ayisyen\n"
-"X-English-Name: Haitian Creole\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -240,75 +224,75 @@ msgstr "Non"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Kalite"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Kont alanvè jiska yon lè"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Kont alanvè"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Konte monte"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Lè sèvis sa a kòmanse"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Lè (tankou 10:30 oswa 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Dire (minit ak segonn)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Minit"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Segonn"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Kontinye konte apre zewo (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Lè li rive a zewo"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Plas sou ekran an"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Anwo adwat"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Anwo agoch"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Anba adwat"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Anba agoch"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "Nan mitan (gwo)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Etikèt"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -316,59 +300,59 @@ msgstr "Sèvis la kòmanse nan"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Montre sou sèn"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Montre sou telefòn kontwòl la"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Mete yon mo nan {{akolad}} pou fè yon bwat pou ranpli, tankou {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Pozisyon"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Anba"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Anwo"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Kache apre"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Janm"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 s"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 s"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 min"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 min"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 min"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Ka montre l depi telefòn nan"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -376,11 +360,11 @@ msgstr "Chanje l nan onglè Anvan sèvis la"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Koulè"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Jòn fonse"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -388,123 +372,123 @@ msgstr "Wouj"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Zoranj"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Vèt"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Vèt ble"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Ble"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Vyolèt"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Gri"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Etap"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Monte"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Monte"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Desann"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Desann"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Poko gen etap."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Ajoute etap"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Sa pou ranpli, tankou Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "Kòmanse kont alanvè mete mizik la ak diapo yo, epi li konte desann jiska lè sèvis sa a kòmanse."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Kont alanvè jiska"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Kòmanse a"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Mete lè kòmansman"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Repete diapo sa yo"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Jwe mizik"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Pozisyon kont alanvè"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Lè kont alanvè a fini"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Kache kont alanvè a"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Montre logo a"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "Efase tout bagay"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Mete premye eleman an sou ekran an"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Sa fèt sèlman si pèsonn pa chanje ekran an depi kont alanvè a kòmanse."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Kontè"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Mesaj"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Makro"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -512,31 +496,31 @@ msgstr "Anvan sèvis"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Sèvis sa a kòmanse a"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Mete"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Nouvo kontè"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Nouvo mesaj"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Nouvo makro"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Chwazi youn sou bò goch la, oswa fè yon nouvo."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "Reyinisyalize"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -544,7 +528,7 @@ msgstr "Poz"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Kòmanse"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -564,15 +548,15 @@ msgstr "Chwazi nenpòt koulè"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Mo pou chèche"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "Tape mo ki nan vèsè a, tankou rete trankil e konnen"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Tout Bib la"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -584,15 +568,15 @@ msgstr "Nouvo Testaman"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Pi bon rezilta"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "Lòd Bib la"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Chwazi yon rezilta pou wè chapit li. Klike sou yon vèsè, oswa Shift+klik pou ajoute plizyè vèsè."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -608,15 +592,15 @@ msgstr "Modifye chante"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Lòd pou sèvis sa a"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Sèvi ak lòd abityèl chante a"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Fè sa lòd abityèl chante a"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -720,7 +704,7 @@ msgstr "Non nan bibliyotèk"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Tèm"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -728,7 +712,7 @@ msgstr "Fon"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Pase diapo yo otomatikman"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -736,15 +720,15 @@ msgstr "Bezwen omwen de diapo."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "chak"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "segonn"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Rekòmanse apre dènye diapo a"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -764,7 +748,7 @@ msgstr "Anile"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Goch"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -772,27 +756,27 @@ msgstr "Mitan"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Dwat"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Kouch yo rete sou ekran sal la pandan diapo yo ap chanje: yon logo nan kwen an, yon lè oswa yon ti pankat. Limen yo epi tenyen yo ak ti bouton ki anba Pwochen nan kolòn Dirèk la. Dènye a nan lis la parèt anlè tout lòt yo."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "Kopi"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Poko gen kouch."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Nouvo kouch:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Yon pankat ki rete parèt, tankou “Byenveni!” oswa modpas Wi-Fi a"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -800,7 +784,7 @@ msgstr "Foto"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Yon logo nan kwen an"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -808,35 +792,35 @@ msgstr "Lè"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Lè a nan jounen an"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Sèvi ak logo legliz la"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Pwòp foto pa l"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Chwazi foto…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Opasite"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Montre segonn"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "Lè 24 è"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Ki kote"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -844,7 +828,7 @@ msgstr "Gwosè"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(pati nan lajè ekran an)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -856,7 +840,7 @@ msgstr "Lonbraj dèyè tèks (pi fasil pou li sou foto)"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Bwat"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -864,19 +848,19 @@ msgstr "Etenn"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Dèyè tèks la"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Ba sou tout lajè"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Koulè bwat"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Transparan"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -884,7 +868,7 @@ msgstr "Apèsi"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Modifye yon kouch ki sou ekran an pa chanje ekran an: tenyen l epi limen l ankò pou montre nouvo a."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -892,7 +876,7 @@ msgstr "Retounen"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "Anrejistre kouch"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1296,11 +1280,11 @@ msgstr "Pa defo legliz la"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Fè sa pa defo legliz la"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Yon tèm se fason tèks diapo a parèt: polis, gwosè, koulè ak ki kote li ye. Tèm ki gen etwal la sèvi chak fwa yon sèvis oswa yon eleman pa gen pwòp tèm pa l."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1308,23 +1292,23 @@ msgstr "Nouvo tèm"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Bibliyotèk fon"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Foto, videyo, koulè ak degrade legliz la kenbe, pare pou chwazi pou nenpòt tèm oswa eleman."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Poko gen fon."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Ajoute foto oswa videyo…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Ajoute koulè oswa degrade…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1332,7 +1316,7 @@ msgstr "Koulè"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Degrade"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1344,27 +1328,27 @@ msgstr "Jiska"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Direksyon"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Ajoute nan fon yo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Epesè"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(pou chante ak anons)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Nòmal"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Mwatye gra"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1372,35 +1356,35 @@ msgstr "Gra"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Aliyman"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "Mitan"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Kontou"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Mens"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Epè"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Koulè kontou"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Bann tèks (yon bann transparan dèyè mo yo)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Koulè bann"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1408,7 +1392,7 @@ msgstr "Ekriti"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Fè pi fonse"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1456,11 +1440,11 @@ msgstr "Son an ale nan"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Grafik"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Chanje sa sèlman si ekran yo ap tranble, rete nwa oswa RustyPresenter ap kraze. L ap sèvi apati pwochen fwa ou louvri l."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1476,7 +1460,7 @@ msgstr "Aranjman sèn"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Sa ekran sèn nan montre. Fenèt → Aranjman sèn… pou fè pa w."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1508,7 +1492,7 @@ msgstr "Aparans"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Tèm"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1536,7 +1520,7 @@ msgstr "Konsènan"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "Anrejistre tèm"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1548,11 +1532,11 @@ msgstr "Mesaj"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Kache"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Montre"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1591,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyon kòmanse yon nouvo diapo"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Kouplè 1]\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"[Koral]\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1644,111 +1616,111 @@ msgstr "Ekran sèn"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Bezwen yon RustyPresenter pi nouvo"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Aranjman sèn"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "Sou sèn"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Entegre"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Nouvo"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "Kopye pou modifye"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Chanje non…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Efase…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Sèvi sou sèn"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "Anrejistre anvan"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Bwat"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Poko gen bwat. Ajoute youn pou montre yon bagay sou sèn nan."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Ajoute bwat"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Montre"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Mo"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Pi gwo tèks ({}%)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Koulè tèks"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Aliyman"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "Mitan"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "Se yon RustyPresenter pi nouvo ki fè bwat sa a. Ou ka retire l men ou pa ka chanje l isit la."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "Defèt"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "Refè"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Ou pa ka chanje aranjman entegre yo. Kopye youn pou fè pa w."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "Rale yon bwat pou deplase l; rale yon kwen pou chanje gwosè l. Flèch yo deplase l ti kras. Kenbe Alt pou deplase l lib."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Aranjman"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Chwazi aranjman sèn nan"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "Modifye aranjman sèn…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1828,31 +1800,31 @@ msgstr "Idantifye ekran"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Mesaj ap parèt — Kache"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Montre yon mesaj sou ekran an (Ctrl+Shift+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Fè diapo yo pase pou kont yo ankò"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Sispann fè diapo yo pase pou kont yo"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Kontè, mesaj ak makro"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Kache pou sal la"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Montre nan sal la"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1868,27 +1840,27 @@ msgstr "ap mete ajou…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 s"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "Tounen 15 segonn"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 s"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "Avanse 15 segonn"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "Dènye 10 s"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Sote 10 segonn anvan fen an, pou tcheke kijan li fini"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1976,11 +1948,11 @@ msgstr "Efase dosye"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Poko gen anyen la a. Enpòte foto, videyo oswa mizik, oswa eseye yon lòt dosye oswa yon lòt mo."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Enpòte medya"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2008,27 +1980,27 @@ msgstr "Chanje — etenn li epi limen l pou mete l ajou."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Kouch"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Kouch"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Yon logo nan kwen an, yon lè oswa yon ti pankat"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Efase"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "Efase kouch yo (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Kouch…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2060,15 +2032,15 @@ msgstr "Anvan sèvis la: èske tout chante, fichye ak ekran yo la?"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Tèm pou sèvis sa a"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Lòd pèsonalize"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Lòd pèsonalize pou sèvis sa a"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2084,7 +2056,7 @@ msgstr "Sèvis ou a vid"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Ajoute chante, videyo ak diapo, tape yon vèsè Bib anwo a, oswa rale fichye sou fenèt sa a."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2224,7 +2196,7 @@ msgstr "Louvri yon fichye sèvis…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Louvri resan"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2232,11 +2204,11 @@ msgstr "Anrejistre sèvis sa a nan yon fichye…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "Ekspòte"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Pakè sèvis…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2264,7 +2236,7 @@ msgstr "Enpòte medya…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "Enprime lòd sèvis la…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2272,11 +2244,11 @@ msgstr "Sòti"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Chèche…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Chèche yon vèsè…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2308,7 +2280,7 @@ msgstr "Kanpe son"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "Efase kouch yo"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2320,15 +2292,15 @@ msgstr "Montre bibliyotèk medya"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Grandi"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Rapetise"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Gwosè reyèl"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2348,11 +2320,11 @@ msgstr "Mesaj pou sèn…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Aranjman sèn…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Otomatizasyon…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2360,7 +2332,7 @@ msgstr "Paramèt…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Tèm ak fon…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2388,7 +2360,7 @@ msgstr "Tcheke sèvis la"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Louvri dosye jounal yo"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2580,7 +2552,7 @@ msgstr "Pa t ka li “{file}”: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "Tape lè a tankou 10:30."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2796,19 +2768,19 @@ msgstr "Tape sou yon diapo pou mete l sou ekran an."
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Kache mesaj"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "Lanse “{name}”?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Lanse"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Fini"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3092,7 +3064,7 @@ msgstr "Son sa a pa jwe ankò."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Videyo oswa son sa a pa jwe ankò."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3136,7 +3108,7 @@ msgstr "RustyPresenter pa t ka fè fenèt li yo mache: {reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Sèvis Dimanch"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3168,47 +3140,47 @@ msgstr "RustyPresenter kanpe apre li te tonbe 3 fwa nan yon minit. Jounal la nan
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Aksyon enkoni."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Kouplè|Vèsè"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Koral|Refren"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Pre-koral|Pre-refren"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Pon"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Repriz"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Entwo|Entwodiksyon"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Final|Fen"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Entèlid"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3590,75 +3562,75 @@ msgstr "Kwonomèt"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "Jiska 4 kontè ka sou ekran an an menm tan."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Kontè sa a te efase."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Mesaj sa a te efase."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Makro sa a te efase."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Makro yo mache nan aplikasyon an."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Twò vit — eseye ankò."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Ba li yon non ki gen 1 a 40 lèt."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Ou ka gen jiska 50 kontè."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Ou ka gen jiska 100 mesaj."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Ou ka gen jiska 100 makro."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Yon makro ka gen jiska 30 etap."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Makro sa a te efase. Chwazi yon lòt."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Yon kontè ka lanse sèlman yon makro ki montre oswa kache bagay (kontè, mesaj, kouch)."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "“{name}” sèvi nan {n} makro. Efase l kanmenm? Etap sa yo ap sispann mache."
+msgstr[1] "“{name}” sèvi nan {n} makro. Efase l kanmenm? Etap sa yo ap sispann mache."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "“{name}” lanse lè {n} kontè rive a zewo. Efase l kanmenm? Kontè sa yo p ap fè anyen lè yo rive a zewo."
+msgstr[1] "“{name}” lanse lè {n} kontè rive a zewo. Efase l kanmenm? Kontè sa yo p ap fè anyen lè yo rive a zewo."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Aranjman sèn nan poko ka swiv diapo yo."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Vi ekran yo poko disponib."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4664,8 +4636,8 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "…ak {n} lòt"
+msgstr[1] "…ak {n} lòt"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4893,7 +4865,7 @@ msgstr "Chèche pa mo…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Chèche yon vèsè"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5038,14 +5010,12 @@ msgid "Settings saved"
 msgstr "Paramèt anrejistre"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Gras etonan, ala dous son an\nKi sove yon malere tankou m"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · Domèn piblik"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5171,27 +5141,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "Defèt dènye chanjman nan sèvis yo oswa nan bibliyotèk la"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Refè sa Defèt te anile"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Chèche yon chante"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5371,7 +5341,7 @@ msgstr "Klike pou montre pati sa a"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Anrejistre kòm lòd abityèl la."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5617,7 +5587,7 @@ msgstr "Makwo yo p ap mache jiskaske yo modifye yo"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Nouvo aranjman sèn"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5625,55 +5595,55 @@ msgstr "Kopi {name}"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Non aranjman sèn nan"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Abandone chanjman ou fè nan aranjman sèn yo?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Abandone"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Kontinye modifye"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Aranjman sèn yo anrejistre."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "Sèn nan montre “{name}”."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Mo ou yo isit la"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "Gras etonan, ala dous son an"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "Ki sove yon malere tankou m"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Kouplè 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Amazing Grace"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Ralanti sou dènye liy lan"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Dènye koral"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5813,47 +5783,47 @@ msgstr "Pou yon afich ki rete parèt. Pou yon avi tankou non yon paran, itilize 
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Fè pa defo"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Tèm nan retounen jan li te ye okòmansman"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Nouvo non pou fon sa a"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Sèvi ak fon tèm nan"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Kenbe fon pa yo"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Jere tèm…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Kouch anrejistre"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Kouch efase"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Nouvo kouch"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Byenveni!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "Remete “{name}” jan li te ye okòmansman? Chanjman ou fè ladan l ap pèdi."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5863,15 +5833,15 @@ msgstr[1] "{n} sèvis"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Pa defo legliz la ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Menm jan ak sèvis la ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Efase kouch “{name}”? Si li sou ekran an, l ap rete la jiskaske ou tenyen l."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6297,141 +6267,141 @@ msgstr "Kopi {name} {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Mete yon eleman sèvis sou ekran an"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Diapo anvan an"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "Efase mo yo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "Efase videyo ak foto"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "Efase son"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Kòmanse kontè"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "Poz kontè"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "Reyinisyalize kontè"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Rekòmanse kontè"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Montre kontè sou ekran an"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Kache kontè sou ekran an"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Montre yon mesaj"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Kache mesaj la"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "Limen yon kouch"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "Tenyen yon kouch"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "Poz diapo otomatik yo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Relanse diapo otomatik yo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Montre yon mesaj sou sèn nan"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Kache mesaj sèn nan"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "eleman {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Chanje sa yon ekran montre"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Chanje aranjman sèn nan"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Kite aranjman sèn nan swiv diapo yo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "Kont alanvè {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Kont alanvè jiska kòmansman sèvis la"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Kont alanvè jiska {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} etap"
+msgstr[1] "{n} etap"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Pa fè anyen"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Kache l sou ekran an"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "Lanse “{name}”"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Bwat pou ranpli: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Anrejistre."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Otomatizasyon"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Montre mesaj"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6443,37 +6413,37 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Montre yon mesaj sou ekran an"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Oto · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Pa manke anyen pou sèvis sa a."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "Klike pou wè tout."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} pwoblèm"
+msgstr[1] "{n} pwoblèm"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Pa t ka louvri dosye jounal yo. Li nan {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Agrandi fenèt la pou grandi plis."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6565,67 +6535,67 @@ msgstr "Pa t ka louvri ekran sèn nan: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Defèt: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Refè: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "Pa ka defèt {what}: li chanje ankò depi lè sa a."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "Pa ka refè {what}: li chanje ankò depi lè sa a."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Pa gen anyen pou refè."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Pa gen anyen pou defèt."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "nouvo sèvis “{name}” an"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "efasman sèvis “{name}” an"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "ajout “{name}”"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "retrè “{name}”"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "deplasman “{name}”"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "chanjman nan “{name}”"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "nouvo chante “{name}” an"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "efasman chante “{name}” an"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "chanjman nan chante “{name}” an"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "dènye chanjman an"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6641,31 +6611,31 @@ msgstr "libmpv sa a twò ansyen (client API {major}.{minor}); RustyPresenter bez
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Lojisyèl"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Otomatik (rekòmande)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Lojisyèl (mòd sekirite)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Sa k ap sèvi kounye a: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "Relanse RustyPresenter pou sèvi ak nouvo paramèt grafik la."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Mòd grafik {wanted} la pa t ka mache sou òdinatè sa a, kidonk RustyPresenter ap sèvi ak {mode}."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter te gen pwoblèm ak kat grafik la, kidonk li te louvri an mòd sekirite. Ou ka chanje sa nan Paramèt → Videyo."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6730,9 +6700,3 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Poko gen anyen la a. Klike Enpòte, oswa eseye yon lòt dosye oswa yon lòt mo."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "Klike “Ajoute nan sèvis” anba a, tape yon vèsè Bib anwo a, oswa trennen fichye sou fenèt sa a."

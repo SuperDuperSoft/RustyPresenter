@@ -1,25 +1,6 @@
 # Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: uk\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Native-Name: Українська\n"
-"X-English-Name: Ukrainian\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: uk\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Українська\nX-English-Name: Ukrainian\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -243,75 +224,75 @@ msgstr "Назва"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Тип"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Відлік до певного часу"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Зворотний відлік"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Прямий відлік"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Час початку цього служіння"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Час (напр. 10:30 або 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Тривалість (хвилини й секунди)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Хвилини"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Секунди"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Рахувати й після нуля (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Коли дійде до нуля"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Місце на екрані"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Угорі праворуч"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Угорі ліворуч"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Унизу праворуч"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Унизу ліворуч"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "По центру (великий)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Підпис"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -319,59 +300,59 @@ msgstr "Служіння почнеться через"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Показувати на сцені"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Показувати на телефоні-пульті"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Візьміть слово у {{фігурні дужки}}, щоб створити поле для заповнення, напр. {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Положення"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Унизу"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Угорі"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Сховати через"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Ніколи"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 с"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 с"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 хв"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 хв"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 хв"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Можна показати з телефона"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -379,11 +360,11 @@ msgstr "Змініть це на вкладці «Перед служінням�
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Колір"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Бурштиновий"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -391,123 +372,123 @@ msgstr "Червоний"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Помаранчевий"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Зелений"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Бірюзовий"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Синій"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Фіолетовий"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Сірий"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Кроки"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Вгору"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Перемістити вгору"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Вниз"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Перемістити вниз"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Кроків ще немає."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Додати крок"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Що заповнити, напр. Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "«Почати відлік» запускає музику й слайди та рахує до часу початку цього служіння."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Відлік до"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Початок о"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Задати час початку"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Повторювати ці слайди по колу"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Відтворювати музику"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Положення відліку"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Коли відлік завершиться"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Сховати відлік"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Показати логотип"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "Очистити все"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Вивести перший пункт на екран"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Спрацьовує, лише якщо від початку відліку ніхто не змінював екран."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Таймери"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Повідомлення"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Макроси"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -515,31 +496,31 @@ msgstr "Перед служінням"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Це служіння починається о"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Задати"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Новий таймер"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Нове повідомлення"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Новий макрос"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Виберіть елемент ліворуч або створіть новий."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "Скинути"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -547,7 +528,7 @@ msgstr "Пауза"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Почати"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -567,15 +548,15 @@ msgstr "Виберіть будь-який колір"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Слова для пошуку"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "Введіть слова з вірша, напр. упокойтеся і знайте"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Уся Біблія"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -587,15 +568,15 @@ msgstr "Новий Заповіт"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Найкращий збіг"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "За порядком Біблії"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Виберіть результат, щоб побачити його розділ. Клацніть вірш або Shift+клацання, щоб додати діапазон."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -611,15 +592,15 @@ msgstr "Змінити пісню"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Порядок для цього служіння"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Звичайний порядок пісні"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Зробити звичайним порядком пісні"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -723,7 +704,7 @@ msgstr "Назва в бібліотеці"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Тема"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -731,7 +712,7 @@ msgstr "Тло"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Перемикати слайди автоматично"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -739,15 +720,15 @@ msgstr "Потрібно щонайменше два слайди."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "кожні"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "секунд"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Почати знову після останнього слайда"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -767,7 +748,7 @@ msgstr "Скасувати"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Ліворуч"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -775,27 +756,27 @@ msgstr "Посередині"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Праворуч"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Накладання лишаються на екрані в залі, поки змінюються слайди: логотип у куті, годинник чи короткий напис. Вмикайте й вимикайте їх позначками під «Далі» у стовпці «Ефір». Останнє в списку малюється поверх інших."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "Дублювати"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Накладань ще немає."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Нове накладання:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Напис, що лишається на екрані, напр. «Ласкаво просимо!» або пароль Wi-Fi"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -803,7 +784,7 @@ msgstr "Зображення"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Логотип у куті"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -811,35 +792,35 @@ msgstr "Годинник"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Поточний час"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Логотип церкви"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Власне зображення"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Вибрати зображення…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Непрозорість"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Показувати секунди"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "24-годинний формат"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Де"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -847,7 +828,7 @@ msgstr "Розмір"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(частка ширини екрана)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -859,7 +840,7 @@ msgstr "Тінь під текстом (легше читати на зобра�
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Рамка"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -867,19 +848,19 @@ msgstr "Вимк."
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Під текстом"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Смуга на всю ширину"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Колір рамки"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Напівпрозорий"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -887,7 +868,7 @@ msgstr "Попередній перегляд"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Зміни в накладанні, яке вже на екрані, не змінюють екран: вимкніть і ввімкніть його, щоб показати нове."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -895,7 +876,7 @@ msgstr "Назад"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "Зберегти накладання"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1299,11 +1280,11 @@ msgstr "Основна тема церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Зробити типовим для церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Тема — це вигляд тексту на слайдах: шрифт, розмір, колір і розташування. Тема із зірочкою використовується, коли служіння чи пункт не має власної."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1311,23 +1292,23 @@ msgstr "Нова тема"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Бібліотека тел"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Зображення, відео, кольори й градієнти церкви, готові для будь-якої теми чи пункту."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Тел ще немає."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Додати зображення чи відео…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Додати колір чи градієнт…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1335,7 +1316,7 @@ msgstr "Колір"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Градієнт"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1347,27 +1328,27 @@ msgstr "До"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Напрямок"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Додати до тел"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Товщина"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(для пісень і оголошень)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Звичайний"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Напівжирний"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1375,35 +1356,35 @@ msgstr "Жирний"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Вирівнювання"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "По центру"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Контур"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Тонкий"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Товстий"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Колір контуру"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Смуга під текстом (напівпрозора стрічка за словами)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Колір смуги"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1411,7 +1392,7 @@ msgstr "Писання"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Затемнення"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1459,11 +1440,11 @@ msgstr "Вивід звуку"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Графіка"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Змінюйте це, лише якщо екрани мерехтять, лишаються чорними або RustyPresenter аварійно закривається. Діє з наступного запуску."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1479,7 +1460,7 @@ msgstr "Макет сцени"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Що показує сценічний екран. Вікно → Макети сцени… — створити власний."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1511,7 +1492,7 @@ msgstr "Вигляд"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Теми"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1539,7 +1520,7 @@ msgstr "Про програму"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "Зберегти тему"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1551,11 +1532,11 @@ msgstr "Повідомлення"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Сховати"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Показати"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1594,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— назви частин в окремому рядку; порожній рядок усередині частини починає новий слайд"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Куплет 1]\n"
-"О благодать, спасла мене,\n"
-"Я був пропащий, а тепер\n"
-"\n"
-"[Приспів]\n"
-"Кайдани впали…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Куплет 1]\nО благодать, спасла мене,\nЯ був пропащий, а тепер\n\n[Приспів]\nКайдани впали…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1647,111 +1616,111 @@ msgstr "Сценічний екран"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Потрібна новіша версія RustyPresenter"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Макети сцени"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "На сцені"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Вбудований"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Новий"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "Дублювати, щоб змінити"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Перейменувати…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Видалити…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Використати на сцені"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "Спочатку збережіть"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Блоки"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Блоків ще немає. Додайте блок, щоб показати щось на сцені."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Додати блок"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Показує"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Слова"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Найбільший текст ({}%)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Колір тексту"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Вирівнювання"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "По центру"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "Цей блок створено новішою версією RustyPresenter. Його можна вилучити, але не змінити тут."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "Скасувати"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "Повторити"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Вбудовані макети не можна змінити. Продублюйте один, щоб створити власний."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "Перетягніть блок, щоб перемістити; перетягніть кут, щоб змінити розмір. Клавіші зі стрілками зсувають. Утримуйте Alt для вільного переміщення."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Макет"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Вибрати макет сцени"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "Змінити макети сцени…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1831,31 +1800,31 @@ msgstr "Визначити екран"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Повідомлення показано — Сховати"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Показати повідомлення на екрані (Ctrl+Shift+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Знову перемикати слайди автоматично"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Зупинити автоматичне перемикання слайдів"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Таймери, повідомлення й макроси"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Сховати із залу"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Показати в залі"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1871,27 +1840,27 @@ msgstr "оновлення…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 с"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "Назад на 15 секунд"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 с"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "Вперед на 15 секунд"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "Ост. 10 с"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Перейти за 10 секунд до кінця, щоб перевірити, як воно завершується"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1979,11 +1948,11 @@ msgstr "Видалити папку"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Тут ще нічого немає. Імпортуйте зображення, відео чи музику або спробуйте іншу папку чи слово."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Імпортувати медіа"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2011,27 +1980,27 @@ msgstr "Змінено — вимкніть і ввімкніть, щоб оно
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Накладання"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Накладання"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Логотип у куті, годинник чи короткий напис"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Очистити"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "Очистити накладання (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Накладання…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2063,15 +2032,15 @@ msgstr "Перед служінням: чи всі пісні, файли й е�
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Тема для цього служіння"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Власний порядок"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Власний порядок для цього служіння"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2087,7 +2056,7 @@ msgstr "Ваше служіння порожнє"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Додайте пісні, відео й слайди, введіть біблійний вірш угорі або перетягніть файли в це вікно."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2227,7 +2196,7 @@ msgstr "Відкрити файл служіння…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Відкрити нещодавні"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2235,11 +2204,11 @@ msgstr "Зберегти це служіння у файл…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "Експорт"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Пакет служіння…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2267,7 +2236,7 @@ msgstr "Імпортувати медіа…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "Надрукувати порядок служіння…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2275,11 +2244,11 @@ msgstr "Вихід"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Знайти…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Знайти вірш…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2311,7 +2280,7 @@ msgstr "Зупинити аудіо"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "Очистити накладання"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2323,15 +2292,15 @@ msgstr "Показати медіатеку"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Збільшити"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Зменшити"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Реальний розмір"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2351,11 +2320,11 @@ msgstr "Повідомлення на сцену…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Макети сцени…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Автоматизація…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2363,7 +2332,7 @@ msgstr "Налаштування…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Теми й тла…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2391,7 +2360,7 @@ msgstr "Перевірити служіння"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Відкрити папку журналів"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2583,7 +2552,7 @@ msgstr "Не вдалося прочитати «{file}»: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "Введіть час, напр. 10:30."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2799,19 +2768,19 @@ msgstr "Торкніться слайда, щоб вивести його на �
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Сховати повідомлення"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "Виконати «{name}»?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Виконати"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Готово"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3095,7 +3064,7 @@ msgstr "Це аудіо вже не відтворюється."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Це відео чи аудіо більше не відтворюється."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3139,7 +3108,7 @@ msgstr "RustyPresenter не вдалося запустити вікна: {reaso
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Недільне служіння"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3171,47 +3140,47 @@ msgstr "RustyPresenter зупинився після 3 збоїв за хвил�
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Невідома дія."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Куплет|Строфа"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Приспів"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Передприспів|Пре-приспів"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Брідж|Міст"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Тег|Повтор|Кода"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Вступ|Інтро"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Закінчення|Фінал|Кода"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Програш|Інтерлюдія"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3598,77 +3567,77 @@ msgstr "Секундомір"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "На екрані може бути одночасно до 4 таймерів."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Цей таймер видалено."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Це повідомлення видалено."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Цей макрос видалено."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Макроси виконуються в програмі."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Занадто швидко — спробуйте ще раз."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Дайте назву довжиною від 1 до 40 символів."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Можна мати до 50 таймерів."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Можна мати до 100 повідомлень."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Можна мати до 100 макросів."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Макрос може мати до 30 кроків."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Цей макрос видалено. Виберіть інший."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Таймер може запускати лише макрос, що показує або ховає елементи (таймери, повідомлення, накладання)."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "«{name}» використовується в {n} макросі. Усе одно видалити? Ці кроки перестануть працювати."
+msgstr[1] "«{name}» використовується в {n} макросах. Усе одно видалити? Ці кроки перестануть працювати."
+msgstr[2] "«{name}» використовується в {n} макросах. Усе одно видалити? Ці кроки перестануть працювати."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "«{name}» запускається, коли {n} таймер доходить до нуля. Усе одно видалити? Цей таймер нічого не робитиме на нулі."
+msgstr[1] "«{name}» запускається, коли {n} таймери доходять до нуля. Усе одно видалити? Ці таймери нічого не робитимуть на нулі."
+msgstr[2] "«{name}» запускається, коли {n} таймерів доходять до нуля. Усе одно видалити? Ці таймери нічого не робитимуть на нулі."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Макет сцени поки не може стежити за слайдами."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Перегляди екранів поки недоступні."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4688,9 +4657,9 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "…і ще {n}"
+msgstr[1] "…і ще {n}"
+msgstr[2] "…і ще {n}"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4920,7 +4889,7 @@ msgstr "Пошук за словами…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Знайти вірш"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5066,14 +5035,12 @@ msgid "Settings saved"
 msgstr "Налаштування збережено"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "О благодать, спасла мене,\nЯ був пропащий, а тепер"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Amazing Grace · John Newton · суспільне надбання"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5200,27 +5167,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "Скасувати останню зміну служінь або бібліотеки"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Повторити те, що скасовано"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Знайти пісню"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5400,7 +5367,7 @@ msgstr "Клацніть, щоб показати цю частину"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Збережено як звичайний порядок."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5649,7 +5616,7 @@ msgstr "Макроси не виконуватимуться, доки їх не
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Новий макет сцени"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5657,55 +5624,55 @@ msgstr "{name} (копія)"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Назва макета сцени"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Відкинути зміни в макетах сцени?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Відкинути"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Продовжити редагування"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Макети сцени збережено."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "На сцені показано «{name}»."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Ваш текст тут"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "О благодать, спасла мене,"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "Я був пропащий, а тепер"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Куплет 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Amazing Grace"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Сповільнити на останньому рядку"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Останній приспів"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5845,47 +5812,47 @@ msgstr "Для напису, що залишається на екрані. Дл
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Зробити типовою"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Тему повернуто до початкового вигляду"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Нова назва для цього тла"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Тло з теми"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Залишити їхнє тло"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Керувати темами…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Накладання збережено"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Накладання видалено"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Нове накладання"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Ласкаво просимо!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "Повернути «{name}» до початкового вигляду? Ваші зміни буде втрачено."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5896,15 +5863,15 @@ msgstr[2] "{n} служінь"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Типова для церкви ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Як у служінні ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Видалити накладання «{name}»? Якщо воно на екрані, то залишиться там, доки ви його не вимкнете."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6335,142 +6302,142 @@ msgstr "{name} (копія {number})"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Вивести пункт служіння на екран"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Попередній слайд"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "Очистити текст"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "Очистити відео й зображення"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "Очистити аудіо"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Запустити таймер"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "Призупинити таймер"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "Скинути таймер"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Перезапустити таймер"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Показати таймер на екрані"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Сховати таймер з екрана"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Показати повідомлення"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Сховати повідомлення"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "Увімкнути накладання"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "Вимкнути накладання"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "Призупинити автоматичні слайди"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Відновити автоматичні слайди"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Показати повідомлення на сцені"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Сховати повідомлення на сцені"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "пункт {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Змінити, що показує екран"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Змінити макет сцени"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Макет сцени стежить за слайдами"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "Відлік {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Відлік до початку служіння"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Відлік до {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{n} крок"
+msgstr[1] "{n} кроки"
+msgstr[2] "{n} кроків"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Нічого не робити"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Сховати з екрана"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "Виконати «{name}»"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Поля для заповнення: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Збережено."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Автоматизація"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Показати повідомлення"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6482,38 +6449,38 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Показати повідомлення на екрані"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Авто · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Для цього служіння нічого не бракує."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "Клацніть, щоб побачити все."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{n} проблема"
+msgstr[1] "{n} проблеми"
+msgstr[2] "{n} проблем"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Не вдалося відкрити папку журналів. Вона тут: {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Збільште вікно, щоб збільшити масштаб ще більше."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6605,67 +6572,67 @@ msgstr "Не вдалося відкрити сценічний екран: {err
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Скасовано: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Повторено: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "Не вдається скасувати {what}: відтоді це знову змінили."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "Не вдається повторити {what}: відтоді це знову змінили."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Нічого повторювати."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Нічого скасовувати."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "нове служіння «{name}»"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "видалення служіння «{name}»"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "додавання «{name}»"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "вилучення «{name}»"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "переміщення «{name}»"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "зміни в «{name}»"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "нову пісню «{name}»"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "видалення пісні «{name}»"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "зміни в пісні «{name}»"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "останню зміну"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6681,31 +6648,31 @@ msgstr "Ця версія libmpv застара (клієнтський API {maj
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Програмний"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Автоматично (рекомендовано)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Програмний (безпечний режим)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Зараз використовується: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "Перезапустіть RustyPresenter, щоб застосувати нове налаштування графіки."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Графічний режим {wanted} не вдалося використати на цьому комп’ютері, тому RustyPresenter використовує {mode}."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter мав проблеми з відеокартою, тому запустився в безпечному режимі. Змінити це можна в Налаштування → Відео."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6770,9 +6737,3 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Тут поки нічого немає. Натисніть «Імпорт» або спробуйте іншу папку чи слово."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "Натисніть «Додати до служіння» нижче, введіть біблійний вірш угорі або перетягніть файли в це вікно."

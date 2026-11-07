@@ -1,26 +1,6 @@
 # Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
-# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: vi\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: Tiếng Việt\n"
-"X-English-Name: Vietnamese\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: vi\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: Tiếng Việt\nX-English-Name: Vietnamese\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -244,75 +224,75 @@ msgstr "Tên"
 
 #: ui/dialogs/automation.slint
 msgid "Kind"
-msgstr ""
+msgstr "Loại"
 
 #: ui/dialogs/automation.slint
 msgid "Count down to a time"
-msgstr ""
+msgstr "Đếm ngược tới một giờ"
 
 #: ui/dialogs/automation.slint
 msgid "Count down"
-msgstr ""
+msgstr "Đếm ngược"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Count up"
-msgstr ""
+msgstr "Đếm xuôi"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
-msgstr ""
+msgstr "Giờ bắt đầu của buổi lễ này"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:30 or 18:45)"
-msgstr ""
+msgstr "Giờ (như 10:30 hoặc 18:45)"
 
 #: ui/dialogs/automation.slint
 msgid "Length (minutes and seconds)"
-msgstr ""
+msgstr "Thời lượng (phút và giây)"
 
 #: ui/dialogs/automation.slint
 msgid "Minutes"
-msgstr ""
+msgstr "Phút"
 
 #: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
 msgid "Seconds"
-msgstr ""
+msgstr "Giây"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
-msgstr ""
+msgstr "Tiếp tục đếm sau số 0 (+m:ss)"
 
 #: ui/dialogs/automation.slint
 msgid "When it reaches zero"
-msgstr ""
+msgstr "Khi về 0"
 
 #: ui/dialogs/automation.slint
 msgid "Place on the screen"
-msgstr ""
+msgstr "Vị trí trên màn hình"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top right"
-msgstr ""
+msgstr "Trên bên phải"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Top left"
-msgstr ""
+msgstr "Trên bên trái"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom right"
-msgstr ""
+msgstr "Dưới bên phải"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom left"
-msgstr ""
+msgstr "Dưới bên trái"
 
 #: ui/dialogs/automation.slint
 msgid "Centre (large)"
-msgstr ""
+msgstr "Giữa (lớn)"
 
 #: ui/dialogs/automation.slint
 msgid "Caption"
-msgstr ""
+msgstr "Chú thích"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Service starts in"
@@ -320,59 +300,59 @@ msgstr "Buổi lễ bắt đầu sau"
 
 #: ui/dialogs/automation.slint
 msgid "Show on stage"
-msgstr ""
+msgstr "Hiện trên sân khấu"
 
 #: ui/dialogs/automation.slint
 msgid "Show on the phone remote"
-msgstr ""
+msgstr "Hiện trên điện thoại điều khiển"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
-msgstr ""
+msgstr "Đặt một từ trong {{dấu ngoặc nhọn}} để tạo ô cần điền, như {{Number}}."
 
 #: ui/dialogs/automation.slint
 msgid "Position"
-msgstr ""
+msgstr "Vị trí"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Bottom"
-msgstr ""
+msgstr "Dưới"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "Top"
-msgstr ""
+msgstr "Trên"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr ""
+msgstr "Ẩn sau"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr ""
+msgstr "Không bao giờ"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
-msgstr ""
+msgstr "15 giây"
 
 #: ui/dialogs/automation.slint
 msgid "30 s"
-msgstr ""
+msgstr "30 giây"
 
 #: ui/dialogs/automation.slint
 msgid "1 min"
-msgstr ""
+msgstr "1 phút"
 
 #: ui/dialogs/automation.slint
 msgid "2 min"
-msgstr ""
+msgstr "2 phút"
 
 #: ui/dialogs/automation.slint
 msgid "5 min"
-msgstr ""
+msgstr "5 phút"
 
 #: ui/dialogs/automation.slint
 msgid "Can be shown from the phone"
-msgstr ""
+msgstr "Có thể hiện từ điện thoại"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
@@ -380,11 +360,11 @@ msgstr "Thay đổi trong thẻ Trước lễ"
 
 #: ui/dialogs/automation.slint
 msgid "Colour"
-msgstr ""
+msgstr "Màu"
 
 #: ui/dialogs/automation.slint
 msgid "Amber"
-msgstr ""
+msgstr "Hổ phách"
 
 #: ui/dialogs/automation.slint src/strings/themes.rs
 msgid "Red"
@@ -392,123 +372,123 @@ msgstr "Đỏ"
 
 #: ui/dialogs/automation.slint
 msgid "Orange"
-msgstr ""
+msgstr "Cam"
 
 #: ui/dialogs/automation.slint
 msgid "Green"
-msgstr ""
+msgstr "Xanh lá"
 
 #: ui/dialogs/automation.slint
 msgid "Teal"
-msgstr ""
+msgstr "Xanh mòng két"
 
 #: ui/dialogs/automation.slint
 msgid "Blue"
-msgstr ""
+msgstr "Xanh dương"
 
 #: ui/dialogs/automation.slint
 msgid "Purple"
-msgstr ""
+msgstr "Tím"
 
 #: ui/dialogs/automation.slint
 msgid "Grey"
-msgstr ""
+msgstr "Xám"
 
 #: ui/dialogs/automation.slint
 msgid "Steps"
-msgstr ""
+msgstr "Các bước"
 
 #: ui/dialogs/automation.slint
 msgid "Up"
-msgstr ""
+msgstr "Lên"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move up"
-msgstr ""
+msgstr "Chuyển lên"
 
 #: ui/dialogs/automation.slint
 msgid "Down"
-msgstr ""
+msgstr "Xuống"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint
 msgid "Move down"
-msgstr ""
+msgstr "Chuyển xuống"
 
 #: ui/dialogs/automation.slint
 msgid "No steps yet."
-msgstr ""
+msgstr "Chưa có bước nào."
 
 #: ui/dialogs/automation.slint
 msgid "Add step"
-msgstr ""
+msgstr "Thêm bước"
 
 #: ui/dialogs/automation.slint
 msgid "What to fill in, like Number=27"
-msgstr ""
+msgstr "Nội dung cần điền, như Number=27"
 
 #: ui/dialogs/automation.slint
 msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
-msgstr ""
+msgstr "Bắt đầu đếm ngược sẽ mở nhạc, chiếu các trang và đếm ngược tới giờ bắt đầu của buổi lễ này."
 
 #: ui/dialogs/automation.slint
 msgid "Countdown to"
-msgstr ""
+msgstr "Đếm ngược tới"
 
 #: ui/dialogs/automation.slint
 msgid "Starts at"
-msgstr ""
+msgstr "Bắt đầu lúc"
 
 #: ui/dialogs/automation.slint
 msgid "Set start time"
-msgstr ""
+msgstr "Đặt giờ bắt đầu"
 
 #: ui/dialogs/automation.slint
 msgid "Loop these slides"
-msgstr ""
+msgstr "Lặp lại các trang này"
 
 #: ui/dialogs/automation.slint
 msgid "Play music"
-msgstr ""
+msgstr "Phát nhạc"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
-msgstr ""
+msgstr "Vị trí đồng hồ đếm ngược"
 
 #: ui/dialogs/automation.slint
 msgid "When the countdown ends"
-msgstr ""
+msgstr "Khi đếm ngược kết thúc"
 
 #: ui/dialogs/automation.slint
 msgid "Hide the countdown"
-msgstr ""
+msgstr "Ẩn đồng hồ đếm ngược"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Show the logo"
-msgstr ""
+msgstr "Hiện logo"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Clear everything"
-msgstr ""
+msgstr "Xóa tất cả"
 
 #: ui/dialogs/automation.slint
 msgid "Put the first item on the screen"
-msgstr ""
+msgstr "Chiếu mục đầu tiên"
 
 #: ui/dialogs/automation.slint
 msgid "Only happens if nobody has changed the screen since the countdown started."
-msgstr ""
+msgstr "Chỉ xảy ra nếu không ai thay đổi màn hình từ khi bắt đầu đếm ngược."
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Timers"
-msgstr ""
+msgstr "Hẹn giờ"
 
 #: ui/dialogs/automation.slint
 msgid "Messages"
-msgstr ""
+msgstr "Tin nhắn"
 
 #: ui/dialogs/automation.slint src/i18n/remote_strings.rs
 msgid "Macros"
-msgstr ""
+msgstr "Macro"
 
 #: ui/dialogs/automation.slint src/strings/automation.rs
 msgid "Pre-service"
@@ -516,31 +496,31 @@ msgstr "Trước lễ"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
-msgstr ""
+msgstr "Buổi lễ này bắt đầu lúc"
 
 #: ui/dialogs/automation.slint
 msgid "Set"
-msgstr ""
+msgstr "Đặt"
 
 #: ui/dialogs/automation.slint
 msgid "New timer"
-msgstr ""
+msgstr "Hẹn giờ mới"
 
 #: ui/dialogs/automation.slint
 msgid "New message"
-msgstr ""
+msgstr "Tin nhắn mới"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
-msgstr ""
+msgstr "Macro mới"
 
 #: ui/dialogs/automation.slint
 msgid "Pick one on the left, or make a new one."
-msgstr ""
+msgstr "Chọn một mục bên trái, hoặc tạo mới."
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
-msgstr ""
+msgstr "Đặt lại"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
 msgid "Pause"
@@ -548,7 +528,7 @@ msgstr "Tạm dừng"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint
 msgid "Start"
-msgstr ""
+msgstr "Bắt đầu"
 
 #: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
@@ -568,15 +548,15 @@ msgstr "Chọn màu bất kỳ"
 
 #: ui/dialogs/find-verse.slint
 msgid "Words to find"
-msgstr ""
+msgstr "Từ cần tìm"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr ""
+msgstr "Gõ vài từ trong câu, như hãy yên lặng và biết"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
-msgstr ""
+msgstr "Cả Kinh Thánh"
 
 #: ui/dialogs/find-verse.slint src/strings/catalog.rs
 msgid "Old Testament"
@@ -588,15 +568,15 @@ msgstr "Tân Ước"
 
 #: ui/dialogs/find-verse.slint
 msgid "Best match"
-msgstr ""
+msgstr "Khớp nhất"
 
 #: ui/dialogs/find-verse.slint
 msgid "Bible order"
-msgstr ""
+msgstr "Thứ tự Kinh Thánh"
 
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
-msgstr ""
+msgstr "Chọn một kết quả để xem cả chương. Bấm vào một câu, hoặc Shift+bấm để thêm một đoạn."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -612,15 +592,15 @@ msgstr "Sửa bài hát"
 
 #: ui/dialogs/item-edit.slint
 msgid "Order for this service"
-msgstr ""
+msgstr "Thứ tự cho buổi lễ này"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use the song's usual order"
-msgstr ""
+msgstr "Dùng thứ tự thường lệ của bài"
 
 #: ui/dialogs/item-edit.slint
 msgid "Make this the song's usual order"
-msgstr ""
+msgstr "Đặt làm thứ tự thường lệ của bài"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
@@ -724,7 +704,7 @@ msgstr "Tên trong thư viện"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
-msgstr ""
+msgstr "Chủ đề"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
@@ -732,7 +712,7 @@ msgstr "Nền"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
-msgstr ""
+msgstr "Tự động chuyển trang"
 
 #: ui/dialogs/item-edit.slint src/strings/automation.rs
 msgid "Needs at least two slides."
@@ -740,15 +720,15 @@ msgstr "Cần ít nhất hai trang chiếu."
 
 #: ui/dialogs/item-edit.slint
 msgid "every"
-msgstr ""
+msgstr "mỗi"
 
 #: ui/dialogs/item-edit.slint
 msgid "seconds"
-msgstr ""
+msgstr "giây"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start over after the last slide"
-msgstr ""
+msgstr "Bắt đầu lại sau trang cuối"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
@@ -768,7 +748,7 @@ msgstr "Hủy"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
-msgstr ""
+msgstr "Trái"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Middle"
@@ -776,27 +756,27 @@ msgstr "Giữa"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Right"
-msgstr ""
+msgstr "Phải"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
+msgstr "Lớp phủ luôn nằm trên màn hình hội trường khi chuyển trang: logo ở góc, đồng hồ hoặc một bảng ngắn. Bật tắt chúng bằng các nhãn dưới Tiếp trong cột Đang chiếu. Lớp cuối trong danh sách được vẽ trên cùng."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr ""
+msgstr "Nhân bản"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
-msgstr ""
+msgstr "Chưa có lớp phủ nào."
 
 #: ui/dialogs/overlays.slint
 msgid "New overlay:"
-msgstr ""
+msgstr "Lớp phủ mới:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr ""
+msgstr "Một bảng luôn hiện, như “Chào mừng!” hoặc mật khẩu Wi-Fi"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -804,7 +784,7 @@ msgstr "Hình ảnh"
 
 #: ui/dialogs/overlays.slint
 msgid "A logo in the corner"
-msgstr ""
+msgstr "Logo ở góc"
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
@@ -812,35 +792,35 @@ msgstr "Đồng hồ"
 
 #: ui/dialogs/overlays.slint
 msgid "The time of day"
-msgstr ""
+msgstr "Giờ trong ngày"
 
 #: ui/dialogs/overlays.slint
 msgid "Use the church logo"
-msgstr ""
+msgstr "Dùng logo hội thánh"
 
 #: ui/dialogs/overlays.slint
 msgid "A picture of its own"
-msgstr ""
+msgstr "Hình ảnh riêng"
 
 #: ui/dialogs/overlays.slint
 msgid "Choose picture…"
-msgstr ""
+msgstr "Chọn hình…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr ""
+msgstr "Độ mờ đục"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
-msgstr ""
+msgstr "Hiện giây"
 
 #: ui/dialogs/overlays.slint
 msgid "24-hour clock"
-msgstr ""
+msgstr "Đồng hồ 24 giờ"
 
 #: ui/dialogs/overlays.slint
 msgid "Where"
-msgstr ""
+msgstr "Ở đâu"
 
 #: ui/dialogs/overlays.slint ui/dialogs/screens.slint
 msgid "Size"
@@ -848,7 +828,7 @@ msgstr "Kích thước"
 
 #: ui/dialogs/overlays.slint
 msgid "(share of the screen's width)"
-msgstr ""
+msgstr "(phần chiều rộng màn hình)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text color"
@@ -860,7 +840,7 @@ msgstr "Đổ bóng sau chữ (dễ đọc hơn trên hình)"
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr ""
+msgstr "Khung"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -868,19 +848,19 @@ msgstr "Tắt"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
-msgstr ""
+msgstr "Sau chữ"
 
 #: ui/dialogs/overlays.slint
 msgid "Full-width bar"
-msgstr ""
+msgstr "Thanh hết chiều ngang"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr ""
+msgstr "Màu khung"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr ""
+msgstr "Trong suốt"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -888,7 +868,7 @@ msgstr "Xem trước"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr ""
+msgstr "Sửa lớp phủ đang hiện trên màn hình không làm thay đổi màn hình: hãy tắt rồi bật lại để hiện bản mới."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -896,7 +876,7 @@ msgstr "Quay lại"
 
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
-msgstr ""
+msgstr "Lưu lớp phủ"
 
 #: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
@@ -1300,11 +1280,11 @@ msgstr "Mặc định hội thánh"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr ""
+msgstr "Đặt làm mặc định hội thánh"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
-msgstr ""
+msgstr "Chủ đề là cách chữ trên trang chiếu hiển thị: phông chữ, cỡ chữ, màu và vị trí. Chủ đề có dấu sao được dùng khi buổi lễ hoặc mục không có chủ đề riêng."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1312,23 +1292,23 @@ msgstr "Chủ đề mới"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
-msgstr ""
+msgstr "Thư viện nền"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
-msgstr ""
+msgstr "Hình ảnh, video, màu và dải màu hội thánh lưu sẵn, sẵn sàng chọn cho bất kỳ chủ đề hoặc mục nào."
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
-msgstr ""
+msgstr "Chưa có nền nào."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add picture or video…"
-msgstr ""
+msgstr "Thêm hình hoặc video…"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add colour or gradient…"
-msgstr ""
+msgstr "Thêm màu hoặc dải màu…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Color"
@@ -1336,7 +1316,7 @@ msgstr "Màu"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
-msgstr ""
+msgstr "Dải màu"
 
 #: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
 msgid "From"
@@ -1348,27 +1328,27 @@ msgstr "Đến"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Direction"
-msgstr ""
+msgstr "Hướng"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Add to backgrounds"
-msgstr ""
+msgstr "Thêm vào nền"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Weight"
-msgstr ""
+msgstr "Độ đậm"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr ""
+msgstr "(cho bài hát và thông báo)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
-msgstr ""
+msgstr "Thường"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Semibold"
-msgstr ""
+msgstr "Hơi đậm"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -1376,35 +1356,35 @@ msgstr "Đậm"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Align"
-msgstr ""
+msgstr "Căn lề"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Center"
-msgstr ""
+msgstr "Giữa"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr ""
+msgstr "Viền chữ"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
-msgstr ""
+msgstr "Mảnh"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thick"
-msgstr ""
+msgstr "Dày"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr ""
+msgstr "Màu viền"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr ""
+msgstr "Dải nền chữ (dải trong suốt phía sau chữ)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
-msgstr ""
+msgstr "Màu dải"
 
 #: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
@@ -1412,7 +1392,7 @@ msgstr "Kinh Thánh"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
-msgstr ""
+msgstr "Làm tối"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Makes text easier to read"
@@ -1460,11 +1440,11 @@ msgstr "Phát âm thanh ra"
 
 #: ui/dialogs/settings.slint
 msgid "Graphics"
-msgstr ""
+msgstr "Đồ họa"
 
 #: ui/dialogs/settings.slint
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
+msgstr "Chỉ thay đổi nếu màn hình bị nháy, đen hoặc RustyPresenter bị treo. Áp dụng từ lần khởi động sau."
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
@@ -1480,7 +1460,7 @@ msgstr "Bố cục sân khấu"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
+msgstr "Những gì màn hình sân khấu hiển thị. Cửa sổ → Bố cục sân khấu… để tự tạo."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1512,7 +1492,7 @@ msgstr "Giao diện"
 
 #: ui/dialogs/settings.slint
 msgid "Themes"
-msgstr ""
+msgstr "Chủ đề"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
@@ -1540,7 +1520,7 @@ msgstr "Giới thiệu"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
-msgstr ""
+msgstr "Lưu chủ đề"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1552,11 +1532,11 @@ msgstr "Tin nhắn"
 
 #: ui/dialogs/show-message.slint
 msgid "Hide"
-msgstr ""
+msgstr "Ẩn"
 
 #: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
 msgid "Show"
-msgstr ""
+msgstr "Hiện"
 
 #: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
 msgid "Reset to automatic"
@@ -1595,20 +1575,8 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— tên đoạn nằm trên một dòng riêng; một dòng trống trong đoạn sẽ bắt đầu trang chiếu mới"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"Ân điển diệu kỳ ngọt ngào thay\n"
-"Đã cứu kẻ khốn như tôi\n"
-"\n"
-"Chorus\n"
-"Xiềng xích tôi đã rơi…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\nÂn điển diệu kỳ ngọt ngào thay\nĐã cứu kẻ khốn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1648,111 +1616,111 @@ msgstr "Màn hình sân khấu"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr ""
+msgstr "Cần RustyPresenter mới hơn"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
-msgstr ""
+msgstr "Bố cục sân khấu"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
-msgstr ""
+msgstr "Trên sân khấu"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr ""
+msgstr "Có sẵn"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
-msgstr ""
+msgstr "Mới"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr ""
+msgstr "Nhân bản để sửa"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
-msgstr ""
+msgstr "Đổi tên…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Delete…"
-msgstr ""
+msgstr "Xóa…"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Use on stage"
-msgstr ""
+msgstr "Dùng trên sân khấu"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Save first"
-msgstr ""
+msgstr "Lưu trước"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Boxes"
-msgstr ""
+msgstr "Các ô"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "No boxes yet. Add one to show something on the stage."
-msgstr ""
+msgstr "Chưa có ô nào. Thêm một ô để hiện nội dung trên sân khấu."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Add box"
-msgstr ""
+msgstr "Thêm ô"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
-msgstr ""
+msgstr "Hiển thị"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Words"
-msgstr ""
+msgstr "Chữ"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
-msgstr ""
+msgstr "Cỡ chữ lớn nhất ({}%)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Text colour"
-msgstr ""
+msgstr "Màu chữ"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Alignment"
-msgstr ""
+msgstr "Căn lề"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
+msgstr "Giữa"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
-msgstr ""
+msgstr "Ô này do RustyPresenter mới hơn tạo. Có thể gỡ bỏ nhưng không sửa được ở đây."
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Undo"
-msgstr ""
+msgstr "Hoàn tác"
 
 #: ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Redo"
-msgstr ""
+msgstr "Làm lại"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr ""
+msgstr "Không thể sửa bố cục có sẵn. Hãy nhân bản để tạo bố cục riêng."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
-msgstr ""
+msgstr "Kéo ô để di chuyển; kéo góc để đổi cỡ. Phím mũi tên để nhích. Giữ Alt để di chuyển tự do."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Layout"
-msgstr ""
+msgstr "Bố cục"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Choose the stage layout"
-msgstr ""
+msgstr "Chọn bố cục sân khấu"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
+msgstr "Sửa bố cục sân khấu…"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -1832,31 +1800,31 @@ msgstr "Nhận dạng màn hình"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
-msgstr ""
+msgstr "Đang hiện tin nhắn — Ẩn"
 
 #: ui/operator/automation-strip.slint
 msgid "Show a message on the screen (Ctrl+Shift+M)"
-msgstr ""
+msgstr "Hiện tin nhắn trên màn hình (Ctrl+Shift+M)"
 
 #: ui/operator/automation-strip.slint
 msgid "Turn the slides by themselves again"
-msgstr ""
+msgstr "Tự chuyển trang trở lại"
 
 #: ui/operator/automation-strip.slint
 msgid "Stop turning the slides by themselves"
-msgstr ""
+msgstr "Ngừng tự chuyển trang"
 
 #: ui/operator/automation-strip.slint
 msgid "Timers, messages and macros"
-msgstr ""
+msgstr "Hẹn giờ, tin nhắn và macro"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr ""
+msgstr "Ẩn khỏi hội trường"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr ""
+msgstr "Hiện trong hội trường"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1872,27 +1840,27 @@ msgstr "đang cập nhật…"
 
 #: ui/operator/live.slint
 msgid "−15 s"
-msgstr ""
+msgstr "−15 giây"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr ""
+msgstr "Lùi 15 giây"
 
 #: ui/operator/live.slint
 msgid "+15 s"
-msgstr ""
+msgstr "+15 giây"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr ""
+msgstr "Tới 15 giây"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr ""
+msgstr "10 giây cuối"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
-msgstr ""
+msgstr "Nhảy tới 10 giây trước khi hết, để kiểm tra phần kết thúc"
 
 #: ui/operator/live.slint
 msgid "Edit words"
@@ -1980,11 +1948,11 @@ msgstr "Xóa thư mục"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
-msgstr ""
+msgstr "Chưa có gì ở đây. Hãy nhập hình ảnh, video hoặc nhạc, hoặc thử thư mục hay từ khác."
 
 #: ui/operator/media.slint
 msgid "Import media"
-msgstr ""
+msgstr "Nhập đa phương tiện"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -2012,27 +1980,27 @@ msgstr "Đã thay đổi — tắt rồi bật lại để cập nhật."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
-msgstr ""
+msgstr "Lớp phủ"
 
 #: ui/operator/overlay-strip.slint
 msgid "+ Overlays"
-msgstr ""
+msgstr "+ Lớp phủ"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr ""
+msgstr "Logo ở góc, đồng hồ hoặc một bảng ngắn"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr ""
+msgstr "F6 Xóa"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr ""
+msgstr "Xóa lớp phủ (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
-msgstr ""
+msgstr "Lớp phủ…"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
@@ -2064,15 +2032,15 @@ msgstr "Trước buổi lễ: đã đủ bài hát, tệp và màn hình chưa?"
 
 #: ui/operator/service.slint
 msgid "Theme for this service"
-msgstr ""
+msgstr "Chủ đề cho buổi lễ này"
 
 #: ui/operator/service.slint
 msgid "Custom order"
-msgstr ""
+msgstr "Thứ tự riêng"
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
-msgstr ""
+msgstr "Thứ tự riêng cho buổi lễ này"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -2088,7 +2056,7 @@ msgstr "Buổi lễ của bạn đang trống"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Thêm bài hát, video và trang chiếu, gõ câu Kinh Thánh ở trên, hoặc kéo tệp vào cửa sổ này."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2228,7 +2196,7 @@ msgstr "Mở tệp buổi lễ…"
 
 #: ui/operator.slint
 msgid "Open recent"
-msgstr ""
+msgstr "Mở gần đây"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
@@ -2236,11 +2204,11 @@ msgstr "Lưu buổi lễ này ra tệp…"
 
 #: ui/operator.slint
 msgid "Export"
-msgstr ""
+msgstr "Xuất"
 
 #: ui/operator.slint
 msgid "Service bundle…"
-msgstr ""
+msgstr "Gói buổi lễ…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -2268,7 +2236,7 @@ msgstr "Nhập tệp đa phương tiện…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr ""
+msgstr "In thứ tự buổi lễ…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -2276,11 +2244,11 @@ msgstr "Thoát"
 
 #: ui/operator.slint
 msgid "Find…"
-msgstr ""
+msgstr "Tìm…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
-msgstr ""
+msgstr "Tìm câu Kinh Thánh…"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
@@ -2312,7 +2280,7 @@ msgstr "Dừng âm thanh"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr ""
+msgstr "Xóa lớp phủ"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2324,15 +2292,15 @@ msgstr "Hiện thư viện đa phương tiện"
 
 #: ui/operator.slint
 msgid "Zoom in"
-msgstr ""
+msgstr "Phóng to"
 
 #: ui/operator.slint
 msgid "Zoom out"
-msgstr ""
+msgstr "Thu nhỏ"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr ""
+msgstr "Kích thước thật"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2352,11 +2320,11 @@ msgstr "Tin nhắn sân khấu…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
-msgstr ""
+msgstr "Bố cục sân khấu…"
 
 #: ui/operator.slint
 msgid "Automation…"
-msgstr ""
+msgstr "Tự động hóa…"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -2364,7 +2332,7 @@ msgstr "Cài đặt…"
 
 #: ui/operator.slint
 msgid "Themes and backgrounds…"
-msgstr ""
+msgstr "Chủ đề và nền…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2392,7 +2360,7 @@ msgstr "Kiểm tra buổi lễ"
 
 #: ui/operator.slint
 msgid "Open logs folder"
-msgstr ""
+msgstr "Mở thư mục nhật ký"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
@@ -2584,7 +2552,7 @@ msgstr "Không đọc được “{file}”: {error}"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
-msgstr ""
+msgstr "Nhập giờ như 10:30."
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2800,19 +2768,19 @@ msgstr "Chạm vào trang chiếu để đưa lên màn hình."
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
-msgstr ""
+msgstr "Ẩn tin nhắn"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs
 msgid "Run “{name}”?"
-msgstr ""
+msgstr "Chạy “{name}”?"
 
 #: src/i18n/remote_strings.rs
 msgid "Run"
-msgstr ""
+msgstr "Chạy"
 
 #: src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
+msgstr "Xong"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -3096,7 +3064,7 @@ msgstr "Âm thanh đó không còn phát nữa."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
-msgstr ""
+msgstr "Video hoặc âm thanh đó không còn phát nữa."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
@@ -3140,7 +3108,7 @@ msgstr "RustyPresenter không chạy được các cửa sổ: {reason}"
 
 #: src/model.rs
 msgid "Sunday Service"
-msgstr ""
+msgstr "Buổi lễ Chúa Nhật"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -3172,47 +3140,47 @@ msgstr "RustyPresenter đã dừng sau khi gặp lỗi 3 lần trong một phút
 
 #: src/scripture/actions.rs
 msgid "Unknown action."
-msgstr ""
+msgstr "Hành động không xác định."
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
-msgstr ""
+msgstr "Phiên khúc|Câu|Đoạn"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Chorus"
-msgstr ""
+msgstr "Điệp khúc|Điệp|ĐK"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Tiền điệp khúc|Trước điệp khúc"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Bridge"
-msgstr ""
+msgstr "Chuyển đoạn|Cầu nối"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr ""
+msgstr "Đoạn lặp|Đoạn kết lặp"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Intro"
-msgstr ""
+msgstr "Dạo đầu|Mở đầu"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr ""
+msgstr "Kết thúc|Đoạn kết|Kết"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Interlude"
-msgstr ""
+msgstr "Gian tấu|Dạo giữa"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
@@ -3589,73 +3557,73 @@ msgstr "Đồng hồ bấm giờ"
 
 #: src/strings/automation.rs
 msgid "Up to 4 timers can be on the screen at once."
-msgstr ""
+msgstr "Tối đa 4 bộ hẹn giờ có thể hiện trên màn hình cùng lúc."
 
 #: src/strings/automation.rs
 msgid "That timer was deleted."
-msgstr ""
+msgstr "Bộ hẹn giờ đó đã bị xóa."
 
 #: src/strings/automation.rs
 msgid "That message was deleted."
-msgstr ""
+msgstr "Tin nhắn đó đã bị xóa."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted."
-msgstr ""
+msgstr "Macro đó đã bị xóa."
 
 #: src/strings/automation.rs
 msgid "Macros run in the app."
-msgstr ""
+msgstr "Macro chạy trong ứng dụng."
 
 #: src/strings/automation.rs
 msgid "Too fast — try again."
-msgstr ""
+msgstr "Nhanh quá — hãy thử lại."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr ""
+msgstr "Hãy đặt tên dài từ 1 đến 40 ký tự."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
-msgstr ""
+msgstr "Bạn có thể có tối đa 50 bộ hẹn giờ."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 messages."
-msgstr ""
+msgstr "Bạn có thể có tối đa 100 tin nhắn."
 
 #: src/strings/automation.rs
 msgid "You can have up to 100 macros."
-msgstr ""
+msgstr "Bạn có thể có tối đa 100 macro."
 
 #: src/strings/automation.rs
 msgid "A macro can have up to 30 steps."
-msgstr ""
+msgstr "Một macro có tối đa 30 bước."
 
 #: src/strings/automation.rs
 msgid "That macro was deleted. Pick another one."
-msgstr ""
+msgstr "Macro đó đã bị xóa. Hãy chọn macro khác."
 
 #: src/strings/automation.rs
 msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
-msgstr ""
+msgstr "Bộ hẹn giờ chỉ có thể chạy macro dùng để hiện hoặc ẩn (bộ hẹn giờ, tin nhắn, lớp phủ)."
 
 #: src/strings/automation.rs
 msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
 msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
-msgstr[0] ""
+msgstr[0] "“{name}” đang được dùng bởi {n} macro. Vẫn xóa? Các bước đó sẽ ngừng hoạt động."
 
 #: src/strings/automation.rs
 msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
 msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
-msgstr[0] ""
+msgstr[0] "“{name}” chạy khi {n} bộ hẹn giờ về 0. Vẫn xóa? Các bộ hẹn giờ đó sẽ không làm gì khi về 0."
 
 #: src/strings/automation.rs
 msgid "The stage layout can't follow the slides yet."
-msgstr ""
+msgstr "Bố cục sân khấu chưa thể theo trang chiếu."
 
 #: src/strings/automation.rs
 msgid "Screen views aren't available yet."
-msgstr ""
+msgstr "Chế độ xem màn hình chưa có sẵn."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -4647,7 +4615,7 @@ msgstr "{number}. {title}: {problem}"
 #: src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
 msgid_plural "…and {n} more"
-msgstr[0] ""
+msgstr[0] "…và {n} mục khác"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
@@ -4873,7 +4841,7 @@ msgstr "Tìm theo từ…"
 
 #: src/strings/scripture.rs
 msgid "Find a verse"
-msgstr ""
+msgstr "Tìm câu Kinh Thánh"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
@@ -5017,14 +4985,12 @@ msgid "Settings saved"
 msgstr "Đã lưu cài đặt"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Ân điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr ""
+msgstr "Ân Điển Lạ Lùng · John Newton · Public Domain"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5149,27 +5115,27 @@ msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Z"
-msgstr ""
+msgstr "Ctrl + Z"
 
 #: src/strings/settings.rs
 msgid "Ctrl + Y"
-msgstr ""
+msgstr "Ctrl + Y"
 
 #: src/strings/settings.rs
 msgid "Ctrl + F"
-msgstr ""
+msgstr "Ctrl + F"
 
 #: src/strings/settings.rs
 msgid "Undo the last change to the services or the library"
-msgstr ""
+msgstr "Hoàn tác thay đổi cuối cùng đối với buổi lễ hoặc thư viện"
 
 #: src/strings/settings.rs
 msgid "Redo what Undo took back"
-msgstr ""
+msgstr "Làm lại thao tác đã hoàn tác"
 
 #: src/strings/settings.rs
 msgid "Find a song"
-msgstr ""
+msgstr "Tìm bài hát"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -5349,7 +5315,7 @@ msgstr "Bấm để chiếu phần này"
 
 #: src/strings/song.rs
 msgid "Saved as the usual order."
-msgstr ""
+msgstr "Đã lưu làm thứ tự thường lệ."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
@@ -5592,7 +5558,7 @@ msgstr "Các macro sẽ không chạy cho đến khi được sửa"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
-msgstr ""
+msgstr "Bố cục sân khấu mới"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
@@ -5600,55 +5566,55 @@ msgstr "{name} bản sao"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
-msgstr ""
+msgstr "Tên bố cục sân khấu"
 
 #: src/strings/stage.rs
 msgid "Discard your changes to the stage layouts?"
-msgstr ""
+msgstr "Bỏ các thay đổi đối với bố cục sân khấu?"
 
 #: src/strings/stage.rs
 msgid "Discard"
-msgstr ""
+msgstr "Bỏ"
 
 #: src/strings/stage.rs
 msgid "Keep editing"
-msgstr ""
+msgstr "Tiếp tục sửa"
 
 #: src/strings/stage.rs
 msgid "Stage layouts saved."
-msgstr ""
+msgstr "Đã lưu bố cục sân khấu."
 
 #: src/strings/stage.rs
 msgid "The stage shows “{name}”."
-msgstr ""
+msgstr "Sân khấu đang hiện “{name}”."
 
 #: src/strings/stage.rs
 msgid "Your words here"
-msgstr ""
+msgstr "Chữ của bạn ở đây"
 
 #: src/strings/stage.rs
 msgid "Amazing grace, how sweet the sound"
-msgstr ""
+msgstr "Ân điển lạ lùng, ôi ngọt ngào thay"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr ""
+msgstr "Đã cứu kẻ khốn hèn như tôi"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr ""
+msgstr "Phiên khúc 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
-msgstr ""
+msgstr "Ân Điển Lạ Lùng"
 
 #: src/strings/stage.rs
 msgid "Slow down on the last line"
-msgstr ""
+msgstr "Chậm lại ở dòng cuối"
 
 #: src/strings/stage.rs
 msgid "Last chorus"
-msgstr ""
+msgstr "Điệp khúc cuối"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -5788,47 +5754,47 @@ msgstr "Dành cho bảng hiệu hiện lâu. Với thông báo như tên phụ h
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr ""
+msgstr "Đặt mặc định"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
-msgstr ""
+msgstr "Đã khôi phục chủ đề như ban đầu"
 
 #: src/strings/themes.rs
 msgid "New name for this background"
-msgstr ""
+msgstr "Tên mới cho nền này"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
-msgstr ""
+msgstr "Dùng nền của chủ đề"
 
 #: src/strings/themes.rs
 msgid "Keep theirs"
-msgstr ""
+msgstr "Giữ nền riêng"
 
 #: src/strings/themes.rs
 msgid "Manage themes…"
-msgstr ""
+msgstr "Quản lý chủ đề…"
 
 #: src/strings/themes.rs
 msgid "Overlay saved"
-msgstr ""
+msgstr "Đã lưu lớp phủ"
 
 #: src/strings/themes.rs
 msgid "Overlay deleted"
-msgstr ""
+msgstr "Đã xóa lớp phủ"
 
 #: src/strings/themes.rs
 msgid "New overlay"
-msgstr ""
+msgstr "Lớp phủ mới"
 
 #: src/strings/themes.rs
 msgid "Welcome!"
-msgstr ""
+msgstr "Chào mừng!"
 
 #: src/strings/themes.rs
 msgid "Put “{name}” back the way it came? Your changes to it are lost."
-msgstr ""
+msgstr "Khôi phục “{name}” như ban đầu? Các thay đổi của bạn sẽ bị mất."
 
 #: src/strings/themes.rs
 msgid "{n} service"
@@ -5837,15 +5803,15 @@ msgstr[0] "{n} buổi lễ"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr ""
+msgstr "Mặc định hội thánh ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
-msgstr ""
+msgstr "Giống buổi lễ ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr ""
+msgstr "Xóa lớp phủ “{name}”? Nếu đang hiện trên màn hình, nó vẫn ở đó cho đến khi bạn tắt."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6266,140 +6232,140 @@ msgstr "{name} bản sao {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
-msgstr ""
+msgstr "Chiếu một mục của buổi lễ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Previous slide"
-msgstr ""
+msgstr "Trang trước"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear words"
-msgstr ""
+msgstr "Xóa chữ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear video and pictures"
-msgstr ""
+msgstr "Xóa video và hình ảnh"
 
 #: src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr ""
+msgstr "Xóa âm thanh"
 
 #: src/ui/dialogs/automation.rs
 msgid "Start timer"
-msgstr ""
+msgstr "Bắt đầu hẹn giờ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause timer"
-msgstr ""
+msgstr "Tạm dừng hẹn giờ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Reset timer"
-msgstr ""
+msgstr "Đặt lại hẹn giờ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Restart timer"
-msgstr ""
+msgstr "Chạy lại hẹn giờ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show timer on the screen"
-msgstr ""
+msgstr "Hiện hẹn giờ trên màn hình"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide timer from the screen"
-msgstr ""
+msgstr "Ẩn hẹn giờ khỏi màn hình"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message"
-msgstr ""
+msgstr "Hiện tin nhắn"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the message"
-msgstr ""
+msgstr "Ẩn tin nhắn"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay on"
-msgstr ""
+msgstr "Bật một lớp phủ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr ""
+msgstr "Tắt một lớp phủ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
-msgstr ""
+msgstr "Tạm dừng tự chuyển trang"
 
 #: src/ui/dialogs/automation.rs
 msgid "Resume automatic slides"
-msgstr ""
+msgstr "Tiếp tục tự chuyển trang"
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
-msgstr ""
+msgstr "Hiện tin nhắn cho sân khấu"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
-msgstr ""
+msgstr "Ẩn tin nhắn sân khấu"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
-msgstr ""
+msgstr "mục {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change what a screen shows"
-msgstr ""
+msgstr "Đổi nội dung một màn hình hiển thị"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the stage layout"
-msgstr ""
+msgstr "Đổi bố cục sân khấu"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr ""
+msgstr "Để bố cục sân khấu theo trang chiếu"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
-msgstr ""
+msgstr "Đếm ngược {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to the service start"
-msgstr ""
+msgstr "Đếm ngược tới giờ bắt đầu buổi lễ"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down to {time}"
-msgstr ""
+msgstr "Đếm ngược tới {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "{n} step"
 msgid_plural "{n} steps"
-msgstr[0] ""
+msgstr[0] "{n} bước"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
-msgstr ""
+msgstr "Không làm gì"
 
 #: src/ui/dialogs/automation.rs
 msgid "Hide it from the screen"
-msgstr ""
+msgstr "Ẩn khỏi màn hình"
 
 #: src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
-msgstr ""
+msgstr "Chạy “{name}”"
 
 #: src/ui/dialogs/automation.rs
 msgid "Boxes to fill in: {fields}"
-msgstr ""
+msgstr "Ô cần điền: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
+msgstr "Đã lưu."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
-msgstr ""
+msgstr "Tự động hóa"
 
 #: src/ui/dialogs/mod.rs
 msgid "Show message"
-msgstr ""
+msgstr "Hiện tin nhắn"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -6411,36 +6377,36 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Ctrl + Shift + M"
-msgstr ""
+msgstr "Ctrl + Shift + M"
 
 #: src/ui/dialogs/settings.rs
 msgid "Show a message on the screen"
-msgstr ""
+msgstr "Hiện tin nhắn trên màn hình"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
-msgstr ""
+msgstr "Tự động · {time}"
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
-msgstr ""
+msgstr "Buổi lễ này không thiếu gì."
 
 #: src/ui/operator/checks.rs
 msgid "Click to see everything."
-msgstr ""
+msgstr "Bấm để xem tất cả."
 
 #: src/ui/operator/checks.rs
 msgid "{n} problem"
 msgid_plural "{n} problems"
-msgstr[0] ""
+msgstr[0] "{n} vấn đề"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
-msgstr ""
+msgstr "Không mở được thư mục nhật ký. Thư mục nằm ở {path}"
 
 #: src/ui/operator/menu.rs
 msgid "Make the window bigger to zoom in further."
-msgstr ""
+msgstr "Hãy mở rộng cửa sổ để phóng to thêm."
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -6532,67 +6498,67 @@ msgstr "Không mở được màn hình sân khấu: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
-msgstr ""
+msgstr "Đã hoàn tác: {what}"
 
 #: src/undo.rs
 msgid "Redone: {what}"
-msgstr ""
+msgstr "Đã làm lại: {what}"
 
 #: src/undo.rs
 msgid "Can't undo {what}: it was changed again since."
-msgstr ""
+msgstr "Không thể hoàn tác {what}: đã bị thay đổi lần nữa sau đó."
 
 #: src/undo.rs
 msgid "Can't redo {what}: it was changed again since."
-msgstr ""
+msgstr "Không thể làm lại {what}: đã bị thay đổi lần nữa sau đó."
 
 #: src/undo.rs
 msgid "Nothing to redo."
-msgstr ""
+msgstr "Không có gì để làm lại."
 
 #: src/undo.rs
 msgid "Nothing to undo."
-msgstr ""
+msgstr "Không có gì để hoàn tác."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr ""
+msgstr "buổi lễ mới “{name}”"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
-msgstr ""
+msgstr "việc xóa buổi lễ “{name}”"
 
 #: src/undo.rs
 msgid "adding “{name}”"
-msgstr ""
+msgstr "việc thêm “{name}”"
 
 #: src/undo.rs
 msgid "removing “{name}”"
-msgstr ""
+msgstr "việc gỡ “{name}”"
 
 #: src/undo.rs
 msgid "moving “{name}”"
-msgstr ""
+msgstr "việc di chuyển “{name}”"
 
 #: src/undo.rs
 msgid "changes to “{name}”"
-msgstr ""
+msgstr "các thay đổi cho “{name}”"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr ""
+msgstr "bài hát mới “{name}”"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
-msgstr ""
+msgstr "việc xóa bài hát “{name}”"
 
 #: src/undo.rs
 msgid "changes to the song “{name}”"
-msgstr ""
+msgstr "các thay đổi cho bài hát “{name}”"
 
 #: src/undo.rs
 msgid "the last change"
-msgstr ""
+msgstr "thay đổi gần nhất"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
@@ -6608,31 +6574,31 @@ msgstr "libmpv này quá cũ (client API {major}.{minor}); RustyPresenter cần 
 
 #: src/video/graphics.rs
 msgid "Software"
-msgstr ""
+msgstr "Phần mềm"
 
 #: src/video/graphics.rs
 msgid "Automatic (recommended)"
-msgstr ""
+msgstr "Tự động (khuyên dùng)"
 
 #: src/video/graphics.rs
 msgid "Software (safe mode)"
-msgstr ""
+msgstr "Phần mềm (chế độ an toàn)"
 
 #: src/video/graphics.rs
 msgid "In use now: {mode}"
-msgstr ""
+msgstr "Đang dùng: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr ""
+msgstr "Khởi động lại RustyPresenter để dùng cài đặt đồ họa mới."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr ""
+msgstr "Không dùng được chế độ đồ họa {wanted} trên máy này, nên RustyPresenter đang dùng {mode}."
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr ""
+msgstr "RustyPresenter gặp sự cố với card đồ họa nên đã khởi động ở chế độ an toàn. Bạn có thể thay đổi trong Cài đặt → Video."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6697,9 +6663,3 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
-
-#~ msgid "Nothing here yet. Click Import, or try another folder or word."
-#~ msgstr "Chưa có gì ở đây. Bấm Nhập, hoặc thử thư mục hay từ khóa khác."
-
-#~ msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-#~ msgstr "Bấm “Thêm vào buổi lễ” bên dưới, gõ câu Kinh Thánh ở trên cùng, hoặc kéo tệp vào cửa sổ này."
