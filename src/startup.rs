@@ -11,13 +11,13 @@ pub fn port() -> u16 { std::env::var("RUSTYPRESENTER_PORT").ok().and_then(|p| p.
 
 /// The data folder, without creating it.
 pub fn data_root() -> Result<PathBuf, String> {
-    server::data_dir().ok_or("Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA.".to_string())
+    server::data_dir().ok_or_else(|| crate::tr!("Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."))
 }
 
 /// Opens the data folder behind a port already held. Left-over work folders go on every start, so a killed
 /// import's go too.
 pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> {
-    let store = Store::open(root.clone()).map_err(|e| format!("Cannot use the data folder {}: {e}", root.display()))?;
+    let store = Store::open(root.clone()).map_err(|e| crate::tr!("Cannot use the data folder {path}: {reason}", path = root.display(), reason = e))?;
     store.clean_tmp();
     let crate::store::Loaded { mut data, read_only } = store.load_full()?;
     let removed = crate::bible::blocklist::strip(&mut data);

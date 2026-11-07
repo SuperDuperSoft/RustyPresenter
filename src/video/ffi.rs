@@ -1,13 +1,13 @@
 //! Runtime binding to the libmpv client API 2.x (client.h, render.h, render_gl.h).
 //! libmpv is LGPL and is only loaded with `libloading`, never linked. A missing
-//! library is not fatal: callers report [`MISSING`] for video/audio items.
+//! library is not fatal: callers report [`missing`] for video/audio items.
 #![allow(non_camel_case_types)]
 use crate::platform::resources::{current_exe, native_candidates};
 use std::ffi::{CStr, CString, c_char, c_int, c_ulong, c_void};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
-pub const MISSING: &str = "The video player is missing. Reinstall RustyPresenter.";
+pub fn missing() -> String { crate::tr!("The video player is missing. Reinstall RustyPresenter.") }
 
 /// Library names tried in each folder, then through the system search path.
 #[cfg(windows)]
@@ -306,7 +306,7 @@ impl Mpv {
         if let Some(e) = first_err {
             eprintln!("libmpv not loaded: {e}");
         }
-        Err(MISSING.into())
+        Err(missing())
     }
 
     /// Where `load` looks, in order.
@@ -315,7 +315,7 @@ impl Mpv {
     }
 
     pub fn load_from(path: &Path) -> Result<Arc<Mpv>, String> {
-        let fail = |e: &dyn std::fmt::Display| format!("Cannot load the video player from {}: {e}", path.display());
+        let fail = |e: &dyn std::fmt::Display| crate::tr!("Cannot load the video player from {path}: {reason}", path = path.display(), reason = e);
         let lib = open(path).map_err(|e| fail(&e))?;
         let mpv = unsafe {
             macro_rules! sym {
@@ -355,7 +355,7 @@ impl Mpv {
         };
         let (major, minor) = mpv.api_version();
         if major != 2 {
-            return Err(format!("This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."));
+            return Err(crate::tr!("This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x.", major = major, minor = minor));
         }
         Ok(Arc::new(mpv))
     }

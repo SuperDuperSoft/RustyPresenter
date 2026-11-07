@@ -5,13 +5,13 @@ use crate::{model::Song, slides::section_label};
 use uuid::Uuid;
 
 pub fn import_txt(text: &str) -> Result<Song, String> {
-    if text.len() > 256_000 { return Err("That file is too big to be a lyric file.".into()); }
+    if text.len() > 256_000 { return Err(crate::tr!("That file is too big to be a lyric file.")); }
     let normalized = text.trim_start_matches('\u{feff}').replace("\r\n", "\n").replace('\r', "\n");
     let lines: Vec<&str> = normalized.lines().map(str::trim_end).collect();
-    let title_i = lines.iter().position(|l| !l.trim().is_empty()).ok_or("The lyric file is empty.")?;
+    let title_i = lines.iter().position(|l| !l.trim().is_empty()).ok_or_else(|| crate::tr!("The lyric file is empty."))?;
     let title = lines[title_i].trim().trim_matches('"').to_string();
     let first_section = (title_i + 1..lines.len()).find(|&i| section_label(lines[i]).is_some())
-        .ok_or("This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download.")?;
+        .ok_or_else(|| crate::tr!("This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."))?;
 
     let ccli_i = (first_section..lines.len()).find(|&i| lines[i].trim().to_ascii_lowercase().starts_with("ccli song"));
     let mut writers = String::new();
@@ -39,7 +39,7 @@ pub fn import_txt(text: &str) -> Result<Song, String> {
         else if t.starts_with('©') || lower.starts_with("copyright") { copyright = t.to_string(); }
     }
     let lyrics = lines[first_section..lyrics_end].join("\n").trim().to_string();
-    if lyrics.is_empty() { return Err("No lyrics were found in this file.".into()); }
+    if lyrics.is_empty() { return Err(crate::tr!("No lyrics were found in this file.")); }
     Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![] })
 }
 

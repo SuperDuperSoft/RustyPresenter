@@ -37,7 +37,7 @@ fn forget_live_state(app: &App, root: &Path) {
 fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
     let log = match fs::OpenOptions::new().create(true).append(true).open(recovery::todays_log()) {
         Ok(f) => f,
-        Err(e) => fail(&format!("RustyPresenter could not open its log: {e}")),
+        Err(e) => fail(&i18n::tr!("RustyPresenter could not open its log: {reason}", reason = e)),
     };
     app.set_screens(Arc::new(headless::NoScreens));
     headless::run(app.clone(), log);
@@ -47,9 +47,11 @@ fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
 fn main() {
     rustypresenter::import::libreoffice::fake_soffice_main();
     let args = supervisor::parse_args(std::env::args_os().skip(1));
+    // The computer's language until the church's saved one is read, so a problem at start is in it too.
+    let _ = i18n::set_language(&i18n::resolve(""));
     supervisor::quiet_crash_dialogs();
     if !args.app {
-        let exe = std::env::current_exe().unwrap_or_else(|e| fail(&format!("RustyPresenter could not start: {e}")));
+        let exe = std::env::current_exe().unwrap_or_else(|e| fail(&i18n::tr!("RustyPresenter could not start: {reason}", reason = e)));
         let passthrough: Vec<_> = std::env::args_os().skip(1).collect();
         std::process::exit(supervisor::run(&exe, &recovery::todays_log(), &passthrough));
     }
@@ -83,7 +85,7 @@ fn main() {
     app.set_state_writer(StateWriter::start(root.clone()));
 
     // Slint runs on this (main) thread; tokio runs the server and backups on its own threads.
-    let rt = match tokio::runtime::Runtime::new() { Ok(rt) => rt, Err(e) => fail(&format!("RustyPresenter could not start: {e}")) };
+    let rt = match tokio::runtime::Runtime::new() { Ok(rt) => rt, Err(e) => fail(&i18n::tr!("RustyPresenter could not start: {reason}", reason = e)) };
     rt.spawn(startup::backups(app.clone(), args.restore));
     rt.spawn(startup::serve(app.clone(), listener));
     rt.spawn(startup::save_playing(app.clone()));
@@ -128,13 +130,13 @@ fn main() {
         screens.set_operator(Rc::downgrade(&operator));
         OPERATOR.with(|o| *o.borrow_mut() = Some(operator));
     });
-    if let Err(e) = queued { fail(&format!("RustyPresenter could not open its window: {e}")); }
+    if let Err(e) = queued { fail(&i18n::tr!("RustyPresenter could not open its window: {reason}", reason = e)); }
 
     // The room and stage windows come and go; closing the operator (or Ctrl+C) quits.
     let result = slint::run_event_loop_until_quit();
     OPERATOR.with(|o| o.borrow_mut().take());
     native.shutdown();
-    if let Err(e) = result { fail(&format!("RustyPresenter could not run its windows: {e}")); }
+    if let Err(e) = result { fail(&i18n::tr!("RustyPresenter could not run its windows: {reason}", reason = e)); }
     forget_live_state(&app, &root);
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
 }

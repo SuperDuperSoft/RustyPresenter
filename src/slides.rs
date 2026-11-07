@@ -285,7 +285,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
     let (title, kind, mut slides) = match &item.kind {
         ItemKind::Song { song_id } => match data.songs.iter().find(|x| x.id == *song_id) {
             Some(song) => (song.title.clone(), "song", song_slides(song, s)),
-            None => ("Missing song".into(), "song", vec![]),
+            None => (crate::tr!("Missing song"), "song", vec![]),
         },
         ItemKind::Scripture { reference, translation, verses, per_slide, text_size, also, layout } => {
             let abbr_of = |t: &str| data.bible_credit(t).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| t.to_string());
@@ -321,11 +321,11 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
                 let kind = match m.kind { MediaKind::Video => "video", MediaKind::Image => "image", MediaKind::Audio => "audio" };
                 (m.name.clone(), kind, vec![Slide::new(m.name.clone(), content)])
             }
-            None => ("Missing media".into(), "video", vec![]),
+            None => (crate::tr!("Missing media"), "video", vec![]),
         },
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
-            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide::new(format!("Slide {}", i + 1), SlideContent::Image { asset: a.clone() })).collect()),
-            None => ("Missing slides".into(), "deck", vec![]),
+            Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone() })).collect()),
+            None => (crate::tr!("Missing slides"), "deck", vec![]),
         },
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),
         ItemKind::Blank { label, want } => (crate::planning::blank_title(label, *want), "blank", vec![]),

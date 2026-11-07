@@ -3,9 +3,11 @@ use super::state;
 use crate::app::App;
 
 /// The notice after a restart with everything back.
-pub const RESTARTED: &str = "RustyPresenter restarted after a problem.";
+pub fn restarted() -> String { crate::tr!("RustyPresenter restarted after a problem.") }
 /// The notice when what plays was left out.
-pub const RESTARTED_NO_MEDIA: &str = "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay.";
+pub fn restarted_no_media() -> String {
+    crate::tr!("RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay.")
+}
 
 /// The second restart in a row, or later: what plays may be what crashed.
 const WITHOUT_MEDIA_FROM: u32 = 2;
@@ -22,7 +24,7 @@ pub fn at_start(app: &App, restore: bool, attempt: u32) -> Option<Vec<String>> {
     if !with_media { state::quarantine(root); }
     app.live.lock().unwrap().restore(&saved, with_media);
     if with_media { app.set_resume(&saved.positions); }
-    app.set_notice(if with_media { RESTARTED } else { RESTARTED_NO_MEDIA });
+    app.set_notice(&if with_media { restarted() } else { restarted_no_media() });
     Some(saved.windows)
 }
 
@@ -65,7 +67,7 @@ mod tests {
         assert_eq!(at_start(&app, true, 0), Some(vec!["room".to_string()]));
         let live = app.live.lock().unwrap();
         assert!(live.frame.audio.is_some());
-        assert_eq!(live.notice.as_deref(), Some(RESTARTED));
+        assert_eq!(live.notice.as_deref(), Some(restarted().as_str()));
         drop(live);
         assert_eq!(app.resume_position(40), Some(12.5));
         assert!(state::path(&app.store.root).exists(), "kept: the next crash may need it");
@@ -80,7 +82,7 @@ mod tests {
         let live = app.live.lock().unwrap();
         assert!(live.frame.audio.is_none());
         assert!(live.frame.slide.is_some());
-        assert_eq!(live.notice.as_deref(), Some(RESTARTED_NO_MEDIA));
+        assert_eq!(live.notice.as_deref(), Some(restarted_no_media().as_str()));
         drop(live);
         assert_eq!(app.resume_position(40), None);
         assert!(!state::path(&app.store.root).exists());
@@ -96,7 +98,7 @@ mod tests {
 
     #[test]
     fn notice_wording_is_the_rooms_restart_wording() {
-        assert!(RESTARTED_NO_MEDIA.ends_with("Video/audio stopped — click it again to replay."));
-        assert!(RESTARTED_NO_MEDIA.starts_with(RESTARTED));
+        assert!(restarted_no_media().ends_with("Video/audio stopped — click it again to replay."));
+        assert!(restarted_no_media().starts_with(&restarted()));
     }
 }

@@ -43,14 +43,14 @@ const STYLE: &str = r#"
   @media print { body { padding: 0; max-width: none; } }
 "#;
 
-fn kind_label(kind: &str) -> &'static str {
+fn kind_label(kind: &str) -> String {
     match kind {
-        "song" => "Song",
-        "scripture" => "Scripture",
-        "media" => "Media",
-        "deck" => "Slides",
-        "text" => "Announcement",
-        _ => "",
+        "song" => crate::tr!("Song"),
+        "scripture" => crate::tr!("Scripture"),
+        "media" => crate::tr!("Media"),
+        "deck" => crate::tr!("Slides"),
+        "text" => crate::tr!("Announcement"),
+        _ => String::new(),
     }
 }
 
@@ -69,7 +69,7 @@ pub fn render(doc: &PrintDoc, paper: Paper, footer: &str) -> String {
                 if std::mem::take(&mut brk) { h.push_str("<div class=\"brk\"></div>\n") }
                 if !table { h.push_str("<table>\n"); table = true }
                 h += &format!("<tr{}><td class=\"n\">{n}</td><td class=\"k\">{}</td><td><div class=\"t\">{}</div>",
-                    if *blank { " class=\"blank\"" } else { "" }, kind_label(kind), escape(title));
+                    if *blank { " class=\"blank\"" } else { "" }, escape(&kind_label(kind)), escape(title));
                 if !detail.is_empty() { h += &format!("<div class=\"d\">{}</div>", escape(detail)) }
                 if !notes.is_empty() { h += &format!("<div class=\"notes\">{}</div>", escape(notes)) }
                 h += "</td></tr>\n";

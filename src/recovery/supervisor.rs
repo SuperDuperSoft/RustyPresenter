@@ -229,7 +229,7 @@ pub fn quiet_crash_dialogs() {
 }
 
 fn give_up_text(log: &Path) -> String {
-    format!("RustyPresenter stopped after crashing 3 times in a minute. The log is at {}.", log.display())
+    crate::tr!("RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}.", path = log.display())
 }
 
 /// Tells the operator the app will not come back, and waits for them. Windows calls `MessageBoxW` directly, not

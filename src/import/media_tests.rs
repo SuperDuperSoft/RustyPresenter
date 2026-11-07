@@ -104,9 +104,9 @@ async fn unplayable_file_adds_nothing() {
     let app = test_app();
     let tmp = staged(&app, b"not a video");
     let e = import_media(&app, &tmp, "abc", "mp4", "Clip".into()).await.unwrap_err();
-    assert_eq!(e, ffi::MISSING);
+    assert_eq!(e, ffi::missing());
     assert!(app.data.lock().unwrap().media.is_empty());
-    assert_eq!(job_error(&app).as_deref(), Some(ffi::MISSING), "the card shows it too");
+    assert_eq!(job_error(&app).as_deref(), Some(ffi::missing().as_str()), "the card shows it too");
     assert_eq!(files_in(app.store.assets()), 0);
     assert_eq!(files_in(app.store.tmp()), 0, "the copy in tmp goes too");
 }

@@ -296,7 +296,7 @@ impl Player {
     pub fn with_options(mpv: Arc<Mpv>, role: Role, inst: u64, reports: Sender<PlayerReport>, opts: &Options) -> Result<Player, String> {
         let h = unsafe { (mpv.create)() };
         if h.is_null() {
-            return Err("The video player could not start.".into());
+            return Err(crate::tr!("The video player could not start."));
         }
         // Dropping `core` on an early return destroys the handle.
         let core = Arc::new(Core { mpv: mpv.clone(), h, grabs: Grabs::default() });
@@ -321,7 +321,7 @@ impl Player {
         let _ = unsafe { mpv.set_option(h, "osc", "no") }; // only exists in builds with Lua
         let r = unsafe { (mpv.initialize)(h) };
         if r < 0 {
-            return Err(format!("The video player could not start: {}", mpv.err(r)));
+            return Err(crate::tr!("The video player could not start: {reason}", reason = mpv.err(r)));
         }
         for (id, name, f) in [(OBS_PAUSE, "pause", FORMAT_FLAG), (OBS_TIME, "time-pos", FORMAT_DOUBLE), (OBS_DURATION, "duration", FORMAT_DOUBLE), (OBS_EOF, "eof-reached", FORMAT_FLAG)] {
             if let Err(e) = unsafe { mpv.observe(h, id, name, f) } {
@@ -334,7 +334,7 @@ impl Player {
         let w = Watch { core: core.clone(), inst, serial, tx: reports.clone(), name: name.clone(), stop: stop.clone(), loaded: false, paused: false, position: 0.0, duration: 0.0, last: None, last_at: Instant::now() };
         let thread = match std::thread::Builder::new().name(format!("mpv-events-{inst}")).spawn(move || { crate::recovery::panic::mark_critical(); w.run() }) {
             Ok(t) => t,
-            Err(e) => return Err(format!("The video player could not start: {e}")),
+            Err(e) => return Err(crate::tr!("The video player could not start: {reason}", reason = e)),
         };
         let deferred = opts.vo == "libmpv";
         Ok(Player { core, inst, serial, tx: reports, name, stop, thread: Some(thread), render: RefCell::new(None), deferred, pending: RefCell::new(None), loaded: RefCell::new(None), lost: RefCell::new(None) })
@@ -491,7 +491,7 @@ impl Watch {
                         END_FILE_EOF => self.state(PlayState::Ended, None),
                         END_FILE_ERROR => {
                             let name = self.name.lock().unwrap_or_else(|e| e.into_inner()).clone();
-                            self.state(PlayState::Error, Some(format!("{name} could not be played ({})", self.core.mpv.err(end.error))));
+                            self.state(PlayState::Error, Some(crate::tr!("{name} could not be played ({reason})", name = name, reason = self.core.mpv.err(end.error))));
                         }
                         _ => {}
                     }
@@ -558,7 +558,7 @@ pub struct Players {
     pub options: Options,
 }
 
-/// Player factory; with no libmpv every instance reports [`ffi::MISSING`].
+/// Player factory; with no libmpv every instance reports [`ffi::missing`].
 pub fn players(mpv: Option<Arc<Mpv>>, reports: Sender<PlayerReport>) -> Players {
     Players { mpv, reports, options: Options::default() }
 }
@@ -569,7 +569,7 @@ impl Players {
         let opts = Options { audio_device: audio_device.to_string(), ..self.options.clone() };
         let r = match &self.mpv {
             Some(m) => Player::with_options(m.clone(), role, inst, self.reports.clone(), &opts),
-            None => Err(ffi::MISSING.into()),
+            None => Err(ffi::missing()),
         };
         r.map_err(|e| {
             let _ = self.reports.send(PlayerReport { inst, player: 0, state: PlayState::Error, position: 0.0, duration: 0.0, error: Some(e) });
@@ -1024,7 +1024,7 @@ mod tests {
         let (tx, rx) = channel();
         assert!(players(None, tx).create(Role::Audio { looped: false }, 42, "").is_none());
         let r = rx.try_recv().expect("report");
-        assert_eq!((r.inst, r.state, r.error.as_deref()), (42, PlayState::Error, Some(ffi::MISSING)));
+        assert_eq!((r.inst, r.state, r.error.as_deref()), (42, PlayState::Error, Some(ffi::missing().as_str())));
     }
 
     #[test]

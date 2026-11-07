@@ -300,7 +300,7 @@ pub async fn probe_waiting(mpv: Option<Arc<Mpv>>, path: PathBuf, cancel: Cancell
     if std::fs::read(&path).is_ok_and(|b| b.starts_with(FAKE_VIDEO)) {
         return Ok(Probe { kind: MediaKind::Video, duration: Some(1.0), size: Some((640, 360)), thumb: None, tracks: Node::None });
     }
-    let mpv = mpv.ok_or(ffi::MISSING)?;
+    let mpv = mpv.ok_or_else(ffi::missing)?;
     let slot = turn(&PROBES, &cancel, &waiting).await?;
     let probing = tokio::task::spawn_blocking(move || probe_holding(&mpv, &path, DEADLINE, &cancel, Some(slot)));
     probing.await.map_err(|e| cant_play_logged("probe thread", e))?
@@ -459,7 +459,7 @@ mod tests {
     #[tokio::test]
     async fn missing_libmpv_gives_missing_message() {
         let e = probe(None, temp("a.mp4"), CancellationToken::new()).await.unwrap_err();
-        assert_eq!(e, ffi::MISSING);
+        assert_eq!(e, ffi::missing());
     }
 
     #[tokio::test]

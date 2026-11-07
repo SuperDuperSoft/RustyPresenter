@@ -54,13 +54,13 @@ impl Store {
     /// Reads `data.json`: older data is brought up to `SUPPORTED_FORMAT` and saved at once (after a "before-update"
     /// backup), newer data opens read-only, then `Data::after_load` runs (its changes saved unless read-only).
     pub fn load_full(&self) -> Result<Loaded, String> {
-        let unreadable = |e: &dyn std::fmt::Display| format!(
-            "Your saved data at {} could not be read ({e}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside.",
-            self.data_path().display());
+        let unreadable = |e: &dyn std::fmt::Display| crate::tr!(
+            "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside.",
+            path = self.data_path().display(), reason = e);
         let text = match fs::read_to_string(self.data_path()) {
             Ok(text) => text,
             Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(Loaded { data: Data::default(), read_only: false }),
-            Err(e) => return Err(format!("Cannot read {}: {e}", self.data_path().display())),
+            Err(e) => return Err(crate::tr!("Cannot read {path}: {reason}", path = self.data_path().display(), reason = e)),
         };
         let found = migrate::read_format(&text).map_err(|e| unreadable(&e))?;
         let step = migrate::step(found, SUPPORTED_FORMAT);
@@ -74,9 +74,9 @@ impl Store {
         if step == migrate::Step::Migrate {
             data.format = found;
             self.upgrade_format(&mut data, true);
-            self.save(&data).map_err(|e| format!("Could not save: {e}"))?;
+            self.save(&data).map_err(|e| crate::tr!("Could not save: {reason}", reason = e))?;
         }
-        if data.after_load() && !read_only { self.save(&data).map_err(|e| format!("Could not save: {e}"))?; }
+        if data.after_load() && !read_only { self.save(&data).map_err(|e| crate::tr!("Could not save: {reason}", reason = e))?; }
         Ok(Loaded { data, read_only })
     }
 
@@ -181,9 +181,9 @@ impl Store {
 
     /// Restore a backup using only the backup set (works into an empty data folder).
     pub fn restore(&self, name: &str) -> Result<Data, String> {
-        if name.contains(['/', '\\', '.']) || !name.starts_with("backup-") { return Err("Unknown backup.".into()); }
+        if name.contains(['/', '\\', '.']) || !name.starts_with("backup-") { return Err(crate::tr!("Unknown backup.")); }
         let dir = self.root.join("backups").join(name);
-        if !dir.join("COMPLETE").exists() { return Err("That backup is incomplete and cannot be restored.".into()); }
+        if !dir.join("COMPLETE").exists() { return Err(crate::tr!("That backup is incomplete and cannot be restored.")); }
         let manifest: Manifest = serde_json::from_slice(&fs::read(dir.join("manifest.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
         let mut data: Data = serde_json::from_slice::<Data>(&fs::read(dir.join("data.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?.upgrade();
         if data.format > SUPPORTED_FORMAT { return Err(crate::theme::strings::newer_data().into()); }

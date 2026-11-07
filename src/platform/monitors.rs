@@ -131,7 +131,7 @@ fn borderless(window: &slint::Window, id: &MonitorId) -> Option<Result<(), Strin
     window.with_winit_window(|w| {
         let all = handles(w);
         let (m, _) = all.iter().find(|(_, m)| m == id).or_else(|| all.iter().find(|(_, m)| m.name == id.name))
-            .ok_or("That screen is not connected right now.")?;
+            .ok_or_else(|| crate::tr!("That screen is not connected right now."))?;
         w.set_fullscreen(Some(Fullscreen::Borderless(Some(m.clone()))));
         Ok(())
     })

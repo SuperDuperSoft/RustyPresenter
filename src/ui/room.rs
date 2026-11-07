@@ -832,7 +832,7 @@ mod tests {
         show(&app, audio);
         assert!(pump_until(&room, 5.0, || app.live_view().notice.is_some()));
         let notice = app.live_view().notice.unwrap();
-        assert!(notice.contains(crate::video::ffi::MISSING), "{notice}");
+        assert!(notice.contains(&crate::video::ffi::missing()), "{notice}");
         assert!(app.live_view().frame.audio.is_none());
     }
 

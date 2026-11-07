@@ -7,10 +7,27 @@ pub enum Bind { Ok(TcpListener), Running, Taken }
 const RESTORE_TRIES: u32 = 15;
 const RESTORE_WAIT: Duration = Duration::from_millis(100);
 const ANSWER_TIME: Duration = Duration::from_secs(5);
-/// A copy that is still starting, or whose windows are busy, cannot come forward, but it is a copy.
-const OURS_NOT_READY: [&str; 3] = ["RustyPresenter is still starting", "The screens are not running", "The screens did not answer"];
+/// A copy that is still starting, or whose windows are busy, cannot come forward, but it is a copy. Its answer is
+/// in English or in this computer's language (the other copy's may differ only if the church chose another one).
+fn ours_not_ready() -> Vec<String> {
+    let english = ["RustyPresenter is still starting. Try again in a moment.", "The screens are not running.", "The screens did not answer in time."];
+    let here = [
+        crate::tr!("RustyPresenter is still starting. Try again in a moment."),
+        crate::tr!("The screens are not running."),
+        crate::tr!("The screens did not answer in time."),
+    ];
+    english.iter().map(|s| s.to_string()).chain(here).map(|s| json_text(&s)).collect()
+}
 
-pub fn taken_message(port: u16) -> String { format!("Port {port} is in use by another program, so RustyPresenter cannot start.") }
+/// `s` as it appears inside a JSON string, without the quotes.
+fn json_text(s: &str) -> String {
+    let q = serde_json::to_string(s).unwrap_or_default();
+    q.trim_matches('"').to_string()
+}
+
+pub fn taken_message(port: u16) -> String {
+    crate::tr!("Port {port} is in use by another program, so RustyPresenter cannot start.", port = port)
+}
 
 /// Takes the port. When it is held, asks whoever holds it to show the operator window: `Running` if
 /// that is RustyPresenter, `Taken` if not. The listener is non-blocking, ready for tokio.
@@ -34,7 +51,7 @@ pub fn focus_running(port: u16) -> Result<(), String> {
         body.len()
     );
     let answer = ask(port, &req).map_err(|_| taken_message(port))?;
-    let ok = answer.starts_with("HTTP/1.1 2") || OURS_NOT_READY.iter().any(|t| answer.contains(t));
+    let ok = answer.starts_with("HTTP/1.1 2") || ours_not_ready().iter().any(|t| answer.contains(t.as_str()));
     if ok { Ok(()) } else { Err(taken_message(port)) }
 }
 

@@ -299,7 +299,7 @@ impl VideoSurface {
                 }
                 Err(e) => {
                     eprintln!("video {} cannot be drawn: {e}", p.inst());
-                    p.fail(format!("The video cannot be shown: {e}"));
+                    p.fail(crate::tr!("The video cannot be shown: {reason}", reason = e));
                 }
             }
         }
