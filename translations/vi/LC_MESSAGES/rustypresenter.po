@@ -1,5292 +1,5303 @@
 # Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
 msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: vi\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: Tiếng Việt\nX-English-Name: Vietnamese\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
-msgstr ""
+msgstr "Tìm trong Kinh Thánh"
 
 #: ui/bible-picker.slint
 msgid "not connected"
-msgstr ""
+msgstr "chưa kết nối"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
-msgstr ""
+msgstr "Yêu thích"
 
 #: ui/bible-picker.slint
 msgid "Find more Bibles…"
-msgstr ""
+msgstr "Tìm thêm bản Kinh Thánh…"
 
 #: ui/bible-picker.slint ui/operator/topbar.slint
 msgid "Choose a Bible"
-msgstr ""
+msgstr "Chọn bản Kinh Thánh"
 
 #: ui/dialogs/add-list.slint
 msgid "Try again"
-msgstr ""
+msgstr "Thử lại"
 
 #: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
-msgstr ""
+msgstr "Sửa"
 
 #: ui/dialogs/add-list.slint src/strings/catalog.rs
 msgid "Add"
-msgstr ""
+msgstr "Thêm"
 
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
-msgstr ""
+msgstr "Chỉ tải video mà hội thánh có quyền sử dụng (của bạn, có giấy phép, hoặc Creative Commons)."
 
 #: ui/dialogs/add-media.slint
 msgid "Paste a YouTube link here"
-msgstr ""
+msgstr "Dán liên kết YouTube vào đây"
 
 #: ui/dialogs/add-media.slint
 msgid "Download"
-msgstr ""
+msgstr "Tải xuống"
 
 #: ui/dialogs/add-media.slint
 msgid "Add to service when done"
-msgstr ""
+msgstr "Thêm vào buổi lễ khi xong"
 
 #: ui/dialogs/add-media.slint
 msgid "Quality"
-msgstr ""
+msgstr "Chất lượng"
 
 #: ui/dialogs/add-media.slint
 msgid "Upload files"
-msgstr ""
+msgstr "Tải tệp lên"
 
 #: ui/dialogs/add-media.slint
 msgid "Download from YouTube"
-msgstr ""
+msgstr "Tải từ YouTube"
 
 #: ui/dialogs/add-media.slint
 msgid "Any video format works."
-msgstr ""
+msgstr "Định dạng video nào cũng được."
 
 #: ui/dialogs/add-media.slint
 msgid "Import presentation"
-msgstr ""
+msgstr "Nhập bài trình chiếu"
 
 #: ui/dialogs/add-media.slint
 msgid "Make slides from pictures"
-msgstr ""
+msgstr "Tạo trang chiếu từ hình ảnh"
 
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
-msgstr ""
+msgstr "Google Slides: trong Google Slides, chọn Tệp → Tải xuống → Microsoft PowerPoint (.pptx) hoặc PDF, rồi nhập tệp đó vào đây. Tệp Keynote và PDF cũng dùng được."
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
-msgstr ""
+msgstr "Sao chép"
 
 #: ui/dialogs/add-media.slint
 msgid "Check again"
-msgstr ""
+msgstr "Kiểm tra lại"
 
 #: ui/dialogs/add.slint src/strings/dialogs.rs
 msgid "New song"
-msgstr ""
+msgstr "Bài hát mới"
 
 #: ui/dialogs/add.slint
 msgid "Import SongSelect lyrics (.txt)"
-msgstr ""
+msgstr "Nhập lời bài hát SongSelect (.txt)"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
-msgstr ""
+msgstr "Nhập từ EasyWorship"
 
 #: ui/dialogs/add.slint
 msgid "Reference ({})"
-msgstr ""
+msgstr "Đoạn Kinh Thánh ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr ""
+msgstr "vd: John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
-msgstr ""
+msgstr "Thêm câu Kinh Thánh"
 
 #: ui/dialogs/add.slint
 msgid "Paste the verses instead"
-msgstr ""
+msgstr "Dán các câu thay vào đó"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
 msgid "Verses per slide"
-msgstr ""
+msgstr "Số câu mỗi trang"
 
 #: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
-msgstr ""
+msgstr "Tự động"
 
 #: ui/dialogs/add.slint
 msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
-msgstr ""
+msgstr "Các câu ({}) — giữ số câu để mỗi câu có trang chiếu riêng"
 
 #: ui/dialogs/add.slint
 msgid "16 For God so loved the world… 17 For God did not send…"
-msgstr ""
+msgstr "16 Vì Đức Chúa Trời yêu thương thế gian… 17 Vả, Đức Chúa Trời đã sai…"
 
 #: ui/dialogs/add.slint
 msgid "Add pasted verses"
-msgstr ""
+msgstr "Thêm các câu đã dán"
 
 #: ui/dialogs/add.slint
 msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
-msgstr ""
+msgstr "Mẹo: bạn không cần cửa sổ này. Gõ câu Kinh Thánh vào ô Kinh Thánh ở trên cùng (hoặc nhấn Ctrl+B), nhấn Enter để thêm, nhấn Enter lần nữa để chiếu."
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Title"
-msgstr ""
+msgstr "Tiêu đề"
 
 #: ui/dialogs/add.slint
 msgid "e.g. Welcome, Announcements, Offering"
-msgstr ""
+msgstr "vd: Chào mừng, Thông báo, Dâng hiến"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Text"
-msgstr ""
+msgstr "Văn bản"
 
 #: ui/dialogs/add.slint
 msgid "Type your text. Leave an empty line to start a new slide."
-msgstr ""
+msgstr "Nhập văn bản. Để một dòng trống để bắt đầu trang chiếu mới."
 
 #: ui/dialogs/add.slint
 msgid "Add announcement"
-msgstr ""
+msgstr "Thêm thông báo"
 
 #: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Song"
-msgstr ""
+msgstr "Bài hát"
 
 #: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
-msgstr ""
+msgstr "Lời bài hát"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
-msgstr ""
+msgstr "Kinh Thánh"
 
 #: ui/dialogs/add.slint
 msgid "Verses"
-msgstr ""
+msgstr "Các câu"
 
 #: ui/dialogs/add.slint
 msgid "Video & media"
-msgstr ""
+msgstr "Video & đa phương tiện"
 
 #: ui/dialogs/add.slint
 msgid "Videos, pictures, music"
-msgstr ""
+msgstr "Video, hình ảnh, nhạc"
 
 #: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Slides"
-msgstr ""
+msgstr "Trang chiếu"
 
 #: ui/dialogs/add.slint
 msgid "PowerPoint, pictures"
-msgstr ""
+msgstr "PowerPoint, hình ảnh"
 
 #: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
-msgstr ""
+msgstr "Thông báo"
 
 #: ui/dialogs/add.slint
 msgid "Your own text"
-msgstr ""
+msgstr "Văn bản của bạn"
 
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
-msgstr ""
+msgstr "Hex"
 
 #: ui/dialogs/background-picker.slint
 msgid "Pick any color"
-msgstr ""
+msgstr "Chọn màu bất kỳ"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
-msgstr ""
+msgstr "Lời, thứ tự và thông tin bản quyền thuộc về bài hát trong thư viện."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr ""
+msgstr "Lời, thứ tự và thông tin bản quyền thuộc về bài hát trong thư viện. Bài hát này đã bị xóa khỏi thư viện."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
-msgstr ""
+msgstr "Sửa bài hát"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
-msgstr ""
+msgstr "Các câu sẽ được tra lại trong bản Kinh Thánh này khi bạn lưu."
 
 #: ui/dialogs/item-edit.slint
 msgid "Also show"
-msgstr ""
+msgstr "Hiện thêm"
 
 #: ui/dialogs/item-edit.slint
 msgid "none"
-msgstr ""
+msgstr "không"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stop showing this Bible"
-msgstr ""
+msgstr "Thôi hiện bản Kinh Thánh này"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Side by side"
-msgstr ""
+msgstr "Cạnh nhau"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Top and bottom"
-msgstr ""
+msgstr "Trên và dưới"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
 msgid "Automatic"
-msgstr ""
+msgstr "Tự động"
 
 #: ui/dialogs/item-edit.slint
 msgid "1 verse"
-msgstr ""
+msgstr "1 câu"
 
 #: ui/dialogs/item-edit.slint
 msgid "2 verses"
-msgstr ""
+msgstr "2 câu"
 
 #: ui/dialogs/item-edit.slint
 msgid "3 verses"
-msgstr ""
+msgstr "3 câu"
 
 #: ui/dialogs/item-edit.slint
 msgid "4 verses"
-msgstr ""
+msgstr "4 câu"
 
 #: ui/dialogs/item-edit.slint ui/operator/slides.slint
 msgid "Text size"
-msgstr ""
+msgstr "Cỡ chữ"
 
 #: ui/dialogs/item-edit.slint
 msgid "(biggest; text shrinks automatically when a slide holds more words)"
-msgstr ""
+msgstr "(lớn nhất; chữ tự thu nhỏ khi trang chiếu có nhiều chữ hơn)"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Choose"
-msgstr ""
+msgstr "Chọn"
 
 #: ui/dialogs/item-edit.slint
 msgid "Same as Settings → Look"
-msgstr ""
+msgstr "Giống Cài đặt → Giao diện"
 
 #: ui/dialogs/item-edit.slint
 msgid "— an empty line starts a new slide"
-msgstr ""
+msgstr "— một dòng trống sẽ bắt đầu trang chiếu mới"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start playing as soon as it is shown"
-msgstr ""
+msgstr "Phát ngay khi được chiếu"
 
 #: ui/dialogs/item-edit.slint
 msgid "When the video ends"
-msgstr ""
+msgstr "Khi video kết thúc"
 
 #: ui/dialogs/item-edit.slint
 msgid "Clear the screen"
-msgstr ""
+msgstr "Xóa màn hình"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stay on last frame"
-msgstr ""
+msgstr "Dừng ở khung hình cuối"
 
 #: ui/dialogs/item-edit.slint
 msgid "Play again (loop)"
-msgstr ""
+msgstr "Phát lại (lặp)"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
-msgstr ""
+msgstr "Lặp đến khi dừng"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
-msgstr ""
+msgstr "Âm thanh vẫn phát khi bạn chuyển trang chiếu. Dừng bằng Xóa âm thanh (F4) hoặc Xóa tất cả."
 
 #: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
 msgid "Name"
-msgstr ""
+msgstr "Tên"
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
-msgstr ""
+msgstr "Tên trong thư viện"
 
 #: ui/dialogs/item-edit.slint src/strings/themes.rs
 msgid "Background"
-msgstr ""
+msgstr "Nền"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
-msgstr ""
+msgstr "Ghi chú sân khấu"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage display only"
-msgstr ""
+msgstr "Chỉ hiện trên màn hình sân khấu"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Remove from service"
-msgstr ""
+msgstr "Gỡ khỏi buổi lễ"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
-msgstr ""
+msgstr "Hủy"
 
 #: ui/dialogs/item-edit.slint
 msgid "Save"
-msgstr ""
+msgstr "Lưu"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr ""
+msgstr "Điều khiển trang chiếu từ bất kỳ điện thoại nào dùng Wi-Fi của hội thánh. Điện thoại phải cùng mạng với máy tính này."
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
-msgstr ""
+msgstr " (Không tìm thấy mạng — hãy kết nối máy tính này với Wi-Fi.)"
 
 #: ui/dialogs/phone.slint
 msgid "Address: "
-msgstr ""
+msgstr "Địa chỉ: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
 msgid "Pair a phone"
-msgstr ""
+msgstr "Ghép nối điện thoại"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
-msgstr ""
+msgstr "Mã QR"
 
 #: ui/dialogs/phone.slint
 msgid "Scan this with your phone's camera. That's it."
-msgstr ""
+msgstr "Quét mã này bằng camera điện thoại. Vậy là xong."
 
 #: ui/dialogs/phone.slint
 msgid "Or open {} and type"
-msgstr ""
+msgstr "Hoặc mở {} và nhập"
 
 #: ui/dialogs/phone.slint
 msgid "1. On the phone, open the camera and scan the code (or type the address)."
-msgstr ""
+msgstr "1. Trên điện thoại, mở camera và quét mã (hoặc nhập địa chỉ)."
 
 #: ui/dialogs/phone.slint
 msgid "2. Enter this code on the phone:"
-msgstr ""
+msgstr "2. Nhập mã này trên điện thoại:"
 
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
-msgstr ""
+msgstr "Điện thoại đã ghép nối"
 
 #: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
 msgid "Remove"
-msgstr ""
+msgstr "Gỡ bỏ"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
-msgstr ""
+msgstr "Chưa có."
 
 #: ui/dialogs/print.slint
 msgid "What to print"
-msgstr ""
+msgstr "In nội dung gì"
 
 #: ui/dialogs/print.slint src/strings/print.rs
 msgid "Service order"
-msgstr ""
+msgstr "Thứ tự buổi lễ"
 
 #: ui/dialogs/print.slint
 msgid "Both"
-msgstr ""
+msgstr "Cả hai"
 
 #: ui/dialogs/print.slint
 msgid "Options"
-msgstr ""
+msgstr "Tùy chọn"
 
 #: ui/dialogs/print.slint
 msgid "Include item notes"
-msgstr ""
+msgstr "Kèm ghi chú mục"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible readings with the lyrics"
-msgstr ""
+msgstr "Kèm phần đọc Kinh Thánh với lời bài hát"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
-msgstr ""
+msgstr "Mỗi bài hát bắt đầu ở trang mới"
 
 #: ui/dialogs/print.slint
 msgid "Paper"
-msgstr ""
+msgstr "Khổ giấy"
 
 #: ui/dialogs/print.slint
 msgid "Letter"
-msgstr ""
+msgstr "Letter"
 
 #: ui/dialogs/print.slint
 msgid "A4"
-msgstr ""
+msgstr "A4"
 
 #: ui/dialogs/print.slint ui/dialogs/services.slint
 msgid "Print…"
-msgstr ""
+msgstr "In…"
 
 #: ui/dialogs/print.slint
 msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
-msgstr ""
+msgstr "Mở trang trong trình duyệt web, nơi bạn có thể in hoặc lưu thành PDF"
 
 #: ui/dialogs/print.slint
 msgid "Save web page…"
-msgstr ""
+msgstr "Lưu trang web…"
 
 #: ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
-msgstr ""
+msgstr "Đóng"
 
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
-msgstr ""
+msgstr "Thêm màn hình vào {}"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
-msgstr ""
+msgstr "Đầu ra"
 
 #: ui/dialogs/screens.slint
 msgid "Size"
-msgstr ""
+msgstr "Kích thước"
 
 #: ui/dialogs/screens.slint
 msgid "Width"
-msgstr ""
+msgstr "Rộng"
 
 #: ui/dialogs/screens.slint
 msgid "Height"
-msgstr ""
+msgstr "Cao"
 
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
-msgstr ""
+msgstr "Tỷ lệ khung hình: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
-msgstr ""
+msgstr "Chỉ có một màn hình được kết nối. Hãy cắm máy chiếu/TV (và đặt Windows ở chế độ “Mở rộng các màn hình này” bằng Win+P), rồi bấm Làm mới."
 
 #: ui/dialogs/screens.slint
 msgid "Remove this screen"
-msgstr ""
+msgstr "Gỡ màn hình này"
 
 #: ui/dialogs/screens.slint
 msgid "Identify"
-msgstr ""
+msgstr "Nhận dạng"
 
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
-msgstr ""
+msgstr "Hiện số của từng màn hình trên đó trong vài giây"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
-msgstr ""
+msgstr "Làm mới"
 
 #: ui/dialogs/services.slint
 msgid "Copy last week"
-msgstr ""
+msgstr "Chép tuần trước"
 
 #: ui/dialogs/services.slint
 msgid "Make next week's service from the last one"
-msgstr ""
+msgstr "Tạo buổi lễ tuần tới từ buổi lễ trước"
 
 #: ui/dialogs/services.slint
 msgid "New from template…"
-msgstr ""
+msgstr "Mới từ mẫu…"
 
 #: ui/dialogs/services.slint
 msgid "New empty service"
-msgstr ""
+msgstr "Buổi lễ trống mới"
 
 #: ui/dialogs/services.slint
 msgid "Copy this service"
-msgstr ""
+msgstr "Sao chép buổi lễ này"
 
 #: ui/dialogs/services.slint
 msgid "Save to file"
-msgstr ""
+msgstr "Lưu ra tệp"
 
 #: ui/dialogs/services.slint
 msgid "Save the open service and all its files, to move it to another computer"
-msgstr ""
+msgstr "Lưu buổi lễ đang mở cùng mọi tệp của nó, để chuyển sang máy tính khác"
 
 #: ui/dialogs/services.slint
 msgid "Open from file"
-msgstr ""
+msgstr "Mở từ tệp"
 
 #: ui/dialogs/services.slint
 msgid "Open"
-msgstr ""
+msgstr "Mở"
 
 #: ui/dialogs/services.slint
 msgid "Rename"
-msgstr ""
+msgstr "Đổi tên"
 
 #: ui/dialogs/services.slint
 msgid "Date…"
-msgstr ""
+msgstr "Ngày…"
 
 #: ui/dialogs/services.slint
 msgid "Print the order of service and the lyrics, or save them as a web page"
-msgstr ""
+msgstr "In thứ tự buổi lễ và lời bài hát, hoặc lưu thành trang web"
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
-msgstr ""
+msgstr "Lưu làm mẫu"
 
 #: ui/dialogs/services.slint
 msgid "Delete"
-msgstr ""
+msgstr "Xóa"
 
 #: ui/dialogs/services.slint
 msgid "Templates"
-msgstr ""
+msgstr "Mẫu"
 
 #: ui/dialogs/services.slint
 msgid "Make a service"
-msgstr ""
+msgstr "Tạo buổi lễ"
 
 #: ui/dialogs/services.slint
 msgid "Day…"
-msgstr ""
+msgstr "Ngày…"
 
 #: ui/dialogs/settings-about.slint
 msgid "Your data:"
-msgstr ""
+msgstr "Dữ liệu của bạn:"
 
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
-msgstr ""
+msgstr "Xem giấy phép"
 
 #: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
-msgstr ""
+msgstr "Quay lại"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
 msgid "Default Bible"
-msgstr ""
+msgstr "Kinh Thánh mặc định"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Also show with every new passage"
-msgstr ""
+msgstr "Hiện kèm với mỗi phân đoạn mới"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
-msgstr ""
+msgstr "Chọn tối đa hai. Mỗi trang chiếu sẽ hiện cùng các câu từ mọi bản Kinh Thánh."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Add Bibles"
-msgstr ""
+msgstr "Thêm Kinh Thánh"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
-msgstr ""
+msgstr "Tìm theo tên, tên viết tắt hoặc ngôn ngữ"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Installed"
-msgstr ""
+msgstr "Đã cài"
 
 #: ui/dialogs/settings-bible.slint ui/operator/media.slint
 msgid "All"
-msgstr ""
+msgstr "Tất cả"
 
 #: ui/dialogs/settings-bible.slint
 msgid "KJV, WEB and BSB are built in and work offline."
-msgstr ""
+msgstr "KJV, WEB và BSB có sẵn và dùng được khi không có mạng."
 
 #: ui/dialogs/settings-bible.slint
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
-msgstr ""
+msgstr "Các bản khác có bản quyền: hãy kết nối dịch vụ miễn phí của nhà xuất bản bằng một khóa mà hội thánh tạo một lần. Các phân đoạn bạn thêm vào buổi lễ được lưu cùng buổi lễ, nên vẫn hiện được khi mất mạng."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Translations"
-msgstr ""
+msgstr "Bản dịch"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Online services"
-msgstr ""
+msgstr "Dịch vụ trực tuyến"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Connected"
-msgstr ""
+msgstr "Đã kết nối"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Not connected"
-msgstr ""
+msgstr "Chưa kết nối"
 
 #: ui/dialogs/settings-bible.slint
 msgid "1. Sign up free at"
-msgstr ""
+msgstr "1. Đăng ký miễn phí tại"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Copy link"
-msgstr ""
+msgstr "Chép liên kết"
 
 #: ui/dialogs/settings-bible.slint
 msgid "2. {}"
-msgstr ""
+msgstr "2. {}"
 
 #: ui/dialogs/settings-bible.slint
 msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
-msgstr ""
+msgstr "3. Dán khóa vào đây. RustyPresenter kiểm tra bằng một lần tra cứu, rồi chỉ lưu khóa trên máy tính này."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Key saved — paste a new one to replace it"
-msgstr ""
+msgstr "Đã lưu khóa — dán khóa mới để thay thế"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Paste the key here"
-msgstr ""
+msgstr "Dán khóa vào đây"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Save key"
-msgstr ""
+msgstr "Lưu khóa"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Disconnect"
-msgstr ""
+msgstr "Ngắt kết nối"
 
 #: ui/dialogs/settings-bible.slint src/strings/operator.rs
 msgid "Bible files"
-msgstr ""
+msgstr "Tệp Kinh Thánh"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
-msgstr ""
+msgstr "Nhập tệp Zefania, OSIS, USX hoặc OpenSong (.xml hoặc .usx). Chỉ nhập các bản Kinh Thánh thuộc phạm vi công cộng hoặc hội thánh được cấp phép sử dụng. Đặt tên viết tắt của một bản dịch ở trên (như HCSB) để dùng tệp cho bản dịch đó."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Short name, e.g. HCSB (optional)"
-msgstr ""
+msgstr "Tên viết tắt, vd: HCSB (không bắt buộc)"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Bible file"
-msgstr ""
+msgstr "Nhập tệp Kinh Thánh"
 
 #: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
 msgid "Credits"
-msgstr ""
+msgstr "Ghi công"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
-msgstr ""
+msgstr "Đang dùng"
 
 #: ui/dialogs/settings-language.slint
 msgid "Use"
-msgstr ""
+msgstr "Dùng"
 
 #: ui/dialogs/settings-language.slint
 msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
-msgstr ""
+msgstr "Các bản dịch do tình nguyện viên thực hiện. Nếu thiếu ngôn ngữ của bạn hoặc có lỗi, bạn có thể giúp."
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
-msgstr ""
+msgstr "Giúp dịch RustyPresenter"
 
 #: ui/dialogs/settings-look.slint
 msgid "Font"
-msgstr ""
+msgstr "Phông chữ"
 
 #: ui/dialogs/settings-look.slint
 msgid "Lyrics size"
-msgstr ""
+msgstr "Cỡ chữ lời hát"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest; long lines shrink to fit)"
-msgstr ""
+msgstr "(lớn nhất; dòng dài sẽ thu nhỏ cho vừa)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Bible verses"
-msgstr ""
+msgstr "Câu Kinh Thánh"
 
 #: ui/dialogs/settings-look.slint
 msgid "(for new passages)"
-msgstr ""
+msgstr "(cho phân đoạn mới)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Scripture text size"
-msgstr ""
+msgstr "Cỡ chữ Kinh Thánh"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest)"
-msgstr ""
+msgstr "(lớn nhất)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text shrinks automatically when a slide holds more words."
-msgstr ""
+msgstr "Chữ tự thu nhỏ khi trang chiếu có nhiều chữ hơn."
 
 #: ui/dialogs/settings-look.slint
 msgid "Text color"
-msgstr ""
+msgstr "Màu chữ"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text position"
-msgstr ""
+msgstr "Vị trí chữ"
 
 #: ui/dialogs/settings-look.slint
 msgid "Middle"
-msgstr ""
+msgstr "Giữa"
 
 #: ui/dialogs/settings-look.slint src/strings/themes.rs
 msgid "Lower third"
-msgstr ""
+msgstr "Phần ba dưới"
 
 #: ui/dialogs/settings-look.slint
 msgid "Shadow behind text (easier to read on pictures)"
-msgstr ""
+msgstr "Đổ bóng sau chữ (dễ đọc hơn trên hình)"
 
 #: ui/dialogs/settings-look.slint
 msgid "ALL CAPS lyrics"
-msgstr ""
+msgstr "Lời hát IN HOA"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: ui/dialogs/settings-look.slint
 msgid "No logo (Logo button shows black)"
-msgstr ""
+msgstr "Không có logo (nút Logo hiện màn đen)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Choose logo"
-msgstr ""
+msgstr "Chọn logo"
 
 #: ui/dialogs/settings-look.slint
 msgid "Preview"
-msgstr ""
+msgstr "Xem trước"
 
 #: ui/dialogs/settings-look.slint
 msgid "Default background"
-msgstr ""
+msgstr "Nền mặc định"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
-msgstr ""
+msgstr "Mọi ngôn ngữ"
 
 #: ui/dialogs/settings.slint
 msgid "Lines per slide"
-msgstr ""
+msgstr "Số dòng mỗi trang"
 
 #: ui/dialogs/settings.slint
 msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr ""
+msgstr "Bài hát và phân đoạn Kinh Thánh. Một số bản Kinh Thánh yêu cầu hiện ghi công; dòng này xuất hiện một lần mỗi phân đoạn."
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
-msgstr ""
+msgstr "Ở trang đầu"
 
 #: ui/dialogs/settings.slint
 msgid "On last slide"
-msgstr ""
+msgstr "Ở trang cuối"
 
 #: ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
-msgstr ""
+msgstr "Tắt"
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
-msgstr ""
+msgstr "Số giấy phép CCLI của hội thánh"
 
 #: ui/dialogs/settings.slint
 msgid "Section keys (C, B, 1–9…)"
-msgstr ""
+msgstr "Phím đoạn (C, B, 1–9…)"
 
 #: ui/dialogs/settings.slint
 msgid "Turn off if letters typed by mistake move the screen."
-msgstr ""
+msgstr "Tắt nếu gõ nhầm chữ làm màn hình bị chuyển."
 
 #: ui/dialogs/settings.slint
 msgid "Letters and numbers jump the live song to a section"
-msgstr ""
+msgstr "Chữ cái và số đưa bài hát đang chiếu tới một đoạn"
 
 #: ui/dialogs/settings.slint
 msgid "Song use report…"
-msgstr ""
+msgstr "Báo cáo sử dụng bài hát…"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
-msgstr ""
+msgstr "Phát âm thanh ra"
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
-msgstr ""
+msgstr "Màn hình hội trường"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
-msgstr ""
+msgstr "Giữ màn hình hội trường ở trên cùng khi có màn hình riêng (chuyển mờ mượt hơn)"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr ""
+msgstr "Bản sao lưu đầy đủ (bài hát, buổi lễ, cài đặt và mọi video, hình ảnh, trang chiếu) được tạo mỗi lần RustyPresenter khởi động và mỗi ngày một lần. 10 bản gần nhất được giữ trong"
 
 #: ui/dialogs/settings.slint
 msgid "Back up now"
-msgstr ""
+msgstr "Sao lưu ngay"
 
 #: ui/dialogs/settings.slint
 msgid "Restore"
-msgstr ""
+msgstr "Khôi phục"
 
 #: ui/dialogs/settings.slint
 msgid "No backups yet."
-msgstr ""
+msgstr "Chưa có bản sao lưu."
 
 #: ui/dialogs/settings.slint
 msgid "Keyboard"
-msgstr ""
+msgstr "Bàn phím"
 
 #: ui/dialogs/settings.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr ""
+msgstr "Mẹo: bấm vào trang chiếu nào thì trang đó lên màn hình ngay. Viền đỏ cho biết hội trường đang thấy gì."
 
 #: ui/dialogs/settings.slint
 msgid "Look"
-msgstr ""
+msgstr "Giao diện"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
-msgstr ""
+msgstr "Ngôn ngữ"
 
 #: ui/dialogs/settings.slint
 msgid "Songs"
-msgstr ""
+msgstr "Bài hát"
 
 #: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 #: ui/dialogs/settings.slint
 msgid "Backups"
-msgstr ""
+msgstr "Sao lưu"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Help"
-msgstr ""
+msgstr "Trợ giúp"
 
 #: ui/dialogs/settings.slint
 msgid "About"
-msgstr ""
+msgstr "Giới thiệu"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
-msgstr ""
+msgstr "Lưu cài đặt"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
-msgstr ""
+msgstr "Bài hát này đang trên màn hình. Màn hình không thay đổi cho đến khi bạn chọn Lưu và chiếu ngay hoặc Cập nhật màn hình."
 
 #: ui/dialogs/song-editor.slint
 msgid "Amazing Grace (My Chains Are Gone)"
-msgstr ""
+msgstr "Ân Điển Diệu Kỳ"
 
 #: ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Writers"
-msgstr ""
+msgstr "Tác giả"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
-msgstr ""
+msgstr "Số bài hát CCLI"
 
 #: ui/dialogs/song-editor.slint
 msgid "4768151"
-msgstr ""
+msgstr "4768151"
 
 #: ui/dialogs/song-editor.slint
 msgid "Copyright"
-msgstr ""
+msgstr "Bản quyền"
 
 #: ui/dialogs/song-editor.slint
 msgid "© 2006 …"
-msgstr ""
+msgstr "© 2006 …"
 
 #: ui/dialogs/song-editor.slint
 msgid "— section names on their own line; an empty line inside a section starts a new slide"
-msgstr ""
+msgstr "— tên đoạn nằm trên một dòng riêng; một dòng trống trong đoạn sẽ bắt đầu trang chiếu mới"
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr ""
+msgstr "Verse 1\nÂn điển diệu kỳ ngọt ngào thay\nĐã cứu kẻ khốn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
-msgstr ""
+msgstr "Thứ tự"
 
 #: ui/dialogs/song-editor.slint
 msgid "(optional)"
-msgstr ""
+msgstr "(không bắt buộc)"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Not in the lyrics — it is skipped"
-msgstr ""
+msgstr "Không có trong lời — sẽ bị bỏ qua"
 
 #: ui/dialogs/song-editor.slint
 msgid "End"
-msgstr ""
+msgstr "Kết"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Written order — drag to change"
-msgstr ""
+msgstr "Thứ tự như đã viết — kéo để đổi"
 
 #: ui/dialogs/song-editor.slint
 msgid "⟲ Use written order"
-msgstr ""
+msgstr "⟲ Dùng thứ tự đã viết"
 
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
-msgstr ""
+msgstr "Để trống để dùng thứ tự đã viết"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
-msgstr ""
+msgstr "Trang chiếu hiện ở đây khi bạn gõ. Đặt tên đoạn như “Verse 1” hoặc “Chorus” trên một dòng riêng."
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
-msgstr ""
+msgstr "Xóa bài hát"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and add to service"
-msgstr ""
+msgstr "Lưu và thêm vào buổi lễ"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
-msgstr ""
+msgstr "Lưu bài hát"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
-msgstr ""
+msgstr "Lưu và chiếu ngay"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
-msgstr ""
+msgstr "Ghi nhật ký sử dụng bài hát để báo cáo CCLI"
 
 #: ui/dialogs/usage.slint
 msgid "From"
-msgstr ""
+msgstr "Từ"
 
 #: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
-msgstr ""
+msgstr "YYYY-MM-DD"
 
 #: ui/dialogs/usage.slint
 msgid "To"
-msgstr ""
+msgstr "Đến"
 
 #: ui/dialogs/usage.slint
 msgid "Since last report"
-msgstr ""
+msgstr "Từ lần báo cáo trước"
 
 #: ui/dialogs/usage.slint
 msgid "Last 3 months"
-msgstr ""
+msgstr "3 tháng qua"
 
 #: ui/dialogs/usage.slint
 msgid "Last 6 months"
-msgstr ""
+msgstr "6 tháng qua"
 
 #: ui/dialogs/usage.slint
 msgid "This year"
-msgstr ""
+msgstr "Năm nay"
 
 #: ui/dialogs/usage.slint
 msgid "Include songs without a CCLI number"
-msgstr ""
+msgstr "Gồm cả bài hát không có số CCLI"
 
 #: ui/dialogs/usage.slint
 msgid "Public domain songs don't need reporting."
-msgstr ""
+msgstr "Bài hát thuộc phạm vi công cộng không cần báo cáo."
 
 #: ui/dialogs/usage.slint
 msgid "CCLI #"
-msgstr ""
+msgstr "Số CCLI"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times shown"
-msgstr ""
+msgstr "Số lần chiếu"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times streamed"
-msgstr ""
+msgstr "Số lần phát trực tuyến"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Last used"
-msgstr ""
+msgstr "Dùng lần cuối"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "No songs in these dates."
-msgstr ""
+msgstr "Không có bài hát nào trong khoảng ngày này."
 
 #: ui/dialogs/usage.slint
 msgid "Details ({})"
-msgstr ""
+msgstr "Chi tiết ({})"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "streamed"
-msgstr ""
+msgstr "phát trực tuyến"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
-msgstr ""
+msgstr "Nhập các số này trên trang báo cáo của CCLI: lượt chiếu ghi vào mục “Digital”, lượt phát trực tuyến ghi vào Streaming License. “Phát trực tuyến” nghĩa là có trang hoặc cửa sổ livestream đang mở, không có nghĩa là bạn đang lên sóng."
 
 #: ui/dialogs/usage.slint
 msgid "Open printable page"
-msgstr ""
+msgstr "Mở trang để in"
 
 #: ui/dialogs/usage.slint
 msgid "Save as spreadsheet (CSV)…"
-msgstr ""
+msgstr "Lưu thành bảng tính (CSV)…"
 
 #: ui/identify.slint
 msgid "Identify screen"
-msgstr ""
+msgstr "Nhận dạng màn hình"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
-msgstr ""
+msgstr "—"
 
 #: ui/operator/live.slint ui/operator/slides.slint
 msgid "LIVE"
-msgstr ""
+msgstr "ĐANG CHIẾU"
 
 #: ui/operator/live.slint
 msgid "updating…"
-msgstr ""
+msgstr "đang cập nhật…"
 
 #: ui/operator/live.slint
 msgid "Edit words"
-msgstr ""
+msgstr "Sửa lời"
 
 #: ui/operator/live.slint
 msgid "Fix the words of the live song. The screen changes only when you say so."
-msgstr ""
+msgstr "Sửa lời bài hát đang chiếu. Màn hình chỉ thay đổi khi bạn cho phép."
 
 #: ui/operator/live.slint
 msgid "Update screen"
-msgstr ""
+msgstr "Cập nhật màn hình"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
-msgstr ""
+msgstr "Lùi (← hoặc Page Up)"
 
 #: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Next"
-msgstr ""
+msgstr "Tiếp"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
-msgstr ""
+msgstr "Tiếp (→, Space hoặc Page Down)"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Up next"
-msgstr ""
+msgstr "Kế tiếp"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
-msgstr ""
+msgstr "Xóa tất cả"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
 msgid "Media"
-msgstr ""
+msgstr "Đa phương tiện"
 
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
 msgid "Audio"
-msgstr ""
+msgstr "Âm thanh"
 
 #: ui/operator/live_controls.slint
 msgid "Play"
-msgstr ""
+msgstr "Phát"
 
 #: ui/operator/live_controls.slint
 msgid "Pause"
-msgstr ""
+msgstr "Tạm dừng"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
-msgstr ""
+msgstr "TRÊN MÀN HÌNH"
 
 #: ui/operator/media.slint
 msgid "Media library"
-msgstr ""
+msgstr "Thư viện đa phương tiện"
 
 #: ui/operator/media.slint
 msgid "Videos"
-msgstr ""
+msgstr "Video"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Pictures"
-msgstr ""
+msgstr "Hình ảnh"
 
 #: ui/operator/media.slint
 msgid "Search media"
-msgstr ""
+msgstr "Tìm tệp đa phương tiện"
 
 #: ui/operator/media.slint
 msgid "Smaller thumbnails"
-msgstr ""
+msgstr "Hình thu nhỏ nhỏ hơn"
 
 #: ui/operator/media.slint
 msgid "Bigger thumbnails"
-msgstr ""
+msgstr "Hình thu nhỏ lớn hơn"
 
 #: ui/operator/media.slint
 msgid "Import"
-msgstr ""
+msgstr "Nhập"
 
 #: ui/operator/media.slint
 msgid "New folder"
-msgstr ""
+msgstr "Thư mục mới"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Delete folder"
-msgstr ""
+msgstr "Xóa thư mục"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr ""
+msgstr "Chưa có gì ở đây. Bấm Nhập, hoặc thử thư mục hay từ khóa khác."
 
 #: ui/operator/media.slint
 msgid "Pick a file"
-msgstr ""
+msgstr "Chọn tệp"
 
 #: ui/operator/media.slint
 msgid "Use as background"
-msgstr ""
+msgstr "Dùng làm nền"
 
 #: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
-msgstr ""
+msgstr "Thêm vào buổi lễ"
 
 #: ui/operator/media.slint
 msgid "Move to folder"
-msgstr ""
+msgstr "Chuyển vào thư mục"
 
 #: ui/operator/monitor.slint
 msgid "Room screen is off"
-msgstr ""
+msgstr "Màn hình hội trường đang tắt"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
-msgstr ""
+msgstr "Thả để thêm vào buổi lễ"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
-msgstr ""
+msgstr "Video, hình ảnh, nhạc, bài trình chiếu (PowerPoint, Keynote, PDF), tệp lời hát SongSelect"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Service"
-msgstr ""
+msgstr "Buổi lễ"
 
 #: ui/operator/service.slint
 msgid "Add a header"
-msgstr ""
+msgstr "Thêm tiêu đề mục"
 
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
-msgstr ""
+msgstr "Thêm tiêu đề có màu vào danh sách buổi lễ, như “Thờ phượng” hoặc “Sứ điệp”"
 
 #: ui/operator/service.slint
 msgid "Check"
-msgstr ""
+msgstr "Kiểm tra"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
-msgstr ""
+msgstr "Trước buổi lễ: đã đủ bài hát, tệp và màn hình chưa?"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
-msgstr ""
+msgstr "Chọn nội dung cho chỗ này"
 
 #: ui/operator/service.slint
 msgid "Change colour"
-msgstr ""
+msgstr "Đổi màu"
 
 #: ui/operator/service.slint
 msgid "Your service is empty"
-msgstr ""
+msgstr "Buổi lễ của bạn đang trống"
 
 #: ui/operator/service.slint
 msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "Bấm “Thêm vào buổi lễ” bên dưới, gõ câu Kinh Thánh ở trên cùng, hoặc kéo tệp vào cửa sổ này."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
-msgstr ""
+msgstr "Cùng soạn buổi lễ Chúa nhật này"
 
 #: ui/operator/slides.slint
 msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
-msgstr ""
+msgstr "Mọi thứ bạn thêm sẽ hiện ở bên trái. Bấm vào trang chiếu để đưa lên màn hình."
 
 #: ui/operator/slides.slint
 msgid "Click “Screens” and choose the projector or TV."
-msgstr ""
+msgstr "Bấm “Màn hình” và chọn máy chiếu hoặc TV."
 
 #: ui/operator/slides.slint
 msgid "Click “Add to service” for songs, videos and slides — or drag files in."
-msgstr ""
+msgstr "Bấm “Thêm vào buổi lễ” để thêm bài hát, video và trang chiếu — hoặc kéo tệp vào."
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr ""
+msgstr "Gõ câu như “John 3:16” vào ô Kinh Thánh rồi nhấn Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
-msgstr ""
+msgstr "Trong buổi lễ, dùng nút Tiếp lớn (hoặc phím →)."
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
-msgstr ""
+msgstr "Chưa chọn gì"
 
 #: ui/operator/slides.slint
 msgid "A−"
-msgstr ""
+msgstr "A−"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
-msgstr ""
+msgstr "Chữ nhỏ hơn cho phân đoạn này"
 
 #: ui/operator/slides.slint
 msgid "A+"
-msgstr ""
+msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
-msgstr ""
+msgstr "Chữ lớn hơn cho phân đoạn này"
 
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
-msgstr ""
+msgstr "Về cỡ chữ trong Cài đặt"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
-msgstr ""
+msgstr "Chọn một mục trong danh sách buổi lễ."
 
 #: ui/operator/slides.slint
 msgid "Nothing to show"
-msgstr ""
+msgstr "Không có gì để chiếu"
 
 #: ui/operator/slides.slint
 msgid "This item has no slides yet. Click Edit to add some."
-msgstr ""
+msgstr "Mục này chưa có trang chiếu. Bấm Sửa để thêm."
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
-msgstr ""
+msgstr "RustyPresenter"
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
-msgstr ""
+msgstr "Chuyển hoặc tạo buổi lễ"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr ""
+msgstr "Câu Kinh Thánh — gõ John 3:16 rồi nhấn Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr ""
+msgstr "{} chưa được kết nối (Cài đặt → Kinh Thánh). Bạn vẫn có thể dán các câu bằng Thêm → Kinh Thánh."
 
 #: ui/operator/topbar.slint
 msgid "Verses per slide for the next passage. Click to change."
-msgstr ""
+msgstr "Số câu mỗi trang cho phân đoạn tiếp theo. Bấm để đổi."
 
 #: ui/operator/topbar.slint
 msgid "Verses: {}"
-msgstr ""
+msgstr "Số câu: {}"
 
 #: ui/operator/topbar.slint
 msgid "Ctrl B"
-msgstr ""
+msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint
 msgid "Room"
-msgstr ""
+msgstr "Hội trường"
 
 #: ui/operator/topbar.slint src/strings/screens.rs
 msgid "Stage"
-msgstr ""
+msgstr "Sân khấu"
 
 #: ui/operator/topbar.slint
 msgid "Stage display"
-msgstr ""
+msgstr "Màn hình sân khấu"
 
 #: ui/operator/topbar.slint
 msgid "Phone remotes connected"
-msgstr ""
+msgstr "Điện thoại điều khiển đã kết nối"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
-msgstr ""
+msgstr "Hiện tin nhắn trên màn hình sân khấu"
 
 #: ui/operator/topbar.slint
 msgid "Screens"
-msgstr ""
+msgstr "Màn hình"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
-msgstr ""
+msgstr "Điện thoại"
 
 #: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Settings"
-msgstr ""
+msgstr "Cài đặt"
 
 #: ui/operator.slint
 msgid "File"
-msgstr ""
+msgstr "Tệp"
 
 #: ui/operator.slint
 msgid "New service…"
-msgstr ""
+msgstr "Buổi lễ mới…"
 
 #: ui/operator.slint
 msgid "Services…"
-msgstr ""
+msgstr "Các buổi lễ…"
 
 #: ui/operator.slint
 msgid "Open a service file…"
-msgstr ""
+msgstr "Mở tệp buổi lễ…"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
-msgstr ""
+msgstr "Lưu buổi lễ này ra tệp…"
 
 #: ui/operator.slint
 msgid "Song…"
-msgstr ""
+msgstr "Bài hát…"
 
 #: ui/operator.slint
 msgid "Bible passage…"
-msgstr ""
+msgstr "Phân đoạn Kinh Thánh…"
 
 #: ui/operator.slint
 msgid "Video & media…"
-msgstr ""
+msgstr "Video & đa phương tiện…"
 
 #: ui/operator.slint
 msgid "Slides…"
-msgstr ""
+msgstr "Trang chiếu…"
 
 #: ui/operator.slint
 msgid "Announcement…"
-msgstr ""
+msgstr "Thông báo…"
 
 #: ui/operator.slint
 msgid "Import media…"
-msgstr ""
+msgstr "Nhập tệp đa phương tiện…"
 
 #: ui/operator.slint
 msgid "Exit"
-msgstr ""
+msgstr "Thoát"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
-msgstr ""
+msgstr "Sửa mục đã chọn…"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Bible box"
-msgstr ""
+msgstr "Ô Kinh Thánh"
 
 #: ui/operator.slint
 msgid "View"
-msgstr ""
+msgstr "Xem"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear all"
-msgstr ""
+msgstr "Xóa tất cả"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear text"
-msgstr ""
+msgstr "Xóa chữ"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear media & background"
-msgstr ""
+msgstr "Xóa đa phương tiện & nền"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Stop audio"
-msgstr ""
+msgstr "Dừng âm thanh"
 
 #: ui/operator.slint
 msgid "Hide media library"
-msgstr ""
+msgstr "Ẩn thư viện đa phương tiện"
 
 #: ui/operator.slint
 msgid "Show media library"
-msgstr ""
+msgstr "Hiện thư viện đa phương tiện"
 
 #: ui/operator.slint
 msgid "Window"
-msgstr ""
+msgstr "Cửa sổ"
 
 #: ui/operator.slint
 msgid "Screens…"
-msgstr ""
+msgstr "Màn hình…"
 
 #: ui/operator.slint
 msgid "Phone remote…"
-msgstr ""
+msgstr "Điều khiển bằng điện thoại…"
 
 #: ui/operator.slint
 msgid "Stage message…"
-msgstr ""
+msgstr "Tin nhắn sân khấu…"
 
 #: ui/operator.slint
 msgid "Settings…"
-msgstr ""
+msgstr "Cài đặt…"
 
 #: ui/operator.slint
 msgid "Songs…"
-msgstr ""
+msgstr "Bài hát…"
 
 #: ui/operator.slint
 msgid "Bible…"
-msgstr ""
+msgstr "Kinh Thánh…"
 
 #: ui/operator.slint
 msgid "Video…"
-msgstr ""
+msgstr "Video…"
 
 #: ui/operator.slint
 msgid "Backups…"
-msgstr ""
+msgstr "Sao lưu…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Phím tắt"
 
 #: ui/operator.slint
 msgid "Check the service"
-msgstr ""
+msgstr "Kiểm tra buổi lễ"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
-msgstr ""
+msgstr "Giới thiệu RustyPresenter"
 
 #: ui/room.slint
 msgid "RustyPresenter — Room"
-msgstr ""
+msgstr "RustyPresenter — Hội trường"
 
 #: ui/stage.slint
 msgid "RustyPresenter — Stage"
-msgstr ""
+msgstr "RustyPresenter — Sân khấu"
 
 #: ui/stage.slint
 msgid "Waiting for the service…"
-msgstr ""
+msgstr "Đang chờ buổi lễ…"
 
 #: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
 msgid "End of service"
-msgstr ""
+msgstr "Kết thúc buổi lễ"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
-msgstr ""
+msgstr "TIẾP THEO"
 
 #: ui/widgets.slint
 msgid "Cut"
-msgstr ""
+msgstr "Cắt"
 
 #: ui/widgets.slint
 msgid "Paste"
-msgstr ""
+msgstr "Dán"
 
 #: ui/widgets.slint
 msgid "Select all"
-msgstr ""
+msgstr "Chọn tất cả"
 
 #: src/app.rs
 msgid "Could not save: {error}"
-msgstr ""
+msgstr "Không lưu được: {error}"
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "Màn hình hội trường đã khởi động lại. Video/âm thanh đã dừng — bấm lại để phát lại."
 
 #: src/app.rs
 msgid "The room screen restarted."
-msgstr ""
+msgstr "Màn hình hội trường đã khởi động lại."
 
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
-msgstr ""
+msgstr "RustyPresenter vẫn đang khởi động. Hãy thử lại sau giây lát."
 
 #: src/app.rs
 msgid "This computer"
-msgstr ""
+msgstr "Máy tính này"
 
 #: src/app.rs
 msgid "Not used"
-msgstr ""
+msgstr "Không dùng"
 
 #: src/app.rs
 msgid "{name} — built in, public domain"
-msgstr ""
+msgstr "{name} — có sẵn, phạm vi công cộng"
 
 #: src/app.rs
 msgid "{name} — imported file"
-msgstr ""
+msgstr "{name} — tệp đã nhập"
 
 #: src/app.rs
 msgid "Give the song a title."
-msgstr ""
+msgstr "Hãy đặt tên cho bài hát."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
-msgstr ""
+msgstr "Bài hát này đang có trong một buổi lễ. Hãy gỡ khỏi buổi lễ trước."
 
 #: src/app.rs
 msgid "No service is open."
-msgstr ""
+msgstr "Chưa mở buổi lễ nào."
 
 #: src/app.rs src/theme/actions.rs
 msgid "Bad request: {error}"
-msgstr ""
+msgstr "Yêu cầu không hợp lệ: {error}"
 
 #: src/app.rs src/strings/themes.rs
 msgid "That item is gone."
-msgstr ""
+msgstr "Mục đó không còn nữa."
 
 #: src/app.rs
 msgid "New Service"
-msgstr ""
+msgstr "Buổi lễ mới"
 
 #: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
 msgid "That service is gone."
-msgstr ""
+msgstr "Buổi lễ đó không còn nữa."
 
 #: src/app.rs
 msgid "You need at least one service."
-msgstr ""
+msgstr "Cần có ít nhất một buổi lễ."
 
 #: src/app.rs
 msgid "Unknown Bible service."
-msgstr ""
+msgstr "Dịch vụ Kinh Thánh không xác định."
 
 #: src/app.rs
 msgid "That file is gone."
-msgstr ""
+msgstr "Tệp đó không còn nữa."
 
 #: src/app.rs
 msgid "Give the folder a name."
-msgstr ""
+msgstr "Hãy đặt tên cho thư mục."
 
 #: src/app.rs
 msgid "This is in a service. Remove it from the service first."
-msgstr ""
+msgstr "Mục này đang có trong một buổi lễ. Hãy gỡ khỏi buổi lễ trước."
 
 #: src/app.rs
 msgid "Bad request: unknown purpose {purpose}"
-msgstr ""
+msgstr "Yêu cầu không hợp lệ: mục đích không xác định {purpose}"
 
 #: src/app.rs
 msgid "Choose at least one picture."
-msgstr ""
+msgstr "Hãy chọn ít nhất một hình."
 
 #: src/app.rs
 msgid "A picture is missing. Try uploading again."
-msgstr ""
+msgstr "Thiếu một hình. Hãy thử tải lên lại."
 
 #: src/app.rs
 msgid "These slides are in a service. Remove them from the service first."
-msgstr ""
+msgstr "Các trang chiếu này đang có trong một buổi lễ. Hãy gỡ khỏi buổi lễ trước."
 
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
-msgstr ""
+msgstr "Bản dịch không xác định."
 
 #: src/app.rs
 msgid "Unknown language."
-msgstr ""
+msgstr "Ngôn ngữ không xác định."
 
 #: src/app.rs
 msgid "Language changed"
-msgstr ""
+msgstr "Đã đổi ngôn ngữ"
 
 #: src/app.rs
 msgid "Unknown screen."
-msgstr ""
+msgstr "Màn hình không xác định."
 
 #: src/app.rs
 msgid "Pick an output for this screen first."
-msgstr ""
+msgstr "Hãy chọn đầu ra cho màn hình này trước."
 
 #: src/app.rs
 msgid "Add a screen first."
-msgstr ""
+msgstr "Hãy thêm màn hình trước."
 
 #: src/app.rs
 msgid "Audience {number}"
-msgstr ""
+msgstr "Khán phòng {number}"
 
 #: src/app.rs
 msgid "Stage Display {number}"
-msgstr ""
+msgstr "Màn hình sân khấu {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
-msgstr ""
+msgstr "Màn hình đó không còn nữa."
 
 #: src/app.rs
 msgid "Each list keeps at least one screen."
-msgstr ""
+msgstr "Mỗi danh sách phải có ít nhất một màn hình."
 
 #: src/app.rs
 msgid "Backup failed."
-msgstr ""
+msgstr "Sao lưu thất bại."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."
-msgstr ""
+msgstr "Không lưu được tệp (ổ đĩa đầy?)."
 
 #: src/app.rs
 msgid "Could not open “{file}”: {error}"
-msgstr ""
+msgstr "Không mở được “{file}”: {error}"
 
 #: src/app.rs
 msgid "Could not read “{file}”: {error}"
-msgstr ""
+msgstr "Không đọc được “{file}”: {error}"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
-msgstr ""
+msgstr "API.Bible chỉ gửi tối đa 200 câu mỗi lần; hãy chọn phân đoạn ngắn hơn"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "{translation} không có trong gói API.Bible của khóa này; hãy thêm ở mục Plan trong trang quản lý API.Bible"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "{translation} không dùng được với khóa API.Bible này; hãy thêm ở mục Plan trong trang quản lý API.Bible"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible returned a different book"
-msgstr ""
+msgstr "API.Bible trả về một sách khác"
 
 #: src/bible/catalog/ebible.rs
 msgid "no rows"
-msgstr ""
+msgstr "không có dòng nào"
 
 #: src/bible/catalog/ebible.rs
 msgid "eBible answered {status}"
-msgstr ""
+msgstr "eBible trả lời {status}"
 
 #: src/bible/catalog/ebible.rs
 msgid "the list is far larger than expected"
-msgstr ""
+msgstr "danh sách lớn hơn nhiều so với dự kiến"
 
 #: src/bible/catalog/ebible.rs
 msgid "empty file"
-msgstr ""
+msgstr "tệp trống"
 
 #: src/bible/catalog/ebible.rs
 msgid "no {column} column"
-msgstr ""
+msgstr "không có cột {column}"
 
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
-msgstr ""
+msgstr "dịch vụ ESV trả về một sách khác"
 
 #: src/bible/import.rs
 msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
-msgstr ""
+msgstr "Hãy dùng tệp Kinh Thánh Zefania, OSIS, USX hoặc OpenSong (.xml hoặc .usx)."
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this file. {formats}"
-msgstr ""
+msgstr "Không tìm thấy câu Kinh Thánh nào trong tệp này. {formats}"
 
 #: src/bible/import.rs src/bible.rs
 msgid "{reference} does not exist."
-msgstr ""
+msgstr "{reference} không tồn tại."
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
-msgstr ""
+msgstr "Phân đoạn đó quá dài. Hãy chọn tối đa khoảng 400 câu."
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "No verses found."
-msgstr ""
+msgstr "Không tìm thấy câu nào."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
-msgstr ""
+msgstr "Hãy đặt tên viết tắt cho bản Kinh Thánh, gồm 2-10 chữ cái hoặc chữ số, như WEB."
 
 #: src/bible/import.rs
 msgid "{abbr} is already built in. Give this Bible another short name."
-msgstr ""
+msgstr "{abbr} đã có sẵn. Hãy đặt tên viết tắt khác cho bản Kinh Thánh này."
 
 #: src/bible/import.rs
 msgid "A downloaded Bible needs its details."
-msgstr ""
+msgstr "Bản Kinh Thánh đã tải cần có thông tin chi tiết."
 
 #: src/bible/import.rs
 msgid "This Bible's id can't be used."
-msgstr ""
+msgstr "Không dùng được mã của bản Kinh Thánh này."
 
 #: src/bible/import.rs
 msgid "No Bible verses found."
-msgstr ""
+msgstr "Không tìm thấy câu Kinh Thánh nào."
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this download."
-msgstr ""
+msgstr "Không tìm thấy câu Kinh Thánh nào trong bản tải này."
 
 #: src/bible/import.rs
 msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
-msgstr ""
+msgstr "Tệp này không phải XML hợp lệ (gần byte {at}: {error}). {formats}"
 
 #: src/bible/sources.rs
 msgid "Free for churches. Create an “API application”, then copy its key."
-msgstr ""
+msgstr "Miễn phí cho hội thánh. Tạo một “API application”, rồi chép khóa của nó."
 
 #: src/bible/sources.rs
 msgid "Free for non-commercial use. Register, then copy the key from your account."
-msgstr ""
+msgstr "Miễn phí cho mục đích phi thương mại. Đăng ký, rồi chép khóa từ tài khoản của bạn."
 
 #: src/bible/sources.rs
 msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
-msgstr ""
+msgstr "Gói Starter miễn phí cho phép 3 bản Kinh Thánh có bản quyền: ở mục Plan, chọn CSB (và NIV hoặc NLT nếu bạn muốn lấy từ đây)."
 
 #: src/bible/sources.rs
 msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr ""
+msgstr "Tạo một ứng dụng, rồi chấp nhận giấy phép của từng bản Kinh Thánh trên cổng thông tin (NIV từ Biblica; HCSB nếu có)."
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
-msgstr ""
+msgstr "dịch vụ trả lời {status}"
 
 #: src/bible/sources.rs
 msgid "Couldn't reach {service} for {translation}. Check the internet connection."
-msgstr ""
+msgstr "Không kết nối được {service} cho {translation}. Hãy kiểm tra kết nối internet."
 
 #: src/bible/sources.rs
 msgid "{service} refused the key. Check it in Settings → Bible."
-msgstr ""
+msgstr "{service} từ chối khóa. Hãy kiểm tra trong Cài đặt → Kinh Thánh."
 
 #: src/bible/sources.rs
 msgid "{service} says too many lookups. Wait a minute and try again."
-msgstr ""
+msgstr "{service} báo tra cứu quá nhiều. Hãy chờ một phút rồi thử lại."
 
 #: src/bible/sources.rs
 msgid "{translation} lookup failed: {error}."
-msgstr ""
+msgstr "Tra cứu {translation} thất bại: {error}."
 
 #: src/bible/sources.rs
 msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
-msgstr ""
+msgstr "{translation} không có nguồn trực tuyến. Hãy dán các câu bằng Thêm → Kinh Thánh, hoặc nhập tệp có giấy phép trong Cài đặt → Kinh Thánh."
 
 #: src/bible/sources.rs
 msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
-msgstr ""
+msgstr "{translation} cần một khóa miễn phí từ {service}. Hãy thêm trong Cài đặt → Kinh Thánh, hoặc dán các câu bằng Thêm → Kinh Thánh."
 
 #: src/bible/youversion.rs
 msgid "YouVersion has no Bible id for {translation}"
-msgstr ""
+msgstr "YouVersion không có mã Kinh Thánh cho {translation}"
 
 #: src/bible/youversion.rs
 msgid "that passage spans too many chapters; choose fewer"
-msgstr ""
+msgstr "phân đoạn đó trải qua quá nhiều chương; hãy chọn ít hơn"
 
 #: src/bible/youversion.rs
 msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
-msgstr ""
+msgstr "ứng dụng YouVersion này chưa được cấp phép cho Kinh Thánh {bible}; hãy chấp nhận giấy phép của nhà xuất bản tại platform.youversion.com"
 
 #: src/bible/youversion.rs
 msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
-msgstr ""
+msgstr "ứng dụng YouVersion đã bị lưu trữ hoặc gỡ bỏ; hãy kiểm tra tại platform.youversion.com"
 
 #: src/bible/youversion.rs
 msgid "YouVersion returned a different book"
-msgstr ""
+msgstr "YouVersion trả về một sách khác"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr ""
+msgstr "Gõ một câu tham chiếu, như John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
-msgstr ""
+msgstr "Không nhận ra sách \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr ""
+msgstr "Thêm số chương, như John 3 hoặc John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr ""
+msgstr "Câu tham chiếu có vẻ không đúng. Hãy thử dạng như John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
-msgstr ""
+msgstr "Cuối khoảng đứng trước đầu khoảng."
 
 #: src/bible.rs
 msgid "Paste the verse text first."
-msgstr ""
+msgstr "Hãy dán nội dung câu trước."
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
-msgstr ""
+msgstr "RustyPresenter Remote"
 
 #: src/i18n/remote_strings.rs src/strings/dialogs.rs
 msgid "Phone remote"
-msgstr ""
+msgstr "Điều khiển bằng điện thoại"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
-msgstr ""
+msgstr "Trên máy tính trình chiếu, bấm {phone} → {pair}, rồi nhập mã 6 chữ số vào đây."
 
 #: src/i18n/remote_strings.rs
 msgid "Connect"
-msgstr ""
+msgstr "Kết nối"
 
 #: src/i18n/remote_strings.rs
 msgid "Connecting…"
-msgstr ""
+msgstr "Đang kết nối…"
 
 #: src/i18n/remote_strings.rs
 msgid "On screen"
-msgstr ""
+msgstr "Trên màn hình"
 
 #: src/i18n/remote_strings.rs
 msgid "Pause video"
-msgstr ""
+msgstr "Tạm dừng video"
 
 #: src/i18n/remote_strings.rs
 msgid "Play video"
-msgstr ""
+msgstr "Phát video"
 
 #: src/i18n/remote_strings.rs
 msgid "Tap a slide to put it on the screen."
-msgstr ""
+msgstr "Chạm vào trang chiếu để đưa lên màn hình."
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
-msgstr ""
+msgstr "Màn hình đã thay đổi — hãy thử lại."
 
 #: src/i18n/remote_strings.rs
 msgid "The screen changed just now — tap the slide again."
-msgstr ""
+msgstr "Màn hình vừa thay đổi — hãy chạm lại vào trang chiếu."
 
 #: src/i18n/remote_strings.rs src/server.rs
 msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr ""
+msgstr "Mã QR đó đã hết hạn. Trên máy tính, bấm lại Ghép nối điện thoại."
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
-msgstr ""
+msgstr "Không kết nối được."
 
 #: src/i18n/remote_strings.rs
 msgid "(Logo)"
-msgstr ""
+msgstr "(Logo)"
 
 #: src/i18n/remote_strings.rs
 msgid "(Music playing)"
-msgstr ""
+msgstr "(Đang phát nhạc)"
 
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
-msgstr ""
+msgstr "(Trống)"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
-msgstr ""
+msgstr "Điện thoại Android"
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
-msgstr ""
+msgstr "Bài hát chưa đặt tên"
 
 #: src/import/chordpro.rs
 msgid "more than {max} sections, so it isn't a song"
-msgstr ""
+msgstr "nhiều hơn {max} đoạn, nên không phải bài hát"
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no lyrics"
-msgstr ""
+msgstr "không có lời"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
-msgstr ""
+msgstr "khối {block} không có điểm kết thúc, nên mọi thứ sau nó đã bị bỏ qua"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the file is too big to be a song"
-msgstr ""
+msgstr "tệp quá lớn để là một bài hát"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "couldn't read it: {error}"
-msgstr ""
+msgstr "không đọc được: {error}"
 
 #: src/import/chordpro.rs
 msgid "it doesn't look like a ChordPro file"
-msgstr ""
+msgstr "có vẻ không phải tệp ChordPro"
 
 #: src/import/chordpro.rs
 msgid "no songs in it"
-msgstr ""
+msgstr "không có bài hát nào"
 
 #: src/import/chordpro.rs
 msgid "No songs could be read from {path}: {why}."
-msgstr ""
+msgstr "Không đọc được bài hát nào từ {path}: {why}."
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "Couldn't find {path}."
-msgstr ""
+msgstr "Không tìm thấy {path}."
 
 #: src/import/chordpro.rs
 msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr ""
+msgstr "Không tìm thấy tệp ChordPro nào (.cho, .chordpro, .chopro, .crd, .pro) trong {path}."
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr ""
+msgstr "thư mục có hơn {max} tệp và thư mục con, nên chỉ xem {max} mục đầu tiên"
 
 #: src/import/common.rs
 msgid "Couldn't read {path}: {error}."
-msgstr ""
+msgstr "Không đọc được {path}: {error}."
 
 #: src/import/common.rs
 msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr ""
+msgstr "{app} liên tục lưu thay đổi trong khi đang đọc thư viện. Hãy đóng {app} rồi thử lại."
 
 #: src/import/common.rs
 msgid "Couldn't make a temporary folder: {error}."
-msgstr ""
+msgstr "Không tạo được thư mục tạm: {error}."
 
 #: src/import/common.rs
 msgid "Couldn't copy {path}: {error}."
-msgstr ""
+msgstr "Không sao chép được {path}: {error}."
 
 #: src/import/common.rs
 msgid "Couldn't open {path}: {error}."
-msgstr ""
+msgstr "Không mở được {path}: {error}."
 
 #: src/import/common.rs
 msgid "the database stayed locked"
-msgstr ""
+msgstr "cơ sở dữ liệu vẫn bị khóa"
 
 #: src/import/common.rs
 msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr ""
+msgstr "{path} trống hoặc bị hỏng, nên không có gì để nhập."
 
 #: src/import/easyworship.rs
 msgid "no lyrics (probably a video or announcement item)"
-msgstr ""
+msgstr "không có lời (có lẽ là mục video hoặc thông báo)"
 
 #: src/import/easyworship.rs src/import/openlp.rs
 msgid "the lyrics are empty"
-msgstr ""
+msgstr "lời bài hát trống"
 
 #: src/import/easyworship.rs
 msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr ""
+msgstr "Đây có vẻ là thư viện EasyWorship 2009 (hoặc cũ hơn). Chỉ nhập được thư viện EasyWorship 6 và 7."
 
 #: src/import/easyworship.rs
 msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr ""
+msgstr "Tìm thấy Songs.db nhưng không thấy SongWords.db bên cạnh trong {folder}."
 
 #: src/import/easyworship.rs
 msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr ""
+msgstr "Không tìm thấy Songs.db của EasyWorship ở đây. Hãy chọn thư mục Databases\\Data của hồ sơ (thường là C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
 
 #: src/import/easyworship.rs
 msgid "Couldn't read the EasyWorship library: {error}"
-msgstr ""
+msgstr "Không đọc được thư viện EasyWorship: {error}"
 
 #: src/import/easyworship.rs
 msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "Songs.db không có bảng bài hát. Đây có phải thư viện EasyWorship không?"
 
 #: src/import/easyworship.rs
 msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "SongWords.db không có bảng lời. Đây có phải thư viện EasyWorship không?"
 
 #: src/import/openlp.rs
 msgid "the lyrics are not valid XML ({error})"
-msgstr ""
+msgstr "lời bài hát không phải XML hợp lệ ({error})"
 
 #: src/import/openlp.rs
 msgid "the lyrics have too many verses (more than {max})"
-msgstr ""
+msgstr "lời bài hát có quá nhiều đoạn (hơn {max})"
 
 #: src/import/openlp.rs src/import/propresenter.rs
 msgid "the lyrics are too long to be a song"
-msgstr ""
+msgstr "lời quá dài để là một bài hát"
 
 #: src/import/openlp.rs
 msgid "the lyrics have no verses"
-msgstr ""
+msgstr "lời bài hát không có đoạn nào"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
-msgstr ""
+msgstr "bản sao tạm OpenLP giữ cho một tệp buổi lễ"
 
 #: src/import/openlp.rs
 msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr ""
+msgstr "Tệp này không phải cơ sở dữ liệu bài hát OpenLP (songs.sqlite)."
 
 #: src/import/openlp.rs
 msgid "Couldn't open the OpenLP database."
-msgstr ""
+msgstr "Không mở được cơ sở dữ liệu OpenLP."
 
 #: src/import/openlp.rs
 msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr ""
+msgstr "Không tìm thấy songs.sqlite của OpenLP ở đây. Hãy chọn thư mục dữ liệu của OpenLP (trên Windows thường là %APPDATA%\\openlp\\data, trên macOS ~/Library/Application Support/openlp/Data, trên Linux ~/.local/share/openlp)."
 
 #: src/import/openlp.rs
 msgid "Couldn't read the OpenLP database: {error}"
-msgstr ""
+msgstr "Không đọc được cơ sở dữ liệu OpenLP: {error}"
 
 #: src/import/openlp.rs
 msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr ""
+msgstr "Đây không phải cơ sở dữ liệu bài hát OpenLP: không có bảng songs."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
-msgstr ""
+msgstr "không phải XML hợp lệ ({error})"
 
 #: src/import/openlyrics.rs
 msgid "too many verses to be a song"
-msgstr ""
+msgstr "quá nhiều đoạn để là một bài hát"
 
 #: src/import/openlyrics.rs
 msgid "it is an OpenSong song, not OpenLyrics"
-msgstr ""
+msgstr "đây là bài hát OpenSong, không phải OpenLyrics"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
-msgstr ""
+msgstr "không phải bài hát OpenLyrics"
 
 #: src/import/openlyrics.rs
 msgid "not XML"
-msgstr ""
+msgstr "không phải XML"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr ""
+msgstr "không phải bài hát OpenLyrics hay OpenSong"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "no song in it"
-msgstr ""
+msgstr "không có bài hát nào"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "No song could be read from {path}: {why}."
-msgstr ""
+msgstr "Không đọc được bài hát từ {path}: {why}."
 
 #: src/import/openlyrics.rs
 msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr ""
+msgstr "Không tìm thấy bài hát OpenLyrics hay OpenSong nào trong {path}."
 
 #: src/import/opensong.rs
 msgid "the lyrics have too many sections to be a song"
-msgstr ""
+msgstr "lời có quá nhiều đoạn để là một bài hát"
 
 #: src/import/opensong.rs
 msgid "it is an OpenLyrics song, not OpenSong"
-msgstr ""
+msgstr "đây là bài hát OpenLyrics, không phải OpenSong"
 
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
-msgstr ""
+msgstr "không phải bài hát OpenSong"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
-msgstr ""
+msgstr "Chưa hỗ trợ tệp ProPresenter 7; hãy xuất ra dạng văn bản hoặc ProPresenter 6"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
-msgstr ""
+msgstr "Chưa hỗ trợ gói ProPresenter 6 (.pro6x); hãy đổi tên thành .zip, giải nén, rồi nhập tệp .pro6 bên trong"
 
 #: src/import/propresenter.rs
 msgid "the song has too many groups (more than {max})"
-msgstr ""
+msgstr "bài hát có quá nhiều nhóm (hơn {max})"
 
 #: src/import/propresenter.rs
 msgid "the song has too many slides (more than {max})"
-msgstr ""
+msgstr "bài hát có quá nhiều trang chiếu (hơn {max})"
 
 #: src/import/propresenter.rs
 msgid "the song has no words on its slides"
-msgstr ""
+msgstr "các trang chiếu của bài hát không có chữ"
 
 #: src/import/propresenter.rs
 msgid "it is a ProPresenter playlist, not a song"
-msgstr ""
+msgstr "đây là danh sách phát ProPresenter, không phải bài hát"
 
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
-msgstr ""
+msgstr "không phải bài hát ProPresenter 6"
 
 #: src/import/propresenter.rs
 msgid "No ProPresenter songs were found in {path}."
-msgstr ""
+msgstr "Không tìm thấy bài hát ProPresenter nào trong {path}."
 
 #: src/live.rs
 msgid "That item is not in the service."
-msgstr ""
+msgstr "Mục đó không có trong buổi lễ."
 
 #: src/live.rs
 msgid "That item has nothing to show."
-msgstr ""
+msgstr "Mục đó không có gì để chiếu."
 
 #: src/live.rs
 msgid "That item has no slides."
-msgstr ""
+msgstr "Mục đó không có trang chiếu."
 
 #: src/live.rs
 msgid "That video is no longer playing."
-msgstr ""
+msgstr "Video đó không còn phát nữa."
 
 #: src/live.rs
 msgid "That audio is no longer playing."
-msgstr ""
+msgstr "Âm thanh đó không còn phát nữa."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
-msgstr ""
+msgstr "Chưa có gì đang chiếu."
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
-msgstr ""
+msgstr "Đầu buổi lễ"
 
 #: src/live.rs
 msgid "Could not show that: {reason}"
-msgstr ""
+msgstr "Không chiếu được: {reason}"
 
 #: src/live.rs
 msgid "Playback stopped: {reason}"
-msgstr ""
+msgstr "Đã dừng phát: {reason}"
 
 #: src/live.rs src/ui/room.rs
 msgid "the file could not be played"
-msgstr ""
+msgstr "không phát được tệp"
 
 #: src/main.rs
 msgid "RustyPresenter could not open its log: {reason}"
-msgstr ""
+msgstr "RustyPresenter không mở được tệp nhật ký: {reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not start: {reason}"
-msgstr ""
+msgstr "RustyPresenter không khởi động được: {reason}"
 
 #: src/main.rs
 msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
-msgstr ""
+msgstr "Phiên bản này không có ngôn ngữ đã chọn trong Cài đặt, nên RustyPresenter hiển thị bằng tiếng Anh."
 
 #: src/main.rs
 msgid "RustyPresenter could not open its window: {reason}"
-msgstr ""
+msgstr "RustyPresenter không mở được cửa sổ: {reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not run its windows: {reason}"
-msgstr ""
+msgstr "RustyPresenter không chạy được các cửa sổ: {reason}"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
-msgstr ""
+msgstr "Các màn hình không hoạt động."
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens did not answer in time."
-msgstr ""
+msgstr "Các màn hình không phản hồi kịp."
 
 #: src/platform/instance.rs
 msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
-msgstr ""
+msgstr "Cổng {port} đang được chương trình khác dùng, nên RustyPresenter không khởi động được."
 
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
-msgstr ""
+msgstr "Màn hình đó hiện chưa được kết nối."
 
 #: src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
-msgstr ""
+msgstr "Kinh Thánh"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
-msgstr ""
+msgstr "RustyPresenter đã khởi động lại sau một sự cố."
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "RustyPresenter đã khởi động lại sau một sự cố. Video/âm thanh đã dừng — bấm lại để phát lại."
 
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
-msgstr ""
+msgstr "RustyPresenter đã dừng sau khi gặp lỗi 3 lần trong một phút. Nhật ký nằm ở {path}."
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
-msgstr ""
+msgstr "Trang này chỉ mở được trên máy tính trình chiếu."
 
 #: src/server.rs
 msgid "Too fast — wait a second and try again."
-msgstr ""
+msgstr "Quá nhanh — hãy chờ một giây rồi thử lại."
 
 #: src/server.rs
 msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr ""
+msgstr "Chưa mở ghép nối. Trên máy tính, bấm “Điều khiển bằng điện thoại” → “Ghép nối điện thoại”."
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
-msgstr ""
+msgstr "Nhập sai mã quá nhiều lần. Hãy bắt đầu ghép nối lại trên máy tính."
 
 #: src/server.rs
 msgid "That code isn't right."
-msgstr ""
+msgstr "Mã đó không đúng."
 
 #: src/server.rs
 msgid "Phone {number}"
-msgstr ""
+msgstr "Điện thoại {number}"
 
 #: src/server.rs
 msgid "Bad command."
-msgstr ""
+msgstr "Lệnh không hợp lệ."
 
 #: src/server.rs
 msgid "Not allowed from the phone."
-msgstr ""
+msgstr "Không được phép từ điện thoại."
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
-msgstr[0] ""
+msgstr[0] "{n} trang chiếu"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(slide picture)"
-msgstr ""
+msgstr "(hình trang chiếu)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(video)"
-msgstr ""
+msgstr "(video)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(picture)"
-msgstr ""
+msgstr "(hình ảnh)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(audio)"
-msgstr ""
+msgstr "(âm thanh)"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
-msgstr ""
+msgstr "Thiếu bài hát"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing media"
-msgstr ""
+msgstr "Thiếu tệp đa phương tiện"
 
 #: src/slides.rs
 msgid "Slide {n}"
-msgstr ""
+msgstr "Trang {n}"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
-msgstr ""
+msgstr "Thiếu trang chiếu"
 
 #: src/songselect.rs
 msgid "That file is too big to be a lyric file."
-msgstr ""
+msgstr "Tệp đó quá lớn để là tệp lời bài hát."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
-msgstr ""
+msgstr "Tệp lời bài hát trống."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
-msgstr ""
+msgstr "Tệp này không có tiêu đề Verse/Chorus. Hãy dùng bản tải \"Lyrics (.txt)\" của SongSelect."
 
 #: src/songselect.rs
 msgid "No lyrics were found in this file."
-msgstr ""
+msgstr "Không tìm thấy lời bài hát trong tệp này."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
-msgstr ""
+msgstr "Không tìm được thư mục để lưu dữ liệu. Hãy đặt RUSTYPRESENTER_DATA."
 
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
-msgstr ""
+msgstr "Không dùng được thư mục dữ liệu {path}: {reason}"
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
-msgstr ""
+msgstr "Không đọc được dữ liệu đã lưu tại {path} ({reason}). Không có gì bị ghi đè. Hãy khôi phục một bản sao lưu từ thư mục sao lưu hoặc chuyển tệp đó sang chỗ khác."
 
 #: src/store.rs
 msgid "Cannot read {path}: {reason}"
-msgstr ""
+msgstr "Không đọc được {path}: {reason}"
 
 #: src/store.rs
 msgid "Could not save: {reason}"
-msgstr ""
+msgstr "Không lưu được: {reason}"
 
 #: src/store.rs
 msgid "Unknown backup."
-msgstr ""
+msgstr "Bản sao lưu không xác định."
 
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
-msgstr ""
+msgstr "Bản sao lưu đó không đầy đủ và không thể khôi phục."
 
 #: src/strings/add.rs
 msgid "Nothing matches."
-msgstr ""
+msgstr "Không có kết quả phù hợp."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
-msgstr ""
+msgstr "Chưa có gì ở đây."
 
 #: src/strings/add.rs
 msgid "Search {n} song…"
 msgid_plural "Search {n} songs…"
-msgstr[0] ""
+msgstr[0] "Tìm trong {n} bài hát…"
 
 #: src/strings/add.rs
 msgid "Search {n} file…"
 msgid_plural "Search {n} files…"
-msgstr[0] ""
+msgstr[0] "Tìm trong {n} tệp…"
 
 #: src/strings/add.rs
 msgid "Search slides…"
-msgstr ""
+msgstr "Tìm trang chiếu…"
 
 #: src/strings/add.rs
 msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
-msgstr ""
+msgstr "Để nhập tệp PowerPoint hoặc Keynote, hãy cài LibreOffice (miễn phí). Tệp PDF dùng được mà không cần nó."
 
 #: src/strings/add.rs src/strings/settings.rs
 msgid "Copied"
-msgstr ""
+msgstr "Đã chép"
 
 #: src/strings/add.rs src/strings/bundle.rs
 msgid "…and {n} more."
-msgstr ""
+msgstr "…và {n} mục khác."
 
 #: src/strings/add.rs
 msgid "Imported {n} song."
 msgid_plural "Imported {n} songs."
-msgstr[0] ""
+msgstr[0] "Đã nhập {n} bài hát."
 
 #: src/strings/add.rs
 msgid "{n} already in the library: {titles}"
 msgid_plural "{n} already in the library: {titles}"
-msgstr[0] ""
+msgstr[0] "{n} bài đã có trong thư viện: {titles}"
 
 #: src/strings/add.rs
 msgid "Not imported:"
-msgstr ""
+msgstr "Không nhập:"
 
 #: src/strings/add.rs
 msgid "Reading the EasyWorship library…"
-msgstr ""
+msgstr "Đang đọc thư viện EasyWorship…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
-msgstr ""
+msgstr "Đã tìm thấy LibreOffice!"
 
 #: src/strings/add.rs
 msgid "Not found yet — finish installing, then click Check again."
-msgstr ""
+msgstr "Chưa tìm thấy — hãy cài xong, rồi bấm Kiểm tra lại."
 
 #: src/strings/add.rs
 msgid "{passage} added"
-msgstr ""
+msgstr "Đã thêm {passage}"
 
 #: src/strings/add.rs
 msgid "Give it a title."
-msgstr ""
+msgstr "Hãy đặt tiêu đề."
 
 #: src/strings/add.rs
 msgid "Ready"
-msgstr ""
+msgstr "Sẵn sàng"
 
 #: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
 msgid "Failed"
-msgstr ""
+msgstr "Thất bại"
 
 #: src/strings/add.rs src/strings/import.rs
 msgid "This file can't be played."
-msgstr ""
+msgstr "Không phát được tệp này."
 
 #: src/strings/add.rs
 msgid "Checking the file again…"
-msgstr ""
+msgstr "Đang kiểm tra lại tệp…"
 
 #: src/strings/add.rs
 msgid "Delete from library"
-msgstr ""
+msgstr "Xóa khỏi thư viện"
 
 #: src/strings/add.rs
 msgid "Delete “{name}” from the library?"
-msgstr ""
+msgstr "Xóa “{name}” khỏi thư viện?"
 
 #: src/strings/add.rs
 msgid "The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "Thiếu trình phát video — hãy cài lại RustyPresenter"
 
 #: src/strings/add.rs src/strings/stage.rs
 msgid "Delete “{name}”?"
-msgstr ""
+msgstr "Xóa “{name}”?"
 
 #: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/strings/add.rs
 msgid "Song saved"
-msgstr ""
+msgstr "Đã lưu bài hát"
 
 #: src/strings/add.rs
 msgid "Not in the lyrics: {sections}"
-msgstr ""
+msgstr "Không có trong lời: {sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
 msgid "The screen was cleared — try again."
-msgstr ""
+msgstr "Màn hình đã bị xóa — hãy thử lại."
 
 #: src/strings/automation.rs
 msgid "Set a start time for this service first (Services → Starts at)."
-msgstr ""
+msgstr "Hãy đặt giờ bắt đầu cho buổi lễ này trước (Các buổi lễ → Bắt đầu lúc)."
 
 #: src/strings/automation.rs
 msgid "The service start time ({time}) has passed."
-msgstr ""
+msgstr "Đã qua giờ bắt đầu buổi lễ ({time})."
 
 #: src/strings/automation.rs
 msgid "That time ({time}) has passed."
-msgstr ""
+msgstr "Thời điểm đó ({time}) đã qua."
 
 #: src/strings/automation.rs
 msgid "This timer needs a newer RustyPresenter."
-msgstr ""
+msgstr "Bộ hẹn giờ này cần RustyPresenter mới hơn."
 
 #: src/strings/automation.rs
 msgid "A countdown to a time can't be paused."
-msgstr ""
+msgstr "Không thể tạm dừng đếm ngược tới một thời điểm."
 
 #: src/strings/automation.rs
 msgid "Choose a length from 1 second to 23:59:59."
-msgstr ""
+msgstr "Hãy chọn thời lượng từ 1 giây đến 23:59:59."
 
 #: src/strings/automation.rs
 msgid "This timer can't be set that way."
-msgstr ""
+msgstr "Không thể đặt bộ hẹn giờ này như vậy."
 
 #: src/strings/automation.rs
 msgid "Fill in “{field}”."
-msgstr ""
+msgstr "Hãy điền “{field}”."
 
 #: src/strings/automation.rs
 msgid "That message is too long for the screen (200 letters at most)."
-msgstr ""
+msgstr "Tin nhắn quá dài so với màn hình (tối đa 200 ký tự)."
 
 #: src/strings/automation.rs
 msgid "This message has a { without a matching }."
-msgstr ""
+msgstr "Tin nhắn này có dấu { mà không có dấu } tương ứng."
 
 #: src/strings/automation.rs
 msgid "Message showing"
-msgstr ""
+msgstr "Đang hiện tin nhắn"
 
 #: src/strings/automation.rs
 msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
-msgstr ""
+msgstr "Đang ở chế độ tập dượt — nội dung này chỉ hiện trong phần xem trước. Kết thúc tập dượt để chiếu trong hội trường."
 
 #: src/strings/automation.rs
 msgid "Nursery"
-msgstr ""
+msgstr "Phòng trẻ em"
 
 #: src/strings/automation.rs
 msgid "Parent of child #{Number}, please come to the nursery."
-msgstr ""
+msgstr "Phụ huynh của bé số {Number}, xin mời đến phòng trẻ em."
 
 #: src/strings/automation.rs
 msgid "Vehicle"
-msgstr ""
+msgstr "Xe"
 
 #: src/strings/automation.rs
 msgid "Vehicle {Plate}: your lights are on."
-msgstr ""
+msgstr "Xe biển số {Plate}: đèn xe đang bật."
 
 #: src/strings/automation.rs
 msgid "Custom"
-msgstr ""
+msgstr "Tùy chỉnh"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: mục của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: bộ hẹn giờ của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: lớp phủ của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: chế độ xem màn hình của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: tin nhắn của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
-msgstr ""
+msgstr "Không chạy được “{name}”: bố cục sân khấu của bước {step} đã bị xóa. Hãy sửa macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
-msgstr ""
+msgstr "Không chạy được “{name}”: bước {step} cần RustyPresenter mới hơn."
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”"
-msgstr ""
+msgstr "Đã chạy “{name}”"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but step {step} didn't work: {reason}"
-msgstr ""
+msgstr "Đã chạy “{name}”, nhưng bước {step} không thực hiện được: {reason}"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
-msgstr ""
+msgstr "Đã chạy “{name}”, nhưng bỏ qua phần chiếu vì màn hình đã bị xóa."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
-msgstr ""
+msgstr "“{timer}” đã về 0, nhưng “{macro_name}” sẽ đổi trang chiếu nên không được chạy."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
-msgstr ""
+msgstr "“{timer}” đã về 0, nhưng “{macro_name}” không chiếu gì vì màn hình đã bị xóa."
 
 #: src/strings/automation.rs
 msgid "Choose 2 to 600 seconds."
-msgstr ""
+msgstr "Hãy chọn từ 2 đến 600 giây."
 
 #: src/strings/automation.rs
 msgid "Needs at least two slides."
-msgstr ""
+msgstr "Cần ít nhất hai trang chiếu."
 
 #: src/strings/automation.rs
 msgid "Service starts in"
-msgstr ""
+msgstr "Buổi lễ bắt đầu sau"
 
 #: src/strings/automation.rs
 msgid "Pre-service"
-msgstr ""
+msgstr "Trước lễ"
 
 #: src/strings/automation.rs
 msgid "Start countdown"
-msgstr ""
+msgstr "Bắt đầu đếm ngược"
 
 #: src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
-msgstr ""
+msgstr "Thay đổi trong thẻ Trước lễ"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
-msgstr ""
+msgstr "Đã hết giờ đếm ngược — không có gì khác thay đổi vì buổi lễ đã bắt đầu."
 
 #: src/strings/automation.rs
 msgid "Restart the countdown to use the new time."
-msgstr ""
+msgstr "Hãy chạy lại đếm ngược để dùng giờ mới."
 
 #: src/strings/automation.rs
 msgid "Service start"
-msgstr ""
+msgstr "Bắt đầu buổi lễ"
 
 #: src/strings/automation.rs
 msgid "Sermon"
-msgstr ""
+msgstr "Bài giảng"
 
 #: src/strings/automation.rs
 msgid "Stopwatch"
-msgstr ""
+msgstr "Đồng hồ bấm giờ"
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
-msgstr ""
+msgstr "Đó không phải tệp buổi lễ RustyPresenter."
 
 #: src/strings/bundle.rs
 msgid "That service file was made by a newer version of RustyPresenter."
-msgstr ""
+msgstr "Tệp buổi lễ đó được tạo bởi phiên bản RustyPresenter mới hơn."
 
 #: src/strings/bundle.rs
 msgid "That service file is damaged, so nothing was added."
-msgstr ""
+msgstr "Tệp buổi lễ đó bị hỏng, nên không có gì được thêm."
 
 #: src/strings/bundle.rs
 msgid "Saving the service…"
-msgstr ""
+msgstr "Đang lưu buổi lễ…"
 
 #: src/strings/bundle.rs
 msgid "Opening the service file…"
-msgstr ""
+msgstr "Đang mở tệp buổi lễ…"
 
 #: src/strings/bundle.rs
 msgid "A song in this service is no longer in the library."
-msgstr ""
+msgstr "Một bài hát trong buổi lễ này không còn trong thư viện."
 
 #: src/strings/bundle.rs
 msgid "A video, picture or sound in this service is no longer in the library."
-msgstr ""
+msgstr "Một video, hình ảnh hoặc âm thanh trong buổi lễ này không còn trong thư viện."
 
 #: src/strings/bundle.rs
 msgid "A set of slides in this service is no longer in the library."
-msgstr ""
+msgstr "Một bộ trang chiếu trong buổi lễ này không còn trong thư viện."
 
 #: src/strings/bundle.rs
 msgid "A background in this service is missing its file."
-msgstr ""
+msgstr "Một hình nền trong buổi lễ này bị thiếu tệp."
 
 #: src/strings/bundle.rs
 msgid "{name} is missing its file."
-msgstr ""
+msgstr "{name} bị thiếu tệp."
 
 #: src/strings/bundle.rs
 msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
 msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
-msgstr[0] ""
+msgstr[0] "Buổi lễ này dùng phông chữ mà máy tính này không có, nên chữ được hiện bằng phông khác: {fonts}. Hãy cài phông để thấy đúng như bản gốc."
 
 #: src/strings/bundle.rs
 msgid "Saved “{name}” to a file."
-msgstr ""
+msgstr "Đã lưu “{name}” ra tệp."
 
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
-msgstr ""
+msgstr "Chưa lưu được buổi lễ này vì thiếu một số thứ cần thiết:"
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
-msgstr ""
+msgstr "Đã mở “{name}”."
 
 #: src/strings/bundle.rs
 msgid "{n} song"
 msgid_plural "{n} songs"
-msgstr[0] ""
+msgstr[0] "{n} bài hát"
 
 #: src/strings/bundle.rs
 msgid "{n} media file"
 msgid_plural "{n} media files"
-msgstr[0] ""
+msgstr[0] "{n} tệp đa phương tiện"
 
 #: src/strings/bundle.rs
 msgid "{n} set of slides"
 msgid_plural "{n} sets of slides"
-msgstr[0] ""
+msgstr[0] "{n} bộ trang chiếu"
 
 #: src/strings/bundle.rs
 msgid "New in the library: {things}."
-msgstr ""
+msgstr "Mới trong thư viện: {things}."
 
 #: src/strings/bundle.rs
 msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
-msgstr ""
+msgstr "Các bài này khác với bài đã có, nên buổi lễ dùng một bản sao thứ hai: {titles}"
 
 #: src/strings/catalog.rs
 msgid "You're offline. Bibles you've added still work."
-msgstr ""
+msgstr "Bạn đang ngoại tuyến. Các bản Kinh Thánh đã thêm vẫn dùng được."
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be read. Try again later."
-msgstr ""
+msgstr "Không đọc được danh sách Kinh Thánh. Hãy thử lại sau."
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be saved on this computer."
-msgstr ""
+msgstr "Không lưu được danh sách Kinh Thánh trên máy tính này."
 
 #: src/strings/catalog.rs
 msgid "Licence checked on download"
-msgstr ""
+msgstr "Giấy phép được kiểm tra khi tải"
 
 #: src/strings/catalog.rs
 msgid "Full Bible"
-msgstr ""
+msgstr "Trọn bộ Kinh Thánh"
 
 #: src/strings/catalog.rs
 msgid "New Testament"
-msgstr ""
+msgstr "Tân Ước"
 
 #: src/strings/catalog.rs
 msgid "Old Testament"
-msgstr ""
+msgstr "Cựu Ước"
 
 #: src/strings/catalog.rs
 msgid "Portions"
-msgstr ""
+msgstr "Một phần"
 
 #: src/strings/catalog.rs
 msgid "Includes Apocrypha"
-msgstr ""
+msgstr "Có Thứ kinh"
 
 #: src/strings/catalog.rs
 msgid "Downloading {name}…"
-msgstr ""
+msgstr "Đang tải {name}…"
 
 #: src/strings/catalog.rs
 msgid "Waiting to download {name}…"
-msgstr ""
+msgstr "Đang chờ tải {name}…"
 
 #: src/strings/catalog.rs
 msgid "Checking {name}…"
-msgstr ""
+msgstr "Đang kiểm tra {name}…"
 
 #: src/strings/catalog.rs
 msgid "Couldn't download {name}. Check the internet and try again."
-msgstr ""
+msgstr "Không tải được {name}. Hãy kiểm tra internet rồi thử lại."
 
 #: src/strings/catalog.rs
 msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
-msgstr ""
+msgstr "Giấy phép của bản Kinh Thánh này không cho phép lưu giữ. Bản này đã bị gỡ."
 
 #: src/strings/catalog.rs
 msgid "The update for {name} couldn't be used. The copy you have still works."
-msgstr ""
+msgstr "Không dùng được bản cập nhật cho {name}. Bản hiện có vẫn dùng được."
 
 #: src/strings/catalog.rs
 msgid "This Bible is larger than expected, so it wasn't added."
-msgstr ""
+msgstr "Bản Kinh Thánh này lớn hơn dự kiến, nên không được thêm."
 
 #: src/strings/catalog.rs
 msgid "Not enough disk space for this Bible (needs about {n} MB)."
-msgstr ""
+msgstr "Không đủ dung lượng đĩa cho bản Kinh Thánh này (cần khoảng {n} MB)."
 
 #: src/strings/catalog.rs
 msgid "{name} couldn't be used, so it wasn't added."
-msgstr ""
+msgstr "Không dùng được {name}, nên không được thêm."
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
-msgstr ""
+msgstr "Bản Kinh Thánh đó không còn trong danh sách. Hãy mở lại Cài đặt → Kinh Thánh để xem danh sách hiện tại."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
-msgstr ""
+msgstr "Bạn đang ngoại tuyến, nên hiện chưa thêm được Kinh Thánh."
 
 #: src/strings/catalog.rs
 msgid "Loading the list of Bibles…"
-msgstr ""
+msgstr "Đang tải danh sách Kinh Thánh…"
 
 #: src/strings/catalog.rs
 msgid "No Bibles match. Try fewer words, or All."
-msgstr ""
+msgstr "Không có bản Kinh Thánh nào phù hợp. Hãy thử ít từ hơn, hoặc chọn Tất cả."
 
 #: src/strings/catalog.rs
 msgid "No Bibles added yet. Choose All to see the Bibles you can add."
-msgstr ""
+msgstr "Chưa thêm bản Kinh Thánh nào. Chọn Tất cả để xem các bản có thể thêm."
 
 #: src/strings/catalog.rs
 msgid "Offline"
-msgstr ""
+msgstr "Ngoại tuyến"
 
 #: src/strings/catalog.rs
 msgid "Update"
-msgstr ""
+msgstr "Cập nhật"
 
 #: src/strings/catalog.rs
 msgid "Added"
-msgstr ""
+msgstr "Đã thêm"
 
 #: src/strings/catalog.rs src/strings/settings.rs
 msgid "Your computer may not have a font for this language."
-msgstr ""
+msgstr "Máy tính của bạn có thể chưa có phông chữ cho ngôn ngữ này."
 
 #: src/strings/catalog.rs
 msgid "Waiting"
-msgstr ""
+msgstr "Đang chờ"
 
 #: src/strings/catalog.rs
 msgid "A newer edition is ready"
-msgstr ""
+msgstr "Đã có ấn bản mới hơn"
 
 #: src/strings/catalog.rs
 msgid "Default Bible changed"
-msgstr ""
+msgstr "Đã đổi Kinh Thánh mặc định"
 
 #: src/strings/catalog.rs
 msgid "You can show up to two more Bibles. Turn one off first."
-msgstr ""
+msgstr "Bạn có thể hiện thêm tối đa hai bản Kinh Thánh. Hãy tắt một bản trước."
 
 #: src/strings/catalog.rs
 msgid "{name} — downloaded from eBible.org"
-msgstr ""
+msgstr "{name} — tải từ eBible.org"
 
 #: src/strings/catalog.rs
 msgid "Showing {shown} of {total} Bibles. Search to find others."
-msgstr ""
+msgstr "Đang hiện {shown} trong {total} bản Kinh Thánh. Hãy tìm để thấy các bản khác."
 
 #: src/strings/catalog.rs
 msgid "Downloading… {percent}%"
-msgstr ""
+msgstr "Đang tải… {percent}%"
 
 #: src/strings/catalog.rs
 msgid "Added {bible}"
-msgstr ""
+msgstr "Đã thêm {bible}"
 
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
-msgstr ""
+msgstr "Đã gỡ {bible}"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"
-msgstr ""
+msgstr "Cũng có trên {sources}"
 
 #: src/strings/dialogs.rs
 msgid "Services"
-msgstr ""
+msgstr "Các buổi lễ"
 
 #: src/strings/dialogs.rs
 msgid "Screen Configuration"
-msgstr ""
+msgstr "Cấu hình màn hình"
 
 #: src/strings/import.rs
 msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
-msgstr ""
+msgstr "Bài trình chiếu này có mật khẩu. Hãy mở trong PowerPoint, gỡ mật khẩu (Tệp → Thông tin → Bảo vệ), lưu lại, rồi nhập lại."
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PowerPoint file."
-msgstr ""
+msgstr "Tệp này có vẻ không phải tệp PowerPoint."
 
 #: src/strings/import.rs
 msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
-msgstr ""
+msgstr "LibreOffice chạy quá lâu nên đã bị dừng. Hãy thử lại; lần nhập đầu tiên sau khi bật máy sẽ chậm hơn."
 
 #: src/strings/import.rs
 msgid "LibreOffice couldn't read this presentation."
-msgstr ""
+msgstr "LibreOffice không đọc được bài trình chiếu này."
 
 #: src/strings/import.rs
 msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
-msgstr ""
+msgstr "LibreOffice cài từ Snap không đọc được tệp của RustyPresenter. Hãy cài LibreOffice từ bản phân phối của bạn (sudo apt install libreoffice-impress)."
 
 #: src/strings/import.rs
 msgid "LibreOffice could not be started. Reinstall it and try again."
-msgstr ""
+msgstr "Không khởi động được LibreOffice. Hãy cài lại rồi thử lại."
 
 #: src/strings/import.rs
 msgid "PowerPoint took too long and was stopped. Try again."
-msgstr ""
+msgstr "PowerPoint chạy quá lâu nên đã bị dừng. Hãy thử lại."
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open this presentation."
-msgstr ""
+msgstr "PowerPoint không mở được bài trình chiếu này."
 
 #: src/strings/import.rs
 msgid "PowerPoint could not be started."
-msgstr ""
+msgstr "Không khởi động được PowerPoint."
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PDF file."
-msgstr ""
+msgstr "Tệp này có vẻ không phải tệp PDF."
 
 #: src/strings/import.rs
 msgid "This file took too long to open."
-msgstr ""
+msgstr "Tệp này mở quá lâu."
 
 #: src/strings/import.rs
 msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
-msgstr ""
+msgstr "Không mở được hình này. Hãy lưu thành PNG hoặc JPEG rồi thử lại."
 
 #: src/strings/import.rs
 msgid "This presentation has no slides."
-msgstr ""
+msgstr "Bài trình chiếu này không có trang chiếu nào."
 
 #: src/strings/import.rs
 msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
-msgstr ""
+msgstr "Bài trình chiếu này có nhiều kích thước trang khác nhau, RustyPresenter không chiếu được."
 
 #: src/strings/import.rs
 msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "Thiếu bộ chuyển đổi trang chiếu (pdfium). Hãy cài lại RustyPresenter."
 
 #: src/strings/import.rs
 msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
-msgstr ""
+msgstr "Bộ chuyển đổi trang chiếu không phản hồi. Hãy khởi động lại RustyPresenter rồi thử lại."
 
 #: src/strings/import.rs
 msgid "Slide {page} could not be turned into a picture."
-msgstr ""
+msgstr "Không chuyển được trang {page} thành hình."
 
 #: src/strings/import.rs
 msgid "This PDF can't be opened. If it has a password, remove it and import again."
-msgstr ""
+msgstr "Không mở được PDF này. Nếu có mật khẩu, hãy gỡ mật khẩu rồi nhập lại."
 
 #: src/strings/import.rs
 msgid "A slide could not be saved. Check that the disk has free space, then try again."
-msgstr ""
+msgstr "Không lưu được một trang chiếu. Hãy kiểm tra ổ đĩa còn trống, rồi thử lại."
 
 #: src/strings/import.rs
 msgid "Waiting for another file…"
-msgstr ""
+msgstr "Đang chờ tệp khác…"
 
 #: src/strings/import.rs
 msgid "Adding “{name}”"
-msgstr ""
+msgstr "Đang thêm “{name}”"
 
 #: src/strings/import.rs
 msgid "Importing “{name}”"
-msgstr ""
+msgstr "Đang nhập “{name}”"
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
-msgstr ""
+msgstr "Hãy lưu tệp Keynote thành một tệp duy nhất rồi nhập lại."
 
 #: src/strings/import.rs
 msgid "Waiting for LibreOffice…"
-msgstr ""
+msgstr "Đang chờ LibreOffice…"
 
 #: src/strings/import.rs
 msgid "Waiting for PowerPoint…"
-msgstr ""
+msgstr "Đang chờ PowerPoint…"
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open it; used LibreOffice."
-msgstr ""
+msgstr "PowerPoint không mở được; đã dùng LibreOffice."
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides."
-msgstr ""
+msgstr "Đã nhập bằng LibreOffice — hãy kiểm tra các trang chiếu."
 
 #: src/strings/import.rs
 msgid "{expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "Dự kiến {expected} trang chiếu nhưng chỉ nhập được {imported}."
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "Đã nhập bằng LibreOffice — hãy kiểm tra các trang chiếu. Dự kiến {expected} trang chiếu nhưng chỉ nhập được {imported}."
 
 #: src/strings/import.rs
 msgid "To import presentations, install LibreOffice. {hint}"
-msgstr ""
+msgstr "Để nhập bài trình chiếu, hãy cài LibreOffice. {hint}"
 
 #: src/strings/item_edit.rs
 msgid "Saved"
-msgstr ""
+msgstr "Đã lưu"
 
 #: src/strings/item_edit.rs
 msgid "Theme default"
-msgstr ""
+msgstr "Mặc định của chủ đề"
 
 #: src/strings/item_edit.rs
 msgid "+ Upload…"
-msgstr ""
+msgstr "+ Tải lên…"
 
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
-msgstr ""
+msgstr "Đã thêm vào thư viện đa phương tiện — chọn ở đây"
 
 #: src/strings/operator.rs src/strings/print.rs
 msgid "Picture"
-msgstr ""
+msgstr "Hình ảnh"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
-msgstr ""
+msgstr "{kind} · không phát được"
 
 #: src/strings/operator.rs
 msgid " · loops"
-msgstr ""
+msgstr " · lặp lại"
 
 #: src/strings/operator.rs
 msgid "{kind} · The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "{kind} · Thiếu trình phát video — hãy cài lại RustyPresenter"
 
 #: src/strings/operator.rs
 msgid "{kind} · {n} slide"
 msgid_plural "{kind} · {n} slides"
-msgstr[0] ""
+msgstr[0] "{kind} · {n} trang chiếu"
 
 #: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
 msgid "{n} item"
 msgid_plural "{n} items"
-msgstr[0] ""
+msgstr[0] "{n} mục"
 
 #: src/strings/operator.rs
 msgid "{n} phone"
 msgid_plural "{n} phones"
-msgstr[0] ""
+msgstr[0] "{n} điện thoại"
 
 #: src/strings/operator.rs
 msgid "Clear"
-msgstr ""
+msgstr "Xóa"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
-msgstr ""
+msgstr "Hình trang chiếu"
 
 #: src/strings/operator.rs
 msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
-msgstr ""
+msgstr "Chữ đã lớn nhất có thể. Hãy chọn ít câu hơn mỗi trang (Sửa) để chữ lớn hơn."
 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
-msgstr ""
+msgstr "Chọn một mục bên trái"
 
 #: src/strings/operator.rs
 msgid "Welcome"
-msgstr ""
+msgstr "Chào mừng"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
-msgstr ""
+msgstr "Đã xảy ra lỗi."
 
 #: src/strings/operator.rs
 msgid "Room screen is showing"
-msgstr ""
+msgstr "Màn hình hội trường đang chiếu"
 
 #: src/strings/operator.rs
 msgid "Room screen is starting…"
-msgstr ""
+msgstr "Màn hình hội trường đang khởi động…"
 
 #: src/strings/operator.rs
 msgid "Room screen is not open — click Screens"
-msgstr ""
+msgstr "Màn hình hội trường chưa mở — bấm Màn hình"
 
 #: src/strings/operator.rs
 msgid "Could not open the operator window: {error}"
-msgstr ""
+msgstr "Không mở được cửa sổ điều khiển: {error}"
 
 #: src/strings/operator.rs
 msgid "Make {n} pictures into one set of slides?"
 msgid_plural "Make {n} pictures into one set of slides?"
-msgstr[0] ""
+msgstr[0] "Gộp {n} hình thành một bộ trang chiếu?"
 
 #: src/strings/operator.rs
 msgid "One slide set"
-msgstr ""
+msgstr "Một bộ trang chiếu"
 
 #: src/strings/operator.rs
 msgid "Separate pictures"
-msgstr ""
+msgstr "Các hình riêng lẻ"
 
 #: src/strings/operator.rs
 msgid "Videos, pictures and music"
-msgstr ""
+msgstr "Video, hình ảnh và nhạc"
 
 #: src/strings/operator.rs
 msgid "Presentations"
-msgstr ""
+msgstr "Bài trình chiếu"
 
 #: src/strings/operator.rs
 msgid "SongSelect lyric files"
-msgstr ""
+msgstr "Tệp lời hát SongSelect"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
-msgstr ""
+msgstr "Hình ảnh và video"
 
 #: src/strings/operator.rs
 msgid "Service files"
-msgstr ""
+msgstr "Tệp buổi lễ"
 
 #: src/strings/operator.rs src/strings/scripture.rs
 msgid "{passage} added — press Enter to show it"
-msgstr ""
+msgstr "Đã thêm {passage} — nhấn Enter để chiếu"
 
 #: src/strings/operator.rs
 msgid "Added to the service"
-msgstr ""
+msgstr "Đã thêm vào buổi lễ"
 
 #: src/strings/operator.rs
 msgid "Uploading {name}"
-msgstr ""
+msgstr "Đang tải lên {name}"
 
 #: src/strings/operator.rs
 msgid "Uploading {n} picture"
 msgid_plural "Uploading {n} pictures"
-msgstr[0] ""
+msgstr[0] "Đang tải lên {n} hình"
 
 #: src/strings/operator.rs
 msgid "{name} added"
-msgstr ""
+msgstr "Đã thêm {name}"
 
 #: src/strings/operator.rs
 msgid "Imported “{title}”"
-msgstr ""
+msgstr "Đã nhập “{title}”"
 
 #: src/strings/operator.rs
 msgid "“{title}” is already in the library."
-msgstr ""
+msgstr "“{title}” đã có trong thư viện."
 
 #: src/strings/operator.rs
 msgid "Updated “{title}”"
-msgstr ""
+msgstr "Đã cập nhật “{title}”"
 
 #: src/strings/operator.rs
 msgid "Update existing"
-msgstr ""
+msgstr "Cập nhật bài có sẵn"
 
 #: src/strings/operator.rs
 msgid "Keep both"
-msgstr ""
+msgstr "Giữ cả hai"
 
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
-msgstr ""
+msgstr "“{title}” đã sẵn sàng"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
-msgstr ""
+msgstr "Đặt tên cho bộ trang chiếu"
 
 #: src/strings/operator.rs
 msgid "Message for the stage screen. Leave it empty to take it down."
-msgstr ""
+msgstr "Tin nhắn cho màn hình sân khấu. Để trống để gỡ xuống."
 
 #: src/strings/operator.rs
 msgid "Favourites"
-msgstr ""
+msgstr "Yêu thích"
 
 #: src/strings/operator.rs
 msgid "Recent"
-msgstr ""
+msgstr "Gần đây"
 
 #: src/strings/operator.rs
 msgid "Other Bibles"
-msgstr ""
+msgstr "Bản Kinh Thánh khác"
 
 #: src/strings/operator.rs
 msgid "imported"
-msgstr ""
+msgstr "đã nhập"
 
 #: src/strings/operator.rs
 msgid "No Bible you have matches. Find more Bibles below."
-msgstr ""
+msgstr "Không có bản Kinh Thánh nào của bạn phù hợp. Tìm thêm ở bên dưới."
 
 #: src/strings/operator.rs
 msgid "{bible} added to favourites"
-msgstr ""
+msgstr "Đã thêm {bible} vào yêu thích"
 
 #: src/strings/operator.rs
 msgid "{bible} removed from favourites"
-msgstr ""
+msgstr "Đã bỏ {bible} khỏi yêu thích"
 
 #: src/strings/operator.rs
 msgid "All media"
-msgstr ""
+msgstr "Tất cả"
 
 #: src/strings/operator.rs
 msgid "Converting {percent}%"
-msgstr ""
+msgstr "Đang chuyển đổi {percent}%"
 
 #: src/strings/operator.rs
 msgid "Click a thumbnail to choose it."
-msgstr ""
+msgstr "Bấm vào hình thu nhỏ để chọn."
 
 #: src/strings/operator.rs
 msgid "Double-click a thumbnail to use it as the selected item’s background."
-msgstr ""
+msgstr "Bấm đúp vào hình thu nhỏ để dùng làm nền cho mục đã chọn."
 
 #: src/strings/operator.rs
 msgid "Add it to the service to play it."
-msgstr ""
+msgstr "Hãy thêm vào buổi lễ để phát."
 
 #: src/strings/operator.rs
 msgid "This file isn’t ready to play yet."
-msgstr ""
+msgstr "Tệp này chưa sẵn sàng để phát."
 
 #: src/strings/operator.rs
 msgid "Pick a service item first, then choose its background."
-msgstr ""
+msgstr "Hãy chọn một mục trong buổi lễ trước, rồi chọn nền cho nó."
 
 #: src/strings/operator.rs
 msgid "Background set to {name}"
-msgstr ""
+msgstr "Đã đặt nền là {name}"
 
 #: src/strings/operator.rs
 msgid "Folder name (leave empty for none)"
-msgstr ""
+msgstr "Tên thư mục (để trống nếu không dùng)"
 
 #: src/strings/operator.rs
 msgid "Name for the new folder"
-msgstr ""
+msgstr "Tên thư mục mới"
 
 #: src/strings/operator.rs
 msgid "Delete the folder “{name}”? Its files stay in the library."
-msgstr ""
+msgstr "Xóa thư mục “{name}”? Các tệp trong đó vẫn ở lại thư viện."
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
 msgid_plural "Code works for {n} more seconds"
-msgstr[0] ""
+msgstr[0] "Mã còn hiệu lực {n} giây"
 
 #: src/strings/phone.rs
 msgid "Code expired — click Pair a phone again."
-msgstr ""
+msgstr "Mã đã hết hạn — bấm lại Ghép nối điện thoại."
 
 #: src/strings/planning.rs
 msgid "No date"
-msgstr ""
+msgstr "Không có ngày"
 
 #: src/strings/planning.rs
 msgid "Mon"
-msgstr ""
+msgstr "T2"
 
 #: src/strings/planning.rs
 msgid "Tue"
-msgstr ""
+msgstr "T3"
 
 #: src/strings/planning.rs
 msgid "Wed"
-msgstr ""
+msgstr "T4"
 
 #: src/strings/planning.rs
 msgid "Thu"
-msgstr ""
+msgstr "T5"
 
 #: src/strings/planning.rs
 msgid "Fri"
-msgstr ""
+msgstr "T6"
 
 #: src/strings/planning.rs
 msgid "Sat"
-msgstr ""
+msgstr "T7"
 
 #: src/strings/planning.rs
 msgid "Sun"
-msgstr ""
+msgstr "CN"
 
 #: src/strings/planning.rs
 msgid "Monday"
-msgstr ""
+msgstr "Thứ Hai"
 
 #: src/strings/planning.rs
 msgid "Tuesday"
-msgstr ""
+msgstr "Thứ Ba"
 
 #: src/strings/planning.rs
 msgid "Wednesday"
-msgstr ""
+msgstr "Thứ Tư"
 
 #: src/strings/planning.rs
 msgid "Thursday"
-msgstr ""
+msgstr "Thứ Năm"
 
 #: src/strings/planning.rs
 msgid "Friday"
-msgstr ""
+msgstr "Thứ Sáu"
 
 #: src/strings/planning.rs
 msgid "Saturday"
-msgstr ""
+msgstr "Thứ Bảy"
 
 #: src/strings/planning.rs
 msgid "Sunday"
-msgstr ""
+msgstr "Chủ nhật"
 
 #: src/strings/planning.rs
 msgid "Mondays"
-msgstr ""
+msgstr "Mỗi Thứ Hai"
 
 #: src/strings/planning.rs
 msgid "Tuesdays"
-msgstr ""
+msgstr "Mỗi Thứ Ba"
 
 #: src/strings/planning.rs
 msgid "Wednesdays"
-msgstr ""
+msgstr "Mỗi Thứ Tư"
 
 #: src/strings/planning.rs
 msgid "Thursdays"
-msgstr ""
+msgstr "Mỗi Thứ Năm"
 
 #: src/strings/planning.rs
 msgid "Fridays"
-msgstr ""
+msgstr "Mỗi Thứ Sáu"
 
 #: src/strings/planning.rs
 msgid "Saturdays"
-msgstr ""
+msgstr "Mỗi Thứ Bảy"
 
 #: src/strings/planning.rs
 msgid "Sundays"
-msgstr ""
+msgstr "Mỗi Chủ nhật"
 
 #: src/strings/planning.rs
 msgid "Any day"
-msgstr ""
+msgstr "Ngày bất kỳ"
 
 #: src/strings/planning.rs
 msgctxt "typed answer: no fixed day"
 msgid "any"
-msgstr ""
+msgstr "bất kỳ"
 
 #: src/strings/planning.rs
 msgid "January"
-msgstr ""
+msgstr "Tháng 1"
 
 #: src/strings/planning.rs
 msgid "February"
-msgstr ""
+msgstr "Tháng 2"
 
 #: src/strings/planning.rs
 msgid "March"
-msgstr ""
+msgstr "Tháng 3"
 
 #: src/strings/planning.rs
 msgid "April"
-msgstr ""
+msgstr "Tháng 4"
 
 #: src/strings/planning.rs
 msgid "May"
-msgstr ""
+msgstr "Tháng 5"
 
 #: src/strings/planning.rs
 msgid "June"
-msgstr ""
+msgstr "Tháng 6"
 
 #: src/strings/planning.rs
 msgid "July"
-msgstr ""
+msgstr "Tháng 7"
 
 #: src/strings/planning.rs
 msgid "August"
-msgstr ""
+msgstr "Tháng 8"
 
 #: src/strings/planning.rs
 msgid "September"
-msgstr ""
+msgstr "Tháng 9"
 
 #: src/strings/planning.rs
 msgid "October"
-msgstr ""
+msgstr "Tháng 10"
 
 #: src/strings/planning.rs
 msgid "November"
-msgstr ""
+msgstr "Tháng 11"
 
 #: src/strings/planning.rs
 msgid "December"
-msgstr ""
+msgstr "Tháng 12"
 
 #: src/strings/planning.rs
 msgid "Bible reading"
-msgstr ""
+msgstr "Đọc Kinh Thánh"
 
 #: src/strings/planning.rs
 msgid "Something"
-msgstr ""
+msgstr "Nội dung"
 
 #: src/strings/planning.rs
 msgid "Blank"
-msgstr ""
+msgstr "Chỗ trống"
 
 #: src/strings/planning.rs
 msgid "{label} (blank)"
-msgstr ""
+msgstr "{label} (trống)"
 
 #: src/strings/planning.rs
 msgid "Click Choose to fill this in"
-msgstr ""
+msgstr "Bấm Chọn để điền vào"
 
 #: src/strings/planning.rs
 msgid "This is a blank — choose what goes here first."
-msgstr ""
+msgstr "Đây là chỗ trống — hãy chọn nội dung trước."
 
 #: src/strings/planning.rs
 msgid "Fill in: {label}"
-msgstr ""
+msgstr "Điền: {label}"
 
 #: src/strings/planning.rs
 msgid "There is no service to copy."
-msgstr ""
+msgstr "Không có buổi lễ nào để sao chép."
 
 #: src/strings/planning.rs
 msgid "That template is gone."
-msgstr ""
+msgstr "Mẫu đó không còn nữa."
 
 #: src/strings/planning.rs
 msgid "That date isn't valid."
-msgstr ""
+msgstr "Ngày đó không hợp lệ."
 
 #: src/strings/planning.rs
 msgid "That blank is gone."
-msgstr ""
+msgstr "Chỗ trống đó không còn nữa."
 
 #: src/strings/planning.rs
 msgid "That item is not a blank any more."
-msgstr ""
+msgstr "Mục đó không còn là chỗ trống nữa."
 
 #: src/strings/planning.rs
 msgid "A template needs a name."
-msgstr ""
+msgstr "Mẫu cần có tên."
 
 #: src/strings/planning.rs
 msgid "A template needs at least one part."
-msgstr ""
+msgstr "Mẫu cần có ít nhất một phần."
 
 #: src/strings/planning.rs
 msgid "This is in the template “{name}”. Remove it from the template first."
-msgstr ""
+msgstr "Mục này có trong mẫu “{name}”. Hãy gỡ khỏi mẫu trước."
 
 #: src/strings/planning.rs
 msgid "{n} blank"
 msgid_plural "{n} blanks"
-msgstr[0] ""
+msgstr[0] "{n} chỗ trống"
 
 #: src/strings/planning.rs
 msgid "Show {n} older service"
 msgid_plural "Show {n} older services"
-msgstr[0] ""
+msgstr[0] "Hiện {n} buổi lễ cũ hơn"
 
 #: src/strings/planning.rs
 msgid "{n} part, {blanks}"
 msgid_plural "{n} parts, {blanks}"
-msgstr[0] ""
+msgstr[0] "{n} phần, {blanks}"
 
 #: src/strings/planning.rs
 msgid "No templates yet. Use “Save as template” on a service to make one."
-msgstr ""
+msgstr "Chưa có mẫu nào. Dùng “Lưu làm mẫu” trên một buổi lễ để tạo mẫu."
 
 #: src/strings/planning.rs
 msgid "Save a service as a template first"
-msgstr ""
+msgstr "Hãy lưu một buổi lễ làm mẫu trước"
 
 #: src/strings/planning.rs
 msgid "Make a service for {date} from “{service}”?"
-msgstr ""
+msgstr "Tạo buổi lễ cho {date} từ “{service}”?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible readings"
-msgstr ""
+msgstr "Sao chép, để trống chỗ cho bài hát và đọc Kinh Thánh"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
-msgstr ""
+msgstr "Đã có buổi lễ cho {date} (“{name}”)."
 
 #: src/strings/planning.rs
 msgid "Open it"
-msgstr ""
+msgstr "Mở"
 
 #: src/strings/planning.rs
 msgid "Make another"
-msgstr ""
+msgstr "Tạo thêm"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready"
-msgstr ""
+msgstr "“{name}” đã sẵn sàng"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready — fill in {blanks}"
-msgstr ""
+msgstr "“{name}” đã sẵn sàng — hãy điền {blanks}"
 
 #: src/strings/planning.rs
 msgid "Date of the service (leave empty for no date)"
-msgstr ""
+msgstr "Ngày của buổi lễ (để trống nếu không có ngày)"
 
 #: src/strings/planning.rs
 msgid "Date of the service, like {example} (leave empty for no date)"
-msgstr ""
+msgstr "Ngày của buổi lễ, như {example} (để trống nếu không có ngày)"
 
 #: src/strings/planning.rs
 msgid "Name for the template"
-msgstr ""
+msgstr "Tên mẫu"
 
 #: src/strings/planning.rs
 msgid "Template “{name}” saved"
-msgstr ""
+msgstr "Đã lưu mẫu “{name}”"
 
 #: src/strings/planning.rs
 msgid "Rename template"
-msgstr ""
+msgstr "Đổi tên mẫu"
 
 #: src/strings/planning.rs
 msgid "Delete the template “{name}”? (Services made from it stay.)"
-msgstr ""
+msgstr "Xóa mẫu “{name}”? (Các buổi lễ tạo từ mẫu vẫn được giữ.)"
 
 #: src/strings/planning.rs
 msgid "Which template?"
-msgstr ""
+msgstr "Mẫu nào?"
 
 #: src/strings/planning.rs src/strings/services.rs
 msgid "Name for the new service"
-msgstr ""
+msgstr "Tên buổi lễ mới"
 
 #: src/strings/planning.rs
 msgid "Which day is the template “{name}” for?"
-msgstr ""
+msgstr "Mẫu “{name}” dùng cho ngày nào?"
 
 #: src/strings/planning.rs
 msgid "Name for the header"
-msgstr ""
+msgstr "Tên tiêu đề mục"
 
 #: src/strings/planning.rs
 msgid "Worship"
-msgstr ""
+msgstr "Thờ phượng"
 
 #: src/strings/planning.rs
 msgid "Rename header"
-msgstr ""
+msgstr "Đổi tên tiêu đề mục"
 
 #: src/strings/planning.rs
 msgid "Click “Make a service” on the template you want, under Templates."
-msgstr ""
+msgstr "Bấm “Tạo buổi lễ” trên mẫu bạn muốn, trong phần Mẫu."
 
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
-msgstr ""
+msgstr "Gõ một ngày trong tuần, như Chủ nhật, hoặc để trống cho ngày bất kỳ."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
-msgstr ""
+msgstr "Mọi thứ đã sẵn sàng. Đã tìm thấy đủ bài hát, tệp và màn hình cho buổi lễ này."
 
 #: src/strings/preflight.rs
 msgid "This service has no items yet."
-msgstr ""
+msgstr "Buổi lễ này chưa có mục nào."
 
 #: src/strings/preflight.rs
 msgid "No room screen is chosen. Choose one in Screens."
-msgstr ""
+msgstr "Chưa chọn màn hình hội trường. Hãy chọn trong Màn hình."
 
 #: src/strings/preflight.rs
 msgid "The room screen is not connected. Check its cable, or choose another in Screens."
-msgstr ""
+msgstr "Màn hình hội trường chưa được kết nối. Hãy kiểm tra dây cáp, hoặc chọn màn hình khác trong Màn hình."
 
 #: src/strings/preflight.rs
 msgid "The stage screen is not connected. The service can run without it."
-msgstr ""
+msgstr "Màn hình sân khấu chưa được kết nối. Buổi lễ vẫn chạy được mà không cần nó."
 
 #: src/strings/preflight.rs
 msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr ""
+msgstr "Đầu ra âm thanh đã chọn trong Cài đặt chưa được kết nối. Hãy cắm vào, hoặc chọn đầu ra khác trong Cài đặt → Video."
 
 #: src/strings/preflight.rs
 msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr ""
+msgstr "Đầu ra âm thanh chưa được kết nối, nên video hoặc âm thanh đã tạm dừng. Hãy cắm vào, hoặc chọn đầu ra khác trong Cài đặt → Video, rồi bấm phát."
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "Thiếu tệp logo. Hãy chọn lại trong Cài đặt."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "Thiếu tệp nền mặc định. Hãy chọn lại trong Cài đặt."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
-msgstr ""
+msgstr "bài hát không còn trong thư viện"
 
 #: src/strings/preflight.rs
 msgid "the song has no words"
-msgstr ""
+msgstr "bài hát không có lời"
 
 #: src/strings/preflight.rs
 msgid "there is no verse text"
-msgstr ""
+msgstr "không có nội dung câu"
 
 #: src/strings/preflight.rs
 msgid "it is no longer in the library"
-msgstr ""
+msgstr "không còn trong thư viện"
 
 #: src/strings/preflight.rs
 msgid "its file is missing"
-msgstr ""
+msgstr "thiếu tệp"
 
 #: src/strings/preflight.rs
 msgid "these slides are no longer in the library"
-msgstr ""
+msgstr "các trang chiếu này không còn trong thư viện"
 
 #: src/strings/preflight.rs
 msgid "its background file is missing"
-msgstr ""
+msgstr "thiếu tệp nền"
 
 #: src/strings/preflight.rs
 msgid "it can't be played ({reason})"
-msgstr ""
+msgstr "không phát được ({reason})"
 
 #: src/strings/preflight.rs
 msgid "{missing} of {n} slides are missing"
 msgid_plural "{missing} of {n} slides are missing"
-msgstr[0] ""
+msgstr[0] "thiếu {missing} trên {n} trang chiếu"
 
 #: src/strings/preflight.rs
 msgid "{number}. {title}: {problem}"
-msgstr ""
+msgstr "{number}. {title}: {problem}"
 
 #: src/strings/preflight.rs
 msgid "…and {n} more"
-msgstr ""
+msgstr "…và {n} mục khác"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
 msgid_plural "{n} things to fix before the service:"
-msgstr[0] ""
+msgstr[0] "{n} điều cần sửa trước buổi lễ:"
 
 #: src/strings/preflight.rs
 msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
-msgstr ""
+msgstr "{bible} chưa sẵn sàng ngoại tuyến cho {passage}. Hãy mở buổi lễ này một lần khi có internet."
 
 #: src/strings/print.rs
 msgid "Order: {sections}"
-msgstr ""
+msgstr "Thứ tự: {sections}"
 
 #: src/strings/print.rs
 msgid "Blank — {label}"
-msgstr ""
+msgstr "Chỗ trống — {label}"
 
 #: src/strings/print.rs
 msgid "(not chosen yet)"
-msgstr ""
+msgstr "(chưa chọn)"
 
 #: src/strings/print.rs
 msgid "(no lyrics)"
-msgstr ""
+msgstr "(không có lời)"
 
 #: src/strings/print.rs
 msgid "(the verse text isn't saved with this service)"
-msgstr ""
+msgstr "(nội dung câu không được lưu cùng buổi lễ này)"
 
 #: src/strings/print.rs
 msgid " (loops)"
-msgstr ""
+msgstr " (lặp lại)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible readings in this service."
-msgstr ""
+msgstr "Buổi lễ này không có bài hát hay phần đọc Kinh Thánh nào."
 
 #: src/strings/print.rs
 msgid "This service is empty."
-msgstr ""
+msgstr "Buổi lễ này trống."
 
 #: src/strings/print.rs
 msgid "Printed from RustyPresenter · {date}"
-msgstr ""
+msgstr "In từ RustyPresenter · {date}"
 
 #: src/strings/print.rs
 msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
-msgstr ""
+msgstr "Đã mở trong trình duyệt web — hãy dùng lệnh In ở đó (bạn cũng có thể lưu thành PDF từ cửa sổ in)"
 
 #: src/strings/print.rs
 msgid "Saved {file}"
-msgstr ""
+msgstr "Đã lưu {file}"
 
 #: src/strings/print.rs
 msgid "Couldn't make the page: {reason}."
-msgstr ""
+msgstr "Không tạo được trang: {reason}."
 
 #: src/strings/print.rs
 msgid "Couldn't save to that folder: {reason}."
-msgstr ""
+msgstr "Không lưu được vào thư mục đó: {reason}."
 
 #: src/strings/print.rs
 msgid "The page is saved at {path} but no program opened it. Open it from there to print."
-msgstr ""
+msgstr "Trang đã được lưu tại {path} nhưng không có chương trình nào mở nó. Hãy mở từ đó để in."
 
 #: src/strings/print.rs
 msgid "Web page"
-msgstr ""
+msgstr "Trang web"
 
 #: src/strings/print.rs
 msgid "Print or save"
-msgstr ""
+msgstr "In hoặc lưu"
 
 #: src/strings/screens.rs
 msgid "Audience"
-msgstr ""
+msgstr "Khán phòng"
 
 #: src/strings/screens.rs
 msgid "Audience screen"
-msgstr ""
+msgstr "Màn hình khán phòng"
 
 #: src/strings/screens.rs
 msgid "Stage screen"
-msgstr ""
+msgstr "Màn hình sân khấu"
 
 #: src/strings/screens.rs
 msgid "Showing"
-msgstr ""
+msgstr "Đang chiếu"
 
 #: src/strings/screens.rs
 msgid "No output"
-msgstr ""
+msgstr "Không có đầu ra"
 
 #: src/strings/screens.rs
 msgid "Unplugged"
-msgstr ""
+msgstr "Đã rút"
 
 #: src/strings/screens.rs
 msgid "None"
-msgstr ""
+msgstr "Không"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"
-msgstr ""
+msgstr "Trong cửa sổ (để thử)"
 
 #: src/strings/screens.rs
 msgid "Not connected right now"
-msgstr ""
+msgstr "Hiện chưa kết nối"
 
 #: src/strings/screens.rs
 msgid "This is the screen you are working on. Turning this on covers it."
-msgstr ""
+msgstr "Đây là màn hình bạn đang làm việc. Bật lên sẽ che mất nó."
 
 #: src/strings/screens.rs
 msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
-msgstr ""
+msgstr "Hiện cùng hình với {screen}. Âm thanh chỉ phát từ {screen}."
 
 #: src/strings/screens.rs
 msgid "Remove “{name}”?"
-msgstr ""
+msgstr "Gỡ “{name}”?"
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
-msgstr ""
+msgstr "Hãy gõ ít nhất một từ để tìm."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr ""
+msgstr "Thêm số chương, như Job 1 hoặc Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
-msgstr ""
+msgstr "Hãy chọn bản dịch thứ hai khác."
 
 #: src/strings/scripture.rs
 msgid "Second translation turned off (same as main)."
-msgstr ""
+msgstr "Đã tắt bản dịch thứ hai (trùng bản chính)."
 
 #: src/strings/scripture.rs
 msgid "Too long — will split inside a verse"
-msgstr ""
+msgstr "Quá dài — sẽ tách giữa câu"
 
 #: src/strings/scripture.rs
 msgid "Keeping these together makes a slide too long, so it will split inside a verse."
-msgstr ""
+msgstr "Giữ chung các câu này làm trang chiếu quá dài, nên sẽ tách giữa câu."
 
 #: src/strings/scripture.rs
 msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
-msgstr ""
+msgstr "Trang chiếu Kinh Thánh giờ được canh vừa màn hình, nên một số phân đoạn có thể ngắt ở chỗ khác."
 
 #: src/strings/scripture.rs
 msgid "Fitting slides…"
-msgstr ""
+msgstr "Đang canh trang chiếu…"
 
 #: src/strings/scripture.rs
 msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
-msgstr ""
+msgstr "Không thể dùng bản dịch này trong RustyPresenter. Vui lòng chọn bản Kinh Thánh khác."
 
 #: src/strings/scripture.rs
 msgid "This verse came from an older version; look the passage up again to choose breaks here."
-msgstr ""
+msgstr "Câu này đến từ phiên bản cũ hơn; hãy tra lại phân đoạn để chọn chỗ ngắt ở đây."
 
 #: src/strings/scripture.rs
 msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
 msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
-msgstr[0] ""
+msgstr[0] "{n} phân đoạn dùng bản dịch không thể dùng trong RustyPresenter và đã bị gỡ."
 
 #: src/strings/scripture.rs
 msgid "Ready on this computer"
-msgstr ""
+msgstr "Sẵn sàng trên máy này"
 
 #: src/strings/scripture.rs
 msgid "Ready (needs internet)"
-msgstr ""
+msgstr "Sẵn sàng (cần internet)"
 
 #: src/strings/scripture.rs
 msgid "Needs a key — Get one"
-msgstr ""
+msgstr "Cần khóa — Lấy khóa"
 
 #: src/strings/scripture.rs
 msgid "Not available"
-msgstr ""
+msgstr "Không có sẵn"
 
 #: src/strings/scripture.rs
 msgid "Search: Ready"
-msgstr ""
+msgstr "Tìm kiếm: Sẵn sàng"
 
 #: src/strings/scripture.rs
 msgid "Search: online (ESV)"
-msgstr ""
+msgstr "Tìm kiếm: trực tuyến (ESV)"
 
 #: src/strings/scripture.rs
 msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
-msgstr ""
+msgstr "Tìm kiếm dùng được cho các bản dịch lưu trên máy này (KJV và mọi bản Kinh Thánh có sẵn hoặc đã nhập). Không tìm được trong bản dịch trực tuyến vì chủ sở hữu không cho phép (ESV có thể có tìm kiếm trực tuyến riêng)."
 
 #: src/strings/scripture.rs
 msgid "Every word must appear in the verse (love neighbour finds verses with both)."
-msgstr ""
+msgstr "Mọi từ phải có trong câu (love neighbour tìm các câu có cả hai từ)."
 
 #: src/strings/scripture.rs
 msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
-msgstr ""
+msgstr "Từ khớp theo phần đầu: love tìm thấy love, loved, loveth, lovest, loving. Từ ngắn hơn 3 chữ cái phải khớp chính xác."
 
 #: src/strings/scripture.rs
 msgid "Put words in quotes for an exact phrase: \"be still\"."
-msgstr ""
+msgstr "Đặt các từ trong ngoặc kép để tìm đúng cụm từ: \"be still\"."
 
 #: src/strings/scripture.rs
 msgid "Capitals and punctuation do not matter. lord finds LORD."
-msgstr ""
+msgstr "Chữ hoa và dấu câu không quan trọng. lord tìm thấy LORD."
 
 #: src/strings/scripture.rs
 msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
-msgstr ""
+msgstr "Kết quả phù hợp nhất hiện trước: các câu có đúng các từ theo thứ tự, rồi các câu có các từ ở gần nhau, rồi phần còn lại theo thứ tự Kinh Thánh. Chuyển sang thứ tự Kinh Thánh để thấy Sáng Thế Ký trước."
 
 #: src/strings/scripture.rs
 msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
-msgstr ""
+msgstr "Ctrl+Enter trong ô Kinh Thánh luôn tìm kiếm, kể cả với tên sách như \"Job\"."
 
 #: src/strings/scripture.rs
 msgid "Also show…"
-msgstr ""
+msgstr "Hiện thêm…"
 
 #: src/strings/scripture.rs
 msgid "Search by words…"
-msgstr ""
+msgstr "Tìm theo từ…"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
-msgstr ""
+msgstr "Ngắt trang"
 
 #: src/strings/scripture.rs
 msgid "Choose slide breaks…"
-msgstr ""
+msgstr "Chọn chỗ ngắt trang…"
 
 #: src/strings/scripture.rs
 msgid "Reset to automatic"
-msgstr ""
+msgstr "Đặt lại tự động"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
-msgstr ""
+msgstr "Trang mới (tự động)"
 
 #: src/strings/scripture.rs
 msgid "New slide (you added)"
-msgstr ""
+msgstr "Trang mới (bạn thêm)"
 
 #: src/strings/scripture.rs
 msgid "Kept together"
-msgstr ""
+msgstr "Giữ chung"
 
 #: src/strings/scripture.rs
 msgid "+ New slide here"
-msgstr ""
+msgstr "+ Trang mới ở đây"
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes always stack two translations."
-msgstr ""
+msgstr "Chủ đề phần ba dưới luôn xếp chồng hai bản dịch."
 
 #: src/strings/scripture.rs
 msgid "Search for these words"
-msgstr ""
+msgstr "Tìm các từ này"
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have all of those words."
-msgstr ""
+msgstr "Không có câu nào trong {bible} chứa tất cả các từ đó."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr ""
+msgstr "Không có câu nào trong {bible} chứa từ đó. Nếu đó là tên sách, hãy kiểm tra chính tả và thêm số chương, như John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
-msgstr ""
+msgstr "Đang hiện {shown} câu đầu trong {total} câu — thêm từ để thu hẹp kết quả."
 
 #: src/strings/scripture.rs
 msgid "{count} verse found in {bible}"
 msgid_plural "{count} verses found in {bible}"
-msgstr[0] ""
+msgstr[0] "Tìm thấy {count} câu trong {bible}"
 
 #: src/strings/scripture.rs
 msgid "Getting {bible} ready to search…"
-msgstr ""
+msgstr "Đang chuẩn bị {bible} để tìm kiếm…"
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
-msgstr ""
+msgstr "Không tìm kiếm được trong {bible}. Hãy thử bản dịch lưu trên máy này, như KJV."
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}, so this searches {local}."
-msgstr ""
+msgstr "Không tìm kiếm được trong {bible}, nên sẽ tìm trong {local}."
 
 #: src/strings/scripture.rs
 msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
-msgstr ""
+msgstr "Tìm trong ESV cần internet. Hãy kiểm tra kết nối, hoặc tìm trong KJV."
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}"
-msgstr ""
+msgstr "Không tìm kiếm được trong {bible}"
 
 #: src/strings/scripture.rs
 msgid "{bible} needs a key. Add one in Settings → Bible."
-msgstr ""
+msgstr "{bible} cần khóa. Hãy thêm trong Cài đặt → Kinh Thánh."
 
 #: src/strings/scripture.rs
 msgid "{bible} isn't available."
-msgstr ""
+msgstr "{bible} không có sẵn."
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible} text — check the internet."
-msgstr ""
+msgstr "Không lấy được nội dung {bible} — hãy kiểm tra internet."
 
 #: src/strings/scripture.rs
 msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
-msgstr ""
+msgstr "{second} hiện không có sẵn, nên chỉ thêm {main}. Tắt bản dịch thứ hai bằng nút X."
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible}: {error}"
-msgstr ""
+msgstr "Không lấy được {bible}: {error}"
 
 #: src/strings/scripture.rs
 msgid "{bible} doesn't include {passage}."
-msgstr ""
+msgstr "{bible} không có {passage}."
 
 #: src/strings/scripture.rs
 msgid "Add {passage}"
-msgstr ""
+msgstr "Thêm {passage}"
 
 #: src/strings/scripture.rs
 msgid "Search for \"{word}\" instead"
-msgstr ""
+msgstr "Tìm \"{word}\" thay thế"
 
 #: src/strings/scripture.rs
 msgid "That passage is too long. Choose up to about {n} verses."
-msgstr ""
+msgstr "Phân đoạn đó quá dài. Hãy chọn tối đa khoảng {n} câu."
 
 #: src/strings/scripture.rs
 msgid "{bible} turned off (same as main)."
-msgstr ""
+msgstr "Đã tắt {bible} (trùng bản chính)."
 
 #: src/strings/scripture.rs
 msgid "{left} isn't available right now, so only {kept} was added."
-msgstr ""
+msgstr "{left} hiện không có sẵn, nên chỉ thêm {kept}."
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes show two Bibles. {bible} is left out."
-msgstr ""
+msgstr "Chủ đề phần ba dưới hiện hai bản Kinh Thánh. {bible} bị bỏ ra."
 
 #: src/strings/scripture.rs
 msgid "{bible} needs the internet for this passage."
-msgstr ""
+msgstr "{bible} cần internet cho phân đoạn này."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bibles."
-msgstr ""
+msgstr "Bản Kinh Thánh đó đã bị gỡ. Hãy thêm lại trong Cài đặt → Kinh Thánh."
 
 #: src/strings/services.rs
 msgid "Name for the copy"
-msgstr ""
+msgstr "Tên bản sao"
 
 #: src/strings/services.rs
 msgid "Rename service"
-msgstr ""
+msgstr "Đổi tên buổi lễ"
 
 #: src/strings/services.rs
 msgid "Service {date}"
-msgstr ""
+msgstr "Buổi lễ {date}"
 
 #: src/strings/services.rs
 msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
-msgstr ""
+msgstr "Xóa buổi lễ “{name}”? (Bài hát và tệp đa phương tiện vẫn ở lại thư viện.)"
 
 #: src/strings/settings.rs
 msgid "Settings saved"
-msgstr ""
+msgstr "Đã lưu cài đặt"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
-msgstr ""
+msgstr "Máy tính này chưa cài “{font}”, nên trang chiếu dùng Noto Sans."
 
 #: src/strings/settings.rs
 msgid "Ready — offline"
-msgstr ""
+msgstr "Sẵn sàng — ngoại tuyến"
 
 #: src/strings/settings.rs
 msgid "Ready — online"
-msgstr ""
+msgstr "Sẵn sàng — trực tuyến"
 
 #: src/strings/settings.rs
 msgid "Needs a free key"
-msgstr ""
+msgstr "Cần khóa miễn phí"
 
 #: src/strings/settings.rs
 msgid "No source yet"
-msgstr ""
+msgstr "Chưa có nguồn"
 
 #: src/strings/settings.rs
 msgid "or"
-msgstr ""
+msgstr "hoặc"
 
 #: src/strings/settings.rs
 msgid "Connect {sources} below"
-msgstr ""
+msgstr "Kết nối {sources} bên dưới"
 
 #: src/strings/settings.rs
 msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
-msgstr ""
+msgstr "Không có nguồn trực tuyến nào cung cấp bản này. Hãy nhập tệp có giấy phép, hoặc dán các câu khi thêm."
 
 #: src/strings/settings.rs
 msgid "For {bibles}"
-msgstr ""
+msgstr "Cho {bibles}"
 
 #: src/strings/settings.rs
 msgid "{source} connected"
-msgstr ""
+msgstr "Đã kết nối {source}"
 
 #: src/strings/settings.rs
 msgid "{source} disconnected"
-msgstr ""
+msgstr "Đã ngắt kết nối {source}"
 
 #: src/strings/settings.rs
 msgid "Link copied — paste it into your browser"
-msgstr ""
+msgstr "Đã chép liên kết — hãy dán vào trình duyệt"
 
 #: src/strings/settings.rs
 msgid "Added {bible} ({count} verses)"
 msgid_plural "Added {bible} ({count} verses)"
-msgstr[0] ""
+msgstr[0] "Đã thêm {bible} ({count} câu)"
 
 #: src/strings/settings.rs
 msgid "Import failed."
-msgstr ""
+msgstr "Nhập thất bại."
 
 #: src/strings/settings.rs
 msgid "{bible} removed"
-msgstr ""
+msgstr "Đã gỡ {bible}"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv (LGPL build)"
-msgstr ""
+msgstr "Trình phát video: libmpv (bản dựng LGPL)"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv {version} (LGPL build)"
-msgstr ""
+msgstr "Trình phát video: libmpv {version} (bản dựng LGPL)"
 
 #: src/strings/settings.rs
 msgid "Video drawing: GPU (OpenGL)"
-msgstr ""
+msgstr "Vẽ video: GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video drawing: Software"
-msgstr ""
+msgstr "Vẽ video: Phần mềm"
 
 #: src/strings/settings.rs
 msgid "Could not copy: {error}"
-msgstr ""
+msgstr "Không sao chép được: {error}"
 
 #: src/strings/settings.rs
 msgid "Backup made"
-msgstr ""
+msgstr "Đã tạo bản sao lưu"
 
 #: src/strings/settings.rs
 msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
-msgstr ""
+msgstr "Khôi phục bản sao lưu này? Bài hát và buổi lễ hiện tại sẽ bị thay thế (một bản sao vẫn được giữ lại)."
 
 #: src/strings/settings.rs
 msgid "Backup restored"
-msgstr ""
+msgstr "Đã khôi phục bản sao lưu"
 
 #: src/strings/settings.rs
 msgid "{songs} songs · {services} services · {files} files"
-msgstr ""
+msgstr "{songs} bài hát · {services} buổi lễ · {files} tệp"
 
 #: src/strings/settings.rs
 msgid "→  ↓  Space  Page Down"
-msgstr ""
+msgstr "→  ↓  Space  Page Down"
 
 #: src/strings/settings.rs
 msgid "←  ↑  Page Up"
-msgstr ""
+msgstr "←  ↑  Page Up"
 
 #: src/strings/settings.rs
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: src/strings/settings.rs
 msgid "Ctrl + B"
-msgstr ""
+msgstr "Ctrl + B"
 
 #: src/strings/settings.rs
 msgid "Alt + 1–5"
-msgstr ""
+msgstr "Alt + 1–5"
 
 #: src/strings/settings.rs
 msgid "Ctrl + V"
-msgstr ""
+msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr ""
+msgstr "Chuyển bài hát đang chiếu tới Phiên khúc 1–9, Điệp khúc, Tiền điệp khúc, Chuyển đoạn, Đoạn lặp cuối, Dạo đầu, Kết, Gian tấu hoặc Phiên khúc kế tiếp"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
-msgstr ""
+msgstr "Thêm liên kết YouTube đã chép"
 
 #: src/strings/settings.rs
 msgid "Esc"
-msgstr ""
+msgstr "Esc"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
-msgstr ""
+msgstr "Chiếu mục đã chọn"
 
 #: src/strings/settings.rs
 msgid "Pick a Bible chip (in the Bible box)"
-msgstr ""
+msgstr "Chọn nhãn Kinh Thánh (trong ô Kinh Thánh)"
 
 #: src/strings/settings.rs
 msgid "Leave a text box"
-msgstr ""
+msgstr "Rời ô nhập chữ"
 
 #: src/strings/settings.rs
 msgid "Video: GPU (OpenGL)"
-msgstr ""
+msgstr "Video: GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video: software drawing"
-msgstr ""
+msgstr "Video: vẽ bằng phần mềm"
 
 #: src/strings/settings.rs
 msgid "Video player missing"
-msgstr ""
+msgstr "Thiếu trình phát video"
 
 #: src/strings/settings.rs
 msgid "libmpv (client API {major}.{minor}) — {path}"
-msgstr ""
+msgstr "libmpv (client API {major}.{minor}) — {path}"
 
 #: src/strings/settings.rs
 msgid "LGPL build"
-msgstr ""
+msgstr "bản dựng LGPL"
 
 #: src/strings/settings.rs
 msgid "not an LGPL build"
-msgstr ""
+msgstr "không phải bản dựng LGPL"
 
 #: src/strings/settings.rs
 msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
-msgstr ""
+msgstr "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
 
 #: src/strings/settings.rs
 msgid "found"
-msgstr ""
+msgstr "đã tìm thấy"
 
 #: src/strings/settings.rs
 msgid "missing"
-msgstr ""
+msgstr "bị thiếu"
 
 #: src/strings/settings.rs
 msgid "Snap — not usable"
-msgstr ""
+msgstr "Snap — không dùng được"
 
 #: src/strings/settings.rs
 msgid "not installed"
-msgstr ""
+msgstr "chưa cài"
 
 #: src/strings/settings.rs
 msgid "not found"
-msgstr ""
+msgstr "không tìm thấy"
 
 #: src/strings/settings.rs
 msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
-msgstr ""
+msgstr "Phát video dùng libmpv (LGPL-2.1+) và các thư viện FFmpeg theo giấy phép LGPLv2.1 — mã nguồn: {url}"
 
 #: src/strings/settings.rs
 msgid "Use the computer's language ({name})"
-msgstr ""
+msgstr "Dùng ngôn ngữ của máy tính ({name})"
 
 #: src/strings/settings.rs
 msgid "{name} (needs review)"
-msgstr ""
+msgstr "{name} (cần xem lại)"
 
 #: src/strings/settings.rs
 msgid "{english_name} · {percent}% translated"
-msgstr ""
+msgstr "{english_name} · đã dịch {percent}%"
 
 #: src/strings/settings.rs
 msgid "This computer's default sound output"
-msgstr ""
+msgstr "Đầu ra âm thanh mặc định của máy tính này"
 
 #: src/strings/settings.rs
 msgid "The saved sound output (not connected)"
-msgstr ""
+msgstr "Đầu ra âm thanh đã lưu (chưa kết nối)"
 
 #: src/strings/song.rs
 msgid "Verse"
-msgstr ""
+msgstr "Phiên khúc"
 
 #: src/strings/song.rs
 msgid "Chorus"
-msgstr ""
+msgstr "Điệp khúc"
 
 #: src/strings/song.rs
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Tiền điệp khúc"
 
 #: src/strings/song.rs
 msgid "Bridge"
-msgstr ""
+msgstr "Chuyển đoạn"
 
 #: src/strings/song.rs
 msgid "Tag"
-msgstr ""
+msgstr "Đoạn lặp cuối"
 
 #: src/strings/song.rs
 msgid "Intro"
-msgstr ""
+msgstr "Dạo đầu"
 
 #: src/strings/song.rs
 msgid "Ending"
-msgstr ""
+msgstr "Kết"
 
 #: src/strings/song.rs
 msgid "Interlude"
-msgstr ""
+msgstr "Gian tấu"
 
 #: src/strings/song.rs
 msgid "Other"
-msgstr ""
+msgstr "Khác"
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
-msgstr ""
+msgstr "Phím đoạn chỉ dùng cho bài hát."
 
 #: src/strings/song.rs
 msgid "The song changed — try again."
-msgstr ""
+msgstr "Bài hát đã thay đổi — hãy thử lại."
 
 #: src/strings/song.rs
 msgid "The live song changed — try again."
-msgstr ""
+msgstr "Bài hát đang chiếu đã thay đổi — hãy thử lại."
 
 #: src/strings/song.rs
 msgid "That song is no longer live."
-msgstr ""
+msgstr "Bài hát đó không còn đang chiếu."
 
 #: src/strings/song.rs
 msgid "That song has no slides now. The screen keeps the old words."
-msgstr ""
+msgstr "Bài hát đó giờ không có trang chiếu. Màn hình giữ lời cũ."
 
 #: src/strings/song.rs
 msgid "Saved. The new words show when you bring the text back."
-msgstr ""
+msgstr "Đã lưu. Lời mới sẽ hiện khi bạn bật lại chữ."
 
 #: src/strings/song.rs
 msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
-msgstr ""
+msgstr "Bạn đã sửa lời đang trên màn hình. Cập nhật màn hình để hiện ngay. Bấm vào một trang chiếu cũng sẽ hiện bản mới."
 
 #: src/strings/song.rs
 msgid "The live song looks different now. Update screen to show it."
-msgstr ""
+msgstr "Bài hát đang chiếu giờ đã khác. Cập nhật màn hình để hiện."
 
 #: src/strings/song.rs
 msgid "The part of the song on screen was removed. Update screen starts the song from the top."
-msgstr ""
+msgstr "Phần bài hát đang trên màn hình đã bị xóa. Cập nhật màn hình sẽ bắt đầu bài hát từ đầu."
 
 #: src/strings/song.rs
 msgid "This song has no words now. The screen keeps the old words."
-msgstr ""
+msgstr "Bài hát này giờ không có lời. Màn hình giữ lời cũ."
 
 #: src/strings/song.rs
 msgid "Click to show this part"
-msgstr ""
+msgstr "Bấm để chiếu phần này"
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
-msgstr ""
+msgstr "Bài hát này không có {section} {number}."
 
 #: src/strings/song.rs
 msgid "This song has no {section}."
-msgstr ""
+msgstr "Bài hát này không có {section}."
 
 #: src/strings/song.rs
 msgid "Jumped to {section} ({key})"
-msgstr ""
+msgstr "Đã chuyển tới {section} ({key})"
 
 #: src/strings/song.rs
 msgid "{section} — press {key}"
-msgstr ""
+msgstr "{section} — nhấn {key}"
 
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
-msgstr ""
+msgstr "{section} · trang {page}/{pages}"
 
 #: src/strings/stage.rs
 msgid "Stage layout"
-msgstr ""
+msgstr "Bố cục sân khấu"
 
 #: src/strings/stage.rs
 msgid "Classic"
-msgstr ""
+msgstr "Cổ điển"
 
 #: src/strings/stage.rs
 msgid "Lyrics only"
-msgstr ""
+msgstr "Chỉ lời hát"
 
 #: src/strings/stage.rs
 msgid "Band"
-msgstr ""
+msgstr "Ban nhạc"
 
 #: src/strings/stage.rs
 msgid "Speaker"
-msgstr ""
+msgstr "Diễn giả"
 
 #: src/strings/stage.rs
 msgid "Clock and countdown"
-msgstr ""
+msgstr "Đồng hồ và đếm ngược"
 
 #: src/strings/stage.rs
 msgid "Current slide"
-msgstr ""
+msgstr "Trang hiện tại"
 
 #: src/strings/stage.rs
 msgid "Next slide"
-msgstr ""
+msgstr "Trang tiếp theo"
 
 #: src/strings/stage.rs
 msgid "Section"
-msgstr ""
+msgstr "Đoạn"
 
 #: src/strings/stage.rs
 msgid "Next section"
-msgstr ""
+msgstr "Đoạn tiếp theo"
 
 #: src/strings/stage.rs
 msgid "Item title"
-msgstr ""
+msgstr "Tên mục"
 
 #: src/strings/stage.rs
 msgid "Slides left"
-msgstr ""
+msgstr "Số trang còn lại"
 
 #: src/strings/stage.rs
 msgid "Notes"
-msgstr ""
+msgstr "Ghi chú"
 
 #: src/strings/stage.rs
 msgid "Clock"
-msgstr ""
+msgstr "Đồng hồ"
 
 #: src/strings/stage.rs
 msgid "Timer"
-msgstr ""
+msgstr "Hẹn giờ"
 
 #: src/strings/stage.rs
 msgid "Video time left"
-msgstr ""
+msgstr "Thời gian video còn lại"
 
 #: src/strings/stage.rs
 msgid "Message"
-msgstr ""
+msgstr "Tin nhắn"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
-msgstr ""
+msgstr "lời đang trên màn hình"
 
 #: src/strings/stage.rs
 msgid "the words coming next"
-msgstr ""
+msgstr "lời sắp tới"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
-msgstr ""
+msgstr "Phiên khúc, Điệp khúc, Chuyển đoạn…"
 
 #: src/strings/stage.rs
 msgid "the next part of the song"
-msgstr ""
+msgstr "phần tiếp theo của bài hát"
 
 #: src/strings/stage.rs
 msgid "the live item's name"
-msgstr ""
+msgstr "tên mục đang chiếu"
 
 #: src/strings/stage.rs
 msgid "“3 slides left”"
-msgstr ""
+msgstr "“còn 3 trang”"
 
 #: src/strings/stage.rs
 msgid "the slide's stage notes"
-msgstr ""
+msgstr "ghi chú sân khấu của trang"
 
 #: src/strings/stage.rs
 msgid "the time of day"
-msgstr ""
+msgstr "giờ hiện tại"
 
 #: src/strings/stage.rs
 msgid "a countdown or count-up"
-msgstr ""
+msgstr "đếm ngược hoặc đếm lên"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
-msgstr ""
+msgstr "thời gian còn lại của video hoặc âm thanh"
 
 #: src/strings/stage.rs
 msgid "messages sent from the back"
-msgstr ""
+msgstr "tin nhắn gửi từ phía sau"
 
 #: src/strings/stage.rs
 msgid "words you type once"
-msgstr ""
+msgstr "chữ bạn gõ một lần"
 
 #: src/strings/stage.rs
 msgid "(logo)"
-msgstr ""
+msgstr "(logo)"
 
 #: src/strings/stage.rs
 msgid "Nothing live"
-msgstr ""
+msgstr "Không có gì đang chiếu"
 
 #: src/strings/stage.rs
 msgid "NEXT SECTION"
-msgstr ""
+msgstr "ĐOẠN TIẾP THEO"
 
 #: src/strings/stage.rs
 msgid "NEXT · {title}"
-msgstr ""
+msgstr "TIẾP THEO · {title}"
 
 #: src/strings/stage.rs
 msgid "Last slide"
-msgstr ""
+msgstr "Trang cuối"
 
 #: src/strings/stage.rs
 msgid "{n} slide left"
 msgid_plural "{n} slides left"
-msgstr[0] ""
+msgstr[0] "Còn {n} trang"
 
 #: src/strings/stage.rs
 msgid "Timer removed"
-msgstr ""
+msgstr "Đã gỡ bộ hẹn giờ"
 
 #: src/strings/stage.rs
 msgid "{timer} · paused"
-msgstr ""
+msgstr "{timer} · tạm dừng"
 
 #: src/strings/stage.rs
 msgid "That stage layout is gone."
-msgstr ""
+msgstr "Bố cục sân khấu đó không còn nữa."
 
 #: src/strings/stage.rs
 msgid "Built-in stage layouts can't be changed. Make a copy first."
-msgstr ""
+msgstr "Không thể sửa bố cục sân khấu có sẵn. Hãy tạo bản sao trước."
 
 #: src/strings/stage.rs
 msgid "Give the stage layout a name."
-msgstr ""
+msgstr "Hãy đặt tên cho bố cục sân khấu."
 
 #: src/strings/stage.rs
 msgid "There is already a stage layout called “{name}”."
-msgstr ""
+msgstr "Đã có bố cục sân khấu tên “{name}”."
 
 #: src/strings/stage.rs
 msgid "A stage layout can have at most 24 boxes."
-msgstr ""
+msgstr "Bố cục sân khấu chỉ có tối đa 24 ô."
 
 #: src/strings/stage.rs
 msgid "{question} It is used by {things}. {what_happens}."
-msgstr ""
+msgstr "{question} Đang được dùng bởi {things}. {what_happens}."
 
 #: src/strings/stage.rs
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first} và {second}"
 
 #: src/strings/stage.rs
 msgid "{first}, {second} and {third}"
-msgstr ""
+msgstr "{first}, {second} và {third}"
 
 #: src/strings/stage.rs
 msgid "{items_effect}; {macros_effect}"
-msgstr ""
+msgstr "{items_effect}; {macros_effect}"
 
 #: src/strings/stage.rs
 msgid "{n} service item"
 msgid_plural "{n} service items"
-msgstr[0] ""
+msgstr[0] "{n} mục buổi lễ"
 
 #: src/strings/stage.rs
 msgid "the stage default"
-msgstr ""
+msgstr "mặc định sân khấu"
 
 #: src/strings/stage.rs
 msgid "{n} macro"
 msgid_plural "{n} macros"
-msgstr[0] ""
+msgstr[0] "{n} macro"
 
 #: src/strings/stage.rs
 msgid "Items and the default will use Classic"
-msgstr ""
+msgstr "Các mục và mặc định sẽ dùng Cổ điển"
 
 #: src/strings/stage.rs
 msgid "That item will use the stage default"
-msgstr ""
+msgstr "Mục đó sẽ dùng mặc định sân khấu"
 
 #: src/strings/stage.rs
 msgid "Those items will use the stage default"
-msgstr ""
+msgstr "Các mục đó sẽ dùng mặc định sân khấu"
 
 #: src/strings/stage.rs
 msgid "The default will use Classic"
-msgstr ""
+msgstr "Mặc định sẽ dùng Cổ điển"
 
 #: src/strings/stage.rs
 msgid "the macro won't run until it is edited"
-msgstr ""
+msgstr "macro sẽ không chạy cho đến khi được sửa"
 
 #: src/strings/stage.rs
 msgid "the macros won't run until they are edited"
-msgstr ""
+msgstr "các macro sẽ không chạy cho đến khi được sửa"
 
 #: src/strings/stage.rs
 msgid "The macro won't run until it is edited"
-msgstr ""
+msgstr "Macro sẽ không chạy cho đến khi được sửa"
 
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
-msgstr ""
+msgstr "Các macro sẽ không chạy cho đến khi được sửa"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
-msgstr ""
+msgstr "Hãy đặt tên cho chủ đề."
 
 #: src/strings/themes.rs
 msgid "That name is used by a built-in theme. Pick another."
-msgstr ""
+msgstr "Tên đó đã được dùng cho chủ đề có sẵn. Hãy chọn tên khác."
 
 #: src/strings/themes.rs
 msgid "That theme is gone."
-msgstr ""
+msgstr "Chủ đề đó không còn nữa."
 
 #: src/strings/themes.rs
 msgid "Built-in themes can't be deleted."
-msgstr ""
+msgstr "Không thể xóa chủ đề có sẵn."
 
 #: src/strings/themes.rs
 msgid "Standard is changed with Save on its own editor."
-msgstr ""
+msgstr "Chủ đề Chuẩn được thay đổi bằng nút Lưu trong trình sửa riêng của nó."
 
 #: src/strings/themes.rs
 msgid "Theme saved"
-msgstr ""
+msgstr "Đã lưu chủ đề"
 
 #: src/strings/themes.rs
 msgid "Theme deleted"
-msgstr ""
+msgstr "Đã xóa chủ đề"
 
 #: src/strings/themes.rs
 msgid "Standard"
-msgstr ""
+msgstr "Chuẩn"
 
 #: src/strings/themes.rs
 msgid "Church default"
-msgstr ""
+msgstr "Mặc định hội thánh"
 
 #: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
-msgstr ""
+msgstr "Có sẵn — kiểu ban đầu của RustyPresenter"
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
-msgstr ""
+msgstr "Mặc định hội thánh — dùng khi không chọn gì khác"
 
 #: src/strings/themes.rs
 msgid "New theme"
-msgstr ""
+msgstr "Chủ đề mới"
 
 #: src/strings/themes.rs
 msgid "Only songs, Bible passages and announcements use a theme."
-msgstr ""
+msgstr "Chỉ bài hát, phân đoạn Kinh Thánh và thông báo dùng chủ đề."
 
 #: src/strings/themes.rs
 msgid "Text is already bold in this theme"
-msgstr ""
+msgstr "Chữ đã in đậm sẵn trong chủ đề này"
 
 #: src/strings/themes.rs
 msgid "works on every computer"
-msgstr ""
+msgstr "dùng được trên mọi máy tính"
 
 #: src/strings/themes.rs
 msgid "Backgrounds can be pictures or videos."
-msgstr ""
+msgstr "Nền có thể là hình ảnh hoặc video."
 
 #: src/strings/themes.rs
 msgid "Give the background a name."
-msgstr ""
+msgstr "Hãy đặt tên cho nền."
 
 #: src/strings/themes.rs
 msgid "That background is gone."
-msgstr ""
+msgstr "Nền đó không còn nữa."
 
 #: src/strings/themes.rs
 msgid "Added to backgrounds"
-msgstr ""
+msgstr "Đã thêm vào nền"
 
 #: src/strings/themes.rs
 msgid " · own background"
-msgstr ""
+msgstr " · nền riêng"
 
 #: src/strings/themes.rs
 msgid "From theme"
-msgstr ""
+msgstr "Theo chủ đề"
 
 #: src/strings/themes.rs
 msgid "Standard background"
-msgstr ""
+msgstr "Nền chuẩn"
 
 #: src/strings/themes.rs
 msgid "Current (not in your backgrounds)"
-msgstr ""
+msgstr "Hiện tại (không có trong danh sách nền)"
 
 #: src/strings/themes.rs
 msgid "Couldn't convert"
-msgstr ""
+msgstr "Không chuyển đổi được"
 
 #: src/strings/themes.rs
 msgid "Makes text easier to read"
-msgstr ""
+msgstr "Giúp chữ dễ đọc hơn"
 
 #: src/strings/themes.rs
 msgid "Give the overlay a name."
-msgstr ""
+msgstr "Hãy đặt tên cho lớp phủ."
 
 #: src/strings/themes.rs
 msgid "Type the overlay's text."
-msgstr ""
+msgstr "Hãy nhập chữ cho lớp phủ."
 
 #: src/strings/themes.rs
 msgid "That overlay is gone."
-msgstr ""
+msgstr "Lớp phủ đó không còn nữa."
 
 #: src/strings/themes.rs
 msgid "Only text, picture and clock overlays can be saved."
-msgstr ""
+msgstr "Chỉ lưu được lớp phủ chữ, hình ảnh và đồng hồ."
 
 #: src/strings/themes.rs
 msgid "Up to 8 overlays can be on at once. Turn one off first."
-msgstr ""
+msgstr "Chỉ bật được tối đa 8 lớp phủ cùng lúc. Hãy tắt một lớp trước."
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Themes)."
-msgstr ""
+msgstr "Hãy chọn logo hội thánh trước (Cài đặt → Chủ đề)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
-msgstr ""
+msgstr "Hình đó không còn nữa."
 
 #: src/strings/themes.rs
 msgid "the picture could not be loaded."
-msgstr ""
+msgstr "không tải được hình."
 
 #: src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
-msgstr ""
+msgstr "Đã thay đổi — tắt rồi bật lại để cập nhật."
 
 #: src/strings/themes.rs
 msgid "Logo saved"
-msgstr ""
+msgstr "Đã lưu logo"
 
 #: src/strings/themes.rs
 msgid "Logo removed"
-msgstr ""
+msgstr "Đã gỡ logo"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr ""
+msgstr "Dành cho bảng hiệu hiện lâu."
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr ""
+msgstr "Dành cho bảng hiệu hiện lâu. Với thông báo như tên phụ huynh, hãy dùng Tin nhắn (khi có)."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
-msgstr ""
+msgstr "Dữ liệu này được lưu bởi RustyPresenter mới hơn. Vui lòng cài phiên bản mới nhất."
 
 #: src/strings/themes.rs
 msgid "Expected an object."
-msgstr ""
+msgstr "Cần một đối tượng."
 
 #: src/strings/themes.rs
 msgid "The same item is listed twice."
-msgstr ""
+msgstr "Cùng một mục được liệt kê hai lần."
 
 #: src/strings/themes.rs
 msgid "There's already a theme called “{name}”."
-msgstr ""
+msgstr "Đã có chủ đề tên “{name}”."
 
 #: src/strings/themes.rs
 msgid "Couldn't show the overlay “{name}”: {reason}"
-msgstr ""
+msgstr "Không hiện được lớp phủ “{name}”: {reason}"
 
 #: src/strings/themes.rs
 msgid "(deleted) {name}"
-msgstr ""
+msgstr "(đã xóa) {name}"
 
 #: src/strings/themes.rs
 msgid "{n} item has its own background. Use the theme's background for it too?"
 msgid_plural "{n} items have their own background. Use the theme's background for them too?"
-msgstr[0] ""
+msgstr[0] "{n} mục có nền riêng. Cũng dùng nền của chủ đề cho chúng?"
 
 #: src/strings/themes.rs
 msgid "Used by {n} item"
 msgid_plural "Used by {n} items"
-msgstr[0] ""
+msgstr[0] "Được dùng bởi {n} mục"
 
 #: src/strings/themes.rs
 msgid "Background {n}"
-msgstr ""
+msgstr "Nền {n}"
 
 #: src/strings/themes.rs
 msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
-msgstr ""
+msgstr "Đặt “{name}” làm mặc định hội thánh? Mọi thứ không có chủ đề riêng sẽ dùng chủ đề này. Bạn có thể đổi lại bất cứ lúc nào."
 
 #: src/strings/themes.rs
 msgid "“{name}” is now the church default"
-msgstr ""
+msgstr "“{name}” giờ là mặc định hội thánh"
 
 #: src/strings/themes.rs
 msgid "Delete the theme “{name}”?"
-msgstr ""
+msgstr "Xóa chủ đề “{name}”?"
 
 #: src/strings/themes.rs
 msgid "{n} service"
 msgid_plural "{n} services"
-msgstr[0] ""
+msgstr[0] "{n} buổi lễ"
 
 #: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
-msgstr[0] ""
+msgstr[0] "{things} đang dùng chủ đề này; sẽ chuyển sang dùng mặc định hội thánh."
 
 #: src/strings/themes.rs
 msgid "{items} and {services} use it; they'll use the church default instead."
-msgstr ""
+msgstr "{items} và {services} đang dùng chủ đề này; sẽ chuyển sang dùng mặc định hội thánh."
 
 #: src/strings/themes.rs
 msgid "It's the church default, so Standard becomes the church default."
-msgstr ""
+msgstr "Đây là mặc định hội thánh, nên Chuẩn sẽ trở thành mặc định hội thánh."
 
 #: src/strings/themes.rs
 msgid "Remove “{name}” from backgrounds? Items that use it keep it."
-msgstr ""
+msgstr "Gỡ “{name}” khỏi danh sách nền? Các mục đang dùng vẫn giữ nền này."
 
 #: src/strings/themes.rs
 msgid "Used by screen view(s): {views}"
-msgstr ""
+msgstr "Được dùng bởi chế độ xem màn hình: {views}"
 
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
-msgstr ""
+msgstr "Đang chuyển đổi {percent} %"
 
 #: src/strings/themes.rs
 msgid "Theme: {name}"
-msgstr ""
+msgstr "Chủ đề: {name}"
 
 #: src/strings/themes.rs
 msgid "Bold"
-msgstr ""
+msgstr "Đậm"
 
 #: src/strings/themes.rs
 msgid "Italic"
-msgstr ""
+msgstr "Nghiêng"
 
 #: src/strings/themes.rs
 msgid "Underline"
-msgstr ""
+msgstr "Gạch dưới"
 
 #: src/strings/themes.rs
 msgid "Gold"
-msgstr ""
+msgstr "Vàng"
 
 #: src/strings/themes.rs
 msgid "Red"
-msgstr ""
+msgstr "Đỏ"
 
 #: src/strings/themes.rs
 msgid "Color"
-msgstr ""
+msgstr "Màu"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
-msgstr ""
+msgstr "Nhỏ"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Large"
-msgstr ""
+msgstr "Lớn"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"
-msgstr ""
+msgstr "Rất lớn"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
-msgstr ""
+msgstr "Cài LibreOffice (miễn phí) từ libreoffice.org, hoặc chạy: winget install TheDocumentFoundation.LibreOffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
-msgstr ""
+msgstr "Cài LibreOffice (miễn phí) từ libreoffice.org, hoặc chạy: brew install --cask libreoffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
-msgstr ""
+msgstr "Cài LibreOffice Impress, ví dụ: sudo apt install libreoffice-impress"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
-msgstr ""
+msgstr "Không tạo được địa chỉ tệp từ {path}"
 
 #: src/strings/usage.rs
 msgid "Song use report"
-msgstr ""
+msgstr "Báo cáo sử dụng bài hát"
 
 #: src/strings/usage.rs
 msgid "CCLI license #: {license}"
-msgstr ""
+msgstr "Số giấy phép CCLI: {license}"
 
 #: src/strings/usage.rs
 msgid "Add your church's CCLI license number in Settings → Songs."
-msgstr ""
+msgstr "Hãy thêm số giấy phép CCLI của hội thánh trong Cài đặt → Bài hát."
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
-msgstr ""
+msgstr "Đánh dấu đã báo cáo đến {date}"
 
 #: src/strings/usage.rs
 msgid "Next time, the report starts the day after {date}."
-msgstr ""
+msgstr "Lần sau, báo cáo sẽ bắt đầu từ ngày sau {date}."
 
 #: src/strings/usage.rs
 msgid "Mark as reported"
-msgstr ""
+msgstr "Đánh dấu đã báo cáo"
 
 #: src/strings/usage.rs
 msgid "Marked as reported through {date}."
-msgstr ""
+msgstr "Đã đánh dấu báo cáo đến {date}."
 
 #: src/strings/usage.rs
 msgid "Remove this entry? Use this for rehearsals that shouldn't count."
-msgstr ""
+msgstr "Gỡ mục ghi này? Dùng cho các buổi tập không cần tính."
 
 #: src/strings/usage.rs
 msgid "Entry removed"
-msgstr ""
+msgstr "Đã gỡ mục ghi"
 
 #: src/strings/usage.rs
 msgid "Save your settings changes and open the report?"
-msgstr ""
+msgstr "Lưu các thay đổi cài đặt và mở báo cáo?"
 
 #: src/strings/usage.rs
 msgid "Save and open"
-msgstr ""
+msgstr "Lưu và mở"
 
 #: src/strings/usage.rs
 msgid "Pick a From date before the To date."
-msgstr ""
+msgstr "Hãy chọn ngày Từ trước ngày Đến."
 
 #: src/strings/usage.rs
 msgid "Type dates as year-month-day, like 2026-11-01."
-msgstr ""
+msgstr "Nhập ngày theo dạng năm-tháng-ngày, như 2026-11-01."
 
 #: src/strings/usage.rs
 msgid "Couldn't save the report: {reason}."
-msgstr ""
+msgstr "Không lưu được báo cáo: {reason}."
 
 #: src/strings/usage.rs
 msgid "Saved {path}"
-msgstr ""
+msgstr "Đã lưu {path}"
 
 #: src/strings/usage.rs
 msgid "Spreadsheet (CSV)"
-msgstr ""
+msgstr "Bảng tính (CSV)"
 
 #: src/strings/usage.rs
 msgid "CCLI Song #"
-msgstr ""
+msgstr "Số bài hát CCLI"
 
 #: src/strings/usage.rs
 msgid "{from} to {to}"
-msgstr ""
+msgstr "{from} đến {to}"
 
 #: src/strings/usage.rs
 msgid "Print this page, or save it as a PDF from your browser's Print window."
-msgstr ""
+msgstr "In trang này, hoặc lưu thành PDF từ cửa sổ In của trình duyệt."
 
 #: src/strings/youtube.rs
 msgid "Looking up the video…"
-msgstr ""
+msgstr "Đang tìm video…"
 
 #: src/strings/youtube.rs
 msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "Đang chuẩn bị tải YouTube — chỉ lần đầu ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Updating YouTube downloads ({percent}%)…"
-msgstr ""
+msgstr "Đang cập nhật công cụ tải YouTube ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Getting the video joiner ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "Đang chuẩn bị công cụ ghép video — chỉ lần đầu ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
-msgstr ""
+msgstr "Dán liên kết tới video YouTube. Liên kết bắt đầu bằng https://www.youtube.com hoặc https://youtu.be."
 
 #: src/strings/youtube.rs
 msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
 msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
-msgstr[0] ""
+msgstr[0] "Liên kết này là danh sách phát gồm {n} video. Chỉ video đầu tiên sẽ được tải."
 
 #: src/strings/youtube.rs
 msgid "Best (up to 1080p)"
-msgstr ""
+msgstr "Tốt nhất (tới 1080p)"
 
 #: src/strings/youtube.rs
 msgid "Smaller (720p)"
-msgstr ""
+msgstr "Nhỏ hơn (720p)"
 
 #: src/strings/youtube.rs
 msgid "Smallest (480p)"
-msgstr ""
+msgstr "Nhỏ nhất (480p)"
 
 #: src/strings/youtube.rs
 msgid "Sound only"
-msgstr ""
+msgstr "Chỉ âm thanh"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”. It will be in Video & media when it's done."
-msgstr ""
+msgstr "Đang tải “{title}”. Khi xong sẽ có trong Video & đa phương tiện."
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”"
-msgstr ""
+msgstr "Đang tải “{title}”"
 
 #: src/strings/youtube.rs
 msgid "less than a minute left"
-msgstr ""
+msgstr "còn chưa đến một phút"
 
 #: src/strings/youtube.rs
 msgid "about a minute left"
-msgstr ""
+msgstr "còn khoảng một phút"
 
 #: src/strings/youtube.rs
 msgid "about {n} minute left"
 msgid_plural "about {n} minutes left"
-msgstr[0] ""
+msgstr[0] "còn khoảng {n} phút"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}” — {left}"
-msgstr ""
+msgstr "Đang tải “{title}” — {left}"
 
 #: src/strings/youtube.rs
 msgid "Finishing “{title}”…"
-msgstr ""
+msgstr "Đang hoàn tất “{title}”…"
 
 #: src/strings/youtube.rs
 msgid "Adding “{title}” to the library…"
-msgstr ""
+msgstr "Đang thêm “{title}” vào thư viện…"
 
 #: src/strings/youtube.rs
 msgid "Downloaded “{title}”"
-msgstr ""
+msgstr "Đã tải “{title}”"
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media and in the service."
-msgstr ""
+msgstr "Đã có trong Video & đa phương tiện và trong buổi lễ."
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media."
-msgstr ""
+msgstr "Đã có trong Video & đa phương tiện."
 
 #: src/strings/youtube.rs
 msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
-msgstr ""
+msgstr "Đã lưu ở chất lượng thấp hơn (360p) vì không cài được công cụ ghép video."
 
 #: src/strings/youtube.rs
 msgid "Can't reach YouTube. Check the internet connection and try again."
-msgstr ""
+msgstr "Không kết nối được YouTube. Hãy kiểm tra kết nối internet rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "This video is private, so only its owner can download it."
-msgstr ""
+msgstr "Video này ở chế độ riêng tư, nên chỉ chủ sở hữu mới tải được."
 
 #: src/strings/youtube.rs
 msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
-msgstr ""
+msgstr "YouTube chỉ hiện video này cho người đã đăng nhập (ví dụ, giới hạn độ tuổi), nên không tải được ở đây."
 
 #: src/strings/youtube.rs
 msgid "This video is only for the channel's members, so it can't be downloaded here."
-msgstr ""
+msgstr "Video này chỉ dành cho hội viên của kênh, nên không tải được ở đây."
 
 #: src/strings/youtube.rs
 msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
-msgstr ""
+msgstr "YouTube yêu cầu đăng nhập để xác minh không phải robot. Hãy chờ một lúc rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "This live stream hasn't finished yet. Try again after it ends."
-msgstr ""
+msgstr "Buổi phát trực tiếp này chưa kết thúc. Hãy thử lại sau khi kết thúc."
 
 #: src/strings/youtube.rs
 msgid "This live stream or premiere hasn't started yet."
-msgstr ""
+msgstr "Buổi phát trực tiếp hoặc công chiếu này chưa bắt đầu."
 
 #: src/strings/youtube.rs
 msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
-msgstr ""
+msgstr "Buổi phát trực tiếp này vừa kết thúc và YouTube vẫn đang xử lý. Hãy thử lại sau ít phút."
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
-msgstr ""
+msgstr "Liên kết đó không phải video YouTube. Hãy chép liên kết từ trang của video rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "This video isn't available. It may have been removed, or blocked in this country."
-msgstr ""
+msgstr "Video này không có sẵn. Có thể đã bị gỡ, hoặc bị chặn ở quốc gia này."
 
 #: src/strings/youtube.rs
 msgid "This playlist has no videos that can be downloaded."
-msgstr ""
+msgstr "Danh sách phát này không có video nào tải được."
 
 #: src/strings/youtube.rs
 msgid "The computer's disk is full. Free up some space and try again."
-msgstr ""
+msgstr "Ổ đĩa của máy tính đã đầy. Hãy giải phóng dung lượng rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
-msgstr ""
+msgstr "YouTube đã thay đổi gì đó và công cụ tải chưa đọc được video này. Hãy thử lại sau."
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
-msgstr ""
+msgstr "Không chuẩn bị được công cụ tải YouTube. Hãy kiểm tra kết nối internet rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
-msgstr ""
+msgstr "Công cụ tải YouTube nhận được không khớp dấu vân tay chính thức, nên không được dùng. Hãy thử lại sau."
 
 #: src/strings/youtube.rs
 msgid "YouTube downloads don't work on this kind of computer yet."
-msgstr ""
+msgstr "Tải YouTube chưa hoạt động trên loại máy tính này."
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
-msgstr ""
+msgstr "Không chuẩn bị được công cụ tải YouTube ({detail}). Hãy thử lại sau."
 
 #: src/strings/youtube.rs
 msgid "The download didn't work: {detail}"
-msgstr ""
+msgstr "Tải xuống không thành công: {detail}"
 
 #: src/strings/youtube.rs
 msgid "Cancelled."
-msgstr ""
+msgstr "Đã hủy."
 
 #: src/theme/backgrounds.rs
 msgid "Black"
-msgstr ""
+msgstr "Đen"
 
 #: src/theme/backgrounds.rs
 msgid "Night blue"
-msgstr ""
+msgstr "Xanh đêm"
 
 #: src/theme/backgrounds.rs
 msgid "Dark green"
-msgstr ""
+msgstr "Xanh lục đậm"
 
 #: src/theme/backgrounds.rs
 msgid "Plum"
-msgstr ""
+msgstr "Tím mận"
 
 #: src/theme/backgrounds.rs
 msgid "Brown"
-msgstr ""
+msgstr "Nâu"
 
 #: src/theme/backgrounds.rs
 msgid "White"
-msgstr ""
+msgstr "Trắng"
 
 #: src/theme/backgrounds.rs
 msgid "Midnight"
-msgstr ""
+msgstr "Nửa đêm"
 
 #: src/theme/backgrounds.rs
 msgid "Deep purple"
-msgstr ""
+msgstr "Tím đậm"
 
 #: src/theme/backgrounds.rs
 msgid "Forest"
-msgstr ""
+msgstr "Rừng xanh"
 
 #: src/theme/backgrounds.rs
 msgid "Ember"
-msgstr ""
+msgstr "Than hồng"
 
 #: src/theme/backgrounds.rs
 msgid "Ocean"
-msgstr ""
+msgstr "Đại dương"
 
 #: src/theme/backgrounds.rs
 msgid "Slate"
-msgstr ""
+msgstr "Xám đá"
 
 #: src/theme/richtext.rs
 msgid "Normal"
-msgstr ""
+msgstr "Bình thường"
 
 #: src/theme/saved.rs
 msgid "{name} copy"
-msgstr ""
+msgstr "{name} bản sao"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr ""
+msgstr "{name} bản sao {number}"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
-msgstr ""
+msgstr "{day} lúc {time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
-msgstr ""
+msgstr "{time} UTC"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
-msgstr ""
+msgstr "không tải được hình"
 
 #: src/ui/room.rs
 msgid "background took too long to load"
-msgstr ""
+msgstr "nền tải quá lâu"
 
 #: src/ui/room.rs
 msgid "picture took too long to load"
-msgstr ""
+msgstr "hình tải quá lâu"
 
 #: src/ui/room.rs
 msgid "video took too long to load"
-msgstr ""
+msgstr "video tải quá lâu"
 
 #: src/ui/room.rs
 msgid "slide took too long to load"
-msgstr ""
+msgstr "trang chiếu tải quá lâu"
 
 #: src/ui/room.rs
 msgid "logo took too long to load"
-msgstr ""
+msgstr "logo tải quá lâu"
 
 #: src/ui/room.rs
 msgid "overlay took too long to load"
-msgstr ""
+msgstr "lớp phủ tải quá lâu"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
-msgstr ""
+msgstr "âm thanh tải quá lâu"
 
 #: src/ui/room.rs
 msgid "the room could not prepare it"
-msgstr ""
+msgstr "màn hình hội trường không chuẩn bị được"
 
 #: src/ui/room.rs
 msgid "Could not open the room screen: {error}"
-msgstr ""
+msgstr "Không mở được màn hình hội trường: {error}"
 
 #: src/ui/screens.rs
 msgid "A presentation is on screen"
-msgstr ""
+msgstr "Đang có bài trình chiếu trên màn hình"
 
 #: src/ui/screens.rs
 msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Màn hình hội trường đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
 msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Màn hình khán phòng phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
 msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Màn hình sân khấu đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Màn hình sân khấu phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
 msgid "The room screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Màn hình hội trường đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra audience screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Màn hình khán phòng phụ đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
 msgid "The stage display is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Màn hình sân khấu đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Màn hình sân khấu phụ đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
 msgid "Could not show the screen numbers: {error}"
-msgstr ""
+msgstr "Không hiện được số màn hình: {error}"
 
 #: src/ui/screens.rs
 msgid "RustyPresenter is closing."
-msgstr ""
+msgstr "RustyPresenter đang đóng."
 
 #: src/ui/stage.rs
 msgid "Could not open the stage screen: {error}"
-msgstr ""
+msgstr "Không mở được màn hình sân khấu: {error}"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "Thiếu trình phát video. Hãy cài lại RustyPresenter."
 
 #: src/video/ffi.rs
 msgid "Cannot load the video player from {path}: {reason}"
-msgstr ""
+msgstr "Không tải được trình phát video từ {path}: {reason}"
 
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
-msgstr ""
+msgstr "libmpv này quá cũ (client API {major}.{minor}); RustyPresenter cần 2.x."
 
 #: src/video/player.rs
 msgid "The video player could not start."
-msgstr ""
+msgstr "Trình phát video không khởi động được."
 
 #: src/video/player.rs
 msgid "The video player could not start: {reason}"
-msgstr ""
+msgstr "Trình phát video không khởi động được: {reason}"
 
 #: src/video/player.rs
 msgid "{name} could not be played ({reason})"
-msgstr ""
+msgstr "Không phát được {name} ({reason})"
 
 #: src/video/surface.rs
 msgid "The video cannot be shown: {reason}"
-msgstr ""
+msgstr "Không hiện được video: {reason}"
 
 #: src/youtube/fetch.rs
 msgid "no release in {address}"
-msgstr ""
+msgstr "không có bản phát hành trong {address}"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
-msgstr ""
+msgstr "không có dấu vân tay cho {file}"
 
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
-msgstr ""
+msgstr "bản tải thiếu {file}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"
-msgstr ""
+msgstr "{address} quá lớn"
 
 #: src/youtube/fetch.rs
 msgid "unreadable archive: {error}"
-msgstr ""
+msgstr "không đọc được tệp nén: {error}"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp stopped"
-msgstr ""
+msgstr "yt-dlp đã dừng"
 
 #: src/youtube/mod.rs
 msgid "unreadable details ({error})"
-msgstr ""
+msgstr "không đọc được thông tin ({error})"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start ({error})"
-msgstr ""
+msgstr "yt-dlp không khởi động được ({error})"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start"
-msgstr ""
+msgstr "yt-dlp không khởi động được"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp gave no details"
-msgstr ""
+msgstr "yt-dlp không trả về thông tin"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp saved no video"
-msgstr ""
+msgstr "yt-dlp không lưu được video nào"
 
 #: src/youtube/mod.rs
 msgid "not a media file"
-msgstr ""
+msgstr "không phải tệp đa phương tiện"

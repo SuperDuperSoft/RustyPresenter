@@ -1,5324 +1,5328 @@
 # Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
 msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fil\nPlural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\nX-Native-Name: Filipino\nX-English-Name: Filipino\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
-msgstr ""
+msgstr "Hanapin sa iyong mga Bibliya"
 
 #: ui/bible-picker.slint
 msgid "not connected"
-msgstr ""
+msgstr "hindi nakakonekta"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
-msgstr ""
+msgstr "Paborito"
 
 #: ui/bible-picker.slint
 msgid "Find more Bibles…"
-msgstr ""
+msgstr "Maghanap ng iba pang Bibliya…"
 
 #: ui/bible-picker.slint ui/operator/topbar.slint
 msgid "Choose a Bible"
-msgstr ""
+msgstr "Pumili ng Bibliya"
 
 #: ui/dialogs/add-list.slint
 msgid "Try again"
-msgstr ""
+msgstr "Subukang muli"
 
 #: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
-msgstr ""
+msgstr "I-edit"
 
 #: ui/dialogs/add-list.slint src/strings/catalog.rs
 msgid "Add"
-msgstr ""
+msgstr "Idagdag"
 
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
-msgstr ""
+msgstr "Mag-download lamang ng mga video na may karapatang gamitin ang inyong simbahan (sariling gawa, may lisensya, o Creative Commons)."
 
 #: ui/dialogs/add-media.slint
 msgid "Paste a YouTube link here"
-msgstr ""
+msgstr "I-paste dito ang YouTube link"
 
 #: ui/dialogs/add-media.slint
 msgid "Download"
-msgstr ""
+msgstr "I-download"
 
 #: ui/dialogs/add-media.slint
 msgid "Add to service when done"
-msgstr ""
+msgstr "Idagdag sa service kapag tapos na"
 
 #: ui/dialogs/add-media.slint
 msgid "Quality"
-msgstr ""
+msgstr "Kalidad"
 
 #: ui/dialogs/add-media.slint
 msgid "Upload files"
-msgstr ""
+msgstr "Mag-upload ng mga file"
 
 #: ui/dialogs/add-media.slint
 msgid "Download from YouTube"
-msgstr ""
+msgstr "I-download mula sa YouTube"
 
 #: ui/dialogs/add-media.slint
 msgid "Any video format works."
-msgstr ""
+msgstr "Gumagana ang anumang format ng video."
 
 #: ui/dialogs/add-media.slint
 msgid "Import presentation"
-msgstr ""
+msgstr "Mag-import ng presentation"
 
 #: ui/dialogs/add-media.slint
 msgid "Make slides from pictures"
-msgstr ""
+msgstr "Gumawa ng slides mula sa mga larawan"
 
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
-msgstr ""
+msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Microsoft PowerPoint (.pptx) o PDF, saka i-import dito ang file na iyon. Gumagana rin ang mga Keynote at PDF file."
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
-msgstr ""
+msgstr "Kopyahin"
 
 #: ui/dialogs/add-media.slint
 msgid "Check again"
-msgstr ""
+msgstr "Suriin muli"
 
 #: ui/dialogs/add.slint src/strings/dialogs.rs
 msgid "New song"
-msgstr ""
+msgstr "Bagong kanta"
 
 #: ui/dialogs/add.slint
 msgid "Import SongSelect lyrics (.txt)"
-msgstr ""
+msgstr "Mag-import ng SongSelect lyrics (.txt)"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
-msgstr ""
+msgstr "Mag-import mula sa EasyWorship"
 
 #: ui/dialogs/add.slint
 msgid "Reference ({})"
-msgstr ""
+msgstr "Reference ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr ""
+msgstr "hal. Juan 3:16-18, Awit 23, Roma 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
-msgstr ""
+msgstr "Idagdag ang mga talata"
 
 #: ui/dialogs/add.slint
 msgid "Paste the verses instead"
-msgstr ""
+msgstr "I-paste na lang ang mga talata"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
 msgid "Verses per slide"
-msgstr ""
+msgstr "Talata bawat slide"
 
 #: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: ui/dialogs/add.slint
 msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
-msgstr ""
+msgstr "Mga talata ({}) — panatilihin ang mga numero ng talata para may sariling slide ang bawat talata"
 
 #: ui/dialogs/add.slint
 msgid "16 For God so loved the world… 17 For God did not send…"
-msgstr ""
+msgstr "16 Sapagkat gayon na lamang ang pag-ibig ng Diyos sa sanlibutan… 17 Sapagkat hindi isinugo ng Diyos…"
 
 #: ui/dialogs/add.slint
 msgid "Add pasted verses"
-msgstr ""
+msgstr "Idagdag ang na-paste na talata"
 
 #: ui/dialogs/add.slint
 msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
-msgstr ""
+msgstr "Tip: hindi mo kailangan ang window na ito. Mag-type ng talata sa Bible box sa itaas (o pindutin ang Ctrl+B), idadagdag ito ng Enter, at ipapakita ito ng isa pang Enter."
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Title"
-msgstr ""
+msgstr "Pamagat"
 
 #: ui/dialogs/add.slint
 msgid "e.g. Welcome, Announcements, Offering"
-msgstr ""
+msgstr "hal. Maligayang pagdating, Mga Anunsyo, Handog"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Text"
-msgstr ""
+msgstr "Teksto"
 
 #: ui/dialogs/add.slint
 msgid "Type your text. Leave an empty line to start a new slide."
-msgstr ""
+msgstr "I-type ang iyong teksto. Mag-iwan ng blangkong linya para magsimula ng bagong slide."
 
 #: ui/dialogs/add.slint
 msgid "Add announcement"
-msgstr ""
+msgstr "Idagdag ang anunsyo"
 
 #: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Song"
-msgstr ""
+msgstr "Kanta"
 
 #: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
-msgstr ""
+msgstr "Lyrics"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
-msgstr ""
+msgstr "Bibliya"
 
 #: ui/dialogs/add.slint
 msgid "Verses"
-msgstr ""
+msgstr "Mga talata"
 
 #: ui/dialogs/add.slint
 msgid "Video & media"
-msgstr ""
+msgstr "Video at media"
 
 #: ui/dialogs/add.slint
 msgid "Videos, pictures, music"
-msgstr ""
+msgstr "Video, larawan, musika"
 
 #: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Slides"
-msgstr ""
+msgstr "Slides"
 
 #: ui/dialogs/add.slint
 msgid "PowerPoint, pictures"
-msgstr ""
+msgstr "PowerPoint, larawan"
 
 #: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
-msgstr ""
+msgstr "Anunsyo"
 
 #: ui/dialogs/add.slint
 msgid "Your own text"
-msgstr ""
+msgstr "Sariling teksto"
 
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
-msgstr ""
+msgstr "Hex"
 
 #: ui/dialogs/background-picker.slint
 msgid "Pick any color"
-msgstr ""
+msgstr "Pumili ng anumang kulay"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
-msgstr ""
+msgstr "Ang lyrics, pagkakasunod-sunod at credits ay nasa kanta sa iyong library."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr ""
+msgstr "Ang lyrics, pagkakasunod-sunod at credits ay nasa kanta sa iyong library. Binura na ang kantang ito sa library."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
-msgstr ""
+msgstr "I-edit ang kanta"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
-msgstr ""
+msgstr "Hahanapin muli ang mga talata sa Bibliyang ito kapag nag-save ka."
 
 #: ui/dialogs/item-edit.slint
 msgid "Also show"
-msgstr ""
+msgstr "Ipakita rin"
 
 #: ui/dialogs/item-edit.slint
 msgid "none"
-msgstr ""
+msgstr "wala"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stop showing this Bible"
-msgstr ""
+msgstr "Huwag nang ipakita ang Bibliyang ito"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Side by side"
-msgstr ""
+msgstr "Magkatabi"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Top and bottom"
-msgstr ""
+msgstr "Itaas at ibaba"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
 msgid "Automatic"
-msgstr ""
+msgstr "Awtomatiko"
 
 #: ui/dialogs/item-edit.slint
 msgid "1 verse"
-msgstr ""
+msgstr "1 talata"
 
 #: ui/dialogs/item-edit.slint
 msgid "2 verses"
-msgstr ""
+msgstr "2 talata"
 
 #: ui/dialogs/item-edit.slint
 msgid "3 verses"
-msgstr ""
+msgstr "3 talata"
 
 #: ui/dialogs/item-edit.slint
 msgid "4 verses"
-msgstr ""
+msgstr "4 na talata"
 
 #: ui/dialogs/item-edit.slint ui/operator/slides.slint
 msgid "Text size"
-msgstr ""
+msgstr "Laki ng teksto"
 
 #: ui/dialogs/item-edit.slint
 msgid "(biggest; text shrinks automatically when a slide holds more words)"
-msgstr ""
+msgstr "(pinakamalaki; awtomatikong lumiliit ang teksto kapag mas maraming salita sa slide)"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Choose"
-msgstr ""
+msgstr "Pumili"
 
 #: ui/dialogs/item-edit.slint
 msgid "Same as Settings → Look"
-msgstr ""
+msgstr "Kapareho ng Settings → Itsura"
 
 #: ui/dialogs/item-edit.slint
 msgid "— an empty line starts a new slide"
-msgstr ""
+msgstr "— nagsisimula ng bagong slide ang blangkong linya"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start playing as soon as it is shown"
-msgstr ""
+msgstr "Simulang i-play agad pagkalabas nito"
 
 #: ui/dialogs/item-edit.slint
 msgid "When the video ends"
-msgstr ""
+msgstr "Kapag natapos ang video"
 
 #: ui/dialogs/item-edit.slint
 msgid "Clear the screen"
-msgstr ""
+msgstr "I-clear ang screen"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stay on last frame"
-msgstr ""
+msgstr "Manatili sa huling frame"
 
 #: ui/dialogs/item-edit.slint
 msgid "Play again (loop)"
-msgstr ""
+msgstr "I-play muli (loop)"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
-msgstr ""
+msgstr "Ulitin hanggang ihinto"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
-msgstr ""
+msgstr "Patuloy na tumutugtog ang audio habang nagpapalit ka ng slide. Ihinto ito gamit ang I-clear ang Audio (F4) o I-clear Lahat."
 
 #: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
 msgid "Name"
-msgstr ""
+msgstr "Pangalan"
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
-msgstr ""
+msgstr "Pangalan sa library"
 
 #: ui/dialogs/item-edit.slint src/strings/themes.rs
 msgid "Background"
-msgstr ""
+msgstr "Background"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
-msgstr ""
+msgstr "Stage notes"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage display only"
-msgstr ""
+msgstr "Sa stage display lang ipinapakita"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Remove from service"
-msgstr ""
+msgstr "Alisin sa service"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
-msgstr ""
+msgstr "Kanselahin"
 
 #: ui/dialogs/item-edit.slint
 msgid "Save"
-msgstr ""
+msgstr "I-save"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr ""
+msgstr "Kontrolin ang slides mula sa anumang phone na nasa Wi-Fi ng simbahan. Dapat nasa parehong network ang phone at ang computer na ito."
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
-msgstr ""
+msgstr " (Walang nakitang network — ikonekta ang computer na ito sa Wi-Fi.)"
 
 #: ui/dialogs/phone.slint
 msgid "Address: "
-msgstr ""
+msgstr "Address: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
 msgid "Pair a phone"
-msgstr ""
+msgstr "Mag-pair ng phone"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
-msgstr ""
+msgstr "QR code"
 
 #: ui/dialogs/phone.slint
 msgid "Scan this with your phone's camera. That's it."
-msgstr ""
+msgstr "I-scan ito gamit ang camera ng iyong phone. Iyon lang."
 
 #: ui/dialogs/phone.slint
 msgid "Or open {} and type"
-msgstr ""
+msgstr "O buksan ang {} at i-type"
 
 #: ui/dialogs/phone.slint
 msgid "1. On the phone, open the camera and scan the code (or type the address)."
-msgstr ""
+msgstr "1. Sa phone, buksan ang camera at i-scan ang code (o i-type ang address)."
 
 #: ui/dialogs/phone.slint
 msgid "2. Enter this code on the phone:"
-msgstr ""
+msgstr "2. Ilagay ang code na ito sa phone:"
 
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
-msgstr ""
+msgstr "Mga naka-pair na phone"
 
 #: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
 msgid "Remove"
-msgstr ""
+msgstr "Alisin"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
-msgstr ""
+msgstr "Wala pa."
 
 #: ui/dialogs/print.slint
 msgid "What to print"
-msgstr ""
+msgstr "Ano ang ipi-print"
 
 #: ui/dialogs/print.slint src/strings/print.rs
 msgid "Service order"
-msgstr ""
+msgstr "Ayos ng service"
 
 #: ui/dialogs/print.slint
 msgid "Both"
-msgstr ""
+msgstr "Pareho"
 
 #: ui/dialogs/print.slint
 msgid "Options"
-msgstr ""
+msgstr "Mga opsyon"
 
 #: ui/dialogs/print.slint
 msgid "Include item notes"
-msgstr ""
+msgstr "Isama ang notes ng bawat item"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible readings with the lyrics"
-msgstr ""
+msgstr "Isama ang mga pagbasa sa Bibliya kasama ng lyrics"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
-msgstr ""
+msgstr "Simulan ang bawat kanta sa bagong pahina"
 
 #: ui/dialogs/print.slint
 msgid "Paper"
-msgstr ""
+msgstr "Papel"
 
 #: ui/dialogs/print.slint
 msgid "Letter"
-msgstr ""
+msgstr "Letter"
 
 #: ui/dialogs/print.slint
 msgid "A4"
-msgstr ""
+msgstr "A4"
 
 #: ui/dialogs/print.slint ui/dialogs/services.slint
 msgid "Print…"
-msgstr ""
+msgstr "I-print…"
 
 #: ui/dialogs/print.slint
 msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
-msgstr ""
+msgstr "Binubuksan ang pahina sa iyong web browser, kung saan mo ito maipi-print o mase-save bilang PDF"
 
 #: ui/dialogs/print.slint
 msgid "Save web page…"
-msgstr ""
+msgstr "I-save ang web page…"
 
 #: ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
-msgstr ""
+msgstr "Isara"
 
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
-msgstr ""
+msgstr "Magdagdag ng screen sa {}"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
-msgstr ""
+msgstr "Output"
 
 #: ui/dialogs/screens.slint
 msgid "Size"
-msgstr ""
+msgstr "Laki"
 
 #: ui/dialogs/screens.slint
 msgid "Width"
-msgstr ""
+msgstr "Lapad"
 
 #: ui/dialogs/screens.slint
 msgid "Height"
-msgstr ""
+msgstr "Taas"
 
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
-msgstr ""
+msgstr "Aspect ratio: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
-msgstr ""
+msgstr "Isang screen lang ang nakakonekta. Isaksak ang projector/TV (at itakda ang Windows sa “Extend these displays” gamit ang Win+P), saka i-click ang I-refresh."
 
 #: ui/dialogs/screens.slint
 msgid "Remove this screen"
-msgstr ""
+msgstr "Alisin ang screen na ito"
 
 #: ui/dialogs/screens.slint
 msgid "Identify"
-msgstr ""
+msgstr "Kilalanin"
 
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
-msgstr ""
+msgstr "Ipakita sandali ang numero ng bawat screen dito"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
-msgstr ""
+msgstr "I-refresh"
 
 #: ui/dialogs/services.slint
 msgid "Copy last week"
-msgstr ""
+msgstr "Kopyahin ang nakaraang linggo"
 
 #: ui/dialogs/services.slint
 msgid "Make next week's service from the last one"
-msgstr ""
+msgstr "Gawin ang service sa susunod na linggo mula sa huli"
 
 #: ui/dialogs/services.slint
 msgid "New from template…"
-msgstr ""
+msgstr "Bago mula sa template…"
 
 #: ui/dialogs/services.slint
 msgid "New empty service"
-msgstr ""
+msgstr "Bagong blangkong service"
 
 #: ui/dialogs/services.slint
 msgid "Copy this service"
-msgstr ""
+msgstr "Kopyahin ang service na ito"
 
 #: ui/dialogs/services.slint
 msgid "Save to file"
-msgstr ""
+msgstr "I-save sa file"
 
 #: ui/dialogs/services.slint
 msgid "Save the open service and all its files, to move it to another computer"
-msgstr ""
+msgstr "I-save ang bukas na service at lahat ng file nito, para mailipat sa ibang computer"
 
 #: ui/dialogs/services.slint
 msgid "Open from file"
-msgstr ""
+msgstr "Buksan mula sa file"
 
 #: ui/dialogs/services.slint
 msgid "Open"
-msgstr ""
+msgstr "Buksan"
 
 #: ui/dialogs/services.slint
 msgid "Rename"
-msgstr ""
+msgstr "Palitan ang pangalan"
 
 #: ui/dialogs/services.slint
 msgid "Date…"
-msgstr ""
+msgstr "Petsa…"
 
 #: ui/dialogs/services.slint
 msgid "Print the order of service and the lyrics, or save them as a web page"
-msgstr ""
+msgstr "I-print ang ayos ng service at ang lyrics, o i-save bilang web page"
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
-msgstr ""
+msgstr "I-save bilang template"
 
 #: ui/dialogs/services.slint
 msgid "Delete"
-msgstr ""
+msgstr "Burahin"
 
 #: ui/dialogs/services.slint
 msgid "Templates"
-msgstr ""
+msgstr "Mga template"
 
 #: ui/dialogs/services.slint
 msgid "Make a service"
-msgstr ""
+msgstr "Gumawa ng service"
 
 #: ui/dialogs/services.slint
 msgid "Day…"
-msgstr ""
+msgstr "Araw…"
 
 #: ui/dialogs/settings-about.slint
 msgid "Your data:"
-msgstr ""
+msgstr "Ang iyong data:"
 
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
-msgstr ""
+msgstr "Ipakita ang mga lisensya"
 
 #: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
-msgstr ""
+msgstr "Bumalik"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
 msgid "Default Bible"
-msgstr ""
+msgstr "Default na Bibliya"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Also show with every new passage"
-msgstr ""
+msgstr "Ipakita rin sa bawat bagong passage"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
-msgstr ""
+msgstr "Pumili ng hanggang dalawa. Ipapakita ng bawat slide ang parehong talata mula sa bawat Bibliya."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Add Bibles"
-msgstr ""
+msgstr "Magdagdag ng Bibliya"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
-msgstr ""
+msgstr "Hanapin ayon sa pangalan, maikling pangalan o wika"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Installed"
-msgstr ""
+msgstr "Naka-install"
 
 #: ui/dialogs/settings-bible.slint ui/operator/media.slint
 msgid "All"
-msgstr ""
+msgstr "Lahat"
 
 #: ui/dialogs/settings-bible.slint
 msgid "KJV, WEB and BSB are built in and work offline."
-msgstr ""
+msgstr "Built-in ang KJV, WEB at BSB at gumagana kahit offline."
 
 #: ui/dialogs/settings-bible.slint
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
-msgstr ""
+msgstr "May copyright ang iba: ikonekta ang libreng serbisyo ng publisher gamit ang key na minsan lang gagawin ng inyong simbahan. Naka-save kasama ng service ang mga passage na idinagdag mo, kaya lalabas pa rin ang mga ito kahit mawalan ng internet."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Translations"
-msgstr ""
+msgstr "Mga salin"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Online services"
-msgstr ""
+msgstr "Mga online na serbisyo"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Connected"
-msgstr ""
+msgstr "Nakakonekta"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Not connected"
-msgstr ""
+msgstr "Hindi nakakonekta"
 
 #: ui/dialogs/settings-bible.slint
 msgid "1. Sign up free at"
-msgstr ""
+msgstr "1. Mag-sign up nang libre sa"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Copy link"
-msgstr ""
+msgstr "Kopyahin ang link"
 
 #: ui/dialogs/settings-bible.slint
 msgid "2. {}"
-msgstr ""
+msgstr "2. {}"
 
 #: ui/dialogs/settings-bible.slint
 msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
-msgstr ""
+msgstr "3. I-paste dito ang key. Susuriin ito ng RustyPresenter sa isang lookup, saka itatago lamang sa computer na ito."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Key saved — paste a new one to replace it"
-msgstr ""
+msgstr "Naka-save ang key — mag-paste ng bago para palitan ito"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Paste the key here"
-msgstr ""
+msgstr "I-paste dito ang key"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Save key"
-msgstr ""
+msgstr "I-save ang key"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Disconnect"
-msgstr ""
+msgstr "Idiskonekta"
 
 #: ui/dialogs/settings-bible.slint src/strings/operator.rs
 msgid "Bible files"
-msgstr ""
+msgstr "Mga Bible file"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
-msgstr ""
+msgstr "Mag-import ng Zefania, OSIS, USX o OpenSong file (.xml o .usx). Mag-import lamang ng mga Bibliyang public domain o may lisensya ang inyong simbahan na gamitin. Bigyan ito ng maikling pangalan ng isang salin sa itaas (tulad ng HCSB) para gamitin ang file para sa salin na iyon."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Short name, e.g. HCSB (optional)"
-msgstr ""
+msgstr "Maikling pangalan, hal. HCSB (opsyonal)"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Bible file"
-msgstr ""
+msgstr "Mag-import ng Bible file"
 
 #: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
 msgid "Credits"
-msgstr ""
+msgstr "Credits"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
-msgstr ""
+msgstr "Ginagamit"
 
 #: ui/dialogs/settings-language.slint
 msgid "Use"
-msgstr ""
+msgstr "Gamitin"
 
 #: ui/dialogs/settings-language.slint
 msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
-msgstr ""
+msgstr "Mga boluntaryo ang gumagawa ng mga salin. Kung wala ang sa iyo o may mali, maaari kang tumulong."
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
-msgstr ""
+msgstr "Tumulong magsalin ng RustyPresenter"
 
 #: ui/dialogs/settings-look.slint
 msgid "Font"
-msgstr ""
+msgstr "Font"
 
 #: ui/dialogs/settings-look.slint
 msgid "Lyrics size"
-msgstr ""
+msgstr "Laki ng lyrics"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest; long lines shrink to fit)"
-msgstr ""
+msgstr "(pinakamalaki; lumiliit ang mahahabang linya para magkasya)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Bible verses"
-msgstr ""
+msgstr "Mga talata sa Bibliya"
 
 #: ui/dialogs/settings-look.slint
 msgid "(for new passages)"
-msgstr ""
+msgstr "(para sa mga bagong passage)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Scripture text size"
-msgstr ""
+msgstr "Laki ng teksto ng Kasulatan"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest)"
-msgstr ""
+msgstr "(pinakamalaki)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text shrinks automatically when a slide holds more words."
-msgstr ""
+msgstr "Awtomatikong lumiliit ang teksto kapag mas maraming salita sa slide."
 
 #: ui/dialogs/settings-look.slint
 msgid "Text color"
-msgstr ""
+msgstr "Kulay ng teksto"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text position"
-msgstr ""
+msgstr "Posisyon ng teksto"
 
 #: ui/dialogs/settings-look.slint
 msgid "Middle"
-msgstr ""
+msgstr "Gitna"
 
 #: ui/dialogs/settings-look.slint src/strings/themes.rs
 msgid "Lower third"
-msgstr ""
+msgstr "Lower third"
 
 #: ui/dialogs/settings-look.slint
 msgid "Shadow behind text (easier to read on pictures)"
-msgstr ""
+msgstr "Anino sa likod ng teksto (mas madaling basahin sa mga larawan)"
 
 #: ui/dialogs/settings-look.slint
 msgid "ALL CAPS lyrics"
-msgstr ""
+msgstr "Lyrics na ALL CAPS"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: ui/dialogs/settings-look.slint
 msgid "No logo (Logo button shows black)"
-msgstr ""
+msgstr "Walang logo (itim ang ipinapakita ng Logo button)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Choose logo"
-msgstr ""
+msgstr "Pumili ng logo"
 
 #: ui/dialogs/settings-look.slint
 msgid "Preview"
-msgstr ""
+msgstr "Preview"
 
 #: ui/dialogs/settings-look.slint
 msgid "Default background"
-msgstr ""
+msgstr "Default na background"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
-msgstr ""
+msgstr "Lahat ng wika"
 
 #: ui/dialogs/settings.slint
 msgid "Lines per slide"
-msgstr ""
+msgstr "Linya bawat slide"
 
 #: ui/dialogs/settings.slint
 msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr ""
+msgstr "Mga kanta at passage sa Bibliya. May mga Bibliyang kailangang ipakita ang kanilang credit; lumalabas ito minsan bawat passage."
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
-msgstr ""
+msgstr "Sa unang slide"
 
 #: ui/dialogs/settings.slint
 msgid "On last slide"
-msgstr ""
+msgstr "Sa huling slide"
 
 #: ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
-msgstr ""
+msgstr "Off"
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
-msgstr ""
+msgstr "CCLI license # ng simbahan"
 
 #: ui/dialogs/settings.slint
 msgid "Section keys (C, B, 1–9…)"
-msgstr ""
+msgstr "Mga section key (C, B, 1–9…)"
 
 #: ui/dialogs/settings.slint
 msgid "Turn off if letters typed by mistake move the screen."
-msgstr ""
+msgstr "I-off kung naigagalaw ang screen ng mga letrang napindot nang hindi sinasadya."
 
 #: ui/dialogs/settings.slint
 msgid "Letters and numbers jump the live song to a section"
-msgstr ""
+msgstr "Tumatalon sa isang section ng live na kanta ang mga letra at numero"
 
 #: ui/dialogs/settings.slint
 msgid "Song use report…"
-msgstr ""
+msgstr "Ulat ng paggamit ng kanta…"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
-msgstr ""
+msgstr "Saan lalabas ang tunog"
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
-msgstr ""
+msgstr "Screen sa silid"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
-msgstr ""
+msgstr "Panatilihin sa harap ang screen sa silid kapag may sarili itong monitor (mas makinis na fade)"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr ""
+msgstr "Gumagawa ng buong backup (mga kanta, service, settings at bawat video, larawan at slide) tuwing magsisimula ang RustyPresenter at minsan isang araw. Itinatago ang huling 10 sa"
 
 #: ui/dialogs/settings.slint
 msgid "Back up now"
-msgstr ""
+msgstr "Mag-back up ngayon"
 
 #: ui/dialogs/settings.slint
 msgid "Restore"
-msgstr ""
+msgstr "Ibalik"
 
 #: ui/dialogs/settings.slint
 msgid "No backups yet."
-msgstr ""
+msgstr "Wala pang backup."
 
 #: ui/dialogs/settings.slint
 msgid "Keyboard"
-msgstr ""
+msgstr "Keyboard"
 
 #: ui/dialogs/settings.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr ""
+msgstr "Tip: kapag nag-click ka ng anumang slide, lalabas agad ito sa screen. Ang pulang outline ang nakikita ng silid."
 
 #: ui/dialogs/settings.slint
 msgid "Look"
-msgstr ""
+msgstr "Itsura"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
-msgstr ""
+msgstr "Wika"
 
 #: ui/dialogs/settings.slint
 msgid "Songs"
-msgstr ""
+msgstr "Mga kanta"
 
 #: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 #: ui/dialogs/settings.slint
 msgid "Backups"
-msgstr ""
+msgstr "Mga backup"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Help"
-msgstr ""
+msgstr "Tulong"
 
 #: ui/dialogs/settings.slint
 msgid "About"
-msgstr ""
+msgstr "Tungkol dito"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
-msgstr ""
+msgstr "I-save ang settings"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
-msgstr ""
+msgstr "Nasa screen ang kantang ito. Walang magbabago sa screen hangga’t hindi mo pinipili ang I-save at ipakita ngayon o I-update ang screen."
 
 #: ui/dialogs/song-editor.slint
 msgid "Amazing Grace (My Chains Are Gone)"
-msgstr ""
+msgstr "Amazing Grace (My Chains Are Gone)"
 
 #: ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Writers"
-msgstr ""
+msgstr "Mga sumulat"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
-msgstr ""
+msgstr "CCLI song #"
 
 #: ui/dialogs/song-editor.slint
 msgid "4768151"
-msgstr ""
+msgstr "4768151"
 
 #: ui/dialogs/song-editor.slint
 msgid "Copyright"
-msgstr ""
+msgstr "Copyright"
 
 #: ui/dialogs/song-editor.slint
 msgid "© 2006 …"
-msgstr ""
+msgstr "© 2006 …"
 
 #: ui/dialogs/song-editor.slint
 msgid "— section names on their own line; an empty line inside a section starts a new slide"
-msgstr ""
+msgstr "— mga pangalan ng section sa sariling linya; nagsisimula ng bagong slide ang blangkong linya sa loob ng section"
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr ""
+msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
-msgstr ""
+msgstr "Pagkakasunod-sunod"
 
 #: ui/dialogs/song-editor.slint
 msgid "(optional)"
-msgstr ""
+msgstr "(opsyonal)"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Not in the lyrics — it is skipped"
-msgstr ""
+msgstr "Wala sa lyrics — nilalaktawan ito"
 
 #: ui/dialogs/song-editor.slint
 msgid "End"
-msgstr ""
+msgstr "Wakas"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Written order — drag to change"
-msgstr ""
+msgstr "Nakasulat na ayos — i-drag para baguhin"
 
 #: ui/dialogs/song-editor.slint
 msgid "⟲ Use written order"
-msgstr ""
+msgstr "⟲ Gamitin ang nakasulat na ayos"
 
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
-msgstr ""
+msgstr "Iwanang blangko para gamitin ang nakasulat na ayos"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
-msgstr ""
+msgstr "Lumalabas dito ang slides habang nagta-type ka. Ilagay sa sariling linya ang mga pangalan ng section tulad ng “Verse 1” o “Chorus”."
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
-msgstr ""
+msgstr "Burahin ang kanta"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and add to service"
-msgstr ""
+msgstr "I-save at idagdag sa service"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
-msgstr ""
+msgstr "I-save ang kanta"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
-msgstr ""
+msgstr "I-save at ipakita ngayon"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
-msgstr ""
+msgstr "Magtala ng paggamit ng kanta para sa CCLI report"
 
 #: ui/dialogs/usage.slint
 msgid "From"
-msgstr ""
+msgstr "Mula"
 
 #: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
-msgstr ""
+msgstr "YYYY-MM-DD"
 
 #: ui/dialogs/usage.slint
 msgid "To"
-msgstr ""
+msgstr "Hanggang"
 
 #: ui/dialogs/usage.slint
 msgid "Since last report"
-msgstr ""
+msgstr "Mula noong huling ulat"
 
 #: ui/dialogs/usage.slint
 msgid "Last 3 months"
-msgstr ""
+msgstr "Huling 3 buwan"
 
 #: ui/dialogs/usage.slint
 msgid "Last 6 months"
-msgstr ""
+msgstr "Huling 6 na buwan"
 
 #: ui/dialogs/usage.slint
 msgid "This year"
-msgstr ""
+msgstr "Ngayong taon"
 
 #: ui/dialogs/usage.slint
 msgid "Include songs without a CCLI number"
-msgstr ""
+msgstr "Isama ang mga kantang walang CCLI number"
 
 #: ui/dialogs/usage.slint
 msgid "Public domain songs don't need reporting."
-msgstr ""
+msgstr "Hindi kailangang iulat ang mga kantang public domain."
 
 #: ui/dialogs/usage.slint
 msgid "CCLI #"
-msgstr ""
+msgstr "CCLI #"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times shown"
-msgstr ""
+msgstr "Beses ipinakita"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times streamed"
-msgstr ""
+msgstr "Beses na-stream"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Last used"
-msgstr ""
+msgstr "Huling ginamit"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "No songs in these dates."
-msgstr ""
+msgstr "Walang kanta sa mga petsang ito."
 
 #: ui/dialogs/usage.slint
 msgid "Details ({})"
-msgstr ""
+msgstr "Detalye ({})"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "streamed"
-msgstr ""
+msgstr "na-stream"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
-msgstr ""
+msgstr "Ilagay ang mga numerong ito sa reporting site ng CCLI: ang mga projected use ay sa “Digital”, ang mga streamed use ay sa iyong Streaming License. Ang ibig sabihin ng “na-stream” ay may bukas na livestream page o window, hindi na naka-on air ka."
 
 #: ui/dialogs/usage.slint
 msgid "Open printable page"
-msgstr ""
+msgstr "Buksan ang printable na pahina"
 
 #: ui/dialogs/usage.slint
 msgid "Save as spreadsheet (CSV)…"
-msgstr ""
+msgstr "I-save bilang spreadsheet (CSV)…"
 
 #: ui/identify.slint
 msgid "Identify screen"
-msgstr ""
+msgstr "Kilalanin ang screen"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
-msgstr ""
+msgstr "—"
 
 #: ui/operator/live.slint ui/operator/slides.slint
 msgid "LIVE"
-msgstr ""
+msgstr "LIVE"
 
 #: ui/operator/live.slint
 msgid "updating…"
-msgstr ""
+msgstr "nag-a-update…"
 
 #: ui/operator/live.slint
 msgid "Edit words"
-msgstr ""
+msgstr "I-edit ang salita"
 
 #: ui/operator/live.slint
 msgid "Fix the words of the live song. The screen changes only when you say so."
-msgstr ""
+msgstr "Ayusin ang mga salita ng live na kanta. Magbabago lang ang screen kapag sinabi mo."
 
 #: ui/operator/live.slint
 msgid "Update screen"
-msgstr ""
+msgstr "I-update ang screen"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
-msgstr ""
+msgstr "Bumalik (← o Page Up)"
 
 #: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Next"
-msgstr ""
+msgstr "Susunod"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
-msgstr ""
+msgstr "Susunod (→, Space o Page Down)"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Up next"
-msgstr ""
+msgstr "Kasunod"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
-msgstr ""
+msgstr "I-clear Lahat"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
 msgid "Media"
-msgstr ""
+msgstr "Media"
 
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
 msgid "Audio"
-msgstr ""
+msgstr "Audio"
 
 #: ui/operator/live_controls.slint
 msgid "Play"
-msgstr ""
+msgstr "I-play"
 
 #: ui/operator/live_controls.slint
 msgid "Pause"
-msgstr ""
+msgstr "I-pause"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
-msgstr ""
+msgstr "NASA SCREEN"
 
 #: ui/operator/media.slint
 msgid "Media library"
-msgstr ""
+msgstr "Media library"
 
 #: ui/operator/media.slint
 msgid "Videos"
-msgstr ""
+msgstr "Mga video"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Pictures"
-msgstr ""
+msgstr "Mga larawan"
 
 #: ui/operator/media.slint
 msgid "Search media"
-msgstr ""
+msgstr "Hanapin sa media"
 
 #: ui/operator/media.slint
 msgid "Smaller thumbnails"
-msgstr ""
+msgstr "Mas maliit na thumbnail"
 
 #: ui/operator/media.slint
 msgid "Bigger thumbnails"
-msgstr ""
+msgstr "Mas malaking thumbnail"
 
 #: ui/operator/media.slint
 msgid "Import"
-msgstr ""
+msgstr "Mag-import"
 
 #: ui/operator/media.slint
 msgid "New folder"
-msgstr ""
+msgstr "Bagong folder"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Delete folder"
-msgstr ""
+msgstr "Burahin ang folder"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr ""
+msgstr "Wala pang laman dito. I-click ang Mag-import, o subukan ang ibang folder o salita."
 
 #: ui/operator/media.slint
 msgid "Pick a file"
-msgstr ""
+msgstr "Pumili ng file"
 
 #: ui/operator/media.slint
 msgid "Use as background"
-msgstr ""
+msgstr "Gamitin bilang background"
 
 #: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
-msgstr ""
+msgstr "Idagdag sa service"
 
 #: ui/operator/media.slint
 msgid "Move to folder"
-msgstr ""
+msgstr "Ilipat sa folder"
 
 #: ui/operator/monitor.slint
 msgid "Room screen is off"
-msgstr ""
+msgstr "Naka-off ang screen sa silid"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
-msgstr ""
+msgstr "Bitawan para idagdag sa service"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
-msgstr ""
+msgstr "Video, larawan, musika, presentation (PowerPoint, Keynote, PDF), SongSelect lyric file"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Service"
-msgstr ""
+msgstr "Service"
 
 #: ui/operator/service.slint
 msgid "Add a header"
-msgstr ""
+msgstr "Magdagdag ng header"
 
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
-msgstr ""
+msgstr "Magdagdag ng may-kulay na heading sa listahan ng service, tulad ng “Pagsamba” o “Mensahe”"
 
 #: ui/operator/service.slint
 msgid "Check"
-msgstr ""
+msgstr "Suriin"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
-msgstr ""
+msgstr "Bago ang service: kumpleto ba ang lahat ng kanta, file at screen?"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
-msgstr ""
+msgstr "Piliin ang ilalagay dito"
 
 #: ui/operator/service.slint
 msgid "Change colour"
-msgstr ""
+msgstr "Palitan ang kulay"
 
 #: ui/operator/service.slint
 msgid "Your service is empty"
-msgstr ""
+msgstr "Walang laman ang iyong service"
 
 #: ui/operator/service.slint
 msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "I-click ang “Idagdag sa service” sa ibaba, mag-type ng talata sa itaas, o mag-drag ng mga file sa window na ito."
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
-msgstr ""
+msgstr "Buuin natin ang service ngayong Linggo"
 
 #: ui/operator/slides.slint
 msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
-msgstr ""
+msgstr "Lumalabas sa kaliwa ang lahat ng idaragdag mo. I-click ang isang slide para ilabas ito sa screen."
 
 #: ui/operator/slides.slint
 msgid "Click “Screens” and choose the projector or TV."
-msgstr ""
+msgstr "I-click ang “Mga Screen” at piliin ang projector o TV."
 
 #: ui/operator/slides.slint
 msgid "Click “Add to service” for songs, videos and slides — or drag files in."
-msgstr ""
+msgstr "I-click ang “Idagdag sa service” para sa mga kanta, video at slides — o mag-drag ng mga file."
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr ""
+msgstr "Mag-type ng talata tulad ng “Juan 3:16” sa Bible box at pindutin ang Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
-msgstr ""
+msgstr "Gamitin ang malaking Susunod na button (o ang → key) habang may service."
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
-msgstr ""
+msgstr "Walang napili"
 
 #: ui/operator/slides.slint
 msgid "A−"
-msgstr ""
+msgstr "A−"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
-msgstr ""
+msgstr "Mas maliit na teksto para sa passage na ito"
 
 #: ui/operator/slides.slint
 msgid "A+"
-msgstr ""
+msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
-msgstr ""
+msgstr "Mas malaking teksto para sa passage na ito"
 
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
-msgstr ""
+msgstr "Ibalik sa laki sa Settings"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
-msgstr ""
+msgstr "Pumili ng isa sa listahan ng service."
 
 #: ui/operator/slides.slint
 msgid "Nothing to show"
-msgstr ""
+msgstr "Walang maipapakita"
 
 #: ui/operator/slides.slint
 msgid "This item has no slides yet. Click Edit to add some."
-msgstr ""
+msgstr "Wala pang slides ang item na ito. I-click ang I-edit para magdagdag."
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
-msgstr ""
+msgstr "RustyPresenter"
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
-msgstr ""
+msgstr "Magpalit o gumawa ng service"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr ""
+msgstr "Talata sa Bibliya — i-type ang John 3:16 at pindutin ang Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr ""
+msgstr "Hindi pa nakakonekta ang {} (Settings → Bibliya). Maaari mo pa ring i-paste ang mga talata nito gamit ang Idagdag → Bibliya."
 
 #: ui/operator/topbar.slint
 msgid "Verses per slide for the next passage. Click to change."
-msgstr ""
+msgstr "Talata bawat slide para sa susunod na passage. I-click para baguhin."
 
 #: ui/operator/topbar.slint
 msgid "Verses: {}"
-msgstr ""
+msgstr "Talata: {}"
 
 #: ui/operator/topbar.slint
 msgid "Ctrl B"
-msgstr ""
+msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint
 msgid "Room"
-msgstr ""
+msgstr "Silid"
 
 #: ui/operator/topbar.slint src/strings/screens.rs
 msgid "Stage"
-msgstr ""
+msgstr "Stage"
 
 #: ui/operator/topbar.slint
 msgid "Stage display"
-msgstr ""
+msgstr "Stage display"
 
 #: ui/operator/topbar.slint
 msgid "Phone remotes connected"
-msgstr ""
+msgstr "Mga nakakonektang phone remote"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
-msgstr ""
+msgstr "Magpakita ng mensahe sa stage screen"
 
 #: ui/operator/topbar.slint
 msgid "Screens"
-msgstr ""
+msgstr "Mga Screen"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
-msgstr ""
+msgstr "Phone"
 
 #: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Settings"
-msgstr ""
+msgstr "Settings"
 
 #: ui/operator.slint
 msgid "File"
-msgstr ""
+msgstr "File"
 
 #: ui/operator.slint
 msgid "New service…"
-msgstr ""
+msgstr "Bagong service…"
 
 #: ui/operator.slint
 msgid "Services…"
-msgstr ""
+msgstr "Mga service…"
 
 #: ui/operator.slint
 msgid "Open a service file…"
-msgstr ""
+msgstr "Magbukas ng service file…"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
-msgstr ""
+msgstr "I-save sa file ang service na ito…"
 
 #: ui/operator.slint
 msgid "Song…"
-msgstr ""
+msgstr "Kanta…"
 
 #: ui/operator.slint
 msgid "Bible passage…"
-msgstr ""
+msgstr "Passage sa Bibliya…"
 
 #: ui/operator.slint
 msgid "Video & media…"
-msgstr ""
+msgstr "Video at media…"
 
 #: ui/operator.slint
 msgid "Slides…"
-msgstr ""
+msgstr "Slides…"
 
 #: ui/operator.slint
 msgid "Announcement…"
-msgstr ""
+msgstr "Anunsyo…"
 
 #: ui/operator.slint
 msgid "Import media…"
-msgstr ""
+msgstr "Mag-import ng media…"
 
 #: ui/operator.slint
 msgid "Exit"
-msgstr ""
+msgstr "Lumabas"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
-msgstr ""
+msgstr "I-edit ang napiling item…"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Bible box"
-msgstr ""
+msgstr "Bible box"
 
 #: ui/operator.slint
 msgid "View"
-msgstr ""
+msgstr "View"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear all"
-msgstr ""
+msgstr "I-clear lahat"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear text"
-msgstr ""
+msgstr "I-clear ang teksto"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear media & background"
-msgstr ""
+msgstr "I-clear ang media at background"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Stop audio"
-msgstr ""
+msgstr "Ihinto ang audio"
 
 #: ui/operator.slint
 msgid "Hide media library"
-msgstr ""
+msgstr "Itago ang media library"
 
 #: ui/operator.slint
 msgid "Show media library"
-msgstr ""
+msgstr "Ipakita ang media library"
 
 #: ui/operator.slint
 msgid "Window"
-msgstr ""
+msgstr "Window"
 
 #: ui/operator.slint
 msgid "Screens…"
-msgstr ""
+msgstr "Mga screen…"
 
 #: ui/operator.slint
 msgid "Phone remote…"
-msgstr ""
+msgstr "Phone remote…"
 
 #: ui/operator.slint
 msgid "Stage message…"
-msgstr ""
+msgstr "Stage message…"
 
 #: ui/operator.slint
 msgid "Settings…"
-msgstr ""
+msgstr "Settings…"
 
 #: ui/operator.slint
 msgid "Songs…"
-msgstr ""
+msgstr "Mga kanta…"
 
 #: ui/operator.slint
 msgid "Bible…"
-msgstr ""
+msgstr "Bibliya…"
 
 #: ui/operator.slint
 msgid "Video…"
-msgstr ""
+msgstr "Video…"
 
 #: ui/operator.slint
 msgid "Backups…"
-msgstr ""
+msgstr "Mga backup…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "Mga keyboard shortcut"
 
 #: ui/operator.slint
 msgid "Check the service"
-msgstr ""
+msgstr "Suriin ang service"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
-msgstr ""
+msgstr "Tungkol sa RustyPresenter"
 
 #: ui/room.slint
 msgid "RustyPresenter — Room"
-msgstr ""
+msgstr "RustyPresenter — Silid"
 
 #: ui/stage.slint
 msgid "RustyPresenter — Stage"
-msgstr ""
+msgstr "RustyPresenter — Stage"
 
 #: ui/stage.slint
 msgid "Waiting for the service…"
-msgstr ""
+msgstr "Hinihintay ang service…"
 
 #: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
 msgid "End of service"
-msgstr ""
+msgstr "Katapusan ng service"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
-msgstr ""
+msgstr "KASUNOD"
 
 #: ui/widgets.slint
 msgid "Cut"
-msgstr ""
+msgstr "I-cut"
 
 #: ui/widgets.slint
 msgid "Paste"
-msgstr ""
+msgstr "I-paste"
 
 #: ui/widgets.slint
 msgid "Select all"
-msgstr ""
+msgstr "Piliin lahat"
 
 #: src/app.rs
 msgid "Could not save: {error}"
-msgstr ""
+msgstr "Hindi ma-save: {error}"
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "Nag-restart ang screen sa silid. Huminto ang video/audio — i-click itong muli para i-replay."
 
 #: src/app.rs
 msgid "The room screen restarted."
-msgstr ""
+msgstr "Nag-restart ang screen sa silid."
 
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
-msgstr ""
+msgstr "Nagsisimula pa ang RustyPresenter. Subukang muli maya-maya."
 
 #: src/app.rs
 msgid "This computer"
-msgstr ""
+msgstr "Ang computer na ito"
 
 #: src/app.rs
 msgid "Not used"
-msgstr ""
+msgstr "Hindi ginagamit"
 
 #: src/app.rs
 msgid "{name} — built in, public domain"
-msgstr ""
+msgstr "{name} — built-in, public domain"
 
 #: src/app.rs
 msgid "{name} — imported file"
-msgstr ""
+msgstr "{name} — na-import na file"
 
 #: src/app.rs
 msgid "Give the song a title."
-msgstr ""
+msgstr "Bigyan ng pamagat ang kanta."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
-msgstr ""
+msgstr "Nasa isang service ang kantang ito. Alisin muna ito sa service."
 
 #: src/app.rs
 msgid "No service is open."
-msgstr ""
+msgstr "Walang bukas na service."
 
 #: src/app.rs src/theme/actions.rs
 msgid "Bad request: {error}"
-msgstr ""
+msgstr "Maling request: {error}"
 
 #: src/app.rs src/strings/themes.rs
 msgid "That item is gone."
-msgstr ""
+msgstr "Wala na ang item na iyon."
 
 #: src/app.rs
 msgid "New Service"
-msgstr ""
+msgstr "Bagong Service"
 
 #: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
 msgid "That service is gone."
-msgstr ""
+msgstr "Wala na ang service na iyon."
 
 #: src/app.rs
 msgid "You need at least one service."
-msgstr ""
+msgstr "Kailangan mo ng kahit isang service."
 
 #: src/app.rs
 msgid "Unknown Bible service."
-msgstr ""
+msgstr "Hindi kilalang Bible service."
 
 #: src/app.rs
 msgid "That file is gone."
-msgstr ""
+msgstr "Wala na ang file na iyon."
 
 #: src/app.rs
 msgid "Give the folder a name."
-msgstr ""
+msgstr "Bigyan ng pangalan ang folder."
 
 #: src/app.rs
 msgid "This is in a service. Remove it from the service first."
-msgstr ""
+msgstr "Nasa isang service ito. Alisin muna ito sa service."
 
 #: src/app.rs
 msgid "Bad request: unknown purpose {purpose}"
-msgstr ""
+msgstr "Maling request: hindi kilalang layunin {purpose}"
 
 #: src/app.rs
 msgid "Choose at least one picture."
-msgstr ""
+msgstr "Pumili ng kahit isang larawan."
 
 #: src/app.rs
 msgid "A picture is missing. Try uploading again."
-msgstr ""
+msgstr "May nawawalang larawan. Subukang i-upload muli."
 
 #: src/app.rs
 msgid "These slides are in a service. Remove them from the service first."
-msgstr ""
+msgstr "Nasa isang service ang slides na ito. Alisin muna ang mga ito sa service."
 
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
-msgstr ""
+msgstr "Hindi kilalang salin."
 
 #: src/app.rs
 msgid "Unknown language."
-msgstr ""
+msgstr "Hindi kilalang wika."
 
 #: src/app.rs
 msgid "Language changed"
-msgstr ""
+msgstr "Napalitan ang wika"
 
 #: src/app.rs
 msgid "Unknown screen."
-msgstr ""
+msgstr "Hindi kilalang screen."
 
 #: src/app.rs
 msgid "Pick an output for this screen first."
-msgstr ""
+msgstr "Pumili muna ng output para sa screen na ito."
 
 #: src/app.rs
 msgid "Add a screen first."
-msgstr ""
+msgstr "Magdagdag muna ng screen."
 
 #: src/app.rs
 msgid "Audience {number}"
-msgstr ""
+msgstr "Audience {number}"
 
 #: src/app.rs
 msgid "Stage Display {number}"
-msgstr ""
+msgstr "Stage Display {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
-msgstr ""
+msgstr "Wala na ang screen na iyon."
 
 #: src/app.rs
 msgid "Each list keeps at least one screen."
-msgstr ""
+msgstr "May kahit isang screen ang bawat listahan."
 
 #: src/app.rs
 msgid "Backup failed."
-msgstr ""
+msgstr "Nabigo ang backup."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."
-msgstr ""
+msgstr "Hindi ma-save ang file (puno ang disk?)."
 
 #: src/app.rs
 msgid "Could not open “{file}”: {error}"
-msgstr ""
+msgstr "Hindi mabuksan ang “{file}”: {error}"
 
 #: src/app.rs
 msgid "Could not read “{file}”: {error}"
-msgstr ""
+msgstr "Hindi mabasa ang “{file}”: {error}"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
-msgstr ""
+msgstr "Hanggang 200 talata lang ang ipinapadala ng API.Bible bawat beses; pumili ng mas maikling passage"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "Wala ang {translation} sa API.Bible plan ng key na ito; idagdag ito sa ilalim ng Plan sa API.Bible dashboard"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "Hindi available ang {translation} sa API.Bible key na ito; idagdag ito sa ilalim ng Plan sa API.Bible dashboard"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible returned a different book"
-msgstr ""
+msgstr "Ibang aklat ang ibinalik ng API.Bible"
 
 #: src/bible/catalog/ebible.rs
 msgid "no rows"
-msgstr ""
+msgstr "walang row"
 
 #: src/bible/catalog/ebible.rs
 msgid "eBible answered {status}"
-msgstr ""
+msgstr "Sumagot ang eBible ng {status}"
 
 #: src/bible/catalog/ebible.rs
 msgid "the list is far larger than expected"
-msgstr ""
+msgstr "mas malaki nang husto ang listahan kaysa inaasahan"
 
 #: src/bible/catalog/ebible.rs
 msgid "empty file"
-msgstr ""
+msgstr "walang laman na file"
 
 #: src/bible/catalog/ebible.rs
 msgid "no {column} column"
-msgstr ""
+msgstr "walang column na {column}"
 
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
-msgstr ""
+msgstr "Ibang aklat ang ibinalik ng ESV service"
 
 #: src/bible/import.rs
 msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
-msgstr ""
+msgstr "Gumamit ng Zefania, OSIS, USX o OpenSong Bible file (.xml o .usx)."
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this file. {formats}"
-msgstr ""
+msgstr "Walang nakitang talata sa Bibliya sa file na ito. {formats}"
 
 #: src/bible/import.rs src/bible.rs
 msgid "{reference} does not exist."
-msgstr ""
+msgstr "Hindi umiiral ang {reference}."
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
-msgstr ""
+msgstr "Masyadong mahaba ang passage na iyon. Pumili ng hanggang mga 400 talata."
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "No verses found."
-msgstr ""
+msgstr "Walang nakitang talata."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
-msgstr ""
+msgstr "Bigyan ang Bibliya ng maikling pangalan na 2-10 letra o numero, tulad ng WEB."
 
 #: src/bible/import.rs
 msgid "{abbr} is already built in. Give this Bible another short name."
-msgstr ""
+msgstr "Built-in na ang {abbr}. Bigyan ang Bibliyang ito ng ibang maikling pangalan."
 
 #: src/bible/import.rs
 msgid "A downloaded Bible needs its details."
-msgstr ""
+msgstr "Kailangan ng na-download na Bibliya ang mga detalye nito."
 
 #: src/bible/import.rs
 msgid "This Bible's id can't be used."
-msgstr ""
+msgstr "Hindi magagamit ang id ng Bibliyang ito."
 
 #: src/bible/import.rs
 msgid "No Bible verses found."
-msgstr ""
+msgstr "Walang nakitang talata sa Bibliya."
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this download."
-msgstr ""
+msgstr "Walang nakitang talata sa Bibliya sa download na ito."
 
 #: src/bible/import.rs
 msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
-msgstr ""
+msgstr "Hindi valid na XML ang file na ito (malapit sa byte {at}: {error}). {formats}"
 
 #: src/bible/sources.rs
 msgid "Free for churches. Create an “API application”, then copy its key."
-msgstr ""
+msgstr "Libre para sa mga simbahan. Gumawa ng “API application”, saka kopyahin ang key nito."
 
 #: src/bible/sources.rs
 msgid "Free for non-commercial use. Register, then copy the key from your account."
-msgstr ""
+msgstr "Libre para sa hindi pangkomersyong gamit. Magparehistro, saka kopyahin ang key mula sa iyong account."
 
 #: src/bible/sources.rs
 msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
-msgstr ""
+msgstr "Pinapayagan ng libreng Starter plan ang 3 Bibliyang may copyright: sa ilalim ng Plan, piliin ang CSB (at NIV o NLT kung gusto mo ang mga ito mula rito)."
 
 #: src/bible/sources.rs
 msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr ""
+msgstr "Gumawa ng app, saka tanggapin ang lisensya ng bawat Bibliya sa portal (NIV mula sa Biblica; HCSB kung inaalok)."
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
-msgstr ""
+msgstr "sumagot ang serbisyo ng {status}"
 
 #: src/bible/sources.rs
 msgid "Couldn't reach {service} for {translation}. Check the internet connection."
-msgstr ""
+msgstr "Hindi maabot ang {service} para sa {translation}. Suriin ang koneksyon sa internet."
 
 #: src/bible/sources.rs
 msgid "{service} refused the key. Check it in Settings → Bible."
-msgstr ""
+msgstr "Tinanggihan ng {service} ang key. Suriin ito sa Settings → Bibliya."
 
 #: src/bible/sources.rs
 msgid "{service} says too many lookups. Wait a minute and try again."
-msgstr ""
+msgstr "Sabi ng {service}, sobrang dami ng lookup. Maghintay ng isang minuto at subukang muli."
 
 #: src/bible/sources.rs
 msgid "{translation} lookup failed: {error}."
-msgstr ""
+msgstr "Nabigo ang lookup sa {translation}: {error}."
 
 #: src/bible/sources.rs
 msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
-msgstr ""
+msgstr "Walang online na source ang {translation}. I-paste ang mga talata nito gamit ang Idagdag → Bibliya, o mag-import ng may-lisensyang file sa Settings → Bibliya."
 
 #: src/bible/sources.rs
 msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
-msgstr ""
+msgstr "Kailangan ng {translation} ng libreng key mula sa {service}. Idagdag ito sa Settings → Bibliya, o i-paste ang mga talata gamit ang Idagdag → Bibliya."
 
 #: src/bible/youversion.rs
 msgid "YouVersion has no Bible id for {translation}"
-msgstr ""
+msgstr "Walang Bible id ang YouVersion para sa {translation}"
 
 #: src/bible/youversion.rs
 msgid "that passage spans too many chapters; choose fewer"
-msgstr ""
+msgstr "masyadong maraming kabanata ang saklaw ng passage na iyon; pumili ng mas kaunti"
 
 #: src/bible/youversion.rs
 msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
-msgstr ""
+msgstr "walang lisensya ang YouVersion app na ito para sa Bibliyang {bible}; tanggapin ang lisensya ng publisher sa platform.youversion.com"
 
 #: src/bible/youversion.rs
 msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
-msgstr ""
+msgstr "naka-archive o inalis na ang YouVersion app; suriin ito sa platform.youversion.com"
 
 #: src/bible/youversion.rs
 msgid "YouVersion returned a different book"
-msgstr ""
+msgstr "Ibang aklat ang ibinalik ng YouVersion"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr ""
+msgstr "Mag-type ng reference, tulad ng Juan 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
-msgstr ""
+msgstr "Hindi ko kilala ang aklat na \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr ""
+msgstr "Magdagdag ng kabanata, tulad ng Juan 3 o Juan 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr ""
+msgstr "Mukhang mali ang reference na iyon. Subukan ang tulad ng Juan 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
-msgstr ""
+msgstr "Nauuna ang dulo ng range kaysa sa simula."
 
 #: src/bible.rs
 msgid "Paste the verse text first."
-msgstr ""
+msgstr "I-paste muna ang teksto ng talata."
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
-msgstr ""
+msgstr "RustyPresenter Remote"
 
 #: src/i18n/remote_strings.rs src/strings/dialogs.rs
 msgid "Phone remote"
-msgstr ""
+msgstr "Phone remote"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
-msgstr ""
+msgstr "Sa presentation computer, i-click ang {phone} → {pair}, saka i-type dito ang 6-digit na code."
 
 #: src/i18n/remote_strings.rs
 msgid "Connect"
-msgstr ""
+msgstr "Kumonekta"
 
 #: src/i18n/remote_strings.rs
 msgid "Connecting…"
-msgstr ""
+msgstr "Kumokonekta…"
 
 #: src/i18n/remote_strings.rs
 msgid "On screen"
-msgstr ""
+msgstr "Nasa screen"
 
 #: src/i18n/remote_strings.rs
 msgid "Pause video"
-msgstr ""
+msgstr "I-pause ang video"
 
 #: src/i18n/remote_strings.rs
 msgid "Play video"
-msgstr ""
+msgstr "I-play ang video"
 
 #: src/i18n/remote_strings.rs
 msgid "Tap a slide to put it on the screen."
-msgstr ""
+msgstr "I-tap ang isang slide para ilabas ito sa screen."
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
-msgstr ""
+msgstr "Nagbago ang screen — subukang muli."
 
 #: src/i18n/remote_strings.rs
 msgid "The screen changed just now — tap the slide again."
-msgstr ""
+msgstr "Kababago lang ng screen — i-tap muli ang slide."
 
 #: src/i18n/remote_strings.rs src/server.rs
 msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr ""
+msgstr "Expired na ang QR code na iyon. Sa computer, i-click muli ang Mag-pair ng phone."
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
-msgstr ""
+msgstr "Hindi makakonekta."
 
 #: src/i18n/remote_strings.rs
 msgid "(Logo)"
-msgstr ""
+msgstr "(Logo)"
 
 #: src/i18n/remote_strings.rs
 msgid "(Music playing)"
-msgstr ""
+msgstr "(May tumutugtog na musika)"
 
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
-msgstr ""
+msgstr "(Clear)"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
-msgstr ""
+msgstr "Android phone"
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
-msgstr ""
+msgstr "Kantang walang pamagat"
 
 #: src/import/chordpro.rs
 msgid "more than {max} sections, so it isn't a song"
-msgstr ""
+msgstr "higit sa {max} section, kaya hindi ito kanta"
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no lyrics"
-msgstr ""
+msgstr "walang lyrics"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
-msgstr ""
+msgstr "hindi nagtatapos ang isang {block} block, kaya hindi isinama ang lahat ng kasunod nito"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the file is too big to be a song"
-msgstr ""
+msgstr "masyadong malaki ang file para maging kanta"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "couldn't read it: {error}"
-msgstr ""
+msgstr "hindi ito mabasa: {error}"
 
 #: src/import/chordpro.rs
 msgid "it doesn't look like a ChordPro file"
-msgstr ""
+msgstr "mukhang hindi ito ChordPro file"
 
 #: src/import/chordpro.rs
 msgid "no songs in it"
-msgstr ""
+msgstr "walang kanta rito"
 
 #: src/import/chordpro.rs
 msgid "No songs could be read from {path}: {why}."
-msgstr ""
+msgstr "Walang kantang nabasa mula sa {path}: {why}."
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "Couldn't find {path}."
-msgstr ""
+msgstr "Hindi makita ang {path}."
 
 #: src/import/chordpro.rs
 msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr ""
+msgstr "Walang nakitang ChordPro file (.cho, .chordpro, .chopro, .crd, .pro) sa {path}."
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr ""
+msgstr "may higit sa {max} file at folder sa folder, kaya ang unang {max} lang ang tiningnan"
 
 #: src/import/common.rs
 msgid "Couldn't read {path}: {error}."
-msgstr ""
+msgstr "Hindi mabasa ang {path}: {error}."
 
 #: src/import/common.rs
 msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr ""
+msgstr "Patuloy na nagse-save ng mga pagbabago ang {app} habang binabasa ang library. Isara ang {app} at subukang muli."
 
 #: src/import/common.rs
 msgid "Couldn't make a temporary folder: {error}."
-msgstr ""
+msgstr "Hindi makagawa ng pansamantalang folder: {error}."
 
 #: src/import/common.rs
 msgid "Couldn't copy {path}: {error}."
-msgstr ""
+msgstr "Hindi makopya ang {path}: {error}."
 
 #: src/import/common.rs
 msgid "Couldn't open {path}: {error}."
-msgstr ""
+msgstr "Hindi mabuksan ang {path}: {error}."
 
 #: src/import/common.rs
 msgid "the database stayed locked"
-msgstr ""
+msgstr "nanatiling naka-lock ang database"
 
 #: src/import/common.rs
 msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr ""
+msgstr "Walang laman o sira ang {path}, kaya walang maii-import."
 
 #: src/import/easyworship.rs
 msgid "no lyrics (probably a video or announcement item)"
-msgstr ""
+msgstr "walang lyrics (malamang video o anunsyo ang item)"
 
 #: src/import/easyworship.rs src/import/openlp.rs
 msgid "the lyrics are empty"
-msgstr ""
+msgstr "walang laman ang lyrics"
 
 #: src/import/easyworship.rs
 msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr ""
+msgstr "Mukhang EasyWorship 2009 (o mas luma) na library ito. Mga library ng EasyWorship 6 at 7 lang ang maaaring i-import."
 
 #: src/import/easyworship.rs
 msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr ""
+msgstr "Nakita ang Songs.db pero walang SongWords.db sa tabi nito sa {folder}."
 
 #: src/import/easyworship.rs
 msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr ""
+msgstr "Walang nakitang EasyWorship Songs.db dito. Piliin ang Databases\\Data folder ng profile (karaniwang C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
 
 #: src/import/easyworship.rs
 msgid "Couldn't read the EasyWorship library: {error}"
-msgstr ""
+msgstr "Hindi mabasa ang EasyWorship library: {error}"
 
 #: src/import/easyworship.rs
 msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "Walang song table ang Songs.db. EasyWorship library ba ito?"
 
 #: src/import/easyworship.rs
 msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "Walang word table ang SongWords.db. EasyWorship library ba ito?"
 
 #: src/import/openlp.rs
 msgid "the lyrics are not valid XML ({error})"
-msgstr ""
+msgstr "hindi valid na XML ang lyrics ({error})"
 
 #: src/import/openlp.rs
 msgid "the lyrics have too many verses (more than {max})"
-msgstr ""
+msgstr "masyadong maraming verse ang lyrics (higit sa {max})"
 
 #: src/import/openlp.rs src/import/propresenter.rs
 msgid "the lyrics are too long to be a song"
-msgstr ""
+msgstr "masyadong mahaba ang lyrics para maging kanta"
 
 #: src/import/openlp.rs
 msgid "the lyrics have no verses"
-msgstr ""
+msgstr "walang verse ang lyrics"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
-msgstr ""
+msgstr "pansamantalang kopya na itinatago ng OpenLP para sa isang service file"
 
 #: src/import/openlp.rs
 msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr ""
+msgstr "Hindi OpenLP song database (songs.sqlite) ang file na ito."
 
 #: src/import/openlp.rs
 msgid "Couldn't open the OpenLP database."
-msgstr ""
+msgstr "Hindi mabuksan ang OpenLP database."
 
 #: src/import/openlp.rs
 msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr ""
+msgstr "Walang nakitang OpenLP songs.sqlite dito. Piliin ang data folder ng OpenLP (sa Windows karaniwang %APPDATA%\\openlp\\data, sa macOS ~/Library/Application Support/openlp/Data, sa Linux ~/.local/share/openlp)."
 
 #: src/import/openlp.rs
 msgid "Couldn't read the OpenLP database: {error}"
-msgstr ""
+msgstr "Hindi mabasa ang OpenLP database: {error}"
 
 #: src/import/openlp.rs
 msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr ""
+msgstr "Hindi ito OpenLP song database: wala itong songs table."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
-msgstr ""
+msgstr "hindi ito valid na XML ({error})"
 
 #: src/import/openlyrics.rs
 msgid "too many verses to be a song"
-msgstr ""
+msgstr "masyadong maraming verse para maging kanta"
 
 #: src/import/openlyrics.rs
 msgid "it is an OpenSong song, not OpenLyrics"
-msgstr ""
+msgstr "OpenSong na kanta ito, hindi OpenLyrics"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
-msgstr ""
+msgstr "hindi ito OpenLyrics na kanta"
 
 #: src/import/openlyrics.rs
 msgid "not XML"
-msgstr ""
+msgstr "hindi XML"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr ""
+msgstr "hindi ito OpenLyrics o OpenSong na kanta"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "no song in it"
-msgstr ""
+msgstr "walang kanta rito"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "No song could be read from {path}: {why}."
-msgstr ""
+msgstr "Walang kantang nabasa mula sa {path}: {why}."
 
 #: src/import/openlyrics.rs
 msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr ""
+msgstr "Walang nakitang OpenLyrics o OpenSong na kanta sa {path}."
 
 #: src/import/opensong.rs
 msgid "the lyrics have too many sections to be a song"
-msgstr ""
+msgstr "masyadong maraming section ang lyrics para maging kanta"
 
 #: src/import/opensong.rs
 msgid "it is an OpenLyrics song, not OpenSong"
-msgstr ""
+msgstr "OpenLyrics na kanta ito, hindi OpenSong"
 
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
-msgstr ""
+msgstr "hindi ito OpenSong na kanta"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
-msgstr ""
+msgstr "Hindi pa suportado ang mga ProPresenter 7 file; i-export bilang text o ProPresenter 6"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
-msgstr ""
+msgstr "Hindi pa suportado ang mga ProPresenter 6 bundle (.pro6x); palitan ang pangalan nito ng .zip, i-unzip, at i-import ang .pro6 file sa loob"
 
 #: src/import/propresenter.rs
 msgid "the song has too many groups (more than {max})"
-msgstr ""
+msgstr "masyadong maraming group ang kanta (higit sa {max})"
 
 #: src/import/propresenter.rs
 msgid "the song has too many slides (more than {max})"
-msgstr ""
+msgstr "masyadong maraming slide ang kanta (higit sa {max})"
 
 #: src/import/propresenter.rs
 msgid "the song has no words on its slides"
-msgstr ""
+msgstr "walang salita sa slides ng kanta"
 
 #: src/import/propresenter.rs
 msgid "it is a ProPresenter playlist, not a song"
-msgstr ""
+msgstr "ProPresenter playlist ito, hindi kanta"
 
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
-msgstr ""
+msgstr "hindi ito ProPresenter 6 na kanta"
 
 #: src/import/propresenter.rs
 msgid "No ProPresenter songs were found in {path}."
-msgstr ""
+msgstr "Walang nakitang ProPresenter na kanta sa {path}."
 
 #: src/live.rs
 msgid "That item is not in the service."
-msgstr ""
+msgstr "Wala sa service ang item na iyon."
 
 #: src/live.rs
 msgid "That item has nothing to show."
-msgstr ""
+msgstr "Walang maipapakita ang item na iyon."
 
 #: src/live.rs
 msgid "That item has no slides."
-msgstr ""
+msgstr "Walang slides ang item na iyon."
 
 #: src/live.rs
 msgid "That video is no longer playing."
-msgstr ""
+msgstr "Hindi na tumutugtog ang video na iyon."
 
 #: src/live.rs
 msgid "That audio is no longer playing."
-msgstr ""
+msgstr "Hindi na tumutugtog ang audio na iyon."
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
-msgstr ""
+msgstr "Wala pang naka-live."
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
-msgstr ""
+msgstr "Simula ng service"
 
 #: src/live.rs
 msgid "Could not show that: {reason}"
-msgstr ""
+msgstr "Hindi maipakita iyon: {reason}"
 
 #: src/live.rs
 msgid "Playback stopped: {reason}"
-msgstr ""
+msgstr "Huminto ang playback: {reason}"
 
 #: src/live.rs src/ui/room.rs
 msgid "the file could not be played"
-msgstr ""
+msgstr "hindi ma-play ang file"
 
 #: src/main.rs
 msgid "RustyPresenter could not open its log: {reason}"
-msgstr ""
+msgstr "Hindi mabuksan ng RustyPresenter ang log nito: {reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not start: {reason}"
-msgstr ""
+msgstr "Hindi makapagsimula ang RustyPresenter: {reason}"
 
 #: src/main.rs
 msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
-msgstr ""
+msgstr "Wala sa bersyong ito ang wikang pinili sa Settings, kaya nasa English ang RustyPresenter."
 
 #: src/main.rs
 msgid "RustyPresenter could not open its window: {reason}"
-msgstr ""
+msgstr "Hindi mabuksan ng RustyPresenter ang window nito: {reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not run its windows: {reason}"
-msgstr ""
+msgstr "Hindi mapatakbo ng RustyPresenter ang mga window nito: {reason}"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
-msgstr ""
+msgstr "Hindi tumatakbo ang mga screen."
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens did not answer in time."
-msgstr ""
+msgstr "Hindi sumagot sa oras ang mga screen."
 
 #: src/platform/instance.rs
 msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
-msgstr ""
+msgstr "Ginagamit ng ibang program ang port {port}, kaya hindi makapagsimula ang RustyPresenter."
 
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
-msgstr ""
+msgstr "Hindi nakakonekta ang screen na iyon sa ngayon."
 
 #: src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
-msgstr ""
+msgstr "Kasulatan"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
-msgstr ""
+msgstr "Nag-restart ang RustyPresenter pagkatapos ng isang problema."
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "Nag-restart ang RustyPresenter pagkatapos ng isang problema. Huminto ang video/audio — i-click itong muli para i-replay."
 
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
-msgstr ""
+msgstr "Huminto ang RustyPresenter matapos mag-crash nang 3 beses sa loob ng isang minuto. Nasa {path} ang log."
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
-msgstr ""
+msgstr "Sa presentation computer lang nabubuksan ang pahinang ito."
 
 #: src/server.rs
 msgid "Too fast — wait a second and try again."
-msgstr ""
+msgstr "Masyadong mabilis — maghintay ng isang segundo at subukang muli."
 
 #: src/server.rs
 msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr ""
+msgstr "Hindi bukas ang pairing. Sa computer, i-click ang “Phone remote” → “Mag-pair ng phone”."
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
-msgstr ""
+msgstr "Sobrang daming maling code. Simulan muli ang pairing sa computer."
 
 #: src/server.rs
 msgid "That code isn't right."
-msgstr ""
+msgstr "Mali ang code na iyon."
 
 #: src/server.rs
 msgid "Phone {number}"
-msgstr ""
+msgstr "Phone {number}"
 
 #: src/server.rs
 msgid "Bad command."
-msgstr ""
+msgstr "Maling command."
 
 #: src/server.rs
 msgid "Not allowed from the phone."
-msgstr ""
+msgstr "Hindi pinapayagan mula sa phone."
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} slide"
+msgstr[1] "{n} na slide"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(slide picture)"
-msgstr ""
+msgstr "(larawan ng slide)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(video)"
-msgstr ""
+msgstr "(video)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(picture)"
-msgstr ""
+msgstr "(larawan)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(audio)"
-msgstr ""
+msgstr "(audio)"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
-msgstr ""
+msgstr "Nawawalang kanta"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing media"
-msgstr ""
+msgstr "Nawawalang media"
 
 #: src/slides.rs
 msgid "Slide {n}"
-msgstr ""
+msgstr "Slide {n}"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
-msgstr ""
+msgstr "Nawawalang slides"
 
 #: src/songselect.rs
 msgid "That file is too big to be a lyric file."
-msgstr ""
+msgstr "Masyadong malaki ang file na iyon para maging lyric file."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
-msgstr ""
+msgstr "Walang laman ang lyric file."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
-msgstr ""
+msgstr "Walang Verse/Chorus na heading ang file na ito. Gamitin ang \"Lyrics (.txt)\" na download ng SongSelect."
 
 #: src/songselect.rs
 msgid "No lyrics were found in this file."
-msgstr ""
+msgstr "Walang nakitang lyrics sa file na ito."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
-msgstr ""
+msgstr "Walang mahanap na folder na mapaglalagyan ng iyong data. Itakda ang RUSTYPRESENTER_DATA."
 
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
-msgstr ""
+msgstr "Hindi magamit ang data folder na {path}: {reason}"
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
-msgstr ""
+msgstr "Hindi mabasa ang iyong naka-save na data sa {path} ({reason}). Walang na-overwrite. Mag-restore ng backup mula sa backups folder o ilipat sa ibang lugar ang file."
 
 #: src/store.rs
 msgid "Cannot read {path}: {reason}"
-msgstr ""
+msgstr "Hindi mabasa ang {path}: {reason}"
 
 #: src/store.rs
 msgid "Could not save: {reason}"
-msgstr ""
+msgstr "Hindi ma-save: {reason}"
 
 #: src/store.rs
 msgid "Unknown backup."
-msgstr ""
+msgstr "Hindi kilalang backup."
 
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
-msgstr ""
+msgstr "Hindi kumpleto ang backup na iyon at hindi maibabalik."
 
 #: src/strings/add.rs
 msgid "Nothing matches."
-msgstr ""
+msgstr "Walang tumutugma."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
-msgstr ""
+msgstr "Wala pang laman dito."
 
 #: src/strings/add.rs
 msgid "Search {n} song…"
 msgid_plural "Search {n} songs…"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hanapin sa {n} kanta…"
+msgstr[1] "Hanapin sa {n} na kanta…"
 
 #: src/strings/add.rs
 msgid "Search {n} file…"
 msgid_plural "Search {n} files…"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hanapin sa {n} file…"
+msgstr[1] "Hanapin sa {n} na file…"
 
 #: src/strings/add.rs
 msgid "Search slides…"
-msgstr ""
+msgstr "Hanapin sa slides…"
 
 #: src/strings/add.rs
 msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
-msgstr ""
+msgstr "Para mag-import ng PowerPoint o Keynote file, i-install ang LibreOffice (libre). Gumagana ang mga PDF file kahit wala ito."
 
 #: src/strings/add.rs src/strings/settings.rs
 msgid "Copied"
-msgstr ""
+msgstr "Nakopya"
 
 #: src/strings/add.rs src/strings/bundle.rs
 msgid "…and {n} more."
-msgstr ""
+msgstr "…at {n} pa."
 
 #: src/strings/add.rs
 msgid "Imported {n} song."
 msgid_plural "Imported {n} songs."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Na-import ang {n} kanta."
+msgstr[1] "Na-import ang {n} na kanta."
 
 #: src/strings/add.rs
 msgid "{n} already in the library: {titles}"
 msgid_plural "{n} already in the library: {titles}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} ay nasa library na: {titles}"
+msgstr[1] "{n} ay nasa library na: {titles}"
 
 #: src/strings/add.rs
 msgid "Not imported:"
-msgstr ""
+msgstr "Hindi na-import:"
 
 #: src/strings/add.rs
 msgid "Reading the EasyWorship library…"
-msgstr ""
+msgstr "Binabasa ang EasyWorship library…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
-msgstr ""
+msgstr "Nakita ang LibreOffice!"
 
 #: src/strings/add.rs
 msgid "Not found yet — finish installing, then click Check again."
-msgstr ""
+msgstr "Hindi pa nakikita — tapusin ang pag-install, saka i-click ang Suriin muli."
 
 #: src/strings/add.rs
 msgid "{passage} added"
-msgstr ""
+msgstr "Naidagdag ang {passage}"
 
 #: src/strings/add.rs
 msgid "Give it a title."
-msgstr ""
+msgstr "Bigyan ito ng pamagat."
 
 #: src/strings/add.rs
 msgid "Ready"
-msgstr ""
+msgstr "Handa na"
 
 #: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
 msgid "Failed"
-msgstr ""
+msgstr "Nabigo"
 
 #: src/strings/add.rs src/strings/import.rs
 msgid "This file can't be played."
-msgstr ""
+msgstr "Hindi ma-play ang file na ito."
 
 #: src/strings/add.rs
 msgid "Checking the file again…"
-msgstr ""
+msgstr "Sinusuri muli ang file…"
 
 #: src/strings/add.rs
 msgid "Delete from library"
-msgstr ""
+msgstr "Burahin sa library"
 
 #: src/strings/add.rs
 msgid "Delete “{name}” from the library?"
-msgstr ""
+msgstr "Burahin ang “{name}” sa library?"
 
 #: src/strings/add.rs
 msgid "The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "Nawawala ang video player — i-install muli ang RustyPresenter"
 
 #: src/strings/add.rs src/strings/stage.rs
 msgid "Delete “{name}”?"
-msgstr ""
+msgstr "Burahin ang “{name}”?"
 
 #: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/strings/add.rs
 msgid "Song saved"
-msgstr ""
+msgstr "Na-save ang kanta"
 
 #: src/strings/add.rs
 msgid "Not in the lyrics: {sections}"
-msgstr ""
+msgstr "Wala sa lyrics: {sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
 msgid "The screen was cleared — try again."
-msgstr ""
+msgstr "Na-clear ang screen — subukang muli."
 
 #: src/strings/automation.rs
 msgid "Set a start time for this service first (Services → Starts at)."
-msgstr ""
+msgstr "Magtakda muna ng oras ng simula para sa service na ito (Mga service → Magsisimula sa)."
 
 #: src/strings/automation.rs
 msgid "The service start time ({time}) has passed."
-msgstr ""
+msgstr "Lumipas na ang oras ng simula ng service ({time})."
 
 #: src/strings/automation.rs
 msgid "That time ({time}) has passed."
-msgstr ""
+msgstr "Lumipas na ang oras na iyon ({time})."
 
 #: src/strings/automation.rs
 msgid "This timer needs a newer RustyPresenter."
-msgstr ""
+msgstr "Kailangan ng timer na ito ng mas bagong RustyPresenter."
 
 #: src/strings/automation.rs
 msgid "A countdown to a time can't be paused."
-msgstr ""
+msgstr "Hindi maaaring i-pause ang countdown sa isang oras."
 
 #: src/strings/automation.rs
 msgid "Choose a length from 1 second to 23:59:59."
-msgstr ""
+msgstr "Pumili ng haba mula 1 segundo hanggang 23:59:59."
 
 #: src/strings/automation.rs
 msgid "This timer can't be set that way."
-msgstr ""
+msgstr "Hindi maitatakda nang ganoon ang timer na ito."
 
 #: src/strings/automation.rs
 msgid "Fill in “{field}”."
-msgstr ""
+msgstr "Punan ang “{field}”."
 
 #: src/strings/automation.rs
 msgid "That message is too long for the screen (200 letters at most)."
-msgstr ""
+msgstr "Masyadong mahaba ang mensaheng iyon para sa screen (hanggang 200 letra)."
 
 #: src/strings/automation.rs
 msgid "This message has a { without a matching }."
-msgstr ""
+msgstr "May { ang mensaheng ito na walang katapat na }."
 
 #: src/strings/automation.rs
 msgid "Message showing"
-msgstr ""
+msgstr "Ipinapakita ang mensahe"
 
 #: src/strings/automation.rs
 msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
-msgstr ""
+msgstr "Naka-on ang practice mode — sa preview mo lang ito lumalabas. Tapusin ang practice para ipakita ito sa silid."
 
 #: src/strings/automation.rs
 msgid "Nursery"
-msgstr ""
+msgstr "Nursery"
 
 #: src/strings/automation.rs
 msgid "Parent of child #{Number}, please come to the nursery."
-msgstr ""
+msgstr "Magulang ng bata #{Number}, mangyaring pumunta sa nursery."
 
 #: src/strings/automation.rs
 msgid "Vehicle"
-msgstr ""
+msgstr "Sasakyan"
 
 #: src/strings/automation.rs
 msgid "Vehicle {Plate}: your lights are on."
-msgstr ""
+msgstr "Sasakyang {Plate}: nakabukas ang iyong mga ilaw."
 
 #: src/strings/automation.rs
 msgid "Custom"
-msgstr ""
+msgstr "Custom"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang item ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang timer ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang overlay ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang screen view ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang mensahe ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: nabura ang stage layout ng hakbang {step}. I-edit ang macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
-msgstr ""
+msgstr "Hindi mapatakbo ang “{name}”: kailangan ng hakbang {step} ng mas bagong RustyPresenter."
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”"
-msgstr ""
+msgstr "Pinatakbo ang “{name}”"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but step {step} didn't work: {reason}"
-msgstr ""
+msgstr "Pinatakbo ang “{name}”, pero hindi gumana ang hakbang {step}: {reason}"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
-msgstr ""
+msgstr "Pinatakbo ang “{name}”, pero nilaktawan ang pagpapakita dahil na-clear ang screen."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
-msgstr ""
+msgstr "Umabot sa zero ang “{timer}”, pero nagpapalit ng slides ang “{macro_name}”, kaya hindi ito pinatakbo."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
-msgstr ""
+msgstr "Umabot sa zero ang “{timer}”, pero walang ipinakita ang “{macro_name}” dahil na-clear ang screen."
 
 #: src/strings/automation.rs
 msgid "Choose 2 to 600 seconds."
-msgstr ""
+msgstr "Pumili ng 2 hanggang 600 segundo."
 
 #: src/strings/automation.rs
 msgid "Needs at least two slides."
-msgstr ""
+msgstr "Kailangan ng kahit dalawang slide."
 
 #: src/strings/automation.rs
 msgid "Service starts in"
-msgstr ""
+msgstr "Magsisimula ang service sa loob ng"
 
 #: src/strings/automation.rs
 msgid "Pre-service"
-msgstr ""
+msgstr "Bago ang service"
 
 #: src/strings/automation.rs
 msgid "Start countdown"
-msgstr ""
+msgstr "Simulan ang countdown"
 
 #: src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
-msgstr ""
+msgstr "Palitan ito sa tab na Bago ang service"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
-msgstr ""
+msgstr "Tapos na ang countdown — walang ibang nagbago dahil nagsimula na ang service."
 
 #: src/strings/automation.rs
 msgid "Restart the countdown to use the new time."
-msgstr ""
+msgstr "Simulan muli ang countdown para gamitin ang bagong oras."
 
 #: src/strings/automation.rs
 msgid "Service start"
-msgstr ""
+msgstr "Simula ng service"
 
 #: src/strings/automation.rs
 msgid "Sermon"
-msgstr ""
+msgstr "Sermon"
 
 #: src/strings/automation.rs
 msgid "Stopwatch"
-msgstr ""
+msgstr "Stopwatch"
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
-msgstr ""
+msgstr "Hindi iyan service file ng RustyPresenter."
 
 #: src/strings/bundle.rs
 msgid "That service file was made by a newer version of RustyPresenter."
-msgstr ""
+msgstr "Ginawa ang service file na iyon ng mas bagong bersyon ng RustyPresenter."
 
 #: src/strings/bundle.rs
 msgid "That service file is damaged, so nothing was added."
-msgstr ""
+msgstr "Sira ang service file na iyon, kaya walang naidagdag."
 
 #: src/strings/bundle.rs
 msgid "Saving the service…"
-msgstr ""
+msgstr "Sine-save ang service…"
 
 #: src/strings/bundle.rs
 msgid "Opening the service file…"
-msgstr ""
+msgstr "Binubuksan ang service file…"
 
 #: src/strings/bundle.rs
 msgid "A song in this service is no longer in the library."
-msgstr ""
+msgstr "Wala na sa library ang isang kanta sa service na ito."
 
 #: src/strings/bundle.rs
 msgid "A video, picture or sound in this service is no longer in the library."
-msgstr ""
+msgstr "Wala na sa library ang isang video, larawan o tunog sa service na ito."
 
 #: src/strings/bundle.rs
 msgid "A set of slides in this service is no longer in the library."
-msgstr ""
+msgstr "Wala na sa library ang isang set ng slides sa service na ito."
 
 #: src/strings/bundle.rs
 msgid "A background in this service is missing its file."
-msgstr ""
+msgstr "Nawawala ang file ng isang background sa service na ito."
 
 #: src/strings/bundle.rs
 msgid "{name} is missing its file."
-msgstr ""
+msgstr "Nawawala ang file ng {name}."
 
 #: src/strings/bundle.rs
 msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
 msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ginawa ang service na ito gamit ang font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ito para makita ang mga ito gaya ng pagkakagawa."
+msgstr[1] "Ginawa ang service na ito gamit ang mga font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ang mga ito para makita gaya ng pagkakagawa."
 
 #: src/strings/bundle.rs
 msgid "Saved “{name}” to a file."
-msgstr ""
+msgstr "Na-save sa file ang “{name}”."
 
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
-msgstr ""
+msgstr "Hindi na-save ang service na ito, dahil may nawawalang kailangan nito:"
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
-msgstr ""
+msgstr "Binuksan ang “{name}”."
 
 #: src/strings/bundle.rs
 msgid "{n} song"
 msgid_plural "{n} songs"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} kanta"
+msgstr[1] "{n} na kanta"
 
 #: src/strings/bundle.rs
 msgid "{n} media file"
 msgid_plural "{n} media files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} media file"
+msgstr[1] "{n} na media file"
 
 #: src/strings/bundle.rs
 msgid "{n} set of slides"
 msgid_plural "{n} sets of slides"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} set ng slides"
+msgstr[1] "{n} na set ng slides"
 
 #: src/strings/bundle.rs
 msgid "New in the library: {things}."
-msgstr ""
+msgstr "Bago sa library: {things}."
 
 #: src/strings/bundle.rs
 msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
-msgstr ""
+msgstr "Iba ang mga ito sa mga kantang narito na, kaya pangalawang kopya ang ginagamit ng service: {titles}"
 
 #: src/strings/catalog.rs
 msgid "You're offline. Bibles you've added still work."
-msgstr ""
+msgstr "Offline ka. Gumagana pa rin ang mga Bibliyang naidagdag mo."
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be read. Try again later."
-msgstr ""
+msgstr "Hindi mabasa ang listahan ng mga Bibliya. Subukang muli mamaya."
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be saved on this computer."
-msgstr ""
+msgstr "Hindi ma-save sa computer na ito ang listahan ng mga Bibliya."
 
 #: src/strings/catalog.rs
 msgid "Licence checked on download"
-msgstr ""
+msgstr "Sinusuri ang lisensya sa pag-download"
 
 #: src/strings/catalog.rs
 msgid "Full Bible"
-msgstr ""
+msgstr "Buong Bibliya"
 
 #: src/strings/catalog.rs
 msgid "New Testament"
-msgstr ""
+msgstr "Bagong Tipan"
 
 #: src/strings/catalog.rs
 msgid "Old Testament"
-msgstr ""
+msgstr "Lumang Tipan"
 
 #: src/strings/catalog.rs
 msgid "Portions"
-msgstr ""
+msgstr "Mga bahagi"
 
 #: src/strings/catalog.rs
 msgid "Includes Apocrypha"
-msgstr ""
+msgstr "May kasamang Apocrypha"
 
 #: src/strings/catalog.rs
 msgid "Downloading {name}…"
-msgstr ""
+msgstr "Dina-download ang {name}…"
 
 #: src/strings/catalog.rs
 msgid "Waiting to download {name}…"
-msgstr ""
+msgstr "Naghihintay na ma-download ang {name}…"
 
 #: src/strings/catalog.rs
 msgid "Checking {name}…"
-msgstr ""
+msgstr "Sinusuri ang {name}…"
 
 #: src/strings/catalog.rs
 msgid "Couldn't download {name}. Check the internet and try again."
-msgstr ""
+msgstr "Hindi ma-download ang {name}. Suriin ang internet at subukang muli."
 
 #: src/strings/catalog.rs
 msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
-msgstr ""
+msgstr "Hindi pinapayagan ng lisensya ng Bibliyang ito na itago namin ito. Inalis na ito."
 
 #: src/strings/catalog.rs
 msgid "The update for {name} couldn't be used. The copy you have still works."
-msgstr ""
+msgstr "Hindi magamit ang update para sa {name}. Gumagana pa rin ang kopyang mayroon ka."
 
 #: src/strings/catalog.rs
 msgid "This Bible is larger than expected, so it wasn't added."
-msgstr ""
+msgstr "Mas malaki kaysa inaasahan ang Bibliyang ito, kaya hindi ito idinagdag."
 
 #: src/strings/catalog.rs
 msgid "Not enough disk space for this Bible (needs about {n} MB)."
-msgstr ""
+msgstr "Kulang ang espasyo sa disk para sa Bibliyang ito (kailangan ng mga {n} MB)."
 
 #: src/strings/catalog.rs
 msgid "{name} couldn't be used, so it wasn't added."
-msgstr ""
+msgstr "Hindi magamit ang {name}, kaya hindi ito idinagdag."
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
-msgstr ""
+msgstr "Wala na sa listahan ang Bibliyang iyon. Buksan muli ang Settings → Mga Bibliya para makita ang kasalukuyang listahan."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
-msgstr ""
+msgstr "Offline ka, kaya hindi muna makapagdagdag ng Bibliya."
 
 #: src/strings/catalog.rs
 msgid "Loading the list of Bibles…"
-msgstr ""
+msgstr "Nilo-load ang listahan ng mga Bibliya…"
 
 #: src/strings/catalog.rs
 msgid "No Bibles match. Try fewer words, or All."
-msgstr ""
+msgstr "Walang tumutugmang Bibliya. Subukan ang mas kaunting salita, o Lahat."
 
 #: src/strings/catalog.rs
 msgid "No Bibles added yet. Choose All to see the Bibles you can add."
-msgstr ""
+msgstr "Wala pang idinagdag na Bibliya. Piliin ang Lahat para makita ang mga Bibliyang maidaragdag mo."
 
 #: src/strings/catalog.rs
 msgid "Offline"
-msgstr ""
+msgstr "Offline"
 
 #: src/strings/catalog.rs
 msgid "Update"
-msgstr ""
+msgstr "I-update"
 
 #: src/strings/catalog.rs
 msgid "Added"
-msgstr ""
+msgstr "Naidagdag"
 
 #: src/strings/catalog.rs src/strings/settings.rs
 msgid "Your computer may not have a font for this language."
-msgstr ""
+msgstr "Maaaring walang font ang iyong computer para sa wikang ito."
 
 #: src/strings/catalog.rs
 msgid "Waiting"
-msgstr ""
+msgstr "Naghihintay"
 
 #: src/strings/catalog.rs
 msgid "A newer edition is ready"
-msgstr ""
+msgstr "May handa nang mas bagong edisyon"
 
 #: src/strings/catalog.rs
 msgid "Default Bible changed"
-msgstr ""
+msgstr "Napalitan ang default na Bibliya"
 
 #: src/strings/catalog.rs
 msgid "You can show up to two more Bibles. Turn one off first."
-msgstr ""
+msgstr "Hanggang dalawa pang Bibliya ang maipapakita mo. Mag-off muna ng isa."
 
 #: src/strings/catalog.rs
 msgid "{name} — downloaded from eBible.org"
-msgstr ""
+msgstr "{name} — na-download mula sa eBible.org"
 
 #: src/strings/catalog.rs
 msgid "Showing {shown} of {total} Bibles. Search to find others."
-msgstr ""
+msgstr "Ipinapakita ang {shown} sa {total} Bibliya. Maghanap para makita ang iba."
 
 #: src/strings/catalog.rs
 msgid "Downloading… {percent}%"
-msgstr ""
+msgstr "Dina-download… {percent}%"
 
 #: src/strings/catalog.rs
 msgid "Added {bible}"
-msgstr ""
+msgstr "Naidagdag ang {bible}"
 
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
-msgstr ""
+msgstr "Inalis ang {bible}"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"
-msgstr ""
+msgstr "Nasa {sources} din"
 
 #: src/strings/dialogs.rs
 msgid "Services"
-msgstr ""
+msgstr "Mga service"
 
 #: src/strings/dialogs.rs
 msgid "Screen Configuration"
-msgstr ""
+msgstr "Ayos ng mga Screen"
 
 #: src/strings/import.rs
 msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
-msgstr ""
+msgstr "May password ang presentation na ito. Buksan ito sa PowerPoint, alisin ang password (File → Info → Protect), i-save, at i-import muli."
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PowerPoint file."
-msgstr ""
+msgstr "Mukhang hindi ito PowerPoint file."
 
 #: src/strings/import.rs
 msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
-msgstr ""
+msgstr "Masyadong natagalan ang LibreOffice at itinigil ito. Subukang muli; mas mabagal ang unang import pagkabukas ng computer."
 
 #: src/strings/import.rs
 msgid "LibreOffice couldn't read this presentation."
-msgstr ""
+msgstr "Hindi mabasa ng LibreOffice ang presentation na ito."
 
 #: src/strings/import.rs
 msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
-msgstr ""
+msgstr "Hindi mabasa ng LibreOffice mula sa Snap ang mga file ng RustyPresenter. I-install na lang ang LibreOffice mula sa iyong distribution (sudo apt install libreoffice-impress)."
 
 #: src/strings/import.rs
 msgid "LibreOffice could not be started. Reinstall it and try again."
-msgstr ""
+msgstr "Hindi mapatakbo ang LibreOffice. I-install itong muli at subukan ulit."
 
 #: src/strings/import.rs
 msgid "PowerPoint took too long and was stopped. Try again."
-msgstr ""
+msgstr "Masyadong natagalan ang PowerPoint at itinigil ito. Subukang muli."
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open this presentation."
-msgstr ""
+msgstr "Hindi mabuksan ng PowerPoint ang presentation na ito."
 
 #: src/strings/import.rs
 msgid "PowerPoint could not be started."
-msgstr ""
+msgstr "Hindi mapatakbo ang PowerPoint."
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PDF file."
-msgstr ""
+msgstr "Mukhang hindi ito PDF file."
 
 #: src/strings/import.rs
 msgid "This file took too long to open."
-msgstr ""
+msgstr "Masyadong natagalan ang pagbukas ng file na ito."
 
 #: src/strings/import.rs
 msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
-msgstr ""
+msgstr "Hindi mabuksan ang larawang ito. I-save ito bilang PNG o JPEG at subukang muli."
 
 #: src/strings/import.rs
 msgid "This presentation has no slides."
-msgstr ""
+msgstr "Walang slides ang presentation na ito."
 
 #: src/strings/import.rs
 msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
-msgstr ""
+msgstr "Magkakaiba ang laki ng slides sa presentation na ito, na hindi maipakita ng RustyPresenter."
 
 #: src/strings/import.rs
 msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "Nawawala ang slide converter (pdfium). I-install muli ang RustyPresenter."
 
 #: src/strings/import.rs
 msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
-msgstr ""
+msgstr "Huminto sa pagtugon ang slide converter. I-restart ang RustyPresenter at subukang muli."
 
 #: src/strings/import.rs
 msgid "Slide {page} could not be turned into a picture."
-msgstr ""
+msgstr "Hindi magawang larawan ang slide {page}."
 
 #: src/strings/import.rs
 msgid "This PDF can't be opened. If it has a password, remove it and import again."
-msgstr ""
+msgstr "Hindi mabuksan ang PDF na ito. Kung may password ito, alisin ito at i-import muli."
 
 #: src/strings/import.rs
 msgid "A slide could not be saved. Check that the disk has free space, then try again."
-msgstr ""
+msgstr "Hindi ma-save ang isang slide. Tiyaking may bakanteng espasyo ang disk, saka subukang muli."
 
 #: src/strings/import.rs
 msgid "Waiting for another file…"
-msgstr ""
+msgstr "Naghihintay sa ibang file…"
 
 #: src/strings/import.rs
 msgid "Adding “{name}”"
-msgstr ""
+msgstr "Idinadagdag ang “{name}”"
 
 #: src/strings/import.rs
 msgid "Importing “{name}”"
-msgstr ""
+msgstr "Ini-import ang “{name}”"
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
-msgstr ""
+msgstr "I-save ang Keynote file bilang iisang file at i-import muli."
 
 #: src/strings/import.rs
 msgid "Waiting for LibreOffice…"
-msgstr ""
+msgstr "Naghihintay sa LibreOffice…"
 
 #: src/strings/import.rs
 msgid "Waiting for PowerPoint…"
-msgstr ""
+msgstr "Naghihintay sa PowerPoint…"
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open it; used LibreOffice."
-msgstr ""
+msgstr "Hindi ito mabuksan ng PowerPoint; ginamit ang LibreOffice."
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides."
-msgstr ""
+msgstr "Na-import gamit ang LibreOffice — suriin ang slides."
 
 #: src/strings/import.rs
 msgid "{expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "{expected} slide ang inaasahan pero {imported} ang na-import."
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "Na-import gamit ang LibreOffice — suriin ang slides. {expected} slide ang inaasahan pero {imported} ang na-import."
 
 #: src/strings/import.rs
 msgid "To import presentations, install LibreOffice. {hint}"
-msgstr ""
+msgstr "Para mag-import ng presentation, i-install ang LibreOffice. {hint}"
 
 #: src/strings/item_edit.rs
 msgid "Saved"
-msgstr ""
+msgstr "Na-save"
 
 #: src/strings/item_edit.rs
 msgid "Theme default"
-msgstr ""
+msgstr "Default ng theme"
 
 #: src/strings/item_edit.rs
 msgid "+ Upload…"
-msgstr ""
+msgstr "+ Mag-upload…"
 
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
-msgstr ""
+msgstr "Naidagdag sa media library — piliin ito dito"
 
 #: src/strings/operator.rs src/strings/print.rs
 msgid "Picture"
-msgstr ""
+msgstr "Larawan"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
-msgstr ""
+msgstr "{kind} · hindi ma-play"
 
 #: src/strings/operator.rs
 msgid " · loops"
-msgstr ""
+msgstr " · naka-loop"
 
 #: src/strings/operator.rs
 msgid "{kind} · The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "{kind} · Nawawala ang video player — i-install muli ang RustyPresenter"
 
 #: src/strings/operator.rs
 msgid "{kind} · {n} slide"
 msgid_plural "{kind} · {n} slides"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{kind} · {n} slide"
+msgstr[1] "{kind} · {n} na slide"
 
 #: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
 msgid "{n} item"
 msgid_plural "{n} items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} item"
+msgstr[1] "{n} na item"
 
 #: src/strings/operator.rs
 msgid "{n} phone"
 msgid_plural "{n} phones"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} phone"
+msgstr[1] "{n} na phone"
 
 #: src/strings/operator.rs
 msgid "Clear"
-msgstr ""
+msgstr "I-clear"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
-msgstr ""
+msgstr "Larawan ng slide"
 
 #: src/strings/operator.rs
 msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
-msgstr ""
+msgstr "Pinakamalaki na ang teksto na kasya. Pumili ng mas kaunting talata bawat slide (I-edit) para lumaki ito."
 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
-msgstr ""
+msgstr "Pumili ng item sa kaliwa"
 
 #: src/strings/operator.rs
 msgid "Welcome"
-msgstr ""
+msgstr "Maligayang pagdating"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
-msgstr ""
+msgstr "May nangyaring mali."
 
 #: src/strings/operator.rs
 msgid "Room screen is showing"
-msgstr ""
+msgstr "Nagpapakita ang screen sa silid"
 
 #: src/strings/operator.rs
 msgid "Room screen is starting…"
-msgstr ""
+msgstr "Nagsisimula ang screen sa silid…"
 
 #: src/strings/operator.rs
 msgid "Room screen is not open — click Screens"
-msgstr ""
+msgstr "Hindi bukas ang screen sa silid — i-click ang Mga Screen"
 
 #: src/strings/operator.rs
 msgid "Could not open the operator window: {error}"
-msgstr ""
+msgstr "Hindi mabuksan ang operator window: {error}"
 
 #: src/strings/operator.rs
 msgid "Make {n} pictures into one set of slides?"
 msgid_plural "Make {n} pictures into one set of slides?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Gawing isang set ng slides ang {n} larawan?"
+msgstr[1] "Gawing isang set ng slides ang {n} na larawan?"
 
 #: src/strings/operator.rs
 msgid "One slide set"
-msgstr ""
+msgstr "Isang set ng slides"
 
 #: src/strings/operator.rs
 msgid "Separate pictures"
-msgstr ""
+msgstr "Hiwa-hiwalay na larawan"
 
 #: src/strings/operator.rs
 msgid "Videos, pictures and music"
-msgstr ""
+msgstr "Video, larawan at musika"
 
 #: src/strings/operator.rs
 msgid "Presentations"
-msgstr ""
+msgstr "Mga presentation"
 
 #: src/strings/operator.rs
 msgid "SongSelect lyric files"
-msgstr ""
+msgstr "Mga SongSelect lyric file"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
-msgstr ""
+msgstr "Mga larawan at video"
 
 #: src/strings/operator.rs
 msgid "Service files"
-msgstr ""
+msgstr "Mga service file"
 
 #: src/strings/operator.rs src/strings/scripture.rs
 msgid "{passage} added — press Enter to show it"
-msgstr ""
+msgstr "Naidagdag ang {passage} — pindutin ang Enter para ipakita"
 
 #: src/strings/operator.rs
 msgid "Added to the service"
-msgstr ""
+msgstr "Naidagdag sa service"
 
 #: src/strings/operator.rs
 msgid "Uploading {name}"
-msgstr ""
+msgstr "Ina-upload ang {name}"
 
 #: src/strings/operator.rs
 msgid "Uploading {n} picture"
 msgid_plural "Uploading {n} pictures"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ina-upload ang {n} larawan"
+msgstr[1] "Ina-upload ang {n} na larawan"
 
 #: src/strings/operator.rs
 msgid "{name} added"
-msgstr ""
+msgstr "Naidagdag ang {name}"
 
 #: src/strings/operator.rs
 msgid "Imported “{title}”"
-msgstr ""
+msgstr "Na-import ang “{title}”"
 
 #: src/strings/operator.rs
 msgid "“{title}” is already in the library."
-msgstr ""
+msgstr "Nasa library na ang “{title}”."
 
 #: src/strings/operator.rs
 msgid "Updated “{title}”"
-msgstr ""
+msgstr "Na-update ang “{title}”"
 
 #: src/strings/operator.rs
 msgid "Update existing"
-msgstr ""
+msgstr "I-update ang dati"
 
 #: src/strings/operator.rs
 msgid "Keep both"
-msgstr ""
+msgstr "Itago ang pareho"
 
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
-msgstr ""
+msgstr "Handa na ang “{title}”"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
-msgstr ""
+msgstr "Pangalanan ang slides na ito"
 
 #: src/strings/operator.rs
 msgid "Message for the stage screen. Leave it empty to take it down."
-msgstr ""
+msgstr "Mensahe para sa stage screen. Iwanang blangko para alisin ito."
 
 #: src/strings/operator.rs
 msgid "Favourites"
-msgstr ""
+msgstr "Mga paborito"
 
 #: src/strings/operator.rs
 msgid "Recent"
-msgstr ""
+msgstr "Kamakailan"
 
 #: src/strings/operator.rs
 msgid "Other Bibles"
-msgstr ""
+msgstr "Ibang Bibliya"
 
 #: src/strings/operator.rs
 msgid "imported"
-msgstr ""
+msgstr "na-import"
 
 #: src/strings/operator.rs
 msgid "No Bible you have matches. Find more Bibles below."
-msgstr ""
+msgstr "Walang tumutugma sa mga Bibliya mo. Maghanap ng iba pang Bibliya sa ibaba."
 
 #: src/strings/operator.rs
 msgid "{bible} added to favourites"
-msgstr ""
+msgstr "Naidagdag ang {bible} sa mga paborito"
 
 #: src/strings/operator.rs
 msgid "{bible} removed from favourites"
-msgstr ""
+msgstr "Inalis ang {bible} sa mga paborito"
 
 #: src/strings/operator.rs
 msgid "All media"
-msgstr ""
+msgstr "Lahat ng media"
 
 #: src/strings/operator.rs
 msgid "Converting {percent}%"
-msgstr ""
+msgstr "Kino-convert {percent}%"
 
 #: src/strings/operator.rs
 msgid "Click a thumbnail to choose it."
-msgstr ""
+msgstr "I-click ang isang thumbnail para piliin ito."
 
 #: src/strings/operator.rs
 msgid "Double-click a thumbnail to use it as the selected item’s background."
-msgstr ""
+msgstr "I-double-click ang isang thumbnail para gamitin itong background ng napiling item."
 
 #: src/strings/operator.rs
 msgid "Add it to the service to play it."
-msgstr ""
+msgstr "Idagdag ito sa service para i-play."
 
 #: src/strings/operator.rs
 msgid "This file isn’t ready to play yet."
-msgstr ""
+msgstr "Hindi pa handang i-play ang file na ito."
 
 #: src/strings/operator.rs
 msgid "Pick a service item first, then choose its background."
-msgstr ""
+msgstr "Pumili muna ng item sa service, saka piliin ang background nito."
 
 #: src/strings/operator.rs
 msgid "Background set to {name}"
-msgstr ""
+msgstr "Itinakda ang background sa {name}"
 
 #: src/strings/operator.rs
 msgid "Folder name (leave empty for none)"
-msgstr ""
+msgstr "Pangalan ng folder (iwanang blangko kung wala)"
 
 #: src/strings/operator.rs
 msgid "Name for the new folder"
-msgstr ""
+msgstr "Pangalan ng bagong folder"
 
 #: src/strings/operator.rs
 msgid "Delete the folder “{name}”? Its files stay in the library."
-msgstr ""
+msgstr "Burahin ang folder na “{name}”? Mananatili sa library ang mga file nito."
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
 msgid_plural "Code works for {n} more seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Gagana ang code nang {n} segundo pa"
+msgstr[1] "Gagana ang code nang {n} na segundo pa"
 
 #: src/strings/phone.rs
 msgid "Code expired — click Pair a phone again."
-msgstr ""
+msgstr "Expired na ang code — i-click muli ang Mag-pair ng phone."
 
 #: src/strings/planning.rs
 msgid "No date"
-msgstr ""
+msgstr "Walang petsa"
 
 #: src/strings/planning.rs
 msgid "Mon"
-msgstr ""
+msgstr "Lun"
 
 #: src/strings/planning.rs
 msgid "Tue"
-msgstr ""
+msgstr "Mar"
 
 #: src/strings/planning.rs
 msgid "Wed"
-msgstr ""
+msgstr "Miy"
 
 #: src/strings/planning.rs
 msgid "Thu"
-msgstr ""
+msgstr "Huw"
 
 #: src/strings/planning.rs
 msgid "Fri"
-msgstr ""
+msgstr "Biy"
 
 #: src/strings/planning.rs
 msgid "Sat"
-msgstr ""
+msgstr "Sab"
 
 #: src/strings/planning.rs
 msgid "Sun"
-msgstr ""
+msgstr "Lin"
 
 #: src/strings/planning.rs
 msgid "Monday"
-msgstr ""
+msgstr "Lunes"
 
 #: src/strings/planning.rs
 msgid "Tuesday"
-msgstr ""
+msgstr "Martes"
 
 #: src/strings/planning.rs
 msgid "Wednesday"
-msgstr ""
+msgstr "Miyerkules"
 
 #: src/strings/planning.rs
 msgid "Thursday"
-msgstr ""
+msgstr "Huwebes"
 
 #: src/strings/planning.rs
 msgid "Friday"
-msgstr ""
+msgstr "Biyernes"
 
 #: src/strings/planning.rs
 msgid "Saturday"
-msgstr ""
+msgstr "Sabado"
 
 #: src/strings/planning.rs
 msgid "Sunday"
-msgstr ""
+msgstr "Linggo"
 
 #: src/strings/planning.rs
 msgid "Mondays"
-msgstr ""
+msgstr "Tuwing Lunes"
 
 #: src/strings/planning.rs
 msgid "Tuesdays"
-msgstr ""
+msgstr "Tuwing Martes"
 
 #: src/strings/planning.rs
 msgid "Wednesdays"
-msgstr ""
+msgstr "Tuwing Miyerkules"
 
 #: src/strings/planning.rs
 msgid "Thursdays"
-msgstr ""
+msgstr "Tuwing Huwebes"
 
 #: src/strings/planning.rs
 msgid "Fridays"
-msgstr ""
+msgstr "Tuwing Biyernes"
 
 #: src/strings/planning.rs
 msgid "Saturdays"
-msgstr ""
+msgstr "Tuwing Sabado"
 
 #: src/strings/planning.rs
 msgid "Sundays"
-msgstr ""
+msgstr "Tuwing Linggo"
 
 #: src/strings/planning.rs
 msgid "Any day"
-msgstr ""
+msgstr "Kahit anong araw"
 
 #: src/strings/planning.rs
 msgctxt "typed answer: no fixed day"
 msgid "any"
-msgstr ""
+msgstr "anuman"
 
 #: src/strings/planning.rs
 msgid "January"
-msgstr ""
+msgstr "Enero"
 
 #: src/strings/planning.rs
 msgid "February"
-msgstr ""
+msgstr "Pebrero"
 
 #: src/strings/planning.rs
 msgid "March"
-msgstr ""
+msgstr "Marso"
 
 #: src/strings/planning.rs
 msgid "April"
-msgstr ""
+msgstr "Abril"
 
 #: src/strings/planning.rs
 msgid "May"
-msgstr ""
+msgstr "Mayo"
 
 #: src/strings/planning.rs
 msgid "June"
-msgstr ""
+msgstr "Hunyo"
 
 #: src/strings/planning.rs
 msgid "July"
-msgstr ""
+msgstr "Hulyo"
 
 #: src/strings/planning.rs
 msgid "August"
-msgstr ""
+msgstr "Agosto"
 
 #: src/strings/planning.rs
 msgid "September"
-msgstr ""
+msgstr "Setyembre"
 
 #: src/strings/planning.rs
 msgid "October"
-msgstr ""
+msgstr "Oktubre"
 
 #: src/strings/planning.rs
 msgid "November"
-msgstr ""
+msgstr "Nobyembre"
 
 #: src/strings/planning.rs
 msgid "December"
-msgstr ""
+msgstr "Disyembre"
 
 #: src/strings/planning.rs
 msgid "Bible reading"
-msgstr ""
+msgstr "Pagbasa ng Bibliya"
 
 #: src/strings/planning.rs
 msgid "Something"
-msgstr ""
+msgstr "Isang bagay"
 
 #: src/strings/planning.rs
 msgid "Blank"
-msgstr ""
+msgstr "Blangko"
 
 #: src/strings/planning.rs
 msgid "{label} (blank)"
-msgstr ""
+msgstr "{label} (blangko)"
 
 #: src/strings/planning.rs
 msgid "Click Choose to fill this in"
-msgstr ""
+msgstr "I-click ang Pumili para punan ito"
 
 #: src/strings/planning.rs
 msgid "This is a blank — choose what goes here first."
-msgstr ""
+msgstr "Blangko ito — piliin muna ang ilalagay dito."
 
 #: src/strings/planning.rs
 msgid "Fill in: {label}"
-msgstr ""
+msgstr "Punan: {label}"
 
 #: src/strings/planning.rs
 msgid "There is no service to copy."
-msgstr ""
+msgstr "Walang service na makokopya."
 
 #: src/strings/planning.rs
 msgid "That template is gone."
-msgstr ""
+msgstr "Wala na ang template na iyon."
 
 #: src/strings/planning.rs
 msgid "That date isn't valid."
-msgstr ""
+msgstr "Hindi valid ang petsang iyon."
 
 #: src/strings/planning.rs
 msgid "That blank is gone."
-msgstr ""
+msgstr "Wala na ang blangkong iyon."
 
 #: src/strings/planning.rs
 msgid "That item is not a blank any more."
-msgstr ""
+msgstr "Hindi na blangko ang item na iyon."
 
 #: src/strings/planning.rs
 msgid "A template needs a name."
-msgstr ""
+msgstr "Kailangan ng pangalan ng template."
 
 #: src/strings/planning.rs
 msgid "A template needs at least one part."
-msgstr ""
+msgstr "Kailangan ng template ng kahit isang bahagi."
 
 #: src/strings/planning.rs
 msgid "This is in the template “{name}”. Remove it from the template first."
-msgstr ""
+msgstr "Nasa template na “{name}” ito. Alisin muna ito sa template."
 
 #: src/strings/planning.rs
 msgid "{n} blank"
 msgid_plural "{n} blanks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} blangko"
+msgstr[1] "{n} na blangko"
 
 #: src/strings/planning.rs
 msgid "Show {n} older service"
 msgid_plural "Show {n} older services"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ipakita ang {n} mas lumang service"
+msgstr[1] "Ipakita ang {n} na mas lumang service"
 
 #: src/strings/planning.rs
 msgid "{n} part, {blanks}"
 msgid_plural "{n} parts, {blanks}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} bahagi, {blanks}"
+msgstr[1] "{n} na bahagi, {blanks}"
 
 #: src/strings/planning.rs
 msgid "No templates yet. Use “Save as template” on a service to make one."
-msgstr ""
+msgstr "Wala pang template. Gamitin ang “I-save bilang template” sa isang service para gumawa."
 
 #: src/strings/planning.rs
 msgid "Save a service as a template first"
-msgstr ""
+msgstr "Mag-save muna ng service bilang template"
 
 #: src/strings/planning.rs
 msgid "Make a service for {date} from “{service}”?"
-msgstr ""
+msgstr "Gumawa ng service para sa {date} mula sa “{service}”?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible readings"
-msgstr ""
+msgstr "Kopya, na may blangko para sa mga kanta at pagbasa sa Bibliya"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
-msgstr ""
+msgstr "May service na para sa {date} (“{name}”)."
 
 #: src/strings/planning.rs
 msgid "Open it"
-msgstr ""
+msgstr "Buksan ito"
 
 #: src/strings/planning.rs
 msgid "Make another"
-msgstr ""
+msgstr "Gumawa ng isa pa"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready"
-msgstr ""
+msgstr "Handa na ang “{name}”"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready — fill in {blanks}"
-msgstr ""
+msgstr "Handa na ang “{name}” — punan ang {blanks}"
 
 #: src/strings/planning.rs
 msgid "Date of the service (leave empty for no date)"
-msgstr ""
+msgstr "Petsa ng service (iwanang blangko kung walang petsa)"
 
 #: src/strings/planning.rs
 msgid "Date of the service, like {example} (leave empty for no date)"
-msgstr ""
+msgstr "Petsa ng service, tulad ng {example} (iwanang blangko kung walang petsa)"
 
 #: src/strings/planning.rs
 msgid "Name for the template"
-msgstr ""
+msgstr "Pangalan ng template"
 
 #: src/strings/planning.rs
 msgid "Template “{name}” saved"
-msgstr ""
+msgstr "Na-save ang template na “{name}”"
 
 #: src/strings/planning.rs
 msgid "Rename template"
-msgstr ""
+msgstr "Palitan ang pangalan ng template"
 
 #: src/strings/planning.rs
 msgid "Delete the template “{name}”? (Services made from it stay.)"
-msgstr ""
+msgstr "Burahin ang template na “{name}”? (Mananatili ang mga service na ginawa mula rito.)"
 
 #: src/strings/planning.rs
 msgid "Which template?"
-msgstr ""
+msgstr "Aling template?"
 
 #: src/strings/planning.rs src/strings/services.rs
 msgid "Name for the new service"
-msgstr ""
+msgstr "Pangalan ng bagong service"
 
 #: src/strings/planning.rs
 msgid "Which day is the template “{name}” for?"
-msgstr ""
+msgstr "Para sa anong araw ang template na “{name}”?"
 
 #: src/strings/planning.rs
 msgid "Name for the header"
-msgstr ""
+msgstr "Pangalan ng header"
 
 #: src/strings/planning.rs
 msgid "Worship"
-msgstr ""
+msgstr "Pagsamba"
 
 #: src/strings/planning.rs
 msgid "Rename header"
-msgstr ""
+msgstr "Palitan ang pangalan ng header"
 
 #: src/strings/planning.rs
 msgid "Click “Make a service” on the template you want, under Templates."
-msgstr ""
+msgstr "I-click ang “Gumawa ng service” sa template na gusto mo, sa ilalim ng Mga template."
 
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
-msgstr ""
+msgstr "Mag-type ng araw ng linggo, tulad ng Linggo, o iwanang blangko para sa kahit anong araw."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
-msgstr ""
+msgstr "Handa na ang lahat. Nakita ang bawat kanta, file at screen para sa service na ito."
 
 #: src/strings/preflight.rs
 msgid "This service has no items yet."
-msgstr ""
+msgstr "Wala pang item ang service na ito."
 
 #: src/strings/preflight.rs
 msgid "No room screen is chosen. Choose one in Screens."
-msgstr ""
+msgstr "Walang napiling screen sa silid. Pumili ng isa sa Mga Screen."
 
 #: src/strings/preflight.rs
 msgid "The room screen is not connected. Check its cable, or choose another in Screens."
-msgstr ""
+msgstr "Hindi nakakonekta ang screen sa silid. Suriin ang cable nito, o pumili ng iba sa Mga Screen."
 
 #: src/strings/preflight.rs
 msgid "The stage screen is not connected. The service can run without it."
-msgstr ""
+msgstr "Hindi nakakonekta ang stage screen. Maaaring tumakbo ang service kahit wala ito."
 
 #: src/strings/preflight.rs
 msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr ""
+msgstr "Hindi nakakonekta ang sound output na pinili sa Settings. Isaksak ito, o pumili ng iba sa Settings → Video."
 
 #: src/strings/preflight.rs
 msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr ""
+msgstr "Hindi nakakonekta ang sound output, kaya na-pause ang video o audio. Isaksak ito, o pumili ng iba sa Settings → Video, saka pindutin ang play."
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "Nawawala ang file ng logo. Piliin itong muli sa Settings."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "Nawawala ang file ng default na background. Piliin itong muli sa Settings."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
-msgstr ""
+msgstr "wala na sa library ang kanta"
 
 #: src/strings/preflight.rs
 msgid "the song has no words"
-msgstr ""
+msgstr "walang salita ang kanta"
 
 #: src/strings/preflight.rs
 msgid "there is no verse text"
-msgstr ""
+msgstr "walang teksto ng talata"
 
 #: src/strings/preflight.rs
 msgid "it is no longer in the library"
-msgstr ""
+msgstr "wala na ito sa library"
 
 #: src/strings/preflight.rs
 msgid "its file is missing"
-msgstr ""
+msgstr "nawawala ang file nito"
 
 #: src/strings/preflight.rs
 msgid "these slides are no longer in the library"
-msgstr ""
+msgstr "wala na sa library ang slides na ito"
 
 #: src/strings/preflight.rs
 msgid "its background file is missing"
-msgstr ""
+msgstr "nawawala ang background file nito"
 
 #: src/strings/preflight.rs
 msgid "it can't be played ({reason})"
-msgstr ""
+msgstr "hindi ito ma-play ({reason})"
 
 #: src/strings/preflight.rs
 msgid "{missing} of {n} slides are missing"
 msgid_plural "{missing} of {n} slides are missing"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{missing} sa {n} slide ang nawawala"
+msgstr[1] "{missing} sa {n} na slide ang nawawala"
 
 #: src/strings/preflight.rs
 msgid "{number}. {title}: {problem}"
-msgstr ""
+msgstr "{number}. {title}: {problem}"
 
 #: src/strings/preflight.rs
 msgid "…and {n} more"
-msgstr ""
+msgstr "…at {n} pa"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
 msgid_plural "{n} things to fix before the service:"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} bagay na dapat ayusin bago ang service:"
+msgstr[1] "{n} na bagay na dapat ayusin bago ang service:"
 
 #: src/strings/preflight.rs
 msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
-msgstr ""
+msgstr "Hindi pa handa offline ang {bible} para sa {passage}. Buksan ang service na ito nang isang beses habang may internet."
 
 #: src/strings/print.rs
 msgid "Order: {sections}"
-msgstr ""
+msgstr "Ayos: {sections}"
 
 #: src/strings/print.rs
 msgid "Blank — {label}"
-msgstr ""
+msgstr "Blangko — {label}"
 
 #: src/strings/print.rs
 msgid "(not chosen yet)"
-msgstr ""
+msgstr "(hindi pa napipili)"
 
 #: src/strings/print.rs
 msgid "(no lyrics)"
-msgstr ""
+msgstr "(walang lyrics)"
 
 #: src/strings/print.rs
 msgid "(the verse text isn't saved with this service)"
-msgstr ""
+msgstr "(hindi naka-save sa service na ito ang teksto ng talata)"
 
 #: src/strings/print.rs
 msgid " (loops)"
-msgstr ""
+msgstr " (naka-loop)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible readings in this service."
-msgstr ""
+msgstr "Walang kanta o pagbasa sa Bibliya sa service na ito."
 
 #: src/strings/print.rs
 msgid "This service is empty."
-msgstr ""
+msgstr "Walang laman ang service na ito."
 
 #: src/strings/print.rs
 msgid "Printed from RustyPresenter · {date}"
-msgstr ""
+msgstr "Na-print mula sa RustyPresenter · {date}"
 
 #: src/strings/print.rs
 msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
-msgstr ""
+msgstr "Binuksan sa iyong web browser — gamitin doon ang Print (maaari ka ring mag-save bilang PDF mula sa print window)"
 
 #: src/strings/print.rs
 msgid "Saved {file}"
-msgstr ""
+msgstr "Na-save ang {file}"
 
 #: src/strings/print.rs
 msgid "Couldn't make the page: {reason}."
-msgstr ""
+msgstr "Hindi magawa ang pahina: {reason}."
 
 #: src/strings/print.rs
 msgid "Couldn't save to that folder: {reason}."
-msgstr ""
+msgstr "Hindi ma-save sa folder na iyon: {reason}."
 
 #: src/strings/print.rs
 msgid "The page is saved at {path} but no program opened it. Open it from there to print."
-msgstr ""
+msgstr "Naka-save ang pahina sa {path} pero walang program na nagbukas nito. Buksan ito mula roon para i-print."
 
 #: src/strings/print.rs
 msgid "Web page"
-msgstr ""
+msgstr "Web page"
 
 #: src/strings/print.rs
 msgid "Print or save"
-msgstr ""
+msgstr "I-print o i-save"
 
 #: src/strings/screens.rs
 msgid "Audience"
-msgstr ""
+msgstr "Audience"
 
 #: src/strings/screens.rs
 msgid "Audience screen"
-msgstr ""
+msgstr "Screen ng audience"
 
 #: src/strings/screens.rs
 msgid "Stage screen"
-msgstr ""
+msgstr "Stage screen"
 
 #: src/strings/screens.rs
 msgid "Showing"
-msgstr ""
+msgstr "Ipinapakita"
 
 #: src/strings/screens.rs
 msgid "No output"
-msgstr ""
+msgstr "Walang output"
 
 #: src/strings/screens.rs
 msgid "Unplugged"
-msgstr ""
+msgstr "Nakahugot"
 
 #: src/strings/screens.rs
 msgid "None"
-msgstr ""
+msgstr "Wala"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"
-msgstr ""
+msgstr "Sa isang window (para sa pag-test)"
 
 #: src/strings/screens.rs
 msgid "Not connected right now"
-msgstr ""
+msgstr "Hindi nakakonekta sa ngayon"
 
 #: src/strings/screens.rs
 msgid "This is the screen you are working on. Turning this on covers it."
-msgstr ""
+msgstr "Ito ang screen na pinagtatrabahuhan mo. Matatakpan ito kapag in-on mo ito."
 
 #: src/strings/screens.rs
 msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
-msgstr ""
+msgstr "Ipinapakita ang parehong larawan ng {screen}. Sa {screen} lang lumalabas ang tunog."
 
 #: src/strings/screens.rs
 msgid "Remove “{name}”?"
-msgstr ""
+msgstr "Alisin ang “{name}”?"
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
-msgstr ""
+msgstr "Mag-type ng kahit isang salitang hahanapin."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr ""
+msgstr "Magdagdag ng kabanata, tulad ng Job 1 o Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
-msgstr ""
+msgstr "Pumili ng ibang pangalawang salin."
 
 #: src/strings/scripture.rs
 msgid "Second translation turned off (same as main)."
-msgstr ""
+msgstr "Na-off ang pangalawang salin (kapareho ng pangunahin)."
 
 #: src/strings/scripture.rs
 msgid "Too long — will split inside a verse"
-msgstr ""
+msgstr "Masyadong mahaba — mahahati sa loob ng talata"
 
 #: src/strings/scripture.rs
 msgid "Keeping these together makes a slide too long, so it will split inside a verse."
-msgstr ""
+msgstr "Kapag pinagsama ang mga ito, masyadong hahaba ang slide, kaya mahahati ito sa loob ng talata."
 
 #: src/strings/scripture.rs
 msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
-msgstr ""
+msgstr "Nakaayon na ngayon sa screen ang Bible slides, kaya maaaring mahati sa ibang lugar ang ilang passage."
 
 #: src/strings/scripture.rs
 msgid "Fitting slides…"
-msgstr ""
+msgstr "Inaayos ang slides…"
 
 #: src/strings/scripture.rs
 msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
-msgstr ""
+msgstr "Hindi magagamit sa RustyPresenter ang salin na ito. Pumili ng ibang Bibliya."
 
 #: src/strings/scripture.rs
 msgid "This verse came from an older version; look the passage up again to choose breaks here."
-msgstr ""
+msgstr "Galing sa mas lumang bersyon ang talatang ito; hanaping muli ang passage para pumili ng hati rito."
 
 #: src/strings/scripture.rs
 msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
 msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} passage ang gumamit ng salin na hindi magagamit sa RustyPresenter at inalis."
+msgstr[1] "{n} na passage ang gumamit ng salin na hindi magagamit sa RustyPresenter at inalis."
 
 #: src/strings/scripture.rs
 msgid "Ready on this computer"
-msgstr ""
+msgstr "Handa sa computer na ito"
 
 #: src/strings/scripture.rs
 msgid "Ready (needs internet)"
-msgstr ""
+msgstr "Handa (kailangan ng internet)"
 
 #: src/strings/scripture.rs
 msgid "Needs a key — Get one"
-msgstr ""
+msgstr "Kailangan ng key — Kumuha"
 
 #: src/strings/scripture.rs
 msgid "Not available"
-msgstr ""
+msgstr "Hindi available"
 
 #: src/strings/scripture.rs
 msgid "Search: Ready"
-msgstr ""
+msgstr "Paghahanap: Handa"
 
 #: src/strings/scripture.rs
 msgid "Search: online (ESV)"
-msgstr ""
+msgstr "Paghahanap: online (ESV)"
 
 #: src/strings/scripture.rs
 msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
-msgstr ""
+msgstr "Gumagana ang paghahanap sa mga salin na naka-save sa computer na ito (KJV at anumang kasama o na-import na Bibliya). Hindi mahahanap ang mga online na salin, dahil hindi ito pinapayagan ng mga may-ari nito (maaaring may sariling online na paghahanap ang ESV)."
 
 #: src/strings/scripture.rs
 msgid "Every word must appear in the verse (love neighbour finds verses with both)."
-msgstr ""
+msgstr "Dapat lumabas sa talata ang bawat salita (hinahanap ng love neighbour ang mga talatang may parehong salita)."
 
 #: src/strings/scripture.rs
 msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
-msgstr ""
+msgstr "Tumutugma ang mga salita sa simula nila: hinahanap ng love ang love, loved, loveth, lovest, loving. Dapat eksaktong tumugma ang mga salitang mas maikli sa 3 letra."
 
 #: src/strings/scripture.rs
 msgid "Put words in quotes for an exact phrase: \"be still\"."
-msgstr ""
+msgstr "Ilagay sa panipi ang mga salita para sa eksaktong parirala: \"be still\"."
 
 #: src/strings/scripture.rs
 msgid "Capitals and punctuation do not matter. lord finds LORD."
-msgstr ""
+msgstr "Hindi mahalaga ang malalaking titik at bantas. Hinahanap ng lord ang LORD."
 
 #: src/strings/scripture.rs
 msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
-msgstr ""
+msgstr "Nauuna ang pinakamahusay na tugma: mga talatang may eksaktong salita mo nang magkakasunod, saka mga talatang magkakalapit ang mga salita, saka ang iba ayon sa ayos ng Bibliya. Lumipat sa ayos ng Bibliya para mauna ang Genesis."
 
 #: src/strings/scripture.rs
 msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
-msgstr ""
+msgstr "Laging naghahanap ang Ctrl+Enter sa Bible box, kahit pangalan ng aklat tulad ng \"Job\"."
 
 #: src/strings/scripture.rs
 msgid "Also show…"
-msgstr ""
+msgstr "Ipakita rin…"
 
 #: src/strings/scripture.rs
 msgid "Search by words…"
-msgstr ""
+msgstr "Hanapin ayon sa salita…"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
-msgstr ""
+msgstr "Hati ng slide"
 
 #: src/strings/scripture.rs
 msgid "Choose slide breaks…"
-msgstr ""
+msgstr "Pumili ng hati ng slide…"
 
 #: src/strings/scripture.rs
 msgid "Reset to automatic"
-msgstr ""
+msgstr "Ibalik sa awtomatiko"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
-msgstr ""
+msgstr "Bagong slide (awtomatiko)"
 
 #: src/strings/scripture.rs
 msgid "New slide (you added)"
-msgstr ""
+msgstr "Bagong slide (idinagdag mo)"
 
 #: src/strings/scripture.rs
 msgid "Kept together"
-msgstr ""
+msgstr "Pinagsama"
 
 #: src/strings/scripture.rs
 msgid "+ New slide here"
-msgstr ""
+msgstr "+ Bagong slide dito"
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes always stack two translations."
-msgstr ""
+msgstr "Laging pinagpapatong ng lower-third theme ang dalawang salin."
 
 #: src/strings/scripture.rs
 msgid "Search for these words"
-msgstr ""
+msgstr "Hanapin ang mga salitang ito"
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have all of those words."
-msgstr ""
+msgstr "Walang talata sa {bible} na may lahat ng salitang iyon."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr ""
+msgstr "Walang talata sa {bible} na may salitang iyon. Kung pangalan ito ng aklat, suriin ang baybay at magdagdag ng kabanata, tulad ng Juan 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
-msgstr ""
+msgstr "Ipinapakita ang unang {shown} sa {total} talata — magdagdag ng salita para paliitin."
 
 #: src/strings/scripture.rs
 msgid "{count} verse found in {bible}"
 msgid_plural "{count} verses found in {bible}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{count} talata ang nakita sa {bible}"
+msgstr[1] "{count} na talata ang nakita sa {bible}"
 
 #: src/strings/scripture.rs
 msgid "Getting {bible} ready to search…"
-msgstr ""
+msgstr "Inihahanda ang {bible} para sa paghahanap…"
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
-msgstr ""
+msgstr "Hindi available ang paghahanap para sa {bible}. Subukan ang salin na naka-save sa computer na ito, tulad ng KJV."
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}, so this searches {local}."
-msgstr ""
+msgstr "Hindi available ang paghahanap para sa {bible}, kaya sa {local} ito maghahanap."
 
 #: src/strings/scripture.rs
 msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
-msgstr ""
+msgstr "Kailangan ng internet para maghanap sa ESV. Suriin ang koneksyon, o maghanap sa KJV."
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}"
-msgstr ""
+msgstr "Hindi available ang paghahanap para sa {bible}"
 
 #: src/strings/scripture.rs
 msgid "{bible} needs a key. Add one in Settings → Bible."
-msgstr ""
+msgstr "Kailangan ng key ang {bible}. Magdagdag nito sa Settings → Bibliya."
 
 #: src/strings/scripture.rs
 msgid "{bible} isn't available."
-msgstr ""
+msgstr "Hindi available ang {bible}."
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible} text — check the internet."
-msgstr ""
+msgstr "Hindi makuha ang teksto ng {bible} — suriin ang internet."
 
 #: src/strings/scripture.rs
 msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
-msgstr ""
+msgstr "Hindi available ngayon ang {second}, kaya {main} lang ang naidagdag. I-off ang pangalawang salin gamit ang X."
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible}: {error}"
-msgstr ""
+msgstr "Hindi makuha ang {bible}: {error}"
 
 #: src/strings/scripture.rs
 msgid "{bible} doesn't include {passage}."
-msgstr ""
+msgstr "Hindi kasama sa {bible} ang {passage}."
 
 #: src/strings/scripture.rs
 msgid "Add {passage}"
-msgstr ""
+msgstr "Idagdag ang {passage}"
 
 #: src/strings/scripture.rs
 msgid "Search for \"{word}\" instead"
-msgstr ""
+msgstr "Hanapin na lang ang \"{word}\""
 
 #: src/strings/scripture.rs
 msgid "That passage is too long. Choose up to about {n} verses."
-msgstr ""
+msgstr "Masyadong mahaba ang passage na iyon. Pumili ng hanggang mga {n} talata."
 
 #: src/strings/scripture.rs
 msgid "{bible} turned off (same as main)."
-msgstr ""
+msgstr "Na-off ang {bible} (kapareho ng pangunahin)."
 
 #: src/strings/scripture.rs
 msgid "{left} isn't available right now, so only {kept} was added."
-msgstr ""
+msgstr "Hindi available ngayon ang {left}, kaya {kept} lang ang naidagdag."
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes show two Bibles. {bible} is left out."
-msgstr ""
+msgstr "Dalawang Bibliya ang ipinapakita ng lower-third theme. Hindi isinama ang {bible}."
 
 #: src/strings/scripture.rs
 msgid "{bible} needs the internet for this passage."
-msgstr ""
+msgstr "Kailangan ng internet ng {bible} para sa passage na ito."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bibles."
-msgstr ""
+msgstr "Inalis na ang Bibliyang iyon. Idagdag itong muli sa Settings → Mga Bibliya."
 
 #: src/strings/services.rs
 msgid "Name for the copy"
-msgstr ""
+msgstr "Pangalan ng kopya"
 
 #: src/strings/services.rs
 msgid "Rename service"
-msgstr ""
+msgstr "Palitan ang pangalan ng service"
 
 #: src/strings/services.rs
 msgid "Service {date}"
-msgstr ""
+msgstr "Service {date}"
 
 #: src/strings/services.rs
 msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
-msgstr ""
+msgstr "Burahin ang service na “{name}”? (Mananatili sa library ang mga kanta at media.)"
 
 #: src/strings/settings.rs
 msgid "Settings saved"
-msgstr ""
+msgstr "Na-save ang settings"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
-msgstr ""
+msgstr "Hindi naka-install sa computer na ito ang “{font}”, kaya Noto Sans ang ginagamit ng slides."
 
 #: src/strings/settings.rs
 msgid "Ready — offline"
-msgstr ""
+msgstr "Handa — offline"
 
 #: src/strings/settings.rs
 msgid "Ready — online"
-msgstr ""
+msgstr "Handa — online"
 
 #: src/strings/settings.rs
 msgid "Needs a free key"
-msgstr ""
+msgstr "Kailangan ng libreng key"
 
 #: src/strings/settings.rs
 msgid "No source yet"
-msgstr ""
+msgstr "Wala pang source"
 
 #: src/strings/settings.rs
 msgid "or"
-msgstr ""
+msgstr "o"
 
 #: src/strings/settings.rs
 msgid "Connect {sources} below"
-msgstr ""
+msgstr "Ikonekta ang {sources} sa ibaba"
 
 #: src/strings/settings.rs
 msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
-msgstr ""
+msgstr "Walang online na source na nag-aalok nito. Mag-import ng may-lisensyang file, o i-paste ang mga talata kapag idinagdag mo ang mga ito."
 
 #: src/strings/settings.rs
 msgid "For {bibles}"
-msgstr ""
+msgstr "Para sa {bibles}"
 
 #: src/strings/settings.rs
 msgid "{source} connected"
-msgstr ""
+msgstr "Nakakonekta ang {source}"
 
 #: src/strings/settings.rs
 msgid "{source} disconnected"
-msgstr ""
+msgstr "Nadiskonekta ang {source}"
 
 #: src/strings/settings.rs
 msgid "Link copied — paste it into your browser"
-msgstr ""
+msgstr "Nakopya ang link — i-paste ito sa iyong browser"
 
 #: src/strings/settings.rs
 msgid "Added {bible} ({count} verses)"
 msgid_plural "Added {bible} ({count} verses)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Naidagdag ang {bible} ({count} talata)"
+msgstr[1] "Naidagdag ang {bible} ({count} na talata)"
 
 #: src/strings/settings.rs
 msgid "Import failed."
-msgstr ""
+msgstr "Nabigo ang pag-import."
 
 #: src/strings/settings.rs
 msgid "{bible} removed"
-msgstr ""
+msgstr "Inalis ang {bible}"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv (LGPL build)"
-msgstr ""
+msgstr "Video player: libmpv (LGPL build)"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv {version} (LGPL build)"
-msgstr ""
+msgstr "Video player: libmpv {version} (LGPL build)"
 
 #: src/strings/settings.rs
 msgid "Video drawing: GPU (OpenGL)"
-msgstr ""
+msgstr "Pag-drawing ng video: GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video drawing: Software"
-msgstr ""
+msgstr "Pag-drawing ng video: Software"
 
 #: src/strings/settings.rs
 msgid "Could not copy: {error}"
-msgstr ""
+msgstr "Hindi makopya: {error}"
 
 #: src/strings/settings.rs
 msgid "Backup made"
-msgstr ""
+msgstr "Nagawa ang backup"
 
 #: src/strings/settings.rs
 msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
-msgstr ""
+msgstr "Ibalik ang backup na ito? Papalitan ang kasalukuyan mong mga kanta at service (may itatagong kopya ng mga ito)."
 
 #: src/strings/settings.rs
 msgid "Backup restored"
-msgstr ""
+msgstr "Naibalik ang backup"
 
 #: src/strings/settings.rs
 msgid "{songs} songs · {services} services · {files} files"
-msgstr ""
+msgstr "{songs} kanta · {services} service · {files} file"
 
 #: src/strings/settings.rs
 msgid "→  ↓  Space  Page Down"
-msgstr ""
+msgstr "→  ↓  Space  Page Down"
 
 #: src/strings/settings.rs
 msgid "←  ↑  Page Up"
-msgstr ""
+msgstr "←  ↑  Page Up"
 
 #: src/strings/settings.rs
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: src/strings/settings.rs
 msgid "Ctrl + B"
-msgstr ""
+msgstr "Ctrl + B"
 
 #: src/strings/settings.rs
 msgid "Alt + 1–5"
-msgstr ""
+msgstr "Alt + 1–5"
 
 #: src/strings/settings.rs
 msgid "Ctrl + V"
-msgstr ""
+msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr ""
+msgstr "Tumalon sa Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude o sa susunod na Verse ng live na kanta"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
-msgstr ""
+msgstr "Idagdag ang YouTube link na kinopya mo"
 
 #: src/strings/settings.rs
 msgid "Esc"
-msgstr ""
+msgstr "Esc"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
-msgstr ""
+msgstr "Ipakita ang napiling item"
 
 #: src/strings/settings.rs
 msgid "Pick a Bible chip (in the Bible box)"
-msgstr ""
+msgstr "Pumili ng Bible chip (sa Bible box)"
 
 #: src/strings/settings.rs
 msgid "Leave a text box"
-msgstr ""
+msgstr "Umalis sa text box"
 
 #: src/strings/settings.rs
 msgid "Video: GPU (OpenGL)"
-msgstr ""
+msgstr "Video: GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video: software drawing"
-msgstr ""
+msgstr "Video: software drawing"
 
 #: src/strings/settings.rs
 msgid "Video player missing"
-msgstr ""
+msgstr "Nawawala ang video player"
 
 #: src/strings/settings.rs
 msgid "libmpv (client API {major}.{minor}) — {path}"
-msgstr ""
+msgstr "libmpv (client API {major}.{minor}) — {path}"
 
 #: src/strings/settings.rs
 msgid "LGPL build"
-msgstr ""
+msgstr "LGPL build"
 
 #: src/strings/settings.rs
 msgid "not an LGPL build"
-msgstr ""
+msgstr "hindi LGPL build"
 
 #: src/strings/settings.rs
 msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
-msgstr ""
+msgstr "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
 
 #: src/strings/settings.rs
 msgid "found"
-msgstr ""
+msgstr "nakita"
 
 #: src/strings/settings.rs
 msgid "missing"
-msgstr ""
+msgstr "nawawala"
 
 #: src/strings/settings.rs
 msgid "Snap — not usable"
-msgstr ""
+msgstr "Snap — hindi magagamit"
 
 #: src/strings/settings.rs
 msgid "not installed"
-msgstr ""
+msgstr "hindi naka-install"
 
 #: src/strings/settings.rs
 msgid "not found"
-msgstr ""
+msgstr "hindi nakita"
 
 #: src/strings/settings.rs
 msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
-msgstr ""
+msgstr "Gumagamit ang video playback ng libmpv (LGPL-2.1+) at mga FFmpeg library sa ilalim ng LGPLv2.1 — source: {url}"
 
 #: src/strings/settings.rs
 msgid "Use the computer's language ({name})"
-msgstr ""
+msgstr "Gamitin ang wika ng computer ({name})"
 
 #: src/strings/settings.rs
 msgid "{name} (needs review)"
-msgstr ""
+msgstr "{name} (kailangang i-review)"
 
 #: src/strings/settings.rs
 msgid "{english_name} · {percent}% translated"
-msgstr ""
+msgstr "{english_name} · {percent}% naisalin"
 
 #: src/strings/settings.rs
 msgid "This computer's default sound output"
-msgstr ""
+msgstr "Default na sound output ng computer na ito"
 
 #: src/strings/settings.rs
 msgid "The saved sound output (not connected)"
-msgstr ""
+msgstr "Ang naka-save na sound output (hindi nakakonekta)"
 
 #: src/strings/song.rs
 msgid "Verse"
-msgstr ""
+msgstr "Verse"
 
 #: src/strings/song.rs
 msgid "Chorus"
-msgstr ""
+msgstr "Chorus"
 
 #: src/strings/song.rs
 msgid "Pre-chorus"
-msgstr ""
+msgstr "Pre-chorus"
 
 #: src/strings/song.rs
 msgid "Bridge"
-msgstr ""
+msgstr "Bridge"
 
 #: src/strings/song.rs
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 #: src/strings/song.rs
 msgid "Intro"
-msgstr ""
+msgstr "Intro"
 
 #: src/strings/song.rs
 msgid "Ending"
-msgstr ""
+msgstr "Ending"
 
 #: src/strings/song.rs
 msgid "Interlude"
-msgstr ""
+msgstr "Interlude"
 
 #: src/strings/song.rs
 msgid "Other"
-msgstr ""
+msgstr "Iba pa"
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
-msgstr ""
+msgstr "Sa mga kanta gumagana ang section keys."
 
 #: src/strings/song.rs
 msgid "The song changed — try again."
-msgstr ""
+msgstr "Nagbago ang kanta — subukang muli."
 
 #: src/strings/song.rs
 msgid "The live song changed — try again."
-msgstr ""
+msgstr "Nagbago ang live na kanta — subukang muli."
 
 #: src/strings/song.rs
 msgid "That song is no longer live."
-msgstr ""
+msgstr "Hindi na live ang kantang iyon."
 
 #: src/strings/song.rs
 msgid "That song has no slides now. The screen keeps the old words."
-msgstr ""
+msgstr "Wala nang slides ang kantang iyon. Mananatili sa screen ang mga lumang salita."
 
 #: src/strings/song.rs
 msgid "Saved. The new words show when you bring the text back."
-msgstr ""
+msgstr "Na-save. Lalabas ang mga bagong salita kapag ibinalik mo ang teksto."
 
 #: src/strings/song.rs
 msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
-msgstr ""
+msgstr "Binago mo ang mga salitang nasa screen. Ipapakita ito ngayon ng I-update ang screen. Ipapakita rin ang bagong bersyon kapag nag-click ka ng slide."
 
 #: src/strings/song.rs
 msgid "The live song looks different now. Update screen to show it."
-msgstr ""
+msgstr "Iba na ang itsura ng live na kanta. I-update ang screen para ipakita ito."
 
 #: src/strings/song.rs
 msgid "The part of the song on screen was removed. Update screen starts the song from the top."
-msgstr ""
+msgstr "Inalis ang bahagi ng kanta na nasa screen. Sisimulan ng I-update ang screen ang kanta mula sa umpisa."
 
 #: src/strings/song.rs
 msgid "This song has no words now. The screen keeps the old words."
-msgstr ""
+msgstr "Wala nang salita ang kantang ito. Mananatili sa screen ang mga lumang salita."
 
 #: src/strings/song.rs
 msgid "Click to show this part"
-msgstr ""
+msgstr "I-click para ipakita ang bahaging ito"
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
-msgstr ""
+msgstr "Walang {section} {number} ang kantang ito."
 
 #: src/strings/song.rs
 msgid "This song has no {section}."
-msgstr ""
+msgstr "Walang {section} ang kantang ito."
 
 #: src/strings/song.rs
 msgid "Jumped to {section} ({key})"
-msgstr ""
+msgstr "Tumalon sa {section} ({key})"
 
 #: src/strings/song.rs
 msgid "{section} — press {key}"
-msgstr ""
+msgstr "{section} — pindutin ang {key}"
 
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
-msgstr ""
+msgstr "{section} · slide {page} sa {pages}"
 
 #: src/strings/stage.rs
 msgid "Stage layout"
-msgstr ""
+msgstr "Stage layout"
 
 #: src/strings/stage.rs
 msgid "Classic"
-msgstr ""
+msgstr "Classic"
 
 #: src/strings/stage.rs
 msgid "Lyrics only"
-msgstr ""
+msgstr "Lyrics lang"
 
 #: src/strings/stage.rs
 msgid "Band"
-msgstr ""
+msgstr "Banda"
 
 #: src/strings/stage.rs
 msgid "Speaker"
-msgstr ""
+msgstr "Tagapagsalita"
 
 #: src/strings/stage.rs
 msgid "Clock and countdown"
-msgstr ""
+msgstr "Orasan at countdown"
 
 #: src/strings/stage.rs
 msgid "Current slide"
-msgstr ""
+msgstr "Kasalukuyang slide"
 
 #: src/strings/stage.rs
 msgid "Next slide"
-msgstr ""
+msgstr "Susunod na slide"
 
 #: src/strings/stage.rs
 msgid "Section"
-msgstr ""
+msgstr "Section"
 
 #: src/strings/stage.rs
 msgid "Next section"
-msgstr ""
+msgstr "Susunod na section"
 
 #: src/strings/stage.rs
 msgid "Item title"
-msgstr ""
+msgstr "Pamagat ng item"
 
 #: src/strings/stage.rs
 msgid "Slides left"
-msgstr ""
+msgstr "Natitirang slides"
 
 #: src/strings/stage.rs
 msgid "Notes"
-msgstr ""
+msgstr "Notes"
 
 #: src/strings/stage.rs
 msgid "Clock"
-msgstr ""
+msgstr "Orasan"
 
 #: src/strings/stage.rs
 msgid "Timer"
-msgstr ""
+msgstr "Timer"
 
 #: src/strings/stage.rs
 msgid "Video time left"
-msgstr ""
+msgstr "Natitirang oras ng video"
 
 #: src/strings/stage.rs
 msgid "Message"
-msgstr ""
+msgstr "Mensahe"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
-msgstr ""
+msgstr "ang mga salita sa screen ngayon"
 
 #: src/strings/stage.rs
 msgid "the words coming next"
-msgstr ""
+msgstr "ang mga susunod na salita"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
-msgstr ""
+msgstr "Verse, Chorus, Bridge…"
 
 #: src/strings/stage.rs
 msgid "the next part of the song"
-msgstr ""
+msgstr "ang susunod na bahagi ng kanta"
 
 #: src/strings/stage.rs
 msgid "the live item's name"
-msgstr ""
+msgstr "ang pangalan ng live na item"
 
 #: src/strings/stage.rs
 msgid "“3 slides left”"
-msgstr ""
+msgstr "“3 slide na lang”"
 
 #: src/strings/stage.rs
 msgid "the slide's stage notes"
-msgstr ""
+msgstr "ang stage notes ng slide"
 
 #: src/strings/stage.rs
 msgid "the time of day"
-msgstr ""
+msgstr "ang oras ngayon"
 
 #: src/strings/stage.rs
 msgid "a countdown or count-up"
-msgstr ""
+msgstr "countdown o count-up"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
-msgstr ""
+msgstr "natitirang oras ng video o audio"
 
 #: src/strings/stage.rs
 msgid "messages sent from the back"
-msgstr ""
+msgstr "mga mensaheng ipinadala mula sa likod"
 
 #: src/strings/stage.rs
 msgid "words you type once"
-msgstr ""
+msgstr "mga salitang minsan mo lang ita-type"
 
 #: src/strings/stage.rs
 msgid "(logo)"
-msgstr ""
+msgstr "(logo)"
 
 #: src/strings/stage.rs
 msgid "Nothing live"
-msgstr ""
+msgstr "Walang naka-live"
 
 #: src/strings/stage.rs
 msgid "NEXT SECTION"
-msgstr ""
+msgstr "SUSUNOD NA SECTION"
 
 #: src/strings/stage.rs
 msgid "NEXT · {title}"
-msgstr ""
+msgstr "KASUNOD · {title}"
 
 #: src/strings/stage.rs
 msgid "Last slide"
-msgstr ""
+msgstr "Huling slide"
 
 #: src/strings/stage.rs
 msgid "{n} slide left"
 msgid_plural "{n} slides left"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} slide na lang"
+msgstr[1] "{n} na slide na lang"
 
 #: src/strings/stage.rs
 msgid "Timer removed"
-msgstr ""
+msgstr "Inalis ang timer"
 
 #: src/strings/stage.rs
 msgid "{timer} · paused"
-msgstr ""
+msgstr "{timer} · naka-pause"
 
 #: src/strings/stage.rs
 msgid "That stage layout is gone."
-msgstr ""
+msgstr "Wala na ang stage layout na iyon."
 
 #: src/strings/stage.rs
 msgid "Built-in stage layouts can't be changed. Make a copy first."
-msgstr ""
+msgstr "Hindi mababago ang built-in na stage layout. Gumawa muna ng kopya."
 
 #: src/strings/stage.rs
 msgid "Give the stage layout a name."
-msgstr ""
+msgstr "Bigyan ng pangalan ang stage layout."
 
 #: src/strings/stage.rs
 msgid "There is already a stage layout called “{name}”."
-msgstr ""
+msgstr "May stage layout nang tinatawag na “{name}”."
 
 #: src/strings/stage.rs
 msgid "A stage layout can have at most 24 boxes."
-msgstr ""
+msgstr "Hanggang 24 na box lang ang maaaring nasa isang stage layout."
 
 #: src/strings/stage.rs
 msgid "{question} It is used by {things}. {what_happens}."
-msgstr ""
+msgstr "{question} Ginagamit ito ng {things}. {what_happens}."
 
 #: src/strings/stage.rs
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first} at {second}"
 
 #: src/strings/stage.rs
 msgid "{first}, {second} and {third}"
-msgstr ""
+msgstr "{first}, {second} at {third}"
 
 #: src/strings/stage.rs
 msgid "{items_effect}; {macros_effect}"
-msgstr ""
+msgstr "{items_effect}; {macros_effect}"
 
 #: src/strings/stage.rs
 msgid "{n} service item"
 msgid_plural "{n} service items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} item sa service"
+msgstr[1] "{n} na item sa service"
 
 #: src/strings/stage.rs
 msgid "the stage default"
-msgstr ""
+msgstr "ang stage default"
 
 #: src/strings/stage.rs
 msgid "{n} macro"
 msgid_plural "{n} macros"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} macro"
+msgstr[1] "{n} na macro"
 
 #: src/strings/stage.rs
 msgid "Items and the default will use Classic"
-msgstr ""
+msgstr "Gagamit ng Classic ang mga item at ang default"
 
 #: src/strings/stage.rs
 msgid "That item will use the stage default"
-msgstr ""
+msgstr "Gagamit ng stage default ang item na iyon"
 
 #: src/strings/stage.rs
 msgid "Those items will use the stage default"
-msgstr ""
+msgstr "Gagamit ng stage default ang mga item na iyon"
 
 #: src/strings/stage.rs
 msgid "The default will use Classic"
-msgstr ""
+msgstr "Gagamit ng Classic ang default"
 
 #: src/strings/stage.rs
 msgid "the macro won't run until it is edited"
-msgstr ""
+msgstr "hindi tatakbo ang macro hangga’t hindi ito na-e-edit"
 
 #: src/strings/stage.rs
 msgid "the macros won't run until they are edited"
-msgstr ""
+msgstr "hindi tatakbo ang mga macro hangga’t hindi na-e-edit"
 
 #: src/strings/stage.rs
 msgid "The macro won't run until it is edited"
-msgstr ""
+msgstr "Hindi tatakbo ang macro hangga’t hindi ito na-e-edit"
 
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
-msgstr ""
+msgstr "Hindi tatakbo ang mga macro hangga’t hindi na-e-edit"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
-msgstr ""
+msgstr "Bigyan ng pangalan ang theme."
 
 #: src/strings/themes.rs
 msgid "That name is used by a built-in theme. Pick another."
-msgstr ""
+msgstr "Ginagamit ng isang built-in na theme ang pangalang iyon. Pumili ng iba."
 
 #: src/strings/themes.rs
 msgid "That theme is gone."
-msgstr ""
+msgstr "Wala na ang theme na iyon."
 
 #: src/strings/themes.rs
 msgid "Built-in themes can't be deleted."
-msgstr ""
+msgstr "Hindi mabubura ang mga built-in na theme."
 
 #: src/strings/themes.rs
 msgid "Standard is changed with Save on its own editor."
-msgstr ""
+msgstr "Binabago ang Standard gamit ang I-save sa sarili nitong editor."
 
 #: src/strings/themes.rs
 msgid "Theme saved"
-msgstr ""
+msgstr "Na-save ang theme"
 
 #: src/strings/themes.rs
 msgid "Theme deleted"
-msgstr ""
+msgstr "Nabura ang theme"
 
 #: src/strings/themes.rs
 msgid "Standard"
-msgstr ""
+msgstr "Standard"
 
 #: src/strings/themes.rs
 msgid "Church default"
-msgstr ""
+msgstr "Default ng simbahan"
 
 #: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
-msgstr ""
+msgstr "Built-in — ang istilong unang ginamit ng RustyPresenter"
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
-msgstr ""
+msgstr "Default ng simbahan — ginagamit kapag walang ibang napili"
 
 #: src/strings/themes.rs
 msgid "New theme"
-msgstr ""
+msgstr "Bagong theme"
 
 #: src/strings/themes.rs
 msgid "Only songs, Bible passages and announcements use a theme."
-msgstr ""
+msgstr "Mga kanta, passage sa Bibliya at anunsyo lang ang gumagamit ng theme."
 
 #: src/strings/themes.rs
 msgid "Text is already bold in this theme"
-msgstr ""
+msgstr "Naka-bold na ang teksto sa theme na ito"
 
 #: src/strings/themes.rs
 msgid "works on every computer"
-msgstr ""
+msgstr "gumagana sa bawat computer"
 
 #: src/strings/themes.rs
 msgid "Backgrounds can be pictures or videos."
-msgstr ""
+msgstr "Maaaring larawan o video ang mga background."
 
 #: src/strings/themes.rs
 msgid "Give the background a name."
-msgstr ""
+msgstr "Bigyan ng pangalan ang background."
 
 #: src/strings/themes.rs
 msgid "That background is gone."
-msgstr ""
+msgstr "Wala na ang background na iyon."
 
 #: src/strings/themes.rs
 msgid "Added to backgrounds"
-msgstr ""
+msgstr "Naidagdag sa mga background"
 
 #: src/strings/themes.rs
 msgid " · own background"
-msgstr ""
+msgstr " · sariling background"
 
 #: src/strings/themes.rs
 msgid "From theme"
-msgstr ""
+msgstr "Mula sa theme"
 
 #: src/strings/themes.rs
 msgid "Standard background"
-msgstr ""
+msgstr "Standard na background"
 
 #: src/strings/themes.rs
 msgid "Current (not in your backgrounds)"
-msgstr ""
+msgstr "Kasalukuyan (wala sa iyong mga background)"
 
 #: src/strings/themes.rs
 msgid "Couldn't convert"
-msgstr ""
+msgstr "Hindi ma-convert"
 
 #: src/strings/themes.rs
 msgid "Makes text easier to read"
-msgstr ""
+msgstr "Mas madaling basahin ang teksto"
 
 #: src/strings/themes.rs
 msgid "Give the overlay a name."
-msgstr ""
+msgstr "Bigyan ng pangalan ang overlay."
 
 #: src/strings/themes.rs
 msgid "Type the overlay's text."
-msgstr ""
+msgstr "I-type ang teksto ng overlay."
 
 #: src/strings/themes.rs
 msgid "That overlay is gone."
-msgstr ""
+msgstr "Wala na ang overlay na iyon."
 
 #: src/strings/themes.rs
 msgid "Only text, picture and clock overlays can be saved."
-msgstr ""
+msgstr "Mga overlay na teksto, larawan at orasan lang ang mase-save."
 
 #: src/strings/themes.rs
 msgid "Up to 8 overlays can be on at once. Turn one off first."
-msgstr ""
+msgstr "Hanggang 8 overlay ang maaaring naka-on nang sabay. Mag-off muna ng isa."
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Themes)."
-msgstr ""
+msgstr "Pumili muna ng logo ng simbahan (Settings → Mga Theme)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
-msgstr ""
+msgstr "Wala na ang larawang iyon."
 
 #: src/strings/themes.rs
 msgid "the picture could not be loaded."
-msgstr ""
+msgstr "hindi ma-load ang larawan."
 
 #: src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
-msgstr ""
+msgstr "Binago — i-off at i-on ito para ma-update."
 
 #: src/strings/themes.rs
 msgid "Logo saved"
-msgstr ""
+msgstr "Na-save ang logo"
 
 #: src/strings/themes.rs
 msgid "Logo removed"
-msgstr ""
+msgstr "Inalis ang logo"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr ""
+msgstr "Para sa karatulang nananatiling nakalabas."
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr ""
+msgstr "Para sa karatulang nananatiling nakalabas. Para sa abiso tulad ng pangalan ng magulang, gamitin ang Mensahe (kapag available na)."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
-msgstr ""
+msgstr "Na-save ang data na ito ng mas bagong RustyPresenter. Pakii-install ang pinakabagong bersyon."
 
 #: src/strings/themes.rs
 msgid "Expected an object."
-msgstr ""
+msgstr "Inaasahan ang isang object."
 
 #: src/strings/themes.rs
 msgid "The same item is listed twice."
-msgstr ""
+msgstr "Dalawang beses nakalista ang parehong item."
 
 #: src/strings/themes.rs
 msgid "There's already a theme called “{name}”."
-msgstr ""
+msgstr "May theme nang tinatawag na “{name}”."
 
 #: src/strings/themes.rs
 msgid "Couldn't show the overlay “{name}”: {reason}"
-msgstr ""
+msgstr "Hindi maipakita ang overlay na “{name}”: {reason}"
 
 #: src/strings/themes.rs
 msgid "(deleted) {name}"
-msgstr ""
+msgstr "(nabura) {name}"
 
 #: src/strings/themes.rs
 msgid "{n} item has its own background. Use the theme's background for it too?"
 msgid_plural "{n} items have their own background. Use the theme's background for them too?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "May sariling background ang {n} item. Gamitin din ba ang background ng theme para dito?"
+msgstr[1] "May sariling background ang {n} na item. Gamitin din ba ang background ng theme para sa mga ito?"
 
 #: src/strings/themes.rs
 msgid "Used by {n} item"
 msgid_plural "Used by {n} items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ginagamit ng {n} item"
+msgstr[1] "Ginagamit ng {n} na item"
 
 #: src/strings/themes.rs
 msgid "Background {n}"
-msgstr ""
+msgstr "Background {n}"
 
 #: src/strings/themes.rs
 msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
-msgstr ""
+msgstr "Gawing default ng simbahan ang “{name}”? Gagamitin ito ng lahat ng walang sariling theme. Maaari kang bumalik anumang oras."
 
 #: src/strings/themes.rs
 msgid "“{name}” is now the church default"
-msgstr ""
+msgstr "Default na ng simbahan ang “{name}”"
 
 #: src/strings/themes.rs
 msgid "Delete the theme “{name}”?"
-msgstr ""
+msgstr "Burahin ang theme na “{name}”?"
 
 #: src/strings/themes.rs
 msgid "{n} service"
 msgid_plural "{n} services"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} service"
+msgstr[1] "{n} na service"
 
 #: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ginagamit ito ng {things}; ang default ng simbahan ang gagamitin nila sa halip."
+msgstr[1] "Ginagamit ito ng {things}; ang default ng simbahan ang gagamitin nila sa halip."
 
 #: src/strings/themes.rs
 msgid "{items} and {services} use it; they'll use the church default instead."
-msgstr ""
+msgstr "Ginagamit ito ng {items} at {services}; ang default ng simbahan ang gagamitin nila sa halip."
 
 #: src/strings/themes.rs
 msgid "It's the church default, so Standard becomes the church default."
-msgstr ""
+msgstr "Ito ang default ng simbahan, kaya magiging default ng simbahan ang Standard."
 
 #: src/strings/themes.rs
 msgid "Remove “{name}” from backgrounds? Items that use it keep it."
-msgstr ""
+msgstr "Alisin ang “{name}” sa mga background? Mananatili ito sa mga item na gumagamit nito."
 
 #: src/strings/themes.rs
 msgid "Used by screen view(s): {views}"
-msgstr ""
+msgstr "Ginagamit ng screen view: {views}"
 
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
-msgstr ""
+msgstr "Kino-convert {percent} %"
 
 #: src/strings/themes.rs
 msgid "Theme: {name}"
-msgstr ""
+msgstr "Theme: {name}"
 
 #: src/strings/themes.rs
 msgid "Bold"
-msgstr ""
+msgstr "Bold"
 
 #: src/strings/themes.rs
 msgid "Italic"
-msgstr ""
+msgstr "Italic"
 
 #: src/strings/themes.rs
 msgid "Underline"
-msgstr ""
+msgstr "Underline"
 
 #: src/strings/themes.rs
 msgid "Gold"
-msgstr ""
+msgstr "Ginto"
 
 #: src/strings/themes.rs
 msgid "Red"
-msgstr ""
+msgstr "Pula"
 
 #: src/strings/themes.rs
 msgid "Color"
-msgstr ""
+msgstr "Kulay"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
-msgstr ""
+msgstr "Maliit"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Large"
-msgstr ""
+msgstr "Malaki"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"
-msgstr ""
+msgstr "Napakalaki"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
-msgstr ""
+msgstr "I-install ang LibreOffice (libre) mula sa libreoffice.org, o patakbuhin: winget install TheDocumentFoundation.LibreOffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
-msgstr ""
+msgstr "I-install ang LibreOffice (libre) mula sa libreoffice.org, o patakbuhin: brew install --cask libreoffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
-msgstr ""
+msgstr "I-install ang LibreOffice Impress, halimbawa: sudo apt install libreoffice-impress"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
-msgstr ""
+msgstr "Hindi makagawa ng file address mula sa {path}"
 
 #: src/strings/usage.rs
 msgid "Song use report"
-msgstr ""
+msgstr "Ulat ng paggamit ng kanta"
 
 #: src/strings/usage.rs
 msgid "CCLI license #: {license}"
-msgstr ""
+msgstr "CCLI license #: {license}"
 
 #: src/strings/usage.rs
 msgid "Add your church's CCLI license number in Settings → Songs."
-msgstr ""
+msgstr "Idagdag ang CCLI license number ng inyong simbahan sa Settings → Mga kanta."
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
-msgstr ""
+msgstr "Markahang naiulat hanggang {date}"
 
 #: src/strings/usage.rs
 msgid "Next time, the report starts the day after {date}."
-msgstr ""
+msgstr "Sa susunod, magsisimula ang ulat sa araw pagkatapos ng {date}."
 
 #: src/strings/usage.rs
 msgid "Mark as reported"
-msgstr ""
+msgstr "Markahang naiulat"
 
 #: src/strings/usage.rs
 msgid "Marked as reported through {date}."
-msgstr ""
+msgstr "Minarkahang naiulat hanggang {date}."
 
 #: src/strings/usage.rs
 msgid "Remove this entry? Use this for rehearsals that shouldn't count."
-msgstr ""
+msgstr "Alisin ang entry na ito? Gamitin ito para sa mga rehearsal na hindi dapat bilangin."
 
 #: src/strings/usage.rs
 msgid "Entry removed"
-msgstr ""
+msgstr "Inalis ang entry"
 
 #: src/strings/usage.rs
 msgid "Save your settings changes and open the report?"
-msgstr ""
+msgstr "I-save ang mga binago mo sa settings at buksan ang ulat?"
 
 #: src/strings/usage.rs
 msgid "Save and open"
-msgstr ""
+msgstr "I-save at buksan"
 
 #: src/strings/usage.rs
 msgid "Pick a From date before the To date."
-msgstr ""
+msgstr "Pumili ng petsang Mula na bago ang petsang Hanggang."
 
 #: src/strings/usage.rs
 msgid "Type dates as year-month-day, like 2026-11-01."
-msgstr ""
+msgstr "I-type ang petsa bilang taon-buwan-araw, tulad ng 2026-11-01."
 
 #: src/strings/usage.rs
 msgid "Couldn't save the report: {reason}."
-msgstr ""
+msgstr "Hindi ma-save ang ulat: {reason}."
 
 #: src/strings/usage.rs
 msgid "Saved {path}"
-msgstr ""
+msgstr "Na-save ang {path}"
 
 #: src/strings/usage.rs
 msgid "Spreadsheet (CSV)"
-msgstr ""
+msgstr "Spreadsheet (CSV)"
 
 #: src/strings/usage.rs
 msgid "CCLI Song #"
-msgstr ""
+msgstr "CCLI Song #"
 
 #: src/strings/usage.rs
 msgid "{from} to {to}"
-msgstr ""
+msgstr "{from} hanggang {to}"
 
 #: src/strings/usage.rs
 msgid "Print this page, or save it as a PDF from your browser's Print window."
-msgstr ""
+msgstr "I-print ang pahinang ito, o i-save bilang PDF mula sa Print window ng iyong browser."
 
 #: src/strings/youtube.rs
 msgid "Looking up the video…"
-msgstr ""
+msgstr "Hinahanap ang video…"
 
 #: src/strings/youtube.rs
 msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "Inihahanda ang YouTube downloads — unang beses lang ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Updating YouTube downloads ({percent}%)…"
-msgstr ""
+msgstr "Ina-update ang YouTube downloads ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Getting the video joiner ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "Inihahanda ang video joiner — unang beses lang ({percent}%)…"
 
 #: src/strings/youtube.rs
 msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
-msgstr ""
+msgstr "Mag-paste ng link sa isang YouTube video. Nagsisimula ito sa https://www.youtube.com o https://youtu.be."
 
 #: src/strings/youtube.rs
 msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
 msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Playlist ng {n} video ang link na ito. Ang unang video lang ang ida-download."
+msgstr[1] "Playlist ng {n} na video ang link na ito. Ang unang video lang ang ida-download."
 
 #: src/strings/youtube.rs
 msgid "Best (up to 1080p)"
-msgstr ""
+msgstr "Pinakamahusay (hanggang 1080p)"
 
 #: src/strings/youtube.rs
 msgid "Smaller (720p)"
-msgstr ""
+msgstr "Mas maliit (720p)"
 
 #: src/strings/youtube.rs
 msgid "Smallest (480p)"
-msgstr ""
+msgstr "Pinakamaliit (480p)"
 
 #: src/strings/youtube.rs
 msgid "Sound only"
-msgstr ""
+msgstr "Tunog lang"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”. It will be in Video & media when it's done."
-msgstr ""
+msgstr "Dina-download ang “{title}”. Mapupunta ito sa Video at media kapag tapos na."
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”"
-msgstr ""
+msgstr "Dina-download ang “{title}”"
 
 #: src/strings/youtube.rs
 msgid "less than a minute left"
-msgstr ""
+msgstr "wala nang isang minuto"
 
 #: src/strings/youtube.rs
 msgid "about a minute left"
-msgstr ""
+msgstr "mga isang minuto na lang"
 
 #: src/strings/youtube.rs
 msgid "about {n} minute left"
 msgid_plural "about {n} minutes left"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "mga {n} minuto na lang"
+msgstr[1] "mga {n} na minuto na lang"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}” — {left}"
-msgstr ""
+msgstr "Dina-download ang “{title}” — {left}"
 
 #: src/strings/youtube.rs
 msgid "Finishing “{title}”…"
-msgstr ""
+msgstr "Tinatapos ang “{title}”…"
 
 #: src/strings/youtube.rs
 msgid "Adding “{title}” to the library…"
-msgstr ""
+msgstr "Idinadagdag ang “{title}” sa library…"
 
 #: src/strings/youtube.rs
 msgid "Downloaded “{title}”"
-msgstr ""
+msgstr "Na-download ang “{title}”"
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media and in the service."
-msgstr ""
+msgstr "Nasa Video at media na ito at nasa service."
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media."
-msgstr ""
+msgstr "Nasa Video at media na ito."
 
 #: src/strings/youtube.rs
 msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
-msgstr ""
+msgstr "Na-save sa mas mababang kalidad (360p) dahil hindi ma-set up ang video joiner."
 
 #: src/strings/youtube.rs
 msgid "Can't reach YouTube. Check the internet connection and try again."
-msgstr ""
+msgstr "Hindi maabot ang YouTube. Suriin ang koneksyon sa internet at subukang muli."
 
 #: src/strings/youtube.rs
 msgid "This video is private, so only its owner can download it."
-msgstr ""
+msgstr "Private ang video na ito, kaya ang may-ari lang nito ang makakapag-download."
 
 #: src/strings/youtube.rs
 msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
-msgstr ""
+msgstr "Ipinapakita lang ng YouTube ang video na ito sa mga naka-sign in (halimbawa, may age restriction ito), kaya hindi ito mada-download dito."
 
 #: src/strings/youtube.rs
 msgid "This video is only for the channel's members, so it can't be downloaded here."
-msgstr ""
+msgstr "Para lang sa mga member ng channel ang video na ito, kaya hindi ito mada-download dito."
 
 #: src/strings/youtube.rs
 msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
-msgstr ""
+msgstr "Gusto ng YouTube ng sign-in para matiyak na hindi ito robot. Maghintay nang ilang sandali at subukang muli."
 
 #: src/strings/youtube.rs
 msgid "This live stream hasn't finished yet. Try again after it ends."
-msgstr ""
+msgstr "Hindi pa tapos ang live stream na ito. Subukang muli pagkatapos nito."
 
 #: src/strings/youtube.rs
 msgid "This live stream or premiere hasn't started yet."
-msgstr ""
+msgstr "Hindi pa nagsisimula ang live stream o premiere na ito."
 
 #: src/strings/youtube.rs
 msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
-msgstr ""
+msgstr "Kakatapos lang ng live stream na ito at inihahanda pa ito ng YouTube. Subukang muli maya-maya."
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
-msgstr ""
+msgstr "Hindi YouTube video ang link na iyon. Kopyahin ang link mula sa pahina ng video at subukang muli."
 
 #: src/strings/youtube.rs
 msgid "This video isn't available. It may have been removed, or blocked in this country."
-msgstr ""
+msgstr "Hindi available ang video na ito. Maaaring inalis ito, o naka-block sa bansang ito."
 
 #: src/strings/youtube.rs
 msgid "This playlist has no videos that can be downloaded."
-msgstr ""
+msgstr "Walang video na mada-download sa playlist na ito."
 
 #: src/strings/youtube.rs
 msgid "The computer's disk is full. Free up some space and try again."
-msgstr ""
+msgstr "Puno na ang disk ng computer. Magbakante ng espasyo at subukang muli."
 
 #: src/strings/youtube.rs
 msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
-msgstr ""
+msgstr "May binago ang YouTube at hindi pa mabasa ng downloader ang video na ito. Subukang muli mamaya."
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
-msgstr ""
+msgstr "Hindi maihanda ang YouTube downloads. Suriin ang koneksyon sa internet at subukang muli."
 
 #: src/strings/youtube.rs
 msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
-msgstr ""
+msgstr "Hindi tugma sa opisyal na fingerprint nito ang dumating na YouTube downloader, kaya hindi ito ginamit. Subukang muli mamaya."
 
 #: src/strings/youtube.rs
 msgid "YouTube downloads don't work on this kind of computer yet."
-msgstr ""
+msgstr "Hindi pa gumagana ang YouTube downloads sa ganitong uri ng computer."
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
-msgstr ""
+msgstr "Hindi maihanda ang YouTube downloads ({detail}). Subukang muli mamaya."
 
 #: src/strings/youtube.rs
 msgid "The download didn't work: {detail}"
-msgstr ""
+msgstr "Hindi gumana ang download: {detail}"
 
 #: src/strings/youtube.rs
 msgid "Cancelled."
-msgstr ""
+msgstr "Kinansela."
 
 #: src/theme/backgrounds.rs
 msgid "Black"
-msgstr ""
+msgstr "Itim"
 
 #: src/theme/backgrounds.rs
 msgid "Night blue"
-msgstr ""
+msgstr "Asul ng gabi"
 
 #: src/theme/backgrounds.rs
 msgid "Dark green"
-msgstr ""
+msgstr "Madilim na berde"
 
 #: src/theme/backgrounds.rs
 msgid "Plum"
-msgstr ""
+msgstr "Plum"
 
 #: src/theme/backgrounds.rs
 msgid "Brown"
-msgstr ""
+msgstr "Kayumanggi"
 
 #: src/theme/backgrounds.rs
 msgid "White"
-msgstr ""
+msgstr "Puti"
 
 #: src/theme/backgrounds.rs
 msgid "Midnight"
-msgstr ""
+msgstr "Hatinggabi"
 
 #: src/theme/backgrounds.rs
 msgid "Deep purple"
-msgstr ""
+msgstr "Malalim na lila"
 
 #: src/theme/backgrounds.rs
 msgid "Forest"
-msgstr ""
+msgstr "Gubat"
 
 #: src/theme/backgrounds.rs
 msgid "Ember"
-msgstr ""
+msgstr "Baga"
 
 #: src/theme/backgrounds.rs
 msgid "Ocean"
-msgstr ""
+msgstr "Karagatan"
 
 #: src/theme/backgrounds.rs
 msgid "Slate"
-msgstr ""
+msgstr "Slate"
 
 #: src/theme/richtext.rs
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
 #: src/theme/saved.rs
 msgid "{name} copy"
-msgstr ""
+msgstr "Kopya ng {name}"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr ""
+msgstr "Kopya ng {name} {number}"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
-msgstr ""
+msgstr "{day} nang {time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
-msgstr ""
+msgstr "{time} UTC"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
-msgstr ""
+msgstr "hindi ma-load ang larawan"
 
 #: src/ui/room.rs
 msgid "background took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng background"
 
 #: src/ui/room.rs
 msgid "picture took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng larawan"
 
 #: src/ui/room.rs
 msgid "video took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng video"
 
 #: src/ui/room.rs
 msgid "slide took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng slide"
 
 #: src/ui/room.rs
 msgid "logo took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng logo"
 
 #: src/ui/room.rs
 msgid "overlay took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng overlay"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
-msgstr ""
+msgstr "masyadong natagalan ang pag-load ng audio"
 
 #: src/ui/room.rs
 msgid "the room could not prepare it"
-msgstr ""
+msgstr "hindi ito maihanda ng silid"
 
 #: src/ui/room.rs
 msgid "Could not open the room screen: {error}"
-msgstr ""
+msgstr "Hindi mabuksan ang screen sa silid: {error}"
 
 #: src/ui/screens.rs
 msgid "A presentation is on screen"
-msgstr ""
+msgstr "May presentation sa screen"
 
 #: src/ui/screens.rs
 msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Nahugot ang screen sa silid. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Nahugot ang karagdagang screen ng audience. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Nahugot ang stage display. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "Nahugot ang karagdagang stage screen. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The room screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Naisaksak muli ang screen sa silid, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra audience screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Naisaksak muli ang karagdagang screen ng audience, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The stage display is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Naisaksak muli ang stage display, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "Naisaksak muli ang karagdagang stage screen, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "Could not show the screen numbers: {error}"
-msgstr ""
+msgstr "Hindi maipakita ang mga numero ng screen: {error}"
 
 #: src/ui/screens.rs
 msgid "RustyPresenter is closing."
-msgstr ""
+msgstr "Nagsasara ang RustyPresenter."
 
 #: src/ui/stage.rs
 msgid "Could not open the stage screen: {error}"
-msgstr ""
+msgstr "Hindi mabuksan ang stage screen: {error}"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "Nawawala ang video player. I-install muli ang RustyPresenter."
 
 #: src/video/ffi.rs
 msgid "Cannot load the video player from {path}: {reason}"
-msgstr ""
+msgstr "Hindi ma-load ang video player mula sa {path}: {reason}"
 
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
-msgstr ""
+msgstr "Masyadong luma ang libmpv na ito (client API {major}.{minor}); kailangan ng RustyPresenter ang 2.x."
 
 #: src/video/player.rs
 msgid "The video player could not start."
-msgstr ""
+msgstr "Hindi mapatakbo ang video player."
 
 #: src/video/player.rs
 msgid "The video player could not start: {reason}"
-msgstr ""
+msgstr "Hindi mapatakbo ang video player: {reason}"
 
 #: src/video/player.rs
 msgid "{name} could not be played ({reason})"
-msgstr ""
+msgstr "Hindi ma-play ang {name} ({reason})"
 
 #: src/video/surface.rs
 msgid "The video cannot be shown: {reason}"
-msgstr ""
+msgstr "Hindi maipakita ang video: {reason}"
 
 #: src/youtube/fetch.rs
 msgid "no release in {address}"
-msgstr ""
+msgstr "walang release sa {address}"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
-msgstr ""
+msgstr "walang fingerprint para sa {file}"
 
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
-msgstr ""
+msgstr "Nawawala ang {file} sa download"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"
-msgstr ""
+msgstr "Masyadong malaki ang {address}"
 
 #: src/youtube/fetch.rs
 msgid "unreadable archive: {error}"
-msgstr ""
+msgstr "hindi mabasang archive: {error}"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp stopped"
-msgstr ""
+msgstr "huminto ang yt-dlp"
 
 #: src/youtube/mod.rs
 msgid "unreadable details ({error})"
-msgstr ""
+msgstr "hindi mabasang detalye ({error})"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start ({error})"
-msgstr ""
+msgstr "hindi mapatakbo ang yt-dlp ({error})"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start"
-msgstr ""
+msgstr "hindi mapatakbo ang yt-dlp"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp gave no details"
-msgstr ""
+msgstr "walang ibinigay na detalye ang yt-dlp"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp saved no video"
-msgstr ""
+msgstr "walang na-save na video ang yt-dlp"
 
 #: src/youtube/mod.rs
 msgid "not a media file"
-msgstr ""
+msgstr "hindi media file"

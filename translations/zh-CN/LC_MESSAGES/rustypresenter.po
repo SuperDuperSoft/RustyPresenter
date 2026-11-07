@@ -1,5292 +1,5298 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
+# Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
 msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
-msgstr ""
+msgstr "搜索你的圣经"
 
 #: ui/bible-picker.slint
 msgid "not connected"
-msgstr ""
+msgstr "未连接"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
-msgstr ""
+msgstr "收藏"
 
 #: ui/bible-picker.slint
 msgid "Find more Bibles…"
-msgstr ""
+msgstr "查找更多圣经…"
 
 #: ui/bible-picker.slint ui/operator/topbar.slint
 msgid "Choose a Bible"
-msgstr ""
+msgstr "选择圣经"
 
 #: ui/dialogs/add-list.slint
 msgid "Try again"
-msgstr ""
+msgstr "重试"
 
 #: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
-msgstr ""
+msgstr "编辑"
 
 #: ui/dialogs/add-list.slint src/strings/catalog.rs
 msgid "Add"
-msgstr ""
+msgstr "添加"
 
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
-msgstr ""
+msgstr "只下载你的教会有权使用的视频（自己拍摄的、已获授权的或知识共享许可的）。"
 
 #: ui/dialogs/add-media.slint
 msgid "Paste a YouTube link here"
-msgstr ""
+msgstr "在此粘贴 YouTube 链接"
 
 #: ui/dialogs/add-media.slint
 msgid "Download"
-msgstr ""
+msgstr "下载"
 
 #: ui/dialogs/add-media.slint
 msgid "Add to service when done"
-msgstr ""
+msgstr "完成后添加到聚会"
 
 #: ui/dialogs/add-media.slint
 msgid "Quality"
-msgstr ""
+msgstr "画质"
 
 #: ui/dialogs/add-media.slint
 msgid "Upload files"
-msgstr ""
+msgstr "上传文件"
 
 #: ui/dialogs/add-media.slint
 msgid "Download from YouTube"
-msgstr ""
+msgstr "从 YouTube 下载"
 
 #: ui/dialogs/add-media.slint
 msgid "Any video format works."
-msgstr ""
+msgstr "支持任何视频格式。"
 
 #: ui/dialogs/add-media.slint
 msgid "Import presentation"
-msgstr ""
+msgstr "导入演示文稿"
 
 #: ui/dialogs/add-media.slint
 msgid "Make slides from pictures"
-msgstr ""
+msgstr "用图片制作幻灯片"
 
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
-msgstr ""
+msgstr "Google 幻灯片：在 Google 幻灯片中选择“文件 → 下载 → Microsoft PowerPoint (.pptx)”或 PDF，然后在这里导入该文件。Keynote 和 PDF 文件也可以。"
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
-msgstr ""
+msgstr "复制"
 
 #: ui/dialogs/add-media.slint
 msgid "Check again"
-msgstr ""
+msgstr "重新检查"
 
 #: ui/dialogs/add.slint src/strings/dialogs.rs
 msgid "New song"
-msgstr ""
+msgstr "新建诗歌"
 
 #: ui/dialogs/add.slint
 msgid "Import SongSelect lyrics (.txt)"
-msgstr ""
+msgstr "导入 SongSelect 歌词 (.txt)"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
-msgstr ""
+msgstr "从 EasyWorship 导入"
 
 #: ui/dialogs/add.slint
 msgid "Reference ({})"
-msgstr ""
+msgstr "经文出处（{}）"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr ""
+msgstr "例如 约翰福音 3:16-18、诗篇 23、罗马书 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
-msgstr ""
+msgstr "添加经文"
 
 #: ui/dialogs/add.slint
 msgid "Paste the verses instead"
-msgstr ""
+msgstr "改为粘贴经文"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
 msgid "Verses per slide"
-msgstr ""
+msgstr "每张幻灯片的经节数"
 
 #: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
-msgstr ""
+msgstr "自动"
 
 #: ui/dialogs/add.slint
 msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
-msgstr ""
+msgstr "经文（{}）— 请保留节号，这样每节经文各占一张幻灯片"
 
 #: ui/dialogs/add.slint
 msgid "16 For God so loved the world… 17 For God did not send…"
-msgstr ""
+msgstr "16 神爱世人…… 17 因为神差他的儿子……"
 
 #: ui/dialogs/add.slint
 msgid "Add pasted verses"
-msgstr ""
+msgstr "添加粘贴的经文"
 
 #: ui/dialogs/add.slint
 msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
-msgstr ""
+msgstr "提示：你不需要这个窗口。在顶部的圣经框中输入经文（或按 Ctrl+B），按 Enter 添加，再按一次 Enter 即可显示。"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Title"
-msgstr ""
+msgstr "标题"
 
 #: ui/dialogs/add.slint
 msgid "e.g. Welcome, Announcements, Offering"
-msgstr ""
+msgstr "例如 欢迎、报告事项、奉献"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Text"
-msgstr ""
+msgstr "文本"
 
 #: ui/dialogs/add.slint
 msgid "Type your text. Leave an empty line to start a new slide."
-msgstr ""
+msgstr "输入文本。空一行即开始新的幻灯片。"
 
 #: ui/dialogs/add.slint
 msgid "Add announcement"
-msgstr ""
+msgstr "添加报告"
 
 #: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Song"
-msgstr ""
+msgstr "诗歌"
 
 #: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
-msgstr ""
+msgstr "歌词"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
-msgstr ""
+msgstr "圣经"
 
 #: ui/dialogs/add.slint
 msgid "Verses"
-msgstr ""
+msgstr "经文"
 
 #: ui/dialogs/add.slint
 msgid "Video & media"
-msgstr ""
+msgstr "视频和媒体"
 
 #: ui/dialogs/add.slint
 msgid "Videos, pictures, music"
-msgstr ""
+msgstr "视频、图片、音乐"
 
 #: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Slides"
-msgstr ""
+msgstr "幻灯片"
 
 #: ui/dialogs/add.slint
 msgid "PowerPoint, pictures"
-msgstr ""
+msgstr "PowerPoint、图片"
 
 #: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
-msgstr ""
+msgstr "报告事项"
 
 #: ui/dialogs/add.slint
 msgid "Your own text"
-msgstr ""
+msgstr "你自己的文字"
 
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
-msgstr ""
+msgstr "十六进制"
 
 #: ui/dialogs/background-picker.slint
 msgid "Pick any color"
-msgstr ""
+msgstr "任选颜色"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
-msgstr ""
+msgstr "歌词、顺序和版权信息属于诗歌库中的这首诗歌。"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr ""
+msgstr "歌词、顺序和版权信息属于诗歌库中的这首诗歌。这首诗歌已从诗歌库中删除。"
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
-msgstr ""
+msgstr "编辑诗歌"
 
 #: ui/dialogs/item-edit.slint
 msgid "The verses are looked up again in this Bible when you save."
-msgstr ""
+msgstr "保存时会在这本圣经中重新查找这些经文。"
 
 #: ui/dialogs/item-edit.slint
 msgid "Also show"
-msgstr ""
+msgstr "同时显示"
 
 #: ui/dialogs/item-edit.slint
 msgid "none"
-msgstr ""
+msgstr "无"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stop showing this Bible"
-msgstr ""
+msgstr "不再显示这本圣经"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Side by side"
-msgstr ""
+msgstr "左右并排"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
 msgid "Top and bottom"
-msgstr ""
+msgstr "上下排列"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
 msgid "Automatic"
-msgstr ""
+msgstr "自动"
 
 #: ui/dialogs/item-edit.slint
 msgid "1 verse"
-msgstr ""
+msgstr "1 节"
 
 #: ui/dialogs/item-edit.slint
 msgid "2 verses"
-msgstr ""
+msgstr "2 节"
 
 #: ui/dialogs/item-edit.slint
 msgid "3 verses"
-msgstr ""
+msgstr "3 节"
 
 #: ui/dialogs/item-edit.slint
 msgid "4 verses"
-msgstr ""
+msgstr "4 节"
 
 #: ui/dialogs/item-edit.slint ui/operator/slides.slint
 msgid "Text size"
-msgstr ""
+msgstr "文字大小"
 
 #: ui/dialogs/item-edit.slint
 msgid "(biggest; text shrinks automatically when a slide holds more words)"
-msgstr ""
+msgstr "（最大值；幻灯片字数较多时文字会自动缩小）"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Choose"
-msgstr ""
+msgstr "选择"
 
 #: ui/dialogs/item-edit.slint
 msgid "Same as Settings → Look"
-msgstr ""
+msgstr "与“设置 → 外观”相同"
 
 #: ui/dialogs/item-edit.slint
 msgid "— an empty line starts a new slide"
-msgstr ""
+msgstr "— 空一行即开始新的幻灯片"
 
 #: ui/dialogs/item-edit.slint
 msgid "Start playing as soon as it is shown"
-msgstr ""
+msgstr "显示后立即开始播放"
 
 #: ui/dialogs/item-edit.slint
 msgid "When the video ends"
-msgstr ""
+msgstr "视频结束时"
 
 #: ui/dialogs/item-edit.slint
 msgid "Clear the screen"
-msgstr ""
+msgstr "清空屏幕"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stay on last frame"
-msgstr ""
+msgstr "停在最后一帧"
 
 #: ui/dialogs/item-edit.slint
 msgid "Play again (loop)"
-msgstr ""
+msgstr "重新播放（循环）"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
-msgstr ""
+msgstr "重复直到停止"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
-msgstr ""
+msgstr "切换幻灯片时音频会继续播放。使用“停止音频”(F4) 或“全部清空”来停止。"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
-msgstr ""
+msgstr "库中名称"
 
 #: ui/dialogs/item-edit.slint src/strings/themes.rs
 msgid "Background"
-msgstr ""
+msgstr "背景"
 
 #: ui/dialogs/item-edit.slint
 msgid "Stage notes"
-msgstr ""
+msgstr "舞台备注"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage display only"
-msgstr ""
+msgstr "仅在舞台显示屏上显示"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Remove from service"
-msgstr ""
+msgstr "从聚会中移除"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: ui/dialogs/item-edit.slint
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr ""
+msgstr "用教会 Wi-Fi 上的任何手机控制幻灯片。手机必须与这台电脑在同一网络中。"
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
-msgstr ""
+msgstr "（未找到网络 — 请将这台电脑连接到 Wi-Fi。）"
 
 #: ui/dialogs/phone.slint
 msgid "Address: "
-msgstr ""
+msgstr "地址："
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
 msgid "Pair a phone"
-msgstr ""
+msgstr "配对手机"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
-msgstr ""
+msgstr "二维码"
 
 #: ui/dialogs/phone.slint
 msgid "Scan this with your phone's camera. That's it."
-msgstr ""
+msgstr "用手机相机扫描这个码，就这么简单。"
 
 #: ui/dialogs/phone.slint
 msgid "Or open {} and type"
-msgstr ""
+msgstr "或打开 {} 并输入"
 
 #: ui/dialogs/phone.slint
 msgid "1. On the phone, open the camera and scan the code (or type the address)."
-msgstr ""
+msgstr "1. 在手机上打开相机扫描二维码（或输入地址）。"
 
 #: ui/dialogs/phone.slint
 msgid "2. Enter this code on the phone:"
-msgstr ""
+msgstr "2. 在手机上输入此代码："
 
 #: ui/dialogs/phone.slint
 msgid "Paired phones"
-msgstr ""
+msgstr "已配对的手机"
 
 #: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
 msgid "Remove"
-msgstr ""
+msgstr "移除"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
-msgstr ""
+msgstr "暂无。"
 
 #: ui/dialogs/print.slint
 msgid "What to print"
-msgstr ""
+msgstr "打印内容"
 
 #: ui/dialogs/print.slint src/strings/print.rs
 msgid "Service order"
-msgstr ""
+msgstr "聚会流程"
 
 #: ui/dialogs/print.slint
 msgid "Both"
-msgstr ""
+msgstr "两者"
 
 #: ui/dialogs/print.slint
 msgid "Options"
-msgstr ""
+msgstr "选项"
 
 #: ui/dialogs/print.slint
 msgid "Include item notes"
-msgstr ""
+msgstr "包括项目备注"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible readings with the lyrics"
-msgstr ""
+msgstr "在歌词中包括读经"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
-msgstr ""
+msgstr "每首诗歌从新的一页开始"
 
 #: ui/dialogs/print.slint
 msgid "Paper"
-msgstr ""
+msgstr "纸张"
 
 #: ui/dialogs/print.slint
 msgid "Letter"
-msgstr ""
+msgstr "Letter"
 
 #: ui/dialogs/print.slint
 msgid "A4"
-msgstr ""
+msgstr "A4"
 
 #: ui/dialogs/print.slint ui/dialogs/services.slint
 msgid "Print…"
-msgstr ""
+msgstr "打印…"
 
 #: ui/dialogs/print.slint
 msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
-msgstr ""
+msgstr "在网页浏览器中打开该页面，可以打印或另存为 PDF"
 
 #: ui/dialogs/print.slint
 msgid "Save web page…"
-msgstr ""
+msgstr "保存网页…"
 
 #: ui/dialogs/print.slint ui/widgets.slint
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
-msgstr ""
+msgstr "为 {} 添加屏幕"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
-msgstr ""
+msgstr "输出"
 
 #: ui/dialogs/screens.slint
 msgid "Size"
-msgstr ""
+msgstr "尺寸"
 
 #: ui/dialogs/screens.slint
 msgid "Width"
-msgstr ""
+msgstr "宽度"
 
 #: ui/dialogs/screens.slint
 msgid "Height"
-msgstr ""
+msgstr "高度"
 
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
-msgstr ""
+msgstr "宽高比：{}"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
-msgstr ""
+msgstr "只连接了一个屏幕。请接上投影仪/电视（并用 Win+P 将 Windows 设为“扩展这些显示器”），然后点击“刷新”。"
 
 #: ui/dialogs/screens.slint
 msgid "Remove this screen"
-msgstr ""
+msgstr "移除此屏幕"
 
 #: ui/dialogs/screens.slint
 msgid "Identify"
-msgstr ""
+msgstr "识别"
 
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
-msgstr ""
+msgstr "在每个屏幕上显示其编号几秒钟"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
-msgstr ""
+msgstr "刷新"
 
 #: ui/dialogs/services.slint
 msgid "Copy last week"
-msgstr ""
+msgstr "复制上周"
 
 #: ui/dialogs/services.slint
 msgid "Make next week's service from the last one"
-msgstr ""
+msgstr "根据上一次聚会生成下周的聚会"
 
 #: ui/dialogs/services.slint
 msgid "New from template…"
-msgstr ""
+msgstr "从模板新建…"
 
 #: ui/dialogs/services.slint
 msgid "New empty service"
-msgstr ""
+msgstr "新建空白聚会"
 
 #: ui/dialogs/services.slint
 msgid "Copy this service"
-msgstr ""
+msgstr "复制此聚会"
 
 #: ui/dialogs/services.slint
 msgid "Save to file"
-msgstr ""
+msgstr "保存到文件"
 
 #: ui/dialogs/services.slint
 msgid "Save the open service and all its files, to move it to another computer"
-msgstr ""
+msgstr "保存打开的聚会及其所有文件，以便移到另一台电脑"
 
 #: ui/dialogs/services.slint
 msgid "Open from file"
-msgstr ""
+msgstr "从文件打开"
 
 #: ui/dialogs/services.slint
 msgid "Open"
-msgstr ""
+msgstr "打开"
 
 #: ui/dialogs/services.slint
 msgid "Rename"
-msgstr ""
+msgstr "重命名"
 
 #: ui/dialogs/services.slint
 msgid "Date…"
-msgstr ""
+msgstr "日期…"
 
 #: ui/dialogs/services.slint
 msgid "Print the order of service and the lyrics, or save them as a web page"
-msgstr ""
+msgstr "打印聚会流程和歌词，或另存为网页"
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
-msgstr ""
+msgstr "另存为模板"
 
 #: ui/dialogs/services.slint
 msgid "Delete"
-msgstr ""
+msgstr "删除"
 
 #: ui/dialogs/services.slint
 msgid "Templates"
-msgstr ""
+msgstr "模板"
 
 #: ui/dialogs/services.slint
 msgid "Make a service"
-msgstr ""
+msgstr "创建聚会"
 
 #: ui/dialogs/services.slint
 msgid "Day…"
-msgstr ""
+msgstr "日期…"
 
 #: ui/dialogs/settings-about.slint
 msgid "Your data:"
-msgstr ""
+msgstr "你的数据："
 
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
-msgstr ""
+msgstr "显示许可证"
 
 #: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
-msgstr ""
+msgstr "返回"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
 msgid "Default Bible"
-msgstr ""
+msgstr "默认圣经"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Also show with every new passage"
-msgstr ""
+msgstr "每段新经文同时显示"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
-msgstr ""
+msgstr "最多选择两本。每张幻灯片会显示每本圣经中的相同经文。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Add Bibles"
-msgstr ""
+msgstr "添加圣经"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
-msgstr ""
+msgstr "按名称、简称或语言搜索"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Installed"
-msgstr ""
+msgstr "已安装"
 
 #: ui/dialogs/settings-bible.slint ui/operator/media.slint
 msgid "All"
-msgstr ""
+msgstr "全部"
 
 #: ui/dialogs/settings-bible.slint
 msgid "KJV, WEB and BSB are built in and work offline."
-msgstr ""
+msgstr "KJV、WEB 和 BSB 已内置，可离线使用。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
-msgstr ""
+msgstr "其他译本受版权保护：用你的教会一次性申请的密钥连接出版方的免费服务。添加到聚会中的经文会随聚会一起保存，即使断网也能显示。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Translations"
-msgstr ""
+msgstr "译本"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Online services"
-msgstr ""
+msgstr "在线服务"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Connected"
-msgstr ""
+msgstr "已连接"
 
 #: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
 msgid "Not connected"
-msgstr ""
+msgstr "未连接"
 
 #: ui/dialogs/settings-bible.slint
 msgid "1. Sign up free at"
-msgstr ""
+msgstr "1. 免费注册："
 
 #: ui/dialogs/settings-bible.slint
 msgid "Copy link"
-msgstr ""
+msgstr "复制链接"
 
 #: ui/dialogs/settings-bible.slint
 msgid "2. {}"
-msgstr ""
+msgstr "2. {}"
 
 #: ui/dialogs/settings-bible.slint
 msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
-msgstr ""
+msgstr "3. 在此粘贴密钥。RustyPresenter 会查询一次进行验证，然后只保存在这台电脑上。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Key saved — paste a new one to replace it"
-msgstr ""
+msgstr "密钥已保存 — 粘贴新密钥即可替换"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Paste the key here"
-msgstr ""
+msgstr "在此粘贴密钥"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Save key"
-msgstr ""
+msgstr "保存密钥"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Disconnect"
-msgstr ""
+msgstr "断开连接"
 
 #: ui/dialogs/settings-bible.slint src/strings/operator.rs
 msgid "Bible files"
-msgstr ""
+msgstr "圣经文件"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
-msgstr ""
+msgstr "导入 Zefania、OSIS、USX 或 OpenSong 文件（.xml 或 .usx）。只导入属于公有领域或你的教会已获授权使用的圣经。为它填写上方某个译本的简称（如 HCSB），即可将该文件用于该译本。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Short name, e.g. HCSB (optional)"
-msgstr ""
+msgstr "简称，例如 HCSB（可选）"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Import a Bible file"
-msgstr ""
+msgstr "导入圣经文件"
 
 #: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
 msgid "Credits"
-msgstr ""
+msgstr "版权信息"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
-msgstr ""
+msgstr "使用中"
 
 #: ui/dialogs/settings-language.slint
 msgid "Use"
-msgstr ""
+msgstr "使用"
 
 #: ui/dialogs/settings-language.slint
 msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
-msgstr ""
+msgstr "翻译由志愿者完成。如果缺少你的语言或有错误，欢迎帮忙。"
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
-msgstr ""
+msgstr "帮助翻译 RustyPresenter"
 
 #: ui/dialogs/settings-look.slint
 msgid "Font"
-msgstr ""
+msgstr "字体"
 
 #: ui/dialogs/settings-look.slint
 msgid "Lyrics size"
-msgstr ""
+msgstr "歌词大小"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest; long lines shrink to fit)"
-msgstr ""
+msgstr "（最大值；长行会缩小以适应）"
 
 #: ui/dialogs/settings-look.slint
 msgid "Bible verses"
-msgstr ""
+msgstr "圣经经文"
 
 #: ui/dialogs/settings-look.slint
 msgid "(for new passages)"
-msgstr ""
+msgstr "（用于新经文）"
 
 #: ui/dialogs/settings-look.slint
 msgid "Scripture text size"
-msgstr ""
+msgstr "经文文字大小"
 
 #: ui/dialogs/settings-look.slint
 msgid "(biggest)"
-msgstr ""
+msgstr "（最大值）"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text shrinks automatically when a slide holds more words."
-msgstr ""
+msgstr "幻灯片字数较多时文字会自动缩小。"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text color"
-msgstr ""
+msgstr "文字颜色"
 
 #: ui/dialogs/settings-look.slint
 msgid "Text position"
-msgstr ""
+msgstr "文字位置"
 
 #: ui/dialogs/settings-look.slint
 msgid "Middle"
-msgstr ""
+msgstr "居中"
 
 #: ui/dialogs/settings-look.slint src/strings/themes.rs
 msgid "Lower third"
-msgstr ""
+msgstr "下方三分之一"
 
 #: ui/dialogs/settings-look.slint
 msgid "Shadow behind text (easier to read on pictures)"
-msgstr ""
+msgstr "文字阴影（在图片上更易阅读）"
 
 #: ui/dialogs/settings-look.slint
 msgid "ALL CAPS lyrics"
-msgstr ""
+msgstr "歌词全部大写"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
-msgstr ""
+msgstr "标志"
 
 #: ui/dialogs/settings-look.slint
 msgid "No logo (Logo button shows black)"
-msgstr ""
+msgstr "无标志（“标志”按钮显示黑屏）"
 
 #: ui/dialogs/settings-look.slint
 msgid "Choose logo"
-msgstr ""
+msgstr "选择标志"
 
 #: ui/dialogs/settings-look.slint
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: ui/dialogs/settings-look.slint
 msgid "Default background"
-msgstr ""
+msgstr "默认背景"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
-msgstr ""
+msgstr "所有语言"
 
 #: ui/dialogs/settings.slint
 msgid "Lines per slide"
-msgstr ""
+msgstr "每张幻灯片行数"
 
 #: ui/dialogs/settings.slint
 msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr ""
+msgstr "诗歌和圣经经文。有些圣经要求显示其版权信息；每段经文显示一次。"
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
-msgstr ""
+msgstr "在第一张幻灯片"
 
 #: ui/dialogs/settings.slint
 msgid "On last slide"
-msgstr ""
+msgstr "在最后一张幻灯片"
 
 #: ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
-msgstr ""
+msgstr "关"
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
-msgstr ""
+msgstr "教会 CCLI 许可证号"
 
 #: ui/dialogs/settings.slint
 msgid "Section keys (C, B, 1–9…)"
-msgstr ""
+msgstr "段落键（C、B、1–9…）"
 
 #: ui/dialogs/settings.slint
 msgid "Turn off if letters typed by mistake move the screen."
-msgstr ""
+msgstr "如果误按字母会切换屏幕，请关闭此项。"
 
 #: ui/dialogs/settings.slint
 msgid "Letters and numbers jump the live song to a section"
-msgstr ""
+msgstr "字母和数字键可将正在显示的诗歌跳到某个段落"
 
 #: ui/dialogs/settings.slint
 msgid "Song use report…"
-msgstr ""
+msgstr "诗歌使用报告…"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
-msgstr ""
+msgstr "声音输出到"
 
 #: ui/dialogs/settings.slint
 msgid "Room screen"
-msgstr ""
+msgstr "会众屏幕"
 
 #: ui/dialogs/settings.slint
 msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
-msgstr ""
+msgstr "会众屏幕有独立显示器时保持在最前（淡入淡出更流畅）"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr ""
+msgstr "每次启动 RustyPresenter 时以及每天一次，都会进行完整备份（诗歌、聚会、设置以及所有视频、图片和幻灯片）。最近 10 份备份保存在"
 
 #: ui/dialogs/settings.slint
 msgid "Back up now"
-msgstr ""
+msgstr "立即备份"
 
 #: ui/dialogs/settings.slint
 msgid "Restore"
-msgstr ""
+msgstr "恢复"
 
 #: ui/dialogs/settings.slint
 msgid "No backups yet."
-msgstr ""
+msgstr "暂无备份。"
 
 #: ui/dialogs/settings.slint
 msgid "Keyboard"
-msgstr ""
+msgstr "键盘"
 
 #: ui/dialogs/settings.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr ""
+msgstr "提示：点击任何幻灯片会立即将其显示到屏幕上。红色边框表示会众看到的内容。"
 
 #: ui/dialogs/settings.slint
 msgid "Look"
-msgstr ""
+msgstr "外观"
 
 #: ui/dialogs/settings.slint
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: ui/dialogs/settings.slint
 msgid "Songs"
-msgstr ""
+msgstr "诗歌"
 
 #: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
 msgid "Video"
-msgstr ""
+msgstr "视频"
 
 #: ui/dialogs/settings.slint
 msgid "Backups"
-msgstr ""
+msgstr "备份"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Help"
-msgstr ""
+msgstr "帮助"
 
 #: ui/dialogs/settings.slint
 msgid "About"
-msgstr ""
+msgstr "关于"
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
-msgstr ""
+msgstr "保存设置"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
-msgstr ""
+msgstr "这首诗歌正在屏幕上显示。在你选择“保存并立即显示”或“更新屏幕”之前，屏幕不会改变。"
 
 #: ui/dialogs/song-editor.slint
 msgid "Amazing Grace (My Chains Are Gone)"
-msgstr ""
+msgstr "Amazing Grace (My Chains Are Gone)"
 
 #: ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Writers"
-msgstr ""
+msgstr "作者"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
-msgstr ""
+msgstr "CCLI 诗歌编号"
 
 #: ui/dialogs/song-editor.slint
 msgid "4768151"
-msgstr ""
+msgstr "4768151"
 
 #: ui/dialogs/song-editor.slint
 msgid "Copyright"
-msgstr ""
+msgstr "版权"
 
 #: ui/dialogs/song-editor.slint
 msgid "© 2006 …"
-msgstr ""
+msgstr "© 2006 …"
 
 #: ui/dialogs/song-editor.slint
 msgid "— section names on their own line; an empty line inside a section starts a new slide"
-msgstr ""
+msgstr "— 段落名称单独占一行；段落内空一行即开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr ""
+msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
-msgstr ""
+msgstr "顺序"
 
 #: ui/dialogs/song-editor.slint
 msgid "(optional)"
-msgstr ""
+msgstr "（可选）"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Not in the lyrics — it is skipped"
-msgstr ""
+msgstr "歌词中没有 — 将被跳过"
 
 #: ui/dialogs/song-editor.slint
 msgid "End"
-msgstr ""
+msgstr "结尾"
 
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "Written order — drag to change"
-msgstr ""
+msgstr "书写顺序 — 拖动可更改"
 
 #: ui/dialogs/song-editor.slint
 msgid "⟲ Use written order"
-msgstr ""
+msgstr "⟲ 使用书写顺序"
 
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
-msgstr ""
+msgstr "留空则使用书写顺序"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
-msgstr ""
+msgstr "输入时幻灯片会显示在这里。将“Verse 1”或“Chorus”等段落名称单独放在一行。"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
-msgstr ""
+msgstr "删除诗歌"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and add to service"
-msgstr ""
+msgstr "保存并添加到聚会"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
-msgstr ""
+msgstr "保存诗歌"
 
 #: ui/dialogs/song-editor.slint
 msgid "Save and show now"
-msgstr ""
+msgstr "保存并立即显示"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
-msgstr ""
+msgstr "记录诗歌使用情况以便向 CCLI 报告"
 
 #: ui/dialogs/usage.slint
 msgid "From"
-msgstr ""
+msgstr "从"
 
 #: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
-msgstr ""
+msgstr "YYYY-MM-DD"
 
 #: ui/dialogs/usage.slint
 msgid "To"
-msgstr ""
+msgstr "至"
 
 #: ui/dialogs/usage.slint
 msgid "Since last report"
-msgstr ""
+msgstr "自上次报告以来"
 
 #: ui/dialogs/usage.slint
 msgid "Last 3 months"
-msgstr ""
+msgstr "最近 3 个月"
 
 #: ui/dialogs/usage.slint
 msgid "Last 6 months"
-msgstr ""
+msgstr "最近 6 个月"
 
 #: ui/dialogs/usage.slint
 msgid "This year"
-msgstr ""
+msgstr "今年"
 
 #: ui/dialogs/usage.slint
 msgid "Include songs without a CCLI number"
-msgstr ""
+msgstr "包括没有 CCLI 编号的诗歌"
 
 #: ui/dialogs/usage.slint
 msgid "Public domain songs don't need reporting."
-msgstr ""
+msgstr "公有领域的诗歌无需报告。"
 
 #: ui/dialogs/usage.slint
 msgid "CCLI #"
-msgstr ""
+msgstr "CCLI 编号"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times shown"
-msgstr ""
+msgstr "显示次数"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Times streamed"
-msgstr ""
+msgstr "直播次数"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Last used"
-msgstr ""
+msgstr "上次使用"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "No songs in these dates."
-msgstr ""
+msgstr "这段日期内没有诗歌。"
 
 #: ui/dialogs/usage.slint
 msgid "Details ({})"
-msgstr ""
+msgstr "详情（{}）"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "streamed"
-msgstr ""
+msgstr "直播"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
-msgstr ""
+msgstr "请在 CCLI 的报告网站上输入这些数字：投影使用次数填在“Digital”下，直播使用次数填在你的直播许可证下。“直播”表示直播页面或窗口处于打开状态，并不代表你正在播出。"
 
 #: ui/dialogs/usage.slint
 msgid "Open printable page"
-msgstr ""
+msgstr "打开可打印页面"
 
 #: ui/dialogs/usage.slint
 msgid "Save as spreadsheet (CSV)…"
-msgstr ""
+msgstr "另存为电子表格 (CSV)…"
 
 #: ui/identify.slint
 msgid "Identify screen"
-msgstr ""
+msgstr "识别屏幕"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
-msgstr ""
+msgstr "—"
 
 #: ui/operator/live.slint ui/operator/slides.slint
 msgid "LIVE"
-msgstr ""
+msgstr "直播中"
 
 #: ui/operator/live.slint
 msgid "updating…"
-msgstr ""
+msgstr "正在更新…"
 
 #: ui/operator/live.slint
 msgid "Edit words"
-msgstr ""
+msgstr "编辑歌词"
 
 #: ui/operator/live.slint
 msgid "Fix the words of the live song. The screen changes only when you say so."
-msgstr ""
+msgstr "修改正在显示的诗歌的歌词。只有在你确认后屏幕才会改变。"
 
 #: ui/operator/live.slint
 msgid "Update screen"
-msgstr ""
+msgstr "更新屏幕"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
-msgstr ""
+msgstr "上一张（← 或 Page Up）"
 
 #: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Next"
-msgstr ""
+msgstr "下一张"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
-msgstr ""
+msgstr "下一张（→、空格键或 Page Down）"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Up next"
-msgstr ""
+msgstr "接下来"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
-msgstr ""
+msgstr "全部清空"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
 msgid "Media"
-msgstr ""
+msgstr "媒体"
 
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
 msgid "Audio"
-msgstr ""
+msgstr "音频"
 
 #: ui/operator/live_controls.slint
 msgid "Play"
-msgstr ""
+msgstr "播放"
 
 #: ui/operator/live_controls.slint
 msgid "Pause"
-msgstr ""
+msgstr "暂停"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
-msgstr ""
+msgstr "正在显示"
 
 #: ui/operator/media.slint
 msgid "Media library"
-msgstr ""
+msgstr "媒体库"
 
 #: ui/operator/media.slint
 msgid "Videos"
-msgstr ""
+msgstr "视频"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Pictures"
-msgstr ""
+msgstr "图片"
 
 #: ui/operator/media.slint
 msgid "Search media"
-msgstr ""
+msgstr "搜索媒体"
 
 #: ui/operator/media.slint
 msgid "Smaller thumbnails"
-msgstr ""
+msgstr "缩小缩略图"
 
 #: ui/operator/media.slint
 msgid "Bigger thumbnails"
-msgstr ""
+msgstr "放大缩略图"
 
 #: ui/operator/media.slint
 msgid "Import"
-msgstr ""
+msgstr "导入"
 
 #: ui/operator/media.slint
 msgid "New folder"
-msgstr ""
+msgstr "新建文件夹"
 
 #: ui/operator/media.slint src/strings/operator.rs
 msgid "Delete folder"
-msgstr ""
+msgstr "删除文件夹"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Click Import, or try another folder or word."
-msgstr ""
+msgstr "这里还没有内容。点击“导入”，或换个文件夹或关键词试试。"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
-msgstr ""
+msgstr "选择文件"
 
 #: ui/operator/media.slint
 msgid "Use as background"
-msgstr ""
+msgstr "用作背景"
 
 #: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Add to service"
-msgstr ""
+msgstr "添加到聚会"
 
 #: ui/operator/media.slint
 msgid "Move to folder"
-msgstr ""
+msgstr "移到文件夹"
 
 #: ui/operator/monitor.slint
 msgid "Room screen is off"
-msgstr ""
+msgstr "会众屏幕已关闭"
 
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
-msgstr ""
+msgstr "拖放到此处以添加到聚会"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
-msgstr ""
+msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）、SongSelect 歌词文件"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Service"
-msgstr ""
+msgstr "聚会"
 
 #: ui/operator/service.slint
 msgid "Add a header"
-msgstr ""
+msgstr "添加标题"
 
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
-msgstr ""
+msgstr "在聚会列表中添加彩色标题，如“敬拜”或“信息”"
 
 #: ui/operator/service.slint
 msgid "Check"
-msgstr ""
+msgstr "检查"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
-msgstr ""
+msgstr "聚会开始前：所有诗歌、文件和屏幕都准备好了吗？"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
-msgstr ""
+msgstr "选择此处内容"
 
 #: ui/operator/service.slint
 msgid "Change colour"
-msgstr ""
+msgstr "更改颜色"
 
 #: ui/operator/service.slint
 msgid "Your service is empty"
-msgstr ""
+msgstr "你的聚会还是空的"
 
 #: ui/operator/service.slint
 msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
-msgstr ""
+msgstr "点击下方的“添加到聚会”，在顶部输入经文，或将文件拖到这个窗口。"
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
-msgstr ""
+msgstr "一起来准备这个主日的聚会吧"
 
 #: ui/operator/slides.slint
 msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
-msgstr ""
+msgstr "你添加的所有内容都会显示在左侧。点击幻灯片即可将其显示到屏幕上。"
 
 #: ui/operator/slides.slint
 msgid "Click “Screens” and choose the projector or TV."
-msgstr ""
+msgstr "点击“屏幕”，选择投影仪或电视。"
 
 #: ui/operator/slides.slint
 msgid "Click “Add to service” for songs, videos and slides — or drag files in."
-msgstr ""
+msgstr "点击“添加到聚会”来添加诗歌、视频和幻灯片 — 或直接拖入文件。"
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr ""
+msgstr "在圣经框中输入经文，如“约翰福音 3:16”，然后按 Enter。"
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
-msgstr ""
+msgstr "聚会期间使用大大的“下一张”按钮（或 → 键）。"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
-msgstr ""
+msgstr "未选择任何内容"
 
 #: ui/operator/slides.slint
 msgid "A−"
-msgstr ""
+msgstr "A−"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
-msgstr ""
+msgstr "缩小这段经文的文字"
 
 #: ui/operator/slides.slint
 msgid "A+"
-msgstr ""
+msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
-msgstr ""
+msgstr "放大这段经文的文字"
 
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
-msgstr ""
+msgstr "恢复为设置中的大小"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
-msgstr ""
+msgstr "从聚会列表中选择一项。"
 
 #: ui/operator/slides.slint
 msgid "Nothing to show"
-msgstr ""
+msgstr "没有可显示的内容"
 
 #: ui/operator/slides.slint
 msgid "This item has no slides yet. Click Edit to add some."
-msgstr ""
+msgstr "此项目还没有幻灯片。点击“编辑”添加。"
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
-msgstr ""
+msgstr "RustyPresenter"
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
-msgstr ""
+msgstr "切换或创建聚会"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr ""
+msgstr "经文 — 输入“约翰福音 3:16”后按 Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr ""
+msgstr "{} 尚未连接（设置 → 圣经）。你仍可通过“添加 → 圣经”粘贴其经文。"
 
 #: ui/operator/topbar.slint
 msgid "Verses per slide for the next passage. Click to change."
-msgstr ""
+msgstr "下一段经文每张幻灯片的经节数。点击可更改。"
 
 #: ui/operator/topbar.slint
 msgid "Verses: {}"
-msgstr ""
+msgstr "经节：{}"
 
 #: ui/operator/topbar.slint
 msgid "Ctrl B"
-msgstr ""
+msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint
 msgid "Room"
-msgstr ""
+msgstr "会众"
 
 #: ui/operator/topbar.slint src/strings/screens.rs
 msgid "Stage"
-msgstr ""
+msgstr "舞台"
 
 #: ui/operator/topbar.slint
 msgid "Stage display"
-msgstr ""
+msgstr "舞台显示屏"
 
 #: ui/operator/topbar.slint
 msgid "Phone remotes connected"
-msgstr ""
+msgstr "已连接的手机遥控器"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
-msgstr ""
+msgstr "在舞台屏幕上显示消息"
 
 #: ui/operator/topbar.slint
 msgid "Screens"
-msgstr ""
+msgstr "屏幕"
 
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
-msgstr ""
+msgstr "手机"
 
 #: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
 msgid "Settings"
-msgstr ""
+msgstr "设置"
 
 #: ui/operator.slint
 msgid "File"
-msgstr ""
+msgstr "文件"
 
 #: ui/operator.slint
 msgid "New service…"
-msgstr ""
+msgstr "新建聚会…"
 
 #: ui/operator.slint
 msgid "Services…"
-msgstr ""
+msgstr "聚会…"
 
 #: ui/operator.slint
 msgid "Open a service file…"
-msgstr ""
+msgstr "打开聚会文件…"
 
 #: ui/operator.slint
 msgid "Save this service to a file…"
-msgstr ""
+msgstr "将此聚会保存为文件…"
 
 #: ui/operator.slint
 msgid "Song…"
-msgstr ""
+msgstr "诗歌…"
 
 #: ui/operator.slint
 msgid "Bible passage…"
-msgstr ""
+msgstr "经文…"
 
 #: ui/operator.slint
 msgid "Video & media…"
-msgstr ""
+msgstr "视频和媒体…"
 
 #: ui/operator.slint
 msgid "Slides…"
-msgstr ""
+msgstr "幻灯片…"
 
 #: ui/operator.slint
 msgid "Announcement…"
-msgstr ""
+msgstr "报告事项…"
 
 #: ui/operator.slint
 msgid "Import media…"
-msgstr ""
+msgstr "导入媒体…"
 
 #: ui/operator.slint
 msgid "Exit"
-msgstr ""
+msgstr "退出"
 
 #: ui/operator.slint
 msgid "Edit the selected item…"
-msgstr ""
+msgstr "编辑所选项目…"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Bible box"
-msgstr ""
+msgstr "圣经框"
 
 #: ui/operator.slint
 msgid "View"
-msgstr ""
+msgstr "视图"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear all"
-msgstr ""
+msgstr "全部清空"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear text"
-msgstr ""
+msgstr "清除文字"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Clear media & background"
-msgstr ""
+msgstr "清除媒体和背景"
 
 #: ui/operator.slint src/strings/settings.rs
 msgid "Stop audio"
-msgstr ""
+msgstr "停止音频"
 
 #: ui/operator.slint
 msgid "Hide media library"
-msgstr ""
+msgstr "隐藏媒体库"
 
 #: ui/operator.slint
 msgid "Show media library"
-msgstr ""
+msgstr "显示媒体库"
 
 #: ui/operator.slint
 msgid "Window"
-msgstr ""
+msgstr "窗口"
 
 #: ui/operator.slint
 msgid "Screens…"
-msgstr ""
+msgstr "屏幕…"
 
 #: ui/operator.slint
 msgid "Phone remote…"
-msgstr ""
+msgstr "手机遥控器…"
 
 #: ui/operator.slint
 msgid "Stage message…"
-msgstr ""
+msgstr "舞台消息…"
 
 #: ui/operator.slint
 msgid "Settings…"
-msgstr ""
+msgstr "设置…"
 
 #: ui/operator.slint
 msgid "Songs…"
-msgstr ""
+msgstr "诗歌…"
 
 #: ui/operator.slint
 msgid "Bible…"
-msgstr ""
+msgstr "圣经…"
 
 #: ui/operator.slint
 msgid "Video…"
-msgstr ""
+msgstr "视频…"
 
 #: ui/operator.slint
 msgid "Backups…"
-msgstr ""
+msgstr "备份…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
-msgstr ""
+msgstr "键盘快捷键"
 
 #: ui/operator.slint
 msgid "Check the service"
-msgstr ""
+msgstr "检查聚会"
 
 #: ui/operator.slint
 msgid "About RustyPresenter"
-msgstr ""
+msgstr "关于 RustyPresenter"
 
 #: ui/room.slint
 msgid "RustyPresenter — Room"
-msgstr ""
+msgstr "RustyPresenter — 会众"
 
 #: ui/stage.slint
 msgid "RustyPresenter — Stage"
-msgstr ""
+msgstr "RustyPresenter — 舞台"
 
 #: ui/stage.slint
 msgid "Waiting for the service…"
-msgstr ""
+msgstr "等待聚会开始…"
 
 #: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
 msgid "End of service"
-msgstr ""
+msgstr "聚会结束"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
-msgstr ""
+msgstr "下一张"
 
 #: ui/widgets.slint
 msgid "Cut"
-msgstr ""
+msgstr "剪切"
 
 #: ui/widgets.slint
 msgid "Paste"
-msgstr ""
+msgstr "粘贴"
 
 #: ui/widgets.slint
 msgid "Select all"
-msgstr ""
+msgstr "全选"
 
 #: src/app.rs
 msgid "Could not save: {error}"
-msgstr ""
+msgstr "无法保存：{error}"
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "会众屏幕已重新启动。视频/音频已停止 — 再次点击即可重新播放。"
 
 #: src/app.rs
 msgid "The room screen restarted."
-msgstr ""
+msgstr "会众屏幕已重新启动。"
 
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
-msgstr ""
+msgstr "RustyPresenter 仍在启动中，请稍后再试。"
 
 #: src/app.rs
 msgid "This computer"
-msgstr ""
+msgstr "这台电脑"
 
 #: src/app.rs
 msgid "Not used"
-msgstr ""
+msgstr "未使用"
 
 #: src/app.rs
 msgid "{name} — built in, public domain"
-msgstr ""
+msgstr "{name} — 内置，公有领域"
 
 #: src/app.rs
 msgid "{name} — imported file"
-msgstr ""
+msgstr "{name} — 导入的文件"
 
 #: src/app.rs
 msgid "Give the song a title."
-msgstr ""
+msgstr "请为诗歌输入标题。"
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
-msgstr ""
+msgstr "这首诗歌在某个聚会中。请先将其从聚会中移除。"
 
 #: src/app.rs
 msgid "No service is open."
-msgstr ""
+msgstr "没有打开的聚会。"
 
 #: src/app.rs src/theme/actions.rs
 msgid "Bad request: {error}"
-msgstr ""
+msgstr "请求无效：{error}"
 
 #: src/app.rs src/strings/themes.rs
 msgid "That item is gone."
-msgstr ""
+msgstr "该项目已不存在。"
 
 #: src/app.rs
 msgid "New Service"
-msgstr ""
+msgstr "新聚会"
 
 #: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
 msgid "That service is gone."
-msgstr ""
+msgstr "该聚会已不存在。"
 
 #: src/app.rs
 msgid "You need at least one service."
-msgstr ""
+msgstr "至少需要一个聚会。"
 
 #: src/app.rs
 msgid "Unknown Bible service."
-msgstr ""
+msgstr "未知的圣经服务。"
 
 #: src/app.rs
 msgid "That file is gone."
-msgstr ""
+msgstr "该文件已不存在。"
 
 #: src/app.rs
 msgid "Give the folder a name."
-msgstr ""
+msgstr "请为文件夹命名。"
 
 #: src/app.rs
 msgid "This is in a service. Remove it from the service first."
-msgstr ""
+msgstr "此项在某个聚会中。请先将其从聚会中移除。"
 
 #: src/app.rs
 msgid "Bad request: unknown purpose {purpose}"
-msgstr ""
+msgstr "请求无效：未知用途 {purpose}"
 
 #: src/app.rs
 msgid "Choose at least one picture."
-msgstr ""
+msgstr "请至少选择一张图片。"
 
 #: src/app.rs
 msgid "A picture is missing. Try uploading again."
-msgstr ""
+msgstr "缺少一张图片。请重新上传。"
 
 #: src/app.rs
 msgid "These slides are in a service. Remove them from the service first."
-msgstr ""
+msgstr "这些幻灯片在某个聚会中。请先将其从聚会中移除。"
 
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
-msgstr ""
+msgstr "未知译本。"
 
 #: src/app.rs
 msgid "Unknown language."
-msgstr ""
+msgstr "未知语言。"
 
 #: src/app.rs
 msgid "Language changed"
-msgstr ""
+msgstr "语言已更改"
 
 #: src/app.rs
 msgid "Unknown screen."
-msgstr ""
+msgstr "未知屏幕。"
 
 #: src/app.rs
 msgid "Pick an output for this screen first."
-msgstr ""
+msgstr "请先为此屏幕选择输出。"
 
 #: src/app.rs
 msgid "Add a screen first."
-msgstr ""
+msgstr "请先添加屏幕。"
 
 #: src/app.rs
 msgid "Audience {number}"
-msgstr ""
+msgstr "会众 {number}"
 
 #: src/app.rs
 msgid "Stage Display {number}"
-msgstr ""
+msgstr "舞台显示屏 {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
-msgstr ""
+msgstr "该屏幕已不存在。"
 
 #: src/app.rs
 msgid "Each list keeps at least one screen."
-msgstr ""
+msgstr "每个列表至少保留一个屏幕。"
 
 #: src/app.rs
 msgid "Backup failed."
-msgstr ""
+msgstr "备份失败。"
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."
-msgstr ""
+msgstr "无法保存文件（磁盘已满？）。"
 
 #: src/app.rs
 msgid "Could not open “{file}”: {error}"
-msgstr ""
+msgstr "无法打开“{file}”：{error}"
 
 #: src/app.rs
 msgid "Could not read “{file}”: {error}"
-msgstr ""
+msgstr "无法读取“{file}”：{error}"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
-msgstr ""
+msgstr "API.Bible 一次最多返回 200 节经文；请选择较短的经文段落"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "{translation} 不在此密钥的 API.Bible 套餐中；请在 API.Bible 控制台的 Plan 中添加"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
-msgstr ""
+msgstr "{translation} 无法通过此 API.Bible 密钥使用；请在 API.Bible 控制台的 Plan 中添加"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible returned a different book"
-msgstr ""
+msgstr "API.Bible 返回了不同的书卷"
 
 #: src/bible/catalog/ebible.rs
 msgid "no rows"
-msgstr ""
+msgstr "没有数据行"
 
 #: src/bible/catalog/ebible.rs
 msgid "eBible answered {status}"
-msgstr ""
+msgstr "eBible 返回了 {status}"
 
 #: src/bible/catalog/ebible.rs
 msgid "the list is far larger than expected"
-msgstr ""
+msgstr "列表比预期大得多"
 
 #: src/bible/catalog/ebible.rs
 msgid "empty file"
-msgstr ""
+msgstr "空文件"
 
 #: src/bible/catalog/ebible.rs
 msgid "no {column} column"
-msgstr ""
+msgstr "没有 {column} 列"
 
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
-msgstr ""
+msgstr "ESV 服务返回了不同的书卷"
 
 #: src/bible/import.rs
 msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
-msgstr ""
+msgstr "请使用 Zefania、OSIS、USX 或 OpenSong 圣经文件（.xml 或 .usx）。"
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this file. {formats}"
-msgstr ""
+msgstr "此文件中未找到经文。{formats}"
 
 #: src/bible/import.rs src/bible.rs
 msgid "{reference} does not exist."
-msgstr ""
+msgstr "{reference} 不存在。"
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
-msgstr ""
+msgstr "这段经文太长。最多选择约 400 节。"
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "No verses found."
-msgstr ""
+msgstr "未找到经文。"
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
-msgstr ""
+msgstr "请为这本圣经起一个 2-10 个字母或数字的简称，如 WEB。"
 
 #: src/bible/import.rs
 msgid "{abbr} is already built in. Give this Bible another short name."
-msgstr ""
+msgstr "{abbr} 已内置。请为这本圣经另取一个简称。"
 
 #: src/bible/import.rs
 msgid "A downloaded Bible needs its details."
-msgstr ""
+msgstr "下载的圣经需要填写详细信息。"
 
 #: src/bible/import.rs
 msgid "This Bible's id can't be used."
-msgstr ""
+msgstr "无法使用这本圣经的 ID。"
 
 #: src/bible/import.rs
 msgid "No Bible verses found."
-msgstr ""
+msgstr "未找到经文。"
 
 #: src/bible/import.rs
 msgid "No Bible verses found in this download."
-msgstr ""
+msgstr "下载的内容中未找到经文。"
 
 #: src/bible/import.rs
 msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
-msgstr ""
+msgstr "此文件不是有效的 XML（在第 {at} 字节附近：{error}）。{formats}"
 
 #: src/bible/sources.rs
 msgid "Free for churches. Create an “API application”, then copy its key."
-msgstr ""
+msgstr "教会可免费使用。创建一个“API application”，然后复制其密钥。"
 
 #: src/bible/sources.rs
 msgid "Free for non-commercial use. Register, then copy the key from your account."
-msgstr ""
+msgstr "非商业用途免费。注册后从你的账户中复制密钥。"
 
 #: src/bible/sources.rs
 msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
-msgstr ""
+msgstr "免费的 Starter 套餐允许 3 本受版权保护的圣经：在 Plan 下选择 CSB（如需在此使用 NIV 或 NLT，也一并选择）。"
 
 #: src/bible/sources.rs
 msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr ""
+msgstr "创建一个应用，然后在门户网站中接受每本圣经的许可（NIV 来自 Biblica；如提供 HCSB 也一并接受）。"
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
-msgstr ""
+msgstr "服务返回了 {status}"
 
 #: src/bible/sources.rs
 msgid "Couldn't reach {service} for {translation}. Check the internet connection."
-msgstr ""
+msgstr "无法连接到 {service} 获取 {translation}。请检查网络连接。"
 
 #: src/bible/sources.rs
 msgid "{service} refused the key. Check it in Settings → Bible."
-msgstr ""
+msgstr "{service} 拒绝了密钥。请在“设置 → 圣经”中检查。"
 
 #: src/bible/sources.rs
 msgid "{service} says too many lookups. Wait a minute and try again."
-msgstr ""
+msgstr "{service} 提示查询次数过多。请等一分钟再试。"
 
 #: src/bible/sources.rs
 msgid "{translation} lookup failed: {error}."
-msgstr ""
+msgstr "{translation} 查询失败：{error}。"
 
 #: src/bible/sources.rs
 msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
-msgstr ""
+msgstr "{translation} 没有在线来源。请通过“添加 → 圣经”粘贴经文，或在“设置 → 圣经”中导入已授权的文件。"
 
 #: src/bible/sources.rs
 msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
-msgstr ""
+msgstr "{translation} 需要来自 {service} 的免费密钥。请在“设置 → 圣经”中添加，或通过“添加 → 圣经”粘贴经文。"
 
 #: src/bible/youversion.rs
 msgid "YouVersion has no Bible id for {translation}"
-msgstr ""
+msgstr "YouVersion 没有 {translation} 的圣经 ID"
 
 #: src/bible/youversion.rs
 msgid "that passage spans too many chapters; choose fewer"
-msgstr ""
+msgstr "这段经文跨越的章数太多；请选择较少的章"
 
 #: src/bible/youversion.rs
 msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
-msgstr ""
+msgstr "此 YouVersion 应用未获得圣经 {bible} 的授权；请在 platform.youversion.com 接受出版方的许可"
 
 #: src/bible/youversion.rs
 msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
-msgstr ""
+msgstr "YouVersion 应用已归档或被删除；请在 platform.youversion.com 查看"
 
 #: src/bible/youversion.rs
 msgid "YouVersion returned a different book"
-msgstr ""
+msgstr "YouVersion 返回了不同的书卷"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr ""
+msgstr "请输入经文出处，如 约翰福音 3:16。"
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
-msgstr ""
+msgstr "无法识别书卷“{book}”。"
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr ""
+msgstr "请添加章号，如 约翰福音 3 或 约翰福音 3:16。"
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr ""
+msgstr "这个经文出处好像不对。请试试 约翰福音 3:16-18 这样的格式。"
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
-msgstr ""
+msgstr "范围的结尾在开头之前。"
 
 #: src/bible.rs
 msgid "Paste the verse text first."
-msgstr ""
+msgstr "请先粘贴经文。"
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
-msgstr ""
+msgstr "RustyPresenter 遥控器"
 
 #: src/i18n/remote_strings.rs src/strings/dialogs.rs
 msgid "Phone remote"
-msgstr ""
+msgstr "手机遥控器"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
-msgstr ""
+msgstr "在演示电脑上点击 {phone} → {pair}，然后在这里输入 6 位数代码。"
 
 #: src/i18n/remote_strings.rs
 msgid "Connect"
-msgstr ""
+msgstr "连接"
 
 #: src/i18n/remote_strings.rs
 msgid "Connecting…"
-msgstr ""
+msgstr "正在连接…"
 
 #: src/i18n/remote_strings.rs
 msgid "On screen"
-msgstr ""
+msgstr "屏幕上"
 
 #: src/i18n/remote_strings.rs
 msgid "Pause video"
-msgstr ""
+msgstr "暂停视频"
 
 #: src/i18n/remote_strings.rs
 msgid "Play video"
-msgstr ""
+msgstr "播放视频"
 
 #: src/i18n/remote_strings.rs
 msgid "Tap a slide to put it on the screen."
-msgstr ""
+msgstr "点击幻灯片即可将其显示到屏幕上。"
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
-msgstr ""
+msgstr "屏幕已变化 — 请重试。"
 
 #: src/i18n/remote_strings.rs
 msgid "The screen changed just now — tap the slide again."
-msgstr ""
+msgstr "屏幕刚刚变化 — 请再次点击该幻灯片。"
 
 #: src/i18n/remote_strings.rs src/server.rs
 msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr ""
+msgstr "该二维码已过期。请在电脑上再次点击“配对手机”。"
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
-msgstr ""
+msgstr "无法连接。"
 
 #: src/i18n/remote_strings.rs
 msgid "(Logo)"
-msgstr ""
+msgstr "（标志）"
 
 #: src/i18n/remote_strings.rs
 msgid "(Music playing)"
-msgstr ""
+msgstr "（正在播放音乐）"
 
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
-msgstr ""
+msgstr "（已清空）"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
-msgstr ""
+msgstr "Android 手机"
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
-msgstr ""
+msgstr "未命名诗歌"
 
 #: src/import/chordpro.rs
 msgid "more than {max} sections, so it isn't a song"
-msgstr ""
+msgstr "段落超过 {max} 个，因此不是一首诗歌"
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no lyrics"
-msgstr ""
+msgstr "没有歌词"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
-msgstr ""
+msgstr "{block} 块没有结束，因此其后的所有内容都被省略了"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the file is too big to be a song"
-msgstr ""
+msgstr "文件太大，不可能是诗歌"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "couldn't read it: {error}"
-msgstr ""
+msgstr "无法读取：{error}"
 
 #: src/import/chordpro.rs
 msgid "it doesn't look like a ChordPro file"
-msgstr ""
+msgstr "看起来不是 ChordPro 文件"
 
 #: src/import/chordpro.rs
 msgid "no songs in it"
-msgstr ""
+msgstr "其中没有诗歌"
 
 #: src/import/chordpro.rs
 msgid "No songs could be read from {path}: {why}."
-msgstr ""
+msgstr "无法从 {path} 读取任何诗歌：{why}。"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "Couldn't find {path}."
-msgstr ""
+msgstr "找不到 {path}。"
 
 #: src/import/chordpro.rs
 msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr ""
+msgstr "在 {path} 中未找到 ChordPro 文件（.cho、.chordpro、.chopro、.crd、.pro）。"
 
 #: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
 msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr ""
+msgstr "文件夹中的文件和文件夹超过 {max} 个，因此只查看了前 {max} 个"
 
 #: src/import/common.rs
 msgid "Couldn't read {path}: {error}."
-msgstr ""
+msgstr "无法读取 {path}：{error}。"
 
 #: src/import/common.rs
 msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr ""
+msgstr "读取诗歌库时 {app} 一直在保存更改。请关闭 {app} 后重试。"
 
 #: src/import/common.rs
 msgid "Couldn't make a temporary folder: {error}."
-msgstr ""
+msgstr "无法创建临时文件夹：{error}。"
 
 #: src/import/common.rs
 msgid "Couldn't copy {path}: {error}."
-msgstr ""
+msgstr "无法复制 {path}：{error}。"
 
 #: src/import/common.rs
 msgid "Couldn't open {path}: {error}."
-msgstr ""
+msgstr "无法打开 {path}：{error}。"
 
 #: src/import/common.rs
 msgid "the database stayed locked"
-msgstr ""
+msgstr "数据库一直处于锁定状态"
 
 #: src/import/common.rs
 msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr ""
+msgstr "{path} 为空或已损坏，没有可导入的内容。"
 
 #: src/import/easyworship.rs
 msgid "no lyrics (probably a video or announcement item)"
-msgstr ""
+msgstr "没有歌词（可能是视频或报告事项）"
 
 #: src/import/easyworship.rs src/import/openlp.rs
 msgid "the lyrics are empty"
-msgstr ""
+msgstr "歌词为空"
 
 #: src/import/easyworship.rs
 msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr ""
+msgstr "这似乎是 EasyWorship 2009（或更早版本）的诗歌库。只能导入 EasyWorship 6 和 7 的诗歌库。"
 
 #: src/import/easyworship.rs
 msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr ""
+msgstr "在 {folder} 中找到了 Songs.db，但旁边没有 SongWords.db。"
 
 #: src/import/easyworship.rs
 msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr ""
+msgstr "这里未找到 EasyWorship 的 Songs.db。请选择配置文件的 Databases\\Data 文件夹（通常为 C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data）。"
 
 #: src/import/easyworship.rs
 msgid "Couldn't read the EasyWorship library: {error}"
-msgstr ""
+msgstr "无法读取 EasyWorship 诗歌库：{error}"
 
 #: src/import/easyworship.rs
 msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "Songs.db 中没有诗歌表。这是 EasyWorship 诗歌库吗？"
 
 #: src/import/easyworship.rs
 msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr ""
+msgstr "SongWords.db 中没有歌词表。这是 EasyWorship 诗歌库吗？"
 
 #: src/import/openlp.rs
 msgid "the lyrics are not valid XML ({error})"
-msgstr ""
+msgstr "歌词不是有效的 XML（{error}）"
 
 #: src/import/openlp.rs
 msgid "the lyrics have too many verses (more than {max})"
-msgstr ""
+msgstr "歌词的段落太多（超过 {max} 个）"
 
 #: src/import/openlp.rs src/import/propresenter.rs
 msgid "the lyrics are too long to be a song"
-msgstr ""
+msgstr "歌词太长，不可能是诗歌"
 
 #: src/import/openlp.rs
 msgid "the lyrics have no verses"
-msgstr ""
+msgstr "歌词中没有段落"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
-msgstr ""
+msgstr "OpenLP 为聚会文件保存的临时副本"
 
 #: src/import/openlp.rs
 msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr ""
+msgstr "此文件不是 OpenLP 诗歌数据库 (songs.sqlite)。"
 
 #: src/import/openlp.rs
 msgid "Couldn't open the OpenLP database."
-msgstr ""
+msgstr "无法打开 OpenLP 数据库。"
 
 #: src/import/openlp.rs
 msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr ""
+msgstr "这里未找到 OpenLP 的 songs.sqlite。请选择 OpenLP 的数据文件夹（Windows 上通常为 %APPDATA%\\openlp\\data，macOS 上为 ~/Library/Application Support/openlp/Data，Linux 上为 ~/.local/share/openlp）。"
 
 #: src/import/openlp.rs
 msgid "Couldn't read the OpenLP database: {error}"
-msgstr ""
+msgstr "无法读取 OpenLP 数据库：{error}"
 
 #: src/import/openlp.rs
 msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr ""
+msgstr "这不是 OpenLP 诗歌数据库：其中没有诗歌表。"
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
-msgstr ""
+msgstr "不是有效的 XML（{error}）"
 
 #: src/import/openlyrics.rs
 msgid "too many verses to be a song"
-msgstr ""
+msgstr "段落太多，不可能是诗歌"
 
 #: src/import/openlyrics.rs
 msgid "it is an OpenSong song, not OpenLyrics"
-msgstr ""
+msgstr "这是 OpenSong 诗歌，不是 OpenLyrics"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
-msgstr ""
+msgstr "不是 OpenLyrics 诗歌"
 
 #: src/import/openlyrics.rs
 msgid "not XML"
-msgstr ""
+msgstr "不是 XML"
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr ""
+msgstr "不是 OpenLyrics 或 OpenSong 诗歌"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "no song in it"
-msgstr ""
+msgstr "其中没有诗歌"
 
 #: src/import/openlyrics.rs src/import/propresenter.rs
 msgid "No song could be read from {path}: {why}."
-msgstr ""
+msgstr "无法从 {path} 读取诗歌：{why}。"
 
 #: src/import/openlyrics.rs
 msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr ""
+msgstr "在 {path} 中未找到 OpenLyrics 或 OpenSong 诗歌。"
 
 #: src/import/opensong.rs
 msgid "the lyrics have too many sections to be a song"
-msgstr ""
+msgstr "歌词的段落太多，不可能是诗歌"
 
 #: src/import/opensong.rs
 msgid "it is an OpenLyrics song, not OpenSong"
-msgstr ""
+msgstr "这是 OpenLyrics 诗歌，不是 OpenSong"
 
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
-msgstr ""
+msgstr "不是 OpenSong 诗歌"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
-msgstr ""
+msgstr "暂不支持 ProPresenter 7 文件；请导出为文本或 ProPresenter 6 格式"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
-msgstr ""
+msgstr "暂不支持 ProPresenter 6 打包文件 (.pro6x)；请将其重命名为 .zip 并解压，然后导入其中的 .pro6 文件"
 
 #: src/import/propresenter.rs
 msgid "the song has too many groups (more than {max})"
-msgstr ""
+msgstr "诗歌的组太多（超过 {max} 个）"
 
 #: src/import/propresenter.rs
 msgid "the song has too many slides (more than {max})"
-msgstr ""
+msgstr "诗歌的幻灯片太多（超过 {max} 张）"
 
 #: src/import/propresenter.rs
 msgid "the song has no words on its slides"
-msgstr ""
+msgstr "诗歌的幻灯片上没有文字"
 
 #: src/import/propresenter.rs
 msgid "it is a ProPresenter playlist, not a song"
-msgstr ""
+msgstr "这是 ProPresenter 播放列表，不是诗歌"
 
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
-msgstr ""
+msgstr "不是 ProPresenter 6 诗歌"
 
 #: src/import/propresenter.rs
 msgid "No ProPresenter songs were found in {path}."
-msgstr ""
+msgstr "在 {path} 中未找到 ProPresenter 诗歌。"
 
 #: src/live.rs
 msgid "That item is not in the service."
-msgstr ""
+msgstr "该项目不在聚会中。"
 
 #: src/live.rs
 msgid "That item has nothing to show."
-msgstr ""
+msgstr "该项目没有可显示的内容。"
 
 #: src/live.rs
 msgid "That item has no slides."
-msgstr ""
+msgstr "该项目没有幻灯片。"
 
 #: src/live.rs
 msgid "That video is no longer playing."
-msgstr ""
+msgstr "该视频已不在播放。"
 
 #: src/live.rs
 msgid "That audio is no longer playing."
-msgstr ""
+msgstr "该音频已不在播放。"
 
 #: src/live.rs src/strings/song.rs
 msgid "Nothing is live yet."
-msgstr ""
+msgstr "还没有正在显示的内容。"
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
-msgstr ""
+msgstr "聚会开始"
 
 #: src/live.rs
 msgid "Could not show that: {reason}"
-msgstr ""
+msgstr "无法显示：{reason}"
 
 #: src/live.rs
 msgid "Playback stopped: {reason}"
-msgstr ""
+msgstr "播放已停止：{reason}"
 
 #: src/live.rs src/ui/room.rs
 msgid "the file could not be played"
-msgstr ""
+msgstr "无法播放该文件"
 
 #: src/main.rs
 msgid "RustyPresenter could not open its log: {reason}"
-msgstr ""
+msgstr "RustyPresenter 无法打开日志：{reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not start: {reason}"
-msgstr ""
+msgstr "RustyPresenter 无法启动：{reason}"
 
 #: src/main.rs
 msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
-msgstr ""
+msgstr "设置中选择的语言不在此版本中，因此 RustyPresenter 使用英语。"
 
 #: src/main.rs
 msgid "RustyPresenter could not open its window: {reason}"
-msgstr ""
+msgstr "RustyPresenter 无法打开窗口：{reason}"
 
 #: src/main.rs
 msgid "RustyPresenter could not run its windows: {reason}"
-msgstr ""
+msgstr "RustyPresenter 无法运行窗口：{reason}"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
-msgstr ""
+msgstr "屏幕未运行。"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens did not answer in time."
-msgstr ""
+msgstr "屏幕未及时响应。"
 
 #: src/platform/instance.rs
 msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
-msgstr ""
+msgstr "端口 {port} 被其他程序占用，RustyPresenter 无法启动。"
 
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
-msgstr ""
+msgstr "该屏幕当前未连接。"
 
 #: src/print/html.rs src/strings/operator.rs
 msgid "Scripture"
-msgstr ""
+msgstr "经文"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
-msgstr ""
+msgstr "RustyPresenter 遇到问题后已重新启动。"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
-msgstr ""
+msgstr "RustyPresenter 遇到问题后已重新启动。视频/音频已停止 — 再次点击即可重新播放。"
 
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
-msgstr ""
+msgstr "RustyPresenter 在一分钟内崩溃 3 次后已停止。日志位于 {path}。"
 
 #: src/server.rs
 msgid "This page only opens on the presentation computer."
-msgstr ""
+msgstr "此页面只能在演示电脑上打开。"
 
 #: src/server.rs
 msgid "Too fast — wait a second and try again."
-msgstr ""
+msgstr "太快了 — 请等一秒再试。"
 
 #: src/server.rs
 msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr ""
+msgstr "配对未开启。请在电脑上点击“手机遥控器”→“配对手机”。"
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
-msgstr ""
+msgstr "错误代码次数过多。请在电脑上重新开始配对。"
 
 #: src/server.rs
 msgid "That code isn't right."
-msgstr ""
+msgstr "代码不正确。"
 
 #: src/server.rs
 msgid "Phone {number}"
-msgstr ""
+msgstr "手机 {number}"
 
 #: src/server.rs
 msgid "Bad command."
-msgstr ""
+msgstr "无效命令。"
 
 #: src/server.rs
 msgid "Not allowed from the phone."
-msgstr ""
+msgstr "手机上不允许此操作。"
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
-msgstr[0] ""
+msgstr[0] "{n} 张幻灯片"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(slide picture)"
-msgstr ""
+msgstr "（幻灯片图片）"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(video)"
-msgstr ""
+msgstr "（视频）"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(picture)"
-msgstr ""
+msgstr "（图片）"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(audio)"
-msgstr ""
+msgstr "（音频）"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
-msgstr ""
+msgstr "缺少诗歌"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing media"
-msgstr ""
+msgstr "缺少媒体"
 
 #: src/slides.rs
 msgid "Slide {n}"
-msgstr ""
+msgstr "幻灯片 {n}"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
-msgstr ""
+msgstr "缺少幻灯片"
 
 #: src/songselect.rs
 msgid "That file is too big to be a lyric file."
-msgstr ""
+msgstr "该文件太大，不可能是歌词文件。"
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
-msgstr ""
+msgstr "歌词文件为空。"
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
-msgstr ""
+msgstr "此文件没有 Verse/Chorus 标题。请使用 SongSelect 的“Lyrics (.txt)”下载。"
 
 #: src/songselect.rs
 msgid "No lyrics were found in this file."
-msgstr ""
+msgstr "此文件中未找到歌词。"
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
-msgstr ""
+msgstr "找不到用于保存数据的文件夹。请设置 RUSTYPRESENTER_DATA。"
 
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
-msgstr ""
+msgstr "无法使用数据文件夹 {path}：{reason}"
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
-msgstr ""
+msgstr "无法读取你保存在 {path} 的数据（{reason}）。没有覆盖任何内容。请从备份文件夹恢复备份，或将该文件移走。"
 
 #: src/store.rs
 msgid "Cannot read {path}: {reason}"
-msgstr ""
+msgstr "无法读取 {path}：{reason}"
 
 #: src/store.rs
 msgid "Could not save: {reason}"
-msgstr ""
+msgstr "无法保存：{reason}"
 
 #: src/store.rs
 msgid "Unknown backup."
-msgstr ""
+msgstr "未知备份。"
 
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
-msgstr ""
+msgstr "该备份不完整，无法恢复。"
 
 #: src/strings/add.rs
 msgid "Nothing matches."
-msgstr ""
+msgstr "没有匹配项。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
-msgstr ""
+msgstr "这里还没有内容。"
 
 #: src/strings/add.rs
 msgid "Search {n} song…"
 msgid_plural "Search {n} songs…"
-msgstr[0] ""
+msgstr[0] "搜索 {n} 首诗歌…"
 
 #: src/strings/add.rs
 msgid "Search {n} file…"
 msgid_plural "Search {n} files…"
-msgstr[0] ""
+msgstr[0] "搜索 {n} 个文件…"
 
 #: src/strings/add.rs
 msgid "Search slides…"
-msgstr ""
+msgstr "搜索幻灯片…"
 
 #: src/strings/add.rs
 msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
-msgstr ""
+msgstr "要导入 PowerPoint 或 Keynote 文件，请安装 LibreOffice（免费）。PDF 文件无需安装即可使用。"
 
 #: src/strings/add.rs src/strings/settings.rs
 msgid "Copied"
-msgstr ""
+msgstr "已复制"
 
 #: src/strings/add.rs src/strings/bundle.rs
 msgid "…and {n} more."
-msgstr ""
+msgstr "…以及另外 {n} 项。"
 
 #: src/strings/add.rs
 msgid "Imported {n} song."
 msgid_plural "Imported {n} songs."
-msgstr[0] ""
+msgstr[0] "已导入 {n} 首诗歌。"
 
 #: src/strings/add.rs
 msgid "{n} already in the library: {titles}"
 msgid_plural "{n} already in the library: {titles}"
-msgstr[0] ""
+msgstr[0] "{n} 首已在诗歌库中：{titles}"
 
 #: src/strings/add.rs
 msgid "Not imported:"
-msgstr ""
+msgstr "未导入："
 
 #: src/strings/add.rs
 msgid "Reading the EasyWorship library…"
-msgstr ""
+msgstr "正在读取 EasyWorship 诗歌库…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
-msgstr ""
+msgstr "已找到 LibreOffice！"
 
 #: src/strings/add.rs
 msgid "Not found yet — finish installing, then click Check again."
-msgstr ""
+msgstr "尚未找到 — 请完成安装，然后点击“重新检查”。"
 
 #: src/strings/add.rs
 msgid "{passage} added"
-msgstr ""
+msgstr "已添加 {passage}"
 
 #: src/strings/add.rs
 msgid "Give it a title."
-msgstr ""
+msgstr "请输入标题。"
 
 #: src/strings/add.rs
 msgid "Ready"
-msgstr ""
+msgstr "就绪"
 
 #: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
 msgid "Failed"
-msgstr ""
+msgstr "失败"
 
 #: src/strings/add.rs src/strings/import.rs
 msgid "This file can't be played."
-msgstr ""
+msgstr "无法播放此文件。"
 
 #: src/strings/add.rs
 msgid "Checking the file again…"
-msgstr ""
+msgstr "正在重新检查文件…"
 
 #: src/strings/add.rs
 msgid "Delete from library"
-msgstr ""
+msgstr "从库中删除"
 
 #: src/strings/add.rs
 msgid "Delete “{name}” from the library?"
-msgstr ""
+msgstr "要从库中删除“{name}”吗？"
 
 #: src/strings/add.rs
 msgid "The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "缺少视频播放器 — 请重新安装 RustyPresenter"
 
 #: src/strings/add.rs src/strings/stage.rs
 msgid "Delete “{name}”?"
-msgstr ""
+msgstr "要删除“{name}”吗？"
 
 #: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
-msgstr ""
+msgstr "确定"
 
 #: src/strings/add.rs
 msgid "Song saved"
-msgstr ""
+msgstr "诗歌已保存"
 
 #: src/strings/add.rs
 msgid "Not in the lyrics: {sections}"
-msgstr ""
+msgstr "歌词中没有：{sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
 msgid "The screen was cleared — try again."
-msgstr ""
+msgstr "屏幕已清空 — 请重试。"
 
 #: src/strings/automation.rs
 msgid "Set a start time for this service first (Services → Starts at)."
-msgstr ""
+msgstr "请先为此聚会设置开始时间（聚会 → 开始时间）。"
 
 #: src/strings/automation.rs
 msgid "The service start time ({time}) has passed."
-msgstr ""
+msgstr "聚会开始时间（{time}）已过。"
 
 #: src/strings/automation.rs
 msgid "That time ({time}) has passed."
-msgstr ""
+msgstr "该时间（{time}）已过。"
 
 #: src/strings/automation.rs
 msgid "This timer needs a newer RustyPresenter."
-msgstr ""
+msgstr "此计时器需要更新版本的 RustyPresenter。"
 
 #: src/strings/automation.rs
 msgid "A countdown to a time can't be paused."
-msgstr ""
+msgstr "倒计时到某个时间点时无法暂停。"
 
 #: src/strings/automation.rs
 msgid "Choose a length from 1 second to 23:59:59."
-msgstr ""
+msgstr "请选择 1 秒到 23:59:59 之间的时长。"
 
 #: src/strings/automation.rs
 msgid "This timer can't be set that way."
-msgstr ""
+msgstr "此计时器不能这样设置。"
 
 #: src/strings/automation.rs
 msgid "Fill in “{field}”."
-msgstr ""
+msgstr "请填写“{field}”。"
 
 #: src/strings/automation.rs
 msgid "That message is too long for the screen (200 letters at most)."
-msgstr ""
+msgstr "该消息太长，屏幕放不下（最多 200 个字符）。"
 
 #: src/strings/automation.rs
 msgid "This message has a { without a matching }."
-msgstr ""
+msgstr "此消息中的花括号不配对：{ without a matching }。"
 
 #: src/strings/automation.rs
 msgid "Message showing"
-msgstr ""
+msgstr "正在显示消息"
 
 #: src/strings/automation.rs
 msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
-msgstr ""
+msgstr "练习模式已开启 — 此内容只在你的预览中显示。结束练习后才会显示给会众。"
 
 #: src/strings/automation.rs
 msgid "Nursery"
-msgstr ""
+msgstr "育婴室"
 
 #: src/strings/automation.rs
 msgid "Parent of child #{Number}, please come to the nursery."
-msgstr ""
+msgstr "#{Number} 号孩子的家长，请到育婴室来。"
 
 #: src/strings/automation.rs
 msgid "Vehicle"
-msgstr ""
+msgstr "车辆"
 
 #: src/strings/automation.rs
 msgid "Vehicle {Plate}: your lights are on."
-msgstr ""
+msgstr "车牌 {Plate} 的车主：您的车灯没关。"
 
 #: src/strings/automation.rs
 msgid "Custom"
-msgstr ""
+msgstr "自定义"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的项目已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的计时器已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的叠加层已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的屏幕视图已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的消息已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的舞台布局已被删除。请编辑宏。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步需要更新版本的 RustyPresenter。"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”"
-msgstr ""
+msgstr "已运行“{name}”"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but step {step} didn't work: {reason}"
-msgstr ""
+msgstr "已运行“{name}”，但第 {step} 步未成功：{reason}"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
-msgstr ""
+msgstr "已运行“{name}”，但由于屏幕已清空，跳过了显示内容。"
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
-msgstr ""
+msgstr "“{timer}”已归零，但“{macro_name}”会切换幻灯片，因此未运行。"
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
-msgstr ""
+msgstr "“{timer}”已归零，但由于屏幕已清空，“{macro_name}”没有显示任何内容。"
 
 #: src/strings/automation.rs
 msgid "Choose 2 to 600 seconds."
-msgstr ""
+msgstr "请选择 2 到 600 秒。"
 
 #: src/strings/automation.rs
 msgid "Needs at least two slides."
-msgstr ""
+msgstr "至少需要两张幻灯片。"
 
 #: src/strings/automation.rs
 msgid "Service starts in"
-msgstr ""
+msgstr "距聚会开始还有"
 
 #: src/strings/automation.rs
 msgid "Pre-service"
-msgstr ""
+msgstr "聚会前"
 
 #: src/strings/automation.rs
 msgid "Start countdown"
-msgstr ""
+msgstr "开始倒计时"
 
 #: src/strings/automation.rs
 msgid "Change it in the Pre-service tab"
-msgstr ""
+msgstr "在“聚会前”选项卡中更改"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
-msgstr ""
+msgstr "倒计时已结束 — 由于聚会已开始，其他内容未改变。"
 
 #: src/strings/automation.rs
 msgid "Restart the countdown to use the new time."
-msgstr ""
+msgstr "重新开始倒计时以使用新时间。"
 
 #: src/strings/automation.rs
 msgid "Service start"
-msgstr ""
+msgstr "聚会开始"
 
 #: src/strings/automation.rs
 msgid "Sermon"
-msgstr ""
+msgstr "讲道"
 
 #: src/strings/automation.rs
 msgid "Stopwatch"
-msgstr ""
+msgstr "秒表"
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
-msgstr ""
+msgstr "这不是 RustyPresenter 聚会文件。"
 
 #: src/strings/bundle.rs
 msgid "That service file was made by a newer version of RustyPresenter."
-msgstr ""
+msgstr "该聚会文件由更新版本的 RustyPresenter 创建。"
 
 #: src/strings/bundle.rs
 msgid "That service file is damaged, so nothing was added."
-msgstr ""
+msgstr "该聚会文件已损坏，未添加任何内容。"
 
 #: src/strings/bundle.rs
 msgid "Saving the service…"
-msgstr ""
+msgstr "正在保存聚会…"
 
 #: src/strings/bundle.rs
 msgid "Opening the service file…"
-msgstr ""
+msgstr "正在打开聚会文件…"
 
 #: src/strings/bundle.rs
 msgid "A song in this service is no longer in the library."
-msgstr ""
+msgstr "此聚会中的一首诗歌已不在诗歌库中。"
 
 #: src/strings/bundle.rs
 msgid "A video, picture or sound in this service is no longer in the library."
-msgstr ""
+msgstr "此聚会中的一个视频、图片或声音已不在库中。"
 
 #: src/strings/bundle.rs
 msgid "A set of slides in this service is no longer in the library."
-msgstr ""
+msgstr "此聚会中的一组幻灯片已不在库中。"
 
 #: src/strings/bundle.rs
 msgid "A background in this service is missing its file."
-msgstr ""
+msgstr "此聚会中的一个背景缺少文件。"
 
 #: src/strings/bundle.rs
 msgid "{name} is missing its file."
-msgstr ""
+msgstr "{name} 缺少文件。"
 
 #: src/strings/bundle.rs
 msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
 msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
-msgstr[0] ""
+msgstr[0] "此聚会使用了这台电脑上没有的字体，因此文字以其他字体显示：{fonts}。安装这些字体即可按原样显示。"
 
 #: src/strings/bundle.rs
 msgid "Saved “{name}” to a file."
-msgstr ""
+msgstr "已将“{name}”保存为文件。"
 
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
-msgstr ""
+msgstr "此聚会未保存，因为缺少它需要的内容："
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
-msgstr ""
+msgstr "已打开“{name}”。"
 
 #: src/strings/bundle.rs
 msgid "{n} song"
 msgid_plural "{n} songs"
-msgstr[0] ""
+msgstr[0] "{n} 首诗歌"
 
 #: src/strings/bundle.rs
 msgid "{n} media file"
 msgid_plural "{n} media files"
-msgstr[0] ""
+msgstr[0] "{n} 个媒体文件"
 
 #: src/strings/bundle.rs
 msgid "{n} set of slides"
 msgid_plural "{n} sets of slides"
-msgstr[0] ""
+msgstr[0] "{n} 组幻灯片"
 
 #: src/strings/bundle.rs
 msgid "New in the library: {things}."
-msgstr ""
+msgstr "库中新增：{things}。"
 
 #: src/strings/bundle.rs
 msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
-msgstr ""
+msgstr "这些与库中已有的诗歌不同，因此聚会使用另一份副本：{titles}"
 
 #: src/strings/catalog.rs
 msgid "You're offline. Bibles you've added still work."
-msgstr ""
+msgstr "你已离线。已添加的圣经仍可使用。"
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be read. Try again later."
-msgstr ""
+msgstr "无法读取圣经列表。请稍后再试。"
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be saved on this computer."
-msgstr ""
+msgstr "无法在这台电脑上保存圣经列表。"
 
 #: src/strings/catalog.rs
 msgid "Licence checked on download"
-msgstr ""
+msgstr "下载时已检查许可"
 
 #: src/strings/catalog.rs
 msgid "Full Bible"
-msgstr ""
+msgstr "完整圣经"
 
 #: src/strings/catalog.rs
 msgid "New Testament"
-msgstr ""
+msgstr "新约"
 
 #: src/strings/catalog.rs
 msgid "Old Testament"
-msgstr ""
+msgstr "旧约"
 
 #: src/strings/catalog.rs
 msgid "Portions"
-msgstr ""
+msgstr "部分书卷"
 
 #: src/strings/catalog.rs
 msgid "Includes Apocrypha"
-msgstr ""
+msgstr "包括次经"
 
 #: src/strings/catalog.rs
 msgid "Downloading {name}…"
-msgstr ""
+msgstr "正在下载 {name}…"
 
 #: src/strings/catalog.rs
 msgid "Waiting to download {name}…"
-msgstr ""
+msgstr "等待下载 {name}…"
 
 #: src/strings/catalog.rs
 msgid "Checking {name}…"
-msgstr ""
+msgstr "正在检查 {name}…"
 
 #: src/strings/catalog.rs
 msgid "Couldn't download {name}. Check the internet and try again."
-msgstr ""
+msgstr "无法下载 {name}。请检查网络后重试。"
 
 #: src/strings/catalog.rs
 msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
-msgstr ""
+msgstr "这本圣经的许可不允许我们保留它，已将其移除。"
 
 #: src/strings/catalog.rs
 msgid "The update for {name} couldn't be used. The copy you have still works."
-msgstr ""
+msgstr "无法使用 {name} 的更新。你现有的版本仍可使用。"
 
 #: src/strings/catalog.rs
 msgid "This Bible is larger than expected, so it wasn't added."
-msgstr ""
+msgstr "这本圣经比预期大，因此未添加。"
 
 #: src/strings/catalog.rs
 msgid "Not enough disk space for this Bible (needs about {n} MB)."
-msgstr ""
+msgstr "磁盘空间不足，无法添加这本圣经（需要约 {n} MB）。"
 
 #: src/strings/catalog.rs
 msgid "{name} couldn't be used, so it wasn't added."
-msgstr ""
+msgstr "无法使用 {name}，因此未添加。"
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
-msgstr ""
+msgstr "这本圣经已不在列表中。请重新打开“设置 → 圣经”查看最新列表。"
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
-msgstr ""
+msgstr "你已离线，暂时无法添加圣经。"
 
 #: src/strings/catalog.rs
 msgid "Loading the list of Bibles…"
-msgstr ""
+msgstr "正在加载圣经列表…"
 
 #: src/strings/catalog.rs
 msgid "No Bibles match. Try fewer words, or All."
-msgstr ""
+msgstr "没有匹配的圣经。请减少关键词，或选择“全部”。"
 
 #: src/strings/catalog.rs
 msgid "No Bibles added yet. Choose All to see the Bibles you can add."
-msgstr ""
+msgstr "尚未添加圣经。选择“全部”查看可添加的圣经。"
 
 #: src/strings/catalog.rs
 msgid "Offline"
-msgstr ""
+msgstr "离线"
 
 #: src/strings/catalog.rs
 msgid "Update"
-msgstr ""
+msgstr "更新"
 
 #: src/strings/catalog.rs
 msgid "Added"
-msgstr ""
+msgstr "已添加"
 
 #: src/strings/catalog.rs src/strings/settings.rs
 msgid "Your computer may not have a font for this language."
-msgstr ""
+msgstr "你的电脑可能没有此语言的字体。"
 
 #: src/strings/catalog.rs
 msgid "Waiting"
-msgstr ""
+msgstr "等待中"
 
 #: src/strings/catalog.rs
 msgid "A newer edition is ready"
-msgstr ""
+msgstr "有更新的版本可用"
 
 #: src/strings/catalog.rs
 msgid "Default Bible changed"
-msgstr ""
+msgstr "默认圣经已更改"
 
 #: src/strings/catalog.rs
 msgid "You can show up to two more Bibles. Turn one off first."
-msgstr ""
+msgstr "最多可再显示两本圣经。请先关闭一本。"
 
 #: src/strings/catalog.rs
 msgid "{name} — downloaded from eBible.org"
-msgstr ""
+msgstr "{name} — 从 eBible.org 下载"
 
 #: src/strings/catalog.rs
 msgid "Showing {shown} of {total} Bibles. Search to find others."
-msgstr ""
+msgstr "显示 {total} 本圣经中的 {shown} 本。搜索可查找其他圣经。"
 
 #: src/strings/catalog.rs
 msgid "Downloading… {percent}%"
-msgstr ""
+msgstr "正在下载… {percent}%"
 
 #: src/strings/catalog.rs
 msgid "Added {bible}"
-msgstr ""
+msgstr "已添加 {bible}"
 
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
-msgstr ""
+msgstr "已移除 {bible}"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"
-msgstr ""
+msgstr "也在 {sources} 上"
 
 #: src/strings/dialogs.rs
 msgid "Services"
-msgstr ""
+msgstr "聚会"
 
 #: src/strings/dialogs.rs
 msgid "Screen Configuration"
-msgstr ""
+msgstr "屏幕配置"
 
 #: src/strings/import.rs
 msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
-msgstr ""
+msgstr "此演示文稿有密码。请在 PowerPoint 中打开，删除密码（文件 → 信息 → 保护演示文稿），保存后重新导入。"
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PowerPoint file."
-msgstr ""
+msgstr "这看起来不是 PowerPoint 文件。"
 
 #: src/strings/import.rs
 msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
-msgstr ""
+msgstr "LibreOffice 耗时过长，已被停止。请重试；开机后第一次导入会比较慢。"
 
 #: src/strings/import.rs
 msgid "LibreOffice couldn't read this presentation."
-msgstr ""
+msgstr "LibreOffice 无法读取此演示文稿。"
 
 #: src/strings/import.rs
 msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
-msgstr ""
+msgstr "Snap 版 LibreOffice 无法读取 RustyPresenter 的文件。请改为安装发行版自带的 LibreOffice（sudo apt install libreoffice-impress）。"
 
 #: src/strings/import.rs
 msgid "LibreOffice could not be started. Reinstall it and try again."
-msgstr ""
+msgstr "无法启动 LibreOffice。请重新安装后再试。"
 
 #: src/strings/import.rs
 msgid "PowerPoint took too long and was stopped. Try again."
-msgstr ""
+msgstr "PowerPoint 耗时过长，已被停止。请重试。"
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open this presentation."
-msgstr ""
+msgstr "PowerPoint 无法打开此演示文稿。"
 
 #: src/strings/import.rs
 msgid "PowerPoint could not be started."
-msgstr ""
+msgstr "无法启动 PowerPoint。"
 
 #: src/strings/import.rs
 msgid "This doesn't look like a PDF file."
-msgstr ""
+msgstr "这看起来不是 PDF 文件。"
 
 #: src/strings/import.rs
 msgid "This file took too long to open."
-msgstr ""
+msgstr "打开此文件耗时过长。"
 
 #: src/strings/import.rs
 msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
-msgstr ""
+msgstr "无法打开此图片。请另存为 PNG 或 JPEG 后重试。"
 
 #: src/strings/import.rs
 msgid "This presentation has no slides."
-msgstr ""
+msgstr "此演示文稿没有幻灯片。"
 
 #: src/strings/import.rs
 msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
-msgstr ""
+msgstr "此演示文稿混用了不同的幻灯片尺寸，RustyPresenter 无法显示。"
 
 #: src/strings/import.rs
 msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "缺少幻灯片转换器 (pdfium)。请重新安装 RustyPresenter。"
 
 #: src/strings/import.rs
 msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
-msgstr ""
+msgstr "幻灯片转换器停止响应。请重新启动 RustyPresenter 后重试。"
 
 #: src/strings/import.rs
 msgid "Slide {page} could not be turned into a picture."
-msgstr ""
+msgstr "无法将第 {page} 张幻灯片转换为图片。"
 
 #: src/strings/import.rs
 msgid "This PDF can't be opened. If it has a password, remove it and import again."
-msgstr ""
+msgstr "无法打开此 PDF。如果它有密码，请删除密码后重新导入。"
 
 #: src/strings/import.rs
 msgid "A slide could not be saved. Check that the disk has free space, then try again."
-msgstr ""
+msgstr "无法保存幻灯片。请检查磁盘是否有可用空间，然后重试。"
 
 #: src/strings/import.rs
 msgid "Waiting for another file…"
-msgstr ""
+msgstr "正在等待另一个文件…"
 
 #: src/strings/import.rs
 msgid "Adding “{name}”"
-msgstr ""
+msgstr "正在添加“{name}”"
 
 #: src/strings/import.rs
 msgid "Importing “{name}”"
-msgstr ""
+msgstr "正在导入“{name}”"
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
-msgstr ""
+msgstr "请将 Keynote 文件另存为单个文件后重新导入。"
 
 #: src/strings/import.rs
 msgid "Waiting for LibreOffice…"
-msgstr ""
+msgstr "正在等待 LibreOffice…"
 
 #: src/strings/import.rs
 msgid "Waiting for PowerPoint…"
-msgstr ""
+msgstr "正在等待 PowerPoint…"
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open it; used LibreOffice."
-msgstr ""
+msgstr "PowerPoint 无法打开；已改用 LibreOffice。"
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides."
-msgstr ""
+msgstr "已使用 LibreOffice 导入 — 请检查幻灯片。"
 
 #: src/strings/import.rs
 msgid "{expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "应有 {expected} 张幻灯片，但导入了 {imported} 张。"
 
 #: src/strings/import.rs
 msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
-msgstr ""
+msgstr "已使用 LibreOffice 导入 — 请检查幻灯片。应有 {expected} 张幻灯片，但导入了 {imported} 张。"
 
 #: src/strings/import.rs
 msgid "To import presentations, install LibreOffice. {hint}"
-msgstr ""
+msgstr "要导入演示文稿，请安装 LibreOffice。{hint}"
 
 #: src/strings/item_edit.rs
 msgid "Saved"
-msgstr ""
+msgstr "已保存"
 
 #: src/strings/item_edit.rs
 msgid "Theme default"
-msgstr ""
+msgstr "主题默认"
 
 #: src/strings/item_edit.rs
 msgid "+ Upload…"
-msgstr ""
+msgstr "+ 上传…"
 
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
-msgstr ""
+msgstr "已添加到媒体库 — 在此选择"
 
 #: src/strings/operator.rs src/strings/print.rs
 msgid "Picture"
-msgstr ""
+msgstr "图片"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
-msgstr ""
+msgstr "{kind} · 无法播放"
 
 #: src/strings/operator.rs
 msgid " · loops"
-msgstr ""
+msgstr " · 循环"
 
 #: src/strings/operator.rs
 msgid "{kind} · The video player is missing — reinstall RustyPresenter"
-msgstr ""
+msgstr "{kind} · 缺少视频播放器 — 请重新安装 RustyPresenter"
 
 #: src/strings/operator.rs
 msgid "{kind} · {n} slide"
 msgid_plural "{kind} · {n} slides"
-msgstr[0] ""
+msgstr[0] "{kind} · {n} 张幻灯片"
 
 #: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
 msgid "{n} item"
 msgid_plural "{n} items"
-msgstr[0] ""
+msgstr[0] "{n} 项"
 
 #: src/strings/operator.rs
 msgid "{n} phone"
 msgid_plural "{n} phones"
-msgstr[0] ""
+msgstr[0] "{n} 部手机"
 
 #: src/strings/operator.rs
 msgid "Clear"
-msgstr ""
+msgstr "清空"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
-msgstr ""
+msgstr "幻灯片图片"
 
 #: src/strings/operator.rs
 msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
-msgstr ""
+msgstr "文字已经是能放下的最大尺寸。要放大文字，请减少每张幻灯片的经节数（编辑）。"
 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
-msgstr ""
+msgstr "在左侧选择一项"
 
 #: src/strings/operator.rs
 msgid "Welcome"
-msgstr ""
+msgstr "欢迎"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
-msgstr ""
+msgstr "出了点问题。"
 
 #: src/strings/operator.rs
 msgid "Room screen is showing"
-msgstr ""
+msgstr "会众屏幕正在显示"
 
 #: src/strings/operator.rs
 msgid "Room screen is starting…"
-msgstr ""
+msgstr "会众屏幕正在启动…"
 
 #: src/strings/operator.rs
 msgid "Room screen is not open — click Screens"
-msgstr ""
+msgstr "会众屏幕未打开 — 请点击“屏幕”"
 
 #: src/strings/operator.rs
 msgid "Could not open the operator window: {error}"
-msgstr ""
+msgstr "无法打开操作窗口：{error}"
 
 #: src/strings/operator.rs
 msgid "Make {n} pictures into one set of slides?"
 msgid_plural "Make {n} pictures into one set of slides?"
-msgstr[0] ""
+msgstr[0] "将 {n} 张图片制作成一组幻灯片？"
 
 #: src/strings/operator.rs
 msgid "One slide set"
-msgstr ""
+msgstr "一组幻灯片"
 
 #: src/strings/operator.rs
 msgid "Separate pictures"
-msgstr ""
+msgstr "单独的图片"
 
 #: src/strings/operator.rs
 msgid "Videos, pictures and music"
-msgstr ""
+msgstr "视频、图片和音乐"
 
 #: src/strings/operator.rs
 msgid "Presentations"
-msgstr ""
+msgstr "演示文稿"
 
 #: src/strings/operator.rs
 msgid "SongSelect lyric files"
-msgstr ""
+msgstr "SongSelect 歌词文件"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
-msgstr ""
+msgstr "图片和视频"
 
 #: src/strings/operator.rs
 msgid "Service files"
-msgstr ""
+msgstr "聚会文件"
 
 #: src/strings/operator.rs src/strings/scripture.rs
 msgid "{passage} added — press Enter to show it"
-msgstr ""
+msgstr "已添加 {passage} — 按 Enter 显示"
 
 #: src/strings/operator.rs
 msgid "Added to the service"
-msgstr ""
+msgstr "已添加到聚会"
 
 #: src/strings/operator.rs
 msgid "Uploading {name}"
-msgstr ""
+msgstr "正在上传 {name}"
 
 #: src/strings/operator.rs
 msgid "Uploading {n} picture"
 msgid_plural "Uploading {n} pictures"
-msgstr[0] ""
+msgstr[0] "正在上传 {n} 张图片"
 
 #: src/strings/operator.rs
 msgid "{name} added"
-msgstr ""
+msgstr "已添加 {name}"
 
 #: src/strings/operator.rs
 msgid "Imported “{title}”"
-msgstr ""
+msgstr "已导入“{title}”"
 
 #: src/strings/operator.rs
 msgid "“{title}” is already in the library."
-msgstr ""
+msgstr "“{title}”已在诗歌库中。"
 
 #: src/strings/operator.rs
 msgid "Updated “{title}”"
-msgstr ""
+msgstr "已更新“{title}”"
 
 #: src/strings/operator.rs
 msgid "Update existing"
-msgstr ""
+msgstr "更新现有的"
 
 #: src/strings/operator.rs
 msgid "Keep both"
-msgstr ""
+msgstr "两者都保留"
 
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
-msgstr ""
+msgstr "“{title}”已就绪"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
-msgstr ""
+msgstr "为这些幻灯片命名"
 
 #: src/strings/operator.rs
 msgid "Message for the stage screen. Leave it empty to take it down."
-msgstr ""
+msgstr "舞台屏幕的消息。留空即可撤下。"
 
 #: src/strings/operator.rs
 msgid "Favourites"
-msgstr ""
+msgstr "收藏"
 
 #: src/strings/operator.rs
 msgid "Recent"
-msgstr ""
+msgstr "最近"
 
 #: src/strings/operator.rs
 msgid "Other Bibles"
-msgstr ""
+msgstr "其他圣经"
 
 #: src/strings/operator.rs
 msgid "imported"
-msgstr ""
+msgstr "已导入"
 
 #: src/strings/operator.rs
 msgid "No Bible you have matches. Find more Bibles below."
-msgstr ""
+msgstr "你的圣经中没有匹配项。可在下方查找更多圣经。"
 
 #: src/strings/operator.rs
 msgid "{bible} added to favourites"
-msgstr ""
+msgstr "已将 {bible} 添加到收藏"
 
 #: src/strings/operator.rs
 msgid "{bible} removed from favourites"
-msgstr ""
+msgstr "已将 {bible} 从收藏中移除"
 
 #: src/strings/operator.rs
 msgid "All media"
-msgstr ""
+msgstr "所有媒体"
 
 #: src/strings/operator.rs
 msgid "Converting {percent}%"
-msgstr ""
+msgstr "正在转换 {percent}%"
 
 #: src/strings/operator.rs
 msgid "Click a thumbnail to choose it."
-msgstr ""
+msgstr "点击缩略图进行选择。"
 
 #: src/strings/operator.rs
 msgid "Double-click a thumbnail to use it as the selected item’s background."
-msgstr ""
+msgstr "双击缩略图，即可将其用作所选项目的背景。"
 
 #: src/strings/operator.rs
 msgid "Add it to the service to play it."
-msgstr ""
+msgstr "添加到聚会后即可播放。"
 
 #: src/strings/operator.rs
 msgid "This file isn’t ready to play yet."
-msgstr ""
+msgstr "此文件尚不能播放。"
 
 #: src/strings/operator.rs
 msgid "Pick a service item first, then choose its background."
-msgstr ""
+msgstr "请先选择一个聚会项目，再选择其背景。"
 
 #: src/strings/operator.rs
 msgid "Background set to {name}"
-msgstr ""
+msgstr "背景已设为 {name}"
 
 #: src/strings/operator.rs
 msgid "Folder name (leave empty for none)"
-msgstr ""
+msgstr "文件夹名称（留空则不放入文件夹）"
 
 #: src/strings/operator.rs
 msgid "Name for the new folder"
-msgstr ""
+msgstr "新文件夹名称"
 
 #: src/strings/operator.rs
 msgid "Delete the folder “{name}”? Its files stay in the library."
-msgstr ""
+msgstr "要删除文件夹“{name}”吗？其中的文件仍保留在库中。"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
 msgid_plural "Code works for {n} more seconds"
-msgstr[0] ""
+msgstr[0] "代码在 {n} 秒内有效"
 
 #: src/strings/phone.rs
 msgid "Code expired — click Pair a phone again."
-msgstr ""
+msgstr "代码已过期 — 请再次点击“配对手机”。"
 
 #: src/strings/planning.rs
 msgid "No date"
-msgstr ""
+msgstr "无日期"
 
 #: src/strings/planning.rs
 msgid "Mon"
-msgstr ""
+msgstr "周一"
 
 #: src/strings/planning.rs
 msgid "Tue"
-msgstr ""
+msgstr "周二"
 
 #: src/strings/planning.rs
 msgid "Wed"
-msgstr ""
+msgstr "周三"
 
 #: src/strings/planning.rs
 msgid "Thu"
-msgstr ""
+msgstr "周四"
 
 #: src/strings/planning.rs
 msgid "Fri"
-msgstr ""
+msgstr "周五"
 
 #: src/strings/planning.rs
 msgid "Sat"
-msgstr ""
+msgstr "周六"
 
 #: src/strings/planning.rs
 msgid "Sun"
-msgstr ""
+msgstr "周日"
 
 #: src/strings/planning.rs
 msgid "Monday"
-msgstr ""
+msgstr "星期一"
 
 #: src/strings/planning.rs
 msgid "Tuesday"
-msgstr ""
+msgstr "星期二"
 
 #: src/strings/planning.rs
 msgid "Wednesday"
-msgstr ""
+msgstr "星期三"
 
 #: src/strings/planning.rs
 msgid "Thursday"
-msgstr ""
+msgstr "星期四"
 
 #: src/strings/planning.rs
 msgid "Friday"
-msgstr ""
+msgstr "星期五"
 
 #: src/strings/planning.rs
 msgid "Saturday"
-msgstr ""
+msgstr "星期六"
 
 #: src/strings/planning.rs
 msgid "Sunday"
-msgstr ""
+msgstr "星期日"
 
 #: src/strings/planning.rs
 msgid "Mondays"
-msgstr ""
+msgstr "每周一"
 
 #: src/strings/planning.rs
 msgid "Tuesdays"
-msgstr ""
+msgstr "每周二"
 
 #: src/strings/planning.rs
 msgid "Wednesdays"
-msgstr ""
+msgstr "每周三"
 
 #: src/strings/planning.rs
 msgid "Thursdays"
-msgstr ""
+msgstr "每周四"
 
 #: src/strings/planning.rs
 msgid "Fridays"
-msgstr ""
+msgstr "每周五"
 
 #: src/strings/planning.rs
 msgid "Saturdays"
-msgstr ""
+msgstr "每周六"
 
 #: src/strings/planning.rs
 msgid "Sundays"
-msgstr ""
+msgstr "每周日"
 
 #: src/strings/planning.rs
 msgid "Any day"
-msgstr ""
+msgstr "任意一天"
 
 #: src/strings/planning.rs
 msgctxt "typed answer: no fixed day"
 msgid "any"
-msgstr ""
+msgstr "任意"
 
 #: src/strings/planning.rs
 msgid "January"
-msgstr ""
+msgstr "一月"
 
 #: src/strings/planning.rs
 msgid "February"
-msgstr ""
+msgstr "二月"
 
 #: src/strings/planning.rs
 msgid "March"
-msgstr ""
+msgstr "三月"
 
 #: src/strings/planning.rs
 msgid "April"
-msgstr ""
+msgstr "四月"
 
 #: src/strings/planning.rs
 msgid "May"
-msgstr ""
+msgstr "五月"
 
 #: src/strings/planning.rs
 msgid "June"
-msgstr ""
+msgstr "六月"
 
 #: src/strings/planning.rs
 msgid "July"
-msgstr ""
+msgstr "七月"
 
 #: src/strings/planning.rs
 msgid "August"
-msgstr ""
+msgstr "八月"
 
 #: src/strings/planning.rs
 msgid "September"
-msgstr ""
+msgstr "九月"
 
 #: src/strings/planning.rs
 msgid "October"
-msgstr ""
+msgstr "十月"
 
 #: src/strings/planning.rs
 msgid "November"
-msgstr ""
+msgstr "十一月"
 
 #: src/strings/planning.rs
 msgid "December"
-msgstr ""
+msgstr "十二月"
 
 #: src/strings/planning.rs
 msgid "Bible reading"
-msgstr ""
+msgstr "读经"
 
 #: src/strings/planning.rs
 msgid "Something"
-msgstr ""
+msgstr "某项内容"
 
 #: src/strings/planning.rs
 msgid "Blank"
-msgstr ""
+msgstr "空白"
 
 #: src/strings/planning.rs
 msgid "{label} (blank)"
-msgstr ""
+msgstr "{label}（空白）"
 
 #: src/strings/planning.rs
 msgid "Click Choose to fill this in"
-msgstr ""
+msgstr "点击“选择”来填写"
 
 #: src/strings/planning.rs
 msgid "This is a blank — choose what goes here first."
-msgstr ""
+msgstr "这是空白项 — 请先选择此处的内容。"
 
 #: src/strings/planning.rs
 msgid "Fill in: {label}"
-msgstr ""
+msgstr "填写：{label}"
 
 #: src/strings/planning.rs
 msgid "There is no service to copy."
-msgstr ""
+msgstr "没有可复制的聚会。"
 
 #: src/strings/planning.rs
 msgid "That template is gone."
-msgstr ""
+msgstr "该模板已不存在。"
 
 #: src/strings/planning.rs
 msgid "That date isn't valid."
-msgstr ""
+msgstr "该日期无效。"
 
 #: src/strings/planning.rs
 msgid "That blank is gone."
-msgstr ""
+msgstr "该空白项已不存在。"
 
 #: src/strings/planning.rs
 msgid "That item is not a blank any more."
-msgstr ""
+msgstr "该项目已不再是空白项。"
 
 #: src/strings/planning.rs
 msgid "A template needs a name."
-msgstr ""
+msgstr "模板需要名称。"
 
 #: src/strings/planning.rs
 msgid "A template needs at least one part."
-msgstr ""
+msgstr "模板至少需要一个部分。"
 
 #: src/strings/planning.rs
 msgid "This is in the template “{name}”. Remove it from the template first."
-msgstr ""
+msgstr "此项在模板“{name}”中。请先将其从模板中移除。"
 
 #: src/strings/planning.rs
 msgid "{n} blank"
 msgid_plural "{n} blanks"
-msgstr[0] ""
+msgstr[0] "{n} 个空白项"
 
 #: src/strings/planning.rs
 msgid "Show {n} older service"
 msgid_plural "Show {n} older services"
-msgstr[0] ""
+msgstr[0] "显示 {n} 个较早的聚会"
 
 #: src/strings/planning.rs
 msgid "{n} part, {blanks}"
 msgid_plural "{n} parts, {blanks}"
-msgstr[0] ""
+msgstr[0] "{n} 个部分，{blanks}"
 
 #: src/strings/planning.rs
 msgid "No templates yet. Use “Save as template” on a service to make one."
-msgstr ""
+msgstr "还没有模板。在聚会上使用“另存为模板”即可创建。"
 
 #: src/strings/planning.rs
 msgid "Save a service as a template first"
-msgstr ""
+msgstr "请先将一个聚会另存为模板"
 
 #: src/strings/planning.rs
 msgid "Make a service for {date} from “{service}”?"
-msgstr ""
+msgstr "根据“{service}”创建 {date} 的聚会？"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible readings"
-msgstr ""
+msgstr "复制，并为诗歌和读经留空"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
-msgstr ""
+msgstr "{date} 已有一个聚会（“{name}”）。"
 
 #: src/strings/planning.rs
 msgid "Open it"
-msgstr ""
+msgstr "打开它"
 
 #: src/strings/planning.rs
 msgid "Make another"
-msgstr ""
+msgstr "再创建一个"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready"
-msgstr ""
+msgstr "“{name}”已就绪"
 
 #: src/strings/planning.rs
 msgid "“{name}” is ready — fill in {blanks}"
-msgstr ""
+msgstr "“{name}”已就绪 — 请填写 {blanks}"
 
 #: src/strings/planning.rs
 msgid "Date of the service (leave empty for no date)"
-msgstr ""
+msgstr "聚会日期（留空则不设日期）"
 
 #: src/strings/planning.rs
 msgid "Date of the service, like {example} (leave empty for no date)"
-msgstr ""
+msgstr "聚会日期，如 {example}（留空则不设日期）"
 
 #: src/strings/planning.rs
 msgid "Name for the template"
-msgstr ""
+msgstr "模板名称"
 
 #: src/strings/planning.rs
 msgid "Template “{name}” saved"
-msgstr ""
+msgstr "模板“{name}”已保存"
 
 #: src/strings/planning.rs
 msgid "Rename template"
-msgstr ""
+msgstr "重命名模板"
 
 #: src/strings/planning.rs
 msgid "Delete the template “{name}”? (Services made from it stay.)"
-msgstr ""
+msgstr "要删除模板“{name}”吗？（用它创建的聚会会保留。）"
 
 #: src/strings/planning.rs
 msgid "Which template?"
-msgstr ""
+msgstr "哪个模板？"
 
 #: src/strings/planning.rs src/strings/services.rs
 msgid "Name for the new service"
-msgstr ""
+msgstr "新聚会名称"
 
 #: src/strings/planning.rs
 msgid "Which day is the template “{name}” for?"
-msgstr ""
+msgstr "模板“{name}”用于星期几？"
 
 #: src/strings/planning.rs
 msgid "Name for the header"
-msgstr ""
+msgstr "标题名称"
 
 #: src/strings/planning.rs
 msgid "Worship"
-msgstr ""
+msgstr "敬拜"
 
 #: src/strings/planning.rs
 msgid "Rename header"
-msgstr ""
+msgstr "重命名标题"
 
 #: src/strings/planning.rs
 msgid "Click “Make a service” on the template you want, under Templates."
-msgstr ""
+msgstr "在“模板”下，点击所需模板上的“创建聚会”。"
 
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
-msgstr ""
+msgstr "输入星期几，如 星期日，或留空表示任意一天。"
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
-msgstr ""
+msgstr "一切就绪。此聚会的所有诗歌、文件和屏幕都已找到。"
 
 #: src/strings/preflight.rs
 msgid "This service has no items yet."
-msgstr ""
+msgstr "此聚会还没有项目。"
 
 #: src/strings/preflight.rs
 msgid "No room screen is chosen. Choose one in Screens."
-msgstr ""
+msgstr "未选择会众屏幕。请在“屏幕”中选择。"
 
 #: src/strings/preflight.rs
 msgid "The room screen is not connected. Check its cable, or choose another in Screens."
-msgstr ""
+msgstr "会众屏幕未连接。请检查连接线，或在“屏幕”中选择其他屏幕。"
 
 #: src/strings/preflight.rs
 msgid "The stage screen is not connected. The service can run without it."
-msgstr ""
+msgstr "舞台屏幕未连接。没有它聚会也可以进行。"
 
 #: src/strings/preflight.rs
 msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr ""
+msgstr "设置中选择的声音输出未连接。请插上，或在“设置 → 视频”中选择其他输出。"
 
 #: src/strings/preflight.rs
 msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr ""
+msgstr "声音输出未连接，因此视频或音频已暂停。请插上，或在“设置 → 视频”中选择其他输出，然后按播放。"
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "标志文件丢失。请在设置中重新选择。"
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings."
-msgstr ""
+msgstr "默认背景文件丢失。请在设置中重新选择。"
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
-msgstr ""
+msgstr "诗歌已不在诗歌库中"
 
 #: src/strings/preflight.rs
 msgid "the song has no words"
-msgstr ""
+msgstr "诗歌没有歌词"
 
 #: src/strings/preflight.rs
 msgid "there is no verse text"
-msgstr ""
+msgstr "没有经文内容"
 
 #: src/strings/preflight.rs
 msgid "it is no longer in the library"
-msgstr ""
+msgstr "已不在库中"
 
 #: src/strings/preflight.rs
 msgid "its file is missing"
-msgstr ""
+msgstr "文件丢失"
 
 #: src/strings/preflight.rs
 msgid "these slides are no longer in the library"
-msgstr ""
+msgstr "这些幻灯片已不在库中"
 
 #: src/strings/preflight.rs
 msgid "its background file is missing"
-msgstr ""
+msgstr "背景文件丢失"
 
 #: src/strings/preflight.rs
 msgid "it can't be played ({reason})"
-msgstr ""
+msgstr "无法播放（{reason}）"
 
 #: src/strings/preflight.rs
 msgid "{missing} of {n} slides are missing"
 msgid_plural "{missing} of {n} slides are missing"
-msgstr[0] ""
+msgstr[0] "{n} 张幻灯片中缺少 {missing} 张"
 
 #: src/strings/preflight.rs
 msgid "{number}. {title}: {problem}"
-msgstr ""
+msgstr "{number}. {title}：{problem}"
 
 #: src/strings/preflight.rs
 msgid "…and {n} more"
-msgstr ""
+msgstr "…以及另外 {n} 项"
 
 #: src/strings/preflight.rs
 msgid "{n} thing to fix before the service:"
 msgid_plural "{n} things to fix before the service:"
-msgstr[0] ""
+msgstr[0] "聚会前需要修复 {n} 个问题："
 
 #: src/strings/preflight.rs
 msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
-msgstr ""
+msgstr "{bible} 尚未离线准备好 {passage}。请在联网状态下打开此聚会一次。"
 
 #: src/strings/print.rs
 msgid "Order: {sections}"
-msgstr ""
+msgstr "顺序：{sections}"
 
 #: src/strings/print.rs
 msgid "Blank — {label}"
-msgstr ""
+msgstr "空白 — {label}"
 
 #: src/strings/print.rs
 msgid "(not chosen yet)"
-msgstr ""
+msgstr "（尚未选择）"
 
 #: src/strings/print.rs
 msgid "(no lyrics)"
-msgstr ""
+msgstr "（无歌词）"
 
 #: src/strings/print.rs
 msgid "(the verse text isn't saved with this service)"
-msgstr ""
+msgstr "（经文内容未随此聚会保存）"
 
 #: src/strings/print.rs
 msgid " (loops)"
-msgstr ""
+msgstr "（循环）"
 
 #: src/strings/print.rs
 msgid "No songs or Bible readings in this service."
-msgstr ""
+msgstr "此聚会中没有诗歌或读经。"
 
 #: src/strings/print.rs
 msgid "This service is empty."
-msgstr ""
+msgstr "此聚会为空。"
 
 #: src/strings/print.rs
 msgid "Printed from RustyPresenter · {date}"
-msgstr ""
+msgstr "由 RustyPresenter 打印 · {date}"
 
 #: src/strings/print.rs
 msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
-msgstr ""
+msgstr "已在网页浏览器中打开 — 请在其中使用打印功能（也可以在打印窗口中另存为 PDF）"
 
 #: src/strings/print.rs
 msgid "Saved {file}"
-msgstr ""
+msgstr "已保存 {file}"
 
 #: src/strings/print.rs
 msgid "Couldn't make the page: {reason}."
-msgstr ""
+msgstr "无法生成页面：{reason}。"
 
 #: src/strings/print.rs
 msgid "Couldn't save to that folder: {reason}."
-msgstr ""
+msgstr "无法保存到该文件夹：{reason}。"
 
 #: src/strings/print.rs
 msgid "The page is saved at {path} but no program opened it. Open it from there to print."
-msgstr ""
+msgstr "页面已保存在 {path}，但没有程序打开它。请从那里打开后打印。"
 
 #: src/strings/print.rs
 msgid "Web page"
-msgstr ""
+msgstr "网页"
 
 #: src/strings/print.rs
 msgid "Print or save"
-msgstr ""
+msgstr "打印或保存"
 
 #: src/strings/screens.rs
 msgid "Audience"
-msgstr ""
+msgstr "会众"
 
 #: src/strings/screens.rs
 msgid "Audience screen"
-msgstr ""
+msgstr "会众屏幕"
 
 #: src/strings/screens.rs
 msgid "Stage screen"
-msgstr ""
+msgstr "舞台屏幕"
 
 #: src/strings/screens.rs
 msgid "Showing"
-msgstr ""
+msgstr "正在显示"
 
 #: src/strings/screens.rs
 msgid "No output"
-msgstr ""
+msgstr "无输出"
 
 #: src/strings/screens.rs
 msgid "Unplugged"
-msgstr ""
+msgstr "已拔出"
 
 #: src/strings/screens.rs
 msgid "None"
-msgstr ""
+msgstr "无"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"
-msgstr ""
+msgstr "在窗口中（用于测试）"
 
 #: src/strings/screens.rs
 msgid "Not connected right now"
-msgstr ""
+msgstr "当前未连接"
 
 #: src/strings/screens.rs
 msgid "This is the screen you are working on. Turning this on covers it."
-msgstr ""
+msgstr "这是你正在操作的屏幕。开启后会将其覆盖。"
 
 #: src/strings/screens.rs
 msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
-msgstr ""
+msgstr "显示与 {screen} 相同的画面。声音只从 {screen} 播放。"
 
 #: src/strings/screens.rs
 msgid "Remove “{name}”?"
-msgstr ""
+msgstr "要移除“{name}”吗？"
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
-msgstr ""
+msgstr "请至少输入一个要搜索的词。"
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr ""
+msgstr "请添加章号，如 约伯记 1 或 约伯记 1:1。"
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
-msgstr ""
+msgstr "请选择另一个第二译本。"
 
 #: src/strings/scripture.rs
 msgid "Second translation turned off (same as main)."
-msgstr ""
+msgstr "已关闭第二译本（与主译本相同）。"
 
 #: src/strings/scripture.rs
 msgid "Too long — will split inside a verse"
-msgstr ""
+msgstr "太长 — 将在经节中间分页"
 
 #: src/strings/scripture.rs
 msgid "Keeping these together makes a slide too long, so it will split inside a verse."
-msgstr ""
+msgstr "放在一起会使幻灯片太长，因此将在经节中间分页。"
 
 #: src/strings/scripture.rs
 msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
-msgstr ""
+msgstr "圣经幻灯片现在会适应屏幕，因此有些经文段落的分页位置可能不同。"
 
 #: src/strings/scripture.rs
 msgid "Fitting slides…"
-msgstr ""
+msgstr "正在调整幻灯片…"
 
 #: src/strings/scripture.rs
 msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
-msgstr ""
+msgstr "此译本无法在 RustyPresenter 中使用。请选择其他圣经。"
 
 #: src/strings/scripture.rs
 msgid "This verse came from an older version; look the passage up again to choose breaks here."
-msgstr ""
+msgstr "此经文来自旧版本；请重新查找该经文段落以在此选择分页位置。"
 
 #: src/strings/scripture.rs
 msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
 msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
-msgstr[0] ""
+msgstr[0] "{n} 段经文使用了无法在 RustyPresenter 中使用的译本，已被移除。"
 
 #: src/strings/scripture.rs
 msgid "Ready on this computer"
-msgstr ""
+msgstr "已在这台电脑上就绪"
 
 #: src/strings/scripture.rs
 msgid "Ready (needs internet)"
-msgstr ""
+msgstr "就绪（需要联网）"
 
 #: src/strings/scripture.rs
 msgid "Needs a key — Get one"
-msgstr ""
+msgstr "需要密钥 — 获取"
 
 #: src/strings/scripture.rs
 msgid "Not available"
-msgstr ""
+msgstr "不可用"
 
 #: src/strings/scripture.rs
 msgid "Search: Ready"
-msgstr ""
+msgstr "搜索：就绪"
 
 #: src/strings/scripture.rs
 msgid "Search: online (ESV)"
-msgstr ""
+msgstr "搜索：在线 (ESV)"
 
 #: src/strings/scripture.rs
 msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
-msgstr ""
+msgstr "可以搜索保存在这台电脑上的译本（KJV 以及任何内置或导入的圣经）。在线译本无法搜索，因为其版权方不允许（ESV 可能提供自己的在线搜索）。"
 
 #: src/strings/scripture.rs
 msgid "Every word must appear in the verse (love neighbour finds verses with both)."
-msgstr ""
+msgstr "每个词都必须出现在经文中（love neighbour 会查找同时包含这两个词的经文）。"
 
 #: src/strings/scripture.rs
 msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
-msgstr ""
+msgstr "按词的开头匹配：love 可找到 love、loved、loveth、lovest、loving。少于 3 个字母的词必须完全匹配。"
 
 #: src/strings/scripture.rs
 msgid "Put words in quotes for an exact phrase: \"be still\"."
-msgstr ""
+msgstr "将词语放在引号中可精确匹配短语：\"be still\"。"
 
 #: src/strings/scripture.rs
 msgid "Capitals and punctuation do not matter. lord finds LORD."
-msgstr ""
+msgstr "大小写和标点不影响搜索。lord 可找到 LORD。"
 
 #: src/strings/scripture.rs
 msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
-msgstr ""
+msgstr "最佳匹配排在最前：先是按顺序包含你所输入词语的经文，然后是这些词距离较近的经文，其余按圣经顺序排列。切换到“圣经顺序”可从创世记开始显示。"
 
 #: src/strings/scripture.rs
 msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
-msgstr ""
+msgstr "在圣经框中按 Ctrl+Enter 总是执行搜索，即使输入的是书卷名，如“Job”。"
 
 #: src/strings/scripture.rs
 msgid "Also show…"
-msgstr ""
+msgstr "同时显示…"
 
 #: src/strings/scripture.rs
 msgid "Search by words…"
-msgstr ""
+msgstr "按词语搜索…"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
-msgstr ""
+msgstr "幻灯片分页"
 
 #: src/strings/scripture.rs
 msgid "Choose slide breaks…"
-msgstr ""
+msgstr "选择幻灯片分页…"
 
 #: src/strings/scripture.rs
 msgid "Reset to automatic"
-msgstr ""
+msgstr "重置为自动"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
-msgstr ""
+msgstr "新幻灯片（自动）"
 
 #: src/strings/scripture.rs
 msgid "New slide (you added)"
-msgstr ""
+msgstr "新幻灯片（手动添加）"
 
 #: src/strings/scripture.rs
 msgid "Kept together"
-msgstr ""
+msgstr "保持在一起"
 
 #: src/strings/scripture.rs
 msgid "+ New slide here"
-msgstr ""
+msgstr "+ 在此新建幻灯片"
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes always stack two translations."
-msgstr ""
+msgstr "下方三分之一主题总是将两个译本上下叠放。"
 
 #: src/strings/scripture.rs
 msgid "Search for these words"
-msgstr ""
+msgstr "搜索这些词"
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have all of those words."
-msgstr ""
+msgstr "{bible} 中没有同时包含这些词的经文。"
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr ""
+msgstr "{bible} 中没有包含该词的经文。如果这是书卷名，请检查拼写并添加章号，如 约翰福音 3。"
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
-msgstr ""
+msgstr "显示 {total} 节经文中的前 {shown} 节 — 添加更多词语可缩小范围。"
 
 #: src/strings/scripture.rs
 msgid "{count} verse found in {bible}"
 msgid_plural "{count} verses found in {bible}"
-msgstr[0] ""
+msgstr[0] "在 {bible} 中找到 {count} 节经文"
 
 #: src/strings/scripture.rs
 msgid "Getting {bible} ready to search…"
-msgstr ""
+msgstr "正在准备搜索 {bible}…"
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
-msgstr ""
+msgstr "{bible} 不支持搜索。请试试保存在这台电脑上的译本，如 KJV。"
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}, so this searches {local}."
-msgstr ""
+msgstr "{bible} 不支持搜索，因此改为搜索 {local}。"
 
 #: src/strings/scripture.rs
 msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
-msgstr ""
+msgstr "搜索 ESV 需要联网。请检查网络连接，或在 KJV 中搜索。"
 
 #: src/strings/scripture.rs
 msgid "Search isn't available for {bible}"
-msgstr ""
+msgstr "{bible} 不支持搜索"
 
 #: src/strings/scripture.rs
 msgid "{bible} needs a key. Add one in Settings → Bible."
-msgstr ""
+msgstr "{bible} 需要密钥。请在“设置 → 圣经”中添加。"
 
 #: src/strings/scripture.rs
 msgid "{bible} isn't available."
-msgstr ""
+msgstr "{bible} 不可用。"
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible} text — check the internet."
-msgstr ""
+msgstr "无法获取 {bible} 经文 — 请检查网络。"
 
 #: src/strings/scripture.rs
 msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
-msgstr ""
+msgstr "{second} 当前不可用，因此只添加了 {main}。可用 X 关闭第二译本。"
 
 #: src/strings/scripture.rs
 msgid "Couldn't get {bible}: {error}"
-msgstr ""
+msgstr "无法获取 {bible}：{error}"
 
 #: src/strings/scripture.rs
 msgid "{bible} doesn't include {passage}."
-msgstr ""
+msgstr "{bible} 中不包括 {passage}。"
 
 #: src/strings/scripture.rs
 msgid "Add {passage}"
-msgstr ""
+msgstr "添加 {passage}"
 
 #: src/strings/scripture.rs
 msgid "Search for \"{word}\" instead"
-msgstr ""
+msgstr "改为搜索“{word}”"
 
 #: src/strings/scripture.rs
 msgid "That passage is too long. Choose up to about {n} verses."
-msgstr ""
+msgstr "这段经文太长。最多选择约 {n} 节。"
 
 #: src/strings/scripture.rs
 msgid "{bible} turned off (same as main)."
-msgstr ""
+msgstr "已关闭 {bible}（与主译本相同）。"
 
 #: src/strings/scripture.rs
 msgid "{left} isn't available right now, so only {kept} was added."
-msgstr ""
+msgstr "{left} 当前不可用，因此只添加了 {kept}。"
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes show two Bibles. {bible} is left out."
-msgstr ""
+msgstr "下方三分之一主题显示两本圣经。{bible} 未包括在内。"
 
 #: src/strings/scripture.rs
 msgid "{bible} needs the internet for this passage."
-msgstr ""
+msgstr "{bible} 需要联网才能获取这段经文。"
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bibles."
-msgstr ""
+msgstr "这本圣经已被移除。请在“设置 → 圣经”中重新添加。"
 
 #: src/strings/services.rs
 msgid "Name for the copy"
-msgstr ""
+msgstr "副本名称"
 
 #: src/strings/services.rs
 msgid "Rename service"
-msgstr ""
+msgstr "重命名聚会"
 
 #: src/strings/services.rs
 msgid "Service {date}"
-msgstr ""
+msgstr "聚会 {date}"
 
 #: src/strings/services.rs
 msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
-msgstr ""
+msgstr "要删除聚会“{name}”吗？（诗歌和媒体仍保留在库中。）"
 
 #: src/strings/settings.rs
 msgid "Settings saved"
-msgstr ""
+msgstr "设置已保存"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
-msgstr ""
+msgstr "这台电脑上未安装“{font}”，因此幻灯片使用 Noto Sans。"
 
 #: src/strings/settings.rs
 msgid "Ready — offline"
-msgstr ""
+msgstr "就绪 — 离线"
 
 #: src/strings/settings.rs
 msgid "Ready — online"
-msgstr ""
+msgstr "就绪 — 在线"
 
 #: src/strings/settings.rs
 msgid "Needs a free key"
-msgstr ""
+msgstr "需要免费密钥"
 
 #: src/strings/settings.rs
 msgid "No source yet"
-msgstr ""
+msgstr "尚无来源"
 
 #: src/strings/settings.rs
 msgid "or"
-msgstr ""
+msgstr "或"
 
 #: src/strings/settings.rs
 msgid "Connect {sources} below"
-msgstr ""
+msgstr "在下方连接 {sources}"
 
 #: src/strings/settings.rs
 msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
-msgstr ""
+msgstr "没有在线来源提供此译本。请导入已授权的文件，或在添加经文时粘贴。"
 
 #: src/strings/settings.rs
 msgid "For {bibles}"
-msgstr ""
+msgstr "用于 {bibles}"
 
 #: src/strings/settings.rs
 msgid "{source} connected"
-msgstr ""
+msgstr "已连接 {source}"
 
 #: src/strings/settings.rs
 msgid "{source} disconnected"
-msgstr ""
+msgstr "已断开 {source}"
 
 #: src/strings/settings.rs
 msgid "Link copied — paste it into your browser"
-msgstr ""
+msgstr "链接已复制 — 请粘贴到浏览器中"
 
 #: src/strings/settings.rs
 msgid "Added {bible} ({count} verses)"
 msgid_plural "Added {bible} ({count} verses)"
-msgstr[0] ""
+msgstr[0] "已添加 {bible}（{count} 节经文）"
 
 #: src/strings/settings.rs
 msgid "Import failed."
-msgstr ""
+msgstr "导入失败。"
 
 #: src/strings/settings.rs
 msgid "{bible} removed"
-msgstr ""
+msgstr "已移除 {bible}"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv (LGPL build)"
-msgstr ""
+msgstr "视频播放器：libmpv（LGPL 版本）"
 
 #: src/strings/settings.rs
 msgid "Video player: libmpv {version} (LGPL build)"
-msgstr ""
+msgstr "视频播放器：libmpv {version}（LGPL 版本）"
 
 #: src/strings/settings.rs
 msgid "Video drawing: GPU (OpenGL)"
-msgstr ""
+msgstr "视频绘制：GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video drawing: Software"
-msgstr ""
+msgstr "视频绘制：软件"
 
 #: src/strings/settings.rs
 msgid "Could not copy: {error}"
-msgstr ""
+msgstr "无法复制：{error}"
 
 #: src/strings/settings.rs
 msgid "Backup made"
-msgstr ""
+msgstr "已完成备份"
 
 #: src/strings/settings.rs
 msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
-msgstr ""
+msgstr "要恢复此备份吗？当前的诗歌和聚会将被替换（会保留一份副本）。"
 
 #: src/strings/settings.rs
 msgid "Backup restored"
-msgstr ""
+msgstr "备份已恢复"
 
 #: src/strings/settings.rs
 msgid "{songs} songs · {services} services · {files} files"
-msgstr ""
+msgstr "{songs} 首诗歌 · {services} 个聚会 · {files} 个文件"
 
 #: src/strings/settings.rs
 msgid "→  ↓  Space  Page Down"
-msgstr ""
+msgstr "→  ↓  空格键  Page Down"
 
 #: src/strings/settings.rs
 msgid "←  ↑  Page Up"
-msgstr ""
+msgstr "←  ↑  Page Up"
 
 #: src/strings/settings.rs
 msgid "Enter"
-msgstr ""
+msgstr "Enter"
 
 #: src/strings/settings.rs
 msgid "Ctrl + B"
-msgstr ""
+msgstr "Ctrl + B"
 
 #: src/strings/settings.rs
 msgid "Alt + 1–5"
-msgstr ""
+msgstr "Alt + 1–5"
 
 #: src/strings/settings.rs
 msgid "Ctrl + V"
-msgstr ""
+msgstr "Ctrl + V"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr ""
+msgstr "将正在显示的诗歌跳到主歌 1–9、副歌、导歌、桥段、尾句、前奏、结尾、间奏或下一段主歌"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
-msgstr ""
+msgstr "添加已复制的 YouTube 链接"
 
 #: src/strings/settings.rs
 msgid "Esc"
-msgstr ""
+msgstr "Esc"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
-msgstr ""
+msgstr "显示所选项目"
 
 #: src/strings/settings.rs
 msgid "Pick a Bible chip (in the Bible box)"
-msgstr ""
+msgstr "选择圣经标签（在圣经框中）"
 
 #: src/strings/settings.rs
 msgid "Leave a text box"
-msgstr ""
+msgstr "离开文本框"
 
 #: src/strings/settings.rs
 msgid "Video: GPU (OpenGL)"
-msgstr ""
+msgstr "视频：GPU (OpenGL)"
 
 #: src/strings/settings.rs
 msgid "Video: software drawing"
-msgstr ""
+msgstr "视频：软件绘制"
 
 #: src/strings/settings.rs
 msgid "Video player missing"
-msgstr ""
+msgstr "缺少视频播放器"
 
 #: src/strings/settings.rs
 msgid "libmpv (client API {major}.{minor}) — {path}"
-msgstr ""
+msgstr "libmpv（客户端 API {major}.{minor}）— {path}"
 
 #: src/strings/settings.rs
 msgid "LGPL build"
-msgstr ""
+msgstr "LGPL 版本"
 
 #: src/strings/settings.rs
 msgid "not an LGPL build"
-msgstr ""
+msgstr "非 LGPL 版本"
 
 #: src/strings/settings.rs
 msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
-msgstr ""
+msgstr "libmpv {version}（{build}）· 客户端 API {major}.{minor} — {path}"
 
 #: src/strings/settings.rs
 msgid "found"
-msgstr ""
+msgstr "已找到"
 
 #: src/strings/settings.rs
 msgid "missing"
-msgstr ""
+msgstr "缺失"
 
 #: src/strings/settings.rs
 msgid "Snap — not usable"
-msgstr ""
+msgstr "Snap — 无法使用"
 
 #: src/strings/settings.rs
 msgid "not installed"
-msgstr ""
+msgstr "未安装"
 
 #: src/strings/settings.rs
 msgid "not found"
-msgstr ""
+msgstr "未找到"
 
 #: src/strings/settings.rs
 msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
-msgstr ""
+msgstr "视频播放使用 libmpv (LGPL-2.1+) 和遵循 LGPLv2.1 的 FFmpeg 库 — 源代码：{url}"
 
 #: src/strings/settings.rs
 msgid "Use the computer's language ({name})"
-msgstr ""
+msgstr "使用电脑的语言（{name}）"
 
 #: src/strings/settings.rs
 msgid "{name} (needs review)"
-msgstr ""
+msgstr "{name}（待审核）"
 
 #: src/strings/settings.rs
 msgid "{english_name} · {percent}% translated"
-msgstr ""
+msgstr "{english_name} · 已翻译 {percent}%"
 
 #: src/strings/settings.rs
 msgid "This computer's default sound output"
-msgstr ""
+msgstr "这台电脑的默认声音输出"
 
 #: src/strings/settings.rs
 msgid "The saved sound output (not connected)"
-msgstr ""
+msgstr "已保存的声音输出（未连接）"
 
 #: src/strings/song.rs
 msgid "Verse"
-msgstr ""
+msgstr "主歌"
 
 #: src/strings/song.rs
 msgid "Chorus"
-msgstr ""
+msgstr "副歌"
 
 #: src/strings/song.rs
 msgid "Pre-chorus"
-msgstr ""
+msgstr "导歌"
 
 #: src/strings/song.rs
 msgid "Bridge"
-msgstr ""
+msgstr "桥段"
 
 #: src/strings/song.rs
 msgid "Tag"
-msgstr ""
+msgstr "尾句"
 
 #: src/strings/song.rs
 msgid "Intro"
-msgstr ""
+msgstr "前奏"
 
 #: src/strings/song.rs
 msgid "Ending"
-msgstr ""
+msgstr "结尾"
 
 #: src/strings/song.rs
 msgid "Interlude"
-msgstr ""
+msgstr "间奏"
 
 #: src/strings/song.rs
 msgid "Other"
-msgstr ""
+msgstr "其他"
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
-msgstr ""
+msgstr "段落键仅适用于诗歌。"
 
 #: src/strings/song.rs
 msgid "The song changed — try again."
-msgstr ""
+msgstr "诗歌已更改 — 请重试。"
 
 #: src/strings/song.rs
 msgid "The live song changed — try again."
-msgstr ""
+msgstr "正在显示的诗歌已更改 — 请重试。"
 
 #: src/strings/song.rs
 msgid "That song is no longer live."
-msgstr ""
+msgstr "该诗歌已不在显示中。"
 
 #: src/strings/song.rs
 msgid "That song has no slides now. The screen keeps the old words."
-msgstr ""
+msgstr "该诗歌现在没有幻灯片。屏幕保留原来的歌词。"
 
 #: src/strings/song.rs
 msgid "Saved. The new words show when you bring the text back."
-msgstr ""
+msgstr "已保存。重新显示文字时会显示新歌词。"
 
 #: src/strings/song.rs
 msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
-msgstr ""
+msgstr "你修改了屏幕上的歌词。点击“更新屏幕”即可立即显示。点击幻灯片也会显示新版本。"
 
 #: src/strings/song.rs
 msgid "The live song looks different now. Update screen to show it."
-msgstr ""
+msgstr "正在显示的诗歌现在已不同。点击“更新屏幕”来显示。"
 
 #: src/strings/song.rs
 msgid "The part of the song on screen was removed. Update screen starts the song from the top."
-msgstr ""
+msgstr "屏幕上显示的诗歌部分已被删除。点击“更新屏幕”将从头开始显示诗歌。"
 
 #: src/strings/song.rs
 msgid "This song has no words now. The screen keeps the old words."
-msgstr ""
+msgstr "这首诗歌现在没有歌词。屏幕保留原来的歌词。"
 
 #: src/strings/song.rs
 msgid "Click to show this part"
-msgstr ""
+msgstr "点击显示这一部分"
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
-msgstr ""
+msgstr "这首诗歌没有{section} {number}。"
 
 #: src/strings/song.rs
 msgid "This song has no {section}."
-msgstr ""
+msgstr "这首诗歌没有{section}。"
 
 #: src/strings/song.rs
 msgid "Jumped to {section} ({key})"
-msgstr ""
+msgstr "已跳到{section}（{key}）"
 
 #: src/strings/song.rs
 msgid "{section} — press {key}"
-msgstr ""
+msgstr "{section} — 按 {key}"
 
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
-msgstr ""
+msgstr "{section} · 第 {page}/{pages} 张"
 
 #: src/strings/stage.rs
 msgid "Stage layout"
-msgstr ""
+msgstr "舞台布局"
 
 #: src/strings/stage.rs
 msgid "Classic"
-msgstr ""
+msgstr "经典"
 
 #: src/strings/stage.rs
 msgid "Lyrics only"
-msgstr ""
+msgstr "仅歌词"
 
 #: src/strings/stage.rs
 msgid "Band"
-msgstr ""
+msgstr "乐队"
 
 #: src/strings/stage.rs
 msgid "Speaker"
-msgstr ""
+msgstr "讲员"
 
 #: src/strings/stage.rs
 msgid "Clock and countdown"
-msgstr ""
+msgstr "时钟和倒计时"
 
 #: src/strings/stage.rs
 msgid "Current slide"
-msgstr ""
+msgstr "当前幻灯片"
 
 #: src/strings/stage.rs
 msgid "Next slide"
-msgstr ""
+msgstr "下一张幻灯片"
 
 #: src/strings/stage.rs
 msgid "Section"
-msgstr ""
+msgstr "段落"
 
 #: src/strings/stage.rs
 msgid "Next section"
-msgstr ""
+msgstr "下一段落"
 
 #: src/strings/stage.rs
 msgid "Item title"
-msgstr ""
+msgstr "项目标题"
 
 #: src/strings/stage.rs
 msgid "Slides left"
-msgstr ""
+msgstr "剩余幻灯片"
 
 #: src/strings/stage.rs
 msgid "Notes"
-msgstr ""
+msgstr "备注"
 
 #: src/strings/stage.rs
 msgid "Clock"
-msgstr ""
+msgstr "时钟"
 
 #: src/strings/stage.rs
 msgid "Timer"
-msgstr ""
+msgstr "计时器"
 
 #: src/strings/stage.rs
 msgid "Video time left"
-msgstr ""
+msgstr "视频剩余时间"
 
 #: src/strings/stage.rs
 msgid "Message"
-msgstr ""
+msgstr "消息"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
-msgstr ""
+msgstr "当前屏幕上的文字"
 
 #: src/strings/stage.rs
 msgid "the words coming next"
-msgstr ""
+msgstr "接下来的文字"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
-msgstr ""
+msgstr "主歌、副歌、桥段…"
 
 #: src/strings/stage.rs
 msgid "the next part of the song"
-msgstr ""
+msgstr "诗歌的下一部分"
 
 #: src/strings/stage.rs
 msgid "the live item's name"
-msgstr ""
+msgstr "正在显示项目的名称"
 
 #: src/strings/stage.rs
 msgid "“3 slides left”"
-msgstr ""
+msgstr "“剩余 3 张”"
 
 #: src/strings/stage.rs
 msgid "the slide's stage notes"
-msgstr ""
+msgstr "幻灯片的舞台备注"
 
 #: src/strings/stage.rs
 msgid "the time of day"
-msgstr ""
+msgstr "当前时间"
 
 #: src/strings/stage.rs
 msgid "a countdown or count-up"
-msgstr ""
+msgstr "倒计时或正计时"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
-msgstr ""
+msgstr "视频或音频的剩余时间"
 
 #: src/strings/stage.rs
 msgid "messages sent from the back"
-msgstr ""
+msgstr "从后台发送的消息"
 
 #: src/strings/stage.rs
 msgid "words you type once"
-msgstr ""
+msgstr "一次输入的文字"
 
 #: src/strings/stage.rs
 msgid "(logo)"
-msgstr ""
+msgstr "（标志）"
 
 #: src/strings/stage.rs
 msgid "Nothing live"
-msgstr ""
+msgstr "无显示内容"
 
 #: src/strings/stage.rs
 msgid "NEXT SECTION"
-msgstr ""
+msgstr "下一段落"
 
 #: src/strings/stage.rs
 msgid "NEXT · {title}"
-msgstr ""
+msgstr "下一项 · {title}"
 
 #: src/strings/stage.rs
 msgid "Last slide"
-msgstr ""
+msgstr "最后一张"
 
 #: src/strings/stage.rs
 msgid "{n} slide left"
 msgid_plural "{n} slides left"
-msgstr[0] ""
+msgstr[0] "剩余 {n} 张"
 
 #: src/strings/stage.rs
 msgid "Timer removed"
-msgstr ""
+msgstr "计时器已移除"
 
 #: src/strings/stage.rs
 msgid "{timer} · paused"
-msgstr ""
+msgstr "{timer} · 已暂停"
 
 #: src/strings/stage.rs
 msgid "That stage layout is gone."
-msgstr ""
+msgstr "该舞台布局已不存在。"
 
 #: src/strings/stage.rs
 msgid "Built-in stage layouts can't be changed. Make a copy first."
-msgstr ""
+msgstr "内置舞台布局无法更改。请先复制一份。"
 
 #: src/strings/stage.rs
 msgid "Give the stage layout a name."
-msgstr ""
+msgstr "请为舞台布局命名。"
 
 #: src/strings/stage.rs
 msgid "There is already a stage layout called “{name}”."
-msgstr ""
+msgstr "已有名为“{name}”的舞台布局。"
 
 #: src/strings/stage.rs
 msgid "A stage layout can have at most 24 boxes."
-msgstr ""
+msgstr "舞台布局最多可有 24 个框。"
 
 #: src/strings/stage.rs
 msgid "{question} It is used by {things}. {what_happens}."
-msgstr ""
+msgstr "{question} {things}正在使用它。{what_happens}。"
 
 #: src/strings/stage.rs
 msgid "{first} and {second}"
-msgstr ""
+msgstr "{first}和{second}"
 
 #: src/strings/stage.rs
 msgid "{first}, {second} and {third}"
-msgstr ""
+msgstr "{first}、{second}和{third}"
 
 #: src/strings/stage.rs
 msgid "{items_effect}; {macros_effect}"
-msgstr ""
+msgstr "{items_effect}；{macros_effect}"
 
 #: src/strings/stage.rs
 msgid "{n} service item"
 msgid_plural "{n} service items"
-msgstr[0] ""
+msgstr[0] "{n} 个聚会项目"
 
 #: src/strings/stage.rs
 msgid "the stage default"
-msgstr ""
+msgstr "舞台默认布局"
 
 #: src/strings/stage.rs
 msgid "{n} macro"
 msgid_plural "{n} macros"
-msgstr[0] ""
+msgstr[0] "{n} 个宏"
 
 #: src/strings/stage.rs
 msgid "Items and the default will use Classic"
-msgstr ""
+msgstr "项目和默认布局将使用“经典”"
 
 #: src/strings/stage.rs
 msgid "That item will use the stage default"
-msgstr ""
+msgstr "该项目将使用舞台默认布局"
 
 #: src/strings/stage.rs
 msgid "Those items will use the stage default"
-msgstr ""
+msgstr "这些项目将使用舞台默认布局"
 
 #: src/strings/stage.rs
 msgid "The default will use Classic"
-msgstr ""
+msgstr "默认布局将使用“经典”"
 
 #: src/strings/stage.rs
 msgid "the macro won't run until it is edited"
-msgstr ""
+msgstr "该宏在编辑之前不会运行"
 
 #: src/strings/stage.rs
 msgid "the macros won't run until they are edited"
-msgstr ""
+msgstr "这些宏在编辑之前不会运行"
 
 #: src/strings/stage.rs
 msgid "The macro won't run until it is edited"
-msgstr ""
+msgstr "该宏在编辑之前不会运行"
 
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
-msgstr ""
+msgstr "这些宏在编辑之前不会运行"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
-msgstr ""
+msgstr "请为主题命名。"
 
 #: src/strings/themes.rs
 msgid "That name is used by a built-in theme. Pick another."
-msgstr ""
+msgstr "该名称已被内置主题使用。请另选一个。"
 
 #: src/strings/themes.rs
 msgid "That theme is gone."
-msgstr ""
+msgstr "该主题已不存在。"
 
 #: src/strings/themes.rs
 msgid "Built-in themes can't be deleted."
-msgstr ""
+msgstr "内置主题无法删除。"
 
 #: src/strings/themes.rs
 msgid "Standard is changed with Save on its own editor."
-msgstr ""
+msgstr "“标准”主题需在其编辑器中点击“保存”来更改。"
 
 #: src/strings/themes.rs
 msgid "Theme saved"
-msgstr ""
+msgstr "主题已保存"
 
 #: src/strings/themes.rs
 msgid "Theme deleted"
-msgstr ""
+msgstr "主题已删除"
 
 #: src/strings/themes.rs
 msgid "Standard"
-msgstr ""
+msgstr "标准"
 
 #: src/strings/themes.rs
 msgid "Church default"
-msgstr ""
+msgstr "教会默认"
 
 #: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
-msgstr ""
+msgstr "内置 — RustyPresenter 最初的样式"
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
-msgstr ""
+msgstr "教会默认 — 未选择其他主题时使用"
 
 #: src/strings/themes.rs
 msgid "New theme"
-msgstr ""
+msgstr "新建主题"
 
 #: src/strings/themes.rs
 msgid "Only songs, Bible passages and announcements use a theme."
-msgstr ""
+msgstr "只有诗歌、经文和报告事项使用主题。"
 
 #: src/strings/themes.rs
 msgid "Text is already bold in this theme"
-msgstr ""
+msgstr "此主题中的文字已经是粗体"
 
 #: src/strings/themes.rs
 msgid "works on every computer"
-msgstr ""
+msgstr "适用于所有电脑"
 
 #: src/strings/themes.rs
 msgid "Backgrounds can be pictures or videos."
-msgstr ""
+msgstr "背景可以是图片或视频。"
 
 #: src/strings/themes.rs
 msgid "Give the background a name."
-msgstr ""
+msgstr "请为背景命名。"
 
 #: src/strings/themes.rs
 msgid "That background is gone."
-msgstr ""
+msgstr "该背景已不存在。"
 
 #: src/strings/themes.rs
 msgid "Added to backgrounds"
-msgstr ""
+msgstr "已添加到背景"
 
 #: src/strings/themes.rs
 msgid " · own background"
-msgstr ""
+msgstr " · 自有背景"
 
 #: src/strings/themes.rs
 msgid "From theme"
-msgstr ""
+msgstr "来自主题"
 
 #: src/strings/themes.rs
 msgid "Standard background"
-msgstr ""
+msgstr "标准背景"
 
 #: src/strings/themes.rs
 msgid "Current (not in your backgrounds)"
-msgstr ""
+msgstr "当前（不在你的背景中）"
 
 #: src/strings/themes.rs
 msgid "Couldn't convert"
-msgstr ""
+msgstr "无法转换"
 
 #: src/strings/themes.rs
 msgid "Makes text easier to read"
-msgstr ""
+msgstr "使文字更易阅读"
 
 #: src/strings/themes.rs
 msgid "Give the overlay a name."
-msgstr ""
+msgstr "请为叠加层命名。"
 
 #: src/strings/themes.rs
 msgid "Type the overlay's text."
-msgstr ""
+msgstr "请输入叠加层的文字。"
 
 #: src/strings/themes.rs
 msgid "That overlay is gone."
-msgstr ""
+msgstr "该叠加层已不存在。"
 
 #: src/strings/themes.rs
 msgid "Only text, picture and clock overlays can be saved."
-msgstr ""
+msgstr "只能保存文字、图片和时钟叠加层。"
 
 #: src/strings/themes.rs
 msgid "Up to 8 overlays can be on at once. Turn one off first."
-msgstr ""
+msgstr "最多可同时开启 8 个叠加层。请先关闭一个。"
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Themes)."
-msgstr ""
+msgstr "请先选择教会标志（设置 → 主题）。"
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
-msgstr ""
+msgstr "该图片已不存在。"
 
 #: src/strings/themes.rs
 msgid "the picture could not be loaded."
-msgstr ""
+msgstr "无法加载图片。"
 
 #: src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
-msgstr ""
+msgstr "已更改 — 关闭再开启即可更新。"
 
 #: src/strings/themes.rs
 msgid "Logo saved"
-msgstr ""
+msgstr "标志已保存"
 
 #: src/strings/themes.rs
 msgid "Logo removed"
-msgstr ""
+msgstr "标志已移除"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr ""
+msgstr "用于持续显示的标识。"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr ""
+msgstr "用于持续显示的标识。如需通知某位家长等，请使用“消息”（推出后可用）。"
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
-msgstr ""
+msgstr "此数据由更新版本的 RustyPresenter 保存。请安装最新版本。"
 
 #: src/strings/themes.rs
 msgid "Expected an object."
-msgstr ""
+msgstr "应为对象。"
 
 #: src/strings/themes.rs
 msgid "The same item is listed twice."
-msgstr ""
+msgstr "同一项目被列出了两次。"
 
 #: src/strings/themes.rs
 msgid "There's already a theme called “{name}”."
-msgstr ""
+msgstr "已有名为“{name}”的主题。"
 
 #: src/strings/themes.rs
 msgid "Couldn't show the overlay “{name}”: {reason}"
-msgstr ""
+msgstr "无法显示叠加层“{name}”：{reason}"
 
 #: src/strings/themes.rs
 msgid "(deleted) {name}"
-msgstr ""
+msgstr "（已删除）{name}"
 
 #: src/strings/themes.rs
 msgid "{n} item has its own background. Use the theme's background for it too?"
 msgid_plural "{n} items have their own background. Use the theme's background for them too?"
-msgstr[0] ""
+msgstr[0] "{n} 个项目有自己的背景。也让它们使用主题的背景吗？"
 
 #: src/strings/themes.rs
 msgid "Used by {n} item"
 msgid_plural "Used by {n} items"
-msgstr[0] ""
+msgstr[0] "被 {n} 个项目使用"
 
 #: src/strings/themes.rs
 msgid "Background {n}"
-msgstr ""
+msgstr "背景 {n}"
 
 #: src/strings/themes.rs
 msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
-msgstr ""
+msgstr "将“{name}”设为教会默认主题吗？所有没有单独主题的内容都将使用它。你随时可以切换回来。"
 
 #: src/strings/themes.rs
 msgid "“{name}” is now the church default"
-msgstr ""
+msgstr "“{name}”现在是教会默认主题"
 
 #: src/strings/themes.rs
 msgid "Delete the theme “{name}”?"
-msgstr ""
+msgstr "要删除主题“{name}”吗？"
 
 #: src/strings/themes.rs
 msgid "{n} service"
 msgid_plural "{n} services"
-msgstr[0] ""
+msgstr[0] "{n} 个聚会"
 
 #: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
-msgstr[0] ""
+msgstr[0] "{things}正在使用它；它们将改用教会默认主题。"
 
 #: src/strings/themes.rs
 msgid "{items} and {services} use it; they'll use the church default instead."
-msgstr ""
+msgstr "{items}和{services}正在使用它；它们将改用教会默认主题。"
 
 #: src/strings/themes.rs
 msgid "It's the church default, so Standard becomes the church default."
-msgstr ""
+msgstr "它是教会默认主题，因此“标准”将成为教会默认主题。"
 
 #: src/strings/themes.rs
 msgid "Remove “{name}” from backgrounds? Items that use it keep it."
-msgstr ""
+msgstr "要从背景中移除“{name}”吗？正在使用它的项目会保留它。"
 
 #: src/strings/themes.rs
 msgid "Used by screen view(s): {views}"
-msgstr ""
+msgstr "被屏幕视图使用：{views}"
 
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
-msgstr ""
+msgstr "正在转换 {percent}%"
 
 #: src/strings/themes.rs
 msgid "Theme: {name}"
-msgstr ""
+msgstr "主题：{name}"
 
 #: src/strings/themes.rs
 msgid "Bold"
-msgstr ""
+msgstr "粗体"
 
 #: src/strings/themes.rs
 msgid "Italic"
-msgstr ""
+msgstr "斜体"
 
 #: src/strings/themes.rs
 msgid "Underline"
-msgstr ""
+msgstr "下划线"
 
 #: src/strings/themes.rs
 msgid "Gold"
-msgstr ""
+msgstr "金色"
 
 #: src/strings/themes.rs
 msgid "Red"
-msgstr ""
+msgstr "红色"
 
 #: src/strings/themes.rs
 msgid "Color"
-msgstr ""
+msgstr "颜色"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
-msgstr ""
+msgstr "小"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Large"
-msgstr ""
+msgstr "大"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"
-msgstr ""
+msgstr "特大"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
-msgstr ""
+msgstr "请从 libreoffice.org 安装 LibreOffice（免费），或运行：winget install TheDocumentFoundation.LibreOffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
-msgstr ""
+msgstr "请从 libreoffice.org 安装 LibreOffice（免费），或运行：brew install --cask libreoffice"
 
 #: src/strings/tools.rs
 msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
-msgstr ""
+msgstr "请安装 LibreOffice Impress，例如：sudo apt install libreoffice-impress"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
-msgstr ""
+msgstr "无法根据 {path} 生成文件地址"
 
 #: src/strings/usage.rs
 msgid "Song use report"
-msgstr ""
+msgstr "诗歌使用报告"
 
 #: src/strings/usage.rs
 msgid "CCLI license #: {license}"
-msgstr ""
+msgstr "CCLI 许可证号：{license}"
 
 #: src/strings/usage.rs
 msgid "Add your church's CCLI license number in Settings → Songs."
-msgstr ""
+msgstr "请在“设置 → 诗歌”中添加你的教会的 CCLI 许可证号。"
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
-msgstr ""
+msgstr "标记为已报告至 {date}"
 
 #: src/strings/usage.rs
 msgid "Next time, the report starts the day after {date}."
-msgstr ""
+msgstr "下次报告将从 {date} 的后一天开始。"
 
 #: src/strings/usage.rs
 msgid "Mark as reported"
-msgstr ""
+msgstr "标记为已报告"
 
 #: src/strings/usage.rs
 msgid "Marked as reported through {date}."
-msgstr ""
+msgstr "已标记为报告至 {date}。"
 
 #: src/strings/usage.rs
 msgid "Remove this entry? Use this for rehearsals that shouldn't count."
-msgstr ""
+msgstr "要删除此条记录吗？适用于不应计入的排练。"
 
 #: src/strings/usage.rs
 msgid "Entry removed"
-msgstr ""
+msgstr "记录已删除"
 
 #: src/strings/usage.rs
 msgid "Save your settings changes and open the report?"
-msgstr ""
+msgstr "保存设置更改并打开报告？"
 
 #: src/strings/usage.rs
 msgid "Save and open"
-msgstr ""
+msgstr "保存并打开"
 
 #: src/strings/usage.rs
 msgid "Pick a From date before the To date."
-msgstr ""
+msgstr "请选择早于结束日期的开始日期。"
 
 #: src/strings/usage.rs
 msgid "Type dates as year-month-day, like 2026-11-01."
-msgstr ""
+msgstr "请按“年-月-日”格式输入日期，如 2026-11-01。"
 
 #: src/strings/usage.rs
 msgid "Couldn't save the report: {reason}."
-msgstr ""
+msgstr "无法保存报告：{reason}。"
 
 #: src/strings/usage.rs
 msgid "Saved {path}"
-msgstr ""
+msgstr "已保存 {path}"
 
 #: src/strings/usage.rs
 msgid "Spreadsheet (CSV)"
-msgstr ""
+msgstr "电子表格 (CSV)"
 
 #: src/strings/usage.rs
 msgid "CCLI Song #"
-msgstr ""
+msgstr "CCLI 诗歌编号"
 
 #: src/strings/usage.rs
 msgid "{from} to {to}"
-msgstr ""
+msgstr "{from} 至 {to}"
 
 #: src/strings/usage.rs
 msgid "Print this page, or save it as a PDF from your browser's Print window."
-msgstr ""
+msgstr "打印此页面，或在浏览器的打印窗口中另存为 PDF。"
 
 #: src/strings/youtube.rs
 msgid "Looking up the video…"
-msgstr ""
+msgstr "正在查找视频…"
 
 #: src/strings/youtube.rs
 msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "正在准备 YouTube 下载 — 仅首次需要（{percent}%）…"
 
 #: src/strings/youtube.rs
 msgid "Updating YouTube downloads ({percent}%)…"
-msgstr ""
+msgstr "正在更新 YouTube 下载组件（{percent}%）…"
 
 #: src/strings/youtube.rs
 msgid "Getting the video joiner ready — first time only ({percent}%)…"
-msgstr ""
+msgstr "正在准备视频合并工具 — 仅首次需要（{percent}%）…"
 
 #: src/strings/youtube.rs
 msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
-msgstr ""
+msgstr "请粘贴 YouTube 视频链接。它以 https://www.youtube.com 或 https://youtu.be 开头。"
 
 #: src/strings/youtube.rs
 msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
 msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
-msgstr[0] ""
+msgstr[0] "此链接是包含 {n} 个视频的播放列表。只会下载第一个视频。"
 
 #: src/strings/youtube.rs
 msgid "Best (up to 1080p)"
-msgstr ""
+msgstr "最佳（最高 1080p）"
 
 #: src/strings/youtube.rs
 msgid "Smaller (720p)"
-msgstr ""
+msgstr "较小 (720p)"
 
 #: src/strings/youtube.rs
 msgid "Smallest (480p)"
-msgstr ""
+msgstr "最小 (480p)"
 
 #: src/strings/youtube.rs
 msgid "Sound only"
-msgstr ""
+msgstr "仅声音"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”. It will be in Video & media when it's done."
-msgstr ""
+msgstr "正在下载“{title}”。完成后会出现在“视频和媒体”中。"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}”"
-msgstr ""
+msgstr "正在下载“{title}”"
 
 #: src/strings/youtube.rs
 msgid "less than a minute left"
-msgstr ""
+msgstr "剩余不到一分钟"
 
 #: src/strings/youtube.rs
 msgid "about a minute left"
-msgstr ""
+msgstr "剩余约一分钟"
 
 #: src/strings/youtube.rs
 msgid "about {n} minute left"
 msgid_plural "about {n} minutes left"
-msgstr[0] ""
+msgstr[0] "剩余约 {n} 分钟"
 
 #: src/strings/youtube.rs
 msgid "Downloading “{title}” — {left}"
-msgstr ""
+msgstr "正在下载“{title}”— {left}"
 
 #: src/strings/youtube.rs
 msgid "Finishing “{title}”…"
-msgstr ""
+msgstr "正在完成“{title}”…"
 
 #: src/strings/youtube.rs
 msgid "Adding “{title}” to the library…"
-msgstr ""
+msgstr "正在将“{title}”添加到库中…"
 
 #: src/strings/youtube.rs
 msgid "Downloaded “{title}”"
-msgstr ""
+msgstr "已下载“{title}”"
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media and in the service."
-msgstr ""
+msgstr "已添加到“视频和媒体”及聚会中。"
 
 #: src/strings/youtube.rs
 msgid "It's in Video & media."
-msgstr ""
+msgstr "已添加到“视频和媒体”中。"
 
 #: src/strings/youtube.rs
 msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
-msgstr ""
+msgstr "由于无法设置视频合并工具，已以较低画质 (360p) 保存。"
 
 #: src/strings/youtube.rs
 msgid "Can't reach YouTube. Check the internet connection and try again."
-msgstr ""
+msgstr "无法连接到 YouTube。请检查网络连接后重试。"
 
 #: src/strings/youtube.rs
 msgid "This video is private, so only its owner can download it."
-msgstr ""
+msgstr "这是私密视频，只有所有者可以下载。"
 
 #: src/strings/youtube.rs
 msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
-msgstr ""
+msgstr "YouTube 只向已登录的观众显示此视频（例如有年龄限制），因此无法在此下载。"
 
 #: src/strings/youtube.rs
 msgid "This video is only for the channel's members, so it can't be downloaded here."
-msgstr ""
+msgstr "此视频仅限频道会员观看，因此无法在此下载。"
 
 #: src/strings/youtube.rs
 msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
-msgstr ""
+msgstr "YouTube 要求登录以验证你不是机器人。请稍等一会儿再试。"
 
 #: src/strings/youtube.rs
 msgid "This live stream hasn't finished yet. Try again after it ends."
-msgstr ""
+msgstr "此直播尚未结束。请在结束后重试。"
 
 #: src/strings/youtube.rs
 msgid "This live stream or premiere hasn't started yet."
-msgstr ""
+msgstr "此直播或首映尚未开始。"
 
 #: src/strings/youtube.rs
 msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
-msgstr ""
+msgstr "此直播刚刚结束，YouTube 仍在处理中。请过一会儿再试。"
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
-msgstr ""
+msgstr "该链接不是 YouTube 视频。请从视频页面复制链接后重试。"
 
 #: src/strings/youtube.rs
 msgid "This video isn't available. It may have been removed, or blocked in this country."
-msgstr ""
+msgstr "此视频不可用。它可能已被删除，或在此国家/地区被屏蔽。"
 
 #: src/strings/youtube.rs
 msgid "This playlist has no videos that can be downloaded."
-msgstr ""
+msgstr "此播放列表中没有可下载的视频。"
 
 #: src/strings/youtube.rs
 msgid "The computer's disk is full. Free up some space and try again."
-msgstr ""
+msgstr "电脑磁盘已满。请释放一些空间后重试。"
 
 #: src/strings/youtube.rs
 msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
-msgstr ""
+msgstr "YouTube 有所变化，下载工具暂时无法读取此视频。请稍后再试。"
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
-msgstr ""
+msgstr "无法准备 YouTube 下载。请检查网络连接后重试。"
 
 #: src/strings/youtube.rs
 msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
-msgstr ""
+msgstr "收到的 YouTube 下载工具与官方指纹不匹配，因此未使用。请稍后再试。"
 
 #: src/strings/youtube.rs
 msgid "YouTube downloads don't work on this kind of computer yet."
-msgstr ""
+msgstr "YouTube 下载暂不支持这种类型的电脑。"
 
 #: src/strings/youtube.rs
 msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
-msgstr ""
+msgstr "无法准备 YouTube 下载（{detail}）。请稍后再试。"
 
 #: src/strings/youtube.rs
 msgid "The download didn't work: {detail}"
-msgstr ""
+msgstr "下载失败：{detail}"
 
 #: src/strings/youtube.rs
 msgid "Cancelled."
-msgstr ""
+msgstr "已取消。"
 
 #: src/theme/backgrounds.rs
 msgid "Black"
-msgstr ""
+msgstr "黑色"
 
 #: src/theme/backgrounds.rs
 msgid "Night blue"
-msgstr ""
+msgstr "夜蓝"
 
 #: src/theme/backgrounds.rs
 msgid "Dark green"
-msgstr ""
+msgstr "深绿"
 
 #: src/theme/backgrounds.rs
 msgid "Plum"
-msgstr ""
+msgstr "梅紫"
 
 #: src/theme/backgrounds.rs
 msgid "Brown"
-msgstr ""
+msgstr "棕色"
 
 #: src/theme/backgrounds.rs
 msgid "White"
-msgstr ""
+msgstr "白色"
 
 #: src/theme/backgrounds.rs
 msgid "Midnight"
-msgstr ""
+msgstr "午夜"
 
 #: src/theme/backgrounds.rs
 msgid "Deep purple"
-msgstr ""
+msgstr "深紫"
 
 #: src/theme/backgrounds.rs
 msgid "Forest"
-msgstr ""
+msgstr "森林"
 
 #: src/theme/backgrounds.rs
 msgid "Ember"
-msgstr ""
+msgstr "余烬"
 
 #: src/theme/backgrounds.rs
 msgid "Ocean"
-msgstr ""
+msgstr "海洋"
 
 #: src/theme/backgrounds.rs
 msgid "Slate"
-msgstr ""
+msgstr "石板灰"
 
 #: src/theme/richtext.rs
 msgid "Normal"
-msgstr ""
+msgstr "正常"
 
 #: src/theme/saved.rs
 msgid "{name} copy"
-msgstr ""
+msgstr "{name} 副本"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr ""
+msgstr "{name} 副本 {number}"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
-msgstr ""
+msgstr "{day} {time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
-msgstr ""
+msgstr "{time} UTC"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
-msgstr ""
+msgstr "无法加载图片"
 
 #: src/ui/room.rs
 msgid "background took too long to load"
-msgstr ""
+msgstr "背景加载时间过长"
 
 #: src/ui/room.rs
 msgid "picture took too long to load"
-msgstr ""
+msgstr "图片加载时间过长"
 
 #: src/ui/room.rs
 msgid "video took too long to load"
-msgstr ""
+msgstr "视频加载时间过长"
 
 #: src/ui/room.rs
 msgid "slide took too long to load"
-msgstr ""
+msgstr "幻灯片加载时间过长"
 
 #: src/ui/room.rs
 msgid "logo took too long to load"
-msgstr ""
+msgstr "标志加载时间过长"
 
 #: src/ui/room.rs
 msgid "overlay took too long to load"
-msgstr ""
+msgstr "叠加层加载时间过长"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
-msgstr ""
+msgstr "音频加载时间过长"
 
 #: src/ui/room.rs
 msgid "the room could not prepare it"
-msgstr ""
+msgstr "会众屏幕无法准备该内容"
 
 #: src/ui/room.rs
 msgid "Could not open the room screen: {error}"
-msgstr ""
+msgstr "无法打开会众屏幕：{error}"
 
 #: src/ui/screens.rs
 msgid "A presentation is on screen"
-msgstr ""
+msgstr "屏幕上正在显示演示文稿"
 
 #: src/ui/screens.rs
 msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "会众屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
 msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "额外的会众屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
 msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "舞台显示屏已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr ""
+msgstr "额外的舞台屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
 msgid "The room screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "会众屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "The extra audience screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "额外的会众屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "The stage display is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "舞台显示屏已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
-msgstr ""
+msgstr "额外的舞台屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "Could not show the screen numbers: {error}"
-msgstr ""
+msgstr "无法显示屏幕编号：{error}"
 
 #: src/ui/screens.rs
 msgid "RustyPresenter is closing."
-msgstr ""
+msgstr "RustyPresenter 正在关闭。"
 
 #: src/ui/stage.rs
 msgid "Could not open the stage screen: {error}"
-msgstr ""
+msgstr "无法打开舞台屏幕：{error}"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."
-msgstr ""
+msgstr "缺少视频播放器。请重新安装 RustyPresenter。"
 
 #: src/video/ffi.rs
 msgid "Cannot load the video player from {path}: {reason}"
-msgstr ""
+msgstr "无法从 {path} 加载视频播放器：{reason}"
 
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
-msgstr ""
+msgstr "此 libmpv 版本太旧（客户端 API {major}.{minor}）；RustyPresenter 需要 2.x。"
 
 #: src/video/player.rs
 msgid "The video player could not start."
-msgstr ""
+msgstr "视频播放器无法启动。"
 
 #: src/video/player.rs
 msgid "The video player could not start: {reason}"
-msgstr ""
+msgstr "视频播放器无法启动：{reason}"
 
 #: src/video/player.rs
 msgid "{name} could not be played ({reason})"
-msgstr ""
+msgstr "无法播放 {name}（{reason}）"
 
 #: src/video/surface.rs
 msgid "The video cannot be shown: {reason}"
-msgstr ""
+msgstr "无法显示视频：{reason}"
 
 #: src/youtube/fetch.rs
 msgid "no release in {address}"
-msgstr ""
+msgstr "{address} 中没有发布版本"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
-msgstr ""
+msgstr "{file} 没有指纹"
 
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
-msgstr ""
+msgstr "下载内容中缺少 {file}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"
-msgstr ""
+msgstr "{address} 太大"
 
 #: src/youtube/fetch.rs
 msgid "unreadable archive: {error}"
-msgstr ""
+msgstr "无法读取的压缩包：{error}"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp stopped"
-msgstr ""
+msgstr "yt-dlp 已停止"
 
 #: src/youtube/mod.rs
 msgid "unreadable details ({error})"
-msgstr ""
+msgstr "无法读取的详细信息（{error}）"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start ({error})"
-msgstr ""
+msgstr "yt-dlp 无法启动（{error}）"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp could not start"
-msgstr ""
+msgstr "yt-dlp 无法启动"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp gave no details"
-msgstr ""
+msgstr "yt-dlp 没有返回详细信息"
 
 #: src/youtube/mod.rs
 msgid "yt-dlp saved no video"
-msgstr ""
+msgstr "yt-dlp 没有保存视频"
 
 #: src/youtube/mod.rs
 msgid "not a media file"
-msgstr ""
+msgstr "不是媒体文件"
