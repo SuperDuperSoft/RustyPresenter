@@ -217,12 +217,12 @@ impl Import<'_> {
         let pdf = lo.to_pdf(input, work, &waiting, &self.cancel).await?;
         self.progress(Stage::Convert, 1.0);
         let slides = self.render(converters, pdf, work, expected_ratio(kind)).await?;
-        let count = expected_slides(kind).filter(|n| *n != slides.len()).map(|n| strings::slide_count_differs(n, slides.len()));
+        let expected = expected_slides(kind).filter(|n| *n != slides.len());
         // After a fallback the job already says which program made these.
-        let note = match (fell_back, count) {
-            (true, count) => count,
+        let note = match (fell_back, expected) {
+            (true, n) => n.map(|n| strings::slide_count_differs(n, slides.len())),
             (false, None) => Some(strings::libreoffice_note()),
-            (false, Some(count)) => Some(format!("{} {count}", strings::libreoffice_note())),
+            (false, Some(n)) => Some(strings::libreoffice_note_slide_count(n, slides.len())),
         };
         Ok(Made { slides, note })
     }

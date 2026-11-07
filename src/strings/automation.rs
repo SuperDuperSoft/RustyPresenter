@@ -36,8 +36,24 @@ pub fn custom_name() -> String { tr!("Custom") }
 /// Only a field, no words.
 pub const CUSTOM_TEXT: &str = "{Message}";
 
-pub fn cant_run_deleted(name: &str, n: usize, thing: &str) -> String {
-    tr!("Couldn't run “{name}”: step {step}'s {thing} was deleted. Edit the macro.", name = name, step = n, thing = thing)
+/// What a macro step points at that can be deleted.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StepTarget { Item, Timer, Overlay, ScreenView, Message, StageLayout }
+
+/// One whole sentence per kind of thing, so a translation can put the words in its own order.
+pub fn cant_run_deleted(name: &str, n: usize, thing: StepTarget) -> String {
+    match thing {
+        StepTarget::Item => tr!("Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro.", name = name, step = n),
+        StepTarget::Timer => tr!("Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro.", name = name, step = n),
+        StepTarget::Overlay => tr!("Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro.", name = name, step = n),
+        StepTarget::ScreenView => {
+            tr!("Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro.", name = name, step = n)
+        }
+        StepTarget::Message => tr!("Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro.", name = name, step = n),
+        StepTarget::StageLayout => {
+            tr!("Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro.", name = name, step = n)
+        }
+    }
 }
 pub fn cant_run_newer(name: &str, n: usize) -> String {
     tr!("Couldn't run “{name}”: step {step} needs a newer RustyPresenter.", name = name, step = n)

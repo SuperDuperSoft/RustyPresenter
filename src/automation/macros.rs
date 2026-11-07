@@ -236,29 +236,29 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
     for (i, step) in m.steps.iter().enumerate() {
         let number = i + 1;
         let step = step.known().ok_or_else(|| strings::cant_run_newer(&m.name, number))?;
-        let deleted = |thing: &str| strings::cant_run_deleted(&m.name, number, thing);
-        let found = |ok: bool, thing: &str| if ok { Ok(()) } else { Err(deleted(thing)) };
-        let timer = |id: Uuid| ctx.timer(id).ok_or_else(|| deleted("timer"));
+        let deleted = |thing: strings::StepTarget| strings::cant_run_deleted(&m.name, number, thing);
+        let found = |ok: bool, thing: strings::StepTarget| if ok { Ok(()) } else { Err(deleted(thing)) };
+        let timer = |id: Uuid| ctx.timer(id).ok_or_else(|| deleted(strings::StepTarget::Timer));
         let planned = match step {
             MacroStep::ShowItem { target, slide } => {
-                PlannedStep::ShowItem { item_id: ctx.item(target).ok_or_else(|| deleted("item"))?, slide: *slide }
+                PlannedStep::ShowItem { item_id: ctx.item(target).ok_or_else(|| deleted(strings::StepTarget::Item))?, slide: *slide }
             }
             MacroStep::Next => PlannedStep::Next,
             MacroStep::Prev => PlannedStep::Prev,
             MacroStep::Clear { which } => PlannedStep::Clear(*which),
             MacroStep::Logo => PlannedStep::Logo,
             MacroStep::Overlay { id, on } => {
-                found(ctx.overlays.contains(id), "overlay")?;
+                found(ctx.overlays.contains(id), strings::StepTarget::Overlay)?;
                 PlannedStep::Overlay { id: *id, on: *on }
             }
             MacroStep::ScreenView { screen, view } => {
-                found(ctx.screen_views.contains(view), "screen view")?;
+                found(ctx.screen_views.contains(view), strings::StepTarget::ScreenView)?;
                 PlannedStep::ScreenView { screen: screen.clone(), view: *view }
             }
             MacroStep::TimerShow { timer: id } => PlannedStep::TimerShow { timer: timer(*id)?.id },
             MacroStep::TimerHide { timer: id } => PlannedStep::TimerHide { timer: timer(*id)?.id },
             MacroStep::MessageShow { template, values } => {
-                let t = ctx.templates.iter().find(|t| t.id == *template).ok_or_else(|| deleted("message"))?;
+                let t = ctx.templates.iter().find(|t| t.id == *template).ok_or_else(|| deleted(strings::StepTarget::Message))?;
                 PlannedStep::MessageShow { template: t.id, filled: messages::fill(&t.text, values) }
             }
             MacroStep::MessageHide => PlannedStep::MessageHide,
@@ -276,7 +276,7 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
             MacroStep::StageMessageShow { text } => PlannedStep::StageMessageShow { text: text.clone() },
             MacroStep::StageMessageHide => PlannedStep::StageMessageHide,
             MacroStep::StageLayout { layout } => {
-                found(ctx.stage_layouts.contains(layout), "stage layout")?;
+                found(ctx.stage_layouts.contains(layout), strings::StepTarget::StageLayout)?;
                 PlannedStep::StageLayout { layout: *layout }
             }
             MacroStep::StageLayoutAuto => PlannedStep::StageLayoutAuto,
@@ -559,7 +559,7 @@ mod tests {
                    "“Sermon” reached zero, but “Walk-in” changes slides, so it didn't run.");
         assert_eq!(at_zero_skipped_shows("Sermon", "Walk-in"),
                    "“Sermon” reached zero, but “Walk-in” didn't show anything because the screen was cleared.");
-        assert_eq!(cant_run_deleted("Walk-in", 3, "timer"),
+        assert_eq!(cant_run_deleted("Walk-in", 3, StepTarget::Timer),
                    "Couldn't run “Walk-in”: step 3's timer was deleted. Edit the macro.");
         assert_eq!(cant_run_newer("Walk-in", 4), "Couldn't run “Walk-in”: step 4 needs a newer RustyPresenter.");
     }

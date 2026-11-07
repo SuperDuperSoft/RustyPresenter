@@ -63,14 +63,28 @@ pub fn too_many_boxes() -> String { tr!("A stage layout can have at most 24 boxe
 
 /// Asking before a layout is deleted (`refs::delete_question`).
 pub fn delete_layout(name: &str) -> String { tr!("Delete “{name}”?", name = name) }
-pub fn used_by(parts: &str) -> String { tr!("It is used by {things}.", things = parts) }
+/// The whole question: `question` is `delete_layout`, `things` a list of what uses it, `what_happens` the
+/// sentence(s) about them.
+pub fn used_by(question: &str, things: &str, what_happens: &str) -> String {
+    tr!("{question} It is used by {things}. {what_happens}.", question = question, things = things, what_happens = what_happens)
+}
+/// Lists of what uses a layout: two or three things.
+pub fn list_two(first: &str, second: &str) -> String { tr!("{first} and {second}", first = first, second = second) }
+pub fn list_three(first: &str, second: &str, third: &str) -> String {
+    tr!("{first}, {second} and {third}", first = first, second = second, third = third)
+}
+/// What happens to items and the default, then what happens to macros, in one sentence.
+pub fn two_effects(items: &str, macros: &str) -> String { tr!("{items_effect}; {macros_effect}", items_effect = items, macros_effect = macros) }
 pub fn service_items(n: usize) -> String { trn!("{n} service item", "{n} service items", n) }
 pub fn the_stage_default() -> String { tr!("the stage default") }
 pub fn macros(n: usize) -> String { trn!("{n} macro", "{n} macros", n) }
-pub fn and() -> String { tr!("and") }
 pub fn items_and_default_use_classic() -> String { tr!("Items and the default will use Classic") }
 pub fn item_uses_default() -> String { tr!("That item will use the stage default") }
 pub fn items_use_default() -> String { tr!("Those items will use the stage default") }
 pub fn default_uses_classic() -> String { tr!("The default will use Classic") }
+/// After an items-and-default sentence, in `two_effects`.
 pub fn macro_wont_run() -> String { tr!("the macro won't run until it is edited") }
 pub fn macros_wont_run() -> String { tr!("the macros won't run until they are edited") }
+/// On their own.
+pub fn macro_wont_run_alone() -> String { tr!("The macro won't run until it is edited") }
+pub fn macros_wont_run_alone() -> String { tr!("The macros won't run until they are edited") }

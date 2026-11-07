@@ -51,6 +51,11 @@ pub fn libreoffice_note() -> String { tr!("Imported with LibreOffice — check t
 pub fn slide_count_differs(expected: usize, imported: usize) -> String {
     tr!("{expected} slides were expected but {imported} were imported.", expected = expected, imported = imported)
 }
+/// Both notes in one: imported with LibreOffice, and a different number of slides.
+pub fn libreoffice_note_slide_count(expected: usize, imported: usize) -> String {
+    tr!("Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported.",
+        expected = expected, imported = imported)
+}
 pub fn install_libreoffice(hint: &str) -> String {
     tr!("To import presentations, install LibreOffice. {hint}", hint = hint)
 }

@@ -46,30 +46,27 @@ pub fn delete_question(name: &str, refs: &[LayoutRef]) -> String {
     if items > 0 { parts.push(s::service_items(items)); }
     if default { parts.push(s::the_stage_default()); }
     if macros > 0 { parts.push(s::macros(macros)); }
-    let mut tails: Vec<String> = vec![];
-    match (items, default) {
-        (0, true) => tails.push(s::default_uses_classic()),
-        (1, false) => tails.push(s::item_uses_default()),
-        (_, false) if items > 1 => tails.push(s::items_use_default()),
-        (_, true) => tails.push(s::items_and_default_use_classic()),
-        _ => {}
-    }
-    match macros { 0 => {} 1 => tails.push(s::macro_wont_run()), _ => tails.push(s::macros_wont_run()) }
-    format!("{ask} {} {}.", s::used_by(&join_and(&parts)), upper_first(&tails.join("; ")))
-}
-
-/// "a", "a and b", "a, b and c".
-fn join_and(parts: &[String]) -> String {
-    match parts {
-        [] => String::new(),
+    let things = match parts.as_slice() {
         [one] => one.clone(),
-        [rest @ .., last] => format!("{} {} {last}", rest.join(", "), s::and()),
-    }
-}
-
-fn upper_first(t: &str) -> String {
-    let mut c = t.chars();
-    c.next().map_or_else(String::new, |f| f.to_uppercase().chain(c).collect())
+        [a, b] => s::list_two(a, b),
+        [a, b, c] => s::list_three(a, b, c),
+        _ => parts.join(", "),
+    };
+    let first = match (items, default) {
+        (0, true) => Some(s::default_uses_classic()),
+        (1, false) => Some(s::item_uses_default()),
+        (_, false) if items > 1 => Some(s::items_use_default()),
+        (_, true) => Some(s::items_and_default_use_classic()),
+        _ => None,
+    };
+    let what_happens = match (first, macros) {
+        (Some(f), 0) => f,
+        (Some(f), 1) => s::two_effects(&f, &s::macro_wont_run()),
+        (Some(f), _) => s::two_effects(&f, &s::macros_wont_run()),
+        (None, 1) => s::macro_wont_run_alone(),
+        (None, _) => s::macros_wont_run_alone(),
+    };
+    s::used_by(&ask, &things, &what_happens)
 }
 
 /// The church's layouts after saving `layouts` (added or changed) and removing `deleted`, or why not.
