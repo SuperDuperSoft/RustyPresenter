@@ -104,7 +104,7 @@ msgstr "Cita ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "p. ej., Juan 3:16-18, Salmo 23, Romanos 8:28,31-39"
+msgstr "p. ej., John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -760,7 +760,7 @@ msgstr "Derecha"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr "Las superposiciones se quedan en la pantalla de la sala mientras cambian las diapositivas: un logo en la esquina, un reloj o un aviso corto. Actívalas y desactívalas con los botones bajo Siguiente en la columna En vivo. La última de la lista se dibuja encima."
+msgstr "Las superposiciones se quedan en la pantalla de la sala mientras cambian las diapositivas: un logo en la esquina, un reloj o un letrero corto. Actívalas y desactívalas con los botones bajo Siguiente en la columna En vivo. La última de la lista se dibuja encima."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -776,7 +776,7 @@ msgstr "Nueva superposición:"
 
 #: ui/dialogs/overlays.slint
 msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
-msgstr "Un aviso que se queda en pantalla, como “¡Bienvenidos!” o la contraseña del Wi-Fi"
+msgstr "Un letrero que se queda en pantalla, como “¡Bienvenidos!” o la contraseña del Wi-Fi"
 
 #: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Picture"
@@ -892,7 +892,7 @@ msgstr " (No se encontró ninguna red: conecta esta computadora al Wi-Fi.)"
 
 #: ui/dialogs/phone.slint
 msgid "Address: "
-msgstr "Dirección:"
+msgstr "Dirección: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
 msgid "Pair a phone"
@@ -1468,7 +1468,7 @@ msgstr "Cada vez que RustyPresenter se inicia, y una vez al día, se hace una co
 
 #: ui/dialogs/settings.slint
 msgid "Back up now"
-msgstr "Copia de seguridad ahora"
+msgstr "Hacer copia de seguridad"
 
 #: ui/dialogs/settings.slint
 msgid "Restore"
@@ -1576,7 +1576,7 @@ msgstr "— nombres de sección en su propia línea; una línea vacía dentro de
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Verso 1]\nSublime gracia del Señor\nque a mí, pecador, salvó\n\n[Coro]\nYa libre soy…"
+msgstr "Verso 1\nSublime gracia del Señor\nque a mí, pecador, salvó\n\nCoro\nYa libre soy…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1592,7 +1592,7 @@ msgstr "Déjalo vacío para usar el orden escrito"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
-msgstr "Las diapositivas aparecen aquí mientras escribes. Pon cada nombre de sección en su propia línea, entre corchetes, como “[Verso 1]” o “[Coro]”."
+msgstr "Las diapositivas aparecen aquí mientras escribes. Pon los nombres de sección, como “Verso 1” o “Coro”, en su propia línea."
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -1988,7 +1988,7 @@ msgstr "+ Superposiciones"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr "Un logo en la esquina, un reloj o un aviso corto"
+msgstr "Un logo en la esquina, un reloj o un letrero corto"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
@@ -2076,7 +2076,7 @@ msgstr "Haz clic en “Agregar al culto” para canciones, videos y diapositivas
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Escribe un versículo como “Juan 3:16” en el cuadro Biblia y presiona Enter."
+msgstr "Escribe un versículo como “John 3:16” en el cuadro Biblia y presiona Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "Cambiar o crear cultos"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Versículo: escribe Juan 3:16 y presiona Enter"
+msgstr "Versículo: escribe John 3:16 y presiona Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2160,7 +2160,7 @@ msgstr "Escenario"
 
 #: ui/operator/topbar.slint
 msgid "Stage display"
-msgstr "Pantalla de escenario"
+msgstr "Pantalla del escenario"
 
 #: ui/operator/topbar.slint
 msgid "Phone remotes connected"
@@ -2708,7 +2708,7 @@ msgstr "YouVersion devolvió otro libro"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Escribe una cita, como Juan 3:16."
+msgstr "Escribe una cita, como John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "No reconozco el libro \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Agrega un capítulo, como Juan 3 o Juan 3:16."
+msgstr "Agrega un capítulo, como John 3 o John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Esa cita no parece correcta. Prueba algo como Juan 3:16-18."
+msgstr "Esa cita no parece correcta. Prueba algo como John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3012,7 +3012,7 @@ msgstr "no es una canción de OpenSong"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
-msgstr "Aún no se admiten archivos de ProPresenter 7; expórtala como texto o como ProPresenter 6"
+msgstr "Aún no se admiten archivos de ProPresenter 7; expórtalo como texto o como ProPresenter 6"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
@@ -4188,7 +4188,7 @@ msgstr "{bible} quitada de favoritas"
 
 #: src/strings/operator.rs
 msgid "All media"
-msgstr "Todo el multimedia"
+msgstr "Todos los archivos"
 
 #: src/strings/operator.rs
 msgid "Converting {percent}%"
@@ -4901,7 +4901,7 @@ msgstr "Ningún versículo de {bible} tiene todas esas palabras."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "Ningún versículo de {bible} tiene esa palabra. Si es el nombre de un libro, revisa la ortografía y agrega un capítulo, como Juan 3."
+msgstr "Ningún versículo de {bible} tiene esa palabra. Si es el nombre de un libro, revisa la ortografía y agrega un capítulo, como John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5003,7 +5003,7 @@ msgstr "Culto {date}"
 
 #: src/strings/services.rs
 msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
-msgstr "¿Eliminar el culto “{name}”? (Las canciones y el multimedia se quedan en la biblioteca)."
+msgstr "¿Eliminar el culto “{name}”? (Las canciones y los archivos multimedia se quedan en la biblioteca)."
 
 #: src/strings/settings.rs
 msgid "Settings saved"
@@ -5783,7 +5783,7 @@ msgstr "Para un letrero que se queda visible. Para un aviso como el nombre de un
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr "Predeterminar"
+msgstr "Usar como predeterminado"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
@@ -5995,7 +5995,7 @@ msgstr "Marcado como informado hasta el {date}."
 
 #: src/strings/usage.rs
 msgid "Remove this entry? Use this for rehearsals that shouldn't count."
-msgstr "¿Quitar esta entrada? Úsalo para ensayos que no deben contar."
+msgstr "¿Quitar esta entrada? Usa esta opción para ensayos que no deben contar."
 
 #: src/strings/usage.rs
 msgid "Entry removed"

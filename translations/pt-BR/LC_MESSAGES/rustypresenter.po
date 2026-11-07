@@ -104,7 +104,7 @@ msgstr "Referência ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "ex.: João 3:16-18, Salmos 23, Romanos 8:28,31-39"
+msgstr "ex.: John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -1576,7 +1576,7 @@ msgstr "— nomes de seções em linha própria; uma linha em branco dentro de u
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Estrofe 1]\nMaravilhosa graça, que doce som\nQue a um pecador salvou\n\n[Refrão]\nMinhas correntes caíram…"
+msgstr "[Estrofe 1]\nMaravilhosa graça, que doce som\nQue salvou um miserável como eu\n\n[Refrão]\nMinhas correntes caíram…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1628,7 +1628,7 @@ msgstr "No palco"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr "Embutido"
+msgstr "Incluído"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
@@ -1704,7 +1704,7 @@ msgstr "Refazer"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr "Layouts embutidos não podem ser alterados. Duplique um para criar o seu."
+msgstr "Layouts incluídos não podem ser alterados. Duplique um para criar o seu."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
@@ -1976,7 +1976,7 @@ msgstr "A tela do salão está desligada"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
-msgstr "Alterado — desative e ative para atualizar."
+msgstr "Alterado — desligue e ligue de novo para atualizar."
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Overlays"
@@ -2076,7 +2076,7 @@ msgstr "Clique em “Adicionar ao culto” para músicas, vídeos e slides — o
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Digite um versículo como “João 3:16” na caixa da Bíblia e pressione Enter."
+msgstr "Digite um versículo como “John 3:16” na caixa da Bíblia e pressione Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "Trocar ou criar cultos"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Versículo — digite João 3:16 e pressione Enter"
+msgstr "Versículo — digite John 3:16 e pressione Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2708,7 +2708,7 @@ msgstr "O YouVersion retornou um livro diferente"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Digite uma referência, como João 3:16."
+msgstr "Digite uma referência, como John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Não reconheço o livro \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Adicione um capítulo, como João 3 ou João 3:16."
+msgstr "Adicione um capítulo, como John 3 ou John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Essa referência não parece certa. Tente algo como João 3:16-18."
+msgstr "Essa referência não parece certa. Tente algo como John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3430,7 +3430,7 @@ msgstr "Esse horário ({time}) já passou."
 
 #: src/strings/automation.rs
 msgid "This timer needs a newer RustyPresenter."
-msgstr "Este cronômetro precisa de uma versão mais nova do RustyPresenter."
+msgstr "Este timer precisa de uma versão mais nova do RustyPresenter."
 
 #: src/strings/automation.rs
 msgid "A countdown to a time can't be paused."
@@ -3442,7 +3442,7 @@ msgstr "Escolha uma duração de 1 segundo a 23:59:59."
 
 #: src/strings/automation.rs
 msgid "This timer can't be set that way."
-msgstr "Este cronômetro não pode ser configurado assim."
+msgstr "Este timer não pode ser configurado assim."
 
 #: src/strings/automation.rs
 msgid "Fill in “{field}”."
@@ -3490,7 +3490,7 @@ msgstr "Não foi possível executar “{name}”: o item do passo {step} foi exc
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
-msgstr "Não foi possível executar “{name}”: o cronômetro do passo {step} foi excluído. Edite a macro."
+msgstr "Não foi possível executar “{name}”: o timer do passo {step} foi excluído. Edite a macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
@@ -3506,7 +3506,7 @@ msgstr "Não foi possível executar “{name}”: a mensagem do passo {step} foi
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
-msgstr "Não foi possível executar “{name}”: o layout de palco do passo {step} foi excluído. Edite a macro."
+msgstr "Não foi possível executar “{name}”: o layout do palco do passo {step} foi excluído. Edite a macro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
@@ -4763,7 +4763,7 @@ msgstr "Digite pelo menos uma palavra para pesquisar."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "Adicione um capítulo, como Jó 1 ou Jó 1:1."
+msgstr "Adicione um capítulo, como Job 1 ou Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4901,7 +4901,7 @@ msgstr "Nenhum versículo em {bible} tem todas essas palavras."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "Nenhum versículo em {bible} tem essa palavra. Se for nome de livro, confira a grafia e adicione um capítulo, como João 3."
+msgstr "Nenhum versículo em {bible} tem essa palavra. Se for nome de livro, confira a grafia e adicione um capítulo, como John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5413,7 +5413,7 @@ msgstr "Notas"
 
 #: src/strings/stage.rs
 msgid "Timer"
-msgstr "Cronômetro"
+msgstr "Timer"
 
 #: src/strings/stage.rs
 msgid "Video time left"
@@ -5495,7 +5495,7 @@ msgstr[1] "faltam {n} slides"
 
 #: src/strings/stage.rs
 msgid "Timer removed"
-msgstr "Cronômetro removido"
+msgstr "Timer removido"
 
 #: src/strings/stage.rs
 msgid "{timer} · paused"
@@ -5503,23 +5503,23 @@ msgstr "{timer} · pausado"
 
 #: src/strings/stage.rs
 msgid "That stage layout is gone."
-msgstr "Esse layout de palco não existe mais."
+msgstr "Esse layout do palco não existe mais."
 
 #: src/strings/stage.rs
 msgid "Built-in stage layouts can't be changed. Make a copy first."
-msgstr "Layouts de palco incluídos não podem ser alterados. Faça uma cópia primeiro."
+msgstr "Layouts do palco incluídos não podem ser alterados. Faça uma cópia primeiro."
 
 #: src/strings/stage.rs
 msgid "Give the stage layout a name."
-msgstr "Dê um nome ao layout de palco."
+msgstr "Dê um nome ao layout do palco."
 
 #: src/strings/stage.rs
 msgid "There is already a stage layout called “{name}”."
-msgstr "Já existe um layout de palco chamado “{name}”."
+msgstr "Já existe um layout do palco chamado “{name}”."
 
 #: src/strings/stage.rs
 msgid "A stage layout can have at most 24 boxes."
-msgstr "Um layout de palco pode ter no máximo 24 caixas."
+msgstr "Um layout do palco pode ter no máximo 24 caixas."
 
 #: src/strings/stage.rs
 msgid "{question} It is used by {things}. {what_happens}."
@@ -5591,7 +5591,7 @@ msgstr "Novo layout do palco"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
-msgstr "{name} cópia"
+msgstr "{name} (cópia)"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
@@ -5631,7 +5631,7 @@ msgstr "Que salvou um miserável como eu"
 
 #: src/strings/stage.rs
 msgid "Verse 2"
-msgstr "Verso 2"
+msgstr "Estrofe 2"
 
 #: src/strings/stage.rs
 msgid "Amazing Grace"
@@ -6263,7 +6263,7 @@ msgstr "Normal"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr "{name} cópia {number}"
+msgstr "{name} (cópia {number})"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

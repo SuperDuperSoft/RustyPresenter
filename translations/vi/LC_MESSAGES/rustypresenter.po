@@ -1020,7 +1020,7 @@ msgstr "Làm mới"
 
 #: ui/dialogs/services.slint
 msgid "Copy last week"
-msgstr "Chép tuần trước"
+msgstr "Sao chép tuần trước"
 
 #: ui/dialogs/services.slint
 msgid "Make next week's service from the last one"
@@ -1148,7 +1148,7 @@ msgstr "1. Đăng ký miễn phí tại"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Copy link"
-msgstr "Chép liên kết"
+msgstr "Sao chép liên kết"
 
 #: ui/dialogs/settings-bible.slint
 msgid "2. {}"
@@ -1548,7 +1548,7 @@ msgstr "Bài hát này đang trên màn hình. Màn hình không thay đổi cho
 
 #: ui/dialogs/song-editor.slint
 msgid "Amazing Grace (My Chains Are Gone)"
-msgstr "Ân Điển Diệu Kỳ"
+msgstr "Ân Điển Lạ Lùng"
 
 #: ui/dialogs/song-editor.slint src/strings/usage.rs
 msgid "Writers"
@@ -1576,7 +1576,7 @@ msgstr "— tên đoạn nằm trên một dòng riêng; một dòng trống tro
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\nÂn điển diệu kỳ ngọt ngào thay\nĐã cứu kẻ khốn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
+msgstr "Verse 1\nÂn điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1844,7 +1844,7 @@ msgstr "−15 giây"
 
 #: ui/operator/live.slint
 msgid "Back 15 seconds"
-msgstr "Lùi 15 giây"
+msgstr "Tua lùi 15 giây"
 
 #: ui/operator/live.slint
 msgid "+15 s"
@@ -1852,7 +1852,7 @@ msgstr "+15 giây"
 
 #: ui/operator/live.slint
 msgid "Forward 15 seconds"
-msgstr "Tới 15 giây"
+msgstr "Tua tới 15 giây"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
@@ -2060,7 +2060,7 @@ msgstr "Thêm bài hát, video và trang chiếu, gõ câu Kinh Thánh ở trên
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
-msgstr "Cùng soạn buổi lễ Chúa nhật này"
+msgstr "Cùng soạn buổi lễ Chúa Nhật này"
 
 #: ui/operator/slides.slint
 msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
@@ -2520,7 +2520,7 @@ msgstr "Hãy thêm màn hình trước."
 
 #: src/app.rs
 msgid "Audience {number}"
-msgstr "Khán phòng {number}"
+msgstr "Hội trường {number}"
 
 #: src/app.rs
 msgid "Stage Display {number}"
@@ -2644,11 +2644,11 @@ msgstr "Tệp này không phải XML hợp lệ (gần byte {at}: {error}). {for
 
 #: src/bible/sources.rs
 msgid "Free for churches. Create an “API application”, then copy its key."
-msgstr "Miễn phí cho hội thánh. Tạo một “API application”, rồi chép khóa của nó."
+msgstr "Miễn phí cho hội thánh. Tạo một “API application”, rồi sao chép khóa của nó."
 
 #: src/bible/sources.rs
 msgid "Free for non-commercial use. Register, then copy the key from your account."
-msgstr "Miễn phí cho mục đích phi thương mại. Đăng ký, rồi chép khóa từ tài khoản của bạn."
+msgstr "Miễn phí cho mục đích phi thương mại. Đăng ký, rồi sao chép khóa từ tài khoản của bạn."
 
 #: src/bible/sources.rs
 msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
@@ -2724,7 +2724,7 @@ msgstr "Câu tham chiếu có vẻ không đúng. Hãy thử dạng như John 3:
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
-msgstr "Cuối khoảng đứng trước đầu khoảng."
+msgstr "Câu cuối của đoạn nằm trước câu đầu."
 
 #: src/bible.rs
 msgid "Paste the verse text first."
@@ -3323,7 +3323,7 @@ msgstr "Để nhập tệp PowerPoint hoặc Keynote, hãy cài LibreOffice (mi�
 
 #: src/strings/add.rs src/strings/settings.rs
 msgid "Copied"
-msgstr "Đã chép"
+msgstr "Đã sao chép"
 
 #: src/strings/add.rs src/strings/bundle.rs
 msgid "…and {n} more."
@@ -4692,11 +4692,11 @@ msgstr "In hoặc lưu"
 
 #: src/strings/screens.rs
 msgid "Audience"
-msgstr "Khán phòng"
+msgstr "Hội trường"
 
 #: src/strings/screens.rs
 msgid "Audience screen"
-msgstr "Màn hình khán phòng"
+msgstr "Màn hình hội trường"
 
 #: src/strings/screens.rs
 msgid "Showing"
@@ -4938,7 +4938,7 @@ msgstr "Thêm {passage}"
 
 #: src/strings/scripture.rs
 msgid "Search for \"{word}\" instead"
-msgstr "Tìm \"{word}\" thay thế"
+msgstr "Tìm từ \"{word}\""
 
 #: src/strings/scripture.rs
 msgid "That passage is too long. Choose up to about {n} verses."
@@ -4954,7 +4954,7 @@ msgstr "{left} hiện không có sẵn, nên chỉ thêm {kept}."
 
 #: src/strings/scripture.rs
 msgid "Lower-third themes show two Bibles. {bible} is left out."
-msgstr "Chủ đề phần ba dưới hiện hai bản Kinh Thánh. {bible} bị bỏ ra."
+msgstr "Chủ đề phần ba dưới hiện hai bản Kinh Thánh. {bible} bị lược bỏ."
 
 #: src/strings/scripture.rs
 msgid "{bible} needs the internet for this passage."
@@ -4990,7 +4990,7 @@ msgstr "Ân điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn h�
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr "Ân Điển Lạ Lùng · John Newton · Public Domain"
+msgstr "Ân Điển Lạ Lùng · John Newton · Phạm vi công cộng"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5038,7 +5038,7 @@ msgstr "Đã ngắt kết nối {source}"
 
 #: src/strings/settings.rs
 msgid "Link copied — paste it into your browser"
-msgstr "Đã chép liên kết — hãy dán vào trình duyệt"
+msgstr "Đã sao chép liên kết — hãy dán vào trình duyệt"
 
 #: src/strings/settings.rs
 msgid "Added {bible} ({count} verses)"
@@ -5139,11 +5139,11 @@ msgstr "Tìm bài hát"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr "Chuyển bài hát đang chiếu tới Phiên khúc 1–9, Điệp khúc, Tiền điệp khúc, Chuyển đoạn, Đoạn lặp cuối, Dạo đầu, Kết, Gian tấu hoặc Phiên khúc kế tiếp"
+msgstr "Chuyển bài hát đang chiếu tới Phiên khúc 1–9, Điệp khúc, Tiền điệp khúc, Chuyển đoạn, Đoạn lặp, Dạo đầu, Kết thúc, Gian tấu hoặc Phiên khúc kế tiếp"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
-msgstr "Thêm liên kết YouTube đã chép"
+msgstr "Thêm liên kết YouTube đã sao chép"
 
 #: src/strings/settings.rs
 msgid "Esc"
@@ -5251,7 +5251,7 @@ msgstr "Chuyển đoạn"
 
 #: src/strings/song.rs
 msgid "Tag"
-msgstr "Đoạn lặp cuối"
+msgstr "Đoạn lặp"
 
 #: src/strings/song.rs
 msgid "Intro"
@@ -5259,7 +5259,7 @@ msgstr "Dạo đầu"
 
 #: src/strings/song.rs
 msgid "Ending"
-msgstr "Kết"
+msgstr "Kết thúc"
 
 #: src/strings/song.rs
 msgid "Interlude"
@@ -5427,7 +5427,7 @@ msgstr "giờ hiện tại"
 
 #: src/strings/stage.rs
 msgid "a countdown or count-up"
-msgstr "đếm ngược hoặc đếm lên"
+msgstr "đếm ngược hoặc đếm xuôi"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
@@ -5562,7 +5562,7 @@ msgstr "Bố cục sân khấu mới"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
-msgstr "{name} bản sao"
+msgstr "{name} - bản sao"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
@@ -6132,7 +6132,7 @@ msgstr "Buổi phát trực tiếp này vừa kết thúc và YouTube vẫn đan
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
-msgstr "Liên kết đó không phải video YouTube. Hãy chép liên kết từ trang của video rồi thử lại."
+msgstr "Liên kết đó không phải video YouTube. Hãy sao chép liên kết từ trang của video rồi thử lại."
 
 #: src/strings/youtube.rs
 msgid "This video isn't available. It may have been removed, or blocked in this country."
@@ -6228,7 +6228,7 @@ msgstr "Bình thường"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr "{name} bản sao {number}"
+msgstr "{name} - bản sao {number}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
@@ -6458,7 +6458,7 @@ msgstr "Màn hình hội trường đã bị rút. Sẽ tự hiện lại khi c�
 
 #: src/ui/screens.rs
 msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Màn hình khán phòng phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
+msgstr "Màn hình hội trường phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
 msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
@@ -6474,7 +6474,7 @@ msgstr "Màn hình hội trường đã được cắm lại, nhưng không mở
 
 #: src/ui/screens.rs
 msgid "The extra audience screen is plugged in again, but it could not open: {error}"
-msgstr "Màn hình khán phòng phụ đã được cắm lại, nhưng không mở được: {error}"
+msgstr "Màn hình hội trường phụ đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
 msgid "The stage display is plugged in again, but it could not open: {error}"

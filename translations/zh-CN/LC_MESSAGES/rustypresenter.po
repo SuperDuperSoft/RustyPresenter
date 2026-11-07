@@ -104,7 +104,7 @@ msgstr "经文出处（{}）"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "例如 约翰福音 3:16-18、诗篇 23、罗马书 8:28,31-39"
+msgstr "例如 John 3:16-18、Psalm 23、Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -156,7 +156,7 @@ msgstr "输入文本。空一行即开始新的幻灯片。"
 
 #: ui/dialogs/add.slint
 msgid "Add announcement"
-msgstr "添加报告"
+msgstr "添加报告事项"
 
 #: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Song"
@@ -760,7 +760,7 @@ msgstr "右"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr "叠加层在切换幻灯片时会一直留在会场屏幕上：角落里的标志、时钟或简短标语。用“直播”栏中“下一张”下方的按钮开关它们。列表中最后一个显示在最上层。"
+msgstr "叠加层在切换幻灯片时会一直留在会众屏幕上：角落里的标志、时钟或简短标语。用“显示中”栏中“下一张”下方的按钮开关它们。列表中最后一个显示在最上层。"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -1340,7 +1340,7 @@ msgstr "粗细"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(for songs and announcements)"
-msgstr "（用于诗歌和报告）"
+msgstr "（用于诗歌和报告事项）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Regular"
@@ -1820,11 +1820,11 @@ msgstr "计时器、消息和宏"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr "在会场隐藏"
+msgstr "对会众隐藏"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
-msgstr "在会场显示"
+msgstr "向会众显示"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -1832,7 +1832,7 @@ msgstr "—"
 
 #: ui/operator/live.slint ui/operator/slides.slint
 msgid "LIVE"
-msgstr "直播中"
+msgstr "显示中"
 
 #: ui/operator/live.slint
 msgid "updating…"
@@ -2076,7 +2076,7 @@ msgstr "点击“添加到聚会”来添加诗歌、视频和幻灯片 — 或�
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "在圣经框中输入经文，如“约翰福音 3:16”，然后按 Enter。"
+msgstr "在圣经框中输入经文，如“John 3:16”，然后按 Enter。"
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "切换或创建聚会"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "经文 — 输入“约翰福音 3:16”后按 Enter"
+msgstr "经文 — 输入“John 3:16”后按 Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2708,7 +2708,7 @@ msgstr "YouVersion 返回了不同的书卷"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "请输入经文出处，如 约翰福音 3:16。"
+msgstr "请输入经文出处，如 John 3:16。"
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "无法识别书卷“{book}”。"
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "请添加章号，如 约翰福音 3 或 约翰福音 3:16。"
+msgstr "请添加章号，如 John 3 或 John 3:16。"
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "这个经文出处好像不对。请试试 约翰福音 3:16-18 这样的格式。"
+msgstr "这个经文出处好像不对。请试试 John 3:16-18 这样的格式。"
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3056,11 +3056,11 @@ msgstr "该项目没有幻灯片。"
 
 #: src/live.rs
 msgid "That video is no longer playing."
-msgstr "该视频已不在播放。"
+msgstr "该视频已不再播放。"
 
 #: src/live.rs
 msgid "That audio is no longer playing."
-msgstr "该音频已不在播放。"
+msgstr "该音频已不再播放。"
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
@@ -3413,7 +3413,7 @@ msgstr "屏幕已清空 — 请重试。"
 
 #: src/strings/automation.rs
 msgid "Set a start time for this service first (Services → Starts at)."
-msgstr "请先为此聚会设置开始时间（聚会 → 开始时间）。"
+msgstr "请先为此聚会设置开始时间（聚会 → 开始于）。"
 
 #: src/strings/automation.rs
 msgid "The service start time ({time}) has passed."
@@ -3449,7 +3449,7 @@ msgstr "该消息太长，屏幕放不下（最多 200 个字符）。"
 
 #: src/strings/automation.rs
 msgid "This message has a { without a matching }."
-msgstr "此消息中的花括号不配对：{ without a matching }。"
+msgstr "此消息中有一个 { 没有对应的 }。"
 
 #: src/strings/automation.rs
 msgid "Message showing"
@@ -3473,7 +3473,7 @@ msgstr "车辆"
 
 #: src/strings/automation.rs
 msgid "Vehicle {Plate}: your lights are on."
-msgstr "车牌 {Plate} 的车主：您的车灯没关。"
+msgstr "车牌 {Plate} 的车主：你的车灯没关。"
 
 #: src/strings/automation.rs
 msgid "Custom"
@@ -4740,7 +4740,7 @@ msgstr "请至少输入一个要搜索的词。"
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "请添加章号，如 约伯记 1 或 约伯记 1:1。"
+msgstr "请添加章号，如 Job 1 或 Job 1:1。"
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4877,7 +4877,7 @@ msgstr "{bible} 中没有同时包含这些词的经文。"
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "{bible} 中没有包含该词的经文。如果这是书卷名，请检查拼写并添加章号，如 约翰福音 3。"
+msgstr "{bible} 中没有包含该词的经文。如果这是书卷名，请检查拼写并添加章号，如 John 3。"
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5746,11 +5746,11 @@ msgstr "标志已移除"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr "用于持续显示的标识。"
+msgstr "用于持续显示的标语。"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr "用于持续显示的标识。如需通知某位家长等，请使用“消息”（推出后可用）。"
+msgstr "用于持续显示的标语。如需通知某位家长等，请使用“消息”（推出后可用）。"
 
 #: src/strings/themes.rs
 msgid "Make default"

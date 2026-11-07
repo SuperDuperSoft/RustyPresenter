@@ -1260,7 +1260,7 @@ msgstr "Logo"
 
 #: ui/dialogs/settings-look.slint
 msgid "No logo (Logo button shows black)"
-msgstr "Kein Logo (Logo-Taste zeigt Schwarz)"
+msgstr "Kein Logo (Logo-Schaltfläche zeigt Schwarz)"
 
 #: ui/dialogs/settings-look.slint
 msgid "Choose logo"
@@ -1428,7 +1428,7 @@ msgstr "Ausschalten, wenn versehentlich getippte Buchstaben die Anzeige verände
 
 #: ui/dialogs/settings.slint
 msgid "Letters and numbers jump the live song to a section"
-msgstr "Buchstaben und Zahlen springen im Live-Lied zu einem Abschnitt"
+msgstr "Buchstaben und Zahlen wechseln im Live-Lied zu einem Abschnitt"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
@@ -1576,7 +1576,7 @@ msgstr "– Abschnittsnamen in eigener Zeile; eine Leerzeile im Abschnitt beginn
 
 #: ui/dialogs/song-editor.slint
 msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Strophe 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nRefrain\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -1592,7 +1592,7 @@ msgstr "Leer lassen für Textreihenfolge"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
-msgstr "Folien erscheinen hier beim Tippen. Schreiben Sie Abschnittsnamen wie „Verse 1“ oder „Chorus“ in eine eigene Zeile."
+msgstr "Folien erscheinen hier beim Tippen. Schreiben Sie Abschnittsnamen wie „Strophe 1“ oder „Refrain“ in eine eigene Zeile."
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -1628,7 +1628,7 @@ msgstr "Auf der Bühne"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in"
-msgstr "Integriert"
+msgstr "Eingebaut"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "New"
@@ -1704,7 +1704,7 @@ msgstr "Wiederholen"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr "Integrierte Layouts können nicht geändert werden. Duplizieren Sie eines, um ein eigenes zu erstellen."
+msgstr "Eingebaute Layouts können nicht geändert werden. Duplizieren Sie eines, um ein eigenes zu erstellen."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
@@ -2384,7 +2384,7 @@ msgstr "Ende des Gottesdienstes"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
-msgstr "NÄCHSTE"
+msgstr "ALS NÄCHSTES"
 
 #: ui/widgets.slint
 msgid "Cut"
@@ -2732,7 +2732,7 @@ msgstr "Fügen Sie zuerst den Verstext ein."
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
-msgstr "RustyPresenter Fernbedienung"
+msgstr "RustyPresenter-Fernbedienung"
 
 #: src/i18n/remote_strings.rs src/strings/dialogs.rs
 msgid "Phone remote"
@@ -2748,7 +2748,7 @@ msgstr "Verbinden"
 
 #: src/i18n/remote_strings.rs
 msgid "Connecting…"
-msgstr "Verbinde…"
+msgstr "Verbindung wird hergestellt…"
 
 #: src/i18n/remote_strings.rs
 msgid "On screen"
@@ -2940,7 +2940,7 @@ msgstr "der Liedtext hat keine Strophen"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "eine temporäre Kopie, die OpenLP für eine Ablaufdatei anlegt"
+msgstr "eine temporäre Kopie, die OpenLP für eine Gottesdienstdatei anlegt"
 
 #: src/import/openlp.rs
 msgid "This file isn't an OpenLP song database (songs.sqlite)."
@@ -3750,7 +3750,7 @@ msgstr "{name} wird heruntergeladen…"
 
 #: src/strings/catalog.rs
 msgid "Waiting to download {name}…"
-msgstr "Warte auf Download von {name}…"
+msgstr "Warten auf Download von {name}…"
 
 #: src/strings/catalog.rs
 msgid "Checking {name}…"
@@ -3942,7 +3942,7 @@ msgstr "Eine Folie konnte nicht gespeichert werden. Prüfen Sie, ob genug Speich
 
 #: src/strings/import.rs
 msgid "Waiting for another file…"
-msgstr "Warte auf eine andere Datei…"
+msgstr "Warten auf eine andere Datei…"
 
 #: src/strings/import.rs
 msgid "Adding “{name}”"
@@ -3958,11 +3958,11 @@ msgstr "Speichern Sie die Keynote-Datei als Einzeldatei und importieren Sie erne
 
 #: src/strings/import.rs
 msgid "Waiting for LibreOffice…"
-msgstr "Warte auf LibreOffice…"
+msgstr "Warten auf LibreOffice…"
 
 #: src/strings/import.rs
 msgid "Waiting for PowerPoint…"
-msgstr "Warte auf PowerPoint…"
+msgstr "Warten auf PowerPoint…"
 
 #: src/strings/import.rs
 msgid "PowerPoint couldn't open it; used LibreOffice."
@@ -4164,7 +4164,7 @@ msgstr "Favoriten"
 
 #: src/strings/operator.rs
 msgid "Recent"
-msgstr "Zuletzt"
+msgstr "Zuletzt verwendet"
 
 #: src/strings/operator.rs
 msgid "Other Bibles"
@@ -4192,7 +4192,7 @@ msgstr "Alle Medien"
 
 #: src/strings/operator.rs
 msgid "Converting {percent}%"
-msgstr "Konvertiere {percent} %"
+msgstr "Wird konvertiert… {percent} %"
 
 #: src/strings/operator.rs
 msgid "Click a thumbnail to choose it."
@@ -4626,7 +4626,7 @@ msgstr "nicht abspielbar ({reason})"
 #: src/strings/preflight.rs
 msgid "{missing} of {n} slides are missing"
 msgid_plural "{missing} of {n} slides are missing"
-msgstr[0] "{missing} von {n} Folie fehlen"
+msgstr[0] "{missing} von {n} Folie fehlt"
 msgstr[1] "{missing} von {n} Folien fehlen"
 
 #: src/strings/preflight.rs
@@ -4731,7 +4731,7 @@ msgstr "Keine Ausgabe"
 
 #: src/strings/screens.rs
 msgid "Unplugged"
-msgstr "Getrennt"
+msgstr "Nicht angeschlossen"
 
 #: src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "None"
@@ -4771,7 +4771,7 @@ msgstr "Wählen Sie eine andere zweite Übersetzung."
 
 #: src/strings/scripture.rs
 msgid "Second translation turned off (same as main)."
-msgstr "Zweite Übersetzung ausgeschaltet (gleich wie Haupt­übersetzung)."
+msgstr "Zweite Übersetzung ausgeschaltet (gleich wie Hauptübersetzung)."
 
 #: src/strings/scripture.rs
 msgid "Too long — will split inside a verse"
@@ -4813,7 +4813,7 @@ msgstr "Bereit (braucht Internet)"
 
 #: src/strings/scripture.rs
 msgid "Needs a key — Get one"
-msgstr "Braucht Schlüssel – holen"
+msgstr "Schlüssel nötig – anfordern"
 
 #: src/strings/scripture.rs
 msgid "Not available"
@@ -5165,7 +5165,7 @@ msgstr "Lied suchen"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr "Im Live-Lied springen zu Verse 1–9, Chorus, Pre-Chorus, Bridge, Tag, Intro, Ending, Interlude oder nächster Verse"
+msgstr "Im Live-Lied zu Strophe 1–9, Refrain, Pre-Chorus, Bridge, Tag, Intro, Schluss, Zwischenspiel oder zur nächsten Strophe springen"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
@@ -5261,11 +5261,11 @@ msgstr "Gespeicherte Tonausgabe (nicht verbunden)"
 
 #: src/strings/song.rs
 msgid "Verse"
-msgstr "Verse"
+msgstr "Strophe"
 
 #: src/strings/song.rs src/strings/stage.rs
 msgid "Chorus"
-msgstr "Chorus"
+msgstr "Refrain"
 
 #: src/strings/song.rs
 msgid "Pre-chorus"
@@ -5285,11 +5285,11 @@ msgstr "Intro"
 
 #: src/strings/song.rs
 msgid "Ending"
-msgstr "Ending"
+msgstr "Schluss"
 
 #: src/strings/song.rs
 msgid "Interlude"
-msgstr "Interlude"
+msgstr "Zwischenspiel"
 
 #: src/strings/song.rs
 msgid "Other"
@@ -5345,11 +5345,11 @@ msgstr "Als übliche Reihenfolge gespeichert."
 
 #: src/strings/song.rs
 msgid "This song has no {section} {number}."
-msgstr "Dieses Lied hat kein {section} {number}."
+msgstr "{section} {number} gibt es in diesem Lied nicht."
 
 #: src/strings/song.rs
 msgid "This song has no {section}."
-msgstr "Dieses Lied hat kein {section}."
+msgstr "{section} gibt es in diesem Lied nicht."
 
 #: src/strings/song.rs
 msgid "Jumped to {section} ({key})"
@@ -5429,7 +5429,7 @@ msgstr "der nächste Text"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
-msgstr "Verse, Chorus, Bridge…"
+msgstr "Strophe, Refrain, Bridge…"
 
 #: src/strings/stage.rs
 msgid "the next part of the song"
@@ -5481,7 +5481,7 @@ msgstr "NÄCHSTER ABSCHNITT"
 
 #: src/strings/stage.rs
 msgid "NEXT · {title}"
-msgstr "NÄCHSTES · {title}"
+msgstr "ALS NÄCHSTES · {title}"
 
 #: src/strings/stage.rs
 msgid "Last slide"
@@ -5519,11 +5519,11 @@ msgstr "Es gibt bereits ein Bühnenlayout namens „{name}“."
 
 #: src/strings/stage.rs
 msgid "A stage layout can have at most 24 boxes."
-msgstr "Ein Bühnenlayout kann höchstens 24 Felder haben."
+msgstr "Ein Bühnenlayout kann höchstens 24 Kästen haben."
 
 #: src/strings/stage.rs
 msgid "{question} It is used by {things}. {what_happens}."
-msgstr "{question} Es wird verwendet von {things}. {what_happens}."
+msgstr "{question} Es wird verwendet von: {things}. {what_happens}."
 
 #: src/strings/stage.rs
 msgid "{first} and {second}"
@@ -5541,11 +5541,11 @@ msgstr "{items_effect}; {macros_effect}"
 msgid "{n} service item"
 msgid_plural "{n} service items"
 msgstr[0] "{n} Ablaufelement"
-msgstr[1] "{n} Ablaufelementen"
+msgstr[1] "{n} Ablaufelemente"
 
 #: src/strings/stage.rs
 msgid "the stage default"
-msgstr "dem Bühnenstandard"
+msgstr "der Bühnenstandard"
 
 #: src/strings/stage.rs
 msgid "{n} macro"
@@ -5591,7 +5591,7 @@ msgstr "Neues Bühnenlayout"
 
 #: src/strings/stage.rs src/theme/saved.rs
 msgid "{name} copy"
-msgstr "{name} Kopie"
+msgstr "{name} (Kopie)"
 
 #: src/strings/stage.rs
 msgid "Name of the stage layout"
@@ -5783,7 +5783,7 @@ msgstr "Für einen dauerhaften Hinweis. Für Durchsagen wie Elternrufe nutzen Si
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr "Als Standard"
+msgstr "Als Standard festlegen"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
@@ -5919,7 +5919,7 @@ msgstr "Verwendet von Bildschirmansicht(en): {views}"
 
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
-msgstr "Konvertiere {percent} %"
+msgstr "Wird konvertiert… {percent} %"
 
 #: src/strings/themes.rs
 msgid "Theme: {name}"
@@ -6263,7 +6263,7 @@ msgstr "Normal"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
-msgstr "{name} Kopie {number}"
+msgstr "{name} (Kopie {number})"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
@@ -6451,31 +6451,31 @@ msgstr "Bild konnte nicht geladen werden"
 
 #: src/ui/room.rs
 msgid "background took too long to load"
-msgstr "Hintergrund lud zu lange"
+msgstr "Laden des Hintergrunds dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "picture took too long to load"
-msgstr "Bild lud zu lange"
+msgstr "Laden des Bildes dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "video took too long to load"
-msgstr "Video lud zu lange"
+msgstr "Laden des Videos dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "slide took too long to load"
-msgstr "Folie lud zu lange"
+msgstr "Laden der Folie dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "logo took too long to load"
-msgstr "Logo lud zu lange"
+msgstr "Laden des Logos dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "overlay took too long to load"
-msgstr "Einblendung lud zu lange"
+msgstr "Laden der Einblendung dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
-msgstr "Audio lud zu lange"
+msgstr "Laden des Audios dauerte zu lange"
 
 #: src/ui/room.rs
 msgid "the room could not prepare it"

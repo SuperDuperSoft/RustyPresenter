@@ -104,7 +104,7 @@ msgstr "Посилання ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "напр. Івана 3:16-18, Псалом 23, Римлян 8:28,31-39"
+msgstr "напр. John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -552,7 +552,7 @@ msgstr "Слова для пошуку"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr "Введіть слова з вірша, напр. упокойтеся і знайте"
+msgstr "Введіть слова з вірша, напр. перестаньте й пізнайте"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
@@ -840,7 +840,7 @@ msgstr "Тінь під текстом (легше читати на зобра�
 
 #: ui/dialogs/overlays.slint
 msgid "Box"
-msgstr "Рамка"
+msgstr "Плашка"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
 msgid "Off"
@@ -856,7 +856,7 @@ msgstr "Смуга на всю ширину"
 
 #: ui/dialogs/overlays.slint
 msgid "Box color"
-msgstr "Колір рамки"
+msgstr "Колір плашки"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
@@ -1280,7 +1280,7 @@ msgstr "Основна тема церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr "Зробити типовим для церкви"
+msgstr "Зробити основною темою церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
@@ -2076,7 +2076,7 @@ msgstr "Натисніть «Додати до служіння», щоб дод
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Введіть вірш, як-от «Івана 3:16», у поле Біблії й натисніть Enter."
+msgstr "Введіть вірш, як-от «John 3:16», у поле Біблії й натисніть Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "Перейти до іншого служіння або створит�
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Біблійний вірш — введіть Івана 3:16 і натисніть Enter"
+msgstr "Біблійний вірш — введіть John 3:16 і натисніть Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2300,7 +2300,7 @@ msgstr "Зменшити"
 
 #: ui/operator.slint
 msgid "Actual size"
-msgstr "Реальний розмір"
+msgstr "Фактичний розмір"
 
 #: ui/operator.slint
 msgid "Window"
@@ -2352,7 +2352,7 @@ msgstr "Резервні копії…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
-msgstr "Клавіатурні скорочення"
+msgstr "Сполучення клавіш"
 
 #: ui/operator.slint
 msgid "Check the service"
@@ -2676,7 +2676,7 @@ msgstr "{service} повідомляє про забагато запитів. �
 
 #: src/bible/sources.rs
 msgid "{translation} lookup failed: {error}."
-msgstr "Не вдалося знайти в {translation}: {error}."
+msgstr "Не вдалося отримати вірші з {translation}: {error}."
 
 #: src/bible/sources.rs
 msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
@@ -2708,7 +2708,7 @@ msgstr "YouVersion повернув іншу книгу"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Введіть посилання, наприклад Івана 3:16."
+msgstr "Введіть посилання, наприклад John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Не вдається розпізнати книгу «{book}»."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Додайте розділ, наприклад Івана 3 або Івана 3:16."
+msgstr "Додайте розділ, наприклад John 3 або John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Посилання виглядає неправильним. Спробуйте щось на кшталт Івана 3:16-18."
+msgstr "Посилання виглядає неправильним. Спробуйте щось на кшталт John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3165,7 +3165,7 @@ msgstr "Брідж|Міст"
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Tag"
-msgstr "Тег|Повтор|Кода"
+msgstr "Тег|Повтор"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
@@ -4786,7 +4786,7 @@ msgstr "Введіть хоча б одне слово для пошуку."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "Додайте розділ, наприклад Йова 1 або Йова 1:1."
+msgstr "Додайте розділ, наприклад Job 1 або Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4865,7 +4865,7 @@ msgstr "Слова шукаються за початком: любов знай
 
 #: src/strings/scripture.rs
 msgid "Put words in quotes for an exact phrase: \"be still\"."
-msgstr "Візьміть слова в лапки для точної фрази: \"замовкніть\"."
+msgstr "Візьміть слова в лапки для точної фрази: \"перестаньте й пізнайте\"."
 
 #: src/strings/scripture.rs
 msgid "Capitals and punctuation do not matter. lord finds LORD."
@@ -4925,7 +4925,7 @@ msgstr "У {bible} немає віршів з усіма цими словами
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "У {bible} немає віршів із цим словом. Якщо це назва книги, перевірте написання й додайте розділ, наприклад Івана 3."
+msgstr "У {bible} немає віршів із цим словом. Якщо це назва книги, перевірте написання й додайте розділ, наприклад John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5812,7 +5812,7 @@ msgstr "Для напису, що залишається на екрані. Дл
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr "Зробити типовою"
+msgstr "Зробити основною"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
@@ -5863,7 +5863,7 @@ msgstr[2] "{n} служінь"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr "Типова для церкви ({name})"
+msgstr "Основна тема церкви ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
@@ -5964,7 +5964,7 @@ msgstr "Курсив"
 
 #: src/strings/themes.rs
 msgid "Underline"
-msgstr "Підкреслений"
+msgstr "Підкреслення"
 
 #: src/strings/themes.rs
 msgid "Gold"
@@ -6390,7 +6390,7 @@ msgstr "Змінити макет сцени"
 
 #: src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
-msgstr "Макет сцени стежить за слайдами"
+msgstr "Дозволити макету сцени стежити за слайдами"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
@@ -6644,7 +6644,7 @@ msgstr "Не вдається завантажити відеопрограва�
 
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
-msgstr "Ця версія libmpv застара (клієнтський API {major}.{minor}); RustyPresenter потрібна 2.x."
+msgstr "Ця версія libmpv застара (клієнтський API {major}.{minor}); для RustyPresenter потрібна версія 2.x."
 
 #: src/video/graphics.rs
 msgid "Software"

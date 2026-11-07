@@ -104,7 +104,7 @@ msgstr "Ссылка ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "напр. Иоанна 3:16-18, Псалом 23, Римлянам 8:28,31-39"
+msgstr "напр. John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -664,7 +664,7 @@ msgstr "Выбрать"
 
 #: ui/dialogs/item-edit.slint
 msgid "Same as Settings → Look"
-msgstr "Как в Настройки → Вид"
+msgstr "Как в «Настройки → Вид»"
 
 #: ui/dialogs/item-edit.slint
 msgid "— an empty line starts a new slide"
@@ -696,7 +696,7 @@ msgstr "Повторять до остановки"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
-msgstr "Звук продолжает играть при смене слайдов. Остановите его кнопкой «Очистить звук» (F4) или «Очистить всё»."
+msgstr "Звук продолжает играть при смене слайдов. Остановите его кнопкой «Убрать звук» (F4) или «Очистить всё»."
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
@@ -892,7 +892,7 @@ msgstr " (Сеть не найдена — подключите этот ком�
 
 #: ui/dialogs/phone.slint
 msgid "Address: "
-msgstr "Адрес:"
+msgstr "Адрес: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
 msgid "Pair a phone"
@@ -1280,7 +1280,7 @@ msgstr "Основная тема церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Make this the church default"
-msgstr "Сделать стандартной для церкви"
+msgstr "Сделать основной темой церкви"
 
 #: ui/dialogs/settings-themes.slint
 msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
@@ -1460,7 +1460,7 @@ msgstr "Макет сцены"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr "Что показывает экран сцены. Окно → Макеты сцены… — создать свой."
+msgstr "Что показывает экран сцены. Свой макет можно создать в меню «Окно → Макеты сцены…»."
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1616,7 +1616,7 @@ msgstr "Экран сцены"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
-msgstr "Нужна новая версия RustyPresenter"
+msgstr "Нужна более новая версия RustyPresenter"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
@@ -1820,7 +1820,7 @@ msgstr "Таймеры, сообщения и макросы"
 
 #: ui/operator/automation-strip.slint
 msgid "Hide from room"
-msgstr "Скрыть из зала"
+msgstr "Скрыть в зале"
 
 #: ui/operator/automation-strip.slint
 msgid "Show in room"
@@ -2076,7 +2076,7 @@ msgstr "Нажмите «Добавить в служение» для песе�
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Введите стих, например «Иоанна 3:16», в поле «Библия» и нажмите Enter."
+msgstr "Введите стих, например «John 3:16», в поле «Библия» и нажмите Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,11 +2132,11 @@ msgstr "Сменить или создать служение"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Стих Библии — введите Иоанна 3:16 и нажмите Enter"
+msgstr "Стих Библии — введите John 3:16 и нажмите Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{} ещё не подключена (Настройки → Библия). Вы всё равно можете вставить её стихи через Добавить → Библия."
+msgstr "{} ещё не подключена (Настройки → Библия). Вы всё равно можете вставить её стихи через «Добавить → Библия»."
 
 #: ui/operator/topbar.slint
 msgid "Verses per slide for the next passage. Click to change."
@@ -2668,7 +2668,7 @@ msgstr "Не удалось связаться с {service} для {translation}
 
 #: src/bible/sources.rs
 msgid "{service} refused the key. Check it in Settings → Bible."
-msgstr "{service} не принял ключ. Проверьте его в Настройки → Библия."
+msgstr "{service} не принял ключ. Проверьте его в разделе «Настройки → Библия»."
 
 #: src/bible/sources.rs
 msgid "{service} says too many lookups. Wait a minute and try again."
@@ -2680,11 +2680,11 @@ msgstr "Ошибка поиска в {translation}: {error}."
 
 #: src/bible/sources.rs
 msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
-msgstr "У {translation} нет онлайн-источника. Вставьте стихи через Добавить → Библия или импортируйте лицензированный файл в Настройки → Библия."
+msgstr "У {translation} нет онлайн-источника. Вставьте стихи через «Добавить → Библия» или импортируйте лицензированный файл в разделе «Настройки → Библия»."
 
 #: src/bible/sources.rs
 msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
-msgstr "Для {translation} нужен бесплатный ключ от {service}. Добавьте его в Настройки → Библия или вставьте стихи через Добавить → Библия."
+msgstr "Для {translation} нужен бесплатный ключ от {service}. Добавьте его в разделе «Настройки → Библия» или вставьте стихи через «Добавить → Библия»."
 
 #: src/bible/youversion.rs
 msgid "YouVersion has no Bible id for {translation}"
@@ -2708,7 +2708,7 @@ msgstr "YouVersion вернул другую книгу"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Введите ссылку, например Иоанна 3:16."
+msgstr "Введите ссылку, например John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Не знаю книгу «{book}»."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Добавьте главу, например Иоанна 3 или Иоанна 3:16."
+msgstr "Добавьте главу, например John 3 или John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Ссылка выглядит неверно. Попробуйте, например, Иоанна 3:16-18."
+msgstr "Ссылка выглядит неверно. Попробуйте, например, John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3793,7 +3793,7 @@ msgstr "Не удалось использовать {name}, поэтому он
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
-msgstr "Этой Библии больше нет в списке. Снова откройте Настройки → Библии, чтобы увидеть текущий список."
+msgstr "Этой Библии больше нет в списке. Снова откройте «Настройки → Библии», чтобы увидеть текущий список."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
@@ -4597,11 +4597,11 @@ msgstr "Экран сцены не подключён. Служение може
 
 #: src/strings/preflight.rs
 msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr "Выбранный в настройках вывод звука не подключён. Подключите его или выберите другой в Настройки → Видео."
+msgstr "Выбранный в настройках вывод звука не подключён. Подключите его или выберите другой в разделе «Настройки → Видео»."
 
 #: src/strings/preflight.rs
 msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr "Вывод звука не подключён, поэтому видео или звук поставлены на паузу. Подключите его или выберите другой в Настройки → Видео, затем нажмите «Пуск»."
+msgstr "Вывод звука не подключён, поэтому видео или звук поставлены на паузу. Подключите его или выберите другой в разделе «Настройки → Видео», затем нажмите «Пуск»."
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings."
@@ -4786,7 +4786,7 @@ msgstr "Введите хотя бы одно слово для поиска."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "Добавьте главу, например Иов 1 или Иов 1:1."
+msgstr "Добавьте главу, например Job 1 или Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4925,7 +4925,7 @@ msgstr "В {bible} нет стихов со всеми этими словами
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "В {bible} нет стихов с этим словом. Если это название книги, проверьте написание и добавьте главу, например Иоанна 3."
+msgstr "В {bible} нет стихов с этим словом. Если это название книги, проверьте написание и добавьте главу, например John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -4960,7 +4960,7 @@ msgstr "Поиск недоступен для {bible}"
 
 #: src/strings/scripture.rs
 msgid "{bible} needs a key. Add one in Settings → Bible."
-msgstr "Для {bible} нужен ключ. Добавьте его в Настройки → Библия."
+msgstr "Для {bible} нужен ключ. Добавьте его в разделе «Настройки → Библия»."
 
 #: src/strings/scripture.rs
 msgid "{bible} isn't available."
@@ -5012,7 +5012,7 @@ msgstr "Для этого отрывка {bible} нужен интернет."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bibles."
-msgstr "Эта Библия удалена. Добавьте её снова в Настройки → Библии."
+msgstr "Эта Библия удалена. Добавьте её снова в разделе «Настройки → Библии»."
 
 #: src/strings/services.rs
 msgid "Name for the copy"
@@ -5191,7 +5191,7 @@ msgstr "Найти песню"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
-msgstr "Перейти в текущей песне к куплету 1–9, припеву, предприпеву, бриджу, тэгу, вступлению, концовке, проигрышу или следующему куплету"
+msgstr "Перейти в текущей песне к куплету 1–9, припеву, предприпеву, бриджу, тегу, вступлению, концовке, проигрышу или следующему куплету"
 
 #: src/strings/settings.rs
 msgid "Add a YouTube link you copied"
@@ -5303,7 +5303,7 @@ msgstr "Бридж"
 
 #: src/strings/song.rs
 msgid "Tag"
-msgstr "Тэг"
+msgstr "Тег"
 
 #: src/strings/song.rs
 msgid "Intro"
@@ -5812,7 +5812,7 @@ msgstr "Для постоянной надписи. Для объявлений 
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr "Сделать стандартной"
+msgstr "Сделать основной"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
@@ -5863,7 +5863,7 @@ msgstr[2] "{n} служений"
 
 #: src/strings/themes.rs
 msgid "Church default ({name})"
-msgstr "Стандартная для церкви ({name})"
+msgstr "Основная тема церкви ({name})"
 
 #: src/strings/themes.rs
 msgid "Same as service ({name})"
@@ -6008,7 +6008,7 @@ msgstr "Лицензия CCLI №: {license}"
 
 #: src/strings/usage.rs
 msgid "Add your church's CCLI license number in Settings → Songs."
-msgstr "Добавьте номер лицензии CCLI вашей церкви в Настройки → Песни."
+msgstr "Добавьте номер лицензии CCLI вашей церкви в разделе «Настройки → Песни»."
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
@@ -6596,7 +6596,7 @@ msgstr "Нечего отменять."
 
 #: src/undo.rs
 msgid "the new service “{name}”"
-msgstr "новое служение «{name}»"
+msgstr "создание служения «{name}»"
 
 #: src/undo.rs
 msgid "deleting the service “{name}”"
@@ -6620,7 +6620,7 @@ msgstr "изменения в «{name}»"
 
 #: src/undo.rs
 msgid "the new song “{name}”"
-msgstr "новую песню «{name}»"
+msgstr "создание песни «{name}»"
 
 #: src/undo.rs
 msgid "deleting the song “{name}”"
@@ -6644,7 +6644,7 @@ msgstr "Не удаётся загрузить видеоплеер из {path}:
 
 #: src/video/ffi.rs
 msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
-msgstr "Эта версия libmpv слишком старая (client API {major}.{minor}); RustyPresenter нужна 2.x."
+msgstr "Эта версия libmpv слишком старая (client API {major}.{minor}); для RustyPresenter нужна версия 2.x."
 
 #: src/video/graphics.rs
 msgid "Software"
@@ -6672,7 +6672,7 @@ msgstr "Режим графики «{wanted}» не удалось исполь�
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr "У RustyPresenter возникли проблемы с видеокартой, поэтому он запущен в безопасном режиме. Это можно изменить в Настройки → Видео."
+msgstr "У RustyPresenter возникли проблемы с видеокартой, поэтому он запущен в безопасном режиме. Это можно изменить в разделе «Настройки → Видео»."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -6700,7 +6700,7 @@ msgstr "нет отпечатка для {file}"
 
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
-msgstr "В загрузке нет {file}"
+msgstr "в загрузке нет {file}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

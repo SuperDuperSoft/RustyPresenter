@@ -96,7 +96,7 @@ msgstr "Enpòte pawòl SongSelect (.txt)"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
-msgstr "Enpòte sou EasyWorship"
+msgstr "Enpòte soti nan EasyWorship"
 
 #: ui/dialogs/add.slint
 msgid "Reference ({})"
@@ -104,7 +104,7 @@ msgstr "Referans ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "egz. Jan 3:16-18, Sòm 23, Women 8:28,31-39"
+msgstr "egz. John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -328,7 +328,7 @@ msgstr "Kache apre"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
-msgstr "Janm"
+msgstr "Janmen"
 
 #: ui/dialogs/automation.slint
 msgid "15 s"
@@ -648,7 +648,7 @@ msgstr "4 vèsè"
 
 #: ui/dialogs/item-edit.slint src/strings/scripture.rs
 msgid "Choose slide breaks…"
-msgstr "Chwazi koupi diapo…"
+msgstr "Chwazi kote pou koupe diapo…"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
@@ -760,11 +760,11 @@ msgstr "Dwat"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr "Kouch yo rete sou ekran sal la pandan diapo yo ap chanje: yon logo nan kwen an, yon lè oswa yon ti pankat. Limen yo epi tenyen yo ak ti bouton ki anba Pwochen nan kolòn Dirèk la. Dènye a nan lis la parèt anlè tout lòt yo."
+msgstr "Kouch yo rete sou ekran sal la pandan diapo yo ap chanje: yon logo nan kwen an, lè a oswa yon ti pankat. Limen yo epi etenn yo ak ti bouton ki anba Pwochen nan kolòn Dirèk la. Dènye a nan lis la parèt anlè tout lòt yo."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr "Kopi"
+msgstr "Fè yon kopi"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
@@ -868,7 +868,7 @@ msgstr "Apèsi"
 
 #: ui/dialogs/overlays.slint
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
-msgstr "Modifye yon kouch ki sou ekran an pa chanje ekran an: tenyen l epi limen l ankò pou montre nouvo a."
+msgstr "Modifye yon kouch ki sou ekran an pa chanje ekran an: etenn li epi limen l ankò pou montre nouvo a."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -1988,7 +1988,7 @@ msgstr "+ Kouch"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "A logo in the corner, a clock or a short sign"
-msgstr "Yon logo nan kwen an, yon lè oswa yon ti pankat"
+msgstr "Yon logo nan kwen an, lè a oswa yon ti pankat"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
@@ -2064,7 +2064,7 @@ msgstr "Ann prepare sèvis dimanch sa a"
 
 #: ui/operator/slides.slint
 msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
-msgstr "Tout sa ou ajoute parèt sou bò gòch. Klike sou yon diapo pou mete l sou ekran an."
+msgstr "Tout sa ou ajoute parèt sou bò goch. Klike sou yon diapo pou mete l sou ekran an."
 
 #: ui/operator/slides.slint
 msgid "Click “Screens” and choose the projector or TV."
@@ -2076,7 +2076,7 @@ msgstr "Klike “Ajoute nan sèvis” pou chante, videyo ak diapo — oswa trenn
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Tape yon vèsè tankou “Jan 3:16” nan bwat Bib la epi peze Enter."
+msgstr "Tape yon vèsè tankou “John 3:16” nan bwat Bib la epi peze Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "Chanje oswa kreye sèvis"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Vèsè Bib — tape Jan 3:16 epi peze Enter"
+msgstr "Vèsè Bib — tape John 3:16 epi peze Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2640,7 +2640,7 @@ msgstr "Pa jwenn okenn vèsè Bib nan sa ki telechaje a."
 
 #: src/bible/import.rs
 msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
-msgstr "Fichye sa a pa yon XML ki valab (toupre bit {at}: {error}). {formats}"
+msgstr "Fichye sa a pa yon XML ki valab (toupre oktè {at}: {error}). {formats}"
 
 #: src/bible/sources.rs
 msgid "Free for churches. Create an “API application”, then copy its key."
@@ -2708,7 +2708,7 @@ msgstr "YouVersion voye yon lòt liv"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Tape yon referans, tankou Jan 3:16."
+msgstr "Tape yon referans, tankou John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Mwen pa rekonèt liv \"{book}\" la."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Ajoute yon chapit, tankou Jan 3 oswa Jan 3:16."
+msgstr "Ajoute yon chapit, tankou John 3 oswa John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Referans sa a pa sanble kòrèk. Eseye yon bagay tankou Jan 3:16-18."
+msgstr "Referans sa a pa sanble kòrèk. Eseye yon bagay tankou John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3434,7 +3434,7 @@ msgstr "Kontè sa a bezwen yon RustyPresenter ki pi nouvo."
 
 #: src/strings/automation.rs
 msgid "A countdown to a time can't be paused."
-msgstr "Yon dekont pou yon lè pa ka mete an poz."
+msgstr "Yon kont alanvè pou yon lè pa ka mete an poz."
 
 #: src/strings/automation.rs
 msgid "Choose a length from 1 second to 23:59:59."
@@ -3486,47 +3486,47 @@ msgstr "Pèsonalize"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase eleman etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase eleman etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase kontè etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase kontè etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase kouch etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase kouch etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase vi ekran etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase vi ekran etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase mesaj etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase mesaj etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
-msgstr "Pa t ka egzekite “{name}”: yo te efase aranjman sèn etap {step} la. Modifye makwo a."
+msgstr "Pa t ka lanse “{name}”: yo te efase aranjman sèn etap {step} la. Modifye makro a."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
-msgstr "Pa t ka egzekite “{name}”: etap {step} bezwen yon RustyPresenter ki pi nouvo."
+msgstr "Pa t ka lanse “{name}”: etap {step} bezwen yon RustyPresenter ki pi nouvo."
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”"
-msgstr "“{name}” egzekite"
+msgstr "“{name}” lanse"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but step {step} didn't work: {reason}"
-msgstr "“{name}” egzekite, men etap {step} pa t mache: {reason}"
+msgstr "“{name}” lanse, men etap {step} pa t mache: {reason}"
 
 #: src/strings/automation.rs
 msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
-msgstr "“{name}” egzekite, men li pa t montre anyen paske ekran an te efase."
+msgstr "“{name}” lanse, men li pa t montre anyen paske ekran an te efase."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
-msgstr "“{timer}” rive a zewo, men “{macro_name}” chanje diapo, kidonk li pa t egzekite."
+msgstr "“{timer}” rive a zewo, men “{macro_name}” chanje diapo, kidonk li pa t lanse."
 
 #: src/strings/automation.rs
 msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
@@ -3538,15 +3538,15 @@ msgstr "Chwazi 2 a 600 segonn."
 
 #: src/strings/automation.rs
 msgid "Start countdown"
-msgstr "Kòmanse dekont"
+msgstr "Kòmanse kont alanvè"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
-msgstr "Dekont la fini — anyen pa chanje paske sèvis la kòmanse."
+msgstr "Kont alanvè a fini — anyen pa chanje paske sèvis la kòmanse."
 
 #: src/strings/automation.rs
 msgid "Restart the countdown to use the new time."
-msgstr "Rekòmanse dekont la pou itilize nouvo lè a."
+msgstr "Rekòmanse kont alanvè a pou itilize nouvo lè a."
 
 #: src/strings/automation.rs
 msgid "Service start"
@@ -4044,7 +4044,7 @@ msgstr "Tèks la deja gwo otan ke li ka antre. Chwazi mwens vèsè pou chak diap
 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
-msgstr "Chwazi yon eleman sou bò gòch"
+msgstr "Chwazi yon eleman sou bò goch"
 
 #: src/strings/operator.rs
 msgid "Welcome"
@@ -4763,7 +4763,7 @@ msgstr "Tape omwen yon mo pou chèche."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "Ajoute yon chapit, tankou Jòb 1 oswa Jòb 1:1."
+msgstr "Ajoute yon chapit, tankou Job 1 oswa Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4795,7 +4795,7 @@ msgstr "Tradiksyon sa a pa ka itilize nan RustyPresenter. Tanpri chwazi yon lòt
 
 #: src/strings/scripture.rs
 msgid "This verse came from an older version; look the passage up again to choose breaks here."
-msgstr "Vèsè sa a soti nan yon vèsyon ki pi ansyen; chèche pasaj la ankò pou chwazi koupi isit la."
+msgstr "Vèsè sa a soti nan yon vèsyon ki pi ansyen; chèche pasaj la ankò pou chwazi kote pou koupe diapo yo."
 
 #: src/strings/scripture.rs
 msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
@@ -4869,7 +4869,7 @@ msgstr "Chèche yon vèsè"
 
 #: src/strings/scripture.rs
 msgid "Slide breaks"
-msgstr "Koupi diapo"
+msgstr "Kote diapo yo koupe"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
@@ -4901,7 +4901,7 @@ msgstr "Pa gen vèsè nan {bible} ki gen tout mo sa yo."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "Pa gen vèsè nan {bible} ki gen mo sa a. Si se yon non liv, tcheke òtograf la epi ajoute yon chapit, tankou Jan 3."
+msgstr "Pa gen vèsè nan {bible} ki gen mo sa a. Si se yon non liv, tcheke òtograf la epi ajoute yon chapit, tankou John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5381,7 +5381,7 @@ msgstr "Predikatè"
 
 #: src/strings/stage.rs
 msgid "Clock and countdown"
-msgstr "Lè ak dekont"
+msgstr "Lè ak kont alanvè"
 
 #: src/strings/stage.rs
 msgid "Current slide"
@@ -5453,7 +5453,7 @@ msgstr "lè nan jounen an"
 
 #: src/strings/stage.rs
 msgid "a countdown or count-up"
-msgstr "yon dekont oswa yon kontaj"
+msgstr "yon kont alanvè oswa yon kontaj"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
@@ -5550,8 +5550,8 @@ msgstr "sèn pa defo a"
 #: src/strings/stage.rs
 msgid "{n} macro"
 msgid_plural "{n} macros"
-msgstr[0] "{n} makwo"
-msgstr[1] "{n} makwo"
+msgstr[0] "{n} makro"
+msgstr[1] "{n} makro"
 
 #: src/strings/stage.rs
 msgid "Items and the default will use Classic"
@@ -5571,19 +5571,19 @@ msgstr "Pa defo a ap itilize Klasik"
 
 #: src/strings/stage.rs
 msgid "the macro won't run until it is edited"
-msgstr "makwo a p ap mache jiskaske yo modifye l"
+msgstr "makro a p ap mache jiskaske yo modifye l"
 
 #: src/strings/stage.rs
 msgid "the macros won't run until they are edited"
-msgstr "makwo yo p ap mache jiskaske yo modifye yo"
+msgstr "makro yo p ap mache jiskaske yo modifye yo"
 
 #: src/strings/stage.rs
 msgid "The macro won't run until it is edited"
-msgstr "Makwo a p ap mache jiskaske yo modifye l"
+msgstr "Makro a p ap mache jiskaske yo modifye l"
 
 #: src/strings/stage.rs
 msgid "The macros won't run until they are edited"
-msgstr "Makwo yo p ap mache jiskaske yo modifye yo"
+msgstr "Makro yo p ap mache jiskaske yo modifye yo"
 
 #: src/strings/stage.rs
 msgid "New stage layout"
@@ -5775,11 +5775,11 @@ msgstr "Logo retire"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr "Pou yon afich ki rete parèt."
+msgstr "Pou yon pankat ki rete parèt."
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr "Pou yon afich ki rete parèt. Pou yon avi tankou non yon paran, itilize Mesaj (lè l disponib)."
+msgstr "Pou yon pankat ki rete parèt. Pou yon avi tankou non yon paran, itilize Mesaj (lè l disponib)."
 
 #: src/strings/themes.rs
 msgid "Make default"
@@ -5841,7 +5841,7 @@ msgstr "Menm jan ak sèvis la ({name})"
 
 #: src/strings/themes.rs
 msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
-msgstr "Efase kouch “{name}”? Si li sou ekran an, l ap rete la jiskaske ou tenyen l."
+msgstr "Efase kouch “{name}”? Si li sou ekran an, l ap rete la jiskaske ou etenn li."
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -6323,7 +6323,7 @@ msgstr "Limen yon kouch"
 
 #: src/ui/dialogs/automation.rs
 msgid "Turn an overlay off"
-msgstr "Tenyen yon kouch"
+msgstr "Etenn yon kouch"
 
 #: src/ui/dialogs/automation.rs
 msgid "Pause automatic slides"
@@ -6627,7 +6627,7 @@ msgstr "Sa k ap sèvi kounye a: {mode}"
 
 #: src/video/graphics.rs
 msgid "Restart RustyPresenter to use the new graphics setting."
-msgstr "Relanse RustyPresenter pou sèvi ak nouvo paramèt grafik la."
+msgstr "Redemare RustyPresenter pou sèvi ak nouvo paramèt grafik la."
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
