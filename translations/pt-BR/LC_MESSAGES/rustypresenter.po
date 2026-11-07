@@ -133,7 +133,7 @@ msgstr "Adicionar versículos"
 msgid "Paste the verses instead"
 msgstr "Colar os versículos"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
 msgid "Verses per slide"
 msgstr "Versículos por slide"
 
@@ -165,7 +165,7 @@ msgstr "Título"
 msgid "e.g. Welcome, Announcements, Offering"
 msgstr "ex.: Boas-vindas, Avisos, Oferta"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
+#: ui/dialogs/add.slint ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Text"
 msgstr "Texto"
 
@@ -221,7 +221,7 @@ msgstr "Seu próprio texto"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Não está na letra — será pulado"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
 msgid "Remove"
 msgstr "Remover"
 
@@ -237,6 +237,326 @@ msgstr "Ordem escrita — arraste para mudar"
 msgid "⟲ Use written order"
 msgstr "⟲ Usar ordem escrita"
 
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
+msgid "Name"
+msgstr "Nome"
+
+#: ui/dialogs/automation.slint
+msgid "Kind"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Count down to a time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Count down"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Count up"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "This service's start time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Time (like 10:30 or 18:45)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Length (minutes and seconds)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Minutes"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
+msgid "Seconds"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Keep counting after zero (+m:ss)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "When it reaches zero"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Place on the screen"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Centre (large)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Caption"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Service starts in"
+msgstr "O culto começa em"
+
+#: ui/dialogs/automation.slint
+msgid "Show on stage"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Show on the phone remote"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Position"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Hide after"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Never"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "15 s"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "30 s"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "1 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "2 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "5 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Can be shown from the phone"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "Altere na aba Pré-culto"
+
+#: ui/dialogs/automation.slint
+msgid "Colour"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Amber"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/themes.rs
+msgid "Red"
+msgstr "Vermelho"
+
+#: ui/dialogs/automation.slint
+msgid "Orange"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Green"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Teal"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Blue"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Purple"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Grey"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Steps"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Up"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Down"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "No steps yet."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Add step"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "What to fill in, like Number=27"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Countdown to"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Starts at"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Set start time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Loop these slides"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Play music"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Countdown position"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "When the countdown ends"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Hide the countdown"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Show the logo"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Clear everything"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Put the first item on the screen"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Only happens if nobody has changed the screen since the countdown started."
+msgstr ""
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Timers"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Messages"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Macros"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Pre-service"
+msgstr "Pré-culto"
+
+#: ui/dialogs/automation.slint
+msgid "This service starts at"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Set"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New timer"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New message"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New macro"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Pick one on the left, or make a new one."
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
+msgid "Reset"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "Pausar"
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+msgid "Start"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+msgid "Delete"
+msgstr "Excluir"
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+msgid "Save"
+msgstr "Salvar"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "Hex"
@@ -244,6 +564,38 @@ msgstr "Hex"
 #: ui/dialogs/background-picker.slint
 msgid "Pick any color"
 msgstr "Escolher qualquer cor"
+
+#: ui/dialogs/find-verse.slint
+msgid "Words to find"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Type words from the verse, like be still and know"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Whole Bible"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "Antigo Testamento"
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "New Testament"
+msgstr "Novo Testamento"
+
+#: ui/dialogs/find-verse.slint
+msgid "Best match"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Bible order"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -293,7 +645,7 @@ msgstr "Lado a lado"
 msgid "Top and bottom"
 msgstr "Em cima e embaixo"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "Automático"
 
@@ -312,6 +664,10 @@ msgstr "3 versículos"
 #: ui/dialogs/item-edit.slint
 msgid "4 verses"
 msgstr "4 versículos"
+
+#: ui/dialogs/item-edit.slint src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "Escolher divisões de slide…"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
@@ -361,10 +717,6 @@ msgstr "Repetir até parar"
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
 msgstr "O áudio continua tocando enquanto você muda os slides. Pare-o com Limpar áudio (F4) ou Limpar tudo."
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
-msgid "Name"
-msgstr "Nome"
-
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Nome na biblioteca"
@@ -378,6 +730,26 @@ msgid "Background"
 msgstr "Fundo"
 
 #: ui/dialogs/item-edit.slint
+msgid "Advance slides automatically"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "Precisa de pelo menos dois slides."
+
+#: ui/dialogs/item-edit.slint
+msgid "every"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "seconds"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Start over after the last slide"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
 msgid "Stage notes"
 msgstr "Notas do palco"
 
@@ -389,25 +761,9 @@ msgstr "Exibidas somente na tela do palco"
 msgid "Remove from service"
 msgstr "Remover do culto"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Cancelar"
-
-#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
-msgid "Save"
-msgstr "Salvar"
-
-#: ui/dialogs/overlays.slint
-msgid "Top left"
-msgstr ""
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
-msgid "Top"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Top right"
-msgstr ""
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
@@ -422,36 +778,12 @@ msgid "Right"
 msgstr ""
 
 #: ui/dialogs/overlays.slint
-msgid "Bottom left"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Bottom"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Bottom right"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Move up"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Move down"
 msgstr ""
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
 msgstr ""
-
-#: ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs
-msgid "Delete"
-msgstr "Excluir"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
@@ -1213,6 +1545,22 @@ msgstr ""
 msgid "Save settings"
 msgstr "Salvar configurações"
 
+#: ui/dialogs/show-message.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Message"
+msgstr "Mensagem"
+
+#: ui/dialogs/show-message.slint
+msgid "Hide"
+msgstr ""
+
+#: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
+msgid "Show"
+msgstr ""
+
+#: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "Voltar ao automático"
+
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
 msgstr "Esta música está na tela. Nada muda na tela até você escolher Salvar e mostrar agora ou Atualizar tela."
@@ -1297,7 +1645,7 @@ msgstr "Salvar e mostrar agora"
 msgid "Stage screen"
 msgstr "Tela do palco"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr ""
 
@@ -1481,6 +1829,34 @@ msgstr "Salvar como planilha (CSV)…"
 msgid "Identify screen"
 msgstr "Identificar tela"
 
+#: ui/operator/automation-strip.slint
+msgid "Message showing — Hide"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Show a message on the screen (Ctrl+Shift+M)"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Turn the slides by themselves again"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Stop turning the slides by themselves"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Timers, messages and macros"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Hide from room"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Show in room"
+msgstr ""
+
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -1560,10 +1936,6 @@ msgstr "Áudio"
 #: ui/operator/live_controls.slint
 msgid "Play"
 msgstr "Tocar"
-
-#: ui/operator/live_controls.slint
-msgid "Pause"
-msgstr "Pausar"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
@@ -1906,6 +2278,10 @@ msgid "Find…"
 msgstr ""
 
 #: ui/operator.slint
+msgid "Find a verse…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Edit the selected item…"
 msgstr "Editar o item selecionado…"
 
@@ -1933,7 +2309,7 @@ msgstr "Limpar mídia e fundo"
 msgid "Stop audio"
 msgstr "Parar áudio"
 
-#: ui/operator.slint src/strings/themes.rs
+#: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
 msgstr ""
 
@@ -1975,6 +2351,10 @@ msgstr "Mensagem do palco…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Automation…"
 msgstr ""
 
 #: ui/operator.slint
@@ -2093,11 +2473,11 @@ msgstr "Esta música está em um culto. Remova-a do culto primeiro."
 msgid "No service is open."
 msgstr "Nenhum culto está aberto."
 
-#: src/app.rs src/theme/actions.rs
+#: src/app.rs src/automation/actions.rs src/scripture/actions.rs src/theme/actions.rs
 msgid "Bad request: {error}"
 msgstr "Solicitação inválida: {error}"
 
-#: src/app.rs src/strings/themes.rs
+#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
 msgid "That item is gone."
 msgstr "Esse item não existe mais."
 
@@ -2200,6 +2580,10 @@ msgstr "Não foi possível abrir “{file}”: {error}"
 #: src/app.rs
 msgid "Could not read “{file}”: {error}"
 msgstr "Não foi possível ler “{file}”: {error}"
+
+#: src/automation/actions.rs src/ui/dialogs/automation.rs
+msgid "Type the time like 10:30."
+msgstr ""
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2412,6 +2796,22 @@ msgstr "Reproduzir vídeo"
 #: src/i18n/remote_strings.rs
 msgid "Tap a slide to put it on the screen."
 msgstr "Toque em um slide para colocá-lo na tela."
+
+#: src/i18n/remote_strings.rs
+msgid "Hide message"
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs
+msgid "Run “{name}”?"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Run"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Done"
+msgstr ""
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -2769,6 +3169,10 @@ msgstr "O RustyPresenter reiniciou após um problema. O vídeo/áudio parou — 
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "O RustyPresenter parou após travar 3 vezes em um minuto. O log está em {path}."
 
+#: src/scripture/actions.rs
+msgid "Unknown action."
+msgstr ""
+
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
@@ -2837,7 +3241,7 @@ msgstr "Celular {number}"
 msgid "Bad command."
 msgstr "Comando inválido."
 
-#: src/server.rs
+#: src/server.rs src/strings/automation.rs
 msgid "Not allowed from the phone."
 msgstr "Não permitido pelo celular."
 
@@ -3164,24 +3568,8 @@ msgid "Choose 2 to 600 seconds."
 msgstr "Escolha de 2 a 600 segundos."
 
 #: src/strings/automation.rs
-msgid "Needs at least two slides."
-msgstr "Precisa de pelo menos dois slides."
-
-#: src/strings/automation.rs
-msgid "Service starts in"
-msgstr "O culto começa em"
-
-#: src/strings/automation.rs
-msgid "Pre-service"
-msgstr "Pré-culto"
-
-#: src/strings/automation.rs
 msgid "Start countdown"
 msgstr "Iniciar contagem"
-
-#: src/strings/automation.rs
-msgid "Change it in the Pre-service tab"
-msgstr "Altere na aba Pré-culto"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
@@ -3202,6 +3590,78 @@ msgstr "Pregação"
 #: src/strings/automation.rs
 msgid "Stopwatch"
 msgstr "Cronômetro"
+
+#: src/strings/automation.rs
+msgid "Up to 4 timers can be on the screen at once."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That timer was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That message was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That macro was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Macros run in the app."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Too fast — try again."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Give it a name of 1 to 40 letters."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 50 timers."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 messages."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 macros."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "A macro can have up to 30 steps."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That macro was deleted. Pick another one."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
+msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/strings/automation.rs
+msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
+msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/strings/automation.rs
+msgid "The stage layout can't follow the slides yet."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Screen views aren't available yet."
+msgstr ""
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -3306,14 +3766,6 @@ msgstr "Licença verificada no download"
 #: src/strings/catalog.rs
 msgid "Full Bible"
 msgstr "Bíblia completa"
-
-#: src/strings/catalog.rs
-msgid "New Testament"
-msgstr "Novo Testamento"
-
-#: src/strings/catalog.rs
-msgid "Old Testament"
-msgstr "Antigo Testamento"
 
 #: src/strings/catalog.rs
 msgid "Portions"
@@ -4312,7 +4764,7 @@ msgstr "Sem saída"
 msgid "Unplugged"
 msgstr "Desconectada"
 
-#: src/strings/screens.rs
+#: src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "None"
 msgstr "Nenhuma"
 
@@ -4443,16 +4895,12 @@ msgid "Search by words…"
 msgstr "Pesquisar por palavras…"
 
 #: src/strings/scripture.rs
+msgid "Find a verse"
+msgstr ""
+
+#: src/strings/scripture.rs
 msgid "Slide breaks"
 msgstr "Divisões de slide"
-
-#: src/strings/scripture.rs
-msgid "Choose slide breaks…"
-msgstr "Escolher divisões de slide…"
-
-#: src/strings/scripture.rs
-msgid "Reset to automatic"
-msgstr "Voltar ao automático"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
@@ -4972,7 +5420,7 @@ msgstr "Relógio e contagem"
 msgid "Current slide"
 msgstr "Slide atual"
 
-#: src/strings/stage.rs
+#: src/strings/stage.rs src/ui/dialogs/automation.rs
 msgid "Next slide"
 msgstr "Próximo slide"
 
@@ -5003,10 +5451,6 @@ msgstr "Cronômetro"
 #: src/strings/stage.rs
 msgid "Video time left"
 msgstr "Tempo restante do vídeo"
-
-#: src/strings/stage.rs
-msgid "Message"
-msgstr "Mensagem"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
@@ -5371,10 +5815,6 @@ msgid "For a sign that stays up. For a notice like a parent's name, use Message 
 msgstr "Para um aviso que fica na tela. Para um recado como chamar um responsável, use Mensagem (quando disponível)."
 
 #: src/strings/themes.rs
-msgid "Reset"
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Make default"
 msgstr ""
 
@@ -5529,10 +5969,6 @@ msgstr "Sublinhado"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "Dourado"
-
-#: src/strings/themes.rs
-msgid "Red"
-msgstr "Vermelho"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
@@ -5862,6 +6298,144 @@ msgstr "Normal"
 msgid "{name} copy {number}"
 msgstr "{name} cópia {number}"
 
+#: src/ui/dialogs/automation.rs
+msgid "Put a service item on the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Previous slide"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear words"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear video and pictures"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear audio"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Start timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Reset timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Restart timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show timer on the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide timer from the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay on"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay off"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause automatic slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Resume automatic slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message to the stage"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the stage message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "item {n}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Change what a screen shows"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Change the stage layout"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Let the stage layout follow the slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down {time}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to the service start"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to {time}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "{n} step"
+msgid_plural "{n} steps"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Do nothing"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide it from the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Run “{name}”"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Boxes to fill in: {fields}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Saved."
+msgstr ""
+
+#: src/ui/dialogs/mod.rs
+msgid "Automation"
+msgstr ""
+
+#: src/ui/dialogs/mod.rs
+msgid "Show message"
+msgstr ""
+
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
 msgstr "{day} às {time} UTC"
@@ -5869,6 +6443,18 @@ msgstr "{day} às {time} UTC"
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
 msgstr "{time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "Ctrl + Shift + M"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "Show a message on the screen"
+msgstr ""
+
+#: src/ui/operator/automation.rs
+msgid "Auto · {time}"
+msgstr ""
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."

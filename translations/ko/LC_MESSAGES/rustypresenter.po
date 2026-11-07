@@ -132,7 +132,7 @@ msgstr "구절 추가"
 msgid "Paste the verses instead"
 msgstr "대신 구절 붙여 넣기"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
 msgid "Verses per slide"
 msgstr "슬라이드당 구절 수"
 
@@ -164,7 +164,7 @@ msgstr "제목"
 msgid "e.g. Welcome, Announcements, Offering"
 msgstr "예: 환영, 광고, 헌금"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
+#: ui/dialogs/add.slint ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Text"
 msgstr "텍스트"
 
@@ -220,7 +220,7 @@ msgstr "직접 입력한 텍스트"
 msgid "Not in the lyrics — it is skipped"
 msgstr "가사에 없어서 건너뛰어요"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
 msgid "Remove"
 msgstr "제거"
 
@@ -236,6 +236,326 @@ msgstr "작성 순서 — 끌어서 변경"
 msgid "⟲ Use written order"
 msgstr "⟲ 작성 순서 사용"
 
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
+msgid "Name"
+msgstr "이름"
+
+#: ui/dialogs/automation.slint
+msgid "Kind"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Count down to a time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Count down"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Count up"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "This service's start time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Time (like 10:30 or 18:45)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Length (minutes and seconds)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Minutes"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
+msgid "Seconds"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Keep counting after zero (+m:ss)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "When it reaches zero"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Place on the screen"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Centre (large)"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Caption"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Service starts in"
+msgstr "예배 시작까지"
+
+#: ui/dialogs/automation.slint
+msgid "Show on stage"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Show on the phone remote"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Position"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Hide after"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Never"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "15 s"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "30 s"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "1 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "2 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "5 min"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Can be shown from the phone"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "예배 전 탭에서 바꾸세요"
+
+#: ui/dialogs/automation.slint
+msgid "Colour"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Amber"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/themes.rs
+msgid "Red"
+msgstr "빨간색"
+
+#: ui/dialogs/automation.slint
+msgid "Orange"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Green"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Teal"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Blue"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Purple"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Grey"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Steps"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Up"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Down"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "No steps yet."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Add step"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "What to fill in, like Number=27"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Countdown to"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Starts at"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Set start time"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Loop these slides"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Play music"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Countdown position"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "When the countdown ends"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Hide the countdown"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Show the logo"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Clear everything"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Put the first item on the screen"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Only happens if nobody has changed the screen since the countdown started."
+msgstr ""
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Timers"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Messages"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Macros"
+msgstr ""
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Pre-service"
+msgstr "예배 전"
+
+#: ui/dialogs/automation.slint
+msgid "This service starts at"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Set"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New timer"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New message"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "New macro"
+msgstr ""
+
+#: ui/dialogs/automation.slint
+msgid "Pick one on the left, or make a new one."
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
+msgid "Reset"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "일시 정지"
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+msgid "Start"
+msgstr ""
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+msgid "Delete"
+msgstr "삭제"
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+msgid "Save"
+msgstr "저장"
+
 #: ui/dialogs/background-picker.slint
 msgid "Hex"
 msgstr "Hex"
@@ -243,6 +563,38 @@ msgstr "Hex"
 #: ui/dialogs/background-picker.slint
 msgid "Pick any color"
 msgstr "원하는 색 선택"
+
+#: ui/dialogs/find-verse.slint
+msgid "Words to find"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Type words from the verse, like be still and know"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Whole Bible"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "구약"
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "New Testament"
+msgstr "신약"
+
+#: ui/dialogs/find-verse.slint
+msgid "Best match"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Bible order"
+msgstr ""
+
+#: ui/dialogs/find-verse.slint
+msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
+msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -292,7 +644,7 @@ msgstr "좌우로"
 msgid "Top and bottom"
 msgstr "위아래로"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
 msgid "Automatic"
 msgstr "자동"
 
@@ -311,6 +663,10 @@ msgstr "3절"
 #: ui/dialogs/item-edit.slint
 msgid "4 verses"
 msgstr "4절"
+
+#: ui/dialogs/item-edit.slint src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "슬라이드 나누기 선택…"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
@@ -360,10 +716,6 @@ msgstr "멈출 때까지 반복"
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
 msgstr "슬라이드를 바꿔도 오디오는 계속 재생돼요. 오디오 지우기(F4)나 모두 지우기로 멈추세요."
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
-msgid "Name"
-msgstr "이름"
-
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "라이브러리 이름"
@@ -377,6 +729,26 @@ msgid "Background"
 msgstr "배경"
 
 #: ui/dialogs/item-edit.slint
+msgid "Advance slides automatically"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "슬라이드가 두 장 이상 필요해요."
+
+#: ui/dialogs/item-edit.slint
+msgid "every"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "seconds"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Start over after the last slide"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
 msgid "Stage notes"
 msgstr "무대 메모"
 
@@ -388,25 +760,9 @@ msgstr "무대 화면에만 표시돼요"
 msgid "Remove from service"
 msgstr "예배에서 제거"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "취소"
-
-#: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
-msgid "Save"
-msgstr "저장"
-
-#: ui/dialogs/overlays.slint
-msgid "Top left"
-msgstr ""
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
-msgid "Top"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Top right"
-msgstr ""
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Left"
@@ -421,36 +777,12 @@ msgid "Right"
 msgstr ""
 
 #: ui/dialogs/overlays.slint
-msgid "Bottom left"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Bottom"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Bottom right"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Move up"
-msgstr ""
-
-#: ui/dialogs/overlays.slint
-msgid "Move down"
 msgstr ""
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
 msgstr ""
-
-#: ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs
-msgid "Delete"
-msgstr "삭제"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
@@ -1212,6 +1544,22 @@ msgstr ""
 msgid "Save settings"
 msgstr "설정 저장"
 
+#: ui/dialogs/show-message.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Message"
+msgstr "메시지"
+
+#: ui/dialogs/show-message.slint
+msgid "Hide"
+msgstr ""
+
+#: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
+msgid "Show"
+msgstr ""
+
+#: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "자동으로 재설정"
+
 #: ui/dialogs/song-editor.slint src/strings/song.rs
 msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
 msgstr "이 찬양이 화면에 표시 중이에요. 저장 후 바로 표시나 화면 업데이트를 선택하기 전까지는 화면이 바뀌지 않아요."
@@ -1296,7 +1644,7 @@ msgstr "저장 후 바로 표시"
 msgid "Stage screen"
 msgstr "무대 화면"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr ""
 
@@ -1480,6 +1828,34 @@ msgstr "스프레드시트로 저장(CSV)…"
 msgid "Identify screen"
 msgstr "화면 식별"
 
+#: ui/operator/automation-strip.slint
+msgid "Message showing — Hide"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Show a message on the screen (Ctrl+Shift+M)"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Turn the slides by themselves again"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Stop turning the slides by themselves"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Timers, messages and macros"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Hide from room"
+msgstr ""
+
+#: ui/operator/automation-strip.slint
+msgid "Show in room"
+msgstr ""
+
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -1559,10 +1935,6 @@ msgstr "오디오"
 #: ui/operator/live_controls.slint
 msgid "Play"
 msgstr "재생"
-
-#: ui/operator/live_controls.slint
-msgid "Pause"
-msgstr "일시 정지"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
@@ -1905,6 +2277,10 @@ msgid "Find…"
 msgstr ""
 
 #: ui/operator.slint
+msgid "Find a verse…"
+msgstr ""
+
+#: ui/operator.slint
 msgid "Edit the selected item…"
 msgstr "선택한 항목 편집…"
 
@@ -1932,7 +2308,7 @@ msgstr "미디어 및 배경 지우기"
 msgid "Stop audio"
 msgstr "오디오 중지"
 
-#: ui/operator.slint src/strings/themes.rs
+#: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
 msgstr ""
 
@@ -1974,6 +2350,10 @@ msgstr "무대 메시지…"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Automation…"
 msgstr ""
 
 #: ui/operator.slint
@@ -2092,11 +2472,11 @@ msgstr "이 찬양은 예배에 들어 있어요. 먼저 예배에서 제거하�
 msgid "No service is open."
 msgstr "열린 예배가 없어요."
 
-#: src/app.rs src/theme/actions.rs
+#: src/app.rs src/automation/actions.rs src/scripture/actions.rs src/theme/actions.rs
 msgid "Bad request: {error}"
 msgstr "잘못된 요청: {error}"
 
-#: src/app.rs src/strings/themes.rs
+#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
 msgid "That item is gone."
 msgstr "그 항목이 없어졌어요."
 
@@ -2199,6 +2579,10 @@ msgstr "“{file}”을(를) 열지 못했어요: {error}"
 #: src/app.rs
 msgid "Could not read “{file}”: {error}"
 msgstr "“{file}”을(를) 읽지 못했어요: {error}"
+
+#: src/automation/actions.rs src/ui/dialogs/automation.rs
+msgid "Type the time like 10:30."
+msgstr ""
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
@@ -2411,6 +2795,22 @@ msgstr "동영상 재생"
 #: src/i18n/remote_strings.rs
 msgid "Tap a slide to put it on the screen."
 msgstr "슬라이드를 탭하면 화면에 표시돼요."
+
+#: src/i18n/remote_strings.rs
+msgid "Hide message"
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs
+msgid "Run “{name}”?"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Run"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Done"
+msgstr ""
 
 #: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
 msgid "The screen changed — try again."
@@ -2768,6 +3168,10 @@ msgstr "문제가 생겨서 RustyPresenter가 다시 시작되었어요. 동영�
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
 msgstr "1분 안에 3번 충돌해서 RustyPresenter가 멈췄어요. 로그 위치: {path}"
 
+#: src/scripture/actions.rs
+msgid "Unknown action."
+msgstr ""
+
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Verse"
@@ -2836,7 +3240,7 @@ msgstr "휴대폰 {number}"
 msgid "Bad command."
 msgstr "잘못된 명령이에요."
 
-#: src/server.rs
+#: src/server.rs src/strings/automation.rs
 msgid "Not allowed from the phone."
 msgstr "휴대폰에서는 할 수 없어요."
 
@@ -3158,24 +3562,8 @@ msgid "Choose 2 to 600 seconds."
 msgstr "2초에서 600초 사이로 선택하세요."
 
 #: src/strings/automation.rs
-msgid "Needs at least two slides."
-msgstr "슬라이드가 두 장 이상 필요해요."
-
-#: src/strings/automation.rs
-msgid "Service starts in"
-msgstr "예배 시작까지"
-
-#: src/strings/automation.rs
-msgid "Pre-service"
-msgstr "예배 전"
-
-#: src/strings/automation.rs
 msgid "Start countdown"
 msgstr "카운트다운 시작"
-
-#: src/strings/automation.rs
-msgid "Change it in the Pre-service tab"
-msgstr "예배 전 탭에서 바꾸세요"
 
 #: src/strings/automation.rs
 msgid "Countdown ended — nothing else changed because the service has started."
@@ -3196,6 +3584,76 @@ msgstr "설교"
 #: src/strings/automation.rs
 msgid "Stopwatch"
 msgstr "스톱워치"
+
+#: src/strings/automation.rs
+msgid "Up to 4 timers can be on the screen at once."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That timer was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That message was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That macro was deleted."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Macros run in the app."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Too fast — try again."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Give it a name of 1 to 40 letters."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 50 timers."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 messages."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 macros."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "A macro can have up to 30 steps."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That macro was deleted. Pick another one."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
+msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
+msgstr[0] ""
+
+#: src/strings/automation.rs
+msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
+msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
+msgstr[0] ""
+
+#: src/strings/automation.rs
+msgid "The stage layout can't follow the slides yet."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Screen views aren't available yet."
+msgstr ""
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -3296,14 +3754,6 @@ msgstr "다운로드할 때 라이선스 확인"
 #: src/strings/catalog.rs
 msgid "Full Bible"
 msgstr "신구약 전체"
-
-#: src/strings/catalog.rs
-msgid "New Testament"
-msgstr "신약"
-
-#: src/strings/catalog.rs
-msgid "Old Testament"
-msgstr "구약"
 
 #: src/strings/catalog.rs
 msgid "Portions"
@@ -4290,7 +4740,7 @@ msgstr "출력 없음"
 msgid "Unplugged"
 msgstr "연결 끊김"
 
-#: src/strings/screens.rs
+#: src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "None"
 msgstr "없음"
 
@@ -4420,16 +4870,12 @@ msgid "Search by words…"
 msgstr "단어로 검색…"
 
 #: src/strings/scripture.rs
+msgid "Find a verse"
+msgstr ""
+
+#: src/strings/scripture.rs
 msgid "Slide breaks"
 msgstr "슬라이드 나누기"
-
-#: src/strings/scripture.rs
-msgid "Choose slide breaks…"
-msgstr "슬라이드 나누기 선택…"
-
-#: src/strings/scripture.rs
-msgid "Reset to automatic"
-msgstr "자동으로 재설정"
 
 #: src/strings/scripture.rs
 msgid "New slide (automatic)"
@@ -4947,7 +5393,7 @@ msgstr "시계 및 카운트다운"
 msgid "Current slide"
 msgstr "현재 슬라이드"
 
-#: src/strings/stage.rs
+#: src/strings/stage.rs src/ui/dialogs/automation.rs
 msgid "Next slide"
 msgstr "다음 슬라이드"
 
@@ -4978,10 +5424,6 @@ msgstr "타이머"
 #: src/strings/stage.rs
 msgid "Video time left"
 msgstr "동영상 남은 시간"
-
-#: src/strings/stage.rs
-msgid "Message"
-msgstr "메시지"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
@@ -5343,10 +5785,6 @@ msgid "For a sign that stays up. For a notice like a parent's name, use Message 
 msgstr "계속 띄워 두는 안내용이에요. 부모님 호출 같은 알림에는 메시지를 사용하세요(사용 가능해지면)."
 
 #: src/strings/themes.rs
-msgid "Reset"
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Make default"
 msgstr ""
 
@@ -5497,10 +5935,6 @@ msgstr "밑줄"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "금색"
-
-#: src/strings/themes.rs
-msgid "Red"
-msgstr "빨간색"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
@@ -5828,6 +6262,143 @@ msgstr "보통"
 msgid "{name} copy {number}"
 msgstr "{name} 사본 {number}"
 
+#: src/ui/dialogs/automation.rs
+msgid "Put a service item on the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Previous slide"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear words"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear video and pictures"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear audio"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Start timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Reset timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Restart timer"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show timer on the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide timer from the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay on"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay off"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause automatic slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Resume automatic slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message to the stage"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the stage message"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "item {n}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Change what a screen shows"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Change the stage layout"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Let the stage layout follow the slides"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down {time}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to the service start"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to {time}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "{n} step"
+msgid_plural "{n} steps"
+msgstr[0] ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Do nothing"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide it from the screen"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Run “{name}”"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Boxes to fill in: {fields}"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Saved."
+msgstr ""
+
+#: src/ui/dialogs/mod.rs
+msgid "Automation"
+msgstr ""
+
+#: src/ui/dialogs/mod.rs
+msgid "Show message"
+msgstr ""
+
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
 msgstr "{day} {time} UTC"
@@ -5835,6 +6406,18 @@ msgstr "{day} {time} UTC"
 #: src/ui/dialogs/settings.rs
 msgid "{time} UTC"
 msgstr "{time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "Ctrl + Shift + M"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "Show a message on the screen"
+msgstr ""
+
+#: src/ui/operator/automation.rs
+msgid "Auto · {time}"
+msgstr ""
 
 #: src/ui/operator/checks.rs
 msgid "Nothing missing for this service."
