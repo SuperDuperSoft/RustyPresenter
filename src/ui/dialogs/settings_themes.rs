@@ -357,6 +357,7 @@ fn read_editor(op: &Operator, edit: &Edit) -> Option<SavedTheme> {
 
 fn changed(op: &Rc<Operator>, edit: &Rc<Edit>) {
     if let Some(t) = read_editor(op, edit) { *edit.themes.editing.borrow_mut() = Some(t) }
+    show_swatches(op, edit);
     g(op).set_darken_shown(background::darken_shown(&edit.themes.editing.borrow().as_ref().and_then(|t| t.background.clone())));
     schedule(op, edit);
 }

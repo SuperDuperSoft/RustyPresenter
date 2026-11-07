@@ -326,7 +326,7 @@ mod tests {
     #[test]
     fn other_keys_do_nothing() {
         assert_eq!(route("x", false, false, PLAIN), KeyAction::None);
-        assert_eq!(route("F6", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("F7", false, false, PLAIN), KeyAction::None);
     }
 
     #[test]

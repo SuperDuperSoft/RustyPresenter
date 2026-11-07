@@ -796,6 +796,8 @@ mod tests {
         let app = test_app();
         let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into() });
         let op = opened(&app);
+        // Tall enough for the grid under the tiles (the gradients add two rows).
+        op.window().set_size(slint::LogicalSize::new(1520.0, 1400.0));
         open(&op, id);
         let tiles = || find_all(&op, "BackgroundPicker::choice");
         settle();
@@ -822,6 +824,7 @@ mod tests {
 
     #[test]
     fn item_edit_theme_combo_saves() {
+        use slint::Model;
         let app = test_app();
         let christmas = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(), background: None };
         app.data.lock().unwrap().themes.push(christmas.clone());
@@ -836,6 +839,7 @@ mod tests {
         g(&op).set_theme_index(3);
         press(&op, "ItemEditDialog::save");
         assert_eq!(item(&app, id).unwrap().theme, Some(christmas.id));
+        refresh(&op);
         open(&op, id);
         settle();
         assert_eq!(g(&op).get_theme_index(), 3, "opening again shows it");
@@ -846,6 +850,7 @@ mod tests {
 
     #[test]
     fn media_items_have_no_theme_box() {
+        use slint::Model;
         let app = test_app();
         let m = media(&app, "Sky", MediaKind::Image);
         let id = push(&app, ItemKind::Media { media_id: m, autoplay: true, end: EndAction::Stop, looped: false });

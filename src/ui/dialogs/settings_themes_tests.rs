@@ -210,14 +210,14 @@ fn theme_editor_preview_redraws_after_a_change() {
     g(&op).set_position(2);
     g(&op).invoke_changed();
     assert_eq!(pixels(&g(&op).get_preview()), first, "not before the delay");
-    mock_elapsed_time(settings_look::PREVIEW_DELAY.as_millis() as u64 * 2);
+    mock_elapsed_time(settings_look::PREVIEW_DELAY * 2);
     settle();
     assert_ne!(pixels(&g(&op).get_preview()), first, "drawn again 150 ms later");
     // The other samples.
     let before = pixels(&g(&op).get_preview());
     g(&op).set_preview_tab(1);
     g(&op).invoke_changed();
-    mock_elapsed_time(settings_look::PREVIEW_DELAY.as_millis() as u64 * 2);
+    mock_elapsed_time(settings_look::PREVIEW_DELAY * 2);
     settle();
     assert_ne!(pixels(&g(&op).get_preview()), before, "the Scripture sample");
 }
@@ -231,14 +231,14 @@ fn missing_font_note_in_theme_editor() {
     assert_eq!(g(&op).get_fonts().row_data(0).unwrap(), "Noto Sans", "the bundled font first");
     g(&op).set_font_index(0);
     g(&op).invoke_changed();
-    mock_elapsed_time(500);
+    mock_elapsed_time(std::time::Duration::from_millis(500));
     settle();
     assert_eq!(g(&op).get_font_note(), "", "Noto Sans is always there");
     assert_eq!(g(&op).get_font_hint(), "works on every computer");
     let missing = (0..g(&op).get_fonts().row_count()).find(|&i| g(&op).get_fonts().row_data(i).unwrap() == "Segoe UI").unwrap();
     g(&op).set_font_index(missing as i32);
     g(&op).invoke_changed();
-    mock_elapsed_time(500);
+    mock_elapsed_time(std::time::Duration::from_millis(500));
     settle();
     // Segoe UI is not installed on the Linux test machine; on Windows it is, and the note stays empty.
     if cfg!(not(windows)) { assert_eq!(g(&op).get_font_note(), "“Segoe UI” isn't installed on this computer, so slides use Noto Sans.") }

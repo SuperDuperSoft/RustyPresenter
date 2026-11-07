@@ -679,7 +679,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
     assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
     assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
-    assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
+    assert_eq!(tab_labels()[2], "Idioma", "the window's own words changed without a restart");
     assert!(g(&op).get_languages().row_data(es).unwrap().on);
 
     // Cancel keeps it; English again from its row.
@@ -688,6 +688,6 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     settle();
     g(&op).invoke_choose_language(1);
     settle();
-    assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
+    assert_eq!((crate::i18n::current().as_str(), tab_labels()[2].as_str()), ("en", "Language"));
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
 }

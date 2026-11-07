@@ -61,10 +61,10 @@ pub fn open(op: &Rc<Operator>) {
     op.open_dialog(DialogKind::Overlays);
     let st = Rc::new(RefCell::new(State::default()));
     OPEN.with(|o| *o.borrow_mut() = Some(st));
-    let g = g(op);
-    g.set_editing(false);
-    g.set_palette(ModelRc::new(VecModel::from(background::palette())));
-    g.set_help(ts::text_overlay_help().into());
+    let d = g(op);
+    d.set_editing(false);
+    d.set_palette(ModelRc::new(VecModel::from(background::palette())));
+    d.set_help(ts::text_overlay_help().into());
     fill(op);
     wire(op);
     op.on_dialog_close(|op| {
@@ -489,7 +489,7 @@ mod tests {
         assert!(!first.is_empty());
         g(&op).set_box(2);
         g(&op).invoke_changed();
-        mock_elapsed_time(400);
+        mock_elapsed_time(std::time::Duration::from_millis(400));
         settle();
         assert_ne!(pixels(&g(&op).get_preview()), first, "the bar shows");
     }
