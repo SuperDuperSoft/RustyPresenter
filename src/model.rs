@@ -446,10 +446,19 @@ pub struct Settings {
     pub section_keys: bool,
     /// Service files opened lately, newest first, at most `RECENT_FILES_MAX` (File → Open recent).
     pub recent_files: Vec<std::path::PathBuf>,
+    /// Settings → Video → Graphics, used from the next start. Changed only by `settings/graphics`. A value this
+    /// version can't read loads as Auto.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub graphics: Graphics,
 }
 
 /// How many service files File → Open recent lists.
 pub const RECENT_FILES_MAX: usize = 5;
+
+/// How the windows are drawn (`video::graphics`). Auto is FemtoVG on OpenGL, with software if that fails.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Graphics { #[default] Auto, OpenGl, Vulkan, Direct3D, Metal, Software }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -525,6 +534,7 @@ impl Default for Settings {
             date_order: None,
             section_keys: true,
             recent_files: Vec::new(),
+            graphics: Graphics::Auto,
         }
     }
 }
@@ -681,6 +691,20 @@ mod tests {
         s.ui_language = "pt-BR".into();
         let back: Settings = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
         assert_eq!(back.ui_language, "pt-BR");
+    }
+
+    #[test]
+    fn graphics_is_auto_unless_saved_and_an_unknown_one_loads_as_auto() {
+        let d: Data = serde_json::from_str(r#"{"format":1,"settings":{"lines_per_slide":2}}"#).unwrap();
+        assert_eq!(d.settings.graphics, Graphics::Auto);
+        let d: Data = serde_json::from_str(r#"{"format":1,"settings":{"graphics":"hologram"}}"#).unwrap();
+        assert_eq!(d.settings.graphics, Graphics::Auto);
+        for (g, name) in [(Graphics::OpenGl, "opengl"), (Graphics::Vulkan, "vulkan"), (Graphics::Direct3D, "direct3d"), (Graphics::Metal, "metal"), (Graphics::Software, "software")] {
+            let s = Settings { graphics: g, ..Settings::default() };
+            let json = serde_json::to_value(&s).unwrap();
+            assert_eq!(json["graphics"], name);
+            assert_eq!(serde_json::from_value::<Settings>(json).unwrap().graphics, g);
+        }
     }
 
     #[test]

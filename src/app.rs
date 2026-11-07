@@ -1203,6 +1203,7 @@ impl App {
                 s.recent = std::mem::take(&mut d.settings.recent);
                 // Settings → Language applies at once (`settings/language`); an older form must not undo it.
                 s.ui_language = std::mem::take(&mut d.settings.ui_language);
+                s.graphics = d.settings.graphics;
                 s.print = std::mem::take(&mut d.settings.print);
                 s.recent_files = std::mem::take(&mut d.settings.recent_files);
                 d.settings = s;
@@ -1240,6 +1241,13 @@ impl App {
                 return Err(ActionError::bad(e));
             }
             Ok(json!({ "toast": crate::tr!("Language changed") }))
+        }
+        // Settings → Video → Graphics: saved now, used from the next start (`video::graphics`).
+        "settings/graphics" => {
+            #[derive(Deserialize)] struct G { graphics: crate::model::Graphics }
+            let G { graphics } = parse(body)?;
+            tryr!(app.edit(|d| { d.settings.graphics = graphics; Ok(()) }));
+            Ok(json!({ "toast": crate::video::graphics::restart_to_use() }))
         }
         // The church's Also Bibles for new passages and how they share a slide (Nov 5 spec §2–3).
         "settings/also" => {
@@ -2273,6 +2281,19 @@ mod tests {
         app.do_action("settings/language", br#"{"code":"en"}"#).await.unwrap();
         assert_eq!((crate::i18n::current().as_str(), app.state_json()["lang"].as_str()), ("en", Some("en")));
         assert_eq!(app.do_action("settings/language", br#"{"code":"en"}"#).await.unwrap()["toast"], "Language changed");
+    }
+
+    #[tokio::test]
+    async fn graphics_is_saved_for_the_next_start_and_kept_by_a_settings_save() {
+        use crate::model::Graphics;
+        let app = test_app();
+        let r = app.do_action("settings/graphics", br#"{"graphics":"software"}"#).await.unwrap();
+        assert_eq!(r["toast"], "Restart RustyPresenter to use the new graphics setting.");
+        assert_eq!(app.store.load().unwrap().settings.graphics, Graphics::Software);
+        assert!(app.do_action("settings/graphics", br#"{"graphics":"hologram"}"#).await.is_err());
+        // A Settings form opened before the change is saved: the graphics stay.
+        app.do_action("settings", serde_json::to_string(&crate::model::Settings::default()).unwrap().as_bytes()).await.unwrap();
+        assert_eq!(app.store.load().unwrap().settings.graphics, Graphics::Software);
     }
 
     #[tokio::test]

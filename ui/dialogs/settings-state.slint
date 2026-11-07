@@ -110,6 +110,10 @@ export global SettingsDlg {
     in-out property <int> stage-layout;
     in property <[string]> audio-names;
     in-out property <int> audio-index;
+    /// Graphics (`video::graphics`): the choices this build has, the saved one, and "In use now: …".
+    in property <[string]> graphics-labels;
+    in-out property <int> graphics-index;
+    in property <string> graphics-now;
 
     // ---- Backups ----
     in property <string> backups-folder;
@@ -135,6 +139,8 @@ export global SettingsDlg {
     /// Settings → Language: a row's Use button (applied at once), and the translators' guide link.
     callback choose-language(int);
     callback help-translate();
+    /// Settings → Video → Graphics: saved at once (`settings/graphics`), used from the next start.
+    callback graphics-changed(int);
     /// Any Look edit: the preview is drawn again 150 ms later.
     callback look-changed();
     callback choose-logo();

@@ -6,7 +6,7 @@
 // Release builds are a windowed app with no console window behind them.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use rustypresenter::{app::App, i18n, platform::{dialog, instance::{self, Bind}}, recovery::{self, exitcode, headless, panic, state::{self, StateWriter}, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
+use rustypresenter::{app::App, i18n, platform::{dialog, instance::{self, Bind}}, recovery::{self, exitcode, headless, panic, safe_mode::{self, Notice}, state::{self, StateWriter}, supervisor}, render::Renderer, startup, ui::{operator::window::{Operator, OperatorScreens}, ops::Ops, screens::NativeScreens}, video};
 use slint::{CloseRequestResponse, winit_030::invoke_from_active_event_loop};
 use std::{cell::RefCell, fs, path::Path, rc::Rc, sync::Arc};
 
@@ -101,7 +101,9 @@ fn main() {
     }
     rt.spawn(async { if tokio::signal::ctrl_c().await.is_ok() { let _ = slint::quit_event_loop(); } });
 
-    let mode = video::choose_backend();
+    // Settings → Video → Graphics, or software after two failed starts or with `--safe-mode`.
+    let graphics = safe_mode::start(&app, &root, args.safe_mode);
+    let mode = graphics.chosen.draw;
     let mpv = match video::ffi::Mpv::load() {
         Ok(m) => Some(m),
         Err(e) => { eprintln!("Video and audio will not play: {e}"); None }
@@ -115,7 +117,7 @@ fn main() {
     if let Some(roles) = restored { native.set_restored(roles); }
     native.start();
     // Queued after `start`'s reopen, so the room and stage are back before the operator picks its monitor.
-    let (screens, handle, op_app) = (native.clone(), rt.handle().clone(), app.clone());
+    let (screens, handle, op_app, notices, settle_root) = (native.clone(), rt.handle().clone(), app.clone(), graphics.notices, root.clone());
     let queued = invoke_from_active_event_loop(move |_| {
         let ops = Ops::new(op_app.clone(), handle);
         let operator = match Operator::open(op_app, ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>) {
@@ -124,6 +126,10 @@ fn main() {
         };
         screens.place_operator(&operator);
         if lang_missing { operator.toast(rustypresenter::tr!("The language chosen in Settings is not in this version, so RustyPresenter is in English."), true); }
+        for n in notices {
+            match n { Notice::Dialog(t) => rustypresenter::ui::dialogs::ask::notice(&operator, &t), Notice::Toast(t) => operator.toast(t, true) }
+        }
+        slint::Timer::single_shot(safe_mode::SETTLE, move || safe_mode::passed(&settle_root));
         // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
         // and stage close with it below.
         operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });
@@ -137,6 +143,7 @@ fn main() {
     OPERATOR.with(|o| o.borrow_mut().take());
     native.shutdown();
     if let Err(e) = result { fail(&i18n::tr!("RustyPresenter could not run its windows: {reason}", reason = e)); }
+    safe_mode::passed(&root);
     forget_live_state(&app, &root);
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
 }

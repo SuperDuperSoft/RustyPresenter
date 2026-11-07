@@ -18,42 +18,6 @@ pub enum DrawMode {
     Software,
 }
 
-static CHOSEN: std::sync::OnceLock<DrawMode> = std::sync::OnceLock::new();
-
-/// Picks Slint's backend: winit + FemtoVG (OpenGL), or the software renderer when
-/// `RP_FORCE_SOFTWARE=1` or OpenGL cannot be selected. Call once, before any window.
-pub fn choose_backend() -> DrawMode {
-    let select = |r: &str| slint::BackendSelector::new().backend_name("winit".into()).renderer_name(r.into()).select();
-    let mut mode = DrawMode::Software;
-    let mut chosen = false;
-    if std::env::var("RP_FORCE_SOFTWARE").as_deref() != Ok("1") {
-        // PERF EXPERIMENT: RP_RENDERER picks Slint's renderer (default femtovg). femtovg and skia-opengl draw
-        // video under the scene through OpenGL; any other (femtovg-wgpu, skia, skia-vulkan, skia-software,
-        // software) draws video into an image. Renderers other than femtovg and software need the crate's
-        // `renderer-wgpu` / `renderer-skia` features.
-        let r = std::env::var("RP_RENDERER").ok().filter(|r| !r.is_empty()).unwrap_or_else(|| "femtovg".into());
-        match select(&r) {
-            Ok(()) => {
-                chosen = true;
-                if r == "femtovg" || r == "skia-opengl" { mode = DrawMode::OpenGl }
-            }
-            Err(e) => eprintln!("{r} drawing unavailable ({e}); drawing video in software"),
-        }
-    }
-    if !chosen {
-        if let Err(e) = select("software") {
-            eprintln!("software renderer: {e}");
-        }
-    }
-    let _ = CHOSEN.set(mode);
-    mode
-}
-
-/// What `choose_backend` picked; software when it was never called (tests, other backends).
-pub fn drawing() -> DrawMode {
-    CHOSEN.get().copied().unwrap_or(DrawMode::Software)
-}
-
 /// What mpv's update callback reaches. Leaked once per surface, so a callback that
 /// races a render context being freed never sees freed memory.
 struct Wake {

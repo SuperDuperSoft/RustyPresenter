@@ -50,10 +50,14 @@ cfb = "0.10"
 # The computer's language (I18N). Already in Cargo.lock through Slint.
 
 [features]
-# PERF EXPERIMENT renderers for RP_RENDERER (see `video::choose_backend`); off by default, the app uses FemtoVG.
-# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain.
+# PERF EXPERIMENT renderers for RP_RENDERER (see `video::graphics`); off by default, the app uses FemtoVG.
+# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain. Slint 1.18 lets it be
+# told which one only through `slint/unstable-wgpu-30`, which needs crates not vendored here, so it is not offered in
+# Settings → Video → Graphics.
 renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
 # Skia: rust-skia has no prebuilt binaries for x86_64-pc-windows-gnu, so on Windows this needs the MSVC toolchain.
+# It downloads Skia while building, so it can't be built offline. With it, Settings → Video → Graphics offers Vulkan,
+# Direct3D (Windows) and Metal (macOS).
 renderer-skia = ["slint/renderer-skia", "slint/renderer-skia-opengl", "slint/renderer-skia-vulkan"]
 
 [build-dependencies]

@@ -80,6 +80,12 @@ Any video or audio format plays right away: MP4, MOV, MKV, AVI, WMV, HEVC, ProRe
 
 KJV, WEB and BSB are built in and work offline. Many more can be added from **Settings → Bible** (search by language or name). NIV, ESV, CSB, HCSB and NLT need the publisher's free key, or HCSB can be imported from a licensed file.
 
+## Troubleshooting
+
+**The screens flicker, stay black, or RustyPresenter crashes as it starts.** This is usually the graphics card. Go to **Settings → Video → Graphics**, pick another choice, and restart RustyPresenter. **Software (safe mode)** always works; video is smoother with the others.
+
+If RustyPresenter fails to start, or crashes in its first 20 seconds, twice in a row, it starts the next time in **safe mode** (software drawing) by itself and says so. To start in safe mode yourself for one run, add `--safe-mode`: for example `RustyPresenter.exe --safe-mode`, or add it to the end of a Windows shortcut's *Target*. This does not change Settings.
+
 ## Licenses
 
 RustyPresenter's own code is under the MIT license or the Apache License 2.0, whichever you prefer (`LICENSE-MIT`, `LICENSE-APACHE`).
@@ -93,7 +99,7 @@ You may use your own build of libmpv: set `RP_LIBMPV` to its path, or replace th
 - The app is native: a Rust core with a local server for the phone remote, and Slint windows for the operator, room and stage, with video and sound through libmpv.
 - Building needs `.tools\cargo` + `.tools\rustup` (the `stable-x86_64-pc-windows-gnu` toolchain) and `.tools\mingw64` (WinLibs MinGW-w64 GCC 16.2.0 UCRT, from github.com/brechtsanders/winlibs_mingw). The scripts put MinGW first on PATH and use its `dlltool`.
 - `dev-build.cmd` builds the app and runs the tests, writing everything to `build.log`.
-- The app needs `libmpv-2.dll` next to the exe, in `%LOCALAPPDATA%\RustyPresenter\deps\mpv\`, or named by `RP_LIBMPV`; without it everything but video and audio works. `RP_FORCE_SOFTWARE=1` draws without the GPU. Crashes are written to `logs\native-YYYYMMDD.log` in the data folder.
+- The app needs `libmpv-2.dll` next to the exe, in `%LOCALAPPDATA%\RustyPresenter\deps\mpv\`, or named by `RP_LIBMPV`; without it everything but video and audio works. `RP_FORCE_SOFTWARE=1` draws without the GPU, and `RP_RENDERER` names any Slint renderer; both beat Settings → Video → Graphics. Vulkan, Direct3D and Metal are offered only in builds with the `renderer-skia` feature. Crashes are written to `logs\native-YYYYMMDD.log` in the data folder.
 - `dev-watch.cmd` waits for `build.request`, `run.request` or `stop.request` files and acts on them. It lets a remote collaborator build on this PC. Close the window to stop it.
 - `scripts/licenses.sh` remakes `THIRD-PARTY-LICENSES.txt`. Run it after changing `Cargo.lock` or `packaging/licenses/`.
 - To add or fix a language (no programming needed), see [docs/TRANSLATING.md](docs/TRANSLATING.md).

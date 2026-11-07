@@ -465,6 +465,39 @@ fn video_tab_shows_player_status_not_ffmpeg() {
 }
 
 #[test]
+fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
+    use crate::{model::Graphics, video::graphics};
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "SettingsVideo::graphics").is_some(), "the picker");
+    assert!(find(&op, "SettingsVideo::graphics-now").is_some(), "the line saying what is in use");
+    let labels: Vec<String> = g(&op).get_graphics_labels().iter().map(|l| l.to_string()).collect();
+    let want: Vec<String> = graphics::available(graphics::Build::this()).into_iter().map(graphics::label).collect();
+    assert_eq!(labels, want, "only what this build can draw with");
+    assert_eq!(labels.first().map(String::as_str), Some("Automatic (recommended)"));
+    assert_eq!(labels.last().map(String::as_str), Some("Software (safe mode)"));
+    assert_eq!(g(&op).get_graphics_index(), 0, "Auto by default");
+    assert_eq!(g(&op).get_graphics_now(), "In use now: Software", "tests never choose a backend");
+
+    let last = labels.len() as i32 - 1;
+    g(&op).set_graphics_index(last);
+    g(&op).invoke_graphics_changed(last);
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
+    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Video)), "the dialog stays open");
+
+    // Save keeps it, and opening again shows it.
+    click(&op, "SettingsDialog::save");
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    assert_eq!(g(&op).get_graphics_index(), last);
+}
+
+#[test]
 fn the_sound_output_is_saved_and_shown_again() {
     let app = test_app();
     let op = opened(&app);
