@@ -82,6 +82,22 @@ component SettingsVideo inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Graphics");
+        help: @tr("Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start.");
+        graphics := Select {
+            options: SettingsDlg.graphics-labels;
+            index <=> SettingsDlg.graphics-index;
+            changed(i) => { SettingsDlg.graphics-changed(i); }
+        }
+        graphics-now := Text {
+            text: SettingsDlg.graphics-now;
+            color: Theme.muted;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    Field {
         label: @tr("Room screen");
         room-on-top := Check {
             text: @tr("Keep the room screen in front when it has its own monitor (smoother fades)");

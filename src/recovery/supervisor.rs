@@ -60,7 +60,7 @@ pub fn app_args(attempt: u32, passthrough: &[OsString]) -> Vec<OsString> {
 }
 
 #[derive(Debug, PartialEq, Default)]
-pub struct Args { pub app: bool, pub restore: bool, pub attempt: u32, pub no_browser: bool, pub rest: Vec<OsString> }
+pub struct Args { pub app: bool, pub restore: bool, pub attempt: u32, pub no_browser: bool, pub safe_mode: bool, pub rest: Vec<OsString> }
 
 pub fn parse_args(mut it: impl Iterator<Item = OsString>) -> Args {
     let mut a = Args::default();
@@ -69,6 +69,8 @@ pub fn parse_args(mut it: impl Iterator<Item = OsString>) -> Args {
             Some("--app") => a.app = true,
             Some("--restore") => a.restore = true,
             Some("--no-browser") => a.no_browser = true,
+            // Draw in software for this run (`recovery::safe_mode`). Passed on to every restart.
+            Some("--safe-mode") => a.safe_mode = true,
             Some("--attempt") => a.attempt = it.next().and_then(|n| n.to_str()?.parse().ok()).unwrap_or(0),
             _ => a.rest.push(arg),
         }
@@ -342,7 +344,13 @@ mod tests {
     fn parse_args_cases() {
         assert_eq!(parse_args(os(&[]).into_iter()), Args::default());
         let a = parse_args(os(&["--app", "--restore", "--attempt", "2", "--no-browser", "song.txt"]).into_iter());
-        assert_eq!(a, Args { app: true, restore: true, attempt: 2, no_browser: true, rest: os(&["song.txt"]) });
+        assert_eq!(a, Args { app: true, restore: true, attempt: 2, no_browser: true, safe_mode: false, rest: os(&["song.txt"]) });
+    }
+
+    #[test]
+    fn safe_mode_is_read_and_passed_on_to_restarts() {
+        assert!(parse_args(os(&["--app", "--safe-mode"]).into_iter()).safe_mode);
+        assert_eq!(app_args(1, &os(&["--safe-mode"])), os(&["--restore", "--safe-mode"]));
     }
 
     #[test]

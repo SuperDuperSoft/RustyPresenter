@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_language, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -123,6 +123,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_room_on_top(s.room_on_top);
     g.set_section_keys(s.section_keys);
     settings_audio::fill(g, &[], &s.audio_device);
+    settings_graphics::fill(g, s.graphics);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -250,6 +251,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_toggle_also(with_i(settings_bible::toggle_also));
     g.on_also_layout_changed(with_i(settings_bible::also_layout));
     g.on_choose_language(with_i(settings_language::choose));
+    g.on_graphics_changed(with_i(settings_graphics::choose));
     g.on_help_translate(with(settings_language::help_translate));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
