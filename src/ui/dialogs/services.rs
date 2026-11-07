@@ -265,11 +265,16 @@ fn rename_template(op: &Rc<Operator>, id: Uuid) {
     });
 }
 
-/// "Sunday", "sun", "Sundays" → Sunday; empty or "any" → any day.
+/// "Sunday", "sun", "Sundays" → Sunday; empty or "any" → any day. The words in the app's language work too.
 pub fn parse_day(text: &str) -> Option<Option<chrono::Weekday>> {
-    let t = text.trim().to_lowercase();
-    let t = t.trim_end_matches('s');
-    if t.is_empty() || t.starts_with("any") { return Some(None) }
+    let full = text.trim().to_lowercase();
+    let any = ["any".to_string(), ptr::any_typed().to_lowercase(), ptr::any_day().to_lowercase()];
+    if full.is_empty() || any.iter().any(|a| !a.is_empty() && full.starts_with(a.as_str())) { return Some(None) }
+    if let Some(i) = ptr::days_plural().iter().position(|d| d.to_lowercase() == full) {
+        return chrono::Weekday::try_from(i as u8).ok().map(Some);
+    }
+    let t = full.trim_end_matches('s');
+    if t.is_empty() { return Some(None) }
     if t.chars().count() < 2 { return None }
     ptr::days_long().iter().position(|d| d.to_lowercase().starts_with(t)).and_then(|i| chrono::Weekday::try_from(i as u8).ok()).map(Some)
 }
@@ -938,6 +943,19 @@ mod tests {
         assert_eq!(parse_day("Any day"), Some(None));
         assert_eq!(parse_day("t"), None);
         assert_eq!(parse_day("someday"), None);
+    }
+
+    #[test]
+    fn parse_day_reads_the_translated_words() {
+        let po = "msgid \"\"\nmsgstr \"\"\n\"Language: xx\\n\"\n\n\
+                  msgctxt \"typed answer: no fixed day\"\nmsgid \"any\"\nmsgstr \"cualquier\"\n\n\
+                  msgid \"Sunday\"\nmsgstr \"Domingo\"\n\nmsgid \"Sundays\"\nmsgstr \"Domingos\"\n";
+        crate::i18n::testing::with_catalog(po, || {
+            assert_eq!(parse_day("Cualquier día"), Some(None));
+            assert_eq!(parse_day("any"), Some(None));
+            assert_eq!(parse_day("domingos"), Some(Some(chrono::Weekday::Sun)));
+            assert_eq!(parse_day("Dom"), Some(Some(chrono::Weekday::Sun)));
+        });
     }
 
     #[test]

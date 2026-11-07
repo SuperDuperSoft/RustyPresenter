@@ -1,7 +1,7 @@
 //! User-facing strings of service planning (FEAT-6a): dates, Copy last week, templates, blanks and headers.
 //! Declared from `src/planning/mod.rs` with a `#[path]` line, like `strings/bundle.rs`.
 use crate::model::BlankKind;
-use crate::{tr, trn};
+use crate::{tr, trc, trn};
 
 /// The name of a service, or of a template, that has nothing else left once its date is taken off.
 pub fn service() -> String { tr!("Service") }
@@ -19,6 +19,8 @@ pub fn days_plural() -> [String; 7] {
     [tr!("Mondays"), tr!("Tuesdays"), tr!("Wednesdays"), tr!("Thursdays"), tr!("Fridays"), tr!("Saturdays"), tr!("Sundays")]
 }
 pub fn any_day() -> String { tr!("Any day") }
+/// What a person may type for a template's day to mean no fixed day. Also "Any day" works.
+pub fn any_typed() -> String { trc!("typed answer: no fixed day", "any") }
 pub fn months() -> [String; 12] {
     [
         tr!("January"), tr!("February"), tr!("March"), tr!("April"), tr!("May"), tr!("June"), tr!("July"), tr!("August"),
