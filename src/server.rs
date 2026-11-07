@@ -32,7 +32,7 @@ fn local_ok(app: &App, addr: &SocketAddr, headers: &HeaderMap) -> bool {
     addr.ip().is_loopback() && host_ok && origin_ok
 }
 
-fn forbidden() -> Response { (StatusCode::FORBIDDEN, "This page only opens on the presentation computer.").into_response() }
+fn forbidden() -> Response { (StatusCode::FORBIDDEN, crate::tr!("This page only opens on the presentation computer.")).into_response() }
 fn bad(msg: impl Into<String>) -> Response { (StatusCode::BAD_REQUEST, Json(json!({ "error": msg.into() }))).into_response() }
 fn ok(v: Value) -> Response { Json(v).into_response() }
 
@@ -137,34 +137,44 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
         let mut att = app.attempts.lock().unwrap();
         let now = Instant::now();
         if att.get(&addr.ip()).is_some_and(|t| now.duration_since(*t) < Duration::from_secs(1)) {
-            return bad("Too fast — wait a second and try again.");
+            return bad(crate::tr!("Too fast — wait a second and try again."));
         }
         att.insert(addr.ip(), now);
     }
     let mut pairing = app.pairing.lock().unwrap();
     let Some(p) = pairing.as_mut().filter(|p| p.until > Instant::now()) else {
         *pairing = None;
-        return bad("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”.");
+        return bad(crate::tr!("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."));
     };
     let by_qr = !req.pair.trim().is_empty();
     let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
     if !right {
         p.failures += 1;
-        if p.failures >= 5 { *pairing = None; return bad("Too many wrong codes. Start pairing again on the computer."); }
-        return bad(if by_qr { "That QR code has expired. On the computer, click Pair a phone again." } else { "That code isn't right." });
+        if p.failures >= 5 { *pairing = None; return bad(crate::tr!("Too many wrong codes. Start pairing again on the computer.")); }
+        return bad(if by_qr { crate::tr!("That QR code has expired. On the computer, click Pair a phone again.") } else { crate::tr!("That code isn't right.") });
     }
     *pairing = None;
     drop(pairing);
     let token = random_token();
     let mut phones = app.phones.lock().unwrap();
     if phones.len() >= MAX_PHONES { phones.sort_by_key(|p| p.last_seen); phones.remove(0); }
-    let name = if req.name.trim().is_empty() { format!("Phone {}", phones.len() + 1) } else { req.name.trim().chars().take(40).collect() };
+    let name = if req.name.trim().is_empty() { crate::tr!("Phone {number}", number = phones.len() + 1) } else { req.name.trim().chars().take(40).collect() };
     phones.push(Phone { id: Uuid::new_v4(), name, hash: hash_token(&token), last_seen: now_secs() });
     app.save_phones(&phones);
     drop(phones);
     app.broadcast_data();
     let cookie = format!("rp_session={token}; HttpOnly; SameSite=Strict; Path=/; Max-Age={}", SESSION_DAYS * 86400);
     ([(header::SET_COOKIE, cookie)], Json(json!({ "ok": true }))).into_response()
+}
+
+/// The phone remote's words in the computer's language, `{ English: shown }`, with the language code in
+/// `Content-Language`. Open like `/remote` itself: the pairing screen needs them too, and they are not secret.
+async fn remote_i18n() -> Response {
+    ([(header::CONTENT_LANGUAGE, crate::i18n::current()), (header::CACHE_CONTROL, "no-store".into())], Json(i18n_map())).into_response()
+}
+
+fn i18n_map() -> Value {
+    Value::Object(crate::i18n::remote_strings::remote_strings().into_iter().map(|(en, shown)| (en.to_string(), Value::String(shown))).collect())
 }
 
 async fn remote_status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
@@ -196,8 +206,8 @@ async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Respo
 async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
     if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response(); }
-    let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad("Bad command.") };
-    let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some("Not allowed from the phone.".into()), duplicate: false } };
+    let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad(crate::tr!("Bad command.")) };
+    let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some(crate::tr!("Not allowed from the phone.")), duplicate: false } };
     ok(serde_json::to_value(out).unwrap())
 }
 
@@ -217,7 +227,7 @@ fn remote_view(app: &App) -> String {
     let plan = DataPlan(&data);
     let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
         let (title, kind, slides) = build_item(&data, i);
-        json!({ "id": i.id, "title": title, "kind": kind, "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
+        json!({ "id": i.id, "title": title, "kind": kind, "count": crate::trn!("{n} slide", "{n} slides", slides.len()), "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
     }).collect()).unwrap_or_default();
     let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
     let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s) }));
@@ -237,16 +247,18 @@ fn remote_view(app: &App) -> String {
         // FEAT-1: the saved overlays with whether each is on, and the newest clear for `seen_clear`.
         "overlays": crate::theme::overlay::slots::remote_list(&data.overlays, &live.frame.overlays),
         "clear_epoch": live.clear_epoch,
+        // I18N: the page reads `/i18n.json` again when this changes.
+        "lang": crate::i18n::current(),
     }).to_string()
 }
 
 pub fn slide_text(s: &Slide) -> String {
     match &s.content {
         SlideContent::Text { text, parallel, .. } => crate::model::all_bibles_text(text, parallel.as_ref()),
-        SlideContent::Image { .. } => "(slide picture)".into(),
-        SlideContent::Video { .. } => "(video)".into(),
-        SlideContent::Still { .. } => "(picture)".into(),
-        SlideContent::Audio { .. } => "(audio)".into(),
+        SlideContent::Image { .. } => crate::tr!("(slide picture)"),
+        SlideContent::Video { .. } => crate::tr!("(video)"),
+        SlideContent::Still { .. } => crate::tr!("(picture)"),
+        SlideContent::Audio { .. } => crate::tr!("(audio)"),
     }
 }
 
@@ -257,6 +269,7 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/remote", get(remote_page))
         .route("/remote/pair", post(remote_pair))
         .route("/remote/status", get(remote_status))
+        .route("/i18n.json", get(remote_i18n))
         .route("/remote/events", get(remote_events))
         .route("/remote/command", post(remote_command))
         .with_state(app)
@@ -332,6 +345,63 @@ mod tests {
         for path in ["/remote", "/static/remote.js", "/remote/status"] {
             assert_eq!(status_of(addr, "GET", path).await, 200, "{path}");
         }
+    }
+
+    const XX_REMOTE: &str = r#"
+msgid ""
+msgstr ""
+"Language: xx\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Connect"
+msgstr "Verbinden"
+
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "Am Computer: {phone} → {pair}, dann den Code tippen."
+
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "{n} Folie"
+msgstr[1] "{n} Folien"
+"#;
+
+    #[test]
+    fn i18n_json_maps_the_remote_words_to_the_current_language() {
+        let en = i18n_map();
+        assert!(en.as_object().unwrap().iter().all(|(k, v)| v == k), "in English every word is itself (catches a typo in a pair)");
+        crate::i18n::testing::with_catalog(XX_REMOTE, || {
+            let m = i18n_map();
+            assert_eq!(m["Connect"], "Verbinden");
+            assert_eq!(m["On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."], "Am Computer: {phone} → {pair}, dann den Code tippen.");
+            assert_eq!(m["Cancel"], "Cancel", "an untranslated word stays English");
+            let app = test_app();
+            let v: Value = serde_json::from_str(&remote_view(&app)).unwrap();
+            assert_eq!(v["lang"], "xx", "the phone is told the language");
+        });
+    }
+
+    /// Every `t('…')` in `remote.js` and `data-t` text in `remote.html` is in `/i18n.json`.
+    #[test]
+    fn every_remote_word_is_listed() {
+        let m = i18n_map();
+        let js = include_str!("../web/remote.js");
+        let mut asked = Vec::new();
+        for (at, _) in js.match_indices("t('") {
+            if js[..at].ends_with(|c: char| c.is_alphanumeric() || c == '_' || c == '.') { continue }
+            asked.push(js[at + 3..].split('\'').next().unwrap().to_string());
+        }
+        let html = include_str!("../web/remote.html");
+        for part in html.split(" data-t>").skip(1) {
+            asked.push(part.split('<').next().unwrap().trim().to_string());
+        }
+        assert!(asked.len() > 20, "found {}", asked.len());
+        for w in &asked { assert!(m.get(w).is_some(), "“{w}” is not in src/i18n/remote_strings.rs"); }
+    }
+
+    #[tokio::test]
+    async fn i18n_json_is_served_without_pairing() {
+        let addr = served(test_app()).await;
+        assert_eq!(status_of(addr, "GET", "/i18n.json").await, 200);
     }
 
     #[tokio::test]

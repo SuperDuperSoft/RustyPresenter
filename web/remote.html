@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>RustyPresenter Remote</title>
+<title data-t>RustyPresenter Remote</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0f13">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,25 +67,25 @@
 </head>
 <body>
 <div class="pair" id="pair">
-  <h1>Phone remote</h1>
-  <p>On the presentation computer, click <b>Phone</b> → <b>Pair a phone</b>, then type the 6-digit code here.</p>
+  <h1 data-t>Phone remote</h1>
+  <p id="pairHelp">On the presentation computer, click <b>Phone</b> → <b>Pair a phone</b>, then type the 6-digit code here.</p>
   <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
-  <button id="pairBtn">Connect</button>
+  <button id="pairBtn" data-t>Connect</button>
   <div class="err" id="pairErr"></div>
 </div>
 <div class="app" id="app">
-  <div class="bar"><span class="dot" id="dot"></span><span id="svc">Connecting…</span></div>
-  <div class="now"><div class="label">On screen <span id="nowLabel"></span></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
+  <div class="bar"><span class="dot" id="dot"></span><span id="svc" data-t>Connecting…</span></div>
+  <div class="now"><div class="label" data-t>On screen <span id="nowLabel"></span></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
   <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
-  <div class="media" id="media"><button id="mediaBtn">Pause video</button></div>
-  <div class="next"><div class="label">Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>
+  <div class="media" id="media"><button id="mediaBtn" data-t>Pause video</button></div>
+  <div class="next"><div class="label" data-t>Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>
   <div class="clears">
-    <button class="all" data-c="clear_all">Clear All</button>
-    <button data-c="clear_slide">Text</button><button data-c="clear_media">Media</button><button data-c="clear_audio">Audio</button><button data-c="logo" id="logoBtn">Logo</button>
+    <button class="all" data-c="clear_all" data-t>Clear All</button>
+    <button data-c="clear_slide" data-t>Text</button><button data-c="clear_media" data-t>Media</button><button data-c="clear_audio" data-t>Audio</button><button data-c="logo" id="logoBtn" data-t>Logo</button>
   </div>
-  <div class="items"><h2>Service</h2><div id="items"></div></div>
+  <div class="items"><h2 data-t>Service</h2><div id="items"></div></div>
 </div>
-<div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel">Cancel</button></div></div>
+<div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p data-t>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel" data-t>Cancel</button></div></div>
 <div class="toast" id="toast"></div>
 <script type="module" src="/static/remote.js"></script>
 </body>

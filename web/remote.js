@@ -1,10 +1,34 @@
 const $ = id => document.getElementById(id);
-// FEAT-4 texts, copied from src/strings/song.rs.
-const STR = { screenChanged: 'The screen changed — try again.' };
+// The words in the computer's language, from /i18n.json (listed in src/i18n/remote_strings.rs). `t` takes the English word and
+// gives the shown text; `{name}` gaps are filled from `args`. A word not there stays English.
+let T = {}, lang = null;
+const t = (en, args = {}) => (T[en] || en).replace(/\{(\w+)\}/g, (m, k) => k in args ? args[k] : m);
 const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
 let es = null, V = null;
 
-function toast(msg, good = false) { const t = $('toast'); t.textContent = msg; t.classList.toggle('good', good); t.style.display = 'block'; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = 'none', 2500); }
+function toast(msg, good = false) { const el = $('toast'); el.textContent = msg; el.classList.toggle('good', good); el.style.display = 'block'; clearTimeout(el._h); el._h = setTimeout(() => el.style.display = 'none', 2500); }
+
+// Reads the words again (at start, and when the computer's language changes) and puts them on the page.
+async function loadWords() {
+  const r = await fetch('/i18n.json').catch(() => null);
+  if (r && r.ok) { T = await r.json().catch(() => T); lang = r.headers.get('content-language') || lang; }
+  document.documentElement.lang = lang || 'en';
+  // Elements marked `data-t`: their first text is the English word.
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const node = el.firstChild;
+    if (!node || node.nodeType !== Node.TEXT_NODE) return;
+    if (el._en === undefined) el._en = node.nodeValue;
+    const m = /^(\s*)(.*?)(\s*)$/s.exec(el._en);
+    node.nodeValue = m[1] + t(m[2]) + m[3];
+  });
+  const b = s => { const e = document.createElement('b'); e.textContent = s; return e; };
+  $('pairHelp').replaceChildren(...t('On the presentation computer, click {phone} → {pair}, then type the 6-digit code here.')
+    .split(/(\{phone\}|\{pair\})/).map(p => p === '{phone}' ? b(t('Phone')) : p === '{pair}' ? b(t('Pair a phone')) : p));
+  $('prev').textContent = '‹ ' + t('Back');
+  $('next').textContent = t('Next') + ' ›';
+  if (V) render();
+}
+
 async function post(env) {
   try {
     const r = await fetch('/remote/command', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(env) });
@@ -12,10 +36,10 @@ async function post(env) {
     const out = await r.json();
     if (!out.ok && out.error) {
       if (!out.error.startsWith('stale')) toast(out.error);
-      else if (env.cmd === 'show') toast('The screen changed just now — tap the slide again.');
-      else if (env.cmd === 'jump') toast(STR.screenChanged);
+      else if (env.cmd === 'show') toast(t('The screen changed just now — tap the slide again.'));
+      else if (env.cmd === 'jump') toast(t('The screen changed — try again.'));
     }
-  } catch { toast('Not connected'); }
+  } catch { toast(t('Not connected')); }
 }
 function send(cmd, extra = {}, withBase = false) {
   const env = { id: rid(), cmd, ...extra };
@@ -24,7 +48,7 @@ function send(cmd, extra = {}, withBase = false) {
   post(env);
 }
 
-const phoneName = () => /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android phone' : 'Phone';
+const phoneName = () => /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? t('Android phone') : t('Phone');
 
 // The QR code opens /remote#pair=<one-time secret>. Take it out of the address bar straight away (so it is not
 // bookmarked, shared or reused), then pair with it: no typing.
@@ -36,9 +60,9 @@ async function pairFromLink() {
   const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
   if (st.paired) return false;
   const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pair: m[1], name: phoneName() }) }).catch(() => null);
-  if (r && r.ok) { toast('Connected', true); return false; }
+  if (r && r.ok) { toast(t('Connected'), true); return false; }
   await start();
-  $('pairErr').textContent = 'That QR code has expired. On the computer, click Pair a phone again.';
+  $('pairErr').textContent = t('That QR code has expired. On the computer, click Pair a phone again.');
   return true;
 }
 
@@ -52,7 +76,7 @@ $('pairBtn').onclick = async () => {
   $('pairErr').textContent = '';
   const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), name: phoneName() }) });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) { $('pairErr').textContent = j.error || 'Could not connect.'; return; }
+  if (!r.ok) { $('pairErr').textContent = j.error || t('Could not connect.'); return; }
   start();
 };
 $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('pairBtn').click(); });
@@ -61,7 +85,13 @@ function connect() {
   if (es) es.close();
   es = new EventSource('/remote/events');
   es.onopen = () => $('dot').classList.add('on');
-  es.onmessage = e => { const m = JSON.parse(e.data); if (m.type === 'remote') { V = m; render(); } };
+  es.onmessage = e => {
+    const m = JSON.parse(e.data);
+    if (m.type !== 'remote') return;
+    V = m;
+    render();
+    if (m.lang && m.lang !== lang) { lang = m.lang; loadWords(); }
+  };
   es.onerror = async () => {
     $('dot').classList.remove('on');
     const st = await fetch('/remote/status').then(r => r.json()).catch(() => null);
@@ -70,23 +100,23 @@ function connect() {
 }
 
 function render() {
-  $('svc').textContent = V.service || 'Service';
+  $('svc').textContent = V.service || t('Service');
   const air = V.on_air;
-  $('now').textContent = air.logo ? '(Logo)' : V.current && (air.slide || air.media) ? V.current.text : air.audio ? '(Music playing)' : '(Clear)';
+  $('now').textContent = air.logo ? t('(Logo)') : V.current && (air.slide || air.media) ? V.current.text : air.audio ? t('(Music playing)') : t('(Clear)');
   $('nowLabel').textContent = V.current && (air.slide || air.media) ? V.current.label : '';
   renderSections();
-  $('nextText').textContent = V.next ? V.next.text : 'End of service';
+  $('nextText').textContent = V.next ? V.next.text : t('End of service');
   $('nextLabel').textContent = V.next ? `${V.next.title} · ${V.next.label}` : '';
   $('logoBtn').classList.toggle('on', air.logo);
   $('media').classList.toggle('on', !!V.media);
-  if (V.media) $('mediaBtn').textContent = V.media.paused ? '▶ Play video' : '❚❚ Pause video';
+  if (V.media) $('mediaBtn').textContent = V.media.paused ? '▶ ' + t('Play video') : '❚❚ ' + t('Pause video');
   const liveId = V.cursor && V.cursor.item_id;
   $('items').replaceChildren(...V.items.map((it, i) => {
     const row = document.createElement('div');
     row.className = 'it' + (it.id === liveId ? ' live' : '');
     row.innerHTML = `<span class="n">${i + 1}</span><span class="t"></span><span class="k"></span>`;
     row.querySelector('.t').textContent = it.title;
-    row.querySelector('.k').textContent = it.slides.length + (it.slides.length === 1 ? ' slide' : ' slides');
+    row.querySelector('.k').textContent = it.count;
     row.onclick = () => openSheet(it);
     return row;
   }));
@@ -127,4 +157,4 @@ $('prev').onclick = () => send('prev', {}, true);
 document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(b.dataset.c));
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });
 
-pairFromLink().catch(() => false).then(shown => { if (!shown) start(); });
+loadWords().then(() => pairFromLink()).catch(() => false).then(shown => { if (!shown) start(); });
