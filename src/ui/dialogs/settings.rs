@@ -259,6 +259,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_choose_language(with_i(settings_language::choose));
     g.on_graphics_changed(with_i(settings_graphics::choose));
     g.on_help_translate(with(settings_language::help_translate));
+    g.on_edit_translation(with(|op, _| super::translation_editor::open(op, None)));
+    g.on_add_language(with(|op, _| super::translation_editor::open_add(op)));
     g.on_backup_now(with(backup_now));
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);

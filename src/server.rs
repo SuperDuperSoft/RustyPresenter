@@ -357,6 +357,8 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         "may_draw": may_draw,
         "fade_secs": live.drawing.fade_after.as_secs(),
         "my_strokes": phone.map(|id| live.drawing.ids_of(id)).unwrap_or_default(),
+        // ...and when a translation is edited in the app.
+        "words": crate::i18n::revision(),
     }).to_string()
 }
 
@@ -502,6 +504,24 @@ msgstr[1] "{n} Folien"
             let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
             assert_eq!(v["lang"], "xx", "the phone is told the language");
         });
+    }
+
+    #[test]
+    fn i18n_json_follows_translations_edited_in_the_app() {
+        crate::i18n::testing::reset();
+        let app = test_app();
+        let dir = app.store.root.join("translations");
+        crate::i18n::load_user_folder(&dir);
+        crate::i18n::set_language("es").unwrap();
+        assert_eq!(i18n_map()["Connect"], "Conectar");
+        let words = |app: &App| serde_json::from_str::<Value>(&remote_view(app, None)).unwrap()["words"].as_u64().unwrap();
+        let before = words(&app);
+        let mut d = crate::i18n::user::Draft::open("es");
+        d.set("", "Connect", &["Enlazar".into()]);
+        d.save(&dir).unwrap();
+        assert_eq!(i18n_map()["Connect"], "Enlazar");
+        assert!(words(&app) > before, "the phone is told to read the words again");
+        crate::i18n::set_language("en").unwrap();
     }
 
     /// Every `t('…')` in `remote.js` and `data-t` text in `remote.html` is in `/i18n.json`.

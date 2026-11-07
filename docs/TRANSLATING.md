@@ -1,11 +1,37 @@
 # Translating RustyPresenter
 
-RustyPresenter can show every button, message and phone-remote word in your language. Each language is one text
-file. You do not need to know any programming to make or fix one.
+RustyPresenter can show every button, message and phone-remote word in your language. You do not need to know any
+programming to fix a translation or add a new language, and you do not need any other program.
 
-You need [Poedit](https://poedit.net) (free). Any `.po` editor works, and so does a plain text editor.
+## The easy way: in the app, in 3 steps
 
-## Add or fix a language in 5 steps
+1. **Open the translations.** In RustyPresenter, click **Settings → Translations…** in the menu (or open
+   **Settings → Language** and click **Edit this translation…**). To start a new language, click
+   **Add a language…**, pick yours from the list (or tick "My language is not in the list"), and choose to start
+   from nothing or from a copy of a close language.
+
+2. **Type your words.** The list shows each English text beside your language. Click one and type in the box below.
+   - Use the search box, or the buttons **Untranslated**, **Needs review** and **Changed by me**, to find texts.
+   - Keep the parts in curly brackets exactly as they are: `{name}`, `{n}`. A red note tells you if one is missing
+     or changed; that text stays in English until it is fixed.
+   - Texts that change with a number ("1 song, 2 songs") have one box for each kind of number, labelled with
+     examples ("For 1…", "For 2, 3, 4…").
+   - Your change shows in the whole app (and on the phone remote) a moment after you stop typing, and is saved by
+     itself. **Reset this entry to built-in** undoes it.
+
+3. **Share it.** When a native speaker has read it all, click **Mark as reviewed**. Click **Export…** to save one
+   `.po` file, and send it to the project so other churches get it too. **Import…** loads a file someone sent you.
+
+Your changes are kept in the data folder, in `translations/<code>.po` (for example `translations/es.po`), and win
+over the translation built into the program. A file there for a language the program does not have adds that
+language to **Settings → Language**. A file that cannot be read is skipped, and the app says so.
+
+## The advanced way: Poedit and pull requests
+
+You need [Poedit](https://poedit.net) (free). Any `.po` editor works, and so does a plain text editor. This changes
+the translations built into the program, so it needs a rebuild.
+
+### Add or fix a language in 5 steps
 
 1. **Start from the right file.**
    - To fix a language that is already there, open `translations/<code>/LC_MESSAGES/rustypresenter.po`
@@ -64,3 +90,7 @@ cargo run --example i18n_extract
 It rewrites `translations/rustypresenter.pot` and adds the new texts (untranslated) to every language's `.po`, keeping
 the translations it already has. Texts the code no longer uses stay at the end of the file as `#~` lines. Commit the
 changed files together with the code. Until you run it, the test `i18n_pot_is_current` fails.
+
+Translations edited in the app (`src/i18n/user.rs`, `src/ui/dialogs/translation_editor.rs`) reach the `@tr` text of
+the `.slint` files through a small hook in a patched copy of Slint's core: see `patches/i-slint-core/PATCHED.md`.
+Note that only texts already in `rustypresenter.pot` can be edited in the app, so run the extractor before a release.

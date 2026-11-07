@@ -44,6 +44,8 @@ pub enum MenuAction {
     SlideView(super::slides::SlideView),
     /// Edit → About this Bible… (N6): the chosen Bible's licence and where it comes from.
     BibleInfo,
+    /// Settings → Translations…: the translation editor on the language in use.
+    Translations,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -86,6 +88,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-easy" => MenuAction::SlideView(super::slides::SlideView::Easy),
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         "bible-info" => MenuAction::BibleInfo,
+        "translations" => MenuAction::Translations,
         _ => return None,
     })
 }
@@ -122,6 +125,7 @@ impl Operator {
                 let chosen = self.state.borrow().snap.as_ref().map(|s| s.translation.clone());
                 if let Some(id) = chosen { super::bible_extras::info(self, &id) }
             }
+            Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
             None => {}
         }
     }

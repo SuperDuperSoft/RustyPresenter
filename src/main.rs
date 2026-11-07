@@ -74,11 +74,14 @@ fn main() {
 
     // The app's language (I18N spec D6): the one saved in Settings, or the computer's. Before any window, so the
     // first one is drawn in it.
+    // The church's own translations (Settings → Translations…) over the built-in ones; a file that cannot be read
+    // is left out, and the operator window says so.
+    for p in i18n::load_user_folder(&root.join("translations")) { eprintln!("{p}"); }
     let saved_lang = app.data.lock().unwrap().settings.ui_language.clone();
     let lang = i18n::resolve(&saved_lang);
     let _ = i18n::set_language(&lang);
     let lang_missing = !saved_lang.is_empty() && lang != saved_lang;
-    if lang_missing { eprintln!("The saved language {saved_lang} is not built in; showing English."); }
+    if lang_missing { eprintln!("The saved language {saved_lang} is not built in or in the translations folder; showing English."); }
 
     if args.restore { println!("Started with --restore, attempt {}.", args.attempt); }
     let restored = recovery::restore::at_start(&app, args.restore, args.attempt);

@@ -1,0 +1,434 @@
+// Translations (Settings → Translations…): edit the app's words in a language, or add a language, inside the app.
+// A change shows in the whole app a moment after typing and is saved by itself. Filled and answered by
+// `src/ui/dialogs/translation_editor.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Chip, Segmented, ScrollBox } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+import { TextField, TextArea, Lbl, Note, Check, Select } from "form.slint";
+
+/// One English text in the table. `state`: "" (built in), "mine" (changed by me), "missing" (no translation),
+/// "review" (a guess, or a mistake to fix).
+export struct TransRow { english: string, shown: string, hint: string, state: string }
+/// One box of the chosen text: a plural form has a label with example numbers.
+export struct TransForm { label: string, text: string }
+/// A language in the add-a-language list.
+export struct TransLang { title: string, sub: string }
+
+export global TranslationEditorDlg {
+    /// "edit" or "add".
+    in property <string> page: "edit";
+    in property <string> language;
+    in property <string> progress;
+    /// The app is not showing this language now.
+    in property <bool> not-shown;
+    in property <bool> reviewed;
+    in-out property <string> search;
+    in-out property <int> filter;
+    in property <[TransRow]> rows;
+    /// "Showing 200 of 812" when the list is cut.
+    in property <string> more;
+    in-out property <int> selected: -1;
+    // The chosen text.
+    in property <string> english;
+    in property <string> english-plural;
+    in property <string> context;
+    in property <string> note;
+    in property <string> where;
+    in property <[TransForm]> forms;
+    in property <string> problem;
+    in property <bool> mine;
+    in property <bool> guess;
+    callback search-changed(string);
+    callback filter-changed(int);
+    callback select(int);
+    callback form-edited(int, string);
+    callback reset-entry();
+    callback keep-entry();
+    callback show-more();
+    callback use-language();
+    callback mark-reviewed();
+    callback export();
+    callback import();
+    callback add-language();
+    callback close();
+
+    // Add a language.
+    in-out property <string> add-search;
+    in property <[TransLang]> add-langs;
+    in-out property <int> add-selected: -1;
+    in-out property <bool> add-custom;
+    in-out property <string> add-code;
+    in-out property <string> add-native;
+    in-out property <string> add-english;
+    in-out property <string> add-plural;
+    in property <[string]> add-copy-options;
+    in-out property <int> add-copy;
+    in property <string> add-error;
+    callback add-search-changed(string);
+    callback add-pick(int);
+    callback add-confirm();
+    callback add-cancel();
+}
+
+component Small inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12.5px;
+    wrap: word-wrap;
+}
+
+component EditPage inherits VerticalLayout {
+    in property <length> window-height;
+    // A fixed height (the tall card's body): the list takes what the chosen text's boxes leave, so the buttons
+    // always show.
+    height: max(420px, min(860px, root.window-height - 2 * Theme.dialog-top) - 72px);
+    VerticalLayout {
+        vertical-stretch: 1;
+        padding-top: 4px;
+        padding-left: 22px;
+        padding-right: 22px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: space-between;
+            VerticalLayout {
+                alignment: center;
+                spacing: 2px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+                    trans-language := Text {
+                        text: TranslationEditorDlg.language;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 16px;
+                        font-weight: 700;
+                    }
+                    if TranslationEditorDlg.reviewed: Chip {
+                        text: @tr("Reviewed");
+                        state: "ok";
+                    }
+                }
+                trans-progress := Small {
+                    text: TranslationEditorDlg.progress;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                alignment: end;
+                if TranslationEditorDlg.not-shown: trans-use := Btn {
+                    small: true;
+                    text: @tr("Show the app in this language");
+                    clicked => { TranslationEditorDlg.use-language(); }
+                }
+                trans-add := Btn {
+                    small: true;
+                    text: @tr("Add a language…");
+                    clicked => { TranslationEditorDlg.add-language(); }
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            trans-search := TextField {
+                horizontal-stretch: 1;
+                search: true;
+                text <=> TranslationEditorDlg.search;
+                placeholder: @tr("Search the English or your words");
+                edited(t) => { TranslationEditorDlg.search-changed(t); }
+            }
+            trans-filter := Segmented {
+                labels: [@tr("All"), @tr("Untranslated"), @tr("Needs review"), @tr("Changed by me")];
+                index <=> TranslationEditorDlg.filter;
+                changed(i) => { TranslationEditorDlg.filter-changed(i); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 12px;
+            padding-left: 12px;
+            padding-right: 22px;
+            Lbl { label: @tr("English"); horizontal-stretch: 1; }
+            Lbl { label: @tr("Your language"); horizontal-stretch: 1; }
+        }
+        ScrollBox {
+            vertical-stretch: 1;
+            min-height: 100px;
+            track-edge: Theme.panel;
+            VerticalLayout {
+                alignment: start;
+                spacing: 3px;
+                padding-right: 12px;
+                for row[i] in TranslationEditorDlg.rows: trans-row := Rectangle {
+                    background: i == TranslationEditorDlg.selected ? Theme.raise : Theme.panel-2;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: i == TranslationEditorDlg.selected ? Theme.accent : ta.has-hover ? Theme.line : transparent;
+                    accessible-role: list-item;
+                    accessible-label: row.english;
+                    accessible-value: row.shown;
+                    accessible-action-default => { TranslationEditorDlg.select(i); }
+                    ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { TranslationEditorDlg.select(i); }
+                    }
+                    HorizontalLayout {
+                        padding: 8px;
+                        padding-left: 12px;
+                        spacing: 12px;
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            Text {
+                                text: row.english;
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: Theme.base-size;
+                                overflow: elide;
+                            }
+                            if row.hint != "": Small {
+                                text: row.hint;
+                                wrap: no-wrap;
+                                overflow: elide;
+                            }
+                        }
+                        HorizontalLayout {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            spacing: 8px;
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                min-width: 0px;
+                                alignment: center;
+                                Text {
+                                    text: row.shown != "" ? row.shown : @tr("(shows in English)");
+                                    color: row.shown != "" ? Theme.text : Theme.faint;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    overflow: elide;
+                                }
+                            }
+                            if row.state == "mine": Chip { text: @tr("Changed by me"); state: "ok"; }
+                            if row.state == "review": Chip { text: @tr("Needs review"); state: "warn"; }
+                        }
+                    }
+                }
+                if TranslationEditorDlg.more != "": HorizontalLayout {
+                    alignment: start;
+                    spacing: 10px;
+                    padding-top: 6px;
+                    Small {
+                        text: TranslationEditorDlg.more;
+                        vertical-alignment: center;
+                    }
+                    trans-more := Btn {
+                        small: true;
+                        text: @tr("Show more");
+                        clicked => { TranslationEditorDlg.show-more(); }
+                    }
+                }
+                if TranslationEditorDlg.rows.length == 0: Small {
+                    text: @tr("Nothing matches.");
+                }
+            }
+        }
+        // The chosen text.
+        if TranslationEditorDlg.selected < 0: Small {
+            height: root.window-height * 0.30;
+            text: @tr("Click a text above to translate it.");
+        }
+        if TranslationEditorDlg.selected >= 0: ScrollBox {
+            height: root.window-height * 0.30;
+            VerticalLayout {
+                padding-right: 12px;
+                alignment: start;
+                trans-entry := Rectangle {
+                    background: Theme.panel-2;
+                    border-radius: 10px;
+                    VerticalLayout {
+                        padding: 12px;
+                        spacing: 8px;
+                        Lbl { label: @tr("English"); }
+                        trans-english := Text {
+                            text: TranslationEditorDlg.english-plural == "" ? TranslationEditorDlg.english : TranslationEditorDlg.english + "\n" + TranslationEditorDlg.english-plural;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            font-weight: 600;
+                            wrap: word-wrap;
+                        }
+                        if TranslationEditorDlg.context != "" || TranslationEditorDlg.note != "": Small {
+                            text: TranslationEditorDlg.context != "" && TranslationEditorDlg.note != "" ? TranslationEditorDlg.context + " · " + TranslationEditorDlg.note : TranslationEditorDlg.context + TranslationEditorDlg.note;
+                        }
+                        if TranslationEditorDlg.where != "": Small { text: TranslationEditorDlg.where; }
+                        for f[k] in TranslationEditorDlg.forms: VerticalLayout {
+                            spacing: 4px;
+                            if f.label != "": Lbl { label: f.label; }
+                            trans-form := TextArea {
+                                min-height: 58px;
+                                label: f.label != "" ? f.label : @tr("Your language");
+                                placeholder: @tr("Type it in your language (empty shows the English)");
+                                edited(t) => { TranslationEditorDlg.form-edited(k, t); }
+                                init => { self.text = f.text; }
+                            }
+                        }
+                        if TranslationEditorDlg.problem != "": trans-problem := Text {
+                            text: TranslationEditorDlg.problem;
+                            color: Theme.danger-text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            wrap: word-wrap;
+                            accessible-role: text;
+                            accessible-label: self.text;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            if TranslationEditorDlg.guess: trans-keep := Btn {
+                                small: true;
+                                text: @tr("This is right");
+                                clicked => { TranslationEditorDlg.keep-entry(); }
+                            }
+                            if TranslationEditorDlg.mine: trans-reset := Btn {
+                                small: true;
+                                text: @tr("Reset this entry to built-in");
+                                clicked => { TranslationEditorDlg.reset-entry(); }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Rectangle { height: 4px; }
+    }
+    DialogFoot {
+        trans-import := Btn { text: @tr("Import…"); clicked => { TranslationEditorDlg.import(); } }
+        trans-export := Btn { text: @tr("Export…"); clicked => { TranslationEditorDlg.export(); } }
+        if !TranslationEditorDlg.reviewed: trans-reviewed := Btn { text: @tr("Mark as reviewed"); clicked => { TranslationEditorDlg.mark-reviewed(); } }
+        trans-close := Btn { primary: true; text: @tr("Done"); clicked => { TranslationEditorDlg.close(); } }
+    }
+}
+
+component AddPage inherits VerticalLayout {
+    in property <length> window-height;
+    VerticalLayout {
+        padding-top: 4px;
+        padding-left: 22px;
+        padding-right: 22px;
+        padding-bottom: 8px;
+        spacing: 10px;
+        Small { text: @tr("Pick your language. You can start from nothing (the English shows until you type) or from a copy of a language that is close to yours."); }
+        add-search := TextField {
+            search: true;
+            text <=> TranslationEditorDlg.add-search;
+            placeholder: @tr("Search languages");
+            edited(t) => { TranslationEditorDlg.add-search-changed(t); }
+        }
+        ScrollBox {
+            height: max(140px, root.window-height * 0.30);
+            VerticalLayout {
+                spacing: 3px;
+                padding-right: 12px;
+                for lang[i] in TranslationEditorDlg.add-langs: add-lang := Rectangle {
+                    background: i == TranslationEditorDlg.add-selected ? Theme.raise : Theme.panel-2;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: i == TranslationEditorDlg.add-selected ? Theme.accent : transparent;
+                    accessible-role: list-item;
+                    accessible-label: lang.title;
+                    accessible-action-default => { TranslationEditorDlg.add-pick(i); }
+                    TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { TranslationEditorDlg.add-pick(i); }
+                    }
+                    HorizontalLayout {
+                        padding: 8px;
+                        padding-left: 12px;
+                        spacing: 10px;
+                        Text {
+                            text: lang.title;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            font-weight: 600;
+                            vertical-alignment: center;
+                        }
+                        Small {
+                            horizontal-stretch: 1;
+                            text: lang.sub;
+                            vertical-alignment: center;
+                            wrap: no-wrap;
+                            overflow: elide;
+                        }
+                    }
+                }
+            }
+        }
+        add-custom := Check {
+            text: @tr("My language is not in the list");
+            checked <=> TranslationEditorDlg.add-custom;
+        }
+        if TranslationEditorDlg.add-custom: HorizontalLayout {
+            spacing: 10px;
+            VerticalLayout {
+                spacing: 4px;
+                Lbl { label: @tr("Code"); }
+                add-code := TextField {
+                    width: 110px;
+                    text <=> TranslationEditorDlg.add-code;
+                    label: @tr("Code");
+                }
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 4px;
+                Lbl { label: @tr("Name in your language"); }
+                add-native := TextField { text <=> TranslationEditorDlg.add-native; label: @tr("Name in your language"); }
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 4px;
+                Lbl { label: @tr("Name in English"); }
+                add-english := TextField { text <=> TranslationEditorDlg.add-english; label: @tr("Name in English"); }
+            }
+        }
+        if TranslationEditorDlg.add-custom: VerticalLayout {
+            spacing: 4px;
+            Lbl { label: @tr("How it counts (from the gettext plural list; leave as it is if unsure)"); }
+            add-plural := TextField { text <=> TranslationEditorDlg.add-plural; label: @tr("How it counts"); }
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            VerticalLayout {
+                alignment: center;
+                Lbl { label: @tr("Start from"); }
+            }
+            add-copy := Select {
+                width: 320px;
+                options: TranslationEditorDlg.add-copy-options;
+                index <=> TranslationEditorDlg.add-copy;
+            }
+        }
+        if TranslationEditorDlg.add-error != "": add-error := Text {
+            text: TranslationEditorDlg.add-error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        add-cancel := Btn { text: @tr("Back"); clicked => { TranslationEditorDlg.add-cancel(); } }
+        add-confirm := Btn { primary: true; text: @tr("Add language"); clicked => { TranslationEditorDlg.add-confirm(); } }
+    }
+}
+
+export component TranslationEditorDialog inherits VerticalLayout {
+    in property <length> window-height;
+    if TranslationEditorDlg.page == "edit": EditPage { window-height: root.window-height; }
+    if TranslationEditorDlg.page == "add": AddPage { window-height: root.window-height; }
+}

@@ -119,7 +119,7 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
     refresh(&op);
     let item = with_text_item(&op);
     let service = op.app().data.lock().unwrap().services[0].id;
-    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 30] = [
+    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 31] = [
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),
         ("Add media", Box::new(|op| add::open_add(op, AddTab::Media))),
@@ -150,6 +150,7 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
         ("Find verse", Box::new(|op| find_verse::open(op, ""))),
         ("Slide breaks", Box::new(move |op| slide_breaks::open(op, item))),
         ("Quick search", Box::new(crate::ui::dialogs::quick_search::open)),
+        ("Translations", Box::new(|op| crate::ui::dialogs::translation_editor::open(op, None))),
     ];
     for (name, show) in &dialogs {
         for size in SIZES {

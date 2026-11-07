@@ -27,6 +27,7 @@ import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
+import { TranslationEditorDialog } from "dialogs/translation-editor.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
 import { MenuKeys, MouseRings } from "keys.slint";
 import { QuickSearchDialog } from "dialogs/quick-search.slint";
@@ -663,6 +664,11 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("settings-help"); }
             }
+            MenuItem {
+                title: @tr("Translations…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("translations"); }
+            }
         }
         Menu {
             title: @tr("Help");
@@ -919,6 +925,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "find-verse": FindVerseDialog {}
             if root.dialog-kind == "slide-breaks": SlideBreaksDialog {}
             if root.dialog-kind == "quick-search": QuickSearchDialog { window-height: root.height; }
+            if root.dialog-kind == "translations": TranslationEditorDialog { window-height: root.height; }
         }
 
         for a in root.ask: AskOverlay {

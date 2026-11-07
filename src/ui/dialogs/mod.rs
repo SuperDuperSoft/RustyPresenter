@@ -30,6 +30,7 @@ pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
+pub mod translation_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
@@ -79,6 +80,8 @@ pub enum DialogKind {
     SlideBreaks(Uuid),
     /// N14: Ctrl+F finds a song, file, slide set or service.
     QuickSearch,
+    /// The app's words in a language, edited in the app (Settings → Translations…).
+    Translations,
 }
 
 impl DialogKind {
@@ -87,7 +90,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_)) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -112,6 +115,7 @@ impl DialogKind {
             DialogKind::FindVerse => "find-verse",
             DialogKind::SlideBreaks(_) => "slide-breaks",
             DialogKind::QuickSearch => "quick-search",
+            DialogKind::Translations => "translations",
         }
     }
 }
@@ -232,6 +236,7 @@ impl Operator {
             DialogKind::FindVerse => crate::scripture::strings::find_a_verse(),
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
             DialogKind::QuickSearch => quick_search::title(),
+            DialogKind::Translations => translation_editor::title(),
         }
     }
 }
