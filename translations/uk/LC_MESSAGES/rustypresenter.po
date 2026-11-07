@@ -1,0 +1,5356 @@
+# Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: uk\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Українська\nX-English-Name: Ukrainian\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr ""
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr ""
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr ""
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr ""
+
+#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr ""
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr ""
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr ""
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr ""
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Text"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr ""
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr ""
+
+#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr ""
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr ""
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint
+msgid "Automatic"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+msgid "Name"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint src/strings/themes.rs
+msgid "Background"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Save"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr ""
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr ""
+
+#: ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/song-editor.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+msgid "Remove"
+msgstr ""
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr ""
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr ""
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr ""
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr ""
+
+#: ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Size"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr ""
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Rename"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Delete"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr ""
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr ""
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Font"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Lyrics size"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Scripture text size"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "(biggest)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text color"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Text position"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Middle"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "ALL CAPS lyrics"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr ""
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr ""
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr ""
+
+#: ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Song use report…"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr ""
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+msgid "Video"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr ""
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "End"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "⟲ Use written order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "From"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "To"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr ""
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr ""
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr ""
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr ""
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr ""
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr ""
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr ""
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr ""
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr ""
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr ""
+
+#: ui/operator/live_controls.slint
+msgid "Pause"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr ""
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr ""
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Click Import, or try another folder or word."
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr ""
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr ""
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr ""
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr ""
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr ""
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr ""
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Click “Add to service” below, type a Bible verse up top, or drag files onto this window."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr ""
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr ""
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr ""
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Screens"
+msgstr ""
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr ""
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr ""
+
+#: ui/operator.slint
+msgid "File"
+msgstr ""
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr ""
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr ""
+
+#: ui/operator.slint
+msgid "View"
+msgstr ""
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr ""
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr ""
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr ""
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Window"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr ""
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr ""
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr ""
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr ""
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr ""
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr ""
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr ""
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr ""
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr ""
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr ""
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr ""
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr ""
+
+#: src/app.rs
+msgid "This computer"
+msgstr ""
+
+#: src/app.rs
+msgid "Not used"
+msgstr ""
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr ""
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr ""
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr ""
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr ""
+
+#: src/app.rs
+msgid "No service is open."
+msgstr ""
+
+#: src/app.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr ""
+
+#: src/app.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr ""
+
+#: src/app.rs
+msgid "New Service"
+msgstr ""
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr ""
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr ""
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr ""
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr ""
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr ""
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr ""
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr ""
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr ""
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr ""
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr ""
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr ""
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr ""
+
+#: src/app.rs
+msgid "Language changed"
+msgstr ""
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr ""
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr ""
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr ""
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr ""
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr ""
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr ""
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr ""
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr ""
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr ""
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr ""
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr ""
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr ""
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr ""
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr ""
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr ""
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr ""
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr ""
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr ""
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr ""
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr ""
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr ""
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr ""
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr ""
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr ""
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr ""
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr ""
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr ""
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr ""
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr ""
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr ""
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr ""
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr ""
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr ""
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr ""
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr ""
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr ""
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr ""
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr ""
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr ""
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr ""
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr ""
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr ""
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr ""
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr ""
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr ""
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr ""
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr ""
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr ""
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr ""
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr ""
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr ""
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr ""
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr ""
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr ""
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr ""
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr ""
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr ""
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr ""
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr ""
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr ""
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr ""
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr ""
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr ""
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr ""
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr ""
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr ""
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr ""
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr ""
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr ""
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr ""
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr ""
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr ""
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr ""
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr ""
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr ""
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr ""
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr ""
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr ""
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr ""
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr ""
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr ""
+
+#: src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr ""
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr ""
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr ""
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr ""
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr ""
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr ""
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr ""
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr ""
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr ""
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr ""
+
+#: src/server.rs
+msgid "Bad command."
+msgstr ""
+
+#: src/server.rs
+msgid "Not allowed from the phone."
+msgstr ""
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr ""
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr ""
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr ""
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr ""
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr ""
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr ""
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr ""
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr ""
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr ""
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr ""
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr ""
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr ""
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr ""
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr ""
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr ""
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr ""
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr ""
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr ""
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr ""
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr ""
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Ready"
+msgstr ""
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr ""
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr ""
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr ""
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr ""
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr ""
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Service starts in"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Pre-service"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr ""
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "New Testament"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Old Testament"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr ""
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr ""
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr ""
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr ""
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr ""
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr ""
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr ""
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr ""
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr ""
+
+#: src/strings/operator.rs src/strings/print.rs
+msgid "Picture"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr ""
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr ""
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr ""
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr ""
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr ""
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "…and {n} more"
+msgstr ""
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr ""
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr ""
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Stage screen"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "None"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr ""
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr ""
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr ""
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr ""
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr ""
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr ""
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr ""
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Chorus"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr ""
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr ""
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Stage layout"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Next slide"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Clock"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Message"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Church default"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New theme"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Bold"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Red"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Color"
+msgstr ""
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr ""
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr ""
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr ""
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr ""
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr ""
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr ""
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr ""
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr ""
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr ""
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr ""
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr ""
+
+#: src/theme/saved.rs
+msgid "{name} copy"
+msgstr ""
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr ""
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr ""
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr ""
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr ""
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr ""
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr ""
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr ""
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr ""
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr ""
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr ""
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr ""
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr ""
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr ""
