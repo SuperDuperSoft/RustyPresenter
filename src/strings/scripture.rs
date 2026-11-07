@@ -46,6 +46,7 @@ pub fn help_search_rules() -> Vec<String> { vec![
 
 pub fn also_show() -> String { tr!("Also show…") }
 pub fn search_by_words() -> String { tr!("Search by words…") }
+pub fn find_a_verse() -> String { tr!("Find a verse") }
 pub fn slide_breaks() -> String { tr!("Slide breaks") }
 pub fn choose_slide_breaks() -> String { tr!("Choose slide breaks…") }
 pub fn reset_to_automatic() -> String { tr!("Reset to automatic") }

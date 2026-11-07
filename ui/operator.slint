@@ -20,6 +20,8 @@ import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
+import { FindVerseDialog } from "dialogs/find-verse.slint";
+import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -628,6 +630,8 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "phone": PhoneDialog {}
             if root.dialog-kind == "settings": SettingsDialog {}
             if root.dialog-kind == "usage": UsageDialog {}
+            if root.dialog-kind == "find-verse": FindVerseDialog { window-height: root.height; }
+            if root.dialog-kind == "slide-breaks": SlideBreaksDialog { window-height: root.height; }
         }
 
         for a in root.ask: AskOverlay {

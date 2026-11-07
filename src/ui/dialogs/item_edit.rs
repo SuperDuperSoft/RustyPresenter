@@ -136,6 +136,7 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
         move || if let (Some(op), Some(edit)) = (me.upgrade(), edit.upgrade()) { f(&op, &edit) }
     };
     g.on_save(with(save));
+    g.on_choose_breaks(with(|op, edit| save_then(op, edit, true)));
     g.on_remove(with(remove));
     g.on_edit_song(with(edit_song));
     g.on_upload(with(|op, edit| {
@@ -325,20 +326,23 @@ fn rename(name: &Name, typed: &str) -> Option<(&'static str, serde_json::Value)>
 
 /// Save: look the passage up again if its Bible changed, rename if needed, then `service/update`, then close and
 /// toast "Saved". Any failure is an error toast with the core's message, and the dialog stays open.
-fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
+fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) { save_then(op, edit, false) }
+
+/// Save; `breaks`: then open Slide breaks for the item (Choose slide breaks…, FEAT-5 §3.3).
+fn save_then(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>, breaks: bool) {
     let g = op.ui.global::<ItemEdit>();
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
         (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone(), e.item.clone())
     };
-    let Some(lookup) = relookup(&was, &item, chosen.as_deref()) else { return rename_then_update(op, item, rename, None) };
+    let Some(lookup) = relookup(&was, &item, chosen.as_deref()) else { return rename_then_update(op, item, rename, None, breaks) };
     let me = Rc::downgrade(op);
     op.ops().call::<Found>("bible/lookup", lookup, move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
             Ok(found) => {
                 let left = left_out_toast(&op, &found);
-                rename_then_update(&op, with_passage(item, found), rename, left);
+                rename_then_update(&op, with_passage(item, found), rename, left, breaks);
             }
             Err(e) => op.toast(e, true),
         }
@@ -346,7 +350,7 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 }
 
 /// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
-fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>) {
+fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>, breaks: bool) {
     let id = item.id;
     let body = serde_json::to_value(&item).unwrap_or_default();
     let update = move |op: &Rc<Operator>| {
@@ -358,6 +362,7 @@ fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'st
                     if op.dialog() == Some(DialogKind::ItemEdit(id)) { op.close_dialog() }
                     op.toast(strings::saved(), false);
                     if let Some(n) = note { op.toast(n, true) }
+                    if breaks { super::slide_breaks::open(&op, id) }
                 }
                 Err(e) => op.toast(e, true),
             }
@@ -507,7 +512,7 @@ mod tests {
     #[test]
     fn scripture_per_slide_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_kind(), "scripture");
@@ -520,9 +525,22 @@ mod tests {
         assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
     }
 
+    #[test]
+    fn choose_slide_breaks_saves_then_opens_the_breaks_dialog() {
+        let app = test_app();
+        let id = kjv_john_3_16(&app);
+        let op = opened(&app);
+        open(&op, id);
+        g(&op).set_per_slide(1);
+        press(&op, "ItemEditDialog::choose-breaks");
+        let ItemKind::Scripture { per_slide, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!(per_slide, 1, "the edits are saved first");
+        assert_eq!(op.dialog(), Some(DialogKind::SlideBreaks(id)));
+    }
+
     fn kjv_john_3_16(app: &App) -> Uuid {
         let verses = vec![VerseText::new("John 3:16", "old text")];
-        push(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 2, text_size: 0, also: vec![], layout: Default::default() })
+        push(app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 2, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() })
     }
 
     #[test]
@@ -573,7 +591,7 @@ mod tests {
 
     #[test]
     fn a_plain_save_does_not_look_the_passage_up() {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ebible:spaRV1909".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None };
         assert_eq!(relookup(&item, &item, Some("ebible:spaRV1909")), None);
         assert_eq!(relookup(&item, &item, None), None);
         assert_eq!(relookup(&item, &item, Some("KJV")), Some(serde_json::json!({ "reference": "John 3:16", "translation": "KJV" })));
@@ -661,7 +679,7 @@ mod tests {
             AlsoShow { translation: "WEB".into(), verses: vec![VerseText::new("John 3:16", "web text")] },
             AlsoShow { translation: "BSB".into(), verses: vec![VerseText::new("John 3:16", "bsb text")] },
         ];
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "old text")], per_slide: 0, text_size: 0, also, layout: Default::default() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "old text")], per_slide: 0, text_size: 0, also, layout: Default::default(), breaks: Default::default() });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(also_labels(&op), ["WEB", "BSB"], "the item's own Also Bibles");
@@ -708,7 +726,7 @@ mod tests {
     #[test]
     fn scripture_text_size_saved_and_automatic_again() {
         let app = test_app();
-        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() });
+        let id = push(&app, ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() });
         let op = opened(&app);
         open(&op, id);
         assert_eq!(g(&op).get_size_mode(), 0, "Automatic until chosen");

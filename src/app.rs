@@ -229,6 +229,8 @@ pub struct App {
     pub youtube: crate::youtube::Hub,
     /// The song use log for CCLI reporting (`usage.json`).
     pub usage: crate::usage::Usage,
+    /// Bible keyword search indexes, made on the first search (FEAT-5).
+    pub(crate) search: OnceLock<crate::scripture::search::SearchService>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -272,7 +274,7 @@ impl App {
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
-            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage,
+            bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
         });
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -1398,6 +1400,7 @@ impl App {
             Ok(json!({}))
         }
         a if a.starts_with("usage/") => app.usage_action(a, body).await,
+        a if crate::scripture::actions::handles(a) => crate::scripture::actions::run(app, a, body).await,
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
@@ -2093,7 +2096,7 @@ mod tests {
         let app = test_app();
         let mut service = Service::new("Sunday");
         service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(), theme: None,
-            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default() } });
+            kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() } });
         let data = Data { services: vec![service], ..Data::default() };
         let name = app.store.backup(&data).unwrap();
         app.do_action("backup/restore", json!({ "name": name }).to_string().as_bytes()).await.unwrap();
@@ -2749,7 +2752,7 @@ mod tests {
         bible::sources::put_cached(&root, "ESV", "John 3:16", "For God so loved the world, ESV");
         let mut data = Data::default();
         data.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ESV".into(), verses: vec![], per_slide: 0, text_size: 0,
-            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default() }, background: None, notes: String::new(), theme: None });
+            also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None });
         let app = App::new(store, data, 0, None);
         let d = app.data.lock().unwrap();
         let ItemKind::Scripture { verses, also, .. } = &d.services[0].items[0].kind else { panic!() };

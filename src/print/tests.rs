@@ -22,7 +22,7 @@ fn sample() -> (Data, Service) {
         item(ItemKind::Song { song_id: song.id }),
         item(ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(),
             verses: vec![VerseText::new("John 3:16", "For God so loved the world"), VerseText::new("John 3:17", "For God sent not")],
-            per_slide: 0, text_size: 0, also: vec![], layout: Default::default() }),
+            per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }),
         item(ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: false }),
         item(ItemKind::Deck { deck_id: deck.id }),
         item(ItemKind::Text { title: "Welcome".into(), body: "\nWelcome to <church> & friends\nsecond".into() }),

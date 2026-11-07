@@ -44,7 +44,7 @@ mod tests {
     fn passage(main: &str, also: &[&str]) -> ServiceItem {
         let v = |t: &str| vec![VerseText::new("John 3:16", format!("{t} words"))];
         let also = also.iter().map(|t| AlsoShow { translation: t.to_string(), verses: v(t) }).collect();
-        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: main.into(), verses: v(main), per_slide: 0, text_size: 0, also, layout: Default::default() }, background: None, notes: String::new(), theme: None }
+        ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: main.into(), verses: v(main), per_slide: 0, text_size: 0, also, layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None }
     }
 
     #[test]

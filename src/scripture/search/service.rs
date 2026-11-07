@@ -122,6 +122,18 @@ impl SearchService {
         self.start(&mut slots, code);
     }
 
+    /// Stops any build under way (the search dialog closed). Ready indexes stay; a cancelled one is built again on
+    /// its next search.
+    pub fn cancel(&self) {
+        self.lock().retain(|_, s| match s {
+            Slot::Building(cancel) => {
+                cancel.store(true, Ordering::SeqCst);
+                false
+            }
+            Slot::Ready(_) => true,
+        });
+    }
+
     pub fn is_ready(&self, tr: &str) -> bool { matches!(self.lock().get(&key(tr)), Some(Slot::Ready(_))) }
 
     pub fn is_building(&self, tr: &str) -> bool { matches!(self.lock().get(&key(tr)), Some(Slot::Building(_))) }
@@ -328,6 +340,18 @@ mod tests {
         assert!(matches!(s.search(&src, &req("love", "KJV")).unwrap(), SearchReply::Pending));
         assert_eq!(rx.recv_timeout(TEN_S).unwrap(), "KJV");
         assert_eq!(readers.genesis_1_calls(), 1); // one build
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn cancel_stops_the_build_and_a_later_search_starts_again() {
+        let svc = SearchService::new(Handle::current(), Arc::new(SlowReaders), noop());
+        let s = Sources { rows: vec![], local: vec!["WEB".into()] };
+        assert!(matches!(svc.search(&s, &req("god", "WEB")).unwrap(), SearchReply::Pending));
+        assert!(svc.is_building("WEB"));
+        svc.cancel();
+        assert!(!svc.is_building("WEB") && !svc.is_ready("WEB"));
+        assert!(matches!(svc.search(&s, &req("god", "WEB")).unwrap(), SearchReply::Pending));
+        assert!(svc.is_building("WEB"), "built again on its next search");
     }
 
     #[test]

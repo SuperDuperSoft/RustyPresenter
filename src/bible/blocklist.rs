@@ -354,7 +354,7 @@ mod tests {
     fn strip_takes_only_blocked_passages() {
         use crate::model::{Service, ServiceItem};
         let item = |translation: &str, verses: Vec<VerseText>| {
-            let kind = ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, text_size: 0, also: vec![], layout: Default::default() };
+            let kind = ItemKind::Scripture { reference: "John 1:1".into(), translation: translation.into(), verses, per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() };
             ServiceItem { id: uuid::Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None }
         };
         let mut s = Service::new("Sunday");

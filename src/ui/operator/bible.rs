@@ -14,7 +14,7 @@ use uuid::Uuid;
 
 /// `bible/lookup`'s answer. The verses pass through to `service/add` untouched.
 #[derive(Deserialize)]
-struct Found { label: String, verses: Value, translation: String }
+pub(crate) struct Found { label: String, verses: Value, translation: String }
 
 /// `service/add`'s answer: the new id, and what to say when an Also Bible was left out.
 #[derive(Deserialize)]
@@ -22,10 +22,15 @@ struct Added { id: Uuid, #[serde(default)] toast: Option<String> }
 
 /// Enter in the Bible box (`operator.js:325-336`): look the passage up, add it after the live item (or at the end),
 /// clear the box, give the keys back, and select and arm the new item. A failure is an error toast with the core's
-/// text, and the box keeps what was typed. Nothing happens while a dialog or question is open over the box.
+/// text, and the box keeps what was typed. Nothing happens while a dialog or question is open over the box. Words
+/// that are not a reference open Find a verse instead.
 pub fn submit(op: &Rc<Operator>, reference: String) {
     let reference = reference.trim().to_string();
     if reference.is_empty() || op.covered() { return }
+    // Words, not a reference: find the verse by its words (FEAT-5 §3.1).
+    if crate::scripture::input::classify_bible_input(&reference) == crate::scripture::input::BibleInput::Words {
+        return crate::ui::dialogs::find_verse::open(op, &reference);
+    }
     let translation = op.state.borrow().snap.as_ref().map(|s| s.translation.clone()).unwrap_or_else(|| "KJV".into());
     let me = Rc::downgrade(op);
     op.ops.call::<Found>("bible/lookup", json!({ "reference": reference, "translation": translation }), move |r| {
@@ -39,7 +44,7 @@ pub fn submit(op: &Rc<Operator>, reference: String) {
 
 /// The second half of `submit`: the passage goes in with the translation the core returned, not the chip state
 /// (`operator.js:330`).
-fn add(op: &Rc<Operator>, found: Found) {
+pub(crate) fn add(op: &Rc<Operator>, found: Found) {
     let live_item = op.live_item();
     let position = op.state.borrow().snap.as_ref().and_then(|s| view::insert_position(&s.items, live_item));
     let Found { label, verses, translation } = found;

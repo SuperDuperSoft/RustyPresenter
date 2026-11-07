@@ -201,6 +201,9 @@ pub enum ItemKind {
         /// How the Bibles share a slide when there is more than one.
         #[serde(default)]
         layout: crate::scripture::ParallelLayout,
+        /// Slide breaks the operator chose between verses (FEAT-5 §3.3).
+        #[serde(default, skip_serializing_if = "crate::scripture::VerseBreaks::is_empty")]
+        breaks: crate::scripture::VerseBreaks,
     },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
@@ -666,7 +669,7 @@ mod tests {
         d.settings.bible_per_slide = 3;
         d.services[0].items.push(ServiceItem {
             id: Uuid::new_v4(), background: None, notes: String::new(), theme: None,
-            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, also: vec![], layout: Default::default() },
+            kind: ItemKind::Scripture { reference: "Psalm 23".into(), translation: "KJV".into(), verses: vec![], per_slide: 1, text_size: 96, also: vec![], layout: Default::default(), breaks: Default::default() },
         });
         let back: Data = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
         assert_eq!(back.settings.bible_per_slide, 3);
