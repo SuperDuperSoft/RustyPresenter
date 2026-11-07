@@ -22,6 +22,8 @@ pub enum MenuAction {
     Zoom(i8),
     /// The same as the window's close button.
     Exit,
+    /// Window → Stage layouts… (FEAT-3).
+    StageLayouts,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -48,6 +50,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "zoom-out" => MenuAction::Zoom(-1),
         "zoom-reset" => MenuAction::Zoom(0),
         "exit" => MenuAction::Exit,
+        "stage-layouts" => MenuAction::StageLayouts,
         _ => return None,
     })
 }
@@ -70,6 +73,7 @@ impl Operator {
             Some(MenuAction::Logs) => self.open_logs(),
             Some(MenuAction::Zoom(step)) => self.zoom(step),
             Some(MenuAction::Exit) => self.window().dispatch_event(WindowEvent::CloseRequested),
+            Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             None => {}
         }
     }
@@ -226,6 +230,7 @@ mod tests {
         assert_eq!(action("zoom-out"), Some(MenuAction::Zoom(-1)));
         assert_eq!(action("zoom-reset"), Some(MenuAction::Zoom(0)));
         assert_eq!(action("exit"), Some(MenuAction::Exit));
+        assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }

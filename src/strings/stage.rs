@@ -88,3 +88,27 @@ pub fn macros_wont_run() -> String { tr!("the macros won't run until they are ed
 /// On their own.
 pub fn macro_wont_run_alone() -> String { tr!("The macro won't run until it is edited") }
 pub fn macros_wont_run_alone() -> String { tr!("The macros won't run until they are edited") }
+
+/// The stage layout editor (FEAT-3 spec §3.6).
+pub fn editor_title() -> String { tr!("Stage layouts") }
+pub fn new_layout_name() -> String { tr!("New stage layout") }
+pub fn copy_name(name: &str) -> String { tr!("{name} copy", name = name) }
+pub fn rename_title() -> String { tr!("Name of the stage layout") }
+pub fn discard_question() -> String { tr!("Discard your changes to the stage layouts?") }
+pub fn discard() -> String { tr!("Discard") }
+pub fn keep_editing() -> String { tr!("Keep editing") }
+pub fn delete() -> String { tr!("Delete") }
+pub fn saved() -> String { tr!("Stage layouts saved.") }
+/// After a layout is picked for the stage.
+pub fn now_on_stage(name: &str) -> String { tr!("The stage shows “{name}”.", name = name) }
+/// A new Text box's words.
+pub fn your_words() -> String { tr!("Your words here") }
+
+/// Words the editor shows in each kind of box, in `ElementKind` order (`presets::all_kinds`).
+pub fn sample_words() -> [String; 12] {
+    [
+        tr!("Amazing grace, how sweet the sound"), tr!("That saved a wretch like me"), tr!("Chorus"), tr!("Verse 2"),
+        tr!("Amazing Grace"), slides_left(3), tr!("Slow down on the last line"), "9:41 AM".into(), "5:00".into(),
+        "−2:05".into(), tr!("Last chorus"), String::new(),
+    ]
+}

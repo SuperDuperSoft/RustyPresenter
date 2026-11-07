@@ -557,6 +557,9 @@ pub struct Data {
     /// Service templates (FEAT-6).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub templates: Vec<ServiceTemplate>,
+    /// The church's own stage layouts (FEAT-3); the built-ins are made in code and never stored.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub stage_layouts: Vec<crate::stage::StageLayout>,
     /// Each Bible's credit for its scripture slides, by translation id (`App::refresh_bible_credits`). Worked out
     /// from the Bibles on this computer, so never saved: a Bible added or removed changes it.
     #[serde(skip)]
@@ -589,7 +592,7 @@ impl Default for Data {
         let service = Service::new(&crate::tr!("Sunday Service"));
         Self {
             format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
-            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![],
+            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![], stage_layouts: vec![],
             bible_credits: BTreeMap::new(),
         }
     }
@@ -616,6 +619,8 @@ impl Data {
                 if tidy != *styles { *styles = tidy; changed = true; }
             }
         }
+        // FEAT-3: hand-edited stage layouts made safe to draw.
+        for l in &mut self.stage_layouts { changed |= crate::stage::geom::sanitise_layout(l); }
         changed
     }
 

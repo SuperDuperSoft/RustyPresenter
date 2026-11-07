@@ -20,6 +20,7 @@ import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
+import { StageLayoutsDialog } from "dialogs/stage-layouts.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -459,6 +460,11 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready && root.stage-shown;
                 activated => { root.focus-keys(); root.stage-message(); }
             }
+            MenuItem {
+                title: @tr("Stage layouts…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("stage-layouts"); }
+            }
         }
         Menu {
             title: @tr("Settings");
@@ -707,6 +713,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "phone": PhoneDialog {}
             if root.dialog-kind == "settings": SettingsDialog {}
             if root.dialog-kind == "usage": UsageDialog {}
+            if root.dialog-kind == "stage-layouts": StageLayoutsDialog {}
         }
 
         for a in root.ask: AskOverlay {

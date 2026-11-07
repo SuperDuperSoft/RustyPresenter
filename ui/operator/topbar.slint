@@ -4,6 +4,7 @@ import { Theme, OperatorState } from "../theme.slint";
 import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
 
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
+import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 
 export { TranslationChip }
 
@@ -464,6 +465,11 @@ export component TopBar inherits Rectangle {
                 tooltip: @tr("Show a message on the stage screen");
                 clicked => { root.stage-message(); }
             }
+        }
+        if root.stage-shown: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            stage-layout-btn := StageLayoutButton { narrow: root.narrow; }
         }
         VerticalLayout {
             horizontal-stretch: 0;
