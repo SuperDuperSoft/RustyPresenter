@@ -108,6 +108,7 @@ impl Operator {
         ui.set_has_selection(item.is_some());
         ui.set_slide_count(item.map_or(0, |i| i.slides.len()) as i32);
         ui.set_slides_note(item.map_or_else(String::new, |i| i.notes.join("\n")).into());
+        ui.set_slides_custom_order(item.is_some_and(|i| matches!(i.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. })));
         self.render_text_size();
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
@@ -481,7 +482,7 @@ mod tests {
     fn empty_states_text() {
         let app = test_app();
         // A song that is not in the library has no slides.
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let op = opened(&app);
         assert_eq!(find(&op, "Empty::empty-title").unwrap().accessible_label().unwrap(), "Nothing to show");

@@ -7,6 +7,7 @@ import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, TextArea, Check, Note, RangeSlider } from "form.slint";
 import { BackgroundPicker, BgChoice } from "background-picker.slint";
 import { BiblePickButton, TranslationChip } from "../bible-picker.slint";
+import { ArrangementStrip, ArrChipRow, ArrAddRow } from "arrangement.slint";
 
 export { BgChoice }
 
@@ -49,6 +50,24 @@ export global ItemEdit {
     in property <[BgChoice]> choices;
     in property <[color]> palette;
     in-out property <string> notes;
+
+    /// Song: this service's order (FEAT-4 §3.5). Ticked: the song's usual order, shown dimmed; unticked: the strip
+    /// is this service's own order.
+    in-out property <bool> usual-order: true;
+    in property <[ArrChipRow]> order-rows;
+    in property <int> order-count;
+    in property <bool> order-written;
+    in property <[ArrAddRow]> order-adds;
+    in-out property <int> order-selected: -1;
+    callback usual-order-toggled(bool);
+    callback order-move(int, int);
+    callback order-remove(int);
+    callback order-add(string);
+    callback order-reset();
+    pure callback order-drag-data(int) -> data-transfer;
+    pure callback order-drag-index(data-transfer) -> int;
+    /// Saves the strip as the song's usual order and drops this service's own.
+    callback make-usual();
 
     callback edit-song();
     callback save();
@@ -113,6 +132,36 @@ export component ItemEditDialog inherits VerticalLayout {
                             clicked => { ItemEdit.edit-song(); }
                         }
                     }
+                }
+            }
+        }
+        if ItemEdit.kind == "song" && ItemEdit.song-exists: Field {
+            label: @tr("Order for this service");
+            usual-order := Check {
+                text: @tr("Use the song's usual order");
+                checked <=> ItemEdit.usual-order;
+                toggled(on) => { ItemEdit.usual-order-toggled(on); }
+            }
+            order-strip := ArrangementStrip {
+                active: !ItemEdit.usual-order;
+                rows: ItemEdit.order-rows;
+                count: ItemEdit.order-count;
+                written: ItemEdit.order-written;
+                adds: ItemEdit.order-adds;
+                selected <=> ItemEdit.order-selected;
+                move(from, to) => { ItemEdit.order-move(from, to); }
+                remove(i) => { ItemEdit.order-remove(i); }
+                add(label) => { ItemEdit.order-add(label); }
+                reset => { ItemEdit.order-reset(); }
+                drag-data(i) => { return ItemEdit.order-drag-data(i); }
+                drag-index(d) => { return ItemEdit.order-drag-index(d); }
+            }
+            if !ItemEdit.usual-order: HorizontalLayout {
+                alignment: start;
+                make-usual := Btn {
+                    small: true;
+                    text: @tr("Make this the song's usual order");
+                    clicked => { ItemEdit.make-usual(); }
                 }
             }
         }

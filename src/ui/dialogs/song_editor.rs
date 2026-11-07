@@ -48,12 +48,14 @@ struct EditorCtx {
 pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None) }
 
 /// Edit words on the live song (FEAT-4 §3.4): the editor with the caret at the live section's first lyric line,
-/// found from the live slide's occurrence in the order that built it.
-pub fn edit_live_words(op: &Rc<Operator>, song_id: Uuid, occurrence: Option<u16>) {
+/// found from the live slide's occurrence in the order that built it (service item `item_id`'s own, if it has one).
+pub fn edit_live_words(op: &Rc<Operator>, item_id: Uuid, song_id: Uuid, occurrence: Option<u16>) {
     let caret = occurrence.and_then(|o| {
         let st = op.state.borrow();
-        let song = st.snap.as_ref()?.data.songs.iter().find(|s| s.id == song_id)?;
-        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, &song.arrangement, o)
+        let snap = st.snap.as_ref()?;
+        let song = snap.data.songs.iter().find(|s| s.id == song_id)?;
+        let order = snap.items.iter().find(|i| i.id == item_id).map_or(song.arrangement.as_slice(), |i| crate::slides::item_order(&i.item, song));
+        crate::sections::arrangement::caret_for_occurrence(&song.lyrics, order, o)
     });
     open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)));
 }
@@ -79,6 +81,7 @@ fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool
     st.set_focus_lyrics(song.is_some());
     st.set_caret(caret.map_or(-1, |c| i32::try_from(c).unwrap_or(0)));
     st.set_live_song(song_id.is_some() && song_id == live_song(op));
+    st.set_arr_selected(-1);
     let thumbs = if op.ops().is_inline() { Thumbs::inline(op.app().store.root.clone()) } else { Thumbs::new(op.app().store.root.clone()) };
     let ctx = Rc::new(EditorCtx {
         op: Rc::downgrade(op), song_id, saved_title: s.title, add_after, timer: Timer::default(), thumbs,
@@ -131,10 +134,9 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     let warnings = order_warnings(&song.lyrics, &st.get_order());
     st.set_warning(if warnings.is_empty() { String::new() } else { tr::not_in_lyrics(&warnings) }.into());
     let (arr, _, written) = arrangement::chips(&song.lyrics, &song.arrangement);
-    let arr: Vec<ArrChip> = arr.into_iter().enumerate().map(|(index, c)| ArrChip {
-        index: index as i32, label: c.label.into(), short: c.short.into(), kind: c.kind.id().into(), missing: c.missing, faded: c.faded,
-    }).collect();
-    st.set_arr_rows(ModelRc::new(VecModel::from(arr.chunks(ARR_PER_ROW).map(|c| ArrChipRow { chips: ModelRc::new(VecModel::from(c.to_vec())) }).collect::<Vec<_>>())));
+    let arr = arr_chips(arr);
+    st.set_arr_count(arr.len() as i32);
+    st.set_arr_rows(arr_rows(arr));
     st.set_arr_written(written);
 
     let Some(settings) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) else { return };
@@ -176,6 +178,17 @@ fn add_to_order(op: &Operator, ctx: &EditorCtx, label: &str) {
     draw(op, ctx);
 }
 
+/// The order's chips for an `ArrangementStrip` (song editor and Item edit).
+pub(crate) fn arr_chips(chips: Vec<arrangement::ArrChipData>) -> Vec<ArrChip> {
+    chips.into_iter().enumerate().map(|(index, c)| ArrChip {
+        index: index as i32, label: c.label.into(), short: c.short.into(), kind: c.kind.id().into(), missing: c.missing, faded: c.faded,
+    }).collect()
+}
+
+pub(crate) fn arr_rows(chips: Vec<ArrChip>) -> ModelRc<ArrChipRow> {
+    ModelRc::new(VecModel::from(chips.chunks(ARR_PER_ROW).map(|c| ArrChipRow { chips: ModelRc::new(VecModel::from(c.to_vec())) }).collect::<Vec<_>>()))
+}
+
 /// A change to the order through its chips (FEAT-4 §3.5). An empty order (the written one) is spelled out first.
 fn change_order(op: &Operator, ctx: &EditorCtx, f: impl FnOnce(&mut Vec<String>)) {
     let st = op.ui.global::<SongEditorState>();
@@ -186,13 +199,13 @@ fn change_order(op: &Operator, ctx: &EditorCtx, f: impl FnOnce(&mut Vec<String>)
     draw(op, ctx);
 }
 
-fn arr_drag_data(index: i32) -> slint::DataTransfer {
+pub(crate) fn arr_drag_data(index: i32) -> slint::DataTransfer {
     let mut d = slint::DataTransfer::default();
     d.set_plain_text(format!("{ARR_DRAG}{index}").into());
     d
 }
 
-fn arr_drag_index(d: &slint::DataTransfer) -> i32 {
+pub(crate) fn arr_drag_index(d: &slint::DataTransfer) -> i32 {
     d.plain_text().ok().and_then(|t| t.strip_prefix(ARR_DRAG).and_then(|i| i.parse().ok())).unwrap_or(-1)
 }
 
@@ -354,6 +367,65 @@ mod tests {
         assert!(st(&op).get_arr_written());
     }
 
+    fn key(op: &Operator, k: Key) {
+        let text: SharedString = char::from(k).into();
+        op.window().dispatch_event(slint::platform::WindowEvent::KeyPressed { text: text.clone() });
+        op.window().dispatch_event(slint::platform::WindowEvent::KeyReleased { text });
+    }
+
+    fn ctrl(op: &Operator, k: Key) {
+        let c: SharedString = char::from(Key::Control).into();
+        op.window().dispatch_event(slint::platform::WindowEvent::KeyPressed { text: c.clone() });
+        key(op, k);
+        op.window().dispatch_event(slint::platform::WindowEvent::KeyReleased { text: c });
+    }
+
+    /// Clicks order chip `i` (selects it and gives the strip the keyboard).
+    fn click_chip(op: &Operator, i: usize) {
+        find_all(op, "ArrangementStrip::arr-ta")[i].mock_single_click(PointerEventButton::Left);
+    }
+
+    #[test]
+    fn ctrl_arrow_moves_selected_chip() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Verse 1\na\n\nChorus\nb\n\nVerse 2\nc");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        click_chip(&op, 0);
+        assert_eq!(st(&op).get_arr_selected(), 0);
+        ctrl(&op, Key::RightArrow);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 1, Verse 2", "the first move spells out the written order");
+        assert_eq!(st(&op).get_arr_selected(), 1, "the chip stays chosen");
+        ctrl(&op, Key::RightArrow);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 2, Verse 1");
+        ctrl(&op, Key::RightArrow);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 2, Verse 1", "the last one stays last");
+        key(&op, Key::LeftArrow);
+        assert_eq!(st(&op).get_arr_selected(), 1, "an arrow alone chooses another chip");
+        ctrl(&op, Key::LeftArrow);
+        assert_eq!(st(&op).get_order(), "Verse 2, Chorus, Verse 1");
+    }
+
+    #[test]
+    fn delete_key_removes_selected_chip() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Verse 1\na\n\nChorus\nb");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        st(&op).set_order("Verse 1, Chorus, Chorus".into());
+        st(&op).invoke_edited();
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        click_chip(&op, 2);
+        key(&op, Key::Delete);
+        assert_eq!(st(&op).get_order(), "Verse 1, Chorus");
+        assert_eq!(st(&op).get_arr_selected(), 1, "the one before is chosen");
+        key(&op, Key::Backspace);
+        assert_eq!(st(&op).get_order(), "Verse 1");
+        assert_eq!(op.dialog(), Some(DialogKind::SongEditor { song_id: Some(id), add_after: false }), "the dialog stays open");
+    }
+
     #[test]
     fn order_chip_drag_payload_round_trips() {
         assert_eq!(arr_drag_index(&arr_drag_data(3)), 3);
@@ -419,7 +491,7 @@ mod tests {
         let s = &songs[0];
         assert_eq!((s.title.as_str(), s.writers.as_str(), s.lyrics.as_str()), ("Amazing Grace", "John Newton", "Verse 1\nAmazing grace \n"));
         assert_eq!(s.arrangement, ["Verse 1"]);
-        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id }] if song_id == s.id));
+        assert!(matches!(items(&app)[..], [ItemKind::Song { song_id, .. }] if song_id == s.id));
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
         assert_eq!(op.dialog(), None);
 
@@ -457,7 +529,7 @@ mod tests {
         let app = test_app();
         let used = song(&app, "Used", "", "", "Verse 1\na");
         let spare = song(&app, "Spare", "", "", "Verse 1\nb");
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used, arrangement: None }, background: None, notes: String::new(), theme: None });
         let op = opened(&app);
         open_song_editor(&op, Some(used), false);
         settle(&op);

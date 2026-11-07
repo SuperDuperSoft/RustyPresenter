@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             lyrics: "Verse 1\nAmazing grace, how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone, I've been set free\n\nVerse 2\n'Twas grace that taught my heart to fear".into(),
             ..Default::default()
         };
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: "Build on the last line".into(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: "Build on the last line".into(), theme: None };
         d.songs.push(song);
         d.services[0].items.push(item);
     }

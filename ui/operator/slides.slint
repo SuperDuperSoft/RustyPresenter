@@ -253,6 +253,8 @@ export component SlidesPanel inherits VerticalLayout {
     in property <bool> text-size-custom;
     /// What the operator should know about the selected item's slides (a verse a Bible lacks), under the grid.
     in property <string> note;
+    /// The selected song plays in this service's own order (FEAT-4).
+    in property <bool> custom-order;
 
     callback show(int);
     /// A section bar chip, by its index in `jumps`.
@@ -313,6 +315,14 @@ export component SlidesPanel inherits VerticalLayout {
                 font-family: Theme.display;
                 font-size: 19px;
                 font-weight: 600;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+            if root.custom-order: custom-order := Text {
+                text: @tr("Custom order for this service");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
                 vertical-alignment: center;
                 overflow: elide;
             }

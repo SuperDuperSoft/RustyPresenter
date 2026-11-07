@@ -202,12 +202,15 @@ pub fn blank_count(items: &[ServiceItem]) -> usize { items.iter().filter(|i| is_
 pub enum CopyMode { LastWeek { blanks: bool }, ThisService }
 
 /// The items of a copy with new ids, and how many blanks it has (§5.6). With blanks on, songs and Bible readings
-/// become blanks.
+/// become blanks. Copy last week drops a song's order for that service (FEAT-4 D16); Copy this service keeps it.
 pub fn copy_items(items: &[ServiceItem], mode: CopyMode) -> (Vec<ServiceItem>, usize) {
+    let last_week = matches!(mode, CopyMode::LastWeek { .. });
     let blanks = matches!(mode, CopyMode::LastWeek { blanks: true });
     let out: Vec<ServiceItem> = items.iter().map(|i| {
         if blanks && matches!(i.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. }) { return blanked(i) }
-        ServiceItem { id: Uuid::new_v4(), ..i.clone() }
+        let mut copy = ServiceItem { id: Uuid::new_v4(), ..i.clone() };
+        if last_week && let ItemKind::Song { arrangement, .. } = &mut copy.kind { *arrangement = None }
+        copy
     }).collect();
     let n = blank_count(&out);
     (out, n)

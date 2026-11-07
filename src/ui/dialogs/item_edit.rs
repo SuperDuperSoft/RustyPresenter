@@ -4,15 +4,17 @@
 //! is gone, say) the dialog stays open with the core's message. A passage whose Bible was changed in its picker is
 //! looked up again in that Bible first (Bible library spec §7.2); a failed lookup also keeps the dialog open. The
 //! "Also show" pickers choose up to two more Bibles for this passage only (Nov 5 spec §3); a newly picked one is
-//! looked up on Save with the rest, and one that can't be is left out with a toast.
-use super::{DialogKind, background::{self, Picker, strings}};
+//! looked up on Save with the rest, and one that can't be is left out with a toast. A song gets "Order for this
+//! service" (FEAT-4 §3.5): untick "Use the song's usual order" to give this service its own order.
+use super::{DialogKind, background::{self, Picker, strings}, song_editor::{arr_chips, arr_drag_data, arr_drag_index, arr_rows}};
 use crate::{
-    model::{EndAction, ItemKind, MediaStatus, ServiceItem, VerseText},
+    model::{EndAction, ItemKind, MediaStatus, ServiceItem, Song, VerseText},
     scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
-    ui::{ItemEdit, operator::{bible, view, window::Operator}},
+    sections::{arrangement, strings as song_tr},
+    ui::{ArrAddRow, ItemEdit, operator::{bible, view, window::Operator}},
 };
 use serde::Deserialize;
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}};
 use uuid::Uuid;
 
@@ -28,7 +30,12 @@ struct Edit {
     /// Scripture: the Also Bibles' ids, in order, and which "Also show" picker is open.
     also: Vec<String>,
     also_slot: usize,
+    /// Song: the library song and the order the strip shows (this service's own while "usual" is unticked).
+    order: Option<(Song, Vec<String>)>,
 }
+
+/// `+ <label>` buttons per row under the order strip.
+const ADDS_PER_ROW: usize = 4;
 
 thread_local! {
     /// The open Item edit. The callbacks hold it weakly, so closing the dialog lets it (and the picker's thumbnail
@@ -63,14 +70,21 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_translation_changed(false);
     g.set_picker_search("".into());
     g.set_picker_rows(ModelRc::default());
+    g.set_usual_order(true);
+    g.set_order_selected(-1);
     let mut name = None;
+    let mut order = None;
     let bible = match &item.kind { ItemKind::Scripture { translation, .. } => Some(translation.clone()), _ => None };
     let also = match &item.kind { ItemKind::Scripture { also, .. } => also.iter().map(|a| a.translation.clone()).collect(), _ => vec![] };
     g.set_also_search("".into());
     g.set_also_rows(ModelRc::default());
     g.set_also_layout(i32::from(matches!(item.kind, ItemKind::Scripture { layout: ParallelLayout::Stacked, .. })));
     match &item.kind {
-        ItemKind::Song { song_id } => g.set_song_exists(snap.data.songs.iter().any(|s| s.id == *song_id)),
+        ItemKind::Song { song_id, arrangement } => if let Some(song) = snap.data.songs.iter().find(|s| s.id == *song_id) {
+            g.set_song_exists(true);
+            g.set_usual_order(arrangement.is_none());
+            order = Some((song.clone(), arrangement.clone().unwrap_or_else(|| song.arrangement.clone())));
+        },
         ItemKind::Scripture { per_slide, text_size, .. } => {
             g.set_per_slide(i32::from(*per_slide));
             if *text_size > 0 {
@@ -115,10 +129,11 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
     let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
-    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0 }));
+    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0, order }));
 
     op.open_dialog(DialogKind::ItemEdit(id));
     draw_choices(op, &edit);
+    draw_order(op, &edit);
     show_bible(op, &edit);
     show_also(op, &edit);
     wire(op, &edit);
@@ -138,6 +153,28 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_save(with(save));
     g.on_remove(with(remove));
     g.on_edit_song(with(edit_song));
+    g.on_make_usual(with(make_usual));
+    g.on_order_reset(with(|op, edit| change_order(op, edit, Vec::clear)));
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_usual_order_toggled(move |on| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) {
+        if let Some((song, order)) = e.borrow_mut().order.as_mut() {
+            // Ticked: the song's usual order; unticked: a copy of it (or of the written order) to change.
+            *order = song.arrangement.clone();
+            if !on { arrangement::ensure_real(order, &song.lyrics) }
+        }
+        op.ui.global::<ItemEdit>().set_order_selected(-1);
+        draw_order(&op, &e);
+    });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_order_move(move |from, to| if let (Some(op), Some(e), Ok(from), Ok(to)) = (me.upgrade(), e.upgrade(), usize::try_from(from), usize::try_from(to)) {
+        change_order(&op, &e, |v| arrangement::move_entry(v, from, to))
+    });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_order_remove(move |i| if let (Some(op), Some(e), Ok(i)) = (me.upgrade(), e.upgrade(), usize::try_from(i)) { change_order(&op, &e, |v| arrangement::remove(v, i)) });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_order_add(move |label| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { change_order(&op, &e, |v| v.push(label.into())) });
+    g.on_order_drag_data(arr_drag_data);
+    g.on_order_drag_index(|d| arr_drag_index(&d));
     g.on_upload(with(|op, edit| {
         let (me, edit) = (op.me.clone(), Rc::downgrade(edit));
         background::upload(op, move |files| {
@@ -273,6 +310,59 @@ struct Found {
     left_out: Vec<String>,
 }
 
+/// The order strip: the chips, `+ <label>` buttons and whether it shows the written order.
+fn draw_order(op: &Operator, edit: &Rc<RefCell<Edit>>) {
+    let e = edit.borrow();
+    let Some((song, order)) = &e.order else { return };
+    let g = op.ui.global::<ItemEdit>();
+    let (chips, adds, written) = arrangement::chips(&song.lyrics, order);
+    g.set_order_count(chips.len() as i32);
+    g.set_order_rows(arr_rows(arr_chips(chips)));
+    g.set_order_written(written);
+    let adds: Vec<ArrAddRow> = adds.chunks(ADDS_PER_ROW).map(|c| ArrAddRow {
+        labels: ModelRc::new(VecModel::from(c.iter().map(|l| SharedString::from(l.as_str())).collect::<Vec<_>>())),
+    }).collect();
+    g.set_order_adds(ModelRc::new(VecModel::from(adds)));
+}
+
+/// A change to this service's order through the strip. An empty order (the written one) is spelled out first.
+fn change_order(op: &Operator, edit: &Rc<RefCell<Edit>>, f: impl FnOnce(&mut Vec<String>)) {
+    if op.ui.global::<ItemEdit>().get_usual_order() { return }
+    if let Some((song, order)) = edit.borrow_mut().order.as_mut() {
+        arrangement::ensure_real(order, &song.lyrics);
+        f(order);
+    }
+    draw_order(op, edit);
+}
+
+/// **Make this the song's usual order**: the strip becomes the song's order (`song/save`), and this service goes back
+/// to the usual order (`service/update` with `arrangement: null`).
+fn make_usual(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
+    let Some((mut song, order)) = edit.borrow().order.clone() else { return };
+    let id = edit.borrow().item.id;
+    song.arrangement = order;
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    let saved = song.clone();
+    op.ops().call::<serde_json::Value>("song/save", serde_json::to_value(&song).unwrap_or_default(), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        if let Err(err) = r { return op.toast(err, true) }
+        let me = Rc::downgrade(&op);
+        op.ops().call::<serde_json::Value>("service/update", serde_json::json!({ "id": id, "arrangement": null }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            if let Err(err) = r { return op.toast(err, true) }
+            if let Some(edit) = e.upgrade() {
+                let mut ed = edit.borrow_mut();
+                if let ItemKind::Song { arrangement, .. } = &mut ed.item.kind { *arrangement = None }
+                ed.order = Some((saved.clone(), saved.arrangement.clone()));
+                drop(ed);
+                op.ui.global::<ItemEdit>().set_usual_order(true);
+                draw_order(&op, &edit);
+            }
+            op.toast(song_tr::saved_as_usual(), false);
+        });
+    });
+}
+
 /// Redraws the background tiles (a pick, an upload, or a thumbnail that arrived).
 fn draw_choices(op: &Operator, edit: &Rc<RefCell<Edit>>) {
     let (me, e) = (op.me.clone(), Rc::downgrade(edit));
@@ -306,7 +396,10 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
             "audio" => *looped = g.get_looped(),
             _ => {}
         },
-        ItemKind::Song { .. } | ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+        ItemKind::Song { arrangement, .. } => if let Some((_, order)) = &edit.order {
+            *arrangement = (!g.get_usual_order()).then(|| order.clone());
+        },
+        ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     if let Some(p) = &edit.picker { item.background = p.value.clone() }
     item.notes = g.get_notes().into();
@@ -348,7 +441,9 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 /// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
 fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>) {
     let id = item.id;
-    let body = serde_json::to_value(&item).unwrap_or_default();
+    let mut body = serde_json::to_value(&item).unwrap_or_default();
+    // `service/update` keeps a key that is not sent: send the usual order as an explicit null.
+    if matches!(item.kind, ItemKind::Song { arrangement: None, .. }) { body["arrangement"] = serde_json::Value::Null }
     let update = move |op: &Rc<Operator>| {
         let me = Rc::downgrade(op);
         op.ops().call::<serde_json::Value>("service/update", body, move |r| {
@@ -424,7 +519,7 @@ fn remove(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
 
 /// **Edit song** swaps the dialog for the song editor (`openSongEditor(song)`).
 fn edit_song(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
-    let ItemKind::Song { song_id } = edit.borrow().item.kind else { return };
+    let ItemKind::Song { song_id, .. } = edit.borrow().item.kind else { return };
     super::song_editor::open_song_editor(op, Some(song_id), false);
 }
 
@@ -502,6 +597,87 @@ mod tests {
         op.ui.invoke_service_select(id.to_string().into());
         op.ui.invoke_slides_edit();
         assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)), "the slides header's Edit opens the selected item");
+    }
+
+    /// A song with the usual order Verse 1, Chorus, Verse 2 in the service; returns (song id, item id).
+    fn song_item(app: &App, own: Option<&[&str]>) -> (Uuid, Uuid) {
+        let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\na\nChorus\nb\nVerse 2\nc".into(),
+            arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into()], ..Default::default() };
+        app.data.lock().unwrap().songs.push(song.clone());
+        let arrangement = own.map(|o| o.iter().map(|s| s.to_string()).collect());
+        (song.id, push(app, ItemKind::Song { song_id: song.id, arrangement }))
+    }
+
+    fn own_order(app: &App, id: Uuid) -> Option<Vec<String>> {
+        match item(app, id).unwrap().kind { ItemKind::Song { arrangement, .. } => arrangement, _ => panic!() }
+    }
+
+    fn usual_order(app: &App, song: Uuid) -> Vec<String> { app.data.lock().unwrap().songs.iter().find(|s| s.id == song).unwrap().arrangement.clone() }
+
+    fn strip(op: &Operator) -> Vec<String> {
+        use slint::Model;
+        g(op).get_order_rows().iter().flat_map(|r| r.chips.iter().map(|c| c.short.to_string()).collect::<Vec<_>>()).collect()
+    }
+
+    fn untick_usual(op: &Operator) {
+        g(op).set_usual_order(false);
+        g(op).invoke_usual_order_toggled(false);
+    }
+
+    #[test]
+    fn override_saved_on_item_only() {
+        let app = test_app();
+        let (song, id) = song_item(&app, None);
+        let op = opened(&app);
+        open(&op, id);
+        assert!(g(&op).get_usual_order());
+        assert_eq!(strip(&op), ["V1", "C", "V2"], "the usual order, dimmed");
+        g(&op).invoke_order_move(0, 1);
+        assert_eq!(strip(&op), ["V1", "C", "V2"], "nothing moves while the usual order is ticked");
+        untick_usual(&op);
+        g(&op).invoke_order_move(2, 0);
+        g(&op).invoke_order_add("Chorus".into());
+        assert_eq!(strip(&op), ["V2", "V1", "C", "C"]);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(own_order(&app, id), Some(vec!["Verse 2".into(), "Verse 1".into(), "Chorus".into(), "Chorus".into()]));
+        assert_eq!(usual_order(&app, song), ["Verse 1", "Chorus", "Verse 2"], "the song keeps its usual order");
+        refresh(&op);
+        let rows: Vec<_> = { use slint::Model; op.ui.get_service_rows().iter().collect() };
+        assert!(rows[0].custom_order, "the service row shows Custom order");
+        assert!(find(&op, "ServiceColumn::custom-order").is_some());
+        op.ui.invoke_service_select(id.to_string().into());
+        assert!(op.ui.get_slides_custom_order(), "the slides header says so too");
+    }
+
+    #[test]
+    fn use_usual_order_clears_override() {
+        let app = test_app();
+        let (_, id) = song_item(&app, Some(&["Chorus"]));
+        let op = opened(&app);
+        open(&op, id);
+        assert!(!g(&op).get_usual_order());
+        assert_eq!(strip(&op), ["C"]);
+        g(&op).set_usual_order(true);
+        g(&op).invoke_usual_order_toggled(true);
+        assert_eq!(strip(&op), ["V1", "C", "V2"]);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(own_order(&app, id), None);
+        refresh(&op);
+        assert!(find(&op, "ServiceColumn::custom-order").is_none());
+    }
+
+    #[test]
+    fn make_usual_order_saves_song_and_clears_override() {
+        let app = test_app();
+        let (song, id) = song_item(&app, Some(&["Chorus", "Verse 1"]));
+        let op = opened(&app);
+        open(&op, id);
+        press(&op, "ItemEditDialog::make-usual");
+        assert_eq!(usual_order(&app, song), ["Chorus", "Verse 1"]);
+        assert_eq!(own_order(&app, id), None);
+        assert!(g(&op).get_usual_order());
+        assert_eq!(toasts(&op).last(), Some(&("Saved as the usual order.".to_string(), false)));
+        assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)), "the dialog stays open");
     }
 
     #[test]
@@ -928,8 +1104,8 @@ mod tests {
         let app = test_app();
         let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: String::new(), ccli: String::new(), copyright: String::new(), lyrics: "Verse 1\nAmazing grace".into(), arrangement: vec![] };
         app.data.lock().unwrap().songs.push(song.clone());
-        let id = push(&app, ItemKind::Song { song_id: song.id });
-        let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4() });
+        let id = push(&app, ItemKind::Song { song_id: song.id, arrangement: None });
+        let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None });
         let op = opened(&app);
         open(&op, gone);
         settle();

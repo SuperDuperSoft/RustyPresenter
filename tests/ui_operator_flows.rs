@@ -105,7 +105,7 @@ fn add_text(app: &App, title: &str, body: &str) -> Uuid {
 /// A library song in the current service; returns the service item's id.
 fn add_song(app: &App, title: &str, lyrics: &str) -> Uuid {
     let song = Song { id: Uuid::new_v4(), title: title.into(), lyrics: lyrics.into(), ..Default::default() };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let mut data = app.data.lock().unwrap();
     data.songs.push(song);
     data.services[0].items.push(item.clone());
@@ -238,7 +238,7 @@ fn add_song_through_dialog() {
     assert_eq!(songs[0].title, "Amazing Grace");
     let items = f.items();
     assert_eq!(items.len(), 1, "the service has one item");
-    assert!(matches!(items[0].kind, ItemKind::Song { song_id } if song_id == songs[0].id), "a song item: {:?}", items[0].kind);
+    assert!(matches!(items[0].kind, ItemKind::Song { song_id, .. } if song_id == songs[0].id), "a song item: {:?}", items[0].kind);
     assert_eq!(f.op.dialog(), None, "the dialog is closed");
     assert_eq!(f.find_all("ServiceColumn::row").len(), 1);
 }

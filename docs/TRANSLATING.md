@@ -22,6 +22,9 @@ You need [Poedit](https://poedit.net) (free). Any `.po` editor works, and so doe
    - Keep key names the way Windows shows them in your language (Ctrl, Enter).
    - A text you leave empty shows in English, so a half-done file is fine.
    - Some texts say where they are used, or have a note. Read it when a word could mean two things.
+   - Texts marked `song section heading` (Verse, Chorus, Bridge…) are the words people type on their own line in
+     song lyrics. The app then knows that part is a chorus, a verse and so on. Give the word your churches write;
+     for more than one, put `|` between them (`Coro|Estribillo`). English headings always work too.
 
 4. **Save it as `translations/<code>/LC_MESSAGES/rustypresenter.po`** (make the folders if they are new), and check
    the file's header. In Poedit it is under **Translation → Properties**; in a text editor it is the block at the top.

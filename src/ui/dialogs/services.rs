@@ -703,7 +703,7 @@ mod tests {
         let app = test_app();
         let mut d = app.data.lock().unwrap();
         let id = Uuid::new_v4();
-        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id, arrangement: None }, background: None, notes: String::new(), theme: None });
         drop(d);
         let op = open_services(&app);
         let dest = saved_file(&app, &op);
@@ -802,7 +802,7 @@ mod tests {
 
     fn set_mdy(app: &App) { app.data.lock().unwrap().settings.date_order = Some(DateOrder::Mdy) }
 
-    fn song_item() -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None } }
+    fn song_item() -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None } }
 
     #[test]
     fn copy_last_week_creates_dated_service_and_opens_it() {
@@ -977,7 +977,7 @@ mod tests {
         let it = &d.services[0].items;
         assert_eq!(it.len(), 1, "replaced, not added");
         assert_eq!(it[0].id, bid);
-        assert!(matches!(it[0].kind, ItemKind::Song { song_id } if song_id == song));
+        assert!(matches!(it[0].kind, ItemKind::Song { song_id, .. } if song_id == song));
         assert_eq!(it[0].notes, "upbeat");
         drop(d);
         assert_eq!(op.state.borrow().fill, None);

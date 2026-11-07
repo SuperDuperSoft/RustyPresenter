@@ -30,6 +30,7 @@ pub fn banner_no_slides() -> String { tr!("This song has no words now. The scree
 pub fn chip_show_hint() -> String { tr!("Click to show this part") }
 pub fn not_in_lyrics() -> String { tr!("Not in the lyrics — it is skipped") }
 pub fn written_order_hint() -> String { tr!("Written order — drag to change") }
+pub fn saved_as_usual() -> String { tr!("Saved as the usual order.") }
 
 /// "This song has no Chorus." / "This song has no Verse 4."
 pub fn no_section(name: &str, number: Option<u8>) -> String {

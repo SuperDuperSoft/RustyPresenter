@@ -2,7 +2,8 @@
 // `operator.css:182-186`): the song's fields on the left, its order and a live preview of its slides on the right.
 // The logic is in Rust (`src/ui/dialogs/song_editor.rs`), which talks to it through `SongEditorState`.
 import { Theme } from "../theme.slint";
-import { Btn, Field, ScrollBox, TipBox } from "../widgets.slint";
+import { Btn, Field, ScrollBox } from "../widgets.slint";
+import { ArrangementStrip, ArrChip, ArrChipRow, ArrAddRow } from "arrangement.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { TextArea, TextField } from "form.slint";
 
@@ -12,12 +13,7 @@ export struct PreviewSlide { image: image, label: string }
 /// A row of `+ <label>` buttons under Order.
 export struct SectionChipRow { labels: [string] }
 
-/// One entry of the order as a chip (FEAT-4 §3.5): `index` in the order, `kind` its section kind for the colour,
-/// `missing` matches no section of the lyrics, `faded` shows the written order while Order is empty.
-export struct ArrChip { index: int, label: string, short: string, kind: string, missing: bool, faded: bool }
-
-/// A row of order chips.
-export struct ArrChipRow { chips: [ArrChip] }
+export { ArrChip, ArrChipRow, ArrAddRow }
 
 /// What Rust and the editor share. The fields are only ever set when the editor opens, so an update never wipes
 /// what the user typed (the editor is never refreshed).
@@ -46,6 +42,9 @@ export global SongEditorState {
     in property <[ArrChipRow]> arr-rows;
     /// Order is empty: the chips show the written order.
     in property <bool> arr-written;
+    in property <int> arr-count;
+    /// The chip Ctrl+←/→ and Delete act on.
+    in-out property <int> arr-selected: -1;
 
     /// A field the preview follows (title, lyrics, order) changed by typing.
     callback edited();
@@ -174,112 +173,16 @@ export component SongEditor inherits VerticalLayout {
                 Field {
                     label: @tr("Order");
                     help: @tr("(optional)");
-                    for row in SongEditorState.arr-rows: HorizontalLayout {
-                        spacing: 4px;
-                        alignment: start;
-                        for c in row.chips: arr-chip := Rectangle {
-                            min-width: 30px;
-                            height: 26px;
-                            border-radius: 6px;
-                            background: c.missing ? transparent : Theme.section-color(c.kind);
-                            border-width: c.missing ? 1px : 0px;
-                            border-color: Theme.faint;
-                            opacity: arr-drag.dragging ? 0.4 : c.faded ? 0.55 : 1;
-                            accessible-role: button;
-                            accessible-label: c.label;
-                            accessible-description: c.missing ? @tr("Not in the lyrics — it is skipped") : "";
-                            HorizontalLayout {
-                                padding-left: 7px;
-                                padding-right: arr-ta.has-hover ? 2px : 7px;
-                                spacing: 2px;
-                                Text {
-                                    text: c.short;
-                                    color: c.missing ? Theme.faint : Theme.sec-ink;
-                                    font-family: Theme.font;
-                                    font-size: 12px;
-                                    font-weight: 700;
-                                    vertical-alignment: center;
-                                }
-                            }
-                            if arr-drop.has-drag: Rectangle {
-                                x: 0;
-                                width: 2px;
-                                background: Theme.accent;
-                            }
-                            arr-drop := DropArea {
-                                can-drop(e) => {
-                                    let j = SongEditorState.arr-drag-index(e.data);
-                                    return j >= 0 && j != c.index ? DragAction.move : DragAction.none;
-                                }
-                                dropped(e) => {
-                                    let j = SongEditorState.arr-drag-index(e.data);
-                                    if j >= 0 && j != c.index { SongEditorState.arr-move(j, c.index); }
-                                    return e.proposed-action;
-                                }
-                            }
-                            arr-drag := DragArea {
-                                allow-move: true;
-                                data: SongEditorState.arr-drag-data(c.index);
-                                arr-ta := TouchArea { mouse-cursor: pointer; }
-                            }
-                            if arr-ta.has-hover && !c.faded: arr-remove := Rectangle {
-                                x: parent.width - 14px;
-                                width: 14px;
-                                accessible-role: button;
-                                accessible-label: @tr("Remove");
-                                accessible-action-default => { SongEditorState.arr-remove(c.index); }
-                                Text {
-                                    text: "×";
-                                    color: Theme.sec-ink;
-                                    font-size: 13px;
-                                    vertical-alignment: center;
-                                }
-                                TouchArea { clicked => { SongEditorState.arr-remove(c.index); } }
-                            }
-                            if c.missing: Tooltip {
-                                TipBox { text: @tr("Not in the lyrics — it is skipped"); }
-                            }
-                        }
-                    }
-                    if SongEditorState.arr-rows.length > 0: HorizontalLayout {
-                        spacing: 8px;
-                        alignment: start;
-                        // Drop here to move a chip to the end.
-                        arr-end := Rectangle {
-                            width: 60px;
-                            height: 22px;
-                            border-radius: 6px;
-                            border-width: 1px;
-                            border-color: end-drop.has-drag ? Theme.accent : Theme.line;
-                            Text {
-                                text: @tr("End");
-                                color: Theme.faint;
-                                font-family: Theme.font;
-                                font-size: 11px;
-                                horizontal-alignment: center;
-                                vertical-alignment: center;
-                            }
-                            end-drop := DropArea {
-                                can-drop(e) => { return SongEditorState.arr-drag-index(e.data) >= 0 ? DragAction.move : DragAction.none; }
-                                dropped(e) => {
-                                    let j = SongEditorState.arr-drag-index(e.data);
-                                    if j >= 0 { SongEditorState.arr-move(j, 9999); }
-                                    return e.proposed-action;
-                                }
-                            }
-                        }
-                        if SongEditorState.arr-written: Text {
-                            text: @tr("Written order — drag to change");
-                            color: Theme.faint;
-                            font-family: Theme.font;
-                            font-size: 12px;
-                            vertical-alignment: center;
-                        }
-                        if !SongEditorState.arr-written: arr-reset := Btn {
-                            small: true;
-                            text: @tr("⟲ Use written order");
-                            clicked => { SongEditorState.arr-reset(); }
-                        }
+                    arr := ArrangementStrip {
+                        rows: SongEditorState.arr-rows;
+                        count: SongEditorState.arr-count;
+                        written: SongEditorState.arr-written;
+                        selected <=> SongEditorState.arr-selected;
+                        move(from, to) => { SongEditorState.arr-move(from, to); }
+                        remove(i) => { SongEditorState.arr-remove(i); }
+                        reset => { SongEditorState.arr-reset(); }
+                        drag-data(i) => { return SongEditorState.arr-drag-data(i); }
+                        drag-index(d) => { return SongEditorState.arr-drag-index(d); }
                     }
                     order := TextField {
                         text <=> SongEditorState.order;

@@ -111,6 +111,7 @@ export component OperatorWindow inherits Window {
     in property <bool> slides-text-size-custom;
     /// The selected item's note under the grid (a passage's missing verses), or "".
     in property <string> slides-note;
+    in property <bool> slides-custom-order;
     callback slides-text-smaller();
     callback slides-text-larger();
     callback slides-text-auto();
@@ -543,6 +544,7 @@ export component OperatorWindow inherits Window {
                                 text-size: root.slides-text-size;
                                 text-size-custom: root.slides-text-size-custom;
                                 note: root.slides-note;
+                                custom-order: root.slides-custom-order;
                                 text-smaller => { root.focus-keys(); root.slides-text-smaller(); }
                                 text-larger => { root.focus-keys(); root.slides-text-larger(); }
                                 text-auto => { root.focus-keys(); root.slides-text-auto(); }

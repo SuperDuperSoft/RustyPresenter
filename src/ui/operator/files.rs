@@ -607,7 +607,7 @@ mod window_tests {
         let txt = folder().join("song.txt");
         std::fs::write(&txt, SONG).unwrap();
         add_files(op, vec![txt.clone()]);
-        let ItemKind::Song { song_id } = items(app)[0].clone() else { panic!() };
+        let ItemKind::Song { song_id, .. } = items(app)[0].clone() else { panic!() };
         std::fs::write(&txt, SONG.replace("Line one", "New words")).unwrap();
         add_files(op, vec![txt.clone()]);
         assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "“A Test Song” is already in the library.");
@@ -625,7 +625,7 @@ mod window_tests {
         ask::answer(&op, true, String::new());
         assert_eq!(app.data.lock().unwrap().songs.len(), 1);
         assert!(lyrics(&app, id).contains("New words"), "{}", lyrics(&app, id));
-        assert!(matches!(items(&app)[1], ItemKind::Song { song_id } if song_id == id), "the same song is added");
+        assert!(matches!(items(&app)[1], ItemKind::Song { song_id, .. } if song_id == id), "the same song is added");
         assert_eq!(toasts(&op).last().unwrap().0, "Updated “A Test Song”");
 
         let app = test_app();
@@ -635,7 +635,7 @@ mod window_tests {
         let songs = app.data.lock().unwrap().songs.clone();
         assert_eq!(songs.len(), 2);
         assert!(!lyrics(&app, id).contains("New words"));
-        let ItemKind::Song { song_id } = items(&app)[1].clone() else { panic!() };
+        let ItemKind::Song { song_id, .. } = items(&app)[1].clone() else { panic!() };
         assert_ne!(song_id, id);
         assert!(lyrics(&app, song_id).contains("New words"));
         assert_eq!(toasts(&op).last().unwrap().0, "Imported “A Test Song”");
@@ -682,7 +682,7 @@ mod window_tests {
         let txt = folder().join("song.txt");
         std::fs::write(&txt, "A Test Song\r\n\r\nVerse 1\r\nLine one\r\nLine two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
         add_files(&op, vec![txt.clone()]);
-        let ItemKind::Song { song_id } = items(&app)[0].clone() else { panic!() };
+        let ItemKind::Song { song_id, .. } = items(&app)[0].clone() else { panic!() };
         assert!(app.data.lock().unwrap().songs.iter().any(|s| s.id == song_id && s.title == "A Test Song"));
         assert_eq!(toasts(&op), [("Imported “A Test Song”".to_string(), false)]);
     }

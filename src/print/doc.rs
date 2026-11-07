@@ -3,7 +3,8 @@ use super::strings as tr;
 use crate::{
     model::{Data, DateOrder, ItemKind, MediaKind, PrintSettings, PrintWhat, Service, Song, VerseText},
     planning,
-    slides::{parse_sections, song_order},
+    model::ServiceItem,
+    slides::{item_order, order_of, parse_sections},
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -40,10 +41,10 @@ pub fn build(data: &Data, service: &Service, options: &PrintSettings, order: Dat
 
 fn song<'a>(data: &'a Data, id: &uuid::Uuid) -> Option<&'a Song> { data.songs.iter().find(|s| s.id == *id) }
 
-/// The song's sections in performance order, by label.
-fn order_labels(s: &Song) -> Vec<String> {
+/// The song's sections in performance order (this service's own order, if it has one), by label.
+fn order_labels(item: &ServiceItem, s: &Song) -> Vec<String> {
     let sections = parse_sections(&s.lyrics);
-    song_order(s, &sections).into_iter().map(|i| sections[i].label.clone()).collect()
+    order_of(item_order(item, s), &sections).into_iter().map(|i| sections[i].label.clone()).collect()
 }
 
 fn first_line(body: &str) -> String {
@@ -58,11 +59,11 @@ fn order_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
     for item in &service.items {
         let (kind, title, detail, blank) = match &item.kind {
             ItemKind::Header { title, .. } => { out.push(Block::OrderHeader(title.clone())); continue }
-            ItemKind::Song { song_id } => match song(data, song_id) {
+            ItemKind::Song { song_id, .. } => match song(data, song_id) {
                 Some(s) => {
-                    let labels = order_labels(s);
+                    let labels = order_labels(item, s);
                     let mut detail = s.writers.trim().to_string();
-                    if !s.arrangement.is_empty() && !labels.is_empty() {
+                    if !item_order(item, s).is_empty() && !labels.is_empty() {
                         if !detail.is_empty() { detail += " · " }
                         detail += &tr::order_line(&labels.join(" "));
                     }
@@ -114,7 +115,7 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
     let mut any = false;
     for item in &service.items {
         match &item.kind {
-            ItemKind::Song { song_id } => {
+            ItemKind::Song { song_id, .. } => {
                 let Some(s) = song(data, song_id) else { continue };
                 if options.song_per_page && songs > 0 { out.push(Block::PageBreak) }
                 songs += 1;
@@ -125,7 +126,7 @@ fn lyric_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
                 if !s.ccli.trim().is_empty() { out.push(Block::Credit(tr::ccli_song(s.ccli.trim()))) }
                 let sections = parse_sections(&s.lyrics);
                 if sections.is_empty() { out.push(Block::Para(tr::no_lyrics().into())); continue }
-                let order = song_order(s, &sections);
+                let order = order_of(item_order(item, s), &sections);
                 out.push(Block::Order(tr::order_line(&order.iter().map(|i| sections[*i].label.as_str()).collect::<Vec<_>>().join(" · "))));
                 let mut seen = vec![];
                 for i in order.into_iter().chain(0..sections.len()) {

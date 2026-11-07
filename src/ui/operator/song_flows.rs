@@ -16,7 +16,7 @@ const LYRICS: &str = "Verse 1\nv1\nChorus\nc\nVerse 2\nv2";
 /// A song in the library and in the service; returns (song id, item id).
 fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
     let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: lyrics.into(), arrangement: order.iter().map(|s| s.to_string()).collect(), ..Default::default() };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let mut d = app.data.lock().unwrap();
     d.songs.push(song.clone());
     d.services[0].items.push(item.clone());
@@ -191,6 +191,20 @@ fn live_column_shows_the_section_and_edit_words_opens_the_editor_there() {
     let st = op.ui.global::<SongEditorState>();
     assert_eq!(st.get_caret() as usize, LYRICS.find("v2").unwrap(), "the caret at Verse 2's first line");
     assert!(st.get_live_song(), "the editor warns the song is on screen");
+}
+
+#[test]
+fn edit_words_caret_follows_item_override() {
+    let app = test_app();
+    let (song_id, id) = add_song(&app, LYRICS, &[]);
+    if let Some(it) = app.data.lock().unwrap().services[0].items.iter_mut().find(|i| i.id == id) {
+        it.kind = ItemKind::Song { song_id, arrangement: Some(vec!["Verse 2".into(), "Chorus".into()]) };
+    }
+    let op = opened(&app);
+    show(&op, id, 0);
+    assert_eq!(op.ui.get_live_song().line.as_str(), "Verse 2 · slide 1 of 1", "this service starts with Verse 2");
+    click(&op, "LiveColumn::live-edit-words");
+    assert_eq!(op.ui.global::<SongEditorState>().get_caret() as usize, LYRICS.find("v2").unwrap());
 }
 
 #[test]

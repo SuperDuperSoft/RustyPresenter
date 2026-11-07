@@ -68,7 +68,7 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
     let mut need = |id: &AssetId, what: String, missing: &mut Vec<String>| if has_asset(id) { assets.insert(id.clone()); } else { missing.push(what) };
     for item in &service.items {
         match &item.kind {
-            ItemKind::Song { song_id } => match data.songs.iter().find(|s| s.id == *song_id) {
+            ItemKind::Song { song_id, .. } => match data.songs.iter().find(|s| s.id == *song_id) {
                 Some(s) => if !songs.iter().any(|x| x.id == s.id) { songs.push(s.clone()) },
                 None => missing.push(strings::song_gone().into()),
             },
@@ -262,7 +262,7 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
     for item in &mut service.items {
         item.id = Uuid::new_v4();
         match &mut item.kind {
-            ItemKind::Song { song_id: id } | ItemKind::Media { media_id: id, .. } | ItemKind::Deck { deck_id: id } => mapped(id),
+            ItemKind::Song { song_id: id, .. } | ItemKind::Media { media_id: id, .. } | ItemKind::Deck { deck_id: id } => mapped(id),
             ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
     }

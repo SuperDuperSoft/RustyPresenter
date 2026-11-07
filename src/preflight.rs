@@ -45,7 +45,7 @@ fn background_ok(b: &Background, has_asset: &dyn Fn(&str) -> bool) -> bool {
 fn content_problems(data: &Data, kind: &ItemKind, no_slides: bool, has_asset: &dyn Fn(&str) -> bool, cached: &dyn Fn(&str, &str) -> bool) -> Vec<String> {
     let one = |s: String| vec![s];
     match kind {
-        ItemKind::Song { song_id } if !data.songs.iter().any(|s| s.id == *song_id) => one(strings::song_missing()),
+        ItemKind::Song { song_id, .. } if !data.songs.iter().any(|s| s.id == *song_id) => one(strings::song_missing()),
         ItemKind::Song { .. } if no_slides => one(strings::song_empty()),
         ItemKind::Scripture { reference, translation, verses, also, .. } => {
             // Each online Bible whose passage would not show without internet; a missing main text says only that.
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn room_screen_not_connected_comes_first() {
-        let mut d = data(vec![ItemKind::Song { song_id: Uuid::new_v4() }]);
+        let mut d = data(vec![ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }]);
         d.settings.screens.assign("audience", ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
         let got = run(&d, &all);
         assert_eq!(got[0], s::room_gone());
@@ -176,14 +176,14 @@ mod tests {
 
     #[test]
     fn a_song_gone_from_the_library_names_its_place() {
-        let d = data(vec![text(), ItemKind::Song { song_id: Uuid::new_v4() }]);
+        let d = data(vec![text(), ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }]);
         assert_eq!(run(&d, &all), [s::item(2, "Missing song", &s::song_missing())]);
     }
 
     #[test]
     fn a_song_without_words() {
         let song = Song { id: Uuid::new_v4(), title: "Silent".into(), ..Song::default() };
-        let mut d = data(vec![ItemKind::Song { song_id: song.id }]);
+        let mut d = data(vec![ItemKind::Song { song_id: song.id, arrangement: None }]);
         d.songs.push(song);
         assert_eq!(run(&d, &all), [s::item(1, "Silent", &s::song_empty())]);
     }
@@ -251,7 +251,7 @@ mod tests {
     fn only_the_current_service_is_checked() {
         let mut d = data(vec![text()]);
         let mut other = Service::new("Last week");
-        other.items.push(item(ItemKind::Song { song_id: Uuid::new_v4() }));
+        other.items.push(item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }));
         d.services.push(other);
         assert_eq!(run(&d, &all), Vec::<String>::new());
     }

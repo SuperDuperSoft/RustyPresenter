@@ -250,7 +250,7 @@ impl Plan for DataPlan<'_> {
 
 /// The library song of service item `item_id`, if it is a song.
 fn song_of(data: &Data, item_id: Uuid) -> Option<Uuid> {
-    data.service()?.items.iter().find(|i| i.id == item_id).and_then(|i| match i.kind { ItemKind::Song { song_id } => Some(song_id), _ => None })
+    data.service()?.items.iter().find(|i| i.id == item_id).and_then(|i| match i.kind { ItemKind::Song { song_id, .. } => Some(song_id), _ => None })
 }
 
 pub(crate) const SESSION_DAYS: u64 = 30;
@@ -869,9 +869,9 @@ impl App {
         "song/delete" => {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {
-                let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Song { song_id } if song_id == id)));
+                let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Song { song_id, .. } if song_id == id)));
                 if used { return Err(tr!("This song is in a service. Remove it from the service first.")); }
-                if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Song { song_id } if *song_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
+                if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Song { song_id, .. } if *song_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.songs.retain(|s| s.id != id);
                 Ok(())
             }));
@@ -2412,7 +2412,7 @@ mod tests {
             let song = d.songs.iter_mut().find(|s| s.id == id).unwrap();
             song.arrangement = vec!["Chorus".into(), "Verse 1".into()];
             let service = d.service_mut().ok_or("no service")?;
-            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id }, background: None, notes: String::new(), theme: None });
+            service.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id, arrangement: None }, background: None, notes: String::new(), theme: None });
             Ok(())
         }).unwrap();
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "update")).await.unwrap();
@@ -2424,7 +2424,7 @@ mod tests {
         assert_eq!(song.writers, "New Writer");
         assert!(song.copyright.contains("2027"));
         assert_eq!(song.arrangement, vec!["Chorus".to_string(), "Verse 1".to_string()]);
-        let item_song = match d.service().unwrap().items[0].kind { ItemKind::Song { song_id } => song_id, _ => panic!() };
+        let item_song = match d.service().unwrap().items[0].kind { ItemKind::Song { song_id, .. } => song_id, _ => panic!() };
         let shown = d.songs.iter().find(|s| s.id == item_song).unwrap();
         let settings = Settings { credits: "none".into(), ..Default::default() };
         let texts: Vec<_> = crate::slides::song_slides(shown, &settings).into_iter().map(|s| match s.content { SlideContent::Text { text, .. } => text, _ => panic!() }).collect();
@@ -2650,7 +2650,7 @@ mod tests {
         let id = {
             let mut d = app.data.lock().unwrap();
             let s = d.service_mut().unwrap();
-            s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4() }, background: None, notes: String::new(), theme: None });
+            s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None });
             s.id
         };
         let e = block_on(app.export_service(id, dest.clone())).unwrap_err();

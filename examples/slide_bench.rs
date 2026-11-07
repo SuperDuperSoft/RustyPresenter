@@ -280,7 +280,7 @@ fn run() {
         let mut first = None;
         for n in 1..=5 {
             let song = Song { id: Uuid::new_v4(), title: format!("Bench song {n}"), lyrics: lyrics(n), ..Default::default() };
-            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
             first.get_or_insert(item.id);
             data.songs.push(song);
             data.services[0].items.push(item);

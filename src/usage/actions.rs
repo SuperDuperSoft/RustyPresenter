@@ -22,7 +22,7 @@ pub fn hit_for(data: &Data, frame: &Frame, item: Option<&LiveItem>, at: DateTime
     // The current service first: the same item id can't be in two services, but a copied service could share it.
     let services = data.service().into_iter().chain(data.services.iter());
     let (service, song_id) = services.into_iter().find_map(|s| s.items.iter().find(|i| i.id == item_id).and_then(|i| match i.kind {
-        ItemKind::Song { song_id } => Some((s, song_id)),
+        ItemKind::Song { song_id, .. } => Some((s, song_id)),
         _ => None,
     }))?;
     let song = data.songs.iter().find(|s| s.id == song_id)?;

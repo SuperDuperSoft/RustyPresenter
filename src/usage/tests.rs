@@ -77,7 +77,7 @@ fn app_with_song(ccli: &str) -> (Arc<App>, Uuid, Uuid) {
     let app = test_app();
     let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: "John Newton".into(), ccli: ccli.into(),
         copyright: "Public Domain".into(), lyrics: "Verse 1\nAmazing grace\n\nVerse 2\nTwas grace".into(), arrangement: vec![] };
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let item_id = item.id;
     let service = {
         let mut d = app.data.lock().unwrap();
