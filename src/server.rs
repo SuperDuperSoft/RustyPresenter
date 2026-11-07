@@ -703,7 +703,8 @@ msgstr[1] "{n} Folien"
         let app = test_app();
         let id = Uuid::new_v4();
         app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God so loved the world")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: Some(Background::Color { color: "#204080".into() }), notes: String::new(), theme: None });
-        assert!(app.command(Envelope { id: "s".into(), base: Some(app.live.lock().unwrap().version), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
+        let base = app.live.lock().unwrap().version;
+        assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
         let jpeg = live_slide_jpeg(&app, 320).unwrap();
         let img = image::load_from_memory(&jpeg).unwrap().into_rgb8();
         let p = img.get_pixel(4, 4);
