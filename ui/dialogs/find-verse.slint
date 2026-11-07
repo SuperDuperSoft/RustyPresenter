@@ -49,7 +49,7 @@ component Muted inherits Text {
 
 export component FindVerseDialog inherits VerticalLayout {
     in property <length> window-height: 800px;
-    property <length> pane-height: clamp(root.window-height - 330px, 220px, 560px);
+    property <length> pane-height: clamp(root.window-height - 400px, 200px, 560px);
 
     VerticalLayout {
         padding-top: 8px;
@@ -105,6 +105,7 @@ export component FindVerseDialog inherits VerticalLayout {
                 horizontal-stretch: 1;
                 track-edge: Theme.panel;
                 VerticalLayout {
+                    alignment: start;
                     spacing: 4px;
                     for h[i] in FindVerseDlg.hits: hit := Rectangle {
                         background: i == FindVerseDlg.current ? Theme.raise : Theme.panel-2;
@@ -160,6 +161,7 @@ export component FindVerseDialog inherits VerticalLayout {
                     ScrollBox {
                         track-edge: Theme.panel-2;
                         VerticalLayout {
+                            alignment: start;
                             spacing: 2px;
                             for l[i] in FindVerseDlg.lines: line := Rectangle {
                                 background: l.picked ? Theme.accent.with-alpha(0.22) : line-ta.has-hover ? Theme.raise : transparent;

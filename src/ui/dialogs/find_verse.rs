@@ -269,19 +269,22 @@ fn add(op: &Rc<Operator>, state: &Rc<State>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{app::test_app, model::ItemKind, ui::operator::window::testing::{find, find_all, open as open_window, refresh}};
-    use slint::{Model, platform::PointerEventButton};
+    use crate::{app::test_app, model::ItemKind, ui::operator::window::testing::{find_all, open as open_window, refresh}};
+    use slint::Model;
 
     /// Runs Slint timers and the core until `done`, at most about 60 s (the first search of a Bible builds its
     /// index).
     fn wait(op: &Rc<Operator>, done: impl Fn(&Rc<Operator>) -> bool) {
         for _ in 0..1200 {
+            // The testing backend's clock only moves when told to.
+            i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(50));
             slint::platform::update_timers_and_animations();
             refresh(op);
             if done(op) { return }
             std::thread::sleep(Duration::from_millis(50));
         }
-        panic!("timed out; header: {}", op.ui.global::<FindVerseDlg>().get_header());
+        let g = op.ui.global::<FindVerseDlg>();
+        panic!("timed out; header: {}, can add: {}, dialog: {:?}", g.get_header(), g.get_can_add(), op.dialog());
     }
 
     fn hits(op: &Operator) -> Vec<String> { op.ui.global::<FindVerseDlg>().get_hits().iter().map(|h| h.reference.to_string()).collect() }
@@ -310,18 +313,18 @@ mod tests {
         let (app, op) = opened();
         open(&op, "be still and know");
         wait(&op, |op| !hits(op).is_empty());
-        find_all(&op, "FindVerseDialog::hit")[0].mock_single_click(PointerEventButton::Left);
+        find_all(&op, "FindVerseDialog::hit")[0].invoke_accessible_default_action();
         wait(&op, |op| op.ui.global::<FindVerseDlg>().get_can_add());
         let g = op.ui.global::<FindVerseDlg>();
         assert_eq!(g.get_add_label(), "Add Psalm 46:10");
         g.invoke_line_clicked(10, true);
         assert_eq!(g.get_add_label(), "Add Psalm 46:10–11");
-        find(&op, "FindVerseDialog::add").unwrap().mock_single_click(PointerEventButton::Left);
+        g.invoke_add();
         wait(&op, |op| op.dialog().is_none());
         let d = app.data.lock().unwrap();
         match &d.services[0].items[0].kind {
             ItemKind::Scripture { reference, translation, verses, .. } => {
-                assert_eq!((reference.as_str(), translation.as_str(), verses.len()), ("Psalm 46:10-11", "KJV", 2));
+                assert_eq!((reference.as_str(), translation.as_str(), verses.len()), ("Psalm 46:10–11", "KJV", 2));
             }
             k => panic!("{k:?}"),
         }

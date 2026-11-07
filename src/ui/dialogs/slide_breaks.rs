@@ -197,7 +197,9 @@ mod tests {
         let at = gaps(&op).iter().position(|g| g == "none").expect("a gap with no break");
         find_all(&op, "SlideBreaksDialog::gap")[at].mock_single_click(PointerEventButton::Left);
         assert_eq!(gaps(&op)[at], "added");
-        assert_eq!(slide_labels(&op).len(), before.len() + 1, "{:?}", slide_labels(&op));
+        let starts = format!("Psalm 23:{}", at + 2);
+        assert!(slide_labels(&op).iter().any(|l| l == &starts || l.starts_with(&format!("{starts}–"))), "a slide starts at the break: {:?}", slide_labels(&op));
+        assert_ne!(slide_labels(&op), before);
         find(&op, "SlideBreaksDialog::save").unwrap().mock_single_click(PointerEventButton::Left);
         assert_eq!(op.dialog(), None);
         let d = app.data.lock().unwrap();
@@ -213,15 +215,15 @@ mod tests {
         refresh(&op);
         open(&op, id);
         let g = op.ui.global::<SlideBreaksDlg>();
-        if let Some(auto) = gaps(&op).iter().position(|g| g == "auto") {
-            g.invoke_gap_clicked(auto as i32);
-            assert_eq!(gaps(&op)[auto], "kept");
-        }
         g.set_per_slide(1);
         g.invoke_per_slide_changed(1);
         assert_eq!(slide_labels(&op).len(), 6, "one verse a slide");
+        g.invoke_gap_clicked(0);
+        assert_eq!(gaps(&op)[0], "kept");
+        assert_eq!(slide_labels(&op)[0], "Psalm 23:1–2", "kept together");
         g.invoke_reset();
         assert!(gaps(&op).iter().all(|g| g == "auto"), "{:?}", gaps(&op));
+        assert_eq!(slide_labels(&op).len(), 6);
         g.invoke_cancel();
         assert_eq!(op.dialog(), None);
         let d = app.data.lock().unwrap();

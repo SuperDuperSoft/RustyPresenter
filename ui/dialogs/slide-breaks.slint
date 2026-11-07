@@ -76,7 +76,7 @@ component GapLine inherits Rectangle {
 
 export component SlideBreaksDialog inherits VerticalLayout {
     in property <length> window-height: 800px;
-    property <length> pane-height: clamp(root.window-height - 300px, 220px, 600px);
+    property <length> pane-height: clamp(root.window-height - 330px, 200px, 600px);
 
     VerticalLayout {
         padding-top: 8px;
@@ -107,6 +107,7 @@ export component SlideBreaksDialog inherits VerticalLayout {
                 horizontal-stretch: 3;
                 track-edge: Theme.panel;
                 VerticalLayout {
+                    alignment: start;
                     for v[i] in SlideBreaksDlg.verses: VerticalLayout {
                         if i > 0: gap := GapLine {
                             gap: SlideBreaksDlg.gaps[i - 1];
@@ -143,6 +144,7 @@ export component SlideBreaksDialog inherits VerticalLayout {
                 horizontal-stretch: 2;
                 track-edge: Theme.panel;
                 VerticalLayout {
+                    alignment: start;
                     padding-right: 14px;
                     spacing: 8px;
                     for s in SlideBreaksDlg.slides: slide := Rectangle {
