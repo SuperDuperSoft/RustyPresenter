@@ -22,6 +22,9 @@ import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
 import { StageLayoutsDialog } from "dialogs/stage-layouts.slint";
 import { OverlaysDialog } from "dialogs/overlays.slint";
+import { AutomationDialog } from "dialogs/automation.slint";
+import { ShowMessageDialog } from "dialogs/show-message.slint";
+import { AutomationStrip } from "operator/automation-strip.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -253,6 +256,7 @@ export component OperatorWindow inherits Window {
     pure function captured(e: KeyEvent) -> bool {
         return e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
             || (e.modifiers.control && (e.text == "b" || e.text == "B"))
+            || (e.modifiers.control && e.modifiers.shift && (e.text == "m" || e.text == "M"))
             || (e.modifiers.alt && top.bible-focused);
     }
 
@@ -718,6 +722,8 @@ export component OperatorWindow inherits Window {
                         transport-seek(i, which) => { root.focus-keys(); root.transport-seek(i, which); }
                         monitor-resized(w) => { root.monitor-resized(w); }
                     }
+                    // FEAT-2: Message, the Auto chip, timers and macros (`src/ui/operator/automation.rs`).
+                    auto-strip := AutomationStrip { }
                 }
             }
         }
@@ -742,6 +748,8 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "usage": UsageDialog {}
             if root.dialog-kind == "stage-layouts": StageLayoutsDialog {}
             if root.dialog-kind == "overlays": OverlaysDialog {}
+            if root.dialog-kind == "automation": AutomationDialog { window-height: root.height; }
+            if root.dialog-kind == "show-message": ShowMessageDialog {}
         }
 
         for a in root.ask: AskOverlay {

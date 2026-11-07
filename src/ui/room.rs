@@ -234,13 +234,14 @@ impl Inner {
         self.check();
     }
 
-    /// Ticks once a second while the frame has a bound overlay (a clock); `RoomState::plan` sees its text change.
+    /// Ticks four times a second while the frame has a bound overlay (a clock or a FEAT-2 timer), so a timer's
+    /// second shows close to when it changes; `RoomState::plan` prepares again only when the text changed.
     fn sync_clock(&self, view: &LiveView) {
         let bound = view.frame.overlays.iter().any(|o| o.source.is_bound());
         if bound == self.clock.running() { return }
         if !bound { return self.clock.stop() }
         let me = self.me.clone();
-        self.clock.start(TimerMode::Repeated, Duration::from_secs(1), move || {
+        self.clock.start(TimerMode::Repeated, Duration::from_millis(250), move || {
             let Some(i) = me.upgrade() else { return };
             let view = i.last.borrow().clone();
             if let Some(v) = view { i.view(&v) }

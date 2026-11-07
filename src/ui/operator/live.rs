@@ -133,7 +133,7 @@ impl Operator {
     }
 
     /// A command from this column; a refusal becomes a toast (`cmd()`, `operator.js:80-86`).
-    pub(super) fn command(self: &Rc<Self>, cmd: Command, base: Option<u64>) {
+    pub(crate) fn command(self: &Rc<Self>, cmd: Command, base: Option<u64>) {
         let me = Rc::downgrade(self);
         self.ops.cmd(cmd, base, move |o| {
             if let (Some(op), Some((msg, err))) = (me.upgrade(), outcome_toast(&o)) { op.toast(&msg, err) }

@@ -52,7 +52,7 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 
 /// What the window draws: the live view, the stage layout and the live item's slides (for "next section").
 #[derive(Clone)]
-struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide> }
+struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView> }
 
 /// The layout on stage is the church's stage default (Classic when it names no layout), built-in or the church's own.
 fn read(app: &App, live: LiveUpdate) -> Shown {
@@ -61,7 +61,7 @@ fn read(app: &App, live: LiveUpdate) -> Shown {
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
-    Shown { live, layout, slides }
+    Shown { live, layout, slides, timers: app.timers() }
 }
 
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
@@ -84,7 +84,7 @@ fn fit(ui: &StageWindow) {
 fn show(ui: &StageWindow, screen: &StageScreen, shown: Shown) {
     let cells = shown.layout.id != presets::CLASSIC;
     ui.set_use_cells(cells);
-    if cells { draw_cells(ui, screen, &shown) } else { show_classic(ui, &shown.live) }
+    if cells { draw_cells(ui, screen, &shown) } else { show_classic(ui, &shown.live, &classic_timer(screen, &shown.timers)) }
     *screen.last.lock().unwrap() = Some(shown);
 }
 
@@ -93,8 +93,17 @@ fn redraw(ui: &StageWindow, screen: &StageScreen) {
     if let Some(shown) = last { if ui.get_use_cells() { draw_cells(ui, screen, &shown) } else { fit(ui) } }
 }
 
-fn show_classic(ui: &StageWindow, view: &LiveView) {
-    let t = stage_text(view);
+/// The current "show on stage" timer for Classic's timer line (FEAT-2 §5.8), with its name.
+fn classic_timer(screen: &StageScreen, timers: &TimersView) -> String {
+    let mut state = screen.state.lock().unwrap();
+    state.track_timers(timers);
+    state.current(timers).map(|t| format!("{} {}", t.name, crate::timers::text(t.value_ms))).unwrap_or_default()
+}
+
+fn show_classic(ui: &StageWindow, view: &LiveView, timer: &str) {
+    let mut t = stage_text(view);
+    // A playing video or audio countdown keeps the line.
+    if t.timer.is_empty() { t.timer = timer.to_string() }
     ui.set_item_title(t.title.into());
     ui.set_now(t.now.into());
     ui.set_now_dim(t.now_dim);
@@ -109,8 +118,7 @@ fn color(c: &str) -> slint::Color { let [r, g, b, a] = crate::render::parse_colo
 
 /// Draw the layout's boxes. Rows that did not change are left alone.
 fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
-    // FEAT-2 timers are not published by the app yet: timer boxes stay empty until they are.
-    let timers = TimersView::default();
+    let timers = shown.timers.clone();
     let mut state = screen.state.lock().unwrap();
     state.track_timers(&timers);
     let inputs = StageInputs { live: &shown.live, slides: &shown.slides, timers: &timers, state: &state, now: chrono::Local::now().time() };
@@ -227,6 +235,11 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: s
             Ok(Update::Live(u)) => u,
             // Settings may have a new stage layout.
             Ok(Update::Data) | Err(RecvError::Lagged(_)) => LiveUpdate::new(app.live_view()),
+            // A new timer readout: the same live view with the new times.
+            Ok(Update::Timers(_)) => match latest.lock().unwrap().as_ref().map(|s| s.live.clone()) {
+                Some(live) => live,
+                None => LiveUpdate::new(app.live_view()),
+            },
             Ok(_) => continue,
             Err(RecvError::Closed) => {
                 let _ = ui.upgrade_in_event_loop(|ui| ui.set_connected(false));
@@ -476,7 +489,7 @@ mod tests {
         let long = "Amazing grace how sweet the sound that saved a wretch like me, I once was lost but now am found, was blind but now I see. ".repeat(3);
         v.slide.as_mut().unwrap().content = SlideContent::Text { text: long.clone(), footer: None, reference: None, size: 0, parallel: None };
         let screen = StageScreen::default();
-        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![] });
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default() });
         let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
         assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
         stage.ui.hide().unwrap();

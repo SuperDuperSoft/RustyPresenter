@@ -23,6 +23,8 @@ pub enum KeyAction {
     Redo,
     /// Ctrl+F: Edit → Find… (a song in the Add dialog).
     Find,
+    /// Ctrl+Shift+M (Cmd+Shift+M): Show message (FEAT-2 §3.3), even while typing.
+    ShowMessage,
     None,
 }
 
@@ -81,6 +83,10 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
     }
     if ctrl_or_cmd && key.eq_ignore_ascii_case("f") {
         return if ctx.dialog_open { KeyAction::None } else { KeyAction::Find };
+    }
+    // The window only offers Ctrl+M with Shift held (`captured` in `operator.slint`).
+    if ctrl_or_cmd && key.eq_ignore_ascii_case("m") {
+        return if ctx.dialog_open { KeyAction::None } else { KeyAction::ShowMessage };
     }
     if ctx.dialog_open {
         return KeyAction::None;
@@ -179,6 +185,7 @@ impl Operator {
             KeyAction::Undo => self.undo(false),
             KeyAction::Redo => self.undo(true),
             KeyAction::Find => self.find(),
+            KeyAction::ShowMessage => crate::ui::dialogs::show_message::open(self),
             KeyAction::None => return false,
         }
         true

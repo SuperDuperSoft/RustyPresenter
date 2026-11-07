@@ -16,7 +16,7 @@
 use crate::{model::*, recovery::state::LiveState, sections::{JumpTarget, LiveChange, SectionKind}};
 use crate::theme::{overlay::{self, Overlay, OverlaySlot, slots}, strings as theme_strings};
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::collections::{BTreeMap, VecDeque};
 use uuid::Uuid;
 
 mod song;
@@ -190,6 +190,14 @@ pub enum Command {
     Jump { item_id: Uuid, kind: SectionKind, #[serde(default)] number: Option<u8>, #[serde(default)] occurrence: Option<u16> },
     /// Show the library's version of the live item at the same place (Update screen). Operator only.
     Refresh { item_id: Uuid },
+    /// FEAT-2: put a timer on the screen. Carries `seen_clear` like an overlay.
+    ShowTimer { timer: Uuid, #[serde(default)] seen_clear: Option<u64> },
+    HideTimer { timer: Uuid },
+    /// FEAT-2: show a message filled from a template (one at a time; a new one replaces it).
+    ShowMessage { template: Uuid, #[serde(default)] values: BTreeMap<String, String>, #[serde(default)] seen_clear: Option<u64> },
+    HideMessage,
+    /// FEAT-2: run a macro. The App runs it (it needs timers and data); `base` is required when it changes slides.
+    RunMacro { #[serde(rename = "macro")] macro_id: Uuid, #[serde(default)] seen_clear: Option<u64> },
 }
 
 impl Command {
@@ -227,7 +235,34 @@ pub trait Plan {
     fn saved_overlay(&self, _id: Uuid) -> Option<(u32, Overlay)> { None }
     /// The church logo, which a "church logo" picture overlay shows.
     fn logo(&self) -> Option<AssetId> { None }
+    /// FEAT-2's timers and message templates.
+    fn automation(&self) -> Option<&crate::automation::Automation> { None }
 }
+
+/// What a change touched, weakest first (FEAT-2 spec §5.2). Only `commit_change` bumps the version.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Change {
+    None,
+    /// A new version with the room unchanged (a quiet adoption): in-flight relative commands go stale.
+    Silent,
+    /// Overlays only: slide timing (auto-advance) carries on.
+    Overlay,
+    /// Slides, media, logo or audio.
+    Visual,
+}
+
+/// Who made a visual change: the operator (or phone, or a macro) or an automatic slide turn.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Origin { User, Auto }
+
+/// One step of a batch: a command (with whether it puts something new on screen) or a runtime step the
+/// caller applies (its index into the caller's list).
+#[derive(Clone, Debug)]
+pub enum BatchStep { Cmd { cmd: Command, show: bool }, Runtime(usize) }
+
+/// A batch's outcome and the 0-based steps that failed (with why) or were skipped (shows after a clear).
+#[derive(Clone, Debug)]
+pub struct BatchOutcome { pub outcome: Outcome, pub failed: Vec<(usize, String)>, pub skipped_shows: Vec<usize> }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -252,6 +287,16 @@ pub struct PlayStatus {
     pub duration: f64,
 }
 
+/// Inside a batch the shows were already checked against the clear at its start.
+fn with_seen_clear(cmd: &Command, epoch: u64) -> Command {
+    let mut cmd = cmd.clone();
+    match &mut cmd {
+        Command::Overlay { seen_clear, .. } | Command::ShowTimer { seen_clear, .. } | Command::ShowMessage { seen_clear, .. } => *seen_clear = Some(epoch),
+        _ => {}
+    }
+    cmd
+}
+
 pub struct Live {
     pub version: u64,
     pub frame: Frame,
@@ -267,6 +312,16 @@ pub struct Live {
     pub clear_epoch: u64,
     /// The live item no longer matches the library and the room would look different (FEAT-4 banner).
     pub changed: Option<LiveChange>,
+    /// The version of the last visual change (FEAT-2): auto-advance re-arms only when this moves.
+    pub visual_version: u64,
+    /// The version of the last visual change someone made by hand (not an automatic slide turn).
+    pub manual_version: u64,
+    origin: Origin,
+    /// The last quiet adoption (FEAT-4): the item and its old → new slide map, for the App to pass on to
+    /// auto-advance. Taken by the App.
+    pub adopted: Option<(Uuid, Vec<Option<usize>>)>,
+    /// Inside `apply_batch`: the strongest change so far, committed once at the end.
+    batch: Option<Change>,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -282,7 +337,8 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, restored_version: None, clear_epoch: 0, changed: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            audio_status: None, notice: None, restored_version: None, clear_epoch: 0, changed: None, visual_version: 0, manual_version: 0,
+            origin: Origin::User, adopted: None, batch: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -296,9 +352,19 @@ impl Live {
         }
     }
 
-    fn bump(&mut self) {
+    fn bump(&mut self) { self.commit_change(Change::Visual) }
+
+    /// The only place the version moves (spec §5.2 table). Inside a batch it only notes the change.
+    pub(crate) fn commit_change(&mut self, change: Change) {
+        if let Some(b) = self.batch.as_mut() { *b = (*b).max(change); return }
+        if change == Change::None { return }
         self.version += 1;
+        // Silent changes are remembered too, so the room can commit them.
         self.remember();
+        if change == Change::Visual {
+            self.visual_version = self.version;
+            if self.origin == Origin::User { self.manual_version = self.version }
+        }
     }
 
     fn inst(&mut self) -> u64 { let i = self.next_inst; self.next_inst += 1; i }
@@ -308,7 +374,6 @@ impl Live {
 
     /// Puts an overlay slot up (replacing one with its key). No version bump: the caller commits. False when an
     /// equal copy was already up.
-    #[cfg(test)] // FEAT-2's timer and message slots will use it outside tests.
     pub(crate) fn show_overlay(&mut self, slot: OverlaySlot) -> bool { slots::show(&mut self.frame.overlays, slot) }
 
     /// Takes the overlay slot with `key` down. No version bump. False when it was not up.
@@ -368,6 +433,58 @@ impl Live {
         outcome
     }
 
+    /// Runs several steps as one change (FEAT-2 macros): one version bump, one history snapshot. Each step runs
+    /// against its own checkpoint, so a failed step leaves nothing behind and the later steps still run. Show
+    /// steps are skipped when `seen_clear` is older than the clears at the start (the batch's own clears don't
+    /// count). `base`: checked once when given. `runtime` applies the caller's runtime steps.
+    pub fn apply_batch(&mut self, id: &str, base: Option<u64>, seen_clear: Option<u64>, steps: &[BatchStep], plan: &dyn Plan,
+        runtime: &mut dyn FnMut(usize) -> Result<(), String>) -> BatchOutcome {
+        if let Some((_, o)) = self.seen.iter().find(|(seen, _)| seen == id) {
+            return BatchOutcome { outcome: Outcome { duplicate: true, ..o.clone() }, failed: vec![], skipped_shows: vec![] };
+        }
+        let done = |l: &mut Live, outcome: Outcome, failed, skipped_shows| {
+            l.seen.push_back((id.to_string(), outcome.clone()));
+            if l.seen.len() > SEEN { l.seen.pop_front(); }
+            BatchOutcome { outcome, failed, skipped_shows }
+        };
+        if base.is_some_and(|b| b != self.version) {
+            let o = Outcome { ok: false, version: self.version, error: Some("stale: the screen changed before this arrived".into()), duplicate: false };
+            return done(self, o, vec![], vec![]);
+        }
+        let epoch = self.clear_epoch;
+        let cleared = seen_clear.is_none_or(|s| s < epoch);
+        let (mut failed, mut skipped) = (vec![], vec![]);
+        self.batch = Some(Change::None);
+        for (i, step) in steps.iter().enumerate() {
+            let r = match step {
+                BatchStep::Cmd { show: true, .. } if cleared => { skipped.push(i); continue }
+                BatchStep::Cmd { cmd, .. } => {
+                    let saved = (self.frame.clone(), self.cursor.clone(), self.item.clone(), self.next_inst, self.notice.clone(), self.changed.clone(), self.batch);
+                    let r = self.exec(&with_seen_clear(cmd, self.clear_epoch), plan);
+                    if r.is_err() { (self.frame, self.cursor, self.item, self.next_inst, self.notice, self.changed, self.batch) = saved }
+                    r
+                }
+                BatchStep::Runtime(n) => runtime(*n),
+            };
+            if let Err(e) = r { failed.push((i, e)) }
+        }
+        let change = self.batch.take().unwrap_or(Change::None);
+        self.commit_change(change);
+        let o = Outcome { ok: true, version: self.version, error: None, duplicate: false };
+        done(self, o, failed, skipped)
+    }
+
+    /// An automatic slide turn (FEAT-2 auto-advance) to `slide` of the live item. It is a visual change that
+    /// nobody made by hand, so it leaves `manual_version` alone.
+    pub fn auto_goto(&mut self, slide: usize) -> bool {
+        let (Some(item), Some(cursor)) = (self.item.clone(), self.cursor.clone()) else { return false };
+        if slide >= item.slides.len() { return false }
+        self.origin = Origin::Auto;
+        self.go(item, cursor.item_index, slide);
+        self.origin = Origin::User;
+        true
+    }
+
     fn run(&mut self, env: &Envelope, plan: &dyn Plan) -> Result<(), String> {
         let check_base = env.cmd.relative() || matches!(env.cmd, Command::Show { .. });
         if check_base {
@@ -377,8 +494,13 @@ impl Live {
                 _ => {}
             }
         }
-        if env.cmd.clears() { self.clear_epoch += 1 }
-        match &env.cmd {
+        self.exec(&env.cmd, plan)
+    }
+
+    /// One command, its base already checked.
+    fn exec(&mut self, cmd: &Command, plan: &dyn Plan) -> Result<(), String> {
+        if cmd.clears() { self.clear_epoch += 1 }
+        match cmd {
             Command::Next => self.step(plan, true),
             Command::Prev => self.step(plan, false),
             Command::Show { item_id, slide } => {
@@ -407,15 +529,15 @@ impl Live {
                 let inst = self.inst();
                 let mut slot = slots::saved_slot(*id, std::slice::from_ref(&o), plan.logo().as_ref(), inst)?;
                 slot.z = z;
-                if slots::turn_on(&mut self.frame.overlays, slot)? { self.bump() }
+                if slots::turn_on(&mut self.frame.overlays, slot)? { self.commit_change(Change::Overlay) }
                 Ok(())
             }
             Command::Overlay { id, on: false, .. } => {
-                if self.hide_overlay(&overlay::saved_key(*id)) { self.bump() }
+                if self.hide_overlay(&overlay::saved_key(*id)) { self.commit_change(Change::Overlay) }
                 Ok(())
             }
             Command::ClearOverlays => {
-                if self.retain_overlays(|_| false) { self.bump() }
+                if self.retain_overlays(|_| false) { self.commit_change(Change::Overlay) }
                 Ok(())
             }
             Command::MediaPause { inst, paused } => {
@@ -445,6 +567,36 @@ impl Live {
             }
             Command::Jump { item_id, kind, number, occurrence } => self.jump(*item_id, JumpTarget { kind: *kind, number: *number, occurrence: *occurrence }),
             Command::Refresh { item_id } => self.refresh(plan, *item_id),
+            Command::ShowTimer { timer, seen_clear } => {
+                slots::check_seen_clear(*seen_clear, self.clear_epoch)?;
+                let timers = plan.automation().map(|a| a.timers.as_slice()).unwrap_or_default();
+                let (index, def) = timers.iter().enumerate().find(|(_, t)| t.id == *timer).ok_or_else(crate::automation::strings::timer_gone)?;
+                if def.kind.known().is_none() { return Err(crate::automation::strings::timer_needs_newer()) }
+                let key = crate::automation::slots::timer_key(*timer);
+                crate::automation::slots::room_for_timer(&self.frame.overlays, &key)?;
+                let inst = self.inst();
+                if self.show_overlay(crate::automation::slots::timer_slot(def, index, inst)) { self.commit_change(Change::Overlay) }
+                Ok(())
+            }
+            Command::HideTimer { timer } => {
+                if self.hide_overlay(&crate::automation::slots::timer_key(*timer)) { self.commit_change(Change::Overlay) }
+                Ok(())
+            }
+            Command::ShowMessage { template, values, seen_clear } => {
+                slots::check_seen_clear(*seen_clear, self.clear_epoch)?;
+                let t = plan.automation().and_then(|a| a.messages.iter().find(|t| t.id == *template)).ok_or_else(crate::automation::strings::message_gone)?;
+                let text = crate::automation::messages::fill(&t.text, values)?;
+                let inst = self.inst();
+                self.show_overlay(crate::automation::slots::message_slot(t, Uuid::new_v4(), text, inst));
+                self.commit_change(Change::Overlay);
+                Ok(())
+            }
+            Command::HideMessage => {
+                if self.hide_overlay(crate::automation::slots::MESSAGE_KEY) { self.commit_change(Change::Overlay) }
+                Ok(())
+            }
+            // The App runs macros before the engine sees them (`App::command`).
+            Command::RunMacro { .. } => Err(crate::automation::strings::macro_needs_app()),
         }
     }
 
@@ -582,7 +734,7 @@ impl Live {
                 // Only a slot that is still up with that instance; a later copy or one taken down is left alone.
                 let Some(name) = slots::failed(&mut self.frame.overlays, &key, inst) else { return false };
                 self.notice = Some(theme_strings::overlay_failed(&name, &reason));
-                self.bump();
+                self.commit_change(Change::Overlay);
                 true
             }
             RoomEvent::Media { inst, state, position, duration, error } => {

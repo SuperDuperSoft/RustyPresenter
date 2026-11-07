@@ -1,0 +1,83 @@
+// Show message (FEAT-2 §3.3): pick a message, fill in its boxes, see the sentence, Show. Enter shows it.
+// Filled and answered by `src/ui/dialogs/show_message.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Select, Note } from "form.slint";
+
+export struct MessageField { name: string, value: string }
+
+export global ShowMessageDlg {
+    in property <[string]> templates;
+    in-out property <int> template;
+    in property <[MessageField]> fields;
+    in property <string> preview;
+    in property <string> error;
+    in property <bool> message-up;
+    in property <string> warning;
+    /// Bumped to put the keyboard in the first box.
+    in property <int> focus-serial;
+    callback template-changed();
+    callback field-edited(int, string);
+    callback show();
+    callback hide();
+    callback cancel();
+}
+
+export component ShowMessageDialog inherits VerticalLayout {
+    DialogBody {
+        if ShowMessageDlg.warning != "": Note { text: ShowMessageDlg.warning; }
+        Lbl { label: @tr("Message"); }
+        Rectangle { height: 6px; }
+        msg-template := Select {
+            options: ShowMessageDlg.templates;
+            index <=> ShowMessageDlg.template;
+            changed => { ShowMessageDlg.template-changed(); }
+        }
+        Rectangle { height: 12px; }
+        for f[i] in ShowMessageDlg.fields: VerticalLayout {
+            spacing: 6px;
+            padding-bottom: 10px;
+            Lbl { label: f.name; }
+            msg-field := TextField {
+                text: f.value;
+                label: f.name;
+                edited(t) => { ShowMessageDlg.field-edited(i, t); }
+                accepted => { ShowMessageDlg.show(); }
+                init => { if i == 0 { self.focus(); } }
+            }
+        }
+        msg-preview := Rectangle {
+            background: #000;
+            border-radius: 8px;
+            min-height: 44px;
+            Text {
+                x: 12px;
+                width: parent.width - 24px;
+                height: parent.height;
+                text: ShowMessageDlg.preview;
+                color: #fff;
+                font-family: Theme.font;
+                font-size: 15px;
+                font-weight: 600;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                wrap: word-wrap;
+            }
+        }
+        if ShowMessageDlg.error != "": msg-error := Text {
+            text: ShowMessageDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        if ShowMessageDlg.message-up: msg-hide := Btn { text: @tr("Hide"); clicked => { ShowMessageDlg.hide(); } }
+        msg-cancel := Btn { text: @tr("Cancel"); clicked => { ShowMessageDlg.cancel(); } }
+        msg-show := Btn { primary: true; text: @tr("Show"); clicked => { ShowMessageDlg.show(); } }
+    }
+}

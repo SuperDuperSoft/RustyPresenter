@@ -74,6 +74,13 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_picker_rows(ModelRc::default());
     g.set_usual_order(true);
     g.set_order_selected(-1);
+    // FEAT-2 auto-advance (spec §3.5).
+    let adv = snap.data.automation.advance.get(&id).copied();
+    g.set_advance_shown(matches!(row.kind.as_str(), "song" | "scripture" | "text" | "deck"));
+    g.set_advance_allowed(row.slides.len() >= 2);
+    g.set_advance_on(adv.is_some());
+    g.set_advance_secs(adv.map_or(crate::automation::advance::DEFAULT_SECS, |a| a.secs).to_string().into());
+    g.set_advance_loop(adv.is_none_or(|a| a.loop_item));
     let mut name = None;
     let mut order = None;
     let bible = match &item.kind { ItemKind::Scripture { translation, .. } => Some(translation.clone()), _ => None };
@@ -440,6 +447,7 @@ fn rename(name: &Name, typed: &str) -> Option<(&'static str, serde_json::Value)>
 /// toast "Saved". Any failure is an error toast with the core's message, and the dialog stays open.
 fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     let g = op.ui.global::<ItemEdit>();
+    if g.get_advance_shown() && !save_advance(op, edit.borrow().item.id) { return }
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
         (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone(), e.item.clone())
@@ -456,6 +464,21 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
             Err(e) => op.toast(e, true),
         }
     });
+}
+
+/// Saves "Advance slides automatically" (FEAT-2). False, with a toast, when the seconds are not 2–600.
+fn save_advance(op: &Rc<Operator>, item: Uuid) -> bool {
+    let g = op.ui.global::<ItemEdit>();
+    let on = g.get_advance_on() && g.get_advance_allowed();
+    let secs = match g.get_advance_secs().trim().parse::<u16>() {
+        Ok(s) if crate::automation::advance::AutoAdvance::validate(s).is_ok() => s,
+        _ if !on => 0,
+        _ => { op.toast(crate::automation::strings::advance_range(), true); return false }
+    };
+    let body = serde_json::json!({ "item": item, "secs": on.then_some(secs), "loop_item": g.get_advance_loop() });
+    let me = Rc::downgrade(op);
+    op.ops().call::<serde_json::Value>("automation/advance", body, move |r| if let (Err(e), Some(op)) = (r, me.upgrade()) { op.toast(e, true) });
+    true
 }
 
 /// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).

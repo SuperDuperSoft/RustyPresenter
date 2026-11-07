@@ -206,7 +206,8 @@ fn open_editor(op: &Rc<Operator>, o: Overlay) {
             g.set_seconds(*seconds);
             g.set_h24(*h24);
         }
-        OverlaySource::Unknown => {}
+        // FEAT-2 timers and messages are shown from Automation, never saved here.
+        OverlaySource::Timer { .. } | OverlaySource::Message { .. } | OverlaySource::Unknown => {}
     }
     let look = look_of(&o).cloned().unwrap_or_default();
     g.set_size(look.size as i32);
@@ -252,7 +253,7 @@ fn read_editor(op: &Operator) -> Option<Overlay> {
             OverlaySource::Image { source, opacity: g.get_opacity().clamp(10, 100) as u8 }
         }
         OverlaySource::Clock { .. } => OverlaySource::Clock { look, seconds: g.get_seconds(), h24: g.get_h24() },
-        OverlaySource::Unknown => OverlaySource::Unknown,
+        other @ (OverlaySource::Timer { .. } | OverlaySource::Message { .. } | OverlaySource::Unknown) => other,
     };
     o.place.anchor = ANCHORS[g.get_anchor().clamp(0, 8) as usize];
     o.place.width = g.get_width().clamp(5, 100) as u8;

@@ -6,6 +6,7 @@ pub mod add;
 pub mod add_media;
 pub mod add_youtube;
 pub mod ask;
+pub mod automation;
 pub mod background;
 pub mod item_edit;
 pub mod overlays;
@@ -20,6 +21,7 @@ pub mod settings_graphics;
 pub mod settings_language;
 pub mod settings_look;
 pub mod settings_themes;
+pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
 pub mod usage;
@@ -61,6 +63,10 @@ pub enum DialogKind {
     StageLayouts,
     /// The saved overlays and the overlay editor (FEAT-1 §3.6).
     Overlays,
+    /// Timers, messages, macros and the pre-service countdown (FEAT-2).
+    Automation,
+    /// Show a message on the room screen (FEAT-2 §3.3).
+    ShowMessage,
 }
 
 impl DialogKind {
@@ -69,7 +75,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -85,6 +91,8 @@ impl DialogKind {
             DialogKind::Usage => "usage",
             DialogKind::StageLayouts => "stage-layouts",
             DialogKind::Overlays => "overlays",
+            DialogKind::Automation => "automation",
+            DialogKind::ShowMessage => "show-message",
         }
     }
 }
@@ -199,6 +207,8 @@ impl Operator {
             DialogKind::Usage => crate::usage::strings::title().into(),
             DialogKind::StageLayouts => crate::stage::strings::editor_title().into(),
             DialogKind::Overlays => crate::theme::strings::overlays_title(),
+            DialogKind::Automation => crate::tr!("Automation"),
+            DialogKind::ShowMessage => crate::tr!("Show message"),
         }
     }
 }

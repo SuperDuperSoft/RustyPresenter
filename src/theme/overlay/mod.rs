@@ -72,6 +72,25 @@ pub enum OverlaySource {
         #[serde(default)]
         h24: bool,
     },
+    /// A FEAT-2 timer: its time is bound (`bound_text`), the caption sits above it.
+    Timer {
+        timer_id: Uuid,
+        #[serde(default)]
+        caption: String,
+        /// Centre large rather than a corner.
+        #[serde(default)]
+        large: bool,
+        #[serde(default)]
+        look: OverlayLook,
+    },
+    /// A FEAT-2 message banner. `shown` is new for every Show; the text was filled in when shown.
+    Message {
+        shown: Uuid,
+        template_id: Uuid,
+        text: String,
+        #[serde(default)]
+        look: OverlayLook,
+    },
     /// A newer source kind: never drawn, removed by every clear.
     #[serde(other)]
     Unknown,
@@ -194,7 +213,9 @@ impl OverlaySource {
     pub fn survives_logo(&self) -> bool {
         match self {
             OverlaySource::Text { .. } | OverlaySource::Image { .. } | OverlaySource::Clock { .. } => true,
-            OverlaySource::Unknown => false,
+            // A message stays over the logo; a timer goes with the slides (FEAT-2 §5.5).
+            OverlaySource::Message { .. } => true,
+            OverlaySource::Timer { .. } | OverlaySource::Unknown => false,
         }
     }
 
@@ -203,25 +224,26 @@ impl OverlaySource {
             OverlaySource::Text { .. } => OverlayKind::Text,
             OverlaySource::Image { .. } => OverlayKind::Picture,
             OverlaySource::Clock { .. } => OverlayKind::Clock,
-            OverlaySource::Unknown => OverlayKind::Other,
+            OverlaySource::Timer { .. } | OverlaySource::Message { .. } | OverlaySource::Unknown => OverlayKind::Other,
         }
     }
 
     /// Bound sources compute their text when drawn (`bound_text`).
     pub fn is_bound(&self) -> bool {
-        matches!(self, OverlaySource::Clock { .. })
+        matches!(self, OverlaySource::Clock { .. } | OverlaySource::Timer { .. })
     }
 }
 
-/// What bound text is computed from. Build it only with `BoundCtx::at`; FEAT-2 adds `timers`.
+/// What bound text is computed from. Build it with `BoundCtx::at`, which takes the newest timer readout.
 #[derive(Clone, Debug)]
 pub struct BoundCtx {
     pub now: DateTime<Local>,
+    pub timers: std::sync::Arc<crate::timers::TimersView>,
 }
 
 impl BoundCtx {
     pub fn at(now: DateTime<Local>) -> Self {
-        BoundCtx { now }
+        BoundCtx { now, timers: crate::automation::runtime::latest() }
     }
 }
 
@@ -236,6 +258,9 @@ pub fn bound_text(src: &OverlaySource, ctx: &BoundCtx) -> Option<String> {
                 (true, true) => "%H:%M:%S",
             };
             Some(ctx.now.format(format).to_string())
+        }
+        OverlaySource::Timer { timer_id, .. } => {
+            ctx.timers.timers.iter().find(|t| t.id == *timer_id).map(|t| crate::timers::text(t.value_ms))
         }
         _ => None,
     }
@@ -275,7 +300,8 @@ pub fn validate(mut o: Overlay, asset_exists: impl Fn(&AssetId) -> bool) -> Resu
             *opacity = (*opacity).min(100);
         }
         OverlaySource::Clock { look, .. } => clamp_look(look),
-        OverlaySource::Unknown => return Err(strings::overlay_kind().into()),
+        // Timers and messages are FEAT-2's, never saved overlays.
+        OverlaySource::Timer { .. } | OverlaySource::Message { .. } | OverlaySource::Unknown => return Err(strings::overlay_kind().into()),
     }
     o.place.width = o.place.width.clamp(5, 100);
     o.place.margin = o.place.margin.min(20);

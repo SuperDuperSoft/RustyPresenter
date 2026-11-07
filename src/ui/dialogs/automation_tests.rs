@@ -1,0 +1,124 @@
+//! The Automation dialog, Show message and the live column's automation strip, on the testing backend.
+use super::*;
+use crate::{
+    app::{App, test_app},
+    automation::messages::NURSERY_ID,
+    timers::SERMON_ID,
+    ui::{AutoStrip, ShowMessageDlg, operator::window::testing::{find, open as open_window, refresh}},
+};
+use slint::{Model, platform::PointerEventButton};
+use std::sync::Arc;
+
+fn opened(app: &Arc<App>) -> Rc<Operator> {
+    let op = open_window(app);
+    op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
+    slint::platform::update_timers_and_animations();
+    refresh(&op);
+    op
+}
+
+fn settle() { slint::platform::update_timers_and_animations(); }
+
+fn click(op: &Operator, id: &str) {
+    settle();
+    find(op, id).unwrap_or_else(|| panic!("{id} not found")).mock_single_click(PointerEventButton::Left);
+    settle();
+}
+
+fn g(op: &Operator) -> AutomationDlg<'_> { op.ui.global::<AutomationDlg>() }
+
+#[test]
+fn gear_button_opens_the_dialog_on_timers_with_the_built_ins() {
+    let app = test_app();
+    let op = opened(&app);
+    click(&op, "AutomationStrip::automation-btn");
+    assert_eq!(op.dialog(), Some(DialogKind::Automation));
+    let names: Vec<String> = g(&op).get_rows().iter().map(|r| r.title.to_string()).collect();
+    assert_eq!(names, ["Service start", "Sermon", "Stopwatch"]);
+}
+
+#[test]
+fn new_timer_saves_through_the_form() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    g(&op).invoke_new_one();
+    g(&op).set_t_name("Offering".into());
+    g(&op).set_t_kind(1);
+    g(&op).set_t_minutes("4".into());
+    g(&op).set_t_seconds("30".into());
+    g(&op).invoke_save();
+    let t = app.data.lock().unwrap().automation.timers.iter().find(|t| t.name == "Offering").cloned().expect("saved");
+    assert_eq!(t.kind, Lenient::Known(TimerKind::Duration { secs: 270 }));
+    assert_eq!(g(&op).get_error(), "");
+    // An empty name is refused with the core's words, and the form stays.
+    g(&op).invoke_new_one();
+    g(&op).invoke_save();
+    assert_eq!(g(&op).get_error(), crate::automation::strings::name_length());
+}
+
+#[test]
+fn macro_steps_are_added_moved_and_saved() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    g(&op).set_tab(2);
+    g(&op).invoke_tab_changed(2);
+    g(&op).invoke_new_one();
+    g(&op).set_k_name("Sermon".into());
+    let kind = |k: StepKind| STEP_KINDS.iter().position(|x| *x == k).unwrap() as i32;
+    g(&op).set_step_kind(kind(StepKind::TimerStart));
+    g(&op).invoke_step_kind_changed();
+    g(&op).set_step_target(1); // Sermon
+    g(&op).invoke_step_add();
+    g(&op).set_step_kind(kind(StepKind::MessageShow));
+    g(&op).invoke_step_kind_changed();
+    g(&op).set_step_text("Number=12".into());
+    g(&op).invoke_step_add();
+    g(&op).invoke_step_move(1, -1);
+    assert_eq!(g(&op).get_k_steps().row_count(), 2);
+    g(&op).invoke_save();
+    assert_eq!(g(&op).get_error(), "");
+    let m = app.data.lock().unwrap().automation.macros.iter().find(|m| m.name == "Sermon").cloned().expect("saved");
+    assert!(matches!(m.steps[0].known(), Some(MacroStep::MessageShow { template, .. }) if *template == NURSERY_ID));
+    assert_eq!(m.steps[1].known(), Some(&MacroStep::TimerStart { timer: SERMON_ID }));
+    // The strip shows its button.
+    refresh(&op);
+    let names: Vec<String> = op.ui.global::<AutoStrip>().get_macros().iter().flat_map(|r| r.buttons.iter().map(|b| b.name.to_string()).collect::<Vec<_>>()).collect();
+    assert_eq!(names, ["Sermon"]);
+}
+
+#[test]
+fn show_message_needs_its_box_then_shows_and_the_button_hides_it() {
+    let app = test_app();
+    let op = opened(&app);
+    click(&op, "AutomationStrip::message-btn");
+    assert_eq!(op.dialog(), Some(DialogKind::ShowMessage));
+    let m = op.ui.global::<ShowMessageDlg>();
+    assert_eq!(m.get_fields().row_count(), 1);
+    m.invoke_show();
+    assert_eq!(m.get_error(), crate::automation::strings::fill_in("Number"));
+    m.invoke_field_edited(0, "27".into());
+    assert_eq!(m.get_preview(), "Parent of child #27, please come to the nursery.");
+    m.invoke_show();
+    assert_eq!(op.dialog(), None);
+    op.apply_live(crate::app::LiveUpdate::new(app.live_view()));
+    assert!(op.ui.global::<AutoStrip>().get_message_on());
+    click(&op, "AutomationStrip::message-btn");
+    op.apply_live(crate::app::LiveUpdate::new(app.live_view()));
+    assert!(!op.ui.global::<AutoStrip>().get_message_on());
+}
+
+#[test]
+fn running_timer_gets_a_chip_that_pauses() {
+    let app = test_app();
+    let op = opened(&app);
+    assert_eq!(op.ui.global::<AutoStrip>().get_timers().row_count(), 0, "stopped timers have no chip");
+    crate::ui::ops::Ops::inline(app.clone()).call::<Value>("timer/start", json!({ "id": SERMON_ID }), |r| { r.unwrap(); });
+    op.apply_timers();
+    let chips = op.ui.global::<AutoStrip>().get_timers();
+    assert_eq!(chips.row_count(), 1);
+    assert!(chips.row_data(0).unwrap().running);
+    op.ui.global::<AutoStrip>().invoke_timer_toggle(SERMON_ID.to_string().into());
+    assert_eq!(app.timers().timers.iter().find(|t| t.id == SERMON_ID).unwrap().state, TimerState::Paused);
+}

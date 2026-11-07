@@ -37,6 +37,8 @@ pub enum Update {
     Job { id: Uuid, percent: u8 },
     /// A paired phone was removed; its remote stream ends.
     Revoked { phone: Uuid },
+    /// The timer readout changed (FEAT-2): the only tick update. `App::timers()` returns the same `Arc`.
+    Timers(Arc<crate::timers::TimersView>),
 }
 
 /// One published live view, shared by every receiver of the update.
@@ -231,6 +233,12 @@ pub struct App {
     pub usage: crate::usage::Usage,
     /// Edit → Undo / Redo (`crate::undo`). Locked after `data`, never before.
     pub(crate) history: Mutex<crate::undo::History>,
+    /// FEAT-2's memory-only state. Lock order: `data` → `live` → `automation`.
+    pub automation: Mutex<crate::automation::runtime::AutomationRuntime>,
+    /// Wakes the automation ticker (`automation::task`).
+    pub(crate) ticker_wake: tokio::sync::Notify,
+    /// The Automation dialog is open, so stopped countdowns to a time keep their readout fresh.
+    pub(crate) automation_watching: AtomicBool,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -240,6 +248,7 @@ impl Plan for DataPlan<'_> {
         self.0.overlays.iter().position(|o| o.id == id).map(|i| (i as u32, self.0.overlays[i].clone()))
     }
     fn logo(&self) -> Option<AssetId> { self.0.settings.logo.clone() }
+    fn automation(&self) -> Option<&crate::automation::Automation> { Some(&self.0.automation) }
     fn order(&self) -> Vec<Uuid> { self.0.service().map(|s| s.items.iter().map(|i| i.id).collect()).unwrap_or_default() }
     fn build(&self, id: Uuid) -> Option<LiveItem> {
         let service = self.0.service()?;
@@ -276,7 +285,9 @@ impl App {
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage,
             history: Mutex::default(),
+            automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
         });
+        app.publish_timers(chrono::Utc::now(), true);
         app.refresh_bible_credits();
         app.online_text_from_cache();
         app
@@ -420,6 +431,7 @@ impl App {
         } else if live_changed {
             self.broadcast_live();
         }
+        if live_changed { self.automation_after(None) }
     }
 
     /// Compares the live item with the library (data, then live: the one lock order). True when live changed.
@@ -429,6 +441,8 @@ impl App {
     }
 
     pub fn command(&self, env: Envelope) -> Outcome {
+        // Macros need timers and data as well as the engine (FEAT-2).
+        if matches!(env.cmd, Command::RunMacro { .. }) { return self.run_macro(&env).0 }
         let out = {
             let data = self.data.lock().unwrap();
             let mut live = self.live.lock().unwrap();
@@ -437,6 +451,7 @@ impl App {
         if out.ok && !out.duplicate {
             self.broadcast_live();
             if self.room_conns.load(Ordering::Relaxed) == 0 { self.note_song_use(false); }
+            self.automation_after(None);
         }
         out
     }
@@ -476,6 +491,12 @@ impl App {
         self.resume.lock().unwrap().retain(|inst, _| !on_air.contains(inst));
     }
 
+    /// The stage screen's message (empty hides it).
+    pub(crate) fn set_stage_message(&self, text: &str) {
+        *self.stage_message.lock().unwrap() = text.to_string();
+        self.broadcast_live();
+    }
+
     pub fn set_notice(&self, text: &str) {
         self.live.lock().unwrap().notice = Some(text.into());
         self.broadcast_live();
@@ -494,6 +515,10 @@ impl App {
         };
         if changed { self.broadcast_live(); }
         if committed { self.resume_on_air(); self.save_live_state(); self.note_song_use(true); }
+        if changed || committed {
+            let c = committed.then(|| self.live.lock().unwrap().committed_version);
+            self.automation_after(c);
+        }
     }
 
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
@@ -1389,8 +1414,7 @@ impl App {
         "stage/message" => {
             #[derive(Deserialize)] struct M { text: String }
             let M { text } = parse(body)?;
-            *app.stage_message.lock().unwrap() = text.trim().to_string();
-            app.broadcast_live();
+            app.set_stage_message(text.trim());
             Ok(json!({}))
         }
         // ---- backups ----
@@ -1445,6 +1469,7 @@ impl App {
         a if a.starts_with("usage/") => app.usage_action(a, body).await,
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         a if crate::stage::actions::handles(a) => crate::stage::actions::run(app, a, body).await,
+        a if crate::automation::actions::handles(a) => crate::automation::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

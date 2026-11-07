@@ -37,8 +37,8 @@ async function post(env) {
     if (!out.ok && out.error) {
       if (!out.error.startsWith('stale')) toast(out.error);
       else if (env.cmd === 'show') toast(t('The screen changed just now — tap the slide again.'));
-      else if (env.cmd === 'jump') toast(t('The screen changed — try again.'));
-    }
+      else if (env.cmd === 'jump' || env.cmd === 'run_macro') toast(t('The screen changed — try again.'));
+    } else if (out.ok && env.cmd === 'run_macro') toast(t('Done'), true);
   } catch { toast(t('Not connected')); }
 }
 function send(cmd, extra = {}, withBase = false) {
@@ -87,6 +87,8 @@ function connect() {
   es.onopen = () => $('dot').classList.add('on');
   es.onmessage = e => {
     const m = JSON.parse(e.data);
+    // FEAT-2: a tick sends only the timer lines.
+    if (m.type === 'timers') { if (V) { V.timers = m.timers; renderAuto(); } return; }
     if (m.type !== 'remote') return;
     V = m;
     render();
@@ -105,6 +107,7 @@ function render() {
   $('now').textContent = air.logo ? t('(Logo)') : V.current && (air.slide || air.media) ? V.current.text : air.audio ? t('(Music playing)') : t('(Clear)');
   $('nowLabel').textContent = V.current && (air.slide || air.media) ? V.current.label : '';
   renderSections();
+  renderAuto();
   $('nextText').textContent = V.next ? V.next.text : t('End of service');
   $('nextLabel').textContent = V.next ? `${V.next.title} · ${V.next.label}` : '';
   $('logoBtn').classList.toggle('on', air.logo);
@@ -136,6 +139,50 @@ function renderSections() {
     return b;
   }));
 }
+
+// FEAT-2: messages and macros marked for the phone, and the timers marked "Show on phone".
+function renderAuto() {
+  const msgs = V.messages || [], timers = V.timers || [], macros = V.macros || [];
+  $('auto').classList.toggle('on', !!(msgs.length || timers.length || macros.length || V.message_shown));
+  $('msgHead').style.display = msgs.length || V.message_shown ? '' : 'none';
+  const mb = msgs.map(m => { const b = document.createElement('button'); b.textContent = m.name; b.onclick = () => askMessage(m); return b; });
+  if (V.message_shown) { const h = document.createElement('button'); h.className = 'hide'; h.textContent = t('Hide message'); h.onclick = () => send('hide_message'); mb.push(h); }
+  $('msgs').replaceChildren(...mb);
+  $('timerHead').style.display = timers.length ? '' : 'none';
+  $('timers').replaceChildren(...timers.map(x => {
+    const d = document.createElement('div'); d.className = 'timer';
+    const n = document.createElement('span'); n.textContent = x.name;
+    const v = document.createElement('span'); v.textContent = x.text; if (x.over) v.className = 'over';
+    d.append(n, v); return d;
+  }));
+  $('macroHead').style.display = macros.length ? '' : 'none';
+  const colors = { amber: '#f5b94a', red: '#ff6b6b', orange: '#ff9f43', green: '#3ccf91', teal: '#2ec4b6', blue: '#5aa9ff', purple: '#b18cff', gray: '#a0a4ab' };
+  $('macros').replaceChildren(...macros.map(m => {
+    const b = document.createElement('button'); b.className = 'macro'; b.style.background = colors[m.color] || colors.amber; b.textContent = m.name;
+    b.onclick = () => ask(t('Run “{name}”?', { name: m.name }), [], t('Run'), () => {
+      const env = { id: rid(), cmd: 'run_macro', macro: m.id, seen_clear: V.clear_epoch };
+      if (m.relative) env.base = V.version;
+      post(env);
+    });
+    return b;
+  }));
+}
+function askMessage(m) {
+  ask(m.name, m.fields, t('Show'), vals => send('show_message', { template: m.id, values: vals, seen_clear: V.clear_epoch }));
+}
+// A small sheet: a title, one box per field, a button.
+function ask(title, fields, go, done) {
+  $('askTitle').textContent = title;
+  $('askFields').replaceChildren(...fields.map(f => { const i = document.createElement('input'); i.placeholder = f; i.dataset.f = f; return i; }));
+  $('askGo').textContent = go;
+  $('askGo').onclick = () => {
+    const vals = {}; $('askFields').querySelectorAll('input').forEach(i => vals[i.dataset.f] = i.value);
+    $('ask').classList.remove('on'); done(vals);
+  };
+  $('ask').classList.add('on');
+  const first = $('askFields').querySelector('input'); if (first) setTimeout(() => first.focus(), 50);
+}
+$('askCancel').onclick = () => $('ask').classList.remove('on');
 
 function openSheet(it) {
   $('sheetTitle').textContent = it.title;

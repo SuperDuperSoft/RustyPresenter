@@ -82,6 +82,8 @@ pub fn help_rows() -> Vec<HelpRow> {
         HelpRow { keys: key_ctrl_z(), what: do_undo(), binds: &[("z", true, false)], action: KeyAction::Undo },
         HelpRow { keys: key_ctrl_y(), what: do_redo(), binds: &[("y", true, false)], action: KeyAction::Redo },
         HelpRow { keys: key_ctrl_f(), what: do_find(), binds: &[("f", true, false)], action: KeyAction::Find },
+        // FEAT-2: the window offers Ctrl+M to the keys only with Shift held (`captured` in `operator.slint`).
+        HelpRow { keys: crate::tr!("Ctrl + Shift + M"), what: crate::tr!("Show a message on the screen"), binds: &[("m", true, false)], action: KeyAction::ShowMessage },
         HelpRow { keys: key_esc(), what: do_esc(), binds: &[("Escape", false, false)], action: KeyAction::Blur },
     ]
 }

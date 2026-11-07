@@ -63,6 +63,17 @@
   .secs { display: none; gap: 6px; overflow-x: auto; padding: 8px 0 0; }
   .sec { flex: none; min-width: 44px; height: 38px; border-radius: 10px; border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); color: inherit; font-weight: 700; font-size: 15px; }
   .sec.live { background: var(--c); color: #0d0f13; }
+  .auto { display: none; flex-direction: column; gap: 8px; }
+  .auto.on { display: flex; }
+  .auto h2 { margin: 4px 0 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row button { padding: 13px 14px; border-radius: 12px; background: var(--raise); font-weight: 700; font-size: 15px; }
+  .row .hide { background: var(--accent); color: #1a1405; }
+  .macro { color: #111 !important; }
+  .timer { display: flex; justify-content: space-between; background: var(--panel); border-radius: 12px; padding: 10px 14px; font-weight: 700; }
+  .timer .over { color: var(--live); }
+  .sheet input { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--text); margin-bottom: 10px; }
+  .sheet .go { width: 100%; padding: 15px; border-radius: 12px; background: var(--accent); color: #1a1405; font-weight: 800; margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -83,9 +94,15 @@
     <button class="all" data-c="clear_all" data-t>Clear All</button>
     <button data-c="clear_slide" data-t>Text</button><button data-c="clear_media" data-t>Media</button><button data-c="clear_audio" data-t>Audio</button><button data-c="logo" id="logoBtn" data-t>Logo</button>
   </div>
+  <div class="auto" id="auto">
+    <h2 id="msgHead" data-t>Message</h2><div class="row" id="msgs"></div>
+    <h2 id="timerHead" data-t>Timers</h2><div id="timers"></div>
+    <h2 id="macroHead" data-t>Macros</h2><div class="row" id="macros"></div>
+  </div>
   <div class="items"><h2 data-t>Service</h2><div id="items"></div></div>
 </div>
 <div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p data-t>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel" data-t>Cancel</button></div></div>
+<div class="sheet" id="ask"><div class="box"><h3 id="askTitle"></h3><div id="askFields"></div><button class="go" id="askGo"></button><button class="cancel" id="askCancel" data-t>Cancel</button></div></div>
 <div class="toast" id="toast"></div>
 <script type="module" src="/static/remote.js"></script>
 </body>
