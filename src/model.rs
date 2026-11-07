@@ -479,6 +479,10 @@ pub struct Settings {
     /// Settings → Media: new media's defaults and the sound outputs (N21, N24).
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub media: crate::media_prefs::MediaPrefs,
+    /// N33: the frames-a-second and video memory line under the live preview.
+    pub show_performance: bool,
+    /// N33: the room and stage screens that were on come back on at start; off, they wait for the switch.
+    pub screens_at_start: bool,
 }
 
 /// How many service files File → Open recent lists.
@@ -568,6 +572,8 @@ impl Default for Settings {
             sections: Default::default(),
             keys: Default::default(),
             media: Default::default(),
+            show_performance: false,
+            screens_at_start: true,
         }
     }
 }

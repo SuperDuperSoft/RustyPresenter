@@ -59,6 +59,10 @@ export global SettingsDlg {
     // ---- Video ----
     /// Keep the room screen on top while it has a monitor of its own (`Settings::room_on_top`).
     in-out property <bool> room-on-top: true;
+    /// N33: the room and stage screens come back on at start (`Settings::screens_at_start`).
+    in-out property <bool> screens-at-start: true;
+    /// N33: the performance line under the live preview (`Settings::show_performance`).
+    in-out property <bool> show-performance;
     in property <bool> has-logo;
     in property <image> logo;
     in property <image> preview;

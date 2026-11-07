@@ -104,6 +104,8 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_credit_sample(settings_sections::credit_sample(s).into());
     g.set_ccli(s.church_ccli.as_str().into());
     g.set_room_on_top(s.room_on_top);
+    g.set_screens_at_start(s.screens_at_start);
+    g.set_show_performance(s.show_performance);
     g.set_section_keys(s.section_keys);
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
@@ -118,6 +120,8 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.credit_template = g.get_credit_template().trim().into();
     s.church_ccli = g.get_ccli().into();
     s.room_on_top = g.get_room_on_top();
+    s.screens_at_start = g.get_screens_at_start();
+    s.show_performance = g.get_show_performance();
     s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);

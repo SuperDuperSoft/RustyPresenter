@@ -217,9 +217,9 @@ impl NativeScreens {
     /// Reopen the screens: what was open before a crash, otherwise what the setup's switches say.
     fn reopen(&self) {
         let Some(app) = self.app.upgrade() else { return };
-        let windows = app.data.lock().unwrap().settings.screens.windows();
-        let (list, main) = self.seen.lock().unwrap().clone();
         let restored = self.restored.lock().unwrap().take();
+        let windows = start_windows(&app, restored.is_some());
+        let (list, main) = self.seen.lock().unwrap().clone();
         for w in &windows {
             if restored.as_ref().is_some_and(|roles| !roles.iter().any(|r| *r == w.key)) { continue }
             let id = match &w.target { ScreenTarget::Monitor(m) => Some(m.as_str()), ScreenTarget::Window => None, ScreenTarget::None => continue };
@@ -385,6 +385,13 @@ impl OperatorScreens for NativeScreens {
     fn preview_grabber(&self) -> Option<FrameGrabber> {
         DESK.with(|d| d.borrow().wins.iter().find_map(|(role, _, w, _)| match w { Win::Room(r) if role == "room" => r.drawn_grabber(), _ => None }))
     }
+
+    /// N5: what the stage window shows now, at most `max_w` wide; `None` while it is closed or cannot be read.
+    fn stage_snapshot(&self, max_w: u32) -> Option<slint::SharedPixelBuffer<slint::Rgba8Pixel>> {
+        let stage = DESK.with(|d| d.borrow().wins.iter().find_map(|(role, _, w, _)| match w { Win::Stage(s) if role == "stage" => Some(s.clone()), _ => None }))?;
+        let px = stage.window().take_snapshot().ok()?;
+        Some(super::perf::shrink(&px, max_w))
+    }
 }
 
 impl Screens for NativeScreens {
@@ -430,6 +437,20 @@ impl Screens for NativeScreens {
         let (list, main) = self.seen.lock().unwrap().clone();
         to_monitors(&list, main.as_ref())
     }
+}
+
+/// The windows to open at start. With Settings → Video → "Turn the screens on at start" off, the room and stage
+/// switches are turned off instead (saved, so the top bar shows it), and nothing opens until the operator switches
+/// them on. After a crash (`restored`) what was open always comes back.
+pub fn start_windows(app: &App, restored: bool) -> Vec<crate::model::ScreenWindow> {
+    let (on, windows) = { let d = app.data.lock().unwrap(); (d.settings.screens_at_start, d.settings.screens.windows()) };
+    if on || restored || windows.is_empty() { return windows }
+    let off = app.edit_untracked(|d| {
+        for g in crate::model::ScreenSetup::GROUPS { if let Some(g) = d.settings.screens.group_mut(g) { g.on = false } }
+        Ok(())
+    });
+    if let Err(e) = off { eprintln!("Could not leave the screens off at start: {e}") }
+    vec![]
 }
 
 /// Whether the room window is kept on top: only with the setting on, and only while it is full screen on a monitor
@@ -705,5 +726,26 @@ mod tests {
         s.look_at(vec![laptop.clone(), projector], Some(laptop));
         assert!(s.open_roles().is_empty(), "a closed window does not come back");
         assert_eq!(app.live_view().notice, None);
+    }
+
+    #[test]
+    fn screens_wait_for_the_switch_when_not_turned_on_at_start() {
+        let app = test_app();
+        app.edit(|d| { d.settings.screens.assign("audience", ScreenTarget::Window); d.settings.screens.assign("stage", ScreenTarget::Window); Ok(()) }).unwrap();
+        assert_eq!(start_windows(&app, false).len(), 2, "on by default: what was on comes back");
+        app.edit(|d| { d.settings.screens_at_start = false; Ok(()) }).unwrap();
+        assert_eq!(start_windows(&app, true).len(), 2, "after a crash what was open always comes back");
+        assert!(start_windows(&app, false).is_empty());
+        let screens = app.data.lock().unwrap().settings.screens.clone();
+        assert!(!screens.audience.on && !screens.stage.on, "the switches show off, so one click turns them on");
+        assert_eq!(screens.audience.screens[0].output().target, ScreenTarget::Window, "where they show is kept");
+    }
+
+    #[test]
+    fn stage_preview_needs_the_stage_window() {
+        let app = test_app();
+        let s = screens(&app);
+        assert!(s.stage_snapshot(320).is_none(), "no stage window, no picture");
+        s.shutdown();
     }
 }

@@ -7,6 +7,8 @@ import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 import { OverlaysStrip } from "overlay-strip.slint";
 import { MenuKeys } from "../keys.slint";
+import { OutputsState } from "outputs.slint";
+import { Select } from "../dialogs/form.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -94,9 +96,17 @@ export component LiveColumn inherits Rectangle {
                     font-weight: 600;
                     vertical-alignment: center;
                 }
+                // N5: which screen the preview shows.
+                preview-view := Select {
+                    width: 136px;
+                    height: 22px;
+                    options: OutputsState.view-names;
+                    index <=> OutputsState.view;
+                    changed(i) => { OutputsState.view-changed(i); }
+                }
                 Rectangle { horizontal-stretch: 1; }
                 live-what := Text {
-                    max-width: root.width * 60%;
+                    max-width: root.width * 40%;
                     text: root.live-what;
                     color: Theme.muted;
                     font-family: Theme.font;
@@ -119,6 +129,20 @@ export component LiveColumn inherits Rectangle {
                 video-cover: root.monitor-video-cover;
                 black: root.monitor-black;
                 room-off: root.monitor-room-off;
+                show-stage: OutputsState.view == 1;
+                stage-frame: OutputsState.stage-frame;
+                stage-off: OutputsState.stage-off;
+            }
+
+            // N33: how smoothly the screens draw.
+            if OutputsState.perf != "": perf := Text {
+                text: OutputsState.perf;
+                color: OutputsState.perf-warn ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 11.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
             }
 
             // `.transport`: one box holding a row per playing video or audio.
