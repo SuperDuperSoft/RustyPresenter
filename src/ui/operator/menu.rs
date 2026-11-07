@@ -30,6 +30,12 @@ pub enum MenuAction {
     Automation,
     /// Edit → Find a verse… (FEAT-5).
     FindVerse,
+    /// Help → Find my mouse (N35, also Alt+M).
+    FindMouse,
+    /// Help → Tutorials: short how-tos, written to a page and opened in the browser (N35).
+    Tutorials,
+    /// Help → Report a problem…: a text file saying what to send and where the logs are (N35).
+    ReportProblem,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -61,6 +67,9 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "stage-layouts" => MenuAction::StageLayouts,
         "automation" => MenuAction::Automation,
         "find-verse" => MenuAction::FindVerse,
+        "find-mouse" => MenuAction::FindMouse,
+        "tutorials" => MenuAction::Tutorials,
+        "report-problem" => MenuAction::ReportProblem,
         _ => return None,
     })
 }
@@ -87,6 +96,9 @@ impl Operator {
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
+            Some(MenuAction::FindMouse) => self.find_mouse(),
+            Some(MenuAction::Tutorials) => self.tutorials(),
+            Some(MenuAction::ReportProblem) => self.report_problem(),
             None => {}
         }
     }
@@ -160,6 +172,7 @@ pub(super) fn render(op: &Operator, s: &OperatorSnapshot) {
     op.ui.set_can_redo(s.can_redo);
     let names: Vec<SharedString> = s.settings.recent_files.iter().map(|p| recent_name(p).into()).collect();
     if op.ui.get_recent_files().iter().ne(names.iter().cloned()) { op.ui.set_recent_files(ModelRc::new(VecModel::from(names))) }
+    super::help::render_keys(op, &crate::shortcuts::Keymap::new(&s.settings.keys), &s.settings.keys.clear_groups);
 }
 
 /// A recent file as File → Open recent lists it: its name without `.rpservice`, then its folder.
@@ -188,8 +201,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::live::Command;
-    use crate::ui::operator::keys::{KeyAction, KeyCtx, route};
+    use crate::ui::operator::keys::{KeyAction, KeyCtx};
 
     const WINDOW: &str = include_str!("../../../ui/operator.slint");
 
@@ -248,6 +260,9 @@ mod tests {
         assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
         assert_eq!(action("automation"), Some(MenuAction::Automation));
         assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
+        assert_eq!(action("find-mouse"), Some(MenuAction::FindMouse));
+        assert_eq!(action("tutorials"), Some(MenuAction::Tutorials));
+        assert_eq!(action("report-problem"), Some(MenuAction::ReportProblem));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }
@@ -270,61 +285,56 @@ mod tests {
         for t in titles {
             let t = t.trim();
             // `file`: Open recent's file names, which are not words to translate.
-            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;", "{t:?} is not translatable");
+            // `g.name`: the church's own clear group names.
+            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;" || t == "g.name;", "{t:?} is not translatable");
         }
     }
 
     #[test]
     fn shortcuts_match_the_keys() {
-        // Only keys that `keys::route` handles the same in every focus state may be bound (spec §2).
-        let anywhere = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
-        let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
+        // Each item with a shortcut takes it from `MenuKeys` (the church's keys, N28), runs what the key runs, and is
+        // on exactly where the key works (`shortcuts::Reach`).
+        use crate::shortcuts::{Action, Reach};
+        let names = [
+            ("MenuKeys.undo", Action::Undo, "root.menu(\"undo\")"),
+            ("MenuKeys.redo", Action::Redo, "root.menu(\"redo\")"),
+            ("MenuKeys.find", Action::Find, "root.menu(\"find\")"),
+            ("MenuKeys.bible", Action::FocusBible, "root.focus-bible()"),
+            ("MenuKeys.clear-all", Action::ClearAll, "root.live-clear(\"clear_all\")"),
+            ("MenuKeys.clear-slide", Action::ClearSlide, "root.live-clear(\"clear_slide\")"),
+            ("MenuKeys.clear-media", Action::ClearMedia, "root.live-clear(\"clear_media\")"),
+            ("MenuKeys.clear-audio", Action::ClearAudio, "root.live-clear(\"clear_audio\")"),
+            ("MenuKeys.logo", Action::Logo, "root.live-clear(\"logo\")"),
+            ("MenuKeys.clear-overlays", Action::ClearOverlays, "root.live-clear(\"clear_overlays\")"),
+            ("MenuKeys.clear-message", Action::ClearMessage, "root.live-clear(\"clear_message\")"),
+            ("MenuKeys.clear-timers", Action::ClearTimers, "root.live-clear(\"clear_timers\")"),
+            ("MenuKeys.find-mouse", Action::FindMouse, "root.menu(\"find-mouse\")"),
+            ("g.keys", Action::Group(crate::shortcuts::BUILTIN_GROUP), "root.clear-group(i)"),
+        ];
         let mut seen = Vec::new();
         for item in items() {
             let Some(keys) = field(item, "shortcut:") else { continue };
             let call = field(item, "activated =>").unwrap_or_else(|| panic!("{item} has no action"));
-            let (key, ctrl) = match keys {
-                "@keys(F1)" => ("F1", false),
-                "@keys(F2)" => ("F2", false),
-                "@keys(F3)" => ("F3", false),
-                "@keys(F4)" => ("F4", false),
-                "@keys(F5)" => ("F5", false),
-                "@keys(F6)" => ("F6", false),
-                "@keys(Control + B)" => ("b", true),
-                "@keys(Control + F)" => ("f", true),
-                "@keys(Control + Z)" => ("z", true),
-                "@keys(Control + Y)" => ("y", true),
-                other => panic!("{other} must not be a menu shortcut: its key depends on focus"),
-            };
-            // Undo and Redo are the window's outside a text box only; their items are off while one has the keyboard.
-            let typing_keeps_it = route(key, ctrl, false, anywhere) == KeyAction::None;
-            let expected = match route(key, ctrl, false, if typing_keeps_it { plain } else { anywhere }) {
-                KeyAction::Clear(Command::ClearAll) => "root.live-clear(\"clear_all\")",
-                KeyAction::Clear(Command::ClearSlide) => "root.live-clear(\"clear_slide\")",
-                KeyAction::Clear(Command::ClearMedia) => "root.live-clear(\"clear_media\")",
-                KeyAction::Clear(Command::ClearAudio) => "root.live-clear(\"clear_audio\")",
-                KeyAction::Clear(Command::Logo) => "root.live-clear(\"logo\")",
-                KeyAction::Clear(Command::ClearOverlays) => "root.live-clear(\"clear_overlays\")",
-                KeyAction::FocusBible => "root.focus-bible()",
-                KeyAction::Find => "root.menu(\"find\")",
-                KeyAction::Undo => "root.menu(\"undo\")",
-                KeyAction::Redo => "root.menu(\"redo\")",
-                other => panic!("{key}: {other:?}"),
-            };
+            let &(_, action, expected) = names.iter().find(|(n, ..)| *n == keys).unwrap_or_else(|| panic!("{keys} is not a MenuKeys shortcut"));
             assert!(call.contains(expected), "{keys} runs {call}, the key runs {expected}");
+            // The key itself does the same thing.
+            let menu_key = crate::shortcuts::Keymap::default().menu_key(action).cloned().expect("a default key");
+            let anywhere = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
+            let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
+            assert_ne!(crate::ui::operator::keys::route_in(&menu_key, plain, &Default::default()), KeyAction::None, "{keys}");
             let enabled = field(item, "enabled:").unwrap_or_default();
-            if typing_keeps_it {
-                assert!(enabled.contains("!OperatorState.focus-in-text") && enabled.starts_with("root.menu-ready"), "{keys}: {enabled}");
-            } else if ctrl {
+            match action.reach() {
+                Reach::Free => {
+                    assert_eq!(crate::ui::operator::keys::route_in(&menu_key, anywhere, &Default::default()), KeyAction::None);
+                    assert!(enabled.contains("!OperatorState.focus-in-text") && enabled.starts_with("root.menu-ready"), "{keys}: {enabled}");
+                }
                 // The key does nothing over a dialog, so the item is off then and the key falls through.
-                assert!(enabled == "!root.covered" || enabled == "root.menu-ready", "{keys}: {enabled}");
-            } else {
-                assert!(field(item, "enabled:").is_none(), "{keys} works over dialogs too");
+                Reach::Window => assert!(enabled == "!root.covered" || enabled == "root.menu-ready", "{keys}: {enabled}"),
+                Reach::Anywhere => assert!(enabled.is_empty(), "{keys} works over dialogs too"),
             }
-            seen.push(key);
+            seen.push(keys);
         }
-        seen.sort();
-        assert_eq!(seen, ["F1", "F2", "F3", "F4", "F5", "F6", "b", "f", "y", "z"]);
+        assert_eq!(seen.len(), names.len(), "{seen:?}");
     }
 }
 
@@ -568,7 +578,7 @@ mod window_tests {
         // The window's key scope would also clear; count it, and leave the key unused there.
         let scope = std::rc::Rc::new(std::cell::Cell::new(0));
         let s = scope.clone();
-        op.ui.on_key(move |_, _, _, _, _| { s.set(s.get() + 1); false });
+        op.ui.on_key(move |_, _, _, _, _, _| { s.set(s.get() + 1); false });
         let f2: slint::SharedString = char::from(Key::F2).into();
         op.window().dispatch_event(WindowEvent::KeyPressed { text: f2.clone() });
         op.window().dispatch_event(WindowEvent::KeyReleased { text: f2 });

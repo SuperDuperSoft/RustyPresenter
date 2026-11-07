@@ -18,6 +18,7 @@ pub mod room;
 pub mod scripture;
 pub mod sections;
 pub mod server;
+pub mod shortcuts;
 pub mod sha256;
 pub mod slides;
 pub mod songselect;

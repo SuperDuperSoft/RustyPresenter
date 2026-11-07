@@ -223,6 +223,8 @@ fn clear_command(name: &str) -> Option<Command> {
         "clear_audio" => Command::ClearAudio,
         "logo" => Command::Logo,
         "clear_overlays" => Command::ClearOverlays,
+        "clear_message" => Command::ClearLayers { layers: vec![crate::live::ClearLayer::Message] },
+        "clear_timers" => Command::ClearLayers { layers: vec![crate::live::ClearLayer::Timers] },
         _ => return None,
     })
 }

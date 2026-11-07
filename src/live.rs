@@ -198,13 +198,22 @@ pub enum Command {
     HideMessage,
     /// FEAT-2: run a macro. The App runs it (it needs timers and data); `base` is required when it changes slides.
     RunMacro { #[serde(rename = "macro")] macro_id: Uuid, #[serde(default)] seen_clear: Option<u64> },
+    /// N18: take these layers down at once (a clear group, or F7 / F8), as one change.
+    ClearLayers { layers: Vec<ClearLayer> },
 }
+
+/// One layer a clear key or clear group takes down (N18). `Overlays` is the saved ones only (pictures, clocks,
+/// signs); the message and the timers are layers of their own.
+#[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum ClearLayer { Slide, Media, Audio, Logo, Overlays, Message, Timers }
 
 impl Command {
     fn relative(&self) -> bool { matches!(self, Command::Next | Command::Prev | Command::Jump { .. }) }
     /// Every intentional clear, whether or not it removes anything: it moves `Live::clear_epoch` on.
     fn clears(&self) -> bool {
-        matches!(self, Command::ClearAll | Command::ClearSlide | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::ClearOverlays)
+        matches!(self, Command::ClearAll | Command::ClearSlide | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::ClearOverlays
+            | Command::ClearLayers { .. })
     }
 }
 
@@ -597,7 +606,26 @@ impl Live {
             }
             // The App runs macros before the engine sees them (`App::command`).
             Command::RunMacro { .. } => Err(crate::automation::strings::macro_needs_app()),
+            Command::ClearLayers { layers } => { self.clear_layers(layers); Ok(()) }
         }
+    }
+
+    /// N18: takes `layers` down. A screen layer always makes a new version, like F2; overlays only when one went.
+    fn clear_layers(&mut self, layers: &[ClearLayer]) {
+        use crate::automation::slots::{MESSAGE_KEY, TIMER_PREFIX};
+        let (mut visual, mut overlay) = (false, false);
+        for layer in layers {
+            match layer {
+                ClearLayer::Slide => { self.frame.slide = None; visual = true }
+                ClearLayer::Media => { self.frame.background = None; self.frame.media = None; visual = true }
+                ClearLayer::Audio => { self.frame.audio = None; visual = true }
+                ClearLayer::Logo => { self.frame.logo = false; visual = true }
+                ClearLayer::Overlays => overlay |= self.retain_overlays(|s| s.key == MESSAGE_KEY || s.key.starts_with(TIMER_PREFIX)),
+                ClearLayer::Message => overlay |= self.hide_overlay(MESSAGE_KEY),
+                ClearLayer::Timers => overlay |= self.retain_overlays(|s| !s.key.starts_with(TIMER_PREFIX)),
+            }
+        }
+        if visual { self.bump() } else if overlay { self.commit_change(Change::Overlay) }
     }
 
     fn step(&mut self, plan: &dyn Plan, forward: bool) -> Result<(), String> {
@@ -1197,3 +1225,7 @@ mod tests {
         assert_eq!(shown(&l).as_deref(), Some("c"));
     }
 }
+
+#[cfg(test)]
+#[path = "live_clear_tests.rs"]
+mod clear_tests;

@@ -453,6 +453,10 @@ pub struct Settings {
     /// version can't read loads as Auto.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub graphics: Graphics,
+    /// Settings → Help: the changed keyboard shortcuts and the clear groups (N18, N28). A value this version can't
+    /// read loads as the defaults.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub keys: crate::shortcuts::KeySettings,
 }
 
 /// How many service files File → Open recent lists.
@@ -538,6 +542,7 @@ impl Default for Settings {
             section_keys: true,
             recent_files: Vec::new(),
             graphics: Graphics::Auto,
+            keys: Default::default(),
         }
     }
 }
