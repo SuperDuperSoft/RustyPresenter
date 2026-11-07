@@ -95,9 +95,17 @@ export component LiveColumn inherits Rectangle {
                     font-weight: 600;
                     vertical-alignment: center;
                 }
+                // N5: which screen the preview shows.
+                preview-view := Select {
+                    width: 136px;
+                    height: 22px;
+                    options: OutputsState.view-names;
+                    index <=> OutputsState.view;
+                    changed(i) => { OutputsState.view-changed(i); }
+                }
                 Rectangle { horizontal-stretch: 1; }
                 live-what := Text {
-                    max-width: root.width * 60%;
+                    max-width: root.width * 40%;
                     text: root.live-what;
                     color: Theme.muted;
                     font-family: Theme.font;
@@ -125,24 +133,7 @@ export component LiveColumn inherits Rectangle {
                 stage-off: OutputsState.stage-off;
             }
 
-            // N5: which screen the preview shows; N33: how smoothly the screens draw.
-            HorizontalLayout {
-                spacing: 8px;
-                Text {
-                    text: @tr("Preview shows");
-                    color: Theme.muted;
-                    font-family: Theme.font;
-                    font-size: 12px;
-                    vertical-alignment: center;
-                }
-                preview-view := Select {
-                    width: 180px;
-                    options: OutputsState.view-names;
-                    index <=> OutputsState.view;
-                    changed(i) => { OutputsState.view-changed(i); }
-                }
-                Rectangle { horizontal-stretch: 1; }
-            }
+            // N33: how smoothly the screens draw.
             if OutputsState.perf != "": perf := Text {
                 text: OutputsState.perf;
                 color: OutputsState.perf-warn ? Theme.live : Theme.muted;
