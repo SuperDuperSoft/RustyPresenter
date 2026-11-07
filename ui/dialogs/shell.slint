@@ -11,6 +11,8 @@ export component DialogShell inherits Rectangle {
     in property <string> title;
     /// `min(1180px, 96vw)` instead of `min(920px, 94vw)`.
     in property <bool> wide;
+    /// A fixed height (the window's, up to 860 px) instead of its content's, so switching tabs never resizes it.
+    in property <bool> tall;
     /// Bumped by the window to give the keyboard back to the dialog (a question over it was answered).
     in property <int> focus-serial;
     callback close();
@@ -37,9 +39,10 @@ export component DialogShell inherits Rectangle {
 
         card := Rectangle {
             width: root.wide ? min(1180px, root.width * 0.96) : min(920px, root.width * 0.94);
-            height: min(lay.preferred-height, root.height * 0.88);
+            // Always the same distance from the top, never centred by its content, and never past the bottom.
+            height: root.tall ? min(860px, root.height - 2 * Theme.dialog-top) : min(lay.preferred-height, root.height - 2 * Theme.dialog-top);
             x: (root.width - self.width) / 2;
-            y: (root.height - self.height) / 2;
+            y: Theme.dialog-top;
             background: Theme.panel;
             border-color: Theme.line;
             border-width: 1px;
@@ -57,6 +60,7 @@ export component DialogShell inherits Rectangle {
             lay := VerticalLayout {
                 // `.dlg-head`
                 HorizontalLayout {
+                    vertical-stretch: 0;
                     padding-top: 18px;
                     padding-bottom: 10px;
                     padding-left: 22px;
@@ -92,7 +96,9 @@ export component DialogBody inherits Rectangle {
         y: 0;
         width: root.width;
         height: root.height;
+        // Packed at the top: a tall dialog's spare height stays empty below, never stretches the rows.
         inner := VerticalLayout {
+            alignment: start;
             padding-top: 8px;
             padding-bottom: 18px;
             padding-left: 22px;
@@ -106,7 +112,7 @@ export component DialogBody inherits Rectangle {
 /// `.dlg-foot`: buttons on the right, a line above, 12 22 18 padding, 8 px gap.
 export component DialogFoot inherits VerticalLayout {
     vertical-stretch: 0;
-    Rectangle {
+    foot-line := Rectangle {
         height: 1px;
         background: Theme.line;
     }

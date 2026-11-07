@@ -54,9 +54,10 @@ export component AskOverlay inherits Rectangle {
 
         card := Rectangle {
             width: min(460px, root.width * 0.9);
-            height: lay.preferred-height;
+            height: min(lay.preferred-height, root.height - 2 * Theme.dialog-top);
             x: (root.width - self.width) / 2;
-            y: (root.height - self.height) / 2;
+            // At the same height as every dialog's top.
+            y: Theme.dialog-top;
             background: Theme.panel;
             border-color: Theme.line;
             border-width: 1px;

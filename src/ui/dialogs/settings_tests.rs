@@ -303,13 +303,18 @@ fn default_background_custom_colour_is_saved() {
 fn text_color_from_the_grid_and_its_hex_field() {
     let app = test_app();
     let op = opened(&app);
-    // Tall enough to show the whole Look page: `find` skips what the dialog's scroll box clips, and Text color sits
-    // below the Bible verses group.
+    // `find` skips what the dialog's scroll box clips, and Text color sits below the Bible verses group: the dialog
+    // keeps one height (at most 860 px), so its body is scrolled down to the grid.
     op.window().set_size(slint::LogicalSize::new(1400.0, 1600.0));
     settle();
     open(&op, SettingsTab::Look);
     assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
     click(&op, "ColorPicker::swatch");
+    let card = find(&op, "DialogShell::card").expect("the dialog");
+    let (p, sz) = (card.absolute_position(), card.size());
+    let at = slint::LogicalPosition::new(p.x + sz.width / 2.0, p.y + sz.height / 2.0);
+    op.window().dispatch_event(slint::platform::WindowEvent::PointerScrolled { position: at, delta_x: 0.0, delta_y: -3000.0 });
+    settle();
     assert!(find(&op, "ColorGrid::hex").is_some());
     let before = g(&op).get_color();
     g(&op).invoke_text_hex("#12AB3".into());
