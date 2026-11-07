@@ -79,7 +79,11 @@ component Small inherits Text {
 
 component EditPage inherits VerticalLayout {
     in property <length> window-height;
+    // A fixed height (most of the card): the list takes what the chosen text's boxes leave, so the buttons always
+    // show.
+    height: max(420px, root.window-height * 0.88 - 64px);
     VerticalLayout {
+        vertical-stretch: 1;
         padding-top: 4px;
         padding-left: 22px;
         padding-right: 22px;
@@ -149,9 +153,11 @@ component EditPage inherits VerticalLayout {
             Lbl { label: @tr("Your language"); horizontal-stretch: 1; }
         }
         ScrollBox {
-            height: max(160px, root.window-height * 0.30);
+            vertical-stretch: 1;
+            min-height: 100px;
             track-edge: Theme.panel;
             VerticalLayout {
+                alignment: start;
                 spacing: 3px;
                 padding-right: 12px;
                 for row[i] in TranslationEditorDlg.rows: trans-row := Rectangle {
@@ -191,14 +197,17 @@ component EditPage inherits VerticalLayout {
                             horizontal-stretch: 1;
                             min-width: 0px;
                             spacing: 8px;
-                            Text {
+                            VerticalLayout {
                                 horizontal-stretch: 1;
-                                text: row.shown != "" ? row.shown : @tr("(shows in English)");
-                                color: row.shown != "" ? Theme.text : Theme.faint;
-                                font-family: Theme.font;
-                                font-size: Theme.base-size;
-                                overflow: elide;
-                                vertical-alignment: center;
+                                min-width: 0px;
+                                alignment: center;
+                                Text {
+                                    text: row.shown != "" ? row.shown : @tr("(shows in English)");
+                                    color: row.shown != "" ? Theme.text : Theme.faint;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    overflow: elide;
+                                }
                             }
                             if row.state == "mine": Chip { text: @tr("Changed by me"); state: "ok"; }
                             if row.state == "review": Chip { text: @tr("Needs review"); state: "warn"; }
@@ -225,57 +234,68 @@ component EditPage inherits VerticalLayout {
             }
         }
         // The chosen text.
-        if TranslationEditorDlg.selected >= 0: trans-entry := Rectangle {
-            background: Theme.panel-2;
-            border-radius: 10px;
+        if TranslationEditorDlg.selected < 0: Small {
+            height: root.window-height * 0.30;
+            text: @tr("Click a text above to translate it.");
+        }
+        if TranslationEditorDlg.selected >= 0: ScrollBox {
+            height: root.window-height * 0.30;
             VerticalLayout {
-                padding: 12px;
-                spacing: 8px;
-                Lbl { label: @tr("English"); }
-                trans-english := Text {
-                    text: TranslationEditorDlg.english-plural == "" ? TranslationEditorDlg.english : TranslationEditorDlg.english + "\n" + TranslationEditorDlg.english-plural;
-                    color: Theme.text;
-                    font-family: Theme.font;
-                    font-size: Theme.base-size;
-                    font-weight: 600;
-                    wrap: word-wrap;
-                }
-                if TranslationEditorDlg.context != "" || TranslationEditorDlg.note != "": Small {
-                    text: TranslationEditorDlg.context != "" && TranslationEditorDlg.note != "" ? TranslationEditorDlg.context + " · " + TranslationEditorDlg.note : TranslationEditorDlg.context + TranslationEditorDlg.note;
-                }
-                if TranslationEditorDlg.where != "": Small { text: TranslationEditorDlg.where; }
-                for f[k] in TranslationEditorDlg.forms: VerticalLayout {
-                    spacing: 4px;
-                    if f.label != "": Lbl { label: f.label; }
-                    trans-form := TextArea {
-                        min-height: 58px;
-                        label: f.label != "" ? f.label : @tr("Your language");
-                        placeholder: @tr("Type it in your language (empty shows the English)");
-                        edited(t) => { TranslationEditorDlg.form-edited(k, t); }
-                        init => { self.text = f.text; }
-                    }
-                }
-                if TranslationEditorDlg.problem != "": trans-problem := Text {
-                    text: TranslationEditorDlg.problem;
-                    color: Theme.danger-text;
-                    font-family: Theme.font;
-                    font-size: Theme.base-size;
-                    wrap: word-wrap;
-                    accessible-role: text;
-                    accessible-label: self.text;
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    alignment: start;
-                    if TranslationEditorDlg.guess: trans-keep := Btn {
-                        small: true;
-                        text: @tr("This is right");
-                        clicked => { TranslationEditorDlg.keep-entry(); }
-                    }
-                    if TranslationEditorDlg.mine: trans-reset := Btn {
-                        small: true;
-                        text: @tr("Reset this entry to built-in");
-                        clicked => { TranslationEditorDlg.reset-entry(); }
+                padding-right: 12px;
+                alignment: start;
+                trans-entry := Rectangle {
+                    background: Theme.panel-2;
+                    border-radius: 10px;
+                    VerticalLayout {
+                        padding: 12px;
+                        spacing: 8px;
+                        Lbl { label: @tr("English"); }
+                        trans-english := Text {
+                            text: TranslationEditorDlg.english-plural == "" ? TranslationEditorDlg.english : TranslationEditorDlg.english + "\n" + TranslationEditorDlg.english-plural;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            font-weight: 600;
+                            wrap: word-wrap;
+                        }
+                        if TranslationEditorDlg.context != "" || TranslationEditorDlg.note != "": Small {
+                            text: TranslationEditorDlg.context != "" && TranslationEditorDlg.note != "" ? TranslationEditorDlg.context + " · " + TranslationEditorDlg.note : TranslationEditorDlg.context + TranslationEditorDlg.note;
+                        }
+                        if TranslationEditorDlg.where != "": Small { text: TranslationEditorDlg.where; }
+                        for f[k] in TranslationEditorDlg.forms: VerticalLayout {
+                            spacing: 4px;
+                            if f.label != "": Lbl { label: f.label; }
+                            trans-form := TextArea {
+                                min-height: 58px;
+                                label: f.label != "" ? f.label : @tr("Your language");
+                                placeholder: @tr("Type it in your language (empty shows the English)");
+                                edited(t) => { TranslationEditorDlg.form-edited(k, t); }
+                                init => { self.text = f.text; }
+                            }
+                        }
+                        if TranslationEditorDlg.problem != "": trans-problem := Text {
+                            text: TranslationEditorDlg.problem;
+                            color: Theme.danger-text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            wrap: word-wrap;
+                            accessible-role: text;
+                            accessible-label: self.text;
+                        }
+                        HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            if TranslationEditorDlg.guess: trans-keep := Btn {
+                                small: true;
+                                text: @tr("This is right");
+                                clicked => { TranslationEditorDlg.keep-entry(); }
+                            }
+                            if TranslationEditorDlg.mine: trans-reset := Btn {
+                                small: true;
+                                text: @tr("Reset this entry to built-in");
+                                clicked => { TranslationEditorDlg.reset-entry(); }
+                            }
+                        }
                     }
                 }
             }
