@@ -320,3 +320,27 @@ fn add_picture_imports_it_as_a_background() {
     click(&op, "ThemeList::new-theme");
     assert!(g(&op).get_backgrounds().iter().any(|t| t.label == "Sky" && t.kind == "image"));
 }
+
+#[test]
+fn filter_box_shows_for_a_long_list_and_keeps_each_rows_buttons() {
+    let app = test_app();
+    saved(&app, "Christmas");
+    let op = opened(&app);
+    settings::open(&op, SettingsTab::Themes);
+    settle();
+    assert!(find(&op, "ThemeList::themes-filter").is_none(), "a short list has no filter box");
+    op.close_dialog();
+    for n in ["Easter", "Youth", "Funeral", "Wedding", "Christmas Eve"] { saved(&app, n); }
+    refresh(&op);
+    settings::open(&op, SettingsTab::Themes);
+    settle();
+    find(&op, "ThemeList::themes-filter").expect("six themes or more get a filter box").set_accessible_value("christmas");
+    settle();
+    let shown: Vec<String> = find_all(&op, "ThemeList::theme-row").iter().map(|r| r.accessible_label().unwrap().into()).collect();
+    assert_eq!(shown, ["Christmas", "Christmas Eve"]);
+    // The second row shown is "Christmas Eve": its Edit opens that theme, not the list's second.
+    find_all(&op, "ThemeList::edit").swap_remove(1).mock_single_click(PointerEventButton::Left);
+    settle();
+    assert!(g(&op).get_editing());
+    assert_eq!(g(&op).get_name(), "Christmas Eve");
+}

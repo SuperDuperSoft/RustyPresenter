@@ -142,6 +142,7 @@ impl Operator {
         bible::wire(&op);
         overlays::wire(&op);
         super::overlay_strip::wire(&op);
+        super::list_filter::wire(&op);
         super::service_theme::wire(&op);
         crate::ui::dialogs::wire(&op);
         files::wire(&op);

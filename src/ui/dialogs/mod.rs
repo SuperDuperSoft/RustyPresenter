@@ -13,6 +13,7 @@ pub mod item_edit;
 pub mod overlays;
 pub mod phone;
 pub mod print;
+pub mod quick_search;
 pub mod screens;
 pub mod services;
 pub mod settings;
@@ -73,6 +74,8 @@ pub enum DialogKind {
     FindVerse,
     /// Where a passage's slides break (FEAT-5 §3.3).
     SlideBreaks(Uuid),
+    /// N14: Ctrl+F finds a song, file, slide set or service.
+    QuickSearch,
 }
 
 impl DialogKind {
@@ -101,6 +104,7 @@ impl DialogKind {
             DialogKind::ShowMessage => "show-message",
             DialogKind::FindVerse => "find-verse",
             DialogKind::SlideBreaks(_) => "slide-breaks",
+            DialogKind::QuickSearch => "quick-search",
         }
     }
 }
@@ -219,6 +223,7 @@ impl Operator {
             DialogKind::ShowMessage => crate::tr!("Show message"),
             DialogKind::FindVerse => crate::scripture::strings::find_a_verse(),
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
+            DialogKind::QuickSearch => quick_search::title(),
         }
     }
 }

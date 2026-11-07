@@ -1,11 +1,13 @@
 // The slides column (`web/operator.html:33-38`, `operator.css:80-106`, `operator.js:156-210`): the selected item's
 // header, its slides as 16:9 thumbnails in rows, and the empty states. The rows are built in Rust (`slides.rs`).
 import { Theme } from "../theme.slint";
-import { Icon, Btn, ScrollBox, TipBox } from "../widgets.slint";
+import { Icon, Btn, ScrollBox, TipBox, Segmented } from "../widgets.slint";
+import { RangeSlider } from "../dialogs/form.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
-export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string }
+/// `text` is what the slide says (or what kind of file it shows), for the Easy and Table views (N37).
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, text: string }
 /// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
 export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
@@ -218,6 +220,152 @@ component Thumb inherits Rectangle {
     }
 }
 
+/// N37 Easy view: one slide per row, its words in big type, for a small laptop screen.
+component EasyRow inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+    height: 112px;
+    border-radius: 9px;
+    background: Theme.panel-2;
+    border-width: root.cell.live ? 3px : 1.5px;
+    border-color: root.cell.live ? Theme.live : ta.has-hover ? Theme.thumb-hover : Theme.line;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-description: root.cell.text;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+    HorizontalLayout {
+        padding: 10px;
+        padding-left: 12px;
+        spacing: 14px;
+        VerticalLayout {
+            width: 78px;
+            alignment: center;
+            spacing: 4px;
+            Rectangle {
+                height: 26px;
+                border-radius: 6px;
+                background: root.cell.section != "" ? Theme.section-color(root.cell.section) : Theme.raise;
+                Text {
+                    text: root.cell.idx + 1;
+                    color: root.cell.section != "" ? Theme.sec-ink : Theme.text;
+                    font-family: Theme.font;
+                    font-size: 14px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+            Text {
+                text: root.cell.live ? @tr("LIVE") : root.cell.label;
+                color: root.cell.live ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: root.cell.live ? 800 : 400;
+                horizontal-alignment: center;
+                overflow: elide;
+            }
+        }
+        easy-text := Text {
+            horizontal-stretch: 1;
+            text: root.cell.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 22px;
+            font-weight: 600;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            overflow: elide;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// N37 Table view: number, a small picture, the part and the words, one slide per line.
+component TableRow inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+    height: 64px;
+    border-radius: 7px;
+    background: root.cell.live ? Theme.live.with-alpha(0.16) : ta.has-hover ? Theme.panel-2 : transparent;
+    border-width: root.cell.live ? 1.5px : 0px;
+    border-color: Theme.live;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-description: root.cell.text;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+    HorizontalLayout {
+        padding: 5px;
+        padding-right: 10px;
+        spacing: 12px;
+        Text {
+            width: 28px;
+            text: root.cell.idx + 1;
+            color: root.cell.live ? Theme.live : Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            font-weight: root.cell.live ? 700 : 400;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+        }
+        Rectangle {
+            width: 96px;
+            height: 54px;
+            border-radius: 5px;
+            clip: true;
+            background: Theme.black;
+            Image {
+                width: parent.width;
+                height: parent.height;
+                source: root.cell.image;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            width: 120px;
+            alignment: center;
+            Rectangle {
+                height: 22px;
+                border-radius: 5px;
+                background: Theme.section-color(root.cell.section);
+                HorizontalLayout {
+                    padding-left: root.cell.section != "" ? 6px : 0px;
+                    padding-right: 4px;
+                    Text {
+                        text: root.cell.label;
+                        color: root.cell.section != "" ? Theme.sec-ink : Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12.5px;
+                        font-weight: root.cell.section != "" ? 700 : 400;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                }
+            }
+        }
+        table-text := Text {
+            horizontal-stretch: 1;
+            text: root.cell.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 13.5px;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            overflow: elide;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
 /// `.empty` in the grid: an optional bold line over muted text, 8vh down (`.grid .empty`).
 component Empty inherits VerticalLayout {
     in property <string> title;
@@ -274,6 +422,10 @@ export component SlidesPanel inherits VerticalLayout {
     in property <string> note;
     /// The selected song plays in this service's own order (FEAT-4).
     in property <bool> custom-order;
+    /// N37: 0 the grid of pictures, 1 Easy (big words), 2 Table. Set from Rust.
+    in-out property <int> view;
+    /// N8: how wide a picture in the grid may get at the least, in pixels (the size slider).
+    in-out property <int> thumb-size: 230;
 
     callback show(int);
     /// A section bar chip, by its index in `jumps`.
@@ -284,13 +436,18 @@ export component SlidesPanel inherits VerticalLayout {
     callback text-auto();
     /// The grid's width changed (Rust works out the columns and the thumbnail size).
     callback grid-resized(length);
+    /// The view and size controls under the slides (N37, N8).
+    callback view-picked(int);
+    callback thumb-size-changed(int);
     /// The Welcome panel's buttons (N7).
     callback welcome-add();
     callback welcome-screens();
 
     /// `.grid`: 16 px side padding and 14 px gaps; cells share the width like `repeat(auto-fill, minmax(230px, 1fr))`.
     property <length> cell-w: max(1px, (grid.width - 32px - 14px * (root.columns - 1)) / max(1, root.columns));
-    property <length> row-h: root.cell-w * 9 / 16 + 23px;
+    /// A row's height and the gap under it, as each view draws them.
+    property <length> row-h: root.view == 1 ? 112px : root.view == 2 ? 64px : root.cell-w * 9 / 16 + 23px;
+    property <length> row-gap: root.view == 1 ? 8px : root.view == 2 ? 2px : 14px;
 
     init => { root.grid-resized(root.grid-width); }
     changed grid-width => { root.grid-resized(root.grid-width); }
@@ -298,7 +455,7 @@ export component SlidesPanel inherits VerticalLayout {
     /// Scrolls the grid so row `row` is in view, moving as little as possible (`scrollIntoView({block: 'nearest'})`).
     public function scroll-to-row(row: int) {
         // The live outline (3 px) is part of what must show.
-        let top = 4px + row * (root.row-h + 14px) - 3px;
+        let top = 4px + row * (root.row-h + root.row-gap) - 3px;
         let bottom = top + root.row-h + 6px;
         if top < -grid.content-y {
             grid.content-y = -top;
@@ -443,15 +600,36 @@ export component SlidesPanel inherits VerticalLayout {
                 padding-bottom: 20px;
                 padding-left: 16px;
                 padding-right: 16px;
-                spacing: 14px;
+                spacing: root.row-gap;
                 alignment: start;
+                // In Easy and Table every row holds one slide (Rust sets one column).
                 for row in root.rows: HorizontalLayout {
                     spacing: 14px;
                     alignment: start;
-                    for cell in row.cells: thumb := Thumb {
-                        width: root.cell-w;
-                        cell: cell;
-                        clicked => { root.show(cell.idx); }
+                    for cell in row.cells: Rectangle {
+                        width: root.view == 0 ? root.cell-w : grid.width - 32px;
+                        height: root.row-h;
+                        if root.view == 0: thumb := Thumb {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
+                        if root.view == 1: easy-row := EasyRow {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
+                        if root.view == 2: table-row := TableRow {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
                     }
                 }
             }
@@ -476,6 +654,41 @@ export component SlidesPanel inherits VerticalLayout {
             height: self.preferred-height;
             title: @tr("Nothing to show");
             text: @tr("This item has no slides yet. Click Edit to add some.");
+        }
+    }
+
+    // N37 and N8: how the slides are shown, and how big the pictures are.
+    if root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-top: 6px;
+        padding-bottom: 8px;
+        padding-left: 16px;
+        padding-right: 16px;
+        spacing: 12px;
+        slides-view := Segmented {
+            labels: [@tr("Grid"), @tr("Easy"), @tr("Table")];
+            index <=> root.view;
+            changed(i) => { root.view-picked(i); }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        if root.view == 0: VerticalLayout {
+            alignment: center;
+            Icon {
+                width: 16px;
+                height: 16px;
+                name: "image";
+                color: Theme.muted;
+            }
+        }
+        if root.view == 0: VerticalLayout {
+            alignment: center;
+            thumb-size := RangeSlider {
+                width: 150px;
+                minimum: 140;
+                maximum: 420;
+                value <=> root.thumb-size;
+                accessible-label: @tr("Picture size");
+                changed(v) => { root.thumb-size-changed(v); }
+            }
         }
     }
 

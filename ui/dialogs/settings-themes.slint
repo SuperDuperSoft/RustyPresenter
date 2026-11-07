@@ -5,6 +5,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented, Icon, TipBox } from "../widgets.slint";
 import { Check, RangeSlider, Select, Lbl, ListRow, RowMain, TextField, Note } from "form.slint";
 import { BackgroundPicker, BgChoice, ColorPicker } from "background-picker.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
 
 /// A theme in the list. `standard` is the built-in Standard (edited on the Look tab); `delete-label` is "Delete",
 /// "Reset" or empty when the theme can't be removed.
@@ -124,50 +125,67 @@ component Star inherits Rectangle {
 
 /// The list of themes and the background library.
 component ThemeList inherits VerticalLayout {
+    /// N8: the words in each list's filter box.
+    property <string> filter;
+    property <string> bg-filter;
     spacing: 4px;
     Note {
         text: @tr("A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own.");
     }
     Rectangle { height: 10px; }
-    for t[i] in ThemesDlg.rows: theme-row := ListRow {
-        accessible-role: list-item;
-        accessible-label: t.name;
-        accessible-value: t.sub;
-        accessible-item-selected: t.is-default;
-        VerticalLayout {
-            alignment: center;
-            star := Star {
-                on: t.is-default;
-                clicked => { ThemesDlg.make-default(i); }
-            }
+    if ThemesDlg.rows.length >= ListFilter.min-rows || root.filter != "": HorizontalLayout {
+        alignment: start;
+        themes-filter := FilterBox {
+            width: 280px;
+            text <=> root.filter;
+            placeholder: @tr("Filter themes");
         }
-        RowMain {
-            title: t.name;
-            sub: t.sub;
-        }
-        VerticalLayout {
-            alignment: center;
-            edit := Btn {
-                small: true;
-                text: @tr("Edit");
-                clicked => { ThemesDlg.edit(i); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            duplicate := Btn {
-                small: true;
-                text: @tr("Duplicate");
-                clicked => { ThemesDlg.duplicate(i); }
-            }
-        }
-        if t.delete-label != "": VerticalLayout {
-            alignment: center;
-            delete := Btn {
-                small: true;
-                danger: true;
-                text: t.delete-label;
-                clicked => { ThemesDlg.delete(i); }
+    }
+    // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
+    VerticalLayout {
+        for t[i] in ThemesDlg.rows: VerticalLayout {
+            padding-bottom: ListFilter.shown(t.name + " " + t.sub, root.filter) ? 4px : 0px;
+            if ListFilter.shown(t.name + " " + t.sub, root.filter): theme-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: t.name;
+                accessible-value: t.sub;
+                accessible-item-selected: t.is-default;
+                VerticalLayout {
+                    alignment: center;
+                    star := Star {
+                        on: t.is-default;
+                        clicked => { ThemesDlg.make-default(i); }
+                    }
+                }
+                RowMain {
+                    title: t.name;
+                    sub: t.sub;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    edit := Btn {
+                        small: true;
+                        text: @tr("Edit");
+                        clicked => { ThemesDlg.edit(i); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    duplicate := Btn {
+                        small: true;
+                        text: @tr("Duplicate");
+                        clicked => { ThemesDlg.duplicate(i); }
+                    }
+                }
+                if t.delete-label != "": VerticalLayout {
+                    alignment: center;
+                    delete := Btn {
+                        small: true;
+                        danger: true;
+                        text: t.delete-label;
+                        clicked => { ThemesDlg.delete(i); }
+                    }
+                }
             }
         }
     }
@@ -192,44 +210,58 @@ component ThemeList inherits VerticalLayout {
         wrap: word-wrap;
     }
     Rectangle { height: 8px; }
-    for b[i] in ThemesDlg.library: bg-row := ListRow {
-        accessible-role: list-item;
-        accessible-label: b.name;
-        accessible-value: b.sub;
-        Rectangle {
-            width: 64px;
-            height: 36px;
-            border-radius: 6px;
-            border-width: 1px;
-            border-color: Theme.line;
-            background: b.has-image ? Theme.black : b.swatch;
-            clip: true;
-            if b.has-image: Image {
-                width: parent.width;
-                height: parent.height;
-                source: b.image;
-                image-fit: cover;
-            }
+    if ThemesDlg.library.length >= ListFilter.min-rows || root.bg-filter != "": HorizontalLayout {
+        alignment: start;
+        backgrounds-filter := FilterBox {
+            width: 280px;
+            text <=> root.bg-filter;
+            placeholder: @tr("Filter backgrounds");
         }
-        RowMain {
-            title: b.name;
-            sub: b.sub;
-        }
-        VerticalLayout {
-            alignment: center;
-            rename := Btn {
-                small: true;
-                text: @tr("Rename");
-                clicked => { ThemesDlg.rename-background(i); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            remove := Btn {
-                small: true;
-                danger: true;
-                text: @tr("Remove");
-                clicked => { ThemesDlg.remove-background(i); }
+    }
+    // N8: the same for the background library.
+    VerticalLayout {
+        for b[i] in ThemesDlg.library: VerticalLayout {
+            padding-bottom: ListFilter.shown(b.name + " " + b.sub, root.bg-filter) ? 4px : 0px;
+            if ListFilter.shown(b.name + " " + b.sub, root.bg-filter): bg-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: b.name;
+                accessible-value: b.sub;
+                Rectangle {
+                    width: 64px;
+                    height: 36px;
+                    border-radius: 6px;
+                    border-width: 1px;
+                    border-color: Theme.line;
+                    background: b.has-image ? Theme.black : b.swatch;
+                    clip: true;
+                    if b.has-image: Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: b.image;
+                        image-fit: cover;
+                    }
+                }
+                RowMain {
+                    title: b.name;
+                    sub: b.sub;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    rename := Btn {
+                        small: true;
+                        text: @tr("Rename");
+                        clicked => { ThemesDlg.rename-background(i); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    remove := Btn {
+                        small: true;
+                        danger: true;
+                        text: @tr("Remove");
+                        clicked => { ThemesDlg.remove-background(i); }
+                    }
+                }
             }
         }
     }

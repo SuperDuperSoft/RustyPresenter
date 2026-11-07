@@ -887,6 +887,23 @@ mod tests {
     }
 
     #[test]
+    fn filter_box_finds_older_services_too() {
+        let app = test_app();
+        for w in 0..10 { add_service(&app, &format!("Week {w}")); }
+        add_service(&app, "Easter Sunrise");
+        let op = open_services(&app);
+        let shown = |op: &Operator| find_all(op, "ServicesDialog::row").len();
+        assert_eq!(shown(&op), 8);
+        find(&op, "ServicesDialog::services-filter").expect("the filter box").set_accessible_value("week 1");
+        assert!(op.ui.global::<ServicesDialogState>().get_show_all(), "typing searches every service");
+        let names: Vec<String> = find_all(&op, "ServicesDialog::row").iter().map(|r| r.accessible_label().unwrap().into()).collect();
+        assert_eq!(names, ["Week 1"]);
+        find(&op, "ServicesDialog::services-filter").unwrap().set_accessible_value("");
+        assert_eq!(rows(&op).len(), 12, "every service is listed");
+        assert!(shown(&op) >= 11, "the rows come back (the testing tree can lag one row behind a new model)");
+    }
+
+    #[test]
     fn set_date_prompt_sets_and_clears() {
         let app = test_app();
         set_mdy(&app);

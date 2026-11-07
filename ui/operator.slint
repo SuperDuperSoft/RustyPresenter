@@ -27,6 +27,7 @@ import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
+import { QuickSearchDialog } from "dialogs/quick-search.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -115,6 +116,11 @@ export component OperatorWindow inherits Window {
     callback slides-pick-section(int);
     callback slides-edit();
     callback slides-grid-resized(length);
+    /// N37: 0 grid, 1 Easy, 2 Table; N8: the grid's picture size. Both stay for this session (`slides.rs`).
+    in-out property <int> slides-view;
+    in-out property <int> slides-thumb-size: 230;
+    callback slides-view-picked(int);
+    callback slides-thumb-size-changed(int);
     /// A Bible passage is selected: its text size ("Auto" or pixels) with A− / A+ / Auto.
     in property <bool> slides-text-size-shown;
     in property <string> slides-text-size;
@@ -375,7 +381,7 @@ export component OperatorWindow inherits Window {
             }
             MenuSeparator {}
             MenuItem {
-                title: @tr("Find…");
+                title: @tr("Quick search…");
                 shortcut: @keys(Control + F);
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("find"); }
@@ -446,6 +452,23 @@ export component OperatorWindow inherits Window {
                 title: bin.open ? @tr("Hide media library") : @tr("Show media library");
                 enabled: !root.covered;
                 activated => { bin.open = !bin.open; }
+            }
+            // N37: how the selected item's slides are shown.
+            Menu {
+                title: @tr("Show slides as");
+                enabled: !root.covered;
+                MenuItem {
+                    title: @tr("Grid of pictures");
+                    activated => { root.focus-keys(); root.menu("slides-grid"); }
+                }
+                MenuItem {
+                    title: @tr("Easy view (big words)");
+                    activated => { root.focus-keys(); root.menu("slides-easy"); }
+                }
+                MenuItem {
+                    title: @tr("Table");
+                    activated => { root.focus-keys(); root.menu("slides-table"); }
+                }
             }
             MenuSeparator {}
             MenuItem {
@@ -672,6 +695,10 @@ export component OperatorWindow inherits Window {
                                 text-larger => { root.focus-keys(); root.slides-text-larger(); }
                                 text-auto => { root.focus-keys(); root.slides-text-auto(); }
                                 grid-resized(w) => { root.slides-grid-resized(w); }
+                                view <=> root.slides-view;
+                                thumb-size <=> root.slides-thumb-size;
+                                view-picked(i) => { root.focus-keys(); root.slides-view-picked(i); }
+                                thumb-size-changed(v) => { root.slides-thumb-size-changed(v); }
                                 welcome-add => { root.focus-keys(); root.service-add(); }
                                 welcome-screens => { root.focus-keys(); root.screens(); }
                             }
@@ -764,6 +791,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "show-message": ShowMessageDialog {}
             if root.dialog-kind == "find-verse": FindVerseDialog { window-height: root.height; }
             if root.dialog-kind == "slide-breaks": SlideBreaksDialog { window-height: root.height; }
+            if root.dialog-kind == "quick-search": QuickSearchDialog { window-height: root.height; }
         }
 
         for a in root.ask: AskOverlay {
