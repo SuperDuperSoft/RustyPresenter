@@ -191,7 +191,7 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | BIBLE-3 | Three Bibles plan Tasks 8–10 | Claude | Needs review | On `finish`: Item edit "Also show", missing-verse note, online text cache-only (never saved), catalog merge. Not checked against real APIs. |
 | FEAT-2, FEAT-5 | Service automation; Bible extras | Unassigned | Planning | Specs and plans exist; not built. FEAT-3 timers wait on FEAT-2. |
 | IDEAS-PP7-HANDS | 13 ideas from using ProPresenter 7 hands-on, filed under their projects (§10c-2) | Unassigned | Planning | **All 13 required for 1.0** (Jake, Nov 6). Small ones first: N1, N2, N4, N5, N7, N8; see §10c-2 for order. |
-| IDEAS-PP7-PASS2 | 24 more ideas from the second ProPresenter pass (§10c-3, N14–N37) | Unassigned | Planning | Jake to say: all for 1.0, or pick. |
+| IDEAS-PP7-PASS2 | 24 more ideas from the second ProPresenter pass (§10c-3, N14–N37) | Unassigned | Planning | **All 24 required for 1.0** (Jake, Nov 6). Suggested order after §10c-2's small items: N18, N19, N23, N24, N14, N35, N33, N28, N29, N30, N36, N21, N16+N15+N17 (with FEAT-2), N31, N20, N32, N34, N37, N25+N26+N27 (editor), N22 last (recording). |
 | REFACTOR-CRATES | Split the crate into a workspace (core / ui / server …) | Unassigned | Planning | After 1.0. The lib test build needs ~6 GB RAM (the cloud sandbox needed a swap file). |
 
 ## 9. Current workspace handoff
@@ -289,7 +289,7 @@ Suggested order: small ones first (N1, N2, N4, N5, N7, N8), then N6, N9, N3 + N1
 
 ### 10c-3. Second hands-on pass: every menu, Settings and editor (November 6, 2026) — *new*
 
-Jake asked Claude to look at everything. 24 more ideas (N14–N37). **Whether these are 1.0 or later is Jake's call (pending).** Notes and what was not reachable: `docs/research/2026-11-06-propresenter7-hands-on-notes.md`.
+Jake asked Claude to look at everything. 24 more ideas (N14–N37). **All 24 are required for 1.0** (Jake, Nov 6, 21:49), same as §10c-2. 1.0 does not freeze until N1–N37 are all done with evidence. Notes and what was not reachable: `docs/research/2026-11-06-propresenter7-hands-on-notes.md`.
 
 | # | Idea seen in ProPresenter | Goes in | What "done" looks like |
 | --- | --- | --- | --- |
@@ -1262,3 +1262,4 @@ Jake asked: "finish the whole project … make sure that there is a plan feature
 - Next: put N1, N2, N4, N5, N7, N8 into the 1.0 work; the rest into the FEAT-1/2/3/5 specs.
 - Later the same evening Jake decided **all 13 §10c-2 ideas are required before 1.0**. §10c-2 and the board row now say so; FEAT-2 timers, the FEAT-3 layout editor and the FEAT-5 Bible panel extras move into 1.0 with them.
 - Second pass the same night (Jake: "look at everything"): every menu, Settings page, Configure Screens, Capture, Timers, Macros, Search, Action Palette, Calendar, Timecode, Reflow, slide Editor, Theme/Props/Mask/CCLI editors. Added §10c-3 (N14–N37) and board row IDEAS-PP7-PASS2. Not reachable: Messages panel, Text/Build inspectors, Media inspector, Planning Center, Test Patterns, Easy/Table view, Status, Bible Options, Key Mappings.
+- Jake then decided **all 24 §10c-3 ideas are also required for 1.0**. 1.0 now needs N1–N37. Biggest new jobs: the slide editor (N25–N27) and recording to disk (N22).
