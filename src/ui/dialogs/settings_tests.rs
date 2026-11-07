@@ -194,7 +194,7 @@ fn look_preview_rebuilt_on_tab_return() {
     g(&op).invoke_look_changed();
     // Leave before the preview is drawn again: the image goes.
     let tabs = find_all(&op, "Tabs::tab");
-    assert_eq!(tabs.len(), 8);
+    assert_eq!(tabs.len(), 9);
     tabs[1].mock_single_click(PointerEventButton::Left);
     settle();
     assert_eq!(g(&op).get_tab(), 1);
@@ -263,7 +263,7 @@ fn default_background_pick_is_saved() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     let rows: Vec<_> = g(&op).get_backgrounds().iter().collect();
-    assert_eq!(rows.len(), 8, "the six swatches, the custom colour and Upload (no media, no Theme default)");
+    assert_eq!(rows.len(), 14, "the six swatches, the custom colour, six gradients and Upload (no media, no Theme default)");
     assert!(rows[0].on, "black is the default");
     g(&op).invoke_pick_background(1);
     assert!(g(&op).get_backgrounds().row_data(1).unwrap().on);
@@ -692,9 +692,9 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     let op = opened(&app);
     open(&op, SettingsTab::Language);
     settle();
-    assert_eq!(g(&op).get_tab(), 1, "Language comes right after Look");
+    assert_eq!(g(&op).get_tab(), 2, "Language comes right after Look and Themes");
     let tab_labels = || find_all(&op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect::<Vec<_>>();
-    assert_eq!(tab_labels()[..3], ["Look", "Language", "Songs"]);
+    assert_eq!(tab_labels()[..3], ["Look", "Themes", "Language"]);
     let rows: Vec<crate::ui::SettingsLanguageRow> = g(&op).get_languages().iter().collect();
     assert!(rows[0].title.starts_with("Use the computer's language ("), "{:?}", rows[0].title);
     assert!(rows[0].on, "new data follows the computer");
@@ -712,7 +712,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
     assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
     assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
-    assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
+    assert_eq!(tab_labels()[2], "Idioma", "the window's own words changed without a restart");
     assert!(g(&op).get_languages().row_data(es).unwrap().on);
 
     // Cancel keeps it; English again from its row.
@@ -721,6 +721,6 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     settle();
     g(&op).invoke_choose_language(1);
     settle();
-    assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
+    assert_eq!((crate::i18n::current().as_str(), tab_labels()[2].as_str()), ("en", "Language"));
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
 }

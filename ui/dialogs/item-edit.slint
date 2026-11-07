@@ -4,7 +4,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Chip, Segmented, Field } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, TextArea, Check, Note, RangeSlider } from "form.slint";
+import { TextField, TextArea, Check, Note, RangeSlider, Select } from "form.slint";
 import { BackgroundPicker, BgChoice } from "background-picker.slint";
 import { BiblePickButton, TranslationChip } from "../bible-picker.slint";
 import { ArrangementStrip, ArrChipRow, ArrAddRow } from "arrangement.slint";
@@ -48,6 +48,9 @@ export global ItemEdit {
     /// Song, scripture and announcement items have a background.
     in property <bool> has-background;
     in property <[BgChoice]> choices;
+    /// Song, scripture and announcement items have a theme (FEAT-1 §3.3): "Same as service (…)", then each theme.
+    in property <[string]> theme-options;
+    in-out property <int> theme-index;
     in property <[color]> palette;
     in-out property <string> notes;
 
@@ -349,6 +352,13 @@ export component ItemEditDialog inherits VerticalLayout {
                         text: ItemEdit.status-reason;
                     }
                 }
+            }
+        }
+        if ItemEdit.has-background && ItemEdit.theme-options.length > 0: Field {
+            label: @tr("Theme");
+            item-theme := Select {
+                options: ItemEdit.theme-options;
+                index <=> ItemEdit.theme-index;
             }
         }
         if ItemEdit.has-background: Field {

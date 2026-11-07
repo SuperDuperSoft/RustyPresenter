@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_themes, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -21,19 +21,21 @@ pub struct Edit {
     pub(crate) look: settings_look::LookState,
     pub(crate) bible: settings_bible::BibleState,
     pub(crate) language: settings_language::LanguageState,
+    pub(crate) themes: settings_themes::ThemesState,
 }
 
 /// The tab's index in the `Tabs` row.
 pub fn tab_index(tab: SettingsTab) -> i32 {
     match tab {
         SettingsTab::Look => 0,
-        SettingsTab::Language => 1,
-        SettingsTab::Songs => 2,
-        SettingsTab::Bible => 3,
-        SettingsTab::Video => 4,
-        SettingsTab::Backups => 5,
-        SettingsTab::Help => 6,
-        SettingsTab::About => 7,
+        SettingsTab::Themes => 1,
+        SettingsTab::Language => 2,
+        SettingsTab::Songs => 3,
+        SettingsTab::Bible => 4,
+        SettingsTab::Video => 5,
+        SettingsTab::Backups => 6,
+        SettingsTab::Help => 7,
+        SettingsTab::About => 8,
     }
 }
 
@@ -70,6 +72,7 @@ pub fn help_rows() -> Vec<HelpRow> {
         HelpRow { keys: "F3".into(), what: do_clear_media(), binds: &[("F3", false, false)], action: KeyAction::Clear(Command::ClearMedia) },
         HelpRow { keys: "F4".into(), what: do_stop_audio(), binds: &[("F4", false, false)], action: KeyAction::Clear(Command::ClearAudio) },
         HelpRow { keys: "F5".into(), what: do_logo(), binds: &[("F5", false, false)], action: KeyAction::Clear(Command::Logo) },
+        HelpRow { keys: "F6".into(), what: crate::theme::strings::clear_overlays_help(), binds: &[("F6", false, false)], action: KeyAction::Clear(Command::ClearOverlays) },
         HelpRow { keys: key_alt_digits(), what: do_translation(), binds: &[("1", false, true), ("5", false, true)], action: KeyAction::PickTranslation(0) },
         HelpRow { keys: KEY_SECTIONS.into(), what: do_sections(), binds: &[("c", false, false), ("b", false, false), ("p", false, false), ("e", false, false),
             ("t", false, false), ("i", false, false), ("l", false, false), ("v", false, false),
@@ -93,6 +96,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
         look: settings_look::LookState::default(),
         bible: settings_bible::BibleState::default(),
         language: settings_language::LanguageState::default(),
+        themes: settings_themes::ThemesState::default(),
     });
     let g = op.ui.global::<SettingsDlg>();
     fill_form(&g, &edit.settings.borrow());
@@ -108,7 +112,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
     if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
-    op.on_dialog_close(move |_| closing.look.stop());
+    op.on_dialog_close(move |_| { closing.look.stop(); closing.themes.stop() });
 }
 
 /// "Find more Bibles…" in the Bible picker: Settings on the Bible tab, with the picker's search in the library's
@@ -147,6 +151,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
 pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) {
     let g = op.ui.global::<SettingsDlg>();
     settings_look::fill_backgrounds(op, edit, snap);
+    settings_themes::fill(op, edit, snap);
     settings_bible::fill(&g, edit, snap);
     g.set_backups_folder(strings::backups_folder(&snap.data_folder).into());
     let rows: Vec<SettingsBackupRow> = snap.backups.iter().map(|b| SettingsBackupRow {
@@ -265,12 +270,14 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
+    settings_themes::connect(op, edit);
 }
 
 /// Switching tabs drops the Look preview; coming back to Look draws it again from the current edits
 /// (`operator.js:937, 1000`). The state pages are rebuilt from the newest snapshot, as `draw()` does.
 fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
     settings_look::drop_preview(op, edit);
+    settings_themes::close_editor(op, edit);
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
     if tab == tab_index(SettingsTab::Look) as usize { settings_look::render_now(op, edit) }
     if tab == tab_index(SettingsTab::Bible) as usize { settings_bible::load_catalog(op, edit) }

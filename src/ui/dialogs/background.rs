@@ -1,13 +1,14 @@
 //! The background picker (`backgroundPicker()`, `operator.js:701-718`; `ui/dialogs/background-picker.slint`):
-//! Theme default, six swatches, a custom colour, every ready picture or video, and "+ Upload…". The choice list
-//! and the matching of the current value are pure; `Picker` keeps the thumbnails and the value for one dialog.
+//! Theme default, six swatches, a custom colour, the six gradients, the church's background library, every other
+//! ready picture or video, and "+ Upload…" (FEAT-1 spec §3.4). The choice list and the matching of the current
+//! value are pure; `Picker` keeps the thumbnails and the value for one dialog.
 #[path = "../../strings/item_edit.rs"]
 pub(super) mod strings;
 
 use crate::{
     app::{ImportPurpose, Imported},
     import::CANCELLED,
-    model::{AssetId, Background, MediaFile, MediaKind, MediaStatus},
+    model::{AssetId, Background, BackgroundEntry, MediaFile, MediaKind, MediaStatus},
     ui::{BgChoice, operator::{file_input::Filter, files::pick, window::Operator}, thumbs::{self, ThumbJob, ThumbKey, ThumbMedia, Thumbs}},
 };
 use slint::{Color, Image};
@@ -27,6 +28,8 @@ pub enum ChoiceKind {
     Custom,
     Image(AssetId),
     Video(AssetId),
+    /// A built-in gradient, or a background from the library (any kind).
+    Value(Background),
     /// "+ Upload…": imports files.
     Upload,
 }
@@ -51,6 +54,7 @@ impl Choice {
             ChoiceKind::Color(c) => Some(Some(Background::Color { color: c.clone() })),
             ChoiceKind::Image(a) => Some(Some(Background::Image { asset: a.clone(), dim: 0 })),
             ChoiceKind::Video(a) => Some(Some(Background::Video { asset: a.clone(), dim: 0 })),
+            ChoiceKind::Value(b) => Some(Some(b.clone())),
             ChoiceKind::Custom | ChoiceKind::Upload => None,
         }
     }
@@ -63,6 +67,9 @@ impl Choice {
             ChoiceKind::Custom => "custom",
             ChoiceKind::Image(_) => "image",
             ChoiceKind::Video(_) => "video",
+            ChoiceKind::Value(Background::Color { .. }) => "color",
+            ChoiceKind::Value(Background::Video { .. }) => "video",
+            ChoiceKind::Value(_) => "image",
             ChoiceKind::Upload => "upload",
         }
     }
@@ -71,11 +78,31 @@ impl Choice {
 /// The tiles in the web's order: "Theme default" (when allowed), the six swatches, the custom colour, every
 /// **ready** picture or video in library order (videos captioned "▶ name"; the tooltip is the name), "+ Upload…".
 pub fn choices(media: &[MediaFile], allow_default: bool) -> Vec<Choice> {
+    choices_with(media, &[], allow_default.then(strings::theme_default))
+}
+
+/// `choices` with the six built-in gradients after the custom colour, then the background library's ready entries
+/// (a picture or video already there is not listed again from the media), and the first tile named `default`
+/// ("Theme default", "From theme", "Standard background") when there is one.
+pub fn choices_with(media: &[MediaFile], library: &[BackgroundEntry], default: Option<String>) -> Vec<Choice> {
     let mut out = Vec::new();
-    if allow_default { out.push(Choice::new(ChoiceKind::Default, strings::theme_default(), "")); }
+    if let Some(label) = default { out.push(Choice::new(ChoiceKind::Default, label, "")); }
     out.extend(SWATCHES.iter().map(|c| Choice::new(ChoiceKind::Color((*c).into()), "", "")));
     out.push(Choice::new(ChoiceKind::Custom, "", ""));
-    for m in media.iter().filter(|m| m.status == MediaStatus::Ready) {
+    for (name, b) in crate::theme::backgrounds::builtin_backgrounds().into_iter().filter(|(_, b)| matches!(b, Background::Gradient { .. })) {
+        out.push(Choice::new(ChoiceKind::Value(b), "", name));
+    }
+    for e in library.iter().filter(|e| e.pickable()) {
+        let picture = match &e.background {
+            Background::Image { asset, .. } => Some(asset.clone()),
+            Background::Video { asset, .. } => e.thumb.clone().or_else(|| media.iter().find(|m| m.asset == *asset).and_then(|m| m.thumb.clone())),
+            _ => None,
+        };
+        let label = if matches!(e.background, Background::Video { .. }) { strings::video_choice(&e.name) } else { e.name.clone() };
+        out.push(Choice::new(ChoiceKind::Value(e.background.clone().with_dim(0)), label, e.name.clone()).showing(picture));
+    }
+    let in_library = |a: &AssetId| library.iter().any(|e| e.background.asset() == Some(a));
+    for m in media.iter().filter(|m| m.status == MediaStatus::Ready && !in_library(&m.asset)) {
         match m.kind {
             MediaKind::Image => out.push(Choice::new(ChoiceKind::Image(m.asset.clone()), m.name.clone(), m.name.clone()).showing(Some(m.asset.clone()))),
             MediaKind::Video => out.push(Choice::new(ChoiceKind::Video(m.asset.clone()), strings::video_choice(&m.name), m.name.clone()).showing(m.thumb.clone())),
@@ -86,9 +113,18 @@ pub fn choices(media: &[MediaFile], allow_default: bool) -> Vec<Choice> {
     out
 }
 
-/// The tile drawn "on": the first whose value equals `value` (the web compares the JSON).
+/// The tile drawn "on": the first whose value equals `value` (the web compares the JSON), whatever its Darken.
 pub fn selected(choices: &[Choice], value: &Option<Background>) -> Option<usize> {
-    choices.iter().position(|c| c.value().as_ref() == Some(value))
+    choices.iter().position(|c| match (c.value(), value) {
+        (Some(Some(a)), Some(b)) => a.same_source(b),
+        (Some(None), None) => true,
+        _ => false,
+    })
+}
+
+/// Darken applies to pictures, videos and gradients (spec §3.4 step 6).
+pub fn darken_shown(value: &Option<Background>) -> bool {
+    matches!(value, Some(Background::Image { .. } | Background::Video { .. } | Background::Gradient { .. }))
 }
 
 /// `#rrggbb` (or `rrggbb`, any case) as the lower-case `#rrggbb` the web's colour input gives; `None` otherwise.
@@ -129,9 +165,15 @@ fn hsv(h: f32, s: f32, v: f32) -> Color {
 /// cancels them.
 pub struct Picker {
     pub value: Option<Background>,
-    allow_default: bool,
+    default: Option<String>,
     media: Vec<MediaFile>,
+    library: Vec<BackgroundEntry>,
     choices: Vec<Choice>,
+    stills: Stills,
+}
+
+/// Small pictures of stills and video frames, drawn on a worker of their own (`Thumbs`), kept by asset.
+pub struct Stills {
     images: Rc<RefCell<HashMap<AssetId, Image>>>,
     thumbs: Thumbs,
 }
@@ -141,11 +183,17 @@ const THUMB: (u32, u32) = (224, 126);
 
 impl Picker {
     pub fn new(op: &Operator, value: Option<Background>, media: Vec<MediaFile>, allow_default: bool) -> Self {
-        let root = op.app().store.root.clone();
-        let thumbs = if op.ops().is_inline() { Thumbs::inline(root) } else { Thumbs::new(root) };
-        let choices = choices(&media, allow_default);
-        Self { value, allow_default, media, choices, images: Rc::default(), thumbs }
+        Self::with_default(op, value, media, allow_default.then(strings::theme_default))
     }
+
+    /// A picker whose first tile is named `default` (or has none), listing the newest background library too.
+    pub fn with_default(op: &Operator, value: Option<Background>, media: Vec<MediaFile>, default: Option<String>) -> Self {
+        let library = op.state.borrow().snap.as_ref().map(|s| s.data.backgrounds.clone()).unwrap_or_default();
+        let choices = choices_with(&media, &library, default.clone());
+        Self { value, default, media, library, choices, stills: Stills::new(op) }
+    }
+
+    fn rebuild(&mut self) { self.choices = choices_with(&self.media, &self.library, self.default.clone()) }
 
     pub fn choices(&self) -> &[Choice] { &self.choices }
 
@@ -157,21 +205,34 @@ impl Picker {
                 None => self.media.push(m),
             }
         }
-        self.choices = choices(&self.media, self.allow_default);
+        self.rebuild();
     }
 
     /// The library as a newer read has it (Settings redraws its pages from each read); thumbnails already drawn
     /// are kept.
     pub fn set_media(&mut self, media: Vec<MediaFile>) {
         self.media = media;
-        self.choices = choices(&self.media, self.allow_default);
+        self.rebuild();
     }
 
-    /// Sets the value from tile `i`; false for the custom colour, Upload or an index out of range.
+    /// The background library as a newer read has it.
+    pub fn set_library(&mut self, library: Vec<BackgroundEntry>) {
+        self.library = library;
+        self.rebuild();
+    }
+
+    /// Sets the value from tile `i`, keeping the Darken already chosen; false for the custom colour, Upload or an
+    /// index out of range.
     pub fn pick(&mut self, i: usize) -> bool {
         let Some(v) = self.choices.get(i).and_then(Choice::value) else { return false };
-        self.value = v;
+        let dim = self.value.as_ref().map_or(0, Background::dim);
+        self.value = v.map(|b| b.with_dim(dim));
         true
+    }
+
+    /// The Darken value of a picture, video or gradient (0–80 %).
+    pub fn set_dim(&mut self, dim: u8) {
+        if let Some(v) = self.value.take() { self.value = Some(v.with_dim(dim)) }
     }
 
     pub fn set_color(&mut self, hex: String) { self.value = Some(Background::Color { color: hex }); }
@@ -181,8 +242,16 @@ impl Picker {
         let on = selected(&self.choices, &self.value);
         let custom = match &self.value { Some(Background::Color { color }) => color.as_str(), _ => CUSTOM_DEFAULT };
         self.choices.iter().enumerate().map(|(i, c)| {
-            let swatch = match &c.kind { ChoiceKind::Color(hex) => to_color(hex), ChoiceKind::Custom => to_color(custom), _ => Color::default() };
-            let image = c.picture.as_ref().map_or_else(Image::default, |a| self.image(a, redraw.clone()));
+            let swatch = match &c.kind {
+                ChoiceKind::Color(hex) | ChoiceKind::Value(Background::Color { color: hex }) => to_color(hex),
+                ChoiceKind::Custom => to_color(custom),
+                _ => Color::default(),
+            };
+            let image = match (&c.picture, &c.kind) {
+                (Some(a), _) => self.stills.image(a, redraw.clone()),
+                (None, ChoiceKind::Value(b @ Background::Gradient { .. })) => gradient_image(b, (THUMB.0 / 2, THUMB.1 / 2)),
+                _ => Image::default(),
+            };
             BgChoice {
                 label: c.label.as_str().into(), swatch, image, kind: c.kind_id().into(),
                 on: on == Some(i), tooltip: c.tooltip.as_str().into(),
@@ -190,7 +259,22 @@ impl Picker {
         }).collect()
     }
 
-    fn image(&self, asset: &AssetId, redraw: impl Fn() + 'static) -> Image {
+}
+
+/// A gradient drawn as the room draws it, at `size`.
+pub fn gradient_image(b: &Background, size: (u32, u32)) -> Image {
+    Image::from_rgba8_premultiplied(crate::render::background::background_pixels(b, None, size).rgba_premul.buffer())
+}
+
+impl Stills {
+    pub fn new(op: &Operator) -> Self {
+        let root = op.app().store.root.clone();
+        let thumbs = if op.ops().is_inline() { Thumbs::inline(root) } else { Thumbs::new(root) };
+        Self { images: Rc::default(), thumbs }
+    }
+
+    /// The picture of `asset`, black until drawn; `redraw` runs when it arrives.
+    pub fn image(&self, asset: &AssetId, redraw: impl Fn() + 'static) -> Image {
         if let Some(img) = self.images.borrow().get(asset) { return img.clone() }
         let job = ThumbJob { background: None, media: Some(ThumbMedia::Still { asset: asset.clone() }), picture: None, text: None };
         let key = ThumbKey { render: None, layers: serde_json::to_string(&job).unwrap_or_default(), size: THUMB };
@@ -263,7 +347,9 @@ mod tests {
         ];
         let c = choices(&lib, true);
         let kinds: Vec<&str> = c.iter().map(Choice::kind_id).collect();
-        assert_eq!(kinds, ["default", "color", "color", "color", "color", "color", "color", "custom", "image", "video", "upload"]);
+        assert_eq!(kinds, ["default", "color", "color", "color", "color", "color", "color", "custom",
+            "image", "image", "image", "image", "image", "image", "image", "video", "upload"]);
+        let c: Vec<Choice> = c.into_iter().enumerate().filter(|(i, _)| !(8..14).contains(i)).map(|(_, c)| c).collect();
         assert_eq!(c[0].label, "Theme default");
         let swatches: Vec<_> = c[1..7].iter().map(|c| c.kind.clone()).collect();
         assert_eq!(swatches, SWATCHES.map(|s| ChoiceKind::Color(s.into())));
@@ -274,7 +360,7 @@ mod tests {
 
         let c = choices(&lib, false);
         assert_eq!(c[0].kind, ChoiceKind::Color("#000000".into()), "no Theme default when not allowed");
-        assert_eq!(c.len(), 10);
+        assert_eq!(c.len(), 16);
     }
 
     #[test]
@@ -283,7 +369,7 @@ mod tests {
         let framed = MediaFile { thumb: Some("frame.jpg".into()), ..media("Walk", MediaKind::Video, MediaStatus::Ready) };
         let sky = media("Sky", MediaKind::Image, MediaStatus::Ready);
         let c = choices(&[plain, framed, sky], false);
-        let shown: Vec<Option<&str>> = c[7..10].iter().map(|c| c.picture.as_deref()).collect();
+        let shown: Vec<Option<&str>> = c[13..16].iter().map(|c| c.picture.as_deref()).collect();
         assert_eq!(shown, [None, Some("frame.jpg"), Some("Sky.bin")]);
     }
 
@@ -295,10 +381,43 @@ mod tests {
         assert_eq!(selected(&c, &Some(Background::Color { color: "#0b1a33".into() })), Some(2));
         assert_eq!(selected(&c, &Some(Background::Color { color: "#0B1A33".into() })), None, "compared as the web does, exactly");
         assert_eq!(selected(&c, &Some(Background::Color { color: "#123456".into() })), None, "a custom colour is no tile");
-        assert_eq!(selected(&c, &Some(Background::Image { asset: "Sky.bin".into(), dim: 0 })), Some(8));
-        assert_eq!(selected(&c, &Some(Background::Video { asset: "Loop.bin".into(), dim: 0 })), Some(9));
+        assert_eq!(selected(&c, &Some(Background::Image { asset: "Sky.bin".into(), dim: 0 })), Some(14));
+        assert_eq!(selected(&c, &Some(Background::Video { asset: "Loop.bin".into(), dim: 0 })), Some(15));
+        assert_eq!(selected(&c, &Some(Background::Image { asset: "Sky.bin".into(), dim: 40 })), Some(14), "Darken is not a new tile");
         assert_eq!(selected(&c, &Some(Background::Image { asset: "Loop.bin".into(), dim: 0 })), None, "same asset, other kind");
         assert_eq!(selected(&choices(&lib, false), &None), None);
+    }
+
+    fn entry(name: &str, b: Background, status: MediaStatus) -> BackgroundEntry {
+        BackgroundEntry::new(name, b, status, chrono::Utc::now())
+    }
+
+    #[test]
+    fn picker_lists_gradients_then_library_then_other_media() {
+        let sky = media("Sky", MediaKind::Image, MediaStatus::Ready);
+        let lake = media("Lake", MediaKind::Image, MediaStatus::Ready);
+        let library = [
+            entry("Sky", Background::Image { asset: "Sky.bin".into(), dim: 0 }, MediaStatus::Ready),
+            entry("Sunrise", Background::Gradient { from: "#ff8800".into(), to: "#000000".into(), angle: 90, dim: 0 }, MediaStatus::Ready),
+            entry("Waves", Background::Video { asset: "w.mp4".into(), dim: 0 }, MediaStatus::Converting { percent: 40 }),
+        ];
+        let c = choices_with(&[sky, lake], &library, Some("Standard background".into()));
+        assert_eq!(c[0].label, "Standard background");
+        let tips: Vec<&str> = c[8..14].iter().map(|c| c.tooltip.as_str()).collect();
+        assert_eq!(tips, ["Midnight", "Deep purple", "Forest", "Ember", "Ocean", "Slate"]);
+        assert_eq!(c[14].label, "Sky", "the library first");
+        assert_eq!(c[15].tooltip, "Sunrise");
+        assert_eq!(c[16].label, "Lake", "then media not in the library; a converting entry is left out");
+        assert_eq!(c[17].kind, ChoiceKind::Upload);
+        assert_eq!(c.len(), 18);
+    }
+
+    #[test]
+    fn darken_only_for_picture_video_gradient() {
+        assert!(!darken_shown(&None));
+        assert!(!darken_shown(&Some(Background::Color { color: "#000000".into() })));
+        assert!(darken_shown(&Some(Background::Image { asset: "a".into(), dim: 0 })));
+        assert!(darken_shown(&Some(Background::Gradient { from: "#000000".into(), to: "#ffffff".into(), angle: 0, dim: 0 })));
     }
 
     #[test]

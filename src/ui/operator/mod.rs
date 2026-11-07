@@ -13,8 +13,10 @@ pub mod keys;
 pub mod live;
 pub mod media_bin;
 pub mod menu;
+pub mod overlay_strip;
 pub mod overlays;
 pub mod service;
+pub mod service_theme;
 pub mod slides;
 #[cfg(test)]
 mod song_flows;

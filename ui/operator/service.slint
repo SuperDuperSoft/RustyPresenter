@@ -2,6 +2,7 @@
 // drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
 import { Theme } from "../theme.slint";
 import { Btn, Chip, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Select } from "../dialogs/form.slint";
 
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
 /// Choose button; a header is a coloured band in `color`.
@@ -15,6 +16,10 @@ export global ServicePlanning {
     /// The next colour for a header.
     callback recolor(string);
     callback add-header();
+    /// The service's theme (FEAT-1 §3.2): "Church default (…)", each theme, then "Manage themes…".
+    in property <[string]> theme-options;
+    in-out property <int> theme-index;
+    callback pick-theme(int);
 }
 
 /// An `.item .acts` button: an icon, a line-coloured square on hover, and a tooltip.
@@ -89,6 +94,28 @@ export component ServiceColumn inherits VerticalLayout {
                 tooltip: @tr("Before the service: are all the songs, files and screens there?");
                 clicked => { root.check(); }
             }
+        }
+    }
+
+    if ServicePlanning.theme-options.length > 0: HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-bottom: 6px;
+        spacing: 8px;
+        Text {
+            text: @tr("Theme");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        service-theme := Select {
+            horizontal-stretch: 1;
+            options: ServicePlanning.theme-options;
+            index <=> ServicePlanning.theme-index;
+            accessible-label: @tr("Theme for this service");
+            changed(i) => { ServicePlanning.pick-theme(i); }
         }
     }
 

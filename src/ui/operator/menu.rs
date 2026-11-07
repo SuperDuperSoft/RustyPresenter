@@ -20,6 +20,8 @@ pub enum MenuAction {
     Logs,
     /// View → Zoom in (1), Zoom out (-1), Actual size (0).
     Zoom(i8),
+    /// The Overlays dialog (FEAT-1 §3.6).
+    Overlays,
     /// The same as the window's close button.
     Exit,
     /// Window → Stage layouts… (FEAT-3).
@@ -35,6 +37,8 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "add-media" => Add(AddTab::Media),
         "add-slides" => Add(AddTab::Deck),
         "add-text" => Add(AddTab::Text),
+        "settings-themes" => Settings(SettingsTab::Themes),
+        "overlays" => MenuAction::Overlays,
         "settings-songs" => Settings(SettingsTab::Songs),
         "settings-bible" => Settings(SettingsTab::Bible),
         "settings-video" => Settings(SettingsTab::Video),
@@ -72,6 +76,7 @@ impl Operator {
             Some(MenuAction::Print) => self.print(),
             Some(MenuAction::Logs) => self.open_logs(),
             Some(MenuAction::Zoom(step)) => self.zoom(step),
+            Some(MenuAction::Overlays) => crate::ui::dialogs::overlays::open(self),
             Some(MenuAction::Exit) => self.window().dispatch_event(WindowEvent::CloseRequested),
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             None => {}
@@ -215,6 +220,8 @@ mod tests {
         assert_eq!(action("add-media"), Some(MenuAction::Add(AddTab::Media)));
         assert_eq!(action("add-slides"), Some(MenuAction::Add(AddTab::Deck)));
         assert_eq!(action("add-text"), Some(MenuAction::Add(AddTab::Text)));
+        assert_eq!(action("settings-themes"), Some(MenuAction::Settings(SettingsTab::Themes)));
+        assert_eq!(action("overlays"), Some(MenuAction::Overlays));
         assert_eq!(action("settings-songs"), Some(MenuAction::Settings(SettingsTab::Songs)));
         assert_eq!(action("settings-bible"), Some(MenuAction::Settings(SettingsTab::Bible)));
         assert_eq!(action("settings-video"), Some(MenuAction::Settings(SettingsTab::Video)));
@@ -272,6 +279,7 @@ mod tests {
                 "@keys(F3)" => ("F3", false),
                 "@keys(F4)" => ("F4", false),
                 "@keys(F5)" => ("F5", false),
+                "@keys(F6)" => ("F6", false),
                 "@keys(Control + B)" => ("b", true),
                 "@keys(Control + F)" => ("f", true),
                 "@keys(Control + Z)" => ("z", true),
@@ -286,6 +294,7 @@ mod tests {
                 KeyAction::Clear(Command::ClearMedia) => "root.live-clear(\"clear_media\")",
                 KeyAction::Clear(Command::ClearAudio) => "root.live-clear(\"clear_audio\")",
                 KeyAction::Clear(Command::Logo) => "root.live-clear(\"logo\")",
+                KeyAction::Clear(Command::ClearOverlays) => "root.live-clear(\"clear_overlays\")",
                 KeyAction::FocusBible => "root.focus-bible()",
                 KeyAction::Find => "root.menu(\"find\")",
                 KeyAction::Undo => "root.menu(\"undo\")",
@@ -305,7 +314,7 @@ mod tests {
             seen.push(key);
         }
         seen.sort();
-        assert_eq!(seen, ["F1", "F2", "F3", "F4", "F5", "b", "f", "y", "z"]);
+        assert_eq!(seen, ["F1", "F2", "F3", "F4", "F5", "F6", "b", "f", "y", "z"]);
     }
 }
 

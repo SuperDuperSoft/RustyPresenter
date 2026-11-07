@@ -1,0 +1,407 @@
+// Overlays (FEAT-1 spec §3.6 steps 3–4): the saved overlays in drawing order (last on top) with Edit, Duplicate,
+// Delete and Up/Down, and the overlay editor with a preview over a sample lyric. Rust (`src/ui/dialogs/overlays.rs`)
+// fills `OverlaysDlg`; Save and Delete run at once. Turning an overlay on is done from the Live column's strip.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented, TipBox } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { Check, RangeSlider, ListRow, RowMain, TextField, TextArea, Note } from "form.slint";
+import { ColorPicker } from "background-picker.slint";
+
+export struct OverlayListRow { name: string, sub: string }
+
+export global OverlaysDlg {
+    in property <[OverlayListRow]> rows;
+    in-out property <bool> editing;
+
+    in-out property <string> name;
+    /// 0 Text, 1 Picture, 2 Clock.
+    in property <int> kind;
+    /// The Text kind's help line.
+    in property <string> help;
+    in-out property <string> text;
+    /// Picture: 0 the church logo, 1 a picture of its own.
+    in-out property <int> picture-source;
+    /// "Choose a church logo first…" when the logo is wanted but there is none, else empty.
+    in property <string> logo-note;
+    in property <string> picture-name;
+    in-out property <int> opacity: 100;
+    in-out property <bool> seconds;
+    in-out property <bool> h24;
+    /// 0–8: top-left, top, top-right, left, centre, right, bottom-left, bottom, bottom-right.
+    in-out property <int> anchor: 8;
+    /// Width as a share of the screen's, 5–100 %.
+    in-out property <int> width: 12;
+    in-out property <int> size: 48;
+    in property <color> color-swatch;
+    in-out property <bool> shadow: true;
+    /// 0 Off, 1 Behind the text, 2 Full-width bar.
+    in-out property <int> box;
+    in property <color> box-swatch;
+    in-out property <int> box-clear: 40;
+    in property <image> preview;
+    in property <[color]> palette;
+
+    callback new-overlay(int);
+    callback edit(int);
+    callback duplicate(int);
+    callback delete(int);
+    /// Moves row `i` by `step` (−1 up, +1 down).
+    callback move(int, int);
+    callback changed();
+    callback text-color(color);
+    callback text-hex(string);
+    callback box-color(color);
+    callback box-hex(string);
+    callback choose-picture();
+    /// Close in the list; Back in the editor.
+    callback back();
+    callback save();
+}
+
+/// The nine places on the screen, as a 3 × 3 grid.
+component PlaceGrid inherits Rectangle {
+    width: 3 * 34px + 2 * 4px;
+    height: 3 * 22px + 2 * 4px;
+    for i in 9: place := Rectangle {
+        x: (i - floor(i / 3) * 3) * 38px;
+        y: floor(i / 3) * 26px;
+        width: 34px;
+        height: 22px;
+        border-radius: 5px;
+        border-width: 1.5px;
+        border-color: OverlaysDlg.anchor == i ? Theme.accent : Theme.line;
+        background: OverlaysDlg.anchor == i ? Theme.accent : pta.has-hover ? Theme.raise : Theme.panel-2;
+        accessible-role: button;
+        accessible-checked: OverlaysDlg.anchor == i;
+        accessible-label: [@tr("Top left"), @tr("Top"), @tr("Top right"), @tr("Left"), @tr("Middle"), @tr("Right"), @tr("Bottom left"), @tr("Bottom"), @tr("Bottom right")][i];
+        accessible-action-default => { pta.clicked(); }
+        pta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => {
+                OverlaysDlg.anchor = i;
+                OverlaysDlg.changed();
+            }
+        }
+    }
+}
+
+component OverlayList inherits VerticalLayout {
+    spacing: 4px;
+    Note {
+        text: @tr("Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top.");
+    }
+    Rectangle { height: 10px; }
+    for o[i] in OverlaysDlg.rows: overlay-row := ListRow {
+        accessible-role: list-item;
+        accessible-label: o.name;
+        accessible-value: o.sub;
+        RowMain {
+            title: o.name;
+            sub: o.sub;
+        }
+        VerticalLayout {
+            alignment: center;
+            up := Btn {
+                small: true;
+                text: "↑";
+                tooltip: @tr("Move up");
+                enabled: i > 0;
+                clicked => { OverlaysDlg.move(i, -1); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            down := Btn {
+                small: true;
+                text: "↓";
+                tooltip: @tr("Move down");
+                enabled: i < OverlaysDlg.rows.length - 1;
+                clicked => { OverlaysDlg.move(i, 1); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            edit := Btn {
+                small: true;
+                text: @tr("Edit");
+                clicked => { OverlaysDlg.edit(i); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            duplicate := Btn {
+                small: true;
+                text: @tr("Duplicate");
+                clicked => { OverlaysDlg.duplicate(i); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            delete := Btn {
+                small: true;
+                danger: true;
+                text: @tr("Delete");
+                clicked => { OverlaysDlg.delete(i); }
+            }
+        }
+    }
+    if OverlaysDlg.rows.length == 0: no-overlays := Text {
+        text: @tr("No overlays yet.");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+    }
+    Rectangle { height: 10px; }
+    HorizontalLayout {
+        alignment: start;
+        spacing: 8px;
+        Text {
+            text: @tr("New overlay:");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+        new-text := Btn {
+            icon: "plus";
+            text: @tr("Text");
+            tooltip: @tr("A sign that stays up, like “Welcome!” or the Wi-Fi password");
+            clicked => { OverlaysDlg.new-overlay(0); }
+        }
+        new-picture := Btn {
+            icon: "plus";
+            text: @tr("Picture");
+            tooltip: @tr("A logo in the corner");
+            clicked => { OverlaysDlg.new-overlay(1); }
+        }
+        new-clock := Btn {
+            icon: "plus";
+            text: @tr("Clock");
+            tooltip: @tr("The time of day");
+            clicked => { OverlaysDlg.new-overlay(2); }
+        }
+    }
+}
+
+component OverlayEditor inherits HorizontalLayout {
+    spacing: 20px;
+    VerticalLayout {
+        horizontal-stretch: 1;
+        min-width: 0px;
+        alignment: start;
+        Field {
+            label: @tr("Name");
+            overlay-name := TextField {
+                label: @tr("Name");
+                text <=> OverlaysDlg.name;
+            }
+        }
+        if OverlaysDlg.kind == 0: Field {
+            label: @tr("Text");
+            help: OverlaysDlg.help;
+            overlay-text := TextArea {
+                label: @tr("Text");
+                text <=> OverlaysDlg.text;
+                edited => { OverlaysDlg.changed(); }
+            }
+        }
+        if OverlaysDlg.kind == 1: Field {
+            label: @tr("Picture");
+            HorizontalLayout {
+                alignment: start;
+                picture-source := Segmented {
+                    labels: [@tr("Use the church logo"), @tr("A picture of its own")];
+                    index <=> OverlaysDlg.picture-source;
+                    changed => { OverlaysDlg.changed(); }
+                }
+            }
+            if OverlaysDlg.picture-source == 0 && OverlaysDlg.logo-note != "": Text {
+                text: OverlaysDlg.logo-note;
+                color: Theme.danger-text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+            if OverlaysDlg.picture-source == 1: HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                choose-picture := Btn {
+                    small: true;
+                    icon: "upload";
+                    text: @tr("Choose picture…");
+                    clicked => { OverlaysDlg.choose-picture(); }
+                }
+                Text {
+                    text: OverlaysDlg.picture-name;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+        }
+        if OverlaysDlg.kind == 1: Field {
+            label: @tr("Opacity");
+            overlay-opacity := RangeSlider {
+                minimum: 10;
+                maximum: 100;
+                value <=> OverlaysDlg.opacity;
+                changed => { OverlaysDlg.changed(); }
+            }
+        }
+        if OverlaysDlg.kind == 2: VerticalLayout {
+            seconds := Check {
+                text: @tr("Show seconds");
+                checked <=> OverlaysDlg.seconds;
+                toggled => { OverlaysDlg.changed(); }
+            }
+            h24 := Check {
+                text: @tr("24-hour clock");
+                checked <=> OverlaysDlg.h24;
+                toggled => { OverlaysDlg.changed(); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 18px;
+            Field {
+                label: @tr("Where");
+                HorizontalLayout {
+                    alignment: start;
+                    place := PlaceGrid {}
+                }
+            }
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Size");
+                help: @tr("(share of the screen's width)");
+                overlay-width := RangeSlider {
+                    minimum: 5;
+                    maximum: 100;
+                    value <=> OverlaysDlg.width;
+                    changed => { OverlaysDlg.changed(); }
+                }
+            }
+        }
+        if OverlaysDlg.kind != 1: HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("Text size");
+                text-size := RangeSlider {
+                    minimum: 20;
+                    maximum: 120;
+                    value <=> OverlaysDlg.size;
+                    changed => { OverlaysDlg.changed(); }
+                }
+            }
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Text color");
+                color := ColorPicker {
+                    value: OverlaysDlg.color-swatch;
+                    palette: OverlaysDlg.palette;
+                    picked(c) => { OverlaysDlg.text-color(c); }
+                    hex(t) => { OverlaysDlg.text-hex(t); }
+                }
+            }
+        }
+        if OverlaysDlg.kind != 1: shadow := Check {
+            text: @tr("Shadow behind text (easier to read on pictures)");
+            checked <=> OverlaysDlg.shadow;
+            toggled => { OverlaysDlg.changed(); }
+        }
+        if OverlaysDlg.kind != 1: Field {
+            label: @tr("Box");
+            HorizontalLayout {
+                alignment: start;
+                box-kind := Segmented {
+                    labels: [@tr("Off"), @tr("Behind the text"), @tr("Full-width bar")];
+                    index <=> OverlaysDlg.box;
+                    changed => { OverlaysDlg.changed(); }
+                }
+            }
+        }
+        if OverlaysDlg.kind != 1 && OverlaysDlg.box > 0: HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 1;
+                label: @tr("Box color");
+                box-color := ColorPicker {
+                    value: OverlaysDlg.box-swatch;
+                    palette: OverlaysDlg.palette;
+                    picked(c) => { OverlaysDlg.box-color(c); }
+                    hex(t) => { OverlaysDlg.box-hex(t); }
+                }
+            }
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("See-through");
+                box-clear := RangeSlider {
+                    minimum: 0;
+                    maximum: 90;
+                    value <=> OverlaysDlg.box-clear;
+                    changed => { OverlaysDlg.changed(); }
+                }
+            }
+        }
+    }
+    VerticalLayout {
+        horizontal-stretch: 1.1;
+        min-width: 0px;
+        alignment: start;
+        Text {
+            text: @tr("Preview");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        Rectangle { height: 8px; }
+        preview-box := Rectangle {
+            height: self.width * 9 / 16;
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Theme.line;
+            background: Theme.black;
+            clip: true;
+            preview := Image {
+                width: parent.width;
+                height: parent.height;
+                source: OverlaysDlg.preview;
+                image-fit: contain;
+            }
+        }
+        Rectangle { height: 8px; }
+        Text {
+            text: @tr("Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one.");
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+    }
+}
+
+/// The Overlays dialog's content: put inside a `DialogShell`.
+export component OverlaysDialog inherits VerticalLayout {
+    DialogBody {
+        if !OverlaysDlg.editing: list := OverlayList {}
+        if OverlaysDlg.editing: editor := OverlayEditor {}
+    }
+    DialogFoot {
+        if OverlaysDlg.editing: back := Btn {
+            text: @tr("Back");
+            clicked => { OverlaysDlg.back(); }
+        }
+        if OverlaysDlg.editing: save := Btn {
+            primary: true;
+            text: @tr("Save overlay");
+            clicked => { OverlaysDlg.save(); }
+        }
+        if !OverlaysDlg.editing: close := Btn {
+            text: @tr("Close");
+            clicked => { OverlaysDlg.back(); }
+        }
+    }
+}

@@ -128,7 +128,7 @@ fn main() {
             std::process::exit(2);
         }
     };
-    let mode = choose_backend();
+    let mode = choose_backend(rustypresenter::model::Graphics::Auto).draw;
     println!("mode={mode:?} src={src} libmpv={}", mpv.path().display());
 
     let stage = Stage::new().unwrap();

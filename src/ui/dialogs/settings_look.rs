@@ -37,7 +37,7 @@ impl LookState {
 }
 
 /// The font list: the web's 20, plus the saved font when it is not one of them (so the box shows the truth).
-fn fonts(current: &str) -> Vec<String> {
+pub(super) fn fonts(current: &str) -> Vec<String> {
     let mut list: Vec<String> = strings::FONTS.iter().map(|f| f.to_string()).collect();
     if !list.iter().any(|f| f == current) { list.push(current.to_string()) }
     list
@@ -75,11 +75,11 @@ pub(super) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.theme.uppercase = g.get_uppercase();
 }
 
-fn is_hex_color(c: &str) -> bool {
+pub(super) fn is_hex_color(c: &str) -> bool {
     c.strip_prefix('#').is_some_and(|h| matches!(h.len(), 3 | 4 | 6 | 8) && h.chars().all(|c| c.is_ascii_hexdigit()))
 }
 
-fn swatch(c: &str) -> slint::Color {
+pub(super) fn swatch(c: &str) -> slint::Color {
     let [r, g, b, a] = parse_color(c);
     slint::Color::from_argb_u8(a, r, g, b)
 }
@@ -89,7 +89,7 @@ pub(super) fn fill_backgrounds(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &Operat
     let value = Some(edit.settings.borrow().background.clone());
     let mut picker = edit.look.picker.borrow_mut();
     match picker.as_mut() {
-        Some(p) => { p.set_media(snap.data.media.clone()); p.value = value }
+        Some(p) => { p.set_media(snap.data.media.clone()); p.set_library(snap.data.backgrounds.clone()); p.value = value }
         None => *picker = Some(Picker::new(op, value, snap.data.media.clone(), false)),
     }
     drop(picker);
@@ -199,15 +199,22 @@ struct Drawn { preview: Pixels, font_missing: bool, logo: Option<Pixels> }
 /// render of the same text, for `font_fallback`, free).
 static RENDERER: TextRenderer = TextRenderer::new();
 
-fn draw(settings: &Settings, media: &[MediaFile], store_root: PathBuf) -> Drawn {
-    let slide = Slide::new(String::new(), SlideContent::Text { text: strings::sample_text(), footer: Some(strings::sample_footer()), reference: None, size: 0, parallel: None });
-    let (key, job) = thumbs::thumb(&slide, "song", &[], None, settings, media, PREVIEW_SIZE);
-    let store = Store { root: store_root };
-    let preview = thumbs::compose(&job, key.size, &RENDERER, &store);
+/// Draws `slide` (an item of `kind`: "song", "scripture" or "text") with `settings`' theme and background as the
+/// room would, at the preview's size; true when the theme's font is not on this computer.
+pub(super) fn draw_sample(settings: &Settings, slide: &Slide, kind: &str, media: &[MediaFile], store: &Store) -> (Pixels, bool) {
+    let (key, job) = thumbs::thumb(slide, kind, &[], None, settings, media, PREVIEW_SIZE);
+    let preview = thumbs::compose(&job, key.size, &RENDERER, store);
     let font_missing = match (job.text, RENDERER.get()) {
         (Some(text), Some(r)) => block_on(r.render(text)).font_fallback,
         _ => false,
     };
+    (preview, font_missing)
+}
+
+fn draw(settings: &Settings, media: &[MediaFile], store_root: PathBuf) -> Drawn {
+    let slide = Slide::new(String::new(), SlideContent::Text { text: strings::sample_text(), footer: Some(strings::sample_footer()), reference: None, size: 0, parallel: None });
+    let store = Store { root: store_root };
+    let (preview, font_missing) = draw_sample(settings, &slide, "song", media, &store);
     let logo = settings.logo.as_ref().and_then(|a| {
         let img = image::ImageReader::open(store.asset_path(a)).ok()?.with_guessed_format().ok()?.decode().ok()?;
         let img = img.resize(LOGO_HEIGHT * 8, LOGO_HEIGHT, image::imageops::FilterType::Triangle).into_rgba8();

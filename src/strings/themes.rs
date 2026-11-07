@@ -58,6 +58,52 @@ pub fn text_overlay_help() -> String { tr!("For a sign that stays up.") }
 /// Shown instead of `text_overlay_help` once FEAT-2 (Message) has merged.
 pub fn text_overlay_help_feat2() -> String { tr!("For a sign that stays up. For a notice like a parent's name, use Message (once available).") }
 
+// Settings → Themes, the background library and the overlays strip
+pub fn reset() -> String { tr!("Reset") }
+pub fn delete() -> String { tr!("Delete") }
+pub fn remove() -> String { tr!("Remove") }
+/// The OK button of the star's question.
+pub fn make_default() -> String { tr!("Make default") }
+pub fn theme_reset() -> String { tr!("Theme put back as it came") }
+pub fn rename_background() -> String { tr!("New name for this background") }
+pub fn kind_color() -> String { tr!("Color") }
+pub fn kind_gradient() -> String { tr!("Gradient") }
+pub fn kind_picture() -> String { tr!("Picture") }
+pub fn kind_video() -> String { tr!("Video") }
+pub fn kind_text() -> String { tr!("Text") }
+pub fn kind_clock() -> String { tr!("Clock") }
+pub fn use_theme_background() -> String { tr!("Use theme background") }
+pub fn keep_theirs() -> String { tr!("Keep theirs") }
+pub fn manage_themes() -> String { tr!("Manage themes…") }
+pub fn overlays_title() -> String { tr!("Overlays") }
+pub fn overlay_saved() -> String { tr!("Overlay saved") }
+pub fn overlay_deleted() -> String { tr!("Overlay deleted") }
+pub fn new_overlay_name() -> String { tr!("New overlay") }
+pub fn clear_overlays_help() -> String { tr!("Clear overlays") }
+pub fn add_overlays_tip() -> String { tr!("A logo in the corner, a clock or a short sign") }
+pub fn overlay_text_sample() -> String { tr!("Welcome!") }
+
+pub fn reset_question(name: &str) -> String {
+    tr!("Put “{name}” back the way it came? Your changes to it are lost.", name = name)
+}
+
+pub fn used_by_services(n: usize) -> String {
+    trn!("{n} service", "{n} services", n)
+}
+
+/// The first line of the service's theme menu, and of Item edit's.
+pub fn church_default_named(name: &str) -> String {
+    tr!("Church default ({name})", name = name)
+}
+
+pub fn same_as_service(name: &str) -> String {
+    tr!("Same as service ({name})", name = name)
+}
+
+pub fn delete_overlay_question(name: &str) -> String {
+    tr!("Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off.", name = name)
+}
+
 // Data and saving
 pub fn newer_data() -> String { tr!("This data was saved by a newer RustyPresenter. Please install the latest version.") }
 pub fn expected_object() -> String { tr!("Expected an object.") }

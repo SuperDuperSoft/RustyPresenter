@@ -73,6 +73,8 @@ impl Operator {
         let Some(snap) = st.snap.as_ref() else { return };
         self.service_rows.set_vec(rows(snap, st.selected, self.live_item()));
         self.ui.set_service_count(view::count_label(snap.items.len()).into());
+        drop(st);
+        self.render_service_theme();
     }
 
     /// Moves the selected and live marks without rebuilding the rows (a click or a `Live` update).

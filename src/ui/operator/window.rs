@@ -141,6 +141,8 @@ impl Operator {
         keys::wire(&op);
         bible::wire(&op);
         overlays::wire(&op);
+        super::overlay_strip::wire(&op);
+        super::service_theme::wire(&op);
         crate::ui::dialogs::wire(&op);
         files::wire(&op);
         checks::wire(&op);
@@ -216,7 +218,7 @@ impl Operator {
         self.render_slides();
         self.render_jobs();
         crate::ui::dialogs::settings_bible::jobs_changed(self);
-        if data_changed { self.render_media(); } else { self.mark_media(); }
+        if data_changed { self.render_media(); self.render_overlay_strip(); } else { self.mark_media(); }
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
