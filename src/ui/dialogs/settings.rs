@@ -76,6 +76,9 @@ pub fn help_rows() -> Vec<HelpRow> {
             ("1", false, false), ("2", false, false), ("3", false, false), ("4", false, false), ("5", false, false), ("6", false, false),
             ("7", false, false), ("8", false, false), ("9", false, false)], action: KeyAction::JumpSection('c') },
         HelpRow { keys: key_ctrl_v(), what: do_paste_link(), binds: &[("v", true, false)], action: KeyAction::PasteLink },
+        HelpRow { keys: key_ctrl_z(), what: do_undo(), binds: &[("z", true, false)], action: KeyAction::Undo },
+        HelpRow { keys: key_ctrl_y(), what: do_redo(), binds: &[("y", true, false)], action: KeyAction::Redo },
+        HelpRow { keys: key_ctrl_f(), what: do_find(), binds: &[("f", true, false)], action: KeyAction::Find },
         HelpRow { keys: key_esc(), what: do_esc(), binds: &[("Escape", false, false)], action: KeyAction::Blur },
     ]
 }

@@ -65,6 +65,8 @@ pub(crate) struct OpState {
     /// A service row is being dragged: new snapshots wait in `held_snapshot` (a rebuild would end the drag).
     pub(super) dragging: bool,
     pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
+    /// View → Zoom: steps from 100 % (`menu::ZOOMS`).
+    pub(super) zoom_step: i8,
     /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
     pub(super) toasts: Vec<(String, bool)>,
@@ -257,6 +259,7 @@ impl Operator {
         ui.set_stage_on(stage.unwrap_or(false));
         ui.set_phones_label(view::phones_label(s.phones).unwrap_or_default().into());
         ui.set_has_service(s.service_id.is_some());
+        super::menu::render(self, s);
     }
 }
 

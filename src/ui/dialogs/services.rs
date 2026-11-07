@@ -331,11 +331,16 @@ fn open_file(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     files::pick(op, Filter::Services, false, move |picked| {
         let (Some(op), Some(path)) = (me.upgrade(), picked.into_iter().next()) else { return };
-        op.close_dialog();
-        let me = Rc::downgrade(&op);
-        op.ops().import_service(path, move |r| {
-            if let (Some(op), Ok(opened)) = (me.upgrade(), r) { notice(&op, &bundle::strings::opened_report(&opened)) }
-        });
+        open_path(&op, path);
+    });
+}
+
+/// Opens the service file at `path` (a pick, or File → Open recent).
+pub(crate) fn open_path(op: &Rc<Operator>, path: std::path::PathBuf) {
+    op.close_dialog();
+    let me = Rc::downgrade(op);
+    op.ops().import_service(path, move |r| {
+        if let (Some(op), Ok(opened)) = (me.upgrade(), r) { notice(&op, &bundle::strings::opened_report(&opened)) }
     });
 }
 

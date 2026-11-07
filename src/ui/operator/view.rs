@@ -96,6 +96,9 @@ pub struct OperatorSnapshot {
     pub version: String,
     /// Which full read this is (`read_number`); a patch keeps the number of the read it changed.
     pub read: u64,
+    /// Edit → Undo / Redo have a step to take.
+    pub can_undo: bool,
+    pub can_redo: bool,
 }
 
 /// Full reads, numbered in the order they start.
@@ -152,6 +155,8 @@ impl OperatorSnapshot {
             version: env!("CARGO_PKG_VERSION").into(),
             data: Arc::new(data),
             read,
+            can_undo: app.history.lock().unwrap().can_undo(),
+            can_redo: app.history.lock().unwrap().can_redo(),
         };
         snap.refresh_subtitles();
         snap
