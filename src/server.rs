@@ -192,6 +192,8 @@ fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<St
     move |app, u| match u {
         Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
         Some(Update::Job { .. }) => Ok(None),
+        // FEAT-2: a tick sends only the phone's timer lines.
+        Some(Update::Timers(v)) => Ok(Some(remote_timers(v))),
         _ => Ok(Some(remote_view(app))),
     }
 }
@@ -207,6 +209,8 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
     if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response(); }
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad(crate::tr!("Bad command.")) };
+    let phone = phone_for(&app, &headers).unwrap_or_default();
+    if let Err(e) = phone_automation(&app, phone, &env) { return ok(serde_json::to_value(Outcome { ok: false, version: 0, error: Some(e), duplicate: false }).unwrap()) }
     let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some(crate::tr!("Not allowed from the phone.")), duplicate: false } };
     ok(serde_json::to_value(out).unwrap())
 }
@@ -216,12 +220,46 @@ fn phone_may(env: &Envelope) -> bool {
     let allowed = matches!(env.cmd, Command::Next | Command::Prev | Command::Show { .. } | Command::ClearAll | Command::ClearSlide
         | Command::ClearMedia | Command::ClearAudio | Command::Logo | Command::MediaPause { .. } | Command::Jump { .. }
         // Overlays on and off (on needs `seen_clear`, checked by the live engine) and F6 (FEAT-1 spec §5.6).
-        | Command::Overlay { .. } | Command::ClearOverlays);
+        | Command::Overlay { .. } | Command::ClearOverlays
+        // FEAT-2 §5.11: macros and messages marked for the phone (`phone_automation` checks the marks).
+        | Command::RunMacro { .. } | Command::ShowMessage { .. } | Command::HideMessage);
     let has_base = !matches!(env.cmd, Command::Show { .. } | Command::Jump { .. }) || env.base.is_some();
     allowed && has_base
 }
 
+/// When each phone last showed a message: one a second (spec §5.11).
+static LAST_MESSAGE: std::sync::LazyLock<std::sync::Mutex<std::collections::HashMap<Uuid, Instant>>> = std::sync::LazyLock::new(Default::default);
+
+/// FEAT-2: only macros and messages marked "on the phone", and messages at most once a second per phone.
+fn phone_automation(app: &App, phone: Uuid, env: &Envelope) -> Result<(), String> {
+    use crate::automation::strings;
+    let data = app.data.lock().unwrap();
+    let a = &data.automation;
+    match &env.cmd {
+        Command::RunMacro { macro_id, .. } if !a.macros.iter().any(|m| m.id == *macro_id && m.remote) => Err(strings::not_allowed_from_phone()),
+        Command::ShowMessage { template, .. } => {
+            if !a.messages.iter().any(|t| t.id == *template && t.remote) { return Err(strings::not_allowed_from_phone()) }
+            let mut last = LAST_MESSAGE.lock().unwrap();
+            let now = Instant::now();
+            if last.get(&phone).is_some_and(|t| now.duration_since(*t) < Duration::from_secs(1)) { return Err(strings::too_fast()) }
+            last.insert(phone, now);
+            Ok(())
+        }
+        _ => Ok(()),
+    }
+}
+
+/// The phone's timer lines: only timers marked "Show on phone".
+fn remote_timers(v: &crate::timers::TimersView) -> String {
+    json!({ "type": "timers", "timers": timer_lines(v) }).to_string()
+}
+
+fn timer_lines(v: &crate::timers::TimersView) -> Vec<Value> {
+    v.timers.iter().filter(|t| t.on_remote).map(|t| json!({ "name": t.name, "text": crate::timers::text(t.value_ms), "over": t.overrun })).collect()
+}
+
 fn remote_view(app: &App) -> String {
+    let timers = app.timers();
     let data = app.data.lock().unwrap();
     let live = app.live.lock().unwrap();
     let plan = DataPlan(&data);
@@ -247,6 +285,11 @@ fn remote_view(app: &App) -> String {
         // FEAT-1: the saved overlays with whether each is on, and the newest clear for `seen_clear`.
         "overlays": crate::theme::overlay::slots::remote_list(&data.overlays, &live.frame.overlays),
         "clear_epoch": live.clear_epoch,
+        // FEAT-2: the macros and messages marked for the phone, whether a message is up, and the timer lines.
+        "macros": data.automation.macros.iter().filter(|m| m.remote).map(|m| json!({ "id": m.id, "name": m.name, "color": m.color, "relative": m.is_relative() })).collect::<Vec<_>>(),
+        "messages": data.automation.messages.iter().filter(|t| t.remote).map(|t| json!({ "id": t.id, "name": t.name, "fields": crate::automation::messages::parse(&t.text).fields })).collect::<Vec<_>>(),
+        "message_shown": crate::automation::slots::shown_message(&live.frame.overlays).is_some(),
+        "timers": timer_lines(&timers),
         // I18N: the page reads `/i18n.json` again when this changes.
         "lang": crate::i18n::current(),
     }).to_string()
