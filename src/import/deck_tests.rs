@@ -328,7 +328,7 @@ async fn failed_powerpoint_falls_back_to_libreoffice_and_says_so() {
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
     let j = job(&app, id).unwrap();
-    assert_eq!((j.note.as_deref(), j.error), (Some(FALLBACK_NOTE), None));
+    assert_eq!((j.note.as_deref(), j.error), (Some(strings::fallback_note().as_str()), None));
     assert_eq!(decks(&app), 1);
 }
 
@@ -340,7 +340,7 @@ async fn a_fallback_still_reports_a_slide_count_that_differs() {
     let file = staged(&app, &pptx(2, 0));
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(job(&app, id).unwrap().note.unwrap(), format!("{FALLBACK_NOTE} 2 slides were expected but 1 were imported."));
+    assert_eq!(job(&app, id).unwrap().note.unwrap(), format!("{} {}", strings::fallback_note(), strings::slide_count_differs(2, 1)));
 }
 
 #[cfg(windows)]
