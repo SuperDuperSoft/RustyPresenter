@@ -190,6 +190,7 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | FEAT-7 | Looks, livestream, reporting | Claude | In progress | Song use log + CCLI report (CSV/HTML) on `finish`. Livestream is **after 1.0** (see §10d). |
 | BIBLE-3 | Three Bibles plan Tasks 8–10 | Claude | Needs review | On `finish`: Item edit "Also show", missing-verse note, online text cache-only (never saved), catalog merge. Not checked against real APIs. |
 | FEAT-2, FEAT-5 | Service automation; Bible extras | Unassigned | Planning | Specs and plans exist; not built. FEAT-3 timers wait on FEAT-2. |
+| IDEAS-PP7-HANDS | 13 ideas from using ProPresenter 7 hands-on, filed under their projects (§10c-2) | Unassigned | Planning | User approved all Nov 6. Small 1.0 ones first: N1, N2, N4, N5, N7, N8. |
 | REFACTOR-CRATES | Split the crate into a workspace (core / ui / server …) | Unassigned | Planning | After 1.0. The lib test build needs ~6 GB RAM (the cloud sandbox needed a swap file). |
 
 ## 9. Current workspace handoff
@@ -260,6 +261,28 @@ Source notes: `docs/research/2026-11-06-propresenter7-beginners-guide-notes.md`.
 | 15 | Bible panel: choose which text box gets the verse and which gets the reference, verses per slide, "Add to service" | FEAT-5 | A passage can be added to the service without leaving the panel |
 
 Still left out (from the video): SongSelect and Planning Center sign-in (paid; already FEAT-7 / §10 item 1), edge blending, SDI, Resi. Built-in streaming moved to §10d (after 1.0, user decision Nov 6).
+
+### 10c-2. Ideas from using ProPresenter 7 hands-on (user approved all, November 6, 2026) — *new*
+
+Claude opened the ProPresenter 7 trial on Jake's PC (main window, Stage Editor, Bible panel, Screens menu, Looks). These 13 ideas were not already in §10c. Notes: `docs/research/2026-11-06-propresenter7-hands-on-notes.md`.
+
+| # | Idea seen in ProPresenter | Goes in | What "done" looks like |
+| --- | --- | --- | --- |
+| N1 | **Identify screens**: one button puts a big number on every display | Configure screens (V1 / FEAT-7) | Operator can tell which monitor is "Screen 2" in one click |
+| N2 | **Status button** top-right with a warning badge (screen missing, media offline, Bible offline) | Preflight / Help | Badge shows before service if anything is wrong; click lists the problems |
+| N3 | **Timer types**: countdown (segment), countdown-to-a-time (pre-service), count-up (elapsed), time left in current video, time left in current audio | FEAT-2 / FEAT-3 | Each can be placed on the stage layout and in slides |
+| N4 | **Video transport**: back 15 s, forward 15 s, "jump to 10 s before end" (to test what happens when a video ends) | Media playback (V1) | Buttons under the preview; work during a live video |
+| N5 | **Preview picks the screen**: dropdown under the live preview chooses which output you see (room, stage, stream) | FEAT-1 / FEAT-7 | Operator can check the stage screen without walking to it |
+| N6 | **Bible panel extras**: reference box keeps a history dropdown; whole passage shows at once as a numbered slide grid; Prev/Next verse buttons; "Save as presentation"; licence/info button per translation | FEAT-5 (adds to §10c #15) | Typing "Ruth 4:5-22" shows all slides instantly; last 10 references one click away |
+| N7 | **Friendly empty states**: an empty list shows one big button ("+ New presentation", "Import media", "Import audio") instead of blank space | UI polish (all lists) | No empty panel is ever just blank |
+| N8 | **Filter box under every list** and a **thumbnail size slider** | UI polish | Every library/playlist/media list can be filtered by typing |
+| N9 | **Look change fade time** (slider, 0–N s) | FEAT-1 (adds to §10c #7) | Switching looks fades instead of cutting |
+| N10 | **Stage layout objects**: lock and hide per object, "Next slide: text + chords", slide notes, next-slide picture, simple shapes, rulers/grid | FEAT-3 layout editor | Objects can be locked so a volunteer can't move them by mistake |
+| N11 | **Camera/video input as a background** (Video Inputs bin in media) | FEAT-1 (after 1.0) | A webcam or capture card can sit behind lyrics |
+| N12 | **Props** (saved logo/bug overlays, a collection you toggle) and **Masks** (crop or round the output shape) | FEAT-1 overlays | A logo bug can be turned on/off from a side panel |
+| N13 | **Separate audio playlist** with shuffle and its own volume, independent of slides | FEAT-2 (walk-in music, §10c #9) | Walk-in music plays from its own list and keeps going while slides change |
+
+Order: N1, N2, N4, N5, N7, N8 are small and help 1.0 (screens, preflight, playback, UI polish). N3 waits on FEAT-2. The rest go into their FEAT specs. Not copied: ProContent store and MultiTracks chords (paid).
 
 ### UI-MENU — classic menu bar (user request, November 6, 2026) — *new*
 
@@ -1194,3 +1217,10 @@ Jake asked: "finish the whole project … make sure that there is a plan feature
 - **Known gaps / next:** FEAT-1 theme UI (Themes tab, backgrounds manager, rich text, overlay strip, F6); FEAT-2 automation (timers feed the stage); FEAT-3 layout editor; FEAT-4 `ItemKind::Song.arrangement` + per-service order; FEAT-6 template editor, date picker, practice mode; menu items without actions yet (Undo/Redo/Cut/Copy/Paste, Open recent, Export, Print service order in the menu, Song use report in the menu, zoom, logs folder). Lyrics reader and Bible references understand English section/book names only — other languages must use `[Bracketed]` headings (translations' examples do); localised section and book names are a later task. Settings → Look sample text and the first service's name stay English.
 - **Build note:** the lib test build needs ~6 GB RAM (sandbox needed a swap file). Long-term: split the crate (board REFACTOR-CRATES).
 - **For Jake, on Windows:** `windows-check.cmd finish`, then open Settings → Language → Español and look around; try one CJK language for fonts.
+
+### November 6, 2026 (evening) — Claude, ProPresenter hands-on
+
+- Task: IDEAS-PP7-HANDS. Opened ProPresenter 7 on Jake's PC with computer use and looked around; Jake approved adding every new idea.
+- Added §10c-2 (13 ideas, N1–N13), a board row, and `docs/research/` notes (hands-on notes + the earlier beginner's-guide notes that §10c points to).
+- Committed straight onto `finish` with git plumbing so the laptop's working copy (on `native-foundation`, with uncommitted changes) was not touched. Not pushed (GitHub budget).
+- Next: put N1, N2, N4, N5, N7, N8 into the 1.0 work; the rest into the FEAT-1/2/3/5 specs.
