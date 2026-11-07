@@ -1,0 +1,160 @@
+// Settings → Help: the keyboard table with its shortcut editor (N28) and the clear groups (N18). Rust fills it
+// (`src/ui/dialogs/settings_keys.rs`); the rows are `SettingsDlg.help`.
+import { Theme } from "../theme.slint";
+import { Btn, Kbd } from "../widgets.slint";
+import { TextField, Note, Lbl, Check } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+/// A clear group being edited: its name and, per layer of `KeysDlg.layer-names`, whether it clears it.
+export struct ClearGroupRow { name: string, layers: [bool] }
+
+export global KeysDlg {
+    /// The Help row waiting for a new key, or -1. `capture-text` says which.
+    in property <int> capturing: -1;
+    in property <string> capture-text;
+    /// Some key differs from the defaults (Reset all keys is on).
+    in property <bool> any-changed;
+    in property <[ClearGroupRow]> groups;
+    in property <[string]> layer-names;
+    /// A row's Change button: the next key pressed becomes its key.
+    callback change(int);
+    /// A row's Default button.
+    callback reset(int);
+    callback reset-all();
+    callback cancel-capture();
+    callback group-renamed(int, string);
+    callback group-layer(int, int, bool);
+    callback group-add();
+    callback group-delete(int);
+}
+
+export component SettingsHelp inherits HorizontalLayout {
+    spacing: 18px;
+    VerticalLayout {
+        horizontal-stretch: 3;
+        alignment: start;
+        HorizontalLayout {
+            spacing: 8px;
+            Lbl {
+                label: @tr("Keyboard");
+                vertical-alignment: center;
+            }
+            Rectangle { horizontal-stretch: 1; }
+            reset-all := Btn {
+                small: true;
+                text: @tr("Reset all keys");
+                enabled: KeysDlg.any-changed;
+                clicked => { KeysDlg.reset-all(); }
+            }
+        }
+        Rectangle { height: 8px; }
+        if KeysDlg.capturing >= 0: capture := Note {
+            bold: KeysDlg.capture-text;
+            text: @tr("Esc cancels. New keys work once you save the settings.");
+            HorizontalLayout {
+                alignment: start;
+                cancel-capture := Btn {
+                    small: true;
+                    text: @tr("Cancel");
+                    clicked => { KeysDlg.cancel-capture(); }
+                }
+            }
+        }
+        for row[i] in SettingsDlg.help: help-row := Rectangle {
+            accessible-role: list-item;
+            accessible-label: row.keys;
+            accessible-value: row.what;
+            background: KeysDlg.capturing == i ? Theme.panel-2 : transparent;
+            HorizontalLayout {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Kbd { text: row.keys == "" ? @tr("(no key)") : row.keys; }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                Text {
+                    text: row.what;
+                    color: Theme.text;
+                    vertical-alignment: center;
+                    horizontal-alignment: right;
+                    wrap: word-wrap;
+                }
+                if row.changed: default := Btn {
+                    small: true;
+                    text: @tr("Default");
+                    tooltip: @tr("Go back to the key this had at first");
+                    clicked => { KeysDlg.reset(i); }
+                }
+                if row.id != "": change := Btn {
+                    small: true;
+                    text: KeysDlg.capturing == i ? @tr("Press a key…") : @tr("Change");
+                    clicked => { KeysDlg.change(i); }
+                }
+                if row.id == "": Rectangle { width: change-width.preferred-width; }
+            }
+            Rectangle {
+                y: parent.height - 1px;
+                height: 1px;
+                background: Theme.line;
+            }
+        }
+        // Keeps the fixed rows' text in line with the rows that have a Change button.
+        change-width := Btn {
+            visible: false;
+            height: 0px;
+            small: true;
+            text: @tr("Change");
+        }
+    }
+    VerticalLayout {
+        horizontal-stretch: 2;
+        alignment: start;
+        spacing: 10px;
+        Lbl { label: @tr("Clear groups"); }
+        Note {
+            text: @tr("A clear group takes several layers off the screen with one key. The View menu lists them too.");
+        }
+        for g[gi] in KeysDlg.groups: group := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            VerticalLayout {
+                padding: 10px;
+                spacing: 6px;
+                group-name := TextField {
+                    text: g.name;
+                    label: @tr("Group name");
+                    edited(t) => { KeysDlg.group-renamed(gi, t); }
+                }
+                for on[li] in g.layers: layer := Check {
+                    padding-bottom: 0px;
+                    text: KeysDlg.layer-names[li];
+                    checked: on;
+                    toggled(v) => { KeysDlg.group-layer(gi, li, v); }
+                }
+                HorizontalLayout {
+                    alignment: end;
+                    delete-group := Btn {
+                        small: true;
+                        danger: true;
+                        text: @tr("Delete group");
+                        clicked => { KeysDlg.group-delete(gi); }
+                    }
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            add-group := Btn {
+                small: true;
+                icon: "plus";
+                text: @tr("Add a clear group");
+                clicked => { KeysDlg.group-add(); }
+            }
+        }
+        Note {
+            text: @tr("Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.");
+        }
+    }
+}

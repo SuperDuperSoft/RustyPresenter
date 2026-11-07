@@ -1,9 +1,10 @@
 //! Operator keyboard shortcuts (`operator.js:305-320`): which key does what, as pure functions, and the glue that
 //! runs it for the window's key scope (`keys` in `ui/operator.slint`).
 use super::window::Operator;
-use crate::{live::Command, ui::ops::outcome_toast};
+use crate::{live::Command, shortcuts::{Action, Chord, Keymap, Reach}, ui::ops::outcome_toast};
 use slint::platform::Key;
 use std::rc::{Rc, Weak};
+use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum KeyAction {
@@ -25,6 +26,10 @@ pub enum KeyAction {
     Find,
     /// Ctrl+Shift+M (Cmd+Shift+M): Show message (FEAT-2 §3.3), even while typing.
     ShowMessage,
+    /// A clear group's key (N18): its layers come from the settings.
+    ClearGroup(Uuid),
+    /// Alt+M: Find my mouse (N35).
+    FindMouse,
     None,
 }
 
@@ -58,61 +63,79 @@ pub fn key_name(text: &str) -> Option<&'static str> {
         (Key::F4, "F4"),
         (Key::F5, "F5"),
         (Key::F6, "F6"),
+        (Key::F7, "F7"),
+        (Key::F8, "F8"),
+        (Key::F9, "F9"),
+        (Key::F10, "F10"),
+        (Key::F11, "F11"),
+        (Key::F12, "F12"),
+        (Key::Home, "Home"),
+        (Key::End, "End"),
+        (Key::Delete, "Delete"),
+        (Key::Backspace, "Backspace"),
+        (Key::Tab, "Tab"),
+        (Key::Insert, "Insert"),
     ]
     .into_iter()
     .find_map(|(key, name)| (char::from(key) == c).then_some(name))
 }
 
-/// What a key press does. The order of these checks is the behaviour; it follows the web handler, with the
-/// Alt+digit translation shortcut added inside the Bible box.
+/// A modifier key pressed on its own (Shift, Ctrl, Alt, Cmd): nothing to route or to record.
+pub fn is_modifier(text: &str) -> bool {
+    let mut chars = text.chars();
+    let (Some(c), None) = (chars.next(), chars.next()) else { return false };
+    [Key::Shift, Key::ShiftR, Key::Control, Key::ControlR, Key::Alt, Key::AltGr, Key::Meta, Key::MetaR].into_iter().any(|k| char::from(k) == c)
+}
+
+/// What a key press does, with the default keys and Shift up (the tests' short form of `route_in`).
+#[cfg(test)]
 pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction {
-    let clear = match key {
-        "F1" => Some(Command::ClearAll),
-        "F2" => Some(Command::ClearSlide),
-        "F3" => Some(Command::ClearMedia),
-        "F4" => Some(Command::ClearAudio),
-        "F5" => Some(Command::Logo),
-        "F6" => Some(Command::ClearOverlays),
-        _ => None,
-    };
-    if let Some(command) = clear {
-        return KeyAction::Clear(command);
-    }
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("b") {
-        return if ctx.dialog_open { KeyAction::None } else { KeyAction::FocusBible };
-    }
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("f") {
-        return if ctx.dialog_open { KeyAction::None } else { KeyAction::Find };
-    }
-    // The window only offers Ctrl+M with Shift held (`captured` in `operator.slint`).
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("m") {
-        return if ctx.dialog_open { KeyAction::None } else { KeyAction::ShowMessage };
+    route_in(&Chord::new(key, ctrl_or_cmd, alt, false), ctx, &Keymap::default())
+}
+
+/// What a key press does. The church's shortcuts come first (`shortcuts`, N28), each where its `Reach` lets it
+/// work; then the fixed keys: Alt+1–5 in the Bible box, Esc in a text box and the song's section keys.
+pub fn route_in(pressed: &Chord, ctx: KeyCtx, map: &Keymap) -> KeyAction {
+    let typing = ctx.in_text_field || ctx.in_bible_box;
+    if let Some(action) = map.action_for(pressed) {
+        let quiet = !pressed.types_text();
+        let works = match action.reach() {
+            Reach::Anywhere => quiet || (!ctx.dialog_open && !typing),
+            Reach::Window => !ctx.dialog_open && (quiet || !typing),
+            Reach::Free => !ctx.dialog_open && !typing,
+        };
+        if works { return key_action(action) }
     }
     if ctx.dialog_open {
         return KeyAction::None;
     }
-    if alt && ctx.in_bible_box && let Some(i) = translation_key(key) {
+    let key = pressed.key.as_str();
+    if pressed.alt && ctx.in_bible_box && let Some(i) = translation_key(key) {
         return KeyAction::PickTranslation(i);
     }
-    if ctx.in_text_field || ctx.in_bible_box {
+    if typing {
         return if key == "Escape" { KeyAction::Blur } else { KeyAction::None };
     }
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("v") {
-        return KeyAction::PasteLink;
-    }
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("z") {
-        return KeyAction::Undo;
-    }
-    if ctrl_or_cmd && key.eq_ignore_ascii_case("y") {
-        return KeyAction::Redo;
-    }
-    if crate::sections::jump_for_key(key, ctrl_or_cmd, alt).is_some() && let Some(c) = key.chars().next() {
+    if crate::sections::jump_for_key(key, pressed.ctrl, pressed.alt).is_some() && let Some(c) = key.chars().next() {
         return KeyAction::JumpSection(c.to_ascii_lowercase());
     }
-    match key {
-        "ArrowRight" | "ArrowDown" | "PageDown" | " " => KeyAction::Next,
-        "ArrowLeft" | "ArrowUp" | "PageUp" => KeyAction::Prev,
-        "Enter" => KeyAction::TakeArmedOrSelected,
+    KeyAction::None
+}
+
+fn key_action(action: Action) -> KeyAction {
+    if let Some(cmd) = action.clear_command() { return KeyAction::Clear(cmd) }
+    match action {
+        Action::Next => KeyAction::Next,
+        Action::Back => KeyAction::Prev,
+        Action::Take => KeyAction::TakeArmedOrSelected,
+        Action::FocusBible => KeyAction::FocusBible,
+        Action::Group(id) => KeyAction::ClearGroup(id),
+        Action::PasteLink => KeyAction::PasteLink,
+        Action::Undo => KeyAction::Undo,
+        Action::Redo => KeyAction::Redo,
+        Action::Find => KeyAction::Find,
+        Action::ShowMessage => KeyAction::ShowMessage,
+        Action::FindMouse => KeyAction::FindMouse,
         _ => KeyAction::None,
     }
 }
@@ -163,10 +186,27 @@ impl Operator {
         st.dialog.is_some() || st.asks > 0
     }
 
+    /// The keys as the church set them (Settings → Help); the defaults before the first read.
+    pub(crate) fn keymap(&self) -> Keymap {
+        self.state.borrow().snap.as_ref().map(|s| Keymap::new(&s.settings.keys)).unwrap_or_default()
+    }
+
+    /// A clear group's key or menu item (N18): its layers, as one change.
+    pub(crate) fn clear_group(self: &Rc<Self>, id: Uuid) {
+        let group = self.state.borrow().snap.as_ref().and_then(|s| s.settings.keys.clear_groups.iter().find(|g| g.id == id).cloned());
+        if let Some(g) = group { self.command(g.command(), None) }
+    }
+
     /// One key press from the window's key scope; true when it was used (the scope then accepts it).
-    fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, in_text_field: bool, in_bible_box: bool) -> bool {
+    fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, shift: bool, in_text_field: bool, in_bible_box: bool) -> bool {
+        let pressed = Chord::new(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, shift);
+        // Settings → Help is waiting for a new key (N28): it gets every key, and nothing else runs.
+        if crate::ui::dialogs::settings_keys::capturing() {
+            if !is_modifier(text) { crate::ui::dialogs::settings_keys::captured(self, pressed) }
+            return true;
+        }
         let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open: self.covered() };
-        match route(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, ctx) {
+        match route_in(&pressed, ctx, &self.keymap()) {
             KeyAction::Clear(cmd) => self.command(cmd, None),
             KeyAction::FocusBible => self.ui.invoke_focus_bible(),
             // Only the keys drop the Bible arm; the Back/Next buttons keep it (`operator.js:314-315, 343-344`).
@@ -186,6 +226,8 @@ impl Operator {
             KeyAction::Redo => self.undo(true),
             KeyAction::Find => self.find(),
             KeyAction::ShowMessage => crate::ui::dialogs::show_message::open(self),
+            KeyAction::ClearGroup(id) => self.clear_group(id),
+            KeyAction::FindMouse => self.find_mouse(),
             KeyAction::None => return false,
         }
         true
@@ -206,7 +248,8 @@ impl Operator {
 /// Connects the window's key scope. The callback holds a `Weak`, so the window does not keep itself alive.
 pub(super) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
-    op.ui.on_key(move |text, ctrl, alt, in_text, in_bible| me.upgrade().is_some_and(|op| op.key(&text, ctrl, alt, in_text, in_bible)));
+    op.ui.on_key(move |text, ctrl, alt, shift, in_text, in_bible| me.upgrade().is_some_and(|op| op.key(&text, ctrl, alt, shift, in_text, in_bible)));
+    super::help::wire(op);
 }
 
 #[cfg(test)]
@@ -370,7 +413,52 @@ mod tests {
     #[test]
     fn other_keys_do_nothing() {
         assert_eq!(route("x", false, false, PLAIN), KeyAction::None);
-        assert_eq!(route("F7", false, false, PLAIN), KeyAction::None);
+        assert_eq!(route("F11", false, false, PLAIN), KeyAction::None);
+    }
+
+    /// N18: F7 and F8 clear one kind of overlay, F9 the first clear group; all work over dialogs and while typing.
+    #[test]
+    fn f7_f8_f9_clear_the_message_the_timers_and_the_first_group() {
+        use crate::live::ClearLayer;
+        let ctx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: true };
+        assert_eq!(route("F7", false, false, ctx), KeyAction::Clear(Command::ClearLayers { layers: vec![ClearLayer::Message] }));
+        assert_eq!(route("F8", false, false, ctx), KeyAction::Clear(Command::ClearLayers { layers: vec![ClearLayer::Timers] }));
+        assert_eq!(route("F9", false, false, ctx), KeyAction::ClearGroup(crate::shortcuts::BUILTIN_GROUP));
+    }
+
+    #[test]
+    fn alt_m_finds_the_mouse_from_anywhere() {
+        for ctx in [PLAIN, TYPING, BIBLE, DIALOG] { assert_eq!(route("m", false, true, ctx), KeyAction::FindMouse, "{ctx:?}") }
+    }
+
+    /// N28: a changed key works where its action works; a typing key only outside text boxes.
+    #[test]
+    fn changed_keys_route_by_where_their_action_works() {
+        use crate::shortcuts::KeySettings;
+        let mut s = KeySettings::default();
+        s.assign(Action::ClearSlide, Chord::parse("X").unwrap());
+        s.assign(Action::Next, Chord::parse("F12").unwrap());
+        s.assign(Action::Find, Chord::parse("F10").unwrap());
+        let map = Keymap::new(&s);
+        let r = |key: &str, ctx| route_in(&Chord::new(key, false, false, false), ctx, &map);
+        assert_eq!(r("x", PLAIN), KeyAction::Clear(Command::ClearSlide));
+        assert_eq!(r("x", TYPING), KeyAction::None, "typing an x types it");
+        assert_eq!(r("x", DIALOG), KeyAction::None);
+        assert_eq!(r("F2", PLAIN), KeyAction::None, "F2 is free now");
+        assert_eq!(r("F12", PLAIN), KeyAction::Next);
+        assert_eq!(r("F12", TYPING), KeyAction::None, "Next never works while typing");
+        assert_eq!(r("ArrowRight", PLAIN), KeyAction::None, "the arrows went with the change");
+        assert_eq!(r("F10", TYPING), KeyAction::Find);
+        assert_eq!(r("F10", DIALOG), KeyAction::None);
+        assert_eq!(route_in(&Chord::new("f", true, false, false), PLAIN, &map), KeyAction::None, "Ctrl+F is free now");
+    }
+
+    #[test]
+    fn modifier_keys_alone_are_known() {
+        assert!(is_modifier(&String::from(char::from(Key::Shift))));
+        assert!(is_modifier(&String::from(char::from(Key::Control))));
+        assert!(!is_modifier("m"));
+        assert!(!is_modifier(&String::from(char::from(Key::F1))));
     }
 
     #[test]
@@ -391,6 +479,8 @@ mod tests {
         assert_eq!(name(Key::F4), Some("F4"));
         assert_eq!(name(Key::F5), Some("F5"));
         assert_eq!(name(Key::F6), Some("F6"));
+        assert_eq!(name(Key::F9), Some("F9"));
+        assert_eq!(name(Key::F12), Some("F12"));
     }
 
     #[test]
@@ -399,7 +489,7 @@ mod tests {
         assert_eq!(key_name("b"), None);
         assert_eq!(key_name("1"), None);
         assert_eq!(key_name(""), None);
-        assert_eq!(key_name(&String::from(char::from(Key::Home))), None);
+        assert_eq!(key_name(&String::from(char::from(Key::PageDown))), Some("PageDown"));
     }
 }
 

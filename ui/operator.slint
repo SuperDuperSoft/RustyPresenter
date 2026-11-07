@@ -27,6 +27,7 @@ import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
+import { MenuKeys, MouseRings } from "keys.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -220,9 +221,13 @@ export component OperatorWindow inherits Window {
     /// View → Zoom: how large the window draws itself, in percent (`menu::ZOOMS`).
     in property <int> zoom-percent: 100;
 
-    /// One key press, for `keys::route` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, whether a text field
-    /// has focus and whether that field is the Bible box. True when the key was used.
-    callback key(string, bool, bool, bool, bool) -> bool;
+    /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
+    /// field has focus and whether that field is the Bible box. True when the key was used.
+    callback key(string, bool, bool, bool, bool, bool) -> bool;
+    /// View → a clear group (N18), by its place in `MenuKeys.groups`.
+    callback clear-group(int);
+    /// The window's height under the menu bar (Find my mouse puts its rings in the middle of the window).
+    out property <length> content-height: root.height;
 
     /// Gives the keyboard back to the window's keys, as the web's `blur()` does. A dialog calls this when it
     /// closes: a field destroyed while focused never runs its `changed has-focus`, so the flag is cleared here.
@@ -252,26 +257,26 @@ export component OperatorWindow inherits Window {
     callback ask-answer(bool, string);
     callback ask-other();
 
-    /// Keys offered to Rust before the focused field sees them (`capture-key-pressed`): F1–F5 and Ctrl+B everywhere,
-    /// and Alt+key in the Bible box, where the field would otherwise type the digit. Which Alt keys pick a
-    /// translation is decided in Rust (`keys::route`): the number row gives other characters on some layouts.
+    /// Keys offered to Rust before the focused field sees them (`capture-key-pressed`): the F-keys and every Ctrl or
+    /// Alt key, which a church may use as a shortcut (N28). Rust says no to the ones it does not use, and the field
+    /// gets them. While Settings → Help waits for a new key, every key goes to Rust.
     pure function captured(e: KeyEvent) -> bool {
-        return e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
-            || (e.modifiers.control && (e.text == "b" || e.text == "B"))
-            || (e.modifiers.control && e.modifiers.shift && (e.text == "m" || e.text == "M"))
-            || (e.modifiers.alt && top.bible-focused);
+        return MenuKeys.capturing || e.modifiers.control || e.modifiers.alt
+            || e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
+            || e.text == Key.F6 || e.text == Key.F7 || e.text == Key.F8 || e.text == Key.F9 || e.text == Key.F10
+            || e.text == Key.F11 || e.text == Key.F12;
     }
 
     /// A dialog or question covers the window: Tab must not reach the window's keys or the Bible box under it.
     property <bool> covered: root.dialog-open || root.ask.length > 0;
 
     function send-key(e: KeyEvent) -> bool {
-        return root.key(e.text, e.modifiers.control, e.modifiers.alt, OperatorState.focus-in-text, top.bible-focused);
+        return root.key(e.text, e.modifiers.control, e.modifiers.alt, e.modifiers.shift, OperatorState.focus-in-text, top.bible-focused);
     }
 
-    // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Only F1–F5, Ctrl+B, Ctrl+F,
-    // Ctrl+Z and Ctrl+Y are bound as shortcuts: the window matches them before any text box, so they do the same
-    // wherever the focus is, or (Undo, Redo) are off while a text box has the keyboard.
+    // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Shortcuts come from
+    // `MenuKeys` (the church's keys, N28), never a key a text box types: the window matches them before any text box,
+    // so they do the same wherever the focus is, or (Undo, Redo) are off while a text box has the keyboard.
     MenuBar {
         Menu {
             title: @tr("File");
@@ -363,20 +368,20 @@ export component OperatorWindow inherits Window {
             // A text box keeps Ctrl+Z / Ctrl+Y for its own typing: the items are off while one has the keyboard.
             MenuItem {
                 title: @tr("Undo");
-                shortcut: @keys(Control + Z);
+                shortcut: MenuKeys.undo;
                 enabled: root.menu-ready && root.can-undo && !OperatorState.focus-in-text;
                 activated => { root.menu("undo"); }
             }
             MenuItem {
                 title: @tr("Redo");
-                shortcut: @keys(Control + Y);
+                shortcut: MenuKeys.redo;
                 enabled: root.menu-ready && root.can-redo && !OperatorState.focus-in-text;
                 activated => { root.menu("redo"); }
             }
             MenuSeparator {}
             MenuItem {
                 title: @tr("Find…");
-                shortcut: @keys(Control + F);
+                shortcut: MenuKeys.find;
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("find"); }
             }
@@ -393,7 +398,7 @@ export component OperatorWindow inherits Window {
             }
             MenuItem {
                 title: @tr("Bible box");
-                shortcut: @keys(Control + B);
+                shortcut: MenuKeys.bible;
                 enabled: !root.covered;
                 activated => { root.focus-bible(); }
             }
@@ -413,33 +418,48 @@ export component OperatorWindow inherits Window {
             MenuSeparator {}
             MenuItem {
                 title: @tr("Clear all");
-                shortcut: @keys(F1);
+                shortcut: MenuKeys.clear-all;
                 activated => { root.live-clear("clear_all"); }
             }
             MenuItem {
                 title: @tr("Clear text");
-                shortcut: @keys(F2);
+                shortcut: MenuKeys.clear-slide;
                 activated => { root.live-clear("clear_slide"); }
             }
             MenuItem {
                 title: @tr("Clear media & background");
-                shortcut: @keys(F3);
+                shortcut: MenuKeys.clear-media;
                 activated => { root.live-clear("clear_media"); }
             }
             MenuItem {
                 title: @tr("Stop audio");
-                shortcut: @keys(F4);
+                shortcut: MenuKeys.clear-audio;
                 activated => { root.live-clear("clear_audio"); }
             }
             MenuItem {
                 title: @tr("Logo");
-                shortcut: @keys(F5);
+                shortcut: MenuKeys.logo;
                 activated => { root.live-clear("logo"); }
             }
             MenuItem {
                 title: @tr("Clear overlays");
-                shortcut: @keys(F6);
+                shortcut: MenuKeys.clear-overlays;
                 activated => { root.live-clear("clear_overlays"); }
+            }
+            MenuItem {
+                title: @tr("Clear the message");
+                shortcut: MenuKeys.clear-message;
+                activated => { root.live-clear("clear_message"); }
+            }
+            MenuItem {
+                title: @tr("Clear the timers");
+                shortcut: MenuKeys.clear-timers;
+                activated => { root.live-clear("clear_timers"); }
+            }
+            for g[i] in MenuKeys.groups: MenuItem {
+                title: g.name;
+                shortcut: g.keys;
+                activated => { root.clear-group(i); }
             }
             MenuSeparator {}
             MenuItem {
@@ -535,6 +555,11 @@ export component OperatorWindow inherits Window {
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("settings-backups"); }
             }
+            MenuItem {
+                title: @tr("Keys and clear groups…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-help"); }
+            }
         }
         Menu {
             title: @tr("Help");
@@ -547,6 +572,20 @@ export component OperatorWindow inherits Window {
                 title: @tr("Check the service");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.check-service(); }
+            }
+            MenuItem {
+                title: @tr("Find my mouse");
+                shortcut: MenuKeys.find-mouse;
+                activated => { root.menu("find-mouse"); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: @tr("Tutorials");
+                activated => { root.menu("tutorials"); }
+            }
+            MenuItem {
+                title: @tr("Report a problem…");
+                activated => { root.menu("report-problem"); }
             }
             MenuItem {
                 title: @tr("Open logs folder");
@@ -801,6 +840,13 @@ export component OperatorWindow inherits Window {
     }
     // Files dragged over the window (`z-index: 60`, over the toasts).
     if root.drop-hint: DropHint {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+    }
+    // Find my mouse (N35), over everything.
+    MouseRings {
         x: 0px;
         y: 0px;
         width: root.width;

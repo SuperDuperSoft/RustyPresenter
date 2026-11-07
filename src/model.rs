@@ -470,6 +470,10 @@ pub struct Settings {
     /// Settings → Songs → Sections (N19): the church's section names, colours, keys and slide labels.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub sections: crate::sections::SectionLook,
+    /// Settings → Help: the changed keyboard shortcuts and the clear groups (N18, N28). A value this version can't
+    /// read loads as the defaults.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub keys: crate::shortcuts::KeySettings,
 }
 
 /// How many service files File → Open recent lists.
@@ -557,6 +561,7 @@ impl Default for Settings {
             recent_files: Vec::new(),
             graphics: Graphics::Auto,
             sections: Default::default(),
+            keys: Default::default(),
         }
     }
 }

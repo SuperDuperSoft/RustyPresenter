@@ -8,8 +8,7 @@ use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio,
 use crate::{
     model::Settings,
     store::BackupInfo,
-    ui::{SettingsBackupRow, SettingsDlg, SettingsHelpRow, operator::{keys::KeyAction, view::OperatorSnapshot, window::Operator}},
-    live::Command,
+    ui::{SettingsBackupRow, SettingsDlg, operator::{view::OperatorSnapshot, window::Operator}},
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}};
@@ -55,39 +54,6 @@ pub fn backup_label(created: &str) -> String {
     }
 }
 
-/// One row of the Help keyboard table: what it says, and the keys it names (`keys::key_name` names, with Ctrl and
-/// Alt), which must do `action` (a test compares the table with `keys::route`).
-pub struct HelpRow { pub keys: String, pub what: String, pub binds: &'static [(&'static str, bool, bool)], pub action: KeyAction }
-
-/// The Help table (`operator.js:993`), with ↓/↑ (Product decision 7) and Alt + 1–5 (Product decision 4; Bible library spec §7.2).
-pub fn help_rows() -> Vec<HelpRow> {
-    use strings::*;
-    vec![
-        HelpRow { keys: key_next(), what: do_next(), binds: &[("ArrowRight", false, false), ("ArrowDown", false, false), (" ", false, false), ("PageDown", false, false)], action: KeyAction::Next },
-        HelpRow { keys: key_back(), what: do_back(), binds: &[("ArrowLeft", false, false), ("ArrowUp", false, false), ("PageUp", false, false)], action: KeyAction::Prev },
-        HelpRow { keys: key_enter(), what: do_enter(), binds: &[("Enter", false, false)], action: KeyAction::TakeArmedOrSelected },
-        HelpRow { keys: key_ctrl_b(), what: do_bible(), binds: &[("b", true, false)], action: KeyAction::FocusBible },
-        HelpRow { keys: "F1".into(), what: do_clear_all(), binds: &[("F1", false, false)], action: KeyAction::Clear(Command::ClearAll) },
-        HelpRow { keys: "F2".into(), what: do_clear_text(), binds: &[("F2", false, false)], action: KeyAction::Clear(Command::ClearSlide) },
-        HelpRow { keys: "F3".into(), what: do_clear_media(), binds: &[("F3", false, false)], action: KeyAction::Clear(Command::ClearMedia) },
-        HelpRow { keys: "F4".into(), what: do_stop_audio(), binds: &[("F4", false, false)], action: KeyAction::Clear(Command::ClearAudio) },
-        HelpRow { keys: "F5".into(), what: do_logo(), binds: &[("F5", false, false)], action: KeyAction::Clear(Command::Logo) },
-        HelpRow { keys: "F6".into(), what: crate::theme::strings::clear_overlays_help(), binds: &[("F6", false, false)], action: KeyAction::Clear(Command::ClearOverlays) },
-        HelpRow { keys: key_alt_digits(), what: do_translation(), binds: &[("1", false, true), ("5", false, true)], action: KeyAction::PickTranslation(0) },
-        HelpRow { keys: KEY_SECTIONS.into(), what: do_sections(), binds: &[("c", false, false), ("b", false, false), ("p", false, false), ("e", false, false),
-            ("t", false, false), ("i", false, false), ("l", false, false), ("v", false, false),
-            ("1", false, false), ("2", false, false), ("3", false, false), ("4", false, false), ("5", false, false), ("6", false, false),
-            ("7", false, false), ("8", false, false), ("9", false, false)], action: KeyAction::JumpSection('c') },
-        HelpRow { keys: key_ctrl_v(), what: do_paste_link(), binds: &[("v", true, false)], action: KeyAction::PasteLink },
-        HelpRow { keys: key_ctrl_z(), what: do_undo(), binds: &[("z", true, false)], action: KeyAction::Undo },
-        HelpRow { keys: key_ctrl_y(), what: do_redo(), binds: &[("y", true, false)], action: KeyAction::Redo },
-        HelpRow { keys: key_ctrl_f(), what: do_find(), binds: &[("f", true, false)], action: KeyAction::Find },
-        // FEAT-2: the window offers Ctrl+M to the keys only with Shift held (`captured` in `operator.slint`).
-        HelpRow { keys: crate::tr!("Ctrl + Shift + M"), what: crate::tr!("Show a message on the screen"), binds: &[("m", true, false)], action: KeyAction::ShowMessage },
-        HelpRow { keys: key_esc(), what: do_esc(), binds: &[("Escape", false, false)], action: KeyAction::Blur },
-    ]
-}
-
 /// Opens Settings on `tab`, editing a clone of the newest snapshot's settings. Nothing happens before the first read.
 pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     let Some(snap) = op.state.borrow().snap.clone() else { return };
@@ -116,7 +82,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
     if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
-    op.on_dialog_close(move |_| { closing.look.stop(); closing.themes.stop() });
+    op.on_dialog_close(move |op| { closing.look.stop(); closing.themes.stop(); super::settings_keys::stop(op) });
 }
 
 /// "Find more Bibles…" in the Bible picker: Settings on the Bible tab, with the picker's search in the library's
@@ -168,8 +134,7 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     }).collect();
     g.set_backups(ModelRc::new(VecModel::from(rows)));
     *edit.backups.borrow_mut() = snap.backups.clone();
-    let help: Vec<SettingsHelpRow> = help_rows().iter().map(|r| SettingsHelpRow { keys: r.keys.as_str().into(), what: r.what.as_str().into() }).collect();
-    g.set_help(ModelRc::new(VecModel::from(help)));
+    super::settings_keys::fill(op, edit);
     about::fill(op, snap);
     settings_language::fill(op, edit);
 }
@@ -286,6 +251,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
         g.set_credit_sample(settings_sections::credit_sample(&s).into());
     }));
     settings_themes::connect(op, edit);
+    super::settings_keys::connect(op, edit);
 }
 
 /// Switching tabs drops the Look preview; coming back to Look draws it again from the current edits
@@ -293,6 +259,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
 fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
     settings_look::drop_preview(op, edit);
     settings_themes::close_editor(op, edit);
+    if super::settings_keys::capturing() { super::settings_keys::stop(op) }
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
     if tab == tab_index(SettingsTab::Look) as usize { settings_look::render_now(op, edit) }
     if tab == tab_index(SettingsTab::Bible) as usize { settings_bible::load_catalog(op, edit) }

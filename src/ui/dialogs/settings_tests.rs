@@ -5,7 +5,7 @@ use crate::{
     ui::{
         block_on,
         dialogs::{DialogKind, SettingsTab, settings_look::PREVIEW_DELAY},
-        operator::{keys::{KeyCtx, route}, window::testing::{find, find_all, open as open_window, refresh}},
+        operator::window::testing::{find, find_all, open as open_window, refresh},
     },
 };
 use i_slint_backend_testing::mock_elapsed_time;
@@ -353,52 +353,6 @@ fn restore_asks_then_restores() {
     assert!(app.data.lock().unwrap().songs.is_empty(), "the backup's data is back");
     assert_eq!(op.dialog(), None);
     assert_eq!(toasts(&op), ["Backup restored"]);
-}
-
-#[test]
-fn help_lists_every_bound_key() {
-    let rows = help_rows();
-    let same = |a: &KeyAction, b: &KeyAction| std::mem::discriminant(a) == std::mem::discriminant(b) && match (a, b) {
-        (KeyAction::Clear(x), KeyAction::Clear(y)) => x == y,
-        _ => true,
-    };
-    let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
-    let typing = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false };
-    let bible = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
-    // Each key a row names does what the row says, where it applies.
-    for row in &rows {
-        for &(key, ctrl, alt) in row.binds {
-            let got = [plain, typing, bible].iter().map(|c| route(key, ctrl, alt, *c)).find(|a| *a != KeyAction::None);
-            assert!(got.as_ref().is_some_and(|a| same(a, &row.action)), "{} ({key:?}) is {got:?}, Help says {:?}", row.keys, row.action);
-        }
-    }
-    // Every key that does something is in Help.
-    let mut keys: Vec<(String, bool, bool)> = ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Enter", "Escape", " ", "F1", "F2", "F3", "F4", "F5", "F6", "Tab", "Home", "End"]
-        .iter().map(|k| (k.to_string(), false, false)).collect();
-    for c in ('a'..='z').chain('0'..='9') {
-        for (ctrl, alt) in [(false, false), (true, false), (false, true)] { keys.push((c.to_string(), ctrl, alt)) }
-    }
-    for (key, ctrl, alt) in keys {
-        for ctx in [plain, typing, bible] {
-            let action = route(&key, ctrl, alt, ctx);
-            if action == KeyAction::None || (ctx.in_text_field && action == KeyAction::None) { continue }
-            let row = rows.iter().find(|r| same(&r.action, &action)).unwrap_or_else(|| panic!("{key:?} ctrl={ctrl} alt={alt} does {action:?}, not in Help"));
-            let named = row.binds.iter().any(|(k, c, a)| k.eq_ignore_ascii_case(&key) && *c == ctrl && *a == alt)
-                || (row.keys == strings::key_alt_digits() && alt && ('1'..='5').contains(&key.chars().next().unwrap()));
-            assert!(named, "{key:?} ctrl={ctrl} alt={alt} is not named in the Help row {:?}", row.keys);
-        }
-    }
-    // The dialog shows the same rows, with the ↓/↑ wording.
-    let app = test_app();
-    let op = opened(&app);
-    open(&op, SettingsTab::Help);
-    settle();
-    let shown: Vec<(String, String)> = g(&op).get_help().iter().map(|r| (r.keys.to_string(), r.what.to_string())).collect();
-    assert_eq!(shown, rows.iter().map(|r| (r.keys.to_string(), r.what.to_string())).collect::<Vec<_>>());
-    assert_eq!(shown[0], ("→  ↓  Space  Page Down".to_string(), "Next".to_string()));
-    assert_eq!(shown[1], ("←  ↑  Page Up".to_string(), "Back".to_string()));
-    assert!(shown.contains(&("Alt + 1–5".to_string(), "Pick a Bible chip (in the Bible box)".to_string())));
-    assert_eq!(find_all(&op, "SettingsHelp::help-row").len(), rows.len());
 }
 
 #[test]

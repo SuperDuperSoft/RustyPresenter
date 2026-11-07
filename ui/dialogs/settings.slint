@@ -1,7 +1,7 @@
 // Settings (`operator.js:877-1007`): the tabs, the Songs, Video, Backups and Help pages, and the footer. Look and
 // Bible have files of their own. Everything shown comes from the `SettingsDlg` global (`settings-state.slint`).
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented, CopyText, Kbd } from "../widgets.slint";
+import { Btn, Field, Segmented, CopyText } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, Tabs, Note, Lbl, ListRow, RowMain, Check, Select } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
@@ -11,6 +11,7 @@ import { SettingsAbout } from "settings-about.slint";
 import { SettingsLanguage } from "settings-language.slint";
 import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
 import { SettingsSections } from "settings-sections.slint";
+import { SettingsHelp } from "settings-keys.slint";
 
 export { SettingsDlg }
 
@@ -194,43 +195,6 @@ component SettingsBackups inherits VerticalLayout {
         if SettingsDlg.backups.length == 0: no-backups := Text {
             text: @tr("No backups yet.");
             color: Theme.muted;
-        }
-    }
-}
-
-component SettingsHelp inherits HorizontalLayout {
-    spacing: 14px;
-    VerticalLayout {
-        horizontal-stretch: 1;
-        Lbl { label: @tr("Keyboard"); }
-        Rectangle { height: 8px; }
-        for row in SettingsDlg.help: help-row := Rectangle {
-            accessible-role: list-item;
-            accessible-label: row.keys;
-            accessible-value: row.what;
-            HorizontalLayout {
-                padding-top: 5px;
-                padding-bottom: 5px;
-                Kbd { text: row.keys; }
-                Rectangle { horizontal-stretch: 1; }
-                Text {
-                    text: row.what;
-                    color: Theme.text;
-                    vertical-alignment: center;
-                }
-            }
-            Rectangle {
-                y: parent.height - 1px;
-                height: 1px;
-                background: Theme.line;
-            }
-        }
-    }
-    VerticalLayout {
-        horizontal-stretch: 1;
-        alignment: start;
-        Note {
-            text: @tr("Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.");
         }
     }
 }

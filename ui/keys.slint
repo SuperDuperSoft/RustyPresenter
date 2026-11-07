@@ -1,0 +1,56 @@
+// The church's keyboard shortcuts as the menu bar uses them (N28), and Find my mouse (N35). Rust sets both
+// (`src/ui/operator/help.rs`).
+import { Theme } from "theme.slint";
+
+/// A clear group as the View menu lists it (N18).
+export struct MenuGroup { name: string, keys: keys }
+
+/// Each menu item's shortcut: the action's first key that a text box never types, else none. While Settings → Help
+/// waits for a new key, all are empty and `capturing` sends every key to Rust.
+export global MenuKeys {
+    in property <keys> undo: @keys(Control + Z);
+    in property <keys> redo: @keys(Control + Y);
+    in property <keys> find: @keys(Control + F);
+    in property <keys> bible: @keys(Control + B);
+    in property <keys> clear-all: @keys(F1);
+    in property <keys> clear-slide: @keys(F2);
+    in property <keys> clear-media: @keys(F3);
+    in property <keys> clear-audio: @keys(F4);
+    in property <keys> logo: @keys(F5);
+    in property <keys> clear-overlays: @keys(F6);
+    in property <keys> clear-message: @keys(F7);
+    in property <keys> clear-timers: @keys(F8);
+    in property <keys> find-mouse: @keys(Alt + M);
+    in property <[MenuGroup]> groups;
+    /// The first key of each clear button, as its hint shows it ("" for none).
+    in property <string> clear-all-label: "F1";
+    in property <string> clear-slide-label: "F2";
+    in property <string> clear-media-label: "F3";
+    in property <string> clear-audio-label: "F4";
+    in property <string> logo-label: "F5";
+    in property <bool> capturing;
+}
+
+/// Find my mouse: where the pointer was brought to, and a serial that starts the rings again.
+export global FindMouse {
+    in property <length> x;
+    in property <length> y;
+    in property <bool> on;
+}
+
+/// Two rings that close in on `FindMouse`'s point, over everything, never taking a click.
+export component MouseRings inherits Rectangle {
+    for i in 2: ring := Rectangle {
+        property <length> size: FindMouse.on ? 28px : 360px - i * 120px;
+        x: FindMouse.x - self.size / 2;
+        y: FindMouse.y - self.size / 2;
+        width: self.size;
+        height: self.size;
+        border-radius: self.size / 2;
+        border-width: 5px;
+        border-color: Theme.live;
+        opacity: FindMouse.on ? 1 : 0;
+        animate size { duration: FindMouse.on ? 650ms + i * 150ms : 0ms; easing: ease-out; }
+        animate opacity { duration: FindMouse.on ? 120ms : 400ms; }
+    }
+}

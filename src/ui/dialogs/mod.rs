@@ -20,6 +20,7 @@ pub mod slide_breaks;
 pub mod settings_audio;
 pub mod settings_bible;
 pub mod settings_graphics;
+pub mod settings_keys;
 pub mod settings_language;
 pub mod settings_look;
 pub mod settings_sections;

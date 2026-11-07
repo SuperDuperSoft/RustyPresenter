@@ -8,6 +8,7 @@ pub mod file_input;
 #[cfg(test)]
 mod fit;
 pub mod files;
+pub mod help;
 #[path = "../../strings/operator.rs"]
 pub mod strings;
 pub mod keys;

@@ -6,6 +6,7 @@ import { Side } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 import { OverlaysStrip } from "overlay-strip.slint";
+import { MenuKeys } from "../keys.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -341,7 +342,7 @@ export component LiveColumn inherits Rectangle {
                 spacing: 8px;
                 clear-all := ClearAllBtn {
                     text: @tr("Clear All");
-                    key: "F1";
+                    key: MenuKeys.clear-all-label;
                     clicked => { root.clear("clear_all"); }
                 }
                 HorizontalLayout {
@@ -349,25 +350,25 @@ export component LiveColumn inherits Rectangle {
                     clear-text := ClearBtn {
                         horizontal-stretch: 1;
                         text: @tr("Text");
-                        key: "F2";
+                        key: MenuKeys.clear-slide-label;
                         clicked => { root.clear("clear_slide"); }
                     }
                     clear-media := ClearBtn {
                         horizontal-stretch: 1;
                         text: @tr("Media");
-                        key: "F3";
+                        key: MenuKeys.clear-media-label;
                         clicked => { root.clear("clear_media"); }
                     }
                     clear-audio := ClearBtn {
                         horizontal-stretch: 1;
                         text: @tr("Audio");
-                        key: "F4";
+                        key: MenuKeys.clear-audio-label;
                         clicked => { root.clear("clear_audio"); }
                     }
                     clear-logo := ClearBtn {
                         horizontal-stretch: 1;
                         text: @tr("Logo");
-                        key: "F5";
+                        key: MenuKeys.logo-label;
                         on: root.logo-on;
                         clicked => { root.clear("logo"); }
                     }
