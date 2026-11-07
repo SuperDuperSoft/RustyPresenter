@@ -76,6 +76,8 @@ pub fn help_rows() -> Vec<HelpRow> {
             ("1", false, false), ("2", false, false), ("3", false, false), ("4", false, false), ("5", false, false), ("6", false, false),
             ("7", false, false), ("8", false, false), ("9", false, false)], action: KeyAction::JumpSection('c') },
         HelpRow { keys: key_ctrl_v(), what: do_paste_link(), binds: &[("v", true, false)], action: KeyAction::PasteLink },
+        // FEAT-2: the window offers Ctrl+M to the keys only with Shift held (`captured` in `operator.slint`).
+        HelpRow { keys: crate::tr!("Ctrl + Shift + M"), what: crate::tr!("Show a message on the screen"), binds: &[("m", true, false)], action: KeyAction::ShowMessage },
         HelpRow { keys: key_esc(), what: do_esc(), binds: &[("Escape", false, false)], action: KeyAction::Blur },
     ]
 }
