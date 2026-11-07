@@ -17,6 +17,7 @@ use super::common::{find_files, label_line, lyric_line, numbered_label, section_
 use super::easyworship::{rtf_text, split_writers};
 use super::openlyrics::{ccli_number, decode_xml, parse_xml, title_or};
 use crate::model::Song;
+use crate::tr;
 use roxmltree::Node;
 use std::collections::HashMap;
 use std::io::Read;
@@ -24,9 +25,10 @@ use std::path::Path;
 use uuid::Uuid;
 
 /// Why a ProPresenter 7 file can't be imported.
-pub const PRO7_UNSUPPORTED: &str = "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6";
-const BUNDLE_UNSUPPORTED: &str =
-    "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside";
+pub fn pro7_unsupported() -> String { tr!("ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6") }
+fn bundle_unsupported() -> String {
+    tr!("ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside")
+}
 
 /// A file bigger than this is not a song file (`.pro6` files carry RTF copies of every slide, so allow room).
 const MAX_FILE: u64 = 32_000_000;
@@ -147,17 +149,17 @@ struct Group { id: String, name: String, slides: Vec<Vec<String>> }
 
 fn read_groups(root: Node) -> Result<Vec<Group>, String> {
     let groupings: Vec<Node> = root.descendants().filter(|n| is(*n, "RVSlideGrouping")).collect();
-    if groupings.len() > MAX_GROUPS { return Err(format!("the song has too many groups (more than {MAX_GROUPS})")); }
+    if groupings.len() > MAX_GROUPS { return Err(tr!("the song has too many groups (more than {max})", max = MAX_GROUPS)); }
     let mut slides_seen = 0usize;
     let mut words = 0usize;
     let mut read = |slides: Vec<Node>| -> Result<Vec<Vec<String>>, String> {
         slides_seen += slides.len();
-        if slides_seen > MAX_SLIDES { return Err(format!("the song has too many slides (more than {MAX_SLIDES})")); }
+        if slides_seen > MAX_SLIDES { return Err(tr!("the song has too many slides (more than {max})", max = MAX_SLIDES)); }
         // A disabled slide is hidden in ProPresenter, so it isn't part of the song.
         let out: Vec<Vec<String>> = slides.into_iter().filter(|s| !attr(*s, "enabled").is_some_and(|v| v.trim().eq_ignore_ascii_case("false")))
             .map(slide_lines).filter(|l| !l.is_empty()).collect();
         words += out.iter().flatten().map(String::len).sum::<usize>();
-        if words > MAX_LYRICS { return Err("the lyrics are too long to be a song".into()); }
+        if words > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
         Ok(out)
     };
     if groupings.is_empty() {
@@ -204,7 +206,7 @@ fn lyrics_of(groups: Vec<Group>, order_ids: &[String]) -> Result<(String, Vec<St
         name_of.push(Some(section_name(Some(&label))));
         kept.push((label, g.slides.clone()));
     }
-    if kept.is_empty() { return Err("the song has no words on its slides".into()); }
+    if kept.is_empty() { return Err(tr!("the song has no words on its slides")); }
 
     let mut out: Vec<String> = Vec::new();
     for (label, slides) in &kept {
@@ -245,18 +247,18 @@ fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -> (String, 
 fn check_root(doc: &roxmltree::Document) -> Result<(), String> {
     let name = doc.root_element().tag_name().name();
     if name.eq_ignore_ascii_case("RVPresentationDocument") { return Ok(()); }
-    if name.eq_ignore_ascii_case("RVPlaylistDocument") { return Err("it is a ProPresenter playlist, not a song".into()); }
-    Err("it isn't a ProPresenter 6 song".into())
+    if name.eq_ignore_ascii_case("RVPlaylistDocument") { return Err(tr!("it is a ProPresenter playlist, not a song")); }
+    Err(tr!("it isn't a ProPresenter 6 song"))
 }
 
 /// Bytes → XML text, or why they can't be a ProPresenter 6 song (a zip bundle, a ProPresenter 7 file).
 fn xml_text(bytes: &[u8], pro7_name: bool) -> Result<String, String> {
-    if bytes.starts_with(b"PK\x03\x04") { return Err(BUNDLE_UNSUPPORTED.into()); }
+    if bytes.starts_with(b"PK\x03\x04") { return Err(bundle_unsupported()); }
     let text = decode_xml(bytes);
     if text.trim_start_matches(|c: char| c.is_whitespace() || c == '\u{feff}').starts_with('<') { return Ok(text); }
     // ProPresenter 7 files are protobuf; their first field (application info) starts with byte 0x0A.
-    if pro7_name || bytes.first() == Some(&0x0A) { return Err(PRO7_UNSUPPORTED.into()); }
-    Err("it isn't a ProPresenter 6 song".into())
+    if pro7_name || bytes.first() == Some(&0x0A) { return Err(pro7_unsupported()); }
+    Err(tr!("it isn't a ProPresenter 6 song"))
 }
 
 fn parse_named(bytes: &[u8], pro7_name: bool, fallback: Option<&str>) -> (Option<String>, Result<Song, String>) {
@@ -270,7 +272,7 @@ fn parse_named(bytes: &[u8], pro7_name: bool, fallback: Option<&str>) -> (Option
 /// The song in a ProPresenter 6 file's text. Err says why it can't be read.
 pub fn parse_str(text: &str) -> Result<Song, String> { parse_bytes(text.as_bytes()) }
 
-/// The song in a ProPresenter 6 file's bytes. A ProPresenter 7 file gives `PRO7_UNSUPPORTED`.
+/// The song in a ProPresenter 6 file's bytes. A ProPresenter 7 file gives `pro7_unsupported()`.
 pub fn parse_bytes(bytes: &[u8]) -> Result<Song, String> { parse_named(bytes, false, None).1 }
 
 // ---------- files ----------
@@ -288,10 +290,10 @@ fn read_file(p: &Path, report: &mut ImportReport) {
     let mut bytes = Vec::new();
     // Read at most one byte past the limit, so the size is checked even when the file's size can't be asked.
     if let Err(e) = std::fs::File::open(p).and_then(|f| f.take(MAX_FILE + 1).read_to_end(&mut bytes)) {
-        report.skipped.push((file_label(p), format!("couldn't read it: {e}")));
+        report.skipped.push((file_label(p), tr!("couldn't read it: {error}", error = e)));
         return;
     }
-    if bytes.len() as u64 > MAX_FILE { report.skipped.push((file_label(p), "the file is too big to be a song".into())); return; }
+    if bytes.len() as u64 > MAX_FILE { report.skipped.push((file_label(p), tr!("the file is too big to be a song"))); return; }
     match parse_named(&bytes, extension(p) == "pro", stem.as_deref()) {
         (_, Ok(s)) => report.songs.push(s),
         (title, Err(why)) => report.skipped.push((title.unwrap_or_else(|| file_label(p)), why)),
@@ -306,20 +308,20 @@ pub fn read_propresenter(path: &Path) -> Result<ImportReport, String> {
     if path.is_file() {
         read_file(path, &mut report);
         if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| "no song in it".into());
-            return Err(format!("No song could be read from {}: {why}.", path.display()));
+            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no song in it"));
+            return Err(tr!("No song could be read from {path}: {why}.", path = path.display(), why = why));
         }
         return Ok(report);
     }
-    if !path.is_dir() { return Err(format!("Couldn't find {}.", path.display())); }
+    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
     let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, is_song_file);
     for f in &files { read_file(f, &mut report); }
     if report.songs.is_empty() && report.skipped.is_empty() {
-        return Err(format!("No ProPresenter songs were found in {}.", path.display()));
+        return Err(tr!("No ProPresenter songs were found in {path}.", path = path.display()));
     }
     if cut_short {
         report.skipped.push((path.display().to_string(),
-            format!("the folder has more than {MAX_FILES} files and folders in it, so only the first {MAX_FILES} were looked at")));
+            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
     }
     Ok(report)
 }
@@ -517,7 +519,7 @@ Verse 2\n\u{2018}Twas grace that taught my heart to fear,\nAnd grace my fears re
 
     #[test]
     fn errors_are_clear() {
-        assert_eq!(parse_bytes(b"\x0a\x12\x0aProPresenter\x10\x07").unwrap_err(), PRO7_UNSUPPORTED);
+        assert_eq!(parse_bytes(b"\x0a\x12\x0aProPresenter\x10\x07").unwrap_err(), pro7_unsupported());
         assert!(parse_bytes(b"PK\x03\x04rest").unwrap_err().contains(".pro6x"));
         assert!(parse_str("just text").unwrap_err().contains("isn't a ProPresenter 6 song"));
         assert!(parse_str("<song><title>x</title></song>").unwrap_err().contains("isn't a ProPresenter 6 song"));
@@ -579,7 +581,7 @@ Verse 2\n\u{2018}Twas grace that taught my heart to fear,\nAnd grace my fears re
         assert_eq!(skipped[0].0, "Blank Song");
         assert_eq!(skipped[1].0, "Bundle.pro6x");
         assert_eq!(skipped[2].0, "New Song.pro");
-        assert_eq!(skipped[2].1, PRO7_UNSUPPORTED);
+        assert_eq!(skipped[2].1, pro7_unsupported());
         assert_eq!(skipped[3].0, "broken.pro6");
 
         assert_eq!(read_propresenter(&d.join("Amazing Grace.pro6")).unwrap().songs.len(), 1);

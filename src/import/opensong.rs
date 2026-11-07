@@ -13,6 +13,7 @@ use super::easyworship::split_writers;
 use super::openlp::{lyrics_from_verses, Verse};
 use super::openlyrics::{self, ccli_number, child, format_of, parse_xml, split_tag, text_of, title_or, Format};
 use crate::model::Song;
+use crate::tr;
 use std::collections::HashMap;
 use std::path::Path;
 use uuid::Uuid;
@@ -34,7 +35,7 @@ pub fn lyrics_to_verses(lyrics: &str) -> Result<Vec<Verse>, String> {
     let mut own: Option<usize> = None;
     let mut numbered: HashMap<char, usize> = HashMap::new();
     let new_verse = |verses: &mut Vec<Verse>, kind: &str, label: String, name: &str| -> Result<usize, String> {
-        if verses.len() >= MAX_PARTS { return Err("the lyrics have too many sections to be a song".into()); }
+        if verses.len() >= MAX_PARTS { return Err(tr!("the lyrics have too many sections to be a song")); }
         verses.push(Verse { kind: kind.into(), label, text: String::new(), name: name.into() });
         Ok(verses.len() - 1)
     };
@@ -91,7 +92,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     let title = title_or(&field("title"), fallback);
     // The lyrics keep their line breaks, so not `text_of`.
     let lyrics: String = child(root, "lyrics").map(|l| l.descendants().filter(|d| d.is_text()).filter_map(|d| d.text()).collect()).unwrap_or_default();
-    if lyrics.trim().is_empty() { return (title, Err("no lyrics".into())); }
+    if lyrics.trim().is_empty() { return (title, Err(tr!("no lyrics"))); }
     let song = lyrics_to_verses(&lyrics)
         .and_then(|v| lyrics_from_verses(v, &field("presentation").replace(',', " ")))
         .map(|(lyrics, arrangement)| Song {
@@ -106,8 +107,8 @@ pub fn parse_str(text: &str) -> Result<Song, String> {
     let doc = parse_xml(text)?;
     match format_of(&doc) {
         Some(Format::OpenSong) => from_document(&doc, None).1,
-        Some(Format::OpenLyrics) => Err("it is an OpenLyrics song, not OpenSong".into()),
-        None => Err("it isn't an OpenSong song".into()),
+        Some(Format::OpenLyrics) => Err(tr!("it is an OpenLyrics song, not OpenSong")),
+        None => Err(tr!("it isn't an OpenSong song")),
     }
 }
 

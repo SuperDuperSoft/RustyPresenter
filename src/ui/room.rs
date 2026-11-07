@@ -34,16 +34,16 @@ fn inst(key: &LayerKey) -> Option<u64> {
     match key { LayerKey::Background(i) | LayerKey::Media(i) | LayerKey::Audio(i) => Some(*i), _ => None }
 }
 
-/// How a layer is named in "… took too long to load".
-fn what(kind: Kind, f: &Frame) -> &'static str {
+/// Why a layer failed when it did not load in time.
+fn too_slow(kind: Kind, f: &Frame) -> String {
     match kind {
-        Kind::Background => "background",
-        Kind::Media if matches!(f.media.as_ref().map(|m| &m.v), Some(MediaLayer::Still { .. })) => "picture",
-        Kind::Media => "video",
-        Kind::Slide => "slide",
-        Kind::Logo => "logo",
-        Kind::Overlays => "overlay",
-        Kind::Audio => "audio",
+        Kind::Background => crate::tr!("background took too long to load"),
+        Kind::Media if matches!(f.media.as_ref().map(|m| &m.v), Some(MediaLayer::Still { .. })) => crate::tr!("picture took too long to load"),
+        Kind::Media => crate::tr!("video took too long to load"),
+        Kind::Slide => crate::tr!("slide took too long to load"),
+        Kind::Logo => crate::tr!("logo took too long to load"),
+        Kind::Overlays => crate::tr!("overlay took too long to load"),
+        Kind::Audio => crate::tr!("audio took too long to load"),
     }
 }
 
@@ -217,14 +217,14 @@ impl Inner {
         let wanted = self.work.generation.next();
         let (token, wants) = (plan.token, plan.prepare.clone());
         for w in &wants {
-            let (me, kind, what) = (self.me.clone(), w.kind, what(w.kind, &view.frame));
-            Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, what) });
+            let (me, kind, why) = (self.me.clone(), w.kind, too_slow(w.kind, &view.frame));
+            Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, why) });
         }
         let waiting = wants.iter().map(|w| w.kind).collect();
         *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new() });
         if !wants.is_empty() {
             let job = Job { token, wants, frame: view.frame.clone(), theme: view.theme.clone(), logo: view.logo.clone(), canvas: self.canvas(), wanted };
-            if self.jobs.send(job).is_err() { return self.fail(token, "the room could not prepare it".into()) }
+            if self.jobs.send(job).is_err() { return self.fail(token, crate::tr!("the room could not prepare it")) }
         }
         self.check();
     }
@@ -242,9 +242,9 @@ impl Inner {
         });
     }
 
-    fn timed_out(&self, token: u64, kind: Kind, what: &str) {
+    fn timed_out(&self, token: u64, kind: Kind, why: String) {
         let late = self.prep.borrow().as_ref().is_some_and(|p| p.plan.token == token && p.waiting.contains(&kind));
-        if late { self.fail(token, format!("{what} took too long to load")) }
+        if late { self.fail(token, why) }
     }
 
     fn made(&self, token: u64, kind: Kind, made: Result<Made, String>) {
@@ -278,7 +278,7 @@ impl Inner {
             let Some(p) = prep.as_mut() else { return };
             let Some(kind) = p.plan.prepare.iter().find(|w| inst(&w.key) == Some(r.inst)).map(|w| w.kind) else { return };
             if !p.waiting.contains(&kind) { return }
-            let error = (r.state == PlayState::Error).then(|| r.error.unwrap_or_else(|| "the file could not be played".into()));
+            let error = (r.state == PlayState::Error).then(|| r.error.unwrap_or_else(|| crate::tr!("the file could not be played")));
             // Only this plan's player counts (or the report that none could be made); any other
             // waits for its `Made`, which a disposed player never gets.
             let ours = r.player == 0 || p.got.iter().any(|(k, g)| *k == kind && matches!(g, Got::Play(pl) if pl.serial() == r.player));
@@ -444,7 +444,7 @@ impl Room {
     }
 
     fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror: bool) -> Result<Rc<Room>, String> {
-        let ui = RoomWindow::new().map_err(|e| format!("Could not open the room screen: {e}"))?;
+        let ui = RoomWindow::new().map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         // Slint picks the computer's language for the first window; show the app's.
         crate::i18n::sync_slint();
         let weak = ui.as_weak();
@@ -464,7 +464,7 @@ impl Room {
         let (events, rx) = std::sync::mpsc::channel();
         let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
         let to_shared = shared.clone();
-        let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| format!("Could not open the room screen: {e}"))?;
+        let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         let to_live = app.clone();
         let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { if !mirror { to_live.room_event(ev) } });
         // The faces' opacities and the black overlay, each written straight to this window.
@@ -482,7 +482,7 @@ impl Room {
             }
         });
         let room = Rc::new(Room { inner });
-        ui.show().map_err(|e| format!("Could not open the room screen: {e}"))?;
+        ui.show().map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         if let Some(m) = &monitor { monitors::fullscreen_on(&ui, m)? }
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();

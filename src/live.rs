@@ -364,9 +364,9 @@ impl Live {
             Command::Prev => self.step(plan, false),
             Command::Show { item_id, slide } => {
                 let order = plan.order();
-                let index = order.iter().position(|i| i == item_id).ok_or("That item is not in the service.")?;
-                let item = plan.build(*item_id).ok_or("That item has nothing to show.")?;
-                if item.slides.is_empty() { return Err(if item.kind == "blank" { crate::planning::strings::BLANK_CHOOSE_FIRST } else { "That item has no slides." }.into()); }
+                let index = order.iter().position(|i| i == item_id).ok_or_else(|| crate::tr!("That item is not in the service."))?;
+                let item = plan.build(*item_id).ok_or_else(|| crate::tr!("That item has nothing to show."))?;
+                if item.slides.is_empty() { return Err(if item.kind == "blank" { crate::planning::strings::BLANK_CHOOSE_FIRST.into() } else { crate::tr!("That item has no slides.") }); }
                 let slide = (*slide).min(item.slides.len() - 1);
                 self.go(item, index, slide);
                 Ok(())
@@ -402,7 +402,7 @@ impl Live {
             Command::MediaPause { inst, paused } => {
                 match &mut self.frame.media {
                     Some(Inst { inst: i, v: MediaLayer::Video { paused: p, .. } }) if *i == *inst => { *p = *paused; }
-                    _ => return Err("That video is no longer playing.".into()),
+                    _ => return Err(crate::tr!("That video is no longer playing.")),
                 }
                 self.bump();
                 Ok(())
@@ -410,7 +410,7 @@ impl Live {
             Command::AudioPause { inst, paused } => {
                 match &mut self.frame.audio {
                     Some(a) if a.inst == *inst => a.v.paused = *paused,
-                    _ => return Err("That audio is no longer playing.".into()),
+                    _ => return Err(crate::tr!("That audio is no longer playing.")),
                 }
                 self.bump();
                 Ok(())
@@ -423,7 +423,7 @@ impl Live {
     fn step(&mut self, plan: &dyn Plan, forward: bool) -> Result<(), String> {
         let order = plan.order();
         let Some(cursor) = self.cursor.clone() else {
-            if !forward { return Err("Nothing is live yet.".into()); }
+            if !forward { return Err(crate::tr!("Nothing is live yet.")); }
             return self.take_index(plan, &order, 0, true);
         };
         let len = self.item.as_ref().map_or(0, |i| i.slides.len());
@@ -439,11 +439,11 @@ impl Live {
         }
         // Cross into the neighbouring service item.
         let target = match order.iter().position(|i| *i == cursor.item_id) {
-            Some(p) => if forward { p + 1 } else { p.checked_sub(1).ok_or("Start of service")? },
+            Some(p) => if forward { p + 1 } else { p.checked_sub(1).ok_or_else(|| crate::tr!("Start of service"))? },
             // Live item was removed: the item now at its former position comes next.
-            None => if forward { cursor.item_index } else { cursor.item_index.checked_sub(1).ok_or("Start of service")? },
+            None => if forward { cursor.item_index } else { cursor.item_index.checked_sub(1).ok_or_else(|| crate::tr!("Start of service"))? },
         };
-        if target >= order.len() { return Err("End of service".into()); }
+        if target >= order.len() { return Err(crate::tr!("End of service")); }
         self.take_index(plan, &order, target, forward)
     }
 
@@ -451,13 +451,13 @@ impl Live {
     /// Items with no slides are skipped.
     fn take_index(&mut self, plan: &dyn Plan, order: &[Uuid], mut index: usize, forward: bool) -> Result<(), String> {
         loop {
-            let id = *order.get(index).ok_or(if forward { "End of service" } else { "Start of service" })?;
+            let id = *order.get(index).ok_or_else(|| if forward { crate::tr!("End of service") } else { crate::tr!("Start of service") })?;
             if let Some(item) = plan.build(id).filter(|i| !i.slides.is_empty()) {
                 let slide = if forward { 0 } else { item.slides.len() - 1 };
                 self.go(item, index, slide);
                 return Ok(());
             }
-            if forward { index += 1 } else { index = index.checked_sub(1).ok_or("Start of service")? }
+            if forward { index += 1 } else { index = index.checked_sub(1).ok_or_else(|| crate::tr!("Start of service"))? }
         }
     }
 
@@ -546,7 +546,7 @@ impl Live {
                 self.cursor = snap.cursor;
                 self.item = snap.item;
                 self.changed = snap.changed;
-                self.notice = Some(format!("Could not show that: {reason}"));
+                self.notice = Some(crate::tr!("Could not show that: {reason}", reason = reason));
                 self.bump();
                 true
             }
@@ -571,7 +571,7 @@ impl Live {
                         true
                     }
                     PlayState::Error => {
-                        self.notice = Some(format!("Playback stopped: {}", error.unwrap_or_else(|| "the file could not be played".into())));
+                        self.notice = Some(crate::tr!("Playback stopped: {reason}", reason = error.unwrap_or_else(|| crate::tr!("the file could not be played"))));
                         self.retire(inst);
                         true
                     }

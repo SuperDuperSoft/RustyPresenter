@@ -18,7 +18,7 @@ pub const AUDIO: &[&str] = &["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "
 /// No `avif`: the `image` crate here has no AVIF decoder, and one would need a system dav1d.
 pub const IMAGE: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp"];
 
-const DISK_FULL: &str = "Could not save the file (disk full?).";
+fn disk_full() -> String { crate::tr!("Could not save the file (disk full?).") }
 
 /// Add `tmp`, a file in the store's tmp that this import owns, as a job with a Cancel button. `Err` is a message
 /// for the operator, or [`CANCELLED`]. The job shows a failure too.
@@ -33,7 +33,7 @@ pub async fn import_media(app: &Arc<App>, tmp: &Path, sha: &str, ext: &str, disp
             let waiting = move |waiting: bool| watcher.job_label(job, if waiting { strings::WAITING_FOR_FILE } else { &shown });
             probe::probe_waiting(app.probe_mpv(), file.clone(), token.clone(), waiting).await
         }
-        Err(_) => Err(DISK_FULL.into()),
+        Err(_) => Err(disk_full()),
     };
     let result = add(app, &file, sha, ext, display, probed, &token).await;
     match &result {
@@ -55,7 +55,7 @@ async fn add(app: &Arc<App>, file: &Path, sha: &str, ext: &str, display: String,
     if cancel.is_cancelled() { return Err(CANCELLED.into()) }
     let thumb = publish_thumb(app, thumb).await?;
     if cancel.is_cancelled() { return Err(CANCELLED.into()) }
-    let asset = app.store.publish(file, sha, ext).map_err(|_| DISK_FULL.to_string())?;
+    let asset = app.store.publish(file, sha, ext).map_err(|_| disk_full())?;
     let media = MediaFile { id: Uuid::new_v4(), name: display, kind, asset, status: MediaStatus::Ready, original_asset: None, duration, thumb, size, folder: String::new() };
     app.edit(|d| { d.media.push(media.clone()); Ok(()) })?;
     Ok(media)
@@ -69,7 +69,7 @@ async fn publish_thumb(app: &Arc<App>, thumb: Option<image::RgbImage>) -> Result
         let tmp = app.store.tmp().join(format!("{}.thumb", Uuid::new_v4()));
         let saved = std::fs::write(&tmp, probe::thumb_jpeg(&img)).and_then(|()| app.store.import_file(&tmp, "jpg"));
         let _ = std::fs::remove_file(&tmp);
-        saved.map(Some).map_err(|_| DISK_FULL.to_string())
+        saved.map(Some).map_err(|_| disk_full())
     }).await.map_err(|e| e.to_string())?
 }
 

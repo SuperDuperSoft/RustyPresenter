@@ -1,6 +1,7 @@
 //! Bible references and the bundled King James Version.
 //! Copyrighted translations come from licensed online sources (`sources`, spec §8.5).
 use crate::model::VerseText;
+use crate::tr;
 
 pub mod api_bible;
 pub mod blocklist;
@@ -111,27 +112,27 @@ impl Kjv {
         for part in &r.parts {
             let (sc, sv) = part.start;
             let (ec, ev) = part.end;
-            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| format!("{display} {ec} does not exist."))? };
-            if self.last_verse(r.book, sc).is_none() { return Err(format!("{display} {sc} does not exist.")); }
+            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {ec}")))? };
+            if self.last_verse(r.book, sc).is_none() { return Err(tr!("{reference} does not exist.", reference = format!("{display} {sc}"))); }
             let mut c = sc;
             let mut v = sv.unwrap_or(1);
             loop {
                 // A range can run past the book's last chapter (Jude 1:1-3:1).
-                let last = self.last_verse(r.book, c).ok_or_else(|| format!("{display} {c} does not exist."))?;
+                let last = self.last_verse(r.book, c).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {c}")))?;
                 match self.verses.get(&(r.book, c, v)) {
                     Some(t) => out.push(VerseText { id: Some(crate::scripture::VerseId(r.book, c, v)), ..VerseText::new(format!("{display} {c}:{v}"), t.clone()) }),
-                    None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
+                    None if v == sv.unwrap_or(1) && c == sc => return Err(tr!("{reference} does not exist.", reference = format!("{display} {c}:{v}"))),
                     None => {}
                 }
                 if c == ec && v >= ev_resolved { break; }
                 if v >= last { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
-                if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+                if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
             }
             if ev.is_some() && !out.iter().any(|x| x.reference == format!("{display} {ec}:{ev_resolved}")) {
-                return Err(format!("{display} {ec}:{ev_resolved} does not exist."));
+                return Err(tr!("{reference} does not exist.", reference = format!("{display} {ec}:{ev_resolved}")));
             }
         }
-        if out.is_empty() { return Err("No verses found.".into()); }
+        if out.is_empty() { return Err(tr!("No verses found.")); }
         Ok((canonical(&r, display), out))
     }
 }
@@ -156,7 +157,7 @@ pub fn find_book(name: &str) -> Option<u8> {
 /// Parse `John 3:16-18`, `jn 3 16`, `Ps 23`, `Ps 23:1,4-6`, `John 1:1-2:3`, `1 Cor 13`.
 pub fn parse_reference(input: &str) -> Result<Reference, String> {
     let s = input.trim().replace(['–', '—'], "-");
-    if s.is_empty() { return Err("Type a reference, like John 3:16.".into()); }
+    if s.is_empty() { return Err(tr!("Type a reference, like John 3:16.")); }
     // Book = everything up to the first digit that comes after a letter.
     let chars: Vec<char> = s.chars().collect();
     let mut seen_letter = false;
@@ -167,9 +168,9 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     }
     let book_part: String = chars[..split].iter().collect();
     let nums: String = chars[split..].iter().collect();
-    let book = find_book(&book_part).ok_or_else(|| format!("I don't recognize the book \"{}\".", book_part.trim()))?;
+    let book = find_book(&book_part).ok_or_else(|| tr!("I don't recognize the book \"{book}\".", book = book_part.trim()))?;
     let nums = nums.trim();
-    if nums.is_empty() { return Err("Add a chapter, like John 3 or John 3:16.".into()); }
+    if nums.is_empty() { return Err(tr!("Add a chapter, like John 3 or John 3:16.")); }
     // "3 16-18" (no colon) means chapter 3, verses 16-18.
     let nums = if !nums.contains(':') {
         let mut it = nums.splitn(2, |c: char| c == ' ' || c == '.');
@@ -177,7 +178,7 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
         match it.next() { Some(rest) if !rest.trim().is_empty() => format!("{c}:{}", rest.trim()), _ => c.to_string() }
     } else { nums.to_string() };
     let nums: String = nums.chars().filter(|c| !c.is_whitespace()).collect();
-    let bad = || "That reference doesn't look right. Try something like John 3:16-18.".to_string();
+    let bad = || tr!("That reference doesn't look right. Try something like John 3:16-18.");
     let num = |t: &str| -> Result<u16, String> { t.parse::<u16>().ok().filter(|n| *n > 0).ok_or_else(bad) };
     let mut parts = Vec::new();
     let mut chapter: Option<u16> = None;
@@ -193,7 +194,7 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
                 else if start.1.is_none() { (num(b)?, None) } // "Ps 23-24" chapters
                 else { (start.0, Some(num(b)?)) },
         };
-        if (end.0, end.1.unwrap_or(u16::MAX)) < (start.0, start.1.unwrap_or(0)) { return Err("The end of the range comes before the start.".into()); }
+        if (end.0, end.1.unwrap_or(u16::MAX)) < (start.0, start.1.unwrap_or(0)) { return Err(tr!("The end of the range comes before the start.")); }
         if start.1.is_none() && chapter.is_none() { /* whole chapter(s) */ }
         parts.push(Part { start, end });
     }
@@ -244,8 +245,8 @@ pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), Strin
         }
     }
     out.retain(|x| !x.2.is_empty());
-    if out.is_empty() { return Err("Paste the verse text first.".into()); }
-    if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+    if out.is_empty() { return Err(tr!("Paste the verse text first.")); }
+    if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
     let label = canonical(&r, display);
     // One unnumbered block keeps the whole reference as its label.
     let one = out.len() == 1 && !text.split_whitespace().next().is_some_and(|w| w.trim_matches(['[', ']']).chars().all(|ch| ch.is_ascii_digit() || ch == ':'));

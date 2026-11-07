@@ -18,6 +18,7 @@ use super::common::{find_files, ImportReport};
 use super::openlp::{lyrics_from_verses, verse_text, Verse};
 use super::opensong;
 use crate::model::Song;
+use crate::tr;
 use std::collections::HashMap;
 use std::io::Read;
 use std::path::Path;
@@ -89,7 +90,7 @@ pub(crate) fn split_tag(tag: &str) -> (String, String, String) {
 
 /// Parses XML text, refusing DTDs (no entity tricks). The error says what is wrong in words.
 pub(crate) fn parse_xml(text: &str) -> Result<roxmltree::Document<'_>, String> {
-    roxmltree::Document::parse(text.trim_start_matches(is_bom_or_space)).map_err(|e| format!("it isn't valid XML ({e})"))
+    roxmltree::Document::parse(text.trim_start_matches(is_bom_or_space)).map_err(|e| tr!("it isn't valid XML ({error})", error = e))
 }
 
 /// Which song format a parsed XML file is.
@@ -112,7 +113,7 @@ pub(crate) fn format_of(doc: &roxmltree::Document) -> Option<Format> {
 pub(crate) fn title_or(own: &str, fallback: Option<&str>) -> String {
     let own = own.trim();
     if !own.is_empty() { return own.to_string(); }
-    fallback.map(str::trim).filter(|f| !f.is_empty()).map(str::to_string).unwrap_or_else(|| "Untitled song".into())
+    fallback.map(str::trim).filter(|f| !f.is_empty()).map(str::to_string).unwrap_or_else(|| tr!("Untitled song"))
 }
 
 // ---------- one song ----------
@@ -140,7 +141,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     let prop = |name: &str| props.and_then(|p| child(p, name)).map(text_of).unwrap_or_default();
 
     let all: Vec<_> = child(root, "lyrics").map(|l| l.children().filter(|c| c.is_element() && local(*c) == "verse").collect()).unwrap_or_default();
-    if all.len() > MAX_VERSES { return (title_of(props, None, fallback), Err("too many verses to be a song".into())); }
+    if all.len() > MAX_VERSES { return (title_of(props, None, fallback), Err(tr!("too many verses to be a song"))); }
     // Transliterations are left out, unless that is all there is.
     let plain: Vec<_> = all.iter().copied().filter(|v| v.attribute("translit").is_none()).collect();
     let all = if plain.is_empty() { all } else { plain };
@@ -157,7 +158,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     let verses: Vec<_> = all.into_iter().filter(|v| chosen.get(&name_of(*v)).is_some_and(|c| *c == lang_of(*v))).collect();
     let title = title_of(props, primary.as_deref(), fallback);
 
-    if verses.is_empty() { return (title, Err("no lyrics".into())); }
+    if verses.is_empty() { return (title, Err(tr!("no lyrics"))); }
 
     // Writers are who wrote the words and music, and the translator of the language imported; not arrangers.
     let mut writers: Vec<String> = Vec::new();
@@ -187,8 +188,8 @@ pub fn parse_str(text: &str) -> Result<Song, String> {
     let doc = parse_xml(text)?;
     match format_of(&doc) {
         Some(Format::OpenLyrics) => from_document(&doc, None).1,
-        Some(Format::OpenSong) => Err("it is an OpenSong song, not OpenLyrics".into()),
-        None => Err("it isn't an OpenLyrics song".into()),
+        Some(Format::OpenSong) => Err(tr!("it is an OpenSong song, not OpenLyrics")),
+        None => Err(tr!("it isn't an OpenLyrics song")),
     }
 }
 
@@ -244,13 +245,13 @@ fn read_one(p: &Path, picked: bool, report: &mut ImportReport) -> Result<(), (St
     if !picked && !xml {
         let mut head = Vec::new();
         std::fs::File::open(p).and_then(|f| f.take(SNIFF).read_to_end(&mut head)).map_err(|e| quiet(&e.to_string()))?;
-        if !decode(&head).trim_start_matches(is_bom_or_space).starts_with('<') { return Err(quiet("not XML")); }
+        if !decode(&head).trim_start_matches(is_bom_or_space).starts_with('<') { return Err(quiet(&tr!("not XML"))); }
     }
     // Read at most one byte past the limit, so the size is checked even when the file's size can't be asked.
     let mut bytes = Vec::new();
     std::fs::File::open(p).and_then(|f| f.take(MAX_FILE + 1).read_to_end(&mut bytes))
-        .map_err(|e| (format!("couldn't read it: {e}"), xml))?;
-    if bytes.len() as u64 > MAX_FILE { return Err(quiet("the file is too big to be a song")); }
+        .map_err(|e| (tr!("couldn't read it: {error}", error = e), xml))?;
+    if bytes.len() as u64 > MAX_FILE { return Err(quiet(&tr!("the file is too big to be a song"))); }
     let text = decode_xml(&bytes);
     // A damaged file that was meant to be a song is worth mentioning whatever its name.
     let doc = parse_xml(&text).map_err(|e| (e, text.contains("<song")))?;
@@ -258,7 +259,7 @@ fn read_one(p: &Path, picked: bool, report: &mut ImportReport) -> Result<(), (St
     let (title, song) = match format_of(&doc) {
         Some(Format::OpenLyrics) => from_document(&doc, stem.as_deref()),
         Some(Format::OpenSong) => opensong::from_document(&doc, stem.as_deref()),
-        None => return Err(quiet("it isn't an OpenLyrics or OpenSong song")),
+        None => return Err(quiet(&tr!("it isn't an OpenLyrics or OpenSong song"))),
     };
     match song { Ok(s) => report.songs.push(s), Err(why) => report.skipped.push((title, why)) }
     Ok(())
@@ -271,20 +272,20 @@ pub fn read_songs(path: &Path) -> Result<ImportReport, String> {
     if path.is_file() {
         read_file(path, true, &mut report);
         if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| "no song in it".into());
-            return Err(format!("No song could be read from {}: {why}.", path.display()));
+            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no song in it"));
+            return Err(tr!("No song could be read from {path}: {why}.", path = path.display(), why = why));
         }
         return Ok(report);
     }
-    if !path.is_dir() { return Err(format!("Couldn't find {}.", path.display())); }
+    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
     let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, |_| true);
     for f in &files { read_file(f, false, &mut report); }
     if report.songs.is_empty() && report.skipped.is_empty() {
-        return Err(format!("No OpenLyrics or OpenSong songs were found in {}.", path.display()));
+        return Err(tr!("No OpenLyrics or OpenSong songs were found in {path}.", path = path.display()));
     }
     if cut_short {
         report.skipped.push((path.display().to_string(),
-            format!("the folder has more than {MAX_FILES} files and folders in it, so only the first {MAX_FILES} were looked at")));
+            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
     }
     Ok(report)
 }

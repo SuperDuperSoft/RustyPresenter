@@ -2,6 +2,7 @@
 //! The HTTP layer (`server.rs`) and the native screens both drive it.
 use crate::{bible, import, live::*, model::*, recovery::state::{self, StateWriter}, scripture::strings::{BLOCKED, passages_removed}, slides::build_item, songselect, store::Store};
 use crate::sha256::{Digest, Sha256, digest_hex, hex};
+use crate::tr;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
@@ -359,7 +360,7 @@ impl App {
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> {
         if self.read_only() { return Err(crate::theme::strings::NEWER_DATA.into()) }
-        self.store.save(data).map_err(|e| format!("Could not save: {e}"))
+        self.store.save(data).map_err(|e| tr!("Could not save: {error}", error = e))
     }
 
     /// The data was saved by a newer RustyPresenter (`Store::load_full`): every edit is refused with
@@ -473,7 +474,7 @@ impl App {
                 live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::ClearAudio }, &DataPlan(&data));
                 stopped = true;
             }
-            live.notice = Some(if stopped { "The room screen restarted. Video/audio stopped — click it again to replay." } else { "The room screen restarted." }.into());
+            live.notice = Some(if stopped { tr!("The room screen restarted. Video/audio stopped — click it again to replay.") } else { tr!("The room screen restarted.") });
         }
         self.broadcast_live();
     }
@@ -581,7 +582,7 @@ impl App {
     pub fn set_screens(&self, s: Arc<dyn Screens>) { let _ = self.screens.set(s); }
 
     pub fn open_window(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
-        self.screens.get().ok_or("RustyPresenter is still starting. Try again in a moment.")?.open(role, monitor)
+        self.screens.get().ok_or_else(|| tr!("RustyPresenter is still starting. Try again in a moment."))?.open(role, monitor)
     }
 
     pub fn close_window(&self, role: &str) { if let Some(s) = self.screens.get() { s.close(role); } }
@@ -604,7 +605,7 @@ impl App {
             if applied.get(&w.key) == Some(w) { continue }
             let opened = match &w.target {
                 ScreenTarget::Monitor(m) => self.open_window(&w.key, Some(m)),
-                ScreenTarget::Window => self.screens.get().ok_or_else(|| "RustyPresenter is still starting. Try again in a moment.".to_string()).and_then(|s| s.open_window(&w.key, w.size)),
+                ScreenTarget::Window => self.screens.get().ok_or_else(|| tr!("RustyPresenter is still starting. Try again in a moment.")).and_then(|s| s.open_window(&w.key, w.size)),
                 ScreenTarget::None => continue,
             };
             match opened { Ok(()) => { applied.insert(w.key.clone(), w.clone()); } Err(e) => failed.push(e) }
@@ -627,7 +628,7 @@ impl App {
         let marks = screens.monitors().into_iter().enumerate().map(|(i, m)| {
             let names: Vec<&str> = ScreenSetup::GROUPS.iter().filter_map(|g| setup.group(g)).flat_map(|g| &g.screens)
                 .filter(|s| s.output().target == ScreenTarget::Monitor(m.id.clone())).map(|s| s.name.as_str()).collect();
-            let what = if names.is_empty() { if m.primary { "This computer" } else { "Not used" }.to_string() } else { names.join(", ") };
+            let what = if names.is_empty() { if m.primary { tr!("This computer") } else { tr!("Not used") } } else { names.join(", ") };
             (m.id, (i + 1).to_string(), what)
         }).collect();
         screens.identify(marks);
@@ -738,12 +739,12 @@ impl App {
         let secrets = Secrets::load(root);
         self.translations().iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
-                return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": format!("{name} — built in, public domain"), "language": "English" });
+                return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": tr!("{name} — built in, public domain", name = name), "language": "English" });
             }
             if let Some(b) = bible::import::meta(root, t) {
                 use bible::library::Source;
                 let downloaded = matches!(b.source, Source::Ebible { .. });
-                let provider = if downloaded { bible::catalog::strings::from_ebible(&b.name) } else { format!("{} — imported file", b.name) };
+                let provider = if downloaded { bible::catalog::strings::from_ebible(&b.name) } else { tr!("{name} — imported file", name = b.name) };
                 let abbr = if b.abbr.is_empty() { b.id.clone() } else { b.abbr.clone() };
                 return json!({
                     "translation": t, "abbr": abbr, "name": b.name, "status": "offline", "imported": true, "downloaded": downloaded,
@@ -859,7 +860,7 @@ impl App {
         // ---- songs ----
         "song/save" => {
             let mut song: Song = parse(body)?;
-            if song.title.trim().is_empty() { return Err(ActionError::bad("Give the song a title.")); }
+            if song.title.trim().is_empty() { return Err(ActionError::bad(tr!("Give the song a title."))); }
             if song.id.is_nil() { song.id = Uuid::new_v4(); }
             let id = song.id;
             tryr!(app.edit(|d| { match d.songs.iter_mut().find(|s| s.id == id) { Some(s) => *s = song, None => d.songs.push(song) } Ok(()) }));
@@ -869,7 +870,7 @@ impl App {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Song { song_id } if song_id == id)));
-                if used { return Err("This song is in a service. Remove it from the service first.".into()); }
+                if used { return Err(tr!("This song is in a service. Remove it from the service first.")); }
                 if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Song { song_id } if *song_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.songs.retain(|s| s.id != id);
                 Ok(())
@@ -900,7 +901,7 @@ impl App {
             item.id = Uuid::new_v4();
             let id = item.id;
             tryr!(app.edit(|d| {
-                let s = d.service_mut().ok_or("No service is open.")?;
+                let s = d.service_mut().ok_or_else(|| tr!("No service is open."))?;
                 let pos = position.unwrap_or(s.items.len()).min(s.items.len());
                 s.items.insert(pos, item);
                 Ok(())
@@ -914,11 +915,11 @@ impl App {
                 app.data.lock().unwrap().service().and_then(|s| s.items.iter().find(|i| i.id == id)).and_then(|i| serde_json::to_value(i).ok())
             });
             let merged = match stored { Some(s) => tryr!(crate::theme::merge::merge_object(&s, &patch)), None => patch };
-            let item: ServiceItem = serde_json::from_value(merged).map_err(|e| ActionError::bad(format!("Bad request: {e}")))?;
+            let item: ServiceItem = serde_json::from_value(merged).map_err(|e| ActionError::bad(tr!("Bad request: {error}", error = e)))?;
             refuse_blocked(&item)?;
             tryr!(app.edit(|d| {
-                let s = d.service_mut().ok_or("No service is open.")?;
-                let slot = s.items.iter_mut().find(|i| i.id == item.id).ok_or("That item is gone.")?;
+                let s = d.service_mut().ok_or_else(|| tr!("No service is open."))?;
+                let slot = s.items.iter_mut().find(|i| i.id == item.id).ok_or_else(|| tr!("That item is gone."))?;
                 *slot = item;
                 Ok(())
             }));
@@ -933,8 +934,8 @@ impl App {
             #[derive(Deserialize)] struct Mv { id: Uuid, to: usize }
             let Mv { id, to } = parse(body)?;
             tryr!(app.edit(|d| {
-                let s = d.service_mut().ok_or("No service is open.")?;
-                let from = s.items.iter().position(|i| i.id == id).ok_or("That item is gone.")?;
+                let s = d.service_mut().ok_or_else(|| tr!("No service is open."))?;
+                let from = s.items.iter().position(|i| i.id == id).ok_or_else(|| tr!("That item is gone."))?;
                 let it = s.items.remove(from);
                 s.items.insert(to.min(s.items.len()), it);
                 Ok(())
@@ -945,7 +946,7 @@ impl App {
             #[derive(Deserialize)] struct N { name: String, copy_from: Option<Uuid> }
             let N { name, copy_from } = parse(body)?;
             let id = tryr!(app.edit(|d| {
-                let mut s = Service::new(if name.trim().is_empty() { "New Service" } else { name.trim() });
+                let mut s = Service::new(&if name.trim().is_empty() { tr!("New Service") } else { name.trim().to_string() });
                 s.date = Some(chrono::Local::now().date_naive());
                 if let Some(src) = copy_from.and_then(|c| d.services.iter().find(|x| x.id == c)) {
                     s.template = src.template;
@@ -960,7 +961,7 @@ impl App {
         }
         "service/select" => {
             let Id { id } = parse(body)?;
-            tryr!(app.edit(|d| { if !d.services.iter().any(|s| s.id == id) { return Err("That service is gone.".into()); } d.current_service = Some(id); Ok(()) }));
+            tryr!(app.edit(|d| { if !d.services.iter().any(|s| s.id == id) { return Err(tr!("That service is gone.")); } d.current_service = Some(id); Ok(()) }));
             app.online_text_from_cache();
             let me = app.clone();
             tokio::spawn(async move { me.fetch_online_text().await });
@@ -975,7 +976,7 @@ impl App {
         "service/delete" => {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {
-                if d.services.len() <= 1 { return Err("You need at least one service.".into()); }
+                if d.services.len() <= 1 { return Err(tr!("You need at least one service.")); }
                 d.services.retain(|s| s.id != id);
                 if d.current_service == Some(id) { d.current_service = d.services.first().map(|s| s.id); }
                 Ok(())
@@ -1004,7 +1005,7 @@ impl App {
             // An empty key removes it. A non-empty key is checked with one lookup before it is saved.
             #[derive(Deserialize)] struct K { provider: String, key: String }
             let K { provider, key } = parse(body)?;
-            let p = bible::sources::Provider::from_key_name(&provider).ok_or_else(|| ActionError::bad("Unknown Bible service."))?;
+            let p = bible::sources::Provider::from_key_name(&provider).ok_or_else(|| ActionError::bad(tr!("Unknown Bible service.")))?;
             tryr!(bible::sources::set_key(&app.store.root, p, &key).await);
             app.refresh_bible_credits();
             app.broadcast_data();
@@ -1049,7 +1050,7 @@ impl App {
             let F { id, folder } = parse(body)?;
             let folder = folder.trim().to_string();
             tryr!(app.edit(|d| {
-                let m = d.media.iter_mut().find(|m| m.id == id).ok_or("That file is gone.")?;
+                let m = d.media.iter_mut().find(|m| m.id == id).ok_or_else(|| tr!("That file is gone."))?;
                 m.folder = folder.clone();
                 if !folder.is_empty() && !d.media_folders.contains(&folder) { d.media_folders.push(folder); }
                 Ok(())
@@ -1060,7 +1061,7 @@ impl App {
             #[derive(Deserialize)] struct F { name: String }
             let F { name } = parse(body)?;
             let name = name.trim().to_string();
-            if name.is_empty() { return Err(ActionError::bad("Give the folder a name.")); }
+            if name.is_empty() { return Err(ActionError::bad(tr!("Give the folder a name."))); }
             tryr!(app.edit(|d| {
                 if !d.media_folders.iter().any(|f| f.eq_ignore_ascii_case(&name)) { d.media_folders.push(name); }
                 Ok(())
@@ -1082,7 +1083,7 @@ impl App {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Media { media_id, .. } if media_id == id)));
-                if used { return Err("This is in a service. Remove it from the service first.".into()); }
+                if used { return Err(tr!("This is in a service. Remove it from the service first.")); }
                 if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Media { media_id, .. } if *media_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.media.retain(|m| m.id != id);
                 Ok(())
@@ -1103,7 +1104,7 @@ impl App {
                 "asset" => ImportPurpose::Asset,
                 "powerpoint" => ImportPurpose::PowerPoint,
                 "lyrics" => ImportPurpose::Lyrics,
-                other => return Err(ActionError::bad(format!("Bad request: unknown purpose {other}"))),
+                other => return Err(ActionError::bad(tr!("Bad request: unknown purpose {purpose}", purpose = other))),
             };
             Ok(match app.import_path(&path, purpose, |_| {}).await? {
                 Imported::Media(m) => json!({ "media": m }),
@@ -1115,8 +1116,8 @@ impl App {
         "deck/from-images" => {
             #[derive(Deserialize)] struct D { title: String, assets: Vec<AssetId> }
             let D { title, assets } = parse(body)?;
-            if assets.is_empty() { return Err(ActionError::bad("Choose at least one picture.")); }
-            for a in &assets { if !app.store.asset_path(a).exists() { return Err(ActionError::bad("A picture is missing. Try uploading again.")); } }
+            if assets.is_empty() { return Err(ActionError::bad(tr!("Choose at least one picture."))); }
+            for a in &assets { if !app.store.asset_path(a).exists() { return Err(ActionError::bad(tr!("A picture is missing. Try uploading again."))); } }
             let id = Uuid::new_v4();
             tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets }); Ok(()) }));
             Ok(json!({ "id": id }))
@@ -1131,7 +1132,7 @@ impl App {
             let Id { id } = parse(body)?;
             tryr!(app.edit(|d| {
                 let used = d.services.iter().any(|s| s.items.iter().any(|i| matches!(i.kind, ItemKind::Deck { deck_id } if deck_id == id)));
-                if used { return Err("These slides are in a service. Remove them from the service first.".into()); }
+                if used { return Err(tr!("These slides are in a service. Remove them from the service first.")); }
                 if let Some(t) = crate::planning::actions::template_using(d, |k| matches!(k, ItemKind::Deck { deck_id } if *deck_id == id)) { return Err(crate::planning::strings::in_template(&t)); }
                 d.decks.retain(|x| x.id != id);
                 Ok(())
@@ -1176,7 +1177,7 @@ impl App {
             #[derive(Deserialize)] struct T { translation: String }
             let T { translation } = parse(body)?;
             if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
-            if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
+            if !app.translations().contains(&translation) { return Err(ActionError::bad(tr!("Unknown translation."))); }
             // A main Bible that was also an Also Bible stops being one (Nov 5 spec §3).
             let turned_off = tryr!(app.edit(|d| {
                 d.settings.used_translation(&translation);
@@ -1209,7 +1210,7 @@ impl App {
             let A { mut also_show, parallel_layout } = parse(body)?;
             let known = app.translations();
             if also_show.iter().any(|t| bible::blocklist::blocked(t, &[], &[], &[t])) { return Err(ActionError::bad(BLOCKED)); }
-            if also_show.iter().any(|t| !known.contains(t)) { return Err(ActionError::bad("Unknown translation.")); }
+            if also_show.iter().any(|t| !known.contains(t)) { return Err(ActionError::bad(tr!("Unknown translation."))); }
             tryr!(app.edit(|d| {
                 crate::scripture::also::tidy_ids(&d.settings.translation, &mut also_show, &|_| false);
                 d.settings.also_show = also_show;
@@ -1224,7 +1225,7 @@ impl App {
             let F { translation, on } = parse(body)?;
             if on {
                 if bible::blocklist::blocked(&translation, &[], &[], &[&translation]) { return Err(ActionError::bad(BLOCKED)); }
-                if !app.translations().contains(&translation) { return Err(ActionError::bad("Unknown translation.")); }
+                if !app.translations().contains(&translation) { return Err(ActionError::bad(tr!("Unknown translation."))); }
             }
             tryr!(app.edit(|d| { d.settings.set_favourite(&translation, on); Ok(()) }));
             Ok(json!({}))
@@ -1233,7 +1234,7 @@ impl App {
         "display/open" => {
             #[derive(Deserialize)] struct O { role: String, monitor: Option<String> }
             let O { role, monitor } = parse(body)?;
-            if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
+            if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad(tr!("Unknown screen."))); }
             if role == "operator" { tryr!(app.open_window(&role, None)) } else {
                 let target = monitor.map_or(ScreenTarget::Window, ScreenTarget::Monitor);
                 let group = if role == "room" { "audience" } else { "stage" };
@@ -1246,10 +1247,10 @@ impl App {
         "display/close" => {
             #[derive(Deserialize)] struct C { role: String }
             let C { role } = parse(body)?;
-            if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad("Unknown screen.")); }
+            if !matches!(role.as_str(), "room" | "stage" | "operator") { return Err(ActionError::bad(tr!("Unknown screen."))); }
             if role == "operator" { app.close_window(&role) } else {
                 let group = if role == "room" { "audience" } else { "stage" };
-                tryr!(app.edit(|d| { d.settings.screens.group_mut(group).ok_or("Unknown screen.")?.on = false; Ok(()) }));
+                tryr!(app.edit(|d| { d.settings.screens.group_mut(group).ok_or_else(|| tr!("Unknown screen."))?.on = false; Ok(()) }));
                 tryr!(app.sync_screens());
             }
             app.broadcast_data();
@@ -1261,11 +1262,11 @@ impl App {
             let P { group, on } = parse(body)?;
             let free = app.free_monitor(&app.data.lock().unwrap().settings.screens);
             tryr!(app.edit(|d| {
-                let g = d.settings.screens.group_mut(&group).ok_or("Unknown screen.")?;
+                let g = d.settings.screens.group_mut(&group).ok_or_else(|| tr!("Unknown screen."))?;
                 // The first switch-on just works when a screen is free for it.
                 if on && g.screens.iter().all(|s| s.output().target == ScreenTarget::None) {
-                    let free = free.ok_or("Pick an output for this screen first.")?;
-                    let first = g.screens.first_mut().ok_or("Add a screen first.")?;
+                    let free = free.ok_or_else(|| tr!("Pick an output for this screen first."))?;
+                    let first = g.screens.first_mut().ok_or_else(|| tr!("Add a screen first."))?;
                     *first.output_mut() = ScreenOutput { target: ScreenTarget::Monitor(free.id), width: free.width.max(0) as u32, height: free.height.max(0) as u32 };
                 }
                 g.on = on;
@@ -1279,10 +1280,9 @@ impl App {
             #[derive(Deserialize)] struct A { group: String }
             let A { group } = parse(body)?;
             let id = tryr!(app.edit(|d| {
-                let g = d.settings.screens.group_mut(&group).ok_or("Unknown screen.")?;
+                let g = d.settings.screens.group_mut(&group).ok_or_else(|| tr!("Unknown screen."))?;
                 let n = g.screens.len() + 1;
-                let title = if group == "audience" { "Audience" } else { "Stage Display" };
-                let name = (n..).map(|i| format!("{title} {i}")).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
+                let name = (n..).map(|i| if group == "audience" { tr!("Audience {number}", number = i) } else { tr!("Stage Display {number}", number = i) }).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
                 let screen = Screen::new(Uuid::new_v4(), &name);
                 let id = screen.id;
                 g.screens.push(screen);
@@ -1295,9 +1295,9 @@ impl App {
             let R { id } = parse(body)?;
             tryr!(app.edit(|d| {
                 let s = &mut d.settings.screens;
-                let (group, _) = s.find(id).ok_or("That screen is gone.")?;
-                let g = s.group_mut(group).ok_or("Unknown screen.")?;
-                if g.screens.len() < 2 { return Err("Each list keeps at least one screen.".into()) }
+                let (group, _) = s.find(id).ok_or_else(|| tr!("That screen is gone."))?;
+                let g = s.group_mut(group).ok_or_else(|| tr!("Unknown screen."))?;
+                if g.screens.len() < 2 { return Err(tr!("Each list keeps at least one screen.")) }
                 g.screens.retain(|s| s.id != id);
                 Ok(())
             }));
@@ -1321,7 +1321,7 @@ impl App {
                         }
                     }
                 }
-                let screen = setup.find_mut(id).ok_or("That screen is gone.")?;
+                let screen = setup.find_mut(id).ok_or_else(|| tr!("That screen is gone."))?;
                 if let Some(name) = name.as_deref().map(str::trim).filter(|n| !n.is_empty()) { screen.name = name.into() }
                 let out = screen.output_mut();
                 if let Some(t) = target {
@@ -1355,7 +1355,7 @@ impl App {
             let a = app.clone();
             let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await
                 // Only a panic inside the backup lands here: a server fault, not the user's.
-                .map_err(|_| ActionError { status: 500, message: "Backup failed.".into() })?;
+                .map_err(|_| ActionError { status: 500, message: tr!("Backup failed.") })?;
             let name = tryr!(name.map_err(|e| e.to_string()));
             app.broadcast_data();
             Ok(json!({ "name": name }))
@@ -1463,15 +1463,15 @@ impl App {
         let tmp = self.store.tmp().join(format!("{}.part", Uuid::new_v4()));
         let (src, dst, shown) = (path.to_path_buf(), tmp.clone(), name.clone());
         let sha = tokio::task::spawn_blocking(move || -> Result<String, String> {
-            let disk_full = |_| "Could not save the file (disk full?).".to_string();
-            let mut input = std::fs::File::open(&src).map_err(|e| format!("Could not open “{shown}”: {e}"))?;
+            let disk_full = |_| tr!("Could not save the file (disk full?).");
+            let mut input = std::fs::File::open(&src).map_err(|e| tr!("Could not open “{file}”: {error}", file = shown, error = e))?;
             let total = input.metadata().map(|m| m.len()).unwrap_or(0);
             let mut out = std::fs::File::create(&dst).map_err(disk_full)?;
             let (mut hasher, mut buf, mut done, mut last) = (Sha256::new(), vec![0u8; 1 << 16], 0u64, 0u8);
             progress(0);
             let copied = (|| -> Result<(), String> {
                 loop {
-                    let n = input.read(&mut buf).map_err(|e| format!("Could not read “{shown}”: {e}"))?;
+                    let n = input.read(&mut buf).map_err(|e| tr!("Could not read “{file}”: {error}", file = shown, error = e))?;
                     if n == 0 { return Ok(()); }
                     hasher.update(&buf[..n]);
                     out.write_all(&buf[..n]).map_err(disk_full)?;
@@ -1707,7 +1707,7 @@ fn refuse_blocked(item: &ServiceItem) -> Result<(), ActionError> {
 }
 
 fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> {
-    serde_json::from_slice(body).map_err(|e| ActionError::bad(format!("Bad request: {e}")))
+    serde_json::from_slice(body).map_err(|e| ActionError::bad(tr!("Bad request: {error}", error = e)))
 }
 
 #[cfg(test)]

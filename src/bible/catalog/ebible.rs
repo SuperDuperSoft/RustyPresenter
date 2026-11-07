@@ -48,7 +48,7 @@ pub async fn refresh(ctx: &Ctx) -> Result<Listing, CatalogError> {
                 }
                 (_, Some(saved)) => { eprintln!("eBible catalog: unreadable answer; showing the saved list"); (saved, true) }
                 (Err(e), None) => return Err(CatalogError::Bad(e)),
-                (Ok(_), None) => return Err(CatalogError::Bad("no rows".into())),
+                (Ok(_), None) => return Err(CatalogError::Bad(crate::tr!("no rows"))),
             },
             Err(e) => match saved {
                 Some(csv) => { eprintln!("eBible catalog: {e:?}; showing the saved list"); (csv, true) }
@@ -75,13 +75,13 @@ async fn get(ctx: &Ctx, state: &State, conditional: bool) -> Result<Got, Catalog
     })?;
     let status = resp.status();
     if status == reqwest::StatusCode::NOT_MODIFIED && conditional { return Ok(Got::NotModified); }
-    if !status.is_success() { return Err(CatalogError::Bad(format!("eBible answered {}", status.as_u16()))); }
+    if !status.is_success() { return Err(CatalogError::Bad(crate::tr!("eBible answered {status}", status = status.as_u16()))); }
     let header = |h| resp.headers().get(h).and_then(|v: &reqwest::header::HeaderValue| v.to_str().ok()).unwrap_or("").to_string();
     let (etag, last_modified) = (header(reqwest::header::ETAG), header(reqwest::header::LAST_MODIFIED));
     let mut csv = Vec::new();
     while let Some(chunk) = resp.chunk().await.map_err(|_| CatalogError::Offline)? {
         csv.extend_from_slice(&chunk);
-        if csv.len() > MAX_CSV { return Err(CatalogError::Bad("the list is far larger than expected".into())); }
+        if csv.len() > MAX_CSV { return Err(CatalogError::Bad(crate::tr!("the list is far larger than expected"))); }
     }
     Ok(Got::Body { csv, etag, last_modified })
 }
@@ -120,9 +120,9 @@ pub struct Row {
 pub fn parse(bytes: &[u8]) -> Result<Vec<Row>, String> {
     let text = String::from_utf8_lossy(bytes);
     let mut records = records(text.strip_prefix('\u{feff}').unwrap_or(&text)).into_iter();
-    let header = records.next().ok_or("empty file")?;
+    let header = records.next().ok_or_else(|| crate::tr!("empty file"))?;
     let col = |name: &str| header.iter().position(|h| h.trim().eq_ignore_ascii_case(name));
-    let need = |name: &str| col(name).ok_or_else(|| format!("no {name} column"));
+    let need = |name: &str| col(name).ok_or_else(|| crate::tr!("no {column} column", column = name));
     let (code, id, title, redist, down) =
         (need("languageCode")?, need("translationId")?, need("title")?, need("Redistributable")?, need("downloadable")?);
     let opt = ["languageName", "languageNameInEnglish", "shortTitle", "description", "Copyright", "UpdateDate", "OTbooks",

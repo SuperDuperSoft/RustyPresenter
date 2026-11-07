@@ -62,9 +62,9 @@ pub fn requests(book: u8, part: &Part) -> Vec<Request> {
 }
 
 pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book: u8, part: &Part) -> Result<Vec<Verse>, FetchError> {
-    let bible = version_id(translation).ok_or_else(|| FetchError::Other(format!("YouVersion has no Bible id for {translation}")))?;
+    let bible = version_id(translation).ok_or_else(|| FetchError::Other(crate::tr!("YouVersion has no Bible id for {translation}", translation = translation)))?;
     let reqs = requests(book, part);
-    if reqs.len() > MAX_REQUESTS { return Err(FetchError::Other("that passage spans too many chapters; choose fewer".into())); }
+    if reqs.len() > MAX_REQUESTS { return Err(FetchError::Other(crate::tr!("that passage spans too many chapters; choose fewer"))); }
     let mut out = Vec::new();
     for r in &reqs {
         // HTML, because the text format gives no verse boundaries. Headings and notes are off by
@@ -86,8 +86,8 @@ pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book:
 /// 403 here means a recognised key without that publisher's license, not a bad key.
 fn status_error(status: u16, bible: u32) -> FetchError {
     match status {
-        403 => FetchError::Other(format!("this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com")),
-        412 => FetchError::Other("the YouVersion app is archived or removed; check it at platform.youversion.com".into()),
+        403 => FetchError::Other(crate::tr!("this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com", bible = bible)),
+        412 => FetchError::Other(crate::tr!("the YouVersion app is archived or removed; check it at platform.youversion.com")),
         s => FetchError::from_status(s),
     }
 }
@@ -95,7 +95,7 @@ fn status_error(status: u16, bible: u32) -> FetchError {
 /// Verses of one chapter's response, trimmed to the request's range.
 pub fn parse(r: &Request, res: &Response) -> Result<Vec<Verse>, FetchError> {
     if !res.id.is_empty() && res.id.split('.').next() != r.id.split('.').next() {
-        return Err(FetchError::Other("YouVersion returned a different book".into()));
+        return Err(FetchError::Other(crate::tr!("YouVersion returned a different book")));
     }
     Ok(split_verses(&res.content).into_iter()
         .filter(|(v, _)| *v >= r.from && r.to.is_none_or(|t| *v <= t))

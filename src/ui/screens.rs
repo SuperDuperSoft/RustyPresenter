@@ -11,9 +11,9 @@ use crate::video::{FrameGrabber, ffi::Mpv};
 use slint::{CloseRequestResponse, ComponentHandle, Timer, TimerMode, winit_030::{invoke_from_active_event_loop, winit::event_loop::ActiveEventLoop}};
 use std::{cell::RefCell, rc::Rc, sync::{Arc, Mutex, Weak, atomic::{AtomicBool, Ordering}, mpsc}, thread::ThreadId, time::Duration};
 
-const NOT_CONNECTED: &str = "That screen is not connected right now.";
+fn not_connected() -> String { crate::tr!("That screen is not connected right now.") }
 /// Shown where a Linux desktop lists who is keeping it awake.
-const STAYING_AWAKE: &str = "A presentation is on screen";
+fn staying_awake() -> String { crate::tr!("A presentation is on screen") }
 
 /// How long Identify's badges stay up.
 const IDENTIFY_FOR: Duration = Duration::from_secs(4);
@@ -23,7 +23,7 @@ const BADGE: f64 = 0.36;
 /// "room" or "stage", for a window name from `ScreenSetup::keyed`.
 fn kind(role: &str) -> &str { role.split(':').next().unwrap_or(role) }
 
-/// How the operator hears about a role's window.
+/// A role's window, for the log.
 fn named(role: &str) -> &'static str {
     match (kind(role), role.contains(':')) {
         ("room", false) => "room screen",
@@ -35,7 +35,22 @@ fn named(role: &str) -> &'static str {
 
 /// The notice while `role`'s monitor is unplugged.
 pub fn gone_notice(role: &str) -> String {
-    format!("The {} was unplugged. It comes back by itself when that screen is plugged in again.", named(role))
+    match (kind(role), role.contains(':')) {
+        ("room", false) => crate::tr!("The room screen was unplugged. It comes back by itself when that screen is plugged in again."),
+        ("room", true) => crate::tr!("The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."),
+        (_, false) => crate::tr!("The stage display was unplugged. It comes back by itself when that screen is plugged in again."),
+        (_, true) => crate::tr!("The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."),
+    }
+}
+
+/// The notice when `role`'s monitor is back but its window could not open.
+fn back_failed(role: &str, error: &str) -> String {
+    match (kind(role), role.contains(':')) {
+        ("room", false) => crate::tr!("The room screen is plugged in again, but it could not open: {error}", error = error),
+        ("room", true) => crate::tr!("The extra audience screen is plugged in again, but it could not open: {error}", error = error),
+        (_, false) => crate::tr!("The stage display is plugged in again, but it could not open: {error}", error = error),
+        (_, true) => crate::tr!("The extra stage screen is plugged in again, but it could not open: {error}", error = error),
+    }
 }
 
 /// A badge's rectangle, centred on `m`: position and size in physical pixels.
@@ -145,8 +160,8 @@ impl NativeScreens {
         let (tx, rx) = mpsc::sync_channel(1);
         let me = self.me.clone();
         invoke_from_active_event_loop(move |el| if let Some(s) = me.upgrade() { s.look(el); let _ = tx.send(f(&s)); })
-            .map_err(|_| "The screens are not running.".to_string())?;
-        rx.recv_timeout(Duration::from_secs(10)).map_err(|_| "The screens did not answer in time.".to_string())
+            .map_err(|_| crate::tr!("The screens are not running."))?;
+        rx.recv_timeout(Duration::from_secs(10)).map_err(|_| crate::tr!("The screens did not answer in time."))
     }
 
     fn look(&self, el: &ActiveEventLoop) {
@@ -232,14 +247,14 @@ impl NativeScreens {
         let mut badges = vec![];
         for (id, number, what) in marks {
             let Some(m) = monitors.iter().find(|m| m.id == id) else { continue };
-            let ui = IdentifyWindow::new().map_err(|e| format!("Could not show the screen numbers: {e}"))?;
+            let ui = IdentifyWindow::new().map_err(|e| crate::tr!("Could not show the screen numbers: {error}", error = e))?;
             crate::i18n::sync_slint();
             ui.set_number(number.into());
             ui.set_what(what.into());
             let ((x, y), (w, h)) = badge(m);
             ui.window().set_position(slint::PhysicalPosition::new(x, y));
             ui.window().set_size(slint::PhysicalSize::new(w, h));
-            ui.show().map_err(|e| format!("Could not show the screen numbers: {e}"))?;
+            ui.show().map_err(|e| crate::tr!("Could not show the screen numbers: {error}", error = e))?;
             badges.push(ui);
         }
         if let Some(op) = operator {
@@ -272,7 +287,7 @@ impl NativeScreens {
                 let opened = self.show(&role, Some(m));
                 let mut live = app.live.lock().unwrap();
                 match opened {
-                    Err(e) => live.notice = Some(format!("The {} is plugged in again, but it could not open: {e}", named(&role))),
+                    Err(e) => live.notice = Some(back_failed(&role, &e)),
                     Ok(()) => if live.notice.as_deref() == Some(gone_notice(&role).as_str()) { live.notice = None },
                 }
             }
@@ -283,7 +298,7 @@ impl NativeScreens {
 
     fn open_here(&self, role: &str, monitor: Option<&str>) -> Result<(), String> {
         let mon = match monitor {
-            Some(saved) => Some(pick(&self.seen.lock().unwrap().0, Some(saved), None).ok_or(NOT_CONNECTED)?),
+            Some(saved) => Some(pick(&self.seen.lock().unwrap().0, Some(saved), None).ok_or_else(not_connected)?),
             None => None,
         };
         self.show(role, mon)
@@ -291,7 +306,7 @@ impl NativeScreens {
 
     /// Opens `role`'s window, full screen on `mon` (a plain window without one), replacing an open one.
     fn show(&self, role: &str, mon: Option<MonitorId>) -> Result<(), String> {
-        let app = self.app.upgrade().ok_or("RustyPresenter is closing.")?;
+        let app = self.app.upgrade().ok_or_else(|| crate::tr!("RustyPresenter is closing."))?;
         drop(self.take(role, None)); // the old window's players and GL context go first
         let guard = app.screen_guard(role);
         // winit activates every window it creates, which would leave the operator's keys dead in the new
@@ -350,7 +365,7 @@ impl NativeScreens {
     fn sync_roles(&self) {
         *self.roles.lock().unwrap() = DESK.with(|d| {
             let mut d = d.borrow_mut();
-            if d.wins.is_empty() { d.awake = None } else if d.awake.is_none() { d.awake = Some(KeepAwake::acquire(STAYING_AWAKE)) }
+            if d.wins.is_empty() { d.awake = None } else if d.awake.is_none() { d.awake = Some(KeepAwake::acquire(&staying_awake())) }
             d.wins.iter().map(|(r, _, _, _)| r.clone()).collect()
         });
     }
@@ -644,7 +659,7 @@ mod tests {
         let app = test_app();
         let s = screens(&app);
         s.look_at(vec![mon(r"\\.\DISPLAY1", 1920, 0)], None);
-        assert_eq!(s.open("room", Some(r"\\.\DISPLAY9")), Err(NOT_CONNECTED.into()));
+        assert_eq!(s.open("room", Some(r"\\.\DISPLAY9")), Err(not_connected()));
         assert!(s.open_roles().is_empty());
     }
 

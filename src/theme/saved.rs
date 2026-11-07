@@ -202,11 +202,11 @@ pub fn delete_kind(cat: &Catalog, id: ThemeId) -> Result<DeleteKind, String> {
 
 /// "<base> copy", then "<base> copy 2", "<base> copy 3", … until one is free.
 pub fn copy_name(base: &str, taken: impl Fn(&str) -> bool) -> String {
-    let first = format!("{base} copy");
+    let first = crate::tr!("{name} copy", name = base);
     if !taken(&first) {
         return first;
     }
-    (2..).map(|n| format!("{base} copy {n}")).find(|n| !taken(n)).expect("an unused name")
+    (2..).map(|n| crate::tr!("{name} copy {number}", name = base, number = n)).find(|n| !taken(n)).expect("an unused name")
 }
 
 #[cfg(test)]
