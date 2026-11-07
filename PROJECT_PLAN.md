@@ -1,7 +1,7 @@
 # RustyPresenter — shared project plan
 
 **Status:** Building. The user approved the design and asked for the app to be built on October 29, 2026. v0.2 (Tauri) is in `src/` and `web/`; the native Slint app is being built beside it (Plans 1 and 2 done on Windows, Plan 3 next). The earlier experiment is in `experiment-archive/`.
-**Updated:** November 6, 2026, 13:41 UTC (one line of work: `v1-candidate`; Bible library Step 1 is built on `bible-library-step1`, Screen Configuration on `screen-config`, see the board and the last handoff)
+**Updated:** November 6, 2026, cloud session (one line of work: `finish` — every Nov 6 feature branch merged and tested; see the board and the newest handoff)
 **Collaborators:** User, Codex, and Claude
 **Purpose:** A Rust-based presentation application for this church's personal use during live services.
 
@@ -35,7 +35,7 @@ User decisions (October 29, 2026 design review):
 - **Clear All / Slide / Media / Audio + Logo**, defined by the spec's clear matrix. No Blackout/Restore.
 - **Next on the last slide takes the next service item live.**
 - **Songs in v1:** SongSelect `.txt` import + one-time EasyWorship library import (songs only). Direct SongSelect login is deferred, not dropped.
-- **Bible:** all six translations required for v1 release; the user may approve an exception after seeing cost/terms.
+- ~~**Bible:** all six translations required for v1 release~~ → **Changed November 6, 2026:** the user said the six names were only examples. v1 ships with KJV built in, free eBible downloads, imported licensed files and online sources with a key; no specific translation gates release.
 - **Decks:** PowerPoint and Google Slides as slide images; PowerPoint renders via the installed PowerPoint.
 
 ## 1. Requirements
@@ -47,7 +47,7 @@ User decisions (October 29, 2026 design review):
 | R3 | Android and iOS remote control | Browser remote with secured pairing | Optional native apps |
 | R4 | SongSelect song import | `.txt` import + EasyWorship library import (**user-approved interim**) | Direct account login and automatic retrieval, pending CCLI partner access |
 | R5 | Easy Bible verse presentation | `Ctrl+B` flow, auto split from settings, easy tweaks | Same |
-| R6 | NIV, ESV, CSB, HCSB, NLT, KJV (CSB ≠ HCSB) | All six Ready for release, unless the user approves an exception | Same |
+| R6 | Bible translations (NIV, ESV, CSB, HCSB, NLT, KJV were examples, Nov 6) | KJV built in + eBible downloads + licensed imports + online with a key; no named translation gates v1 | As many as licences allow |
 | R7 | PowerPoint import | Slide images via installed PowerPoint | Animations, embedded media, editable text, LibreOffice |
 | R8 | Google Slides import | Slide images via system-browser sign-in + Picker | Same plus fidelity upgrades |
 | R9 | ~~Personal church use~~ → **Free for every church** (user decision, November 1, 2026: "free to use for all churches, easy to use for all and works on any computer") | Free, open source, no subscriptions or cloud hosting; built for non-technical volunteers | Any church, any Windows/macOS/Linux computer |
@@ -163,7 +163,6 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | NATIVE-P2 | Plan 2: `video` module (libmpv), room output window, stage window | Claude | Done (Windows) | `docs/superpowers/plans/2026-11-01-native-video-room-stage.md`. Branch `native-foundation`, binary `rustypresenter-native`. Release build, `cargo test` and the libmpv-gated video tests pass on Windows; driven check of the native room/stage recorded in the checks doc (see handoff Nov 1, Plan 2). CI not yet run on the branch (not pushed). Monitor unplug, macOS/Linux video and a by-eye look still need real machines or a person. |
 | NATIVE-P3 | Plan 3: operator window and dialogs | Claude | Needs review | `docs/superpowers/plans/2026-11-01-native-operator.md`. All tasks are on branch `plan3-waveb` (`fdacd3e`, on `native-foundation` `ac46d8d`), not merged. Linux tests pass and the window ran under Xvfb; nothing from Wave B on has been seen run on Windows here, and the Task 23 Step 5 manual check is not done (see handoff Nov 3). |
 | NATIVE-P4 | Plan 4: LibreOffice/pdfium import, supervisor + crash recovery, packaging for three platforms, remove Tauri | Claude | In progress | `docs/superpowers/plans/2026-11-01-native-imports-recovery-packaging.md`; after Plan 3. Tasks 1–2 are on branch `plan4-platform`, Tasks 9–10 on `plan4-recovery`, not merged (see handoffs Nov 2, 17:17 and 18:00 UTC). |
-| FEAT-1 | Looks and themes (§10b) | Claude | Planning | Brainstorm started November 1. Spec next, then plan. |
 | NATIVE-P4-4-5 | Plan 4 Task 4 (`import::pdf`) and Task 5 (`import::libreoffice`) | Claude | Needs review | Branch `plan4-convert-fixes` (`b0e96b7`, on `plan4-convert` `510cf1d`), not merged. Ran against real LibreOffice and real pdfium on Linux; nothing has run on Windows (see handoffs Nov 2, 19:43 and 20:40 UTC). |
 | NATIVE-P4-6a | Plan 4 Task 6a (`App` jobs: cancel, labels, notes, results; job card) | Claude | Needs review | Branch `plan4-jobs` (`28d82df`, on `native-foundation` `ac46d8d`), not merged. Linux tests pass; nothing has run on Windows (see handoff Nov 2, 21:41 UTC). |
 | NATIVE-P4-8a-7 | Plan 4 Task 8a core (`song/import` modes) and Task 7 (`import::probe`, `Node`) | Claude | Needs review | Branches `plan4-song-import` and `plan4-probe`, not merged. Linux tests pass; nothing has run against libmpv or on Windows (see handoff Nov 2, 18:44 UTC). |
@@ -181,7 +180,17 @@ Statuses: **Planning**, **Ready**, **In progress**, **Needs review**, **Blocked*
 | BIBLE-LIB-1 | Bible library Step 1 (`docs/superpowers/specs/2026-11-03-bible-library-design.md` §15, changed by the Nov 5 three-Bibles spec). Items 1 to 6 of 9 and part of 7 are built: blocklist, translation ids, `BibleMeta` with `bibles/index.json`, the eBible catalog as the first `CatalogSource`, the download job | Claude | Needs review | Branch `bible-library-step1` (`63d7b2b`, on `v1-candidate` `7be4585`), not merged. Linux tests pass; nothing has run on Windows, and nothing has been downloaded from the live eBible site (see handoff Nov 6, 10:41 UTC). Items 1 to 8 are built (item 6: the font warning checks the title and language name, not yet the first verse; item 7: recent is changed only by the Bible box). Item 8: credits on scripture slides, reference and credit together (handoff Nov 6, 12:41 UTC). Item 9: the missing §14 tests and a smoke run under Xvfb (handoff Nov 6, 13:41 UTC). Step 1 is built; it needs a Windows build and a first real eBible download. |
 | MERGE-ALL | Every branch on the laptop and on GitHub in one line, then the three-Bible design (Nov 5 spec, plan `docs/superpowers/plans/2026-11-06-bible-three-at-once-and-more-sources.md`) | Claude | Needs review | Branch `merge-all` (laptop repo and GitHub). **Build on it from now on.** Linux tests pass (lib 1665). Plan Tasks 1–7 and part of 8 done. See handoff Nov 6, cloud session, `merge-all`. |
 | V1-NEXT | Bible library Step 1 and Screen Configuration on one branch | Claude | Needs review | Branch `v1-next` (`304a96d`): merge of `bible-library-step1` `63d7b2b` and `screen-config` `42d4594`, clean. Sandbox: lib 1602 passed, 0 failed. Next: `windows-check.cmd v1-next` on the PC. |
-| FEAT-2 – FEAT-7 | Service automation, stage display, song workflow, Bible extras, service planning, livestream/reporting (§10b) | Unassigned | Planning | Each gets its own spec and plan, in §10b order. |
+| FINISH-NOV6 | Every Nov 6 cloud branch merged on `finish` (see handoff "November 6 — cloud session, `finish`") | Claude | Needs review | Linux: lib 2109 passed, all integration tests pass, check clean. Nothing has run on Windows. Next: `windows-check.cmd finish` on the PC. |
+| UI-MENU | Classic menu bar (§10c) | Claude | Needs review | Spec `docs/superpowers/specs/2026-11-06-ui-menu-design.md`; on `finish`. Seen under Xvfb (`/root/shots/menu-*.png` in the cloud). Items with no action yet are listed in the handoff. Windows by-hand check left. |
+| I18N-1 | RustyPresenter in any language (spec `2026-11-06-i18n-any-language-design.md`) | Claude | Needs review | On `finish`: `src/i18n`, Settings → Language, every .slint and Rust string through `@tr`/`tr!` (1314 texts), phone remote `/i18n.json`, `docs/TRANSLATING.md`, 12 machine-drafted languages marked "needs review". Left: by-eye check in Spanish and one CJK language on Windows; RTL mirroring (spec §8). |
+| FEAT-1 | Looks and themes | Claude | In progress | Part B foundation on `finish` (format 2 + migration, item/service themes, backgrounds, overlays, render, actions; no UI). Left: Themes tab, background manager, rich text (`ItemKind::Text.styles`), overlays strip, F6 button. |
+| FEAT-3 | Stage display | Claude | In progress | Part A core + 5 preset layouts + stage window on `finish`. Left: layout editor (Part B), `Data.stage_layouts`, timers feed (needs FEAT-2). |
+| FEAT-4 | Song workflow | Claude | In progress | Steps (a) and (b) + drag chips on `finish`. Left: `ItemKind::Song.arrangement` + per-service order (B14, B16), chip keyboard moves. Jake to choose the chorus colour (close to the live red). |
+| FEAT-6 | Service planning | Claude | In progress | 6a + 6b on `finish` (dates, Copy last week, templates, blanks, headers, print/HTML, bundle extras). Left: template editor, date picker, practice mode (6c), in-app PDF. |
+| FEAT-7 | Looks, livestream, reporting | Claude | In progress | Song use log + CCLI report (CSV/HTML) on `finish`. Livestream is **after 1.0** (see §10d). |
+| BIBLE-3 | Three Bibles plan Tasks 8–10 | Claude | Needs review | On `finish`: Item edit "Also show", missing-verse note, online text cache-only (never saved), catalog merge. Not checked against real APIs. |
+| FEAT-2, FEAT-5 | Service automation; Bible extras | Unassigned | Planning | Specs and plans exist; not built. FEAT-3 timers wait on FEAT-2. |
+| REFACTOR-CRATES | Split the crate into a workspace (core / ui / server …) | Unassigned | Planning | After 1.0. The lib test build needs ~6 GB RAM (the cloud sandbox needed a swap file). |
 
 ## 9. Current workspace handoff
 
@@ -227,6 +236,54 @@ Still open:
 Left out unless the user asks: live camera input, recording or streaming from the app, MIDI, DMX lighting, timecode, custom clear groups.
 
 Plan 3 stays a 1:1 port of the web operator. Lyric search already exists there (the Add dialog search matches any field, lyrics included), so only the FEAT-4 items are new.
+
+## 10c. Ideas from the ProPresenter 7 beginner's guide (user approved all, November 6, 2026)
+
+Source notes: `docs/research/2026-11-06-propresenter7-beginners-guide-notes.md`. The user asked for every idea to go into the plan. Each one is listed under the §10b project it belongs to. Items marked *new* were not in §10b before.
+
+| # | Idea | Goes in | What "done" looks like |
+| --- | --- | --- | --- |
+| 1 | Layers with their own clear buttons (Background, Text, Announcements, Messages, Audio); a button lights up while its layer is showing | FEAT-1 | Clearing one layer leaves the others on screen; the lit buttons always match the room screen |
+| 2 | Every song gets an Intro slide (holds the background and actions) and a Blank slide | FEAT-4 | New songs and EasyWorship imports get both; the Blank slide shows no lyrics |
+| 3 | Arrangements: a song is made of sections; an arrangement is an ordered list of them; several per song | FEAT-4 | Editing a section once changes every repeat of it |
+| 4 | Whole-song text editor: Enter = new line, a shortcut = new slide, Backspace at a slide's start merges it with the one before | FEAT-4 | A song can be re-split without opening each slide |
+| 5 | Import dialog: lines per slide, break on line or paragraph, theme applied on import; paste lyrics that have "Verse 1 / Chorus" headings | FEAT-4 | Pasted lyrics come in already split into sections |
+| 6 | Slide actions: a slide can start a background, music, a stage layout or a look; small icons on the thumbnail show what is attached | FEAT-2 | One click on the Intro slide shows the background and switches the stage layout |
+| 7 | Looks: per screen, which layers show plus a theme override (centred lyrics in the room, lower-third lyrics on the livestream) | FEAT-1 / FEAT-7 | Switching a look changes only the screens it names |
+| 8 | Stage layouts with live fields: current and next slide, next section, clock, countdown, slides left, stage message; 2–3 ready-made layouts | FEAT-3 | The stage screen updates as slides change, without the operator touching it |
+| 9 | Announcement loop: drop a folder of images to get a timed, looping slideshow; walk-in music that does not restart when the loop starts over; an announcements lane that can go to one screen only (lobby or livestream) | FEAT-2 | The loop runs on the livestream while the room shows something else |
+| 10 | Keyboard: type a number + Enter to jump to that slide; Up/Down for the next service item; hold a key for big-text view | FEAT-4 | Works with the existing C/B/P/E/1–9 keys |
+| 11 | *New:* virtual output screen (e.g. 1920x1080 with no monitor) and NDI output so OBS can take it | FEAT-7 | OBS shows the livestream screen with no extra monitor plugged in |
+| 12 | Coloured headers in the service list (Pre-service, Worship, Message, Post) | FEAT-6 | Headers can be added, renamed, coloured and dragged |
+| 13 | Smart media folders: point at a folder on disk; the media library updates by itself | FEAT-1 (media library) | A file copied into the folder appears without restarting |
+| 14 | Bundle export: one file with the service or item plus its media, so someone can build at home and send it in (builds on V1-BUNDLE) | FEAT-6 | Opening the file on another PC shows the same slides and media; missing fonts are named |
+| 15 | Bible panel: choose which text box gets the verse and which gets the reference, verses per slide, "Add to service" | FEAT-5 | A passage can be added to the service without leaving the panel |
+
+Still left out (from the video): SongSelect and Planning Center sign-in (paid; already FEAT-7 / §10 item 1), edge blending, SDI, Resi. Built-in streaming moved to §10d (after 1.0, user decision Nov 6).
+
+### UI-MENU — classic menu bar (user request, November 6, 2026) — *new*
+
+The user wants the usual menu bar along the top-left of the operator window, like most desktop programs: **File, Edit, View, Window, Settings, Help**. Clicking a word opens a drop-down menu; items can have sub-menus and show their keyboard shortcut.
+
+- Build it with Slint's own `MenuBar` (Slint 1.18 is in `Cargo.toml`), so Windows shows a real native menu and keyboard users can open it with Alt.
+- Every menu item calls an action that already exists (no logic only reachable from the menu). Buttons on screen stay; the menu is an extra, easier-to-find way in.
+- Starting contents (to be confirmed in the spec):
+  - **File:** New service, Open service…, Open recent ▸, Save, Save as…, Import ▸ (Songs from EasyWorship, Lyrics from clipboard, PowerPoint/PDF, Media), Export ▸ (Service bundle, Song), Print service order, Exit.
+  - **Edit:** Undo, Redo, Cut, Copy, Paste, Delete, Find… (Ctrl+F), Edit song, Edit arrangement.
+  - **View:** Grid / Big-text / Outline view, Show media library, Show action icons, Zoom in / out.
+  - **Window:** Room screen on/off, Stage screen on/off, Configure screens…, Looks…, Stage layouts…, Practice mode.
+  - **Settings:** Preferences…, Songs, Bibles, Media folders, Themes, Keyboard shortcuts.
+  - **Help:** Keyboard shortcuts, Check before service (preflight), Open logs folder, About RustyPresenter.
+- Done when: every item works, shortcuts shown match the real ones, greyed out when it can't be used (e.g. Save with nothing changed), and a by-hand check on Windows.
+- Order: first in the queue after the current merge, because it is small and every later feature gets a menu home.
+
+## 10d. Livestreaming (after 1.0) — user decisions, November 6, 2026
+
+- RustyPresenter gets its **own** "Go Live" streaming (built on the FFmpeg libraries), not OBS code. Licence is not a worry (the user would accept GPL), but OBS is C and plug-in shaped, so it is used only for ideas (reconnect logic, encoder settings).
+- Destinations at the same time: **YouTube, Facebook Live, Instagram Live, X, TikTok, Twitch**, plus **Custom**: any RTMP/RTMPS server address + stream key (Vimeo, Restream, Boxcast, Dacast, a church's own server). Each destination: name, on/off, wide or tall.
+- Instagram and TikTok only give stream keys to some accounts; tall (9:16) output needs its own layout.
+- Needed: upload speed test with a warning, automatic reconnect, one button to start/stop all.
+- Before this: §10c item 11 (virtual output / NDI) lets OBS take a clean feed.
 
 ## 11. Research starting points
 
@@ -1116,3 +1173,4 @@ For the next handoff, append the collaborator name, task IDs, decisions made, fi
 - **Next:** read the GitHub Actions results for `merge-all`; Library Step 1 item 7 (picker) on `merge-all`; then Item edit Also controls and the missing-verse note, then plan Task 9.
 - **For Jake, on Windows:** `windows-check.cmd merge-all` checks the merged line on the PC.
 - Laptop git: a `maintenance.lock` the bundle fetch left in `.git/objects` was moved to `.git/stale-maintenance-lock-<epoch>`.
+- **GitHub Actions on `merge-all` (after the Cargo.lock commit `ac3cf47`, from the Quick check's LOCKDIFF):** Quick check green: Linux lib 1665, **Windows release build and 1692 tests pass**. CI `licenses` fails only because `FFmpeg-COPYING.LGPLv2.1.txt`, `mpv-Copyright.txt` and `pdfium-LICENSE.txt` are not in `packaging/licenses/` yet (known Task 14 gap). CI's Linux test job was shut down by the runner and re-queued.
