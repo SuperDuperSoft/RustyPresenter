@@ -1,0 +1,190 @@
+// The stage layout editor's picture of the stage screen (FEAT-3 spec §3.6): the boxes, the chosen box's handles and
+// the snap guides. Pointer and keys go to Rust in % of the screen (`src/ui/dialogs/stage_layouts.rs`).
+import { Theme } from "../theme.slint";
+
+/// One box on the picture, in % of the screen.
+export struct StageBoxVm {
+    id: string,
+    x: float, y: float, w: float, h: float,
+    /// The box kind's name, shown in its corner tab.
+    name: string,
+    /// Sample words in the box's look.
+    sample: string,
+    color: color,
+    fill: color,
+    /// Biggest text, % of the screen height.
+    size: float,
+    /// 0 left, 1 centre, 2 right.
+    align: int,
+    selected: bool,
+    /// Made by a newer RustyPresenter: drawn hatched, can only be removed.
+    unknown: bool,
+}
+
+/// A snap line while a box is dragged: `vertical` at x = `at` %, else horizontal at y = `at` %.
+export struct StageGuideVm { vertical: bool, at: float }
+
+export component StageCanvas inherits Rectangle {
+    in property <[StageBoxVm]> boxes;
+    in property <[StageGuideVm]> guides;
+    in property <color> screen-bg;
+    /// A built-in layout: shown, but nothing moves.
+    in property <bool> locked;
+    /// Pointer down at (x, y) %, with how many % a handle reaches each way; `free` = Alt held (no snapping).
+    callback press(float, float, float, float, bool);
+    /// The pointer moved while down, at (x, y) %.
+    callback drag(float, float);
+    callback release();
+    /// Arrows: 0 left, 1 right, 2 up, 3 down; Shift resizes.
+    callback nudge(int, bool);
+    callback remove-box();
+    callback undo();
+    callback redo();
+    callback duplicate-box();
+    callback next-box(bool);
+
+    // The 16:9 screen, as big as fits and centred.
+    property <length> sw: min(root.width, root.height * 16 / 9);
+    property <length> sh: self.sw * 9 / 16;
+    property <length> sx: (root.width - self.sw) / 2;
+    property <length> sy: (root.height - self.sh) / 2;
+    /// How far a handle reaches, in px.
+    property <length> grab: 9px;
+
+    keys := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        key-pressed(event) => {
+            if root.locked { return reject; }
+            if event.modifiers.control {
+                if event.text == "z" || event.text == "Z" {
+                    if event.modifiers.shift { root.redo(); } else { root.undo(); }
+                    return accept;
+                }
+                if event.text == "y" || event.text == "Y" { root.redo(); return accept; }
+                if event.text == "d" || event.text == "D" { root.duplicate-box(); return accept; }
+                return reject;
+            }
+            if event.text == Key.LeftArrow { root.nudge(0, event.modifiers.shift); return accept; }
+            if event.text == Key.RightArrow { root.nudge(1, event.modifiers.shift); return accept; }
+            if event.text == Key.UpArrow { root.nudge(2, event.modifiers.shift); return accept; }
+            if event.text == Key.DownArrow { root.nudge(3, event.modifiers.shift); return accept; }
+            if event.text == Key.Delete || event.text == Key.Backspace { root.remove-box(); return accept; }
+            if event.text == Key.Tab { root.next-box(false); return accept; }
+            if event.text == Key.Backtab { root.next-box(true); return accept; }
+            reject
+        }
+
+        screen := Rectangle {
+            x: root.sx;
+            y: root.sy;
+            width: root.sw;
+            height: root.sh;
+            background: root.screen-bg;
+            border-color: keys.has-focus ? Theme.accent : Theme.line;
+            border-width: 1px;
+            clip: true;
+            accessible-role: groupbox;
+            accessible-label: @tr("Stage screen");
+
+            for b in root.boxes: box := Rectangle {
+                x: b.x * root.sw / 100;
+                y: b.y * root.sh / 100;
+                width: b.w * root.sw / 100;
+                height: b.h * root.sh / 100;
+                background: b.unknown ? Theme.raise : b.fill;
+                border-color: b.selected ? Theme.accent : Theme.dash;
+                border-width: b.selected ? 2px : 1px;
+                clip: true;
+                accessible-role: list-item;
+                accessible-label: b.name;
+                accessible-item-selected: b.selected;
+                // Hatching for a box from a newer version.
+                if b.unknown: Path {
+                    width: parent.width;
+                    height: parent.height;
+                    viewbox-width: 100;
+                    viewbox-height: 100;
+                    stroke: Theme.faint;
+                    stroke-width: 1px;
+                    commands: "M 0 20 L 20 0 M 0 50 L 50 0 M 0 80 L 80 0 M 10 100 L 100 10 M 40 100 L 100 40 M 70 100 L 100 70";
+                }
+                sample := Text {
+                    x: 6px;
+                    y: 16px;
+                    width: parent.width - 12px;
+                    height: parent.height - 18px;
+                    text: b.unknown ? @tr("Needs a newer RustyPresenter") : b.sample;
+                    color: b.unknown ? Theme.muted : b.color;
+                    font-family: Theme.font;
+                    font-size: b.unknown ? 11px : max(7px, min(b.size, b.h * 0.6) * root.sh / 100);
+                    font-weight: 650;
+                    wrap: word-wrap;
+                    overflow: elide;
+                    horizontal-alignment: b.align == 0 ? left : b.align == 2 ? right : center;
+                    vertical-alignment: center;
+                }
+                tab := Rectangle {
+                    x: 0;
+                    y: 0;
+                    width: min(parent.width, name.preferred-width + 8px);
+                    height: 14px;
+                    background: b.selected ? Theme.accent : Theme.caption-bg;
+                    name := Text {
+                        text: b.name;
+                        color: b.selected ? Theme.accent-ink : Theme.text;
+                        font-family: Theme.font;
+                        font-size: 10px;
+                        font-weight: 600;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+
+            for g in root.guides: Rectangle {
+                x: g.vertical ? g.at * root.sw / 100 : 0;
+                y: g.vertical ? 0 : g.at * root.sh / 100;
+                width: g.vertical ? 1px : root.sw;
+                height: g.vertical ? root.sh : 1px;
+                background: Theme.accent;
+            }
+
+            // The chosen box's eight handles.
+            for b in root.boxes: Rectangle {
+                if b.selected && !b.unknown && !root.locked: Rectangle {
+                    for h in [
+                        { hx: 0.0, hy: 0.0 }, { hx: 0.5, hy: 0.0 }, { hx: 1.0, hy: 0.0 }, { hx: 1.0, hy: 0.5 },
+                        { hx: 1.0, hy: 1.0 }, { hx: 0.5, hy: 1.0 }, { hx: 0.0, hy: 1.0 }, { hx: 0.0, hy: 0.5 }
+                    ]: Rectangle {
+                        x: (b.x + b.w * h.hx) * root.sw / 100 - 4px;
+                        y: (b.y + b.h * h.hy) * root.sh / 100 - 4px;
+                        width: 8px;
+                        height: 8px;
+                        background: Theme.accent;
+                        border-color: Theme.accent-ink;
+                        border-width: 1px;
+                    }
+                }
+            }
+
+            pointer := TouchArea {
+                mouse-cursor: root.locked ? default : move;
+                pointer-event(e) => {
+                    if e.button != PointerEventButton.left { return; }
+                    if e.kind == PointerEventKind.down {
+                        keys.focus();
+                        root.press(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100,
+                            root.grab / root.sw * 100, root.grab / root.sh * 100, e.modifiers.alt);
+                    }
+                    if e.kind == PointerEventKind.up { root.release(); }
+                }
+                moved => {
+                    if self.pressed { root.drag(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100); }
+                }
+            }
+        }
+    }
+}

@@ -18,6 +18,7 @@ pub mod settings_bible;
 pub mod settings_language;
 pub mod settings_look;
 pub mod song_editor;
+pub mod stage_layouts;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;
@@ -53,6 +54,8 @@ pub enum DialogKind {
     Settings(SettingsTab),
     /// The song use report (FEAT-7 §3.3).
     Usage,
+    /// The stage layout editor (FEAT-3 §3.6).
+    StageLayouts,
 }
 
 impl DialogKind {
@@ -61,7 +64,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {
@@ -75,6 +78,7 @@ impl DialogKind {
             DialogKind::Phone => "phone",
             DialogKind::Settings(_) => "settings",
             DialogKind::Usage => "usage",
+            DialogKind::StageLayouts => "stage-layouts",
         }
     }
 }
@@ -187,6 +191,7 @@ impl Operator {
             DialogKind::Phone => strings::phone().into(),
             DialogKind::Settings(_) => strings::settings().into(),
             DialogKind::Usage => crate::usage::strings::title().into(),
+            DialogKind::StageLayouts => crate::stage::strings::editor_title().into(),
         }
     }
 }
@@ -206,6 +211,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     phone::wire(op);
     settings::wire(op);
     usage::wire(op);
+    stage_layouts::wire(op);
 }
 
 #[cfg(test)]

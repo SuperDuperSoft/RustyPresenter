@@ -95,6 +95,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     fill_form(&g, &edit.settings.borrow());
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_tab(tab_index(tab));
+    super::stage_layouts::fill_settings(&g, &snap.data.stage_layouts, snap.settings.stage.layout);
     about::show_licences(op, false);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
@@ -134,6 +135,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.room_on_top = g.get_room_on_top();
     s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
+    super::stage_layouts::read_settings(g, s);
 }
 
 /// Draws the pages that show the core's state rather than the form: Bible, Video, Backups and Help. The web

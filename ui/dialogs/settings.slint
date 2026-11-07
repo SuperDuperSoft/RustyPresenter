@@ -88,6 +88,14 @@ component SettingsVideo inherits VerticalLayout {
             checked <=> SettingsDlg.room-on-top;
         }
     }
+    Field {
+        label: @tr("Stage layout");
+        help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
+        stage-layout := Select {
+            options: SettingsDlg.stage-layout-names;
+            index <=> SettingsDlg.stage-layout;
+        }
+    }
 }
 
 component SettingsBackups inherits VerticalLayout {

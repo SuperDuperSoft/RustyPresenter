@@ -11,6 +11,8 @@ pub enum MenuAction {
     Settings(SettingsTab),
     /// The same as the window's close button.
     Exit,
+    /// Window → Stage layouts… (FEAT-3).
+    StageLayouts,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -29,6 +31,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "settings-help" => Settings(SettingsTab::Help),
         "settings-about" => Settings(SettingsTab::About),
         "exit" => MenuAction::Exit,
+        "stage-layouts" => MenuAction::StageLayouts,
         _ => return None,
     })
 }
@@ -39,6 +42,7 @@ impl Operator {
             Some(MenuAction::Add(tab)) => add::open_add(self, tab),
             Some(MenuAction::Settings(tab)) => settings::open(self, tab),
             Some(MenuAction::Exit) => self.window().dispatch_event(slint::platform::WindowEvent::CloseRequested),
+            Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             None => {}
         }
     }
@@ -100,6 +104,7 @@ mod tests {
         assert_eq!(action("settings-help"), Some(MenuAction::Settings(SettingsTab::Help)));
         assert_eq!(action("settings-about"), Some(MenuAction::Settings(SettingsTab::About)));
         assert_eq!(action("exit"), Some(MenuAction::Exit));
+        assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }
