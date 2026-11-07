@@ -25,8 +25,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let steps: Vec<(&str, u64, Step)> = vec![
         ("passage", 2500, Box::new(|op| { bible::submit(op, "John 3:16".into()); bible::submit(op, "Ruth 4:5-22".into()) })),
         ("history", 800, Box::new(|op| test_support::window_of(op).invoke_open_bible_history())),
-        ("picker", 800, Box::new(|op| test_support::window_of(op).invoke_open_bible_picker())),
-        ("stage-armed", 800, Box::new(|op| { test_support::window_of(op).global::<PanelExtras>().invoke_toggle_stage_mode() })),
+        ("picker", 800, Box::new(|op| { close_popups(op); test_support::window_of(op).invoke_open_bible_picker() })),
+        ("stage-armed", 800, Box::new(|op| { close_popups(op); test_support::window_of(op).global::<PanelExtras>().invoke_toggle_stage_mode() })),
         ("stage-up", 1200, Box::new(move |op| {
             let id = a.data.lock().unwrap().services[0].items.last().map(|i| i.id).expect("the passage");
             a.command(Envelope { id: "s".into(), base: None, cmd: Command::StageOnly { item_id: Some(id), slide: 2 } });
@@ -39,6 +39,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     run(op, app, steps, 0, out, stage);
     slint::run_event_loop()?;
     Ok(())
+}
+
+/// A click on an empty spot closes the open pop-up.
+fn close_popups(op: &Operator) {
+    use slint::platform::{PointerEventButton, WindowEvent};
+    let position = slint::LogicalPosition::new(1100.0, 770.0);
+    op.window().dispatch_event(WindowEvent::PointerPressed { position, button: PointerEventButton::Left });
+    op.window().dispatch_event(WindowEvent::PointerReleased { position, button: PointerEventButton::Left });
 }
 
 fn sync(op: &Operator, app: &Arc<App>) {

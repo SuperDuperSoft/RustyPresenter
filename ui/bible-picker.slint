@@ -161,14 +161,21 @@ export component BiblePickerList inherits Rectangle {
                                         border-radius: 7.5px;
                                         border-width: 1.3px;
                                         border-color: row.on ? Theme.accent-ink : info-ta.has-hover ? Theme.accent : Theme.faint;
-                                        Text {
-                                            text: "i";
-                                            color: parent.border-color;
-                                            font-family: Theme.font;
-                                            font-size: 10px;
-                                            font-weight: 800;
-                                            horizontal-alignment: center;
-                                            vertical-alignment: center;
+                                        // The "i", drawn: a dot over a short bar.
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 3.4px;
+                                            width: 1.8px;
+                                            height: 1.8px;
+                                            border-radius: 0.9px;
+                                            background: parent.border-color;
+                                        }
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 6.2px;
+                                            width: 1.6px;
+                                            height: 5px;
+                                            background: parent.border-color;
                                         }
                                     }
                                     info-ta := TouchArea {
