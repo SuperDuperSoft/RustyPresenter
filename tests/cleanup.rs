@@ -53,5 +53,6 @@ fn no_ffmpeg_left() {
 fn web_folder_has_only_remote() {
     let mut names: Vec<String> = fs::read_dir(root().join("web")).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
     names.sort();
-    assert_eq!(names, ["remote.html", "remote.js"]);
+    // The phone remote and its drawing view.
+    assert_eq!(names, ["draw.js", "remote.html", "remote.js"]);
 }
