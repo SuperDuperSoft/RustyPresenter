@@ -8,7 +8,7 @@ use crate::{
     ui::{AutoMacroBtn, AutoMacroRow, AutoStrip, AutoTimerChip, ops::outcome_toast},
 };
 use serde_json::{Value, json};
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, VecModel};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 

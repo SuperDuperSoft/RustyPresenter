@@ -6,7 +6,7 @@ use crate::{
     live::Command,
     ui::{MessageField, ShowMessageDlg, operator::window::Operator},
 };
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, VecModel};
 use std::{cell::RefCell, collections::BTreeMap, rc::{Rc, Weak}};
 use uuid::Uuid;
 

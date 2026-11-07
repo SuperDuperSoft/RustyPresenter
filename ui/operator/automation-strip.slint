@@ -159,7 +159,7 @@ export component AutomationStrip inherits VerticalLayout {
             width: 112px;
             height: 32px;
             border-radius: 9px;
-            background: ta.has-hover ? m.color.brighter(15%) : m.color;
+            background: ta.has-hover ? m.color.brighter(0.15) : m.color;
             accessible-role: button;
             accessible-label: m.name;
             accessible-action-default => { AutoStrip.run-macro(m.id); }

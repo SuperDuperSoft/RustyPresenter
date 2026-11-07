@@ -370,7 +370,7 @@ fn macro_form(op: &Operator, st: &St, m: &Macro, d: &Data) {
 fn show_steps(op: &Operator, st: &St) { show_steps_with(op, st, &data(op)) }
 
 fn show_steps_with(op: &Operator, st: &St, d: &Data) {
-    let rows: Vec<AutoStepRow> = st.borrow().steps.iter().map(|s| AutoStepRow { label: step_label(s, &d.automation, d).into() }).collect();
+    let rows: Vec<AutoStepRow> = st.borrow().steps.iter().enumerate().map(|(i, s)| AutoStepRow { label: format!("{}. {}", i + 1, step_label(s, &d.automation, d)).into() }).collect();
     op.ui.global::<AutomationDlg>().set_k_steps(ModelRc::new(VecModel::from(rows)));
 }
 
