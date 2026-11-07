@@ -1174,3 +1174,23 @@ For the next handoff, append the collaborator name, task IDs, decisions made, fi
 - **For Jake, on Windows:** `windows-check.cmd merge-all` checks the merged line on the PC.
 - Laptop git: a `maintenance.lock` the bundle fetch left in `.git/objects` was moved to `.git/stale-maintenance-lock-<epoch>`.
 - **GitHub Actions on `merge-all` (after the Cargo.lock commit `ac3cf47`, from the Quick check's LOCKDIFF):** Quick check green: Linux lib 1665, **Windows release build and 1692 tests pass**. CI `licenses` fails only because `FFmpeg-COPYING.LGPLv2.1.txt`, `mpv-Copyright.txt` and `pdfium-LICENSE.txt` are not in `packaging/licenses/` yet (known Task 14 gap). CI's Linux test job was shut down by the runner and re-queued.
+
+### November 6, 2026 — Claude (cloud session, branch `finish`)
+
+Jake asked: "finish the whole project … make sure that there is a plan feature for multiple languages so that you can use this project in any language you like", then "only work locally" (GitHub budget spent: nothing was pushed, no Actions).
+
+- **Branch `finish`** (local only; delivered to the laptop as a git bundle) = `merge-all` + every branch below, merged and tested together.
+  - **UI-MENU:** classic menu bar (File, Edit, View, Window, Settings, Help); dark palette so its words are readable.
+  - **BIBLE-3:** Item edit "Also show"; missing-verse note under the slides; online Bible text is cache-only, never saved in data/backups/service files; preflight line for it; catalog merge.
+  - **FEAT-1 Part B foundation:** data format 2 + migration (read-only guard for newer data), item/service themes, background library model, overlays (+ phone), gradients/Darken, theme actions. No theme UI yet.
+  - **FEAT-3 core:** `src/stage/`, 5 built-in stage layouts, stage window draws the chosen one. No layout editor; timers wait on FEAT-2.
+  - **FEAT-4 (a)+(b)+part of (c):** coloured sections, jump keys (1–9, C P B T I E L V) on the live song only, section chips (operator + phone), safe live editing (change banner, Update screen, Edit words, Save and show now), drag order chips in the song editor.
+  - **FEAT-6a/6b:** service dates, Copy last week, templates, blanks (fill from Add), coloured headers, print/save service order and lyrics as a web page, bundle carries blanks/headers/font.
+  - **FEAT-7 usage:** song use log (`usage.json`, own file) + CCLI report dialog with CSV and a printable page (Settings → Songs → "Song use report…").
+  - **I18N-1 complete:** `src/i18n` (own .po reader, plural rules, `tr!/trn!/trc!`), Settings → Language (live switch, "needs review" mark, % translated), every user-visible .slint and Rust string swept (1314 texts), phone remote `/i18n.json`, `docs/TRANSLATING.md`, tests (`i18n_pot_is_current`, `every_po_is_valid`, `slint_has_no_bare_user_text`). **12 machine-drafted languages**, all `X-Reviewed: no`: es, pt-BR, fr, de, ko, zh-CN, vi, fil, ru, uk, sw, ht.
+- **Evidence (Linux sandbox, `c2b6588`):** `cargo check --lib --tests --examples` 0 warnings; `cargo test --tests`: lib 2109 passed / 2 ignored, cleanup 4, i18n_catalogs 4, proc_tree 8, recovery 9, render_golden 17 (1 ignored), ui_operator_flows 8; 0 failed. Screens rendered under Xvfb in Spanish, Korean, Portuguese, Chinese (operator), Settings → Language (es), phone remote (es, headless Chrome).
+- **Not verified:** nothing has run on Windows or macOS; no projector, real video, network Bibles/APIs, printing, or phone on Wi-Fi. Translations not reviewed by native speakers.
+- **Decisions for Jake:** chorus colour is close to the live red (FEAT-4); should editing a theme while a song is live raise the "changed" banner (now: no, per FEAT-1 "a theme edit never changes the room")?
+- **Known gaps / next:** FEAT-1 theme UI (Themes tab, backgrounds manager, rich text, overlay strip, F6); FEAT-2 automation (timers feed the stage); FEAT-3 layout editor; FEAT-4 `ItemKind::Song.arrangement` + per-service order; FEAT-6 template editor, date picker, practice mode; menu items without actions yet (Undo/Redo/Cut/Copy/Paste, Open recent, Export, Print service order in the menu, Song use report in the menu, zoom, logs folder). Lyrics reader and Bible references understand English section/book names only — other languages must use `[Bracketed]` headings (translations' examples do); localised section and book names are a later task. Settings → Look sample text and the first service's name stay English.
+- **Build note:** the lib test build needs ~6 GB RAM (sandbox needed a swap file). Long-term: split the crate (board REFACTOR-CRATES).
+- **For Jake, on Windows:** `windows-check.cmd finish`, then open Settings → Language → Español and look around; try one CJK language for fonts.
