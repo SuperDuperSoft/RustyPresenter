@@ -86,7 +86,7 @@ impl Slide {
 
 // ---------- Library ----------
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct Song {
     pub id: Uuid,
     pub title: String,
@@ -146,7 +146,7 @@ pub struct MediaFile {
     pub folder: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Deck {
     pub id: Uuid,
     pub title: String,
@@ -181,7 +181,7 @@ impl VerseText {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum ItemKind {
     Song { song_id: Uuid },
@@ -218,7 +218,7 @@ pub enum BlankKind { Song, Scripture, Media, Deck, Text, #[default] Any }
 
 fn yes() -> bool { true }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ServiceItem {
     pub id: Uuid,
     #[serde(flatten)]
@@ -232,7 +232,7 @@ pub struct ServiceItem {
     pub theme: Option<crate::theme::ThemeId>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Service {
     pub id: Uuid,
     pub name: String,
@@ -253,7 +253,7 @@ impl Service {
 }
 
 /// A saved service shape: kept items and blanks to fill in (FEAT-6).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ServiceTemplate {
     pub id: Uuid,
     pub name: String,
@@ -442,7 +442,12 @@ pub struct Settings {
     pub date_order: Option<DateOrder>,
     /// Settings → Section keys: C, B, 1–9… jump the live song to a section (FEAT-4).
     pub section_keys: bool,
+    /// Service files opened lately, newest first, at most `RECENT_FILES_MAX` (File → Open recent).
+    pub recent_files: Vec<std::path::PathBuf>,
 }
+
+/// How many service files File → Open recent lists.
+pub const RECENT_FILES_MAX: usize = 5;
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -471,6 +476,13 @@ impl Default for PrintSettings {
 pub const RECENT_MAX: usize = 8;
 
 impl Settings {
+    /// A service file was opened: first in File → Open recent.
+    pub fn opened_file(&mut self, path: &std::path::Path) {
+        self.recent_files.retain(|p| p != path);
+        self.recent_files.insert(0, path.to_path_buf());
+        self.recent_files.truncate(RECENT_FILES_MAX);
+    }
+
     /// `translation` was just chosen: it goes to the front of `recent`, once.
     pub fn used_translation(&mut self, translation: &str) {
         self.recent.retain(|t| !crate::bible::id::same_id(t, translation));
@@ -510,6 +522,7 @@ impl Default for Settings {
             print: PrintSettings::default(),
             date_order: None,
             section_keys: true,
+            recent_files: Vec::new(),
         }
     }
 }
@@ -570,7 +583,8 @@ impl Data {
 
 impl Default for Data {
     fn default() -> Self {
-        let service = Service::new("Sunday Service");
+        // In the app's language: only new data gets it, a saved service keeps its name.
+        let service = Service::new(&crate::tr!("Sunday Service"));
         Self {
             format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
             current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![],

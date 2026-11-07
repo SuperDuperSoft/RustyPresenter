@@ -56,6 +56,12 @@ impl Ops {
         self.run(work, |r| done(r.and_then(|r| r)));
     }
 
+    /// Edit → Undo, or Redo (`App::undo`): the toast's text, or why nothing changed.
+    pub fn undo(&self, redo: bool, done: impl FnOnce(Result<String, String>) + 'static) {
+        let app = self.app.clone();
+        self.run(async move { app.undo(redo) }, |r| done(r.and_then(|r| r)));
+    }
+
     /// What the Slides tab says about this computer. `None` until `import::init` has run. Looking for LibreOffice
     /// touches the disk, so it runs off the UI thread.
     pub fn converter_status(&self, done: impl FnOnce(Option<ConverterStatus>) + 'static) {

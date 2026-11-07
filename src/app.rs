@@ -229,6 +229,8 @@ pub struct App {
     pub youtube: crate::youtube::Hub,
     /// The song use log for CCLI reporting (`usage.json`).
     pub usage: crate::usage::Usage,
+    /// Edit → Undo / Redo (`crate::undo`). Locked after `data`, never before.
+    pub(crate) history: Mutex<crate::undo::History>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -273,6 +275,7 @@ impl App {
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), remote_conns: AtomicUsize::new(0),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), youtube, read_only: AtomicBool::new(false), usage,
+            history: Mutex::default(),
         });
         app.refresh_bible_credits();
         app.online_text_from_cache();
@@ -285,6 +288,7 @@ impl App {
         use crate::scripture::online::online_only;
         let root = &self.store.root;
         let mut data = self.data.lock().unwrap();
+        let before = data.clone();
         let open = data.current_service;
         let mut pins: BTreeMap<String, Vec<crate::scripture::VerseId>> = BTreeMap::new();
         for s in &mut data.services {
@@ -298,6 +302,8 @@ impl App {
             }
         }
         for (t, ids) in pins { bible::sources::pin(&t, ids) }
+        // Text the app filled in by itself: Undo keeps it.
+        self.history.lock().unwrap().carry(&before, &data);
     }
 
     /// The open service's online passages that have no text yet, looked up now (cache, then the internet), so the
@@ -370,20 +376,50 @@ impl App {
 
     /// Mutate data, save, and tell every screen. The live item is checked against the new data even when the save
     /// failed, as memory has changed (FEAT-4 spec §5.4).
-    pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
+    /// Edit → Undo can take it back (`crate::undo`).
+    pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> { self.edit_kept(true, f) }
+
+    /// `edit` for a change the app makes by itself (what an import found about a file): not a step of its own for
+    /// Undo, and carried into the steps kept.
+    pub(crate) fn edit_untracked<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> { self.edit_kept(false, f) }
+
+    fn edit_kept<T>(&self, step: bool, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
         if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
         let r = {
             let mut data = self.data.lock().unwrap();
-            f(&mut data).and_then(|r| self.save(&data).map(|()| r))
+            let before = data.clone();
+            let r = f(&mut data).and_then(|r| self.save(&data).map(|()| r));
+            let mut history = self.history.lock().unwrap();
+            if step { history.record(&before, &data) } else { history.carry(&before, &data) }
+            r
         };
+        self.after_edit(r.is_ok());
+        r
+    }
+
+    /// Edit → Undo (`redo` false) or Redo: the toast's text, or why nothing changed. Saved and checked against the
+    /// live item like an edit, so the screen never changes by itself.
+    pub fn undo(&self, redo: bool) -> Result<String, String> {
+        if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
+        let r = {
+            let mut data = self.data.lock().unwrap();
+            let mut history = self.history.lock().unwrap();
+            let r = if redo { history.redo(&mut data) } else { history.undo(&mut data) };
+            r.and_then(|t| self.save(&data).map(|()| t))
+        };
+        // A step that could not be taken is gone too, so the menu is told either way.
+        self.after_edit(true);
+        r
+    }
+
+    fn after_edit(&self, ok: bool) {
         let live_changed = self.reconcile_live();
-        if r.is_ok() {
+        if ok {
             self.broadcast_data();
             self.broadcast_live();
         } else if live_changed {
             self.broadcast_live();
         }
-        r
     }
 
     /// Compares the live item with the library (data, then live: the one lock order). True when live changed.
@@ -1168,6 +1204,7 @@ impl App {
                 // Settings → Language applies at once (`settings/language`); an older form must not undo it.
                 s.ui_language = std::mem::take(&mut d.settings.ui_language);
                 s.print = std::mem::take(&mut d.settings.print);
+                s.recent_files = std::mem::take(&mut d.settings.recent_files);
                 d.settings = s;
                 Ok(())
             }));
@@ -1541,14 +1578,18 @@ impl App {
         use crate::bundle;
         let (job, cancel) = self.job_start_cancellable(&bundle::strings::opening());
         let app = self.clone();
-        let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &path, &cancel, &|p| app.job_progress(job, p)));
+        let file = path.clone();
+        let work = tokio::task::spawn_blocking(move || bundle::read(&app.store, &file, &cancel, &|p| app.job_progress(job, p)));
         let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
         let fonts = contents.fonts.clone();
         let missing = tokio::task::spawn_blocking(move || {
             let installed = crate::render::Fonts::new();
             bundle::missing_fonts(&fonts, &|f| installed.has_family(f))
         }).await.unwrap_or_default();
-        let opened = self.edit(|d| Ok(bundle::Opened { fonts_missing: missing, ..bundle::merge(d, contents) }))?;
+        let opened = self.edit(|d| {
+            d.settings.opened_file(&path);
+            Ok(bundle::Opened { fonts_missing: missing, ..bundle::merge(d, contents) })
+        })?;
         self.online_text_from_cache();
         let me = self.clone();
         tokio::spawn(async move { me.fetch_online_text().await });
