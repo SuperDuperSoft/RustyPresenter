@@ -98,6 +98,7 @@ component Swatch inherits Rectangle {
 /// The list of layouts and what can be done with the chosen one.
 component LayoutList inherits VerticalLayout {
     spacing: 4px;
+    alignment: start;
     Lbl { label: @tr("Stage layouts"); }
     for l[i] in StageLayoutsDlg.layouts: layout-row := Rectangle {
         height: 36px;
@@ -185,6 +186,7 @@ component LayoutList inherits VerticalLayout {
 /// The boxes of the chosen layout, Add and Remove, and the chosen box's settings.
 component BoxPanel inherits VerticalLayout {
     spacing: 6px;
+    alignment: start;
     Lbl { label: @tr("Boxes"); }
     for b in StageLayoutsDlg.boxes: box-row := Rectangle {
         height: 28px;
@@ -330,6 +332,7 @@ export component StageLayoutsDialog inherits VerticalLayout {
             VerticalLayout {
                 horizontal-stretch: 1;
                 spacing: 8px;
+                alignment: start;
                 HorizontalLayout {
                     spacing: 6px;
                     undo-btn := Btn {

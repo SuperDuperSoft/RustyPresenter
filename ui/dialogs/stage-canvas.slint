@@ -111,22 +111,24 @@ export component StageCanvas inherits Rectangle {
                     stroke-width: 1px;
                     commands: "M 0 20 L 20 0 M 0 50 L 50 0 M 0 80 L 80 0 M 10 100 L 100 10 M 40 100 L 100 40 M 70 100 L 100 70";
                 }
+                // Under the name tab, using the whole box like the stage does.
                 sample := Text {
                     x: 6px;
-                    y: 16px;
+                    y: 0;
                     width: parent.width - 12px;
-                    height: parent.height - 18px;
+                    height: parent.height;
                     text: b.unknown ? @tr("Needs a newer RustyPresenter") : b.sample;
                     color: b.unknown ? Theme.muted : b.color;
                     font-family: Theme.font;
-                    font-size: b.unknown ? 11px : max(7px, min(b.size, b.h * 0.6) * root.sh / 100);
+                    font-size: b.unknown ? 11px : max(7px, min(b.size, b.h * 0.55) * root.sh / 100);
                     font-weight: 650;
                     wrap: word-wrap;
                     overflow: elide;
                     horizontal-alignment: b.align == 0 ? left : b.align == 2 ? right : center;
                     vertical-alignment: center;
                 }
-                tab := Rectangle {
+                // A short box shows its words, not its name, unless it is chosen.
+                if b.selected || b.h >= 8: tab := Rectangle {
                     x: 0;
                     y: 0;
                     width: min(parent.width, name.preferred-width + 8px);
