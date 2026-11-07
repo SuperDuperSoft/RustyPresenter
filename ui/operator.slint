@@ -171,6 +171,8 @@ export component OperatorWindow inherits Window {
     in property <Side> monitor-media;
     in property <Side> monitor-slide;
     in property <Side> monitor-logo;
+    in property <image> monitor-drawing;
+    in property <bool> drawing-on;
     in property <bool> monitor-video;
     in property <image> monitor-video-frame;
     in property <bool> monitor-video-cover;
@@ -479,6 +481,11 @@ export component OperatorWindow inherits Window {
                 title: g.name;
                 shortcut: g.keys;
                 activated => { root.clear-group(i); }
+            }
+            MenuItem {
+                title: @tr("Clear drawing");
+                enabled: root.drawing-on;
+                activated => { root.live-clear("clear_drawing"); }
             }
             MenuSeparator {}
             MenuItem {
@@ -825,6 +832,8 @@ export component OperatorWindow inherits Window {
                         monitor-media: root.monitor-media;
                         monitor-slide: root.monitor-slide;
                         monitor-logo: root.monitor-logo;
+                        monitor-drawing: root.monitor-drawing;
+                        drawing-on: root.drawing-on;
                         monitor-video: root.monitor-video;
                         monitor-video-frame: root.monitor-video-frame;
                         monitor-video-cover: root.monitor-video-cover;

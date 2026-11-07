@@ -89,3 +89,25 @@ fn clear_layers_reads_and_writes_as_json() {
     let env: Envelope = serde_json::from_str(r#"{"id":"x","cmd":"clear_layers","layers":["slide","timers"]}"#).unwrap();
     assert_eq!(env.cmd, Command::ClearLayers { layers: vec![ClearLayer::Slide, ClearLayer::Timers] });
 }
+
+#[test]
+fn clear_groups_take_the_phone_drawing_too() {
+    let scribble = |l: &mut Live| {
+        let c = drawing::DrawCmd::Start { stroke: 1, color: drawing::PALETTE[0].into(), width: 12.0, pen: drawing::Pen::Pen, points: vec![[0.2, 0.3], [0.6, 0.3]], ink: Default::default() };
+        std::sync::Arc::make_mut(&mut l.drawing).apply(Uuid::new_v4(), &c).unwrap();
+    };
+    let p = plan();
+    let mut l = full(&p);
+    scribble(&mut l);
+    let v = l.version;
+    assert!(clear(&mut l, &p, &[ClearLayer::Drawing]).ok);
+    assert!(l.drawing.is_empty() && l.frame.slide.is_some(), "only the drawing went");
+    assert!(l.version > v, "the screens hear of it");
+    scribble(&mut l);
+    assert!(clear(&mut l, &p, &[ClearLayer::Slide]).ok);
+    assert!(l.drawing.is_empty(), "the text takes its drawing with it, as F2 does");
+    let mut l = full(&p);
+    scribble(&mut l);
+    assert!(clear(&mut l, &p, &crate::shortcuts::ClearGroup::builtin().layers).ok);
+    assert!(l.drawing.is_empty(), "F9 clears drawings too");
+}

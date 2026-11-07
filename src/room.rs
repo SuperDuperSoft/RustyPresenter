@@ -155,7 +155,7 @@ mod tests {
 
     fn view(version: u64, frame: Frame) -> LiveView {
         LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, sections: vec![], changed: None, media: None,
-            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new() }
+            audio: None, notice: None, theme: Theme::default(), logo: Some("logo.png".into()), clear_epoch: 0, stage_message: String::new(), drawing: Default::default() }
     }
     fn text(t: &str) -> Option<SlideLayer> { Some(SlideLayer::Text { text: t.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None }) }
     fn bg(inst: u64) -> Option<Inst<Background>> { Some(Inst { inst, v: Background::Color { color: "#000".into() } }) }

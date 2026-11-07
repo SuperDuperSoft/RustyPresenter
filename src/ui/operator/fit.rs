@@ -9,6 +9,7 @@ use crate::{
     },
 };
 use i_slint_backend_testing::ElementHandle;
+use slint::ComponentHandle;
 use std::rc::Rc;
 use uuid::Uuid;
 
@@ -50,12 +51,16 @@ fn columns_and_top_bar_fit_the_window() {
     let op = open(&app);
     refresh(&op);
     op.apply_live(LiveUpdate::new(op.app().live_view()));
+    // The busiest live column: a phone drawing (its chip) and the performance line under the preview.
+    op.ui.set_drawing_on(true);
+    op.ui.global::<crate::ui::OutputsState>().set_perf("Room 60 frames a second · Stage 60 frames a second · 1.2 GB video memory free".into());
     for size in SIZES {
         resize(&op, size);
         for id in [
             "OperatorWindow::service-col", "OperatorWindow::slides-col", "OperatorWindow::live-col",
             "TopBar::service-pick", "TopBar::form", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn",
-            "TopBar::settings-btn", "LiveColumn::next-btn", "LiveColumn::clear-logo",
+            "TopBar::settings-btn", "LiveColumn::preview-view", "LiveColumn::live-what", "LiveColumn::drawing-chip",
+            "LiveColumn::next-btn", "LiveColumn::clear-logo",
         ] {
             assert_inside(&op, id, size);
         }

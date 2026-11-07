@@ -63,6 +63,13 @@ export global SettingsDlg {
     in-out property <bool> screens-at-start: true;
     /// N33: the performance line under the live preview (`Settings::show_performance`).
     in-out property <bool> show-performance;
+    /// Phone drawings (`Settings::keep_drawings`, `Settings::stage_drawings`).
+    in-out property <bool> keep-drawings: false;
+    in-out property <bool> stage-drawings: true;
+    in-out property <bool> drawing-limit: false;
+    in-out property <string> drawing-max-strokes: "100";
+    in-out property <string> drawing-max-per-second: "30";
+    in-out property <string> fade-secs: "3";
     in property <bool> has-logo;
     in property <image> logo;
     in property <image> preview;

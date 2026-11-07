@@ -212,7 +212,7 @@ mod tests {
             item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len(), song_id: None }),
             slide: Some(now),
             next: slides.get(at + 1).map(|s| NextUp { title: "Amazing Grace".into(), slide: s.clone() }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0, drawing: Default::default(),
         }
     }
     fn empty_view() -> LiveView {

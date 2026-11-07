@@ -74,6 +74,32 @@
   .timer .over { color: var(--live); }
   .sheet input { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--text); margin-bottom: 10px; }
   .sheet .go { width: 100%; padding: 15px; border-radius: 12px; background: var(--accent); color: #1a1405; font-weight: 800; margin-bottom: 8px; }
+  /* Drawing on the slide: a full-screen view with the tools, and the slide picture with a canvas over it. */
+  .drawbtn { display: none; padding: 15px; border-radius: 14px; background: var(--raise); font-weight: 800; font-size: 17px; }
+  .drawbtn.on { display: block; }
+  .draw { position: fixed; inset: 0; z-index: 8; background: #000; display: none; flex-direction: column; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  .draw.on { display: flex; }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; padding: 8px; background: var(--panel); }
+  .tools .grp { display: flex; gap: 6px; align-items: center; }
+  .tools button { min-width: 44px; height: 44px; border-radius: 12px; background: var(--raise); font-weight: 700; font-size: 15px; padding: 0 12px; }
+  .tools .sw { width: 36px; min-width: 36px; height: 36px; border-radius: 50%; padding: 0; border: 3px solid transparent; }
+  .tools .sw.sel { border-color: #fff; box-shadow: 0 0 0 2px #000 inset; }
+  .tools .size.sel, .tools .hl.sel, .tools .ink .sel { background: var(--accent); color: #1a1405; }
+  .tools .ink { gap: 0; }
+  .tools .ink button:first-child { border-radius: 12px 0 0 12px; }
+  .tools .ink button:last-child { border-radius: 0 12px 12px 0; }
+  @media (orientation: landscape) { .tools .ink button:first-child { border-radius: 12px 12px 0 0; } .tools .ink button:last-child { border-radius: 0 0 12px 12px; } }
+  .tools .size i { display: block; margin: auto; border-radius: 50%; background: currentColor; }
+  .tools .done { background: var(--accent); color: #1a1405; font-weight: 800; }
+  .board { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .slide { position: relative; background: #111; }
+  .slide img, .slide canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .slide canvas { touch-action: none; }
+  @media (orientation: landscape) {
+    .draw.on { flex-direction: row; }
+    .tools { flex-direction: column; flex-wrap: nowrap; overflow-y: auto; }
+    .tools .grp { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
@@ -89,6 +115,7 @@
   <div class="now"><div class="label" data-t>On screen <span id="nowLabel"></span></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
   <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
   <div class="media" id="media"><button id="mediaBtn" data-t>Pause video</button></div>
+  <button class="drawbtn" id="drawBtn" data-t>Draw on the slide</button>
   <div class="next"><div class="label" data-t>Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>
   <div class="clears">
     <button class="all" data-c="clear_all" data-t>Clear All</button>
@@ -103,6 +130,20 @@
 </div>
 <div class="sheet" id="sheet"><div class="box"><h3 id="sheetTitle"></h3><p data-t>Tap a slide to put it on the screen.</p><div class="slides" id="sheetSlides"></div><button class="cancel" id="sheetCancel" data-t>Cancel</button></div></div>
 <div class="sheet" id="ask"><div class="box"><h3 id="askTitle"></h3><div id="askFields"></div><button class="go" id="askGo"></button><button class="cancel" id="askCancel" data-t>Cancel</button></div></div>
+<div class="draw" id="draw">
+  <div class="tools">
+    <div class="grp" id="swatches"></div>
+    <div class="grp" id="sizes"></div>
+    <button class="hl" id="hlBtn" data-t>Highlighter</button>
+    <div class="grp ink"><button id="inkStays" data-t>Stays</button><button id="inkFades" data-t>Fades</button></div>
+    <div class="grp">
+      <button id="undoBtn" data-t>Undo</button>
+      <button id="clearBtn" data-t>Clear all</button>
+      <button class="done" id="doneBtn" data-t>Done</button>
+    </div>
+  </div>
+  <div class="board" id="board"><div class="slide" id="slideBox"><img id="slideImg" alt=""><canvas id="pad"></canvas></div></div>
+</div>
 <div class="toast" id="toast"></div>
 <script type="module" src="/static/remote.js"></script>
 </body>

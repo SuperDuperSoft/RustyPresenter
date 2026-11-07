@@ -11,8 +11,8 @@ use slint::{ComponentHandle, ModelRc, VecModel};
 use std::{cell::RefCell, rc::Rc};
 
 /// The layers a clear group can take down, in the editor's order.
-pub const LAYERS: [ClearLayer; 7] =
-    [ClearLayer::Slide, ClearLayer::Media, ClearLayer::Audio, ClearLayer::Logo, ClearLayer::Overlays, ClearLayer::Message, ClearLayer::Timers];
+pub const LAYERS: [ClearLayer; 8] = [ClearLayer::Slide, ClearLayer::Media, ClearLayer::Audio, ClearLayer::Logo, ClearLayer::Overlays,
+    ClearLayer::Message, ClearLayer::Timers, ClearLayer::Drawing];
 
 thread_local! {
     /// The open Settings and the action waiting for its new key.
@@ -105,6 +105,7 @@ fn layer_name(l: ClearLayer) -> String {
         ClearLayer::Overlays => tr::overlays(),
         ClearLayer::Message => tr::message(),
         ClearLayer::Timers => tr::timers(),
+        ClearLayer::Drawing => tr::drawing(),
     }
 }
 
@@ -228,6 +229,7 @@ mod tr {
     pub fn overlays() -> String { tr!("Overlays (pictures, clocks, signs)") }
     pub fn message() -> String { tr!("Message") }
     pub fn timers() -> String { tr!("Timers") }
+    pub fn drawing() -> String { tr!("Phone drawing") }
     pub fn new_group() -> String { tr!("New clear group") }
     pub fn press_for(what: &str) -> String { tr!("Press the new key for “{what}”", what = what) }
     pub fn not_tab() -> String { tr!("Tab moves between buttons, so it cannot be a shortcut. Press another key.") }

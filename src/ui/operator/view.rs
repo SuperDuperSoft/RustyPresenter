@@ -91,7 +91,8 @@ pub struct OperatorSnapshot {
     pub lan_url: Option<String>,
     pub player_missing: bool,
     pub backups: Vec<BackupInfo>,
-    pub phones_list: Vec<(Uuid, String)>,
+    /// Each paired phone: its id, name and whether it may draw on slides.
+    pub phones_list: Vec<(Uuid, String, bool)>,
     pub data_folder: String,
     pub version: String,
     /// Which full read this is (`read_number`); a patch keeps the number of the read it changed.
@@ -152,7 +153,7 @@ impl OperatorSnapshot {
             lan_url: app.lan_url.clone(),
             player_missing: false,
             backups: app.store.backups(),
-            phones_list: app.phones.lock().unwrap().iter().map(|p| (p.id, p.name.clone())).collect(),
+            phones_list: app.phones.lock().unwrap().iter().map(|p| (p.id, p.name.clone(), p.may_draw)).collect(),
             data_folder: app.store.root.display().to_string(),
             version: env!("CARGO_PKG_VERSION").into(),
             data: Arc::new(data),
@@ -478,7 +479,7 @@ mod tests {
     fn view() -> LiveView {
         LiveView {
             version: 1, committed: 1, pending: false, frame: Frame::default(), cursor: None, item: None, slide: None, next: None,
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(),
         }
     }
 

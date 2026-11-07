@@ -233,7 +233,7 @@ impl ClearGroup {
     /// Everything but the background (and video): text, audio, logo, overlays, the message and the timers.
     pub fn builtin() -> ClearGroup {
         ClearGroup { id: BUILTIN_GROUP, name: strings::all_but_background(),
-            layers: vec![ClearLayer::Slide, ClearLayer::Audio, ClearLayer::Logo, ClearLayer::Overlays, ClearLayer::Message, ClearLayer::Timers] }
+            layers: vec![ClearLayer::Slide, ClearLayer::Audio, ClearLayer::Logo, ClearLayer::Overlays, ClearLayer::Message, ClearLayer::Timers, ClearLayer::Drawing] }
     }
 
     pub fn command(&self) -> Command { Command::ClearLayers { layers: self.layers.clone() } }

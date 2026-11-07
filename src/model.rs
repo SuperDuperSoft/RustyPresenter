@@ -483,6 +483,17 @@ pub struct Settings {
     pub show_performance: bool,
     /// N33: the room and stage screens that were on come back on at start; off, they wait for the switch.
     pub screens_at_start: bool,
+    /// Settings → Video: lines drawn from a phone stay when the slide changes (off: each slide starts clean).
+    pub keep_drawings: bool,
+    /// Settings → Video: the stage screen shows the live slide with its drawing while one is up.
+    pub stage_drawings: bool,
+    /// Settings → Video → "Limit phone drawing" (off: no limits), with the most lines on the slide at once and
+    /// the most drawing updates a second from one phone.
+    pub drawing_limit: bool,
+    pub drawing_max_strokes: u32,
+    pub drawing_max_per_second: u32,
+    /// Settings → Video → "Fading ink disappears after: N seconds" (1–30).
+    pub fade_secs: u32,
 }
 
 /// How many service files File → Open recent lists.
@@ -556,6 +567,12 @@ impl Default for Settings {
             displays: DisplayRoles::default(),
             screens: ScreenSetup::default(),
             room_on_top: true,
+            keep_drawings: false,
+            stage_drawings: true,
+            drawing_limit: false,
+            drawing_max_strokes: crate::live::drawing::actions::MAX_STROKES_DEFAULT,
+            drawing_max_per_second: crate::live::drawing::actions::MAX_PER_SECOND_DEFAULT,
+            fade_secs: crate::live::drawing::FADE_SECS_DEFAULT,
             audio_device: String::new(),
             bible_per_slide: 0,
             favourites: Vec::new(),

@@ -52,6 +52,9 @@ export component StageWindow inherits Window {
     /// A message when the layout has no message box: a banner over the top of the screen.
     in property <string> banner;
     /// Words Rust measures (with `probe-*`) to find the size that fits a box.
+    /// The live slide with the phone drawing on it, in a corner (Settings → "Show drawings on the stage screen").
+    in property <bool> drawing-on;
+    in property <image> drawing;
     in property <string> probe-text;
     in property <length> probe-width;
     in property <float> probe-size: 3;
@@ -264,6 +267,25 @@ export component StageWindow inherits Window {
                 horizontal-alignment: center;
                 vertical-alignment: center;
             }
+        }
+    }
+    if root.drawing-on: drawing-panel := Rectangle {
+        x: root.width - self.width - 2 * vw;
+        y: 2 * vh;
+        width: 36 * vw;
+        height: self.width * 9 / 16;
+        background: #000000;
+        border-width: 3px;
+        border-color: #f5c66b;
+        border-radius: 6px;
+        clip: true;
+        accessible-role: image;
+        accessible-label: @tr("The slide with its drawing");
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.drawing;
+            image-fit: contain;
         }
     }
 }

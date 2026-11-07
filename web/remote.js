@@ -1,3 +1,5 @@
+import { initDraw, openDraw, onView, onMine } from '/static/draw.js';
+
 const $ = id => document.getElementById(id);
 // The words in the computer's language, from /i18n.json (listed in src/i18n/remote_strings.rs). `t` takes the English word and
 // gives the shown text; `{name}` gaps are filled from `args`. A word not there stays English.
@@ -89,6 +91,8 @@ function connect() {
     const m = JSON.parse(e.data);
     // FEAT-2: a tick sends only the timer lines.
     if (m.type === 'timers') { if (V) { V.timers = m.timers; renderAuto(); } return; }
+    // Drawing: which of this phone's lines are still on the slide.
+    if (m.type === 'drawing') { onMine(m.mine); return; }
     if (m.type !== 'remote') return;
     V = m;
     render();
@@ -112,6 +116,8 @@ function render() {
   $('nextLabel').textContent = V.next ? `${V.next.title} · ${V.next.label}` : '';
   $('logoBtn').classList.toggle('on', air.logo);
   $('media').classList.toggle('on', !!V.media);
+  $('drawBtn').classList.toggle('on', !!V.may_draw);
+  onView(V);
   if (V.media) $('mediaBtn').textContent = V.media.paused ? '▶ ' + t('Play video') : '❚❚ ' + t('Pause video');
   const liveId = V.cursor && V.cursor.item_id;
   $('items').replaceChildren(...V.items.map((it, i) => {
@@ -202,6 +208,8 @@ $('sheet').onclick = e => { if (e.target.id === 'sheet') closeSheet(); };
 $('next').onclick = () => send('next', {}, true);
 $('prev').onclick = () => send('prev', {}, true);
 document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(b.dataset.c));
+$('drawBtn').onclick = () => openDraw(V);
+initDraw({ t, toast, relogin: start });
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });
 
 loadWords().then(() => pairFromLink()).catch(() => false).then(shown => { if (!shown) start(); });

@@ -3,9 +3,9 @@
 import { Theme } from "../theme.slint";
 import { Btn, CopyText } from "../widgets.slint";
 import { DialogBody } from "shell.slint";
-import { ListRow, RowMain, Note, Lbl } from "form.slint";
+import { ListRow, RowMain, Note, Lbl, Check } from "form.slint";
 
-export struct PairedPhone { id: string, name: string }
+export struct PairedPhone { id: string, name: string, may-draw: bool }
 
 /// Set and answered by `src/ui/dialogs/phone.rs`.
 export global PhoneDialogState {
@@ -19,6 +19,8 @@ export global PhoneDialogState {
     in property <[PairedPhone]> phones;
     callback pair();
     callback remove(string);
+    /// "May draw on slides" turned on or off for phone `id`.
+    callback may-draw(string, bool);
 }
 
 export component PhoneDialog inherits VerticalLayout {
@@ -152,6 +154,15 @@ export component PhoneDialog inherits VerticalLayout {
                 accessible-role: list-item;
                 accessible-label: p.name;
                 RowMain { title: p.name; }
+                VerticalLayout {
+                    alignment: center;
+                    may-draw := Check {
+                        padding-bottom: 0px;
+                        text: @tr("May draw on slides");
+                        checked: p.may-draw;
+                        toggled(on) => { PhoneDialogState.may-draw(p.id, on); }
+                    }
+                }
                 VerticalLayout {
                     alignment: center;
                     remove-btn := Btn {

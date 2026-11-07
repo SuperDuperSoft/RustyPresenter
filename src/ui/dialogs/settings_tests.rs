@@ -78,6 +78,14 @@ fn save_settings_round_trips_theme_and_lines() {
     assert!(f.get_screens_at_start() && !f.get_show_performance(), "screens on at start, performance hidden, by default");
     f.set_screens_at_start(false);
     f.set_show_performance(true);
+    assert!(!f.get_keep_drawings() && f.get_stage_drawings(), "drawings: cleared on a new slide, shown on stage");
+    f.set_keep_drawings(true);
+    f.set_stage_drawings(false);
+    assert_eq!((f.get_drawing_limit(), f.get_fade_secs().to_string()), (false, "3".to_string()), "no limits; ink fades after 3 s");
+    f.set_drawing_limit(true);
+    f.set_drawing_max_strokes("40".into());
+    f.set_drawing_max_per_second("abc".into());
+    f.set_fade_secs("90".into());
     assert!(f.get_section_keys(), "section keys on by default");
     f.set_section_keys(false);
     assert_eq!(f.get_audio_labels().row_count(), 1, "the default, before a list arrives");
@@ -89,6 +97,10 @@ fn save_settings_round_trips_theme_and_lines() {
     assert_eq!((s.lines_per_slide, s.credits.as_str(), s.church_ccli.as_str()), (4, "none", "12345"));
     assert!(!s.room_on_top, "Settings → Video can let the room screen go behind other windows");
     assert!(!s.screens_at_start && s.show_performance, "Settings → Video keeps the screens off at start and shows performance");
+    assert!(s.keep_drawings && !s.stage_drawings, "Settings → Video: the two drawing choices");
+    assert_eq!((s.drawing_limit, s.drawing_max_strokes, s.drawing_max_per_second, s.fade_secs), (true, 40, 30, 30), "not a number: unchanged; too many seconds: 30");
+    assert_eq!(app.live.lock().unwrap().drawing.fade_after, std::time::Duration::from_secs(30));
+    assert!(app.live.lock().unwrap().keep_drawing, "the live engine follows at once");
     assert!(!s.section_keys, "Settings → Songs can turn the section keys off");
     assert_eq!(op.dialog(), None, "Save closes the dialog");
     assert!(toasts(&op).contains(&"Settings saved".to_string()));

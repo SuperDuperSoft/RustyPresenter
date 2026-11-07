@@ -5,8 +5,9 @@ pub mod prepare;
 
 use super::{RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
-use crate::live::{Frame, MediaLayer, PlayState, RoomEvent};
+use crate::live::{Frame, MediaLayer, PlayState, RoomEvent, drawing::Drawing};
 use crate::media_prefs::{Scale, SoundOut};
+use crate::render::drawing::DrawingCanvas;
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
@@ -107,7 +108,7 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent), Drawing(Option<Px>) }
 
 /// What the room's threads share.
 struct Shared {
@@ -122,6 +123,8 @@ struct Shared {
     closed: AtomicBool,
     /// Asks the UI thread to `pump` (coalesced by `queued`).
     wake: Box<dyn Fn() + Send + Sync>,
+    /// The size the phone drawing is drawn at (the room's canvas).
+    canvas: Mutex<(u32, u32)>,
 }
 
 impl Shared {
@@ -199,6 +202,7 @@ impl Inner {
                 Some(Msg::Report(r)) => self.report(r),
                 Some(Msg::Device(d)) => self.sync_device(&d),
                 Some(Msg::Event(ev)) => self.shared.emit(ev),
+                Some(Msg::Drawing(px)) => self.ui.set_drawing(px.map(Px::image).unwrap_or_default()),
                 None => break,
             }
         }
@@ -231,6 +235,7 @@ impl Inner {
             let (me, kind, why) = (self.me.clone(), w.kind, too_slow(w.kind, &view.frame));
             Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, why) });
         }
+        *self.shared.canvas.lock().unwrap() = self.canvas();
         let waiting = wants.iter().map(|w| w.kind).collect();
         *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new() });
         if !wants.is_empty() {
@@ -489,7 +494,7 @@ impl Room {
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
-        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake });
+        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)) });
         let to_shared = shared.clone();
         let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         let to_live = app.clone();
@@ -515,6 +520,7 @@ impl Room {
         let rx = app.subscribe();
         forward(reports, shared.clone());
         follow(app.clone(), rx, shared);
+        *room.inner.shared.canvas.lock().unwrap() = room.inner.canvas();
         room.inner.view(&app.live_view());
         Ok(room)
     }
@@ -567,12 +573,46 @@ fn forward(reports: std::sync::mpsc::Receiver<PlayerReport>, shared: Arc<Shared>
     });
 }
 
+/// Draws the phone lines on a thread of its own, only the newest drawing each time, and hands the picture to the
+/// UI thread; while ink is fading it draws again by itself (about 30 times a second during a fade). Ends when
+/// `follow` (the sender) does.
+fn drawer(shared: Arc<Shared>) -> std::sync::mpsc::Sender<Arc<Drawing>> {
+    use std::sync::mpsc::RecvTimeoutError;
+    let (tx, rx) = std::sync::mpsc::channel::<Arc<Drawing>>();
+    let _ = std::thread::Builder::new().name("room-drawing".into()).spawn(move || {
+        let mut canvas = DrawingCanvas::new();
+        let mut shown: Option<Arc<Drawing>> = None;
+        loop {
+            let wait = shown.as_ref().and_then(|d| d.next_change(std::time::Instant::now()));
+            let mut d = match wait.map_or_else(|| rx.recv().map_err(|_| RecvTimeoutError::Disconnected), |w| rx.recv_timeout(w)) {
+                Ok(d) => d,
+                Err(RecvTimeoutError::Timeout) => match shown.clone() { Some(d) => d, None => continue },
+                Err(RecvTimeoutError::Disconnected) => return,
+            };
+            while let Ok(newer) = rx.try_recv() { d = newer }
+            shown = Some(d.clone());
+            let size = *shared.canvas.lock().unwrap();
+            let px = canvas.render(&d, size).map(|p| Px::Premul(p.buffer()));
+            if shared.closed.load(Ordering::Relaxed) { return }
+            shared.send(Msg::Drawing(px));
+        }
+    });
+    tx
+}
+
 /// Live updates from a plain thread; only the newest view is applied.
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, shared: Arc<Shared>) {
     let sound = move |app: &App| app.sound_out();
     let mut device = sound(&app);
+    let drawings = drawer(shared.clone());
+    // The drawing last handed to the drawer. `rev` only grows, so an older one (a live view read before the newest
+    // strokes, sent after them) is left out.
+    let mut drawn = app.live_view().drawing;
+    if !drawn.is_empty() { let _ = drawings.send(drawn.clone()); }
     let _ = std::thread::Builder::new().name("room-updates".into()).spawn(move || loop {
+        let mut draw = |d: &Arc<Drawing>| if d.rev > drawn.rev { drawn = d.clone(); let _ = drawings.send(d.clone()); };
         let update = match rx.blocking_recv() {
+            Ok(Update::Drawing(d)) => { draw(&d); continue }
             Ok(Update::Live(u)) => u,
             Ok(Update::Data) => {
                 let now = sound(&app);
@@ -587,6 +627,7 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, share
             Err(RecvError::Closed) => return,
         };
         if shared.closed.load(Ordering::Relaxed) { return }
+        draw(&update.drawing);
         *shared.latest.lock().unwrap() = Some(update);
         shared.wake();
     });
@@ -678,6 +719,34 @@ mod tests {
         assert!(!shown(&room, Kind::Media) && !shown(&room, Kind::Logo) && !ui.get_video());
         // The crossfade runs on the room's own timer and ends fully in.
         assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0 && !room.inner.fader.running()));
+    }
+
+    #[test]
+    fn a_phone_drawing_appears_over_the_slide_and_goes_with_it() {
+        use crate::live::drawing::{DrawCmd, Pen, PALETTE};
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let phone = Uuid::new_v4();
+        app.phones.lock().unwrap().push(crate::app::Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
+        let item = scripture(&app);
+        show(&app, item);
+        let room = open(&app);
+        let ui = &room.inner.ui;
+        let line = DrawCmd::Start { stroke: 1, color: PALETTE[1].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.25, 0.5], [0.75, 0.5]], ink: Default::default() };
+        app.draw(phone, &line).unwrap();
+        assert!(pump_until(&room, 10.0, || ui.get_drawing().size().width > 0), "the drawing layer got a picture");
+        let img = ui.get_drawing();
+        let (w, h) = (img.size().width, img.size().height);
+        assert!(w >= 1280, "drawn at the room's size: {w}");
+        let px = img.to_rgba8_premultiplied().or_else(|| img.to_rgba8()).expect("pixels");
+        let at = |x: u32, y: u32| px.as_slice()[(y * w + x) as usize];
+        let mid = at(w / 2, h / 2);
+        assert_eq!((mid.r, mid.g, mid.b, mid.a), (0xff, 0x3b, 0x30, 255), "a red line across the middle");
+        assert_eq!(at(w / 2, h / 4).a, 0, "nothing above it");
+        assert_eq!(at(w / 10, h / 2).a, 0, "nor before its start");
+        // Clear Text takes it away with the words.
+        run(&app, Command::ClearSlide);
+        assert!(pump_until(&room, 10.0, || ui.get_drawing().size().width == 0), "gone with the text");
     }
 
     #[test]

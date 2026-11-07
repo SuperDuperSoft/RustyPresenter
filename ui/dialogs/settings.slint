@@ -12,7 +12,7 @@ import { SettingsLanguage } from "settings-language.slint";
 import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
 import { SettingsSections } from "settings-sections.slint";
 import { SettingsHelp } from "settings-keys.slint";
-import { SettingsMedia } from "settings-media.slint";
+import { SettingsMedia, Heading } from "settings-media.slint";
 
 export { SettingsDlg }
 
@@ -97,6 +97,7 @@ component SettingsSongs inherits VerticalLayout {
 
 component SettingsVideo inherits VerticalLayout {
     spacing: 8px;
+    Heading { text: @tr("Video and graphics"); }
     player := Text {
         text: SettingsDlg.video-player;
         color: Theme.text;
@@ -111,7 +112,7 @@ component SettingsVideo inherits VerticalLayout {
         accessible-role: text;
         accessible-label: self.text;
     }
-    Rectangle { height: 18px; }
+    Rectangle { height: 10px; }
     Field {
         label: @tr("Sound goes to");
         audio := Select {
@@ -136,6 +137,16 @@ component SettingsVideo inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Performance");
+        help: @tr("Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling.");
+        show-performance := Check {
+            text: @tr("Show performance");
+            checked <=> SettingsDlg.show-performance;
+        }
+    }
+    Rectangle { height: 10px; }
+    Heading { text: @tr("Screens"); }
+    Field {
         label: @tr("Room screen");
         room-on-top := Check {
             text: @tr("Keep the room screen in front when it has its own monitor (smoother fades)");
@@ -150,19 +161,48 @@ component SettingsVideo inherits VerticalLayout {
         }
     }
     Field {
-        label: @tr("Performance");
-        help: @tr("Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling.");
-        show-performance := Check {
-            text: @tr("Show performance");
-            checked <=> SettingsDlg.show-performance;
-        }
-    }
-    Field {
         label: @tr("Stage layout");
         help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
         stage-layout := Select {
             options: SettingsDlg.stage-layout-names;
             index <=> SettingsDlg.stage-layout;
+        }
+    }
+    Rectangle { height: 10px; }
+    Heading { text: @tr("Phone drawing"); }
+    Field {
+        label: @tr("Drawing from a phone");
+        VerticalLayout {
+            keep-drawings := Check {
+                text: @tr("Keep drawings when the slide changes");
+                checked <=> SettingsDlg.keep-drawings;
+            }
+            stage-drawings := Check {
+                text: @tr("Show drawings on the stage screen");
+                checked <=> SettingsDlg.stage-drawings;
+            }
+        }
+    }
+    Field {
+        label: @tr("Fading ink disappears after (seconds, 1–30)");
+        help: @tr("On the phone, “Fades” ink works like a laser pointer: it goes away by itself.");
+        fade-secs := TextField { text <=> SettingsDlg.fade-secs; }
+    }
+    Field {
+        label: @tr("Limits");
+        VerticalLayout {
+            drawing-limit := Check {
+                text: @tr("Limit phone drawing");
+                checked <=> SettingsDlg.drawing-limit;
+            }
+            if SettingsDlg.drawing-limit: Field {
+                label: @tr("Most lines on the screen at once");
+                drawing-max-strokes := TextField { text <=> SettingsDlg.drawing-max-strokes; }
+            }
+            if SettingsDlg.drawing-limit: Field {
+                label: @tr("Most drawing updates a second from one phone");
+                drawing-max-per-second := TextField { text <=> SettingsDlg.drawing-max-per-second; }
+            }
         }
     }
 }

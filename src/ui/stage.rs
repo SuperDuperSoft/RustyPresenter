@@ -226,15 +226,60 @@ impl Drop for Stage {
     fn drop(&mut self) { self.closed.store(true, Ordering::Relaxed); let _ = self.ui.hide(); }
 }
 
+/// The drawing panel's size: the live slide, small, with the phone drawing on it.
+const PANEL: (u32, u32) = (640, 360);
+
+/// What the drawing panel shows: nothing (`None`), or the live slide with its drawing, straight RGBA. `slide` keeps
+/// the slide picture for the live version it was drawn for, so each new stroke only redraws the lines.
+pub fn drawing_panel(app: &App, canvas: &mut crate::render::drawing::DrawingCanvas, slide: &mut Option<(u64, super::thumbs::Pixels)>,
+    renderer: &super::thumbs::TextRenderer) -> Option<super::thumbs::Pixels> {
+    let on = app.data.lock().unwrap().settings.stage_drawings;
+    let (version, drawing) = { let l = app.live.lock().unwrap(); (l.version, l.drawing.clone()) };
+    if !on || drawing.is_empty() { *slide = None; return None }
+    if slide.as_ref().is_none_or(|(v, _)| *v != version) { *slide = Some((version, super::thumbs::live_slide(app, PANEL, renderer))) }
+    let mut img = slide.as_ref()?.1.clone();
+    if let Some(lines) = canvas.render(&drawing, PANEL) { super::thumbs::put_over(&mut img, &lines) }
+    Some(img)
+}
+
+/// Draws the panel on a thread of its own: each poke draws it once from the newest state (pokes that pile up while
+/// it draws count as one).
+fn panel_thread(app: Arc<App>, ui: slint::Weak<StageWindow>, closed: Arc<AtomicBool>) -> std::sync::mpsc::Sender<()> {
+    let (tx, rx) = std::sync::mpsc::channel::<()>();
+    let _ = std::thread::Builder::new().name("stage-drawing".into()).spawn(move || {
+        let (mut canvas, mut slide, renderer) = (crate::render::drawing::DrawingCanvas::new(), None, super::thumbs::TextRenderer::new());
+        let mut showing = false;
+        loop {
+            // While ink is fading the panel draws again by itself.
+            let wait = app.live.lock().unwrap().drawing.next_change(std::time::Instant::now());
+            let got = match wait { Some(w) => rx.recv_timeout(w).or_else(|e| if e == std::sync::mpsc::RecvTimeoutError::Timeout { Ok(()) } else { Err(()) }), None => rx.recv().map_err(|_| ()) };
+            if got.is_err() { return }
+            while rx.try_recv().is_ok() {}
+            if closed.load(Ordering::Relaxed) { return }
+            let px = drawing_panel(&app, &mut canvas, &mut slide, &renderer);
+            if px.is_none() && !showing { continue }
+            showing = px.is_some();
+            let _ = ui.upgrade_in_event_loop(move |ui| {
+                ui.set_drawing_on(px.is_some());
+                ui.set_drawing(px.map(slint::Image::from_rgba8).unwrap_or_default());
+            });
+        }
+    });
+    tx
+}
+
 /// Forward live and data updates to the window from a plain thread (no tokio runtime needed on the UI side).
 /// Only the newest view is drawn: updates that arrive while one is queued replace it.
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: slint::Weak<StageWindow>, screen: Arc<StageScreen>, closed: Arc<AtomicBool>) {
     let latest: Arc<Mutex<Option<Shown>>> = Arc::default();
+    let panel = panel_thread(app.clone(), ui.clone(), closed.clone());
+    let _ = panel.send(());
     let _ = std::thread::Builder::new().name("stage-updates".into()).spawn(move || loop {
         let update = match rx.blocking_recv() {
-            Ok(Update::Live(u)) => u,
+            Ok(Update::Drawing(_)) => { let _ = panel.send(()); continue }
+            Ok(Update::Live(u)) => { let _ = panel.send(()); u }
             // Settings may have a new stage layout.
-            Ok(Update::Data) | Err(RecvError::Lagged(_)) => LiveUpdate::new(app.live_view()),
+            Ok(Update::Data) | Err(RecvError::Lagged(_)) => { let _ = panel.send(()); LiveUpdate::new(app.live_view()) }
             // A new timer readout: the same live view with the new times.
             Ok(Update::Timers(_)) => match latest.lock().unwrap().as_ref().map(|s| s.live.clone()) {
                 Some(live) => live,
@@ -278,7 +323,7 @@ mod tests {
             item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2, song_id: None }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(),
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(),
         }
     }
 
@@ -504,5 +549,23 @@ mod tests {
         };
         let s = Slide::new("John 3:16", SlideContent::Text { text: "For God so loved".into(), footer: None, reference: None, size: 0, parallel: Some(p) });
         assert_eq!(label(&s), "KJV  For God so loved\n\nWEB  For God so loved");
+    }
+
+    #[test]
+    fn the_stage_shows_the_slide_with_its_drawing_unless_turned_off() {
+        use crate::live::drawing::{DrawCmd, Pen, PALETTE};
+        let app = test_app();
+        let phone = uuid::Uuid::new_v4();
+        app.phones.lock().unwrap().push(crate::app::Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
+        let (mut canvas, mut slide, renderer) = (crate::render::drawing::DrawingCanvas::new(), None, crate::ui::thumbs::TextRenderer::new());
+        let mut panel = || drawing_panel(&app, &mut canvas, &mut slide, &renderer);
+        assert!(panel().is_none(), "nothing drawn: no panel");
+        app.draw(phone, &DrawCmd::Start { stroke: 1, color: PALETTE[1].into(), width: 40.0, pen: Pen::Pen, points: vec![[0.1, 0.5], [0.9, 0.5]], ink: Default::default() }).unwrap();
+        let img = panel().expect("on by default");
+        assert_eq!((img.width(), img.height()), PANEL);
+        let mid = img.as_slice()[(180 * 640 + 320) as usize];
+        assert_eq!((mid.r, mid.g, mid.b), (0xff, 0x3b, 0x30), "the red line over the (black) slide");
+        app.data.lock().unwrap().settings.stage_drawings = false;
+        assert!(panel().is_none(), "Settings → Show drawings on the stage screen, off");
     }
 }
