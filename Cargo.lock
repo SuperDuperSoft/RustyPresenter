@@ -4642,6 +4642,7 @@ dependencies = [
  "encoding_rs",
  "futures-util",
  "glow 0.18.0",
+ "i-slint-backend-selector",
  "i-slint-backend-testing",
  "i-slint-core",
  "icu_normalizer",
