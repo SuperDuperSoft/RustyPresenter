@@ -253,10 +253,9 @@ impl PowerPoint {
                 unfinished.armed = false;
                 Err(match stop {
                     Stop::Timeout => strings::ppt_timeout(),
-                    Stop::Cancelled => CANCELLED,
+                    Stop::Cancelled => CANCELLED.to_string(),
                     Stop::Io(_) => strings::ppt_cannot_read(),
-                }
-                .to_string())
+                })
             }
         }
     }
