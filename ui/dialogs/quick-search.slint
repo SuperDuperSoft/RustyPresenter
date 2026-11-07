@@ -1,0 +1,181 @@
+// N14 Quick search (Ctrl+F): one box that finds songs, media, slide sets, this service's items and other services.
+// Enter opens the chosen result, Ctrl+Enter adds it to the service. Rust (`src/ui/dialogs/quick_search.rs`) fills it.
+import { Theme } from "../theme.slint";
+import { Btn, Icon, ScrollBox } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+import { TextField } from "form.slint";
+
+/// One result: its icon, title, a muted line, what it is ("Song · In this service"), and whether it can be added.
+export struct QuickHit { icon: string, title: string, sub: string, tag: string, can-add: bool }
+
+/// Set and answered by `src/ui/dialogs/quick_search.rs`.
+export global QuickSearchDlg {
+    in-out property <string> query;
+    in property <[QuickHit]> hits;
+    in-out property <int> current;
+    /// "Type a song title, a few words of the lyrics, a file or a service.", "Nothing matches.", or empty.
+    in property <string> note;
+    callback edited(string);
+    /// Enter, a double-click or the Open button: the result at that row.
+    callback open(int);
+    /// Ctrl+Enter or a row's Add button.
+    callback add(int);
+}
+
+export component QuickSearchDialog inherits VerticalLayout {
+    in property <length> window-height: 800px;
+    property <length> list-height: clamp(root.window-height - 360px, 180px, 460px);
+    property <length> row-h: 52px;
+
+    function step(by: int) {
+        if QuickSearchDlg.hits.length == 0 { return; }
+        QuickSearchDlg.current = clamp(QuickSearchDlg.current + by, 0, QuickSearchDlg.hits.length - 1);
+        // Keep the chosen row in view.
+        let top = QuickSearchDlg.current * (root.row-h + 4px);
+        if top < -list.content-y {
+            list.content-y = -top;
+        } else if top + root.row-h > -list.content-y + list.height {
+            list.content-y = min(0px, -(top + root.row-h - list.height));
+        }
+    }
+
+    // The arrows, Enter and Ctrl+Enter reach this scope before the search box takes them.
+    keys := FocusScope {
+        capture-key-pressed(e) => {
+            if e.text == Key.Return {
+                if QuickSearchDlg.current >= 0 && QuickSearchDlg.current < QuickSearchDlg.hits.length {
+                    if e.modifiers.control {
+                        QuickSearchDlg.add(QuickSearchDlg.current);
+                    } else {
+                        QuickSearchDlg.open(QuickSearchDlg.current);
+                    }
+                }
+                return accept;
+            }
+            if e.text == Key.DownArrow { root.step(1); return accept; }
+            if e.text == Key.UpArrow { root.step(-1); return accept; }
+            reject
+        }
+        VerticalLayout {
+            padding-top: 8px;
+            padding-bottom: 14px;
+            padding-left: 22px;
+            padding-right: 22px;
+            spacing: 10px;
+            search := TextField {
+                search: true;
+                label: @tr("Quick search");
+                placeholder: @tr("Find a song, a file, a slide set or a service");
+                text <=> QuickSearchDlg.query;
+                init => { self.focus(); }
+                edited(t) => { QuickSearchDlg.edited(t); }
+            }
+            if QuickSearchDlg.note != "": note := Text {
+                text: QuickSearchDlg.note;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            list := ScrollBox {
+                height: QuickSearchDlg.hits.length == 0 ? 0px : root.list-height;
+                track-edge: Theme.panel;
+                VerticalLayout {
+                    alignment: start;
+                    spacing: 4px;
+                    for h[i] in QuickSearchDlg.hits: hit := Rectangle {
+                        height: root.row-h;
+                        background: i == QuickSearchDlg.current ? Theme.raise : Theme.panel-2;
+                        border-radius: 10px;
+                        border-width: 1.5px;
+                        border-color: i == QuickSearchDlg.current ? Theme.accent : hit-ta.has-hover ? Theme.line : transparent;
+                        accessible-role: list-item;
+                        accessible-label: h.title;
+                        accessible-description: h.tag;
+                        accessible-item-selected: i == QuickSearchDlg.current;
+                        accessible-action-default => { QuickSearchDlg.open(i); }
+                        hit-ta := TouchArea {
+                            clicked => { QuickSearchDlg.current = i; }
+                            double-clicked => { QuickSearchDlg.open(i); }
+                        }
+                        HorizontalLayout {
+                            padding-left: 12px;
+                            padding-right: 10px;
+                            spacing: 12px;
+                            VerticalLayout {
+                                alignment: center;
+                                Icon {
+                                    name: h.icon;
+                                    color: i == QuickSearchDlg.current ? Theme.accent : Theme.muted;
+                                }
+                            }
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                min-width: 0px;
+                                alignment: center;
+                                spacing: 2px;
+                                Text {
+                                    text: h.title;
+                                    color: Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    font-weight: 600;
+                                    overflow: elide;
+                                }
+                                if h.sub != "": Text {
+                                    text: h.sub;
+                                    color: Theme.muted;
+                                    font-family: Theme.font;
+                                    font-size: 12.5px;
+                                    overflow: elide;
+                                }
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                tag := Text {
+                                    text: h.tag;
+                                    color: Theme.muted;
+                                    font-family: Theme.font;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                }
+                            }
+                            if h.can-add: VerticalLayout {
+                                horizontal-stretch: 0;
+                                alignment: center;
+                                hit-add := Btn {
+                                    width: self.preferred-width;
+                                    small: true;
+                                    icon: "plus";
+                                    text: @tr("Add");
+                                    tooltip: @tr("Add to the service (Ctrl+Enter)");
+                                    clicked => { QuickSearchDlg.add(i); }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    DialogFoot {
+        VerticalLayout {
+            alignment: center;
+            hint := Text {
+                text: @tr("Enter opens it · Ctrl+Enter adds it to the service · Esc closes");
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 12.5px;
+            }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        open := Btn {
+            primary: true;
+            enabled: QuickSearchDlg.current >= 0 && QuickSearchDlg.current < QuickSearchDlg.hits.length;
+            text: @tr("Open");
+            clicked => { QuickSearchDlg.open(QuickSearchDlg.current); }
+        }
+    }
+}

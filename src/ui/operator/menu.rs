@@ -12,7 +12,7 @@ pub enum MenuAction {
     Settings(SettingsTab),
     /// Edit → Undo (`false`) or Redo (`true`).
     Undo(bool),
-    /// Edit → Find…: a song in the Add dialog, its search box ready.
+    /// Edit → Quick search… (N14): songs, media, slide sets and services in one box.
     Find,
     /// File → Print service order… (the Print dialog, FEAT-6b).
     Print,
@@ -40,6 +40,8 @@ pub enum MenuAction {
     CleanUpMedia,
     /// View → Listen in headphones, or Stop listening (N21).
     Listen,
+    /// View → Show slides as (N37).
+    SlideView(super::slides::SlideView),
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -78,6 +80,9 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "find-mouse" => MenuAction::FindMouse,
         "tutorials" => MenuAction::Tutorials,
         "report-problem" => MenuAction::ReportProblem,
+        "slides-grid" => MenuAction::SlideView(super::slides::SlideView::Grid),
+        "slides-easy" => MenuAction::SlideView(super::slides::SlideView::Easy),
+        "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         _ => return None,
     })
 }
@@ -109,6 +114,7 @@ impl Operator {
             Some(MenuAction::ReportProblem) => self.report_problem(),
             Some(MenuAction::CleanUpMedia) => crate::ui::dialogs::settings_media::clean_up(self),
             Some(MenuAction::Listen) => self.listen(),
+            Some(MenuAction::SlideView(view)) => self.set_slide_view(view, None),
             None => {}
         }
     }
@@ -127,11 +133,8 @@ impl Operator {
         });
     }
 
-    /// Edit → Find… (also Ctrl+F): Add → Song, whose search box takes the keyboard. Nothing over a dialog.
-    pub(super) fn find(self: &Rc<Self>) {
-        if self.covered() || self.state.borrow().snap.is_none() { return }
-        add::open_add(self, AddTab::Song);
-    }
+    /// Edit → Quick search… (also Ctrl+F, N14): one box for songs, media, slide sets and services. Nothing over a dialog.
+    pub(super) fn find(self: &Rc<Self>) { crate::ui::dialogs::quick_search::open(self) }
 
     /// File → Print service order…: the Print dialog for the open service.
     fn print(self: &Rc<Self>) {
@@ -484,15 +487,32 @@ mod window_tests {
     }
 
     #[test]
-    fn find_opens_add_on_songs_and_ctrl_f_too() {
+    fn find_opens_quick_search_and_ctrl_f_too() {
         let app = test_app();
         let op = open(&app);
         refresh(&op);
         op.ui.invoke_menu("find".into());
-        assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
+        assert_eq!(op.dialog(), Some(DialogKind::QuickSearch));
         op.close_dialog();
         ctrl(&op, "f");
-        assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
+        assert_eq!(op.dialog(), Some(DialogKind::QuickSearch));
+    }
+
+    #[test]
+    fn view_menu_switches_the_slides_view() {
+        use crate::ui::operator::slides::SlideView;
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        assert_eq!(crate::ui::operator::menu::action("slides-table"), Some(crate::ui::operator::menu::MenuAction::SlideView(SlideView::Table)));
+        op.ui.invoke_menu("slides-easy".into());
+        assert_eq!((op.slide_view(), op.ui.get_slides_view()), (SlideView::Easy, 1));
+        op.ui.invoke_menu("slides-table".into());
+        assert_eq!((op.slide_view(), op.ui.get_slides_view()), (SlideView::Table, 2));
+        op.ui.invoke_menu("slides-grid".into());
+        assert_eq!(op.slide_view(), SlideView::Grid);
+        let bar = include_str!("../../../ui/operator.slint");
+        assert!(bar.contains("root.menu(\"slides-easy\")") && bar.contains("root.menu(\"slides-table\")"));
     }
 
     #[test]

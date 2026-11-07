@@ -220,7 +220,7 @@ mod tr {
     pub fn t_bible_1(key: &str) -> String { tr!("{key} puts the cursor in the Bible box. Type a reference such as John 3:16-18 and press Enter.", key = key) }
     pub fn t_bible_2() -> String { tr!("Edit → Find a verse… finds a passage by its words.") }
     pub fn t_songs() -> String { tr!("Songs") }
-    pub fn t_songs_1() -> String { tr!("Edit → Find… finds a song in the library. Double-click a song to edit its words.") }
+    pub fn t_songs_1() -> String { tr!("Edit → Quick search… finds a song in the library. Double-click a song to edit its words.") }
     pub fn t_songs_2() -> String { tr!("While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse.") }
     pub fn t_help() -> String { tr!("When something goes wrong") }
     pub fn t_help_1(key: &str) -> String { tr!("Lost the mouse on the projector? {key} brings it back to this window.", key = key) }

@@ -5,6 +5,7 @@ import { Theme } from "../theme.slint";
 import { Btn, TopBtn, Segmented } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, Lbl, Select, RangeSlider, Note } from "form.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
 import { StageCanvas, StageBoxVm, StageGuideVm } from "stage-canvas.slint";
 
 export { StageBoxVm, StageGuideVm }
@@ -97,50 +98,64 @@ component Swatch inherits Rectangle {
 
 /// The list of layouts and what can be done with the chosen one.
 component LayoutList inherits VerticalLayout {
+    /// N8: the words in the filter box.
+    property <string> filter;
     spacing: 4px;
     alignment: start;
     Lbl { label: @tr("Stage layouts"); }
-    for l[i] in StageLayoutsDlg.layouts: layout-row := Rectangle {
-        height: 36px;
-        border-radius: 8px;
-        background: l.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
-        border-color: l.selected ? Theme.accent : transparent;
-        border-width: 1px;
-        accessible-role: list-item;
-        accessible-label: l.name;
-        accessible-item-selected: l.selected;
-        row-ta := TouchArea {
-            mouse-cursor: pointer;
-            clicked => { StageLayoutsDlg.select-layout(i); }
+    if StageLayoutsDlg.layouts.length >= ListFilter.min-rows || root.filter != "": HorizontalLayout {
+        layouts-filter := FilterBox {
+            text <=> root.filter;
+            placeholder: @tr("Filter layouts");
         }
-        HorizontalLayout {
-            padding-left: 10px;
-            padding-right: 8px;
-            spacing: 6px;
-            Text {
-                horizontal-stretch: 1;
-                text: l.name;
-                color: Theme.text;
-                font-family: Theme.font;
-                font-size: Theme.base-size;
-                font-weight: l.selected ? 600 : 400;
-                overflow: elide;
-                vertical-alignment: center;
-            }
-            if l.on-stage: Text {
-                text: @tr("On stage");
-                color: Theme.ok;
-                font-family: Theme.font;
-                font-size: 11px;
-                font-weight: 700;
-                vertical-alignment: center;
-            }
-            if l.builtin: Text {
-                text: @tr("Built-in");
-                color: Theme.faint;
-                font-family: Theme.font;
-                font-size: 11px;
-                vertical-alignment: center;
+    }
+    // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
+    VerticalLayout {
+        for l[i] in StageLayoutsDlg.layouts: VerticalLayout {
+            padding-bottom: ListFilter.shown(l.name, root.filter) ? 4px : 0px;
+            if ListFilter.shown(l.name, root.filter): layout-row := Rectangle {
+                height: 36px;
+                border-radius: 8px;
+                background: l.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                border-color: l.selected ? Theme.accent : transparent;
+                border-width: 1px;
+                accessible-role: list-item;
+                accessible-label: l.name;
+                accessible-item-selected: l.selected;
+                row-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { StageLayoutsDlg.select-layout(i); }
+                }
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 8px;
+                    spacing: 6px;
+                    Text {
+                        horizontal-stretch: 1;
+                        text: l.name;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        font-weight: l.selected ? 600 : 400;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                    if l.on-stage: Text {
+                        text: @tr("On stage");
+                        color: Theme.ok;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        font-weight: 700;
+                        vertical-alignment: center;
+                    }
+                    if l.builtin: Text {
+                        text: @tr("Built-in");
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                    }
+                }
             }
         }
     }

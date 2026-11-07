@@ -3,6 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Chip, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 import { Select } from "../dialogs/form.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
 
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
 /// Choose button; a header is a coloured band in `color`.
@@ -55,6 +56,8 @@ export component ServiceColumn inherits VerticalLayout {
     in property <string> count;
     /// The first state read has arrived; until then the list is empty with no empty-state text.
     in property <bool> loaded;
+    /// N8: the words in the filter box under the list; rows without them are hidden.
+    in-out property <string> filter;
 
     callback select(string);
     callback show-first(string);
@@ -125,183 +128,186 @@ export component ServiceColumn inherits VerticalLayout {
         VerticalLayout {
             padding-left: 8px;
             padding-right: 8px;
-            spacing: 2px;
             alignment: start;
 
-            for it[i] in root.rows: row := Rectangle {
-                accessible-role: list-item;
-                accessible-label: it.title;
-                accessible-description: it.subtitle;
-                accessible-item-selected: it.selected;
-                accessible-item-index: i;
-                accessible-item-count: root.rows.length;
+            // Rows 2 px apart; a row the filter hides takes no room (`i` stays the row's place in the whole list).
+            for it[i] in root.rows: VerticalLayout {
+                padding-bottom: ListFilter.shown(it.title + " " + it.subtitle, root.filter) ? 2px : 0px;
+                if ListFilter.shown(it.title + " " + it.subtitle, root.filter): row := Rectangle {
+                    accessible-role: list-item;
+                    accessible-label: it.title;
+                    accessible-description: it.subtitle;
+                    accessible-item-selected: it.selected;
+                    accessible-item-index: i;
+                    accessible-item-count: root.rows.length;
 
-                // `.item.drag-over` squares the row and draws a 2 px accent top border.
-                border-radius: drop.has-drag ? 0 : 10px;
-                border-width: 1.5px;
-                border-color: it.selected ? Theme.line : transparent;
-                background: it.header ? it.color.with-alpha(it.selected ? 0.32 : 0.2) : it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                    // `.item.drag-over` squares the row and draws a 2 px accent top border.
+                    border-radius: drop.has-drag ? 0 : 10px;
+                    border-width: 1.5px;
+                    border-color: it.selected ? Theme.line : transparent;
+                    background: it.header ? it.color.with-alpha(it.selected ? 0.32 : 0.2) : it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
 
-                if it.blank: DashedOutline {
-                    line-color: Theme.dash;
-                    radius: 10px;
-                }
-                if it.header: Rectangle {
-                    x: 0;
-                    width: 4px;
-                    y: 6px;
-                    height: parent.height - 12px;
-                    background: it.color;
-                    border-radius: 2px;
-                }
-                opacity: drag.dragging ? 0.4 : 1;
-
-                // `.item.live::before`: a 4 px bar in the list's left padding.
-                if it.live: Rectangle {
-                    x: -8px;
-                    y: 8px;
-                    width: 4px;
-                    height: parent.height - 16px;
-                    background: Theme.live;
-                    border-top-right-radius: 4px;
-                    border-bottom-right-radius: 4px;
-                }
-
-                // The CSS padding sits inside the 1.5 px border; a Slint layout's starts at the outer edge.
-                HorizontalLayout {
-                    padding-top: (it.header ? 7px : 9px) + 1.5px;
-                    padding-bottom: (it.header ? 7px : 9px) + 1.5px;
-                    padding-left: it.header ? 14px : 10px + 1.5px;
-                    padding-right: 10px + 1.5px;
-                    spacing: 10px;
-                    if !it.header: Text {
-                        width: 18px;
-                        text: it.num;
-                        color: Theme.faint;
-                        font-family: Theme.font;
-                        font-size: 12px;
-                        horizontal-alignment: right;
-                        vertical-alignment: center;
+                    if it.blank: DashedOutline {
+                        line-color: Theme.dash;
+                        radius: 10px;
                     }
-                    if !it.header: VerticalLayout {
-                        alignment: center;
-                        Rectangle {
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 8px;
-                            background: Theme.panel-2;
-                            Icon {
-                                name: it.kind;
-                                color: it.live ? Theme.live : Theme.muted;
-                            }
+                    if it.header: Rectangle {
+                        x: 0;
+                        width: 4px;
+                        y: 6px;
+                        height: parent.height - 12px;
+                        background: it.color;
+                        border-radius: 2px;
+                    }
+                    opacity: drag.dragging ? 0.4 : 1;
+
+                    // `.item.live::before`: a 4 px bar in the list's left padding.
+                    if it.live: Rectangle {
+                        x: -8px;
+                        y: 8px;
+                        width: 4px;
+                        height: parent.height - 16px;
+                        background: Theme.live;
+                        border-top-right-radius: 4px;
+                        border-bottom-right-radius: 4px;
+                    }
+
+                    // The CSS padding sits inside the 1.5 px border; a Slint layout's starts at the outer edge.
+                    HorizontalLayout {
+                        padding-top: (it.header ? 7px : 9px) + 1.5px;
+                        padding-bottom: (it.header ? 7px : 9px) + 1.5px;
+                        padding-left: it.header ? 14px : 10px + 1.5px;
+                        padding-right: 10px + 1.5px;
+                        spacing: 10px;
+                        if !it.header: Text {
+                            width: 18px;
+                            text: it.num;
+                            color: Theme.faint;
+                            font-family: Theme.font;
+                            font-size: 12px;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
                         }
-                    }
-                    VerticalLayout {
-                        horizontal-stretch: 1;
-                        min-width: 0px;
-                        alignment: center;
-                        HorizontalLayout {
-                            spacing: 6px;
-                            title := Text {
-                                horizontal-stretch: 1;
-                                text: it.title;
-                                color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
-                                font-family: Theme.font;
-                                font-size: it.header ? 12.5px : Theme.base-size;
-                                font-weight: it.header ? 800 : 600;
-                                letter-spacing: it.header ? 0.6px : 0px;
-                                overflow: elide;
-                            }
-                            if it.custom-order: VerticalLayout {
-                                alignment: center;
-                                custom-order := Chip {
-                                    text: @tr("Custom order");
-                                    tooltip: @tr("Custom order for this service");
+                        if !it.header: VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 30px;
+                                height: 30px;
+                                border-radius: 8px;
+                                background: Theme.panel-2;
+                                Icon {
+                                    name: it.kind;
+                                    color: it.live ? Theme.live : Theme.muted;
                                 }
                             }
                         }
-                        if !it.header: Text {
-                            text: it.subtitle;
-                            color: Theme.muted;
-                            font-family: Theme.font;
-                            font-size: 12px;
-                            overflow: elide;
-                        }
-                    }
-                    // Room for the Choose button (drawn over the row's touch area, below).
-                    if it.blank: Rectangle { width: 72px + 60px; }
-                    // Room for `.acts` (two or three 28 px buttons, 2 px apart) while they show.
-                    if row-ta.has-hover && !it.blank: Rectangle { width: it.header ? 88px : 58px; }
-                }
-
-                if drop.has-drag: Rectangle {
-                    y: 0;
-                    height: 2px;
-                    background: Theme.accent;
-                }
-
-                // `ondragover`/`ondrop`: only another service row may be dropped here.
-                drop := DropArea {
-                    can-drop(e) => {
-                        let id = root.drag-id(e.data);
-                        return id != "" && id != it.id ? DragAction.move : DragAction.none;
-                    }
-                    dropped(e) => {
-                        let id = root.drag-id(e.data);
-                        if id != "" && id != it.id {
-                            root.move(id, i);
-                        }
-                        return e.proposed-action;
-                    }
-                }
-
-                drag := DragArea {
-                    allow-move: true;
-                    data: root.drag-data(it.id);
-                    changed dragging => {
-                        if self.dragging {
-                            root.drag-started();
-                        }
-                    }
-                    drag-finished => { root.drag-finished(); }
-
-                    row-ta := TouchArea {
-                        mouse-cursor: pointer;
-                        clicked => { root.select(it.id); }
-                        double-clicked => { root.show-first(it.id); }
-
-                        if it.blank: choose-btn := Btn {
-                            width: self.preferred-width;
-                            height: self.preferred-height;
-                            // Left of the hover buttons, so it never moves under the pointer.
-                            x: parent.width - self.width - 10px - 1.5px - 60px;
-                            y: (parent.height - self.height) / 2;
-                            small: true;
-                            primary: true;
-                            text: @tr("Choose");
-                            tooltip: @tr("Choose what goes here");
-                            clicked => { ServicePlanning.choose(it.id); }
-                        }
-
-                        // `.item:hover .acts`
-                        if self.has-hover: HorizontalLayout {
-                            x: parent.width - self.width - 10px - 1.5px;
-                            y: (parent.height - self.height) / 2;
-                            spacing: 2px;
-                            if it.header: color := RowAct {
-                                icon: "star";
-                                tooltip: @tr("Change colour");
-                                clicked => { ServicePlanning.recolor(it.id); }
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            alignment: center;
+                            HorizontalLayout {
+                                spacing: 6px;
+                                title := Text {
+                                    horizontal-stretch: 1;
+                                    text: it.title;
+                                    color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: it.header ? 12.5px : Theme.base-size;
+                                    font-weight: it.header ? 800 : 600;
+                                    letter-spacing: it.header ? 0.6px : 0px;
+                                    overflow: elide;
+                                }
+                                if it.custom-order: VerticalLayout {
+                                    alignment: center;
+                                    custom-order := Chip {
+                                        text: @tr("Custom order");
+                                        tooltip: @tr("Custom order for this service");
+                                    }
+                                }
                             }
-                            edit := RowAct {
-                                icon: "edit";
-                                tooltip: @tr("Edit");
-                                clicked => { root.edit(it.id); }
+                            if !it.header: Text {
+                                text: it.subtitle;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                overflow: elide;
                             }
-                            trash := RowAct {
-                                icon: "trash";
-                                tooltip: @tr("Remove from service");
-                                clicked => { root.remove(it.id); }
+                        }
+                        // Room for the Choose button (drawn over the row's touch area, below).
+                        if it.blank: Rectangle { width: 72px + 60px; }
+                        // Room for `.acts` (two or three 28 px buttons, 2 px apart) while they show.
+                        if row-ta.has-hover && !it.blank: Rectangle { width: it.header ? 88px : 58px; }
+                    }
+
+                    if drop.has-drag: Rectangle {
+                        y: 0;
+                        height: 2px;
+                        background: Theme.accent;
+                    }
+
+                    // `ondragover`/`ondrop`: only another service row may be dropped here.
+                    drop := DropArea {
+                        can-drop(e) => {
+                            let id = root.drag-id(e.data);
+                            return id != "" && id != it.id ? DragAction.move : DragAction.none;
+                        }
+                        dropped(e) => {
+                            let id = root.drag-id(e.data);
+                            if id != "" && id != it.id {
+                                root.move(id, i);
+                            }
+                            return e.proposed-action;
+                        }
+                    }
+
+                    drag := DragArea {
+                        allow-move: true;
+                        data: root.drag-data(it.id);
+                        changed dragging => {
+                            if self.dragging {
+                                root.drag-started();
+                            }
+                        }
+                        drag-finished => { root.drag-finished(); }
+
+                        row-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.select(it.id); }
+                            double-clicked => { root.show-first(it.id); }
+
+                            if it.blank: choose-btn := Btn {
+                                width: self.preferred-width;
+                                height: self.preferred-height;
+                                // Left of the hover buttons, so it never moves under the pointer.
+                                x: parent.width - self.width - 10px - 1.5px - 60px;
+                                y: (parent.height - self.height) / 2;
+                                small: true;
+                                primary: true;
+                                text: @tr("Choose");
+                                tooltip: @tr("Choose what goes here");
+                                clicked => { ServicePlanning.choose(it.id); }
+                            }
+
+                            // `.item:hover .acts`
+                            if self.has-hover: HorizontalLayout {
+                                x: parent.width - self.width - 10px - 1.5px;
+                                y: (parent.height - self.height) / 2;
+                                spacing: 2px;
+                                if it.header: color := RowAct {
+                                    icon: "star";
+                                    tooltip: @tr("Change colour");
+                                    clicked => { ServicePlanning.recolor(it.id); }
+                                }
+                                edit := RowAct {
+                                    icon: "edit";
+                                    tooltip: @tr("Edit");
+                                    clicked => { root.edit(it.id); }
+                                }
+                                trash := RowAct {
+                                    icon: "trash";
+                                    tooltip: @tr("Remove from service");
+                                    clicked => { root.remove(it.id); }
+                                }
                             }
                         }
                     }
@@ -344,6 +350,17 @@ export component ServiceColumn inherits VerticalLayout {
                     }
                 }
             }
+        }
+    }
+
+    // N8: the filter box under the list.
+    if root.loaded && root.rows.length > 0: HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 6px;
+        service-filter := FilterBox {
+            text <=> root.filter;
+            placeholder: @tr("Filter the service");
         }
     }
 

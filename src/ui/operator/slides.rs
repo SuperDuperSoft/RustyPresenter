@@ -19,8 +19,44 @@ const GAP: f32 = 14.0;
 const PAD: f32 = 16.0;
 
 /// Cells per row for a grid `width_px` wide, as CSS `repeat(auto-fill, minmax(230px, 1fr))` lays them out.
-pub fn columns(width_px: f32) -> usize {
-    ((width_px - 2.0 * PAD + GAP) / (MIN_CELL + GAP)).floor().max(1.0) as usize
+pub fn columns(width_px: f32) -> usize { columns_for(width_px, MIN_CELL) }
+
+/// `columns` with cells at least `min_cell` wide (the size slider, N8).
+pub fn columns_for(width_px: f32, min_cell: f32) -> usize {
+    ((width_px - 2.0 * PAD + GAP) / (min_cell + GAP)).floor().max(1.0) as usize
+}
+
+/// The size slider's ends, in pixels of the smallest picture width (`thumb-size` in `slides.slint`).
+pub const SIZE_RANGE: (u16, u16) = (140, 420);
+
+/// The picture in a Table row is this wide (`TableRow` in `slides.slint`).
+const TABLE_THUMB: f32 = 96.0;
+
+/// N37: how the selected item's slides are shown.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum SlideView {
+    /// Pictures in rows, as many to a row as fit.
+    #[default]
+    Grid,
+    /// One slide to a row with its words in big type, for a small laptop screen.
+    Easy,
+    /// One line per slide: number, small picture, part and words.
+    Table,
+}
+
+impl SlideView {
+    pub fn index(self) -> i32 { match self { SlideView::Grid => 0, SlideView::Easy => 1, SlideView::Table => 2 } }
+    pub fn at(i: i32) -> Option<SlideView> { Some(match i { 0 => SlideView::Grid, 1 => SlideView::Easy, 2 => SlideView::Table, _ => return None }) }
+}
+
+/// What a slide says, for the Easy and Table views: its words on one line each, or what kind of file it shows.
+pub fn slide_text(slide: &Slide) -> String {
+    match &slide.content {
+        SlideContent::Text { text, .. } => text.lines().map(str::trim).filter(|l| !l.is_empty()).collect::<Vec<_>>().join("\n"),
+        SlideContent::Image { .. } | SlideContent::Still { .. } => super::strings::media_picture(),
+        SlideContent::Video { .. } => super::strings::media_video(),
+        SlideContent::Audio { .. } => super::strings::media_audio(),
+    }
 }
 
 /// How wide each of `cols` cells is in a grid `width_px` wide (the `1fr` share).
@@ -118,6 +154,9 @@ pub(super) struct SlidesState {
     /// The section bar's chips, and the live item and version when it shows the live song.
     bar: Vec<BarChip>,
     bar_live: Option<(Uuid, u64)>,
+    /// N37 and N8: the view, and the size slider (0 until moved: `MIN_CELL`). Kept for this session only, like Zoom.
+    view: SlideView,
+    min_cell: u16,
 }
 
 impl Operator {
@@ -213,8 +252,14 @@ impl Operator {
 
     /// Works out the columns and the thumbnail size for a grid `width` wide; says whether each changed.
     fn measure_grid(&self, width: f32) -> (bool, bool) {
-        let cols = columns(width);
-        let size = thumbs::thumb_size(cell_width(width, cols), self.ui.window().scale_factor());
+        let (view, min_cell) = { let s = self.slides.borrow(); (s.view, s.min_cell) };
+        let min_cell = if min_cell == 0 { MIN_CELL } else { f32::from(min_cell) };
+        // Easy and Table show one slide to a row; Table's pictures are small.
+        let (cols, cell) = match view {
+            SlideView::Grid => { let cols = columns_for(width, min_cell); (cols, cell_width(width, cols)) }
+            SlideView::Easy | SlideView::Table => (1, TABLE_THUMB),
+        };
+        let size = thumbs::thumb_size(cell, self.ui.window().scale_factor());
         let mut s = self.slides.borrow_mut();
         let changed = (s.cols != cols, s.size != size);
         (s.cols, s.size) = (cols, size);
@@ -233,6 +278,27 @@ impl Operator {
         if size { self.draw_thumbs() }
     }
 
+    /// The view buttons, View → Show slides as, or the size slider: the rows are laid out again.
+    pub(super) fn set_slide_view(&self, view: SlideView, min_cell: Option<u16>) {
+        {
+            let mut s = self.slides.borrow_mut();
+            s.view = view;
+            if let Some(px) = min_cell { s.min_cell = px.clamp(SIZE_RANGE.0, SIZE_RANGE.1) }
+        }
+        self.ui.set_slides_view(view.index());
+        if let Some(px) = min_cell { self.ui.set_slides_thumb_size(i32::from(px.clamp(SIZE_RANGE.0, SIZE_RANGE.1))) }
+        // The rows are always laid out again: each view has its own row height.
+        let (_, size) = self.measure_grid(self.ui.get_slides_grid_width());
+        if self.slides.borrow().built.is_none() { return }
+        self.fill_grid();
+        self.slides.borrow_mut().scrolled = None;
+        self.mark_slides();
+        if size { self.draw_thumbs() }
+    }
+
+    /// The view the slides are shown in, for tests and the menu.
+    pub fn slide_view(&self) -> SlideView { self.slides.borrow().view }
+
     fn cell(s: &SlidesState, k: &GridKey, idx: usize) -> SlideCell {
         let slide = &k.slides[idx];
         SlideCell {
@@ -245,6 +311,7 @@ impl Operator {
             section: section(slide).into(),
             tag: slide.tag.as_deref().unwrap_or("").into(),
             tag_color: slide.tag.as_deref().map_or_else(slint::Color::default, |t| tag_color(&k.settings.sections, t)),
+            text: slide_text(slide).into(),
         }
     }
 
@@ -331,6 +398,13 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_slides_pick_section(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.pick_section(i) });
     let me = Rc::downgrade(op);
     ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() { op.grid_resized(w) });
+    let me = Rc::downgrade(op);
+    ui.on_slides_view_picked(move |i| if let (Some(op), Some(v)) = (me.upgrade(), SlideView::at(i)) { op.set_slide_view(v, None) });
+    let me = Rc::downgrade(op);
+    ui.on_slides_thumb_size_changed(move |px| if let (Some(op), Ok(px)) = (me.upgrade(), u16::try_from(px)) {
+        let view = op.slide_view();
+        op.set_slide_view(view, Some(px));
+    });
 }
 
 #[cfg(test)]
@@ -537,6 +611,58 @@ mod tests {
         assert!(narrow < cols);
         assert_eq!(op.ui.get_slide_rows().row_count(), chunk_rows(5, narrow).len());
         assert!(cells(&op).iter().all(|c| c.image.size().width > 0));
+    }
+
+    #[test]
+    fn easy_and_table_views_list_one_slide_per_row_with_its_words() {
+        let app = test_app();
+        let id = add_text(&app, "A", "One\nline two\n\nTwo\n\nThree\n\nFour");
+        let op = opened(&app);
+        assert!(op.ui.get_slide_columns() > 1);
+        assert_eq!(find_all(&op, "SlidesPanel::thumb").len(), 4);
+        assert!(find(&op, "SlidesPanel::slides-view").is_some(), "the view buttons show under the slides");
+        op.ui.invoke_slides_view_picked(1);
+        assert_eq!((op.slide_view(), op.ui.get_slides_view(), op.ui.get_slide_columns()), (SlideView::Easy, 1, 1));
+        assert_eq!(op.ui.get_slide_rows().row_count(), 4);
+        assert_eq!(cells(&op)[0].text, "One\nline two");
+        assert_eq!(find_all(&op, "SlidesPanel::easy-row").len(), 4);
+        assert!(find(&op, "SlidesPanel::thumb").is_none());
+        assert!(find(&op, "SlidesPanel::thumb-size").is_none(), "the size slider is for the grid");
+        // A click takes the slide live, and the live mark shows in this view too.
+        find_all(&op, "SlidesPanel::easy-row").swap_remove(2).mock_single_click(PointerEventButton::Left);
+        op.apply_live(LiveUpdate::new(app.live_view()));
+        assert_eq!(app.live_view().cursor.map(|c| (c.item_id, c.slide)), Some((id, 2)));
+        assert!(cells(&op)[2].live);
+        op.ui.invoke_slides_view_picked(2);
+        assert_eq!(find_all(&op, "SlidesPanel::table-row").len(), 4);
+        assert!(cells(&op).iter().all(|c| c.image.size().width > 0), "Table rows have their small pictures");
+        op.ui.invoke_slides_view_picked(0);
+        assert_eq!(find_all(&op, "SlidesPanel::thumb").len(), 4);
+    }
+
+    #[test]
+    fn size_slider_makes_grid_pictures_bigger_or_smaller() {
+        let app = test_app();
+        add_text(&app, "A", "1\n\n2\n\n3\n\n4\n\n5\n\n6");
+        let op = opened(&app);
+        let normal = op.ui.get_slide_columns();
+        op.ui.invoke_slides_thumb_size_changed(420);
+        let big = op.ui.get_slide_columns();
+        op.ui.invoke_slides_thumb_size_changed(140);
+        let small = op.ui.get_slide_columns();
+        assert!(big < normal && normal < small, "{big} < {normal} < {small}");
+        assert_eq!(op.ui.get_slide_rows().row_count(), chunk_rows(6, small as usize).len());
+        op.ui.invoke_slides_thumb_size_changed(5000);
+        assert_eq!(op.ui.get_slides_thumb_size(), 420, "kept inside the slider's ends");
+        assert_eq!(columns_for(1000.0, 140.0), 6);
+    }
+
+    #[test]
+    fn slide_text_says_what_a_file_slide_is() {
+        let pic = Slide::new("Slide 1", SlideContent::Image { asset: "a.png".into() });
+        assert_eq!(slide_text(&pic), "Picture");
+        let text = Slide::new("x", SlideContent::Text { text: " a \n\n b".into(), footer: None, reference: None, size: 0, parallel: None });
+        assert_eq!(slide_text(&text), "a\nb");
     }
 
     #[test]

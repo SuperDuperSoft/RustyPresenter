@@ -5,6 +5,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented, TipBox } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { Check, RangeSlider, ListRow, RowMain, TextField, TextArea, Note } from "form.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
 import { ColorPicker } from "background-picker.slint";
 
 export struct OverlayListRow { name: string, sub: string }
@@ -86,62 +87,78 @@ component PlaceGrid inherits Rectangle {
 }
 
 component OverlayList inherits VerticalLayout {
+    /// N8: the words in the filter box.
+    property <string> filter;
     spacing: 4px;
     Note {
         text: @tr("Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top.");
     }
     Rectangle { height: 10px; }
-    for o[i] in OverlaysDlg.rows: overlay-row := ListRow {
-        accessible-role: list-item;
-        accessible-label: o.name;
-        accessible-value: o.sub;
-        RowMain {
-            title: o.name;
-            sub: o.sub;
+    if OverlaysDlg.rows.length >= ListFilter.min-rows || root.filter != "": HorizontalLayout {
+        alignment: start;
+        overlays-filter := FilterBox {
+            width: 280px;
+            text <=> root.filter;
+            placeholder: @tr("Filter overlays");
         }
-        VerticalLayout {
-            alignment: center;
-            up := Btn {
-                small: true;
-                text: "↑";
-                tooltip: @tr("Move up");
-                enabled: i > 0;
-                clicked => { OverlaysDlg.move(i, -1); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            down := Btn {
-                small: true;
-                text: "↓";
-                tooltip: @tr("Move down");
-                enabled: i < OverlaysDlg.rows.length - 1;
-                clicked => { OverlaysDlg.move(i, 1); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            edit := Btn {
-                small: true;
-                text: @tr("Edit");
-                clicked => { OverlaysDlg.edit(i); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            duplicate := Btn {
-                small: true;
-                text: @tr("Duplicate");
-                clicked => { OverlaysDlg.duplicate(i); }
-            }
-        }
-        VerticalLayout {
-            alignment: center;
-            delete := Btn {
-                small: true;
-                danger: true;
-                text: @tr("Delete");
-                clicked => { OverlaysDlg.delete(i); }
+    }
+    // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
+    VerticalLayout {
+        for o[i] in OverlaysDlg.rows: VerticalLayout {
+            padding-bottom: ListFilter.shown(o.name + " " + o.sub, root.filter) ? 4px : 0px;
+            if ListFilter.shown(o.name + " " + o.sub, root.filter): overlay-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: o.name;
+                accessible-value: o.sub;
+                RowMain {
+                    title: o.name;
+                    sub: o.sub;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    up := Btn {
+                        small: true;
+                        text: "↑";
+                        tooltip: @tr("Move up");
+                        enabled: i > 0;
+                        clicked => { OverlaysDlg.move(i, -1); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    down := Btn {
+                        small: true;
+                        text: "↓";
+                        tooltip: @tr("Move down");
+                        enabled: i < OverlaysDlg.rows.length - 1;
+                        clicked => { OverlaysDlg.move(i, 1); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    edit := Btn {
+                        small: true;
+                        text: @tr("Edit");
+                        clicked => { OverlaysDlg.edit(i); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    duplicate := Btn {
+                        small: true;
+                        text: @tr("Duplicate");
+                        clicked => { OverlaysDlg.duplicate(i); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    delete := Btn {
+                        small: true;
+                        danger: true;
+                        text: @tr("Delete");
+                        clicked => { OverlaysDlg.delete(i); }
+                    }
+                }
             }
         }
     }

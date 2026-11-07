@@ -292,6 +292,23 @@ mod tests {
     }
 
     #[test]
+    fn filter_box_hides_rows_without_the_words_and_drops_still_go_to_the_right_place() {
+        let app = test_app();
+        let ids = add_texts(&app, &["Welcome", "Amazing Grace", "Sermon", "Grace Alone"]);
+        let op = opened(&app);
+        let filter = find(&op, "ServiceColumn::service-filter").expect("the filter box under the list");
+        filter.set_accessible_value("grace");
+        let shown: Vec<String> = find_all(&op, "ServiceColumn::row").iter().map(|r| r.accessible_label().unwrap().into()).collect();
+        assert_eq!(shown, ["Amazing Grace", "Grace Alone"]);
+        // Dropping "Grace Alone" on "Amazing Grace" moves it to that row's place in the whole list (1, not 0).
+        row(&op, 1).mock_drag(center(&row(&op, 0)), PointerEventButton::Left);
+        assert_eq!(order(&app), [ids[0], ids[3], ids[1], ids[2]]);
+        refresh(&op);
+        filter.set_accessible_value("");
+        assert_eq!(find_all(&op, "ServiceColumn::row").len(), 4);
+    }
+
+    #[test]
     fn click_selects_without_going_live() {
         let app = test_app();
         let ids = add_texts(&app, &["A", "B"]);

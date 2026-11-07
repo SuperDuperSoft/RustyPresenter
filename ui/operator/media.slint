@@ -2,7 +2,7 @@
 // do with the chosen file. The rows and filtering are in Rust (`media_bin.rs`).
 import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox } from "../widgets.slint";
-import { TextField } from "../dialogs/form.slint";
+import { TextField, RangeSlider } from "../dialogs/form.slint";
 
 /// One file. `kind` is "video", "image" or "audio"; `image` stays empty for video and audio (an icon is drawn).
 export struct BinRow { id: string, name: string, kind: string, tag: string, image: image, picked: bool, on-screen: bool }
@@ -149,7 +149,8 @@ export component MediaBin inherits VerticalLayout {
     callback delete-folder();
 
     /// The size slider: how wide a thumbnail is.
-    property <length> tile-w: 150px;
+    in-out property <int> tile-size: 150;
+    property <length> tile-w: root.tile-size * 1px;
     property <length> gap: 8px;
     /// The thumbnails' width: everything but the folders, the side panel and their two dividers.
     property <length> tiles-w: root.width - 168px - 188px - 2px;
@@ -216,19 +217,27 @@ export component MediaBin inherits VerticalLayout {
             placeholder: @tr("Search media");
             edited(t) => { root.search(t); }
         }
+        // N8: the thumbnail size slider.
         if root.open: HorizontalLayout {
             spacing: 6px;
-            Btn {
-                small: true;
-                icon: "chevron-left";
-                tooltip: @tr("Smaller thumbnails");
-                clicked => { root.tile-w = max(110px, root.tile-w - 25px); }
+            VerticalLayout {
+                alignment: center;
+                Icon {
+                    width: 16px;
+                    height: 16px;
+                    name: "image";
+                    color: Theme.muted;
+                }
             }
-            Btn {
-                small: true;
-                icon: "chevron-right";
-                tooltip: @tr("Bigger thumbnails");
-                clicked => { root.tile-w = min(210px, root.tile-w + 25px); }
+            VerticalLayout {
+                alignment: center;
+                bin-size := RangeSlider {
+                    width: 110px;
+                    minimum: 110;
+                    maximum: 210;
+                    value <=> root.tile-size;
+                    accessible-label: @tr("Picture size");
+                }
             }
         }
         if root.open: bin-import := Btn {

@@ -91,7 +91,7 @@ pub fn key_ctrl_y() -> String { tr!("Ctrl + Y") }
 pub fn key_ctrl_f() -> String { tr!("Ctrl + F") }
 pub fn do_undo() -> String { tr!("Undo the last change to the services or the library") }
 pub fn do_redo() -> String { tr!("Redo what Undo took back") }
-pub fn do_find() -> String { tr!("Find a song") }
+pub fn do_find() -> String { tr!("Quick search: songs, files and services (Enter opens, Ctrl + Enter adds)") }
 pub fn do_sections() -> String { tr!("Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse") }
 pub fn do_paste_link() -> String { tr!("Add a YouTube link you copied") }
 pub fn key_esc() -> String { tr!("Esc") }

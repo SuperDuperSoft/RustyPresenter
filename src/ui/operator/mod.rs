@@ -12,6 +12,7 @@ pub mod help;
 #[path = "../../strings/operator.rs"]
 pub mod strings;
 pub mod keys;
+pub mod list_filter;
 pub mod live;
 pub mod media_bin;
 pub mod menu;

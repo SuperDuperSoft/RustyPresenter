@@ -22,7 +22,7 @@ pub enum KeyAction {
     /// Ctrl+Z / Ctrl+Y outside a text field: Edit → Undo / Redo. A text field keeps them for its own typing.
     Undo,
     Redo,
-    /// Ctrl+F: Edit → Find… (a song in the Add dialog).
+    /// Ctrl+F: Edit → Quick search… (N14).
     Find,
     /// Ctrl+Shift+M (Cmd+Shift+M): Show message (FEAT-2 §3.3), even while typing.
     ShowMessage,
