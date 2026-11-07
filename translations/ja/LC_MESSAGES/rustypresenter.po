@@ -1,0 +1,6665 @@
+# Japanese for RustyPresenter. Machine-drafted; needs review by a native speaker.
+msgid ""
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ja\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 日本語\nX-English-Name: Japanese\nX-Reviewed: no\n"
+
+#: ui/bible-picker.slint
+msgid "Search your Bibles"
+msgstr "聖書を検索"
+
+#: ui/bible-picker.slint
+msgid "not connected"
+msgstr "未接続"
+
+#: ui/bible-picker.slint
+msgid "Favourite"
+msgstr "お気に入り"
+
+#: ui/bible-picker.slint
+msgid "Find more Bibles…"
+msgstr "聖書をさらに探す…"
+
+#: ui/bible-picker.slint ui/operator/topbar.slint
+msgid "Choose a Bible"
+msgstr "聖書を選択"
+
+#: ui/dialogs/add-list.slint
+msgid "Try again"
+msgstr "再試行"
+
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+msgid "Edit"
+msgstr "編集"
+
+#: ui/dialogs/add-list.slint src/strings/catalog.rs
+msgid "Add"
+msgstr "追加"
+
+#: ui/dialogs/add-media.slint
+msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
+msgstr "教会が使用権を持つ動画（自作、ライセンス取得済み、またはクリエイティブ・コモンズ）のみダウンロードしてください。"
+
+#: ui/dialogs/add-media.slint
+msgid "Paste a YouTube link here"
+msgstr "YouTube のリンクをここに貼り付け"
+
+#: ui/dialogs/add-media.slint
+msgid "Download"
+msgstr "ダウンロード"
+
+#: ui/dialogs/add-media.slint
+msgid "Add to service when done"
+msgstr "完了したら礼拝に追加"
+
+#: ui/dialogs/add-media.slint
+msgid "Quality"
+msgstr "画質"
+
+#: ui/dialogs/add-media.slint
+msgid "Upload files"
+msgstr "ファイルをアップロード"
+
+#: ui/dialogs/add-media.slint
+msgid "Download from YouTube"
+msgstr "YouTube からダウンロード"
+
+#: ui/dialogs/add-media.slint
+msgid "Any video format works."
+msgstr "どの動画形式でも使えます。"
+
+#: ui/dialogs/add-media.slint
+msgid "Import presentation"
+msgstr "プレゼンテーションを取り込む"
+
+#: ui/dialogs/add-media.slint
+msgid "Make slides from pictures"
+msgstr "画像からスライドを作成"
+
+#: ui/dialogs/add-media.slint
+msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
+msgstr "Google スライド: Google スライドで「ファイル → ダウンロード → Microsoft PowerPoint (.pptx)」または PDF を選び、そのファイルをここで取り込んでください。Keynote や PDF ファイルも使えます。"
+
+#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+msgid "Copy"
+msgstr "コピー"
+
+#: ui/dialogs/add-media.slint
+msgid "Check again"
+msgstr "再確認"
+
+#: ui/dialogs/add.slint src/strings/dialogs.rs
+msgid "New song"
+msgstr "新しい曲"
+
+#: ui/dialogs/add.slint
+msgid "Import SongSelect lyrics (.txt)"
+msgstr "SongSelect の歌詞を取り込む (.txt)"
+
+#: ui/dialogs/add.slint
+msgid "Import from EasyWorship"
+msgstr "EasyWorship から取り込む"
+
+#: ui/dialogs/add.slint
+msgid "Reference ({})"
+msgstr "参照箇所 ({})"
+
+#: ui/dialogs/add.slint
+msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
+msgstr "例: John 3:16-18、Psalm 23、Romans 8:28,31-39"
+
+#: ui/dialogs/add.slint
+msgid "Add verses"
+msgstr "聖句を追加"
+
+#: ui/dialogs/add.slint
+msgid "Paste the verses instead"
+msgstr "聖句を貼り付ける"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
+msgid "Verses per slide"
+msgstr "スライドごとの節数"
+
+#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+msgid "Auto"
+msgstr "自動"
+
+#: ui/dialogs/add.slint
+msgid "Verses ({}) — keep the verse numbers so each verse gets its own slide"
+msgstr "聖句 ({}) — 各節が別のスライドになるよう節番号を残してください"
+
+#: ui/dialogs/add.slint
+msgid "16 For God so loved the world… 17 For God did not send…"
+msgstr "16 神は、実に、そのひとり子をお与えになったほどに世を愛された… 17 神が御子を世に遣わされたのは…"
+
+#: ui/dialogs/add.slint
+msgid "Add pasted verses"
+msgstr "貼り付けた聖句を追加"
+
+#: ui/dialogs/add.slint
+msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
+msgstr "ヒント: このウィンドウは不要です。上部の聖書ボックスに聖句を入力し（または Ctrl+B を押し）、Enter で追加、もう一度 Enter で表示します。"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Title"
+msgstr "タイトル"
+
+#: ui/dialogs/add.slint
+msgid "e.g. Welcome, Announcements, Offering"
+msgstr "例: ようこそ、お知らせ、献金"
+
+#: ui/dialogs/add.slint ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
+msgid "Text"
+msgstr "テキスト"
+
+#: ui/dialogs/add.slint
+msgid "Type your text. Leave an empty line to start a new slide."
+msgstr "テキストを入力してください。空行を入れると新しいスライドになります。"
+
+#: ui/dialogs/add.slint
+msgid "Add announcement"
+msgstr "お知らせを追加"
+
+#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Song"
+msgstr "曲"
+
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/settings-themes.slint ui/dialogs/song-editor.slint src/strings/print.rs
+msgid "Lyrics"
+msgstr "歌詞"
+
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+msgid "Bible"
+msgstr "聖書"
+
+#: ui/dialogs/add.slint
+msgid "Verses"
+msgstr "聖句"
+
+#: ui/dialogs/add.slint
+msgid "Video & media"
+msgstr "動画とメディア"
+
+#: ui/dialogs/add.slint
+msgid "Videos, pictures, music"
+msgstr "動画、画像、音楽"
+
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Slides"
+msgstr "スライド"
+
+#: ui/dialogs/add.slint
+msgid "PowerPoint, pictures"
+msgstr "PowerPoint、画像"
+
+#: ui/dialogs/add.slint ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Announcement"
+msgstr "お知らせ"
+
+#: ui/dialogs/add.slint
+msgid "Your own text"
+msgstr "自由なテキスト"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Not in the lyrics — it is skipped"
+msgstr "歌詞にありません — スキップされます"
+
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
+msgid "Remove"
+msgstr "削除"
+
+#: ui/dialogs/arrangement.slint
+msgid "End"
+msgstr "終了"
+
+#: ui/dialogs/arrangement.slint src/strings/song.rs
+msgid "Written order — drag to change"
+msgstr "記載順 — ドラッグで変更"
+
+#: ui/dialogs/arrangement.slint
+msgid "⟲ Use written order"
+msgstr "⟲ 記載順を使う"
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
+msgid "Name"
+msgstr "名前"
+
+#: ui/dialogs/automation.slint
+msgid "Kind"
+msgstr "種類"
+
+#: ui/dialogs/automation.slint
+msgid "Count down to a time"
+msgstr "指定時刻までカウントダウン"
+
+#: ui/dialogs/automation.slint
+msgid "Count down"
+msgstr "カウントダウン"
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Count up"
+msgstr "カウントアップ"
+
+#: ui/dialogs/automation.slint
+msgid "This service's start time"
+msgstr "この礼拝の開始時刻"
+
+#: ui/dialogs/automation.slint
+msgid "Time (like 10:30 or 18:45)"
+msgstr "時刻（10:30 や 18:45 など）"
+
+#: ui/dialogs/automation.slint
+msgid "Length (minutes and seconds)"
+msgstr "長さ（分と秒）"
+
+#: ui/dialogs/automation.slint
+msgid "Minutes"
+msgstr "分"
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint
+msgid "Seconds"
+msgstr "秒"
+
+#: ui/dialogs/automation.slint
+msgid "Keep counting after zero (+m:ss)"
+msgstr "ゼロ以降もカウントを続ける (+m:ss)"
+
+#: ui/dialogs/automation.slint
+msgid "When it reaches zero"
+msgstr "ゼロになったとき"
+
+#: ui/dialogs/automation.slint
+msgid "Place on the screen"
+msgstr "画面上の位置"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr "右上"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr "左上"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr "右下"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr "左下"
+
+#: ui/dialogs/automation.slint
+msgid "Centre (large)"
+msgstr "中央（大）"
+
+#: ui/dialogs/automation.slint
+msgid "Caption"
+msgstr "見出し"
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Service starts in"
+msgstr "礼拝開始まで"
+
+#: ui/dialogs/automation.slint
+msgid "Show on stage"
+msgstr "ステージに表示"
+
+#: ui/dialogs/automation.slint
+msgid "Show on the phone remote"
+msgstr "スマホリモコンに表示"
+
+#: ui/dialogs/automation.slint
+msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
+msgstr "単語を {{波かっこ}} で囲むと、{{Number}} のように入力欄になります。"
+
+#: ui/dialogs/automation.slint
+msgid "Position"
+msgstr "位置"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr "下"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr "上"
+
+#: ui/dialogs/automation.slint
+msgid "Hide after"
+msgstr "非表示までの時間"
+
+#: ui/dialogs/automation.slint
+msgid "Never"
+msgstr "なし"
+
+#: ui/dialogs/automation.slint
+msgid "15 s"
+msgstr "15 秒"
+
+#: ui/dialogs/automation.slint
+msgid "30 s"
+msgstr "30 秒"
+
+#: ui/dialogs/automation.slint
+msgid "1 min"
+msgstr "1 分"
+
+#: ui/dialogs/automation.slint
+msgid "2 min"
+msgstr "2 分"
+
+#: ui/dialogs/automation.slint
+msgid "5 min"
+msgstr "5 分"
+
+#: ui/dialogs/automation.slint
+msgid "Can be shown from the phone"
+msgstr "スマホから表示できます"
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Change it in the Pre-service tab"
+msgstr "「礼拝前」タブで変更"
+
+#: ui/dialogs/automation.slint
+msgid "Colour"
+msgstr "色"
+
+#: ui/dialogs/automation.slint
+msgid "Amber"
+msgstr "琥珀色"
+
+#: ui/dialogs/automation.slint src/strings/themes.rs
+msgid "Red"
+msgstr "赤"
+
+#: ui/dialogs/automation.slint
+msgid "Orange"
+msgstr "オレンジ"
+
+#: ui/dialogs/automation.slint
+msgid "Green"
+msgstr "緑"
+
+#: ui/dialogs/automation.slint
+msgid "Teal"
+msgstr "青緑"
+
+#: ui/dialogs/automation.slint
+msgid "Blue"
+msgstr "青"
+
+#: ui/dialogs/automation.slint
+msgid "Purple"
+msgstr "紫"
+
+#: ui/dialogs/automation.slint
+msgid "Grey"
+msgstr "灰色"
+
+#: ui/dialogs/automation.slint
+msgid "Steps"
+msgstr "ステップ"
+
+#: ui/dialogs/automation.slint
+msgid "Up"
+msgstr "上へ"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr "上へ移動"
+
+#: ui/dialogs/automation.slint
+msgid "Down"
+msgstr "下へ"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr "下へ移動"
+
+#: ui/dialogs/automation.slint
+msgid "No steps yet."
+msgstr "ステップはまだありません。"
+
+#: ui/dialogs/automation.slint
+msgid "Add step"
+msgstr "ステップを追加"
+
+#: ui/dialogs/automation.slint
+msgid "What to fill in, like Number=27"
+msgstr "入力内容（例: Number=27）"
+
+#: ui/dialogs/automation.slint
+msgid "Start countdown puts the music and the slides up and counts down to this service's start time."
+msgstr "「カウントダウン開始」で音楽とスライドを表示し、この礼拝の開始時刻までカウントダウンします。"
+
+#: ui/dialogs/automation.slint
+msgid "Countdown to"
+msgstr "カウントダウン先"
+
+#: ui/dialogs/automation.slint
+msgid "Starts at"
+msgstr "開始時刻"
+
+#: ui/dialogs/automation.slint
+msgid "Set start time"
+msgstr "開始時刻を設定"
+
+#: ui/dialogs/automation.slint
+msgid "Loop these slides"
+msgstr "これらのスライドをループ"
+
+#: ui/dialogs/automation.slint
+msgid "Play music"
+msgstr "音楽を再生"
+
+#: ui/dialogs/automation.slint
+msgid "Countdown position"
+msgstr "カウントダウンの位置"
+
+#: ui/dialogs/automation.slint
+msgid "When the countdown ends"
+msgstr "カウントダウン終了時"
+
+#: ui/dialogs/automation.slint
+msgid "Hide the countdown"
+msgstr "カウントダウンを隠す"
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Show the logo"
+msgstr "ロゴを表示"
+
+#: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
+msgid "Clear everything"
+msgstr "すべてクリア"
+
+#: ui/dialogs/automation.slint
+msgid "Put the first item on the screen"
+msgstr "最初の項目を画面に表示"
+
+#: ui/dialogs/automation.slint
+msgid "Only happens if nobody has changed the screen since the countdown started."
+msgstr "カウントダウン開始後に誰も画面を変更していない場合のみ実行されます。"
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Timers"
+msgstr "タイマー"
+
+#: ui/dialogs/automation.slint
+msgid "Messages"
+msgstr "メッセージ"
+
+#: ui/dialogs/automation.slint src/i18n/remote_strings.rs
+msgid "Macros"
+msgstr "マクロ"
+
+#: ui/dialogs/automation.slint src/strings/automation.rs
+msgid "Pre-service"
+msgstr "礼拝前"
+
+#: ui/dialogs/automation.slint
+msgid "This service starts at"
+msgstr "この礼拝の開始時刻"
+
+#: ui/dialogs/automation.slint
+msgid "Set"
+msgstr "設定"
+
+#: ui/dialogs/automation.slint
+msgid "New timer"
+msgstr "新しいタイマー"
+
+#: ui/dialogs/automation.slint
+msgid "New message"
+msgstr "新しいメッセージ"
+
+#: ui/dialogs/automation.slint
+msgid "New macro"
+msgstr "新しいマクロ"
+
+#: ui/dialogs/automation.slint
+msgid "Pick one on the left, or make a new one."
+msgstr "左から選ぶか、新しく作成してください。"
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
+msgid "Reset"
+msgstr "リセット"
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint ui/operator/live_controls.slint
+msgid "Pause"
+msgstr "一時停止"
+
+#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+msgid "Start"
+msgstr "開始"
+
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+msgid "Delete"
+msgstr "削除"
+
+#: ui/dialogs/automation.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+msgid "Save"
+msgstr "保存"
+
+#: ui/dialogs/background-picker.slint
+msgid "Hex"
+msgstr "16進"
+
+#: ui/dialogs/background-picker.slint
+msgid "Pick any color"
+msgstr "好きな色を選択"
+
+#: ui/dialogs/find-verse.slint
+msgid "Words to find"
+msgstr "検索する語句"
+
+#: ui/dialogs/find-verse.slint
+msgid "Type words from the verse, like be still and know"
+msgstr "聖句の言葉を入力（例: 静まって知れ）"
+
+#: ui/dialogs/find-verse.slint
+msgid "Whole Bible"
+msgstr "聖書全体"
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "Old Testament"
+msgstr "旧約聖書"
+
+#: ui/dialogs/find-verse.slint src/strings/catalog.rs
+msgid "New Testament"
+msgstr "新約聖書"
+
+#: ui/dialogs/find-verse.slint
+msgid "Best match"
+msgstr "関連度順"
+
+#: ui/dialogs/find-verse.slint
+msgid "Bible order"
+msgstr "聖書の順"
+
+#: ui/dialogs/find-verse.slint
+msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
+msgstr "結果を選ぶと章が表示されます。節をクリック、または Shift+クリックで範囲を追加します。"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library."
+msgstr "歌詞・順序・クレジットはライブラリの曲に属します。"
+
+#: ui/dialogs/item-edit.slint
+msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgstr "歌詞・順序・クレジットはライブラリの曲に属します。この曲はライブラリから削除されました。"
+
+#: ui/dialogs/item-edit.slint src/strings/dialogs.rs
+msgid "Edit song"
+msgstr "曲を編集"
+
+#: ui/dialogs/item-edit.slint
+msgid "Order for this service"
+msgstr "この礼拝での順序"
+
+#: ui/dialogs/item-edit.slint
+msgid "Use the song's usual order"
+msgstr "曲の通常の順序を使う"
+
+#: ui/dialogs/item-edit.slint
+msgid "Make this the song's usual order"
+msgstr "これを曲の通常の順序にする"
+
+#: ui/dialogs/item-edit.slint
+msgid "The verses are looked up again in this Bible when you save."
+msgstr "保存時にこの聖書で聖句を再取得します。"
+
+#: ui/dialogs/item-edit.slint
+msgid "Also show"
+msgstr "併記"
+
+#: ui/dialogs/item-edit.slint
+msgid "none"
+msgstr "なし"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stop showing this Bible"
+msgstr "この聖書の表示をやめる"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Side by side"
+msgstr "左右に並べる"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+msgid "Top and bottom"
+msgstr "上下に並べる"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+msgid "Automatic"
+msgstr "自動"
+
+#: ui/dialogs/item-edit.slint
+msgid "1 verse"
+msgstr "1 節"
+
+#: ui/dialogs/item-edit.slint
+msgid "2 verses"
+msgstr "2 節"
+
+#: ui/dialogs/item-edit.slint
+msgid "3 verses"
+msgstr "3 節"
+
+#: ui/dialogs/item-edit.slint
+msgid "4 verses"
+msgstr "4 節"
+
+#: ui/dialogs/item-edit.slint src/strings/scripture.rs
+msgid "Choose slide breaks…"
+msgstr "スライドの区切りを選択…"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+msgid "Text size"
+msgstr "文字サイズ"
+
+#: ui/dialogs/item-edit.slint
+msgid "(biggest; text shrinks automatically when a slide holds more words)"
+msgstr "（最大。スライドの文字が多いと自動で縮小されます）"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Choose"
+msgstr "選択"
+
+#: ui/dialogs/item-edit.slint
+msgid "Same as Settings → Look"
+msgstr "「設定 → 外観」と同じ"
+
+#: ui/dialogs/item-edit.slint
+msgid "— an empty line starts a new slide"
+msgstr "— 空行で新しいスライドになります"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start playing as soon as it is shown"
+msgstr "表示と同時に再生を開始"
+
+#: ui/dialogs/item-edit.slint
+msgid "When the video ends"
+msgstr "動画の終了時"
+
+#: ui/dialogs/item-edit.slint
+msgid "Clear the screen"
+msgstr "画面をクリア"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stay on last frame"
+msgstr "最後のフレームで止める"
+
+#: ui/dialogs/item-edit.slint
+msgid "Play again (loop)"
+msgstr "もう一度再生（ループ）"
+
+#: ui/dialogs/item-edit.slint
+msgid "Repeat until stopped"
+msgstr "停止するまで繰り返す"
+
+#: ui/dialogs/item-edit.slint
+msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgstr "スライドを切り替えても音声は再生を続けます。「音声をクリア」(F4) または「すべてクリア」で停止します。"
+
+#: ui/dialogs/item-edit.slint
+msgid "Name in library"
+msgstr "ライブラリでの名前"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Theme"
+msgstr "テーマ"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Background"
+msgstr "背景"
+
+#: ui/dialogs/item-edit.slint
+msgid "Advance slides automatically"
+msgstr "スライドを自動で進める"
+
+#: ui/dialogs/item-edit.slint src/strings/automation.rs
+msgid "Needs at least two slides."
+msgstr "スライドが2枚以上必要です。"
+
+#: ui/dialogs/item-edit.slint
+msgid "every"
+msgstr "間隔"
+
+#: ui/dialogs/item-edit.slint
+msgid "seconds"
+msgstr "秒"
+
+#: ui/dialogs/item-edit.slint
+msgid "Start over after the last slide"
+msgstr "最後のスライドの後は最初に戻る"
+
+#: ui/dialogs/item-edit.slint
+msgid "Stage notes"
+msgstr "ステージノート"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage display only"
+msgstr "ステージ画面にのみ表示されます"
+
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Remove from service"
+msgstr "礼拝から削除"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr "左"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Middle"
+msgstr "中央"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr "右"
+
+#: ui/dialogs/overlays.slint
+msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
+msgstr "オーバーレイは、スライドを切り替えても会場画面に残ります。隅のロゴ、時計、短い案内などです。ライブ列の「次」の下のチップでオン・オフを切り替えます。一覧の最後のものが一番上に描画されます。"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr "複製"
+
+#: ui/dialogs/overlays.slint
+msgid "No overlays yet."
+msgstr "オーバーレイはまだありません。"
+
+#: ui/dialogs/overlays.slint
+msgid "New overlay:"
+msgstr "新しいオーバーレイ:"
+
+#: ui/dialogs/overlays.slint
+msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
+msgstr "表示し続ける案内（「ようこそ！」や Wi-Fi のパスワードなど）"
+
+#: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+msgid "Picture"
+msgstr "画像"
+
+#: ui/dialogs/overlays.slint
+msgid "A logo in the corner"
+msgstr "隅に表示するロゴ"
+
+#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Clock"
+msgstr "時計"
+
+#: ui/dialogs/overlays.slint
+msgid "The time of day"
+msgstr "現在の時刻"
+
+#: ui/dialogs/overlays.slint
+msgid "Use the church logo"
+msgstr "教会のロゴを使う"
+
+#: ui/dialogs/overlays.slint
+msgid "A picture of its own"
+msgstr "専用の画像"
+
+#: ui/dialogs/overlays.slint
+msgid "Choose picture…"
+msgstr "画像を選択…"
+
+#: ui/dialogs/overlays.slint
+msgid "Opacity"
+msgstr "不透明度"
+
+#: ui/dialogs/overlays.slint
+msgid "Show seconds"
+msgstr "秒を表示"
+
+#: ui/dialogs/overlays.slint
+msgid "24-hour clock"
+msgstr "24時間表示"
+
+#: ui/dialogs/overlays.slint
+msgid "Where"
+msgstr "場所"
+
+#: ui/dialogs/overlays.slint ui/dialogs/screens.slint
+msgid "Size"
+msgstr "サイズ"
+
+#: ui/dialogs/overlays.slint
+msgid "(share of the screen's width)"
+msgstr "（画面幅に対する割合）"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Text color"
+msgstr "文字色"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "文字の影（画像の上でも読みやすく）"
+
+#: ui/dialogs/overlays.slint
+msgid "Box"
+msgstr "ボックス"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "オフ"
+
+#: ui/dialogs/overlays.slint
+msgid "Behind the text"
+msgstr "文字の背面"
+
+#: ui/dialogs/overlays.slint
+msgid "Full-width bar"
+msgstr "全幅の帯"
+
+#: ui/dialogs/overlays.slint
+msgid "Box color"
+msgstr "ボックスの色"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "See-through"
+msgstr "半透明"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "プレビュー"
+
+#: ui/dialogs/overlays.slint
+msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
+msgstr "画面に表示中のオーバーレイを編集しても画面は変わりません。オフにしてから再度オンにすると新しい内容が表示されます。"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "戻る"
+
+#: ui/dialogs/overlays.slint
+msgid "Save overlay"
+msgstr "オーバーレイを保存"
+
+#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "閉じる"
+
+#: ui/dialogs/phone.slint
+msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgstr "教会の Wi-Fi に接続したスマホからスライドを操作できます。スマホはこのコンピューターと同じネットワークに接続している必要があります。"
+
+#: ui/dialogs/phone.slint
+msgid " (No network found — connect this computer to Wi-Fi.)"
+msgstr " （ネットワークが見つかりません — このコンピューターを Wi-Fi に接続してください。）"
+
+#: ui/dialogs/phone.slint
+msgid "Address: "
+msgstr "アドレス: "
+
+#: ui/dialogs/phone.slint src/i18n/remote_strings.rs
+msgid "Pair a phone"
+msgstr "スマホをペアリング"
+
+#: ui/dialogs/phone.slint
+msgid "QR code"
+msgstr "QR コード"
+
+#: ui/dialogs/phone.slint
+msgid "Scan this with your phone's camera. That's it."
+msgstr "スマホのカメラでこれを読み取るだけです。"
+
+#: ui/dialogs/phone.slint
+msgid "Or open {} and type"
+msgstr "または {} を開いて入力"
+
+#: ui/dialogs/phone.slint
+msgid "1. On the phone, open the camera and scan the code (or type the address)."
+msgstr "1. スマホでカメラを開き、コードを読み取ります（またはアドレスを入力）。"
+
+#: ui/dialogs/phone.slint
+msgid "2. Enter this code on the phone:"
+msgstr "2. スマホでこのコードを入力します:"
+
+#: ui/dialogs/phone.slint
+msgid "Paired phones"
+msgstr "ペアリング済みのスマホ"
+
+#: ui/dialogs/phone.slint
+msgid "None yet."
+msgstr "まだありません。"
+
+#: ui/dialogs/print.slint
+msgid "What to print"
+msgstr "印刷する内容"
+
+#: ui/dialogs/print.slint src/strings/print.rs
+msgid "Service order"
+msgstr "礼拝順序"
+
+#: ui/dialogs/print.slint
+msgid "Both"
+msgstr "両方"
+
+#: ui/dialogs/print.slint
+msgid "Options"
+msgstr "オプション"
+
+#: ui/dialogs/print.slint
+msgid "Include item notes"
+msgstr "項目のメモを含める"
+
+#: ui/dialogs/print.slint
+msgid "Include Bible readings with the lyrics"
+msgstr "歌詞と一緒に聖書朗読を含める"
+
+#: ui/dialogs/print.slint
+msgid "Start each song on a new page"
+msgstr "各曲を新しいページから始める"
+
+#: ui/dialogs/print.slint
+msgid "Paper"
+msgstr "用紙"
+
+#: ui/dialogs/print.slint
+msgid "Letter"
+msgstr "レター"
+
+#: ui/dialogs/print.slint
+msgid "A4"
+msgstr "A4"
+
+#: ui/dialogs/print.slint ui/dialogs/services.slint
+msgid "Print…"
+msgstr "印刷…"
+
+#: ui/dialogs/print.slint
+msgid "Opens the page in your web browser, where you can print it or save it as a PDF"
+msgstr "Web ブラウザーでページを開き、印刷または PDF として保存できます"
+
+#: ui/dialogs/print.slint
+msgid "Save web page…"
+msgstr "Web ページとして保存…"
+
+#: ui/dialogs/screens.slint
+msgid "Add a screen to {}"
+msgstr "{} に画面を追加"
+
+#: ui/dialogs/screens.slint
+msgid "Output"
+msgstr "出力"
+
+#: ui/dialogs/screens.slint
+msgid "Width"
+msgstr "幅"
+
+#: ui/dialogs/screens.slint
+msgid "Height"
+msgstr "高さ"
+
+#: ui/dialogs/screens.slint
+msgid "Aspect ratio: {}"
+msgstr "縦横比: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
+msgstr "画面が1つしか接続されていません。プロジェクター/テレビを接続し（Win+P で Windows を「拡張」に設定）、「更新」をクリックしてください。"
+
+#: ui/dialogs/screens.slint
+msgid "Remove this screen"
+msgstr "この画面を削除"
+
+#: ui/dialogs/screens.slint
+msgid "Identify"
+msgstr "識別"
+
+#: ui/dialogs/screens.slint
+msgid "Show each screen's number on it for a few seconds"
+msgstr "各画面に番号を数秒間表示します"
+
+#: ui/dialogs/screens.slint
+msgid "Refresh"
+msgstr "更新"
+
+#: ui/dialogs/services.slint
+msgid "Copy last week"
+msgstr "先週をコピー"
+
+#: ui/dialogs/services.slint
+msgid "Make next week's service from the last one"
+msgstr "前回の礼拝から来週の礼拝を作成"
+
+#: ui/dialogs/services.slint
+msgid "New from template…"
+msgstr "テンプレートから新規作成…"
+
+#: ui/dialogs/services.slint
+msgid "New empty service"
+msgstr "空の礼拝を新規作成"
+
+#: ui/dialogs/services.slint
+msgid "Copy this service"
+msgstr "この礼拝をコピー"
+
+#: ui/dialogs/services.slint
+msgid "Save to file"
+msgstr "ファイルに保存"
+
+#: ui/dialogs/services.slint
+msgid "Save the open service and all its files, to move it to another computer"
+msgstr "開いている礼拝とそのすべてのファイルを保存し、別のコンピューターに移せるようにします"
+
+#: ui/dialogs/services.slint
+msgid "Open from file"
+msgstr "ファイルから開く"
+
+#: ui/dialogs/services.slint
+msgid "Open"
+msgstr "開く"
+
+#: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
+msgid "Rename"
+msgstr "名前を変更"
+
+#: ui/dialogs/services.slint
+msgid "Date…"
+msgstr "日付…"
+
+#: ui/dialogs/services.slint
+msgid "Print the order of service and the lyrics, or save them as a web page"
+msgstr "礼拝順序と歌詞を印刷、または Web ページとして保存"
+
+#: ui/dialogs/services.slint
+msgid "Save as template"
+msgstr "テンプレートとして保存"
+
+#: ui/dialogs/services.slint
+msgid "Templates"
+msgstr "テンプレート"
+
+#: ui/dialogs/services.slint
+msgid "Make a service"
+msgstr "礼拝を作成"
+
+#: ui/dialogs/services.slint
+msgid "Day…"
+msgstr "日…"
+
+#: ui/dialogs/settings-about.slint
+msgid "Your data:"
+msgstr "データの場所:"
+
+#: ui/dialogs/settings-about.slint
+msgid "Show licenses"
+msgstr "ライセンスを表示"
+
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+msgid "Default Bible"
+msgstr "既定の聖書"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Also show with every new passage"
+msgstr "新しい聖句ごとに併記"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Pick up to two. Each slide then shows the same verses from every Bible."
+msgstr "2つまで選べます。各スライドに、それぞれの聖書の同じ聖句が表示されます。"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Add Bibles"
+msgstr "聖書を追加"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Search by name, short name or language"
+msgstr "名前、略称、言語で検索"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Installed"
+msgstr "インストール済み"
+
+#: ui/dialogs/settings-bible.slint ui/operator/media.slint
+msgid "All"
+msgstr "すべて"
+
+#: ui/dialogs/settings-bible.slint
+msgid "KJV, WEB and BSB are built in and work offline."
+msgstr "KJV、WEB、BSB は内蔵されており、オフラインで使えます。"
+
+#: ui/dialogs/settings-bible.slint
+msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
+msgstr "その他は著作権があります。教会で一度だけ取得するキーで、出版社の無料サービスに接続してください。礼拝に追加した聖句は礼拝と一緒に保存されるので、インターネットが切れても表示されます。"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Translations"
+msgstr "翻訳"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Online services"
+msgstr "オンラインサービス"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Connected"
+msgstr "接続済み"
+
+#: ui/dialogs/settings-bible.slint src/i18n/remote_strings.rs
+msgid "Not connected"
+msgstr "未接続"
+
+#: ui/dialogs/settings-bible.slint
+msgid "1. Sign up free at"
+msgstr "1. 無料登録はこちら:"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Copy link"
+msgstr "リンクをコピー"
+
+#: ui/dialogs/settings-bible.slint
+msgid "2. {}"
+msgstr "2. {}"
+
+#: ui/dialogs/settings-bible.slint
+msgid "3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only."
+msgstr "3. ここにキーを貼り付けます。RustyPresenter は一度検索して確認し、このコンピューターにのみ保存します。"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Key saved — paste a new one to replace it"
+msgstr "キーは保存済みです — 置き換えるには新しいキーを貼り付けてください"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Paste the key here"
+msgstr "ここにキーを貼り付け"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Save key"
+msgstr "キーを保存"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Disconnect"
+msgstr "切断"
+
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+msgid "Bible files"
+msgstr "聖書ファイル"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
+msgstr "Zefania、OSIS、USX、OpenSong のファイル (.xml または .usx) を取り込みます。パブリックドメインの聖書、または教会が使用許諾を得ている聖書のみ取り込んでください。上の翻訳の略称（HCSB など）を付けると、その翻訳にこのファイルを使います。"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Short name, e.g. HCSB (optional)"
+msgstr "略称（例: HCSB、省略可）"
+
+#: ui/dialogs/settings-bible.slint
+msgid "Import a Bible file"
+msgstr "聖書ファイルを取り込む"
+
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+msgid "Credits"
+msgstr "クレジット"
+
+#: ui/dialogs/settings-language.slint
+msgid "In use"
+msgstr "使用中"
+
+#: ui/dialogs/settings-language.slint
+msgid "Use"
+msgstr "使用"
+
+#: ui/dialogs/settings-language.slint
+msgid "Translations are made by volunteers. If yours is missing or has mistakes, you can help."
+msgstr "翻訳はボランティアによって作られています。お使いの言語がない、または誤りがある場合は、ぜひご協力ください。"
+
+#: ui/dialogs/settings-language.slint
+msgid "Help translate RustyPresenter"
+msgstr "RustyPresenter の翻訳に協力"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Font"
+msgstr "フォント"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Lyrics size"
+msgstr "歌詞のサイズ"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "(biggest; long lines shrink to fit)"
+msgstr "（最大。長い行は収まるよう縮小）"
+
+#: ui/dialogs/settings-look.slint
+msgid "Bible verses"
+msgstr "聖句"
+
+#: ui/dialogs/settings-look.slint
+msgid "(for new passages)"
+msgstr "（新しい聖句用）"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Scripture text size"
+msgstr "聖句の文字サイズ"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "(biggest)"
+msgstr "（最大）"
+
+#: ui/dialogs/settings-look.slint
+msgid "Text shrinks automatically when a slide holds more words."
+msgstr "スライドの文字が多いと自動で縮小されます。"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Text position"
+msgstr "文字の位置"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Lower third"
+msgstr "下部3分の1"
+
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "ALL CAPS lyrics"
+msgstr "歌詞をすべて大文字に"
+
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+msgid "Logo"
+msgstr "ロゴ"
+
+#: ui/dialogs/settings-look.slint
+msgid "No logo (Logo button shows black)"
+msgstr "ロゴなし（ロゴボタンで黒画面）"
+
+#: ui/dialogs/settings-look.slint
+msgid "Choose logo"
+msgstr "ロゴを選択"
+
+#: ui/dialogs/settings-look.slint
+msgid "Default background"
+msgstr "既定の背景"
+
+#: ui/dialogs/settings-state.slint src/strings/catalog.rs
+msgid "All languages"
+msgstr "すべての言語"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Church default"
+msgstr "教会の既定"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Make this the church default"
+msgstr "これを教会の既定にする"
+
+#: ui/dialogs/settings-themes.slint
+msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
+msgstr "テーマとはスライドの文字の見た目（フォント、サイズ、色、位置）です。礼拝や項目に独自のテーマがない場合は、星印のテーマが使われます。"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "New theme"
+msgstr "新しいテーマ"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Background library"
+msgstr "背景ライブラリ"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
+msgstr "教会で保管している画像、動画、色、グラデーション。どのテーマや項目にもすぐ使えます。"
+
+#: ui/dialogs/settings-themes.slint
+msgid "No backgrounds yet."
+msgstr "背景はまだありません。"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add picture or video…"
+msgstr "画像または動画を追加…"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add colour or gradient…"
+msgstr "色またはグラデーションを追加…"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Color"
+msgstr "色"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Gradient"
+msgstr "グラデーション"
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "From"
+msgstr "開始色"
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "To"
+msgstr "終了色"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Direction"
+msgstr "方向"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add to backgrounds"
+msgstr "背景に追加"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Weight"
+msgstr "太さ"
+
+#: ui/dialogs/settings-themes.slint
+msgid "(for songs and announcements)"
+msgstr "（曲とお知らせ用）"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Regular"
+msgstr "標準"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Semibold"
+msgstr "やや太字"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Bold"
+msgstr "太字"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Align"
+msgstr "配置"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Center"
+msgstr "中央"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline"
+msgstr "縁取り"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thin"
+msgstr "細い"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thick"
+msgstr "太い"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline color"
+msgstr "縁取りの色"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Text band (a see-through strip behind the words)"
+msgstr "文字帯（文字の背後の半透明の帯）"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Band color"
+msgstr "帯の色"
+
+#: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "聖句"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Darken"
+msgstr "暗くする"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "文字を読みやすくします"
+
+#: ui/dialogs/settings.slint
+msgid "Lines per slide"
+msgstr "スライドごとの行数"
+
+#: ui/dialogs/settings.slint
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "曲と聖句。クレジット表示が必要な聖書もあります。聖句ごとに1回表示されます。"
+
+#: ui/dialogs/settings.slint
+msgid "On first slide"
+msgstr "最初のスライド"
+
+#: ui/dialogs/settings.slint
+msgid "On last slide"
+msgstr "最後のスライド"
+
+#: ui/dialogs/settings.slint
+msgid "Church CCLI license #"
+msgstr "教会の CCLI ライセンス番号"
+
+#: ui/dialogs/settings.slint
+msgid "Section keys (C, B, 1–9…)"
+msgstr "セクションキー (C、B、1–9…)"
+
+#: ui/dialogs/settings.slint
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "誤って入力した文字で画面が変わる場合はオフにしてください。"
+
+#: ui/dialogs/settings.slint
+msgid "Letters and numbers jump the live song to a section"
+msgstr "文字や数字でライブ中の曲のセクションへ移動"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Song use report…"
+msgstr "曲の使用レポート…"
+
+#: ui/dialogs/settings.slint
+msgid "Sound goes to"
+msgstr "音声の出力先"
+
+#: ui/dialogs/settings.slint
+msgid "Graphics"
+msgstr "グラフィックス"
+
+#: ui/dialogs/settings.slint
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr "画面がちらつく、黒いままになる、または RustyPresenter がクラッシュする場合のみ変更してください。次回起動時から反映されます。"
+
+#: ui/dialogs/settings.slint
+msgid "Room screen"
+msgstr "会場画面"
+
+#: ui/dialogs/settings.slint
+msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgstr "会場画面に専用モニターがある場合は前面に保つ（フェードがなめらかに）"
+
+#: ui/dialogs/settings.slint src/strings/stage.rs
+msgid "Stage layout"
+msgstr "ステージレイアウト"
+
+#: ui/dialogs/settings.slint
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr "ステージ画面に表示する内容。「ウィンドウ → ステージレイアウト…」で独自のものを作れます。"
+
+#: ui/dialogs/settings.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "RustyPresenter の起動時と1日1回、完全なバックアップ（曲、礼拝、設定、すべての動画・画像・スライド）が作成されます。最新の10件が保存される場所:"
+
+#: ui/dialogs/settings.slint
+msgid "Back up now"
+msgstr "今すぐバックアップ"
+
+#: ui/dialogs/settings.slint
+msgid "Restore"
+msgstr "復元"
+
+#: ui/dialogs/settings.slint
+msgid "No backups yet."
+msgstr "バックアップはまだありません。"
+
+#: ui/dialogs/settings.slint
+msgid "Keyboard"
+msgstr "キーボード"
+
+#: ui/dialogs/settings.slint
+msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+msgstr "ヒント: スライドをクリックするとすぐに画面に表示されます。赤い枠が会場で見えている内容です。"
+
+#: ui/dialogs/settings.slint
+msgid "Look"
+msgstr "外観"
+
+#: ui/dialogs/settings.slint
+msgid "Themes"
+msgstr "テーマ"
+
+#: ui/dialogs/settings.slint
+msgid "Language"
+msgstr "言語"
+
+#: ui/dialogs/settings.slint
+msgid "Songs"
+msgstr "曲"
+
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+msgid "Video"
+msgstr "動画"
+
+#: ui/dialogs/settings.slint
+msgid "Backups"
+msgstr "バックアップ"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Help"
+msgstr "ヘルプ"
+
+#: ui/dialogs/settings.slint
+msgid "About"
+msgstr "情報"
+
+#: ui/dialogs/settings.slint
+msgid "Save theme"
+msgstr "テーマを保存"
+
+#: ui/dialogs/settings.slint
+msgid "Save settings"
+msgstr "設定を保存"
+
+#: ui/dialogs/show-message.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/strings/stage.rs
+msgid "Message"
+msgstr "メッセージ"
+
+#: ui/dialogs/show-message.slint
+msgid "Hide"
+msgstr "隠す"
+
+#: ui/dialogs/show-message.slint src/i18n/remote_strings.rs
+msgid "Show"
+msgstr "表示"
+
+#: ui/dialogs/slide-breaks.slint src/strings/scripture.rs
+msgid "Reset to automatic"
+msgstr "自動に戻す"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "This song is on screen. Nothing changes on screen until you choose Save and show now or Update screen."
+msgstr "この曲は画面に表示中です。「保存して今すぐ表示」または「画面を更新」を選ぶまで、画面は変わりません。"
+
+#: ui/dialogs/song-editor.slint
+msgid "Amazing Grace (My Chains Are Gone)"
+msgstr "アメイジング・グレイス"
+
+#: ui/dialogs/song-editor.slint src/strings/usage.rs
+msgid "Writers"
+msgstr "作者"
+
+#: ui/dialogs/song-editor.slint
+msgid "CCLI song #"
+msgstr "CCLI 曲番号"
+
+#: ui/dialogs/song-editor.slint
+msgid "4768151"
+msgstr "4768151"
+
+#: ui/dialogs/song-editor.slint
+msgid "Copyright"
+msgstr "著作権"
+
+#: ui/dialogs/song-editor.slint
+msgid "© 2006 …"
+msgstr "© 2006 …"
+
+#: ui/dialogs/song-editor.slint
+msgid "— section names on their own line; an empty line inside a section starts a new slide"
+msgstr "— セクション名はそれぞれ独立した行に。セクション内の空行で新しいスライドになります"
+
+#: ui/dialogs/song-editor.slint
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "バース 1\n驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に\n\nサビ\n鎖は解かれ…"
+
+#: ui/dialogs/song-editor.slint
+msgid "Order"
+msgstr "順序"
+
+#: ui/dialogs/song-editor.slint
+msgid "(optional)"
+msgstr "（省略可）"
+
+#: ui/dialogs/song-editor.slint
+msgid "Leave empty to use the written order"
+msgstr "空欄の場合は記載順を使います"
+
+#: ui/dialogs/song-editor.slint
+msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr "入力するとここにスライドが表示されます。「バース 1」や「サビ」などのセクション名はそれぞれ独立した行に入力してください。"
+
+#: ui/dialogs/song-editor.slint
+msgid "Delete song"
+msgstr "曲を削除"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and add to service"
+msgstr "保存して礼拝に追加"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save song"
+msgstr "曲を保存"
+
+#: ui/dialogs/song-editor.slint
+msgid "Save and show now"
+msgstr "保存して今すぐ表示"
+
+#: ui/dialogs/stage-canvas.slint src/strings/screens.rs
+msgid "Stage screen"
+msgstr "ステージ画面"
+
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+msgid "Needs a newer RustyPresenter"
+msgstr "新しい RustyPresenter が必要です"
+
+#: ui/dialogs/stage-layouts.slint src/strings/stage.rs
+msgid "Stage layouts"
+msgstr "ステージレイアウト"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "On stage"
+msgstr "ステージで使用中"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in"
+msgstr "内蔵"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "New"
+msgstr "新規"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Duplicate to edit"
+msgstr "複製して編集"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Rename…"
+msgstr "名前を変更…"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Delete…"
+msgstr "削除…"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Use on stage"
+msgstr "ステージで使う"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Save first"
+msgstr "先に保存してください"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Boxes"
+msgstr "ボックス"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "No boxes yet. Add one to show something on the stage."
+msgstr "ボックスはまだありません。追加するとステージに表示できます。"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Add box"
+msgstr "ボックスを追加"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Shows"
+msgstr "表示内容"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Words"
+msgstr "言葉"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Biggest text ({}%)"
+msgstr "最大文字サイズ ({}%)"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Text colour"
+msgstr "文字色"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Alignment"
+msgstr "配置"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Centre"
+msgstr "中央"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "A newer RustyPresenter made this box. It can be removed but not changed here."
+msgstr "このボックスは新しい RustyPresenter で作成されました。削除はできますが、ここでは変更できません。"
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Undo"
+msgstr "元に戻す"
+
+#: ui/dialogs/stage-layouts.slint ui/operator.slint
+msgid "Redo"
+msgstr "やり直し"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Built-in layouts can't be changed. Duplicate one to make your own."
+msgstr "内蔵のレイアウトは変更できません。複製して独自のものを作成してください。"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
+msgstr "ボックスをドラッグして移動、角をドラッグしてサイズ変更。矢印キーで微調整。Alt を押しながらで自由に移動します。"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Layout"
+msgstr "レイアウト"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Choose the stage layout"
+msgstr "ステージレイアウトを選択"
+
+#: ui/dialogs/stage-layouts.slint
+msgid "Edit stage layouts…"
+msgstr "ステージレイアウトを編集…"
+
+#: ui/dialogs/usage.slint
+msgid "Keep a song use log for CCLI reporting"
+msgstr "CCLI 報告用に曲の使用記録を残す"
+
+#: ui/dialogs/usage.slint
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
+
+#: ui/dialogs/usage.slint
+msgid "Since last report"
+msgstr "前回の報告以降"
+
+#: ui/dialogs/usage.slint
+msgid "Last 3 months"
+msgstr "過去3か月"
+
+#: ui/dialogs/usage.slint
+msgid "Last 6 months"
+msgstr "過去6か月"
+
+#: ui/dialogs/usage.slint
+msgid "This year"
+msgstr "今年"
+
+#: ui/dialogs/usage.slint
+msgid "Include songs without a CCLI number"
+msgstr "CCLI 番号のない曲も含める"
+
+#: ui/dialogs/usage.slint
+msgid "Public domain songs don't need reporting."
+msgstr "パブリックドメインの曲は報告不要です。"
+
+#: ui/dialogs/usage.slint
+msgid "CCLI #"
+msgstr "CCLI 番号"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times shown"
+msgstr "表示回数"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Times streamed"
+msgstr "配信回数"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Last used"
+msgstr "最終使用日"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "No songs in these dates."
+msgstr "この期間の曲はありません。"
+
+#: ui/dialogs/usage.slint
+msgid "Details ({})"
+msgstr "詳細 ({})"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "streamed"
+msgstr "配信"
+
+#: ui/dialogs/usage.slint src/strings/usage.rs
+msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
+msgstr "これらの数値を CCLI の報告サイトに入力してください。投影した使用は「Digital」に、配信した使用はストリーミングライセンスに入力します。「配信」とはライブ配信用のページやウィンドウが開いていたことを意味し、実際に放送中だったとは限りません。"
+
+#: ui/dialogs/usage.slint
+msgid "Open printable page"
+msgstr "印刷用ページを開く"
+
+#: ui/dialogs/usage.slint
+msgid "Save as spreadsheet (CSV)…"
+msgstr "スプレッドシート (CSV) として保存…"
+
+#: ui/identify.slint
+msgid "Identify screen"
+msgstr "画面を識別"
+
+#: ui/operator/automation-strip.slint
+msgid "Message showing — Hide"
+msgstr "メッセージ表示中 — 隠す"
+
+#: ui/operator/automation-strip.slint
+msgid "Show a message on the screen (Ctrl+Shift+M)"
+msgstr "画面にメッセージを表示 (Ctrl+Shift+M)"
+
+#: ui/operator/automation-strip.slint
+msgid "Turn the slides by themselves again"
+msgstr "スライドの自動送りを再開"
+
+#: ui/operator/automation-strip.slint
+msgid "Stop turning the slides by themselves"
+msgstr "スライドの自動送りを停止"
+
+#: ui/operator/automation-strip.slint
+msgid "Timers, messages and macros"
+msgstr "タイマー、メッセージ、マクロ"
+
+#: ui/operator/automation-strip.slint
+msgid "Hide from room"
+msgstr "会場から隠す"
+
+#: ui/operator/automation-strip.slint
+msgid "Show in room"
+msgstr "会場に表示"
+
+#: ui/operator/live.slint ui/operator.slint
+msgid "—"
+msgstr "—"
+
+#: ui/operator/live.slint ui/operator/slides.slint
+msgid "LIVE"
+msgstr "ライブ"
+
+#: ui/operator/live.slint
+msgid "updating…"
+msgstr "更新中…"
+
+#: ui/operator/live.slint
+msgid "−15 s"
+msgstr "−15 秒"
+
+#: ui/operator/live.slint
+msgid "Back 15 seconds"
+msgstr "15 秒戻る"
+
+#: ui/operator/live.slint
+msgid "+15 s"
+msgstr "+15 秒"
+
+#: ui/operator/live.slint
+msgid "Forward 15 seconds"
+msgstr "15 秒進む"
+
+#: ui/operator/live.slint
+msgid "Last 10 s"
+msgstr "最後の10秒"
+
+#: ui/operator/live.slint
+msgid "Jump to 10 seconds before the end, to check how it finishes"
+msgstr "終了10秒前に移動し、終わり方を確認します"
+
+#: ui/operator/live.slint
+msgid "Edit words"
+msgstr "歌詞を編集"
+
+#: ui/operator/live.slint
+msgid "Fix the words of the live song. The screen changes only when you say so."
+msgstr "ライブ中の曲の歌詞を修正します。画面は指示するまで変わりません。"
+
+#: ui/operator/live.slint
+msgid "Update screen"
+msgstr "画面を更新"
+
+#: ui/operator/live.slint
+msgid "Back (← or Page Up)"
+msgstr "戻る（← または Page Up）"
+
+#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "次へ"
+
+#: ui/operator/live.slint
+msgid "Next (→, Space or Page Down)"
+msgstr "次へ（→、Space、または Page Down）"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "次の項目"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Clear All"
+msgstr "すべてクリア"
+
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "メディア"
+
+#: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs
+msgid "Audio"
+msgstr "音声"
+
+#: ui/operator/live_controls.slint
+msgid "Play"
+msgstr "再生"
+
+#: ui/operator/media.slint
+msgid "ON SCREEN"
+msgstr "表示中"
+
+#: ui/operator/media.slint
+msgid "Media library"
+msgstr "メディアライブラリ"
+
+#: ui/operator/media.slint
+msgid "Videos"
+msgstr "動画"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Pictures"
+msgstr "画像"
+
+#: ui/operator/media.slint
+msgid "Search media"
+msgstr "メディアを検索"
+
+#: ui/operator/media.slint
+msgid "Smaller thumbnails"
+msgstr "サムネイルを小さく"
+
+#: ui/operator/media.slint
+msgid "Bigger thumbnails"
+msgstr "サムネイルを大きく"
+
+#: ui/operator/media.slint
+msgid "Import"
+msgstr "取り込む"
+
+#: ui/operator/media.slint
+msgid "New folder"
+msgstr "新しいフォルダー"
+
+#: ui/operator/media.slint src/strings/operator.rs
+msgid "Delete folder"
+msgstr "フォルダーを削除"
+
+#: ui/operator/media.slint
+msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
+msgstr "まだ何もありません。画像・動画・音楽を取り込むか、別のフォルダーや語句を試してください。"
+
+#: ui/operator/media.slint
+msgid "Import media"
+msgstr "メディアを取り込む"
+
+#: ui/operator/media.slint
+msgid "Pick a file"
+msgstr "ファイルを選択"
+
+#: ui/operator/media.slint
+msgid "Use as background"
+msgstr "背景として使う"
+
+#: ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Add to service"
+msgstr "礼拝に追加"
+
+#: ui/operator/media.slint
+msgid "Move to folder"
+msgstr "フォルダーへ移動"
+
+#: ui/operator/monitor.slint
+msgid "Room screen is off"
+msgstr "会場画面はオフです"
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "変更あり — オフにしてからオンにすると更新されます。"
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Overlays"
+msgstr "オーバーレイ"
+
+#: ui/operator/overlay-strip.slint
+msgid "+ Overlays"
+msgstr "+ オーバーレイ"
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "A logo in the corner, a clock or a short sign"
+msgstr "隅のロゴ、時計、短い案内"
+
+#: ui/operator/overlay-strip.slint
+msgid "F6 Clear"
+msgstr "F6 クリア"
+
+#: ui/operator/overlay-strip.slint
+msgid "Clear overlays (F6)"
+msgstr "オーバーレイをクリア (F6)"
+
+#: ui/operator/overlay-strip.slint ui/operator.slint
+msgid "Overlays…"
+msgstr "オーバーレイ…"
+
+#: ui/operator/overlays.slint
+msgid "Drop to add to the service"
+msgstr "ドロップして礼拝に追加"
+
+#: ui/operator/overlays.slint
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgstr "動画、画像、音楽、プレゼンテーション（PowerPoint、Keynote、PDF）、SongSelect の歌詞ファイル"
+
+#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs
+msgid "Service"
+msgstr "礼拝"
+
+#: ui/operator/service.slint
+msgid "Add a header"
+msgstr "見出しを追加"
+
+#: ui/operator/service.slint
+msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
+msgstr "礼拝リストに「賛美」や「説教」のような色付きの見出しを追加します"
+
+#: ui/operator/service.slint
+msgid "Check"
+msgstr "確認"
+
+#: ui/operator/service.slint
+msgid "Before the service: are all the songs, files and screens there?"
+msgstr "礼拝前に、すべての曲・ファイル・画面がそろっているか確認します"
+
+#: ui/operator/service.slint
+msgid "Theme for this service"
+msgstr "この礼拝のテーマ"
+
+#: ui/operator/service.slint
+msgid "Custom order"
+msgstr "カスタム順序"
+
+#: ui/operator/service.slint ui/operator/slides.slint
+msgid "Custom order for this service"
+msgstr "この礼拝用のカスタム順序"
+
+#: ui/operator/service.slint
+msgid "Choose what goes here"
+msgstr "ここに入れるものを選択"
+
+#: ui/operator/service.slint
+msgid "Change colour"
+msgstr "色を変更"
+
+#: ui/operator/service.slint
+msgid "Your service is empty"
+msgstr "礼拝が空です"
+
+#: ui/operator/service.slint
+msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
+msgstr "曲、動画、スライドを追加するか、上部に聖句を入力するか、このウィンドウにファイルをドラッグしてください。"
+
+#: ui/operator/slides.slint
+msgid "Let’s build this Sunday’s service"
+msgstr "今週の礼拝を準備しましょう"
+
+#: ui/operator/slides.slint
+msgid "Everything you add shows up on the left. Click a slide to put it on the screen."
+msgstr "追加したものはすべて左側に表示されます。スライドをクリックすると画面に表示されます。"
+
+#: ui/operator/slides.slint
+msgid "Click “Screens” and choose the projector or TV."
+msgstr "「画面」をクリックして、プロジェクターまたはテレビを選びます。"
+
+#: ui/operator/slides.slint
+msgid "Click “Add to service” for songs, videos and slides — or drag files in."
+msgstr "曲、動画、スライドは「礼拝に追加」をクリック — またはファイルをドラッグします。"
+
+#: ui/operator/slides.slint
+msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
+msgstr "聖書ボックスに「John 3:16」のように聖句を入力して Enter を押します。"
+
+#: ui/operator/slides.slint
+msgid "Use the big Next button (or the → key) during the service."
+msgstr "礼拝中は大きな「次へ」ボタン（または → キー）を使います。"
+
+#: ui/operator/slides.slint ui/operator/topbar.slint
+msgid "Screens"
+msgstr "画面"
+
+#: ui/operator/slides.slint ui/operator.slint
+msgid "Nothing selected"
+msgstr "何も選択されていません"
+
+#: ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/operator/slides.slint
+msgid "Smaller text for this passage"
+msgstr "この聖句の文字を小さく"
+
+#: ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/operator/slides.slint
+msgid "Bigger text for this passage"
+msgstr "この聖句の文字を大きく"
+
+#: ui/operator/slides.slint
+msgid "Back to the size in Settings"
+msgstr "設定のサイズに戻す"
+
+#: ui/operator/slides.slint
+msgid "Choose something from the service list."
+msgstr "礼拝リストから選んでください。"
+
+#: ui/operator/slides.slint
+msgid "Nothing to show"
+msgstr "表示するものがありません"
+
+#: ui/operator/slides.slint
+msgid "This item has no slides yet. Click Edit to add some."
+msgstr "この項目にはまだスライドがありません。「編集」をクリックして追加してください。"
+
+#: ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/topbar.slint
+msgid "Switch or create services"
+msgstr "礼拝の切り替え・作成"
+
+#: ui/operator/topbar.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "聖句 — John 3:16 と入力して Enter"
+
+#: ui/operator/topbar.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} はまだ接続されていません（設定 → 聖書）。「追加 → 聖書」で聖句を貼り付けることはできます。"
+
+#: ui/operator/topbar.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "次の聖句のスライドごとの節数。クリックで変更します。"
+
+#: ui/operator/topbar.slint
+msgid "Verses: {}"
+msgstr "節数: {}"
+
+#: ui/operator/topbar.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
+#: ui/operator/topbar.slint
+msgid "Room"
+msgstr "会場"
+
+#: ui/operator/topbar.slint src/strings/screens.rs
+msgid "Stage"
+msgstr "ステージ"
+
+#: ui/operator/topbar.slint
+msgid "Stage display"
+msgstr "ステージ画面"
+
+#: ui/operator/topbar.slint
+msgid "Phone remotes connected"
+msgstr "接続中のスマホリモコン"
+
+#: ui/operator/topbar.slint
+msgid "Show a message on the stage screen"
+msgstr "ステージ画面にメッセージを表示"
+
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "スマホ"
+
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+msgid "Settings"
+msgstr "設定"
+
+#: ui/operator.slint
+msgid "File"
+msgstr "ファイル"
+
+#: ui/operator.slint
+msgid "New service…"
+msgstr "新しい礼拝…"
+
+#: ui/operator.slint
+msgid "Services…"
+msgstr "礼拝…"
+
+#: ui/operator.slint
+msgid "Open a service file…"
+msgstr "礼拝ファイルを開く…"
+
+#: ui/operator.slint
+msgid "Open recent"
+msgstr "最近使ったファイル"
+
+#: ui/operator.slint
+msgid "Save this service to a file…"
+msgstr "この礼拝をファイルに保存…"
+
+#: ui/operator.slint
+msgid "Export"
+msgstr "エクスポート"
+
+#: ui/operator.slint
+msgid "Service bundle…"
+msgstr "礼拝バンドル…"
+
+#: ui/operator.slint
+msgid "Song…"
+msgstr "曲…"
+
+#: ui/operator.slint
+msgid "Bible passage…"
+msgstr "聖書箇所…"
+
+#: ui/operator.slint
+msgid "Video & media…"
+msgstr "動画とメディア…"
+
+#: ui/operator.slint
+msgid "Slides…"
+msgstr "スライド…"
+
+#: ui/operator.slint
+msgid "Announcement…"
+msgstr "お知らせ…"
+
+#: ui/operator.slint
+msgid "Import media…"
+msgstr "メディアを取り込む…"
+
+#: ui/operator.slint
+msgid "Print service order…"
+msgstr "礼拝順序を印刷…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "終了"
+
+#: ui/operator.slint
+msgid "Find…"
+msgstr "検索…"
+
+#: ui/operator.slint
+msgid "Find a verse…"
+msgstr "聖句を検索…"
+
+#: ui/operator.slint
+msgid "Edit the selected item…"
+msgstr "選択した項目を編集…"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Bible box"
+msgstr "聖書ボックス"
+
+#: ui/operator.slint
+msgid "View"
+msgstr "表示"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear all"
+msgstr "すべてクリア"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear text"
+msgstr "テキストをクリア"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Clear media & background"
+msgstr "メディアと背景をクリア"
+
+#: ui/operator.slint src/strings/settings.rs
+msgid "Stop audio"
+msgstr "音声を停止"
+
+#: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
+msgid "Clear overlays"
+msgstr "オーバーレイをクリア"
+
+#: ui/operator.slint
+msgid "Hide media library"
+msgstr "メディアライブラリを隠す"
+
+#: ui/operator.slint
+msgid "Show media library"
+msgstr "メディアライブラリを表示"
+
+#: ui/operator.slint
+msgid "Zoom in"
+msgstr "拡大"
+
+#: ui/operator.slint
+msgid "Zoom out"
+msgstr "縮小"
+
+#: ui/operator.slint
+msgid "Actual size"
+msgstr "実際のサイズ"
+
+#: ui/operator.slint
+msgid "Window"
+msgstr "ウィンドウ"
+
+#: ui/operator.slint
+msgid "Screens…"
+msgstr "画面…"
+
+#: ui/operator.slint
+msgid "Phone remote…"
+msgstr "スマホリモコン…"
+
+#: ui/operator.slint
+msgid "Stage message…"
+msgstr "ステージメッセージ…"
+
+#: ui/operator.slint
+msgid "Stage layouts…"
+msgstr "ステージレイアウト…"
+
+#: ui/operator.slint
+msgid "Automation…"
+msgstr "オートメーション…"
+
+#: ui/operator.slint
+msgid "Settings…"
+msgstr "設定…"
+
+#: ui/operator.slint
+msgid "Themes and backgrounds…"
+msgstr "テーマと背景…"
+
+#: ui/operator.slint
+msgid "Songs…"
+msgstr "曲…"
+
+#: ui/operator.slint
+msgid "Bible…"
+msgstr "聖書…"
+
+#: ui/operator.slint
+msgid "Video…"
+msgstr "動画…"
+
+#: ui/operator.slint
+msgid "Backups…"
+msgstr "バックアップ…"
+
+#: ui/operator.slint
+msgid "Keyboard shortcuts"
+msgstr "キーボードショートカット"
+
+#: ui/operator.slint
+msgid "Check the service"
+msgstr "礼拝を確認"
+
+#: ui/operator.slint
+msgid "Open logs folder"
+msgstr "ログフォルダーを開く"
+
+#: ui/operator.slint
+msgid "About RustyPresenter"
+msgstr "RustyPresenter について"
+
+#: ui/room.slint
+msgid "RustyPresenter — Room"
+msgstr "RustyPresenter — 会場"
+
+#: ui/stage.slint
+msgid "RustyPresenter — Stage"
+msgstr "RustyPresenter — ステージ"
+
+#: ui/stage.slint
+msgid "Waiting for the service…"
+msgstr "礼拝を待っています…"
+
+#: ui/stage.slint src/i18n/remote_strings.rs src/live.rs src/strings/operator.rs src/strings/stage.rs
+msgid "End of service"
+msgstr "礼拝の終わり"
+
+#: ui/stage.slint src/strings/stage.rs
+msgid "NEXT"
+msgstr "次"
+
+#: ui/widgets.slint
+msgid "Cut"
+msgstr "切り取り"
+
+#: ui/widgets.slint
+msgid "Paste"
+msgstr "貼り付け"
+
+#: ui/widgets.slint
+msgid "Select all"
+msgstr "すべて選択"
+
+#: src/app.rs
+msgid "Could not save: {error}"
+msgstr "保存できませんでした: {error}"
+
+#: src/app.rs
+msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgstr "会場画面が再起動しました。動画/音声は停止しました — もう一度クリックすると再生します。"
+
+#: src/app.rs
+msgid "The room screen restarted."
+msgstr "会場画面が再起動しました。"
+
+#: src/app.rs src/platform/instance.rs
+msgid "RustyPresenter is still starting. Try again in a moment."
+msgstr "RustyPresenter はまだ起動中です。少し待ってから再試行してください。"
+
+#: src/app.rs
+msgid "This computer"
+msgstr "このコンピューター"
+
+#: src/app.rs
+msgid "Not used"
+msgstr "未使用"
+
+#: src/app.rs
+msgid "{name} — built in, public domain"
+msgstr "{name} — 内蔵、パブリックドメイン"
+
+#: src/app.rs
+msgid "{name} — imported file"
+msgstr "{name} — 取り込んだファイル"
+
+#: src/app.rs
+msgid "Give the song a title."
+msgstr "曲にタイトルを付けてください。"
+
+#: src/app.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "この曲は礼拝で使われています。先に礼拝から削除してください。"
+
+#: src/app.rs
+msgid "No service is open."
+msgstr "開いている礼拝がありません。"
+
+#: src/app.rs src/automation/actions.rs src/scripture/actions.rs src/theme/actions.rs
+msgid "Bad request: {error}"
+msgstr "不正なリクエスト: {error}"
+
+#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "その項目はもうありません。"
+
+#: src/app.rs
+msgid "New Service"
+msgstr "新しい礼拝"
+
+#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "その礼拝はもうありません。"
+
+#: src/app.rs
+msgid "You need at least one service."
+msgstr "礼拝が少なくとも1つ必要です。"
+
+#: src/app.rs
+msgid "Unknown Bible service."
+msgstr "不明な聖書サービスです。"
+
+#: src/app.rs
+msgid "That file is gone."
+msgstr "そのファイルはもうありません。"
+
+#: src/app.rs
+msgid "Give the folder a name."
+msgstr "フォルダーに名前を付けてください。"
+
+#: src/app.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "これは礼拝で使われています。先に礼拝から削除してください。"
+
+#: src/app.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "不正なリクエスト: 不明な用途 {purpose}"
+
+#: src/app.rs
+msgid "Choose at least one picture."
+msgstr "画像を1枚以上選んでください。"
+
+#: src/app.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "画像が見つかりません。もう一度アップロードしてください。"
+
+#: src/app.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "これらのスライドは礼拝で使われています。先に礼拝から削除してください。"
+
+#: src/app.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "不明な翻訳です。"
+
+#: src/app.rs
+msgid "Unknown language."
+msgstr "不明な言語です。"
+
+#: src/app.rs
+msgid "Language changed"
+msgstr "言語を変更しました"
+
+#: src/app.rs
+msgid "Unknown screen."
+msgstr "不明な画面です。"
+
+#: src/app.rs
+msgid "Pick an output for this screen first."
+msgstr "先にこの画面の出力先を選んでください。"
+
+#: src/app.rs
+msgid "Add a screen first."
+msgstr "先に画面を追加してください。"
+
+#: src/app.rs
+msgid "Audience {number}"
+msgstr "会場 {number}"
+
+#: src/app.rs
+msgid "Stage Display {number}"
+msgstr "ステージ画面 {number}"
+
+#: src/app.rs
+msgid "That screen is gone."
+msgstr "その画面はもうありません。"
+
+#: src/app.rs
+msgid "Each list keeps at least one screen."
+msgstr "各リストには少なくとも1つの画面が必要です。"
+
+#: src/app.rs
+msgid "Backup failed."
+msgstr "バックアップに失敗しました。"
+
+#: src/app.rs src/import/media.rs
+msgid "Could not save the file (disk full?)."
+msgstr "ファイルを保存できませんでした（ディスクがいっぱいですか？）。"
+
+#: src/app.rs
+msgid "Could not open “{file}”: {error}"
+msgstr "「{file}」を開けませんでした: {error}"
+
+#: src/app.rs
+msgid "Could not read “{file}”: {error}"
+msgstr "「{file}」を読み込めませんでした: {error}"
+
+#: src/automation/actions.rs src/ui/dialogs/automation.rs
+msgid "Type the time like 10:30."
+msgstr "時刻は 10:30 のように入力してください。"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
+msgstr "API.Bible は一度に最大200節までしか送信しません。より短い箇所を選んでください"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} はこのキーの API.Bible プランに含まれていません。API.Bible ダッシュボードの「Plan」で追加してください"
+
+#: src/bible/api_bible.rs
+msgid "{translation} isn't available with this API.Bible key; add it under Plan in the API.Bible dashboard"
+msgstr "{translation} はこの API.Bible キーでは利用できません。API.Bible ダッシュボードの「Plan」で追加してください"
+
+#: src/bible/api_bible.rs
+msgid "API.Bible returned a different book"
+msgstr "API.Bible が別の書を返しました"
+
+#: src/bible/catalog/ebible.rs
+msgid "no rows"
+msgstr "行がありません"
+
+#: src/bible/catalog/ebible.rs
+msgid "eBible answered {status}"
+msgstr "eBible の応答: {status}"
+
+#: src/bible/catalog/ebible.rs
+msgid "the list is far larger than expected"
+msgstr "一覧が想定よりはるかに大きいです"
+
+#: src/bible/catalog/ebible.rs
+msgid "empty file"
+msgstr "空のファイル"
+
+#: src/bible/catalog/ebible.rs
+msgid "no {column} column"
+msgstr "{column} 列がありません"
+
+#: src/bible/esv.rs
+msgid "the ESV service returned a different book"
+msgstr "ESV サービスが別の書を返しました"
+
+#: src/bible/import.rs
+msgid "Use a Zefania, OSIS, USX or OpenSong Bible file (.xml or .usx)."
+msgstr "Zefania、OSIS、USX、OpenSong の聖書ファイル (.xml または .usx) を使ってください。"
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this file. {formats}"
+msgstr "このファイルに聖句が見つかりません。{formats}"
+
+#: src/bible/import.rs src/bible.rs
+msgid "{reference} does not exist."
+msgstr "{reference} は存在しません。"
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "That passage is too long. Choose up to about 400 verses."
+msgstr "その箇所は長すぎます。約400節以内で選んでください。"
+
+#: src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "聖句が見つかりません。"
+
+#: src/bible/import.rs
+msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
+msgstr "聖書に 2～10 文字の英数字の略称を付けてください（例: WEB）。"
+
+#: src/bible/import.rs
+msgid "{abbr} is already built in. Give this Bible another short name."
+msgstr "{abbr} はすでに内蔵されています。この聖書に別の略称を付けてください。"
+
+#: src/bible/import.rs
+msgid "A downloaded Bible needs its details."
+msgstr "ダウンロードした聖書には詳細情報が必要です。"
+
+#: src/bible/import.rs
+msgid "This Bible's id can't be used."
+msgstr "この聖書の ID は使用できません。"
+
+#: src/bible/import.rs
+msgid "No Bible verses found."
+msgstr "聖句が見つかりません。"
+
+#: src/bible/import.rs
+msgid "No Bible verses found in this download."
+msgstr "このダウンロードに聖句が見つかりません。"
+
+#: src/bible/import.rs
+msgid "This file isn't valid XML (near byte {at}: {error}). {formats}"
+msgstr "このファイルは有効な XML ではありません（{at} バイト付近: {error}）。{formats}"
+
+#: src/bible/sources.rs
+msgid "Free for churches. Create an “API application”, then copy its key."
+msgstr "教会は無料です。「API application」を作成し、そのキーをコピーしてください。"
+
+#: src/bible/sources.rs
+msgid "Free for non-commercial use. Register, then copy the key from your account."
+msgstr "非営利利用は無料です。登録して、アカウントからキーをコピーしてください。"
+
+#: src/bible/sources.rs
+msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."
+msgstr "無料の Starter プランでは著作権のある聖書を3つ使えます。「Plan」で CSB（必要なら NIV や NLT も）を選んでください。"
+
+#: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "アプリを作成し、ポータルで各聖書のライセンスに同意してください（NIV は Biblica、HCSB は提供されていれば）。"
+
+#: src/bible/sources.rs
+msgid "the service answered {status}"
+msgstr "サービスの応答: {status}"
+
+#: src/bible/sources.rs
+msgid "Couldn't reach {service} for {translation}. Check the internet connection."
+msgstr "{translation} のため {service} に接続できませんでした。インターネット接続を確認してください。"
+
+#: src/bible/sources.rs
+msgid "{service} refused the key. Check it in Settings → Bible."
+msgstr "{service} がキーを拒否しました。「設定 → 聖書」で確認してください。"
+
+#: src/bible/sources.rs
+msgid "{service} says too many lookups. Wait a minute and try again."
+msgstr "{service} から検索回数が多すぎるとの応答がありました。1分待ってから再試行してください。"
+
+#: src/bible/sources.rs
+msgid "{translation} lookup failed: {error}."
+msgstr "{translation} の検索に失敗しました: {error}。"
+
+#: src/bible/sources.rs
+msgid "{translation} has no online source. Paste its verses with Add → Bible, or import a licensed file in Settings → Bible."
+msgstr "{translation} にはオンラインの提供元がありません。「追加 → 聖書」で聖句を貼り付けるか、「設定 → 聖書」で使用許諾済みのファイルを取り込んでください。"
+
+#: src/bible/sources.rs
+msgid "{translation} needs a free key from {service}. Add it in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} には {service} の無料キーが必要です。「設定 → 聖書」で追加するか、「追加 → 聖書」で聖句を貼り付けてください。"
+
+#: src/bible/youversion.rs
+msgid "YouVersion has no Bible id for {translation}"
+msgstr "YouVersion には {translation} の聖書 ID がありません"
+
+#: src/bible/youversion.rs
+msgid "that passage spans too many chapters; choose fewer"
+msgstr "その箇所は章が多すぎます。少なくしてください"
+
+#: src/bible/youversion.rs
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgstr "この YouVersion アプリは聖書 {bible} の使用許諾を受けていません。platform.youversion.com で出版社のライセンスに同意してください"
+
+#: src/bible/youversion.rs
+msgid "the YouVersion app is archived or removed; check it at platform.youversion.com"
+msgstr "YouVersion アプリはアーカイブまたは削除されています。platform.youversion.com で確認してください"
+
+#: src/bible/youversion.rs
+msgid "YouVersion returned a different book"
+msgstr "YouVersion が別の書を返しました"
+
+#: src/bible.rs
+msgid "Type a reference, like John 3:16."
+msgstr "John 3:16 のように参照箇所を入力してください。"
+
+#: src/bible.rs
+msgid "I don't recognize the book \"{book}\"."
+msgstr "「{book}」という書名がわかりません。"
+
+#: src/bible.rs
+msgid "Add a chapter, like John 3 or John 3:16."
+msgstr "John 3 や John 3:16 のように章を加えてください。"
+
+#: src/bible.rs
+msgid "That reference doesn't look right. Try something like John 3:16-18."
+msgstr "参照箇所が正しくないようです。John 3:16-18 のように入力してください。"
+
+#: src/bible.rs
+msgid "The end of the range comes before the start."
+msgstr "範囲の終わりが始まりより前になっています。"
+
+#: src/bible.rs
+msgid "Paste the verse text first."
+msgstr "先に聖句のテキストを貼り付けてください。"
+
+#: src/i18n/remote_strings.rs
+msgid "RustyPresenter Remote"
+msgstr "RustyPresenter リモコン"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs
+msgid "Phone remote"
+msgstr "スマホリモコン"
+
+#: src/i18n/remote_strings.rs
+msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
+msgstr "プレゼン用コンピューターで {phone} → {pair} をクリックし、6桁のコードをここに入力してください。"
+
+#: src/i18n/remote_strings.rs
+msgid "Connect"
+msgstr "接続"
+
+#: src/i18n/remote_strings.rs
+msgid "Connecting…"
+msgstr "接続中…"
+
+#: src/i18n/remote_strings.rs
+msgid "On screen"
+msgstr "表示中"
+
+#: src/i18n/remote_strings.rs
+msgid "Pause video"
+msgstr "動画を一時停止"
+
+#: src/i18n/remote_strings.rs
+msgid "Play video"
+msgstr "動画を再生"
+
+#: src/i18n/remote_strings.rs
+msgid "Tap a slide to put it on the screen."
+msgstr "スライドをタップすると画面に表示されます。"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide message"
+msgstr "メッセージを隠す"
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs
+msgid "Run “{name}”?"
+msgstr "「{name}」を実行しますか？"
+
+#: src/i18n/remote_strings.rs
+msgid "Run"
+msgstr "実行"
+
+#: src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "完了"
+
+#: src/i18n/remote_strings.rs src/strings/automation.rs src/strings/song.rs
+msgid "The screen changed — try again."
+msgstr "画面が変わりました — 再試行してください。"
+
+#: src/i18n/remote_strings.rs
+msgid "The screen changed just now — tap the slide again."
+msgstr "ちょうど画面が変わりました — もう一度スライドをタップしてください。"
+
+#: src/i18n/remote_strings.rs src/server.rs
+msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgstr "その QR コードは期限切れです。コンピューターでもう一度「スマホをペアリング」をクリックしてください。"
+
+#: src/i18n/remote_strings.rs
+msgid "Could not connect."
+msgstr "接続できませんでした。"
+
+#: src/i18n/remote_strings.rs
+msgid "(Logo)"
+msgstr "（ロゴ）"
+
+#: src/i18n/remote_strings.rs
+msgid "(Music playing)"
+msgstr "（音楽再生中）"
+
+#: src/i18n/remote_strings.rs
+msgid "(Clear)"
+msgstr "（クリア）"
+
+#: src/i18n/remote_strings.rs
+msgid "Android phone"
+msgstr "Android スマホ"
+
+#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+msgid "Untitled song"
+msgstr "無題の曲"
+
+#: src/import/chordpro.rs
+msgid "more than {max} sections, so it isn't a song"
+msgstr "セクションが {max} 個を超えているため、曲ではありません"
+
+#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+msgid "no lyrics"
+msgstr "歌詞がありません"
+
+#: src/import/chordpro.rs
+msgid "a {block} block never ends, so everything after it was left out"
+msgstr "{block} ブロックが終わっていないため、それ以降はすべて除外されました"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the file is too big to be a song"
+msgstr "ファイルが大きすぎて曲ではありません"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "couldn't read it: {error}"
+msgstr "読み込めませんでした: {error}"
+
+#: src/import/chordpro.rs
+msgid "it doesn't look like a ChordPro file"
+msgstr "ChordPro ファイルではないようです"
+
+#: src/import/chordpro.rs
+msgid "no songs in it"
+msgstr "曲が含まれていません"
+
+#: src/import/chordpro.rs
+msgid "No songs could be read from {path}: {why}."
+msgstr "{path} から曲を読み込めませんでした: {why}。"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "Couldn't find {path}."
+msgstr "{path} が見つかりませんでした。"
+
+#: src/import/chordpro.rs
+msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+msgstr "{path} に ChordPro ファイル (.cho、.chordpro、.chopro、.crd、.pro) が見つかりませんでした。"
+
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
+msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+msgstr "フォルダー内のファイルとフォルダーが {max} 個を超えているため、最初の {max} 個のみ確認しました"
+
+#: src/import/common.rs
+msgid "Couldn't read {path}: {error}."
+msgstr "{path} を読み込めませんでした: {error}。"
+
+#: src/import/common.rs
+msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+msgstr "ライブラリの読み込み中に {app} が変更を保存し続けました。{app} を閉じて再試行してください。"
+
+#: src/import/common.rs
+msgid "Couldn't make a temporary folder: {error}."
+msgstr "一時フォルダーを作成できませんでした: {error}。"
+
+#: src/import/common.rs
+msgid "Couldn't copy {path}: {error}."
+msgstr "{path} をコピーできませんでした: {error}。"
+
+#: src/import/common.rs
+msgid "Couldn't open {path}: {error}."
+msgstr "{path} を開けませんでした: {error}。"
+
+#: src/import/common.rs
+msgid "the database stayed locked"
+msgstr "データベースがロックされたままでした"
+
+#: src/import/common.rs
+msgid "{path} is empty or damaged, so there is nothing to import."
+msgstr "{path} は空か破損しているため、取り込むものがありません。"
+
+#: src/import/easyworship.rs
+msgid "no lyrics (probably a video or announcement item)"
+msgstr "歌詞がありません（動画またはお知らせの項目と思われます）"
+
+#: src/import/easyworship.rs src/import/openlp.rs
+msgid "the lyrics are empty"
+msgstr "歌詞が空です"
+
+#: src/import/easyworship.rs
+msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+msgstr "EasyWorship 2009（またはそれ以前）のライブラリのようです。取り込めるのは EasyWorship 6 と 7 のライブラリのみです。"
+
+#: src/import/easyworship.rs
+msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+msgstr "{folder} に Songs.db はありましたが、その隣に SongWords.db がありません。"
+
+#: src/import/easyworship.rs
+msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+msgstr "ここに EasyWorship の Songs.db が見つかりません。プロファイルの Databases\\Data フォルダーを選んでください（通常は C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data）。"
+
+#: src/import/easyworship.rs
+msgid "Couldn't read the EasyWorship library: {error}"
+msgstr "EasyWorship のライブラリを読み込めませんでした: {error}"
+
+#: src/import/easyworship.rs
+msgid "Songs.db has no song table. Is this an EasyWorship library?"
+msgstr "Songs.db に曲のテーブルがありません。EasyWorship のライブラリですか？"
+
+#: src/import/easyworship.rs
+msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+msgstr "SongWords.db に歌詞のテーブルがありません。EasyWorship のライブラリですか？"
+
+#: src/import/openlp.rs
+msgid "the lyrics are not valid XML ({error})"
+msgstr "歌詞が有効な XML ではありません ({error})"
+
+#: src/import/openlp.rs
+msgid "the lyrics have too many verses (more than {max})"
+msgstr "歌詞の節が多すぎます（{max} 個超）"
+
+#: src/import/openlp.rs src/import/propresenter.rs
+msgid "the lyrics are too long to be a song"
+msgstr "歌詞が長すぎて曲ではありません"
+
+#: src/import/openlp.rs
+msgid "the lyrics have no verses"
+msgstr "歌詞に節がありません"
+
+#: src/import/openlp.rs
+msgid "a temporary copy OpenLP keeps for a service file"
+msgstr "OpenLP が礼拝ファイル用に保持する一時コピー"
+
+#: src/import/openlp.rs
+msgid "This file isn't an OpenLP song database (songs.sqlite)."
+msgstr "このファイルは OpenLP の曲データベース (songs.sqlite) ではありません。"
+
+#: src/import/openlp.rs
+msgid "Couldn't open the OpenLP database."
+msgstr "OpenLP のデータベースを開けませんでした。"
+
+#: src/import/openlp.rs
+msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+msgstr "ここに OpenLP の songs.sqlite が見つかりません。OpenLP のデータフォルダーを選んでください（通常 Windows では %APPDATA%\\openlp\\data、macOS では ~/Library/Application Support/openlp/Data、Linux では ~/.local/share/openlp）。"
+
+#: src/import/openlp.rs
+msgid "Couldn't read the OpenLP database: {error}"
+msgstr "OpenLP のデータベースを読み込めませんでした: {error}"
+
+#: src/import/openlp.rs
+msgid "This isn't an OpenLP song database: it has no songs table."
+msgstr "OpenLP の曲データベースではありません: songs テーブルがありません。"
+
+#: src/import/openlyrics.rs
+msgid "it isn't valid XML ({error})"
+msgstr "有効な XML ではありません ({error})"
+
+#: src/import/openlyrics.rs
+msgid "too many verses to be a song"
+msgstr "節が多すぎて曲ではありません"
+
+#: src/import/openlyrics.rs
+msgid "it is an OpenSong song, not OpenLyrics"
+msgstr "OpenLyrics ではなく OpenSong の曲です"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics song"
+msgstr "OpenLyrics の曲ではありません"
+
+#: src/import/openlyrics.rs
+msgid "not XML"
+msgstr "XML ではありません"
+
+#: src/import/openlyrics.rs
+msgid "it isn't an OpenLyrics or OpenSong song"
+msgstr "OpenLyrics または OpenSong の曲ではありません"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "no song in it"
+msgstr "曲が含まれていません"
+
+#: src/import/openlyrics.rs src/import/propresenter.rs
+msgid "No song could be read from {path}: {why}."
+msgstr "{path} から曲を読み込めませんでした: {why}。"
+
+#: src/import/openlyrics.rs
+msgid "No OpenLyrics or OpenSong songs were found in {path}."
+msgstr "{path} に OpenLyrics または OpenSong の曲が見つかりませんでした。"
+
+#: src/import/opensong.rs
+msgid "the lyrics have too many sections to be a song"
+msgstr "歌詞のセクションが多すぎて曲ではありません"
+
+#: src/import/opensong.rs
+msgid "it is an OpenLyrics song, not OpenSong"
+msgstr "OpenSong ではなく OpenLyrics の曲です"
+
+#: src/import/opensong.rs
+msgid "it isn't an OpenSong song"
+msgstr "OpenSong の曲ではありません"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
+msgstr "ProPresenter 7 のファイルにはまだ対応していません。テキストまたは ProPresenter 6 形式でエクスポートしてください"
+
+#: src/import/propresenter.rs
+msgid "ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside"
+msgstr "ProPresenter 6 のバンドル (.pro6x) にはまだ対応していません。.zip に名前を変更して展開し、中の .pro6 ファイルを取り込んでください"
+
+#: src/import/propresenter.rs
+msgid "the song has too many groups (more than {max})"
+msgstr "曲のグループが多すぎます（{max} 個超）"
+
+#: src/import/propresenter.rs
+msgid "the song has too many slides (more than {max})"
+msgstr "曲のスライドが多すぎます（{max} 枚超）"
+
+#: src/import/propresenter.rs
+msgid "the song has no words on its slides"
+msgstr "曲のスライドに歌詞がありません"
+
+#: src/import/propresenter.rs
+msgid "it is a ProPresenter playlist, not a song"
+msgstr "曲ではなく ProPresenter のプレイリストです"
+
+#: src/import/propresenter.rs
+msgid "it isn't a ProPresenter 6 song"
+msgstr "ProPresenter 6 の曲ではありません"
+
+#: src/import/propresenter.rs
+msgid "No ProPresenter songs were found in {path}."
+msgstr "{path} に ProPresenter の曲が見つかりませんでした。"
+
+#: src/live.rs
+msgid "That item is not in the service."
+msgstr "その項目は礼拝にありません。"
+
+#: src/live.rs
+msgid "That item has nothing to show."
+msgstr "その項目には表示するものがありません。"
+
+#: src/live.rs
+msgid "That item has no slides."
+msgstr "その項目にはスライドがありません。"
+
+#: src/live.rs
+msgid "That video is no longer playing."
+msgstr "その動画はもう再生されていません。"
+
+#: src/live.rs
+msgid "That audio is no longer playing."
+msgstr "その音声はもう再生されていません。"
+
+#: src/live.rs
+msgid "That video or audio is no longer playing."
+msgstr "その動画または音声はもう再生されていません。"
+
+#: src/live.rs src/strings/song.rs
+msgid "Nothing is live yet."
+msgstr "まだ何も画面に表示されていません。"
+
+#: src/live.rs src/strings/operator.rs
+msgid "Start of service"
+msgstr "礼拝の始まり"
+
+#: src/live.rs
+msgid "Could not show that: {reason}"
+msgstr "表示できませんでした: {reason}"
+
+#: src/live.rs
+msgid "Playback stopped: {reason}"
+msgstr "再生が停止しました: {reason}"
+
+#: src/live.rs src/ui/room.rs
+msgid "the file could not be played"
+msgstr "ファイルを再生できませんでした"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its log: {reason}"
+msgstr "RustyPresenter はログを開けませんでした: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not start: {reason}"
+msgstr "RustyPresenter を起動できませんでした: {reason}"
+
+#: src/main.rs
+msgid "The language chosen in Settings is not in this version, so RustyPresenter is in English."
+msgstr "設定で選んだ言語はこのバージョンにないため、RustyPresenter は英語で表示されます。"
+
+#: src/main.rs
+msgid "RustyPresenter could not open its window: {reason}"
+msgstr "RustyPresenter はウィンドウを開けませんでした: {reason}"
+
+#: src/main.rs
+msgid "RustyPresenter could not run its windows: {reason}"
+msgstr "RustyPresenter はウィンドウを実行できませんでした: {reason}"
+
+#: src/model.rs
+msgid "Sunday Service"
+msgstr "主日礼拝"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens are not running."
+msgstr "画面が動作していません。"
+
+#: src/platform/instance.rs src/ui/screens.rs
+msgid "The screens did not answer in time."
+msgstr "画面が時間内に応答しませんでした。"
+
+#: src/platform/instance.rs
+msgid "Port {port} is in use by another program, so RustyPresenter cannot start."
+msgstr "ポート {port} が別のプログラムで使用中のため、RustyPresenter を起動できません。"
+
+#: src/platform/monitors.rs src/ui/screens.rs
+msgid "That screen is not connected right now."
+msgstr "その画面は現在接続されていません。"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem."
+msgstr "問題が発生したため RustyPresenter を再起動しました。"
+
+#: src/recovery/restore.rs
+msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
+msgstr "問題が発生したため RustyPresenter を再起動しました。動画/音声は停止しました — もう一度クリックすると再生します。"
+
+#: src/recovery/supervisor.rs
+msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
+msgstr "RustyPresenter は1分間に3回クラッシュしたため停止しました。ログの場所: {path}"
+
+#: src/scripture/actions.rs
+msgid "Unknown action."
+msgstr "不明な操作です。"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Verse"
+msgstr "バース|Aメロ|ヴァース"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Chorus"
+msgstr "サビ|コーラス"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Pre-chorus"
+msgstr "Bメロ|プレコーラス"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Bridge"
+msgstr "ブリッジ|Cメロ"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Tag"
+msgstr "タグ"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Intro"
+msgstr "イントロ|前奏"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Ending"
+msgstr "エンディング|アウトロ|後奏"
+
+#: src/sections/kind.rs
+msgctxt "song section heading"
+msgid "Interlude"
+msgstr "間奏|インタールード"
+
+#: src/server.rs
+msgid "This page only opens on the presentation computer."
+msgstr "このページはプレゼン用コンピューターでのみ開けます。"
+
+#: src/server.rs
+msgid "Too fast — wait a second and try again."
+msgstr "操作が速すぎます — 少し待ってから再試行してください。"
+
+#: src/server.rs
+msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgstr "ペアリングが開始されていません。コンピューターで「スマホリモコン」→「スマホをペアリング」をクリックしてください。"
+
+#: src/server.rs
+msgid "Too many wrong codes. Start pairing again on the computer."
+msgstr "誤ったコードが多すぎます。コンピューターでペアリングをやり直してください。"
+
+#: src/server.rs
+msgid "That code isn't right."
+msgstr "コードが正しくありません。"
+
+#: src/server.rs
+msgid "Phone {number}"
+msgstr "スマホ {number}"
+
+#: src/server.rs
+msgid "Bad command."
+msgstr "不正なコマンドです。"
+
+#: src/server.rs src/strings/automation.rs
+msgid "Not allowed from the phone."
+msgstr "スマホからは実行できません。"
+
+#: src/server.rs src/strings/add.rs src/strings/print.rs
+msgid "{n} slide"
+msgid_plural "{n} slides"
+msgstr[0] "{n} 枚のスライド"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(slide picture)"
+msgstr "（スライド画像）"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(video)"
+msgstr "（動画）"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(picture)"
+msgstr "（画像）"
+
+#: src/server.rs src/strings/stage.rs
+msgid "(audio)"
+msgstr "（音声）"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing song"
+msgstr "曲が見つかりません"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing media"
+msgstr "メディアが見つかりません"
+
+#: src/slides.rs
+msgid "Slide {n}"
+msgstr "スライド {n}"
+
+#: src/slides.rs src/strings/print.rs
+msgid "Missing slides"
+msgstr "スライドが見つかりません"
+
+#: src/songselect.rs
+msgid "That file is too big to be a lyric file."
+msgstr "ファイルが大きすぎて歌詞ファイルではありません。"
+
+#: src/songselect.rs
+msgid "The lyric file is empty."
+msgstr "歌詞ファイルが空です。"
+
+#: src/songselect.rs
+msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
+msgstr "このファイルには Verse/Chorus の見出しがありません。SongSelect の「Lyrics (.txt)」ダウンロードを使ってください。"
+
+#: src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "このファイルに歌詞が見つかりませんでした。"
+
+#: src/startup.rs
+msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
+msgstr "データを保存するフォルダーが見つかりません。RUSTYPRESENTER_DATA を設定してください。"
+
+#: src/startup.rs
+msgid "Cannot use the data folder {path}: {reason}"
+msgstr "データフォルダー {path} を使用できません: {reason}"
+
+#: src/store.rs
+msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
+msgstr "{path} に保存されたデータを読み込めませんでした ({reason})。何も上書きされていません。バックアップフォルダーから復元するか、ファイルを別の場所に移してください。"
+
+#: src/store.rs
+msgid "Cannot read {path}: {reason}"
+msgstr "{path} を読み込めません: {reason}"
+
+#: src/store.rs
+msgid "Could not save: {reason}"
+msgstr "保存できませんでした: {reason}"
+
+#: src/store.rs
+msgid "Unknown backup."
+msgstr "不明なバックアップです。"
+
+#: src/store.rs
+msgid "That backup is incomplete and cannot be restored."
+msgstr "そのバックアップは不完全なため復元できません。"
+
+#: src/strings/add.rs
+msgid "Nothing matches."
+msgstr "一致するものがありません。"
+
+#: src/strings/add.rs
+msgid "Nothing here yet."
+msgstr "まだ何もありません。"
+
+#: src/strings/add.rs
+msgid "Search {n} song…"
+msgid_plural "Search {n} songs…"
+msgstr[0] "{n} 曲を検索…"
+
+#: src/strings/add.rs
+msgid "Search {n} file…"
+msgid_plural "Search {n} files…"
+msgstr[0] "{n} 個のファイルを検索…"
+
+#: src/strings/add.rs
+msgid "Search slides…"
+msgstr "スライドを検索…"
+
+#: src/strings/add.rs
+msgid "To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it."
+msgstr "PowerPoint や Keynote のファイルを取り込むには、LibreOffice（無料）をインストールしてください。PDF ファイルはなくても使えます。"
+
+#: src/strings/add.rs src/strings/settings.rs
+msgid "Copied"
+msgstr "コピーしました"
+
+#: src/strings/add.rs src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…ほか {n} 件。"
+
+#: src/strings/add.rs
+msgid "Imported {n} song."
+msgid_plural "Imported {n} songs."
+msgstr[0] "{n} 曲を取り込みました。"
+
+#: src/strings/add.rs
+msgid "{n} already in the library: {titles}"
+msgid_plural "{n} already in the library: {titles}"
+msgstr[0] "{n} 曲はすでにライブラリにあります: {titles}"
+
+#: src/strings/add.rs
+msgid "Not imported:"
+msgstr "取り込まれなかったもの:"
+
+#: src/strings/add.rs
+msgid "Reading the EasyWorship library…"
+msgstr "EasyWorship のライブラリを読み込み中…"
+
+#: src/strings/add.rs
+msgid "LibreOffice found!"
+msgstr "LibreOffice が見つかりました！"
+
+#: src/strings/add.rs
+msgid "Not found yet — finish installing, then click Check again."
+msgstr "まだ見つかりません — インストールを完了してから「再確認」をクリックしてください。"
+
+#: src/strings/add.rs
+msgid "{passage} added"
+msgstr "{passage} を追加しました"
+
+#: src/strings/add.rs
+msgid "Give it a title."
+msgstr "タイトルを付けてください。"
+
+#: src/strings/add.rs src/ui/operator/checks.rs
+msgid "Ready"
+msgstr "準備完了"
+
+#: src/strings/add.rs src/strings/item_edit.rs src/strings/operator.rs
+msgid "Failed"
+msgstr "失敗"
+
+#: src/strings/add.rs src/strings/import.rs
+msgid "This file can't be played."
+msgstr "このファイルは再生できません。"
+
+#: src/strings/add.rs
+msgid "Checking the file again…"
+msgstr "ファイルを再確認しています…"
+
+#: src/strings/add.rs
+msgid "Delete from library"
+msgstr "ライブラリから削除"
+
+#: src/strings/add.rs
+msgid "Delete “{name}” from the library?"
+msgstr "「{name}」をライブラリから削除しますか？"
+
+#: src/strings/add.rs
+msgid "The video player is missing — reinstall RustyPresenter"
+msgstr "動画プレーヤーがありません — RustyPresenter を再インストールしてください"
+
+#: src/strings/add.rs src/strings/stage.rs
+msgid "Delete “{name}”?"
+msgstr "「{name}」を削除しますか？"
+
+#: src/strings/add.rs src/strings/dialogs.rs
+msgid "OK"
+msgstr "OK"
+
+#: src/strings/add.rs
+msgid "Song saved"
+msgstr "曲を保存しました"
+
+#: src/strings/add.rs
+msgid "Not in the lyrics: {sections}"
+msgstr "歌詞にありません: {sections}"
+
+#: src/strings/automation.rs src/strings/themes.rs
+msgid "The screen was cleared — try again."
+msgstr "画面がクリアされました — 再試行してください。"
+
+#: src/strings/automation.rs
+msgid "Set a start time for this service first (Services → Starts at)."
+msgstr "先にこの礼拝の開始時刻を設定してください（礼拝 → 開始時刻）。"
+
+#: src/strings/automation.rs
+msgid "The service start time ({time}) has passed."
+msgstr "礼拝の開始時刻 ({time}) を過ぎています。"
+
+#: src/strings/automation.rs
+msgid "That time ({time}) has passed."
+msgstr "その時刻 ({time}) を過ぎています。"
+
+#: src/strings/automation.rs
+msgid "This timer needs a newer RustyPresenter."
+msgstr "このタイマーには新しい RustyPresenter が必要です。"
+
+#: src/strings/automation.rs
+msgid "A countdown to a time can't be paused."
+msgstr "時刻へのカウントダウンは一時停止できません。"
+
+#: src/strings/automation.rs
+msgid "Choose a length from 1 second to 23:59:59."
+msgstr "1秒から 23:59:59 までの長さを選んでください。"
+
+#: src/strings/automation.rs
+msgid "This timer can't be set that way."
+msgstr "このタイマーはその設定にできません。"
+
+#: src/strings/automation.rs
+msgid "Fill in “{field}”."
+msgstr "「{field}」を入力してください。"
+
+#: src/strings/automation.rs
+msgid "That message is too long for the screen (200 letters at most)."
+msgstr "メッセージが長すぎて画面に収まりません（最大200文字）。"
+
+#: src/strings/automation.rs
+msgid "This message has a { without a matching }."
+msgstr "このメッセージには対応する } のない { があります。"
+
+#: src/strings/automation.rs
+msgid "Message showing"
+msgstr "メッセージ表示中"
+
+#: src/strings/automation.rs
+msgid "Practice mode is on — this shows only in your preview. End practice to show it in the room."
+msgstr "練習モード中です — これはプレビューにのみ表示されます。会場に表示するには練習を終了してください。"
+
+#: src/strings/automation.rs
+msgid "Nursery"
+msgstr "託児室"
+
+#: src/strings/automation.rs
+msgid "Parent of child #{Number}, please come to the nursery."
+msgstr "{Number} 番のお子さまの保護者の方、託児室までお越しください。"
+
+#: src/strings/automation.rs
+msgid "Vehicle"
+msgstr "車両"
+
+#: src/strings/automation.rs
+msgid "Vehicle {Plate}: your lights are on."
+msgstr "{Plate} の車のライトが点いたままです。"
+
+#: src/strings/automation.rs
+msgid "Custom"
+msgstr "カスタム"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s item was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} の項目が削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s timer was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} のタイマーが削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} のオーバーレイが削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} の画面ビューが削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s message was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} のメッセージが削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro."
+msgstr "「{name}」を実行できませんでした: ステップ {step} のステージレイアウトが削除されています。マクロを編集してください。"
+
+#: src/strings/automation.rs
+msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
+msgstr "「{name}」を実行できませんでした: ステップ {step} には新しい RustyPresenter が必要です。"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”"
+msgstr "「{name}」を実行しました"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but step {step} didn't work: {reason}"
+msgstr "「{name}」を実行しましたが、ステップ {step} が動作しませんでした: {reason}"
+
+#: src/strings/automation.rs
+msgid "Ran “{name}”, but skipped showing things because the screen was cleared."
+msgstr "「{name}」を実行しましたが、画面がクリアされたため表示はスキップしました。"
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” changes slides, so it didn't run."
+msgstr "「{timer}」がゼロになりましたが、「{macro_name}」はスライドを切り替えるため実行されませんでした。"
+
+#: src/strings/automation.rs
+msgid "“{timer}” reached zero, but “{macro_name}” didn't show anything because the screen was cleared."
+msgstr "「{timer}」がゼロになりましたが、画面がクリアされたため「{macro_name}」は何も表示しませんでした。"
+
+#: src/strings/automation.rs
+msgid "Choose 2 to 600 seconds."
+msgstr "2～600秒を選んでください。"
+
+#: src/strings/automation.rs
+msgid "Start countdown"
+msgstr "カウントダウン開始"
+
+#: src/strings/automation.rs
+msgid "Countdown ended — nothing else changed because the service has started."
+msgstr "カウントダウンが終了しました — 礼拝が始まっているため、ほかは何も変更していません。"
+
+#: src/strings/automation.rs
+msgid "Restart the countdown to use the new time."
+msgstr "新しい時刻を使うにはカウントダウンを再開してください。"
+
+#: src/strings/automation.rs
+msgid "Service start"
+msgstr "礼拝開始"
+
+#: src/strings/automation.rs
+msgid "Sermon"
+msgstr "説教"
+
+#: src/strings/automation.rs
+msgid "Stopwatch"
+msgstr "ストップウォッチ"
+
+#: src/strings/automation.rs
+msgid "Up to 4 timers can be on the screen at once."
+msgstr "画面に同時に表示できるタイマーは4つまでです。"
+
+#: src/strings/automation.rs
+msgid "That timer was deleted."
+msgstr "そのタイマーは削除されました。"
+
+#: src/strings/automation.rs
+msgid "That message was deleted."
+msgstr "そのメッセージは削除されました。"
+
+#: src/strings/automation.rs
+msgid "That macro was deleted."
+msgstr "そのマクロは削除されました。"
+
+#: src/strings/automation.rs
+msgid "Macros run in the app."
+msgstr "マクロはアプリ内で実行されます。"
+
+#: src/strings/automation.rs
+msgid "Too fast — try again."
+msgstr "操作が速すぎます — 再試行してください。"
+
+#: src/strings/automation.rs
+msgid "Give it a name of 1 to 40 letters."
+msgstr "1～40文字の名前を付けてください。"
+
+#: src/strings/automation.rs
+msgid "You can have up to 50 timers."
+msgstr "タイマーは50個まで作成できます。"
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 messages."
+msgstr "メッセージは100個まで作成できます。"
+
+#: src/strings/automation.rs
+msgid "You can have up to 100 macros."
+msgstr "マクロは100個まで作成できます。"
+
+#: src/strings/automation.rs
+msgid "A macro can have up to 30 steps."
+msgstr "1つのマクロに設定できるステップは30個までです。"
+
+#: src/strings/automation.rs
+msgid "That macro was deleted. Pick another one."
+msgstr "そのマクロは削除されました。別のものを選んでください。"
+
+#: src/strings/automation.rs
+msgid "A timer can only run a macro that shows or hides things (timers, messages, overlays)."
+msgstr "タイマーが実行できるのは、表示・非表示を切り替えるマクロ（タイマー、メッセージ、オーバーレイ）のみです。"
+
+#: src/strings/automation.rs
+msgid "“{name}” is used by {n} macro. Delete it anyway? Those steps will stop working."
+msgid_plural "“{name}” is used by {n} macros. Delete it anyway? Those steps will stop working."
+msgstr[0] "「{name}」は {n} 個のマクロで使われています。それでも削除しますか？それらのステップは動作しなくなります。"
+
+#: src/strings/automation.rs
+msgid "“{name}” runs when {n} timer reaches zero. Delete it anyway? Those timers will do nothing at zero."
+msgid_plural "“{name}” runs when {n} timers reach zero. Delete it anyway? Those timers will do nothing at zero."
+msgstr[0] "「{name}」は {n} 個のタイマーがゼロになると実行されます。それでも削除しますか？それらのタイマーはゼロになっても何もしなくなります。"
+
+#: src/strings/automation.rs
+msgid "The stage layout can't follow the slides yet."
+msgstr "ステージレイアウトはまだスライドに追従できません。"
+
+#: src/strings/automation.rs
+msgid "Screen views aren't available yet."
+msgstr "画面ビューはまだ利用できません。"
+
+#: src/strings/bundle.rs
+msgid "That is not a RustyPresenter service file."
+msgstr "RustyPresenter の礼拝ファイルではありません。"
+
+#: src/strings/bundle.rs
+msgid "That service file was made by a newer version of RustyPresenter."
+msgstr "その礼拝ファイルは新しいバージョンの RustyPresenter で作成されています。"
+
+#: src/strings/bundle.rs
+msgid "That service file is damaged, so nothing was added."
+msgstr "その礼拝ファイルは破損しているため、何も追加されませんでした。"
+
+#: src/strings/bundle.rs
+msgid "Saving the service…"
+msgstr "礼拝を保存しています…"
+
+#: src/strings/bundle.rs
+msgid "Opening the service file…"
+msgstr "礼拝ファイルを開いています…"
+
+#: src/strings/bundle.rs
+msgid "A song in this service is no longer in the library."
+msgstr "この礼拝の曲がライブラリにありません。"
+
+#: src/strings/bundle.rs
+msgid "A video, picture or sound in this service is no longer in the library."
+msgstr "この礼拝の動画、画像、または音声がライブラリにありません。"
+
+#: src/strings/bundle.rs
+msgid "A set of slides in this service is no longer in the library."
+msgstr "この礼拝のスライドセットがライブラリにありません。"
+
+#: src/strings/bundle.rs
+msgid "A background in this service is missing its file."
+msgstr "この礼拝の背景のファイルがありません。"
+
+#: src/strings/bundle.rs
+msgid "{name} is missing its file."
+msgstr "{name} のファイルがありません。"
+
+#: src/strings/bundle.rs
+msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
+msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
+msgstr[0] "この礼拝はこのコンピューターにないフォントで作成されたため、文字が別のフォントで表示されています: {fonts}。作成時の見た目で表示するにはフォントをインストールしてください。"
+
+#: src/strings/bundle.rs
+msgid "Saved “{name}” to a file."
+msgstr "「{name}」をファイルに保存しました。"
+
+#: src/strings/bundle.rs
+msgid "This service was not saved, because something it needs is missing:"
+msgstr "必要なものが見つからないため、この礼拝は保存されませんでした:"
+
+#: src/strings/bundle.rs
+msgid "Opened “{name}”."
+msgstr "「{name}」を開きました。"
+
+#: src/strings/bundle.rs
+msgid "{n} song"
+msgid_plural "{n} songs"
+msgstr[0] "{n} 曲"
+
+#: src/strings/bundle.rs
+msgid "{n} media file"
+msgid_plural "{n} media files"
+msgstr[0] "{n} 個のメディアファイル"
+
+#: src/strings/bundle.rs
+msgid "{n} set of slides"
+msgid_plural "{n} sets of slides"
+msgstr[0] "{n} 個のスライドセット"
+
+#: src/strings/bundle.rs
+msgid "New in the library: {things}."
+msgstr "ライブラリに追加: {things}。"
+
+#: src/strings/bundle.rs
+msgid "These differ from the songs already here, so the service uses a second copy: {titles}"
+msgstr "既存の曲と内容が異なるため、礼拝では2つ目のコピーを使います: {titles}"
+
+#: src/strings/catalog.rs
+msgid "You're offline. Bibles you've added still work."
+msgstr "オフラインです。追加済みの聖書は引き続き使えます。"
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be read. Try again later."
+msgstr "聖書の一覧を読み込めませんでした。後でもう一度お試しください。"
+
+#: src/strings/catalog.rs
+msgid "The list of Bibles couldn't be saved on this computer."
+msgstr "聖書の一覧をこのコンピューターに保存できませんでした。"
+
+#: src/strings/catalog.rs
+msgid "Licence checked on download"
+msgstr "ダウンロード時にライセンスを確認"
+
+#: src/strings/catalog.rs
+msgid "Full Bible"
+msgstr "聖書全巻"
+
+#: src/strings/catalog.rs
+msgid "Portions"
+msgstr "一部"
+
+#: src/strings/catalog.rs
+msgid "Includes Apocrypha"
+msgstr "外典を含む"
+
+#: src/strings/catalog.rs
+msgid "Downloading {name}…"
+msgstr "{name} をダウンロード中…"
+
+#: src/strings/catalog.rs
+msgid "Waiting to download {name}…"
+msgstr "{name} のダウンロード待ち…"
+
+#: src/strings/catalog.rs
+msgid "Checking {name}…"
+msgstr "{name} を確認中…"
+
+#: src/strings/catalog.rs
+msgid "Couldn't download {name}. Check the internet and try again."
+msgstr "{name} をダウンロードできませんでした。インターネット接続を確認して再試行してください。"
+
+#: src/strings/catalog.rs
+msgid "This Bible's licence doesn't allow us to keep it. It has been removed."
+msgstr "この聖書のライセンスでは保存が認められていないため、削除されました。"
+
+#: src/strings/catalog.rs
+msgid "The update for {name} couldn't be used. The copy you have still works."
+msgstr "{name} の更新を使用できませんでした。現在のコピーは引き続き使えます。"
+
+#: src/strings/catalog.rs
+msgid "This Bible is larger than expected, so it wasn't added."
+msgstr "この聖書は想定より大きいため、追加されませんでした。"
+
+#: src/strings/catalog.rs
+msgid "Not enough disk space for this Bible (needs about {n} MB)."
+msgstr "この聖書に必要なディスク容量が足りません（約 {n} MB 必要）。"
+
+#: src/strings/catalog.rs
+msgid "{name} couldn't be used, so it wasn't added."
+msgstr "{name} を使用できなかったため、追加されませんでした。"
+
+#: src/strings/catalog.rs
+msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgstr "その聖書は一覧にありません。「設定 → 聖書」をもう一度開いて最新の一覧を確認してください。"
+
+#: src/strings/catalog.rs
+msgid "You're offline, so Bibles can't be added right now."
+msgstr "オフラインのため、今は聖書を追加できません。"
+
+#: src/strings/catalog.rs
+msgid "Loading the list of Bibles…"
+msgstr "聖書の一覧を読み込み中…"
+
+#: src/strings/catalog.rs
+msgid "No Bibles match. Try fewer words, or All."
+msgstr "一致する聖書がありません。語句を減らすか、「すべて」を選んでください。"
+
+#: src/strings/catalog.rs
+msgid "No Bibles added yet. Choose All to see the Bibles you can add."
+msgstr "まだ聖書が追加されていません。「すべて」を選ぶと追加できる聖書が表示されます。"
+
+#: src/strings/catalog.rs
+msgid "Offline"
+msgstr "オフライン"
+
+#: src/strings/catalog.rs
+msgid "Update"
+msgstr "更新"
+
+#: src/strings/catalog.rs
+msgid "Added"
+msgstr "追加済み"
+
+#: src/strings/catalog.rs src/strings/settings.rs
+msgid "Your computer may not have a font for this language."
+msgstr "お使いのコンピューターにはこの言語のフォントがない可能性があります。"
+
+#: src/strings/catalog.rs
+msgid "Waiting"
+msgstr "待機中"
+
+#: src/strings/catalog.rs
+msgid "A newer edition is ready"
+msgstr "新しい版があります"
+
+#: src/strings/catalog.rs
+msgid "Default Bible changed"
+msgstr "既定の聖書を変更しました"
+
+#: src/strings/catalog.rs
+msgid "You can show up to two more Bibles. Turn one off first."
+msgstr "併記できる聖書は2つまでです。先に1つをオフにしてください。"
+
+#: src/strings/catalog.rs
+msgid "{name} — downloaded from eBible.org"
+msgstr "{name} — eBible.org からダウンロード"
+
+#: src/strings/catalog.rs
+msgid "Showing {shown} of {total} Bibles. Search to find others."
+msgstr "{total} 件中 {shown} 件の聖書を表示中。ほかの聖書は検索してください。"
+
+#: src/strings/catalog.rs
+msgid "Downloading… {percent}%"
+msgstr "ダウンロード中… {percent}%"
+
+#: src/strings/catalog.rs
+msgid "Added {bible}"
+msgstr "{bible} を追加しました"
+
+#: src/strings/catalog.rs
+msgid "Removed {bible}"
+msgstr "{bible} を削除しました"
+
+#: src/strings/catalog.rs
+msgid "Also on {sources}"
+msgstr "{sources} でも提供"
+
+#: src/strings/dialogs.rs
+msgid "Services"
+msgstr "礼拝"
+
+#: src/strings/dialogs.rs
+msgid "Screen Configuration"
+msgstr "画面構成"
+
+#: src/strings/import.rs
+msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
+msgstr "このプレゼンテーションにはパスワードがあります。PowerPoint で開いてパスワードを解除し（ファイル → 情報 → 保護）、保存してから再度取り込んでください。"
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PowerPoint file."
+msgstr "PowerPoint ファイルではないようです。"
+
+#: src/strings/import.rs
+msgid "LibreOffice took too long and was stopped. Try again; the first import after starting the computer is slower."
+msgstr "LibreOffice の処理に時間がかかりすぎたため停止しました。再試行してください。コンピューター起動後の最初の取り込みは遅くなります。"
+
+#: src/strings/import.rs
+msgid "LibreOffice couldn't read this presentation."
+msgstr "LibreOffice がこのプレゼンテーションを読み込めませんでした。"
+
+#: src/strings/import.rs
+msgid "LibreOffice from Snap can't read RustyPresenter's files. Install LibreOffice from your distribution instead (sudo apt install libreoffice-impress)."
+msgstr "Snap 版の LibreOffice は RustyPresenter のファイルを読み込めません。ディストリビューションの LibreOffice をインストールしてください (sudo apt install libreoffice-impress)。"
+
+#: src/strings/import.rs
+msgid "LibreOffice could not be started. Reinstall it and try again."
+msgstr "LibreOffice を起動できませんでした。再インストールしてから再試行してください。"
+
+#: src/strings/import.rs
+msgid "PowerPoint took too long and was stopped. Try again."
+msgstr "PowerPoint の処理に時間がかかりすぎたため停止しました。再試行してください。"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open this presentation."
+msgstr "PowerPoint がこのプレゼンテーションを開けませんでした。"
+
+#: src/strings/import.rs
+msgid "PowerPoint could not be started."
+msgstr "PowerPoint を起動できませんでした。"
+
+#: src/strings/import.rs
+msgid "This doesn't look like a PDF file."
+msgstr "PDF ファイルではないようです。"
+
+#: src/strings/import.rs
+msgid "This file took too long to open."
+msgstr "このファイルを開くのに時間がかかりすぎました。"
+
+#: src/strings/import.rs
+msgid "This picture can't be opened. Save it as PNG or JPEG and try again."
+msgstr "この画像を開けません。PNG または JPEG で保存して再試行してください。"
+
+#: src/strings/import.rs
+msgid "This presentation has no slides."
+msgstr "このプレゼンテーションにはスライドがありません。"
+
+#: src/strings/import.rs
+msgid "This presentation mixes slide sizes, which RustyPresenter can't show."
+msgstr "このプレゼンテーションはスライドサイズが混在しているため、RustyPresenter では表示できません。"
+
+#: src/strings/import.rs
+msgid "The slide converter (pdfium) is missing. Reinstall RustyPresenter."
+msgstr "スライド変換ツール (pdfium) がありません。RustyPresenter を再インストールしてください。"
+
+#: src/strings/import.rs
+msgid "The slide converter stopped responding. Restart RustyPresenter and try again."
+msgstr "スライド変換ツールが応答しなくなりました。RustyPresenter を再起動して再試行してください。"
+
+#: src/strings/import.rs
+msgid "Slide {page} could not be turned into a picture."
+msgstr "スライド {page} を画像に変換できませんでした。"
+
+#: src/strings/import.rs
+msgid "This PDF can't be opened. If it has a password, remove it and import again."
+msgstr "この PDF を開けません。パスワードがある場合は解除してから再度取り込んでください。"
+
+#: src/strings/import.rs
+msgid "A slide could not be saved. Check that the disk has free space, then try again."
+msgstr "スライドを保存できませんでした。ディスクの空き容量を確認して再試行してください。"
+
+#: src/strings/import.rs
+msgid "Waiting for another file…"
+msgstr "別のファイルを待っています…"
+
+#: src/strings/import.rs
+msgid "Adding “{name}”"
+msgstr "「{name}」を追加中"
+
+#: src/strings/import.rs
+msgid "Importing “{name}”"
+msgstr "「{name}」を取り込み中"
+
+#: src/strings/import.rs
+msgid "Save the Keynote file as a single file and import again."
+msgstr "Keynote ファイルを単一ファイルとして保存し、再度取り込んでください。"
+
+#: src/strings/import.rs
+msgid "Waiting for LibreOffice…"
+msgstr "LibreOffice を待っています…"
+
+#: src/strings/import.rs
+msgid "Waiting for PowerPoint…"
+msgstr "PowerPoint を待っています…"
+
+#: src/strings/import.rs
+msgid "PowerPoint couldn't open it; used LibreOffice."
+msgstr "PowerPoint で開けなかったため、LibreOffice を使用しました。"
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides."
+msgstr "LibreOffice で取り込みました — スライドを確認してください。"
+
+#: src/strings/import.rs
+msgid "{expected} slides were expected but {imported} were imported."
+msgstr "{expected} 枚のスライドが想定されましたが、取り込まれたのは {imported} 枚です。"
+
+#: src/strings/import.rs
+msgid "Imported with LibreOffice — check the slides. {expected} slides were expected but {imported} were imported."
+msgstr "LibreOffice で取り込みました — スライドを確認してください。{expected} 枚のスライドが想定されましたが、取り込まれたのは {imported} 枚です。"
+
+#: src/strings/import.rs
+msgid "To import presentations, install LibreOffice. {hint}"
+msgstr "プレゼンテーションを取り込むには LibreOffice をインストールしてください。{hint}"
+
+#: src/strings/item_edit.rs
+msgid "Saved"
+msgstr "保存しました"
+
+#: src/strings/item_edit.rs
+msgid "Theme default"
+msgstr "テーマの既定"
+
+#: src/strings/item_edit.rs
+msgid "+ Upload…"
+msgstr "+ アップロード…"
+
+#: src/strings/item_edit.rs
+msgid "Added to the media library — pick it here"
+msgstr "メディアライブラリに追加しました — ここで選んでください"
+
+#: src/strings/operator.rs
+msgid "{kind} · can't be played"
+msgstr "{kind} · 再生できません"
+
+#: src/strings/operator.rs
+msgid " · loops"
+msgstr " · ループ"
+
+#: src/strings/operator.rs
+msgid "{kind} · The video player is missing — reinstall RustyPresenter"
+msgstr "{kind} · 動画プレーヤーがありません — RustyPresenter を再インストールしてください"
+
+#: src/strings/operator.rs
+msgid "{kind} · {n} slide"
+msgid_plural "{kind} · {n} slides"
+msgstr[0] "{kind} · {n} 枚のスライド"
+
+#: src/strings/operator.rs src/strings/services.rs src/strings/themes.rs
+msgid "{n} item"
+msgid_plural "{n} items"
+msgstr[0] "{n} 項目"
+
+#: src/strings/operator.rs
+msgid "{n} phone"
+msgid_plural "{n} phones"
+msgstr[0] "{n} 台のスマホ"
+
+#: src/strings/operator.rs
+msgid "Clear"
+msgstr "クリア"
+
+#: src/strings/operator.rs
+msgid "Slide picture"
+msgstr "スライド画像"
+
+#: src/strings/operator.rs
+msgid "The text is already as big as fits. Pick fewer verses per slide (Edit) to make it bigger."
+msgstr "文字はすでに最大サイズです。大きくするには、スライドごとの節数を減らしてください（編集）。"
+
+#: src/strings/operator.rs
+msgid "Pick an item on the left"
+msgstr "左から項目を選んでください"
+
+#: src/strings/operator.rs
+msgid "Welcome"
+msgstr "ようこそ"
+
+#: src/strings/operator.rs
+msgid "Something went wrong."
+msgstr "問題が発生しました。"
+
+#: src/strings/operator.rs
+msgid "Room screen is showing"
+msgstr "会場画面を表示中"
+
+#: src/strings/operator.rs
+msgid "Room screen is starting…"
+msgstr "会場画面を起動中…"
+
+#: src/strings/operator.rs
+msgid "Room screen is not open — click Screens"
+msgstr "会場画面が開いていません — 「画面」をクリックしてください"
+
+#: src/strings/operator.rs
+msgid "Could not open the operator window: {error}"
+msgstr "操作ウィンドウを開けませんでした: {error}"
+
+#: src/strings/operator.rs
+msgid "Make {n} pictures into one set of slides?"
+msgid_plural "Make {n} pictures into one set of slides?"
+msgstr[0] "{n} 枚の画像を1つのスライドセットにしますか？"
+
+#: src/strings/operator.rs
+msgid "One slide set"
+msgstr "1つのスライドセット"
+
+#: src/strings/operator.rs
+msgid "Separate pictures"
+msgstr "個別の画像"
+
+#: src/strings/operator.rs
+msgid "Videos, pictures and music"
+msgstr "動画、画像、音楽"
+
+#: src/strings/operator.rs
+msgid "Presentations"
+msgstr "プレゼンテーション"
+
+#: src/strings/operator.rs
+msgid "SongSelect lyric files"
+msgstr "SongSelect の歌詞ファイル"
+
+#: src/strings/operator.rs
+msgid "Pictures and videos"
+msgstr "画像と動画"
+
+#: src/strings/operator.rs
+msgid "Service files"
+msgstr "礼拝ファイル"
+
+#: src/strings/operator.rs src/strings/scripture.rs
+msgid "{passage} added — press Enter to show it"
+msgstr "{passage} を追加しました — Enter を押すと表示します"
+
+#: src/strings/operator.rs
+msgid "Added to the service"
+msgstr "礼拝に追加しました"
+
+#: src/strings/operator.rs
+msgid "Uploading {name}"
+msgstr "{name} をアップロード中"
+
+#: src/strings/operator.rs
+msgid "Uploading {n} picture"
+msgid_plural "Uploading {n} pictures"
+msgstr[0] "{n} 枚の画像をアップロード中"
+
+#: src/strings/operator.rs
+msgid "{name} added"
+msgstr "{name} を追加しました"
+
+#: src/strings/operator.rs
+msgid "Imported “{title}”"
+msgstr "「{title}」を取り込みました"
+
+#: src/strings/operator.rs
+msgid "“{title}” is already in the library."
+msgstr "「{title}」はすでにライブラリにあります。"
+
+#: src/strings/operator.rs
+msgid "Updated “{title}”"
+msgstr "「{title}」を更新しました"
+
+#: src/strings/operator.rs
+msgid "Update existing"
+msgstr "既存のものを更新"
+
+#: src/strings/operator.rs
+msgid "Keep both"
+msgstr "両方残す"
+
+#: src/strings/operator.rs
+msgid "“{title}” is ready"
+msgstr "「{title}」の準備ができました"
+
+#: src/strings/operator.rs
+msgid "Name these slides"
+msgstr "このスライドに名前を付ける"
+
+#: src/strings/operator.rs
+msgid "Message for the stage screen. Leave it empty to take it down."
+msgstr "ステージ画面用のメッセージ。空欄にすると表示を取り下げます。"
+
+#: src/strings/operator.rs
+msgid "Favourites"
+msgstr "お気に入り"
+
+#: src/strings/operator.rs
+msgid "Recent"
+msgstr "最近使用"
+
+#: src/strings/operator.rs
+msgid "Other Bibles"
+msgstr "その他の聖書"
+
+#: src/strings/operator.rs
+msgid "imported"
+msgstr "取り込み済み"
+
+#: src/strings/operator.rs
+msgid "No Bible you have matches. Find more Bibles below."
+msgstr "一致する聖書がありません。下でほかの聖書を探してください。"
+
+#: src/strings/operator.rs
+msgid "{bible} added to favourites"
+msgstr "{bible} をお気に入りに追加しました"
+
+#: src/strings/operator.rs
+msgid "{bible} removed from favourites"
+msgstr "{bible} をお気に入りから削除しました"
+
+#: src/strings/operator.rs
+msgid "All media"
+msgstr "すべてのメディア"
+
+#: src/strings/operator.rs
+msgid "Converting {percent}%"
+msgstr "変換中 {percent}%"
+
+#: src/strings/operator.rs
+msgid "Click a thumbnail to choose it."
+msgstr "サムネイルをクリックして選びます。"
+
+#: src/strings/operator.rs
+msgid "Double-click a thumbnail to use it as the selected item’s background."
+msgstr "サムネイルをダブルクリックすると、選択した項目の背景として使います。"
+
+#: src/strings/operator.rs
+msgid "Add it to the service to play it."
+msgstr "再生するには礼拝に追加してください。"
+
+#: src/strings/operator.rs
+msgid "This file isn’t ready to play yet."
+msgstr "このファイルはまだ再生の準備ができていません。"
+
+#: src/strings/operator.rs
+msgid "Pick a service item first, then choose its background."
+msgstr "先に礼拝の項目を選んでから、背景を選んでください。"
+
+#: src/strings/operator.rs
+msgid "Background set to {name}"
+msgstr "背景を {name} に設定しました"
+
+#: src/strings/operator.rs
+msgid "Folder name (leave empty for none)"
+msgstr "フォルダー名（なしの場合は空欄）"
+
+#: src/strings/operator.rs
+msgid "Name for the new folder"
+msgstr "新しいフォルダーの名前"
+
+#: src/strings/operator.rs
+msgid "Delete the folder “{name}”? Its files stay in the library."
+msgstr "フォルダー「{name}」を削除しますか？中のファイルはライブラリに残ります。"
+
+#: src/strings/phone.rs
+msgid "Code works for {n} more seconds"
+msgid_plural "Code works for {n} more seconds"
+msgstr[0] "コードの有効期限: あと {n} 秒"
+
+#: src/strings/phone.rs
+msgid "Code expired — click Pair a phone again."
+msgstr "コードの有効期限が切れました — もう一度「スマホをペアリング」をクリックしてください。"
+
+#: src/strings/planning.rs
+msgid "No date"
+msgstr "日付なし"
+
+#: src/strings/planning.rs
+msgid "Mon"
+msgstr "月"
+
+#: src/strings/planning.rs
+msgid "Tue"
+msgstr "火"
+
+#: src/strings/planning.rs
+msgid "Wed"
+msgstr "水"
+
+#: src/strings/planning.rs
+msgid "Thu"
+msgstr "木"
+
+#: src/strings/planning.rs
+msgid "Fri"
+msgstr "金"
+
+#: src/strings/planning.rs
+msgid "Sat"
+msgstr "土"
+
+#: src/strings/planning.rs
+msgid "Sun"
+msgstr "日"
+
+#: src/strings/planning.rs
+msgid "Monday"
+msgstr "月曜日"
+
+#: src/strings/planning.rs
+msgid "Tuesday"
+msgstr "火曜日"
+
+#: src/strings/planning.rs
+msgid "Wednesday"
+msgstr "水曜日"
+
+#: src/strings/planning.rs
+msgid "Thursday"
+msgstr "木曜日"
+
+#: src/strings/planning.rs
+msgid "Friday"
+msgstr "金曜日"
+
+#: src/strings/planning.rs
+msgid "Saturday"
+msgstr "土曜日"
+
+#: src/strings/planning.rs
+msgid "Sunday"
+msgstr "日曜日"
+
+#: src/strings/planning.rs
+msgid "Mondays"
+msgstr "毎週月曜日"
+
+#: src/strings/planning.rs
+msgid "Tuesdays"
+msgstr "毎週火曜日"
+
+#: src/strings/planning.rs
+msgid "Wednesdays"
+msgstr "毎週水曜日"
+
+#: src/strings/planning.rs
+msgid "Thursdays"
+msgstr "毎週木曜日"
+
+#: src/strings/planning.rs
+msgid "Fridays"
+msgstr "毎週金曜日"
+
+#: src/strings/planning.rs
+msgid "Saturdays"
+msgstr "毎週土曜日"
+
+#: src/strings/planning.rs
+msgid "Sundays"
+msgstr "毎週日曜日"
+
+#: src/strings/planning.rs
+msgid "Any day"
+msgstr "曜日指定なし"
+
+#: src/strings/planning.rs
+msgctxt "typed answer: no fixed day"
+msgid "any"
+msgstr "指定なし"
+
+#: src/strings/planning.rs
+msgid "January"
+msgstr "1月"
+
+#: src/strings/planning.rs
+msgid "February"
+msgstr "2月"
+
+#: src/strings/planning.rs
+msgid "March"
+msgstr "3月"
+
+#: src/strings/planning.rs
+msgid "April"
+msgstr "4月"
+
+#: src/strings/planning.rs
+msgid "May"
+msgstr "5月"
+
+#: src/strings/planning.rs
+msgid "June"
+msgstr "6月"
+
+#: src/strings/planning.rs
+msgid "July"
+msgstr "7月"
+
+#: src/strings/planning.rs
+msgid "August"
+msgstr "8月"
+
+#: src/strings/planning.rs
+msgid "September"
+msgstr "9月"
+
+#: src/strings/planning.rs
+msgid "October"
+msgstr "10月"
+
+#: src/strings/planning.rs
+msgid "November"
+msgstr "11月"
+
+#: src/strings/planning.rs
+msgid "December"
+msgstr "12月"
+
+#: src/strings/planning.rs
+msgid "Bible reading"
+msgstr "聖書朗読"
+
+#: src/strings/planning.rs
+msgid "Something"
+msgstr "何か"
+
+#: src/strings/planning.rs
+msgid "Blank"
+msgstr "空欄"
+
+#: src/strings/planning.rs
+msgid "{label} (blank)"
+msgstr "{label}（空欄）"
+
+#: src/strings/planning.rs
+msgid "Click Choose to fill this in"
+msgstr "「選択」をクリックして入力"
+
+#: src/strings/planning.rs
+msgid "This is a blank — choose what goes here first."
+msgstr "これは空欄です — 先にここに入れるものを選んでください。"
+
+#: src/strings/planning.rs
+msgid "Fill in: {label}"
+msgstr "入力: {label}"
+
+#: src/strings/planning.rs
+msgid "There is no service to copy."
+msgstr "コピーする礼拝がありません。"
+
+#: src/strings/planning.rs
+msgid "That template is gone."
+msgstr "そのテンプレートはもうありません。"
+
+#: src/strings/planning.rs
+msgid "That date isn't valid."
+msgstr "その日付は無効です。"
+
+#: src/strings/planning.rs
+msgid "That blank is gone."
+msgstr "その空欄はもうありません。"
+
+#: src/strings/planning.rs
+msgid "That item is not a blank any more."
+msgstr "その項目はもう空欄ではありません。"
+
+#: src/strings/planning.rs
+msgid "A template needs a name."
+msgstr "テンプレートには名前が必要です。"
+
+#: src/strings/planning.rs
+msgid "A template needs at least one part."
+msgstr "テンプレートには少なくとも1つのパートが必要です。"
+
+#: src/strings/planning.rs
+msgid "This is in the template “{name}”. Remove it from the template first."
+msgstr "これはテンプレート「{name}」で使われています。先にテンプレートから削除してください。"
+
+#: src/strings/planning.rs
+msgid "{n} blank"
+msgid_plural "{n} blanks"
+msgstr[0] "空欄 {n} 個"
+
+#: src/strings/planning.rs
+msgid "Show {n} older service"
+msgid_plural "Show {n} older services"
+msgstr[0] "以前の礼拝を {n} 件表示"
+
+#: src/strings/planning.rs
+msgid "{n} part, {blanks}"
+msgid_plural "{n} parts, {blanks}"
+msgstr[0] "{n} パート、{blanks}"
+
+#: src/strings/planning.rs
+msgid "No templates yet. Use “Save as template” on a service to make one."
+msgstr "テンプレートはまだありません。礼拝で「テンプレートとして保存」を使うと作成できます。"
+
+#: src/strings/planning.rs
+msgid "Save a service as a template first"
+msgstr "先に礼拝をテンプレートとして保存してください"
+
+#: src/strings/planning.rs
+msgid "Make a service for {date} from “{service}”?"
+msgstr "「{service}」から {date} の礼拝を作成しますか？"
+
+#: src/strings/planning.rs
+msgid "Copy, with blanks for songs and Bible readings"
+msgstr "コピー（曲と聖書朗読は空欄に）"
+
+#: src/strings/planning.rs
+msgid "There is already a service for {date} (“{name}”)."
+msgstr "{date} の礼拝はすでにあります（「{name}」）。"
+
+#: src/strings/planning.rs
+msgid "Open it"
+msgstr "開く"
+
+#: src/strings/planning.rs
+msgid "Make another"
+msgstr "もう1つ作成"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready"
+msgstr "「{name}」の準備ができました"
+
+#: src/strings/planning.rs
+msgid "“{name}” is ready — fill in {blanks}"
+msgstr "「{name}」の準備ができました — {blanks} を入力してください"
+
+#: src/strings/planning.rs
+msgid "Date of the service (leave empty for no date)"
+msgstr "礼拝の日付（日付なしの場合は空欄）"
+
+#: src/strings/planning.rs
+msgid "Date of the service, like {example} (leave empty for no date)"
+msgstr "礼拝の日付、例: {example}（日付なしの場合は空欄）"
+
+#: src/strings/planning.rs
+msgid "Name for the template"
+msgstr "テンプレートの名前"
+
+#: src/strings/planning.rs
+msgid "Template “{name}” saved"
+msgstr "テンプレート「{name}」を保存しました"
+
+#: src/strings/planning.rs
+msgid "Rename template"
+msgstr "テンプレート名を変更"
+
+#: src/strings/planning.rs
+msgid "Delete the template “{name}”? (Services made from it stay.)"
+msgstr "テンプレート「{name}」を削除しますか？（作成済みの礼拝は残ります。）"
+
+#: src/strings/planning.rs
+msgid "Which template?"
+msgstr "どのテンプレートですか？"
+
+#: src/strings/planning.rs src/strings/services.rs
+msgid "Name for the new service"
+msgstr "新しい礼拝の名前"
+
+#: src/strings/planning.rs
+msgid "Which day is the template “{name}” for?"
+msgstr "テンプレート「{name}」は何曜日用ですか？"
+
+#: src/strings/planning.rs
+msgid "Name for the header"
+msgstr "見出しの名前"
+
+#: src/strings/planning.rs
+msgid "Worship"
+msgstr "賛美"
+
+#: src/strings/planning.rs
+msgid "Rename header"
+msgstr "見出し名を変更"
+
+#: src/strings/planning.rs
+msgid "Click “Make a service” on the template you want, under Templates."
+msgstr "「テンプレート」で、使いたいテンプレートの「礼拝を作成」をクリックしてください。"
+
+#: src/strings/planning.rs
+msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr "日曜日のように曜日を入力するか、曜日を指定しない場合は空欄にしてください。"
+
+#: src/strings/preflight.rs
+msgid "All set. Every song, file and screen for this service was found."
+msgstr "準備完了です。この礼拝の曲、ファイル、画面はすべて見つかりました。"
+
+#: src/strings/preflight.rs
+msgid "This service has no items yet."
+msgstr "この礼拝にはまだ項目がありません。"
+
+#: src/strings/preflight.rs
+msgid "No room screen is chosen. Choose one in Screens."
+msgstr "会場画面が選ばれていません。「画面」で選んでください。"
+
+#: src/strings/preflight.rs
+msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgstr "会場画面が接続されていません。ケーブルを確認するか、「画面」で別の画面を選んでください。"
+
+#: src/strings/preflight.rs
+msgid "The stage screen is not connected. The service can run without it."
+msgstr "ステージ画面が接続されていません。なくても礼拝は進行できます。"
+
+#: src/strings/preflight.rs
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgstr "設定で選んだ音声出力が接続されていません。接続するか、「設定 → 動画」で別の出力を選んでください。"
+
+#: src/strings/preflight.rs
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgstr "音声出力が接続されていないため、動画または音声を一時停止しました。接続するか、「設定 → 動画」で別の出力を選んでから再生を押してください。"
+
+#: src/strings/preflight.rs
+msgid "The logo's file is missing. Choose it again in Settings."
+msgstr "ロゴのファイルがありません。設定でもう一度選んでください。"
+
+#: src/strings/preflight.rs
+msgid "The default background's file is missing. Choose it again in Settings."
+msgstr "既定の背景のファイルがありません。設定でもう一度選んでください。"
+
+#: src/strings/preflight.rs
+msgid "the song is no longer in the library"
+msgstr "曲がライブラリにありません"
+
+#: src/strings/preflight.rs
+msgid "the song has no words"
+msgstr "曲に歌詞がありません"
+
+#: src/strings/preflight.rs
+msgid "there is no verse text"
+msgstr "聖句のテキストがありません"
+
+#: src/strings/preflight.rs
+msgid "it is no longer in the library"
+msgstr "ライブラリにありません"
+
+#: src/strings/preflight.rs
+msgid "its file is missing"
+msgstr "ファイルがありません"
+
+#: src/strings/preflight.rs
+msgid "these slides are no longer in the library"
+msgstr "これらのスライドはライブラリにありません"
+
+#: src/strings/preflight.rs
+msgid "its background file is missing"
+msgstr "背景ファイルがありません"
+
+#: src/strings/preflight.rs
+msgid "it can't be played ({reason})"
+msgstr "再生できません ({reason})"
+
+#: src/strings/preflight.rs
+msgid "{missing} of {n} slides are missing"
+msgid_plural "{missing} of {n} slides are missing"
+msgstr[0] "{n} 枚中 {missing} 枚のスライドがありません"
+
+#: src/strings/preflight.rs
+msgid "{number}. {title}: {problem}"
+msgstr "{number}. {title}: {problem}"
+
+#: src/strings/preflight.rs src/ui/operator/checks.rs
+msgid "…and {n} more"
+msgid_plural "…and {n} more"
+msgstr[0] "…ほか {n} 件"
+
+#: src/strings/preflight.rs
+msgid "{n} thing to fix before the service:"
+msgid_plural "{n} things to fix before the service:"
+msgstr[0] "礼拝前に直すべき点が {n} 件あります:"
+
+#: src/strings/preflight.rs
+msgid "{bible} isn't ready offline for {passage}. Open this service once with internet."
+msgstr "{bible} の {passage} はオフラインで使える状態になっていません。インターネット接続時にこの礼拝を一度開いてください。"
+
+#: src/strings/print.rs
+msgid "Order: {sections}"
+msgstr "順序: {sections}"
+
+#: src/strings/print.rs
+msgid "Blank — {label}"
+msgstr "空欄 — {label}"
+
+#: src/strings/print.rs
+msgid "(not chosen yet)"
+msgstr "（未選択）"
+
+#: src/strings/print.rs
+msgid "(no lyrics)"
+msgstr "（歌詞なし）"
+
+#: src/strings/print.rs
+msgid "(the verse text isn't saved with this service)"
+msgstr "（聖句のテキストはこの礼拝に保存されていません）"
+
+#: src/strings/print.rs
+msgid " (loops)"
+msgstr " （ループ）"
+
+#: src/strings/print.rs
+msgid "No songs or Bible readings in this service."
+msgstr "この礼拝には曲も聖書朗読もありません。"
+
+#: src/strings/print.rs
+msgid "This service is empty."
+msgstr "この礼拝は空です。"
+
+#: src/strings/print.rs
+msgid "Printed from RustyPresenter · {date}"
+msgstr "RustyPresenter から印刷 · {date}"
+
+#: src/strings/print.rs
+msgid "Opened in your web browser — use Print there (you can also save as PDF from the print window)"
+msgstr "Web ブラウザーで開きました — そこで印刷してください（印刷画面から PDF として保存することもできます）"
+
+#: src/strings/print.rs
+msgid "Saved {file}"
+msgstr "{file} を保存しました"
+
+#: src/strings/print.rs
+msgid "Couldn't make the page: {reason}."
+msgstr "ページを作成できませんでした: {reason}。"
+
+#: src/strings/print.rs
+msgid "Couldn't save to that folder: {reason}."
+msgstr "そのフォルダーに保存できませんでした: {reason}。"
+
+#: src/strings/print.rs
+msgid "The page is saved at {path} but no program opened it. Open it from there to print."
+msgstr "ページは {path} に保存されましたが、開くプログラムがありませんでした。印刷するにはそこから開いてください。"
+
+#: src/strings/print.rs
+msgid "Web page"
+msgstr "Web ページ"
+
+#: src/strings/print.rs
+msgid "Print or save"
+msgstr "印刷または保存"
+
+#: src/strings/screens.rs
+msgid "Audience"
+msgstr "会場"
+
+#: src/strings/screens.rs
+msgid "Audience screen"
+msgstr "会場画面"
+
+#: src/strings/screens.rs
+msgid "Showing"
+msgstr "表示中"
+
+#: src/strings/screens.rs
+msgid "No output"
+msgstr "出力なし"
+
+#: src/strings/screens.rs
+msgid "Unplugged"
+msgstr "未接続"
+
+#: src/strings/screens.rs src/ui/dialogs/automation.rs
+msgid "None"
+msgstr "なし"
+
+#: src/strings/screens.rs
+msgid "In a window (for testing)"
+msgstr "ウィンドウ内（テスト用）"
+
+#: src/strings/screens.rs
+msgid "Not connected right now"
+msgstr "現在接続されていません"
+
+#: src/strings/screens.rs
+msgid "This is the screen you are working on. Turning this on covers it."
+msgstr "これは作業中の画面です。オンにすると覆われます。"
+
+#: src/strings/screens.rs
+msgid "Shows the same picture as {screen}. Sound only plays from {screen}."
+msgstr "{screen} と同じ映像を表示します。音声は {screen} からのみ再生されます。"
+
+#: src/strings/screens.rs
+msgid "Remove “{name}”?"
+msgstr "「{name}」を削除しますか？"
+
+#: src/strings/scripture.rs
+msgid "Type at least one word to search for."
+msgstr "検索する語句を1つ以上入力してください。"
+
+#: src/strings/scripture.rs
+msgid "Add a chapter, like Job 1 or Job 1:1."
+msgstr "Job 1 や Job 1:1 のように章を加えてください。"
+
+#: src/strings/scripture.rs
+msgid "Pick a different second translation."
+msgstr "別の第2翻訳を選んでください。"
+
+#: src/strings/scripture.rs
+msgid "Second translation turned off (same as main)."
+msgstr "第2翻訳をオフにしました（メインと同じため）。"
+
+#: src/strings/scripture.rs
+msgid "Too long — will split inside a verse"
+msgstr "長すぎます — 節の途中で分割されます"
+
+#: src/strings/scripture.rs
+msgid "Keeping these together makes a slide too long, so it will split inside a verse."
+msgstr "これらをまとめるとスライドが長くなりすぎるため、節の途中で分割されます。"
+
+#: src/strings/scripture.rs
+msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
+msgstr "聖書のスライドが画面に合わせて調整されるようになったため、一部の箇所の区切り位置が変わる場合があります。"
+
+#: src/strings/scripture.rs
+msgid "Fitting slides…"
+msgstr "スライドを調整中…"
+
+#: src/strings/scripture.rs
+msgid "This translation can't be used in RustyPresenter. Please choose another Bible."
+msgstr "この翻訳は RustyPresenter では使用できません。別の聖書を選んでください。"
+
+#: src/strings/scripture.rs
+msgid "This verse came from an older version; look the passage up again to choose breaks here."
+msgstr "この聖句は古いバージョンのものです。ここで区切りを選ぶには、箇所をもう一度検索してください。"
+
+#: src/strings/scripture.rs
+msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
+msgid_plural "{n} passages used a translation that can't be used in RustyPresenter and were removed."
+msgstr[0] "RustyPresenter で使用できない翻訳を使っていた {n} 件の聖句を削除しました。"
+
+#: src/strings/scripture.rs
+msgid "Ready on this computer"
+msgstr "このコンピューターで利用可能"
+
+#: src/strings/scripture.rs
+msgid "Ready (needs internet)"
+msgstr "利用可能（要インターネット）"
+
+#: src/strings/scripture.rs
+msgid "Needs a key — Get one"
+msgstr "キーが必要 — 取得する"
+
+#: src/strings/scripture.rs
+msgid "Not available"
+msgstr "利用不可"
+
+#: src/strings/scripture.rs
+msgid "Search: Ready"
+msgstr "検索: 利用可能"
+
+#: src/strings/scripture.rs
+msgid "Search: online (ESV)"
+msgstr "検索: オンライン (ESV)"
+
+#: src/strings/scripture.rs
+msgid "Search works for the translations stored on this computer (KJV and any bundled or imported Bible). Online translations can't be searched, because their owners don't allow it (ESV may offer its own online search)."
+msgstr "検索できるのは、このコンピューターに保存されている翻訳（KJV と、同梱または取り込んだ聖書）です。オンラインの翻訳は、所有者が許可していないため検索できません（ESV は独自のオンライン検索を提供している場合があります）。"
+
+#: src/strings/scripture.rs
+msgid "Every word must appear in the verse (love neighbour finds verses with both)."
+msgstr "すべての語句が節に含まれている必要があります（love neighbour で両方を含む節が見つかります）。"
+
+#: src/strings/scripture.rs
+msgid "Words match their beginnings: love finds love, loved, loveth, lovest, loving. Words shorter than 3 letters must match exactly."
+msgstr "語句は前方一致です: love で love、loved、loveth、lovest、loving が見つかります。3文字未満の語句は完全一致が必要です。"
+
+#: src/strings/scripture.rs
+msgid "Put words in quotes for an exact phrase: \"be still\"."
+msgstr "完全なフレーズを検索するには語句を引用符で囲みます: \"be still\"。"
+
+#: src/strings/scripture.rs
+msgid "Capitals and punctuation do not matter. lord finds LORD."
+msgstr "大文字・小文字や句読点は区別しません。lord で LORD が見つかります。"
+
+#: src/strings/scripture.rs
+msgid "Best matches come first: verses with your exact words in order, then verses where the words are close together, then the rest in Bible order. Switch to Bible order to see Genesis first."
+msgstr "関連度の高いものが先に表示されます: 語句がそのままの順で含まれる節、語句が近くにある節、残りは聖書の順です。創世記から表示するには「聖書の順」に切り替えてください。"
+
+#: src/strings/scripture.rs
+msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
+msgstr "聖書ボックスで Ctrl+Enter を押すと、「Job」のような書名でも常に検索します。"
+
+#: src/strings/scripture.rs
+msgid "Also show…"
+msgstr "併記…"
+
+#: src/strings/scripture.rs
+msgid "Search by words…"
+msgstr "語句で検索…"
+
+#: src/strings/scripture.rs
+msgid "Find a verse"
+msgstr "聖句を検索"
+
+#: src/strings/scripture.rs
+msgid "Slide breaks"
+msgstr "スライドの区切り"
+
+#: src/strings/scripture.rs
+msgid "New slide (automatic)"
+msgstr "新しいスライド（自動）"
+
+#: src/strings/scripture.rs
+msgid "New slide (you added)"
+msgstr "新しいスライド（手動で追加）"
+
+#: src/strings/scripture.rs
+msgid "Kept together"
+msgstr "まとめて表示"
+
+#: src/strings/scripture.rs
+msgid "+ New slide here"
+msgstr "+ ここで新しいスライド"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes always stack two translations."
+msgstr "下部3分の1のテーマでは、2つの翻訳を常に上下に並べます。"
+
+#: src/strings/scripture.rs
+msgid "Search for these words"
+msgstr "これらの語句を検索"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have all of those words."
+msgstr "{bible} には、これらの語句をすべて含む節がありません。"
+
+#: src/strings/scripture.rs
+msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
+msgstr "{bible} には、その語句を含む節がありません。書名の場合は、つづりを確認して「John 3」のように章を加えてください。"
+
+#: src/strings/scripture.rs
+msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
+msgstr "{total} 節のうち最初の {shown} 節を表示中 — 語句を追加して絞り込んでください。"
+
+#: src/strings/scripture.rs
+msgid "{count} verse found in {bible}"
+msgid_plural "{count} verses found in {bible}"
+msgstr[0] "{bible} で {count} 節見つかりました"
+
+#: src/strings/scripture.rs
+msgid "Getting {bible} ready to search…"
+msgstr "{bible} の検索を準備中…"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}. Try a translation stored on this computer, like KJV."
+msgstr "{bible} では検索できません。KJV など、このコンピューターに保存されている翻訳をお試しください。"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}, so this searches {local}."
+msgstr "{bible} では検索できないため、{local} で検索します。"
+
+#: src/strings/scripture.rs
+msgid "Searching ESV needs the internet. Check the connection, or search in KJV."
+msgstr "ESV の検索にはインターネットが必要です。接続を確認するか、KJV で検索してください。"
+
+#: src/strings/scripture.rs
+msgid "Search isn't available for {bible}"
+msgstr "{bible} では検索できません"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs a key. Add one in Settings → Bible."
+msgstr "{bible} にはキーが必要です。「設定 → 聖書」で追加してください。"
+
+#: src/strings/scripture.rs
+msgid "{bible} isn't available."
+msgstr "{bible} は利用できません。"
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible} text — check the internet."
+msgstr "{bible} のテキストを取得できませんでした — インターネット接続を確認してください。"
+
+#: src/strings/scripture.rs
+msgid "{second} isn't available right now, so only {main} was added. Turn off the second translation with the X."
+msgstr "{second} は現在利用できないため、{main} のみ追加しました。第2翻訳は X でオフにできます。"
+
+#: src/strings/scripture.rs
+msgid "Couldn't get {bible}: {error}"
+msgstr "{bible} を取得できませんでした: {error}"
+
+#: src/strings/scripture.rs
+msgid "{bible} doesn't include {passage}."
+msgstr "{bible} には {passage} が含まれていません。"
+
+#: src/strings/scripture.rs
+msgid "Add {passage}"
+msgstr "{passage} を追加"
+
+#: src/strings/scripture.rs
+msgid "Search for \"{word}\" instead"
+msgstr "代わりに「{word}」を検索"
+
+#: src/strings/scripture.rs
+msgid "That passage is too long. Choose up to about {n} verses."
+msgstr "その箇所は長すぎます。約 {n} 節以内で選んでください。"
+
+#: src/strings/scripture.rs
+msgid "{bible} turned off (same as main)."
+msgstr "{bible} をオフにしました（メインと同じため）。"
+
+#: src/strings/scripture.rs
+msgid "{left} isn't available right now, so only {kept} was added."
+msgstr "{left} は現在利用できないため、{kept} のみ追加しました。"
+
+#: src/strings/scripture.rs
+msgid "Lower-third themes show two Bibles. {bible} is left out."
+msgstr "下部3分の1のテーマで表示できる聖書は2つです。{bible} は除外されます。"
+
+#: src/strings/scripture.rs
+msgid "{bible} needs the internet for this passage."
+msgstr "この箇所の {bible} にはインターネットが必要です。"
+
+#: src/strings/scripture.rs
+msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgstr "その聖書は削除されました。「設定 → 聖書」でもう一度追加してください。"
+
+#: src/strings/services.rs
+msgid "Name for the copy"
+msgstr "コピーの名前"
+
+#: src/strings/services.rs
+msgid "Rename service"
+msgstr "礼拝名を変更"
+
+#: src/strings/services.rs
+msgid "Service {date}"
+msgstr "礼拝 {date}"
+
+#: src/strings/services.rs
+msgid "Delete the service “{name}”? (Songs and media stay in the library.)"
+msgstr "礼拝「{name}」を削除しますか？（曲とメディアはライブラリに残ります。）"
+
+#: src/strings/settings.rs
+msgid "Settings saved"
+msgstr "設定を保存しました"
+
+#: src/strings/settings.rs
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に"
+
+#: src/strings/settings.rs
+msgid "Amazing Grace · John Newton · Public Domain"
+msgstr "アメイジング・グレイス · John Newton · パブリックドメイン"
+
+#: src/strings/settings.rs src/strings/themes.rs
+msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
+msgstr "「{font}」がこのコンピューターにインストールされていないため、スライドには Noto Sans を使います。"
+
+#: src/strings/settings.rs
+msgid "Ready — offline"
+msgstr "利用可能 — オフライン"
+
+#: src/strings/settings.rs
+msgid "Ready — online"
+msgstr "利用可能 — オンライン"
+
+#: src/strings/settings.rs
+msgid "Needs a free key"
+msgstr "無料キーが必要"
+
+#: src/strings/settings.rs
+msgid "No source yet"
+msgstr "提供元なし"
+
+#: src/strings/settings.rs
+msgid "or"
+msgstr "または"
+
+#: src/strings/settings.rs
+msgid "Connect {sources} below"
+msgstr "下で {sources} に接続"
+
+#: src/strings/settings.rs
+msgid "No online source offers this one. Import a licensed file, or paste verses when you add them."
+msgstr "これを提供するオンラインサービスはありません。使用許諾済みのファイルを取り込むか、追加時に聖句を貼り付けてください。"
+
+#: src/strings/settings.rs
+msgid "For {bibles}"
+msgstr "対象: {bibles}"
+
+#: src/strings/settings.rs
+msgid "{source} connected"
+msgstr "{source} に接続しました"
+
+#: src/strings/settings.rs
+msgid "{source} disconnected"
+msgstr "{source} から切断しました"
+
+#: src/strings/settings.rs
+msgid "Link copied — paste it into your browser"
+msgstr "リンクをコピーしました — ブラウザーに貼り付けてください"
+
+#: src/strings/settings.rs
+msgid "Added {bible} ({count} verses)"
+msgid_plural "Added {bible} ({count} verses)"
+msgstr[0] "{bible} を追加しました（{count} 節）"
+
+#: src/strings/settings.rs
+msgid "Import failed."
+msgstr "取り込みに失敗しました。"
+
+#: src/strings/settings.rs
+msgid "{bible} removed"
+msgstr "{bible} を削除しました"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv (LGPL build)"
+msgstr "動画プレーヤー: libmpv (LGPL ビルド)"
+
+#: src/strings/settings.rs
+msgid "Video player: libmpv {version} (LGPL build)"
+msgstr "動画プレーヤー: libmpv {version} (LGPL ビルド)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: GPU (OpenGL)"
+msgstr "動画描画: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video drawing: Software"
+msgstr "動画描画: ソフトウェア"
+
+#: src/strings/settings.rs
+msgid "Could not copy: {error}"
+msgstr "コピーできませんでした: {error}"
+
+#: src/strings/settings.rs
+msgid "Backup made"
+msgstr "バックアップを作成しました"
+
+#: src/strings/settings.rs
+msgid "Restore this backup? Your current songs and services are replaced (a copy of them is kept)."
+msgstr "このバックアップを復元しますか？現在の曲と礼拝は置き換えられます（そのコピーは保存されます）。"
+
+#: src/strings/settings.rs
+msgid "Backup restored"
+msgstr "バックアップを復元しました"
+
+#: src/strings/settings.rs
+msgid "{songs} songs · {services} services · {files} files"
+msgstr "曲 {songs} · 礼拝 {services} · ファイル {files}"
+
+#: src/strings/settings.rs
+msgid "→  ↓  Space  Page Down"
+msgstr "→  ↓  Space  Page Down"
+
+#: src/strings/settings.rs
+msgid "←  ↑  Page Up"
+msgstr "←  ↑  Page Up"
+
+#: src/strings/settings.rs
+msgid "Enter"
+msgstr "Enter"
+
+#: src/strings/settings.rs
+msgid "Ctrl + B"
+msgstr "Ctrl + B"
+
+#: src/strings/settings.rs
+msgid "Alt + 1–5"
+msgstr "Alt + 1–5"
+
+#: src/strings/settings.rs
+msgid "Ctrl + V"
+msgstr "Ctrl + V"
+
+#: src/strings/settings.rs
+msgid "Ctrl + Z"
+msgstr "Ctrl + Z"
+
+#: src/strings/settings.rs
+msgid "Ctrl + Y"
+msgstr "Ctrl + Y"
+
+#: src/strings/settings.rs
+msgid "Ctrl + F"
+msgstr "Ctrl + F"
+
+#: src/strings/settings.rs
+msgid "Undo the last change to the services or the library"
+msgstr "礼拝やライブラリへの最後の変更を元に戻す"
+
+#: src/strings/settings.rs
+msgid "Redo what Undo took back"
+msgstr "元に戻した操作をやり直す"
+
+#: src/strings/settings.rs
+msgid "Find a song"
+msgstr "曲を検索"
+
+#: src/strings/settings.rs
+msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
+msgstr "ライブ中の曲をバース 1–9、サビ、Bメロ、ブリッジ、タグ、イントロ、エンディング、間奏、または次のバースへ移動"
+
+#: src/strings/settings.rs
+msgid "Add a YouTube link you copied"
+msgstr "コピーした YouTube リンクを追加"
+
+#: src/strings/settings.rs
+msgid "Esc"
+msgstr "Esc"
+
+#: src/strings/settings.rs
+msgid "Show the selected item"
+msgstr "選択した項目を表示"
+
+#: src/strings/settings.rs
+msgid "Pick a Bible chip (in the Bible box)"
+msgstr "聖書チップを選択（聖書ボックス内）"
+
+#: src/strings/settings.rs
+msgid "Leave a text box"
+msgstr "テキストボックスから離れる"
+
+#: src/strings/settings.rs
+msgid "Video: GPU (OpenGL)"
+msgstr "動画: GPU (OpenGL)"
+
+#: src/strings/settings.rs
+msgid "Video: software drawing"
+msgstr "動画: ソフトウェア描画"
+
+#: src/strings/settings.rs
+msgid "Video player missing"
+msgstr "動画プレーヤーがありません"
+
+#: src/strings/settings.rs
+msgid "libmpv (client API {major}.{minor}) — {path}"
+msgstr "libmpv (クライアント API {major}.{minor}) — {path}"
+
+#: src/strings/settings.rs
+msgid "LGPL build"
+msgstr "LGPL ビルド"
+
+#: src/strings/settings.rs
+msgid "not an LGPL build"
+msgstr "LGPL ビルドではありません"
+
+#: src/strings/settings.rs
+msgid "libmpv {version} ({build}) · client API {major}.{minor} — {path}"
+msgstr "libmpv {version} ({build}) · クライアント API {major}.{minor} — {path}"
+
+#: src/strings/settings.rs
+msgid "found"
+msgstr "検出"
+
+#: src/strings/settings.rs
+msgid "missing"
+msgstr "なし"
+
+#: src/strings/settings.rs
+msgid "Snap — not usable"
+msgstr "Snap — 使用不可"
+
+#: src/strings/settings.rs
+msgid "not installed"
+msgstr "未インストール"
+
+#: src/strings/settings.rs
+msgid "not found"
+msgstr "見つかりません"
+
+#: src/strings/settings.rs
+msgid "Video playback uses libmpv (LGPL-2.1+) and FFmpeg libraries under the LGPLv2.1 — source: {url}"
+msgstr "動画再生には libmpv (LGPL-2.1+) と LGPLv2.1 の FFmpeg ライブラリを使用しています — ソース: {url}"
+
+#: src/strings/settings.rs
+msgid "Use the computer's language ({name})"
+msgstr "コンピューターの言語を使う ({name})"
+
+#: src/strings/settings.rs
+msgid "{name} (needs review)"
+msgstr "{name}（要レビュー）"
+
+#: src/strings/settings.rs
+msgid "{english_name} · {percent}% translated"
+msgstr "{english_name} · {percent}% 翻訳済み"
+
+#: src/strings/settings.rs
+msgid "This computer's default sound output"
+msgstr "このコンピューターの既定の音声出力"
+
+#: src/strings/settings.rs
+msgid "The saved sound output (not connected)"
+msgstr "保存された音声出力（未接続）"
+
+#: src/strings/song.rs
+msgid "Verse"
+msgstr "バース"
+
+#: src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "サビ"
+
+#: src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Bメロ"
+
+#: src/strings/song.rs
+msgid "Bridge"
+msgstr "ブリッジ"
+
+#: src/strings/song.rs
+msgid "Tag"
+msgstr "タグ"
+
+#: src/strings/song.rs
+msgid "Intro"
+msgstr "イントロ"
+
+#: src/strings/song.rs
+msgid "Ending"
+msgstr "エンディング"
+
+#: src/strings/song.rs
+msgid "Interlude"
+msgstr "間奏"
+
+#: src/strings/song.rs
+msgid "Other"
+msgstr "その他"
+
+#: src/strings/song.rs
+msgid "Section keys work on songs."
+msgstr "セクションキーは曲で使えます。"
+
+#: src/strings/song.rs
+msgid "The song changed — try again."
+msgstr "曲が変更されました — 再試行してください。"
+
+#: src/strings/song.rs
+msgid "The live song changed — try again."
+msgstr "ライブ中の曲が変更されました — 再試行してください。"
+
+#: src/strings/song.rs
+msgid "That song is no longer live."
+msgstr "その曲はもう画面に表示されていません。"
+
+#: src/strings/song.rs
+msgid "That song has no slides now. The screen keeps the old words."
+msgstr "その曲には現在スライドがありません。画面には以前の歌詞が残ります。"
+
+#: src/strings/song.rs
+msgid "Saved. The new words show when you bring the text back."
+msgstr "保存しました。テキストを再表示すると新しい歌詞が表示されます。"
+
+#: src/strings/song.rs
+msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
+msgstr "画面に表示中の歌詞を変更しました。「画面を更新」ですぐに表示されます。スライドをクリックしても新しい版が表示されます。"
+
+#: src/strings/song.rs
+msgid "The live song looks different now. Update screen to show it."
+msgstr "ライブ中の曲の内容が変わりました。表示するには「画面を更新」を押してください。"
+
+#: src/strings/song.rs
+msgid "The part of the song on screen was removed. Update screen starts the song from the top."
+msgstr "画面に表示中の部分が削除されました。「画面を更新」で曲の最初から表示します。"
+
+#: src/strings/song.rs
+msgid "This song has no words now. The screen keeps the old words."
+msgstr "この曲には現在歌詞がありません。画面には以前の歌詞が残ります。"
+
+#: src/strings/song.rs
+msgid "Click to show this part"
+msgstr "クリックでこの部分を表示"
+
+#: src/strings/song.rs
+msgid "Saved as the usual order."
+msgstr "通常の順序として保存しました。"
+
+#: src/strings/song.rs
+msgid "This song has no {section} {number}."
+msgstr "この曲には{section} {number}がありません。"
+
+#: src/strings/song.rs
+msgid "This song has no {section}."
+msgstr "この曲には{section}がありません。"
+
+#: src/strings/song.rs
+msgid "Jumped to {section} ({key})"
+msgstr "{section}へ移動しました ({key})"
+
+#: src/strings/song.rs
+msgid "{section} — press {key}"
+msgstr "{section} — {key} を押す"
+
+#: src/strings/song.rs
+msgid "{section} · slide {page} of {pages}"
+msgstr "{section} · スライド {page}/{pages}"
+
+#: src/strings/stage.rs
+msgid "Classic"
+msgstr "クラシック"
+
+#: src/strings/stage.rs
+msgid "Lyrics only"
+msgstr "歌詞のみ"
+
+#: src/strings/stage.rs
+msgid "Band"
+msgstr "バンド"
+
+#: src/strings/stage.rs
+msgid "Speaker"
+msgstr "説教者"
+
+#: src/strings/stage.rs
+msgid "Clock and countdown"
+msgstr "時計とカウントダウン"
+
+#: src/strings/stage.rs
+msgid "Current slide"
+msgstr "現在のスライド"
+
+#: src/strings/stage.rs src/ui/dialogs/automation.rs
+msgid "Next slide"
+msgstr "次のスライド"
+
+#: src/strings/stage.rs
+msgid "Section"
+msgstr "セクション"
+
+#: src/strings/stage.rs
+msgid "Next section"
+msgstr "次のセクション"
+
+#: src/strings/stage.rs
+msgid "Item title"
+msgstr "項目のタイトル"
+
+#: src/strings/stage.rs
+msgid "Slides left"
+msgstr "残りスライド数"
+
+#: src/strings/stage.rs
+msgid "Notes"
+msgstr "メモ"
+
+#: src/strings/stage.rs
+msgid "Timer"
+msgstr "タイマー"
+
+#: src/strings/stage.rs
+msgid "Video time left"
+msgstr "動画の残り時間"
+
+#: src/strings/stage.rs
+msgid "the words on screen now"
+msgstr "現在画面に表示中の歌詞"
+
+#: src/strings/stage.rs
+msgid "the words coming next"
+msgstr "次に表示される歌詞"
+
+#: src/strings/stage.rs
+msgid "Verse, Chorus, Bridge…"
+msgstr "バース、サビ、ブリッジ…"
+
+#: src/strings/stage.rs
+msgid "the next part of the song"
+msgstr "曲の次の部分"
+
+#: src/strings/stage.rs
+msgid "the live item's name"
+msgstr "ライブ中の項目の名前"
+
+#: src/strings/stage.rs
+msgid "“3 slides left”"
+msgstr "「残り3枚」"
+
+#: src/strings/stage.rs
+msgid "the slide's stage notes"
+msgstr "スライドのステージノート"
+
+#: src/strings/stage.rs
+msgid "the time of day"
+msgstr "現在の時刻"
+
+#: src/strings/stage.rs
+msgid "a countdown or count-up"
+msgstr "カウントダウンまたはカウントアップ"
+
+#: src/strings/stage.rs
+msgid "time left on the video or audio"
+msgstr "動画または音声の残り時間"
+
+#: src/strings/stage.rs
+msgid "messages sent from the back"
+msgstr "後方から送られたメッセージ"
+
+#: src/strings/stage.rs
+msgid "words you type once"
+msgstr "一度入力する言葉"
+
+#: src/strings/stage.rs
+msgid "(logo)"
+msgstr "（ロゴ）"
+
+#: src/strings/stage.rs
+msgid "Nothing live"
+msgstr "表示なし"
+
+#: src/strings/stage.rs
+msgid "NEXT SECTION"
+msgstr "次のセクション"
+
+#: src/strings/stage.rs
+msgid "NEXT · {title}"
+msgstr "次 · {title}"
+
+#: src/strings/stage.rs
+msgid "Last slide"
+msgstr "最後のスライド"
+
+#: src/strings/stage.rs
+msgid "{n} slide left"
+msgid_plural "{n} slides left"
+msgstr[0] "残り {n} 枚"
+
+#: src/strings/stage.rs
+msgid "Timer removed"
+msgstr "タイマーを削除しました"
+
+#: src/strings/stage.rs
+msgid "{timer} · paused"
+msgstr "{timer} · 一時停止中"
+
+#: src/strings/stage.rs
+msgid "That stage layout is gone."
+msgstr "そのステージレイアウトはもうありません。"
+
+#: src/strings/stage.rs
+msgid "Built-in stage layouts can't be changed. Make a copy first."
+msgstr "内蔵のステージレイアウトは変更できません。先にコピーしてください。"
+
+#: src/strings/stage.rs
+msgid "Give the stage layout a name."
+msgstr "ステージレイアウトに名前を付けてください。"
+
+#: src/strings/stage.rs
+msgid "There is already a stage layout called “{name}”."
+msgstr "「{name}」という名前のステージレイアウトはすでにあります。"
+
+#: src/strings/stage.rs
+msgid "A stage layout can have at most 24 boxes."
+msgstr "ステージレイアウトのボックスは最大24個です。"
+
+#: src/strings/stage.rs
+msgid "{question} It is used by {things}. {what_happens}."
+msgstr "{question} {things}で使われています。{what_happens}。"
+
+#: src/strings/stage.rs
+msgid "{first} and {second}"
+msgstr "{first}と{second}"
+
+#: src/strings/stage.rs
+msgid "{first}, {second} and {third}"
+msgstr "{first}、{second}、{third}"
+
+#: src/strings/stage.rs
+msgid "{items_effect}; {macros_effect}"
+msgstr "{items_effect}。{macros_effect}"
+
+#: src/strings/stage.rs
+msgid "{n} service item"
+msgid_plural "{n} service items"
+msgstr[0] "礼拝の項目 {n} 件"
+
+#: src/strings/stage.rs
+msgid "the stage default"
+msgstr "ステージの既定"
+
+#: src/strings/stage.rs
+msgid "{n} macro"
+msgid_plural "{n} macros"
+msgstr[0] "マクロ {n} 個"
+
+#: src/strings/stage.rs
+msgid "Items and the default will use Classic"
+msgstr "項目と既定はクラシックを使います"
+
+#: src/strings/stage.rs
+msgid "That item will use the stage default"
+msgstr "その項目はステージの既定を使います"
+
+#: src/strings/stage.rs
+msgid "Those items will use the stage default"
+msgstr "それらの項目はステージの既定を使います"
+
+#: src/strings/stage.rs
+msgid "The default will use Classic"
+msgstr "既定はクラシックを使います"
+
+#: src/strings/stage.rs
+msgid "the macro won't run until it is edited"
+msgstr "マクロは編集するまで実行されません"
+
+#: src/strings/stage.rs
+msgid "the macros won't run until they are edited"
+msgstr "マクロは編集するまで実行されません"
+
+#: src/strings/stage.rs
+msgid "The macro won't run until it is edited"
+msgstr "マクロは編集するまで実行されません"
+
+#: src/strings/stage.rs
+msgid "The macros won't run until they are edited"
+msgstr "マクロは編集するまで実行されません"
+
+#: src/strings/stage.rs
+msgid "New stage layout"
+msgstr "新しいステージレイアウト"
+
+#: src/strings/stage.rs src/theme/saved.rs
+msgid "{name} copy"
+msgstr "{name} のコピー"
+
+#: src/strings/stage.rs
+msgid "Name of the stage layout"
+msgstr "ステージレイアウトの名前"
+
+#: src/strings/stage.rs
+msgid "Discard your changes to the stage layouts?"
+msgstr "ステージレイアウトへの変更を破棄しますか？"
+
+#: src/strings/stage.rs
+msgid "Discard"
+msgstr "破棄"
+
+#: src/strings/stage.rs
+msgid "Keep editing"
+msgstr "編集を続ける"
+
+#: src/strings/stage.rs
+msgid "Stage layouts saved."
+msgstr "ステージレイアウトを保存しました。"
+
+#: src/strings/stage.rs
+msgid "The stage shows “{name}”."
+msgstr "ステージに「{name}」を表示中です。"
+
+#: src/strings/stage.rs
+msgid "Your words here"
+msgstr "ここに文字を入力"
+
+#: src/strings/stage.rs
+msgid "Amazing grace, how sweet the sound"
+msgstr "驚くばかりの 恵みなりき"
+
+#: src/strings/stage.rs
+msgid "That saved a wretch like me"
+msgstr "この身の汚れを 知れる我に"
+
+#: src/strings/stage.rs
+msgid "Verse 2"
+msgstr "バース 2"
+
+#: src/strings/stage.rs
+msgid "Amazing Grace"
+msgstr "アメイジング・グレイス"
+
+#: src/strings/stage.rs
+msgid "Slow down on the last line"
+msgstr "最後の行はゆっくり"
+
+#: src/strings/stage.rs
+msgid "Last chorus"
+msgstr "最後のサビ"
+
+#: src/strings/themes.rs
+msgid "Give the theme a name."
+msgstr "テーマに名前を付けてください。"
+
+#: src/strings/themes.rs
+msgid "That name is used by a built-in theme. Pick another."
+msgstr "その名前は内蔵テーマで使われています。別の名前を選んでください。"
+
+#: src/strings/themes.rs
+msgid "That theme is gone."
+msgstr "そのテーマはもうありません。"
+
+#: src/strings/themes.rs
+msgid "Built-in themes can't be deleted."
+msgstr "内蔵テーマは削除できません。"
+
+#: src/strings/themes.rs
+msgid "Standard is changed with Save on its own editor."
+msgstr "「標準」は専用の編集画面の「保存」で変更します。"
+
+#: src/strings/themes.rs
+msgid "Theme saved"
+msgstr "テーマを保存しました"
+
+#: src/strings/themes.rs
+msgid "Theme deleted"
+msgstr "テーマを削除しました"
+
+#: src/strings/themes.rs
+msgid "Standard"
+msgstr "標準"
+
+#: src/strings/themes.rs
+msgid "Built in — the style RustyPresenter started with"
+msgstr "内蔵 — RustyPresenter の初期スタイル"
+
+#: src/strings/themes.rs
+msgid "Church default — used whenever nothing else is picked"
+msgstr "教会の既定 — ほかに何も選ばれていないときに使用"
+
+#: src/strings/themes.rs
+msgid "Only songs, Bible passages and announcements use a theme."
+msgstr "テーマを使うのは曲、聖句、お知らせのみです。"
+
+#: src/strings/themes.rs
+msgid "Text is already bold in this theme"
+msgstr "このテーマの文字はすでに太字です"
+
+#: src/strings/themes.rs
+msgid "works on every computer"
+msgstr "どのコンピューターでも使えます"
+
+#: src/strings/themes.rs
+msgid "Backgrounds can be pictures or videos."
+msgstr "背景には画像または動画を使えます。"
+
+#: src/strings/themes.rs
+msgid "Give the background a name."
+msgstr "背景に名前を付けてください。"
+
+#: src/strings/themes.rs
+msgid "That background is gone."
+msgstr "その背景はもうありません。"
+
+#: src/strings/themes.rs
+msgid "Added to backgrounds"
+msgstr "背景に追加しました"
+
+#: src/strings/themes.rs
+msgid " · own background"
+msgstr " · 独自の背景"
+
+#: src/strings/themes.rs
+msgid "From theme"
+msgstr "テーマから"
+
+#: src/strings/themes.rs
+msgid "Standard background"
+msgstr "標準の背景"
+
+#: src/strings/themes.rs
+msgid "Current (not in your backgrounds)"
+msgstr "現在の背景（背景ライブラリにはありません）"
+
+#: src/strings/themes.rs
+msgid "Couldn't convert"
+msgstr "変換できませんでした"
+
+#: src/strings/themes.rs
+msgid "Give the overlay a name."
+msgstr "オーバーレイに名前を付けてください。"
+
+#: src/strings/themes.rs
+msgid "Type the overlay's text."
+msgstr "オーバーレイのテキストを入力してください。"
+
+#: src/strings/themes.rs
+msgid "That overlay is gone."
+msgstr "そのオーバーレイはもうありません。"
+
+#: src/strings/themes.rs
+msgid "Only text, picture and clock overlays can be saved."
+msgstr "保存できるのはテキスト、画像、時計のオーバーレイのみです。"
+
+#: src/strings/themes.rs
+msgid "Up to 8 overlays can be on at once. Turn one off first."
+msgstr "同時にオンにできるオーバーレイは8つまでです。先に1つをオフにしてください。"
+
+#: src/strings/themes.rs
+msgid "Choose a church logo first (Settings → Themes)."
+msgstr "先に教会のロゴを選んでください（設定 → テーマ）。"
+
+#: src/strings/themes.rs
+msgid "That picture is gone."
+msgstr "その画像はもうありません。"
+
+#: src/strings/themes.rs
+msgid "the picture could not be loaded."
+msgstr "画像を読み込めませんでした。"
+
+#: src/strings/themes.rs
+msgid "Logo saved"
+msgstr "ロゴを保存しました"
+
+#: src/strings/themes.rs
+msgid "Logo removed"
+msgstr "ロゴを削除しました"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up."
+msgstr "表示し続ける案内用です。"
+
+#: src/strings/themes.rs
+msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr "表示し続ける案内用です。保護者の呼び出しなどのお知らせには「メッセージ」を使ってください（利用可能になり次第）。"
+
+#: src/strings/themes.rs
+msgid "Make default"
+msgstr "既定にする"
+
+#: src/strings/themes.rs
+msgid "Theme put back as it came"
+msgstr "テーマを初期状態に戻しました"
+
+#: src/strings/themes.rs
+msgid "New name for this background"
+msgstr "この背景の新しい名前"
+
+#: src/strings/themes.rs
+msgid "Use theme background"
+msgstr "テーマの背景を使う"
+
+#: src/strings/themes.rs
+msgid "Keep theirs"
+msgstr "個別の背景を残す"
+
+#: src/strings/themes.rs
+msgid "Manage themes…"
+msgstr "テーマを管理…"
+
+#: src/strings/themes.rs
+msgid "Overlay saved"
+msgstr "オーバーレイを保存しました"
+
+#: src/strings/themes.rs
+msgid "Overlay deleted"
+msgstr "オーバーレイを削除しました"
+
+#: src/strings/themes.rs
+msgid "New overlay"
+msgstr "新しいオーバーレイ"
+
+#: src/strings/themes.rs
+msgid "Welcome!"
+msgstr "ようこそ！"
+
+#: src/strings/themes.rs
+msgid "Put “{name}” back the way it came? Your changes to it are lost."
+msgstr "「{name}」を初期状態に戻しますか？変更内容は失われます。"
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "{n} 件の礼拝"
+
+#: src/strings/themes.rs
+msgid "Church default ({name})"
+msgstr "教会の既定 ({name})"
+
+#: src/strings/themes.rs
+msgid "Same as service ({name})"
+msgstr "礼拝と同じ ({name})"
+
+#: src/strings/themes.rs
+msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
+msgstr "オーバーレイ「{name}」を削除しますか？画面に表示中の場合は、オフにするまで表示されたままです。"
+
+#: src/strings/themes.rs
+msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
+msgstr "このデータは新しい RustyPresenter で保存されています。最新バージョンをインストールしてください。"
+
+#: src/strings/themes.rs
+msgid "Expected an object."
+msgstr "オブジェクトが必要です。"
+
+#: src/strings/themes.rs
+msgid "The same item is listed twice."
+msgstr "同じ項目が2回登録されています。"
+
+#: src/strings/themes.rs
+msgid "There's already a theme called “{name}”."
+msgstr "「{name}」という名前のテーマはすでにあります。"
+
+#: src/strings/themes.rs
+msgid "Couldn't show the overlay “{name}”: {reason}"
+msgstr "オーバーレイ「{name}」を表示できませんでした: {reason}"
+
+#: src/strings/themes.rs
+msgid "(deleted) {name}"
+msgstr "（削除済み）{name}"
+
+#: src/strings/themes.rs
+msgid "{n} item has its own background. Use the theme's background for it too?"
+msgid_plural "{n} items have their own background. Use the theme's background for them too?"
+msgstr[0] "{n} 件の項目に独自の背景があります。それらにもテーマの背景を使いますか？"
+
+#: src/strings/themes.rs
+msgid "Used by {n} item"
+msgid_plural "Used by {n} items"
+msgstr[0] "{n} 件の項目で使用中"
+
+#: src/strings/themes.rs
+msgid "Background {n}"
+msgstr "背景 {n}"
+
+#: src/strings/themes.rs
+msgid "Make “{name}” the church default? Everything without its own theme will use it. You can switch back any time."
+msgstr "「{name}」を教会の既定にしますか？独自のテーマがないものはすべてこれを使います。いつでも元に戻せます。"
+
+#: src/strings/themes.rs
+msgid "“{name}” is now the church default"
+msgstr "「{name}」が教会の既定になりました"
+
+#: src/strings/themes.rs
+msgid "Delete the theme “{name}”?"
+msgstr "テーマ「{name}」を削除しますか？"
+
+#: src/strings/themes.rs
+msgid "{things} uses it; they'll use the church default instead."
+msgid_plural "{things} use it; they'll use the church default instead."
+msgstr[0] "{things}で使われています。代わりに教会の既定を使います。"
+
+#: src/strings/themes.rs
+msgid "{items} and {services} use it; they'll use the church default instead."
+msgstr "{items}と{services}で使われています。代わりに教会の既定を使います。"
+
+#: src/strings/themes.rs
+msgid "It's the church default, so Standard becomes the church default."
+msgstr "教会の既定のため、「標準」が教会の既定になります。"
+
+#: src/strings/themes.rs
+msgid "Remove “{name}” from backgrounds? Items that use it keep it."
+msgstr "「{name}」を背景から削除しますか？使用中の項目はそのまま使い続けます。"
+
+#: src/strings/themes.rs
+msgid "Used by screen view(s): {views}"
+msgstr "使用中の画面ビュー: {views}"
+
+#: src/strings/themes.rs
+msgid "Converting {percent} %"
+msgstr "変換中 {percent} %"
+
+#: src/strings/themes.rs
+msgid "Theme: {name}"
+msgstr "テーマ: {name}"
+
+#: src/strings/themes.rs
+msgid "Italic"
+msgstr "斜体"
+
+#: src/strings/themes.rs
+msgid "Underline"
+msgstr "下線"
+
+#: src/strings/themes.rs
+msgid "Gold"
+msgstr "金色"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "小"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "大"
+
+#: src/strings/themes.rs src/theme/richtext.rs
+msgid "Huge"
+msgstr "特大"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: winget install TheDocumentFoundation.LibreOffice"
+msgstr "libreoffice.org から LibreOffice（無料）をインストールするか、次を実行してください: winget install TheDocumentFoundation.LibreOffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice (free) from libreoffice.org, or run: brew install --cask libreoffice"
+msgstr "libreoffice.org から LibreOffice（無料）をインストールするか、次を実行してください: brew install --cask libreoffice"
+
+#: src/strings/tools.rs
+msgid "Install LibreOffice Impress, for example: sudo apt install libreoffice-impress"
+msgstr "LibreOffice Impress をインストールしてください。例: sudo apt install libreoffice-impress"
+
+#: src/strings/tools.rs
+msgid "Cannot make a file address from {path}"
+msgstr "{path} からファイルアドレスを作成できません"
+
+#: src/strings/usage.rs
+msgid "Song use report"
+msgstr "曲の使用レポート"
+
+#: src/strings/usage.rs
+msgid "CCLI license #: {license}"
+msgstr "CCLI ライセンス番号: {license}"
+
+#: src/strings/usage.rs
+msgid "Add your church's CCLI license number in Settings → Songs."
+msgstr "「設定 → 曲」で教会の CCLI ライセンス番号を追加してください。"
+
+#: src/strings/usage.rs
+msgid "Mark as reported through {date}"
+msgstr "{date} まで報告済みにする"
+
+#: src/strings/usage.rs
+msgid "Next time, the report starts the day after {date}."
+msgstr "次回のレポートは {date} の翌日から始まります。"
+
+#: src/strings/usage.rs
+msgid "Mark as reported"
+msgstr "報告済みにする"
+
+#: src/strings/usage.rs
+msgid "Marked as reported through {date}."
+msgstr "{date} まで報告済みにしました。"
+
+#: src/strings/usage.rs
+msgid "Remove this entry? Use this for rehearsals that shouldn't count."
+msgstr "この記録を削除しますか？数に含めないリハーサルなどに使います。"
+
+#: src/strings/usage.rs
+msgid "Entry removed"
+msgstr "記録を削除しました"
+
+#: src/strings/usage.rs
+msgid "Save your settings changes and open the report?"
+msgstr "設定の変更を保存してレポートを開きますか？"
+
+#: src/strings/usage.rs
+msgid "Save and open"
+msgstr "保存して開く"
+
+#: src/strings/usage.rs
+msgid "Pick a From date before the To date."
+msgstr "開始日は終了日より前にしてください。"
+
+#: src/strings/usage.rs
+msgid "Type dates as year-month-day, like 2026-11-01."
+msgstr "日付は 2026-11-01 のように年-月-日で入力してください。"
+
+#: src/strings/usage.rs
+msgid "Couldn't save the report: {reason}."
+msgstr "レポートを保存できませんでした: {reason}。"
+
+#: src/strings/usage.rs
+msgid "Saved {path}"
+msgstr "{path} を保存しました"
+
+#: src/strings/usage.rs
+msgid "Spreadsheet (CSV)"
+msgstr "スプレッドシート (CSV)"
+
+#: src/strings/usage.rs
+msgid "CCLI Song #"
+msgstr "CCLI 曲番号"
+
+#: src/strings/usage.rs
+msgid "{from} to {to}"
+msgstr "{from}～{to}"
+
+#: src/strings/usage.rs
+msgid "Print this page, or save it as a PDF from your browser's Print window."
+msgstr "このページを印刷するか、ブラウザーの印刷画面から PDF として保存してください。"
+
+#: src/strings/youtube.rs
+msgid "Looking up the video…"
+msgstr "動画を検索中…"
+
+#: src/strings/youtube.rs
+msgid "Getting YouTube downloads ready — first time only ({percent}%)…"
+msgstr "YouTube ダウンロードを準備中 — 初回のみ ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Updating YouTube downloads ({percent}%)…"
+msgstr "YouTube ダウンロードを更新中 ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Getting the video joiner ready — first time only ({percent}%)…"
+msgstr "動画結合ツールを準備中 — 初回のみ ({percent}%)…"
+
+#: src/strings/youtube.rs
+msgid "Paste a link to a YouTube video. It starts with https://www.youtube.com or https://youtu.be."
+msgstr "YouTube 動画のリンクを貼り付けてください。https://www.youtube.com または https://youtu.be で始まります。"
+
+#: src/strings/youtube.rs
+msgid "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgid_plural "This link is a playlist of {n} videos. Only this first video will be downloaded."
+msgstr[0] "このリンクは {n} 本の動画のプレイリストです。最初の動画のみダウンロードされます。"
+
+#: src/strings/youtube.rs
+msgid "Best (up to 1080p)"
+msgstr "最高（最大 1080p）"
+
+#: src/strings/youtube.rs
+msgid "Smaller (720p)"
+msgstr "小 (720p)"
+
+#: src/strings/youtube.rs
+msgid "Smallest (480p)"
+msgstr "最小 (480p)"
+
+#: src/strings/youtube.rs
+msgid "Sound only"
+msgstr "音声のみ"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”. It will be in Video & media when it's done."
+msgstr "「{title}」をダウンロード中です。完了すると「動画とメディア」に追加されます。"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}”"
+msgstr "「{title}」をダウンロード中"
+
+#: src/strings/youtube.rs
+msgid "less than a minute left"
+msgstr "残り1分未満"
+
+#: src/strings/youtube.rs
+msgid "about a minute left"
+msgstr "残り約1分"
+
+#: src/strings/youtube.rs
+msgid "about {n} minute left"
+msgid_plural "about {n} minutes left"
+msgstr[0] "残り約 {n} 分"
+
+#: src/strings/youtube.rs
+msgid "Downloading “{title}” — {left}"
+msgstr "「{title}」をダウンロード中 — {left}"
+
+#: src/strings/youtube.rs
+msgid "Finishing “{title}”…"
+msgstr "「{title}」を仕上げ中…"
+
+#: src/strings/youtube.rs
+msgid "Adding “{title}” to the library…"
+msgstr "「{title}」をライブラリに追加中…"
+
+#: src/strings/youtube.rs
+msgid "Downloaded “{title}”"
+msgstr "「{title}」をダウンロードしました"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media and in the service."
+msgstr "「動画とメディア」と礼拝に追加されています。"
+
+#: src/strings/youtube.rs
+msgid "It's in Video & media."
+msgstr "「動画とメディア」に追加されています。"
+
+#: src/strings/youtube.rs
+msgid "Saved at lower quality (360p) because the video joiner couldn't be set up."
+msgstr "動画結合ツールを設定できなかったため、低画質 (360p) で保存しました。"
+
+#: src/strings/youtube.rs
+msgid "Can't reach YouTube. Check the internet connection and try again."
+msgstr "YouTube に接続できません。インターネット接続を確認して再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "This video is private, so only its owner can download it."
+msgstr "この動画は非公開のため、所有者のみダウンロードできます。"
+
+#: src/strings/youtube.rs
+msgid "YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here."
+msgstr "YouTube はこの動画をログインした視聴者にのみ表示しているため（年齢制限など）、ここではダウンロードできません。"
+
+#: src/strings/youtube.rs
+msgid "This video is only for the channel's members, so it can't be downloaded here."
+msgstr "この動画はチャンネルメンバー限定のため、ここではダウンロードできません。"
+
+#: src/strings/youtube.rs
+msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try again."
+msgstr "YouTube がロボットでないことを確認するためにログインを求めています。しばらく待ってから再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "This live stream hasn't finished yet. Try again after it ends."
+msgstr "このライブ配信はまだ終了していません。終了後に再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "This live stream or premiere hasn't started yet."
+msgstr "このライブ配信またはプレミア公開はまだ始まっていません。"
+
+#: src/strings/youtube.rs
+msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgstr "このライブ配信は終了したばかりで、YouTube がまだ準備中です。しばらくしてから再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
+msgstr "そのリンクは YouTube 動画ではありません。動画のページからリンクをコピーして再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "This video isn't available. It may have been removed, or blocked in this country."
+msgstr "この動画は利用できません。削除されたか、この国でブロックされている可能性があります。"
+
+#: src/strings/youtube.rs
+msgid "This playlist has no videos that can be downloaded."
+msgstr "このプレイリストにはダウンロードできる動画がありません。"
+
+#: src/strings/youtube.rs
+msgid "The computer's disk is full. Free up some space and try again."
+msgstr "コンピューターのディスクがいっぱいです。空き容量を確保して再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "YouTube changed something and the downloader can't read this video yet. Try again later."
+msgstr "YouTube の仕様が変わったため、ダウンローダーはまだこの動画を読み取れません。後でもう一度お試しください。"
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready. Check the internet connection and try again."
+msgstr "YouTube ダウンロードを準備できませんでした。インターネット接続を確認して再試行してください。"
+
+#: src/strings/youtube.rs
+msgid "The YouTube downloader that arrived didn't match its official fingerprint, so it wasn't used. Try again later."
+msgstr "受信した YouTube ダウンローダーが公式のフィンガープリントと一致しなかったため、使用しませんでした。後でもう一度お試しください。"
+
+#: src/strings/youtube.rs
+msgid "YouTube downloads don't work on this kind of computer yet."
+msgstr "この種類のコンピューターでは、YouTube ダウンロードはまだ使えません。"
+
+#: src/strings/youtube.rs
+msgid "Couldn't get YouTube downloads ready ({detail}). Try again later."
+msgstr "YouTube ダウンロードを準備できませんでした ({detail})。後でもう一度お試しください。"
+
+#: src/strings/youtube.rs
+msgid "The download didn't work: {detail}"
+msgstr "ダウンロードに失敗しました: {detail}"
+
+#: src/strings/youtube.rs
+msgid "Cancelled."
+msgstr "キャンセルしました。"
+
+#: src/theme/backgrounds.rs
+msgid "Black"
+msgstr "黒"
+
+#: src/theme/backgrounds.rs
+msgid "Night blue"
+msgstr "ナイトブルー"
+
+#: src/theme/backgrounds.rs
+msgid "Dark green"
+msgstr "深緑"
+
+#: src/theme/backgrounds.rs
+msgid "Plum"
+msgstr "プラム"
+
+#: src/theme/backgrounds.rs
+msgid "Brown"
+msgstr "茶色"
+
+#: src/theme/backgrounds.rs
+msgid "White"
+msgstr "白"
+
+#: src/theme/backgrounds.rs
+msgid "Midnight"
+msgstr "ミッドナイト"
+
+#: src/theme/backgrounds.rs
+msgid "Deep purple"
+msgstr "ディープパープル"
+
+#: src/theme/backgrounds.rs
+msgid "Forest"
+msgstr "フォレスト"
+
+#: src/theme/backgrounds.rs
+msgid "Ember"
+msgstr "残り火"
+
+#: src/theme/backgrounds.rs
+msgid "Ocean"
+msgstr "オーシャン"
+
+#: src/theme/backgrounds.rs
+msgid "Slate"
+msgstr "スレート"
+
+#: src/theme/richtext.rs
+msgid "Normal"
+msgstr "標準"
+
+#: src/theme/saved.rs
+msgid "{name} copy {number}"
+msgstr "{name} のコピー {number}"
+
+#: src/ui/dialogs/automation.rs
+msgid "Put a service item on the screen"
+msgstr "礼拝の項目を画面に表示"
+
+#: src/ui/dialogs/automation.rs
+msgid "Previous slide"
+msgstr "前のスライド"
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear words"
+msgstr "歌詞をクリア"
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear video and pictures"
+msgstr "動画と画像をクリア"
+
+#: src/ui/dialogs/automation.rs
+msgid "Clear audio"
+msgstr "音声をクリア"
+
+#: src/ui/dialogs/automation.rs
+msgid "Start timer"
+msgstr "タイマーを開始"
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause timer"
+msgstr "タイマーを一時停止"
+
+#: src/ui/dialogs/automation.rs
+msgid "Reset timer"
+msgstr "タイマーをリセット"
+
+#: src/ui/dialogs/automation.rs
+msgid "Restart timer"
+msgstr "タイマーを再開"
+
+#: src/ui/dialogs/automation.rs
+msgid "Show timer on the screen"
+msgstr "タイマーを画面に表示"
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide timer from the screen"
+msgstr "タイマーを画面から隠す"
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message"
+msgstr "メッセージを表示"
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the message"
+msgstr "メッセージを隠す"
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay on"
+msgstr "オーバーレイをオン"
+
+#: src/ui/dialogs/automation.rs
+msgid "Turn an overlay off"
+msgstr "オーバーレイをオフ"
+
+#: src/ui/dialogs/automation.rs
+msgid "Pause automatic slides"
+msgstr "スライドの自動送りを一時停止"
+
+#: src/ui/dialogs/automation.rs
+msgid "Resume automatic slides"
+msgstr "スライドの自動送りを再開"
+
+#: src/ui/dialogs/automation.rs
+msgid "Show a message to the stage"
+msgstr "ステージにメッセージを表示"
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide the stage message"
+msgstr "ステージメッセージを隠す"
+
+#: src/ui/dialogs/automation.rs
+msgid "item {n}"
+msgstr "項目 {n}"
+
+#: src/ui/dialogs/automation.rs
+msgid "Change what a screen shows"
+msgstr "画面の表示内容を変更"
+
+#: src/ui/dialogs/automation.rs
+msgid "Change the stage layout"
+msgstr "ステージレイアウトを変更"
+
+#: src/ui/dialogs/automation.rs
+msgid "Let the stage layout follow the slides"
+msgstr "ステージレイアウトをスライドに追従させる"
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down {time}"
+msgstr "{time} のカウントダウン"
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to the service start"
+msgstr "礼拝開始までカウントダウン"
+
+#: src/ui/dialogs/automation.rs
+msgid "Count down to {time}"
+msgstr "{time} までカウントダウン"
+
+#: src/ui/dialogs/automation.rs
+msgid "{n} step"
+msgid_plural "{n} steps"
+msgstr[0] "{n} ステップ"
+
+#: src/ui/dialogs/automation.rs
+msgid "Do nothing"
+msgstr "何もしない"
+
+#: src/ui/dialogs/automation.rs
+msgid "Hide it from the screen"
+msgstr "画面から隠す"
+
+#: src/ui/dialogs/automation.rs
+msgid "Run “{name}”"
+msgstr "「{name}」を実行"
+
+#: src/ui/dialogs/automation.rs
+msgid "Boxes to fill in: {fields}"
+msgstr "入力欄: {fields}"
+
+#: src/ui/dialogs/automation.rs
+msgid "Saved."
+msgstr "保存しました。"
+
+#: src/ui/dialogs/mod.rs
+msgid "Automation"
+msgstr "オートメーション"
+
+#: src/ui/dialogs/mod.rs
+msgid "Show message"
+msgstr "メッセージを表示"
+
+#: src/ui/dialogs/settings.rs
+msgid "{day} at {time} UTC"
+msgstr "{day} {time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "{time} UTC"
+msgstr "{time} UTC"
+
+#: src/ui/dialogs/settings.rs
+msgid "Ctrl + Shift + M"
+msgstr "Ctrl + Shift + M"
+
+#: src/ui/dialogs/settings.rs
+msgid "Show a message on the screen"
+msgstr "画面にメッセージを表示"
+
+#: src/ui/operator/automation.rs
+msgid "Auto · {time}"
+msgstr "自動 · {time}"
+
+#: src/ui/operator/checks.rs
+msgid "Nothing missing for this service."
+msgstr "この礼拝に不足しているものはありません。"
+
+#: src/ui/operator/checks.rs
+msgid "Click to see everything."
+msgstr "クリックですべて表示します。"
+
+#: src/ui/operator/checks.rs
+msgid "{n} problem"
+msgid_plural "{n} problems"
+msgstr[0] "{n} 件の問題"
+
+#: src/ui/operator/menu.rs
+msgid "Could not open the logs folder. It is at {path}"
+msgstr "ログフォルダーを開けませんでした。場所: {path}"
+
+#: src/ui/operator/menu.rs
+msgid "Make the window bigger to zoom in further."
+msgstr "さらに拡大するにはウィンドウを大きくしてください。"
+
+#: src/ui/room/prepare.rs
+msgid "picture could not be loaded"
+msgstr "画像を読み込めませんでした"
+
+#: src/ui/room.rs
+msgid "background took too long to load"
+msgstr "背景の読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "picture took too long to load"
+msgstr "画像の読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "video took too long to load"
+msgstr "動画の読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "slide took too long to load"
+msgstr "スライドの読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "logo took too long to load"
+msgstr "ロゴの読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "overlay took too long to load"
+msgstr "オーバーレイの読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "audio took too long to load"
+msgstr "音声の読み込みに時間がかかりすぎました"
+
+#: src/ui/room.rs
+msgid "the room could not prepare it"
+msgstr "会場画面で準備できませんでした"
+
+#: src/ui/room.rs
+msgid "Could not open the room screen: {error}"
+msgstr "会場画面を開けませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "A presentation is on screen"
+msgstr "プレゼンテーションを表示中"
+
+#: src/ui/screens.rs
+msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "会場画面が取り外されました。その画面を再接続すると自動で復帰します。"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "追加の会場画面が取り外されました。その画面を再接続すると自動で復帰します。"
+
+#: src/ui/screens.rs
+msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "ステージ画面が取り外されました。その画面を再接続すると自動で復帰します。"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgstr "追加のステージ画面が取り外されました。その画面を再接続すると自動で復帰します。"
+
+#: src/ui/screens.rs
+msgid "The room screen is plugged in again, but it could not open: {error}"
+msgstr "会場画面が再接続されましたが、開けませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgstr "追加の会場画面が再接続されましたが、開けませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "The stage display is plugged in again, but it could not open: {error}"
+msgstr "ステージ画面が再接続されましたが、開けませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "The extra stage screen is plugged in again, but it could not open: {error}"
+msgstr "追加のステージ画面が再接続されましたが、開けませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "Could not show the screen numbers: {error}"
+msgstr "画面番号を表示できませんでした: {error}"
+
+#: src/ui/screens.rs
+msgid "RustyPresenter is closing."
+msgstr "RustyPresenter を終了しています。"
+
+#: src/ui/stage.rs
+msgid "Could not open the stage screen: {error}"
+msgstr "ステージ画面を開けませんでした: {error}"
+
+#: src/undo.rs
+msgid "Undone: {what}"
+msgstr "元に戻しました: {what}"
+
+#: src/undo.rs
+msgid "Redone: {what}"
+msgstr "やり直しました: {what}"
+
+#: src/undo.rs
+msgid "Can't undo {what}: it was changed again since."
+msgstr "{what} を元に戻せません: その後再び変更されています。"
+
+#: src/undo.rs
+msgid "Can't redo {what}: it was changed again since."
+msgstr "{what} をやり直せません: その後再び変更されています。"
+
+#: src/undo.rs
+msgid "Nothing to redo."
+msgstr "やり直す操作はありません。"
+
+#: src/undo.rs
+msgid "Nothing to undo."
+msgstr "元に戻す操作はありません。"
+
+#: src/undo.rs
+msgid "the new service “{name}”"
+msgstr "新しい礼拝「{name}」"
+
+#: src/undo.rs
+msgid "deleting the service “{name}”"
+msgstr "礼拝「{name}」の削除"
+
+#: src/undo.rs
+msgid "adding “{name}”"
+msgstr "「{name}」の追加"
+
+#: src/undo.rs
+msgid "removing “{name}”"
+msgstr "「{name}」の削除"
+
+#: src/undo.rs
+msgid "moving “{name}”"
+msgstr "「{name}」の移動"
+
+#: src/undo.rs
+msgid "changes to “{name}”"
+msgstr "「{name}」への変更"
+
+#: src/undo.rs
+msgid "the new song “{name}”"
+msgstr "新しい曲「{name}」"
+
+#: src/undo.rs
+msgid "deleting the song “{name}”"
+msgstr "曲「{name}」の削除"
+
+#: src/undo.rs
+msgid "changes to the song “{name}”"
+msgstr "曲「{name}」への変更"
+
+#: src/undo.rs
+msgid "the last change"
+msgstr "最後の変更"
+
+#: src/video/ffi.rs
+msgid "The video player is missing. Reinstall RustyPresenter."
+msgstr "動画プレーヤーがありません。RustyPresenter を再インストールしてください。"
+
+#: src/video/ffi.rs
+msgid "Cannot load the video player from {path}: {reason}"
+msgstr "{path} から動画プレーヤーを読み込めません: {reason}"
+
+#: src/video/ffi.rs
+msgid "This libmpv is too old (client API {major}.{minor}); RustyPresenter needs 2.x."
+msgstr "この libmpv は古すぎます（クライアント API {major}.{minor}）。RustyPresenter には 2.x が必要です。"
+
+#: src/video/graphics.rs
+msgid "Software"
+msgstr "ソフトウェア"
+
+#: src/video/graphics.rs
+msgid "Automatic (recommended)"
+msgstr "自動（推奨）"
+
+#: src/video/graphics.rs
+msgid "Software (safe mode)"
+msgstr "ソフトウェア（セーフモード）"
+
+#: src/video/graphics.rs
+msgid "In use now: {mode}"
+msgstr "現在使用中: {mode}"
+
+#: src/video/graphics.rs
+msgid "Restart RustyPresenter to use the new graphics setting."
+msgstr "新しいグラフィックス設定を使うには RustyPresenter を再起動してください。"
+
+#: src/video/graphics.rs
+msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
+msgstr "このコンピューターでは {wanted} グラフィックスモードを使用できなかったため、RustyPresenter は {mode} を使用しています。"
+
+#: src/video/graphics.rs
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgstr "グラフィックスカードに問題があったため、RustyPresenter はセーフモードで起動しました。「設定 → 動画」で変更できます。"
+
+#: src/video/player.rs
+msgid "The video player could not start."
+msgstr "動画プレーヤーを起動できませんでした。"
+
+#: src/video/player.rs
+msgid "The video player could not start: {reason}"
+msgstr "動画プレーヤーを起動できませんでした: {reason}"
+
+#: src/video/player.rs
+msgid "{name} could not be played ({reason})"
+msgstr "{name} を再生できませんでした ({reason})"
+
+#: src/video/surface.rs
+msgid "The video cannot be shown: {reason}"
+msgstr "動画を表示できません: {reason}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "{address} にリリースがありません"
+
+#: src/youtube/fetch.rs
+msgid "no fingerprint for {file}"
+msgstr "{file} のフィンガープリントがありません"
+
+#: src/youtube/fetch.rs
+msgid "{file} is missing from the download"
+msgstr "ダウンロードに {file} が含まれていません"
+
+#: src/youtube/fetch.rs
+msgid "{address} is too big"
+msgstr "{address} が大きすぎます"
+
+#: src/youtube/fetch.rs
+msgid "unreadable archive: {error}"
+msgstr "読み取れないアーカイブ: {error}"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp stopped"
+msgstr "yt-dlp が停止しました"
+
+#: src/youtube/mod.rs
+msgid "unreadable details ({error})"
+msgstr "読み取れない詳細情報 ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start ({error})"
+msgstr "yt-dlp を起動できませんでした ({error})"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp could not start"
+msgstr "yt-dlp を起動できませんでした"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp gave no details"
+msgstr "yt-dlp から詳細情報が返されませんでした"
+
+#: src/youtube/mod.rs
+msgid "yt-dlp saved no video"
+msgstr "yt-dlp は動画を保存しませんでした"
+
+#: src/youtube/mod.rs
+msgid "not a media file"
+msgstr "メディアファイルではありません"

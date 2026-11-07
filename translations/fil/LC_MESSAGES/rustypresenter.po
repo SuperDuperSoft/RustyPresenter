@@ -104,7 +104,7 @@ msgstr "Reference ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "hal. Juan 3:16-18, Awit 23, Roma 8:28,31-39"
+msgstr "hal. John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -552,7 +552,7 @@ msgstr "Mga salitang hahanapin"
 
 #: ui/dialogs/find-verse.slint
 msgid "Type words from the verse, like be still and know"
-msgstr "I-type ang mga salita mula sa talata, tulad ng magsitigil kayo at kilalanin"
+msgstr "I-type ang mga salita mula sa talata, tulad ng be still and know"
 
 #: ui/dialogs/find-verse.slint
 msgid "Whole Bible"
@@ -580,11 +580,11 @@ msgstr "Pumili ng resulta para makita ang kabanata nito. Mag-click ng talata, o 
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
-msgstr "Ang lyrics, pagkakasunod-sunod at credits ay nasa kanta sa iyong library."
+msgstr "Ang lyrics, ayos at credits ay nasa kanta sa iyong library."
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr "Ang lyrics, pagkakasunod-sunod at credits ay nasa kanta sa iyong library. Binura na ang kantang ito sa library."
+msgstr "Ang lyrics, ayos at credits ay nasa kanta sa iyong library. Binura na ang kantang ito sa library."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
@@ -760,7 +760,7 @@ msgstr "Kanan"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr "Nananatili ang overlays sa screen ng silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Susunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
+msgstr "Nananatili ang overlays sa screen sa silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Susunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -860,7 +860,7 @@ msgstr "Kulay ng box"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr "Malinaw"
+msgstr "Transparent"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -1380,7 +1380,7 @@ msgstr "Kulay ng outline"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr "Text band (malinaw na guhit sa likod ng mga salita)"
+msgstr "Text band (transparent na guhit sa likod ng mga salita)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band color"
@@ -1580,7 +1580,7 @@ msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
-msgstr "Pagkakasunod-sunod"
+msgstr "Ayos"
 
 #: ui/dialogs/song-editor.slint
 msgid "(optional)"
@@ -1992,7 +1992,7 @@ msgstr "Logo sa sulok, orasan o maikling karatula"
 
 #: ui/operator/overlay-strip.slint
 msgid "F6 Clear"
-msgstr "F6 Clear"
+msgstr "F6 I-clear"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
@@ -2076,7 +2076,7 @@ msgstr "I-click ang “Idagdag sa service” para sa mga kanta, video at slides 
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Mag-type ng talata tulad ng “Juan 3:16” sa Bible box at pindutin ang Enter."
+msgstr "Mag-type ng talata tulad ng “John 3:16” sa Bible box at pindutin ang Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2708,7 +2708,7 @@ msgstr "Ibang aklat ang ibinalik ng YouVersion"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Mag-type ng reference, tulad ng Juan 3:16."
+msgstr "Mag-type ng reference, tulad ng John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Hindi ko kilala ang aklat na \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Magdagdag ng kabanata, tulad ng Juan 3 o Juan 3:16."
+msgstr "Magdagdag ng kabanata, tulad ng John 3 o John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Mukhang mali ang reference na iyon. Subukan ang tulad ng Juan 3:16-18."
+msgstr "Mukhang mali ang reference na iyon. Subukan ang tulad ng John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -2808,7 +2808,7 @@ msgstr "(May tumutugtog na musika)"
 
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
-msgstr "(Clear)"
+msgstr "(Blangko)"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -3586,7 +3586,7 @@ msgstr "Masyadong mabilis — subukang muli."
 
 #: src/strings/automation.rs
 msgid "Give it a name of 1 to 40 letters."
-msgstr "Bigyan ito ng pangalang may 1 hanggang 40 titik."
+msgstr "Bigyan ito ng pangalang may 1 hanggang 40 letra."
 
 #: src/strings/automation.rs
 msgid "You can have up to 50 timers."
@@ -3675,8 +3675,8 @@ msgstr "Nawawala ang file ng {name}."
 #: src/strings/bundle.rs
 msgid "This service was made with a font this computer does not have, so its words show in another font: {fonts}. Install it to see them as they were made."
 msgid_plural "This service was made with fonts this computer does not have, so its words show in another font: {fonts}. Install them to see them as they were made."
-msgstr[0] "Ginawa ang service na ito gamit ang font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ito para makita ang mga ito gaya ng pagkakagawa."
-msgstr[1] "Ginawa ang service na ito gamit ang mga font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ang mga ito para makita gaya ng pagkakagawa."
+msgstr[0] "Ginawa ang service na ito gamit ang font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ang font para makita ang mga salita gaya ng pagkakagawa."
+msgstr[1] "Ginawa ang service na ito gamit ang font na wala sa computer na ito, kaya sa ibang font lumalabas ang mga salita: {fonts}. I-install ang font para makita ang mga salita gaya ng pagkakagawa."
 
 #: src/strings/bundle.rs
 msgid "Saved “{name}” to a file."
@@ -4901,7 +4901,7 @@ msgstr "Walang talata sa {bible} na may lahat ng salitang iyon."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "Walang talata sa {bible} na may salitang iyon. Kung pangalan ito ng aklat, suriin ang baybay at magdagdag ng kabanata, tulad ng Juan 3."
+msgstr "Walang talata sa {bible} na may salitang iyon. Kung pangalan ito ng aklat, suriin ang baybay at magdagdag ng kabanata, tulad ng John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5755,7 +5755,7 @@ msgstr "Hanggang 8 overlay ang maaaring naka-on nang sabay. Mag-off muna ng isa.
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Themes)."
-msgstr "Pumili muna ng logo ng simbahan (Settings → Mga Theme)."
+msgstr "Pumili muna ng logo ng simbahan (Settings → Mga theme)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -5845,7 +5845,7 @@ msgstr "Burahin ang overlay na “{name}”? Kung nasa screen ito, mananatili it
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
-msgstr "Na-save ang data na ito ng mas bagong RustyPresenter. Pakii-install ang pinakabagong bersyon."
+msgstr "Na-save ang data na ito ng mas bagong RustyPresenter. Paki-install ang pinakabagong bersyon."
 
 #: src/strings/themes.rs
 msgid "Expected an object."
@@ -5870,8 +5870,8 @@ msgstr "(nabura) {name}"
 #: src/strings/themes.rs
 msgid "{n} item has its own background. Use the theme's background for it too?"
 msgid_plural "{n} items have their own background. Use the theme's background for them too?"
-msgstr[0] "May sariling background ang {n} item. Gamitin din ba ang background ng theme para dito?"
-msgstr[1] "May sariling background ang {n} na item. Gamitin din ba ang background ng theme para sa mga ito?"
+msgstr[0] "May sariling background ang {n} item. Gamitin din ba ang background ng theme?"
+msgstr[1] "May sariling background ang {n} na item. Gamitin din ba ang background ng theme?"
 
 #: src/strings/themes.rs
 msgid "Used by {n} item"
@@ -6239,7 +6239,7 @@ msgstr "Hatinggabi"
 
 #: src/theme/backgrounds.rs
 msgid "Deep purple"
-msgstr "Malalim na lila"
+msgstr "Madilim na lila"
 
 #: src/theme/backgrounds.rs
 msgid "Forest"

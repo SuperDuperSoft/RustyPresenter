@@ -324,7 +324,7 @@ msgstr "위"
 
 #: ui/dialogs/automation.slint
 msgid "Hide after"
-msgstr "숨기기까지"
+msgstr "자동 숨김"
 
 #: ui/dialogs/automation.slint
 msgid "Never"
@@ -1864,7 +1864,7 @@ msgstr "끝나기 10초 전으로 이동해서 어떻게 끝나는지 확인해�
 
 #: ui/operator/live.slint
 msgid "Edit words"
-msgstr "가사 수정"
+msgstr "가사 편집"
 
 #: ui/operator/live.slint
 msgid "Fix the words of the live song. The screen changes only when you say so."
@@ -3175,7 +3175,7 @@ msgstr "전주|인트로"
 #: src/sections/kind.rs
 msgctxt "song section heading"
 msgid "Ending"
-msgstr "후주|엔딩"
+msgstr "엔딩|후주"
 
 #: src/sections/kind.rs
 msgctxt "song section heading"
@@ -3413,15 +3413,15 @@ msgstr "화면이 지워졌어요 — 다시 시도하세요."
 
 #: src/strings/automation.rs
 msgid "Set a start time for this service first (Services → Starts at)."
-msgstr "먼저 이 예배의 시작 시간을 설정하세요(예배 목록 → 시작 시간)."
+msgstr "먼저 이 예배의 시작 시각을 설정하세요(예배 목록 → 시작 시각)."
 
 #: src/strings/automation.rs
 msgid "The service start time ({time}) has passed."
-msgstr "예배 시작 시간({time})이 지났어요."
+msgstr "예배 시작 시각({time})이 지났어요."
 
 #: src/strings/automation.rs
 msgid "That time ({time}) has passed."
-msgstr "그 시간({time})이 지났어요."
+msgstr "그 시각({time})이 지났어요."
 
 #: src/strings/automation.rs
 msgid "This timer needs a newer RustyPresenter."
@@ -4529,7 +4529,7 @@ msgstr "제목 이름 바꾸기"
 
 #: src/strings/planning.rs
 msgid "Click “Make a service” on the template you want, under Templates."
-msgstr "템플릿에서 원하는 템플릿의 “예배 만들기”를 클릭하세요."
+msgstr "템플릿 탭에서 원하는 템플릿의 “예배 만들기”를 클릭하세요."
 
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
@@ -4986,11 +4986,11 @@ msgstr "설정 저장됨"
 
 #: src/strings/settings.rs
 msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "나 같은 죄인 살리신\n그 은혜 놀라워"
+msgstr "나 같은 죄인 살리신\n주 은혜 놀라워"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
-msgstr "Amazing Grace · John Newton · 퍼블릭 도메인"
+msgstr "나 같은 죄인 살리신 · John Newton · 퍼블릭 도메인"
 
 #: src/strings/settings.rs src/strings/themes.rs
 msgid "“{font}” isn't installed on this computer, so slides use Noto Sans."
@@ -5598,7 +5598,7 @@ msgstr "나 같은 죄인 살리신"
 
 #: src/strings/stage.rs
 msgid "That saved a wretch like me"
-msgstr "그 은혜 놀라워"
+msgstr "주 은혜 놀라워"
 
 #: src/strings/stage.rs
 msgid "Verse 2"

@@ -760,7 +760,7 @@ msgstr "Droite"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
-msgstr "Les superpositions restent sur l’écran de la salle pendant que les diapos changent : un logo dans un coin, une horloge ou un court panneau. Activez-les et désactivez-les avec les pastilles sous Suivant dans la colonne Direct. La dernière de la liste est dessinée au-dessus."
+msgstr "Les superpositions restent sur l’écran de la salle pendant que les diapos changent : un logo dans un coin, une horloge ou un court panneau. Activez-les et désactivez-les avec les pastilles sous Suivant dans la colonne En direct. La dernière de la liste est dessinée au-dessus."
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -1428,7 +1428,7 @@ msgstr "Désactivez si des lettres tapées par erreur font bouger l’écran."
 
 #: ui/dialogs/settings.slint
 msgid "Letters and numbers jump the live song to a section"
-msgstr "Les lettres et chiffres font sauter le chant en direct à une section"
+msgstr "Les lettres et chiffres font passer le chant en direct à une section"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
@@ -1856,7 +1856,7 @@ msgstr "Avancer de 15 secondes"
 
 #: ui/operator/live.slint
 msgid "Last 10 s"
-msgstr "10 dern. s"
+msgstr "10 dernières s"
 
 #: ui/operator/live.slint
 msgid "Jump to 10 seconds before the end, to check how it finishes"
@@ -2236,7 +2236,7 @@ msgstr "Importer des médias…"
 
 #: ui/operator.slint
 msgid "Print service order…"
-msgstr "Imprimer l’ordre du culte…"
+msgstr "Imprimer le déroulement du culte…"
 
 #: ui/operator.slint
 msgid "Exit"
@@ -3330,7 +3330,7 @@ msgstr "Copié"
 
 #: src/strings/add.rs src/strings/bundle.rs
 msgid "…and {n} more."
-msgstr "…et {n} de plus."
+msgstr "…et {n} autres."
 
 #: src/strings/add.rs
 msgid "Imported {n} song."
@@ -4655,7 +4655,7 @@ msgstr "Ordre : {sections}"
 
 #: src/strings/print.rs
 msgid "Blank — {label}"
-msgstr "Vide — {label}"
+msgstr "À remplir — {label}"
 
 #: src/strings/print.rs
 msgid "(not chosen yet)"
@@ -4853,7 +4853,7 @@ msgstr "Les meilleurs résultats viennent d’abord : les versets avec vos mots
 
 #: src/strings/scripture.rs
 msgid "Ctrl+Enter in the Bible box always searches, even for a book name like \"Job\"."
-msgstr "Ctrl+Entrée dans la case Bible lance toujours une recherche, même pour un nom de livre comme \"Job\"."
+msgstr "Ctrl+Entrée dans la case Bible lance toujours une recherche, même pour un nom de livre comme « Job »."
 
 #: src/strings/scripture.rs
 msgid "Also show…"
@@ -5353,7 +5353,7 @@ msgstr "Ce chant n’a pas de {section}."
 
 #: src/strings/song.rs
 msgid "Jumped to {section} ({key})"
-msgstr "Aller à : {section} ({key})"
+msgstr "Saut à {section} ({key})"
 
 #: src/strings/song.rs
 msgid "{section} — press {key}"
@@ -5775,15 +5775,15 @@ msgstr "Logo retiré"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr "Pour une indication qui reste affichée."
+msgstr "Pour un panneau qui reste affiché."
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr "Pour une indication qui reste affichée. Pour un avis comme le nom d’un parent, utilisez Message (dès que disponible)."
+msgstr "Pour un panneau qui reste affiché. Pour un avis comme le nom d’un parent, utilisez Message (dès que disponible)."
 
 #: src/strings/themes.rs
 msgid "Make default"
-msgstr "Par défaut"
+msgstr "Définir par défaut"
 
 #: src/strings/themes.rs
 msgid "Theme put back as it came"
@@ -6495,7 +6495,7 @@ msgstr "L’écran de la salle a été débranché. Il reviendra tout seul quand
 
 #: src/ui/screens.rs
 msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "L’écran public supplémentaire a été débranché. Il reviendra tout seul quand cet écran sera rebranché."
+msgstr "L’écran du public supplémentaire a été débranché. Il reviendra tout seul quand cet écran sera rebranché."
 
 #: src/ui/screens.rs
 msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
@@ -6511,7 +6511,7 @@ msgstr "L’écran de la salle est rebranché, mais il n’a pas pu s’ouvrir 
 
 #: src/ui/screens.rs
 msgid "The extra audience screen is plugged in again, but it could not open: {error}"
-msgstr "L’écran public supplémentaire est rebranché, mais il n’a pas pu s’ouvrir : {error}"
+msgstr "L’écran du public supplémentaire est rebranché, mais il n’a pas pu s’ouvrir : {error}"
 
 #: src/ui/screens.rs
 msgid "The stage display is plugged in again, but it could not open: {error}"

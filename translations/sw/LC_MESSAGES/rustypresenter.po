@@ -104,7 +104,7 @@ msgstr "Kifungu ({})"
 
 #: ui/dialogs/add.slint
 msgid "e.g. John 3:16-18, Psalm 23, Romans 8:28,31-39"
-msgstr "mf. Yohana 3:16-18, Zaburi 23, Warumi 8:28,31-39"
+msgstr "mf. John 3:16-18, Psalm 23, Romans 8:28,31-39"
 
 #: ui/dialogs/add.slint
 msgid "Add verses"
@@ -764,7 +764,7 @@ msgstr "Viwekelezo hubaki kwenye skrini ya ukumbi slaidi zinapobadilika: nembo p
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
-msgstr "Nakili"
+msgstr "Rudufu"
 
 #: ui/dialogs/overlays.slint
 msgid "No overlays yet."
@@ -808,7 +808,7 @@ msgstr "Chagua picha…"
 
 #: ui/dialogs/overlays.slint
 msgid "Opacity"
-msgstr "Uangavu"
+msgstr "Ukolevu"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
@@ -1364,7 +1364,7 @@ msgstr "Katikati"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline"
-msgstr "Muhtasari"
+msgstr "Ukingo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Thin"
@@ -1376,7 +1376,7 @@ msgstr "Nene"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Outline color"
-msgstr "Rangi ya muhtasari"
+msgstr "Rangi ya ukingo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
@@ -1636,7 +1636,7 @@ msgstr "Mpya"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Duplicate to edit"
-msgstr "Nakili ili kuhariri"
+msgstr "Rudufu ili kuhariri"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
@@ -1704,7 +1704,7 @@ msgstr "Rudia"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Built-in layouts can't be changed. Duplicate one to make your own."
-msgstr "Mipangilio iliyojengwa ndani haiwezi kubadilishwa. Nakili mmoja ili kutengeneza yako."
+msgstr "Mipangilio iliyojengwa ndani haiwezi kubadilishwa. Rudufu mmoja ili kutengeneza yako."
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely."
@@ -2076,7 +2076,7 @@ msgstr "Bofya “Ongeza kwenye ibada” kwa nyimbo, video na slaidi — au burut
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Andika mstari kama “Yohana 3:16” kwenye kisanduku cha Biblia na ubonyeze Enter."
+msgstr "Andika mstari kama “John 3:16” kwenye kisanduku cha Biblia na ubonyeze Enter."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -2132,7 +2132,7 @@ msgstr "Badilisha au unda ibada"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Mstari wa Biblia — andika Yohana 3:16 na ubonyeze Enter"
+msgstr "Mstari wa Biblia — andika John 3:16 na ubonyeze Enter"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -2708,7 +2708,7 @@ msgstr "YouVersion ilirudisha kitabu tofauti"
 
 #: src/bible.rs
 msgid "Type a reference, like John 3:16."
-msgstr "Andika kifungu, kama Yohana 3:16."
+msgstr "Andika kifungu, kama John 3:16."
 
 #: src/bible.rs
 msgid "I don't recognize the book \"{book}\"."
@@ -2716,11 +2716,11 @@ msgstr "Sikitambui kitabu \"{book}\"."
 
 #: src/bible.rs
 msgid "Add a chapter, like John 3 or John 3:16."
-msgstr "Ongeza sura, kama Yohana 3 au Yohana 3:16."
+msgstr "Ongeza sura, kama John 3 au John 3:16."
 
 #: src/bible.rs
 msgid "That reference doesn't look right. Try something like John 3:16-18."
-msgstr "Kifungu hicho hakionekani sawa. Jaribu kitu kama Yohana 3:16-18."
+msgstr "Kifungu hicho hakionekani sawa. Jaribu kitu kama John 3:16-18."
 
 #: src/bible.rs
 msgid "The end of the range comes before the start."
@@ -3494,7 +3494,7 @@ msgstr "Imeshindwa kuendesha “{name}”: kipima muda cha hatua {step} kilifutw
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s overlay was deleted. Edit the macro."
-msgstr "Imeshindwa kuendesha “{name}”: tabaka la hatua {step} lilifutwa. Hariri makro."
+msgstr "Imeshindwa kuendesha “{name}”: kiwekelezo cha hatua {step} kilifutwa. Hariri makro."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s screen view was deleted. Edit the macro."
@@ -3718,7 +3718,7 @@ msgstr "Hizi zinatofautiana na nyimbo zilizopo tayari, kwa hiyo ibada inatumia n
 
 #: src/strings/catalog.rs
 msgid "You're offline. Bibles you've added still work."
-msgstr "Huko nje ya mtandao. Biblia ulizoongeza bado zinafanya kazi."
+msgstr "Uko nje ya mtandao. Biblia ulizoongeza bado zinafanya kazi."
 
 #: src/strings/catalog.rs
 msgid "The list of Bibles couldn't be read. Try again later."
@@ -3786,7 +3786,7 @@ msgstr "Biblia hiyo haimo tena kwenye orodha. Fungua Mipangilio → Biblia tena 
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
-msgstr "Huko nje ya mtandao, kwa hiyo Biblia haziwezi kuongezwa sasa hivi."
+msgstr "Uko nje ya mtandao, kwa hiyo Biblia haziwezi kuongezwa sasa hivi."
 
 #: src/strings/catalog.rs
 msgid "Loading the list of Bibles…"
@@ -4763,7 +4763,7 @@ msgstr "Andika angalau neno moja la kutafuta."
 
 #: src/strings/scripture.rs
 msgid "Add a chapter, like Job 1 or Job 1:1."
-msgstr "Ongeza sura, kama Ayubu 1 au Ayubu 1:1."
+msgstr "Ongeza sura, kama Job 1 au Job 1:1."
 
 #: src/strings/scripture.rs
 msgid "Pick a different second translation."
@@ -4901,7 +4901,7 @@ msgstr "Hakuna mistari katika {bible} yenye maneno hayo yote."
 
 #: src/strings/scripture.rs
 msgid "No verses in {bible} have that word. If it's a book name, check the spelling and add a chapter, like John 3."
-msgstr "Hakuna mistari katika {bible} yenye neno hilo. Ikiwa ni jina la kitabu, kagua tahajia na uongeze sura, kama Yohana 3."
+msgstr "Hakuna mistari katika {bible} yenye neno hilo. Ikiwa ni jina la kitabu, kagua tahajia na uongeze sura, kama John 3."
 
 #: src/strings/scripture.rs
 msgid "Showing the first {shown} of {total} verses — add more words to narrow it down."
@@ -5735,23 +5735,23 @@ msgstr "Imeshindwa kugeuza"
 
 #: src/strings/themes.rs
 msgid "Give the overlay a name."
-msgstr "Ipe tabaka jina."
+msgstr "Kipe kiwekelezo jina."
 
 #: src/strings/themes.rs
 msgid "Type the overlay's text."
-msgstr "Andika maandishi ya tabaka."
+msgstr "Andika maandishi ya kiwekelezo."
 
 #: src/strings/themes.rs
 msgid "That overlay is gone."
-msgstr "Tabaka hilo halipo tena."
+msgstr "Kiwekelezo hicho hakipo tena."
 
 #: src/strings/themes.rs
 msgid "Only text, picture and clock overlays can be saved."
-msgstr "Tabaka za maandishi, picha na saa pekee ndizo zinaweza kuhifadhiwa."
+msgstr "Viwekelezo vya maandishi, picha na saa pekee ndivyo vinaweza kuhifadhiwa."
 
 #: src/strings/themes.rs
 msgid "Up to 8 overlays can be on at once. Turn one off first."
-msgstr "Hadi tabaka 8 zinaweza kuwashwa kwa wakati mmoja. Zima moja kwanza."
+msgstr "Hadi viwekelezo 8 vinaweza kuwashwa kwa wakati mmoja. Zima kimoja kwanza."
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Themes)."
@@ -5775,11 +5775,11 @@ msgstr "Nembo imeondolewa"
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up."
-msgstr "Kwa ishara inayobaki juu."
+msgstr "Kwa tangazo linalobaki."
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
-msgstr "Kwa ishara inayobaki juu. Kwa tangazo kama jina la mzazi, tumia Ujumbe (ukipatikana)."
+msgstr "Kwa tangazo linalobaki. Kwa taarifa kama jina la mzazi, tumia Ujumbe (ukipatikana)."
 
 #: src/strings/themes.rs
 msgid "Make default"
@@ -5861,7 +5861,7 @@ msgstr "Tayari kuna mandhari inayoitwa “{name}”."
 
 #: src/strings/themes.rs
 msgid "Couldn't show the overlay “{name}”: {reason}"
-msgstr "Imeshindwa kuonyesha tabaka “{name}”: {reason}"
+msgstr "Imeshindwa kuonyesha kiwekelezo “{name}”: {reason}"
 
 #: src/strings/themes.rs
 msgid "(deleted) {name}"
@@ -6471,7 +6471,7 @@ msgstr "nembo ilichukua muda mrefu mno kupakia"
 
 #: src/ui/room.rs
 msgid "overlay took too long to load"
-msgstr "tabaka lilichukua muda mrefu mno kupakia"
+msgstr "kiwekelezo kilichukua muda mrefu mno kupakia"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
