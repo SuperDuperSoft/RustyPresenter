@@ -284,7 +284,7 @@ component BoxPanel inherits VerticalLayout {
                 edited(t) => { StageLayoutsDlg.text-edited(t); }
             }
         }
-        Lbl { label: @tr("Biggest text: {}%", StageLayoutsDlg.box-size); }
+        Lbl { label: @tr("Biggest text ({}%)", StageLayoutsDlg.box-size); }
         size := RangeSlider {
             minimum: 2;
             maximum: 40;
