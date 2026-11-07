@@ -41,7 +41,7 @@ msgstr "选择圣经"
 msgid "Try again"
 msgstr "重试"
 
-#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "编辑"
 
@@ -161,7 +161,7 @@ msgstr "标题"
 msgid "e.g. Welcome, Announcements, Offering"
 msgstr "例如 欢迎、报告事项、奉献"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Text"
 msgstr "文本"
 
@@ -177,7 +177,7 @@ msgstr "添加报告"
 msgid "Song"
 msgstr "诗歌"
 
-#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/settings-themes.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
 msgstr "歌词"
 
@@ -205,7 +205,7 @@ msgstr "幻灯片"
 msgid "PowerPoint, pictures"
 msgstr "PowerPoint、图片"
 
-#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
 msgstr "报告事项"
 
@@ -217,7 +217,7 @@ msgstr "你自己的文字"
 msgid "Not in the lyrics — it is skipped"
 msgstr "歌词中没有 — 将被跳过"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
 msgid "Remove"
 msgstr "移除"
 
@@ -309,7 +309,7 @@ msgstr "3 节"
 msgid "4 verses"
 msgstr "4 节"
 
-#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "文字大小"
 
@@ -357,7 +357,7 @@ msgstr "重复直到停止"
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
 msgstr "切换幻灯片时音频会继续播放。使用“停止音频”(F4) 或“全部清空”来停止。"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
 msgstr "名称"
 
@@ -365,7 +365,11 @@ msgstr "名称"
 msgid "Name in library"
 msgstr "库中名称"
 
-#: ui/dialogs/item-edit.slint src/strings/themes.rs
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Theme"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
 msgstr "背景"
 
@@ -388,6 +392,178 @@ msgstr "取消"
 #: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "保存"
+
+#: ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Middle"
+msgstr "居中"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Delete"
+msgstr "删除"
+
+#: ui/dialogs/overlays.slint
+msgid "No overlays yet."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "New overlay:"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+msgid "Picture"
+msgstr "图片"
+
+#: ui/dialogs/overlays.slint
+msgid "A logo in the corner"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Clock"
+msgstr "时钟"
+
+#: ui/dialogs/overlays.slint
+msgid "The time of day"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Use the church logo"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A picture of its own"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Choose picture…"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Opacity"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Show seconds"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "24-hour clock"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Where"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/screens.slint
+msgid "Size"
+msgstr "尺寸"
+
+#: ui/dialogs/overlays.slint
+msgid "(share of the screen's width)"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Text color"
+msgstr "文字颜色"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "文字阴影（在图片上更易阅读）"
+
+#: ui/dialogs/overlays.slint
+msgid "Box"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "关"
+
+#: ui/dialogs/overlays.slint
+msgid "Behind the text"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Full-width bar"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Box color"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "See-through"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "预览"
+
+#: ui/dialogs/overlays.slint
+msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "返回"
+
+#: ui/dialogs/overlays.slint
+msgid "Save overlay"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "关闭"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
@@ -485,10 +661,6 @@ msgstr "在网页浏览器中打开该页面，可以打印或另存为 PDF"
 msgid "Save web page…"
 msgstr "保存网页…"
 
-#: ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr "关闭"
-
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
 msgstr "为 {} 添加屏幕"
@@ -496,10 +668,6 @@ msgstr "为 {} 添加屏幕"
 #: ui/dialogs/screens.slint
 msgid "Output"
 msgstr "输出"
-
-#: ui/dialogs/screens.slint
-msgid "Size"
-msgstr "尺寸"
 
 #: ui/dialogs/screens.slint
 msgid "Width"
@@ -569,7 +737,7 @@ msgstr "从文件打开"
 msgid "Open"
 msgstr "打开"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
 msgstr "重命名"
 
@@ -584,10 +752,6 @@ msgstr "打印聚会流程和歌词，或另存为网页"
 #: ui/dialogs/services.slint
 msgid "Save as template"
 msgstr "另存为模板"
-
-#: ui/dialogs/services.slint src/strings/stage.rs
-msgid "Delete"
-msgstr "删除"
 
 #: ui/dialogs/services.slint
 msgid "Templates"
@@ -608,10 +772,6 @@ msgstr "你的数据："
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
 msgstr "显示许可证"
-
-#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "返回"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
 msgid "Default Bible"
@@ -733,15 +893,15 @@ msgstr "翻译由志愿者完成。如果缺少你的语言或有错误，欢迎
 msgid "Help translate RustyPresenter"
 msgstr "帮助翻译 RustyPresenter"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Font"
 msgstr "字体"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Lyrics size"
 msgstr "歌词大小"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
 msgstr "（最大值；长行会缩小以适应）"
 
@@ -753,11 +913,11 @@ msgstr "圣经经文"
 msgid "(for new passages)"
 msgstr "（用于新经文）"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Scripture text size"
 msgstr "经文文字大小"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
 msgstr "（最大值）"
 
@@ -765,27 +925,15 @@ msgstr "（最大值）"
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr "幻灯片字数较多时文字会自动缩小。"
 
-#: ui/dialogs/settings-look.slint
-msgid "Text color"
-msgstr "文字颜色"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text position"
 msgstr "文字位置"
 
-#: ui/dialogs/settings-look.slint
-msgid "Middle"
-msgstr "居中"
-
-#: ui/dialogs/settings-look.slint src/strings/themes.rs
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Lower third"
 msgstr "下方三分之一"
 
-#: ui/dialogs/settings-look.slint
-msgid "Shadow behind text (easier to read on pictures)"
-msgstr "文字阴影（在图片上更易阅读）"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS lyrics"
 msgstr "歌词全部大写"
 
@@ -802,16 +950,136 @@ msgid "Choose logo"
 msgstr "选择标志"
 
 #: ui/dialogs/settings-look.slint
-msgid "Preview"
-msgstr "预览"
-
-#: ui/dialogs/settings-look.slint
 msgid "Default background"
 msgstr "默认背景"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "所有语言"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Church default"
+msgstr "教会默认"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Make this the church default"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "New theme"
+msgstr "新建主题"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Background library"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "No backgrounds yet."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add picture or video…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add colour or gradient…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Color"
+msgstr "颜色"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Gradient"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "From"
+msgstr "从"
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "To"
+msgstr "至"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Direction"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add to backgrounds"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Weight"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "(for songs and announcements)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Regular"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Semibold"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Bold"
+msgstr "粗体"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Align"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Center"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thin"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thick"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Text band (a see-through strip behind the words)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Band color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "经文"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Darken"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "使文字更易阅读"
 
 #: ui/dialogs/settings.slint
 msgid "Lines per slide"
@@ -828,10 +1096,6 @@ msgstr "在第一张幻灯片"
 #: ui/dialogs/settings.slint
 msgid "On last slide"
 msgstr "在最后一张幻灯片"
-
-#: ui/dialogs/settings.slint src/strings/screens.rs
-msgid "Off"
-msgstr "关"
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
@@ -910,6 +1174,10 @@ msgid "Look"
 msgstr "外观"
 
 #: ui/dialogs/settings.slint
+msgid "Themes"
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Language"
 msgstr "语言"
 
@@ -917,7 +1185,7 @@ msgstr "语言"
 msgid "Songs"
 msgstr "诗歌"
 
-#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "视频"
 
@@ -932,6 +1200,10 @@ msgstr "帮助"
 #: ui/dialogs/settings.slint
 msgid "About"
 msgstr "关于"
+
+#: ui/dialogs/settings.slint
+msgid "Save theme"
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1046,10 +1318,6 @@ msgid "Duplicate to edit"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Duplicate"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
 msgstr ""
 
@@ -1098,15 +1366,7 @@ msgid "Alignment"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Left"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
-msgid "Right"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
@@ -1146,16 +1406,8 @@ msgid "Keep a song use log for CCLI reporting"
 msgstr "记录诗歌使用情况以便向 CCLI 报告"
 
 #: ui/dialogs/usage.slint
-msgid "From"
-msgstr "从"
-
-#: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
 msgstr "YYYY-MM-DD"
-
-#: ui/dialogs/usage.slint
-msgid "To"
-msgstr "至"
 
 #: ui/dialogs/usage.slint
 msgid "Since last report"
@@ -1377,6 +1629,34 @@ msgstr "移到文件夹"
 msgid "Room screen is off"
 msgstr "会众屏幕已关闭"
 
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "已更改 — 关闭再开启即可更新。"
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "+ Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "A logo in the corner, a clock or a short sign"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "F6 Clear"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "Clear overlays (F6)"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint ui/operator.slint
+msgid "Overlays…"
+msgstr ""
+
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
 msgstr "拖放到此处以添加到聚会"
@@ -1404,6 +1684,10 @@ msgstr "检查"
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
 msgstr "聚会开始前：所有诗歌、文件和屏幕都准备好了吗？"
+
+#: ui/operator/service.slint
+msgid "Theme for this service"
+msgstr ""
 
 #: ui/operator/service.slint
 msgid "Custom order"
@@ -1645,6 +1929,10 @@ msgstr "清除媒体和背景"
 msgid "Stop audio"
 msgstr "停止音频"
 
+#: ui/operator.slint src/strings/themes.rs
+msgid "Clear overlays"
+msgstr ""
+
 #: ui/operator.slint
 msgid "Hide media library"
 msgstr "隐藏媒体库"
@@ -1688,6 +1976,10 @@ msgstr ""
 #: ui/operator.slint
 msgid "Settings…"
 msgstr "设置…"
+
+#: ui/operator.slint
+msgid "Themes and backgrounds…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2460,10 +2752,6 @@ msgstr "端口 {port} 被其他程序占用，RustyPresenter 无法启动。"
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
 msgstr "该屏幕当前未连接。"
-
-#: src/print/html.rs src/strings/operator.rs
-msgid "Scripture"
-msgstr "经文"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
@@ -3277,10 +3565,6 @@ msgstr "+ 上传…"
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
 msgstr "已添加到媒体库 — 在此选择"
-
-#: src/strings/operator.rs src/strings/print.rs
-msgid "Picture"
-msgstr "图片"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
@@ -4685,10 +4969,6 @@ msgid "Notes"
 msgstr "备注"
 
 #: src/strings/stage.rs
-msgid "Clock"
-msgstr "时钟"
-
-#: src/strings/stage.rs
 msgid "Timer"
 msgstr "计时器"
 
@@ -4956,20 +5236,12 @@ msgid "Standard"
 msgstr "标准"
 
 #: src/strings/themes.rs
-msgid "Church default"
-msgstr "教会默认"
-
-#: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
 msgstr "内置 — RustyPresenter 最初的样式"
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
 msgstr "教会默认 — 未选择其他主题时使用"
-
-#: src/strings/themes.rs
-msgid "New theme"
-msgstr "新建主题"
 
 #: src/strings/themes.rs
 msgid "Only songs, Bible passages and announcements use a theme."
@@ -5020,10 +5292,6 @@ msgid "Couldn't convert"
 msgstr "无法转换"
 
 #: src/strings/themes.rs
-msgid "Makes text easier to read"
-msgstr "使文字更易阅读"
-
-#: src/strings/themes.rs
 msgid "Give the overlay a name."
 msgstr "请为叠加层命名。"
 
@@ -5056,10 +5324,6 @@ msgid "the picture could not be loaded."
 msgstr "无法加载图片。"
 
 #: src/strings/themes.rs
-msgid "Changed — turn it off and on to update."
-msgstr "已更改 — 关闭再开启即可更新。"
-
-#: src/strings/themes.rs
 msgid "Logo saved"
 msgstr "标志已保存"
 
@@ -5074,6 +5338,71 @@ msgstr "用于持续显示的标识。"
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
 msgstr "用于持续显示的标识。如需通知某位家长等，请使用“消息”（推出后可用）。"
+
+#: src/strings/themes.rs
+msgid "Reset"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Make default"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme put back as it came"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New name for this background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Use theme background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Keep theirs"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Manage themes…"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay saved"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay deleted"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New overlay"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Welcome!"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Put “{name}” back the way it came? Your changes to it are lost."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "{n} 个聚会"
+
+#: src/strings/themes.rs
+msgid "Church default ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Same as service ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -5126,11 +5455,6 @@ msgid "Delete the theme “{name}”?"
 msgstr "要删除主题“{name}”吗？"
 
 #: src/strings/themes.rs
-msgid "{n} service"
-msgid_plural "{n} services"
-msgstr[0] "{n} 个聚会"
-
-#: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
 msgstr[0] "{things}正在使用它；它们将改用教会默认主题。"
@@ -5160,10 +5484,6 @@ msgid "Theme: {name}"
 msgstr "主题：{name}"
 
 #: src/strings/themes.rs
-msgid "Bold"
-msgstr "粗体"
-
-#: src/strings/themes.rs
 msgid "Italic"
 msgstr "斜体"
 
@@ -5178,10 +5498,6 @@ msgstr "金色"
 #: src/strings/themes.rs
 msgid "Red"
 msgstr "红色"
-
-#: src/strings/themes.rs
-msgid "Color"
-msgstr "颜色"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"

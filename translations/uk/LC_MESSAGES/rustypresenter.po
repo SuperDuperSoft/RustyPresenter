@@ -45,7 +45,7 @@ msgstr "Виберіть Біблію"
 msgid "Try again"
 msgstr "Спробувати ще"
 
-#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Змінити"
 
@@ -165,7 +165,7 @@ msgstr "Назва"
 msgid "e.g. Welcome, Announcements, Offering"
 msgstr "напр. Вітання, Оголошення, Пожертва"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Text"
 msgstr "Текст"
 
@@ -181,7 +181,7 @@ msgstr "Додати оголошення"
 msgid "Song"
 msgstr "Пісня"
 
-#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/settings-themes.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
 msgstr "Текст пісні"
 
@@ -209,7 +209,7 @@ msgstr "Слайди"
 msgid "PowerPoint, pictures"
 msgstr "PowerPoint, зображення"
 
-#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
 msgstr "Оголошення"
 
@@ -221,7 +221,7 @@ msgstr "Ваш власний текст"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Немає в тексті — буде пропущено"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
 msgid "Remove"
 msgstr "Вилучити"
 
@@ -313,7 +313,7 @@ msgstr "3 вірші"
 msgid "4 verses"
 msgstr "4 вірші"
 
-#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Розмір тексту"
 
@@ -361,7 +361,7 @@ msgstr "Повторювати до зупинки"
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
 msgstr "Аудіо грає й далі, поки ви змінюєте слайди. Зупиніть його кнопкою «Очистити аудіо» (F4) або «Очистити все»."
 
-#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
 msgstr "Назва"
 
@@ -369,7 +369,11 @@ msgstr "Назва"
 msgid "Name in library"
 msgstr "Назва в бібліотеці"
 
-#: ui/dialogs/item-edit.slint src/strings/themes.rs
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Theme"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
 msgstr "Тло"
 
@@ -392,6 +396,178 @@ msgstr "Скасувати"
 #: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
 msgstr "Зберегти"
+
+#: ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Middle"
+msgstr "Посередині"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Delete"
+msgstr "Видалити"
+
+#: ui/dialogs/overlays.slint
+msgid "No overlays yet."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "New overlay:"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+msgid "Picture"
+msgstr "Зображення"
+
+#: ui/dialogs/overlays.slint
+msgid "A logo in the corner"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Clock"
+msgstr "Годинник"
+
+#: ui/dialogs/overlays.slint
+msgid "The time of day"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Use the church logo"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A picture of its own"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Choose picture…"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Opacity"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Show seconds"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "24-hour clock"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Where"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/screens.slint
+msgid "Size"
+msgstr "Розмір"
+
+#: ui/dialogs/overlays.slint
+msgid "(share of the screen's width)"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Text color"
+msgstr "Колір тексту"
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr "Тінь під текстом (легше читати на зображеннях)"
+
+#: ui/dialogs/overlays.slint
+msgid "Box"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr "Вимк."
+
+#: ui/dialogs/overlays.slint
+msgid "Behind the text"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Full-width bar"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Box color"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "See-through"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr "Попередній перегляд"
+
+#: ui/dialogs/overlays.slint
+msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Назад"
+
+#: ui/dialogs/overlays.slint
+msgid "Save overlay"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Закрити"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
@@ -489,10 +665,6 @@ msgstr "Відкриває сторінку у вебпереглядачі, д�
 msgid "Save web page…"
 msgstr "Зберегти вебсторінку…"
 
-#: ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr "Закрити"
-
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
 msgstr "Додати екран до {}"
@@ -500,10 +672,6 @@ msgstr "Додати екран до {}"
 #: ui/dialogs/screens.slint
 msgid "Output"
 msgstr "Вихід"
-
-#: ui/dialogs/screens.slint
-msgid "Size"
-msgstr "Розмір"
 
 #: ui/dialogs/screens.slint
 msgid "Width"
@@ -573,7 +741,7 @@ msgstr "Відкрити з файлу"
 msgid "Open"
 msgstr "Відкрити"
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
 msgstr "Перейменувати"
 
@@ -588,10 +756,6 @@ msgstr "Надрукувати порядок служіння й тексти �
 #: ui/dialogs/services.slint
 msgid "Save as template"
 msgstr "Зберегти як шаблон"
-
-#: ui/dialogs/services.slint src/strings/stage.rs
-msgid "Delete"
-msgstr "Видалити"
 
 #: ui/dialogs/services.slint
 msgid "Templates"
@@ -612,10 +776,6 @@ msgstr "Ваші дані:"
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
 msgstr "Показати ліцензії"
-
-#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Назад"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
 msgid "Default Bible"
@@ -737,15 +897,15 @@ msgstr "Переклади створюють волонтери. Якщо ва�
 msgid "Help translate RustyPresenter"
 msgstr "Допомогти перекласти RustyPresenter"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Font"
 msgstr "Шрифт"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Lyrics size"
 msgstr "Розмір тексту пісень"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
 msgstr "(найбільший; довгі рядки зменшуються, щоб уміститися)"
 
@@ -757,11 +917,11 @@ msgstr "Біблійні вірші"
 msgid "(for new passages)"
 msgstr "(для нових уривків)"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Scripture text size"
 msgstr "Розмір тексту Писання"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
 msgstr "(найбільший)"
 
@@ -769,27 +929,15 @@ msgstr "(найбільший)"
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr "Текст автоматично зменшується, коли на слайді більше слів."
 
-#: ui/dialogs/settings-look.slint
-msgid "Text color"
-msgstr "Колір тексту"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text position"
 msgstr "Розташування тексту"
 
-#: ui/dialogs/settings-look.slint
-msgid "Middle"
-msgstr "Посередині"
-
-#: ui/dialogs/settings-look.slint src/strings/themes.rs
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Lower third"
 msgstr "Нижня третина"
 
-#: ui/dialogs/settings-look.slint
-msgid "Shadow behind text (easier to read on pictures)"
-msgstr "Тінь під текстом (легше читати на зображеннях)"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS lyrics"
 msgstr "Текст пісень ВЕЛИКИМИ ЛІТЕРАМИ"
 
@@ -806,16 +954,136 @@ msgid "Choose logo"
 msgstr "Вибрати логотип"
 
 #: ui/dialogs/settings-look.slint
-msgid "Preview"
-msgstr "Попередній перегляд"
-
-#: ui/dialogs/settings-look.slint
 msgid "Default background"
 msgstr "Тло за замовчуванням"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "Усі мови"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Church default"
+msgstr "Основна тема церкви"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Make this the church default"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "New theme"
+msgstr "Нова тема"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Background library"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "No backgrounds yet."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add picture or video…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add colour or gradient…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Color"
+msgstr "Колір"
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Gradient"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "From"
+msgstr "Від"
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "To"
+msgstr "До"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Direction"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add to backgrounds"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Weight"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "(for songs and announcements)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Regular"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Semibold"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Bold"
+msgstr "Жирний"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Align"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Center"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thin"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thick"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Text band (a see-through strip behind the words)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Band color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr "Писання"
+
+#: ui/dialogs/settings-themes.slint
+msgid "Darken"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Makes text easier to read"
+msgstr "Полегшує читання тексту"
 
 #: ui/dialogs/settings.slint
 msgid "Lines per slide"
@@ -832,10 +1100,6 @@ msgstr "На першому слайді"
 #: ui/dialogs/settings.slint
 msgid "On last slide"
 msgstr "На останньому слайді"
-
-#: ui/dialogs/settings.slint src/strings/screens.rs
-msgid "Off"
-msgstr "Вимк."
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
@@ -914,6 +1178,10 @@ msgid "Look"
 msgstr "Вигляд"
 
 #: ui/dialogs/settings.slint
+msgid "Themes"
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Language"
 msgstr "Мова"
 
@@ -921,7 +1189,7 @@ msgstr "Мова"
 msgid "Songs"
 msgstr "Пісні"
 
-#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "Відео"
 
@@ -936,6 +1204,10 @@ msgstr "Довідка"
 #: ui/dialogs/settings.slint
 msgid "About"
 msgstr "Про програму"
+
+#: ui/dialogs/settings.slint
+msgid "Save theme"
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Save settings"
@@ -1050,10 +1322,6 @@ msgid "Duplicate to edit"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Duplicate"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
 msgstr ""
 
@@ -1102,15 +1370,7 @@ msgid "Alignment"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Left"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
-msgid "Right"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
@@ -1150,16 +1410,8 @@ msgid "Keep a song use log for CCLI reporting"
 msgstr "Вести журнал використання пісень для звітів CCLI"
 
 #: ui/dialogs/usage.slint
-msgid "From"
-msgstr "Від"
-
-#: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
 msgstr "РРРР-ММ-ДД"
-
-#: ui/dialogs/usage.slint
-msgid "To"
-msgstr "До"
 
 #: ui/dialogs/usage.slint
 msgid "Since last report"
@@ -1381,6 +1633,34 @@ msgstr "Перемістити в папку"
 msgid "Room screen is off"
 msgstr "Екран у залі вимкнено"
 
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr "Змінено — вимкніть і ввімкніть, щоб оновити."
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "+ Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "A logo in the corner, a clock or a short sign"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "F6 Clear"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "Clear overlays (F6)"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint ui/operator.slint
+msgid "Overlays…"
+msgstr ""
+
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
 msgstr "Відпустіть, щоб додати до служіння"
@@ -1408,6 +1688,10 @@ msgstr "Перевірка"
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
 msgstr "Перед служінням: чи всі пісні, файли й екрани на місці?"
+
+#: ui/operator/service.slint
+msgid "Theme for this service"
+msgstr ""
 
 #: ui/operator/service.slint
 msgid "Custom order"
@@ -1649,6 +1933,10 @@ msgstr "Очистити медіа й тло"
 msgid "Stop audio"
 msgstr "Зупинити аудіо"
 
+#: ui/operator.slint src/strings/themes.rs
+msgid "Clear overlays"
+msgstr ""
+
 #: ui/operator.slint
 msgid "Hide media library"
 msgstr "Сховати медіатеку"
@@ -1692,6 +1980,10 @@ msgstr ""
 #: ui/operator.slint
 msgid "Settings…"
 msgstr "Налаштування…"
+
+#: ui/operator.slint
+msgid "Themes and backgrounds…"
+msgstr ""
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -2464,10 +2756,6 @@ msgstr "Порт {port} зайнятий іншою програмою, тому
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
 msgstr "Цей екран зараз не під’єднано."
-
-#: src/print/html.rs src/strings/operator.rs
-msgid "Scripture"
-msgstr "Писання"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
@@ -3299,10 +3587,6 @@ msgstr "+ Додати…"
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
 msgstr "Додано до медіатеки — виберіть тут"
-
-#: src/strings/operator.rs src/strings/print.rs
-msgid "Picture"
-msgstr "Зображення"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
@@ -4737,10 +5021,6 @@ msgid "Notes"
 msgstr "Нотатки"
 
 #: src/strings/stage.rs
-msgid "Clock"
-msgstr "Годинник"
-
-#: src/strings/stage.rs
 msgid "Timer"
 msgstr "Таймер"
 
@@ -5014,20 +5294,12 @@ msgid "Standard"
 msgstr "Стандартна"
 
 #: src/strings/themes.rs
-msgid "Church default"
-msgstr "Основна тема церкви"
-
-#: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
 msgstr "Вбудована — стиль, з якого почався RustyPresenter"
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
 msgstr "Основна тема церкви — використовується, коли не вибрано іншої"
-
-#: src/strings/themes.rs
-msgid "New theme"
-msgstr "Нова тема"
 
 #: src/strings/themes.rs
 msgid "Only songs, Bible passages and announcements use a theme."
@@ -5078,10 +5350,6 @@ msgid "Couldn't convert"
 msgstr "Не вдалося перетворити"
 
 #: src/strings/themes.rs
-msgid "Makes text easier to read"
-msgstr "Полегшує читання тексту"
-
-#: src/strings/themes.rs
 msgid "Give the overlay a name."
 msgstr "Дайте накладанню назву."
 
@@ -5114,10 +5382,6 @@ msgid "the picture could not be loaded."
 msgstr "не вдалося завантажити зображення."
 
 #: src/strings/themes.rs
-msgid "Changed — turn it off and on to update."
-msgstr "Змінено — вимкніть і ввімкніть, щоб оновити."
-
-#: src/strings/themes.rs
 msgid "Logo saved"
 msgstr "Логотип збережено"
 
@@ -5132,6 +5396,73 @@ msgstr "Для напису, що залишається на екрані."
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
 msgstr "Для напису, що залишається на екрані. Для сповіщень, як-от виклику батьків, використовуйте «Повідомлення» (коли воно буде доступне)."
+
+#: src/strings/themes.rs
+msgid "Reset"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Make default"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme put back as it came"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New name for this background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Use theme background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Keep theirs"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Manage themes…"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay saved"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay deleted"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New overlay"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Welcome!"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Put “{name}” back the way it came? Your changes to it are lost."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] "{n} служіння"
+msgstr[1] "{n} служіння"
+msgstr[2] "{n} служінь"
+
+#: src/strings/themes.rs
+msgid "Church default ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Same as service ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
+msgstr ""
 
 #: src/strings/themes.rs
 msgid "This data was saved by a newer RustyPresenter. Please install the latest version."
@@ -5188,13 +5519,6 @@ msgid "Delete the theme “{name}”?"
 msgstr "Видалити тему «{name}»?"
 
 #: src/strings/themes.rs
-msgid "{n} service"
-msgid_plural "{n} services"
-msgstr[0] "{n} служіння"
-msgstr[1] "{n} служіння"
-msgstr[2] "{n} служінь"
-
-#: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
 msgstr[0] "Її використовує {things}; натомість буде використано основну тему церкви."
@@ -5226,10 +5550,6 @@ msgid "Theme: {name}"
 msgstr "Тема: {name}"
 
 #: src/strings/themes.rs
-msgid "Bold"
-msgstr "Жирний"
-
-#: src/strings/themes.rs
 msgid "Italic"
 msgstr "Курсив"
 
@@ -5244,10 +5564,6 @@ msgstr "Золотий"
 #: src/strings/themes.rs
 msgid "Red"
 msgstr "Червоний"
-
-#: src/strings/themes.rs
-msgid "Color"
-msgstr "Колір"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"

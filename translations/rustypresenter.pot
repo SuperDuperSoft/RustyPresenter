@@ -32,7 +32,7 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
-#: ui/dialogs/add-list.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgstr ""
 msgid "e.g. Welcome, Announcements, Offering"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Text"
 msgstr ""
 
@@ -168,7 +168,7 @@ msgstr ""
 msgid "Song"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs
+#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/settings-themes.slint ui/dialogs/song-editor.slint src/strings/print.rs
 msgid "Lyrics"
 msgstr ""
 
@@ -196,7 +196,7 @@ msgstr ""
 msgid "PowerPoint, pictures"
 msgstr ""
 
-#: ui/dialogs/add.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs
 msgid "Announcement"
 msgstr ""
 
@@ -208,7 +208,7 @@ msgstr ""
 msgid "Not in the lyrics — it is skipped"
 msgstr ""
 
-#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/usage.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs
 msgid "Remove"
 msgstr ""
 
@@ -300,7 +300,7 @@ msgstr ""
 msgid "4 verses"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr ""
 
@@ -348,7 +348,7 @@ msgstr ""
 msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/screens.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
 msgstr ""
 
@@ -356,7 +356,11 @@ msgstr ""
 msgid "Name in library"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint src/strings/themes.rs
+#: ui/dialogs/item-edit.slint ui/operator/service.slint
+msgid "Theme"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
 msgstr ""
 
@@ -378,6 +382,178 @@ msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/dialogs/stage-layouts.slint
 msgid "Save"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Top left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "Top"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Top right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Middle"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom left"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Bottom right"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move up"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Move down"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+msgid "Duplicate"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/services.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Delete"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "No overlays yet."
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "New overlay:"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A sign that stays up, like “Welcome!” or the Wi-Fi password"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+msgid "Picture"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A logo in the corner"
+msgstr ""
+
+#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+msgid "Clock"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "The time of day"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Use the church logo"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "A picture of its own"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Choose picture…"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Opacity"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Show seconds"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "24-hour clock"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Where"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/screens.slint
+msgid "Size"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "(share of the screen's width)"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Text color"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+msgid "Shadow behind text (easier to read on pictures)"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Box"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/settings.slint src/strings/screens.rs
+msgid "Off"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Behind the text"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Full-width bar"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Box color"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "See-through"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
+msgid "Preview"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr ""
+
+#: ui/dialogs/overlays.slint
+msgid "Save overlay"
+msgstr ""
+
+#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
 msgstr ""
 
 #: ui/dialogs/phone.slint
@@ -476,20 +652,12 @@ msgstr ""
 msgid "Save web page…"
 msgstr ""
 
-#: ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr ""
-
 #: ui/dialogs/screens.slint
 msgid "Add a screen to {}"
 msgstr ""
 
 #: ui/dialogs/screens.slint
 msgid "Output"
-msgstr ""
-
-#: ui/dialogs/screens.slint
-msgid "Size"
 msgstr ""
 
 #: ui/dialogs/screens.slint
@@ -560,7 +728,7 @@ msgstr ""
 msgid "Open"
 msgstr ""
 
-#: ui/dialogs/services.slint
+#: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
 msgstr ""
 
@@ -574,10 +742,6 @@ msgstr ""
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
-msgstr ""
-
-#: ui/dialogs/services.slint src/strings/stage.rs
-msgid "Delete"
 msgstr ""
 
 #: ui/dialogs/services.slint
@@ -598,10 +762,6 @@ msgstr ""
 
 #: ui/dialogs/settings-about.slint
 msgid "Show licenses"
-msgstr ""
-
-#: ui/dialogs/settings-about.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
 msgstr ""
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
@@ -724,15 +884,15 @@ msgstr ""
 msgid "Help translate RustyPresenter"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Font"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Lyrics size"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
 msgstr ""
 
@@ -744,11 +904,11 @@ msgstr ""
 msgid "(for new passages)"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Scripture text size"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
 msgstr ""
 
@@ -756,27 +916,15 @@ msgstr ""
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
-msgid "Text color"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Text position"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
-msgid "Middle"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint src/strings/themes.rs
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Lower third"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
-msgid "Shadow behind text (easier to read on pictures)"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS lyrics"
 msgstr ""
 
@@ -793,15 +941,135 @@ msgid "Choose logo"
 msgstr ""
 
 #: ui/dialogs/settings-look.slint
-msgid "Preview"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint
 msgid "Default background"
 msgstr ""
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Church default"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Make this the church default"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "A theme is how slide text looks: font, size, colour and where it sits. The starred theme is used whenever a service or item has none of its own."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "New theme"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Background library"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Pictures, videos, colours and gradients the church keeps, ready to pick for any theme or item."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "No backgrounds yet."
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add picture or video…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add colour or gradient…"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Gradient"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "From"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint ui/dialogs/usage.slint
+msgid "To"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Direction"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Add to backgrounds"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Weight"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "(for songs and announcements)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Regular"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Semibold"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Bold"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Align"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Center"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thin"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Thick"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Outline color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Text band (a see-through strip behind the words)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Band color"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/print/html.rs src/strings/operator.rs
+msgid "Scripture"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
+msgid "Darken"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint src/strings/themes.rs
+msgid "Makes text easier to read"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -818,10 +1086,6 @@ msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "On last slide"
-msgstr ""
-
-#: ui/dialogs/settings.slint src/strings/screens.rs
-msgid "Off"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -901,6 +1165,10 @@ msgid "Look"
 msgstr ""
 
 #: ui/dialogs/settings.slint
+msgid "Themes"
+msgstr ""
+
+#: ui/dialogs/settings.slint
 msgid "Language"
 msgstr ""
 
@@ -908,7 +1176,7 @@ msgstr ""
 msgid "Songs"
 msgstr ""
 
-#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs
+#: ui/dialogs/settings.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr ""
 
@@ -922,6 +1190,10 @@ msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "About"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Save theme"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -1031,10 +1303,6 @@ msgid "Duplicate to edit"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Duplicate"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Rename…"
 msgstr ""
 
@@ -1083,15 +1351,7 @@ msgid "Alignment"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Left"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
 msgid "Centre"
-msgstr ""
-
-#: ui/dialogs/stage-layouts.slint
-msgid "Right"
 msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
@@ -1131,15 +1391,7 @@ msgid "Keep a song use log for CCLI reporting"
 msgstr ""
 
 #: ui/dialogs/usage.slint
-msgid "From"
-msgstr ""
-
-#: ui/dialogs/usage.slint
 msgid "YYYY-MM-DD"
-msgstr ""
-
-#: ui/dialogs/usage.slint
-msgid "To"
 msgstr ""
 
 #: ui/dialogs/usage.slint
@@ -1362,6 +1614,34 @@ msgstr ""
 msgid "Room screen is off"
 msgstr ""
 
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Changed — turn it off and on to update."
+msgstr ""
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "+ Overlays"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint src/strings/themes.rs
+msgid "A logo in the corner, a clock or a short sign"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "F6 Clear"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint
+msgid "Clear overlays (F6)"
+msgstr ""
+
+#: ui/operator/overlay-strip.slint ui/operator.slint
+msgid "Overlays…"
+msgstr ""
+
 #: ui/operator/overlays.slint
 msgid "Drop to add to the service"
 msgstr ""
@@ -1388,6 +1668,10 @@ msgstr ""
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Theme for this service"
 msgstr ""
 
 #: ui/operator/service.slint
@@ -1630,6 +1914,10 @@ msgstr ""
 msgid "Stop audio"
 msgstr ""
 
+#: ui/operator.slint src/strings/themes.rs
+msgid "Clear overlays"
+msgstr ""
+
 #: ui/operator.slint
 msgid "Hide media library"
 msgstr ""
@@ -1672,6 +1960,10 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Settings…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Themes and backgrounds…"
 msgstr ""
 
 #: ui/operator.slint
@@ -2444,10 +2736,6 @@ msgstr ""
 
 #: src/platform/monitors.rs src/ui/screens.rs
 msgid "That screen is not connected right now."
-msgstr ""
-
-#: src/print/html.rs src/strings/operator.rs
-msgid "Scripture"
 msgstr ""
 
 #: src/recovery/restore.rs
@@ -3270,10 +3558,6 @@ msgstr ""
 
 #: src/strings/item_edit.rs
 msgid "Added to the media library — pick it here"
-msgstr ""
-
-#: src/strings/operator.rs src/strings/print.rs
-msgid "Picture"
 msgstr ""
 
 #: src/strings/operator.rs
@@ -4694,10 +4978,6 @@ msgid "Notes"
 msgstr ""
 
 #: src/strings/stage.rs
-msgid "Clock"
-msgstr ""
-
-#: src/strings/stage.rs
 msgid "Timer"
 msgstr ""
 
@@ -4968,19 +5248,11 @@ msgid "Standard"
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "Church default"
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Built in — the style RustyPresenter started with"
 msgstr ""
 
 #: src/strings/themes.rs
 msgid "Church default — used whenever nothing else is picked"
-msgstr ""
-
-#: src/strings/themes.rs
-msgid "New theme"
 msgstr ""
 
 #: src/strings/themes.rs
@@ -5032,10 +5304,6 @@ msgid "Couldn't convert"
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "Makes text easier to read"
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Give the overlay a name."
 msgstr ""
 
@@ -5068,10 +5336,6 @@ msgid "the picture could not be loaded."
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "Changed — turn it off and on to update."
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Logo saved"
 msgstr ""
 
@@ -5085,6 +5349,72 @@ msgstr ""
 
 #: src/strings/themes.rs
 msgid "For a sign that stays up. For a notice like a parent's name, use Message (once available)."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Reset"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Make default"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Theme put back as it came"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New name for this background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Use theme background"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Keep theirs"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Manage themes…"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay saved"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Overlay deleted"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "New overlay"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Welcome!"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Put “{name}” back the way it came? Your changes to it are lost."
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "{n} service"
+msgid_plural "{n} services"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/strings/themes.rs
+msgid "Church default ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Same as service ({name})"
+msgstr ""
+
+#: src/strings/themes.rs
+msgid "Delete the overlay “{name}”? If it is on the screen, it stays there until you turn it off."
 msgstr ""
 
 #: src/strings/themes.rs
@@ -5140,12 +5470,6 @@ msgid "Delete the theme “{name}”?"
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "{n} service"
-msgid_plural "{n} services"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/strings/themes.rs
 msgid "{things} uses it; they'll use the church default instead."
 msgid_plural "{things} use it; they'll use the church default instead."
 msgstr[0] ""
@@ -5176,10 +5500,6 @@ msgid "Theme: {name}"
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "Bold"
-msgstr ""
-
-#: src/strings/themes.rs
 msgid "Italic"
 msgstr ""
 
@@ -5193,10 +5513,6 @@ msgstr ""
 
 #: src/strings/themes.rs
 msgid "Red"
-msgstr ""
-
-#: src/strings/themes.rs
-msgid "Color"
 msgstr ""
 
 #: src/strings/themes.rs src/theme/richtext.rs
