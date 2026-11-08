@@ -2043,7 +2043,7 @@ mod tests {
     fn playing_means_committed_video_or_audio() {
         let app = test_app();
         let item_id = Uuid::new_v4();
-        let kind = ItemKind::Text { title: "t".into(), body: "text".into() };
+        let kind = ItemKind::Text { title: "t".into(), body: "text".into(), layout: Default::default() };
         app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         let version = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } }).version;
         app.room_event(RoomEvent::Committed { version });
@@ -2196,7 +2196,7 @@ mod tests {
     fn stage_only_slide_reaches_the_stage_and_never_the_room() {
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me\n\nOne more time".into() }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me\n\nOne more time".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let before = app.live_view();
         let cmd = |v: Value| app.command(serde_json::from_value(v).unwrap());
         let out = cmd(json!({ "id": "a", "cmd": "stage_only", "item_id": id, "slide": 1 }));
@@ -2217,7 +2217,7 @@ mod tests {
         use crate::live::drawing::{DrawCmd, Pen, PALETTE};
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me".into() }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let phone = Uuid::new_v4();
         app.phones.lock().unwrap().push(Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
         app.draw(phone, &DrawCmd::Start { stroke: 1, color: PALETTE[1].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.1, 0.5], [0.9, 0.5]], ink: Default::default() }).unwrap();

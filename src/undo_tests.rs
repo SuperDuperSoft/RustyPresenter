@@ -10,7 +10,7 @@ use std::sync::Arc;
 fn song(title: &str) -> Song { Song { id: Uuid::new_v4(), title: title.into(), lyrics: "Verse 1\nla".into(), ..Default::default() } }
 
 fn text_item(title: &str, body: &str) -> ServiceItem {
-    ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None }
+    ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None }
 }
 
 /// Runs `f` on `d` and keeps it in `h`, as `App::edit` does.

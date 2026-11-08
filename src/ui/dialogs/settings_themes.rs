@@ -8,7 +8,7 @@ use crate::{
     import::CANCELLED,
     model::{Background, Data, MediaFile, MediaKind, Settings, Slide, SlideContent},
     store::Store,
-    theme::{self, STANDARD_ID, SavedTheme, TextAlign, ThemeId, strings as ts},
+    theme::{self, STANDARD_ID, SavedTheme, TextAlign, ThemeId, layouts::{self, Drag, Frame, Layout, LayoutKind}, strings as ts},
     ui::{BgLibraryRow, SettingsDlg, ThemeListRow, ThemesDlg, operator::{file_input::Filter, files, view::OperatorSnapshot, window::Operator}, thumbs::Pixels},
 };
 use slint::{ComponentHandle, Image, ModelRc, Timer, TimerMode, VecModel};
@@ -37,6 +37,8 @@ pub struct ThemesState {
     stills: RefCell<Option<Stills>>,
     timer: Timer,
     generation: Cell<u64>,
+    /// The text box being dragged on the preview: where it started and how it moves.
+    drag: RefCell<Option<(Frame, Drag)>>,
     /// The colours of the "Add colour or gradient" box.
     add_from: RefCell<String>,
     add_to: RefCell<String>,
@@ -68,7 +70,7 @@ pub fn theme_rows(data: &Data) -> Vec<(ThemeId, ThemeListRow)> {
         let delete = if r.id == STANDARD_ID || (r.builtin && !r.overridden) { String::new() }
             else if r.builtin { ts::reset() } else { ts::delete() };
         (r.id, ThemeListRow { name: r.name.as_str().into(), sub: row_sub(&r, items, services).into(), is_default: r.is_default,
-            standard: r.id == STANDARD_ID, delete_label: delete.into() })
+            standard: r.id == STANDARD_ID, delete_label: delete.into(), ready_made: r.builtin && !r.overridden && r.id != STANDARD_ID })
     }).collect()
 }
 
@@ -77,6 +79,8 @@ pub(super) fn fill(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) 
     let g = g(op);
     let rows = theme_rows(&snap.data);
     *edit.themes.ids.borrow_mut() = rows.iter().map(|(id, _)| *id).collect();
+    let ready = rows.iter().filter(|(_, r)| r.ready_made).count();
+    g.set_ready_made_label(crate::trn!("Show {n} ready-made theme", "Show {n} ready-made themes", ready).into());
     g.set_rows(ModelRc::new(VecModel::from(rows.into_iter().map(|(_, r)| r).collect::<Vec<_>>())));
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     if let Some(p) = edit.themes.picker.borrow_mut().as_mut() {
@@ -168,6 +172,14 @@ pub(super) fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_background_color(with_color(background_color));
     g.on_background_hex(with_hex(background_color));
     g.on_upload_background(with(upload_background));
+    g.on_layout_picked(with(|op, e| { show_layout(op, e); render_now(op, e) }));
+    g.on_layout_edited(with(layout_edited));
+    g.on_reset_layout(with(reset_layout));
+    let (me, e) = (Rc::downgrade(op), edit.clone());
+    g.on_drag_start(move |x, y| if let Some(op) = me.upgrade() { drag_start(&op, &e, x, y) });
+    let (me, e) = (Rc::downgrade(op), edit.clone());
+    g.on_drag_to(move |dx, dy| if let Some(op) = me.upgrade() { drag_to(&op, &e, dx, dy) });
+    g.on_drag_done(with(drag_done));
     g.on_cancel_edit(with(close_editor));
     g.on_save_theme(with(save));
     g.on_add_pictures(with(add_pictures));
@@ -315,9 +327,15 @@ fn open_editor(op: &Rc<Operator>, edit: &Rc<Edit>, t: SavedTheme) {
     g.set_darken(i32::from(t.background.as_ref().map_or(0, Background::dim)));
     g.set_preview(Image::default());
     g.set_font_note("".into());
+    g.set_layout_names(ModelRc::new(VecModel::from(LayoutKind::ALL.iter().map(|k| k.label().into()).collect::<Vec<slint::SharedString>>())));
+    g.set_layout_index(LayoutKind::Lyrics.index() as i32);
+    g.set_guides_x(ModelRc::default());
+    g.set_guides_y(ModelRc::default());
+    *edit.themes.drag.borrow_mut() = None;
     *edit.themes.picker.borrow_mut() = Some(Picker::with_default(op, t.background.clone(), s.data.media.clone(), Some(ts::standard_background())));
     *edit.themes.editing.borrow_mut() = Some(t);
     show_swatches(op, edit);
+    show_layout(op, edit);
     draw_backgrounds(op, edit);
     g.set_editing(true);
     render_now(op, edit);
@@ -418,6 +436,101 @@ fn upload_background(op: &Rc<Operator>, edit: &Rc<Edit>) {
     });
 }
 
+// ---- N25: the theme's layouts ----
+
+fn picked_layout(op: &Operator) -> LayoutKind { LayoutKind::from_index(g(op).get_layout_index()) }
+
+/// The box a layout's text sits in: its own, else the screen inside its margins.
+fn frame_of(l: &Layout) -> Frame { l.frame.unwrap_or(layouts::SAFE) }
+
+/// The picked layout's controls and box, from the edited theme.
+fn show_layout(op: &Operator, edit: &Edit) {
+    let Some(t) = edit.themes.editing.borrow().clone() else { return };
+    let kind = picked_layout(op);
+    let l = t.style.layouts.get(kind);
+    let drawn = layouts::apply(&t.style, kind);
+    let g = g(op);
+    g.set_layout_size(if l.size == 0 { 100 } else { i32::from(l.size) });
+    g.set_layout_place(match drawn.position.as_str() { "top" => 0, "lower" => 2, _ => 1 });
+    g.set_layout_align(match drawn.align { TextAlign::Left => 0, TextAlign::Center => 1, TextAlign::Right => 2 });
+    g.set_layout_changed(t.style.layouts.changed(kind));
+    show_frame(op, frame_of(&l));
+}
+
+fn show_frame(op: &Operator, f: Frame) {
+    let g = g(op);
+    g.set_frame_x(i32::from(f.x));
+    g.set_frame_y(i32::from(f.y));
+    g.set_frame_w(i32::from(f.w));
+    g.set_frame_h(i32::from(f.h));
+}
+
+/// Changes the picked layout of the edited theme with `f`.
+fn change_layout(op: &Operator, edit: &Edit, f: impl FnOnce(&mut Layout)) {
+    let kind = picked_layout(op);
+    let mut editing = edit.themes.editing.borrow_mut();
+    let Some(t) = editing.as_mut() else { return };
+    let mut l = t.style.layouts.get(kind);
+    f(&mut l);
+    t.style.layouts.set(kind, l);
+    g(op).set_layout_changed(t.style.layouts.changed(kind));
+}
+
+/// The size, place or alignment of the picked layout changed.
+fn layout_edited(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let g = g(op);
+    let size = g.get_layout_size().clamp(40, 160) as u16;
+    let place = ["top", "center", "lower"][g.get_layout_place().clamp(0, 2) as usize];
+    let align = [TextAlign::Left, TextAlign::Center, TextAlign::Right][g.get_layout_align().clamp(0, 2) as usize];
+    change_layout(op, edit, |l| {
+        l.size = if size == 100 { 0 } else { size };
+        l.position = place.into();
+        l.align = Some(align);
+    });
+    schedule(op, edit);
+}
+
+/// Reset this layout: back to how it came.
+fn reset_layout(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let kind = picked_layout(op);
+    if let Some(t) = edit.themes.editing.borrow_mut().as_mut() { t.style.layouts.0.remove(&kind); }
+    show_layout(op, edit);
+    render_now(op, edit);
+}
+
+/// How far (in thousandths) from the box's bottom-right corner a press still grabs the corner.
+const CORNER_GRAB: f32 = 40.0;
+
+/// The pointer went down on the preview at (`x`, `y`) thousandths: on the corner it resizes the box, inside it moves it.
+fn drag_start(op: &Rc<Operator>, edit: &Rc<Edit>, x: f32, y: f32) {
+    let Some(t) = edit.themes.editing.borrow().clone() else { return };
+    let f = frame_of(&t.style.layouts.get(picked_layout(op)));
+    let (right, bottom) = (f32::from(f.x + f.w), f32::from(f.y + f.h));
+    let near_corner = (x - right).abs() <= CORNER_GRAB && (y - bottom).abs() <= CORNER_GRAB;
+    let inside = x >= f32::from(f.x) && x <= right && y >= f32::from(f.y) && y <= bottom;
+    *edit.themes.drag.borrow_mut() = if near_corner { Some((f, Drag::Resize)) } else if inside { Some((f, Drag::Move)) } else { None };
+}
+
+/// The pointer moved by (`dx`, `dy`) thousandths since it went down.
+fn drag_to(op: &Rc<Operator>, edit: &Rc<Edit>, dx: f32, dy: f32) {
+    let Some((start, mode)) = *edit.themes.drag.borrow() else { return };
+    let snapped = layouts::drag(start, mode, dx.round() as i32, dy.round() as i32, g(op).get_snap());
+    let ints = |v: &[u16]| ModelRc::new(VecModel::from(v.iter().map(|n| i32::from(*n)).collect::<Vec<i32>>()));
+    let g = g(op);
+    g.set_guides_x(ints(&snapped.guides_x));
+    g.set_guides_y(ints(&snapped.guides_y));
+    show_frame(op, snapped.frame);
+    change_layout(op, edit, |l| l.frame = Some(snapped.frame));
+    schedule(op, edit);
+}
+
+fn drag_done(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let g = g(op);
+    g.set_guides_x(ModelRc::default());
+    g.set_guides_y(ModelRc::default());
+    if edit.themes.drag.borrow_mut().take().is_some() { render_now(op, edit) }
+}
+
 /// Save theme: `theme/save`, then back to the list with "Theme saved".
 fn save(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let Some(t) = read_editor(op, edit) else { return };
@@ -443,29 +556,37 @@ fn schedule(op: &Rc<Operator>, edit: &Rc<Edit>) {
     edit.themes.timer.start(TimerMode::SingleShot, settings_look::PREVIEW_DELAY, move || if let Some(op) = me.upgrade() { render_now(&op, &e) });
 }
 
-/// The preview's sample: lyrics, a Bible verse or an announcement.
-pub fn sample(tab: i32) -> (Slide, &'static str) {
+/// The preview's sample for each layout: lyrics, a Bible verse, an announcement, a title…
+pub fn sample(kind: LayoutKind) -> (Slide, &'static str) {
     let text = |text: &str, footer: Option<&str>, reference: Option<&str>| SlideContent::Text {
         text: text.into(), footer: footer.map(Into::into), reference: reference.map(Into::into), size: 0, parallel: None,
     };
-    let (content, kind) = match tab {
-        1 => (text(SAMPLE_SCRIPTURE, None, Some(SAMPLE_REFERENCE)), "scripture"),
-        2 => (text(SAMPLE_ANNOUNCEMENT, None, None), "text"),
-        _ => (text(&super::settings::strings::sample_text(), Some(&super::settings::strings::sample_footer()), None), "song"),
+    let lyrics = || text(&super::settings::strings::sample_text(), Some(&super::settings::strings::sample_footer()), None);
+    let (content, kind) = match kind {
+        LayoutKind::Scripture => (text(SAMPLE_SCRIPTURE, None, Some(SAMPLE_REFERENCE)), "scripture"),
+        LayoutKind::Text => (text(SAMPLE_ANNOUNCEMENT, None, None), "text"),
+        LayoutKind::Lyrics | LayoutKind::LowerThirdLyrics => (lyrics(), "song"),
+        LayoutKind::Title => (text(&crate::tr!("Welcome"), None, None), "text"),
+        LayoutKind::TitleSubtitle => (text(&crate::tr!("Easter Sunday\nServices at 9 and 11 am"), None, None), "text"),
+        LayoutKind::Quote => (text(&crate::tr!("“Be still, and know that I am God.”\nPsalm 46:10"), None, None), "text"),
+        LayoutKind::MainPoint => (text(&crate::tr!("God's grace is enough"), None, None), "text"),
+        LayoutKind::Picture => (text(&crate::tr!("Youth camp in the mountains"), None, None), "text"),
+        LayoutKind::Points => (text(&crate::tr!("Pray every day\nRead the Bible\nServe your neighbour"), None, None), "text"),
     };
     (Slide::new(String::new(), content), kind)
 }
 
-/// The settings a preview draws with: the theme's style, and its background or else Standard's (as edited on Look).
-fn preview_settings(base: &Settings, t: &SavedTheme) -> Settings {
+/// The settings a preview draws with: the theme's style in layout `kind`, and its background or else Standard's (as
+/// edited on Look).
+fn preview_settings(base: &Settings, t: &SavedTheme, kind: LayoutKind) -> Settings {
     let mut s = base.clone();
-    s.theme = t.style.clone();
+    s.theme = layouts::apply(&t.style, kind);
     if let Some(b) = &t.background { s.background = b.clone() }
     s
 }
 
-fn draw(settings: &Settings, tab: i32, media: &[MediaFile], root: PathBuf) -> (Pixels, bool) {
-    let (slide, kind) = sample(tab);
+fn draw(settings: &Settings, layout: LayoutKind, media: &[MediaFile], root: PathBuf) -> (Pixels, bool) {
+    let (slide, kind) = sample(layout);
     settings_look::draw_sample(settings, &slide, kind, media, &Store { root })
 }
 
@@ -475,8 +596,8 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let Some(t) = edit.themes.editing.borrow().clone() else { return };
     let generation = edit.themes.generation.get() + 1;
     edit.themes.generation.set(generation);
-    let settings = preview_settings(&edit.settings.borrow(), &t);
-    let tab = g(op).get_preview_tab();
+    let tab = picked_layout(op);
+    let settings = preview_settings(&edit.settings.borrow(), &t, tab);
     let root = op.app().store.root.clone();
     let media = op.app().data.lock().unwrap().media.clone();
     let font = t.style.font.clone();

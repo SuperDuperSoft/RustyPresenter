@@ -105,9 +105,10 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
                 g.set_text_size(*text_size as i32);
             }
         }
-        ItemKind::Text { title, body } => {
+        ItemKind::Text { title, body, layout } => {
             g.set_title(title.as_str().into());
             g.set_body(body.as_str().into());
+            g.set_layout_index(layout.index() as i32);
         }
         ItemKind::Media { media_id, autoplay, end, looped } => {
             g.set_autoplay(*autoplay);
@@ -148,6 +149,9 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
     let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
+    let names = |f: fn(crate::theme::LayoutKind) -> String| ModelRc::new(VecModel::from(crate::theme::LayoutKind::ALL.iter().map(|k| f(*k).into()).collect::<Vec<slint::SharedString>>()));
+    g.set_layout_options(names(crate::theme::LayoutKind::label));
+    g.set_layout_hints(names(crate::theme::LayoutKind::hint));
     let themes = if has_background { theme_choices(&snap.data, &item) } else { vec![] };
     g.set_theme_options(ModelRc::new(VecModel::from(themes.iter().map(|(l, _)| l.as_str().into()).collect::<Vec<slint::SharedString>>())));
     g.set_theme_index(themes.iter().position(|(_, t)| *t == item.theme).unwrap_or(0) as i32);
@@ -416,9 +420,10 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
                 .unwrap_or_else(|| AlsoShow { translation: id.clone(), verses: vec![] })).collect();
             *layout = if g.get_also_layout() == 1 { ParallelLayout::Stacked } else { ParallelLayout::SideBySide };
         }
-        ItemKind::Text { title, body } => {
+        ItemKind::Text { title, body, layout } => {
             *title = g.get_title().into();
             *body = g.get_body().into();
+            *layout = crate::theme::LayoutKind::from_index(g.get_layout_index());
         }
         ItemKind::Media { autoplay, end, looped, .. } => match g.get_kind().as_str() {
             "video" => {
@@ -666,7 +671,7 @@ mod tests {
     #[test]
     fn edit_buttons_open_item_edit() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         op.ui.invoke_service_edit(id.to_string().into());
         assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)));
@@ -1033,7 +1038,7 @@ mod tests {
     #[test]
     fn text_item_title_and_body_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         type_into(&op, "ItemEditDialog::title-box", "Offering");
@@ -1041,14 +1046,30 @@ mod tests {
         type_into(&op, "ItemEditDialog::notes-box", "Slow down");
         press(&op, "ItemEditDialog::save");
         let it = item(&app, id).unwrap();
-        let ItemKind::Text { title, body } = it.kind else { panic!() };
+        let ItemKind::Text { title, body, .. } = it.kind else { panic!() };
         assert_eq!((title.as_str(), body.as_str(), it.notes.as_str()), ("Offering", "Give\n\nThanks", "Slow down"));
+    }
+
+    #[test]
+    fn text_item_layout_is_picked_and_saved() {
+        let app = test_app();
+        let id = push(&app, ItemKind::Text { title: "Sermon".into(), body: "Grace".into(), layout: crate::theme::LayoutKind::Quote });
+        let op = opened(&app);
+        open(&op, id);
+        use slint::Model;
+        assert!(find(&op, "ItemEditDialog::item-layout").is_some());
+        assert_eq!(g(&op).get_layout_index(), crate::theme::LayoutKind::Quote.index() as i32);
+        assert_eq!(g(&op).get_layout_options().row_count(), 10);
+        g(&op).set_layout_index(crate::theme::LayoutKind::Points.index() as i32);
+        press(&op, "ItemEditDialog::save");
+        let ItemKind::Text { layout, .. } = item(&app, id).unwrap().kind else { panic!() };
+        assert_eq!(layout, crate::theme::LayoutKind::Points);
     }
 
     #[test]
     fn background_pick_and_custom_colour_saved() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into() });
+        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() });
         let op = opened(&app);
         // Tall enough for the grid under the tiles (the gradients add two rows).
         op.window().set_size(slint::LogicalSize::new(1520.0, 1400.0));
@@ -1082,21 +1103,25 @@ mod tests {
         let app = test_app();
         let christmas = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(), background: None };
         app.data.lock().unwrap().themes.push(christmas.clone());
-        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into() });
+        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         settle();
         let options: Vec<String> = g(&op).get_theme_options().iter().map(|s| s.to_string()).collect();
-        assert_eq!(options, ["Same as service (Standard)", "Standard", "Lower third", "Christmas"]);
+        let mut expect: Vec<String> = vec!["Same as service (Standard)".into(), "Standard".into()];
+        expect.extend(crate::theme::builtin().into_iter().map(|b| b.name));
+        expect.push("Christmas".into());
+        assert_eq!(options, expect, "the built-ins after Standard");
+        let at = (options.len() - 1) as i32;
         assert_eq!(g(&op).get_theme_index(), 0);
         assert!(find(&op, "ItemEditDialog::item-theme").is_some());
-        g(&op).set_theme_index(3);
+        g(&op).set_theme_index(at);
         press(&op, "ItemEditDialog::save");
         assert_eq!(item(&app, id).unwrap().theme, Some(christmas.id));
         refresh(&op);
         open(&op, id);
         settle();
-        assert_eq!(g(&op).get_theme_index(), 3, "opening again shows it");
+        assert_eq!(g(&op).get_theme_index(), at, "opening again shows it");
         g(&op).set_theme_index(0);
         press(&op, "ItemEditDialog::save");
         assert_eq!(item(&app, id).unwrap().theme, None, "Same as service clears it");
@@ -1118,7 +1143,7 @@ mod tests {
     #[test]
     fn upload_imports_every_chosen_file() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into() });
+        let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         let dir = std::env::temp_dir().join(format!("rp-upload-{}", Uuid::new_v4()));
@@ -1212,13 +1237,13 @@ mod tests {
     #[test]
     fn item_edit_keeps_typed_text_across_a_data_update() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         type_into(&op, "ItemEditDialog::title-box", "Typed title");
         type_into(&op, "ItemEditDialog::notes-box", "Typed notes");
         // A phone adds an item meanwhile: a new read arrives.
-        let other = push(&app, ItemKind::Text { title: "From phone".into(), body: "x".into() });
+        let other = push(&app, ItemKind::Text { title: "From phone".into(), body: "x".into(), layout: Default::default() });
         refresh(&op);
         settle();
         assert_eq!(g(&op).get_title(), "Typed title");
@@ -1233,7 +1258,7 @@ mod tests {
     #[test]
     fn save_on_removed_item_shows_that_item_is_gone_and_stays_open() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         app.data.lock().unwrap().services[0].items.retain(|i| i.id != id);
@@ -1246,7 +1271,7 @@ mod tests {
     #[test]
     fn remove_from_service_closes() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         press(&op, "ItemEditDialog::remove");
@@ -1258,7 +1283,7 @@ mod tests {
     #[test]
     fn cancel_closes_without_saving() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
         type_into(&op, "ItemEditDialog::title-box", "Changed");

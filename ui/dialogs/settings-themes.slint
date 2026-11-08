@@ -9,7 +9,8 @@ import { FilterBox, ListFilter } from "../filter.slint";
 
 /// A theme in the list. `standard` is the built-in Standard (edited on the Look tab); `delete-label` is "Delete",
 /// "Reset" or empty when the theme can't be removed.
-export struct ThemeListRow { name: string, sub: string, is-default: bool, standard: bool, delete-label: string }
+/// `ready-made`: an unedited built-in, listed only while "Show ready-made themes" is on or the filter finds it (N25).
+export struct ThemeListRow { name: string, sub: string, is-default: bool, standard: bool, delete-label: string, ready-made: bool }
 
 /// A background in the library: its picture (or colour), name and what it is ("Picture", "Converting 40 %"…).
 export struct BgLibraryRow { name: string, sub: string, swatch: color, image: image, has-image: bool }
@@ -17,6 +18,10 @@ export struct BgLibraryRow { name: string, sub: string, swatch: color, image: im
 export global ThemesDlg {
     in property <[ThemeListRow]> rows;
     in property <[BgLibraryRow]> library;
+    /// The ready-made (built-in) themes are listed too.
+    in-out property <bool> show-ready-made;
+    /// "Show 15 ready-made themes".
+    in property <string> ready-made-label;
 
     // ---- The theme editor (shown instead of the list while `editing`) ----
     in-out property <bool> editing;
@@ -49,9 +54,28 @@ export global ThemesDlg {
     /// Darken (0–80 %), shown for pictures, videos and gradients.
     in property <bool> darken-shown;
     in-out property <int> darken;
-    /// 0 Lyrics, 1 Scripture, 2 Announcement.
-    in-out property <int> preview-tab;
     in property <image> preview;
+
+    // ---- N25: the theme's layouts (`theme::LayoutKind::ALL` order); the preview shows the picked one ----
+    in property <[string]> layout-names;
+    in-out property <int> layout-index;
+    /// The picked layout's text size, in percent of the theme's.
+    in-out property <int> layout-size: 100;
+    /// Where its text sits in the box: 0 Top, 1 Middle, 2 Bottom.
+    in-out property <int> layout-place: 1;
+    /// 0 Left, 1 Center, 2 Right.
+    in-out property <int> layout-align: 1;
+    /// The layout differs from how it came (offers Reset).
+    in property <bool> layout-changed;
+    /// Its text box, in thousandths of the screen.
+    in property <int> frame-x;
+    in property <int> frame-y;
+    in property <int> frame-w: 1000;
+    in property <int> frame-h: 1000;
+    /// The snap guides the box lines up with while it is dragged, in thousandths.
+    in property <[int]> guides-x;
+    in property <[int]> guides-y;
+    in-out property <bool> snap: true;
     in property <[color]> palette;
 
     // ---- Adding a colour or gradient to the library ----
@@ -84,6 +108,15 @@ export global ThemesDlg {
     callback upload-background();
     callback cancel-edit();
     callback save-theme();
+    /// Another layout picked: its controls and the preview change.
+    callback layout-picked();
+    /// The picked layout's size, place or alignment changed.
+    callback layout-edited();
+    callback reset-layout();
+    /// The pointer went down on the preview / moved while down / came up, in thousandths of the preview.
+    callback drag-start(float, float);
+    callback drag-to(float, float);
+    callback drag-done();
 
     callback add-pictures();
     callback rename-background(int);
@@ -144,8 +177,9 @@ component ThemeList inherits VerticalLayout {
     // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
     VerticalLayout {
         for t[i] in ThemesDlg.rows: VerticalLayout {
-            padding-bottom: ListFilter.shown(t.name + " " + t.sub, root.filter) ? 4px : 0px;
-            if ListFilter.shown(t.name + " " + t.sub, root.filter): theme-row := ListRow {
+            property <bool> listed: ListFilter.shown(t.name + " " + t.sub, root.filter) && (!t.ready-made || ThemesDlg.show-ready-made || root.filter != "");
+            padding-bottom: self.listed ? 4px : 0px;
+            if self.listed: theme-row := ListRow {
                 accessible-role: list-item;
                 accessible-label: t.name;
                 accessible-value: t.sub;
@@ -192,10 +226,15 @@ component ThemeList inherits VerticalLayout {
     Rectangle { height: 8px; }
     HorizontalLayout {
         alignment: start;
+        spacing: 8px;
         new-theme := Btn {
             icon: "plus";
             text: @tr("New theme");
             clicked => { ThemesDlg.new-theme(); }
+        }
+        ready-made := Btn {
+            text: ThemesDlg.show-ready-made ? @tr("Hide ready-made themes") : ThemesDlg.ready-made-label;
+            clicked => { ThemesDlg.show-ready-made = !ThemesDlg.show-ready-made; }
         }
     }
 
@@ -551,15 +590,15 @@ component ThemeEditor inherits HorizontalLayout {
         horizontal-stretch: 1.1;
         min-width: 0px;
         alignment: start;
-        HorizontalLayout {
-            alignment: start;
-            preview-tab := Segmented {
-                labels: [@tr("Lyrics"), @tr("Scripture"), @tr("Announcement")];
-                index <=> ThemesDlg.preview-tab;
-                changed => { ThemesDlg.changed(); }
+        Field {
+            label: @tr("Layout");
+            help: @tr("(how each kind of slide looks in this theme)");
+            layout := Select {
+                options: ThemesDlg.layout-names;
+                index <=> ThemesDlg.layout-index;
+                changed => { ThemesDlg.layout-picked(); }
             }
         }
-        Rectangle { height: 8px; }
         preview-box := Rectangle {
             height: self.width * 9 / 16;
             border-radius: 10px;
@@ -572,6 +611,109 @@ component ThemeEditor inherits HorizontalLayout {
                 height: parent.height;
                 source: ThemesDlg.preview;
                 image-fit: contain;
+            }
+            // The snap guides the box touches while it is dragged.
+            for gx in ThemesDlg.guides-x: Rectangle {
+                x: parent.width * gx / 1000 - 0.5px;
+                y: 0;
+                width: 1px;
+                height: parent.height;
+                background: #3fc6ff;
+            }
+            for gy in ThemesDlg.guides-y: Rectangle {
+                x: 0;
+                y: parent.height * gy / 1000 - 0.5px;
+                width: parent.width;
+                height: 1px;
+                background: #3fc6ff;
+            }
+            text-frame := Rectangle {
+                x: parent.width * ThemesDlg.frame-x / 1000;
+                y: parent.height * ThemesDlg.frame-y / 1000;
+                width: parent.width * ThemesDlg.frame-w / 1000;
+                height: parent.height * ThemesDlg.frame-h / 1000;
+                border-width: 1.5px;
+                border-color: drag.pressed || drag.has-hover ? Theme.accent : #ffffff60;
+                border-radius: 3px;
+                corner := Rectangle {
+                    x: parent.width - 7px;
+                    y: parent.height - 7px;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 3px;
+                    background: Theme.accent;
+                }
+            }
+            drag := TouchArea {
+                mouse-cursor: move;
+                accessible-role: none;
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down {
+                        ThemesDlg.drag-start(self.mouse-x / self.width * 1000, self.mouse-y / self.height * 1000);
+                    } else if e.kind == PointerEventKind.up {
+                        ThemesDlg.drag-done();
+                    }
+                }
+                moved => {
+                    if self.pressed {
+                        ThemesDlg.drag-to((self.mouse-x - self.pressed-x) / self.width * 1000, (self.mouse-y - self.pressed-y) / self.height * 1000);
+                    }
+                }
+            }
+        }
+        Rectangle { height: 6px; }
+        Text {
+            text: @tr("Drag the box to move the text; drag its corner to make it bigger or smaller.");
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+        snap := Check {
+            text: @tr("Snap to guides (middle, edges and thirds)");
+            checked <=> ThemesDlg.snap;
+        }
+        Field {
+            label: @tr("Text size in this layout");
+            help: @tr("(percent of the theme's size)");
+            layout-size := RangeSlider {
+                minimum: 40;
+                maximum: 160;
+                value <=> ThemesDlg.layout-size;
+                changed => { ThemesDlg.layout-edited(); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            Field {
+                label: @tr("Text in the box");
+                HorizontalLayout {
+                    alignment: start;
+                    layout-place := Segmented {
+                        labels: [@tr("Top"), @tr("Middle"), @tr("Bottom")];
+                        index <=> ThemesDlg.layout-place;
+                        changed => { ThemesDlg.layout-edited(); }
+                    }
+                }
+            }
+            Field {
+                label: @tr("Align");
+                HorizontalLayout {
+                    alignment: start;
+                    layout-align := Segmented {
+                        labels: [@tr("Left"), @tr("Center"), @tr("Right")];
+                        index <=> ThemesDlg.layout-align;
+                        changed => { ThemesDlg.layout-edited(); }
+                    }
+                }
+            }
+        }
+        if ThemesDlg.layout-changed: HorizontalLayout {
+            alignment: start;
+            reset-layout := Btn {
+                small: true;
+                text: @tr("Reset this layout");
+                clicked => { ThemesDlg.reset-layout(); }
             }
         }
         Rectangle { height: 14px; }

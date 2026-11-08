@@ -20,10 +20,12 @@ pub fn draws_text(item: &ServiceItem) -> bool {
     matches!(item.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. } | ItemKind::Text { .. })
 }
 
-/// The style and background `item` shows with, in `service` (`None`: no service theme).
+/// The style and background `item` shows with, in `service` (`None`: no service theme). The style is the theme's
+/// layout for the item (N25): songs Lyrics, passages Scripture, an announcement its own pick.
 pub fn resolve(data: &Data, service: Option<&Service>, item: &ServiceItem) -> Resolved {
     let item_ref = ItemThemeRef { theme: item.theme, background: item.background.as_ref(), draws_text: draws_text(item) };
-    data.catalog().resolve(service.and_then(|s| s.theme), item_ref)
+    let r = data.catalog().resolve(service.and_then(|s| s.theme), item_ref);
+    Resolved { style: crate::theme::layouts::apply(&r.style, crate::theme::layouts::for_item(&item.kind)), ..r }
 }
 
 /// The service holding item `item_id`, searching every service (the open one first).
@@ -56,7 +58,7 @@ mod tests {
     }
 
     fn text() -> ItemKind {
-        ItemKind::Text { title: "t".into(), body: "b".into() }
+        ItemKind::Text { title: "t".into(), body: "b".into(), layout: Default::default() }
     }
 
     #[test]
@@ -106,6 +108,21 @@ mod tests {
         let mut with_bg = plain.clone();
         with_bg.background = Some(Background::Color { color: "#ff0000".into() });
         assert_eq!(resolve(&d, s, &with_bg).background, Background::Color { color: "#ff0000".into() });
+    }
+
+    #[test]
+    fn resolve_draws_an_announcement_with_its_layout() {
+        let mut d = Data::default();
+        let plain = item(text(), None);
+        assert_eq!(resolve(&d, None, &plain).style, d.settings.theme, "Text changes nothing");
+        let title = item(ItemKind::Text { title: "t".into(), body: "b".into(), layout: crate::theme::LayoutKind::Title }, None);
+        assert_eq!(resolve(&d, None, &title).style.weight, 700);
+        // A theme's own Title layout wins over the shipped one.
+        let mut x = saved("Bold titles", 100);
+        x.style.layouts.set(crate::theme::LayoutKind::Title, crate::theme::Layout { size: 50, ..Default::default() });
+        d.themes.push(x.clone());
+        let title = ServiceItem { theme: Some(x.id), ..title };
+        assert_eq!((resolve(&d, None, &title).style.size, resolve(&d, None, &title).style.weight), (50, 600));
     }
 
     #[test]

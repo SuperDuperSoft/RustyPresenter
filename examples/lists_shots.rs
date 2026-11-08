@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             d.songs.push(song);
         }
-        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome & announcements".into(), body: "Welcome!".into() }, background: None, notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome & announcements".into(), body: "Welcome!".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         for w in 1..=10 {
             let mut s = Service::new(&format!("Sunday week {w}"));
             s.date = chrono::NaiveDate::from_ymd_opt(2026, 9, 6).map(|d| d + chrono::Duration::days(7 * i64::from(w)));

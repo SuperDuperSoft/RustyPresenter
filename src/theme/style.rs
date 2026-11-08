@@ -2,6 +2,8 @@
 //! (spec §4.1). Old data loads unchanged, and the defaults draw exactly what today's `model::Theme` draws.
 use serde::{Deserialize, Serialize};
 
+use crate::theme::layouts::{Frame, Layouts, clamp_layout};
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(default)]
 pub struct Theme {
@@ -26,7 +28,25 @@ pub struct Theme {
     pub band_color: String,
     /// 0–100
     pub band_opacity: u8,
+    /// N25: the layouts this theme changed (`theme::layouts`). Empty on a drawn style (`layouts::apply`).
+    #[serde(skip_serializing_if = "Layouts::is_empty")]
+    pub layouts: Layouts,
+    /// The fields below are set by a layout on the drawn style. Italic text.
+    #[serde(skip_serializing_if = "is_false")]
+    pub italic: bool,
+    /// Each line starts with a bullet.
+    #[serde(skip_serializing_if = "is_false")]
+    pub bullets: bool,
+    /// The lines after the first at this percent of the text size; 0 is the same size.
+    #[serde(skip_serializing_if = "is_zero")]
+    pub subtitle: u8,
+    /// The text box; None is the whole screen inside its margins.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frame: Option<Frame>,
 }
+
+fn is_false(b: &bool) -> bool { !*b }
+fn is_zero(n: &u8) -> bool { *n == 0 }
 
 impl Default for Theme {
     fn default() -> Self {
@@ -45,6 +65,11 @@ impl Default for Theme {
             band: false,
             band_color: "#000000".into(),
             band_opacity: 55,
+            layouts: Layouts::default(),
+            italic: false,
+            bullets: false,
+            subtitle: 0,
+            frame: None,
         }
     }
 }
@@ -72,6 +97,11 @@ pub fn clamp_style(t: &mut Theme) {
     t.band_opacity = t.band_opacity.min(100);
     if !matches!(t.position.as_str(), "center" | "lower" | "top") {
         t.position = "center".into();
+    }
+    t.subtitle = t.subtitle.min(100);
+    t.frame = t.frame.map(|f| f.clamped());
+    for l in t.layouts.0.values_mut() {
+        clamp_layout(l);
     }
 }
 

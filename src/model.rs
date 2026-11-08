@@ -233,7 +233,8 @@ pub enum ItemKind {
     },
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
-    Text { title: String, body: String },
+    /// `layout`: which of its theme's layouts the slides use (N25); Text when not given.
+    Text { title: String, body: String, #[serde(default, skip_serializing_if = "crate::theme::LayoutKind::is_text")] layout: crate::theme::LayoutKind },
     /// A part of the service still to be chosen (FEAT-6). Shows no slides; Next and Prev step over it.
     Blank { #[serde(default)] label: String, #[serde(default)] want: BlankKind },
     /// A coloured heading in the service list ("Worship", "Message"). Shows no slides.
@@ -1041,7 +1042,7 @@ mod feat1_tests {
         d.themes.push(crate::theme::SavedTheme { id: Uuid::new_v4(), name: "T".into(), style: Theme::default(), background: Some(Background::Image { asset: "t.png".into(), dim: 10 }) });
         d.backgrounds.push(BackgroundEntry::new("B", Background::Video { asset: "b.mp4".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));
         d.overlays.push(Overlay { id: Uuid::new_v4(), name: "Bug".into(), source: OverlaySource::Image { source: ImageSource::Asset { asset: "o.png".into() }, opacity: 100 }, place: Placement::default() });
-        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "t".into(), body: "b".into() },
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "t".into(), body: "b".into(), layout: Default::default() },
             background: Some(Background::Gradient { from: "#000".into(), to: "#fff".into(), angle: 90, dim: 0 }), notes: String::new(), theme: None });
         let set = d.referenced_assets();
         for a in ["t.png", "b.mp4", "o.png"] { assert!(set.contains(a), "{a}"); }

@@ -527,7 +527,7 @@ pub(crate) mod tests {
     fn bible_tab_appends_at_end_and_toasts_label() {
         let app = test_app();
         let text = |title: &str| {
-            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into() }, background: None, notes: String::new(), theme: None };
+            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
             app.data.lock().unwrap().services[0].items.push(item.clone());
             item.id
         };
@@ -654,7 +654,7 @@ pub(crate) mod tests {
         st.set_text_title("  Welcome ".into());
         st.set_text_body("Hello\n\nAgain".into());
         click(&op, "AddTextTab::add");
-        assert!(matches!(&items(&app)[..], [ItemKind::Text { title, body }] if title == "Welcome" && body == "Hello\n\nAgain"));
+        assert!(matches!(&items(&app)[..], [ItemKind::Text { title, body, .. }] if title == "Welcome" && body == "Hello\n\nAgain"));
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
         assert_eq!(op.dialog(), None);
     }

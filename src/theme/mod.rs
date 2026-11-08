@@ -8,6 +8,8 @@ mod app_tests;
 mod live_tests;
 pub mod assets;
 pub mod backgrounds;
+pub mod builtins;
+pub mod layouts;
 pub mod merge;
 pub mod migrate;
 pub mod overlay;
@@ -20,4 +22,5 @@ pub mod style;
 
 pub use resolve::{church_default, draws_text, find, resolve, service_of};
 pub use saved::*;
+pub use layouts::{Layout, LayoutKind};
 pub use style::{Theme, TextAlign, clamp_style};

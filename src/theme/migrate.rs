@@ -101,7 +101,7 @@ mod tests {
         d.format = 1;
         d.settings.background = image("a.png");
         let item = |bg: Option<Background>| ServiceItem {
-            id: uuid::Uuid::new_v4(), kind: crate::model::ItemKind::Text { title: "t".into(), body: "b".into() }, background: bg, notes: String::new(), theme: None,
+            id: uuid::Uuid::new_v4(), kind: crate::model::ItemKind::Text { title: "t".into(), body: "b".into(), layout: Default::default() }, background: bg, notes: String::new(), theme: None,
         };
         d.services[0].items = vec![item(Some(image("a.png"))), item(Some(Background::Video { asset: "v.mp4".into(), dim: 0 })), item(None),
             item(Some(Background::Color { color: "#123456".into() }))];

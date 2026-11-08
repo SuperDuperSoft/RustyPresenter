@@ -39,7 +39,7 @@ fn assert_inside(op: &Operator, id: &str, (w, h): (f32, f32)) {
 }
 
 fn with_text_item(op: &Rc<Operator>) -> Uuid {
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Good morning".into() }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Good morning".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
     op.app().data.lock().unwrap().services[0].items.push(item.clone());
     refresh(op);
     item.id

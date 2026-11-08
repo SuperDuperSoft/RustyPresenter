@@ -456,7 +456,7 @@ mod tests {
     fn the_phone_may_put_a_slide_on_the_stage_only_and_sees_it() {
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Text { title: "Band".into(), body: "Watch me".into() }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let env: Envelope = serde_json::from_value(json!({ "id": "x", "cmd": "stage_only", "item_id": id, "slide": 0 })).unwrap();
         assert!(phone_may(&env), "no base needed: the room does not change");
         assert!(app.command(env).ok);

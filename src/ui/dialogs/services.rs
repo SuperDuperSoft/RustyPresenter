@@ -588,7 +588,7 @@ mod tests {
         assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap(), DateOrder::Mdy), "Service 11/22/2026");
         assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap(), DateOrder::Dmy), "Service 22/11/2026");
         let app = test_app();
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         let (from, _) = current(&app);
         let op = open_services(&app);
@@ -685,7 +685,7 @@ mod tests {
     #[test]
     fn save_to_file_writes_the_open_service() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let op = open_services(&app);
         let dest = saved_file(&app, &op);
         assert!(dest.exists());
@@ -929,7 +929,7 @@ mod tests {
     fn save_as_template_defaults_songs_to_blank_and_makes_services() {
         let app = test_app();
         app.data.lock().unwrap().services[0].items = vec![
-            ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None },
+            ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None },
             song_item(),
         ];
         let op = open_services(&app);

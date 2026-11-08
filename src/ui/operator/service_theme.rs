@@ -114,7 +114,10 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         settle();
-        assert_eq!(labels(&op), ["Church default (Standard)", "Standard", "Lower third", "Christmas", "Manage themes…"]);
+        let mut expect: Vec<String> = vec!["Church default (Standard)".into(), "Standard".into()];
+        expect.extend(crate::theme::builtin().into_iter().map(|b| b.name));
+        expect.extend(["Christmas".into(), "Manage themes…".into()]);
+        assert_eq!(labels(&op), expect);
         assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 0);
         assert!(find(&op, "ServiceColumn::service-theme").is_some());
     }
@@ -126,12 +129,13 @@ mod tests {
         app.data.lock().unwrap().themes.push(t.clone());
         let op = open(&app);
         refresh(&op);
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(3);
+        let at = labels(&op).iter().position(|l| l == "Christmas").unwrap() as i32;
+        op.ui.global::<ServicePlanning>().invoke_pick_theme(at);
         assert_eq!(app.data.lock().unwrap().services[0].theme, Some(t.id));
-        assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 3, "the box shows it after the read");
+        assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), at, "the box shows it after the read");
         op.ui.global::<ServicePlanning>().invoke_pick_theme(0);
         assert_eq!(app.data.lock().unwrap().services[0].theme, None, "back to the church default");
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(4);
+        op.ui.global::<ServicePlanning>().invoke_pick_theme(at + 1);
         assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Themes)));
         assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 0, "Manage themes… is not a theme");
     }
@@ -144,7 +148,7 @@ mod tests {
             let mut d = app.data.lock().unwrap();
             d.themes.push(t.clone());
             for bg in [Some(Background::Color { color: "#ffffff".into() }), None] {
-                d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into() }, background: bg, notes: String::new(), theme: None });
+                d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: bg, notes: String::new(), theme: None });
             }
         }
         let op = open(&app);

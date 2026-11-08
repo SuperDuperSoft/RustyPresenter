@@ -232,7 +232,7 @@ mod tests {
     use uuid::Uuid;
 
     fn add_text(app: &App, title: &str) -> Uuid {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         item.id
     }

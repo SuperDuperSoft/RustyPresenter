@@ -249,7 +249,7 @@ mod tests {
         let in_service = song(&app, "Amazing Grace", "a");
         let other = song(&app, "Amazing Love", "b");
         let it = item(&app, ItemKind::Song { song_id: in_service, arrangement: None });
-        item(&app, ItemKind::Text { title: "Welcome".into(), body: "hi".into() });
+        item(&app, ItemKind::Text { title: "Welcome".into(), body: "hi".into(), layout: Default::default() });
         let op = open_window(&app);
         refresh(&op);
         op.ui.invoke_menu("find".into());

@@ -102,7 +102,7 @@ mod tests {
         d
     }
     fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None } }
-    fn text() -> ItemKind { ItemKind::Text { title: "Welcome".into(), body: "Hello".into() } }
+    fn text() -> ItemKind { ItemKind::Text { title: "Welcome".into(), body: "Hello".into(), layout: Default::default() } }
     fn all(_: &str) -> bool { true }
     fn none(_: &str) -> bool { false }
     fn run(d: &Data, has: &dyn Fn(&str) -> bool) -> Vec<String> { check(d, &[monitor("room")], &[], has, &|_, _| true) }
