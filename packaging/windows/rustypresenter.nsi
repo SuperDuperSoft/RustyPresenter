@@ -2,7 +2,7 @@
 ; Plain NSIS 3: only its own headers and its nsDialogs plugin. The CI release build uses cargo-packager's template (installer.nsi) instead; both
 ; install to the same folder under the same uninstall key, so either one upgrades the other.
 ;
-;   makensis -DVERSION=0.2.0 -DVIVERSION=0.2.0.0 -DFILES_NSH=<files.nsh> -DUNFILES_NSH=<unfiles.nsh>
+;   makensis -DVERSION=1.0.0 -DVIVERSION=1.0.0.0 -DFILES_NSH=<files.nsh> -DUNFILES_NSH=<unfiles.nsh>
 ;            -DOUTFILE=<setup.exe> -DICON=<icon.ico> rustypresenter.nsi
 ;
 ; FILES_NSH holds the File lines for everything staged, UNFILES_NSH the matching Delete/RMDir lines, so the
