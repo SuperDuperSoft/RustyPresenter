@@ -459,6 +459,12 @@ mod tests {
 
     fn settle() { slint::platform::update_timers_and_animations(); }
 
+    /// Puts this thread back in English when a test ends, even a failed one.
+    struct BackToEnglish;
+    impl Drop for BackToEnglish {
+        fn drop(&mut self) { let _ = crate::i18n::set_language("en"); }
+    }
+
     fn tab_labels(op: &Operator) -> Vec<String> {
         settle();
         find_all(op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect()
@@ -484,6 +490,7 @@ mod tests {
     fn an_edit_shows_in_the_slint_window_without_a_restart() {
         let app = test_app();
         let op = opened(&app);
+        let _en = BackToEnglish;
         crate::i18n::set_language("es").unwrap();
         settings::open(&op, SettingsTab::Language);
         assert_eq!(tab_labels(&op)[2], "Idioma", "built in");
@@ -492,13 +499,18 @@ mod tests {
         let g = g(&op);
         assert_eq!(g.get_page(), "edit");
         assert_eq!(g.get_language(), "Español (Spanish)");
-        assert!(g.get_progress().ends_with(" translated"), "{}", g.get_progress());
+        let rows = Draft::open("es").rows();
+        let done = rows.iter().filter(|r| r.translated()).count();
+        assert_eq!(done, rows.len(), "Spanish is built in and complete");
+        assert_eq!(g.get_progress(), progress(done, rows.len()), "the count, in the language on show");
         assert!(!g.get_not_shown());
 
         pick(&op, "Language");
         assert_eq!(g.get_forms().row_data(0).unwrap().text, "Idioma", "the box starts with the built-in text");
         g.invoke_form_edited(0, "Lengua {x}".into());
-        assert_eq!(g.get_problem(), "{x} is not in the English. Remove it, or copy the part in curly brackets exactly.", "checked while typing");
+        let problem = crate::i18n::user::check("Language", None, &["Lengua {x}".into()]).unwrap();
+        assert!(problem.starts_with("{x} ") && !problem.contains("English"), "in Spanish: {problem}");
+        assert_eq!(g.get_problem(), problem, "checked while typing");
         typed(&op, 0, "Lengua");
         assert_eq!(g.get_problem(), "");
         assert!(g.get_mine());
@@ -519,13 +531,13 @@ mod tests {
         g.invoke_close();
         settings::open(&op, SettingsTab::Language);
         assert_eq!(tab_labels(&op)[2], "Idioma");
-        crate::i18n::set_language("en").unwrap();
     }
 
     #[test]
     fn a_new_language_from_the_picker_shows_in_slint() {
         let app = test_app();
         let op = opened(&app);
+        let _en = BackToEnglish;
         op.ui.invoke_menu("translations".into());
         assert_eq!(op.dialog(), Some(DialogKind::Translations));
         let g = g(&op);
@@ -552,22 +564,24 @@ mod tests {
         pick(&op, "Language");
         assert_eq!(g.get_forms().row_data(0).unwrap().text, "Язык", "copied from Russian");
         typed(&op, 0, "Język");
-        // Plural boxes are labelled with numbers from the Polish rule.
+        // Plural boxes are labelled with numbers from the Polish rule (in the words on show, copied from Russian).
         pick(&op, "{n} song");
         let labels: Vec<String> = g.get_forms().iter().map(|f| f.label.to_string()).collect();
-        assert_eq!(labels, ["For 1…", "For 2, 3, 4…", "For 0, 5, 6…"]);
+        let want: Vec<String> = ["1", "2, 3, 4", "0, 5, 6"].iter().map(|n| tr!("For {numbers}…", numbers = n)).collect();
+        assert_eq!(labels, want);
+        assert_eq!(labels[0], "Для 1…", "Polish shows the copied Russian words");
         g.invoke_close();
         settings::open(&op, SettingsTab::Language);
         assert_eq!(tab_labels(&op)[2], "Język", "a language Slint never had, through the hook");
         let rows: Vec<crate::ui::SettingsLanguageRow> = op.ui.global::<SettingsDlg>().get_languages().iter().collect();
         assert!(rows.iter().any(|r| r.title.starts_with("Polski (") && r.on), "listed (marked for review, in the copied words) and in use");
-        crate::i18n::set_language("en").unwrap();
     }
 
     #[test]
     fn export_import_and_review_buttons() {
         let app = test_app();
         let op = opened(&app);
+        let _en = BackToEnglish;
         crate::i18n::set_language("de").unwrap();
         crate::ui::dialogs::translation_editor::open(&op, None);
         let g = g(&op);
@@ -575,7 +589,9 @@ mod tests {
         typed(&op, 0, "Sprache!");
         g.invoke_mark_reviewed();
         assert!(g.get_reviewed());
-        assert!(op.toast_log().iter().any(|(t, _)| t.starts_with("Marked as reviewed")), "{:?}", op.toast_log());
+        let thanks = tr!("Marked as reviewed. Thank you!");
+        assert_ne!(thanks, "Marked as reviewed. Thank you!", "German is on show");
+        assert!(op.toast_log().iter().any(|(t, _)| *t == thanks), "{:?}", op.toast_log());
         let out = crate::store::test_dir().join("de.po");
         will_pick(vec![out.clone()]);
         g.invoke_export();
@@ -589,11 +605,11 @@ mod tests {
         crate::ui::dialogs::translation_editor::open(&op2, None);
         will_pick(vec![out]);
         super::g(&op2).invoke_import();
-        assert!(op2.toast_log().iter().any(|(t, _)| t == "Imported Deutsch"), "{:?}", op2.toast_log());
+        let imported = tr!("Imported {language}", language = "Deutsch");
+        assert!(op2.toast_log().iter().any(|(t, _)| *t == imported), "{:?}", op2.toast_log());
         assert_eq!(tr!("Language"), "Sprache!");
         assert!(super::g(&op2).get_reviewed());
         assert!(find(&op2, "EditPage::trans-close").is_some());
-        crate::i18n::set_language("en").unwrap();
     }
 
     #[test]

@@ -127,11 +127,24 @@ export component SettingsHelp inherits HorizontalLayout {
                     label: @tr("Group name");
                     edited(t) => { KeysDlg.group-renamed(gi, t); }
                 }
-                for on[li] in g.layers: layer := Check {
-                    padding-bottom: 0px;
-                    text: KeysDlg.layer-names[li];
-                    checked: on;
-                    toggled(v) => { KeysDlg.group-layer(gi, li, v); }
+                // Two layers to a row, so a group stays short enough to see the next one.
+                for r in (g.layers.length + 1) / 2: HorizontalLayout {
+                    spacing: 12px;
+                    layer-left := Check {
+                        horizontal-stretch: 1;
+                        padding-bottom: 0px;
+                        text: KeysDlg.layer-names[r * 2];
+                        checked: g.layers[r * 2];
+                        toggled(v) => { KeysDlg.group-layer(gi, r * 2, v); }
+                    }
+                    if r * 2 + 1 < g.layers.length: layer-right := Check {
+                        horizontal-stretch: 1;
+                        padding-bottom: 0px;
+                        text: KeysDlg.layer-names[r * 2 + 1];
+                        checked: g.layers[r * 2 + 1];
+                        toggled(v) => { KeysDlg.group-layer(gi, r * 2 + 1, v); }
+                    }
+                    if r * 2 + 1 >= g.layers.length: Rectangle { horizontal-stretch: 1; }
                 }
                 HorizontalLayout {
                     alignment: end;

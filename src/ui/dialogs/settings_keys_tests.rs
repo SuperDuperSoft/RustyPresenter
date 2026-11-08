@@ -173,7 +173,10 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     assert_eq!(k.get_groups().row_count(), 1);
     let builtin = k.get_groups().row_data(0).unwrap();
     assert_eq!(builtin.name, "Everything but the background");
-    assert_eq!(builtin.layers.iter().collect::<Vec<_>>(), [true, false, true, true, true, true, true], "all but Media & background");
+    assert_eq!(builtin.layers.iter().collect::<Vec<_>>(), [true, false, true, true, true, true, true, true], "all but Media & background");
+    let names = k.get_layer_names().iter().collect::<Vec<_>>();
+    assert_eq!(names.len(), builtin.layers.row_count(), "one name per layer");
+    assert_eq!(names.last().map(|n| n.as_str()), Some("Phone drawing"));
     click(&op, "SettingsHelp::add-group", 0);
     assert_eq!(k.get_groups().row_count(), 2);
     k.invoke_group_renamed(1, "Words only ".into());

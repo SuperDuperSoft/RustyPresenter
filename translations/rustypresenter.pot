@@ -2438,6 +2438,10 @@ msgstr ""
 msgid "Update screen"
 msgstr ""
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr ""
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr ""
@@ -2448,10 +2452,6 @@ msgstr ""
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
-msgstr ""
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
 msgstr ""
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs

@@ -60,7 +60,7 @@ fn columns_and_top_bar_fit_the_window() {
             "OperatorWindow::service-col", "OperatorWindow::slides-col", "OperatorWindow::live-col",
             "TopBar::service-pick", "TopBar::form", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn",
             "TopBar::settings-btn", "LiveColumn::preview-view", "LiveColumn::live-what", "LiveColumn::drawing-chip",
-            "LiveColumn::next-btn", "LiveColumn::clear-logo",
+            "LiveColumn::next-btn", "LiveColumn::clear-all", "LiveColumn::clear-logo",
         ] {
             assert_inside(&op, id, size);
         }
