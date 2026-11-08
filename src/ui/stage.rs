@@ -14,6 +14,7 @@ use std::{collections::HashMap, rc::Rc, sync::{Arc, Mutex, atomic::{AtomicBool, 
 use tokio::sync::broadcast::error::RecvError;
 
 use crate::stage::view::label;
+use crate::screen_fix::{ScreenFix, TestPattern};
 
 /// Everything the stage shows, worked out from one live view.
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -193,17 +194,37 @@ fn fit_cell(ui: &StageWindow, screen: &StageScreen, text: &str, c: &view::Cell, 
     size
 }
 
+/// This window's screen fix and test pattern (N20).
+fn fix_of(app: &App, role: &str) -> (ScreenFix, TestPattern) {
+    app.data.lock().unwrap().settings.screens.screen_for(role).map_or_else(Default::default, |s| (s.fix, s.test))
+}
+
+/// Puts a test pattern over the stage, or takes it away.
+fn show_test(ui: &StageWindow, test: TestPattern) {
+    let size = ui.window().size();
+    let (w, h) = if size.width > 0 && size.height > 0 { (size.width, size.height) } else { (1920, 1080) };
+    let px = crate::screen_fix::pattern_pixels(test, (w, h));
+    ui.set_test_pattern(px.map(|p| slint::Image::from_rgba8(slint::SharedPixelBuffer::clone_from_slice(&p, w, h))).unwrap_or_default());
+    ui.set_testing(!test.is_off());
+}
+
 /// An open stage window. It follows the live view until it is dropped.
 pub struct Stage { ui: StageWindow, _clock: Timer, closed: Arc<AtomicBool> }
 
 impl Stage {
     /// Open the stage window, full screen on `monitor` (a plain window without one).
-    pub fn open(app: Arc<App>, monitor: Option<MonitorId>) -> Result<Rc<Stage>, String> {
+    pub fn open(app: Arc<App>, monitor: Option<MonitorId>) -> Result<Rc<Stage>, String> { Self::open_as(app, monitor, "stage") }
+
+    /// `open` for the window named `role` ("stage", "stage:<id>"), which follows that screen's fix (N20).
+    pub fn open_as(app: Arc<App>, monitor: Option<MonitorId>, role: &str) -> Result<Rc<Stage>, String> {
         let ui = StageWindow::new().map_err(|e| crate::tr!("Could not open the stage screen: {error}", error = e))?;
         // Slint picks the computer's language for the first window; show the app's.
         crate::i18n::sync_slint();
         // Its frames never wait for the monitor's refresh, so the room's are not held up behind them.
-        super::pacing::attach(ui.window(), "stage", false);
+        let (fix, test) = fix_of(&app, role);
+        let shared_fix: crate::video::postpass::SharedFix = Arc::new(Mutex::new(fix));
+        crate::video::postpass::attach(ui.window(), "stage", false, shared_fix.clone());
+        show_test(&ui, test);
         let screen = Arc::new(StageScreen::default());
         let weak = ui.as_weak();
         let sc = screen.clone();
@@ -222,7 +243,7 @@ impl Stage {
             if let Err(e) = monitors::fullscreen_on(&ui, m) { let _ = ui.hide(); return Err(e); }
         }
         let closed = Arc::new(AtomicBool::new(false));
-        follow(app, rx, ui.as_weak(), screen, closed.clone());
+        follow(app, rx, ui.as_weak(), screen, closed.clone(), (role.to_string(), shared_fix, test));
         Ok(Rc::new(Stage { ui, _clock: clock, closed }))
     }
 
@@ -277,7 +298,8 @@ fn panel_thread(app: Arc<App>, ui: slint::Weak<StageWindow>, closed: Arc<AtomicB
 
 /// Forward live and data updates to the window from a plain thread (no tokio runtime needed on the UI side).
 /// Only the newest view is drawn: updates that arrive while one is queued replace it.
-fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: slint::Weak<StageWindow>, screen: Arc<StageScreen>, closed: Arc<AtomicBool>) {
+fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: slint::Weak<StageWindow>, screen: Arc<StageScreen>, closed: Arc<AtomicBool>,
+    (role, fix, mut test): (String, crate::video::postpass::SharedFix, TestPattern)) {
     let latest: Arc<Mutex<Option<Shown>>> = Arc::default();
     let panel = panel_thread(app.clone(), ui.clone(), closed.clone());
     let _ = panel.send(());
@@ -286,7 +308,17 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: s
             Ok(Update::Drawing(_)) => { let _ = panel.send(()); continue }
             Ok(Update::Live(u)) => { let _ = panel.send(()); u }
             // Settings may have a new stage layout.
-            Ok(Update::Data) | Err(RecvError::Lagged(_)) => { let _ = panel.send(()); LiveUpdate::new(app.live_view()) }
+            Ok(Update::Data) | Err(RecvError::Lagged(_)) => {
+                let _ = panel.send(());
+                // The screen's fix or test pattern may have changed (N20).
+                let (f, t) = fix_of(&app, &role);
+                let fix_changed = std::mem::replace(&mut *fix.lock().unwrap(), f) != f;
+                if fix_changed || t != test {
+                    let redo_test = std::mem::replace(&mut test, t) != t;
+                    let _ = ui.upgrade_in_event_loop(move |ui| { if redo_test { show_test(&ui, t) } ui.window().request_redraw() });
+                }
+                LiveUpdate::new(app.live_view())
+            }
             // A new timer readout: the same live view with the new times.
             Ok(Update::Timers(_)) => match latest.lock().unwrap().as_ref().map(|s| s.live.clone()) {
                 Some(live) => live,
@@ -449,6 +481,17 @@ mod tests {
         assert_eq!(stage.ui.get_item_title(), "Welcome");
         assert!(stage.ui.get_now_fits(), "the lyric must fit at the chosen size");
         stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn a_test_pattern_covers_the_stage() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        app.edit(|d| { d.settings.screens.assign("stage", ScreenTarget::Window); d.settings.screens.stage.screens[0].test = crate::screen_fix::TestPattern::Grid; Ok(()) }).unwrap();
+        let stage = Stage::open_as(app.clone(), None, "stage").unwrap();
+        assert!(stage.ui.get_testing());
+        assert!(stage.ui.get_test_pattern().size().width > 0);
+        assert!(!Stage::open_as(app, None, "stage:other").unwrap().ui.get_testing(), "another screen has none");
     }
 
     #[test]

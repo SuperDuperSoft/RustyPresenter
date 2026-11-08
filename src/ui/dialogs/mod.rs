@@ -94,7 +94,7 @@ impl DialogKind {
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
-    pub fn tall(&self) -> bool { self.wide() || matches!(self, DialogKind::Add(_)) }
+    pub fn tall(&self) -> bool { self.wide() || matches!(self, DialogKind::Add(_) | DialogKind::Screens) }
 
     /// The name the window's dialog layer switches its content on.
     pub fn id(&self) -> &'static str {

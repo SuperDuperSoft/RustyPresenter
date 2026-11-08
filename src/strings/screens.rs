@@ -25,3 +25,25 @@ pub fn mirrors(first: &str) -> String { tr!("Shows the same picture as {screen}.
 
 pub fn remove() -> String { tr!("Remove") }
 pub fn remove_question(name: &str) -> String { tr!("Remove “{name}”?", name = name) }
+
+/// N20: a screen set up before its projector is there.
+pub fn output_placeholder() -> String { tr!("Placeholder (connect the projector later)") }
+pub fn placeholder() -> String { tr!("Placeholder") }
+pub fn placeholder_note() -> String { tr!("Nothing shows on a placeholder. Set it up now, then pick the projector here once it is plugged in.") }
+pub fn stage_mirrors() -> String { tr!("Shows the audience picture instead of a stage layout. It has no sound.") }
+
+/// The Picture tab's choices.
+pub fn test_off() -> String { tr!("Off") }
+pub fn test_grid() -> String { tr!("Grid") }
+pub fn test_bars() -> String { tr!("Colour bars") }
+pub fn test_white() -> String { tr!("White") }
+pub fn test_black() -> String { tr!("Black") }
+pub fn corner_names() -> [String; 4] { [tr!("Top left"), tr!("Top right"), tr!("Bottom right"), tr!("Bottom left")] }
+/// Where the picked corner is, e.g. "Moved right 1.5 %, down 0.0 %".
+pub fn corner_at(x: f32, y: f32) -> String {
+    let side = if x < 0.0 { tr!("left") } else { tr!("right") };
+    let way = if y < 0.0 { tr!("up") } else { tr!("down") };
+    tr!("Moved {side} {x} %, {way} {y} %", side = side, x = format!("{:.1}", x.abs() * 100.0), way = way, y = format!("{:.1}", y.abs() * 100.0))
+}
+pub fn delay_ms(ms: u64) -> String { tr!("about {ms} ms", ms = ms) }
+pub fn fix_needs_opengl() -> String { tr!("Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way.") }

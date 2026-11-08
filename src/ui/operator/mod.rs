@@ -27,5 +27,6 @@ pub mod stage_only;
 #[cfg(test)]
 mod song_flows;
 pub mod text_size;
+pub mod transfer;
 pub mod view;
 pub mod window;

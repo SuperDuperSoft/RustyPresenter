@@ -27,6 +27,9 @@
 //!   operator every 8 ms (a hover storm); `playback`: a looping 25 fps clip plays in the room for
 //!   `RP_BENCH_SECONDS` (10) with no slide changes (needs libmpv: `RP_LIBMPV` or the usual places);
 //! * `RP_BENCH_RENDERERS`: with `--matrix`, only these renderers (comma-separated).
+//! * `RP_BENCH_FIX=1`: the room has a colour fix and corner pin (N20), to measure what the GL pass costs;
+//!   `RP_BENCH_FINISH=1`: every room frame waits for the GPU (`glFinish`) inside its frame time, so the pass's GPU
+//!   work is counted too (compare runs with and without `RP_BENCH_FIX`, both with this on).
 //!
 //! One run prints a `BENCH,...` line. `--matrix [runs]` runs every renderer with 1 and 3 windows, `runs` times each
 //! (default 3), as child processes, and prints a table of medians. Build and run (release only):
@@ -287,6 +290,14 @@ fn run() {
         }
         first.unwrap()
     };
+    if std::env::var("RP_BENCH_FIX").as_deref() == Ok("1") {
+        let mut data = app.data.lock().unwrap();
+        data.settings.screens.assign("audience", rustypresenter::model::ScreenTarget::Window);
+        data.settings.screens.audience.screens[0].fix = rustypresenter::screen_fix::ScreenFix {
+            red: 0.95, green: 1.0, blue: 0.9, gamma: 1.1, black: 0.02, corners: [[0.03, 0.0], [-0.03, 0.0], [0.0; 2], [0.0; 2]], delay: 0,
+        };
+        eprintln!("room colour fix and corner pin on");
+    }
 
     let mode = video::choose_backend(rustypresenter::model::Graphics::Auto).draw;
     let mpv = match video::ffi::Mpv::load() {
@@ -355,7 +366,11 @@ fn run() {
             if mode == video::DrawMode::OpenGl {
                 let (t, counting) = (Textures::default(), f.counting.clone());
                 let t2 = t.clone();
-                r.surface().set_gl_probe(move |gl, _| t2.check(gl, counting.get()));
+                let finish = std::env::var("RP_BENCH_FINISH").as_deref() == Ok("1");
+                r.surface().set_gl_probe(move |gl, _| {
+                    if finish { unsafe { glow::HasContext::finish(gl) } }
+                    t2.check(gl, counting.get())
+                });
                 textures = Some(t);
             }
             frames.push(("room", f));

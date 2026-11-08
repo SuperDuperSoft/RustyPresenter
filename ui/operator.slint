@@ -326,11 +326,49 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); ServicesDialogState.save-file(); }
             }
             Menu {
+                title: @tr("Import");
+                enabled: root.menu-ready;
+                MenuItem {
+                    title: @tr("Song from the clipboard");
+                    activated => { root.focus-keys(); root.menu("import-clipboard-song"); }
+                }
+                MenuItem {
+                    title: @tr("Announcement from the clipboard");
+                    enabled: root.menu-can-save;
+                    activated => { root.focus-keys(); root.menu("import-clipboard-text"); }
+                }
+                MenuItem {
+                    title: @tr("PowerPoint words as editable slides…");
+                    enabled: root.menu-can-save;
+                    activated => { root.focus-keys(); root.menu("import-pptx-words"); }
+                }
+                MenuItem {
+                    title: @tr("Theme pack…");
+                    activated => { root.focus-keys(); root.menu("import-themes"); }
+                }
+            }
+            Menu {
                 title: @tr("Export");
                 enabled: root.menu-can-save;
                 MenuItem {
                     title: @tr("Service bundle…");
                     activated => { root.focus-keys(); ServicesDialogState.save-file(); }
+                }
+                MenuItem {
+                    title: @tr("Song words as text…");
+                    activated => { root.focus-keys(); root.menu("export-words"); }
+                }
+                MenuItem {
+                    title: @tr("Slides as pictures…");
+                    activated => { root.focus-keys(); root.menu("export-slides"); }
+                }
+                MenuItem {
+                    title: @tr("Playlist (list of files)…");
+                    activated => { root.focus-keys(); root.menu("export-playlist"); }
+                }
+                MenuItem {
+                    title: @tr("Theme pack…");
+                    activated => { root.focus-keys(); root.menu("export-themes"); }
                 }
             }
             MenuSeparator {}

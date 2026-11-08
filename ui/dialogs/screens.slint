@@ -3,7 +3,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { Icon } from "../icons.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { Lbl, Note, Select, TextField, Toggle } from "form.slint";
+import { Lbl, Note, RangeSlider, Select, Tabs, TextField, Toggle } from "form.slint";
 
 /// A screen in a list. `state` is a `Chip` state.
 export struct ScreenRow { id: string, name: string, size: string, status: string, state: string }
@@ -30,6 +30,33 @@ export global ScreensDialogState {
     in property <string> note;
     in property <bool> can-remove;
     in property <bool> one-monitor;
+    /// N20: the Screen or Picture tab on the right.
+    in-out property <int> tab;
+    /// A stage screen can show the audience picture instead (`mirror`).
+    in property <bool> is-stage;
+    in property <bool> mirror;
+    in property <[string]> tests;
+    in-out property <int> test;
+    /// Red, green, blue and black in %, gamma × 100.
+    in-out property <int> red: 100;
+    in-out property <int> green: 100;
+    in-out property <int> blue: 100;
+    in-out property <int> gamma: 100;
+    in-out property <int> black;
+    in property <[string]> corners;
+    in-out property <int> corner;
+    /// Where the picked corner is moved to, as text ("right 1.5 %, down 0 %").
+    in property <string> corner-at;
+    in-out property <string> delay-text;
+    in property <string> delay-ms;
+    /// Why colour and corners do not show here, if they don't.
+    in property <string> fix-note;
+    callback set-mirror(bool);
+    callback pick-test(int);
+    callback colour();
+    callback nudge(int, int);
+    callback reset-fix();
+    callback delay();
     callback power(string, bool);
     callback add(string);
     callback select(string);
@@ -154,6 +181,154 @@ component Setting inherits VerticalLayout {
     @children
 }
 
+/// One colour setting: its name, a slider and the number.
+component ColourRow inherits HorizontalLayout {
+    in property <string> label;
+    in property <int> minimum;
+    in property <int> maximum;
+    in-out property <int> value;
+    in property <string> shown;
+    callback changed();
+    spacing: 10px;
+    Text {
+        width: 96px;
+        text: root.label;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 13.5px;
+        vertical-alignment: center;
+    }
+    slider := RangeSlider {
+        horizontal-stretch: 1;
+        minimum: root.minimum;
+        maximum: root.maximum;
+        value <=> root.value;
+        accessible-label: root.label;
+        changed => { root.changed(); }
+    }
+    Text {
+        width: 52px;
+        text: root.shown;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 13px;
+        horizontal-alignment: right;
+        vertical-alignment: center;
+    }
+}
+
+/// The Picture tab (N20): test patterns, colour, corners and delay for the picked screen.
+component PictureFix inherits VerticalLayout {
+    spacing: 14px;
+    alignment: start;
+    Setting {
+        label: @tr("Test pattern");
+        test-select := Select {
+            options: ScreensDialogState.tests;
+            index <=> ScreensDialogState.test;
+            changed(i) => { ScreensDialogState.pick-test(i); }
+        }
+    }
+    Setting {
+        label: @tr("Colour");
+        red-row := ColourRow {
+            label: @tr("Red");
+            minimum: 0;
+            maximum: 200;
+            value <=> ScreensDialogState.red;
+            shown: ScreensDialogState.red + " %";
+            changed => { ScreensDialogState.colour(); }
+        }
+        green-row := ColourRow {
+            label: @tr("Green");
+            minimum: 0;
+            maximum: 200;
+            value <=> ScreensDialogState.green;
+            shown: ScreensDialogState.green + " %";
+            changed => { ScreensDialogState.colour(); }
+        }
+        blue-row := ColourRow {
+            label: @tr("Blue");
+            minimum: 0;
+            maximum: 200;
+            value <=> ScreensDialogState.blue;
+            shown: ScreensDialogState.blue + " %";
+            changed => { ScreensDialogState.colour(); }
+        }
+        gamma-row := ColourRow {
+            label: @tr("Gamma");
+            minimum: 40;
+            maximum: 250;
+            value <=> ScreensDialogState.gamma;
+            shown: (ScreensDialogState.gamma / 100).to-fixed(2);
+            changed => { ScreensDialogState.colour(); }
+        }
+        black-row := ColourRow {
+            label: @tr("Black level");
+            minimum: 0;
+            maximum: 30;
+            value <=> ScreensDialogState.black;
+            shown: ScreensDialogState.black + " %";
+            changed => { ScreensDialogState.colour(); }
+        }
+    }
+    Setting {
+        label: @tr("Corners (to square up a tilted projector)");
+        HorizontalLayout {
+            spacing: 8px;
+            corner-select := Select {
+                width: 150px;
+                options: ScreensDialogState.corners;
+                index <=> ScreensDialogState.corner;
+                // A nudge of nothing redraws where the newly picked corner is.
+                changed => { ScreensDialogState.nudge(0, 0); }
+            }
+            left-btn := Btn { small: true; text: "←"; tooltip: @tr("Move this corner left"); clicked => { ScreensDialogState.nudge(-1, 0); } }
+            right-btn := Btn { small: true; text: "→"; tooltip: @tr("Move this corner right"); clicked => { ScreensDialogState.nudge(1, 0); } }
+            up-btn := Btn { small: true; text: "↑"; tooltip: @tr("Move this corner up"); clicked => { ScreensDialogState.nudge(0, -1); } }
+            down-btn := Btn { small: true; text: "↓"; tooltip: @tr("Move this corner down"); clicked => { ScreensDialogState.nudge(0, 1); } }
+            Rectangle { horizontal-stretch: 1; }
+        }
+        corner-text := Text {
+            text: ScreensDialogState.corner-at;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+        }
+    }
+    Setting {
+        label: @tr("Delay (frames)");
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            delay-field := TextField {
+                width: 96px;
+                height: 38px;
+                label: @tr("Delay (frames)");
+                text <=> ScreensDialogState.delay-text;
+                edited => { ScreensDialogState.delay(); }
+            }
+            Text {
+                text: ScreensDialogState.delay-ms;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                vertical-alignment: center;
+            }
+        }
+    }
+    if ScreensDialogState.fix-note != "": fix-note := Note { text: ScreensDialogState.fix-note; font-size: 13px; }
+    HorizontalLayout {
+        alignment: start;
+        reset-btn := Btn {
+            small: true;
+            icon: "restart";
+            text: @tr("Reset the picture");
+            clicked => { ScreensDialogState.reset-fix(); }
+        }
+    }
+}
+
 export component ScreensDialog inherits VerticalLayout {
     DialogBody {
         HorizontalLayout {
@@ -171,6 +346,14 @@ export component ScreensDialog inherits VerticalLayout {
             VerticalLayout {
                 horizontal-stretch: 1;
                 min-width: 0px;
+                spacing: 16px;
+                alignment: start;
+                tabs := Tabs {
+                    labels: [@tr("Screen"), @tr("Picture")];
+                    index <=> ScreensDialogState.tab;
+                }
+                if ScreensDialogState.tab == 1: picture := PictureFix {}
+                if ScreensDialogState.tab == 0: VerticalLayout {
                 spacing: 16px;
                 alignment: start;
                 Setting {
@@ -230,6 +413,22 @@ export component ScreensDialog inherits VerticalLayout {
                         font-size: 13px;
                     }
                 }
+                if ScreensDialogState.is-stage: HorizontalLayout {
+                    spacing: 10px;
+                    mirror-toggle := Toggle {
+                        on: ScreensDialogState.mirror;
+                        label: @tr("Show what the audience sees");
+                        toggled(on) => { ScreensDialogState.set-mirror(on); }
+                    }
+                    Text {
+                        horizontal-stretch: 1;
+                        text: @tr("Show what the audience sees");
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        vertical-alignment: center;
+                    }
+                }
                 if ScreensDialogState.note != "": note-box := Note { text: ScreensDialogState.note; font-size: 13px; }
                 if ScreensDialogState.one-monitor: one-screen-note := Note {
                     font-size: 13px;
@@ -244,6 +443,7 @@ export component ScreensDialog inherits VerticalLayout {
                         text: @tr("Remove this screen");
                         clicked => { ScreensDialogState.remove(); }
                     }
+                }
                 }
             }
         }

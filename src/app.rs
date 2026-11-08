@@ -748,7 +748,7 @@ impl App {
             let opened = match &w.target {
                 ScreenTarget::Monitor(m) => self.open_window(&w.key, Some(m)),
                 ScreenTarget::Window => self.screens.get().ok_or_else(|| tr!("RustyPresenter is still starting. Try again in a moment.")).and_then(|s| s.open_window(&w.key, w.size)),
-                ScreenTarget::None => continue,
+                ScreenTarget::None | ScreenTarget::Placeholder => continue,
             };
             match opened { Ok(()) => { applied.insert(w.key.clone(), w.clone()); } Err(e) => failed.push(e) }
         }
@@ -1491,9 +1491,9 @@ impl App {
         // Any of the name, where it shows and the size of a window. One monitor shows one screen, so taking a monitor
         // takes it from the screen that had it.
         "screens/update" => {
-            #[derive(Deserialize)] struct U { id: Uuid, name: Option<String>, target: Option<ScreenTarget>, size: Option<(u32, u32)> }
-            let U { id, name, target, size } = parse(body)?;
-            let move_windows = target.is_some() || size.is_some();
+            #[derive(Deserialize)] struct U { id: Uuid, name: Option<String>, target: Option<ScreenTarget>, size: Option<(u32, u32)>, fix: Option<crate::screen_fix::ScreenFix>, mirror: Option<bool> }
+            let U { id, name, target, size, fix, mirror } = parse(body)?;
+            let move_windows = target.is_some() || size.is_some() || mirror.is_some();
             let monitors = app.monitors();
             tryr!(app.edit(|d| {
                 let setup = &mut d.settings.screens;
@@ -1506,6 +1506,8 @@ impl App {
                 }
                 let screen = setup.find_mut(id).ok_or_else(|| tr!("That screen is gone."))?;
                 if let Some(name) = name.as_deref().map(str::trim).filter(|n| !n.is_empty()) { screen.name = name.into() }
+                if let Some(f) = fix { screen.fix = f.clamped() }
+                if let Some(m) = mirror { screen.mirror = m }
                 let out = screen.output_mut();
                 if let Some(t) = target {
                     if let ScreenTarget::Monitor(m) = &t && let Some(m) = monitors.iter().find(|x| x.id == *m) {
@@ -1517,6 +1519,21 @@ impl App {
                 Ok(())
             }));
             if move_windows { tryr!(app.sync_screens()) }
+            app.broadcast_data();
+            Ok(json!({}))
+        }
+        // A test pattern on one screen (N20), or with no id every pattern off. Not an edit to undo.
+        "screens/test" => {
+            #[derive(Deserialize)] struct T { id: Option<Uuid>, pattern: crate::screen_fix::TestPattern }
+            let T { id, pattern } = parse(body)?;
+            tryr!(app.edit_untracked(|d| {
+                let setup = &mut d.settings.screens;
+                match id {
+                    Some(id) => setup.find_mut(id).ok_or_else(|| tr!("That screen is gone."))?.test = pattern,
+                    None => { setup.clear_tests(); }
+                }
+                Ok(())
+            }));
             app.broadcast_data();
             Ok(json!({}))
         }
@@ -1585,6 +1602,7 @@ impl App {
         a if crate::planning::actions::handles(a) => crate::planning::actions::run(app, a, body).await,
         a if crate::stage::actions::handles(a) => crate::stage::actions::run(app, a, body).await,
         a if crate::automation::actions::handles(a) => crate::automation::actions::run(app, a, body).await,
+        a if crate::transfer::handles(a) => crate::transfer::run(app, a, body).await,
         a if crate::media_care::handles(a) => crate::media_care::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {

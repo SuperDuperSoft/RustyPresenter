@@ -320,6 +320,13 @@ pub enum ScreenTarget {
     Window,
     /// Full screen on this monitor (`MonitorId::key`).
     Monitor(String),
+    /// Set up now, connected later (N20): kept with its size and fixes, and never opened.
+    Placeholder,
+}
+
+impl ScreenTarget {
+    /// Whether a window opens for it.
+    pub fn opens(&self) -> bool { matches!(self, ScreenTarget::Window | ScreenTarget::Monitor(_)) }
 }
 
 /// One physical output of a screen. A window uses its size; a monitor's real size is kept here so a list can show it
@@ -336,14 +343,29 @@ impl Default for ScreenOutput {
 /// can be added without changing what is saved.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(default)]
-pub struct Screen { pub id: Uuid, pub name: String, pub outputs: Vec<ScreenOutput> }
+pub struct Screen {
+    pub id: Uuid,
+    pub name: String,
+    pub outputs: Vec<ScreenOutput>,
+    /// Colour, corner pin and delay (N20).
+    #[serde(skip_serializing_if = "crate::screen_fix::ScreenFix::is_default")]
+    pub fix: crate::screen_fix::ScreenFix,
+    /// A test pattern instead of the picture (N20). Turned off at start and when Screen Configuration closes.
+    #[serde(skip_serializing_if = "crate::screen_fix::TestPattern::is_off")]
+    pub test: crate::screen_fix::TestPattern,
+    /// A stage screen that shows what the audience sees instead of a stage layout (N20).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub mirror: bool,
+}
 
 impl Default for Screen {
     fn default() -> Self { Self::new(Uuid::new_v4(), "Screen") }
 }
 
 impl Screen {
-    pub fn new(id: Uuid, name: &str) -> Self { Self { id, name: name.into(), outputs: vec![ScreenOutput::default()] } }
+    pub fn new(id: Uuid, name: &str) -> Self {
+        Self { id, name: name.into(), outputs: vec![ScreenOutput::default()], fix: Default::default(), test: Default::default(), mirror: false }
+    }
     /// Its output. A saved screen without one reads as having nowhere to go.
     pub fn output(&self) -> ScreenOutput { self.outputs.first().cloned().unwrap_or_default() }
     pub fn output_mut(&mut self) -> &mut ScreenOutput {
@@ -395,12 +417,33 @@ impl ScreenSetup {
         [&mut self.audience, &mut self.stage].into_iter().flat_map(|g| g.screens.iter_mut()).find(|s| s.id == id)
     }
 
-    /// The window name of each of the group's screens that has an output. The first is plain "room" or "stage": the
-    /// room is the one that plays sound and tells the live engine what is on air. The others carry their id.
+    /// The window name of each of the group's screens that opens a window. The first is plain "room" or "stage": the
+    /// room is the one that plays sound and tells the live engine what is on air. The others carry their id. A stage
+    /// screen set to show the audience picture (`mirror`) is an extra audience window, "room:<id>".
     pub fn keyed<'a>(&'a self, group: &str) -> Vec<(String, &'a Screen)> {
         let (role, screens) = match group { "audience" => ("room", &self.audience.screens), _ => ("stage", &self.stage.screens) };
-        screens.iter().filter(|s| s.output().target != ScreenTarget::None).enumerate()
-            .map(|(i, s)| (if i == 0 { role.to_string() } else { format!("{role}:{}", s.id) }, s)).collect()
+        let mirrored = |s: &Screen| role == "stage" && s.mirror;
+        let opening = || screens.iter().filter(|s| s.output().target.opens());
+        let own = opening().filter(|s| !mirrored(s)).enumerate().map(|(i, s)| (if i == 0 { role.to_string() } else { format!("{role}:{}", s.id) }, s));
+        let mirrors = opening().filter(|s| mirrored(s)).map(|s| (format!("room:{}", s.id), s));
+        let mut all: Vec<_> = own.chain(mirrors).collect();
+        all.sort_by_key(|(_, s)| screens.iter().position(|x| x.id == s.id));
+        all
+    }
+
+    /// The screen a window name stands for.
+    pub fn screen_for(&self, key: &str) -> Option<&Screen> {
+        Self::GROUPS.into_iter().flat_map(|g| self.keyed(g)).find(|(k, _)| k == key).map(|(_, s)| s)
+    }
+
+    /// Turns every test pattern off; true when one was on.
+    pub fn clear_tests(&mut self) -> bool {
+        let mut any = false;
+        for s in self.audience.screens.iter_mut().chain(self.stage.screens.iter_mut()) {
+            any |= !s.test.is_off();
+            s.test = Default::default();
+        }
+        any
     }
 
     /// The windows the switches ask for, every room before the stage.
@@ -928,6 +971,47 @@ mod screen_tests {
         let id = s.stage.screens[0].id;
         assert_eq!(s.find(id).map(|(g, x)| (g, x.name.as_str())), Some(("stage", "Stage Display")));
         assert!(s.find(Uuid::nil()).is_none());
+    }
+
+    #[test]
+    fn a_placeholder_opens_nothing_and_keeps_its_place() {
+        let mut s = ScreenSetup::default();
+        s.assign("audience", ScreenTarget::Placeholder);
+        s.audience.screens[0].fix.red = 0.9;
+        assert!(s.windows().is_empty(), "no projector yet");
+        let mut lobby = on_monitor("Lobby", "B");
+        lobby.mirror = true; // only means something on a stage screen
+        let lobby_id = lobby.id;
+        s.audience.screens.push(lobby);
+        assert_eq!(s.windows().iter().map(|w| w.key.clone()).collect::<Vec<_>>(), ["room"], "the next real one is the room");
+        assert_eq!(s.screen_for("room").map(|x| x.id), Some(lobby_id));
+        let back: ScreenSetup = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
+        assert_eq!(back, s, "the placeholder and its fix are saved");
+    }
+
+    #[test]
+    fn a_mirrored_stage_screen_is_an_audience_window() {
+        let mut s = ScreenSetup::default();
+        s.assign("stage", ScreenTarget::Monitor("A".into()));
+        let mut wall = on_monitor("Wall", "B");
+        wall.mirror = true;
+        let wall_id = wall.id;
+        s.stage.screens.push(wall);
+        assert_eq!(s.windows().iter().map(|w| w.key.clone()).collect::<Vec<_>>(), ["stage".to_string(), format!("room:{wall_id}")]);
+        s.stage.screens[0].mirror = true;
+        let first = s.stage.screens[0].id;
+        assert_eq!(s.keyed("stage").iter().map(|(k, _)| k.clone()).collect::<Vec<_>>(), [format!("room:{first}"), format!("room:{wall_id}")]);
+        assert_eq!(s.screen_for(&format!("room:{wall_id}")).map(|x| x.name.as_str()), Some("Wall"));
+    }
+
+    #[test]
+    fn test_patterns_are_cleared_together() {
+        let mut s = ScreenSetup::default();
+        assert!(!s.clear_tests());
+        s.stage.screens[0].test = crate::screen_fix::TestPattern::Grid;
+        assert!(s.clear_tests());
+        assert!(s.stage.screens[0].test.is_off());
+        assert!(!serde_json::to_string(&s).unwrap().contains("test"), "an off pattern and an empty fix are not written");
     }
 }
 
