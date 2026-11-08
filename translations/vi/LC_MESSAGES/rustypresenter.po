@@ -1,15 +1,6 @@
 # Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: vi\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: Tiếng Việt\n"
-"X-English-Name: Vietnamese\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: vi\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: Tiếng Việt\nX-English-Name: Vietnamese\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -93,7 +84,7 @@ msgstr "Google Slides: trong Google Slides, chọn Tệp → Tải xuống → M
 
 #: ui/dialogs/add-media.slint
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
-msgstr ""
+msgstr "Hãy tải xuống dưới dạng PowerPoint (.pptx) để giữ ghi chú của người nói."
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -725,11 +716,11 @@ msgstr "Tên trong thư viện"
 
 #: ui/dialogs/item-edit.slint
 msgid "Speaker notes"
-msgstr ""
+msgstr "Ghi chú của người nói"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen with each slide"
-msgstr ""
+msgstr "Hiện trên màn hình sân khấu cùng mỗi trang chiếu"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2012,20 +2003,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Bắt đầu trang chiếu mới tại vị trí con trỏ"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"Ân điển lạ lùng, ôi ngọt ngào thay\n"
-"Đã cứu kẻ khốn hèn như tôi\n"
-"\n"
-"Chorus\n"
-"Xiềng xích tôi đã rơi…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\nÂn điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2417,7 +2396,7 @@ msgstr "đang cập nhật…"
 
 #: ui/operator/live.slint
 msgid "Notes: {}"
-msgstr ""
+msgstr "Ghi chú: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -3549,7 +3528,7 @@ msgstr "Gỡ khỏi sân khấu"
 
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
-msgstr ""
+msgstr "Ghi chú người trình bày"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
@@ -3597,11 +3576,11 @@ msgstr "(Trống)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide presenter notes"
-msgstr ""
+msgstr "Ẩn ghi chú người trình bày"
 
 #: src/i18n/remote_strings.rs
 msgid "Show presenter notes"
-msgstr ""
+msgstr "Hiện ghi chú người trình bày"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -6000,12 +5979,8 @@ msgid "Settings saved"
 msgstr "Đã lưu cài đặt"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Ân điển lạ lùng, ôi ngọt ngào thay\n"
-"Đã cứu kẻ khốn hèn như tôi"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Ân điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6402,7 +6377,7 @@ msgstr "Đồng hồ và đếm ngược"
 
 #: src/strings/stage.rs
 msgid "Slides and notes"
-msgstr ""
+msgstr "Trang chiếu và ghi chú"
 
 #: src/strings/stage.rs
 msgid "Current slide"

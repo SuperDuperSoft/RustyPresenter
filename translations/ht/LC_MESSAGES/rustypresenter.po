@@ -1,15 +1,6 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ht\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Kreyòl ayisyen\n"
-"X-English-Name: Haitian Creole\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -93,7 +84,7 @@ msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Micros
 
 #: ui/dialogs/add-media.slint
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
-msgstr ""
+msgstr "Telechaje l kòm PowerPoint (.pptx) pou w kenbe nòt oratè yo."
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -725,11 +716,11 @@ msgstr "Non nan bibliyotèk"
 
 #: ui/dialogs/item-edit.slint
 msgid "Speaker notes"
-msgstr ""
+msgstr "Nòt oratè"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen with each slide"
-msgstr ""
+msgstr "Parèt sou ekran sèn nan ak chak slide"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2012,20 +2003,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Kòmanse yon nouvo diapo kote kurseur la ye"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Kouplè 1]\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"[Koral]\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2417,7 +2396,7 @@ msgstr "ap mete ajou…"
 
 #: ui/operator/live.slint
 msgid "Notes: {}"
-msgstr ""
+msgstr "Nòt: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -3549,7 +3528,7 @@ msgstr "Retire l sou sèn nan"
 
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
-msgstr ""
+msgstr "Nòt prezantatè"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
@@ -3597,11 +3576,11 @@ msgstr "(Vid)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide presenter notes"
-msgstr ""
+msgstr "Kache nòt prezantatè yo"
 
 #: src/i18n/remote_strings.rs
 msgid "Show presenter notes"
-msgstr ""
+msgstr "Montre nòt prezantatè yo"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -6027,12 +6006,8 @@ msgid "Settings saved"
 msgstr "Paramèt anrejistre"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Gras etonan, ala dous son an\n"
-"Ki sove yon malere tankou m"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Gras etonan, ala dous son an\nKi sove yon malere tankou m"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6430,7 +6405,7 @@ msgstr "Lè ak kont alanvè"
 
 #: src/strings/stage.rs
 msgid "Slides and notes"
-msgstr ""
+msgstr "Slide ak nòt"
 
 #: src/strings/stage.rs
 msgid "Current slide"

@@ -1,15 +1,6 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: zh-CN\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 简体中文\n"
-"X-English-Name: Chinese (Simplified)\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -93,7 +84,7 @@ msgstr "Google 幻灯片：在 Google 幻灯片中选择“文件 → 下载 →
 
 #: ui/dialogs/add-media.slint
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
-msgstr ""
+msgstr "请下载为 PowerPoint (.pptx) 以保留演讲者备注。"
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -725,11 +716,11 @@ msgstr "库中名称"
 
 #: ui/dialogs/item-edit.slint
 msgid "Speaker notes"
-msgstr ""
+msgstr "演讲者备注"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen with each slide"
-msgstr ""
+msgstr "随每张幻灯片显示在舞台屏幕上"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2012,20 +2003,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "在光标处开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免\n"
-"\n"
-"Chorus\n"
-"我的锁链已断开…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2417,7 +2396,7 @@ msgstr "正在更新…"
 
 #: ui/operator/live.slint
 msgid "Notes: {}"
-msgstr ""
+msgstr "备注：{}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -3549,7 +3528,7 @@ msgstr "从舞台屏幕撤下"
 
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
-msgstr ""
+msgstr "演示者备注"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
@@ -3597,11 +3576,11 @@ msgstr "（已清空）"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide presenter notes"
-msgstr ""
+msgstr "隐藏演示者备注"
 
 #: src/i18n/remote_strings.rs
 msgid "Show presenter notes"
-msgstr ""
+msgstr "显示演示者备注"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -6000,12 +5979,8 @@ msgid "Settings saved"
 msgstr "设置已保存"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "奇异恩典，何等甘甜\n我罪已得赦免"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6402,7 +6377,7 @@ msgstr "时钟和倒计时"
 
 #: src/strings/stage.rs
 msgid "Slides and notes"
-msgstr ""
+msgstr "幻灯片和备注"
 
 #: src/strings/stage.rs
 msgid "Current slide"

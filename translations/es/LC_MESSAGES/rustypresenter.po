@@ -1,15 +1,6 @@
 # Spanish for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Español\n"
-"X-English-Name: Spanish\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: es\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Español\nX-English-Name: Spanish\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -93,7 +84,7 @@ msgstr "Google Slides: en Google Slides elige Archivo → Descargar → Microsof
 
 #: ui/dialogs/add-media.slint
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
-msgstr ""
+msgstr "Descárgalo como PowerPoint (.pptx) para conservar tus notas del orador."
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -725,11 +716,11 @@ msgstr "Nombre en la biblioteca"
 
 #: ui/dialogs/item-edit.slint
 msgid "Speaker notes"
-msgstr ""
+msgstr "Notas del orador"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen with each slide"
-msgstr ""
+msgstr "Se muestran en la pantalla del escenario con cada diapositiva"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2012,20 +2003,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Empieza una nueva diapositiva donde está el cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verso 1\n"
-"Sublime gracia del Señor\n"
-"que a mí, pecador, salvó\n"
-"\n"
-"Coro\n"
-"Ya libre soy…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verso 1\nSublime gracia del Señor\nque a mí, pecador, salvó\n\nCoro\nYa libre soy…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2417,7 +2396,7 @@ msgstr "actualizando…"
 
 #: ui/operator/live.slint
 msgid "Notes: {}"
-msgstr ""
+msgstr "Notas: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -3549,7 +3528,7 @@ msgstr "Quitarla del escenario"
 
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
-msgstr ""
+msgstr "Notas del presentador"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
@@ -3597,11 +3576,11 @@ msgstr "(Pantalla vacía)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide presenter notes"
-msgstr ""
+msgstr "Ocultar notas del presentador"
 
 #: src/i18n/remote_strings.rs
 msgid "Show presenter notes"
-msgstr ""
+msgstr "Mostrar notas del presentador"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -6027,12 +6006,8 @@ msgid "Settings saved"
 msgstr "Configuración guardada"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Sublime gracia del Señor\n"
-"que a un infeliz salvó"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Sublime gracia del Señor\nque a un infeliz salvó"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6430,7 +6405,7 @@ msgstr "Reloj y cuenta regresiva"
 
 #: src/strings/stage.rs
 msgid "Slides and notes"
-msgstr ""
+msgstr "Diapositivas y notas"
 
 #: src/strings/stage.rs
 msgid "Current slide"
