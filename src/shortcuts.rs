@@ -323,6 +323,46 @@ impl Keymap {
     pub fn menu_key(&self, action: Action) -> Option<&Chord> { self.keys(action).iter().find(|c| !c.types_text()) }
 }
 
+/// The standard Windows keys for lists and files (not changeable): Delete, Copy, Cut, Duplicate, Move up / down
+/// for the selected service item (or media file), and the File / Settings menu keys. Paste is `Action::PasteLink`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EditKey { Delete, Copy, Cut, Duplicate, MoveUp, MoveDown, NewService, OpenService, Print, Settings }
+
+impl EditKey {
+    pub const ALL: [EditKey; 10] = [
+        EditKey::Delete, EditKey::Copy, EditKey::Cut, EditKey::Duplicate, EditKey::MoveUp, EditKey::MoveDown,
+        EditKey::NewService, EditKey::OpenService, EditKey::Print, EditKey::Settings,
+    ];
+
+    /// Its keys; the first is the one the menu shows.
+    pub fn chords(&self) -> Vec<Chord> {
+        match self {
+            EditKey::Delete => vec![Chord::plain("Delete"), Chord::plain("Backspace")],
+            EditKey::Copy => vec![Chord::ctrl("c")],
+            EditKey::Cut => vec![Chord::ctrl("x")],
+            EditKey::Duplicate => vec![Chord::ctrl("d")],
+            EditKey::MoveUp => vec![Chord::new("ArrowUp", false, true, false), Chord::new("ArrowUp", true, false, false)],
+            EditKey::MoveDown => vec![Chord::new("ArrowDown", false, true, false), Chord::new("ArrowDown", true, false, false)],
+            EditKey::NewService => vec![Chord::ctrl("n")],
+            EditKey::OpenService => vec![Chord::ctrl("o")],
+            EditKey::Print => vec![Chord::ctrl("p")],
+            EditKey::Settings => vec![Chord::ctrl(",")],
+        }
+    }
+
+    /// Works only through its menu item (the menu bar matches it first), not through the window's key scope.
+    pub fn menu_only(&self) -> bool { matches!(self, EditKey::NewService | EditKey::OpenService | EditKey::Print | EditKey::Settings) }
+
+    /// The editing key `pressed` is, if any (exact modifiers).
+    pub fn of(pressed: &Chord) -> Option<EditKey> { EditKey::ALL.into_iter().find(|e| e.chords().contains(pressed)) }
+
+    /// The menu item's shortcut: its first key, unless the church gave that key to one of its shortcuts.
+    pub fn menu_key(&self, map: &Keymap) -> Option<Chord> {
+        let first = self.chords().swap_remove(0);
+        map.action_for(&first).is_none().then_some(first)
+    }
+}
+
 /// Why a key is a poor choice for an action, for the editor to ask about before using it.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Clash {

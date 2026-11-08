@@ -164,3 +164,32 @@ fn settings_without_keys_load_the_defaults_and_bad_keys_load_too() {
     let odd: KeySettings = serde_json::from_str(r#"{"changed":[{"action":"clear_slide","keys":["Banana","F10"]}]}"#).unwrap();
     assert_eq!(Keymap::new(&odd).keys(Action::ClearSlide), [c("F10")], "an unreadable key is skipped");
 }
+
+#[test]
+fn edit_keys_are_the_windows_ones_and_clash_with_no_default_shortcut() {
+    let map = Keymap::default();
+    let f = |e: EditKey| e.chords().iter().map(Chord::to_text).collect::<Vec<_>>();
+    assert_eq!(f(EditKey::Delete), ["Delete", "Backspace"]);
+    assert_eq!(f(EditKey::Copy), ["Ctrl+C"]);
+    assert_eq!(f(EditKey::Cut), ["Ctrl+X"]);
+    assert_eq!(f(EditKey::Duplicate), ["Ctrl+D"]);
+    assert_eq!(f(EditKey::MoveUp), ["Alt+Up", "Ctrl+Up"]);
+    assert_eq!(f(EditKey::MoveDown), ["Alt+Down", "Ctrl+Down"]);
+    assert_eq!(f(EditKey::NewService), ["Ctrl+N"]);
+    assert_eq!(f(EditKey::OpenService), ["Ctrl+O"]);
+    assert_eq!(f(EditKey::Print), ["Ctrl+P"]);
+    assert_eq!(f(EditKey::Settings), ["Ctrl+,"]);
+    for e in EditKey::ALL {
+        for k in e.chords() {
+            assert_eq!(map.action_for(&k), None, "{k:?}");
+            assert_eq!(EditKey::of(&k), Some(e));
+            assert!(slint::Keys::from_parts(k.slint_parts().iter().map(String::as_str)).is_ok(), "{k:?}");
+        }
+        assert_eq!(e.menu_key(&map), e.chords().first().cloned());
+    }
+    assert_eq!(EditKey::of(&c("Up")), None, "a plain arrow is Back");
+    // A church that gave Delete to a shortcut keeps it: the menu item lets the key go.
+    let mut s = KeySettings::default();
+    s.assign(Action::ClearAll, c("Delete"));
+    assert_eq!(EditKey::Delete.menu_key(&Keymap::new(&s)), None);
+}
