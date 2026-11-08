@@ -95,6 +95,11 @@ lto = "thin"
 debug = "line-tables-only"
 strip = "debuginfo"
 
+# The screens' generated code (crates/rp-ui) is most of the program. It draws menus and dialogs, not video,
+# so build it for size: it makes the program and the setup file much smaller.
+[profile.release.package.rp-ui]
+opt-level = "s"
+
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
 
