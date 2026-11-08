@@ -43,7 +43,13 @@ jobs:
             exit 1
           fi
       - name: Scripts parse
-        run: for f in packaging/*.sh packaging/libmpv/*.sh; do bash -n "$f"; done
+        run: for f in packaging/*.sh packaging/libmpv/*.sh packaging/windows/*.sh; do bash -n "$f"; done
+      # make-installer.cmd's script, with fake downloads, makensis and objdump (no network, no Windows).
+      - name: Windows installer script
+        run: packaging/windows/test-make-installer.sh
+      # makensis is not on this runner; the PC runs the real compile.
+      - name: Windows installer script (NSIS) checks
+        run: python3 packaging/windows/check-nsi.py
 
   # Video tests against the pinned LGPL libmpv (the one the installers ship), on Windows.
   video-windows:
@@ -117,6 +123,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      # mpv-Copyright.txt and pdfium-LICENSE.txt are placeholders until make-installer.cmd has fetched the real
+      # texts on the PC and they are committed (each placeholder's first lines say how).
+      - name: Licence files are the real texts
+        run: |
+          bad=0
+          for f in FFmpeg-COPYING.LGPLv2.1.txt mpv-Copyright.txt pdfium-LICENSE.txt; do
+            if [ ! -s "packaging/licenses/$f" ]; then
+              echo "::error file=packaging/licenses/$f::missing"; bad=1
+            elif grep -q RUSTYPRESENTER-LICENCE-PLACEHOLDER "packaging/licenses/$f"; then
+              echo "::error file=packaging/licenses/$f::still a placeholder: commit the real text (make-installer.cmd fetches it)"; bad=1
+            fi
+          done
+          exit $bad
       - name: Install cargo-about
         run: cargo install cargo-about --version 0.9.2 --locked --features cli
       - run: scripts/licenses.sh

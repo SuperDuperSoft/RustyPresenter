@@ -1,0 +1,14 @@
+RUSTYPRESENTER-LICENCE-PLACEHOLDER
+This file must hold the exact text of mpv's own "Copyright" file (mpv 0.41.0), and it does not yet. It was not written
+from memory: it must be the real file.
+
+Where the real text comes from: the file "Copyright" in the libmpv release zip (libmpv-windows-x86_64-...-r<N>.zip), or, until that release exists, https://github.com/mpv-player/mpv/blob/v0.41.0/Copyright.
+
+How it gets filled:
+- On Jake's PC, make-installer.cmd fills it by itself from the pinned download, ships it in the installer, and
+  keeps a copy in .tools\xfer\make-installer\licenses\mpv-Copyright.txt for Claude to commit.
+- By hand: replace this whole file with the real text.
+Then run scripts/licenses.sh and commit this file and THIRD-PARTY-LICENSES.txt together.
+
+Until then scripts/licenses.sh leaves this file out of THIRD-PARTY-LICENSES.txt (and fails under CI), and the
+installers do not ship it.

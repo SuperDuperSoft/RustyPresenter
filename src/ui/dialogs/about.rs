@@ -239,16 +239,32 @@ mod tests {
         assert_eq!(strings::ffmpeg_line("n7.1"), "FFmpeg n7.1");
     }
 
-    /// `scripts/licenses.sh` appended every file in `packaging/licenses/`. Fails when one is added or changed and
-    /// the script was not run; the CI licence job checks the crates half.
+    /// Marks a licence file still waiting for its real text; `scripts/licenses.sh` leaves it out.
+    const PLACEHOLDER: &str = "RUSTYPRESENTER-LICENCE-PLACEHOLDER";
+
+    /// `scripts/licenses.sh` appended every file in `packaging/licenses/` but placeholders. Fails when one is added
+    /// or changed and the script was not run; the CI licence job checks the crates half.
     #[test]
     fn every_licence_file_is_in_the_text() {
         let text = licences().replace("\r\n", "\n");
         for entry in std::fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/packaging/licenses")).unwrap() {
             let path = entry.unwrap().path();
             let file = std::fs::read_to_string(&path).unwrap().replace("\r\n", "\n");
+            if file.contains(PLACEHOLDER) {
+                continue;
+            }
             assert!(text.contains(file.trim()), "{} is not in THIRD-PARTY-LICENSES.txt: run scripts/licenses.sh", path.display());
         }
+    }
+
+    #[test]
+    fn no_placeholder_reaches_the_text() {
+        assert!(!licences().contains(PLACEHOLDER), "a placeholder licence file was appended: rerun scripts/licenses.sh");
+    }
+
+    #[test]
+    fn licenses_text_has_the_ffmpeg_text() {
+        assert!(licences().contains("=== FFmpeg-COPYING.LGPLv2.1.txt ==="));
     }
 
     #[test]
