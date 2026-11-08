@@ -204,6 +204,7 @@ mod tests {
     #[test]
     fn a_password_must_come_first_and_three_wrong_ones_close_the_line() {
         let app = test_app();
+        with_items(&app);
         app.data.lock().unwrap().settings.network.tcp_password = Some(password::hash("lights"));
         let mut s = Session::default();
         assert_eq!(answer(&app, "next", &mut s).text, "ERR password needed: send password <password> first");
