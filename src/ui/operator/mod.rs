@@ -5,6 +5,7 @@ pub mod automation;
 pub mod bible;
 pub mod bible_extras;
 pub mod checks;
+pub mod edit_keys;
 pub mod file_input;
 #[cfg(test)]
 mod fit;

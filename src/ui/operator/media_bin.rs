@@ -94,7 +94,7 @@ impl Operator {
         self.state.borrow().snap.as_ref().map(|s| s.data.media.clone())
     }
 
-    fn picked(&self) -> Option<MediaFile> {
+    pub(super) fn picked(&self) -> Option<MediaFile> {
         let id = self.bin.borrow().picked?;
         self.bin_media()?.into_iter().find(|m| m.id == id)
     }
@@ -323,6 +323,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     ui.on_bin_pick(move |id| if let Some(op) = me.upgrade() {
         op.bin.borrow_mut().picked = id.parse().ok();
+        op.state.borrow_mut().list = super::window::ListFocus::Media;
         op.render_media();
     });
 }

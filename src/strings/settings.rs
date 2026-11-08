@@ -93,7 +93,18 @@ pub fn do_undo() -> String { tr!("Undo the last change to the services or the li
 pub fn do_redo() -> String { tr!("Redo what Undo took back") }
 pub fn do_find() -> String { tr!("Quick search: songs, files and services (Enter opens, Ctrl + Enter adds)") }
 pub fn do_sections() -> String { tr!("Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse") }
-pub fn do_paste_link() -> String { tr!("Add a YouTube link you copied") }
+pub fn do_paste_link() -> String { tr!("Paste the service item you copied, or add a YouTube link you copied") }
+pub fn do_delete() -> String { tr!("Remove the selected service item (or delete the picked media file)") }
+pub fn do_copy() -> String { tr!("Copy the selected service item") }
+pub fn do_cut() -> String { tr!("Cut the selected service item") }
+pub fn do_duplicate() -> String { tr!("Duplicate the selected service item") }
+pub fn do_move_up() -> String { tr!("Move the selected service item up") }
+pub fn do_move_down() -> String { tr!("Move the selected service item down") }
+pub fn do_new_service() -> String { tr!("New service") }
+pub fn do_open_service() -> String { tr!("Open a service file") }
+pub fn do_print() -> String { tr!("Print the service order") }
+pub fn do_settings() -> String { tr!("Settings") }
+pub fn do_list_step() -> String { tr!("Pick the item above or below, after a click in the service list") }
 pub fn key_esc() -> String { tr!("Esc") }
 pub fn do_next() -> String { tr!("Next") }
 pub fn do_back() -> String { tr!("Back") }

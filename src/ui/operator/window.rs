@@ -52,6 +52,11 @@ impl<T: OperatorScreens + ?Sized> OperatorScreens for Arc<T> {
 pub use crate::ui::dialogs::DialogKind;
 
 /// The window's state between updates (the web's `S`, `L`, `selectedId` and `bibleArmed`, `operator.js:62-68`).
+/// Which list the editing keys work on: the service list or the media library after a click in it; `Live` after a
+/// click on a slide or showing an item, so ↑ and ↓ are Back and Next again.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum ListFocus { #[default] Live, Service, Media }
+
 #[derive(Default)]
 pub(crate) struct OpState {
     pub(crate) snap: Option<Arc<OperatorSnapshot>>,
@@ -74,6 +79,8 @@ pub(crate) struct OpState {
     pub(super) held_snapshot: Option<Arc<OperatorSnapshot>>,
     /// View → Zoom: steps from 100 % (`menu::ZOOMS`).
     pub(super) zoom_step: i8,
+    /// The list clicked last, which Delete, Copy and ↑ ↓ work on (`edit_keys`).
+    pub(crate) list: ListFocus,
     /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
     pub(super) toasts: Vec<(String, bool)>,

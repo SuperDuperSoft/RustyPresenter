@@ -62,6 +62,10 @@ pub enum MenuAction {
     ActionPalette,
     /// Window → Start pre-service (N16): the Start countdown macro, or its tab when it isn't set up yet.
     StartPreService,
+    /// Edit → Cut, Copy, Duplicate, Delete, Move up / down: the selected service item (or media file).
+    Edit(crate::shortcuts::EditKey),
+    /// Edit → Paste: the copied service item, or a copied YouTube link.
+    Paste,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -113,6 +117,13 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "add-design" => MenuAction::AddDesign,
         "action-palette" => MenuAction::ActionPalette,
         "start-preservice" => MenuAction::StartPreService,
+        "delete" => MenuAction::Edit(crate::shortcuts::EditKey::Delete),
+        "cut" => MenuAction::Edit(crate::shortcuts::EditKey::Cut),
+        "copy" => MenuAction::Edit(crate::shortcuts::EditKey::Copy),
+        "duplicate" => MenuAction::Edit(crate::shortcuts::EditKey::Duplicate),
+        "move-up" => MenuAction::Edit(crate::shortcuts::EditKey::MoveUp),
+        "move-down" => MenuAction::Edit(crate::shortcuts::EditKey::MoveDown),
+        "paste" => MenuAction::Paste,
         _ => return None,
     })
 }
@@ -161,6 +172,8 @@ impl Operator {
             Some(MenuAction::AddDesign) => crate::ui::dialogs::design_editor::open(self, None),
             Some(MenuAction::ActionPalette) => super::action_palette::toggle(self),
             Some(MenuAction::StartPreService) => self.start_preservice(),
+            Some(MenuAction::Edit(key)) => { self.edit_key(key); }
+            Some(MenuAction::Paste) => { self.paste(); }
             None => {}
         }
     }
@@ -402,18 +415,46 @@ mod tests {
             ("MenuKeys.clear-message", Action::ClearMessage, "root.live-clear(\"clear_message\")"),
             ("MenuKeys.clear-timers", Action::ClearTimers, "root.live-clear(\"clear_timers\")"),
             ("MenuKeys.find-mouse", Action::FindMouse, "root.menu(\"find-mouse\")"),
+            ("MenuKeys.paste", Action::PasteLink, "root.menu(\"paste\")"),
             ("g.keys", Action::Group(crate::shortcuts::BUILTIN_GROUP), "root.clear-group(i)"),
+        ];
+        // The fixed Windows keys (`EditKey`): Free ones like Undo, the File and Settings ones like Find.
+        use crate::shortcuts::EditKey;
+        let edits = [
+            ("MenuKeys.delete", EditKey::Delete, "root.menu(\"delete\")"),
+            ("MenuKeys.cut", EditKey::Cut, "root.menu(\"cut\")"),
+            ("MenuKeys.copy", EditKey::Copy, "root.menu(\"copy\")"),
+            ("MenuKeys.duplicate", EditKey::Duplicate, "root.menu(\"duplicate\")"),
+            ("MenuKeys.move-up", EditKey::MoveUp, "root.menu(\"move-up\")"),
+            ("MenuKeys.move-down", EditKey::MoveDown, "root.menu(\"move-down\")"),
+            ("MenuKeys.new-service", EditKey::NewService, "ServicesDialogState.new-service()"),
+            ("MenuKeys.open-file", EditKey::OpenService, "ServicesDialogState.open-file()"),
+            ("MenuKeys.print", EditKey::Print, "root.menu(\"print\")"),
+            ("MenuKeys.settings", EditKey::Settings, "root.settings()"),
         ];
         let mut seen = Vec::new();
         for item in items() {
             let Some(keys) = field(item, "shortcut:") else { continue };
             let call = field(item, "activated =>").unwrap_or_else(|| panic!("{item} has no action"));
+            if let Some(&(_, e, expected)) = edits.iter().find(|(n, ..)| *n == keys) {
+                assert!(call.contains(expected), "{keys} runs {call}, not {expected}");
+                let enabled = field(item, "enabled:").unwrap_or_default();
+                assert!(enabled.starts_with("root.menu-"), "{keys}: off while a dialog covers the window: {enabled}");
+                if !e.menu_only() {
+                    assert!(enabled.contains("!OperatorState.focus-in-text"), "{keys}: a text box keeps the key: {enabled}");
+                    let chord = e.chords()[0].clone();
+                    let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false, in_list: false };
+                    assert_eq!(crate::ui::operator::keys::route_in(&chord, plain, &Default::default()), KeyAction::Edit(e), "{keys}");
+                }
+                seen.push(keys);
+                continue;
+            }
             let &(_, action, expected) = names.iter().find(|(n, ..)| *n == keys).unwrap_or_else(|| panic!("{keys} is not a MenuKeys shortcut"));
             assert!(call.contains(expected), "{keys} runs {call}, the key runs {expected}");
             // The key itself does the same thing.
             let menu_key = crate::shortcuts::Keymap::default().menu_key(action).cloned().expect("a default key");
-            let anywhere = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
-            let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
+            let anywhere = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false, in_list: false };
+            let plain = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false, in_list: false };
             assert_ne!(crate::ui::operator::keys::route_in(&menu_key, plain, &Default::default()), KeyAction::None, "{keys}");
             let enabled = field(item, "enabled:").unwrap_or_default();
             match action.reach() {
@@ -427,7 +468,7 @@ mod tests {
             }
             seen.push(keys);
         }
-        assert_eq!(seen.len(), names.len(), "{seen:?}");
+        assert_eq!(seen.len(), names.len() + edits.len(), "{seen:?}");
     }
 }
 

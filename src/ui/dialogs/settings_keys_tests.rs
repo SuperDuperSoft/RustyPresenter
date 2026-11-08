@@ -11,9 +11,9 @@ use crate::{
 use slint::{Model, platform::{Key, PointerEventButton, WindowEvent}};
 use std::sync::Arc;
 
-const PLAIN: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
-const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false };
-const BIBLE: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
+const PLAIN: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false, in_list: false };
+const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false, in_list: false };
+const BIBLE: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false, in_list: false };
 
 fn opened(app: &Arc<App>) -> Rc<Operator> {
     let op = open_window(app);
@@ -63,7 +63,13 @@ fn help_lists_every_key_with_what_it_does() {
     assert_eq!(s(&rows[1]), ("←  ↑  Page Up", "Back"));
     for (keys, what) in [("F1", "Clear all"), ("F2", "Clear text"), ("F7", "Clear the message"), ("F8", "Clear the timers"),
         ("F9", "Clear group: Everything but the background"), ("Alt + 1–5", "Pick a Bible chip (in the Bible box)"),
-        ("Ctrl + Shift + M", "Show a message on the screen"), ("Alt + M", "Find my mouse"), ("Esc", "Leave a text box")] {
+        ("Ctrl + Shift + M", "Show a message on the screen"), ("Alt + M", "Find my mouse"), ("Esc", "Leave a text box"),
+        ("Delete  Backspace", "Remove the selected service item (or delete the picked media file)"),
+        ("Ctrl + C", "Copy the selected service item"), ("Ctrl + X", "Cut the selected service item"),
+        ("Ctrl + V", "Paste the service item you copied, or add a YouTube link you copied"),
+        ("Ctrl + D", "Duplicate the selected service item"), ("Alt + ↑  Ctrl + ↑", "Move the selected service item up"),
+        ("Ctrl + N", "New service"), ("Ctrl + O", "Open a service file"), ("Ctrl + P", "Print the service order"),
+        ("Ctrl + ,", "Settings"), ("↑  ↓", "Pick the item above or below, after a click in the service list")] {
         assert!(rows.iter().any(|r| s(r) == (keys, what)), "{keys} {what}");
     }
     // Each shortcut's keys do what its row says, where the shortcut works.
@@ -87,6 +93,7 @@ fn help_lists_every_key_with_what_it_does() {
             let action = route(&key, ctrl, alt, ctx);
             let named = match &action {
                 KeyAction::None | KeyAction::Blur => true,
+                KeyAction::Edit(e) => rows.iter().any(|r| r.action.is_none() && r.what == edit_what(*e)),
                 KeyAction::PickTranslation(_) => alt && ('1'..='5').contains(&key.chars().next().unwrap()),
                 KeyAction::JumpSection(_) => ('1'..='9').contains(&key.chars().next().unwrap()) || section_keys_label(&SectionLook::default()).to_lowercase().contains(&key),
                 _ => map.action_for(&Chord::new(&key, ctrl, alt, false)).is_some_and(|a| rows.iter().any(|r| r.action == Some(a))),

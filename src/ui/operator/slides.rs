@@ -400,7 +400,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.set_slide_rows(ModelRc::from(op.slide_rows.clone()));
     let me: Weak<Operator> = Rc::downgrade(op);
     ui.on_slides_show(move |idx| {
-        if let (Some(op), Ok(idx)) = (me.upgrade(), usize::try_from(idx)) { op.show_slide(idx) }
+        if let (Some(op), Ok(idx)) = (me.upgrade(), usize::try_from(idx)) {
+            op.state.borrow_mut().list = super::window::ListFocus::Live;
+            op.show_slide(idx)
+        }
     });
     // Edit opens Item edit (Task 18).
     let me = Rc::downgrade(op);

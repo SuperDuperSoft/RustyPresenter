@@ -21,6 +21,18 @@ export global MenuKeys {
     in property <keys> clear-message: @keys(F7);
     in property <keys> clear-timers: @keys(F8);
     in property <keys> find-mouse: @keys(Alt + M);
+    in property <keys> paste: @keys(Control + V);
+    // The fixed Windows keys (`shortcuts::EditKey`); empty when the church gave the key to a shortcut of its own.
+    in property <keys> delete: @keys(Delete);
+    in property <keys> cut: @keys(Control + X);
+    in property <keys> copy: @keys(Control + C);
+    in property <keys> duplicate: @keys(Control + D);
+    in property <keys> move-up: @keys(Alt + UpArrow);
+    in property <keys> move-down: @keys(Alt + DownArrow);
+    in property <keys> new-service: @keys(Control + N);
+    in property <keys> open-file: @keys(Control + O);
+    in property <keys> print: @keys(Control + P);
+    in property <keys> settings: @keys(Control + ",");
     in property <[MenuGroup]> groups;
     /// The first key of each clear button, as its hint shows it ("" for none).
     in property <string> clear-all-label: "F1";
