@@ -86,7 +86,7 @@ msgstr "Google 프레젠테이션: Google 프레젠테이션에서 파일 → �
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "발표자 메모를 유지하려면 PowerPoint(.pptx)로 다운로드하세요."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "복사"
 
@@ -382,7 +382,7 @@ msgstr "휴대폰에서 표시 가능"
 msgid "Change it in the Pre-service tab"
 msgstr "예배 전 탭에서 바꾸세요"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "색"
 
@@ -426,7 +426,7 @@ msgstr "단계"
 msgid "Up"
 msgstr "위로"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "위로 이동"
 
@@ -434,7 +434,7 @@ msgstr "위로 이동"
 msgid "Down"
 msgstr "아래로"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "아래로 이동"
 
@@ -590,7 +590,7 @@ msgstr "일시 정지"
 msgid "Start"
 msgstr "시작"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "삭제"
 
@@ -878,7 +878,7 @@ msgstr "맨 앞으로"
 msgid "To back"
 msgstr "맨 뒤로"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "복제"
 
@@ -1146,7 +1146,7 @@ msgstr "무대 메모"
 msgid "Shown on the stage display only"
 msgstr "무대 화면에만 표시돼요"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "예배에서 제거"
 
@@ -2770,7 +2770,7 @@ msgstr "보통"
 msgid "Fade"
 msgstr "페이드"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "잘라내기"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "색 변경"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "예배에서 제거(Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "예배가 비어 있어요"
 
@@ -3530,7 +3534,7 @@ msgstr "무대 화면에 메시지 표시"
 msgid "Phone"
 msgstr "휴대폰"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "설정"
 
@@ -3641,6 +3645,10 @@ msgstr "예배 순서 인쇄…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "종료"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "붙여넣기"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "다음"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "그림이 포함된 슬라이드"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "붙여넣기"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "유지"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "사라짐"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "손가락으로 그리기"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "휴대폰을 가로로 돌리면 슬라이드가 더 커져요"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7328,8 +7340,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "라이브 중인 찬양을 1–9절, 후렴, 프리코러스, 브리지, 태그, 전주, 엔딩, 간주 또는 다음 절로 이동"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "복사한 YouTube 링크 추가"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "복사한 예배 항목을 붙여 넣거나 복사한 YouTube 링크를 추가"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "선택한 예배 항목 제거(또는 고른 미디어 파일 삭제)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "선택한 예배 항목 복사"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "선택한 예배 항목 잘라내기"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "선택한 예배 항목 복제"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "선택한 예배 항목을 위로 이동"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "선택한 예배 항목을 아래로 이동"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "새 예배"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "예배 파일 열기"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "예배 순서 인쇄"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "예배 목록을 클릭한 뒤 위나 아래 항목 선택"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9328,8 +9380,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "동영상을 표시할 수 없어요: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "{address}에 릴리스 없음"
+msgid "HTTP {status} for {address}"
+msgstr "{address}에서 HTTP {status}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "{path}에 쓰지 못했어요({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9338,6 +9394,10 @@ msgstr "{file}의 지문 없음"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "다운로드에 {file}이(가) 없어요"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "{address}에 릴리스 없음"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

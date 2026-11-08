@@ -92,7 +92,7 @@ msgstr ""
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr ""
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr ""
 
@@ -388,7 +388,7 @@ msgstr ""
 msgid "Change it in the Pre-service tab"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr ""
 
@@ -440,7 +440,7 @@ msgstr ""
 msgid "Down"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr ""
 
@@ -884,7 +884,7 @@ msgstr ""
 msgid "To back"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr ""
 
@@ -1152,7 +1152,7 @@ msgstr ""
 msgid "Shown on the stage display only"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr ""
 
@@ -2782,7 +2782,7 @@ msgstr ""
 msgid "Fade"
 msgstr ""
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr ""
 
@@ -3351,6 +3351,10 @@ msgid "Change colour"
 msgstr ""
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr ""
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr ""
 
@@ -3542,7 +3546,7 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr ""
 
@@ -3652,6 +3656,10 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Exit"
+msgstr ""
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
 msgstr ""
 
 #: ui/operator.slint
@@ -3936,10 +3944,6 @@ msgstr ""
 
 #: ui/stage.slint
 msgid "The slide with its drawing"
-msgstr ""
-
-#: ui/widgets.slint
-msgid "Paste"
 msgstr ""
 
 #: ui/widgets.slint
@@ -4532,6 +4536,14 @@ msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "Fades"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
 msgstr ""
 
 #: src/i18n/remote_strings.rs
@@ -7370,7 +7382,47 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr ""
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr ""
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
 msgstr ""
 
 #: src/strings/settings.rs
@@ -9392,7 +9444,11 @@ msgid "The video cannot be shown: {reason}"
 msgstr ""
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
+msgid "HTTP {status} for {address}"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
 msgstr ""
 
 #: src/youtube/fetch.rs
@@ -9401,6 +9457,10 @@ msgstr ""
 
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
+msgstr ""
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
 msgstr ""
 
 #: src/youtube/fetch.rs

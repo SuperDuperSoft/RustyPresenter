@@ -86,7 +86,7 @@ msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "I-download ito bilang PowerPoint (.pptx) para manatili ang iyong speaker notes."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopyahin"
 
@@ -382,7 +382,7 @@ msgstr "Maipapakita mula sa phone"
 msgid "Change it in the Pre-service tab"
 msgstr "Palitan ito sa tab na Bago ang service"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Kulay"
 
@@ -426,7 +426,7 @@ msgstr "Mga hakbang"
 msgid "Up"
 msgstr "Pataas"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Ilipat pataas"
 
@@ -434,7 +434,7 @@ msgstr "Ilipat pataas"
 msgid "Down"
 msgstr "Pababa"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Ilipat pababa"
 
@@ -590,7 +590,7 @@ msgstr "I-pause"
 msgid "Start"
 msgstr "Simulan"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Burahin"
 
@@ -878,7 +878,7 @@ msgstr "Sa harap"
 msgid "To back"
 msgstr "Sa likod"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "I-duplicate"
 
@@ -1146,7 +1146,7 @@ msgstr "Stage notes"
 msgid "Shown on the stage display only"
 msgstr "Sa stage display lang ipinapakita"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Alisin sa service"
 
@@ -2770,7 +2770,7 @@ msgstr "Normal"
 msgid "Fade"
 msgstr "Fade"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "I-cut"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Palitan ang kulay"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Alisin sa service (Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Walang laman ang iyong service"
 
@@ -3530,7 +3534,7 @@ msgstr "Magpakita ng mensahe sa stage screen"
 msgid "Phone"
 msgstr "Phone"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Settings"
 
@@ -3641,6 +3645,10 @@ msgstr "I-print ang ayos ng service…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Lumabas"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "I-paste"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "KASUNOD"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Ang slide kasama ang drawing nito"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "I-paste"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Nananatili"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Nawawala"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Gumuhit gamit ang daliri"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Ipatagilid ang phone para lumaki ang slide"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7356,8 +7368,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Tumalon sa Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude o sa susunod na Verse ng live na kanta"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Idagdag ang YouTube link na kinopya mo"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "I-paste ang kinopya mong service item, o magdagdag ng kinopya mong YouTube link"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Alisin ang napiling service item (o burahin ang napiling media file)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Kopyahin ang napiling service item"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "I-cut ang napiling service item"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "I-duplicate ang napiling service item"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Ilipat pataas ang napiling service item"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Ilipat pababa ang napiling service item"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Bagong service"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Magbukas ng service file"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "I-print ang ayos ng service"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Piliin ang item sa itaas o ibaba, pagkatapos mag-click sa listahan ng service"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9371,8 +9423,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Hindi maipakita ang video: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "walang release sa {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} para sa {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "hindi makasulat sa {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9381,6 +9437,10 @@ msgstr "walang fingerprint para sa {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "Nawawala ang {file} sa download"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "walang release sa {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

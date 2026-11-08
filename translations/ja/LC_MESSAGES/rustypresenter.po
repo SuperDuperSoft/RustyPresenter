@@ -86,7 +86,7 @@ msgstr "Google スライド: Google スライドで「ファイル → ダウン
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "発表者のメモを残すには、PowerPoint (.pptx) としてダウンロードしてください。"
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "コピー"
 
@@ -382,7 +382,7 @@ msgstr "スマホから表示できます"
 msgid "Change it in the Pre-service tab"
 msgstr "「礼拝前」タブで変更"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "色"
 
@@ -426,7 +426,7 @@ msgstr "ステップ"
 msgid "Up"
 msgstr "上へ"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "上へ移動"
 
@@ -434,7 +434,7 @@ msgstr "上へ移動"
 msgid "Down"
 msgstr "下へ"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "下へ移動"
 
@@ -590,7 +590,7 @@ msgstr "一時停止"
 msgid "Start"
 msgstr "開始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "削除"
 
@@ -878,7 +878,7 @@ msgstr "最前面へ"
 msgid "To back"
 msgstr "最背面へ"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "複製"
 
@@ -1146,7 +1146,7 @@ msgstr "ステージノート"
 msgid "Shown on the stage display only"
 msgstr "ステージ画面にのみ表示されます"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "礼拝から削除"
 
@@ -2770,7 +2770,7 @@ msgstr "標準"
 msgid "Fade"
 msgstr "フェード"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "切り取り"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "色を変更"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "礼拝から削除（Delete）"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "礼拝が空です"
 
@@ -3530,7 +3534,7 @@ msgstr "ステージ画面にメッセージを表示"
 msgid "Phone"
 msgstr "スマホ"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "設定"
 
@@ -3641,6 +3645,10 @@ msgstr "礼拝順序を印刷…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "終了"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "貼り付け"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "次"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "書き込み付きのスライド"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "貼り付け"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "残る"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "消える"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "指で書き込む"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "スマホを横向きにするとスライドが大きくなります"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7328,8 +7340,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "ライブ中の曲をバース 1–9、サビ、Bメロ、ブリッジ、タグ、イントロ、エンディング、間奏、または次のバースへ移動"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "コピーした YouTube リンクを追加"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "コピーした礼拝の項目を貼り付け、またはコピーした YouTube リンクを追加"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "選択した礼拝の項目を削除（または選んだメディアファイルを削除）"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "選択した礼拝の項目をコピー"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "選択した礼拝の項目を切り取り"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "選択した礼拝の項目を複製"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "選択した礼拝の項目を上へ移動"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "選択した礼拝の項目を下へ移動"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "新しい礼拝"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "礼拝ファイルを開く"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "礼拝順序を印刷"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "礼拝リストをクリックした後、上または下の項目を選択"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9328,8 +9380,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "動画を表示できません: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "{address} にリリースがありません"
+msgid "HTTP {status} for {address}"
+msgstr "{address} から HTTP {status}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "{path} に書き込めませんでした（{error}）"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9338,6 +9394,10 @@ msgstr "{file} のフィンガープリントがありません"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "ダウンロードに {file} が含まれていません"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "{address} にリリースがありません"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

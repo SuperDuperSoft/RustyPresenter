@@ -86,7 +86,7 @@ msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Telechaje l kòm PowerPoint (.pptx) pou w kenbe nòt oratè yo."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopye"
 
@@ -382,7 +382,7 @@ msgstr "Ka montre l depi telefòn nan"
 msgid "Change it in the Pre-service tab"
 msgstr "Chanje l nan onglè Anvan sèvis la"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Koulè"
 
@@ -426,7 +426,7 @@ msgstr "Etap"
 msgid "Up"
 msgstr "Monte"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Monte"
 
@@ -434,7 +434,7 @@ msgstr "Monte"
 msgid "Down"
 msgstr "Desann"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Desann"
 
@@ -590,7 +590,7 @@ msgstr "Poz"
 msgid "Start"
 msgstr "Kòmanse"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Efase"
 
@@ -878,7 +878,7 @@ msgstr "Devan"
 msgid "To back"
 msgstr "Dèyè"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Fè yon kopi"
 
@@ -1146,7 +1146,7 @@ msgstr "Nòt pou sèn"
 msgid "Shown on the stage display only"
 msgstr "Parèt sou ekran sèn nan sèlman"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Retire nan sèvis la"
 
@@ -2770,7 +2770,7 @@ msgstr "Nòmal"
 msgid "Fade"
 msgstr "Fondi"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Koupe"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Chanje koulè"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Retire nan sèvis la (Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Sèvis ou a vid"
 
@@ -3530,7 +3534,7 @@ msgstr "Montre yon mesaj sou ekran sèn nan"
 msgid "Phone"
 msgstr "Telefòn"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Paramèt"
 
@@ -3641,6 +3645,10 @@ msgstr "Enprime lòd sèvis la…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Sòti"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Kole"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "PWOCHEN"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Diapo a ak desen li"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Kole"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Rete"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Disparèt"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Desine ak dwèt ou"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Vire telefòn nan sou kote pou diapo a pi gwo"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7356,8 +7368,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Fè chante k ap pase a sote nan Kouplè 1–9, Koral, Pre-koral, Pon, Repriz, Entwo, Final, Entèlid oswa pwochen Kouplè a"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Ajoute yon lyen YouTube ou kopye"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Kole eleman sèvis ou te kopye a, oswa ajoute yon lyen YouTube ou te kopye"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Retire eleman sèvis ki chwazi a (oswa efase fichye medya ou te chwazi a)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Kopye eleman sèvis ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Koupe eleman sèvis ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Fè yon kopi eleman sèvis ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Monte eleman sèvis ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Desann eleman sèvis ki chwazi a"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Nouvo sèvis"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Louvri yon fichye sèvis"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "Enprime lòd sèvis la"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Chwazi eleman anwo a oswa anba a, apre yon klik nan lis sèvis la"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9371,8 +9423,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Videyo a pa ka parèt: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "pa gen vèsyon nan {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} pou {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "pa t ka ekri nan {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9381,6 +9437,10 @@ msgstr "pa gen anprent pou {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "{file} manke nan telechajman an"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "pa gen vèsyon nan {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

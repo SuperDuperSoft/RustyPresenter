@@ -86,7 +86,7 @@ msgstr "Google Slides: в Google Slides выберите Файл → Скача
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Скачайте его как PowerPoint (.pptx), чтобы сохранить заметки докладчика."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Копировать"
 
@@ -382,7 +382,7 @@ msgstr "Можно показать с телефона"
 msgid "Change it in the Pre-service tab"
 msgstr "Измените на вкладке «Перед служением»"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Цвет"
 
@@ -426,7 +426,7 @@ msgstr "Шаги"
 msgid "Up"
 msgstr "Вверх"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Переместить вверх"
 
@@ -434,7 +434,7 @@ msgstr "Переместить вверх"
 msgid "Down"
 msgstr "Вниз"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Переместить вниз"
 
@@ -590,7 +590,7 @@ msgstr "Пауза"
 msgid "Start"
 msgstr "Старт"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Удалить"
 
@@ -878,7 +878,7 @@ msgstr "На передний план"
 msgid "To back"
 msgstr "На задний план"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Дублировать"
 
@@ -1146,7 +1146,7 @@ msgstr "Заметки для сцены"
 msgid "Shown on the stage display only"
 msgstr "Видно только на экране сцены"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Убрать из служения"
 
@@ -2770,7 +2770,7 @@ msgstr "Обычный"
 msgid "Fade"
 msgstr "Растворение"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Вырезать"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Изменить цвет"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Убрать из служения (Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Ваше служение пустое"
 
@@ -3530,7 +3534,7 @@ msgstr "Показать сообщение на экране сцены"
 msgid "Phone"
 msgstr "Телефон"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Настройки"
 
@@ -3641,6 +3645,10 @@ msgstr "Печать порядка служения…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Выход"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Вставить"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "ДАЛЕЕ"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Слайд с рисунком"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Вставить"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Остаются"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Исчезают"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Рисуйте пальцем"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Поверните телефон, чтобы слайд стал больше"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7384,8 +7396,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Перейти в текущей песне к куплету 1–9, припеву, предприпеву, бриджу, тегу, вступлению, концовке, проигрышу или следующему куплету"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Добавить скопированную ссылку YouTube"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Вставить скопированный пункт служения или добавить скопированную ссылку YouTube"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Убрать выбранный пункт служения (или удалить выбранный медиафайл)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Копировать выбранный пункт служения"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Вырезать выбранный пункт служения"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Дублировать выбранный пункт служения"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Переместить выбранный пункт служения вверх"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Переместить выбранный пункт служения вниз"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Новое служение"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Открыть файл служения"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "Печать порядка служения"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Выбрать пункт выше или ниже после щелчка в списке служения"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9414,8 +9466,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Невозможно показать видео: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "нет релиза в {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} для {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "не удалось записать в {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9424,6 +9480,10 @@ msgstr "нет отпечатка для {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "в загрузке нет {file}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "нет релиза в {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

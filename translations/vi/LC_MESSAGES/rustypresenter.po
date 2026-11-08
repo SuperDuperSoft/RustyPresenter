@@ -86,7 +86,7 @@ msgstr "Google Slides: trong Google Slides, chọn Tệp → Tải xuống → M
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Hãy tải xuống dưới dạng PowerPoint (.pptx) để giữ ghi chú của người nói."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Sao chép"
 
@@ -382,7 +382,7 @@ msgstr "Có thể hiện từ điện thoại"
 msgid "Change it in the Pre-service tab"
 msgstr "Thay đổi trong thẻ Trước lễ"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Màu"
 
@@ -426,7 +426,7 @@ msgstr "Các bước"
 msgid "Up"
 msgstr "Lên"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Chuyển lên"
 
@@ -434,7 +434,7 @@ msgstr "Chuyển lên"
 msgid "Down"
 msgstr "Xuống"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Chuyển xuống"
 
@@ -590,7 +590,7 @@ msgstr "Tạm dừng"
 msgid "Start"
 msgstr "Bắt đầu"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Xóa"
 
@@ -878,7 +878,7 @@ msgstr "Lên trên cùng"
 msgid "To back"
 msgstr "Xuống dưới cùng"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Nhân bản"
 
@@ -1146,7 +1146,7 @@ msgstr "Ghi chú sân khấu"
 msgid "Shown on the stage display only"
 msgstr "Chỉ hiện trên màn hình sân khấu"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Gỡ khỏi buổi lễ"
 
@@ -2770,7 +2770,7 @@ msgstr "Bình thường"
 msgid "Fade"
 msgstr "Mờ dần"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Cắt"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Đổi màu"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Gỡ khỏi buổi lễ (Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Buổi lễ của bạn đang trống"
 
@@ -3530,7 +3534,7 @@ msgstr "Hiện tin nhắn trên màn hình sân khấu"
 msgid "Phone"
 msgstr "Điện thoại"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Cài đặt"
 
@@ -3641,6 +3645,10 @@ msgstr "In thứ tự buổi lễ…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Thoát"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Dán"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "TIẾP THEO"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Trang chiếu kèm hình vẽ"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Dán"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Giữ lại"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Mờ dần"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Vẽ bằng ngón tay"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Xoay ngang điện thoại để xem trang chiếu lớn hơn"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7328,8 +7340,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Chuyển bài hát đang chiếu tới Phiên khúc 1–9, Điệp khúc, Tiền điệp khúc, Chuyển đoạn, Đoạn lặp, Dạo đầu, Kết thúc, Gian tấu hoặc Phiên khúc kế tiếp"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Thêm liên kết YouTube đã sao chép"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Dán mục buổi lễ đã sao chép, hoặc thêm liên kết YouTube đã sao chép"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Gỡ mục buổi lễ đang chọn (hoặc xóa tệp phương tiện đã chọn)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Sao chép mục buổi lễ đang chọn"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Cắt mục buổi lễ đang chọn"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Nhân bản mục buổi lễ đang chọn"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Chuyển mục buổi lễ đang chọn lên"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Chuyển mục buổi lễ đang chọn xuống"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Buổi lễ mới"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Mở tệp buổi lễ"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "In thứ tự buổi lễ"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Chọn mục bên trên hoặc bên dưới, sau khi bấm vào danh sách buổi lễ"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9328,8 +9380,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Không hiện được video: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "không có bản phát hành trong {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} từ {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "không ghi được vào {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9338,6 +9394,10 @@ msgstr "không có dấu vân tay cho {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "bản tải thiếu {file}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "không có bản phát hành trong {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

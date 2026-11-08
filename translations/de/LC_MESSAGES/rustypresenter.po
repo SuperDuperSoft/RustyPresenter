@@ -86,7 +86,7 @@ msgstr "Google Präsentationen: Wählen Sie dort Datei → Herunterladen → Mic
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Laden Sie sie als PowerPoint (.pptx) herunter, um Ihre Rednernotizen zu behalten."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -382,7 +382,7 @@ msgstr "Vom Handy aus anzeigbar"
 msgid "Change it in the Pre-service tab"
 msgstr "Im Tab „Vorlauf“ ändern"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Farbe"
 
@@ -426,7 +426,7 @@ msgstr "Schritte"
 msgid "Up"
 msgstr "Hoch"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Nach oben"
 
@@ -434,7 +434,7 @@ msgstr "Nach oben"
 msgid "Down"
 msgstr "Runter"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Nach unten"
 
@@ -590,7 +590,7 @@ msgstr "Pause"
 msgid "Start"
 msgstr "Start"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Löschen"
 
@@ -878,7 +878,7 @@ msgstr "In den Vordergrund"
 msgid "To back"
 msgstr "In den Hintergrund"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Duplizieren"
 
@@ -1146,7 +1146,7 @@ msgstr "Bühnennotizen"
 msgid "Shown on the stage display only"
 msgstr "Nur auf dem Bühnenmonitor sichtbar"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Aus Gottesdienst entfernen"
 
@@ -2770,7 +2770,7 @@ msgstr "Normal"
 msgid "Fade"
 msgstr "Überblenden"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Ausschneiden"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Farbe ändern"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Aus Gottesdienst entfernen (Entf)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Ihr Gottesdienst ist leer"
 
@@ -3530,7 +3534,7 @@ msgstr "Nachricht auf dem Bühnenmonitor zeigen"
 msgid "Phone"
 msgstr "Handy"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Einstellungen"
 
@@ -3641,6 +3645,10 @@ msgstr "Ablauf drucken…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Beenden"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Einfügen"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "ALS NÄCHSTES"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Die Folie mit ihrer Zeichnung"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Einfügen"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Bleibt"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Verblasst"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Mit dem Finger zeichnen"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Handy quer halten für eine größere Folie"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7356,8 +7368,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Im Live-Lied zu Strophe 1–9, Refrain, Pre-Chorus, Bridge, Tag, Intro, Schluss, Zwischenspiel oder zur nächsten Strophe springen"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Kopierten YouTube-Link hinzufügen"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Kopiertes Ablauf-Element einfügen oder kopierten YouTube-Link hinzufügen"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Gewähltes Ablauf-Element entfernen (oder gewählte Mediendatei löschen)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Gewähltes Ablauf-Element kopieren"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Gewähltes Ablauf-Element ausschneiden"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Gewähltes Ablauf-Element duplizieren"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Gewähltes Ablauf-Element nach oben"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Gewähltes Ablauf-Element nach unten"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Neuer Gottesdienst"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Gottesdienstdatei öffnen"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "Ablauf drucken"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Element darüber oder darunter wählen, nach einem Klick in den Ablauf"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9371,8 +9423,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Das Video kann nicht angezeigt werden: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "keine Version unter {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} für {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "konnte nicht in {path} schreiben ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9381,6 +9437,10 @@ msgstr "kein Fingerabdruck für {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "{file} fehlt im Download"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "keine Version unter {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

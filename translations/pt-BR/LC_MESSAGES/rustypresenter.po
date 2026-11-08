@@ -86,7 +86,7 @@ msgstr "Google Apresentações: no Google Apresentações, escolha Arquivo → F
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Baixe como PowerPoint (.pptx) para manter suas anotações do orador."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Copiar"
 
@@ -382,7 +382,7 @@ msgstr "Pode ser mostrada pelo celular"
 msgid "Change it in the Pre-service tab"
 msgstr "Altere na aba Pré-culto"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Cor"
 
@@ -426,7 +426,7 @@ msgstr "Passos"
 msgid "Up"
 msgstr "Subir"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Mover para cima"
 
@@ -434,7 +434,7 @@ msgstr "Mover para cima"
 msgid "Down"
 msgstr "Descer"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Mover para baixo"
 
@@ -590,7 +590,7 @@ msgstr "Pausar"
 msgid "Start"
 msgstr "Iniciar"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Excluir"
 
@@ -878,7 +878,7 @@ msgstr "Trazer à frente"
 msgid "To back"
 msgstr "Enviar para trás"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Duplicar"
 
@@ -1146,7 +1146,7 @@ msgstr "Notas do palco"
 msgid "Shown on the stage display only"
 msgstr "Exibidas somente na tela do palco"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Remover do culto"
 
@@ -2770,7 +2770,7 @@ msgstr "Normal"
 msgid "Fade"
 msgstr "Esmaecer"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Recortar"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Mudar cor"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Remover do culto (Del)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Seu culto está vazio"
 
@@ -3530,7 +3534,7 @@ msgstr "Mostrar uma mensagem na tela do palco"
 msgid "Phone"
 msgstr "Celular"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Configurações"
 
@@ -3641,6 +3645,10 @@ msgstr "Imprimir ordem do culto…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Sair"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Colar"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "PRÓXIMO"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "O slide com o desenho"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Colar"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Fica"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Some"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Desenhe com o dedo"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Gire o celular para ver o slide maior"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7356,8 +7368,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Levar a música ao vivo para Estrofe 1–9, Refrão, Pré-refrão, Ponte, Tag, Intro, Final, Interlúdio ou a próxima Estrofe"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Adicionar um link do YouTube copiado"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Colar o item do culto que você copiou, ou adicionar um link do YouTube que você copiou"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Remover o item do culto selecionado (ou excluir o arquivo de mídia escolhido)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Copiar o item do culto selecionado"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Recortar o item do culto selecionado"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Duplicar o item do culto selecionado"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Mover para cima o item do culto selecionado"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Mover para baixo o item do culto selecionado"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Novo culto"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Abrir arquivo de culto"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "Imprimir a ordem do culto"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Escolher o item de cima ou de baixo, depois de clicar na lista do culto"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9371,8 +9423,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "O vídeo não pode ser mostrado: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "nenhuma versão em {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} para {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "não foi possível gravar em {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9381,6 +9437,10 @@ msgstr "nenhuma impressão digital para {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "{file} está faltando no download"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "nenhuma versão em {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

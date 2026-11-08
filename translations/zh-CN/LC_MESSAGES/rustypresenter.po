@@ -86,7 +86,7 @@ msgstr "Google 幻灯片：在 Google 幻灯片中选择“文件 → 下载 →
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "请下载为 PowerPoint (.pptx) 以保留演讲者备注。"
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "复制"
 
@@ -382,7 +382,7 @@ msgstr "可从手机显示"
 msgid "Change it in the Pre-service tab"
 msgstr "在“聚会前”选项卡中更改"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "颜色"
 
@@ -426,7 +426,7 @@ msgstr "步骤"
 msgid "Up"
 msgstr "上移"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "上移"
 
@@ -434,7 +434,7 @@ msgstr "上移"
 msgid "Down"
 msgstr "下移"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "下移"
 
@@ -590,7 +590,7 @@ msgstr "暂停"
 msgid "Start"
 msgstr "开始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "删除"
 
@@ -878,7 +878,7 @@ msgstr "置于顶层"
 msgid "To back"
 msgstr "置于底层"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "复制一份"
 
@@ -1146,7 +1146,7 @@ msgstr "舞台备注"
 msgid "Shown on the stage display only"
 msgstr "仅在舞台显示屏上显示"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "从聚会中移除"
 
@@ -2770,7 +2770,7 @@ msgstr "正常"
 msgid "Fade"
 msgstr "淡入淡出"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "剪切"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "更改颜色"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "从聚会中移除（Delete）"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "你的聚会还是空的"
 
@@ -3530,7 +3534,7 @@ msgstr "在舞台屏幕上显示消息"
 msgid "Phone"
 msgstr "手机"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "设置"
 
@@ -3641,6 +3645,10 @@ msgstr "打印聚会流程…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "退出"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "粘贴"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "下一张"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "幻灯片及其绘图"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "粘贴"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "保留"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "渐隐"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "用手指绘图"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "横置手机，幻灯片会更大"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7328,8 +7340,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "将正在显示的诗歌跳到主歌 1–9、副歌、导歌、桥段、尾句、前奏、结尾、间奏或下一段主歌"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "添加已复制的 YouTube 链接"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "粘贴复制的聚会项目，或添加复制的 YouTube 链接"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "移除所选聚会项目（或删除所选媒体文件）"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "复制所选聚会项目"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "剪切所选聚会项目"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "复制一份所选聚会项目"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "上移所选聚会项目"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "下移所选聚会项目"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "新建聚会"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "打开聚会文件"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "打印聚会流程"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "在聚会列表中点击后，选择上一项或下一项"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9328,8 +9380,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "无法显示视频：{reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "{address} 中没有发布版本"
+msgid "HTTP {status} for {address}"
+msgstr "{address} 返回 HTTP {status}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "无法写入 {path}（{error}）"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9338,6 +9394,10 @@ msgstr "{file} 没有指纹"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "下载内容中缺少 {file}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "{address} 中没有发布版本"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"

@@ -86,7 +86,7 @@ msgstr "Google Slides: у Google Slides виберіть Файл → Заван
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Завантажте його як PowerPoint (.pptx), щоб зберегти нотатки доповідача."
 
-#: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Копіювати"
 
@@ -382,7 +382,7 @@ msgstr "Можна показати з телефона"
 msgid "Change it in the Pre-service tab"
 msgstr "Змініть це на вкладці «Перед служінням»"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Колір"
 
@@ -426,7 +426,7 @@ msgstr "Кроки"
 msgid "Up"
 msgstr "Вгору"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move up"
 msgstr "Перемістити вгору"
 
@@ -434,7 +434,7 @@ msgstr "Перемістити вгору"
 msgid "Down"
 msgstr "Вниз"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
 msgid "Move down"
 msgstr "Перемістити вниз"
 
@@ -590,7 +590,7 @@ msgstr "Пауза"
 msgid "Start"
 msgstr "Почати"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Delete"
 msgstr "Видалити"
 
@@ -878,7 +878,7 @@ msgstr "На передній план"
 msgid "To back"
 msgstr "На задній план"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Дублювати"
 
@@ -1146,7 +1146,7 @@ msgstr "Нотатки для сцени"
 msgid "Shown on the stage display only"
 msgstr "Показується лише на сценічному екрані"
 
-#: ui/dialogs/item-edit.slint ui/operator/service.slint
+#: ui/dialogs/item-edit.slint
 msgid "Remove from service"
 msgstr "Прибрати зі служіння"
 
@@ -2770,7 +2770,7 @@ msgstr "Звичайний"
 msgid "Fade"
 msgstr "Згасання"
 
-#: ui/dialogs/transition.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Вирізати"
 
@@ -3339,6 +3339,10 @@ msgid "Change colour"
 msgstr "Змінити колір"
 
 #: ui/operator/service.slint
+msgid "Remove from service (Delete)"
+msgstr "Прибрати зі служіння (Delete)"
+
+#: ui/operator/service.slint
 msgid "Your service is empty"
 msgstr "Ваше служіння порожнє"
 
@@ -3530,7 +3534,7 @@ msgstr "Показати повідомлення на сценічному ек
 msgid "Phone"
 msgstr "Телефон"
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs
+#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
 msgstr "Налаштування"
 
@@ -3641,6 +3645,10 @@ msgstr "Надрукувати порядок служіння…"
 #: ui/operator.slint
 msgid "Exit"
 msgstr "Вихід"
+
+#: ui/operator.slint ui/widgets.slint
+msgid "Paste"
+msgstr "Вставити"
 
 #: ui/operator.slint
 msgid "Quick search…"
@@ -3925,10 +3933,6 @@ msgstr "ДАЛІ"
 #: ui/stage.slint
 msgid "The slide with its drawing"
 msgstr "Слайд із малюнком"
-
-#: ui/widgets.slint
-msgid "Paste"
-msgstr "Вставити"
 
 #: ui/widgets.slint
 msgid "Select all"
@@ -4521,6 +4525,14 @@ msgstr "Лишається"
 #: src/i18n/remote_strings.rs
 msgid "Fades"
 msgstr "Зникає"
+
+#: src/i18n/remote_strings.rs
+msgid "Draw with your finger"
+msgstr "Малюйте пальцем"
+
+#: src/i18n/remote_strings.rs
+msgid "Turn the phone sideways for a bigger slide"
+msgstr "Поверніть телефон, щоб слайд став більшим"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
@@ -7384,8 +7396,48 @@ msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro
 msgstr "Перейти в пісні в ефірі до куплету 1–9, приспіву, передприспіву, бріджу, тегу, вступу, закінчення, програшу або наступного куплету"
 
 #: src/strings/settings.rs
-msgid "Add a YouTube link you copied"
-msgstr "Додати скопійоване посилання YouTube"
+msgid "Paste the service item you copied, or add a YouTube link you copied"
+msgstr "Вставити скопійований пункт служіння або додати скопійоване посилання YouTube"
+
+#: src/strings/settings.rs
+msgid "Remove the selected service item (or delete the picked media file)"
+msgstr "Прибрати вибраний пункт служіння (або видалити вибраний медіафайл)"
+
+#: src/strings/settings.rs
+msgid "Copy the selected service item"
+msgstr "Копіювати вибраний пункт служіння"
+
+#: src/strings/settings.rs
+msgid "Cut the selected service item"
+msgstr "Вирізати вибраний пункт служіння"
+
+#: src/strings/settings.rs
+msgid "Duplicate the selected service item"
+msgstr "Дублювати вибраний пункт служіння"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item up"
+msgstr "Перемістити вибраний пункт служіння вгору"
+
+#: src/strings/settings.rs
+msgid "Move the selected service item down"
+msgstr "Перемістити вибраний пункт служіння вниз"
+
+#: src/strings/settings.rs
+msgid "New service"
+msgstr "Нове служіння"
+
+#: src/strings/settings.rs
+msgid "Open a service file"
+msgstr "Відкрити файл служіння"
+
+#: src/strings/settings.rs
+msgid "Print the service order"
+msgstr "Надрукувати порядок служіння"
+
+#: src/strings/settings.rs
+msgid "Pick the item above or below, after a click in the service list"
+msgstr "Вибрати пункт вище чи нижче після клацання в списку служіння"
 
 #: src/strings/settings.rs
 msgid "Show the selected item"
@@ -9414,8 +9466,12 @@ msgid "The video cannot be shown: {reason}"
 msgstr "Не вдається показати відео: {reason}"
 
 #: src/youtube/fetch.rs
-msgid "no release in {address}"
-msgstr "немає випуску в {address}"
+msgid "HTTP {status} for {address}"
+msgstr "HTTP {status} для {address}"
+
+#: src/youtube/fetch.rs
+msgid "couldn't write to {path} ({error})"
+msgstr "не вдалося записати в {path} ({error})"
 
 #: src/youtube/fetch.rs
 msgid "no fingerprint for {file}"
@@ -9424,6 +9480,10 @@ msgstr "немає відбитка для {file}"
 #: src/youtube/fetch.rs
 msgid "{file} is missing from the download"
 msgstr "у завантаженні бракує {file}"
+
+#: src/youtube/fetch.rs
+msgid "no release in {address}"
+msgstr "немає випуску в {address}"
 
 #: src/youtube/fetch.rs
 msgid "{address} is too big"
