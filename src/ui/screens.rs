@@ -79,7 +79,7 @@ impl Win {
 /// role connected while it is open), the unplug watch and its timer, the operator window (weak:
 /// the operator holds these screens), and the hold that keeps the computer awake while a window is open.
 #[derive(Default)]
-struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>>, awake: Option<KeepAwake>, badges: Vec<IdentifyWindow>, badge_timer: Timer }
+struct Desk { wins: Vec<(String, u64, Win, ScreenGuard)>, watcher: Watcher, poll: Option<Timer>, seq: u64, operator: Option<std::rc::Weak<Operator>>, awake: Option<KeepAwake>, badges: Vec<IdentifyWindow>, badge_timer: Timer, recording: Option<Arc<crate::record::FrameSink>> }
 
 thread_local! { static DESK: RefCell<Desk> = RefCell::default(); }
 
@@ -313,7 +313,12 @@ impl NativeScreens {
         // full-screen window: when the operator had focus, it gets it back (now and once the window settled).
         let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
         let win = match kind(role) {
-            "room" if role == "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
+            "room" if role == "room" => {
+                let room = Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?;
+                // N22: a room reopened while recording goes on feeding the recording.
+                if let Some(sink) = DESK.with(|d| d.borrow().recording.clone()).filter(|s| !s.is_closed()) { room.record(Some(sink)) }
+                Win::Room(room)
+            }
             "room" => Win::Room(Room::open_mirror(app, self.renderer.clone(), self.mpv.clone(), mon.clone(), role)?),
             "stage" => Win::Stage(Stage::open_as(app, mon.clone(), role)?),
             _ => return Err("unknown window".into()),
@@ -384,6 +389,13 @@ impl OperatorScreens for NativeScreens {
     /// the windows live; from any other thread there is none).
     fn preview_grabber(&self) -> Option<FrameGrabber> {
         DESK.with(|d| d.borrow().wins.iter().find_map(|(role, _, w, _)| match w { Win::Room(r) if role == "room" => r.drawn_grabber(), _ => None }))
+    }
+
+    /// N22: the room window feeds `sink` (a reopened room too), or stops (`None`). False when no room is open.
+    fn record_to(&self, sink: Option<Arc<crate::record::FrameSink>>) -> bool {
+        DESK.with(|d| d.borrow_mut().recording = sink.clone());
+        let room = DESK.with(|d| d.borrow().wins.iter().find_map(|(role, _, w, _)| match w { Win::Room(r) if role == "room" => Some(r.clone()), _ => None }));
+        match room { Some(r) => { r.record(sink); true } None => false }
     }
 
     /// N5: what the stage window shows now, at most `max_w` wide; `None` while it is closed or cannot be read.

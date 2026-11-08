@@ -440,6 +440,18 @@ impl Player {
         let _ = unsafe { self.core.mpv.set_property(self.core.h, "af", &sound.af) };
     }
 
+    /// N22: what a recording of the app's sound needs: the file loaded, where it is in it, and how loud
+    /// (0 to 1, 0 when muted). `None` while nothing is loaded or the file has no sound.
+    pub fn heard(&self) -> Option<(PathBuf, f64, f64)> {
+        let path = self.loaded.borrow().clone()?;
+        let (mpv, h) = (&self.core.mpv, self.core.h);
+        unsafe { mpv.get_string(h, "audio-codec-name") }.filter(|c| !c.is_empty())?;
+        let pos = unsafe { mpv.get_double(h, "time-pos") }?;
+        let muted = unsafe { mpv.get_flag(h, "mute") }.unwrap_or(false);
+        let volume = if muted { 0.0 } else { unsafe { mpv.get_double(h, "volume") }.unwrap_or(100.0) / 100.0 };
+        Some((path, pos, volume.max(0.0)))
+    }
+
     /// Current playback position in seconds (0 when nothing is playing).
     pub fn position(&self) -> f64 {
         unsafe { self.core.mpv.get_double(self.core.h, "time-pos") }.unwrap_or(0.0)

@@ -1227,7 +1227,7 @@ mod tests {
         assert_eq!(op.dialog(), None);
 
         // Other items show no speaker notes.
-        let text = push(&app, ItemKind::Text { title: "T".into(), body: "b".into() });
+        let text = push(&app, ItemKind::Text { title: "T".into(), body: "b".into(), layout: Default::default() });
         refresh(&op);
         open(&op, text);
         settle();

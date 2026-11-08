@@ -52,6 +52,8 @@ pub enum MenuAction {
     Translations,
     /// File → Import / Export's words, pictures, playlist and theme items (N32).
     Transfer(super::transfer::Transfer),
+    /// File → Start recording, or Stop recording (N22; also the Record button).
+    Record,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -98,6 +100,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         "bible-info" => MenuAction::BibleInfo,
         "translations" => MenuAction::Translations,
+        "record" => MenuAction::Record,
         _ => return None,
     })
 }
@@ -141,6 +144,7 @@ impl Operator {
             }
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
             Some(MenuAction::Transfer(t)) => self.transfer(t),
+            Some(MenuAction::Record) => self.toggle_recording(),
             None => {}
         }
     }
@@ -324,6 +328,7 @@ mod tests {
         assert_eq!(action("settings-media"), Some(MenuAction::Settings(SettingsTab::Media)));
         assert_eq!(action("media-cleanup"), Some(MenuAction::CleanUpMedia));
         assert_eq!(action("listen"), Some(MenuAction::Listen));
+        assert_eq!(action("record"), Some(MenuAction::Record));
         assert_eq!(action("settings-nope"), None);
         assert_eq!(action(""), None);
     }

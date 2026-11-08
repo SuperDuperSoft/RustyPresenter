@@ -37,6 +37,8 @@ pub trait OperatorScreens {
     /// N5: a picture of the stage window as it is now, at most `max_w` wide, for the preview's Stage view; `None`
     /// while the stage window is closed. Called on the Slint thread.
     fn stage_snapshot(&self, max_w: u32) -> Option<slint::SharedPixelBuffer<slint::Rgba8Pixel>> { let _ = max_w; None }
+    /// N22: the room window feeds `sink` from now on (`None` stops). False when no room window is open.
+    fn record_to(&self, sink: Option<Arc<crate::record::FrameSink>>) -> bool { let _ = sink; false }
 }
 
 /// `NativeScreens` lives in an `Arc`: `Rc::new(screens.clone())` is then an `Rc<dyn OperatorScreens>`.
@@ -44,6 +46,7 @@ impl<T: OperatorScreens + ?Sized> OperatorScreens for Arc<T> {
     fn video_info(&self) -> VideoInfo { (**self).video_info() }
     fn preview_grabber(&self) -> Option<FrameGrabber> { (**self).preview_grabber() }
     fn stage_snapshot(&self, max_w: u32) -> Option<slint::SharedPixelBuffer<slint::Rgba8Pixel>> { (**self).stage_snapshot(max_w) }
+    fn record_to(&self, sink: Option<Arc<crate::record::FrameSink>>) -> bool { (**self).record_to(sink) }
 }
 
 pub use crate::ui::dialogs::DialogKind;
@@ -104,6 +107,8 @@ pub struct Operator {
     pub(super) check_timer: slint::Timer,
     /// N5, N30, N33: the preview's screen picker and the performance line (see `outputs`).
     pub(super) outputs_ui: RefCell<super::outputs::OutputsUi>,
+    /// N22: the recording under way and the Record button (see `record`).
+    pub(super) record: super::record::RecordUi,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -134,7 +139,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -159,6 +164,7 @@ impl Operator {
         checks::start_watch(&op);
         menu::wire(&op);
         super::outputs::wire(&op);
+        super::record::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         // User translation files that could not be read at start (`i18n::load_user_folder`).
         for p in crate::i18n::take_problems() { op.toast(p, true) }

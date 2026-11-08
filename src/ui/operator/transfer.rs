@@ -169,7 +169,7 @@ mod tests {
         op.transfer(Transfer::PptxWords);
         settle(&op);
         let items: Vec<ItemKind> = app.data.lock().unwrap().service().unwrap().items.iter().map(|i| i.kind.clone()).collect();
-        assert!(matches!(&items[..], [ItemKind::Text { title, body }] if title == "Notices" && body == "Youth night Friday"), "{items:?}");
+        assert!(matches!(&items[..], [ItemKind::Text { title, body, .. }] if title == "Notices" && body == "Youth night Friday"), "{items:?}");
         assert!(op.toast_log().last().unwrap().0.contains("with 1 slide of words"));
         let _ = std::fs::remove_dir_all(dir);
     }

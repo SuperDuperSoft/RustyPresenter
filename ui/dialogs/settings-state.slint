@@ -98,6 +98,16 @@ export global SettingsDlg {
     /// An index of `media_prefs::CHANNELS`.
     in-out property <int> channels;
     callback cleanup-media();
+    // ---- Media → Recording (N22) ----
+    /// 0 720p, 1 1080p (`record::Preset::ALL`).
+    in-out property <int> record-size;
+    /// The recordings folder as shown; "Choose folder…" changes it.
+    in-out property <string> record-folder;
+    /// The sound list: no sound, the app's sound, then each microphone or line-in found; `names` are the saved keys.
+    in property <[string]> record-sound-labels;
+    in property <[string]> record-sound-names;
+    in-out property <int> record-sound-index;
+    callback record-choose-folder();
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).

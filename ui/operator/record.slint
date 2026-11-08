@@ -1,0 +1,68 @@
+// N22: the top bar's Record button. Off: a hollow red ring and "Record". On: a red dot, the time recorded and a
+// red outline (no animation, so the window only redraws once a second); clicking stops. Behaviour is in `src/ui/operator/record.rs`.
+import { Theme } from "../theme.slint";
+import { TipBox } from "../widgets.slint";
+
+export component RecordBtn inherits Rectangle {
+    in property <bool> recording;
+    /// "12:34" while recording.
+    in property <string> time;
+    /// A narrow window: only the dot (and the time while recording).
+    in property <bool> narrow;
+    callback clicked();
+
+    property <brush> ink: root.recording ? Theme.text : ta.has-hover ? Theme.text : Theme.muted;
+
+    accessible-role: button;
+    accessible-label: root.recording ? @tr("Stop recording") : @tr("Record");
+    accessible-value: root.recording ? root.time : "";
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.recording ? Theme.live : transparent;
+    background: root.recording ? Theme.notice-bg : ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 7px;
+        VerticalLayout {
+            alignment: center;
+            dot := Rectangle {
+                width: 12px;
+                height: 12px;
+                border-radius: 6px;
+                border-width: root.recording ? 0px : 2px;
+                border-color: Theme.live;
+                background: root.recording ? Theme.live : transparent;
+            }
+        }
+        if root.recording: Text {
+            text: root.time;
+            color: root.ink;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        if !root.recording && !root.narrow: Text {
+            text: @tr("Record");
+            color: root.ink;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    Tooltip {
+        TipBox { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the room screen to a video file"); }
+    }
+}

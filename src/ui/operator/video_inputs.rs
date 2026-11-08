@@ -228,7 +228,7 @@ mod tests {
         assert!(find(&op, "MediaBin::add-picked").is_none(), "an input is not a file to add to the service");
         // Use as background puts it on the selected item.
         let item = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id: item, kind: crate::model::ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: None, notes: String::new(), theme: None });
+        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id: item, kind: crate::model::ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         op.state.borrow_mut().selected = Some(item);
         refresh(&op);
         click(&op, "MediaBin::use-picked");

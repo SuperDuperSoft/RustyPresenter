@@ -235,6 +235,11 @@ export component OperatorWindow inherits Window {
     in property <int> zoom-percent: 100;
     /// View → Listen in headphones is on (N21): the sound goes to the operator's headphones only.
     in property <bool> listening;
+    /// N22: the room screen is being recorded, and for how long ("12:34"). The Record button and File → Start
+    /// recording call `record`.
+    in property <bool> recording;
+    in property <string> record-time;
+    callback record();
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -411,6 +416,17 @@ export component OperatorWindow inherits Window {
                 title: @tr("Clean up unused media…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("media-cleanup"); }
+            }
+            MenuSeparator {}
+            MenuItem {
+                title: root.recording ? @tr("Stop recording") : @tr("Start recording");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.record(); }
+            }
+            MenuItem {
+                title: @tr("Recording settings…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("settings-media"); }
             }
             MenuSeparator {}
             MenuItem {
@@ -802,6 +818,9 @@ export component OperatorWindow inherits Window {
                 stage-shown: root.stage-shown;
                 stage-on: root.stage-on;
                 phones-label: root.phones-label;
+                recording: root.recording;
+                record-time: root.record-time;
+                record => { root.focus-keys(); root.record(); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }
                 phone => { root.focus-keys(); root.phone(); }

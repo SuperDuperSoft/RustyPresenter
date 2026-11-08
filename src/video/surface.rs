@@ -66,6 +66,10 @@ pub struct VideoSurface {
     probe: RefCell<Option<Box<dyn FnMut(&glow::Context, PhysicalSize)>>>,
     /// The screen's colour fix and corner pin (N20), run over each finished frame.
     fix: RefCell<(crate::screen_fix::ScreenFix, super::postpass::PostPass)>,
+    /// N22: reads each finished frame for a recording (`set_frame_tap`).
+    tap: RefCell<Option<crate::record::gl::GlCapture>>,
+    /// A tap taken away, freed in the next frame (its GL objects need the context current).
+    old_taps: RefCell<Vec<crate::record::gl::GlCapture>>,
 }
 
 /// A player with a render context from this surface.
@@ -132,6 +136,8 @@ impl VideoSurface {
             st: RefCell::default(),
             probe: RefCell::new(None),
             fix: RefCell::default(),
+            tap: RefCell::new(None),
+            old_taps: RefCell::default(),
         };
         if mode == DrawMode::OpenGl {
             let slot: Rc<RefCell<Option<Rc<VideoSurface>>>> = Rc::default();
@@ -250,6 +256,13 @@ impl VideoSurface {
         *self.probe.borrow_mut() = Some(Box::new(f));
     }
 
+    /// N22: `tap` reads every finished OpenGL frame (`None` takes it away). OpenGL mode only: in software drawing
+    /// the room takes snapshots instead.
+    pub fn set_frame_tap(&self, tap: Option<crate::record::gl::GlCapture>) {
+        if let Some(old) = std::mem::replace(&mut *self.tap.borrow_mut(), tap) { self.old_taps.borrow_mut().push(old) }
+        (self.redraw)();
+    }
+
     /// Updates the software image soon (never from inside the notifier): the drawn
     /// player's current frame, or `None` once nothing is drawn in software.
     fn changed(self: &Rc<Self>) {
@@ -324,6 +337,9 @@ impl VideoSurface {
     fn notify(self: &Rc<Self>, state: RenderingState, api: &GraphicsAPI) {
         // The fix and the probe go first, so the frame's time as `ui::pacing` sees it includes them.
         if matches!(state, RenderingState::AfterRendering) && let (Some(gl), Some(size)) = (self.st.borrow().gl.as_ref(), (self.size)()) {
+            // N22: the recording takes the picture before the screen's own colour fix and corner pin.
+            for mut old in self.old_taps.borrow_mut().drain(..) { old.free(gl) }
+            if let Some(t) = self.tap.borrow_mut().as_mut() { t.frame(gl, size) }
             let mut fix = self.fix.borrow_mut();
             let f = fix.0;
             unsafe { fix.1.run(gl, size, &f) };
@@ -357,7 +373,11 @@ impl VideoSurface {
                     drop(b.p.take_render());
                     st.adding.push(b.p);
                 }
-                if let Some(gl) = st.gl.as_ref() { unsafe { self.fix.borrow_mut().1.free(gl) } }
+                if let Some(gl) = st.gl.as_ref() {
+                    unsafe { self.fix.borrow_mut().1.free(gl) }
+                    for mut old in self.old_taps.borrow_mut().drain(..) { old.free(gl) }
+                    if let Some(t) = self.tap.borrow_mut().as_mut() { t.free(gl) }
+                }
                 st.gl = None;
             }
             _ => {}

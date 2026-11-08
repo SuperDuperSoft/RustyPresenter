@@ -6,6 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
+import { RecordBtn } from "record.slint";
 
 export { TranslationChip }
 
@@ -44,7 +45,11 @@ export component TopBar inherits Rectangle {
     in property <bool> stage-on;
     /// "1 phone", "2 phones"; empty hides the pill.
     in property <string> phones-label;
+    /// N22: recording the room, and for how long.
+    in property <bool> recording;
+    in property <string> record-time;
 
+    callback record();
     callback services();
     callback screens();
     callback phone();
@@ -584,6 +589,16 @@ export component TopBar inherits Rectangle {
             horizontal-stretch: 0;
             alignment: center;
             stage-layout-btn := StageLayoutButton { narrow: root.narrow; }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            record-btn := RecordBtn {
+                recording: root.recording;
+                time: root.record-time;
+                narrow: root.narrow;
+                clicked => { root.record(); }
+            }
         }
         VerticalLayout {
             horizontal-stretch: 0;

@@ -291,7 +291,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
                 .map_err(|_| ActionError { status: 500, message: strings::not_saved("") })?.map_err(ActionError::bad)?;
             let (body, empty) = crate::import::pptx_text::announcement_body(&slides);
             let title = path.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
-            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.clone(), body }, background: None, notes: String::new(), theme: None };
+            let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.clone(), body, layout: Default::default() }, background: None, notes: String::new(), theme: None };
             let id = item.id;
             app.edit(|d| { d.service_mut().ok_or_else(strings::no_service)?.items.push(item); Ok(()) }).map_err(ActionError::bad)?;
             Ok(json!({ "id": id, "title": title, "slides": slides.len() - empty, "empty": empty }))
@@ -339,7 +339,7 @@ mod tests {
         let (a, b) = (song("Amazing Grace", "22025"), Song { ccli: String::new(), ..song("Be Thou My Vision", "") });
         d.songs = vec![a.clone(), b.clone()];
         let s = &mut d.services[0];
-        s.items = vec![item(ItemKind::Song { song_id: b.id, arrangement: None }), item(ItemKind::Text { title: "x".into(), body: "y".into() }),
+        s.items = vec![item(ItemKind::Song { song_id: b.id, arrangement: None }), item(ItemKind::Text { title: "x".into(), body: "y".into(), layout: Default::default() }),
             item(ItemKind::Song { song_id: a.id, arrangement: None }), item(ItemKind::Song { song_id: b.id, arrangement: None })];
         let text = service_words(&d, &d.services[0]).unwrap();
         assert_eq!(text, "Be Thou My Vision\n\nVerse 1\nAmazing grace\n\nJohn Newton\nPublic Domain\n\n\nAmazing Grace\n\nVerse 1\nAmazing grace\n\nJohn Newton\nPublic Domain\nCCLI Song # 22025\nCCLI License # 1234\n");
@@ -356,7 +356,7 @@ mod tests {
         let deck = d.decks[0].id;
         d.services[0].name = "Sunday".into();
         d.services[0].items = vec![item(ItemKind::Header { title: "Worship".into(), color: String::new() }), item(ItemKind::Media { media_id: video.id, autoplay: true, end: Default::default(), looped: false }),
-            item(ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }), item(ItemKind::Deck { deck_id: deck })];
+            item(ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }), item(ItemKind::Deck { deck_id: deck })];
         let list = playlist(&d, &d.services[0], &|a| PathBuf::from("/media").join(a));
         let lines: Vec<&str> = list.lines().collect();
         assert_eq!(lines, ["#EXTM3U", "#PLAYLIST:Sunday", "# —— Worship ——", "#EXTINF:61,Walk-in.mp4", "/media/v.mp4", "# Welcome",

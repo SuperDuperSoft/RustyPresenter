@@ -536,6 +536,9 @@ pub struct Settings {
     /// Settings → Media: new media's defaults and the sound outputs (N21, N24).
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub media: crate::media_prefs::MediaPrefs,
+    /// Settings → Media → Recording (N22): picture size, folder and sound of File → Start recording.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub record: crate::record::RecordPrefs,
     /// N33: the frames-a-second and video memory line under the live preview.
     pub show_performance: bool,
     /// N33: the room and stage screens that were on come back on at start; off, they wait for the switch.
@@ -664,6 +667,7 @@ impl Default for Settings {
             sections: Default::default(),
             keys: Default::default(),
             media: Default::default(),
+            record: Default::default(),
             show_performance: false,
             screens_at_start: true,
             look_fade_ms: 1000,

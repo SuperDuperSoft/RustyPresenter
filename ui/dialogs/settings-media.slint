@@ -80,6 +80,53 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Rectangle { height: 14px; }
+    Heading { text: @tr("Recording"); }
+    Rectangle { height: 6px; }
+    Note {
+        text: @tr("File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video.");
+    }
+    Field {
+        label: @tr("Picture size");
+        help: @tr("720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB).");
+        HorizontalLayout {
+            alignment: start;
+            record-size := Segmented {
+                labels: [@tr("720p"), @tr("1080p")];
+                index <=> SettingsDlg.record-size;
+            }
+        }
+    }
+    Field {
+        label: @tr("Save recordings in");
+        HorizontalLayout {
+            spacing: 8px;
+            record-folder := Text {
+                text: SettingsDlg.record-folder;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                overflow: elide;
+                horizontal-stretch: 1;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            record-choose := Btn {
+                small: true;
+                text: @tr("Choose folder…");
+                clicked => { SettingsDlg.record-choose-folder(); }
+            }
+        }
+    }
+    Field {
+        label: @tr("Sound in the recording");
+        help: @tr("The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard.");
+        record-sound := Select {
+            options: SettingsDlg.record-sound-labels;
+            index <=> SettingsDlg.record-sound-index;
+        }
+    }
+    Rectangle { height: 14px; }
     Heading { text: @tr("Media library"); }
     Rectangle { height: 6px; }
     Note {

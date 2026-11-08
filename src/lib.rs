@@ -14,6 +14,7 @@ pub mod print;
 pub mod report_page;
 pub mod platform;
 pub mod preflight;
+pub mod record;
 pub mod recovery;
 pub mod render;
 pub mod room;
