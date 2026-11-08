@@ -12,6 +12,7 @@ pub mod deck;
 pub mod easyworship;
 pub mod libreoffice;
 pub mod media;
+pub mod notes;
 pub mod openlp;
 pub mod openlyrics;
 pub mod opensong;
