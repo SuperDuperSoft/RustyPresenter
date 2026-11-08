@@ -10,6 +10,8 @@ use uuid::Uuid;
 pub const DEFAULT_SECS: u16 = 8;
 const MIN_SECS: u16 = 2;
 const MAX_SECS: u16 = 600;
+/// The shortest time a slide's own auto-advance waits (PowerPoint allows 0).
+const MIN_SLIDE_MS: u32 = 500;
 
 fn yes() -> bool { true }
 
@@ -50,13 +52,20 @@ pub struct AdvanceInput {
     /// The LiveItem snapshot, so an edit takes effect next time the item goes live.
     pub advance: Option<AutoAdvance>,
     pub cursor_slide: usize,
+    /// The live slide's own time (a PowerPoint slide's "After"), used before the item's interval.
+    pub slide_ms: Option<u32>,
     pub slide_layer_up: bool,
     pub version: u64,
     pub visual_version: u64,
 }
 
 impl AdvanceInput {
-    fn interval(&self) -> Option<TimeDelta> { self.advance.map(|a| a.interval()) }
+    fn interval(&self) -> Option<TimeDelta> {
+        match self.slide_ms {
+            Some(ms) => Some(TimeDelta::milliseconds(ms.max(MIN_SLIDE_MS).into())),
+            None => self.advance.map(|a| a.interval()),
+        }
+    }
 }
 
 /// One engine's running auto-advance.
@@ -206,6 +215,7 @@ mod tests {
             slides: 3,
             advance: Some(AutoAdvance { secs: 8, loop_item: true }),
             cursor_slide: slide,
+            slide_ms: None,
             slide_layer_up: true,
             version,
             visual_version: visual,
@@ -254,6 +264,36 @@ mod tests {
         }
         let h: Holder = serde_json::from_str(r#"{"advance":{"secs":10,"loop_item":false}}"#).unwrap();
         assert_eq!(h.advance, Some(AutoAdvance { secs: 10, loop_item: false }));
+    }
+
+    #[test]
+    fn a_slides_own_time_turns_it_and_stops_on_the_last() {
+        let own = |slide: usize, visual: u64, ms: Option<u32>| AdvanceInput { advance: None, slide_ms: ms, ..live(slide, visual, visual) };
+        let l = own(0, 1, Some(5_000));
+        let mut s = AutoState::default();
+        s.reconcile(Some(&l), t0());
+        s.on_committed(1, Some(&l), t0());
+        assert_eq!(s.due(at(4_900)), None);
+        let req = s.due(at(5_000)).unwrap();
+        assert_eq!(auto_next_step(&req, Some(&l)), AutoNextStep::Goto(1));
+        // The next slide has no time of its own: nothing more.
+        s.reconcile(Some(&own(1, 2, None)), at(5_000));
+        assert_eq!(s.run, None);
+        // A slide's own time wins over the item's interval; the last slide stops there.
+        let l = AdvanceInput { advance: Some(AutoAdvance { secs: 8, loop_item: false }), ..own(2, 3, Some(0)) };
+        s.reconcile(Some(&l), at(6_000));
+        s.on_committed(3, Some(&l), at(6_000));
+        let req = s.due(at(6_500)).unwrap();
+        assert_eq!(auto_next_step(&req, Some(&l)), AutoNextStep::StopOnLast);
+        assert_eq!(auto_next_step(&req, Some(&AdvanceInput { advance: None, ..l.clone() })), AutoNextStep::StopOnLast);
+        // Back or Next restarts the count on the new slide's time.
+        let l = own(1, 4, Some(3_000));
+        s.reconcile(Some(&l), at(7_000));
+        s.on_committed(4, Some(&l), at(7_000));
+        assert_eq!(due_at(&s), Some(at(10_000)));
+        // Clearing stops it.
+        s.reconcile(Some(&AdvanceInput { slide_layer_up: false, ..own(1, 5, Some(3_000)) }), at(8_000));
+        assert_eq!(s.run, None);
     }
 
     #[test]

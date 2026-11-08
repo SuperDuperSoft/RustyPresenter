@@ -1,16 +1,22 @@
 // The live column's monitor (`.monitor`, `operator.css:113`). It takes the room's inputs (`ui/room.slint`) so the
 // two screens stay in step; Rust prepares its layers off the UI thread (`src/ui/preview.rs`).
 import { Theme } from "../theme.slint";
-import { CutLayer, Side } from "../room.slint";
+import { CutLayer, MoveLayer, Side, Geo } from "../room.slint";
 
 /// `.monitor`: the live frame, 16:9, with the room's layers (background, media, slide, logo) over the video frame.
 export component LiveMonitor inherits Rectangle {
     // Each layer cuts straight to its new picture (an empty `Side` when hidden): fading here would redraw the
-    // operator for every room crossfade.
+    // operator for every room crossfade. Only a slide with its own transition (a deck or designed slide) moves.
     in property <Side> bg;
     in property <bool> bg-visible: true;
     in property <Side> media;
     in property <Side> slide;
+    /// A slide's own transition, as the room plays it: the old slide (face a) goes as the new one comes in.
+    in property <Side> slide-old;
+    in property <float> slide-op: 1;
+    in property <float> slide-old-op;
+    in property <Geo> slide-geo;
+    in property <Geo> slide-old-geo;
     in property <Side> logo;
     /// Lines drawn from a phone (`src/render/drawing.rs`), over the slide.
     in property <image> drawing;
@@ -69,10 +75,15 @@ export component LiveMonitor inherits Rectangle {
             height: parent.height;
             side: root.media;
         }
-        CutLayer {
+        slide-layer := MoveLayer {
             width: parent.width;
             height: parent.height;
-            side: root.slide;
+            a: root.slide-old;
+            a-op: root.slide-old-op;
+            a-geo: root.slide-old-geo;
+            b: root.slide;
+            b-op: root.slide-op;
+            b-geo: root.slide-geo;
         }
         CutLayer {
             width: parent.width;

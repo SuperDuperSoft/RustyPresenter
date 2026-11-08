@@ -17,9 +17,19 @@ pub fn read(path: &Path, format: Format) -> Option<Vec<Option<Transition>>> {
     }
 }
 
-/// The transitions to keep for a deck of `slides` pictures: none unless there is one entry per picture and at
-/// least one slide has a transition.
-pub fn line_up(found: Option<Vec<Option<Transition>>>, slides: usize) -> Vec<Option<Transition>> {
+/// Each shown slide's auto-advance time in milliseconds (PowerPoint's "After", LibreOffice's automatic page
+/// change), in order. `None` when the file could not be read.
+pub fn read_advance(path: &Path, format: Format) -> Option<Vec<Option<u32>>> {
+    let f = BufReader::new(std::fs::File::open(path).ok()?);
+    match format {
+        Format::Pptx => pptx_advance(f),
+        Format::Odp => odp_advance(f),
+    }
+}
+
+/// The transitions (or times) to keep for a deck of `slides` pictures: none unless there is one entry per picture
+/// and at least one slide has one.
+pub fn line_up<T>(found: Option<Vec<Option<T>>>, slides: usize) -> Vec<Option<T>> {
     match found {
         Some(t) if t.len() == slides && t.iter().any(Option::is_some) => t,
         Some(t) if t.len() != slides => {
@@ -36,13 +46,24 @@ pub fn pptx<R: Read + Seek>(r: R) -> Option<Vec<Option<Transition>>> {
     Some(slides.into_iter().map(|(_, xml)| xml.and_then(|x| Document::parse(&x).ok().and_then(|d| slide_transition(&d)))).collect())
 }
 
-/// A slide's `<p:transition>`: the one in `mc:Choice` (newer PowerPoint), else `mc:Fallback`, else a plain one.
-pub fn slide_transition(doc: &Document) -> Option<Transition> {
+pub fn pptx_advance<R: Read + Seek>(r: R) -> Option<Vec<Option<u32>>> {
+    let mut p = Package::open(r)?;
+    let slides = super::notes::pptx_slides(&mut p)?;
+    Some(slides.into_iter().map(|(_, xml)| xml.and_then(|x| Document::parse(&x).ok().and_then(|d| slide_advance(&d)))).collect())
+}
+
+/// The `<p:transition>` to use: the one in `mc:Choice` (newer PowerPoint), else `mc:Fallback`, else a plain one.
+fn chosen<'a, 'i>(doc: &'a Document<'i>) -> Option<Node<'a, 'i>> {
     let all: Vec<Node> = doc.descendants().filter(|n| is(n, "transition") && n.parent().is_some_and(|p| !is(&p, "transition"))).collect();
     let in_ = |n: &Node, local: &str| n.ancestors().skip(1).take_while(|a| !is(a, "sld")).any(|a| is(&a, local));
-    let t = all.iter().find(|n| in_(n, "Choice")).or_else(|| all.iter().find(|n| in_(n, "Fallback"))).or(all.first())?;
-    Some(pptx_transition(*t))
+    all.iter().find(|n| in_(n, "Choice")).or_else(|| all.iter().find(|n| in_(n, "Fallback"))).or(all.first()).copied()
 }
+
+/// A slide's transition.
+pub fn slide_transition(doc: &Document) -> Option<Transition> { chosen(doc).map(pptx_transition) }
+
+/// A slide's "After" time (`advTm`, milliseconds).
+pub fn slide_advance(doc: &Document) -> Option<u32> { attr(&chosen(doc)?, "advTm")?.trim().parse().ok() }
 
 /// One `<p:transition>` element as the room's transition.
 fn pptx_transition(t: Node) -> Transition {
@@ -99,6 +120,39 @@ pub fn odp<R: Read + Seek>(r: R) -> Option<Vec<Option<Transition>>> {
         .map(|page| attr(&page, "style-name").and_then(|s| styles.get(s)).and_then(|props| odp_transition(*props)))
         .collect();
     Some(out)
+}
+
+pub fn odp_advance<R: Read + Seek>(r: R) -> Option<Vec<Option<u32>>> {
+    let mut p = Package::open(r)?;
+    let xml = p.part("content.xml")?;
+    let doc = Document::parse(&xml).ok()?;
+    let styles: HashMap<&str, Node> = doc
+        .descendants()
+        .filter(|n| is(n, "style"))
+        .filter_map(|n| Some((attr(&n, "name")?, n.children().find(|c| is(c, "drawing-page-properties"))?)))
+        .collect();
+    let out = super::notes::odp_pages(&doc)
+        .into_iter()
+        .map(|page| {
+            let props = attr(&page, "style-name").and_then(|s| styles.get(s))?;
+            if attr(props, "transition-type") != Some("automatic") { return None }
+            attr(props, "duration").and_then(iso_duration)
+        })
+        .collect();
+    Some(out)
+}
+
+/// An ISO 8601 time (`PT00H00M05S`, `PT1M30.5S`) in milliseconds, as LibreOffice writes a page's duration.
+fn iso_duration(v: &str) -> Option<u32> {
+    let mut rest = v.trim().strip_prefix("PT")?;
+    let mut ms = 0.0;
+    while !rest.is_empty() {
+        let end = rest.find(|c: char| c.is_ascii_alphabetic())?;
+        let n: f64 = rest[..end].parse().ok()?;
+        ms += n * match &rest[end..end + 1] { "H" => 3_600_000.0, "M" => 60_000.0, "S" => 1000.0, _ => return None };
+        rest = &rest[end + 1..];
+    }
+    (ms.is_finite() && ms >= 0.0).then(|| ms.round().min(f64::from(u32::MAX)) as u32)
 }
 
 /// A LibreOffice page style's transition (`smil:type`, `smil:subtype`, `smil:direction`, `smil:dur`).

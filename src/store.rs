@@ -311,7 +311,7 @@ mod tests {
         let asset = store.import_file(&src, "mp4").unwrap();
         let mut data = Data::default();
         data.media.push(MediaFile { id: uuid::Uuid::new_v4(), name: "clip".into(), kind: MediaKind::Video, asset: asset.clone(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
-        data.decks.push(Deck { id: uuid::Uuid::new_v4(), title: "d".into(), slides: vec![asset.clone()], notes: vec![], transitions: vec![] });
+        data.decks.push(Deck { id: uuid::Uuid::new_v4(), title: "d".into(), slides: vec![asset.clone()], notes: vec![], transitions: vec![], advance_ms: vec![] });
         let name = store.backup(&data).unwrap();
         // Lose the working asset store and data.
         fs::remove_dir_all(store.assets()).unwrap();

@@ -8,7 +8,7 @@ import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slide
 import { MediaBin, BinRow, BinFolder } from "operator/media.slint";
 import { LiveColumn, TransportCell, LiveSong } from "operator/live.slint";
 import { OutputsState } from "operator/outputs.slint";
-import { Side } from "room.slint";
+import { Side, Geo } from "room.slint";
 import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
@@ -177,6 +177,13 @@ export component OperatorWindow inherits Window {
     in property <bool> monitor-bg-visible: true;
     in property <Side> monitor-media;
     in property <Side> monitor-slide;
+    /// The slide going out while the new one comes in with a deck or designed slide's own transition, its
+    /// opacity and both faces' places (`Geo`, a push or wipe). Rust moves them (`src/ui/operator/live.rs`).
+    in property <Side> monitor-slide-old;
+    in property <float> monitor-slide-op: 1;
+    in property <float> monitor-slide-old-op;
+    in property <Geo> monitor-slide-geo;
+    in property <Geo> monitor-slide-old-geo;
     in property <Side> monitor-logo;
     in property <image> monitor-drawing;
     in property <bool> drawing-on;
@@ -977,6 +984,11 @@ export component OperatorWindow inherits Window {
                         monitor-bg-visible: root.monitor-bg-visible;
                         monitor-media: root.monitor-media;
                         monitor-slide: root.monitor-slide;
+                        monitor-slide-old: root.monitor-slide-old;
+                        monitor-slide-op: root.monitor-slide-op;
+                        monitor-slide-old-op: root.monitor-slide-old-op;
+                        monitor-slide-geo: root.monitor-slide-geo;
+                        monitor-slide-old-geo: root.monitor-slide-old-geo;
                         monitor-logo: root.monitor-logo;
                         monitor-drawing: root.monitor-drawing;
                         drawing-on: root.drawing-on;

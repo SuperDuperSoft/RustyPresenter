@@ -401,7 +401,7 @@ mod tests {
     #[test]
     fn deck_slides_show_their_speaker_notes() {
         let mut data = crate::model::Data::default();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()], transitions: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()], transitions: vec![], advance_ms: vec![] };
         data.decks.push(deck.clone());
         let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
         let (_, kind, s) = crate::slides::build_item(&data, &item);

@@ -569,3 +569,31 @@ fn start_countdown_sets_the_stage_layout_too() {
         assert_eq!(app.data.lock().unwrap().settings.stage.layout, layout, "{r}");
     }
 }
+
+#[test]
+fn a_powerpoint_slides_own_time_turns_it_and_stops_on_the_last() {
+    let app = test_app();
+    let deck_id = Uuid::new_v4();
+    let slides = vec!["1.png".to_string(), "2.png".into(), "3.png".into()];
+    app.edit(|d| { d.decks.push(crate::model::Deck { id: deck_id, title: "Talk".into(), slides, notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+    act(&app, "deck/transitions", serde_json::json!({ "id": deck_id, "transitions": [], "advance_ms": [5000, 5000, 5000, 5000] })).unwrap();
+    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000); 3]);
+    let r = act(&app, "service/add", serde_json::json!({ "item": { "kind": "deck", "deck_id": deck_id } })).unwrap();
+    let item: Uuid = serde_json::from_value(r["id"].clone()).unwrap();
+    show(&app, item, 0);
+    app.automation_tick(Utc::now() + TimeDelta::seconds(4));
+    assert_eq!(slide(&app), Some((item, 0)));
+    app.automation_tick(Utc::now() + TimeDelta::seconds(6));
+    assert_eq!(slide(&app), Some((item, 1)));
+    app.automation_tick(Utc::now() + TimeDelta::seconds(6));
+    assert_eq!(slide(&app), Some((item, 2)));
+    app.automation_tick(Utc::now() + TimeDelta::seconds(60));
+    assert_eq!(slide(&app), Some((item, 2)), "stops on the last slide");
+    show(&app, item, 0);
+    cmd(&app, Command::ClearSlide, None);
+    app.automation_tick(Utc::now() + TimeDelta::seconds(60));
+    assert_eq!(slide(&app), Some((item, 0)), "a cleared slide layer stops it");
+    // A call without times leaves them.
+    act(&app, "deck/transitions", serde_json::json!({ "id": deck_id, "transitions": [] })).unwrap();
+    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000); 3]);
+}

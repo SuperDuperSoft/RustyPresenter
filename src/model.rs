@@ -92,11 +92,14 @@ pub struct Slide {
     /// N10: a song slide's words with the chords typed in the lyrics (`[G]Amazing [C]grace`), for the stage only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub chords: Option<String>,
+    /// A deck slide's own auto-advance time in milliseconds (PowerPoint's "After").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub advance_ms: Option<u32>,
 }
 
 impl Slide {
     /// A slide with no notes, no section and no label.
-    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None, tag: None, chords: None } }
+    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None, tag: None, chords: None, advance_ms: None } }
 }
 
 // ---------- Library ----------
@@ -182,6 +185,21 @@ pub struct Deck {
     /// than `slides` (or empty) when the last slides have none.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub transitions: Vec<Option<crate::design::Transition>>,
+    /// Each slide's own auto-advance time in milliseconds, from PowerPoint's "After" or Item edit (`None`: the
+    /// operator moves on). Shorter than `slides` (or empty) when the last slides have none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub advance_ms: Vec<Option<u32>>,
+}
+
+/// The longest auto-advance time a slide can have (one hour).
+pub const ADVANCE_MAX_MS: u32 = 3_600_000;
+
+/// Auto-advance times for a deck of `slides` slides, kept short like `deck_transitions`, each no longer than an hour.
+pub fn deck_advance(mut t: Vec<Option<u32>>, slides: usize) -> Vec<Option<u32>> {
+    t.truncate(slides);
+    for x in t.iter_mut().flatten() { *x = (*x).min(ADVANCE_MAX_MS) }
+    while t.last().is_some_and(Option::is_none) { t.pop(); }
+    t
 }
 
 /// Transitions for a deck of `slides` slides, kept short like `deck_notes`, each no longer than the editor offers.
@@ -1098,7 +1116,7 @@ mod deck_notes_tests {
         let id = Uuid::new_v4();
         let old = serde_json::json!({ "id": id, "title": "Talk", "slides": ["1.png", "2.png"] });
         let deck: Deck = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![] });
+        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] });
         assert_eq!(serde_json::to_value(&deck).unwrap(), old, "no notes key when there are none");
         let with = Deck { notes: vec!["Hi".into()], ..deck };
         assert_eq!(serde_json::from_value::<Deck>(serde_json::to_value(&with).unwrap()).unwrap(), with);
@@ -1113,13 +1131,30 @@ mod deck_notes_tests {
     }
 
     #[test]
+    fn deck_advance_times_are_kept_short_and_reach_each_slide() {
+        assert_eq!(deck_advance(vec![None, Some(5000), None, Some(9_999_999)], 3), vec![None, Some(5000)]);
+        assert_eq!(deck_advance(vec![Some(9_999_999)], 1), vec![Some(ADVANCE_MAX_MS)]);
+        assert_eq!(deck_advance(vec![None, None], 2), vec![]);
+        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(5000)] };
+        let json = serde_json::to_value(&deck).unwrap();
+        assert_eq!(json["advance_ms"], serde_json::json!([null, 5000]));
+        assert_eq!(serde_json::from_value::<Deck>(json).unwrap(), deck);
+        let mut data = Data::default();
+        data.decks.push(deck.clone());
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
+        let (_, _, slides) = crate::slides::build_item(&data, &item);
+        assert_eq!(slides.iter().map(|s| s.advance_ms).collect::<Vec<_>>(), [None, Some(5000)]);
+        assert!(serde_json::to_value(&slides[0]).unwrap().get("advance_ms").is_none());
+    }
+
+    #[test]
     fn deck_transitions_are_kept_short_and_reach_each_slide() {
         use crate::design::{Dir, Transition, TransitionKind};
         let wipe = Transition { kind: TransitionKind::Wipe, ms: 99_999, dir: Dir::Down };
         let short = Transition { ms: crate::design::TRANSITION_MAX_MS, ..wipe };
         assert_eq!(deck_transitions(vec![None, Some(wipe), None, Some(wipe)], 3), vec![None, Some(short)]);
         assert_eq!(deck_transitions(vec![None, None], 2), vec![]);
-        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(short)] };
+        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(short)], advance_ms: vec![] };
         let json = serde_json::to_value(&deck).unwrap();
         assert_eq!(json["transitions"], serde_json::json!([null, { "kind": "wipe", "ms": crate::design::TRANSITION_MAX_MS, "dir": "down" }]));
         assert_eq!(serde_json::from_value::<Deck>(json).unwrap(), deck);

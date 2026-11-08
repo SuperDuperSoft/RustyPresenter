@@ -49,6 +49,7 @@ fn advance_input(data: &Data, live: &Live) -> Option<AdvanceInput> {
         slides: item.slides.len(),
         advance: data.automation.advance.get(&item.item_id).copied(),
         cursor_slide: cursor.slide,
+        slide_ms: item.slides.get(cursor.slide).and_then(|s| s.advance_ms),
         slide_layer_up: live.frame.slide.is_some(),
         version: live.version,
         visual_version: live.visual_version,

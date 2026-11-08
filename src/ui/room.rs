@@ -64,7 +64,7 @@ struct Move { kind: TransitionKind, dir: Dir, new_b: bool }
 fn moving(t: Option<Transition>) -> Option<Transition> { t.filter(|t| t.kind.moves()) }
 
 /// Where a face is `p` (0–1) of the way through a push or wipe going `dir`; `new`: the face coming in.
-fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
+pub(crate) fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
     let (vx, vy) = dir.step();
     let mut g = Geo::default();
     match kind {

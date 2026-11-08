@@ -1281,7 +1281,7 @@ impl App {
             if assets.is_empty() { return Err(ActionError::bad(tr!("Choose at least one picture."))); }
             for a in &assets { if !app.store.asset_path(a).exists() { return Err(ActionError::bad(tr!("A picture is missing. Try uploading again."))); } }
             let id = Uuid::new_v4();
-            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![], transitions: vec![] }); Ok(()) }));
+            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }));
             Ok(json!({ "id": id }))
         }
         "deck/rename" => {
@@ -1297,9 +1297,16 @@ impl App {
             Ok(json!({}))
         }
         "deck/transitions" => {
-            #[derive(Deserialize)] struct T { id: Uuid, transitions: Vec<Option<crate::design::Transition>> }
-            let T { id, transitions } = parse(body)?;
-            tryr!(app.edit(|d| { if let Some(x) = d.decks.iter_mut().find(|x| x.id == id) { x.transitions = crate::model::deck_transitions(transitions, x.slides.len()); } Ok(()) }));
+            // `advance_ms` (each slide's auto-advance time) is left as it is when the call has none.
+            #[derive(Deserialize)] struct T { id: Uuid, transitions: Vec<Option<crate::design::Transition>>, #[serde(default)] advance_ms: Option<Vec<Option<u32>>> }
+            let T { id, transitions, advance_ms } = parse(body)?;
+            tryr!(app.edit(|d| {
+                if let Some(x) = d.decks.iter_mut().find(|x| x.id == id) {
+                    x.transitions = crate::model::deck_transitions(transitions, x.slides.len());
+                    if let Some(a) = advance_ms { x.advance_ms = crate::model::deck_advance(a, x.slides.len()); }
+                }
+                Ok(())
+            }));
             Ok(json!({}))
         }
         "deck/delete" => {

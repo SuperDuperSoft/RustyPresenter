@@ -166,7 +166,7 @@ impl Import<'_> {
         move_or_copy(file, &input).map_err(|_| slide_not_saved())?;
         self.app.job_progress(self.job, percent(Stage::Prepare, 1.0));
         let notes = notes_off_thread(&input, notes::format(&kind)).await;
-        let transitions = transitions_off_thread(&input, notes::format(&kind)).await;
+        let (transitions, advance) = transitions_off_thread(&input, notes::format(&kind)).await;
 
         let made = match route {
             Route::Pdf => Made { slides: self.render(&converters, input, work.path(), None).await?, note: None },
@@ -179,9 +179,10 @@ impl Import<'_> {
         }
         let notes = notes::line_up(notes, made.slides.len());
         let transitions = super::transitions::line_up(transitions, made.slides.len());
+        let advance_ms = crate::model::deck_advance(super::transitions::line_up(advance, made.slides.len()), made.slides.len());
         let slides = self.publish(made.slides).await?;
         let id = Uuid::new_v4();
-        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone(), notes: notes.clone(), transitions: transitions.clone() }); Ok(()) })?;
+        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone(), notes: notes.clone(), transitions: transitions.clone(), advance_ms: advance_ms.clone() }); Ok(()) })?;
         self.app.job_result(self.job, id);
         if let Some(note) = made.note {
             self.app.job_note(self.job, note);
@@ -264,9 +265,12 @@ async fn notes_off_thread(file: &Path, format: Option<notes::Format>) -> Option<
 }
 
 /// Each slide's transition, read like the notes.
-async fn transitions_off_thread(file: &Path, format: Option<notes::Format>) -> Option<Vec<Option<crate::design::Transition>>> {
-    let (file, format) = (file.to_path_buf(), format?);
-    tokio::task::spawn_blocking(move || super::transitions::read(&file, format)).await.ok().flatten()
+/// Each slide's transition and auto-advance time, read from the file.
+#[allow(clippy::type_complexity)]
+async fn transitions_off_thread(file: &Path, format: Option<notes::Format>) -> (Option<Vec<Option<crate::design::Transition>>>, Option<Vec<Option<u32>>>) {
+    let Some(format) = format else { return (None, None) };
+    let file = file.to_path_buf();
+    tokio::task::spawn_blocking(move || (super::transitions::read(&file, format), super::transitions::read_advance(&file, format))).await.unwrap_or((None, None))
 }
 
 async fn sniff_off_thread(file: PathBuf) -> Result<Kind, String> {

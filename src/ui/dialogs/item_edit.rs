@@ -35,9 +35,10 @@ struct Edit {
     order: Option<(Song, Vec<String>)>,
     /// What each line of the Theme box picks (`None`: the service's).
     themes: Vec<Option<crate::theme::ThemeId>>,
-    /// Deck: its id, its notes and transitions as the dialog opened, and the rows of "Speaker notes" and "Slide
-    /// transitions".
-    deck_notes: Option<(Uuid, Vec<String>, Vec<Option<Transition>>, Rc<VecModel<DeckNoteRow>>)>,
+    /// Deck: its id, its notes, transitions and auto-advance times as the dialog opened, and the rows of "Speaker
+    /// notes" and "Slide transitions".
+    #[allow(clippy::type_complexity)]
+    deck_notes: Option<(Uuid, Vec<String>, Vec<Option<Transition>>, Vec<Option<u32>>, Rc<VecModel<DeckNoteRow>>)>,
 }
 
 /// `+ <label>` buttons per row under the order strip.
@@ -142,10 +143,11 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             let rows = Rc::new(VecModel::from((0..d.slides.len()).map(|i| with_transition(DeckNoteRow {
                 label: crate::tr!("Slide {n}", n = i + 1).into(),
                 notes: d.notes.get(i).map_or("", String::as_str).into(),
+                advance: d.advance_ms.get(i).copied().flatten().map(advance_text).unwrap_or_default().into(),
                 ..Default::default()
             }, d.transitions.get(i).copied().flatten())).collect::<Vec<_>>()));
             g.set_deck_notes(ModelRc::from(rows.clone()));
-            deck_notes = Some((d.id, d.notes.clone(), d.transitions.clone(), rows));
+            deck_notes = Some((d.id, d.notes.clone(), d.transitions.clone(), d.advance_ms.clone(), rows));
         },
         // FEAT-6: a blank keeps its notes and background here; a header is renamed from the service list.
         ItemKind::Blank { .. } | ItemKind::Header { .. } | ItemKind::Design { .. } => {}
@@ -210,7 +212,7 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_order_add(move |label| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { change_order(&op, &e, |v| v.push(label.into())) });
     let e = Rc::downgrade(edit);
     g.on_deck_note_edited(move |i, text| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
-        if let Some((_, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
+        if let Some((_, _, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
             row.notes = text;
             rows.set_row_data(i, row);
         }
@@ -225,8 +227,10 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     let e = Rc::downgrade(edit);
     g.on_deck_transition_ms_changed(move |i, ms| deck_row(&e, i, |r| r.ms = ms.clamp(0, TRANSITION_MAX_MS as i32)));
     let e = Rc::downgrade(edit);
+    g.on_deck_advance_edited(move |i, text| deck_row(&e, i, |r| r.advance = text));
+    let e = Rc::downgrade(edit);
     g.on_deck_transition_to_all(move |i| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
-        let Some((_, _, _, rows)) = &e.borrow().deck_notes else { return };
+        let Some((_, _, _, _, rows)) = &e.borrow().deck_notes else { return };
         let Some(from) = rows.row_data(i) else { return };
         // A new list, so every picker shows it (one the user changed no longer follows its row).
         let all: Vec<DeckNoteRow> = rows.iter().map(|r| DeckNoteRow { transition: from.transition, dir: from.dir, ms: from.ms, ..r }).collect();
@@ -496,7 +500,7 @@ fn row_transition(row: &DeckNoteRow) -> Option<Transition> {
 /// Changes deck row `i` with `f`.
 fn deck_row(e: &std::rc::Weak<RefCell<Edit>>, i: i32, f: impl FnOnce(&mut DeckNoteRow)) {
     let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) else { return };
-    if let Some((_, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
+    if let Some((_, _, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
         f(&mut row);
         rows.set_row_data(i, row);
     }
@@ -504,15 +508,31 @@ fn deck_row(e: &std::rc::Weak<RefCell<Edit>>, i: i32, f: impl FnOnce(&mut DeckNo
 
 /// `deck/transitions` when a deck's slide transitions were changed.
 fn deck_transitions_call(edit: &Edit) -> Option<(&'static str, serde_json::Value)> {
-    let (id, _, was, rows) = edit.deck_notes.as_ref()?;
+    let (id, _, was, was_advance, rows) = edit.deck_notes.as_ref()?;
     let n = rows.row_count();
     let typed = crate::model::deck_transitions(rows.iter().map(|r| row_transition(&r)).collect(), n);
-    (typed != crate::model::deck_transitions(was.clone(), n)).then(|| ("deck/transitions", serde_json::json!({ "id": id, "transitions": typed })))
+    let advance = crate::model::deck_advance(rows.iter().map(|r| advance_ms(&r.advance).ok().flatten()).collect(), n);
+    let changed = typed != crate::model::deck_transitions(was.clone(), n) || advance != crate::model::deck_advance(was_advance.clone(), n);
+    changed.then(|| ("deck/transitions", serde_json::json!({ "id": id, "transitions": typed, "advance_ms": advance })))
+}
+
+/// A slide's auto-advance time as Item edit shows it, in seconds ("5", "2.5").
+fn advance_text(ms: u32) -> String {
+    if ms % 1000 == 0 { (ms / 1000).to_string() } else { format!("{}", f64::from(ms) / 1000.0) }
+}
+
+/// Typed auto-advance seconds in milliseconds: `Ok(None)` when empty (off), `Err` when not a number of seconds.
+fn advance_ms(typed: &str) -> Result<Option<u32>, ()> {
+    let t = typed.trim().replace(',', ".");
+    if t.is_empty() { return Ok(None) }
+    let secs: f64 = t.parse().map_err(|_| ())?;
+    if !secs.is_finite() || secs < 0.0 { return Err(()) }
+    Ok(Some((secs * 1000.0).round().min(f64::from(crate::model::ADVANCE_MAX_MS)) as u32))
 }
 
 /// `deck/notes` when a deck's speaker notes were changed.
 fn deck_notes_call(edit: &Edit) -> Option<(&'static str, serde_json::Value)> {
-    let (id, was, _, rows) = edit.deck_notes.as_ref()?;
+    let (id, was, _, _, rows) = edit.deck_notes.as_ref()?;
     let typed: Vec<String> = rows.iter().map(|r| r.notes.to_string()).collect();
     let typed = crate::model::deck_notes(typed, rows.row_count());
     (typed != crate::model::deck_notes(was.clone(), rows.row_count())).then(|| ("deck/notes", serde_json::json!({ "id": id, "notes": typed })))
@@ -535,6 +555,8 @@ fn save(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) { save_then(op, edit, false
 /// Save; `breaks`: then open Slide breaks for the item (Choose slide breaks…, FEAT-5 §3.3).
 fn save_then(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>, breaks: bool) {
     let g = op.ui.global::<ItemEdit>();
+    let bad_time = edit.borrow().deck_notes.as_ref().is_some_and(|(.., rows)| rows.iter().any(|r| advance_ms(&r.advance).is_err()));
+    if bad_time { return op.toast(crate::tr!("Auto-advance after: type a number of seconds, or leave it empty."), true) }
     if g.get_advance_shown() && !save_advance(op, edit.borrow().item.id) { return }
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
@@ -1249,7 +1271,7 @@ mod tests {
         assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise");
 
         // Slides: "Name" renames the deck.
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         refresh(&op);
@@ -1262,7 +1284,7 @@ mod tests {
     #[test]
     fn deck_speaker_notes_are_edited_per_slide() {
         let app = test_app();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![], advance_ms: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1292,7 +1314,7 @@ mod tests {
         use crate::design::{Dir, Transition, TransitionKind};
         let app = test_app();
         let pushed = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)], advance_ms: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1326,6 +1348,38 @@ mod tests {
         g.invoke_deck_transition_to_all(0);
         press(&op, "ItemEditDialog::save");
         assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
+    }
+
+    #[test]
+    fn deck_slide_auto_advance_is_shown_typed_and_saved() {
+        let app = test_app();
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![Some(5000), Some(2500)] };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert!(!find_all(&op, "ItemEditDialog::deck-advance").is_empty(), "a box per slide");
+        let g = op.ui.global::<ItemEdit>();
+        let shown: Vec<String> = (0..3).map(|i| g.get_deck_notes().row_data(i).unwrap().advance.into()).collect();
+        assert_eq!(shown, ["5", "2.5", ""]);
+        g.invoke_deck_advance_edited(1, "".into());
+        g.invoke_deck_advance_edited(2, "10".into());
+        settle();
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
+        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![], "transitions stay as they were");
+        // Not a number: nothing is saved and the dialog stays.
+        refresh(&op);
+        open(&op, id);
+        settle();
+        let g = op.ui.global::<ItemEdit>();
+        g.invoke_deck_advance_edited(0, "soon".into());
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
+        assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)));
+        assert_eq!(advance_ms(" 1,5 "), Ok(Some(1500)));
+        assert_eq!(advance_ms("-1"), Err(()));
     }
 
     #[test]

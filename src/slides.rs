@@ -443,6 +443,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
             Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide {
                 notes: d.notes.get(i).cloned().unwrap_or_default(),
+                advance_ms: d.advance_ms.get(i).copied().flatten(),
                 ..Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone(), transition: d.transitions.get(i).copied().flatten() })
             }).collect()),
             None => (crate::tr!("Missing slides"), "deck", vec![]),

@@ -247,12 +247,15 @@ async fn slide_transitions_are_kept_per_slide() {
     finished(&app, id).await;
     let deck = app.data.lock().unwrap().decks[0].clone();
     assert_eq!(deck.transitions, crate::import::transitions::tests::sample_transitions());
+    assert_eq!(deck.advance_ms, crate::model::deck_advance(crate::import::transitions::tests::sample_advance(), 3));
+    assert_eq!(deck.advance_ms, vec![Some(5000)]);
     // Two pictures for three slides: they would land on the wrong slides.
     let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), None));
     let file = staged(&app, &crate::import::transitions::tests::sample_pptx());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
     assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
+    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![]);
 }
 
 #[tokio::test]

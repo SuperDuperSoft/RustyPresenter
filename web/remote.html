@@ -29,8 +29,10 @@
   .label { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--live); margin-bottom: 6px; display: flex; justify-content: space-between; }
   .label span { color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 600; }
   .text { white-space: pre-wrap; font-size: 19px; font-weight: 600; min-height: 52px; }
-  .now img { display: none; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #000; border-radius: 10px; }
-  .now.pic img { display: block; }
+  .picbox { display: none; position: relative; overflow: hidden; background: #000; border-radius: 10px; }
+  .now.pic .picbox { display: block; }
+  .picbox img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; }
+  .picbox img.old { position: absolute; left: 0; top: 0; height: 100%; }
   .now.pic .text { display: none; }
   .pnotes { display: none; background: var(--panel); border-radius: 16px; padding: 12px 16px; border: 1.5px solid rgba(120,170,255,.55); }
   .pnotes.on { display: block; }
@@ -136,7 +138,7 @@
 </div>
 <div class="app" id="app">
   <div class="bar"><span class="dot" id="dot"></span><span id="svc" data-t>Connecting…</span></div>
-  <div class="now"><div class="label" data-t>On screen <span id="nowLabel"></span></div><img id="nowImg" alt=""><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
+  <div class="now"><div class="label" data-t>On screen <span id="nowLabel"></span></div><div class="picbox" id="picBox"><img id="nowImg" alt=""></div><div class="text" id="now"></div><div class="secs" id="secs"></div></div>
   <button class="notesbtn" id="notesBtn"></button>
   <div class="pnotes" id="pnotes"><div class="label" data-t>Presenter notes</div><div class="text" id="notesText"></div></div>
   <div class="stage" id="stage"><div class="label" data-t>Stage only</div><div class="text" id="stageText"></div><button id="stageOff" data-t>Take it off the stage</button></div>

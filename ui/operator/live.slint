@@ -2,7 +2,7 @@
 // monitor, the transport, the notice, Back/Next, the clears and Up next. The rows and texts come from Rust (`live.rs`).
 import { Theme } from "../theme.slint";
 import { Bar, ScrollBox, Btn } from "../widgets.slint";
-import { Side } from "../room.slint";
+import { Side, Geo } from "../room.slint";
 import { LiveMonitor } from "monitor.slint";
 import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
 import { OverlaysStrip } from "overlay-strip.slint";
@@ -32,6 +32,13 @@ export component LiveColumn inherits Rectangle {
     in property <bool> monitor-bg-visible: true;
     in property <Side> monitor-media;
     in property <Side> monitor-slide;
+    /// The slide going out while the new one comes in with a deck or designed slide's own transition, its
+    /// opacity and both faces' places (`Geo`, a push or wipe). Rust moves them (`src/ui/operator/live.rs`).
+    in property <Side> monitor-slide-old;
+    in property <float> monitor-slide-op: 1;
+    in property <float> monitor-slide-old-op;
+    in property <Geo> monitor-slide-geo;
+    in property <Geo> monitor-slide-old-geo;
     in property <Side> monitor-logo;
     in property <image> monitor-drawing;
     /// A phone drawing is on the room screen: the Drawing chip shows, its ✕ clears it (`clear("clear_drawing")`).
@@ -138,6 +145,11 @@ export component LiveColumn inherits Rectangle {
                     bg-visible: root.monitor-bg-visible;
                     media: root.monitor-media;
                     slide: root.monitor-slide;
+                    slide-old: root.monitor-slide-old;
+                    slide-op: root.monitor-slide-op;
+                    slide-old-op: root.monitor-slide-old-op;
+                    slide-geo: root.monitor-slide-geo;
+                    slide-old-geo: root.monitor-slide-old-geo;
                     logo: root.monitor-logo;
                     drawing: root.monitor-drawing;
                     video: root.monitor-video;

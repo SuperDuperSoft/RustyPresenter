@@ -335,6 +335,11 @@ fn timer_lines(v: &crate::timers::TimersView) -> Vec<Value> {
     v.timers.iter().filter(|t| t.on_remote).map(|t| json!({ "name": t.name, "text": crate::timers::text(t.value_ms), "over": t.overrun })).collect()
 }
 
+/// A picture slide's own transition, for the phone to play as the room does (`null`: the usual change).
+fn slide_transition(s: &crate::model::Slide) -> Option<crate::design::Transition> {
+    match &s.content { SlideContent::Image { transition, .. } => *transition, _ => None }
+}
+
 fn remote_view(app: &App, phone: Option<Uuid>) -> String {
     let may_draw = phone.is_some_and(|id| app.phones.lock().unwrap().iter().any(|p| p.id == id && p.may_draw));
     let timers = app.timers();
@@ -346,7 +351,7 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         json!({ "id": i.id, "title": title, "kind": kind, "count": crate::trn!("{n} slide", "{n} slides", slides.len()), "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
     }).collect()).unwrap_or_default();
     let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
-    let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s), "notes": s.notes, "picture": matches!(s.content, SlideContent::Image { .. }) }));
+    let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s), "notes": s.notes, "picture": matches!(s.content, SlideContent::Image { .. }), "transition": slide_transition(s) }));
     let next = live.next_preview(&plan).map(|(t, s)| json!({ "title": t, "label": s.label, "text": slide_text(&s) }));
     json!({
         "type": "remote",
@@ -488,6 +493,26 @@ mod tests {
         let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!(v["stage_only"]["text"], "Watch me");
         assert!(phone_may(&serde_json::from_value(json!({ "id": "y", "cmd": "stage_only" })).unwrap()));
+    }
+
+    #[test]
+    fn the_phone_gets_a_picture_slides_transition() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let app = test_app();
+        let push = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![None, Some(push)], advance_ms: vec![] };
+        let id = Uuid::new_v4();
+        {
+            let mut d = app.data.lock().unwrap();
+            d.decks.push(deck.clone());
+            d.services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None });
+        }
+        let show = |slide| { let base = app.live.lock().unwrap().version; assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide } }).ok) };
+        show(1);
+        let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!(v["current"]["transition"], json!({ "kind": "push", "ms": 800, "dir": "up" }));
+        let first = crate::model::Slide::new("Slide 1", SlideContent::Image { asset: "1.png".into(), transition: None });
+        assert_eq!(serde_json::to_value(slide_transition(&first)).unwrap(), Value::Null, "the usual change");
     }
 
     #[tokio::test]

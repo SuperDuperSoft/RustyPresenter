@@ -200,7 +200,7 @@ mod tests {
         song(&app, "Be Thou My Vision", "amazing love");
         song(&app, "Holy Holy Holy", "x");
         let video = MediaFile { id: Uuid::new_v4(), name: "Amazing sunrise.mp4".into(), kind: MediaKind::Video, asset: "a.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        let deck = Deck { id: Uuid::new_v4(), title: "Amazing announcements".into(), slides: Vec::new(), notes: vec![], transitions: vec![] };
+        let deck = Deck { id: Uuid::new_v4(), title: "Amazing announcements".into(), slides: Vec::new(), notes: vec![], transitions: vec![], advance_ms: vec![] };
         {
             let mut d = app.data.lock().unwrap();
             d.media.push(video.clone());

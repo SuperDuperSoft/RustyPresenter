@@ -13,8 +13,8 @@ import { TransitionPicker } from "transition.slint";
 export { BgChoice }
 
 /// One slide of a deck in "Speaker notes" and "Slide transitions": "Slide 3", its notes, and its transition as
-/// `TransitionPicker` shows it (`transition` 0: Normal).
-export struct DeckNoteRow { label: string, notes: string, transition: int, dir: int, ms: int }
+/// `TransitionPicker` shows it (`transition` 0: Normal), and its auto-advance seconds as typed ("": off).
+export struct DeckNoteRow { label: string, notes: string, transition: int, dir: int, ms: int, advance: string }
 
 /// What the open Item edit shows and what the user changed.
 export global ItemEdit {
@@ -71,6 +71,8 @@ export global ItemEdit {
     callback deck-transition-ms-changed(int, int);
     /// That slide's transition on every slide.
     callback deck-transition-to-all(int);
+    /// A deck slide's "Auto-advance after (s)" was typed in.
+    callback deck-advance-edited(int, string);
     /// FEAT-2: song, scripture, announcement and slides items can turn their own slides.
     in property <bool> advance-shown;
     /// The item has at least two slides.
@@ -424,10 +426,19 @@ export component ItemEditDialog inherits VerticalLayout {
                 }
                 HorizontalLayout {
                     alignment: start;
+                    spacing: 8px;
                     deck-transition-all := Btn {
                         small: true;
                         text: @tr("Use for all slides");
                         clicked => { ItemEdit.deck-transition-to-all(i); }
+                    }
+                    Text { text: @tr("Auto-advance after (s)"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+                    deck-advance := TextField {
+                        width: 70px;
+                        label: @tr("Auto-advance after (s)");
+                        placeholder: @tr("Off");
+                        text: row.advance;
+                        edited(t) => { ItemEdit.deck-advance-edited(i, t); }
                     }
                 }
             }

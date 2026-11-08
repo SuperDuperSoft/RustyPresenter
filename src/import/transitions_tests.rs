@@ -42,12 +42,15 @@ fn pptx_of(slides: &[(bool, &str)]) -> Vec<u8> {
 /// Three slides: push up, none, wipe right (and a hidden one between).
 pub(crate) fn sample_pptx() -> Vec<u8> {
     pptx_of(&[
-        (true, r#"<p:transition spd="med"><p:push dir="u"/></p:transition>"#),
+        (true, r#"<p:transition spd="med" advClick="0" advTm="5000"><p:push dir="u"/></p:transition>"#),
         (true, ""),
-        (false, r#"<p:transition><p:fade/></p:transition>"#),
+        (false, r#"<p:transition advTm="1000"><p:fade/></p:transition>"#),
         (true, r#"<p:transition p14:dur="1500"><p:wipe dir="r"/></p:transition>"#),
     ])
 }
+
+/// `sample_pptx`'s auto-advance times.
+pub(crate) fn sample_advance() -> Vec<Option<u32>> { vec![Some(5000), None, None] }
 
 pub(crate) fn sample_transitions() -> Vec<Option<Transition>> {
     vec![t(TransitionKind::Push, 750, Dir::Up), None, t(TransitionKind::Wipe, 1500, Dir::Right)]
@@ -137,12 +140,45 @@ fn libreoffice_page_styles_bring_their_transitions() {
 }
 
 #[test]
+fn powerpoint_after_times_are_read_per_shown_slide() {
+    assert_eq!(pptx_advance(Cursor::new(sample_pptx())), Some(sample_advance()));
+    let one = |markup: &str| slide_advance(&Document::parse(&slide(true, markup)).unwrap());
+    assert_eq!(one(r#"<p:transition advTm="0"/>"#), Some(0));
+    assert_eq!(one(r#"<p:transition advTm="x"/>"#), None);
+    assert_eq!(one(""), None);
+    let alt = r#"<mc:AlternateContent><mc:Choice Requires="p14"><p:transition p14:dur="1250" advTm="3000"><p:push dir="d"/></p:transition></mc:Choice><mc:Fallback><p:transition advTm="2000"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent>"#;
+    assert_eq!(one(alt), Some(3000));
+}
+
+#[test]
+fn libreoffice_automatic_pages_bring_their_time() {
+    let content = r#"<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0">
+<office:automatic-styles>
+<style:style style:name="dp1" style:family="drawing-page"><style:drawing-page-properties presentation:transition-type="automatic" presentation:duration="PT00H00M05S" smil:type="fade" smil:dur="1s"/></style:style>
+<style:style style:name="dp2" style:family="drawing-page"><style:drawing-page-properties presentation:transition-type="manual" presentation:duration="PT00H00M09S"/></style:style>
+<style:style style:name="dp3" style:family="drawing-page"><style:drawing-page-properties presentation:transition-type="automatic" presentation:duration="PT1M2.5S"/></style:style>
+</office:automatic-styles>
+<office:body><office:presentation>
+<draw:page draw:name="1" draw:style-name="dp1"/>
+<draw:page draw:name="2" draw:style-name="dp2"/>
+<draw:page draw:name="3" draw:style-name="dp3"/>
+<draw:page draw:name="4"/>
+</office:presentation></office:body></office:document-content>"#;
+    let file = zip_of(&[("mimetype".into(), "application/vnd.oasis.opendocument.presentation".into()), ("content.xml".into(), content.into())]);
+    assert_eq!(odp_advance(Cursor::new(file)), Some(vec![Some(5000), None, Some(62_500), None]));
+    assert_eq!(iso_duration("PT01H00M00S"), Some(3_600_000));
+    assert_eq!(iso_duration("5s"), None);
+    assert_eq!(line_up(Some(vec![Some(5000u32), None]), 2), vec![Some(5000), None]);
+}
+
+#[test]
 fn transitions_kept_only_when_they_line_up() {
     let fade = t(TransitionKind::Fade, 500, Dir::Left);
     assert_eq!(line_up(Some(vec![fade, None]), 2), vec![fade, None]);
     assert_eq!(line_up(Some(vec![fade, None]), 3), vec![]);
-    assert_eq!(line_up(Some(vec![None, None]), 2), vec![], "none at all: nothing to keep");
-    assert_eq!(line_up(None, 2), vec![]);
+    assert_eq!(line_up::<Transition>(Some(vec![None, None]), 2), vec![], "none at all: nothing to keep");
+    assert_eq!(line_up::<Transition>(None, 2), vec![]);
     assert_eq!(pptx(Cursor::new(b"not a zip".to_vec())), None);
 }
 

@@ -7,10 +7,12 @@ use crate::{
     live::{Command, drawing::Drawing},
     render::drawing::DrawingCanvas,
     room::Kind,
-    ui::{LiveSong, OperatorWindow, Side, TransportCell, ops::outcome_toast, preview::{self, Drawn}, thumbs},
+    design::{Transition, TransitionKind},
+    live::SlideLayer,
+    ui::{Geo, LiveSong, OperatorWindow, Side, TransportCell, fade::{Chan, Fader}, ops::outcome_toast, preview::{self, Drawn}, thumbs},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
-use std::{rc::{Rc, Weak}, sync::Arc, time::Duration};
+use std::{cell::Cell, rc::{Rc, Weak}, sync::Arc, time::Duration};
 
 /// How often the preview asks the room's player for a frame (4 Hz).
 const GRAB_EVERY: Duration = Duration::from_millis(250);
@@ -33,6 +35,41 @@ pub(super) struct LiveState {
     drawing_now: Option<Arc<Drawing>>,
     /// Draws the monitor's drawing again while ink fades.
     fade_timer: Timer,
+    /// The live slide layer the monitor last drew, so only a new slide plays its transition (not a resize).
+    slide_now: Option<SlideLayer>,
+    /// The monitor's slide transition, made on first use.
+    motion: Option<Motion>,
+}
+
+/// A deck or designed slide's own transition on the monitor, moved by its own fader like the room's.
+struct Motion { fader: Fader, ch: Chan, playing: Rc<Cell<Option<Transition>>> }
+
+/// The transition a newly live slide comes in with, as the room plays it (none for a build step).
+fn own_transition(slide: Option<&SlideLayer>) -> Option<Transition> {
+    match slide? {
+        SlideLayer::Design { design, build: false } => Some(design.transition),
+        SlideLayer::Image { transition, .. } => *transition,
+        _ => None,
+    }
+}
+
+/// Writes the monitor's two slide faces `p` (0–1) of the way through `t`; none: the new slide alone, in place.
+fn set_motion(ui: &OperatorWindow, t: Option<Transition>, p: f32) {
+    let still = Geo::default;
+    let (old_op, new_op, old_geo, new_geo, black) = match t.map(|t| (t.kind, t.dir)) {
+        Some((TransitionKind::Fade, _)) => (1.0 - p, p, still(), still(), 0.0),
+        // Through black: the old slide goes dark, then the new one comes up out of it.
+        Some((TransitionKind::Black, _)) if p < 0.5 => (1.0, 0.0, still(), still(), p * 2.0),
+        Some((TransitionKind::Black, _)) => (0.0, 1.0, still(), still(), 2.0 - p * 2.0),
+        Some((kind @ (TransitionKind::Push | TransitionKind::Wipe), dir)) => (1.0, 1.0, crate::ui::room::geo(kind, dir, p, false), crate::ui::room::geo(kind, dir, p, true), 0.0),
+        Some((TransitionKind::Cut, _)) | None => (0.0, 1.0, still(), still(), 0.0),
+    };
+    ui.set_monitor_slide_old_op(old_op);
+    ui.set_monitor_slide_op(new_op);
+    ui.set_monitor_slide_old_geo(old_geo);
+    ui.set_monitor_slide_geo(new_geo);
+    ui.set_monitor_black(black);
+    if t.is_none() { ui.set_monitor_slide_old(Side::default()) }
 }
 
 impl Operator {
@@ -99,14 +136,21 @@ impl Operator {
     fn render_monitor(&self, v: &LiveView) {
         self.preview.set_size(thumbs::thumb_size(self.ui.get_monitor_width(), self.ui.window().scale_factor()));
         let me = self.me.clone();
-        self.preview.show(&v.frame, &v.theme, v.logo.as_deref(), move |layers| if let Some(op) = me.upgrade() { op.monitor_drawn(layers) });
+        let transition = {
+            let mut st = self.live.borrow_mut();
+            let new = st.slide_now.as_ref() != v.frame.slide.as_ref();
+            if new { st.slide_now = v.frame.slide.clone() }
+            if new { own_transition(v.frame.slide.as_ref()) } else { None }
+        };
+        self.preview.show(&v.frame, &v.theme, v.logo.as_deref(), move |layers| if let Some(op) = me.upgrade() { op.monitor_drawn(layers, transition) });
         self.ui.set_monitor_bg_visible(preview::background_visible(&v.frame));
         self.follow_video(preview::drawn_video(&v.frame));
     }
 
     /// The monitor cuts straight to each new layer (no crossfade): a fade here would redraw the operator window
-    /// for 400 ms on every slide change, while the room does its own crossfade.
-    fn monitor_drawn(&self, layers: Vec<(Kind, Drawn)>) {
+    /// for 400 ms on every slide change, while the room does its own crossfade. A slide with its own transition
+    /// (`transition`, a deck or designed slide) plays it, as the room does.
+    fn monitor_drawn(&self, layers: Vec<(Kind, Drawn)>, transition: Option<Transition>) {
         for (kind, drawn) in layers {
             let set: fn(&OperatorWindow, Side) = match kind {
                 Kind::Background => OperatorWindow::set_monitor_bg,
@@ -119,8 +163,30 @@ impl Operator {
                 Drawn::Pic(px, color) => Side { image: px.map(|p| p.image()).unwrap_or_default(), color },
                 Drawn::Hidden => Side::default(),
             };
-            set(&self.ui, side);
+            if kind == Kind::Slide { self.move_slide(side, transition) } else { set(&self.ui, side) }
         }
+    }
+
+    /// Puts the new slide on the monitor, playing `t` from the slide shown now (a cut when none, or when there was
+    /// no slide to go through black from). A slide arriving mid-transition starts from where it is.
+    fn move_slide(&self, side: Side, t: Option<Transition>) {
+        let mut st = self.live.borrow_mut();
+        let m = st.motion.get_or_insert_with(|| {
+            let fader = Fader::new();
+            let playing: Rc<Cell<Option<Transition>>> = Rc::default();
+            let (w, now) = (self.ui.as_weak(), playing.clone());
+            let ch = fader.channel(1.0, move |p| if let Some(ui) = w.upgrade() { set_motion(&ui, if p >= 1.0 { None } else { now.get() }, p) });
+            Motion { fader, ch, playing }
+        });
+        let old = self.ui.get_monitor_slide();
+        let blank = old.image.size().width == 0 && old.color.alpha() == 0;
+        let t = t.filter(|t| t.kind != TransitionKind::Cut && t.ms > 0 && !(blank && t.kind == TransitionKind::Black));
+        m.playing.set(t);
+        m.fader.jump(m.ch, if t.is_some() { 0.0 } else { 1.0 });
+        if t.is_some() { self.ui.set_monitor_slide_old(old) }
+        self.ui.set_monitor_slide(side);
+        set_motion(&self.ui, t, if t.is_some() { 0.0 } else { 1.0 });
+        if let Some(t) = t { m.fader.fade(m.ch, 1.0, Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS)))) }
     }
 
     /// Starts or stops the 4 Hz grab when the drawn video changes. With the room closed there is nothing to grab:
@@ -610,6 +676,55 @@ mod tests {
         click(&op, "LiveColumn::clear-all");
         let slide = op.ui.get_monitor_slide();
         assert!(slide.image.size().width == 0 && slide.color.alpha() == 0, "cleared at once, with no fade");
+    }
+
+    #[test]
+    fn monitor_plays_a_deck_slides_own_transition() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let app = test_app();
+        let id = add_text(&app, "A", "Amazing grace");
+        let op = opened(&app);
+        run(&op, Command::Show { item_id: id, slide: 0 });
+        let first = op.ui.get_monitor_slide();
+        assert_eq!(op.ui.get_monitor_slide_geo(), Geo::default(), "a text slide cuts in");
+        let push = Transition { kind: TransitionKind::Push, ms: 300, dir: Dir::Left };
+        let mut v = app.live_view();
+        v.frame.slide = Some(SlideLayer::Image { asset: "missing.png".into(), transition: Some(push) });
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v.clone()));
+        assert_eq!(op.ui.get_monitor_slide_old(), first, "the old slide goes out");
+        assert!(op.ui.get_monitor_slide_geo().x > 0.95, "the new one starts off to the right");
+        assert!(op.ui.get_monitor_slide_old_geo().x.abs() < 1e-3 && op.ui.get_monitor_slide_old_op() == 1.0, "the old one starts in place");
+        // A redraw of the same slide (a resize) plays nothing.
+        op.apply_live(LiveUpdate::new(v.clone()));
+        assert!(op.ui.get_monitor_slide_geo().x > 0.95);
+        std::thread::sleep(Duration::from_millis(350));
+        op.live.borrow().motion.as_ref().unwrap().fader.tick();
+        assert_eq!((op.ui.get_monitor_slide_geo(), op.ui.get_monitor_slide_old_geo()), (Geo::default(), Geo::default()));
+        let old = op.ui.get_monitor_slide_old();
+        assert!(old.image.size().width == 0 && old.color.alpha() == 0, "the old slide is gone once it is over");
+    }
+
+    #[test]
+    fn monitor_transition_steps() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let app = test_app();
+        let op = opened(&app);
+        let t = |kind| Some(Transition { kind, ms: 500, dir: Dir::Right });
+        let ui = &op.ui;
+        let read = || (ui.get_monitor_slide_old_op(), ui.get_monitor_slide_op(), ui.get_monitor_black());
+        set_motion(ui, t(TransitionKind::Fade), 0.25);
+        assert_eq!(read(), (0.75, 0.25, 0.0));
+        set_motion(ui, t(TransitionKind::Black), 0.25);
+        assert_eq!(read(), (1.0, 0.0, 0.5), "the old slide darkens first");
+        set_motion(ui, t(TransitionKind::Black), 0.75);
+        assert_eq!(read(), (0.0, 1.0, 0.5), "then the new one comes up");
+        set_motion(ui, t(TransitionKind::Wipe), 0.25);
+        assert_eq!((ui.get_monitor_slide_geo().l, ui.get_monitor_slide_old_geo().r), (0.0, 0.0));
+        assert_eq!((ui.get_monitor_slide_geo().r, ui.get_monitor_slide_old_geo().l), (0.75, 0.25));
+        set_motion(ui, None, 1.0);
+        assert_eq!(read(), (0.0, 1.0, 0.0));
+        assert_eq!(own_transition(Some(&SlideLayer::Image { asset: "a.png".into(), transition: t(TransitionKind::Cut) })), t(TransitionKind::Cut));
     }
 
     #[test]

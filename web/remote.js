@@ -131,6 +131,46 @@ function toggleNotes() {
   if (V) render(); else renderNotesBtn();
 }
 
+// The live picture's slide ("item:slide") and whether it was a picture, so only a new slide plays a transition.
+let shownKey = '', shownPic = false;
+// Each way's step, as the room has it (src/design/mod.rs `Dir::step`).
+const STEP = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+// How the old picture is cut as a wipe's edge goes each way (top right bottom left, the room's `geo`).
+const WIPE = { left: p => `inset(0 ${p}% 0 0)`, right: p => `inset(0 0 0 ${p}%)`, up: p => `inset(0 0 ${p}% 0)`, down: p => `inset(${p}% 0 0 0)` };
+
+// Puts `src` on the live picture, playing `tr` ({ kind, ms, dir }: fade, cut, black, push or wipe) from the one shown.
+function showPicture(src, tr) {
+  const img = $('nowImg'), box = $('picBox');
+  box.querySelectorAll('img.old').forEach(o => o.remove());
+  img.getAnimations().forEach(a => a.cancel());
+  const ms = tr ? Math.max(0, Math.min(tr.ms || 0, 5000)) : 0;
+  if (!tr || tr.kind === 'cut' || !ms || !img.complete || !img.naturalWidth || !img.animate) { img.src = src; return; }
+  const old = img.cloneNode(); old.removeAttribute('id'); old.className = 'old'; old.alt = '';
+  box.append(old);
+  img.src = src;
+  const go = () => {
+    if (!old.isConnected) return;
+    const opts = { duration: ms, easing: 'ease-in-out', fill: 'forwards' };
+    let a;
+    if (tr.kind === 'push') {
+      const [x, y] = STEP[tr.dir] || STEP.left;
+      a = old.animate([{ transform: 'none' }, { transform: `translate(${x * 100}%, ${y * 100}%)` }], opts);
+      img.animate([{ transform: `translate(${-x * 100}%, ${-y * 100}%)` }, { transform: 'none' }], opts);
+    } else if (tr.kind === 'wipe') {
+      const cut = WIPE[tr.dir] || WIPE.left;
+      a = old.animate([{ clipPath: cut(0) }, { clipPath: cut(100) }], opts);
+    } else if (tr.kind === 'black') {
+      a = old.animate([{ opacity: 1 }, { opacity: 0 }], { ...opts, duration: ms / 2 });
+      img.animate([{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }], { duration: ms, easing: 'ease-in-out' });
+    } else {
+      a = old.animate([{ opacity: 1 }, { opacity: 0 }], opts);
+    }
+    setTimeout(() => old.remove(), ms + 50);
+    if (a) a.onfinish = () => old.remove();
+  };
+  (img.decode ? img.decode() : Promise.resolve()).then(go, go);
+}
+
 function render() {
   $('svc').textContent = V.service || t('Service');
   const air = V.on_air;
@@ -140,7 +180,14 @@ function render() {
   const shown = V.current && (air.slide || air.media) && !air.logo;
   const pic = !!(shown && V.current.picture);
   $('nowImg').closest('.now').classList.toggle('pic', pic);
-  if (pic) { const src = `/remote/live-slide?w=${Math.min(1920, Math.round(innerWidth * (devicePixelRatio || 1)))}&v=${V.version}`; if ($('nowImg')._src !== src) { $('nowImg')._src = src; $('nowImg').src = src; } }
+  const slideKey = shown && V.cursor ? `${V.cursor.item_id}:${V.cursor.slide}` : '';
+  if (pic) {
+    const src = `/remote/live-slide?w=${Math.min(1920, Math.round(innerWidth * (devicePixelRatio || 1)))}&v=${V.version}`;
+    // A new slide plays its own transition (from PowerPoint or the slide editor), as the room does.
+    const tr = slideKey !== shownKey && shownPic ? V.current.transition : null;
+    if ($('nowImg')._src !== src) { $('nowImg')._src = src; showPicture(src, tr); }
+  }
+  shownKey = slideKey; shownPic = pic;
   const notes = shown ? (V.current.notes || '') : '';
   $('notesText').textContent = notes;
   $('pnotes').classList.toggle('on', notesOn && notes !== '');
