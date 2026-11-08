@@ -2,9 +2,21 @@
 // do with the chosen file. The rows and filtering are in Rust (`media_bin.rs`).
 import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox } from "../widgets.slint";
-import { TextField, RangeSlider } from "../dialogs/form.slint";
+import { TextField, RangeSlider, Select } from "../dialogs/form.slint";
 
-/// One file. `kind` is "video", "image" or "audio"; `image` stays empty for video and audio (an icon is drawn).
+/// N11: the Video inputs tab (`src/ui/operator/video_inputs.rs`). `found` lists the cameras and capture cards found on
+/// this computer; `typed` is a name typed instead.
+export global VideoInputs {
+    in property <[string]> found;
+    in-out property <int> found-index;
+    in property <bool> searching;
+    in-out property <string> typed;
+    callback find();
+    callback add();
+    callback remove();
+}
+
+/// One file. `kind` is "video", "image", "audio" or "input" (a camera); `image` stays empty for video and audio (an icon is drawn).
 export struct BinRow { id: string, name: string, kind: string, tag: string, image: image, picked: bool, on-screen: bool }
 /// One folder of the list. An empty `name` is "All media".
 export struct BinFolder { name: string, label: string, count: int, on: bool }
@@ -65,7 +77,7 @@ component BinTile inherits Rectangle {
         if root.file.kind != "image": Icon {
             width: 26px;
             height: 26px;
-            name: root.file.kind == "audio" ? "audio" : "play";
+            name: root.file.kind == "audio" ? "audio" : root.file.kind == "input" ? "video" : "play";
             color: Theme.muted;
         }
         Rectangle {
@@ -207,6 +219,7 @@ export component MediaBin inherits VerticalLayout {
                 BinTab { text: @tr("Videos"); on: root.tab == "video"; clicked => { root.set-tab("video"); } }
                 BinTab { text: @tr("Pictures"); on: root.tab == "image"; clicked => { root.set-tab("image"); } }
                 BinTab { text: @tr("Audio"); on: root.tab == "audio"; clicked => { root.set-tab("audio"); } }
+                inputs-tab := BinTab { text: @tr("Video inputs"); on: root.tab == "inputs"; clicked => { root.set-tab("inputs"); } }
             }
         }
         Rectangle { horizontal-stretch: 1; }
@@ -338,7 +351,19 @@ export component MediaBin inherits VerticalLayout {
                 }
             }
             // N7: an empty list always offers the one thing to do next.
-            if root.rows.length == 0: VerticalLayout {
+            if root.rows.length == 0 && root.tab == "inputs": VerticalLayout {
+                width: parent.width - 40px;
+                alignment: center;
+                inputs-empty := Text {
+                    text: @tr("No video inputs yet. Plug in a camera or capture card, then add it on the right.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+            }
+            if root.rows.length == 0 && root.tab != "inputs": VerticalLayout {
                 width: parent.width - 40px;
                 alignment: center;
                 spacing: 10px;
@@ -363,8 +388,56 @@ export component MediaBin inherits VerticalLayout {
         }
         Rectangle { width: 1px; background: Theme.line; }
 
+        // N11: add a camera or capture card, when none is chosen.
+        if root.tab == "inputs" && !root.has-pick: VerticalLayout {
+            width: 188px;
+            padding: 10px;
+            spacing: 8px;
+            Text {
+                text: @tr("Add a video input");
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                font-weight: 600;
+                overflow: elide;
+            }
+            if VideoInputs.found.length > 0: inputs-found := Select {
+                height: 34px;
+                options: VideoInputs.found;
+                index <=> VideoInputs.found-index;
+            }
+            if VideoInputs.found.length == 0: Text {
+                text: VideoInputs.searching ? @tr("Looking for cameras…") : @tr("None found. Type the camera's name:");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+            inputs-typed := TextField {
+                text <=> VideoInputs.typed;
+                placeholder: VideoInputs.found.length > 0 ? @tr("Or type its name") : @tr("Camera name");
+            }
+            Rectangle { vertical-stretch: 1; }
+            HorizontalLayout {
+                spacing: 6px;
+                inputs-find := Btn {
+                    small: true;
+                    icon: "restart";
+                    tooltip: @tr("Look for cameras again");
+                    clicked => { VideoInputs.find(); }
+                }
+                inputs-add := Btn {
+                    horizontal-stretch: 1;
+                    primary: true;
+                    small: true;
+                    icon: "plus";
+                    text: @tr("Add");
+                    clicked => { VideoInputs.add(); }
+                }
+            }
+        }
         // What to do with the chosen file.
-        VerticalLayout {
+        if root.tab != "inputs" || root.has-pick: VerticalLayout {
             width: 188px;
             padding: 10px;
             spacing: 8px;
@@ -389,11 +462,18 @@ export component MediaBin inherits VerticalLayout {
                 text: @tr("Use as background");
                 clicked => { root.use-picked(); }
             }
-            if root.has-pick: add-picked := Btn {
+            if root.has-pick && root.tab == "inputs": inputs-remove := Btn {
+                small: true;
+                danger: true;
+                icon: "trash";
+                text: @tr("Remove");
+                clicked => { VideoInputs.remove(); }
+            }
+            if root.has-pick && root.tab != "inputs": add-picked := Btn {
                 text: @tr("Add to service");
                 clicked => { root.add-picked(); }
             }
-            if root.has-pick: move-picked := Btn {
+            if root.has-pick && root.tab != "inputs": move-picked := Btn {
                 small: true;
                 text: @tr("Move to folder");
                 clicked => { root.move-picked(); }

@@ -45,7 +45,7 @@ pub fn background_pixels(bg: &Background, decoded: Option<&RgbaImage>, canvas: (
                 pix.fill(Color::BLACK);
                 if let Some(img) = decoded { cover(&mut pix, img) }
             }
-            Background::Video { .. } => {}
+            Background::Video { .. } | Background::Camera { .. } => {}
         }
         let dim = bg.dim();
         if dim > 0 {

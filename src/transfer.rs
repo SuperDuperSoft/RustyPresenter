@@ -352,7 +352,7 @@ mod tests {
         let mut d = Data::default();
         let video = MediaFile { id: Uuid::new_v4(), name: "Walk-in.mp4".into(), kind: MediaKind::Video, asset: "v.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: Some(61.4), thumb: None, size: None, folder: String::new() };
         d.media.push(video.clone());
-        d.decks.push(Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec!["n1.png".into(), "n2.png".into()] });
+        d.decks.push(Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec!["n1.png".into(), "n2.png".into()], notes: vec![] });
         let deck = d.decks[0].id;
         d.services[0].name = "Sunday".into();
         d.services[0].items = vec![item(ItemKind::Header { title: "Worship".into(), color: String::new() }), item(ItemKind::Media { media_id: video.id, autoplay: true, end: Default::default(), looped: false }),

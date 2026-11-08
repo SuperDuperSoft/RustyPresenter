@@ -356,6 +356,8 @@ pub struct Screen {
     /// A stage screen that shows what the audience sees instead of a stage layout (N20).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub mirror: bool,
+    /// N12: the shape an audience screen's picture is cut to.
+    pub mask: crate::render::mask::Mask,
 }
 
 impl Default for Screen {
@@ -364,7 +366,7 @@ impl Default for Screen {
 
 impl Screen {
     pub fn new(id: Uuid, name: &str) -> Self {
-        Self { id, name: name.into(), outputs: vec![ScreenOutput::default()], fix: Default::default(), test: Default::default(), mirror: false }
+        Self { id, name: name.into(), outputs: vec![ScreenOutput::default()], fix: Default::default(), test: Default::default(), mirror: false, mask: Default::default() }
     }
     /// Its output. A saved screen without one reads as having nowhere to go.
     pub fn output(&self) -> ScreenOutput { self.outputs.first().cloned().unwrap_or_default() }

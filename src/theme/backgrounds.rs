@@ -27,6 +27,12 @@ pub enum Background {
         #[serde(default, skip_serializing_if = "is_zero")]
         dim: u8,
     },
+    /// N11: a camera or capture card, by the name it was listed or typed under (`video::inputs::url`).
+    Camera {
+        device: String,
+        #[serde(default, skip_serializing_if = "is_zero")]
+        dim: u8,
+    },
     Gradient {
         from: String,
         to: String,
@@ -47,7 +53,7 @@ impl Background {
     pub fn dim(&self) -> u8 {
         match self {
             Background::Color { .. } => 0,
-            Background::Image { dim, .. } | Background::Video { dim, .. } | Background::Gradient { dim, .. } => *dim,
+            Background::Image { dim, .. } | Background::Video { dim, .. } | Background::Camera { dim, .. } | Background::Gradient { dim, .. } => *dim,
         }
     }
 
@@ -55,7 +61,7 @@ impl Background {
     pub fn with_dim(mut self, value: u8) -> Self {
         match &mut self {
             Background::Color { .. } => {}
-            Background::Image { dim, .. } | Background::Video { dim, .. } | Background::Gradient { dim, .. } => {
+            Background::Image { dim, .. } | Background::Video { dim, .. } | Background::Camera { dim, .. } | Background::Gradient { dim, .. } => {
                 *dim = value.min(MAX_DIM);
             }
         }
@@ -65,7 +71,7 @@ impl Background {
     pub fn asset(&self) -> Option<&AssetId> {
         match self {
             Background::Image { asset, .. } | Background::Video { asset, .. } => Some(asset),
-            Background::Color { .. } | Background::Gradient { .. } => None,
+            Background::Color { .. } | Background::Camera { .. } | Background::Gradient { .. } => None,
         }
     }
 
@@ -73,6 +79,9 @@ impl Background {
     pub fn same_source(&self, other: &Background) -> bool {
         self.clone().with_dim(0) == other.clone().with_dim(0)
     }
+
+    /// Played by a player in the room: a video file or a camera.
+    pub fn moving(&self) -> bool { matches!(self, Background::Video { .. } | Background::Camera { .. }) }
 
     /// The gradient angle mod 360; 0 for anything else.
     pub fn angle_deg(&self) -> u16 {

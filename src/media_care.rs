@@ -238,7 +238,7 @@ mod tests {
     fn files_the_rest_of_the_app_uses_stay() {
         let mut d = Data::default();
         d.settings.logo = Some("logo.png".into());
-        d.decks.push(crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()] });
+        d.decks.push(crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![] });
         // The same picture as a library file and a background: the entry goes, the file stays.
         let pic = file("Sunset", "sun.jpg");
         d.backgrounds.push(crate::model::BackgroundEntry::new("Sunset", crate::model::Background::Image { asset: "sun.jpg".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));

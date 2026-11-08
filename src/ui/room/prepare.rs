@@ -4,7 +4,7 @@ use super::Msg;
 use crate::{app::App, live::{Frame, Live, MediaLayer, SlideLayer}, model::{Background, SlideContent, Theme}, render::{Generation, RenderKey, Renderer, Wanted, parse_color}};
 use crate::room::{Kind, Want};
 use crate::media_prefs::{Scale, mpv_options};
-use crate::video::{Player, Players, Role};
+use crate::video::{Player, Players, Role, inputs};
 use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
 use crate::ui::block_on;
 use std::{path::{Path, PathBuf}, sync::{Arc, Mutex, mpsc}};
@@ -62,6 +62,9 @@ pub(super) fn worker(work: Arc<Work>, send: impl Fn(Msg) + Send + 'static) -> st
     Ok(tx)
 }
 
+/// mpv settings for a camera or capture card (N11): as little delay as it can, no sound, never "ended".
+pub(in crate::ui) const CAMERA_OPTIONS: [(&str, &str); 5] = [("cache", "no"), ("untimed", "yes"), ("audio", "no"), ("loop-file", "no"), ("demuxer-lavf-o", "rtbufsize=100M")];
+
 enum Source {
     Fill(Color),
     /// A gradient, or a picture with Darken (`render::background`).
@@ -88,6 +91,8 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
                 Background::Image { asset: a, .. } => Source::Painted { bg: b.v.clone(), picture: Some(asset(a)) },
                 Background::Gradient { .. } => Source::Painted { bg: b.v.clone(), picture: None },
                 Background::Video { asset: a, .. } => Source::Player { role: Role::Background, inst: b.inst, path: asset(a) },
+                // N11: a camera or capture card plays like a background video.
+                Background::Camera { device, .. } => Source::Player { role: Role::Background, inst: b.inst, path: inputs::url(device, inputs::Os::here()).into() },
             }
         }
         Kind::Media => {
@@ -154,7 +159,11 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
                     // Fill the screen like CSS `object-fit: cover`.
                     let _ = unsafe { p.mpv().set_property(p.handle(), "panscan", "1.0") };
                 }
-                p.load(&path, work.app.resume_position(inst).unwrap_or(0.0)); // after a crash, where it was
+                let live = inputs::is_device(&path);
+                // A camera (N11): a live picture with no buffering behind it and no sound from the device.
+                if live { for (k, v) in CAMERA_OPTIONS { let _ = unsafe { p.mpv().set_property(p.handle(), k, v) }; } }
+                // After a crash a video starts where it was; a camera has no place to go back to.
+                p.load(&path, if live { 0.0 } else { work.app.resume_position(inst).unwrap_or(0.0) });
                 Ok(Made::Player(Fresh(p)))
             }
         };

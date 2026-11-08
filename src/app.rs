@@ -1491,8 +1491,8 @@ impl App {
         // Any of the name, where it shows and the size of a window. One monitor shows one screen, so taking a monitor
         // takes it from the screen that had it.
         "screens/update" => {
-            #[derive(Deserialize)] struct U { id: Uuid, name: Option<String>, target: Option<ScreenTarget>, size: Option<(u32, u32)>, fix: Option<crate::screen_fix::ScreenFix>, mirror: Option<bool> }
-            let U { id, name, target, size, fix, mirror } = parse(body)?;
+            #[derive(Deserialize)] struct U { id: Uuid, name: Option<String>, target: Option<ScreenTarget>, size: Option<(u32, u32)>, fix: Option<crate::screen_fix::ScreenFix>, mirror: Option<bool>, mask: Option<crate::render::mask::Mask> }
+            let U { id, name, target, size, fix, mirror, mask } = parse(body)?;
             let move_windows = target.is_some() || size.is_some() || mirror.is_some();
             let monitors = app.monitors();
             tryr!(app.edit(|d| {
@@ -1508,6 +1508,7 @@ impl App {
                 if let Some(name) = name.as_deref().map(str::trim).filter(|n| !n.is_empty()) { screen.name = name.into() }
                 if let Some(f) = fix { screen.fix = f.clamped() }
                 if let Some(m) = mirror { screen.mirror = m }
+                if let Some(m) = mask { screen.mask = m.clamped() }
                 let out = screen.output_mut();
                 if let Some(t) = target {
                     if let ScreenTarget::Monitor(m) = &t && let Some(m) = monitors.iter().find(|x| x.id == *m) {

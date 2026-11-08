@@ -114,7 +114,7 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
         Some(Background::Image { asset, .. }) => if let Some(p) = picture(asset) {
             imageops::overlay(&mut img, &p.resize_to_fill(w, h, FilterType::Triangle).into_rgba8(), 0, 0);
         },
-        Some(Background::Video { .. } | Background::Gradient { .. }) | None => {}
+        Some(Background::Video { .. } | Background::Camera { .. } | Background::Gradient { .. }) | None => {}
     }
     match &job.media {
         Some(ThumbMedia::Still { asset }) => if let Some(p) = picture(asset) { contain(&mut img, &p) },

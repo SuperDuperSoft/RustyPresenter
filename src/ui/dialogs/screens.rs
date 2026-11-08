@@ -8,6 +8,7 @@ use crate::{
     app::Monitor,
     screen_fix::{CORNER, ScreenFix, TestPattern},
     model::{Screen, ScreenOutput, ScreenSetup, ScreenTarget},
+    render::mask::{Mask, MaskShape},
     platform::monitors::MonitorId,
     ui::{ScreenList, ScreenRow, ScreensDialogState, operator::{view::OperatorSnapshot, window::Operator}},
 };
@@ -20,7 +21,7 @@ use uuid::Uuid;
 const SAVE_AFTER: Duration = Duration::from_millis(400);
 
 /// What was typed and not saved yet. While it is there, a redraw leaves the fields alone.
-struct Typing { id: Uuid, name: Option<String>, size: Option<(u32, u32)>, fix: Option<ScreenFix> }
+struct Typing { id: Uuid, name: Option<String>, size: Option<(u32, u32)>, fix: Option<ScreenFix>, mask: Option<Mask> }
 
 /// One press of a corner arrow: half a percent of the screen.
 const NUDGE: f32 = 0.005;
@@ -154,7 +155,9 @@ fn draw(op: &Rc<Operator>) {
         g.set_name(screen.name.as_str().into());
         g.set_width_text(o.width.to_string().into());
         g.set_height_text(o.height.to_string().into());
+        show_mask(&g, screen.mask);
     }
+    g.set_can_mask(group == "audience");
     g.set_has_size(o.target != ScreenTarget::None);
     g.set_size_editable(matches!(o.target, ScreenTarget::Window | ScreenTarget::Placeholder));
     g.set_is_stage(group == "stage");
@@ -258,6 +261,19 @@ fn closed(op: &Rc<Operator>) {
     if testing { run(op, "screens/test", json!({ "pattern": TestPattern::Off })) }
 }
 
+/// N12: puts a screen's mask in the Shape row.
+fn show_mask(g: &ScreensDialogState, m: Mask) {
+    g.set_mask_shape(m.shape.index() as i32);
+    g.set_mask_inset(i32::from(m.inset));
+    g.set_mask_radius(i32::from(m.radius));
+}
+
+/// The mask as the Shape row has it.
+fn read_mask(g: &ScreensDialogState) -> Mask {
+    let pct = |v: i32| v.clamp(0, 100) as u8;
+    Mask { shape: MaskShape::at(g.get_mask_shape().max(0) as usize), inset: pct(g.get_mask_inset()), radius: pct(g.get_mask_radius()) }.clamped()
+}
+
 /// Runs a change, and tells the operator when it fails.
 fn run(op: &Rc<Operator>, action: &'static str, body: Value) {
     let me = Rc::downgrade(op);
@@ -268,7 +284,7 @@ fn run(op: &Rc<Operator>, action: &'static str, body: Value) {
 fn save_typing(op: &Rc<Operator>) {
     SAVE.with(Timer::stop);
     let Some(t) = TYPING.take() else { return };
-    run(op, "screens/update", json!({ "id": t.id, "name": t.name, "size": t.size, "fix": t.fix }));
+    run(op, "screens/update", json!({ "id": t.id, "name": t.name, "size": t.size, "fix": t.fix, "mask": t.mask }));
 }
 
 /// Notes what was typed, and saves it once the typing stops.
@@ -276,7 +292,7 @@ fn typed(op: &Rc<Operator>, change: impl FnOnce(&mut Typing)) {
     let Ok(id) = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()) else { return };
     TYPING.with_borrow_mut(|t| {
         if t.as_ref().is_some_and(|t| t.id != id) { *t = None }
-        let t = t.get_or_insert(Typing { id, name: None, size: None, fix: None });
+        let t = t.get_or_insert(Typing { id, name: None, size: None, fix: None, mask: None });
         change(t);
     });
     let me = Rc::downgrade(op);
@@ -294,6 +310,7 @@ fn select(op: &Rc<Operator>, id: &str) {
         g.set_name(screen.name.as_str().into());
         g.set_width_text(o.width.to_string().into());
         g.set_height_text(o.height.to_string().into());
+        show_mask(&g, screen.mask);
     }
     draw(op);
 }
@@ -363,6 +380,11 @@ pub(crate) fn wire(op: &Rc<Operator>) {
         if let (Ok(w @ 320..=7680), Ok(h @ 240..=4320)) = (g.get_width_text().parse::<u32>(), g.get_height_text().parse::<u32>()) {
             typed(&op, |t| t.size = Some((w, h)));
         }
+    });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_mask_changed(move || if let Some(op) = me.upgrade() {
+        let mask = read_mask(&op.ui.global::<ScreensDialogState>());
+        typed(&op, |t| t.mask = Some(mask));
     });
     g.on_remove(on(Rc::new(remove)));
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -584,6 +606,31 @@ mod tests {
         op.close_dialog();
         settle(&op);
         assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Lobby TV");
+    }
+
+    #[test]
+    fn an_audience_screen_gets_a_shape_and_a_stage_screen_does_not() {
+        let (app, _d) = with_displays(vec![mon("A", true)]);
+        let op = open_screens(&app);
+        assert!(state(&op).get_can_mask());
+        assert!(find(&op, "ScreensDialog::mask-select").is_some());
+        assert!(find(&op, "ScreensDialog::mask-inset").is_none(), "no edge for the whole screen");
+        state(&op).set_mask_shape(2);
+        state(&op).set_mask_inset(6);
+        state(&op).set_mask_radius(25);
+        state(&op).invoke_mask_changed();
+        settle(&op);
+        assert!(find(&op, "ScreensDialog::mask-radius").is_some(), "rounded corners have a corner slider");
+        op.close_dialog();
+        settle(&op);
+        let saved = app.data.lock().unwrap().settings.screens.audience.screens[0].mask;
+        assert_eq!(saved, Mask { shape: MaskShape::Rounded, inset: 6, radius: 25 });
+        let op = open_screens(&app);
+        assert_eq!((state(&op).get_mask_shape(), state(&op).get_mask_inset()), (2, 6), "shown again");
+        let stage = rows(&op, 1)[0].id.clone();
+        state(&op).invoke_select(stage);
+        settle(&op);
+        assert!(!state(&op).get_can_mask(), "a stage screen is never cut");
     }
 
     #[test]

@@ -127,6 +127,7 @@ pub fn library_sub(e: &crate::model::BackgroundEntry) -> String {
         Background::Gradient { .. } => ts::kind_gradient(),
         Background::Image { .. } => ts::kind_picture(),
         Background::Video { .. } => ts::kind_video(),
+        Background::Camera { .. } => ts::kind_camera(),
     }
 }
 
