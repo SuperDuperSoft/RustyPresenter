@@ -2,6 +2,7 @@
 //! with a crossfade once every new layer is ready, then reported as committed (as `web/output.js`).
 /// Shared with the operator's live monitor (`ui::preview`), which draws the same layers small.
 pub mod prepare;
+mod record;
 
 use super::{RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
@@ -192,6 +193,8 @@ struct Inner {
     on_top: Cell<Option<bool>>,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
     swap_probe: RefCell<Option<Box<dyn Fn()>>>,
+    /// N22: the recording this window feeds (`record`).
+    rec: RefCell<Option<record::RoomRec>>,
     me: Weak<Inner>,
 }
 
@@ -463,6 +466,7 @@ impl Inner {
             self.shared.started.lock().unwrap().remove(&p.inst());
             self.surface.remove(&p);
         }
+        self.record(None);
         let _ = self.ui.hide();
     }
 }
@@ -518,7 +522,7 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), rec: RefCell::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -552,6 +556,13 @@ impl Room {
         let players = self.inner.players.borrow();
         players[MEDIA].as_ref().or(players[BG].as_ref()).map(|p| p.grabber())
     }
+
+    /// N22: sends what this window shows (and, when `sink` takes it, the sound its players play) to a recording;
+    /// `None` stops.
+    pub fn record(&self, sink: Option<Arc<crate::record::FrameSink>>) { self.inner.record(sink) }
+
+    /// The recording this window feeds, if any.
+    pub fn recording(&self) -> Option<Arc<crate::record::FrameSink>> { self.inner.recording() }
 
     /// Diagnostics only (`examples/slide_bench.rs`): the video surface, whose OpenGL probe runs after each frame
     /// (in OpenGL mode it holds the window's rendering notifier).

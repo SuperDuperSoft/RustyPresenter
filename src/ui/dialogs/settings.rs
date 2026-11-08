@@ -80,6 +80,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     settings_bible::remember(&edit);
     settings_bible::reset(&g);
     settings_audio::load(op);
+    super::settings_record::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
     if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
@@ -116,6 +117,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
     settings_media::fill_form(g, &s.media, &[]);
+    super::settings_record::fill_form(g, &s.record);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -140,6 +142,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.section_keys = g.get_section_keys();
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);
+    super::settings_record::read_form(g, &mut s.record);
     super::stage_layouts::read_settings(g, s);
 }
 

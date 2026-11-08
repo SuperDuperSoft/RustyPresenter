@@ -64,6 +64,10 @@ pub struct VideoSurface {
     on_frame: Box<dyn Fn(Option<slint::Image>)>,
     st: RefCell<State>,
     probe: RefCell<Option<Box<dyn FnMut(&glow::Context, PhysicalSize)>>>,
+    /// N22: reads each finished frame for a recording (`set_frame_tap`).
+    tap: RefCell<Option<crate::record::gl::GlCapture>>,
+    /// A tap taken away, freed in the next frame (its GL objects need the context current).
+    old_taps: RefCell<Vec<crate::record::gl::GlCapture>>,
 }
 
 /// A player with a render context from this surface.
@@ -129,6 +133,8 @@ impl VideoSurface {
             on_frame: Box::new(on_frame),
             st: RefCell::default(),
             probe: RefCell::new(None),
+            tap: RefCell::new(None),
+            old_taps: RefCell::default(),
         };
         if mode == DrawMode::OpenGl {
             let slot: Rc<RefCell<Option<Rc<VideoSurface>>>> = Rc::default();
@@ -231,6 +237,13 @@ impl VideoSurface {
         *self.probe.borrow_mut() = Some(Box::new(f));
     }
 
+    /// N22: `tap` reads every finished OpenGL frame (`None` takes it away). OpenGL mode only: in software drawing
+    /// the room takes snapshots instead.
+    pub fn set_frame_tap(&self, tap: Option<crate::record::gl::GlCapture>) {
+        if let Some(old) = std::mem::replace(&mut *self.tap.borrow_mut(), tap) { self.old_taps.borrow_mut().push(old) }
+        (self.redraw)();
+    }
+
     /// Updates the software image soon (never from inside the notifier): the drawn
     /// player's current frame, or `None` once nothing is drawn in software.
     fn changed(self: &Rc<Self>) {
@@ -317,6 +330,10 @@ impl VideoSurface {
                 if let (Some(f), Some(size)) = (self.probe.borrow_mut().as_mut(), (self.size)()) {
                     f(gl, size);
                 }
+                for mut old in self.old_taps.borrow_mut().drain(..) { old.free(gl) }
+                if let (Some(t), Some(size)) = (self.tap.borrow_mut().as_mut(), (self.size)()) {
+                    t.frame(gl, size);
+                }
                 if let Some((p, rc)) = st.drawn(false) {
                     unsafe { (p.mpv().render_context_report_swap)(rc) };
                 }
@@ -333,6 +350,10 @@ impl VideoSurface {
                 for b in gl {
                     drop(b.p.take_render());
                     st.adding.push(b.p);
+                }
+                if let Some(gl) = st.gl.as_ref() {
+                    for mut old in self.old_taps.borrow_mut().drain(..) { old.free(gl) }
+                    if let Some(t) = self.tap.borrow_mut().as_mut() { t.free(gl) }
                 }
                 st.gl = None;
             }

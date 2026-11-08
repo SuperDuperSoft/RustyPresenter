@@ -139,6 +139,48 @@ pub fn install_command(os: Os) -> Option<&'static str> {
     })
 }
 
+/// Every place an FFmpeg of the computer's own may be, best first (N22 recording; the one RustyPresenter fetched
+/// itself is looked for first, by `record::run::find_ffmpeg`). Package managers' folders are named as well as the
+/// PATH: an FFmpeg installed while the app runs is not on the PATH it started with, and apps started from the
+/// macOS Dock never see Homebrew's.
+pub fn ffmpeg_candidates(env: &ToolEnv, exe_dir: Option<&Path>) -> Vec<PathBuf> {
+    let name = if env.os == Os::Windows { "ffmpeg.exe" } else { "ffmpeg" };
+    let mut c: Vec<PathBuf> = (env.var)("RP_FFMPEG").filter(|v| !v.is_empty()).map(PathBuf::from).into_iter().collect();
+    if let Some(d) = exe_dir {
+        c.push(d.join("tools").join(name));
+        c.push(d.join(name));
+    }
+    c.extend(env.path_dirs.iter().map(|d| d.join(name)));
+    let var = |k: &str| (env.var)(k).map(PathBuf::from);
+    match env.os {
+        Os::Windows => {
+            c.extend(var("LOCALAPPDATA").map(|d| d.join("Microsoft").join("WinGet").join("Links").join(name)));
+            c.extend(var("USERPROFILE").map(|d| d.join("scoop").join("shims").join(name)));
+            c.extend(var("ProgramData").map(|d| d.join("chocolatey").join("bin").join(name)));
+            c.extend(var("ProgramFiles").map(|d| d.join("ffmpeg").join("bin").join(name)));
+        }
+        Os::MacOs => c.extend(["/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/opt/local/bin/ffmpeg"].map(PathBuf::from)),
+        Os::Linux => c.extend(["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/snap/bin/ffmpeg"].map(PathBuf::from)),
+    }
+    let mut seen = Vec::new();
+    c.retain(|p| if seen.contains(p) { false } else { seen.push(p.clone()); true });
+    c
+}
+
+/// The command that installs FFmpeg, as `ffmpeg_hint` ends with it.
+pub fn ffmpeg_install_command(os: Os) -> &'static str {
+    match os { Os::Windows => "winget install Gyan.FFmpeg", Os::MacOs => "brew install ffmpeg", Os::Linux => "sudo apt install ffmpeg" }
+}
+
+/// How to get FFmpeg, after "Recording needs FFmpeg".
+pub fn ffmpeg_hint(os: Os) -> String {
+    match os {
+        Os::Windows => strings::ffmpeg_hint_windows(),
+        Os::MacOs => strings::ffmpeg_hint_macos(),
+        Os::Linux => strings::ffmpeg_hint_linux(),
+    }
+}
+
 pub fn pdfium_candidates(data_dir: &Path) -> Vec<PathBuf> {
     const NAME: &str = match OS {
         Os::Windows => "pdfium.dll",
@@ -443,6 +485,29 @@ mod tests {
         e.path_dirs = vec![d.clone()];
         assert_eq!(find_soffice_in(&Mutex::new(None), &e), None);
         std::fs::remove_dir_all(&d).unwrap();
+    }
+
+    #[test]
+    fn ffmpeg_candidates_put_the_override_and_our_folder_first_then_package_managers() {
+        let e = env(Os::Windows, &[("RP_FFMPEG", "D:/ff/ffmpeg.exe"), ("LOCALAPPDATA", "C:/U/AppData/Local"), ("USERPROFILE", "C:/U"), ("ProgramData", "C:/PD"), ("ProgramFiles", "C:/PF")]);
+        let c = ffmpeg_candidates(&e, Some(Path::new("C:/RP")));
+        let want: Vec<PathBuf> = [
+            "D:/ff/ffmpeg.exe", "C:/RP/tools/ffmpeg.exe", "C:/RP/ffmpeg.exe", "/p1/ffmpeg.exe", "/p2/ffmpeg.exe",
+            "C:/U/AppData/Local/Microsoft/WinGet/Links/ffmpeg.exe", "C:/U/scoop/shims/ffmpeg.exe", "C:/PD/chocolatey/bin/ffmpeg.exe", "C:/PF/ffmpeg/bin/ffmpeg.exe",
+        ].iter().map(PathBuf::from).collect();
+        assert_eq!(c, want);
+        let mac = ffmpeg_candidates(&env(Os::MacOs, &[]), None);
+        assert!(pos(&mac, Path::new("/p2/ffmpeg")) < pos(&mac, Path::new("/opt/homebrew/bin/ffmpeg")), "{mac:?}");
+        let mut linux = env(Os::Linux, &[]);
+        linux.path_dirs = vec![PathBuf::from("/usr/bin")];
+        let l = ffmpeg_candidates(&linux, None);
+        assert_eq!(l.iter().filter(|p| *p == Path::new("/usr/bin/ffmpeg")).count(), 1, "no repeats: {l:?}");
+    }
+
+    #[test]
+    fn ffmpeg_hint_ends_with_the_install_command() {
+        for os in [Os::Windows, Os::MacOs, Os::Linux] { assert!(ffmpeg_hint(os).ends_with(ffmpeg_install_command(os)), "{os:?}") }
+        assert_eq!(ffmpeg_install_command(Os::Windows), "winget install Gyan.FFmpeg");
     }
 
     #[test]
