@@ -1102,6 +1102,14 @@ msgstr "Jinsi kila slaidi inavyoingia kwenye skrini. Kawaida hutumia mfifio wa k
 msgid "Use for all slides"
 msgstr "Tumia kwa slaidi zote"
 
+#: ui/dialogs/item-edit.slint
+msgid "Auto-advance after (s)"
+msgstr "Songa yenyewe baada ya (s)"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+msgid "Off"
+msgstr "Imezimwa"
+
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
 msgstr "Mandhari"
@@ -1341,10 +1349,6 @@ msgstr "Kivuli nyuma ya maandishi (rahisi kusoma juu ya picha)"
 #: ui/dialogs/overlays.slint src/strings/stage.rs
 msgid "Box"
 msgstr "Kisanduku"
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
-msgid "Off"
-msgstr "Imezimwa"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
@@ -8727,6 +8731,10 @@ msgstr "Imehifadhiwa."
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
 msgstr "Inatokea kwa Ifuatayo {step} kati ya {of}"
+
+#: src/ui/dialogs/item_edit.rs
+msgid "Auto-advance after: type a number of seconds, or leave it empty."
+msgstr "Songa yenyewe baada ya: andika idadi ya sekunde, au iache tupu."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"

@@ -1108,6 +1108,14 @@ msgstr ""
 msgid "Use for all slides"
 msgstr ""
 
+#: ui/dialogs/item-edit.slint
+msgid "Auto-advance after (s)"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+msgid "Off"
+msgstr ""
+
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
 msgstr ""
@@ -1346,10 +1354,6 @@ msgstr ""
 
 #: ui/dialogs/overlays.slint src/strings/stage.rs
 msgid "Box"
-msgstr ""
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
-msgid "Off"
 msgstr ""
 
 #: ui/dialogs/overlays.slint
@@ -8740,6 +8744,10 @@ msgstr ""
 
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
+msgstr ""
+
+#: src/ui/dialogs/item_edit.rs
+msgid "Auto-advance after: type a number of seconds, or leave it empty."
 msgstr ""
 
 #: src/ui/dialogs/mod.rs

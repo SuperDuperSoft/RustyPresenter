@@ -1102,6 +1102,14 @@ msgstr "Wie jede Folie auf den Bildschirm kommt. „Normal“ nutzt die übliche
 msgid "Use for all slides"
 msgstr "Für alle Folien"
 
+#: ui/dialogs/item-edit.slint
+msgid "Auto-advance after (s)"
+msgstr "Automatisch weiter nach (s)"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+msgid "Off"
+msgstr "Aus"
+
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
 msgstr "Design"
@@ -1341,10 +1349,6 @@ msgstr "Schatten hinter Text (besser lesbar auf Bildern)"
 #: ui/dialogs/overlays.slint src/strings/stage.rs
 msgid "Box"
 msgstr "Kasten"
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
-msgid "Off"
-msgstr "Aus"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
@@ -8727,6 +8731,10 @@ msgstr "Gespeichert."
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
 msgstr "Erscheint bei „Weiter“ {step} von {of}"
+
+#: src/ui/dialogs/item_edit.rs
+msgid "Auto-advance after: type a number of seconds, or leave it empty."
+msgstr "Automatisch weiter nach: Geben Sie eine Zahl in Sekunden ein oder lassen Sie das Feld leer."
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"

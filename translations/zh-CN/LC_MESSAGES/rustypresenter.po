@@ -1102,6 +1102,14 @@ msgstr "每张幻灯片如何出现在屏幕上。“正常”使用常规的淡
 msgid "Use for all slides"
 msgstr "用于所有幻灯片"
 
+#: ui/dialogs/item-edit.slint
+msgid "Auto-advance after (s)"
+msgstr "自动翻页间隔（秒）"
+
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+msgid "Off"
+msgstr "关"
+
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
 msgstr "主题"
@@ -1341,10 +1349,6 @@ msgstr "文字阴影（在图片上更易阅读）"
 #: ui/dialogs/overlays.slint src/strings/stage.rs
 msgid "Box"
 msgstr "方框"
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
-msgid "Off"
-msgstr "关"
 
 #: ui/dialogs/overlays.slint
 msgid "Behind the text"
@@ -8689,6 +8693,10 @@ msgstr "已保存。"
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
 msgstr "按“下一张”时出现（第 {step}/{of} 步）"
+
+#: src/ui/dialogs/item_edit.rs
+msgid "Auto-advance after: type a number of seconds, or leave it empty."
+msgstr "自动翻页间隔：请输入秒数，或留空。"
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
