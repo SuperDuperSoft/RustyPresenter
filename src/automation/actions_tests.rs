@@ -425,6 +425,7 @@ fn video_and_audio_timers_follow_what_plays() {
         live.audio_status = Some(PlayStatus { inst: 6, state: PlayState::Paused, position: 5.0, duration: 65.0 });
     }
     app.automation_changed();
+    assert!(!app.automation_tick(Utc::now()), "a video playing keeps the ticker awake for its timer");
     let s = snapshot(&app, vid);
     assert_eq!((s.state, crate::timers::text(s.value_ms)), (TimerState::Running, "1:00".to_string()));
     let s = snapshot(&app, aid);

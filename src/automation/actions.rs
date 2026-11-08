@@ -303,6 +303,16 @@ pub fn media_left(live: &Live, music: &super::music::MusicRun) -> MediaLeft {
     MediaLeft { video, audio }
 }
 
+/// A video or audio timer exists and its player is playing, so its readout moves.
+fn media_ticking(defs: &[TimerDef], media: &MediaLeft) -> bool {
+    let moving = |c: Option<MediaClock>| c.is_some_and(|c| !c.paused);
+    defs.iter().filter_map(|d| d.kind.known()).any(|k| match k {
+        TimerKind::VideoLeft => moving(media.video),
+        TimerKind::AudioLeft => moving(media.audio),
+        _ => false,
+    })
+}
+
 impl App {
     /// The newest timer readout: the same `Arc` the last `Update::Timers` carried (spec §4.4).
     pub fn timers(&self) -> Arc<TimersView> { self.automation.lock().unwrap().current() }
@@ -538,7 +548,8 @@ impl App {
         let live = self.live.lock().unwrap();
         let rt = self.automation.lock().unwrap();
         // A calendar entry due in a few seconds, or a volume waiting to be saved, keeps the ticker awake.
-        let soon = super::calendar::CalendarState::soon(&data.automation.calendar, now, &Local) || rt.music.volume.is_some();
+        let soon = super::calendar::CalendarState::soon(&data.automation.calendar, now, &Local) || rt.music.volume.is_some()
+            || media_ticking(&data.automation.timers, &media_left(&live, &rt.music));
         !soon && rt.is_idle(&data.automation.timers, &slots::room_timers(&live.frame.overlays), self.automation_watching.load(Ordering::Relaxed))
     }
 
