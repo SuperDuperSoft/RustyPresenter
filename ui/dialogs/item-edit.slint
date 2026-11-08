@@ -307,31 +307,29 @@ export component ItemEditDialog inherits VerticalLayout {
                 }
             }
         }
-        if ItemEdit.kind == "text": Field {
-            label: @tr("Title");
-            title-box := TextField {
+        if ItemEdit.kind == "text": HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 2;
                 label: @tr("Title");
-                text <=> ItemEdit.title;
+                title-box := TextField {
+                    label: @tr("Title");
+                    text <=> ItemEdit.title;
+                }
             }
-        }
-        if ItemEdit.kind == "text" && ItemEdit.layout-options.length > 0: Field {
-            label: @tr("Layout");
-            help: @tr("(from the theme)");
-            item-layout := Select {
-                options: ItemEdit.layout-options;
-                index <=> ItemEdit.layout-index;
-            }
-            layout-hint := Text {
-                text: ItemEdit.layout-hints[ItemEdit.layout-index];
-                color: Theme.faint;
-                font-family: Theme.font;
-                font-size: 12px;
-                wrap: word-wrap;
+            if ItemEdit.layout-options.length > 0: Field {
+                horizontal-stretch: 1;
+                label: @tr("Layout");
+                item-layout := Select {
+                    options: ItemEdit.layout-options;
+                    index <=> ItemEdit.layout-index;
+                }
             }
         }
         if ItemEdit.kind == "text": Field {
             label: @tr("Text");
-            help: @tr("— an empty line starts a new slide");
+            // N25: how to type the slide for the picked layout; plain text keeps the old help.
+            help: ItemEdit.layout-index == 7 || ItemEdit.layout-hints.length == 0 ? @tr("— an empty line starts a new slide") : "— " + ItemEdit.layout-hints[ItemEdit.layout-index];
             body-box := TextArea {
                 label: @tr("Text");
                 text <=> ItemEdit.body;

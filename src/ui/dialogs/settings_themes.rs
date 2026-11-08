@@ -70,7 +70,7 @@ pub fn theme_rows(data: &Data) -> Vec<(ThemeId, ThemeListRow)> {
         let delete = if r.id == STANDARD_ID || (r.builtin && !r.overridden) { String::new() }
             else if r.builtin { ts::reset() } else { ts::delete() };
         (r.id, ThemeListRow { name: r.name.as_str().into(), sub: row_sub(&r, items, services).into(), is_default: r.is_default,
-            standard: r.id == STANDARD_ID, delete_label: delete.into() })
+            standard: r.id == STANDARD_ID, delete_label: delete.into(), ready_made: r.builtin && !r.overridden && r.id != STANDARD_ID })
     }).collect()
 }
 
@@ -79,6 +79,8 @@ pub(super) fn fill(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) 
     let g = g(op);
     let rows = theme_rows(&snap.data);
     *edit.themes.ids.borrow_mut() = rows.iter().map(|(id, _)| *id).collect();
+    let ready = rows.iter().filter(|(_, r)| r.ready_made).count();
+    g.set_ready_made_label(crate::trn!("Show {n} ready-made theme", "Show {n} ready-made themes", ready).into());
     g.set_rows(ModelRc::new(VecModel::from(rows.into_iter().map(|(_, r)| r).collect::<Vec<_>>())));
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     if let Some(p) = edit.themes.picker.borrow_mut().as_mut() {

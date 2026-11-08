@@ -9,7 +9,8 @@ import { FilterBox, ListFilter } from "../filter.slint";
 
 /// A theme in the list. `standard` is the built-in Standard (edited on the Look tab); `delete-label` is "Delete",
 /// "Reset" or empty when the theme can't be removed.
-export struct ThemeListRow { name: string, sub: string, is-default: bool, standard: bool, delete-label: string }
+/// `ready-made`: an unedited built-in, listed only while "Show ready-made themes" is on or the filter finds it (N25).
+export struct ThemeListRow { name: string, sub: string, is-default: bool, standard: bool, delete-label: string, ready-made: bool }
 
 /// A background in the library: its picture (or colour), name and what it is ("Picture", "Converting 40 %"…).
 export struct BgLibraryRow { name: string, sub: string, swatch: color, image: image, has-image: bool }
@@ -17,6 +18,10 @@ export struct BgLibraryRow { name: string, sub: string, swatch: color, image: im
 export global ThemesDlg {
     in property <[ThemeListRow]> rows;
     in property <[BgLibraryRow]> library;
+    /// The ready-made (built-in) themes are listed too.
+    in-out property <bool> show-ready-made;
+    /// "Show 15 ready-made themes".
+    in property <string> ready-made-label;
 
     // ---- The theme editor (shown instead of the list while `editing`) ----
     in-out property <bool> editing;
@@ -172,8 +177,9 @@ component ThemeList inherits VerticalLayout {
     // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
     VerticalLayout {
         for t[i] in ThemesDlg.rows: VerticalLayout {
-            padding-bottom: ListFilter.shown(t.name + " " + t.sub, root.filter) ? 4px : 0px;
-            if ListFilter.shown(t.name + " " + t.sub, root.filter): theme-row := ListRow {
+            property <bool> listed: ListFilter.shown(t.name + " " + t.sub, root.filter) && (!t.ready-made || ThemesDlg.show-ready-made || root.filter != "");
+            padding-bottom: self.listed ? 4px : 0px;
+            if self.listed: theme-row := ListRow {
                 accessible-role: list-item;
                 accessible-label: t.name;
                 accessible-value: t.sub;
@@ -220,10 +226,15 @@ component ThemeList inherits VerticalLayout {
     Rectangle { height: 8px; }
     HorizontalLayout {
         alignment: start;
+        spacing: 8px;
         new-theme := Btn {
             icon: "plus";
             text: @tr("New theme");
             clicked => { ThemesDlg.new-theme(); }
+        }
+        ready-made := Btn {
+            text: ThemesDlg.show-ready-made ? @tr("Hide ready-made themes") : ThemesDlg.ready-made-label;
+            clicked => { ThemesDlg.show-ready-made = !ThemesDlg.show-ready-made; }
         }
     }
 
