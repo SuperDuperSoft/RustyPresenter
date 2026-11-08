@@ -325,14 +325,20 @@ impl Default for ScreenOutput {
 /// can be added without changing what is saved.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(default)]
-pub struct Screen { pub id: Uuid, pub name: String, pub outputs: Vec<ScreenOutput> }
+pub struct Screen {
+    pub id: Uuid,
+    pub name: String,
+    pub outputs: Vec<ScreenOutput>,
+    /// N12: the shape an audience screen's picture is cut to.
+    pub mask: crate::render::mask::Mask,
+}
 
 impl Default for Screen {
     fn default() -> Self { Self::new(Uuid::new_v4(), "Screen") }
 }
 
 impl Screen {
-    pub fn new(id: Uuid, name: &str) -> Self { Self { id, name: name.into(), outputs: vec![ScreenOutput::default()] } }
+    pub fn new(id: Uuid, name: &str) -> Self { Self { id, name: name.into(), outputs: vec![ScreenOutput::default()], mask: Default::default() } }
     /// Its output. A saved screen without one reads as having nowhere to go.
     pub fn output(&self) -> ScreenOutput { self.outputs.first().cloned().unwrap_or_default() }
     pub fn output_mut(&mut self) -> &mut ScreenOutput {

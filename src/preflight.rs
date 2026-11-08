@@ -37,7 +37,8 @@ pub fn check(data: &Data, monitors: &[Monitor], audio: &[String], has_asset: &dy
 
 fn background_ok(b: &Background, has_asset: &dyn Fn(&str) -> bool) -> bool {
     match b {
-        Background::Color { .. } | Background::Gradient { .. } => true,
+        // A camera can only be checked by opening it.
+        Background::Color { .. } | Background::Gradient { .. } | Background::Camera { .. } => true,
         Background::Image { asset, .. } | Background::Video { asset, .. } => has_asset(asset),
     }
 }

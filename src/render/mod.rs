@@ -5,6 +5,7 @@ pub mod cache;
 pub mod color;
 pub mod drawing;
 pub mod layout;
+pub mod mask;
 pub mod overlay;
 pub mod parallel;
 pub mod raster;

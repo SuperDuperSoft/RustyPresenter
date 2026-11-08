@@ -363,6 +363,11 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.bin-import(); }
             }
             MenuItem {
+                title: @tr("Video inputs…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); bin.open = true; root.bin-set-tab("inputs"); }
+            }
+            MenuItem {
                 title: @tr("Clean up unused media…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("media-cleanup"); }

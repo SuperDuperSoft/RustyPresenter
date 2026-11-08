@@ -425,6 +425,11 @@ impl Hub {
         }
     }
 
+    /// An FFmpeg program to be had without fetching one: ours, else one on this computer (N11 lists cameras with it).
+    pub fn ffmpeg_exe(&self) -> Option<PathBuf> {
+        self.fetch.installed(Tool::Ffmpeg).map(|i| i.exe).or_else(|| self.system_ffmpeg.load(Ordering::Relaxed).then(system_ffmpeg).flatten())
+    }
+
     /// After yt-dlp could not read a video: a newer yt-dlp, if there is one. True when `tools` now has it.
     async fn refresh(&self, tools: &mut Toolset, cancel: &CancellationToken) -> Result<bool, YtError> {
         #[cfg(test)]

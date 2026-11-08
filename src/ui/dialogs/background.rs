@@ -68,7 +68,7 @@ impl Choice {
             ChoiceKind::Image(_) => "image",
             ChoiceKind::Video(_) => "video",
             ChoiceKind::Value(Background::Color { .. }) => "color",
-            ChoiceKind::Value(Background::Video { .. }) => "video",
+            ChoiceKind::Value(Background::Video { .. } | Background::Camera { .. }) => "video",
             ChoiceKind::Value(_) => "image",
             ChoiceKind::Upload => "upload",
         }
@@ -124,7 +124,7 @@ pub fn selected(choices: &[Choice], value: &Option<Background>) -> Option<usize>
 
 /// Darken applies to pictures, videos and gradients (spec §3.4 step 6).
 pub fn darken_shown(value: &Option<Background>) -> bool {
-    matches!(value, Some(Background::Image { .. } | Background::Video { .. } | Background::Gradient { .. }))
+    matches!(value, Some(Background::Image { .. } | Background::Video { .. } | Background::Camera { .. } | Background::Gradient { .. }))
 }
 
 /// `#rrggbb` (or `rrggbb`, any case) as the lower-case `#rrggbb` the web's colour input gives; `None` otherwise.

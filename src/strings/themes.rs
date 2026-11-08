@@ -70,6 +70,7 @@ pub fn kind_color() -> String { tr!("Color") }
 pub fn kind_gradient() -> String { tr!("Gradient") }
 pub fn kind_picture() -> String { tr!("Picture") }
 pub fn kind_video() -> String { tr!("Video") }
+pub fn kind_camera() -> String { tr!("Camera") }
 pub fn kind_text() -> String { tr!("Text") }
 pub fn kind_clock() -> String { tr!("Clock") }
 pub fn use_theme_background() -> String { tr!("Use theme background") }

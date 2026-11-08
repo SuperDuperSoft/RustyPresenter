@@ -92,7 +92,7 @@ fn is_video(f: &Frame) -> bool { matches!(f.media.as_ref().map(|m| &m.v), Some(M
 
 fn timeout(kind: Kind, f: &Frame) -> Duration {
     match kind {
-        Kind::Background if matches!(f.background.as_ref().map(|b| &b.v), Some(Background::Video { .. })) => BACKGROUND_VIDEO,
+        Kind::Background if f.background.as_ref().is_some_and(|b| b.v.moving()) => BACKGROUND_VIDEO,
         Kind::Media if is_video(f) => PLAYER,
         Kind::Audio => PLAYER,
         _ => STILL,

@@ -3,7 +3,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { Icon } from "../icons.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { Lbl, Note, Select, TextField, Toggle } from "form.slint";
+import { Lbl, Note, RangeSlider, Select, TextField, Toggle } from "form.slint";
 
 /// A screen in a list. `state` is a `Chip` state.
 export struct ScreenRow { id: string, name: string, size: string, status: string, state: string }
@@ -30,6 +30,12 @@ export global ScreensDialogState {
     in property <string> note;
     in property <bool> can-remove;
     in property <bool> one-monitor;
+    /// N12: an audience screen's mask. Shape 0 whole screen, 1 smaller rectangle, 2 rounded corners, 3 oval;
+    /// `mask-inset` each side and `mask-radius` the corners, in percent.
+    in property <bool> can-mask;
+    in-out property <int> mask-shape;
+    in-out property <int> mask-inset;
+    in-out property <int> mask-radius;
     callback power(string, bool);
     callback add(string);
     callback select(string);
@@ -39,6 +45,33 @@ export global ScreensDialogState {
     callback remove();
     callback identify();
     callback refresh();
+    callback mask-changed();
+}
+
+/// A small label and a slider, side by side.
+component MaskSlider inherits HorizontalLayout {
+    in property <string> label;
+    in property <int> maximum;
+    in-out property <int> value;
+    callback changed();
+    spacing: 8px;
+    Text {
+        text: root.label;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 13px;
+        vertical-alignment: center;
+    }
+    VerticalLayout {
+        alignment: center;
+        slider := RangeSlider {
+            width: 110px;
+            maximum: root.maximum;
+            value <=> root.value;
+            accessible-label: root.label;
+            changed => { root.changed(); }
+        }
+    }
 }
 
 /// The round + at the end of a list's head.
@@ -228,6 +261,31 @@ export component ScreensDialog inherits VerticalLayout {
                         color: Theme.muted;
                         font-family: Theme.font;
                         font-size: 13px;
+                    }
+                }
+                if ScreensDialogState.can-mask: Setting {
+                    label: @tr("Shape");
+                    HorizontalLayout {
+                        spacing: 14px;
+                        alignment: start;
+                        mask-select := Select {
+                            width: 200px;
+                            options: [@tr("Whole screen"), @tr("Smaller rectangle"), @tr("Rounded corners"), @tr("Oval")];
+                            index <=> ScreensDialogState.mask-shape;
+                            changed => { ScreensDialogState.mask-changed(); }
+                        }
+                        if ScreensDialogState.mask-shape > 0: mask-inset := MaskSlider {
+                            label: @tr("Edge");
+                            maximum: 40;
+                            value <=> ScreensDialogState.mask-inset;
+                            changed => { ScreensDialogState.mask-changed(); }
+                        }
+                        if ScreensDialogState.mask-shape == 2: mask-radius := MaskSlider {
+                            label: @tr("Corners");
+                            maximum: 50;
+                            value <=> ScreensDialogState.mask-radius;
+                            changed => { ScreensDialogState.mask-changed(); }
+                        }
                     }
                 }
                 if ScreensDialogState.note != "": note-box := Note { text: ScreensDialogState.note; font-size: 13px; }

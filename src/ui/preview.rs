@@ -49,8 +49,8 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
         Some(Background::Image { asset, dim: 0 }) => picture(asset, true, 1.0),
         Some(bg @ Background::Image { asset, .. }) => Source::Painted { bg: bg.clone(), asset: Some(asset.clone()) },
         Some(bg @ Background::Gradient { .. }) => Source::Painted { bg: bg.clone(), asset: None },
-        Some(bg @ Background::Video { dim: 1.., .. }) => Source::Painted { bg: bg.clone(), asset: None },
-        Some(Background::Video { .. }) | None => Source::Hidden,
+        Some(bg @ (Background::Video { dim: 1.., .. } | Background::Camera { dim: 1.., .. })) => Source::Painted { bg: bg.clone(), asset: None },
+        Some(Background::Video { .. } | Background::Camera { .. }) | None => Source::Hidden,
     };
     let media = match frame.media.as_ref().map(|m| &m.v) {
         Some(MediaLayer::Still { asset }) => picture(asset, false, 1.0),
@@ -77,7 +77,7 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
 /// true for the background video, which the room crops to fill the screen (`panscan=1.0`) rather than letterboxes.
 pub fn drawn_video(frame: &Frame) -> Option<(u64, bool)> {
     let fg = frame.media.as_ref().filter(|m| matches!(m.v, MediaLayer::Video { .. })).map(|m| (m.inst, false));
-    fg.or_else(|| frame.background.as_ref().filter(|b| matches!(b.v, Background::Video { .. })).map(|b| (b.inst, true)))
+    fg.or_else(|| frame.background.as_ref().filter(|b| b.v.moving()).map(|b| (b.inst, true)))
 }
 
 /// The monitor's `bg-visible`: false while a foreground video is live, as in the room (spec §5).

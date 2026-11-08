@@ -19,11 +19,11 @@ const THUMB: (u32, u32) = (420, 236);
 #[derive(Default)]
 pub struct BinState {
     /// "all", "video", "image" or "audio"; empty counts as "all".
-    tab: String,
+    pub(super) tab: String,
     /// The folder shown; empty is "All media".
     folder: String,
-    query: String,
-    picked: Option<Uuid>,
+    pub(super) query: String,
+    pub(super) picked: Option<Uuid>,
     images: HashMap<AssetId, Image>,
     on_screen: Option<AssetId>,
 }
@@ -106,6 +106,7 @@ impl Operator {
         let item = st.snap.as_ref()?.items.iter().find(|i| i.id == live)?;
         match item.item.background.as_ref()? {
             Background::Image { asset, .. } | Background::Video { asset, .. } => Some(asset.clone()),
+            Background::Camera { device, .. } => Some(super::video_inputs::on_screen_mark(device)),
             Background::Color { .. } | Background::Gradient { .. } => None,
         }
     }
@@ -118,8 +119,18 @@ impl Operator {
             let mut b = self.bin.borrow_mut();
             // A folder that is gone falls back to everything.
             if !b.folder.is_empty() && !folder_counts(&media, &listed).iter().any(|(n, _)| *n == b.folder) { b.folder.clear(); }
-            if b.picked.is_some_and(|id| !media.iter().any(|m| m.id == id)) { b.picked = None; }
+            if b.tab != super::video_inputs::TAB && b.picked.is_some_and(|id| !media.iter().any(|m| m.id == id)) { b.picked = None; }
             b.on_screen = on_screen.clone();
+        }
+        // N11: the Video inputs tab lists cameras, not files.
+        if self.bin.borrow().tab == super::video_inputs::TAB {
+            let rows = self.input_rows(on_screen.as_deref());
+            let folders: Vec<BinFolder> = folder_counts(&media, &listed).into_iter().map(|(name, count)| BinFolder {
+                label: if name.is_empty() { tr::all_media() } else { name.clone() }.into(), on: false, count: count as i32, name: name.as_str().into(),
+            }).collect();
+            self.bin_rows.set_vec(rows);
+            self.bin_folders.set_vec(folders);
+            return self.render_input_pick();
         }
         let (rows, folders, wanted) = {
             let b = self.bin.borrow();
@@ -153,6 +164,7 @@ impl Operator {
     }
 
     fn render_pick(&self) {
+        if self.bin.borrow().tab == super::video_inputs::TAB { return self.render_input_pick() }
         let m = self.picked();
         let ui = &self.ui;
         ui.set_bin_has_pick(m.is_some());
@@ -191,6 +203,7 @@ impl Operator {
 
     /// The chosen file becomes the selected service item's background.
     fn use_picked(self: &Rc<Self>) {
+        if self.bin.borrow().tab == super::video_inputs::TAB { return self.use_input() }
         let Some(m) = self.picked() else { return };
         let Some(background) = as_background(&m) else { return };
         let (selected, snap) = { let st = self.state.borrow(); (st.selected, st.snap.clone()) };
@@ -288,6 +301,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     let ui = &op.ui;
     ui.set_bin_rows(ModelRc::from(op.bin_rows.clone()));
     ui.set_bin_folders(ModelRc::from(op.bin_folders.clone()));
+    super::video_inputs::wire(op);
     let on = |f: fn(&Rc<Operator>)| { let me: Weak<Operator> = Rc::downgrade(op); move || if let Some(op) = me.upgrade() { f(&op) } };
     ui.on_bin_use_picked(on(Operator::use_picked));
     ui.on_bin_add_picked(on(Operator::add_picked));
@@ -296,7 +310,12 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_bin_delete_folder(on(Operator::delete_folder));
     ui.on_bin_import(on(Operator::import_media));
     let me = Rc::downgrade(op);
-    ui.on_bin_set_tab(move |t| if let Some(op) = me.upgrade() { op.ui.set_bin_tab(t.clone()); op.bin.borrow_mut().tab = t.into(); op.render_media(); });
+    ui.on_bin_set_tab(move |t| if let Some(op) = me.upgrade() {
+        op.ui.set_bin_tab(t.clone());
+        op.bin.borrow_mut().tab = t.to_string();
+        op.render_media();
+        if t == super::video_inputs::TAB { op.inputs_opened() }
+    });
     let me = Rc::downgrade(op);
     ui.on_bin_set_folder(move |f| if let Some(op) = me.upgrade() { op.bin.borrow_mut().folder = f.into(); op.render_media(); });
     let me = Rc::downgrade(op);

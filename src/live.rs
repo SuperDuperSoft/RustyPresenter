@@ -119,7 +119,7 @@ impl Frame {
     pub fn plays(&self) -> bool {
         self.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. }))
             || self.audio.is_some()
-            || self.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. }))
+            || self.background.as_ref().is_some_and(|b| b.v.moving())
     }
     pub(crate) fn instances(&self) -> impl Iterator<Item = u64> + '_ {
         self.background.iter().map(|b| b.inst).chain(self.media.iter().map(|m| m.inst)).chain(self.audio.iter().map(|a| a.inst))
@@ -433,7 +433,7 @@ impl Live {
         if !with_media {
             if self.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) { self.frame.media = None; }
             self.frame.audio = None;
-            if self.frame.background.as_ref().is_some_and(|b| matches!(b.v, Background::Video { .. })) { self.frame.background = None; }
+            if self.frame.background.as_ref().is_some_and(|b| b.v.moving()) { self.frame.background = None; }
         }
         self.bump();
         self.restored_version = Some(self.version);

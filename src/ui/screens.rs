@@ -318,6 +318,7 @@ impl NativeScreens {
             "stage" => Win::Stage(Stage::open(app, mon.clone())?),
             _ => return Err("unknown window".into()),
         };
+        if let Win::Room(r) = &win { r.set_screen(role) }
         if let Some(op) = operator {
             op.refocus();
             let op = Rc::downgrade(&op);

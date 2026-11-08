@@ -8,6 +8,7 @@ use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent, drawing::Drawing};
 use crate::media_prefs::{Scale, SoundOut};
 use crate::render::drawing::DrawingCanvas;
+use crate::render::mask::{Mask, mask_pixels};
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
@@ -113,7 +114,7 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent), Drawing(Option<Px>) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent), Drawing(Option<Px>), Mask(Option<Px>) }
 
 /// What the room's threads share.
 struct Shared {
@@ -130,6 +131,9 @@ struct Shared {
     wake: Box<dyn Fn() + Send + Sync>,
     /// The size the phone drawing is drawn at (the room's canvas).
     canvas: Mutex<(u32, u32)>,
+    /// N12: the screen this window shows (`ScreenSetup::keyed`), set by `Room::set_screen`, and the mask last drawn.
+    role: Mutex<Option<String>>,
+    mask: Mutex<Option<(Mask, (u32, u32))>>,
 }
 
 impl Shared {
@@ -209,6 +213,7 @@ impl Inner {
                 Some(Msg::Device(d)) => self.sync_device(&d),
                 Some(Msg::Event(ev)) => self.shared.emit(ev),
                 Some(Msg::Drawing(px)) => self.ui.set_drawing(px.map(Px::image).unwrap_or_default()),
+                Some(Msg::Mask(px)) => self.ui.set_mask(px.map(Px::image).unwrap_or_default()),
                 None => break,
             }
         }
@@ -502,7 +507,7 @@ impl Room {
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
-        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)) });
+        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)), role: Mutex::default(), mask: Mutex::default() });
         let to_shared = shared.clone();
         let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         let to_live = app.clone();
@@ -534,6 +539,14 @@ impl Room {
     }
 
     pub fn window(&self) -> &slint::Window { self.inner.ui.window() }
+
+    /// N12: which screen this window is (`room` or `room:<id>`), so it follows that screen's mask.
+    pub fn set_screen(&self, role: &str) {
+        *self.inner.shared.role.lock().unwrap() = Some(role.to_string());
+        let (app, shared) = (self.inner.work.app.clone(), self.inner.shared.clone());
+        // Off the Slint thread: the data lock is never waited for there.
+        let _ = std::thread::Builder::new().name("room-mask".into()).spawn(move || sync_mask(&app, &shared));
+    }
 
     /// Keeps the room window above other windows, or lets it go back to normal. Windows hands out paints top
     /// window first, so on top the room's frames are no longer queued behind the operator's (`NativeScreens`
@@ -608,6 +621,24 @@ fn drawer(shared: Arc<Shared>) -> std::sync::mpsc::Sender<Arc<Drawing>> {
     tx
 }
 
+/// The mask of the audience screen shown as `role`; none for a screen that is not in the setup.
+fn mask_of(app: &App, role: &str) -> Mask {
+    app.data.lock().unwrap().settings.screens.keyed("audience").into_iter().find(|(k, _)| k == role).map(|(_, s)| s.mask).unwrap_or_default()
+}
+
+/// Draws the window's mask again when it or the canvas changed (any thread but Slint's).
+fn sync_mask(app: &App, shared: &Shared) {
+    let Some(role) = shared.role.lock().unwrap().clone() else { return };
+    let (mask, size) = (mask_of(app, &role), *shared.canvas.lock().unwrap());
+    {
+        let mut last = shared.mask.lock().unwrap();
+        if *last == Some((mask, size)) { return }
+        *last = Some((mask, size));
+    }
+    let px = mask_pixels(&mask, size.0, size.1).map(|p| Px::Premul(slint::SharedPixelBuffer::clone_from_slice(p.data(), size.0, size.1)));
+    shared.send(Msg::Mask(px));
+}
+
 /// Live updates from a plain thread; only the newest view is applied.
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, shared: Arc<Shared>) {
     let sound = move |app: &App| app.sound_out();
@@ -623,6 +654,7 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, share
             Ok(Update::Drawing(d)) => { draw(&d); continue }
             Ok(Update::Live(u)) => u,
             Ok(Update::Data) => {
+                sync_mask(&app, &shared);
                 let now = sound(&app);
                 if now != device {
                     device = now.clone();
@@ -956,6 +988,40 @@ mod tests {
         let v = run(&app, Command::ClearAll);
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
         assert!(!shown(&room, Kind::Logo));
+    }
+
+    #[test]
+    fn each_audience_screen_follows_its_own_mask() {
+        use crate::render::mask::{Mask, MaskShape};
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let second = {
+            let mut d = app.data.lock().unwrap();
+            let s = &mut d.settings.screens.audience;
+            s.screens[0].output_mut().target = ScreenTarget::Window;
+            let mut other = Screen::new(Uuid::new_v4(), "Lobby TV");
+            other.output_mut().target = ScreenTarget::Window;
+            other.mask = Mask { shape: MaskShape::Ellipse, inset: 0, radius: 0 };
+            s.screens.push(other.clone());
+            other.id
+        };
+        let (room, lobby) = (open(&app), open(&app));
+        room.set_screen("room");
+        lobby.set_screen(&format!("room:{second}"));
+        let has = |r: &Room| r.inner.ui.get_mask().size().width > 0;
+        assert!(pump_until(&lobby, 5.0, || has(&lobby)), "the lobby screen is cut to an oval");
+        let px = lobby.inner.ui.get_mask().to_rgba8_premultiplied().unwrap();
+        assert_eq!(px.as_slice()[0].a, 255, "the corner is black");
+        assert_eq!(px.as_slice()[(px.height() / 2 * px.width() + px.width() / 2) as usize].a, 0, "the middle shows");
+        pump_until(&room, 0.3, || false);
+        assert!(!has(&room), "the main screen has no mask");
+        // A change in the setup reaches the open window.
+        app.edit(|d| { d.settings.screens.audience.screens[0].mask = Mask { shape: MaskShape::Inset, inset: 5, radius: 0 }; Ok::<_, String>(()) }).unwrap();
+        app.broadcast_data();
+        assert!(pump_until(&room, 5.0, || has(&room)), "the new mask shows");
+        app.edit(|d| { d.settings.screens.audience.screens[0].mask = Mask::default(); Ok::<_, String>(()) }).unwrap();
+        app.broadcast_data();
+        assert!(pump_until(&room, 5.0, || !has(&room)), "and goes again");
     }
 
     #[test]
