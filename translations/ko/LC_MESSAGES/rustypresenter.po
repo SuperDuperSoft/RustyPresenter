@@ -1,15 +1,6 @@
 # Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 한국어\n"
-"X-English-Name: Korean\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ko\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 한국어\nX-English-Name: Korean\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -257,11 +248,11 @@ msgstr "카운트업"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the video"
-msgstr ""
+msgstr "동영상 남은 시간"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the audio"
-msgstr ""
+msgstr "오디오 남은 시간"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
@@ -285,11 +276,11 @@ msgstr "초"
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the video on the screen has left. It follows the video: there is nothing to start."
-msgstr ""
+msgstr "화면에 나오는 동영상의 남은 시간을 표시해요. 동영상을 따라가므로 따로 시작할 필요가 없어요."
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the audio playing has left (an audio item, or else the walk-in music)."
-msgstr ""
+msgstr "재생 중인 오디오의 남은 시간을 표시해요(오디오 항목, 없으면 입장 음악)."
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
@@ -517,23 +508,23 @@ msgstr "카운트다운이 시작된 뒤 아무도 화면을 바꾸지 않았을
 
 #: ui/dialogs/automation.slint
 msgid "Sunday countdown"
-msgstr ""
+msgstr "주일 카운트다운"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:45 or 18:30)"
-msgstr ""
+msgstr "시간(예: 10:45 또는 18:30)"
 
 #: ui/dialogs/automation.slint
 msgid "Days"
-msgstr ""
+msgstr "요일"
 
 #: ui/dialogs/automation.slint
 msgid "What to do"
-msgstr ""
+msgstr "할 일"
 
 #: ui/dialogs/automation.slint
 msgid "On"
-msgstr ""
+msgstr "사용"
 
 #: ui/dialogs/automation.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/ui/dialogs/settings_keys.rs
 msgid "Timers"
@@ -553,7 +544,7 @@ msgstr "예배 전"
 
 #: ui/dialogs/automation.slint
 msgid "Calendar"
-msgstr ""
+msgstr "캘린더"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
@@ -573,7 +564,7 @@ msgstr "새 메시지"
 
 #: ui/dialogs/automation.slint
 msgid "New calendar entry"
-msgstr ""
+msgstr "새 캘린더 항목"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
@@ -585,7 +576,7 @@ msgstr "왼쪽에서 하나를 고르거나 새로 만드세요."
 
 #: ui/dialogs/automation.slint
 msgid "Try it now"
-msgstr ""
+msgstr "지금 실행해 보기"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
@@ -617,47 +608,47 @@ msgstr "원하는 색 선택"
 
 #: ui/dialogs/design-canvas.slint
 msgid "Slide"
-msgstr ""
+msgstr "슬라이드"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
-msgstr ""
+msgstr "{} · 빌드 {}개"
 
 #: ui/dialogs/design-editor.slint
 msgid "New slide"
-msgstr ""
+msgstr "새 슬라이드"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy slide"
-msgstr ""
+msgstr "슬라이드 복사"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move earlier"
-msgstr ""
+msgstr "앞으로 이동"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move later"
-msgstr ""
+msgstr "뒤로 이동"
 
 #: ui/dialogs/design-editor.slint
 msgid "Delete slide"
-msgstr ""
+msgstr "슬라이드 삭제"
 
 #: ui/dialogs/design-editor.slint
 msgid "This slide"
-msgstr ""
+msgstr "이 슬라이드"
 
 #: ui/dialogs/design-editor.slint
 msgid "Click an object to change it. Shift+click chooses more than one."
-msgstr ""
+msgstr "개체를 클릭하면 바꿀 수 있어요. Shift+클릭으로 여러 개를 선택해요."
 
 #: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
 msgid "Transition"
-msgstr ""
+msgstr "전환"
 
 #: ui/dialogs/design-editor.slint
 msgid "Use on every slide"
-msgstr ""
+msgstr "모든 슬라이드에 사용"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
@@ -665,11 +656,11 @@ msgstr "메모"
 
 #: ui/dialogs/design-editor.slint
 msgid "For the stage screen and the operator"
-msgstr ""
+msgstr "무대 화면과 운영자용"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} objects chosen. Changes go on all of them."
-msgstr ""
+msgstr "개체 {}개를 선택했어요. 변경 내용이 모두에 적용돼요."
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Words"
@@ -677,7 +668,7 @@ msgstr "글자"
 
 #: ui/dialogs/design-editor.slint
 msgid "Text size ({} px)"
-msgstr ""
+msgstr "글자 크기({} px)"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -689,7 +680,7 @@ msgstr "기울임꼴"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
-msgstr ""
+msgstr "상자에 맞게 줄이기"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Text colour"
@@ -713,27 +704,27 @@ msgstr "가운데"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Shape"
-msgstr ""
+msgstr "도형"
 
 #: ui/dialogs/design-editor.slint
 msgid "Rectangle"
-msgstr ""
+msgstr "사각형"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Circle"
-msgstr ""
+msgstr "원"
 
 #: ui/dialogs/design-editor.slint
 msgid "Triangle"
-msgstr ""
+msgstr "삼각형"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Line"
-msgstr ""
+msgstr "선"
 
 #: ui/dialogs/design-editor.slint
 msgid "Arrow"
-msgstr ""
+msgstr "화살표"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
@@ -741,11 +732,11 @@ msgstr "사진"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fit"
-msgstr ""
+msgstr "맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill"
-msgstr ""
+msgstr "채우기"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
 msgid "Stretch"
@@ -753,23 +744,23 @@ msgstr "늘이기"
 
 #: ui/dialogs/design-editor.slint
 msgid "Web address"
-msgstr ""
+msgstr "웹 주소"
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the page's address here."
-msgstr ""
+msgstr "예배당 화면에는 여기에 페이지 주소가 표시돼요."
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the video's first picture here."
-msgstr ""
+msgstr "예배당 화면에는 여기에 동영상의 첫 장면이 표시돼요."
 
 #: ui/dialogs/design-editor.slint
 msgid "A newer RustyPresenter made this object. It can be moved or removed here."
-msgstr ""
+msgstr "더 새로운 RustyPresenter에서 만든 개체예요. 여기서는 이동하거나 제거만 할 수 있어요."
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill colour"
-msgstr ""
+msgstr "채우기 색"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint
 msgid "Outline"
@@ -777,59 +768,59 @@ msgstr "외곽선"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline colour"
-msgstr ""
+msgstr "외곽선 색"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline width ({} px)"
-msgstr ""
+msgstr "외곽선 두께({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow"
-msgstr ""
+msgstr "그림자"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow softness ({} px)"
-msgstr ""
+msgstr "그림자 부드럽기({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Soft edges ({} px)"
-msgstr ""
+msgstr "부드러운 가장자리({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Round corners ({} px)"
-msgstr ""
+msgstr "둥근 모서리({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "See-through ({}% shown)"
-msgstr ""
+msgstr "투명도({}% 표시)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Turn ({}°)"
-msgstr ""
+msgstr "회전({}°)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Build"
-msgstr ""
+msgstr "빌드"
 
 #: ui/dialogs/design-editor.slint
 msgid "Appears on Next"
-msgstr ""
+msgstr "다음을 누르면 나타남"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
-msgstr ""
+msgstr "앞으로"
 
 #: ui/dialogs/design-editor.slint
 msgid "Later"
-msgstr ""
+msgstr "뒤로"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
-msgstr ""
+msgstr "사진 또는 동영상"
 
 #: ui/dialogs/design-editor.slint
 msgid "Import pictures into the media library first"
-msgstr ""
+msgstr "먼저 미디어 라이브러리에 사진을 가져오세요"
 
 #: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
 msgid "Web page"
@@ -837,7 +828,7 @@ msgstr "웹 페이지"
 
 #: ui/dialogs/design-editor.slint
 msgid "Draw"
-msgstr ""
+msgstr "그리기"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/operator.slint src/i18n/remote_strings.rs
 msgid "Undo"
@@ -849,43 +840,43 @@ msgstr "다시 실행"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align left"
-msgstr ""
+msgstr "왼쪽 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre across"
-msgstr ""
+msgstr "가로 가운데"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align right"
-msgstr ""
+msgstr "오른쪽 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align top"
-msgstr ""
+msgstr "위쪽 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre down"
-msgstr ""
+msgstr "세로 가운데"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align bottom"
-msgstr ""
+msgstr "아래쪽 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space across"
-msgstr ""
+msgstr "가로 간격 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space down"
-msgstr ""
+msgstr "세로 간격 맞춤"
 
 #: ui/dialogs/design-editor.slint
 msgid "To front"
-msgstr ""
+msgstr "맨 앞으로"
 
 #: ui/dialogs/design-editor.slint
 msgid "To back"
-msgstr ""
+msgstr "맨 뒤로"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -893,31 +884,31 @@ msgstr "복제"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy style"
-msgstr ""
+msgstr "스타일 복사"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+C"
-msgstr ""
+msgstr "Ctrl+Alt+C"
 
 #: ui/dialogs/design-editor.slint
 msgid "Paste style"
-msgstr ""
+msgstr "스타일 붙여 넣기"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+V"
-msgstr ""
+msgstr "Ctrl+Alt+V"
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag on the slide to draw. Press Draw again to stop."
-msgstr ""
+msgstr "슬라이드에서 드래그해서 그리세요. 그리기를 다시 누르면 멈춰요."
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag to move, drag a corner to resize, arrows nudge, Alt moves freely. Ctrl+Alt+C copies a style, Ctrl+Alt+V pastes it."
-msgstr ""
+msgstr "드래그하면 이동, 모서리를 드래그하면 크기 조절, 화살표 키로 조금씩 이동, Alt를 누르면 자유롭게 이동해요. Ctrl+Alt+C로 스타일을 복사하고 Ctrl+Alt+V로 붙여 넣어요."
 
 #: ui/dialogs/design-editor.slint
 msgid "Video: {}"
-msgstr ""
+msgstr "동영상: {}"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
@@ -1101,15 +1092,15 @@ msgstr "각 슬라이드와 함께 무대 화면에 표시돼요"
 
 #: ui/dialogs/item-edit.slint
 msgid "Slide transitions"
-msgstr ""
+msgstr "슬라이드 전환"
 
 #: ui/dialogs/item-edit.slint
 msgid "How each slide comes on screen. Normal uses the usual fade."
-msgstr ""
+msgstr "각 슬라이드가 화면에 나타나는 방식이에요. 보통은 기본 페이드를 사용해요."
 
 #: ui/dialogs/item-edit.slint
 msgid "Use for all slides"
-msgstr ""
+msgstr "모든 슬라이드에 사용"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1153,7 +1144,7 @@ msgstr "예배에서 제거"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
-msgstr ""
+msgstr "슬라이드가 바뀌어도 입장 음악은 계속 재생돼요. 오디오 지우기와 모두 지우기로 멈춰요."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1161,47 +1152,47 @@ msgstr "찬양"
 
 #: ui/dialogs/music.slint
 msgid "Play this song now"
-msgstr ""
+msgstr "이 곡 지금 재생"
 
 #: ui/dialogs/music.slint
 msgid "No songs yet. Add audio from the media library below."
-msgstr ""
+msgstr "아직 곡이 없어요. 아래 미디어 라이브러리에서 오디오를 추가하세요."
 
 #: ui/dialogs/music.slint
 msgid "Add a song"
-msgstr ""
+msgstr "곡 추가"
 
 #: ui/dialogs/music.slint
 msgid "Add all"
-msgstr ""
+msgstr "모두 추가"
 
 #: ui/dialogs/music.slint
 msgid "There is no audio in the media library yet."
-msgstr ""
+msgstr "미디어 라이브러리에 아직 오디오가 없어요."
 
 #: ui/dialogs/music.slint
 msgid "Import audio…"
-msgstr ""
+msgstr "오디오 가져오기…"
 
 #: ui/dialogs/music.slint
 msgid "Shuffle"
-msgstr ""
+msgstr "무작위 재생"
 
 #: ui/dialogs/music.slint
 msgid "Start again after the last song"
-msgstr ""
+msgstr "마지막 곡 다음에 처음부터 다시"
 
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
-msgstr ""
+msgstr "볼륨 {}%"
 
 #: ui/dialogs/music.slint src/i18n/remote_strings.rs
 msgid "Stop"
-msgstr ""
+msgstr "정지"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
-msgstr ""
+msgstr "다음 곡"
 
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
@@ -1217,59 +1208,59 @@ msgstr "휴대폰 리모컨"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password when a phone pairs"
-msgstr ""
+msgstr "휴대폰을 연결할 때 비밀번호 묻기"
 
 #: ui/dialogs/network.slint
 msgid "Remote password"
-msgstr ""
+msgstr "리모컨 비밀번호"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
-msgstr ""
+msgstr "저장됨 — 바꾸려면 입력하세요"
 
 #: ui/dialogs/network.slint
 msgid "New password"
-msgstr ""
+msgstr "새 비밀번호"
 
 #: ui/dialogs/network.slint
 msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr ""
+msgstr "휴대폰은 여전히 코드나 QR 코드로 연결하고, 비밀번호도 함께 물어봐요. 이미 연결된 휴대폰은 그대로 연결돼 있어요."
 
 #: ui/dialogs/network.slint
 msgid "Stage screen on a phone or tablet"
-msgstr ""
+msgstr "휴대폰이나 태블릿의 무대 화면"
 
 #: ui/dialogs/network.slint
 msgid "Show the stage screen to phones and tablets (read only)"
-msgstr ""
+msgstr "휴대폰과 태블릿에 무대 화면 표시(보기 전용)"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password"
-msgstr ""
+msgstr "비밀번호 묻기"
 
 #: ui/dialogs/network.slint
 msgid "Stage screen password"
-msgstr ""
+msgstr "무대 화면 비밀번호"
 
 #: ui/dialogs/network.slint
 msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr ""
+msgstr "찬양팀의 iPad나 휴대폰에서 이 주소를 여세요(이 컴퓨터와 같은 Wi-Fi)."
 
 #: ui/dialogs/network.slint
 msgid "Control from other gear (TCP)"
-msgstr ""
+msgstr "다른 장비에서 제어(TCP)"
 
 #: ui/dialogs/network.slint
 msgid "Let other gear send commands over the network"
-msgstr ""
+msgstr "다른 장비가 네트워크로 명령을 보낼 수 있게 허용"
 
 #: ui/dialogs/network.slint
 msgid "Port"
-msgstr ""
+msgstr "포트"
 
 #: ui/dialogs/network.slint
 msgid "TCP password"
-msgstr ""
+msgstr "TCP 비밀번호"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
@@ -1517,47 +1508,47 @@ msgstr "{}에 화면 추가"
 
 #: ui/dialogs/screens.slint
 msgid "Test pattern"
-msgstr ""
+msgstr "테스트 패턴"
 
 #: ui/dialogs/screens.slint
 msgid "Gamma"
-msgstr ""
+msgstr "감마"
 
 #: ui/dialogs/screens.slint
 msgid "Black level"
-msgstr ""
+msgstr "블랙 레벨"
 
 #: ui/dialogs/screens.slint
 msgid "Corners (to square up a tilted projector)"
-msgstr ""
+msgstr "모서리(기울어진 프로젝터 화면 바로잡기)"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner left"
-msgstr ""
+msgstr "이 모서리를 왼쪽으로 이동"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner right"
-msgstr ""
+msgstr "이 모서리를 오른쪽으로 이동"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner up"
-msgstr ""
+msgstr "이 모서리를 위로 이동"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner down"
-msgstr ""
+msgstr "이 모서리를 아래로 이동"
 
 #: ui/dialogs/screens.slint
 msgid "Delay (frames)"
-msgstr ""
+msgstr "지연(프레임)"
 
 #: ui/dialogs/screens.slint
 msgid "Reset the picture"
-msgstr ""
+msgstr "화면 초기화"
 
 #: ui/dialogs/screens.slint
 msgid "Screen"
-msgstr ""
+msgstr "화면"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
@@ -1577,31 +1568,31 @@ msgstr "화면 비율: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience sees"
-msgstr ""
+msgstr "회중이 보는 화면 표시"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
-msgstr ""
+msgstr "전체 화면"
 
 #: ui/dialogs/screens.slint
 msgid "Smaller rectangle"
-msgstr ""
+msgstr "작은 사각형"
 
 #: ui/dialogs/screens.slint
 msgid "Rounded corners"
-msgstr ""
+msgstr "둥근 모서리"
 
 #: ui/dialogs/screens.slint
 msgid "Oval"
-msgstr ""
+msgstr "타원"
 
 #: ui/dialogs/screens.slint
 msgid "Edge"
-msgstr ""
+msgstr "가장자리"
 
 #: ui/dialogs/screens.slint
 msgid "Corners"
-msgstr ""
+msgstr "모서리"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
@@ -1857,11 +1848,11 @@ msgstr "팁: 슬라이드를 클릭하면 바로 화면에 표시돼요. 빨간 
 
 #: ui/dialogs/settings-keys.slint
 msgid "In the slide editor"
-msgstr ""
+msgstr "슬라이드 편집기에서"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr ""
+msgstr "Ctrl+Alt+C는 선택한 상자의 스타일을 복사하고 Ctrl+Alt+V는 붙여 넣어요(아무것도 선택하지 않으면 슬라이드의 모든 텍스트 상자에 적용). Ctrl+Z 실행 취소, Ctrl+Y 다시 실행, Ctrl+D 복제, Ctrl+A 모두 선택, Delete 삭제, 화살표 키로 조금씩 이동(Shift+화살표 키로 크기 조절), Tab으로 다음 개체를 선택해요."
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2069,11 +2060,11 @@ msgstr "오른쪽 스피커만"
 
 #: ui/dialogs/settings-media.slint
 msgid "Recording"
-msgstr ""
+msgstr "녹화"
 
 #: ui/dialogs/settings-media.slint
 msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
-msgstr ""
+msgstr "파일 → 녹화 시작(또는 맨 위의 녹화 버튼)을 누르면 예배당 화면에 나오는 내용을 MP4 동영상으로 저장해요."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
@@ -2081,31 +2072,31 @@ msgstr "사진 크기"
 
 #: ui/dialogs/settings-media.slint
 msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr ""
+msgstr "720p는 컴퓨터와 디스크를 덜 사용해요(시간당 최대 약 1.4GB). 1080p는 더 선명해요(약 2.8GB)."
 
 #: ui/dialogs/settings-media.slint
 msgid "720p"
-msgstr ""
+msgstr "720p"
 
 #: ui/dialogs/settings-media.slint
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
-msgstr ""
+msgstr "녹화 저장 위치"
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose folder…"
-msgstr ""
+msgstr "폴더 선택…"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound in the recording"
-msgstr ""
+msgstr "녹화에 들어갈 소리"
 
 #: ui/dialogs/settings-media.slint
 msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr ""
+msgstr "녹화를 멈출 때 동영상과 곡 파일에서 앱의 소리를 가져오므로, 컴퓨터의 다른 소리는 들어가지 않아요."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -2201,7 +2192,7 @@ msgstr "새 테마"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Hide ready-made themes"
-msgstr ""
+msgstr "기본 제공 테마 숨기기"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
@@ -2297,31 +2288,31 @@ msgstr "띠 색"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(how each kind of slide looks in this theme)"
-msgstr ""
+msgstr "(이 테마에서 슬라이드 종류별 모양)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Drag the box to move the text; drag its corner to make it bigger or smaller."
-msgstr ""
+msgstr "상자를 드래그하면 글자가 이동하고, 모서리를 드래그하면 크기가 바뀌어요."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Snap to guides (middle, edges and thirds)"
-msgstr ""
+msgstr "안내선에 맞추기(가운데, 가장자리, 3등분)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text size in this layout"
-msgstr ""
+msgstr "이 레이아웃의 글자 크기"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(percent of the theme's size)"
-msgstr ""
+msgstr "(테마 크기 대비 백분율)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text in the box"
-msgstr ""
+msgstr "상자 안의 텍스트"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Reset this layout"
-msgstr ""
+msgstr "이 레이아웃 초기화"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
@@ -2620,20 +2611,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "커서 위치에서 새 슬라이드를 시작해요"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"나 같은 죄인 살리신\n"
-"주 은혜 놀라워\n"
-"\n"
-"Chorus\n"
-"잃었던 생명 찾았고…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n나 같은 죄인 살리신\n주 은혜 놀라워\n\nChorus\n잃었던 생명 찾았고…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2669,15 +2648,15 @@ msgstr "더 새로운 RustyPresenter 필요"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked · hidden"
-msgstr ""
+msgstr "{} · 잠김 · 숨김"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked"
-msgstr ""
+msgstr "{} · 잠김"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · hidden"
-msgstr ""
+msgstr "{} · 숨김"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
@@ -2733,11 +2712,11 @@ msgstr "상자 추가"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Locked (can't be moved by mistake)"
-msgstr ""
+msgstr "잠금(실수로 움직이지 않게)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Hidden on the stage"
-msgstr ""
+msgstr "무대에서 숨기기"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
@@ -2745,7 +2724,7 @@ msgstr "표시 내용"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Show chords (typed in the lyrics like [G])"
-msgstr ""
+msgstr "코드 표시(가사에 [G]처럼 입력)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
@@ -2785,7 +2764,7 @@ msgstr "보통"
 
 #: ui/dialogs/transition.slint
 msgid "Fade"
-msgstr ""
+msgstr "페이드"
 
 #: ui/dialogs/transition.slint ui/widgets.slint
 msgid "Cut"
@@ -2793,31 +2772,31 @@ msgstr "잘라내기"
 
 #: ui/dialogs/transition.slint
 msgid "Through black"
-msgstr ""
+msgstr "검은 화면 거쳐서"
 
 #: ui/dialogs/transition.slint
 msgid "Push"
-msgstr ""
+msgstr "밀어내기"
 
 #: ui/dialogs/transition.slint
 msgid "Wipe"
-msgstr ""
+msgstr "닦아내기"
 
 #: ui/dialogs/transition.slint
 msgid "Which way"
-msgstr ""
+msgstr "방향"
 
 #: ui/dialogs/transition.slint
 msgid "To the left"
-msgstr ""
+msgstr "왼쪽으로"
 
 #: ui/dialogs/transition.slint
 msgid "To the right"
-msgstr ""
+msgstr "오른쪽으로"
 
 #: ui/dialogs/transition.slint
 msgid "Time ({} ms)"
-msgstr ""
+msgstr "시간({} ms)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3017,27 +2996,27 @@ msgstr "화면 식별"
 
 #: ui/operator/action-palette.slint
 msgid "Drag onto a slide, or click to add it to the picked slide"
-msgstr ""
+msgstr "슬라이드로 드래그하거나, 클릭해서 선택한 슬라이드에 추가하세요"
 
 #: ui/operator/action-palette.slint
 msgid "Slide actions"
-msgstr ""
+msgstr "슬라이드 동작"
 
 #: ui/operator/action-palette.slint
 msgid "Close the action palette"
-msgstr ""
+msgstr "동작 팔레트 닫기"
 
 #: ui/operator/action-palette.slint
 msgid "They run when the slide goes live, never in a preview."
-msgstr ""
+msgstr "슬라이드가 라이브로 나갈 때만 실행되고, 미리 보기에서는 실행되지 않아요."
 
 #: ui/operator/action-palette.slint
 msgid "This slide does nothing extra yet."
-msgstr ""
+msgstr "이 슬라이드에는 아직 추가 동작이 없어요."
 
 #: ui/operator/action-palette.slint
 msgid "Take off “{}”"
-msgstr ""
+msgstr "“{}” 빼기"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
@@ -3069,23 +3048,23 @@ msgstr "예배당에 표시"
 
 #: ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/ui/dialogs/mod.rs
 msgid "Walk-in music"
-msgstr ""
+msgstr "입장 음악"
 
 #: ui/operator/automation-strip.slint
 msgid "Pause the walk-in music"
-msgstr ""
+msgstr "입장 음악 일시 정지"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Play the walk-in music"
-msgstr ""
+msgstr "입장 음악 재생"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Stop the walk-in music"
-msgstr ""
+msgstr "입장 음악 정지"
 
 #: ui/operator/automation-strip.slint
 msgid "Walk-in music songs and volume"
-msgstr ""
+msgstr "입장 음악 곡 및 볼륨"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -3185,7 +3164,7 @@ msgstr "사진"
 
 #: ui/operator/media.slint
 msgid "Video inputs"
-msgstr ""
+msgstr "비디오 입력"
 
 #: ui/operator/media.slint
 msgid "Search media"
@@ -3205,7 +3184,7 @@ msgstr "폴더 삭제"
 
 #: ui/operator/media.slint
 msgid "No video inputs yet. Plug in a camera or capture card, then add it on the right."
-msgstr ""
+msgstr "아직 비디오 입력이 없어요. 카메라나 캡처 카드를 연결한 다음, 오른쪽에서 추가하세요."
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
@@ -3217,27 +3196,27 @@ msgstr "미디어 가져오기"
 
 #: ui/operator/media.slint
 msgid "Add a video input"
-msgstr ""
+msgstr "비디오 입력 추가"
 
 #: ui/operator/media.slint
 msgid "Looking for cameras…"
-msgstr ""
+msgstr "카메라 찾는 중…"
 
 #: ui/operator/media.slint
 msgid "None found. Type the camera's name:"
-msgstr ""
+msgstr "찾지 못했어요. 카메라 이름을 입력하세요:"
 
 #: ui/operator/media.slint
 msgid "Or type its name"
-msgstr ""
+msgstr "또는 이름 입력"
 
 #: ui/operator/media.slint
 msgid "Camera name"
-msgstr ""
+msgstr "카메라 이름"
 
 #: ui/operator/media.slint
 msgid "Look for cameras again"
-msgstr ""
+msgstr "카메라 다시 찾기"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -3301,19 +3280,19 @@ msgstr "동영상, 사진, 음악, 프레젠테이션(PowerPoint, Keynote, PDF),
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
-msgstr ""
+msgstr "녹화 중지"
 
 #: ui/operator/record.slint
 msgid "Record"
-msgstr ""
+msgstr "녹화"
 
 #: ui/operator/record.slint
 msgid "Stop recording and save the file"
-msgstr ""
+msgstr "녹화를 멈추고 파일 저장"
 
 #: ui/operator/record.slint
 msgid "Record the room screen to a video file"
-msgstr ""
+msgstr "예배당 화면을 동영상 파일로 녹화"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -3441,11 +3420,11 @@ msgstr "이 본문을 찬양 라이브러리에 보관해서 편집하거나 다
 
 #: ui/operator/slides.slint
 msgid "Actions"
-msgstr ""
+msgstr "동작"
 
 #: ui/operator/slides.slint
 msgid "Things a slide does when it goes live: drag them onto a slide"
-msgstr ""
+msgstr "슬라이드가 라이브로 나갈 때 하는 일이에요. 슬라이드로 드래그하세요"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
@@ -3577,19 +3556,19 @@ msgstr "이 예배를 파일로 저장…"
 
 #: ui/operator.slint
 msgid "Song from the clipboard"
-msgstr ""
+msgstr "클립보드의 찬양"
 
 #: ui/operator.slint
 msgid "Announcement from the clipboard"
-msgstr ""
+msgstr "클립보드의 광고"
 
 #: ui/operator.slint
 msgid "PowerPoint words as editable slides…"
-msgstr ""
+msgstr "PowerPoint 글자를 편집 가능한 슬라이드로…"
 
 #: ui/operator.slint
 msgid "Theme pack…"
-msgstr ""
+msgstr "테마 팩…"
 
 #: ui/operator.slint
 msgid "Export"
@@ -3601,15 +3580,15 @@ msgstr "예배 묶음 파일…"
 
 #: ui/operator.slint
 msgid "Song words as text…"
-msgstr ""
+msgstr "찬양 가사를 텍스트로…"
 
 #: ui/operator.slint
 msgid "Slides as pictures…"
-msgstr ""
+msgstr "슬라이드를 사진으로…"
 
 #: ui/operator.slint
 msgid "Playlist (list of files)…"
-msgstr ""
+msgstr "재생 목록(파일 목록)…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -3633,7 +3612,7 @@ msgstr "광고…"
 
 #: ui/operator.slint
 msgid "Designed slides…"
-msgstr ""
+msgstr "디자인된 슬라이드…"
 
 #: ui/operator.slint
 msgid "Import media…"
@@ -3641,15 +3620,15 @@ msgstr "미디어 가져오기…"
 
 #: ui/operator.slint
 msgid "Video inputs…"
-msgstr ""
+msgstr "비디오 입력…"
 
 #: ui/operator.slint
 msgid "Start recording"
-msgstr ""
+msgstr "녹화 시작"
 
 #: ui/operator.slint
 msgid "Recording settings…"
-msgstr ""
+msgstr "녹화 설정…"
 
 #: ui/operator.slint
 msgid "Print service order…"
@@ -3825,23 +3804,23 @@ msgstr "자동화…"
 
 #: ui/operator.slint
 msgid "Walk-in music…"
-msgstr ""
+msgstr "입장 음악…"
 
 #: ui/operator.slint
 msgid "Calendar…"
-msgstr ""
+msgstr "캘린더…"
 
 #: ui/operator.slint
 msgid "Hide the action palette"
-msgstr ""
+msgstr "동작 팔레트 숨기기"
 
 #: ui/operator.slint
 msgid "Action palette"
-msgstr ""
+msgstr "동작 팔레트"
 
 #: ui/operator.slint
 msgid "Start pre-service"
-msgstr ""
+msgstr "예배 전 시작"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -3853,7 +3832,7 @@ msgstr "테마 및 배경…"
 
 #: ui/operator.slint
 msgid "Network…"
-msgstr ""
+msgstr "네트워크…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -4113,7 +4092,7 @@ msgstr "“{file}”을(를) 읽지 못했어요: {error}"
 
 #: src/automation/actions.rs
 msgid "A macro can't run another macro."
-msgstr ""
+msgstr "매크로는 다른 매크로를 실행할 수 없어요."
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
@@ -4129,15 +4108,15 @@ msgstr "파일을 재생할 수 없어요"
 
 #: src/automation/slide_actions.rs
 msgid "A slide can do up to 8 things."
-msgstr ""
+msgstr "슬라이드 하나에 동작을 8개까지 넣을 수 있어요."
 
 #: src/automation/slide_actions.rs
 msgid "That action was already taken off."
-msgstr ""
+msgstr "그 동작은 이미 뺐어요."
 
 #: src/automation/slide_actions.rs
 msgid "Playlists aren't available yet."
-msgstr ""
+msgstr "재생 목록은 아직 사용할 수 없어요."
 
 #: src/automation/slide_actions.rs src/slides.rs src/strings/design.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
@@ -4165,43 +4144,43 @@ msgstr "메시지 숨기기"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play “{title}”"
-msgstr ""
+msgstr "“{title}” 재생"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play a playlist"
-msgstr ""
+msgstr "재생 목록 재생"
 
 #: src/automation/slide_actions.rs
 msgid "No playlists yet."
-msgstr ""
+msgstr "아직 재생 목록이 없어요."
 
 #: src/automation/slide_actions.rs
 msgid "Play playlist “{name}”"
-msgstr ""
+msgstr "재생 목록 “{name}” 재생"
 
 #: src/automation/slide_actions.rs
 msgid "Start “{name}”"
-msgstr ""
+msgstr "“{name}” 시작"
 
 #: src/automation/slide_actions.rs
 msgid "Stop “{name}”"
-msgstr ""
+msgstr "“{name}” 정지"
 
 #: src/automation/slide_actions.rs
 msgid "Show “{name}”"
-msgstr ""
+msgstr "“{name}” 표시"
 
 #: src/automation/slide_actions.rs
 msgid "This message has blanks to fill in. Put it in a macro instead."
-msgstr ""
+msgstr "이 메시지에는 채워야 할 칸이 있어요. 대신 매크로에 넣으세요."
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” on"
-msgstr ""
+msgstr "“{name}” 켜기"
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” off"
-msgstr ""
+msgstr "“{name}” 끄기"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
@@ -4209,7 +4188,7 @@ msgstr "“{name}” 실행"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Stage: {name}"
-msgstr ""
+msgstr "무대: {name}"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
@@ -4229,7 +4208,7 @@ msgstr "화면에 표시할 내용 변경"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Go to slide {n}"
-msgstr ""
+msgstr "슬라이드 {n}(으)로 이동"
 
 #: src/automation/slide_actions.rs src/strings/stage.rs src/ui/dialogs/automation.rs
 msgid "Next slide"
@@ -4541,27 +4520,27 @@ msgstr "사라짐"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
-msgstr ""
+msgstr "볼륨"
 
 #: src/i18n/remote_strings.rs
 msgid "Not playing"
-msgstr ""
+msgstr "재생 중 아님"
 
 #: src/i18n/remote_strings.rs
 msgid "{time} left"
-msgstr ""
+msgstr "{time} 남음"
 
 #: src/i18n/remote_strings.rs
 msgid "Password"
-msgstr ""
+msgstr "비밀번호"
 
 #: src/i18n/remote_strings.rs
 msgid "This remote needs a password too."
-msgstr ""
+msgstr "이 리모컨도 비밀번호가 필요해요."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
-msgstr ""
+msgstr "이 무대 화면은 비밀번호가 필요해요."
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -4797,7 +4776,7 @@ msgstr "OpenSong 찬양이 아니에요"
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
-msgstr ""
+msgstr ".pptx로 저장한 PowerPoint 파일만 글자로 읽을 수 있어요. PowerPoint에서 .pptx로 저장하거나, 사진으로 추가하세요."
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
@@ -4897,11 +4876,11 @@ msgstr "그 동영상이나 오디오는 이제 재생 중이 아니에요."
 
 #: src/live.rs
 msgid "That item isn't a video, picture or sound."
-msgstr ""
+msgstr "그 항목은 동영상, 사진, 소리가 아니에요."
 
 #: src/live.rs
 msgid "That theme was deleted."
-msgstr ""
+msgstr "그 테마는 삭제되었어요."
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
@@ -4996,71 +4975,71 @@ msgstr "성경 말씀"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
-msgstr ""
+msgstr "녹화하려면 무료 프로그램인 FFmpeg가 필요해요. {hint}"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
-msgstr ""
+msgstr "이 FFmpeg는 H.264 동영상을 만들 수 없어요. 전체 버전 FFmpeg를 설치하고 다시 시도하세요."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."
-msgstr ""
+msgstr "먼저 예배당 화면을 켜세요. 녹화되는 것은 예배당 화면에 나오는 내용이에요."
 
 #: src/record/mod.rs
 msgid "Could not use the recordings folder {path}: {why}"
-msgstr ""
+msgstr "녹화 폴더 {path}을(를) 사용할 수 없어요: {why}"
 
 #: src/record/mod.rs
 msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr ""
+msgstr "녹화 폴더가 있는 디스크에 남은 공간이 {free}뿐이에요. 1시간 녹화에는 약 {need}가 필요해요. 설정 → 미디어에서 다른 폴더를 선택하세요."
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
-msgstr ""
+msgstr "디스크가 거의 가득 차서 녹화가 멈췄어요."
 
 #: src/record/mod.rs
 msgid "The recording could not start: {why}"
-msgstr ""
+msgstr "녹화를 시작하지 못했어요: {why}"
 
 #: src/record/mod.rs
 msgid "The recording stopped: {why}"
-msgstr ""
+msgstr "녹화가 멈췄어요: {why}"
 
 #: src/record/mod.rs
 msgid "Recording the room screen."
-msgstr ""
+msgstr "예배당 화면을 녹화하는 중이에요."
 
 #: src/record/mod.rs
 msgid "Saving the recording…"
-msgstr ""
+msgstr "녹화 저장 중…"
 
 #: src/record/mod.rs
 msgid "Recording saved: {path}"
-msgstr ""
+msgstr "녹화 저장됨: {path}"
 
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
-msgstr ""
+msgstr "녹화를 {path}(으)로 저장했어요(MP4로 변환하지 못했어요)."
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
-msgstr ""
+msgstr "앱의 소리를 추가하지 못해서 소리 없이 녹화를 저장했어요."
 
 #: src/record/mod.rs
 msgid "FFmpeg stopped unexpectedly"
-msgstr ""
+msgstr "FFmpeg가 예기치 않게 멈췄어요"
 
 #: src/record/mod.rs
 msgid "No sound"
-msgstr ""
+msgstr "소리 없음"
 
 #: src/record/mod.rs
 msgid "The sound the app plays (videos and songs)"
-msgstr ""
+msgstr "앱에서 재생하는 소리(동영상과 곡)"
 
 #: src/record/mod.rs
 msgid "Microphone or line-in: {name}"
-msgstr ""
+msgstr "마이크 또는 라인 입력: {name}"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
@@ -5481,7 +5460,7 @@ msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 무대 �
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s macro was deleted."
-msgstr ""
+msgstr "“{name}”을(를) 실행하지 못했어요: {step}단계의 매크로가 삭제되었어요."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
@@ -5607,39 +5586,39 @@ msgstr "화면 보기는 아직 사용할 수 없어요."
 
 #: src/strings/automation.rs
 msgid "Add some songs to the walk-in music first."
-msgstr ""
+msgstr "먼저 입장 음악에 곡을 추가하세요."
 
 #: src/strings/automation.rs
 msgid "That song isn't in the walk-in music any more."
-msgstr ""
+msgstr "그 곡은 더 이상 입장 음악에 없어요."
 
 #: src/strings/automation.rs
 msgid "The walk-in music can hold 500 songs at most."
-msgstr ""
+msgstr "입장 음악에는 곡을 최대 500개까지 넣을 수 있어요."
 
 #: src/strings/automation.rs
 msgid "The walk-in music stopped: {reason}"
-msgstr ""
+msgstr "입장 음악이 멈췄어요: {reason}"
 
 #: src/strings/automation.rs
 msgid "“{name}” runs a macro that was deleted."
-msgstr ""
+msgstr "“{name}”이(가) 삭제된 매크로를 실행해요."
 
 #: src/strings/automation.rs
 msgid "Pick at least one day."
-msgstr ""
+msgstr "요일을 하나 이상 선택하세요."
 
 #: src/strings/automation.rs
 msgid "Pick what to do."
-msgstr ""
+msgstr "할 일을 선택하세요."
 
 #: src/strings/automation.rs
 msgid "The calendar can hold 50 entries at most."
-msgstr ""
+msgstr "캘린더에는 항목을 최대 50개까지 넣을 수 있어요."
 
 #: src/strings/automation.rs
 msgid "Calendar: ran “{name}”."
-msgstr ""
+msgstr "캘린더: “{name}”을(를) 실행했어요."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -5863,11 +5842,11 @@ msgstr "{sources}에도 있음"
 
 #: src/strings/design.rs
 msgid "A slide set can have at most 200 slides."
-msgstr ""
+msgstr "슬라이드 세트에는 슬라이드를 최대 200장까지 넣을 수 있어요."
 
 #: src/strings/design.rs
 msgid "A slide can have at most 60 objects."
-msgstr ""
+msgstr "슬라이드 하나에는 개체를 최대 60개까지 넣을 수 있어요."
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Your words here"
@@ -5875,27 +5854,27 @@ msgstr "여기에 글자 입력"
 
 #: src/strings/design.rs
 msgid "Slide editor"
-msgstr ""
+msgstr "슬라이드 편집기"
 
 #: src/strings/design.rs
 msgid "New slides"
-msgstr ""
+msgstr "새 슬라이드"
 
 #: src/strings/design.rs
 msgid "Slide {n} · {step} of {of}"
-msgstr ""
+msgstr "슬라이드 {n} · {of}단계 중 {step}"
 
 #: src/strings/design.rs
 msgid "Slides saved"
-msgstr ""
+msgstr "슬라이드 저장됨"
 
 #: src/strings/design.rs
 msgid "Throw away the changes to these slides?"
-msgstr ""
+msgstr "이 슬라이드의 변경 내용을 버릴까요?"
 
 #: src/strings/design.rs
 msgid "Throw away"
-msgstr ""
+msgstr "버리기"
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Keep editing"
@@ -5903,23 +5882,23 @@ msgstr "계속 편집"
 
 #: src/strings/design.rs
 msgid "Style copied. Choose other boxes (or none, for every text box) and press Ctrl+Alt+V."
-msgstr ""
+msgstr "스타일을 복사했어요. 다른 상자를 선택하고(모든 텍스트 상자에 적용하려면 선택하지 않고) Ctrl+Alt+V를 누르세요."
 
 #: src/strings/design.rs
 msgid "Choose a box to copy its style."
-msgstr ""
+msgstr "스타일을 복사할 상자를 선택하세요."
 
 #: src/strings/design.rs
 msgid "Copy a style first (Ctrl+Alt+C)."
-msgstr ""
+msgstr "먼저 스타일을 복사하세요(Ctrl+Alt+C)."
 
 #: src/strings/design.rs
 msgid "Style pasted"
-msgstr ""
+msgstr "스타일 붙여 넣음"
 
 #: src/strings/design.rs
 msgid "That picture could not be read."
-msgstr ""
+msgstr "그 사진을 읽을 수 없어요."
 
 #: src/strings/dialogs.rs
 msgid "Services"
@@ -6067,35 +6046,35 @@ msgstr "미디어 라이브러리에 추가됐어요 — 여기서 선택하세�
 
 #: src/strings/network.rs
 msgid "Use at least 4 characters for a password."
-msgstr ""
+msgstr "비밀번호는 4자 이상으로 정하세요."
 
 #: src/strings/network.rs
 msgid "Type a password, or turn the password off."
-msgstr ""
+msgstr "비밀번호를 입력하거나 비밀번호를 끄세요."
 
 #: src/strings/network.rs
 msgid "Use a port from 1024 to 65535."
-msgstr ""
+msgstr "1024부터 65535 사이의 포트를 사용하세요."
 
 #: src/strings/network.rs
 msgid "Port {port} is the app's own. Pick another one."
-msgstr ""
+msgstr "포트 {port}은(는) 앱이 이미 사용하고 있어요. 다른 포트를 선택하세요."
 
 #: src/strings/network.rs
 msgid "The TCP control could not use port {port}: {error}"
-msgstr ""
+msgstr "TCP 제어에서 포트 {port}을(를) 사용할 수 없어요: {error}"
 
 #: src/strings/network.rs
 msgid "That password isn't right."
-msgstr ""
+msgstr "비밀번호가 맞지 않아요."
 
 #: src/strings/network.rs
 msgid "The stage view is turned off on the presentation computer."
-msgstr ""
+msgstr "프레젠테이션 컴퓨터에서 무대 보기가 꺼져 있어요."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
-msgstr ""
+msgstr "네트워크 설정을 저장했어요."
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
@@ -6839,23 +6818,23 @@ msgstr "“{name}”을(를) 제거할까요?"
 
 #: src/strings/screens.rs
 msgid "Placeholder (connect the projector later)"
-msgstr ""
+msgstr "자리 표시자(프로젝터는 나중에 연결)"
 
 #: src/strings/screens.rs
 msgid "Placeholder"
-msgstr ""
+msgstr "자리 표시자"
 
 #: src/strings/screens.rs
 msgid "Nothing shows on a placeholder. Set it up now, then pick the projector here once it is plugged in."
-msgstr ""
+msgstr "자리 표시자에는 아무것도 표시되지 않아요. 지금 설정해 두고, 프로젝터를 연결하면 여기서 선택하세요."
 
 #: src/strings/screens.rs
 msgid "Shows the audience picture instead of a stage layout. It has no sound."
-msgstr ""
+msgstr "무대 레이아웃 대신 회중 화면을 보여 줘요. 소리는 없어요."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
-msgstr ""
+msgstr "컬러 바"
 
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
@@ -6867,31 +6846,31 @@ msgstr "검은색"
 
 #: src/strings/screens.rs
 msgid "left"
-msgstr ""
+msgstr "왼쪽"
 
 #: src/strings/screens.rs
 msgid "right"
-msgstr ""
+msgstr "오른쪽"
 
 #: src/strings/screens.rs
 msgid "up"
-msgstr ""
+msgstr "위"
 
 #: src/strings/screens.rs
 msgid "down"
-msgstr ""
+msgstr "아래"
 
 #: src/strings/screens.rs
 msgid "Moved {side} {x} %, {way} {y} %"
-msgstr ""
+msgstr "{side} {x}%, {way} {y}% 이동됨"
 
 #: src/strings/screens.rs
 msgid "about {ms} ms"
-msgstr ""
+msgstr "약 {ms} ms"
 
 #: src/strings/screens.rs
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr ""
+msgstr "색과 모서리 변경은 화면을 OpenGL로 그릴 때 표시돼요(설정 → 동영상 → 그래픽: 자동 또는 OpenGL). 테스트 패턴과 지연은 어느 쪽이든 작동해요."
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -7192,12 +7171,8 @@ msgid "Settings saved"
 msgstr "설정 저장됨"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"나 같은 죄인 살리신\n"
-"주 은혜 놀라워"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "나 같은 죄인 살리신\n주 은혜 놀라워"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -7626,7 +7601,7 @@ msgstr "동영상 남은 시간"
 
 #: src/strings/stage.rs
 msgid "Next slide picture"
-msgstr ""
+msgstr "다음 슬라이드 그림"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
@@ -7678,15 +7653,15 @@ msgstr "한 번 입력해 두는 글"
 
 #: src/strings/stage.rs
 msgid "the next slide as the room will see it"
-msgstr ""
+msgstr "예배당에서 보일 다음 슬라이드"
 
 #: src/strings/stage.rs
 msgid "a box, circle or line"
-msgstr ""
+msgstr "상자, 원 또는 선"
 
 #: src/strings/stage.rs
 msgid "Rounded box"
-msgstr ""
+msgstr "둥근 상자"
 
 #: src/strings/stage.rs
 msgid "(logo)"
@@ -7857,7 +7832,7 @@ msgstr "마지막 후렴"
 
 #: src/strings/stage.rs
 msgid "(picture of the next slide)"
-msgstr ""
+msgstr "(다음 슬라이드 그림)"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -8009,7 +7984,7 @@ msgstr "이 배경의 새 이름"
 
 #: src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
-msgstr ""
+msgstr "카메라"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
@@ -8169,15 +8144,15 @@ msgstr "LibreOffice Impress를 설치하세요. 예: sudo apt install libreoffic
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: winget install Gyan.FFmpeg"
-msgstr ""
+msgstr "FFmpeg 받기를 클릭하면 RustyPresenter가 다운로드해요. 직접 설치해도 돼요: winget install Gyan.FFmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: brew install ffmpeg"
-msgstr ""
+msgstr "FFmpeg 받기를 클릭하면 RustyPresenter가 다운로드해요. 직접 설치해도 돼요: brew install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself, for example: sudo apt install ffmpeg"
-msgstr ""
+msgstr "FFmpeg 받기를 클릭하면 RustyPresenter가 다운로드해요. 직접 설치해도 돼요. 예: sudo apt install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
@@ -8467,108 +8442,108 @@ msgstr "슬레이트"
 
 #: src/theme/builtins.rs
 msgid "Clean white"
-msgstr ""
+msgstr "깔끔한 흰색"
 
 #: src/theme/builtins.rs
 msgid "Classic serif"
-msgstr ""
+msgstr "클래식 세리프"
 
 #: src/theme/builtins.rs
 msgid "Royal"
-msgstr ""
+msgstr "로열"
 
 #: src/theme/builtins.rs
 msgid "Bold modern"
-msgstr ""
+msgstr "굵은 모던"
 
 #: src/theme/builtins.rs
 msgid "Christmas red"
-msgstr ""
+msgstr "성탄 빨강"
 
 #: src/theme/builtins.rs
 msgid "Easter morning"
-msgstr ""
+msgstr "부활절 아침"
 
 #: src/theme/builtins.rs
 msgid "Advent purple"
-msgstr ""
+msgstr "대림절 보라"
 
 #: src/theme/builtins.rs
 msgid "Youth night"
-msgstr ""
+msgstr "청소년의 밤"
 
 #: src/theme/builtins.rs
 msgid "Sunrise"
-msgstr ""
+msgstr "해돋이"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr ""
+msgstr "동영상 위 글자"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
-msgstr ""
+msgstr "제목 + 부제목"
 
 #: src/theme/layouts.rs
 msgid "Quote"
-msgstr ""
+msgstr "인용"
 
 #: src/theme/layouts.rs
 msgid "Main point"
-msgstr ""
+msgstr "요점"
 
 #: src/theme/layouts.rs
 msgid "Points"
-msgstr ""
+msgstr "항목 목록"
 
 #: src/theme/layouts.rs
 msgctxt "layout"
 msgid "Text"
-msgstr ""
+msgstr "텍스트"
 
 #: src/theme/layouts.rs
 msgid "Lower-third lyrics"
-msgstr ""
+msgstr "하단 자막 가사"
 
 #: src/theme/layouts.rs
 msgid "One big line in the middle."
-msgstr ""
+msgstr "가운데에 큰 글자 한 줄."
 
 #: src/theme/layouts.rs
 msgid "The first line is the title; the lines under it are smaller."
-msgstr ""
+msgstr "첫 줄은 제목이고, 그 아래 줄은 더 작아요."
 
 #: src/theme/layouts.rs
 msgid "The quote on the first line, who said it on the next."
-msgstr ""
+msgstr "첫 줄에 인용문, 다음 줄에 말한 사람."
 
 #: src/theme/layouts.rs
 msgid "One short sentence, big and bold."
-msgstr ""
+msgstr "짧은 한 문장을 크고 굵게."
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr ""
+msgstr "성경 본문처럼 배치해요."
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
-msgstr ""
+msgstr "배경 그림이 보이도록 아래에 작은 자막을 넣어요."
 
 #: src/theme/layouts.rs
 msgid "Each line becomes a bullet point."
-msgstr ""
+msgstr "각 줄이 글머리 기호 항목이 돼요."
 
 #: src/theme/layouts.rs
 msgid "Plain text, like an announcement."
-msgstr ""
+msgstr "광고처럼 일반 텍스트예요."
 
 #: src/theme/layouts.rs
 msgid "Laid out like song lyrics."
-msgstr ""
+msgstr "찬양 가사처럼 배치해요."
 
 #: src/theme/layouts.rs
 msgid "Small text at the bottom of the screen."
-msgstr ""
+msgstr "화면 아래쪽에 작은 글자."
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
@@ -8576,27 +8551,27 @@ msgstr "{name} 사본 {number}"
 
 #: src/transfer.rs
 msgid "This service has no songs."
-msgstr ""
+msgstr "이 예배에는 찬양이 없어요."
 
 #: src/transfer.rs
 msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr ""
+msgstr "내보낼 저장된 테마가 없어요. 설정 → 테마에서 만드세요."
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
-msgstr ""
+msgstr "RustyPresenter 테마 팩이 아니에요."
 
 #: src/transfer.rs
 msgid "This theme pack was made by a newer RustyPresenter. Update to open it."
-msgstr ""
+msgstr "더 새로운 RustyPresenter에서 만든 테마 팩이에요. 열려면 업데이트하세요."
 
 #: src/transfer.rs
 msgid "The clipboard has no text. Copy the words first."
-msgstr ""
+msgstr "클립보드에 텍스트가 없어요. 먼저 글자를 복사하세요."
 
 #: src/transfer.rs
 msgid "{name} (imported)"
-msgstr ""
+msgstr "{name}(가져옴)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
@@ -8656,19 +8631,19 @@ msgstr "무대 레이아웃 변경"
 
 #: src/ui/dialogs/automation.rs
 msgid "Play item {n}"
-msgstr ""
+msgstr "{n}번 항목 재생"
 
 #: src/ui/dialogs/automation.rs
 msgid "Every day"
-msgstr ""
+msgstr "매일"
 
 #: src/ui/dialogs/automation.rs
 msgid "Weekdays"
-msgstr ""
+msgstr "평일"
 
 #: src/ui/dialogs/automation.rs
 msgid "{days} at {time}"
-msgstr ""
+msgstr "{days} {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
@@ -8689,7 +8664,7 @@ msgstr[0] "{n}단계"
 
 #: src/ui/dialogs/automation.rs
 msgid "Next: {day} {date}, {time}"
-msgstr ""
+msgstr "다음: {date}({day}) {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
@@ -8705,7 +8680,7 @@ msgstr "채워 넣을 칸: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Leave it as it is"
-msgstr ""
+msgstr "그대로 두기"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
@@ -8713,7 +8688,7 @@ msgstr "저장했어요."
 
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
-msgstr ""
+msgstr "다음을 누르면 나타남({of}단계 중 {step})"
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
@@ -8725,15 +8700,15 @@ msgstr "메시지 표시"
 
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
-msgstr ""
+msgstr "지금: {title} · {time} 남음"
 
 #: src/ui/dialogs/network.rs
 msgid "Network"
-msgstr ""
+msgstr "네트워크"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
-msgstr ""
+msgstr "한 줄에 명령 하나씩 보내세요: next, prev, clear, clear slide, logo, go 3(3번 항목), go 3 2(그 항목의 2번 슬라이드), status. 비밀번호를 쓰면 먼저 “password …”를 보내세요. 모든 줄에 OK 또는 ERR로 응답해요."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
@@ -8814,34 +8789,27 @@ msgstr "정리"
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
 msgid_plural "Show {n} ready-made themes"
-msgstr[0] ""
+msgstr[0] "기본 제공 테마 {n}개 표시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "부활주일\n예배: 오전 9시, 11시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“가만히 있어 내가 하나님 됨을 알지어다.”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
-msgstr ""
+msgstr "하나님의 은혜로 충분해요"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Youth camp in the mountains"
-msgstr ""
+msgstr "산으로 떠나는 청소년 수련회"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "매일 기도하기\n성경 읽기\n이웃 섬기기"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -8918,19 +8886,19 @@ msgstr "번역 파일(.po)"
 
 #: src/ui/operator/file_input.rs
 msgid "Text file (.txt)"
-msgstr ""
+msgstr "텍스트 파일(.txt)"
 
 #: src/ui/operator/file_input.rs
 msgid "Playlist (.m3u8)"
-msgstr ""
+msgstr "재생 목록(.m3u8)"
 
 #: src/ui/operator/file_input.rs
 msgid "Theme pack (.rpthemes)"
-msgstr ""
+msgstr "테마 팩(.rpthemes)"
 
 #: src/ui/operator/file_input.rs
 msgid "PowerPoint (.pptx)"
-msgstr ""
+msgstr "PowerPoint(.pptx)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -9042,7 +9010,7 @@ msgstr "도움말 → 문제 신고…는 작성할 메모를 만들고 로그 �
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
-msgstr ""
+msgstr "예배 전에 할 일을 선택한 다음 저장을 클릭하세요."
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -9062,58 +9030,58 @@ msgstr "소리가 다시 예배당으로 나가요."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
-msgstr ""
+msgstr "FFmpeg 받기"
 
 #: src/ui/operator/record.rs
 msgid "Not now"
-msgstr ""
+msgstr "나중에"
 
 #: src/ui/operator/record.rs
 msgid "Getting FFmpeg for recording"
-msgstr ""
+msgstr "녹화용 FFmpeg 받는 중"
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg is ready. Press Record to start recording."
-msgstr ""
+msgstr "FFmpeg가 준비됐어요. 녹화를 누르면 녹화가 시작돼요."
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
-msgstr ""
+msgstr "FFmpeg를 다운로드하지 못했어요. 인터넷 연결을 확인하거나 직접 설치하세요: {command}"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
-msgstr ""
+msgstr "{path}에 저장했어요"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved {n} picture in {path}"
 msgid_plural "Saved {n} pictures in {path}"
-msgstr[0] ""
+msgstr[0] "{path}에 사진 {n}장을 저장했어요"
 
 #: src/ui/operator/transfer.rs
 msgid "Added “{title}” with {n} slide of words. Pictures and layout are not copied: add it as pictures to keep them."
 msgid_plural "Added “{title}” with {n} slides of words. Pictures and layout are not copied: add it as pictures to keep them."
-msgstr[0] ""
+msgstr[0] "글자 슬라이드 {n}장으로 “{title}”을(를) 추가했어요. 그림과 레이아웃은 복사되지 않아요. 유지하려면 사진으로 추가하세요."
 
 #: src/ui/operator/transfer.rs
 msgid "Added {n} theme."
 msgid_plural "Added {n} themes."
-msgstr[0] ""
+msgstr[0] "테마 {n}개를 추가했어요."
 
 #: src/ui/operator/transfer.rs
 msgid "{service} words"
-msgstr ""
+msgstr "{service} 가사"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
-msgstr ""
+msgstr "먼저 카메라를 선택하거나 이름을 입력하세요."
 
 #: src/ui/operator/video_inputs.rs
 msgid "Added “{name}”."
-msgstr ""
+msgstr "“{name}”을(를) 추가했어요."
 
 #: src/ui/operator/video_inputs.rs
 msgid "Remove “{name}” from the video inputs?"
-msgstr ""
+msgstr "비디오 입력에서 “{name}”을(를) 제거할까요?"
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"

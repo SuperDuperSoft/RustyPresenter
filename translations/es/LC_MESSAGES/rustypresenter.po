@@ -1,15 +1,6 @@
 # Spanish for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Español\n"
-"X-English-Name: Spanish\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: es\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Español\nX-English-Name: Spanish\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -257,11 +248,11 @@ msgstr "Cuenta progresiva"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the video"
-msgstr ""
+msgstr "Tiempo restante del video"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the audio"
-msgstr ""
+msgstr "Tiempo restante del audio"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
@@ -285,11 +276,11 @@ msgstr "Segundos"
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the video on the screen has left. It follows the video: there is nothing to start."
-msgstr ""
+msgstr "Muestra cuánto le queda al video en pantalla. Sigue al video: no hay nada que iniciar."
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the audio playing has left (an audio item, or else the walk-in music)."
-msgstr ""
+msgstr "Muestra cuánto le queda al audio que suena (un elemento de audio o, si no, la música de entrada)."
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
@@ -517,23 +508,23 @@ msgstr "Solo ocurre si nadie cambió la pantalla desde que empezó la cuenta reg
 
 #: ui/dialogs/automation.slint
 msgid "Sunday countdown"
-msgstr ""
+msgstr "Cuenta regresiva del domingo"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:45 or 18:30)"
-msgstr ""
+msgstr "Hora (como 10:45 o 18:30)"
 
 #: ui/dialogs/automation.slint
 msgid "Days"
-msgstr ""
+msgstr "Días"
 
 #: ui/dialogs/automation.slint
 msgid "What to do"
-msgstr ""
+msgstr "Qué hacer"
 
 #: ui/dialogs/automation.slint
 msgid "On"
-msgstr ""
+msgstr "Activado"
 
 #: ui/dialogs/automation.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/ui/dialogs/settings_keys.rs
 msgid "Timers"
@@ -553,7 +544,7 @@ msgstr "Antes del culto"
 
 #: ui/dialogs/automation.slint
 msgid "Calendar"
-msgstr ""
+msgstr "Calendario"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
@@ -573,7 +564,7 @@ msgstr "Mensaje nuevo"
 
 #: ui/dialogs/automation.slint
 msgid "New calendar entry"
-msgstr ""
+msgstr "Nueva entrada del calendario"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
@@ -585,7 +576,7 @@ msgstr "Elige uno a la izquierda o crea uno nuevo."
 
 #: ui/dialogs/automation.slint
 msgid "Try it now"
-msgstr ""
+msgstr "Probar ahora"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
@@ -617,47 +608,47 @@ msgstr "Elige cualquier color"
 
 #: ui/dialogs/design-canvas.slint
 msgid "Slide"
-msgstr ""
+msgstr "Diapositiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
-msgstr ""
+msgstr "{} · {} apariciones"
 
 #: ui/dialogs/design-editor.slint
 msgid "New slide"
-msgstr ""
+msgstr "Nueva diapositiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy slide"
-msgstr ""
+msgstr "Duplicar diapositiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move earlier"
-msgstr ""
+msgstr "Mover antes"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move later"
-msgstr ""
+msgstr "Mover después"
 
 #: ui/dialogs/design-editor.slint
 msgid "Delete slide"
-msgstr ""
+msgstr "Eliminar diapositiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "This slide"
-msgstr ""
+msgstr "Esta diapositiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "Click an object to change it. Shift+click chooses more than one."
-msgstr ""
+msgstr "Haz clic en un objeto para cambiarlo. Mayús+clic elige más de uno."
 
 #: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
 msgid "Transition"
-msgstr ""
+msgstr "Transición"
 
 #: ui/dialogs/design-editor.slint
 msgid "Use on every slide"
-msgstr ""
+msgstr "Usar en todas"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
@@ -665,11 +656,11 @@ msgstr "Notas"
 
 #: ui/dialogs/design-editor.slint
 msgid "For the stage screen and the operator"
-msgstr ""
+msgstr "Para la pantalla del escenario y el operador"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} objects chosen. Changes go on all of them."
-msgstr ""
+msgstr "{} objetos elegidos. Los cambios se aplican a todos."
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Words"
@@ -677,7 +668,7 @@ msgstr "Palabras"
 
 #: ui/dialogs/design-editor.slint
 msgid "Text size ({} px)"
-msgstr ""
+msgstr "Tamaño del texto ({} px)"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -689,7 +680,7 @@ msgstr "Cursiva"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
-msgstr ""
+msgstr "Reducir para que quepa"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Text colour"
@@ -713,27 +704,27 @@ msgstr "Centro"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Shape"
-msgstr ""
+msgstr "Forma"
 
 #: ui/dialogs/design-editor.slint
 msgid "Rectangle"
-msgstr ""
+msgstr "Rectángulo"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Circle"
-msgstr ""
+msgstr "Círculo"
 
 #: ui/dialogs/design-editor.slint
 msgid "Triangle"
-msgstr ""
+msgstr "Triángulo"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Line"
-msgstr ""
+msgstr "Línea"
 
 #: ui/dialogs/design-editor.slint
 msgid "Arrow"
-msgstr ""
+msgstr "Flecha"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
@@ -741,11 +732,11 @@ msgstr "Imagen"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fit"
-msgstr ""
+msgstr "Ajustar"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill"
-msgstr ""
+msgstr "Rellenar"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
 msgid "Stretch"
@@ -753,23 +744,23 @@ msgstr "Estirar"
 
 #: ui/dialogs/design-editor.slint
 msgid "Web address"
-msgstr ""
+msgstr "Dirección web"
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the page's address here."
-msgstr ""
+msgstr "Aquí la sala ve la dirección de la página."
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the video's first picture here."
-msgstr ""
+msgstr "Aquí la sala ve el primer fotograma del video."
 
 #: ui/dialogs/design-editor.slint
 msgid "A newer RustyPresenter made this object. It can be moved or removed here."
-msgstr ""
+msgstr "Este objeto lo creó un RustyPresenter más nuevo. Aquí puedes moverlo o quitarlo."
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill colour"
-msgstr ""
+msgstr "Color de relleno"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint
 msgid "Outline"
@@ -777,59 +768,59 @@ msgstr "Contorno"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline colour"
-msgstr ""
+msgstr "Color del contorno"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline width ({} px)"
-msgstr ""
+msgstr "Grosor del contorno ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow"
-msgstr ""
+msgstr "Sombra"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow softness ({} px)"
-msgstr ""
+msgstr "Suavidad de la sombra ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Soft edges ({} px)"
-msgstr ""
+msgstr "Bordes suaves ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Round corners ({} px)"
-msgstr ""
+msgstr "Esquinas redondeadas ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "See-through ({}% shown)"
-msgstr ""
+msgstr "Transparencia ({}% visible)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Turn ({}°)"
-msgstr ""
+msgstr "Girar ({}°)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Build"
-msgstr ""
+msgstr "Aparición"
 
 #: ui/dialogs/design-editor.slint
 msgid "Appears on Next"
-msgstr ""
+msgstr "Aparece con Siguiente"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
-msgstr ""
+msgstr "Antes"
 
 #: ui/dialogs/design-editor.slint
 msgid "Later"
-msgstr ""
+msgstr "Después"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
-msgstr ""
+msgstr "Imagen o video"
 
 #: ui/dialogs/design-editor.slint
 msgid "Import pictures into the media library first"
-msgstr ""
+msgstr "Primero importa imágenes a la biblioteca multimedia"
 
 #: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
 msgid "Web page"
@@ -837,7 +828,7 @@ msgstr "Página web"
 
 #: ui/dialogs/design-editor.slint
 msgid "Draw"
-msgstr ""
+msgstr "Dibujar"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/operator.slint src/i18n/remote_strings.rs
 msgid "Undo"
@@ -849,43 +840,43 @@ msgstr "Rehacer"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align left"
-msgstr ""
+msgstr "Alinear a la izquierda"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre across"
-msgstr ""
+msgstr "Centrar en horizontal"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align right"
-msgstr ""
+msgstr "Alinear a la derecha"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align top"
-msgstr ""
+msgstr "Alinear arriba"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre down"
-msgstr ""
+msgstr "Centrar en vertical"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align bottom"
-msgstr ""
+msgstr "Alinear abajo"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space across"
-msgstr ""
+msgstr "Repartir en horizontal"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space down"
-msgstr ""
+msgstr "Repartir en vertical"
 
 #: ui/dialogs/design-editor.slint
 msgid "To front"
-msgstr ""
+msgstr "Al frente"
 
 #: ui/dialogs/design-editor.slint
 msgid "To back"
-msgstr ""
+msgstr "Al fondo"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -893,31 +884,31 @@ msgstr "Duplicar"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy style"
-msgstr ""
+msgstr "Copiar estilo"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+C"
-msgstr ""
+msgstr "Ctrl+Alt+C"
 
 #: ui/dialogs/design-editor.slint
 msgid "Paste style"
-msgstr ""
+msgstr "Pegar estilo"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+V"
-msgstr ""
+msgstr "Ctrl+Alt+V"
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag on the slide to draw. Press Draw again to stop."
-msgstr ""
+msgstr "Arrastra sobre la diapositiva para dibujar. Presiona Dibujar otra vez para terminar."
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag to move, drag a corner to resize, arrows nudge, Alt moves freely. Ctrl+Alt+C copies a style, Ctrl+Alt+V pastes it."
-msgstr ""
+msgstr "Arrastra para mover, arrastra una esquina para cambiar el tamaño, las flechas mueven un poco, Alt mueve libremente. Ctrl+Alt+C copia un estilo y Ctrl+Alt+V lo pega."
 
 #: ui/dialogs/design-editor.slint
 msgid "Video: {}"
-msgstr ""
+msgstr "Video: {}"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
@@ -1101,15 +1092,15 @@ msgstr "Se muestran en la pantalla del escenario con cada diapositiva"
 
 #: ui/dialogs/item-edit.slint
 msgid "Slide transitions"
-msgstr ""
+msgstr "Transiciones de diapositivas"
 
 #: ui/dialogs/item-edit.slint
 msgid "How each slide comes on screen. Normal uses the usual fade."
-msgstr ""
+msgstr "Cómo aparece cada diapositiva en pantalla. Normal usa el fundido habitual."
 
 #: ui/dialogs/item-edit.slint
 msgid "Use for all slides"
-msgstr ""
+msgstr "Usar en todas las diapositivas"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1153,7 +1144,7 @@ msgstr "Quitar del culto"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
-msgstr ""
+msgstr "La música de entrada sigue sonando mientras cambian las diapositivas. Limpiar audio y Limpiar todo la detienen."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1161,47 +1152,47 @@ msgstr "Canciones"
 
 #: ui/dialogs/music.slint
 msgid "Play this song now"
-msgstr ""
+msgstr "Reproducir esta canción ahora"
 
 #: ui/dialogs/music.slint
 msgid "No songs yet. Add audio from the media library below."
-msgstr ""
+msgstr "Aún no hay canciones. Agrega audio desde la biblioteca multimedia de abajo."
 
 #: ui/dialogs/music.slint
 msgid "Add a song"
-msgstr ""
+msgstr "Agregar una canción"
 
 #: ui/dialogs/music.slint
 msgid "Add all"
-msgstr ""
+msgstr "Agregar todas"
 
 #: ui/dialogs/music.slint
 msgid "There is no audio in the media library yet."
-msgstr ""
+msgstr "Aún no hay audio en la biblioteca multimedia."
 
 #: ui/dialogs/music.slint
 msgid "Import audio…"
-msgstr ""
+msgstr "Importar audio…"
 
 #: ui/dialogs/music.slint
 msgid "Shuffle"
-msgstr ""
+msgstr "Aleatorio"
 
 #: ui/dialogs/music.slint
 msgid "Start again after the last song"
-msgstr ""
+msgstr "Volver a empezar después de la última canción"
 
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
-msgstr ""
+msgstr "Volumen {}%"
 
 #: ui/dialogs/music.slint src/i18n/remote_strings.rs
 msgid "Stop"
-msgstr ""
+msgstr "Detener"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
-msgstr ""
+msgstr "Siguiente canción"
 
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
@@ -1217,59 +1208,59 @@ msgstr "Control remoto"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password when a phone pairs"
-msgstr ""
+msgstr "Pedir una contraseña al vincular un teléfono"
 
 #: ui/dialogs/network.slint
 msgid "Remote password"
-msgstr ""
+msgstr "Contraseña del control remoto"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
-msgstr ""
+msgstr "Guardada: escribe para cambiarla"
 
 #: ui/dialogs/network.slint
 msgid "New password"
-msgstr ""
+msgstr "Nueva contraseña"
 
 #: ui/dialogs/network.slint
 msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr ""
+msgstr "Los teléfonos se siguen vinculando con el código o el código QR, y además se pide la contraseña. Los teléfonos ya vinculados siguen vinculados."
 
 #: ui/dialogs/network.slint
 msgid "Stage screen on a phone or tablet"
-msgstr ""
+msgstr "Pantalla del escenario en un teléfono o tableta"
 
 #: ui/dialogs/network.slint
 msgid "Show the stage screen to phones and tablets (read only)"
-msgstr ""
+msgstr "Mostrar la pantalla del escenario en teléfonos y tabletas (solo lectura)"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password"
-msgstr ""
+msgstr "Pedir una contraseña"
 
 #: ui/dialogs/network.slint
 msgid "Stage screen password"
-msgstr ""
+msgstr "Contraseña de la pantalla del escenario"
 
 #: ui/dialogs/network.slint
 msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr ""
+msgstr "Abre esta dirección en el iPad o teléfono del cantante (en la misma red Wi-Fi que esta computadora)."
 
 #: ui/dialogs/network.slint
 msgid "Control from other gear (TCP)"
-msgstr ""
+msgstr "Control desde otros equipos (TCP)"
 
 #: ui/dialogs/network.slint
 msgid "Let other gear send commands over the network"
-msgstr ""
+msgstr "Permitir que otros equipos envíen comandos por la red"
 
 #: ui/dialogs/network.slint
 msgid "Port"
-msgstr ""
+msgstr "Puerto"
 
 #: ui/dialogs/network.slint
 msgid "TCP password"
-msgstr ""
+msgstr "Contraseña TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
@@ -1517,47 +1508,47 @@ msgstr "Agregar una pantalla a {}"
 
 #: ui/dialogs/screens.slint
 msgid "Test pattern"
-msgstr ""
+msgstr "Patrón de prueba"
 
 #: ui/dialogs/screens.slint
 msgid "Gamma"
-msgstr ""
+msgstr "Gamma"
 
 #: ui/dialogs/screens.slint
 msgid "Black level"
-msgstr ""
+msgstr "Nivel de negro"
 
 #: ui/dialogs/screens.slint
 msgid "Corners (to square up a tilted projector)"
-msgstr ""
+msgstr "Esquinas (para enderezar un proyector inclinado)"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner left"
-msgstr ""
+msgstr "Mover esta esquina a la izquierda"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner right"
-msgstr ""
+msgstr "Mover esta esquina a la derecha"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner up"
-msgstr ""
+msgstr "Mover esta esquina hacia arriba"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner down"
-msgstr ""
+msgstr "Mover esta esquina hacia abajo"
 
 #: ui/dialogs/screens.slint
 msgid "Delay (frames)"
-msgstr ""
+msgstr "Retraso (fotogramas)"
 
 #: ui/dialogs/screens.slint
 msgid "Reset the picture"
-msgstr ""
+msgstr "Restablecer la imagen"
 
 #: ui/dialogs/screens.slint
 msgid "Screen"
-msgstr ""
+msgstr "Pantalla"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
@@ -1577,31 +1568,31 @@ msgstr "Relación de aspecto: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience sees"
-msgstr ""
+msgstr "Mostrar lo que ve el público"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
-msgstr ""
+msgstr "Pantalla completa"
 
 #: ui/dialogs/screens.slint
 msgid "Smaller rectangle"
-msgstr ""
+msgstr "Rectángulo más pequeño"
 
 #: ui/dialogs/screens.slint
 msgid "Rounded corners"
-msgstr ""
+msgstr "Esquinas redondeadas"
 
 #: ui/dialogs/screens.slint
 msgid "Oval"
-msgstr ""
+msgstr "Óvalo"
 
 #: ui/dialogs/screens.slint
 msgid "Edge"
-msgstr ""
+msgstr "Borde"
 
 #: ui/dialogs/screens.slint
 msgid "Corners"
-msgstr ""
+msgstr "Esquinas"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
@@ -1857,11 +1848,11 @@ msgstr "Consejo: al hacer clic en cualquier diapositiva, aparece en pantalla de 
 
 #: ui/dialogs/settings-keys.slint
 msgid "In the slide editor"
-msgstr ""
+msgstr "En el editor de diapositivas"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr ""
+msgstr "Ctrl+Alt+C copia el estilo del cuadro elegido y Ctrl+Alt+V lo pega (sin nada elegido: en todos los cuadros de texto de la diapositiva). Ctrl+Z deshace, Ctrl+Y rehace, Ctrl+D duplica, Ctrl+A elige todo, Supr elimina, las flechas mueven un poco (Mayús+flechas cambian el tamaño), Tab elige el siguiente objeto."
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2069,11 +2060,11 @@ msgstr "Solo bocina derecha"
 
 #: ui/dialogs/settings-media.slint
 msgid "Recording"
-msgstr ""
+msgstr "Grabación"
 
 #: ui/dialogs/settings-media.slint
 msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
-msgstr ""
+msgstr "Archivo → Iniciar grabación (o el botón Grabar de arriba) guarda lo que muestra la pantalla de la sala como un video MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
@@ -2081,31 +2072,31 @@ msgstr "Tamaño de imagen"
 
 #: ui/dialogs/settings-media.slint
 msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr ""
+msgstr "720p usa menos la computadora y el disco (unos 1,4 GB por hora como máximo); 1080p es más nítido (unos 2,8 GB)."
 
 #: ui/dialogs/settings-media.slint
 msgid "720p"
-msgstr ""
+msgstr "720p"
 
 #: ui/dialogs/settings-media.slint
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
-msgstr ""
+msgstr "Guardar grabaciones en"
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose folder…"
-msgstr ""
+msgstr "Elegir carpeta…"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound in the recording"
-msgstr ""
+msgstr "Sonido en la grabación"
 
 #: ui/dialogs/settings-media.slint
 msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr ""
+msgstr "El sonido de la app se toma de los archivos de video y de canciones cuando se detiene la grabación, así que no se oye nada más de la computadora."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -2201,7 +2192,7 @@ msgstr "Tema nuevo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Hide ready-made themes"
-msgstr ""
+msgstr "Ocultar temas predefinidos"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
@@ -2297,31 +2288,31 @@ msgstr "Color de la franja"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(how each kind of slide looks in this theme)"
-msgstr ""
+msgstr "(cómo se ve cada tipo de diapositiva en este tema)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Drag the box to move the text; drag its corner to make it bigger or smaller."
-msgstr ""
+msgstr "Arrastra el cuadro para mover el texto; arrastra su esquina para agrandarlo o achicarlo."
 
 #: ui/dialogs/settings-themes.slint
 msgid "Snap to guides (middle, edges and thirds)"
-msgstr ""
+msgstr "Ajustar a las guías (centro, bordes y tercios)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text size in this layout"
-msgstr ""
+msgstr "Tamaño del texto en este diseño"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(percent of the theme's size)"
-msgstr ""
+msgstr "(porcentaje del tamaño del tema)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text in the box"
-msgstr ""
+msgstr "Texto en el cuadro"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Reset this layout"
-msgstr ""
+msgstr "Restablecer este diseño"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
@@ -2620,20 +2611,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Empieza una nueva diapositiva donde está el cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verso 1\n"
-"Sublime gracia del Señor\n"
-"que a mí, pecador, salvó\n"
-"\n"
-"Coro\n"
-"Ya libre soy…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verso 1\nSublime gracia del Señor\nque a mí, pecador, salvó\n\nCoro\nYa libre soy…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2669,15 +2648,15 @@ msgstr "Requiere un RustyPresenter más reciente"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked · hidden"
-msgstr ""
+msgstr "{} · bloqueado · oculto"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked"
-msgstr ""
+msgstr "{} · bloqueado"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · hidden"
-msgstr ""
+msgstr "{} · oculto"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
@@ -2733,11 +2712,11 @@ msgstr "Agregar cuadro"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Locked (can't be moved by mistake)"
-msgstr ""
+msgstr "Bloqueado (no se mueve por error)"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Hidden on the stage"
-msgstr ""
+msgstr "Oculto en el escenario"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
@@ -2745,7 +2724,7 @@ msgstr "Muestra"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Show chords (typed in the lyrics like [G])"
-msgstr ""
+msgstr "Mostrar acordes (escritos en la letra como [G])"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
@@ -2785,7 +2764,7 @@ msgstr "Normal"
 
 #: ui/dialogs/transition.slint
 msgid "Fade"
-msgstr ""
+msgstr "Fundido"
 
 #: ui/dialogs/transition.slint ui/widgets.slint
 msgid "Cut"
@@ -2793,31 +2772,31 @@ msgstr "Cortar"
 
 #: ui/dialogs/transition.slint
 msgid "Through black"
-msgstr ""
+msgstr "Por negro"
 
 #: ui/dialogs/transition.slint
 msgid "Push"
-msgstr ""
+msgstr "Empujar"
 
 #: ui/dialogs/transition.slint
 msgid "Wipe"
-msgstr ""
+msgstr "Barrido"
 
 #: ui/dialogs/transition.slint
 msgid "Which way"
-msgstr ""
+msgstr "Dirección"
 
 #: ui/dialogs/transition.slint
 msgid "To the left"
-msgstr ""
+msgstr "Hacia la izquierda"
 
 #: ui/dialogs/transition.slint
 msgid "To the right"
-msgstr ""
+msgstr "Hacia la derecha"
 
 #: ui/dialogs/transition.slint
 msgid "Time ({} ms)"
-msgstr ""
+msgstr "Duración ({} ms)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3017,27 +2996,27 @@ msgstr "Identificar pantalla"
 
 #: ui/operator/action-palette.slint
 msgid "Drag onto a slide, or click to add it to the picked slide"
-msgstr ""
+msgstr "Arrástrala a una diapositiva o haz clic para agregarla a la diapositiva elegida"
 
 #: ui/operator/action-palette.slint
 msgid "Slide actions"
-msgstr ""
+msgstr "Acciones de diapositiva"
 
 #: ui/operator/action-palette.slint
 msgid "Close the action palette"
-msgstr ""
+msgstr "Cerrar la paleta de acciones"
 
 #: ui/operator/action-palette.slint
 msgid "They run when the slide goes live, never in a preview."
-msgstr ""
+msgstr "Se ejecutan cuando la diapositiva sale en vivo, nunca en una vista previa."
 
 #: ui/operator/action-palette.slint
 msgid "This slide does nothing extra yet."
-msgstr ""
+msgstr "Esta diapositiva aún no hace nada más."
 
 #: ui/operator/action-palette.slint
 msgid "Take off “{}”"
-msgstr ""
+msgstr "Quitar “{}”"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
@@ -3069,23 +3048,23 @@ msgstr "Mostrar en la sala"
 
 #: ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/ui/dialogs/mod.rs
 msgid "Walk-in music"
-msgstr ""
+msgstr "Música de entrada"
 
 #: ui/operator/automation-strip.slint
 msgid "Pause the walk-in music"
-msgstr ""
+msgstr "Pausar la música de entrada"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Play the walk-in music"
-msgstr ""
+msgstr "Reproducir la música de entrada"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Stop the walk-in music"
-msgstr ""
+msgstr "Detener la música de entrada"
 
 #: ui/operator/automation-strip.slint
 msgid "Walk-in music songs and volume"
-msgstr ""
+msgstr "Canciones y volumen de la música de entrada"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -3185,7 +3164,7 @@ msgstr "Imágenes"
 
 #: ui/operator/media.slint
 msgid "Video inputs"
-msgstr ""
+msgstr "Entradas de video"
 
 #: ui/operator/media.slint
 msgid "Search media"
@@ -3205,7 +3184,7 @@ msgstr "Eliminar carpeta"
 
 #: ui/operator/media.slint
 msgid "No video inputs yet. Plug in a camera or capture card, then add it on the right."
-msgstr ""
+msgstr "Aún no hay entradas de video. Conecta una cámara o una capturadora y agrégala a la derecha."
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
@@ -3217,27 +3196,27 @@ msgstr "Importar multimedia"
 
 #: ui/operator/media.slint
 msgid "Add a video input"
-msgstr ""
+msgstr "Agregar una entrada de video"
 
 #: ui/operator/media.slint
 msgid "Looking for cameras…"
-msgstr ""
+msgstr "Buscando cámaras…"
 
 #: ui/operator/media.slint
 msgid "None found. Type the camera's name:"
-msgstr ""
+msgstr "No se encontró ninguna. Escribe el nombre de la cámara:"
 
 #: ui/operator/media.slint
 msgid "Or type its name"
-msgstr ""
+msgstr "O escribe su nombre"
 
 #: ui/operator/media.slint
 msgid "Camera name"
-msgstr ""
+msgstr "Nombre de la cámara"
 
 #: ui/operator/media.slint
 msgid "Look for cameras again"
-msgstr ""
+msgstr "Buscar cámaras otra vez"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -3301,19 +3280,19 @@ msgstr "Videos, imágenes, música, presentaciones (PowerPoint, Keynote, PDF), a
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
-msgstr ""
+msgstr "Detener grabación"
 
 #: ui/operator/record.slint
 msgid "Record"
-msgstr ""
+msgstr "Grabar"
 
 #: ui/operator/record.slint
 msgid "Stop recording and save the file"
-msgstr ""
+msgstr "Detener la grabación y guardar el archivo"
 
 #: ui/operator/record.slint
 msgid "Record the room screen to a video file"
-msgstr ""
+msgstr "Grabar la pantalla de la sala en un archivo de video"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -3441,11 +3420,11 @@ msgstr "Guarda este pasaje en la biblioteca de canciones para editarlo o volver 
 
 #: ui/operator/slides.slint
 msgid "Actions"
-msgstr ""
+msgstr "Acciones"
 
 #: ui/operator/slides.slint
 msgid "Things a slide does when it goes live: drag them onto a slide"
-msgstr ""
+msgstr "Lo que hace una diapositiva al salir en vivo: arrástralas a una diapositiva"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
@@ -3577,19 +3556,19 @@ msgstr "Guardar este culto en un archivo…"
 
 #: ui/operator.slint
 msgid "Song from the clipboard"
-msgstr ""
+msgstr "Canción desde el portapapeles"
 
 #: ui/operator.slint
 msgid "Announcement from the clipboard"
-msgstr ""
+msgstr "Anuncio desde el portapapeles"
 
 #: ui/operator.slint
 msgid "PowerPoint words as editable slides…"
-msgstr ""
+msgstr "Texto de PowerPoint como diapositivas editables…"
 
 #: ui/operator.slint
 msgid "Theme pack…"
-msgstr ""
+msgstr "Paquete de temas…"
 
 #: ui/operator.slint
 msgid "Export"
@@ -3601,15 +3580,15 @@ msgstr "Paquete del culto…"
 
 #: ui/operator.slint
 msgid "Song words as text…"
-msgstr ""
+msgstr "Letras de canciones como texto…"
 
 #: ui/operator.slint
 msgid "Slides as pictures…"
-msgstr ""
+msgstr "Diapositivas como imágenes…"
 
 #: ui/operator.slint
 msgid "Playlist (list of files)…"
-msgstr ""
+msgstr "Lista de reproducción (lista de archivos)…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -3633,7 +3612,7 @@ msgstr "Anuncio…"
 
 #: ui/operator.slint
 msgid "Designed slides…"
-msgstr ""
+msgstr "Diapositivas diseñadas…"
 
 #: ui/operator.slint
 msgid "Import media…"
@@ -3641,15 +3620,15 @@ msgstr "Importar multimedia…"
 
 #: ui/operator.slint
 msgid "Video inputs…"
-msgstr ""
+msgstr "Entradas de video…"
 
 #: ui/operator.slint
 msgid "Start recording"
-msgstr ""
+msgstr "Iniciar grabación"
 
 #: ui/operator.slint
 msgid "Recording settings…"
-msgstr ""
+msgstr "Ajustes de grabación…"
 
 #: ui/operator.slint
 msgid "Print service order…"
@@ -3825,23 +3804,23 @@ msgstr "Automatización…"
 
 #: ui/operator.slint
 msgid "Walk-in music…"
-msgstr ""
+msgstr "Música de entrada…"
 
 #: ui/operator.slint
 msgid "Calendar…"
-msgstr ""
+msgstr "Calendario…"
 
 #: ui/operator.slint
 msgid "Hide the action palette"
-msgstr ""
+msgstr "Ocultar la paleta de acciones"
 
 #: ui/operator.slint
 msgid "Action palette"
-msgstr ""
+msgstr "Paleta de acciones"
 
 #: ui/operator.slint
 msgid "Start pre-service"
-msgstr ""
+msgstr "Iniciar Antes del culto"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -3853,7 +3832,7 @@ msgstr "Temas y fondos…"
 
 #: ui/operator.slint
 msgid "Network…"
-msgstr ""
+msgstr "Red…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -4113,7 +4092,7 @@ msgstr "No se pudo leer “{file}”: {error}"
 
 #: src/automation/actions.rs
 msgid "A macro can't run another macro."
-msgstr ""
+msgstr "Una macro no puede ejecutar otra macro."
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
@@ -4129,15 +4108,15 @@ msgstr "no se pudo reproducir el archivo"
 
 #: src/automation/slide_actions.rs
 msgid "A slide can do up to 8 things."
-msgstr ""
+msgstr "Una diapositiva puede hacer hasta 8 cosas."
 
 #: src/automation/slide_actions.rs
 msgid "That action was already taken off."
-msgstr ""
+msgstr "Esa acción ya se quitó."
 
 #: src/automation/slide_actions.rs
 msgid "Playlists aren't available yet."
-msgstr ""
+msgstr "Las listas de reproducción aún no están disponibles."
 
 #: src/automation/slide_actions.rs src/slides.rs src/strings/design.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
@@ -4165,43 +4144,43 @@ msgstr "Ocultar el mensaje"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play “{title}”"
-msgstr ""
+msgstr "Reproducir “{title}”"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play a playlist"
-msgstr ""
+msgstr "Reproducir una lista"
 
 #: src/automation/slide_actions.rs
 msgid "No playlists yet."
-msgstr ""
+msgstr "Aún no hay listas de reproducción."
 
 #: src/automation/slide_actions.rs
 msgid "Play playlist “{name}”"
-msgstr ""
+msgstr "Reproducir la lista “{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Start “{name}”"
-msgstr ""
+msgstr "Iniciar “{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Stop “{name}”"
-msgstr ""
+msgstr "Detener “{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Show “{name}”"
-msgstr ""
+msgstr "Mostrar “{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "This message has blanks to fill in. Put it in a macro instead."
-msgstr ""
+msgstr "Este mensaje tiene espacios por llenar. Ponlo en una macro."
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” on"
-msgstr ""
+msgstr "Activar “{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” off"
-msgstr ""
+msgstr "Desactivar “{name}”"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
@@ -4209,7 +4188,7 @@ msgstr "Ejecutar “{name}”"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Stage: {name}"
-msgstr ""
+msgstr "Escenario: {name}"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
@@ -4229,7 +4208,7 @@ msgstr "Cambiar lo que muestra una pantalla"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Go to slide {n}"
-msgstr ""
+msgstr "Ir a la diapositiva {n}"
 
 #: src/automation/slide_actions.rs src/strings/stage.rs src/ui/dialogs/automation.rs
 msgid "Next slide"
@@ -4541,27 +4520,27 @@ msgstr "Se desvanece"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
-msgstr ""
+msgstr "Volumen"
 
 #: src/i18n/remote_strings.rs
 msgid "Not playing"
-msgstr ""
+msgstr "No se está reproduciendo"
 
 #: src/i18n/remote_strings.rs
 msgid "{time} left"
-msgstr ""
+msgstr "Quedan {time}"
 
 #: src/i18n/remote_strings.rs
 msgid "Password"
-msgstr ""
+msgstr "Contraseña"
 
 #: src/i18n/remote_strings.rs
 msgid "This remote needs a password too."
-msgstr ""
+msgstr "Este control remoto también necesita una contraseña."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
-msgstr ""
+msgstr "Esta pantalla del escenario necesita una contraseña."
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -4797,7 +4776,7 @@ msgstr "no es una canción de OpenSong"
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
-msgstr ""
+msgstr "Solo se pueden leer como texto los archivos de PowerPoint guardados como .pptx. Guárdalo como .pptx en PowerPoint o agrégalo como imágenes."
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
@@ -4897,11 +4876,11 @@ msgstr "Ese video o audio ya no se está reproduciendo."
 
 #: src/live.rs
 msgid "That item isn't a video, picture or sound."
-msgstr ""
+msgstr "Ese elemento no es un video, una imagen ni un sonido."
 
 #: src/live.rs
 msgid "That theme was deleted."
-msgstr ""
+msgstr "Ese tema se eliminó."
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
@@ -4999,71 +4978,71 @@ msgstr "Escritura"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
-msgstr ""
+msgstr "Para grabar se necesita FFmpeg, un programa gratuito. {hint}"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
-msgstr ""
+msgstr "Esta copia de FFmpeg no puede crear video H.264. Instala la versión completa de FFmpeg y vuelve a intentarlo."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."
-msgstr ""
+msgstr "Primero enciende la pantalla de la sala: la grabación es lo que muestra la sala."
 
 #: src/record/mod.rs
 msgid "Could not use the recordings folder {path}: {why}"
-msgstr ""
+msgstr "No se pudo usar la carpeta de grabaciones {path}: {why}"
 
 #: src/record/mod.rs
 msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr ""
+msgstr "El disco de la carpeta de grabaciones solo tiene {free} libres. Una hora de grabación necesita unos {need}. Elige otra carpeta en Configuración → Multimedia."
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
-msgstr ""
+msgstr "El disco está casi lleno, así que la grabación se detuvo."
 
 #: src/record/mod.rs
 msgid "The recording could not start: {why}"
-msgstr ""
+msgstr "No se pudo iniciar la grabación: {why}"
 
 #: src/record/mod.rs
 msgid "The recording stopped: {why}"
-msgstr ""
+msgstr "La grabación se detuvo: {why}"
 
 #: src/record/mod.rs
 msgid "Recording the room screen."
-msgstr ""
+msgstr "Grabando la pantalla de la sala."
 
 #: src/record/mod.rs
 msgid "Saving the recording…"
-msgstr ""
+msgstr "Guardando la grabación…"
 
 #: src/record/mod.rs
 msgid "Recording saved: {path}"
-msgstr ""
+msgstr "Grabación guardada: {path}"
 
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
-msgstr ""
+msgstr "Grabación guardada como {path} (no se pudo convertir a MP4)."
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
-msgstr ""
+msgstr "La grabación se guardó sin el sonido de la app, porque no se pudo agregar."
 
 #: src/record/mod.rs
 msgid "FFmpeg stopped unexpectedly"
-msgstr ""
+msgstr "FFmpeg se detuvo de forma inesperada"
 
 #: src/record/mod.rs
 msgid "No sound"
-msgstr ""
+msgstr "Sin sonido"
 
 #: src/record/mod.rs
 msgid "The sound the app plays (videos and songs)"
-msgstr ""
+msgstr "El sonido que reproduce la app (videos y canciones)"
 
 #: src/record/mod.rs
 msgid "Microphone or line-in: {name}"
-msgstr ""
+msgstr "Micrófono o entrada de línea: {name}"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
@@ -5489,7 +5468,7 @@ msgstr "No se pudo ejecutar “{name}”: se eliminó el diseño de escenario de
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s macro was deleted."
-msgstr ""
+msgstr "No se pudo ejecutar “{name}”: se eliminó la macro del paso {step}."
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
@@ -5617,39 +5596,39 @@ msgstr "Las vistas de pantalla todavía no están disponibles."
 
 #: src/strings/automation.rs
 msgid "Add some songs to the walk-in music first."
-msgstr ""
+msgstr "Primero agrega algunas canciones a la música de entrada."
 
 #: src/strings/automation.rs
 msgid "That song isn't in the walk-in music any more."
-msgstr ""
+msgstr "Esa canción ya no está en la música de entrada."
 
 #: src/strings/automation.rs
 msgid "The walk-in music can hold 500 songs at most."
-msgstr ""
+msgstr "La música de entrada puede tener como máximo 500 canciones."
 
 #: src/strings/automation.rs
 msgid "The walk-in music stopped: {reason}"
-msgstr ""
+msgstr "La música de entrada se detuvo: {reason}"
 
 #: src/strings/automation.rs
 msgid "“{name}” runs a macro that was deleted."
-msgstr ""
+msgstr "“{name}” ejecuta una macro que se eliminó."
 
 #: src/strings/automation.rs
 msgid "Pick at least one day."
-msgstr ""
+msgstr "Elige al menos un día."
 
 #: src/strings/automation.rs
 msgid "Pick what to do."
-msgstr ""
+msgstr "Elige qué hacer."
 
 #: src/strings/automation.rs
 msgid "The calendar can hold 50 entries at most."
-msgstr ""
+msgstr "El calendario puede tener como máximo 50 entradas."
 
 #: src/strings/automation.rs
 msgid "Calendar: ran “{name}”."
-msgstr ""
+msgstr "Calendario: se ejecutó “{name}”."
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -5877,11 +5856,11 @@ msgstr "También en {sources}"
 
 #: src/strings/design.rs
 msgid "A slide set can have at most 200 slides."
-msgstr ""
+msgstr "Un conjunto de diapositivas puede tener como máximo 200 diapositivas."
 
 #: src/strings/design.rs
 msgid "A slide can have at most 60 objects."
-msgstr ""
+msgstr "Una diapositiva puede tener como máximo 60 objetos."
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Your words here"
@@ -5889,27 +5868,27 @@ msgstr "Tu texto aquí"
 
 #: src/strings/design.rs
 msgid "Slide editor"
-msgstr ""
+msgstr "Editor de diapositivas"
 
 #: src/strings/design.rs
 msgid "New slides"
-msgstr ""
+msgstr "Diapositivas nuevas"
 
 #: src/strings/design.rs
 msgid "Slide {n} · {step} of {of}"
-msgstr ""
+msgstr "Diapositiva {n} · {step} de {of}"
 
 #: src/strings/design.rs
 msgid "Slides saved"
-msgstr ""
+msgstr "Diapositivas guardadas"
 
 #: src/strings/design.rs
 msgid "Throw away the changes to these slides?"
-msgstr ""
+msgstr "¿Descartar los cambios de estas diapositivas?"
 
 #: src/strings/design.rs
 msgid "Throw away"
-msgstr ""
+msgstr "Descartar"
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Keep editing"
@@ -5917,23 +5896,23 @@ msgstr "Seguir editando"
 
 #: src/strings/design.rs
 msgid "Style copied. Choose other boxes (or none, for every text box) and press Ctrl+Alt+V."
-msgstr ""
+msgstr "Estilo copiado. Elige otros cuadros (o ninguno, para todos los cuadros de texto) y presiona Ctrl+Alt+V."
 
 #: src/strings/design.rs
 msgid "Choose a box to copy its style."
-msgstr ""
+msgstr "Elige un cuadro para copiar su estilo."
 
 #: src/strings/design.rs
 msgid "Copy a style first (Ctrl+Alt+C)."
-msgstr ""
+msgstr "Primero copia un estilo (Ctrl+Alt+C)."
 
 #: src/strings/design.rs
 msgid "Style pasted"
-msgstr ""
+msgstr "Estilo pegado"
 
 #: src/strings/design.rs
 msgid "That picture could not be read."
-msgstr ""
+msgstr "No se pudo leer esa imagen."
 
 #: src/strings/dialogs.rs
 msgid "Services"
@@ -6081,35 +6060,35 @@ msgstr "Se agregó a la biblioteca multimedia: elígelo aquí"
 
 #: src/strings/network.rs
 msgid "Use at least 4 characters for a password."
-msgstr ""
+msgstr "Usa al menos 4 caracteres para la contraseña."
 
 #: src/strings/network.rs
 msgid "Type a password, or turn the password off."
-msgstr ""
+msgstr "Escribe una contraseña o desactiva la contraseña."
 
 #: src/strings/network.rs
 msgid "Use a port from 1024 to 65535."
-msgstr ""
+msgstr "Usa un puerto entre 1024 y 65535."
 
 #: src/strings/network.rs
 msgid "Port {port} is the app's own. Pick another one."
-msgstr ""
+msgstr "El puerto {port} lo usa la propia app. Elige otro."
 
 #: src/strings/network.rs
 msgid "The TCP control could not use port {port}: {error}"
-msgstr ""
+msgstr "El control TCP no pudo usar el puerto {port}: {error}"
 
 #: src/strings/network.rs
 msgid "That password isn't right."
-msgstr ""
+msgstr "Esa contraseña no es correcta."
 
 #: src/strings/network.rs
 msgid "The stage view is turned off on the presentation computer."
-msgstr ""
+msgstr "La vista del escenario está desactivada en la computadora de la presentación."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
-msgstr ""
+msgstr "Configuración de red guardada."
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
@@ -6864,23 +6843,23 @@ msgstr "¿Quitar “{name}”?"
 
 #: src/strings/screens.rs
 msgid "Placeholder (connect the projector later)"
-msgstr ""
+msgstr "Provisional (conecta el proyector después)"
 
 #: src/strings/screens.rs
 msgid "Placeholder"
-msgstr ""
+msgstr "Provisional"
 
 #: src/strings/screens.rs
 msgid "Nothing shows on a placeholder. Set it up now, then pick the projector here once it is plugged in."
-msgstr ""
+msgstr "Una pantalla provisional no muestra nada. Configúrala ahora y elige aquí el proyector cuando esté conectado."
 
 #: src/strings/screens.rs
 msgid "Shows the audience picture instead of a stage layout. It has no sound."
-msgstr ""
+msgstr "Muestra la imagen del público en lugar de un diseño de escenario. No tiene sonido."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
-msgstr ""
+msgstr "Barras de color"
 
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
@@ -6892,31 +6871,31 @@ msgstr "Negro"
 
 #: src/strings/screens.rs
 msgid "left"
-msgstr ""
+msgstr "a la izquierda"
 
 #: src/strings/screens.rs
 msgid "right"
-msgstr ""
+msgstr "a la derecha"
 
 #: src/strings/screens.rs
 msgid "up"
-msgstr ""
+msgstr "hacia arriba"
 
 #: src/strings/screens.rs
 msgid "down"
-msgstr ""
+msgstr "hacia abajo"
 
 #: src/strings/screens.rs
 msgid "Moved {side} {x} %, {way} {y} %"
-msgstr ""
+msgstr "Se movió {side} {x} %, {way} {y} %"
 
 #: src/strings/screens.rs
 msgid "about {ms} ms"
-msgstr ""
+msgstr "unos {ms} ms"
 
 #: src/strings/screens.rs
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr ""
+msgstr "Los cambios de color y de esquinas se ven cuando las pantallas dibujan con OpenGL (Configuración → Video → Gráficos: Automático u OpenGL). Los patrones de prueba y el retraso funcionan de las dos formas."
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -7219,12 +7198,8 @@ msgid "Settings saved"
 msgstr "Configuración guardada"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Sublime gracia del Señor\n"
-"que a un infeliz salvó"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Sublime gracia del Señor\nque a un infeliz salvó"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -7654,7 +7629,7 @@ msgstr "Tiempo restante del video"
 
 #: src/strings/stage.rs
 msgid "Next slide picture"
-msgstr ""
+msgstr "Imagen de la siguiente diapositiva"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
@@ -7706,15 +7681,15 @@ msgstr "texto que escribes una vez"
 
 #: src/strings/stage.rs
 msgid "the next slide as the room will see it"
-msgstr ""
+msgstr "la siguiente diapositiva como la verá la sala"
 
 #: src/strings/stage.rs
 msgid "a box, circle or line"
-msgstr ""
+msgstr "un cuadro, un círculo o una línea"
 
 #: src/strings/stage.rs
 msgid "Rounded box"
-msgstr ""
+msgstr "Cuadro redondeado"
 
 #: src/strings/stage.rs
 msgid "(logo)"
@@ -7888,7 +7863,7 @@ msgstr "Último coro"
 
 #: src/strings/stage.rs
 msgid "(picture of the next slide)"
-msgstr ""
+msgstr "(imagen de la siguiente diapositiva)"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -8040,7 +8015,7 @@ msgstr "Nombre nuevo para este fondo"
 
 #: src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
-msgstr ""
+msgstr "Cámara"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
@@ -8204,15 +8179,15 @@ msgstr "Instala LibreOffice Impress, por ejemplo: sudo apt install libreoffice-i
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: winget install Gyan.FFmpeg"
-msgstr ""
+msgstr "Haz clic en Obtener FFmpeg y RustyPresenter lo descarga, o instálalo tú: winget install Gyan.FFmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: brew install ffmpeg"
-msgstr ""
+msgstr "Haz clic en Obtener FFmpeg y RustyPresenter lo descarga, o instálalo tú: brew install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself, for example: sudo apt install ffmpeg"
-msgstr ""
+msgstr "Haz clic en Obtener FFmpeg y RustyPresenter lo descarga, o instálalo tú, por ejemplo: sudo apt install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
@@ -8504,108 +8479,108 @@ msgstr "Pizarra"
 
 #: src/theme/builtins.rs
 msgid "Clean white"
-msgstr ""
+msgstr "Blanco limpio"
 
 #: src/theme/builtins.rs
 msgid "Classic serif"
-msgstr ""
+msgstr "Clásico con serifa"
 
 #: src/theme/builtins.rs
 msgid "Royal"
-msgstr ""
+msgstr "Real"
 
 #: src/theme/builtins.rs
 msgid "Bold modern"
-msgstr ""
+msgstr "Moderno y audaz"
 
 #: src/theme/builtins.rs
 msgid "Christmas red"
-msgstr ""
+msgstr "Rojo navideño"
 
 #: src/theme/builtins.rs
 msgid "Easter morning"
-msgstr ""
+msgstr "Mañana de Pascua"
 
 #: src/theme/builtins.rs
 msgid "Advent purple"
-msgstr ""
+msgstr "Morado de Adviento"
 
 #: src/theme/builtins.rs
 msgid "Youth night"
-msgstr ""
+msgstr "Noche de jóvenes"
 
 #: src/theme/builtins.rs
 msgid "Sunrise"
-msgstr ""
+msgstr "Amanecer"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr ""
+msgstr "Letra sobre video"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
-msgstr ""
+msgstr "Título + subtítulo"
 
 #: src/theme/layouts.rs
 msgid "Quote"
-msgstr ""
+msgstr "Frase"
 
 #: src/theme/layouts.rs
 msgid "Main point"
-msgstr ""
+msgstr "Idea principal"
 
 #: src/theme/layouts.rs
 msgid "Points"
-msgstr ""
+msgstr "Puntos"
 
 #: src/theme/layouts.rs
 msgctxt "layout"
 msgid "Text"
-msgstr ""
+msgstr "Texto"
 
 #: src/theme/layouts.rs
 msgid "Lower-third lyrics"
-msgstr ""
+msgstr "Letra en tercio inferior"
 
 #: src/theme/layouts.rs
 msgid "One big line in the middle."
-msgstr ""
+msgstr "Una sola línea grande en el centro."
 
 #: src/theme/layouts.rs
 msgid "The first line is the title; the lines under it are smaller."
-msgstr ""
+msgstr "La primera línea es el título; las de abajo son más pequeñas."
 
 #: src/theme/layouts.rs
 msgid "The quote on the first line, who said it on the next."
-msgstr ""
+msgstr "La frase en la primera línea y quién la dijo en la siguiente."
 
 #: src/theme/layouts.rs
 msgid "One short sentence, big and bold."
-msgstr ""
+msgstr "Una oración corta, grande y en negrita."
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr ""
+msgstr "Con formato de pasaje bíblico."
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
-msgstr ""
+msgstr "Una leyenda pequeña abajo, para que se vea la imagen de fondo."
 
 #: src/theme/layouts.rs
 msgid "Each line becomes a bullet point."
-msgstr ""
+msgstr "Cada línea se convierte en una viñeta."
 
 #: src/theme/layouts.rs
 msgid "Plain text, like an announcement."
-msgstr ""
+msgstr "Texto simple, como un anuncio."
 
 #: src/theme/layouts.rs
 msgid "Laid out like song lyrics."
-msgstr ""
+msgstr "Con formato de letra de canción."
 
 #: src/theme/layouts.rs
 msgid "Small text at the bottom of the screen."
-msgstr ""
+msgstr "Texto pequeño en la parte inferior de la pantalla."
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
@@ -8613,27 +8588,27 @@ msgstr "Copia {number} de {name}"
 
 #: src/transfer.rs
 msgid "This service has no songs."
-msgstr ""
+msgstr "Este culto no tiene canciones."
 
 #: src/transfer.rs
 msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr ""
+msgstr "No hay temas guardados para exportar. Crea uno en Configuración → Temas."
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
-msgstr ""
+msgstr "Este no es un paquete de temas de RustyPresenter."
 
 #: src/transfer.rs
 msgid "This theme pack was made by a newer RustyPresenter. Update to open it."
-msgstr ""
+msgstr "Este paquete de temas lo creó un RustyPresenter más nuevo. Actualiza para abrirlo."
 
 #: src/transfer.rs
 msgid "The clipboard has no text. Copy the words first."
-msgstr ""
+msgstr "El portapapeles no tiene texto. Primero copia la letra."
 
 #: src/transfer.rs
 msgid "{name} (imported)"
-msgstr ""
+msgstr "{name} (importado)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
@@ -8693,19 +8668,19 @@ msgstr "Cambiar el diseño de escenario"
 
 #: src/ui/dialogs/automation.rs
 msgid "Play item {n}"
-msgstr ""
+msgstr "Reproducir el elemento {n}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Every day"
-msgstr ""
+msgstr "Todos los días"
 
 #: src/ui/dialogs/automation.rs
 msgid "Weekdays"
-msgstr ""
+msgstr "Entre semana"
 
 #: src/ui/dialogs/automation.rs
 msgid "{days} at {time}"
-msgstr ""
+msgstr "{days} a las {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
@@ -8727,7 +8702,7 @@ msgstr[1] "{n} pasos"
 
 #: src/ui/dialogs/automation.rs
 msgid "Next: {day} {date}, {time}"
-msgstr ""
+msgstr "Próxima: {day} {date}, {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
@@ -8743,7 +8718,7 @@ msgstr "Cuadros para completar: {fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Leave it as it is"
-msgstr ""
+msgstr "Dejarlo como está"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
@@ -8751,7 +8726,7 @@ msgstr "Guardado."
 
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
-msgstr ""
+msgstr "Aparece con Siguiente {step} de {of}"
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
@@ -8763,15 +8738,15 @@ msgstr "Mostrar mensaje"
 
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
-msgstr ""
+msgstr "Ahora: {title} · quedan {time}"
 
 #: src/ui/dialogs/network.rs
 msgid "Network"
-msgstr ""
+msgstr "Red"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
-msgstr ""
+msgstr "Envía un comando por línea: next, prev, clear, clear slide, logo, go 3 (elemento 3), go 3 2 (su diapositiva 2), status. Si hay contraseña, envía primero “password …”. Cada línea se responde con OK o ERR."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
@@ -8852,35 +8827,28 @@ msgstr "Limpiar"
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
 msgid_plural "Show {n} ready-made themes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Mostrar {n} tema predefinido"
+msgstr[1] "Mostrar {n} temas predefinidos"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "Domingo de Resurrección\nCultos a las 9 y a las 11 a. m."
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“Estad quietos, y conoced que yo soy Dios.”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
-msgstr ""
+msgstr "La gracia de Dios es suficiente"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Youth camp in the mountains"
-msgstr ""
+msgstr "Campamento juvenil en las montañas"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "Ora cada día\nLee la Biblia\nSirve a tu prójimo"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -8958,19 +8926,19 @@ msgstr "Archivo de traducción (.po)"
 
 #: src/ui/operator/file_input.rs
 msgid "Text file (.txt)"
-msgstr ""
+msgstr "Archivo de texto (.txt)"
 
 #: src/ui/operator/file_input.rs
 msgid "Playlist (.m3u8)"
-msgstr ""
+msgstr "Lista de reproducción (.m3u8)"
 
 #: src/ui/operator/file_input.rs
 msgid "Theme pack (.rpthemes)"
-msgstr ""
+msgstr "Paquete de temas (.rpthemes)"
 
 #: src/ui/operator/file_input.rs
 msgid "PowerPoint (.pptx)"
-msgstr ""
+msgstr "PowerPoint (.pptx)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -9082,7 +9050,7 @@ msgstr "Ayuda → Reportar un problema… escribe una nota para completar e indi
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
-msgstr ""
+msgstr "Elige qué hace Antes del culto y luego haz clic en Guardar."
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -9102,61 +9070,61 @@ msgstr "El sonido vuelve a ir a la sala."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
-msgstr ""
+msgstr "Obtener FFmpeg"
 
 #: src/ui/operator/record.rs
 msgid "Not now"
-msgstr ""
+msgstr "Ahora no"
 
 #: src/ui/operator/record.rs
 msgid "Getting FFmpeg for recording"
-msgstr ""
+msgstr "Obteniendo FFmpeg para grabar"
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg is ready. Press Record to start recording."
-msgstr ""
+msgstr "FFmpeg está listo. Presiona Grabar para empezar a grabar."
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
-msgstr ""
+msgstr "No se pudo descargar FFmpeg. Revisa la conexión a internet o instálalo tú: {command}"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
-msgstr ""
+msgstr "Guardado en {path}"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved {n} picture in {path}"
 msgid_plural "Saved {n} pictures in {path}"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Se guardó {n} imagen en {path}"
+msgstr[1] "Se guardaron {n} imágenes en {path}"
 
 #: src/ui/operator/transfer.rs
 msgid "Added “{title}” with {n} slide of words. Pictures and layout are not copied: add it as pictures to keep them."
 msgid_plural "Added “{title}” with {n} slides of words. Pictures and layout are not copied: add it as pictures to keep them."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Se agregó “{title}” con {n} diapositiva de texto. No se copian las imágenes ni el diseño: agrégalo como imágenes para conservarlos."
+msgstr[1] "Se agregó “{title}” con {n} diapositivas de texto. No se copian las imágenes ni el diseño: agrégalo como imágenes para conservarlos."
 
 #: src/ui/operator/transfer.rs
 msgid "Added {n} theme."
 msgid_plural "Added {n} themes."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Se agregó {n} tema."
+msgstr[1] "Se agregaron {n} temas."
 
 #: src/ui/operator/transfer.rs
 msgid "{service} words"
-msgstr ""
+msgstr "Letras de {service}"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
-msgstr ""
+msgstr "Primero elige una cámara o escribe su nombre."
 
 #: src/ui/operator/video_inputs.rs
 msgid "Added “{name}”."
-msgstr ""
+msgstr "Se agregó “{name}”."
 
 #: src/ui/operator/video_inputs.rs
 msgid "Remove “{name}” from the video inputs?"
-msgstr ""
+msgstr "¿Quitar “{name}” de las entradas de video?"
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"

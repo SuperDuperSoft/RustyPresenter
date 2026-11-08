@@ -1,15 +1,6 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: zh-CN\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 简体中文\n"
-"X-English-Name: Chinese (Simplified)\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -257,11 +248,11 @@ msgstr "正计时"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the video"
-msgstr ""
+msgstr "视频剩余时间"
 
 #: ui/dialogs/automation.slint src/ui/dialogs/automation.rs
 msgid "Time left in the audio"
-msgstr ""
+msgstr "音频剩余时间"
 
 #: ui/dialogs/automation.slint
 msgid "This service's start time"
@@ -285,11 +276,11 @@ msgstr "秒"
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the video on the screen has left. It follows the video: there is nothing to start."
-msgstr ""
+msgstr "显示屏幕上视频的剩余时间。它跟随视频，无需启动。"
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the audio playing has left (an audio item, or else the walk-in music)."
-msgstr ""
+msgstr "显示正在播放音频的剩余时间（音频项目，否则为入场音乐）。"
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
@@ -517,23 +508,23 @@ msgstr "仅当倒计时开始后没人改动过屏幕时才会执行。"
 
 #: ui/dialogs/automation.slint
 msgid "Sunday countdown"
-msgstr ""
+msgstr "主日倒计时"
 
 #: ui/dialogs/automation.slint
 msgid "Time (like 10:45 or 18:30)"
-msgstr ""
+msgstr "时间（如 10:45 或 18:30）"
 
 #: ui/dialogs/automation.slint
 msgid "Days"
-msgstr ""
+msgstr "星期"
 
 #: ui/dialogs/automation.slint
 msgid "What to do"
-msgstr ""
+msgstr "执行操作"
 
 #: ui/dialogs/automation.slint
 msgid "On"
-msgstr ""
+msgstr "开启"
 
 #: ui/dialogs/automation.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/ui/dialogs/settings_keys.rs
 msgid "Timers"
@@ -553,7 +544,7 @@ msgstr "聚会前"
 
 #: ui/dialogs/automation.slint
 msgid "Calendar"
-msgstr ""
+msgstr "日历"
 
 #: ui/dialogs/automation.slint
 msgid "This service starts at"
@@ -573,7 +564,7 @@ msgstr "新建消息"
 
 #: ui/dialogs/automation.slint
 msgid "New calendar entry"
-msgstr ""
+msgstr "新建日历项"
 
 #: ui/dialogs/automation.slint
 msgid "New macro"
@@ -585,7 +576,7 @@ msgstr "在左侧选择一个，或新建一个。"
 
 #: ui/dialogs/automation.slint
 msgid "Try it now"
-msgstr ""
+msgstr "立即试用"
 
 #: ui/dialogs/automation.slint ui/operator/automation-strip.slint src/strings/themes.rs
 msgid "Reset"
@@ -617,47 +608,47 @@ msgstr "任选颜色"
 
 #: ui/dialogs/design-canvas.slint
 msgid "Slide"
-msgstr ""
+msgstr "幻灯片"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
-msgstr ""
+msgstr "{} · {} 个分步动画"
 
 #: ui/dialogs/design-editor.slint
 msgid "New slide"
-msgstr ""
+msgstr "新建幻灯片"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy slide"
-msgstr ""
+msgstr "复制幻灯片"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move earlier"
-msgstr ""
+msgstr "前移"
 
 #: ui/dialogs/design-editor.slint
 msgid "Move later"
-msgstr ""
+msgstr "后移"
 
 #: ui/dialogs/design-editor.slint
 msgid "Delete slide"
-msgstr ""
+msgstr "删除幻灯片"
 
 #: ui/dialogs/design-editor.slint
 msgid "This slide"
-msgstr ""
+msgstr "此幻灯片"
 
 #: ui/dialogs/design-editor.slint
 msgid "Click an object to change it. Shift+click chooses more than one."
-msgstr ""
+msgstr "点击对象即可更改。按住 Shift 点击可多选。"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
 msgid "Transition"
-msgstr ""
+msgstr "切换效果"
 
 #: ui/dialogs/design-editor.slint
 msgid "Use on every slide"
-msgstr ""
+msgstr "用于所有幻灯片"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
@@ -665,11 +656,11 @@ msgstr "备注"
 
 #: ui/dialogs/design-editor.slint
 msgid "For the stage screen and the operator"
-msgstr ""
+msgstr "供舞台屏幕和操作员使用"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} objects chosen. Changes go on all of them."
-msgstr ""
+msgstr "已选择 {} 个对象。更改将应用于所有对象。"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Words"
@@ -677,7 +668,7 @@ msgstr "文字"
 
 #: ui/dialogs/design-editor.slint
 msgid "Text size ({} px)"
-msgstr ""
+msgstr "文字大小（{} px）"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Bold"
@@ -689,7 +680,7 @@ msgstr "斜体"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
-msgstr ""
+msgstr "缩小以适应文本框"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
 msgid "Text colour"
@@ -713,27 +704,27 @@ msgstr "居中"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Shape"
-msgstr ""
+msgstr "形状"
 
 #: ui/dialogs/design-editor.slint
 msgid "Rectangle"
-msgstr ""
+msgstr "矩形"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Circle"
-msgstr ""
+msgstr "圆形"
 
 #: ui/dialogs/design-editor.slint
 msgid "Triangle"
-msgstr ""
+msgstr "三角形"
 
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Line"
-msgstr ""
+msgstr "线条"
 
 #: ui/dialogs/design-editor.slint
 msgid "Arrow"
-msgstr ""
+msgstr "箭头"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
@@ -741,11 +732,11 @@ msgstr "图片"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fit"
-msgstr ""
+msgstr "适应"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill"
-msgstr ""
+msgstr "填充"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
 msgid "Stretch"
@@ -753,23 +744,23 @@ msgstr "拉伸"
 
 #: ui/dialogs/design-editor.slint
 msgid "Web address"
-msgstr ""
+msgstr "网址"
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the page's address here."
-msgstr ""
+msgstr "会众屏幕会在此处显示网页地址。"
 
 #: ui/dialogs/design-editor.slint
 msgid "The room shows the video's first picture here."
-msgstr ""
+msgstr "会众屏幕会在此处显示视频的第一帧画面。"
 
 #: ui/dialogs/design-editor.slint
 msgid "A newer RustyPresenter made this object. It can be moved or removed here."
-msgstr ""
+msgstr "此对象由更新版本的 RustyPresenter 创建。在这里可以移动或移除它。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Fill colour"
-msgstr ""
+msgstr "填充颜色"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint
 msgid "Outline"
@@ -777,59 +768,59 @@ msgstr "描边"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline colour"
-msgstr ""
+msgstr "轮廓颜色"
 
 #: ui/dialogs/design-editor.slint
 msgid "Outline width ({} px)"
-msgstr ""
+msgstr "轮廓宽度（{} px）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow"
-msgstr ""
+msgstr "阴影"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shadow softness ({} px)"
-msgstr ""
+msgstr "阴影柔和度（{} px）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Soft edges ({} px)"
-msgstr ""
+msgstr "柔化边缘（{} px）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Round corners ({} px)"
-msgstr ""
+msgstr "圆角（{} px）"
 
 #: ui/dialogs/design-editor.slint
 msgid "See-through ({}% shown)"
-msgstr ""
+msgstr "透明度（显示 {}%）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Turn ({}°)"
-msgstr ""
+msgstr "旋转（{}°）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Build"
-msgstr ""
+msgstr "分步显示"
 
 #: ui/dialogs/design-editor.slint
 msgid "Appears on Next"
-msgstr ""
+msgstr "按“下一张”时出现"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
-msgstr ""
+msgstr "提前"
 
 #: ui/dialogs/design-editor.slint
 msgid "Later"
-msgstr ""
+msgstr "延后"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
-msgstr ""
+msgstr "图片或视频"
 
 #: ui/dialogs/design-editor.slint
 msgid "Import pictures into the media library first"
-msgstr ""
+msgstr "请先将图片导入媒体库"
 
 #: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
 msgid "Web page"
@@ -837,7 +828,7 @@ msgstr "网页"
 
 #: ui/dialogs/design-editor.slint
 msgid "Draw"
-msgstr ""
+msgstr "绘制"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/operator.slint src/i18n/remote_strings.rs
 msgid "Undo"
@@ -849,43 +840,43 @@ msgstr "重做"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align left"
-msgstr ""
+msgstr "左对齐"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre across"
-msgstr ""
+msgstr "水平居中"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align right"
-msgstr ""
+msgstr "右对齐"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align top"
-msgstr ""
+msgstr "顶端对齐"
 
 #: ui/dialogs/design-editor.slint
 msgid "Centre down"
-msgstr ""
+msgstr "垂直居中"
 
 #: ui/dialogs/design-editor.slint
 msgid "Align bottom"
-msgstr ""
+msgstr "底端对齐"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space across"
-msgstr ""
+msgstr "横向等距"
 
 #: ui/dialogs/design-editor.slint
 msgid "Space down"
-msgstr ""
+msgstr "纵向等距"
 
 #: ui/dialogs/design-editor.slint
 msgid "To front"
-msgstr ""
+msgstr "置于顶层"
 
 #: ui/dialogs/design-editor.slint
 msgid "To back"
-msgstr ""
+msgstr "置于底层"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -893,31 +884,31 @@ msgstr "复制一份"
 
 #: ui/dialogs/design-editor.slint
 msgid "Copy style"
-msgstr ""
+msgstr "复制样式"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+C"
-msgstr ""
+msgstr "Ctrl+Alt+C"
 
 #: ui/dialogs/design-editor.slint
 msgid "Paste style"
-msgstr ""
+msgstr "粘贴样式"
 
 #: ui/dialogs/design-editor.slint
 msgid "Ctrl+Alt+V"
-msgstr ""
+msgstr "Ctrl+Alt+V"
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag on the slide to draw. Press Draw again to stop."
-msgstr ""
+msgstr "在幻灯片上拖动即可绘制。再按一次“绘制”停止。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Drag to move, drag a corner to resize, arrows nudge, Alt moves freely. Ctrl+Alt+C copies a style, Ctrl+Alt+V pastes it."
-msgstr ""
+msgstr "拖动可移动，拖动角可调整大小，方向键微调，按住 Alt 可自由移动。Ctrl+Alt+C 复制样式，Ctrl+Alt+V 粘贴样式。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Video: {}"
-msgstr ""
+msgstr "视频：{}"
 
 #: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
@@ -1101,15 +1092,15 @@ msgstr "随每张幻灯片显示在舞台屏幕上"
 
 #: ui/dialogs/item-edit.slint
 msgid "Slide transitions"
-msgstr ""
+msgstr "幻灯片切换效果"
 
 #: ui/dialogs/item-edit.slint
 msgid "How each slide comes on screen. Normal uses the usual fade."
-msgstr ""
+msgstr "每张幻灯片如何出现在屏幕上。“正常”使用常规的淡入淡出。"
 
 #: ui/dialogs/item-edit.slint
 msgid "Use for all slides"
-msgstr ""
+msgstr "用于所有幻灯片"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1153,7 +1144,7 @@ msgstr "从聚会中移除"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
-msgstr ""
+msgstr "幻灯片切换时入场音乐继续播放。“清除音频”和“全部清空”会停止它。"
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1161,47 +1152,47 @@ msgstr "诗歌"
 
 #: ui/dialogs/music.slint
 msgid "Play this song now"
-msgstr ""
+msgstr "立即播放这首歌"
 
 #: ui/dialogs/music.slint
 msgid "No songs yet. Add audio from the media library below."
-msgstr ""
+msgstr "还没有歌曲。请从下方的媒体库添加音频。"
 
 #: ui/dialogs/music.slint
 msgid "Add a song"
-msgstr ""
+msgstr "添加歌曲"
 
 #: ui/dialogs/music.slint
 msgid "Add all"
-msgstr ""
+msgstr "全部添加"
 
 #: ui/dialogs/music.slint
 msgid "There is no audio in the media library yet."
-msgstr ""
+msgstr "媒体库中还没有音频。"
 
 #: ui/dialogs/music.slint
 msgid "Import audio…"
-msgstr ""
+msgstr "导入音频…"
 
 #: ui/dialogs/music.slint
 msgid "Shuffle"
-msgstr ""
+msgstr "随机播放"
 
 #: ui/dialogs/music.slint
 msgid "Start again after the last song"
-msgstr ""
+msgstr "最后一首后从头播放"
 
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
-msgstr ""
+msgstr "音量 {}%"
 
 #: ui/dialogs/music.slint src/i18n/remote_strings.rs
 msgid "Stop"
-msgstr ""
+msgstr "停止"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
-msgstr ""
+msgstr "下一首"
 
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
@@ -1217,59 +1208,59 @@ msgstr "手机遥控器"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password when a phone pairs"
-msgstr ""
+msgstr "手机配对时要求输入密码"
 
 #: ui/dialogs/network.slint
 msgid "Remote password"
-msgstr ""
+msgstr "遥控器密码"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
-msgstr ""
+msgstr "已保存 — 输入可更改"
 
 #: ui/dialogs/network.slint
 msgid "New password"
-msgstr ""
+msgstr "新密码"
 
 #: ui/dialogs/network.slint
 msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr ""
+msgstr "手机仍用代码或二维码配对，同时也要输入密码。已配对的手机保持配对。"
 
 #: ui/dialogs/network.slint
 msgid "Stage screen on a phone or tablet"
-msgstr ""
+msgstr "在手机或平板上显示舞台屏幕"
 
 #: ui/dialogs/network.slint
 msgid "Show the stage screen to phones and tablets (read only)"
-msgstr ""
+msgstr "向手机和平板显示舞台屏幕（只读）"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password"
-msgstr ""
+msgstr "要求输入密码"
 
 #: ui/dialogs/network.slint
 msgid "Stage screen password"
-msgstr ""
+msgstr "舞台屏幕密码"
 
 #: ui/dialogs/network.slint
 msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr ""
+msgstr "在歌手的 iPad 或手机上打开此地址（需与这台电脑连接同一 Wi-Fi）。"
 
 #: ui/dialogs/network.slint
 msgid "Control from other gear (TCP)"
-msgstr ""
+msgstr "由其他设备控制（TCP）"
 
 #: ui/dialogs/network.slint
 msgid "Let other gear send commands over the network"
-msgstr ""
+msgstr "允许其他设备通过网络发送命令"
 
 #: ui/dialogs/network.slint
 msgid "Port"
-msgstr ""
+msgstr "端口"
 
 #: ui/dialogs/network.slint
 msgid "TCP password"
-msgstr ""
+msgstr "TCP 密码"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
@@ -1517,47 +1508,47 @@ msgstr "为 {} 添加屏幕"
 
 #: ui/dialogs/screens.slint
 msgid "Test pattern"
-msgstr ""
+msgstr "测试图"
 
 #: ui/dialogs/screens.slint
 msgid "Gamma"
-msgstr ""
+msgstr "伽马"
 
 #: ui/dialogs/screens.slint
 msgid "Black level"
-msgstr ""
+msgstr "黑电平"
 
 #: ui/dialogs/screens.slint
 msgid "Corners (to square up a tilted projector)"
-msgstr ""
+msgstr "四角（用于校正倾斜的投影机）"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner left"
-msgstr ""
+msgstr "将此角向左移"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner right"
-msgstr ""
+msgstr "将此角向右移"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner up"
-msgstr ""
+msgstr "将此角向上移"
 
 #: ui/dialogs/screens.slint
 msgid "Move this corner down"
-msgstr ""
+msgstr "将此角向下移"
 
 #: ui/dialogs/screens.slint
 msgid "Delay (frames)"
-msgstr ""
+msgstr "延迟（帧）"
 
 #: ui/dialogs/screens.slint
 msgid "Reset the picture"
-msgstr ""
+msgstr "重置画面"
 
 #: ui/dialogs/screens.slint
 msgid "Screen"
-msgstr ""
+msgstr "屏幕"
 
 #: ui/dialogs/screens.slint
 msgid "Output"
@@ -1577,31 +1568,31 @@ msgstr "宽高比：{}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience sees"
-msgstr ""
+msgstr "显示会众看到的画面"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
-msgstr ""
+msgstr "整个屏幕"
 
 #: ui/dialogs/screens.slint
 msgid "Smaller rectangle"
-msgstr ""
+msgstr "较小的矩形"
 
 #: ui/dialogs/screens.slint
 msgid "Rounded corners"
-msgstr ""
+msgstr "圆角"
 
 #: ui/dialogs/screens.slint
 msgid "Oval"
-msgstr ""
+msgstr "椭圆"
 
 #: ui/dialogs/screens.slint
 msgid "Edge"
-msgstr ""
+msgstr "边缘"
 
 #: ui/dialogs/screens.slint
 msgid "Corners"
-msgstr ""
+msgstr "四角"
 
 #: ui/dialogs/screens.slint
 msgid "Only one screen is connected. Plug in the projector/TV (and set Windows to “Extend these displays” with Win+P), then click Refresh."
@@ -1857,11 +1848,11 @@ msgstr "提示：点击任何幻灯片会立即将其显示到屏幕上。红色
 
 #: ui/dialogs/settings-keys.slint
 msgid "In the slide editor"
-msgstr ""
+msgstr "在幻灯片编辑器中"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr ""
+msgstr "Ctrl+Alt+C 复制所选框的样式，Ctrl+Alt+V 粘贴（未选择任何框时：粘贴到该幻灯片的每个文本框）。Ctrl+Z 撤销，Ctrl+Y 重做，Ctrl+D 复制一份，Ctrl+A 全选，Delete 删除，方向键微调（Shift+方向键调整大小），Tab 选择下一个对象。"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2069,11 +2060,11 @@ msgstr "仅右音箱"
 
 #: ui/dialogs/settings-media.slint
 msgid "Recording"
-msgstr ""
+msgstr "录制"
 
 #: ui/dialogs/settings-media.slint
 msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
-msgstr ""
+msgstr "“文件 → 开始录制”（或顶部的“录制”按钮）会将会众屏幕的画面保存为 MP4 视频。"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
@@ -2081,31 +2072,31 @@ msgstr "图片大小"
 
 #: ui/dialogs/settings-media.slint
 msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr ""
+msgstr "720p 占用较少的电脑资源和磁盘空间（每小时最多约 1.4 GB）；1080p 更清晰（约 2.8 GB）。"
 
 #: ui/dialogs/settings-media.slint
 msgid "720p"
-msgstr ""
+msgstr "720p"
 
 #: ui/dialogs/settings-media.slint
 msgid "1080p"
-msgstr ""
+msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
-msgstr ""
+msgstr "录制文件保存位置"
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose folder…"
-msgstr ""
+msgstr "选择文件夹…"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound in the recording"
-msgstr ""
+msgstr "录制中的声音"
 
 #: ui/dialogs/settings-media.slint
 msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr ""
+msgstr "录制停止时，会从视频和歌曲文件中提取应用的声音，因此不会录到电脑上的其他声音。"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -2201,7 +2192,7 @@ msgstr "新建主题"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Hide ready-made themes"
-msgstr ""
+msgstr "隐藏现成主题"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Background library"
@@ -2297,31 +2288,31 @@ msgstr "底条颜色"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(how each kind of slide looks in this theme)"
-msgstr ""
+msgstr "（各类幻灯片在此主题中的外观）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Drag the box to move the text; drag its corner to make it bigger or smaller."
-msgstr ""
+msgstr "拖动文本框可移动文字；拖动其角可放大或缩小。"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Snap to guides (middle, edges and thirds)"
-msgstr ""
+msgstr "对齐参考线（中间、边缘和三等分线）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text size in this layout"
-msgstr ""
+msgstr "此布局中的文字大小"
 
 #: ui/dialogs/settings-themes.slint
 msgid "(percent of the theme's size)"
-msgstr ""
+msgstr "（主题文字大小的百分比）"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text in the box"
-msgstr ""
+msgstr "框中的文字"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Reset this layout"
-msgstr ""
+msgstr "重置此布局"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Darken"
@@ -2620,20 +2611,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "在光标处开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免\n"
-"\n"
-"Chorus\n"
-"我的锁链已断开…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2669,15 +2648,15 @@ msgstr "需要更新版本的 RustyPresenter"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked · hidden"
-msgstr ""
+msgstr "{} · 已锁定 · 已隐藏"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · locked"
-msgstr ""
+msgstr "{} · 已锁定"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint
 msgid "{} · hidden"
-msgstr ""
+msgstr "{} · 已隐藏"
 
 #: ui/dialogs/stage-layouts.slint src/strings/stage.rs
 msgid "Stage layouts"
@@ -2733,11 +2712,11 @@ msgstr "添加方框"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Locked (can't be moved by mistake)"
-msgstr ""
+msgstr "已锁定（不会被误移动）"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Hidden on the stage"
-msgstr ""
+msgstr "在舞台上隐藏"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Shows"
@@ -2745,7 +2724,7 @@ msgstr "显示"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Show chords (typed in the lyrics like [G])"
-msgstr ""
+msgstr "显示和弦（在歌词中输入，如 [G]）"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
@@ -2785,7 +2764,7 @@ msgstr "正常"
 
 #: ui/dialogs/transition.slint
 msgid "Fade"
-msgstr ""
+msgstr "淡入淡出"
 
 #: ui/dialogs/transition.slint ui/widgets.slint
 msgid "Cut"
@@ -2793,31 +2772,31 @@ msgstr "剪切"
 
 #: ui/dialogs/transition.slint
 msgid "Through black"
-msgstr ""
+msgstr "经由黑场"
 
 #: ui/dialogs/transition.slint
 msgid "Push"
-msgstr ""
+msgstr "推入"
 
 #: ui/dialogs/transition.slint
 msgid "Wipe"
-msgstr ""
+msgstr "擦除"
 
 #: ui/dialogs/transition.slint
 msgid "Which way"
-msgstr ""
+msgstr "方向"
 
 #: ui/dialogs/transition.slint
 msgid "To the left"
-msgstr ""
+msgstr "向左"
 
 #: ui/dialogs/transition.slint
 msgid "To the right"
-msgstr ""
+msgstr "向右"
 
 #: ui/dialogs/transition.slint
 msgid "Time ({} ms)"
-msgstr ""
+msgstr "时长（{} ms）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3017,27 +2996,27 @@ msgstr "识别屏幕"
 
 #: ui/operator/action-palette.slint
 msgid "Drag onto a slide, or click to add it to the picked slide"
-msgstr ""
+msgstr "拖到幻灯片上，或点击添加到所选幻灯片"
 
 #: ui/operator/action-palette.slint
 msgid "Slide actions"
-msgstr ""
+msgstr "幻灯片动作"
 
 #: ui/operator/action-palette.slint
 msgid "Close the action palette"
-msgstr ""
+msgstr "关闭动作面板"
 
 #: ui/operator/action-palette.slint
 msgid "They run when the slide goes live, never in a preview."
-msgstr ""
+msgstr "它们在幻灯片正式显示时运行，预览时不会运行。"
 
 #: ui/operator/action-palette.slint
 msgid "This slide does nothing extra yet."
-msgstr ""
+msgstr "此幻灯片还没有额外动作。"
 
 #: ui/operator/action-palette.slint
 msgid "Take off “{}”"
-msgstr ""
+msgstr "移除“{}”"
 
 #: ui/operator/automation-strip.slint
 msgid "Message showing — Hide"
@@ -3069,23 +3048,23 @@ msgstr "向会众显示"
 
 #: ui/operator/automation-strip.slint src/i18n/remote_strings.rs src/ui/dialogs/mod.rs
 msgid "Walk-in music"
-msgstr ""
+msgstr "入场音乐"
 
 #: ui/operator/automation-strip.slint
 msgid "Pause the walk-in music"
-msgstr ""
+msgstr "暂停入场音乐"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Play the walk-in music"
-msgstr ""
+msgstr "播放入场音乐"
 
 #: ui/operator/automation-strip.slint src/ui/dialogs/automation.rs
 msgid "Stop the walk-in music"
-msgstr ""
+msgstr "停止入场音乐"
 
 #: ui/operator/automation-strip.slint
 msgid "Walk-in music songs and volume"
-msgstr ""
+msgstr "入场音乐的歌曲和音量"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -3185,7 +3164,7 @@ msgstr "图片"
 
 #: ui/operator/media.slint
 msgid "Video inputs"
-msgstr ""
+msgstr "视频输入"
 
 #: ui/operator/media.slint
 msgid "Search media"
@@ -3205,7 +3184,7 @@ msgstr "删除文件夹"
 
 #: ui/operator/media.slint
 msgid "No video inputs yet. Plug in a camera or capture card, then add it on the right."
-msgstr ""
+msgstr "还没有视频输入。请接上摄像机或采集卡，然后在右侧添加。"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
@@ -3217,27 +3196,27 @@ msgstr "导入媒体"
 
 #: ui/operator/media.slint
 msgid "Add a video input"
-msgstr ""
+msgstr "添加视频输入"
 
 #: ui/operator/media.slint
 msgid "Looking for cameras…"
-msgstr ""
+msgstr "正在查找摄像机…"
 
 #: ui/operator/media.slint
 msgid "None found. Type the camera's name:"
-msgstr ""
+msgstr "未找到。请输入摄像机名称："
 
 #: ui/operator/media.slint
 msgid "Or type its name"
-msgstr ""
+msgstr "或输入其名称"
 
 #: ui/operator/media.slint
 msgid "Camera name"
-msgstr ""
+msgstr "摄像机名称"
 
 #: ui/operator/media.slint
 msgid "Look for cameras again"
-msgstr ""
+msgstr "重新查找摄像机"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -3301,19 +3280,19 @@ msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）�
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
-msgstr ""
+msgstr "停止录制"
 
 #: ui/operator/record.slint
 msgid "Record"
-msgstr ""
+msgstr "录制"
 
 #: ui/operator/record.slint
 msgid "Stop recording and save the file"
-msgstr ""
+msgstr "停止录制并保存文件"
 
 #: ui/operator/record.slint
 msgid "Record the room screen to a video file"
-msgstr ""
+msgstr "将会众屏幕录制为视频文件"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -3441,11 +3420,11 @@ msgstr "把这段经文保存到诗歌库，以便编辑或再次使用"
 
 #: ui/operator/slides.slint
 msgid "Actions"
-msgstr ""
+msgstr "动作"
 
 #: ui/operator/slides.slint
 msgid "Things a slide does when it goes live: drag them onto a slide"
-msgstr ""
+msgstr "幻灯片正式显示时执行的操作：将其拖到幻灯片上"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
@@ -3577,19 +3556,19 @@ msgstr "将此聚会保存为文件…"
 
 #: ui/operator.slint
 msgid "Song from the clipboard"
-msgstr ""
+msgstr "从剪贴板添加诗歌"
 
 #: ui/operator.slint
 msgid "Announcement from the clipboard"
-msgstr ""
+msgstr "从剪贴板添加报告事项"
 
 #: ui/operator.slint
 msgid "PowerPoint words as editable slides…"
-msgstr ""
+msgstr "PowerPoint 文字作为可编辑幻灯片…"
 
 #: ui/operator.slint
 msgid "Theme pack…"
-msgstr ""
+msgstr "主题包…"
 
 #: ui/operator.slint
 msgid "Export"
@@ -3601,15 +3580,15 @@ msgstr "聚会打包文件…"
 
 #: ui/operator.slint
 msgid "Song words as text…"
-msgstr ""
+msgstr "诗歌歌词（文本）…"
 
 #: ui/operator.slint
 msgid "Slides as pictures…"
-msgstr ""
+msgstr "幻灯片（图片）…"
 
 #: ui/operator.slint
 msgid "Playlist (list of files)…"
-msgstr ""
+msgstr "播放列表（文件列表）…"
 
 #: ui/operator.slint
 msgid "Song…"
@@ -3633,7 +3612,7 @@ msgstr "报告事项…"
 
 #: ui/operator.slint
 msgid "Designed slides…"
-msgstr ""
+msgstr "设计的幻灯片…"
 
 #: ui/operator.slint
 msgid "Import media…"
@@ -3641,15 +3620,15 @@ msgstr "导入媒体…"
 
 #: ui/operator.slint
 msgid "Video inputs…"
-msgstr ""
+msgstr "视频输入…"
 
 #: ui/operator.slint
 msgid "Start recording"
-msgstr ""
+msgstr "开始录制"
 
 #: ui/operator.slint
 msgid "Recording settings…"
-msgstr ""
+msgstr "录制设置…"
 
 #: ui/operator.slint
 msgid "Print service order…"
@@ -3825,23 +3804,23 @@ msgstr "自动化…"
 
 #: ui/operator.slint
 msgid "Walk-in music…"
-msgstr ""
+msgstr "入场音乐…"
 
 #: ui/operator.slint
 msgid "Calendar…"
-msgstr ""
+msgstr "日历…"
 
 #: ui/operator.slint
 msgid "Hide the action palette"
-msgstr ""
+msgstr "隐藏动作面板"
 
 #: ui/operator.slint
 msgid "Action palette"
-msgstr ""
+msgstr "动作面板"
 
 #: ui/operator.slint
 msgid "Start pre-service"
-msgstr ""
+msgstr "开始聚会前播放"
 
 #: ui/operator.slint
 msgid "Settings…"
@@ -3853,7 +3832,7 @@ msgstr "主题和背景…"
 
 #: ui/operator.slint
 msgid "Network…"
-msgstr ""
+msgstr "网络…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -4113,7 +4092,7 @@ msgstr "无法读取“{file}”：{error}"
 
 #: src/automation/actions.rs
 msgid "A macro can't run another macro."
-msgstr ""
+msgstr "宏不能运行另一个宏。"
 
 #: src/automation/actions.rs src/ui/dialogs/automation.rs
 msgid "Type the time like 10:30."
@@ -4129,15 +4108,15 @@ msgstr "无法播放该文件"
 
 #: src/automation/slide_actions.rs
 msgid "A slide can do up to 8 things."
-msgstr ""
+msgstr "一张幻灯片最多可执行 8 个动作。"
 
 #: src/automation/slide_actions.rs
 msgid "That action was already taken off."
-msgstr ""
+msgstr "该动作已被移除。"
 
 #: src/automation/slide_actions.rs
 msgid "Playlists aren't available yet."
-msgstr ""
+msgstr "播放列表暂不可用。"
 
 #: src/automation/slide_actions.rs src/slides.rs src/strings/design.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
@@ -4165,43 +4144,43 @@ msgstr "隐藏消息"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play “{title}”"
-msgstr ""
+msgstr "播放“{title}”"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Play a playlist"
-msgstr ""
+msgstr "播放播放列表"
 
 #: src/automation/slide_actions.rs
 msgid "No playlists yet."
-msgstr ""
+msgstr "还没有播放列表。"
 
 #: src/automation/slide_actions.rs
 msgid "Play playlist “{name}”"
-msgstr ""
+msgstr "播放播放列表“{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Start “{name}”"
-msgstr ""
+msgstr "开始“{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Stop “{name}”"
-msgstr ""
+msgstr "停止“{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "Show “{name}”"
-msgstr ""
+msgstr "显示“{name}”"
 
 #: src/automation/slide_actions.rs
 msgid "This message has blanks to fill in. Put it in a macro instead."
-msgstr ""
+msgstr "此消息有待填写的空白。请改为放入宏中。"
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” on"
-msgstr ""
+msgstr "“{name}”开启"
 
 #: src/automation/slide_actions.rs
 msgid "“{name}” off"
-msgstr ""
+msgstr "“{name}”关闭"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Run “{name}”"
@@ -4209,7 +4188,7 @@ msgstr "运行“{name}”"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Stage: {name}"
-msgstr ""
+msgstr "舞台：{name}"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Let the stage layout follow the slides"
@@ -4229,7 +4208,7 @@ msgstr "更改屏幕显示的内容"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Go to slide {n}"
-msgstr ""
+msgstr "转到第 {n} 张幻灯片"
 
 #: src/automation/slide_actions.rs src/strings/stage.rs src/ui/dialogs/automation.rs
 msgid "Next slide"
@@ -4541,27 +4520,27 @@ msgstr "渐隐"
 
 #: src/i18n/remote_strings.rs
 msgid "Volume"
-msgstr ""
+msgstr "音量"
 
 #: src/i18n/remote_strings.rs
 msgid "Not playing"
-msgstr ""
+msgstr "未播放"
 
 #: src/i18n/remote_strings.rs
 msgid "{time} left"
-msgstr ""
+msgstr "剩余 {time}"
 
 #: src/i18n/remote_strings.rs
 msgid "Password"
-msgstr ""
+msgstr "密码"
 
 #: src/i18n/remote_strings.rs
 msgid "This remote needs a password too."
-msgstr ""
+msgstr "此遥控器也需要密码。"
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
-msgstr ""
+msgstr "此舞台屏幕需要密码。"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -4797,7 +4776,7 @@ msgstr "不是 OpenSong 诗歌"
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
-msgstr ""
+msgstr "只有保存为 .pptx 的 PowerPoint 文件才能读取文字。请在 PowerPoint 中另存为 .pptx，或以图片形式添加。"
 
 #: src/import/propresenter.rs
 msgid "ProPresenter 7 files aren't supported yet; export as text or ProPresenter 6"
@@ -4897,11 +4876,11 @@ msgstr "该视频或音频已不再播放。"
 
 #: src/live.rs
 msgid "That item isn't a video, picture or sound."
-msgstr ""
+msgstr "该项目不是视频、图片或声音。"
 
 #: src/live.rs
 msgid "That theme was deleted."
-msgstr ""
+msgstr "该主题已被删除。"
 
 #: src/live.rs src/strings/operator.rs
 msgid "Start of service"
@@ -4996,71 +4975,71 @@ msgstr "经文"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
-msgstr ""
+msgstr "录制需要 FFmpeg（一个免费程序）。{hint}"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
-msgstr ""
+msgstr "此 FFmpeg 版本无法生成 H.264 视频。请安装完整版 FFmpeg 后重试。"
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."
-msgstr ""
+msgstr "请先打开会众屏幕：录制的是会众看到的画面。"
 
 #: src/record/mod.rs
 msgid "Could not use the recordings folder {path}: {why}"
-msgstr ""
+msgstr "无法使用录制文件夹 {path}：{why}"
 
 #: src/record/mod.rs
 msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr ""
+msgstr "录制文件夹所在磁盘仅剩 {free} 可用空间。录制一小时约需 {need}。请在“设置 → 媒体”中选择其他文件夹。"
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
-msgstr ""
+msgstr "磁盘快满了，录制已停止。"
 
 #: src/record/mod.rs
 msgid "The recording could not start: {why}"
-msgstr ""
+msgstr "录制无法开始：{why}"
 
 #: src/record/mod.rs
 msgid "The recording stopped: {why}"
-msgstr ""
+msgstr "录制已停止：{why}"
 
 #: src/record/mod.rs
 msgid "Recording the room screen."
-msgstr ""
+msgstr "正在录制会众屏幕。"
 
 #: src/record/mod.rs
 msgid "Saving the recording…"
-msgstr ""
+msgstr "正在保存录制文件…"
 
 #: src/record/mod.rs
 msgid "Recording saved: {path}"
-msgstr ""
+msgstr "录制文件已保存：{path}"
 
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
-msgstr ""
+msgstr "录制文件已保存为 {path}（无法转换为 MP4）。"
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
-msgstr ""
+msgstr "录制文件已保存，但未包含应用的声音（无法添加）。"
 
 #: src/record/mod.rs
 msgid "FFmpeg stopped unexpectedly"
-msgstr ""
+msgstr "FFmpeg 意外停止"
 
 #: src/record/mod.rs
 msgid "No sound"
-msgstr ""
+msgstr "无声音"
 
 #: src/record/mod.rs
 msgid "The sound the app plays (videos and songs)"
-msgstr ""
+msgstr "应用播放的声音（视频和歌曲）"
 
 #: src/record/mod.rs
 msgid "Microphone or line-in: {name}"
-msgstr ""
+msgstr "麦克风或线路输入：{name}"
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem."
@@ -5481,7 +5460,7 @@ msgstr "无法运行“{name}”：第 {step} 步的舞台布局已被删除。�
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step}'s macro was deleted."
-msgstr ""
+msgstr "无法运行“{name}”：第 {step} 步的宏已被删除。"
 
 #: src/strings/automation.rs
 msgid "Couldn't run “{name}”: step {step} needs a newer RustyPresenter."
@@ -5607,39 +5586,39 @@ msgstr "屏幕视图暂不可用。"
 
 #: src/strings/automation.rs
 msgid "Add some songs to the walk-in music first."
-msgstr ""
+msgstr "请先为入场音乐添加一些歌曲。"
 
 #: src/strings/automation.rs
 msgid "That song isn't in the walk-in music any more."
-msgstr ""
+msgstr "该歌曲已不在入场音乐中。"
 
 #: src/strings/automation.rs
 msgid "The walk-in music can hold 500 songs at most."
-msgstr ""
+msgstr "入场音乐最多可包含 500 首歌曲。"
 
 #: src/strings/automation.rs
 msgid "The walk-in music stopped: {reason}"
-msgstr ""
+msgstr "入场音乐已停止：{reason}"
 
 #: src/strings/automation.rs
 msgid "“{name}” runs a macro that was deleted."
-msgstr ""
+msgstr "“{name}”运行的宏已被删除。"
 
 #: src/strings/automation.rs
 msgid "Pick at least one day."
-msgstr ""
+msgstr "请至少选择一天。"
 
 #: src/strings/automation.rs
 msgid "Pick what to do."
-msgstr ""
+msgstr "请选择要执行的操作。"
 
 #: src/strings/automation.rs
 msgid "The calendar can hold 50 entries at most."
-msgstr ""
+msgstr "日历最多可包含 50 个项目。"
 
 #: src/strings/automation.rs
 msgid "Calendar: ran “{name}”."
-msgstr ""
+msgstr "日历：已运行“{name}”。"
 
 #: src/strings/bundle.rs
 msgid "That is not a RustyPresenter service file."
@@ -5863,11 +5842,11 @@ msgstr "也在 {sources} 上"
 
 #: src/strings/design.rs
 msgid "A slide set can have at most 200 slides."
-msgstr ""
+msgstr "一组幻灯片最多可有 200 张幻灯片。"
 
 #: src/strings/design.rs
 msgid "A slide can have at most 60 objects."
-msgstr ""
+msgstr "一张幻灯片最多可有 60 个对象。"
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Your words here"
@@ -5875,27 +5854,27 @@ msgstr "在此输入文字"
 
 #: src/strings/design.rs
 msgid "Slide editor"
-msgstr ""
+msgstr "幻灯片编辑器"
 
 #: src/strings/design.rs
 msgid "New slides"
-msgstr ""
+msgstr "新幻灯片"
 
 #: src/strings/design.rs
 msgid "Slide {n} · {step} of {of}"
-msgstr ""
+msgstr "幻灯片 {n} · 第 {step}/{of} 步"
 
 #: src/strings/design.rs
 msgid "Slides saved"
-msgstr ""
+msgstr "幻灯片已保存"
 
 #: src/strings/design.rs
 msgid "Throw away the changes to these slides?"
-msgstr ""
+msgstr "要放弃对这些幻灯片的更改吗？"
 
 #: src/strings/design.rs
 msgid "Throw away"
-msgstr ""
+msgstr "放弃"
 
 #: src/strings/design.rs src/strings/stage.rs
 msgid "Keep editing"
@@ -5903,23 +5882,23 @@ msgstr "继续编辑"
 
 #: src/strings/design.rs
 msgid "Style copied. Choose other boxes (or none, for every text box) and press Ctrl+Alt+V."
-msgstr ""
+msgstr "样式已复制。请选择其他框（或不选，应用到每个文本框），然后按 Ctrl+Alt+V。"
 
 #: src/strings/design.rs
 msgid "Choose a box to copy its style."
-msgstr ""
+msgstr "请选择一个框以复制其样式。"
 
 #: src/strings/design.rs
 msgid "Copy a style first (Ctrl+Alt+C)."
-msgstr ""
+msgstr "请先复制样式（Ctrl+Alt+C）。"
 
 #: src/strings/design.rs
 msgid "Style pasted"
-msgstr ""
+msgstr "样式已粘贴"
 
 #: src/strings/design.rs
 msgid "That picture could not be read."
-msgstr ""
+msgstr "无法读取该图片。"
 
 #: src/strings/dialogs.rs
 msgid "Services"
@@ -6067,35 +6046,35 @@ msgstr "已添加到媒体库 — 在此选择"
 
 #: src/strings/network.rs
 msgid "Use at least 4 characters for a password."
-msgstr ""
+msgstr "密码至少需要 4 个字符。"
 
 #: src/strings/network.rs
 msgid "Type a password, or turn the password off."
-msgstr ""
+msgstr "请输入密码，或关闭密码。"
 
 #: src/strings/network.rs
 msgid "Use a port from 1024 to 65535."
-msgstr ""
+msgstr "请使用 1024 到 65535 之间的端口。"
 
 #: src/strings/network.rs
 msgid "Port {port} is the app's own. Pick another one."
-msgstr ""
+msgstr "端口 {port} 已被本应用使用。请另选一个。"
 
 #: src/strings/network.rs
 msgid "The TCP control could not use port {port}: {error}"
-msgstr ""
+msgstr "TCP 控制无法使用端口 {port}：{error}"
 
 #: src/strings/network.rs
 msgid "That password isn't right."
-msgstr ""
+msgstr "密码不正确。"
 
 #: src/strings/network.rs
 msgid "The stage view is turned off on the presentation computer."
-msgstr ""
+msgstr "演示电脑上已关闭舞台视图。"
 
 #: src/strings/network.rs
 msgid "Network settings saved."
-msgstr ""
+msgstr "网络设置已保存。"
 
 #: src/strings/operator.rs
 msgid "{kind} · can't be played"
@@ -6839,23 +6818,23 @@ msgstr "要移除“{name}”吗？"
 
 #: src/strings/screens.rs
 msgid "Placeholder (connect the projector later)"
-msgstr ""
+msgstr "占位屏幕（稍后连接投影机）"
 
 #: src/strings/screens.rs
 msgid "Placeholder"
-msgstr ""
+msgstr "占位屏幕"
 
 #: src/strings/screens.rs
 msgid "Nothing shows on a placeholder. Set it up now, then pick the projector here once it is plugged in."
-msgstr ""
+msgstr "占位屏幕上不显示任何内容。现在先设置好，插上投影机后再在此处选择它。"
 
 #: src/strings/screens.rs
 msgid "Shows the audience picture instead of a stage layout. It has no sound."
-msgstr ""
+msgstr "显示会众画面，而不是舞台布局。没有声音。"
 
 #: src/strings/screens.rs
 msgid "Colour bars"
-msgstr ""
+msgstr "彩条"
 
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
@@ -6867,31 +6846,31 @@ msgstr "黑色"
 
 #: src/strings/screens.rs
 msgid "left"
-msgstr ""
+msgstr "左"
 
 #: src/strings/screens.rs
 msgid "right"
-msgstr ""
+msgstr "右"
 
 #: src/strings/screens.rs
 msgid "up"
-msgstr ""
+msgstr "上"
 
 #: src/strings/screens.rs
 msgid "down"
-msgstr ""
+msgstr "下"
 
 #: src/strings/screens.rs
 msgid "Moved {side} {x} %, {way} {y} %"
-msgstr ""
+msgstr "已向{side}移动 {x} %，向{way}移动 {y} %"
 
 #: src/strings/screens.rs
 msgid "about {ms} ms"
-msgstr ""
+msgstr "约 {ms} ms"
 
 #: src/strings/screens.rs
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr ""
+msgstr "颜色和四角调整仅在屏幕使用 OpenGL 绘制时显示（设置 → 视频 → 图形：自动或 OpenGL）。测试图和延迟在任何情况下都有效。"
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -7192,12 +7171,8 @@ msgid "Settings saved"
 msgstr "设置已保存"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "奇异恩典，何等甘甜\n我罪已得赦免"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -7626,7 +7601,7 @@ msgstr "视频剩余时间"
 
 #: src/strings/stage.rs
 msgid "Next slide picture"
-msgstr ""
+msgstr "下一张幻灯片画面"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
@@ -7678,15 +7653,15 @@ msgstr "一次输入的文字"
 
 #: src/strings/stage.rs
 msgid "the next slide as the room will see it"
-msgstr ""
+msgstr "会众将看到的下一张幻灯片"
 
 #: src/strings/stage.rs
 msgid "a box, circle or line"
-msgstr ""
+msgstr "方框、圆形或线条"
 
 #: src/strings/stage.rs
 msgid "Rounded box"
-msgstr ""
+msgstr "圆角方框"
 
 #: src/strings/stage.rs
 msgid "(logo)"
@@ -7857,7 +7832,7 @@ msgstr "最后一遍副歌"
 
 #: src/strings/stage.rs
 msgid "(picture of the next slide)"
-msgstr ""
+msgstr "（下一张幻灯片的画面）"
 
 #: src/strings/themes.rs
 msgid "Give the theme a name."
@@ -8009,7 +7984,7 @@ msgstr "此背景的新名称"
 
 #: src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
-msgstr ""
+msgstr "摄像机"
 
 #: src/strings/themes.rs
 msgid "Use theme background"
@@ -8169,15 +8144,15 @@ msgstr "请安装 LibreOffice Impress，例如：sudo apt install libreoffice-im
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: winget install Gyan.FFmpeg"
-msgstr ""
+msgstr "点击“获取 FFmpeg”，RustyPresenter 会自动下载；也可以自行安装：winget install Gyan.FFmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself: brew install ffmpeg"
-msgstr ""
+msgstr "点击“获取 FFmpeg”，RustyPresenter 会自动下载；也可以自行安装：brew install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Click Get FFmpeg and RustyPresenter downloads it, or install it yourself, for example: sudo apt install ffmpeg"
-msgstr ""
+msgstr "点击“获取 FFmpeg”，RustyPresenter 会自动下载；也可以自行安装，例如：sudo apt install ffmpeg"
 
 #: src/strings/tools.rs
 msgid "Cannot make a file address from {path}"
@@ -8467,108 +8442,108 @@ msgstr "石板灰"
 
 #: src/theme/builtins.rs
 msgid "Clean white"
-msgstr ""
+msgstr "简洁白"
 
 #: src/theme/builtins.rs
 msgid "Classic serif"
-msgstr ""
+msgstr "经典衬线"
 
 #: src/theme/builtins.rs
 msgid "Royal"
-msgstr ""
+msgstr "皇家"
 
 #: src/theme/builtins.rs
 msgid "Bold modern"
-msgstr ""
+msgstr "醒目现代"
 
 #: src/theme/builtins.rs
 msgid "Christmas red"
-msgstr ""
+msgstr "圣诞红"
 
 #: src/theme/builtins.rs
 msgid "Easter morning"
-msgstr ""
+msgstr "复活节清晨"
 
 #: src/theme/builtins.rs
 msgid "Advent purple"
-msgstr ""
+msgstr "将临期紫"
 
 #: src/theme/builtins.rs
 msgid "Youth night"
-msgstr ""
+msgstr "青年之夜"
 
 #: src/theme/builtins.rs
 msgid "Sunrise"
-msgstr ""
+msgstr "日出"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr ""
+msgstr "视频上的文字"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
-msgstr ""
+msgstr "标题 + 副标题"
 
 #: src/theme/layouts.rs
 msgid "Quote"
-msgstr ""
+msgstr "引言"
 
 #: src/theme/layouts.rs
 msgid "Main point"
-msgstr ""
+msgstr "重点"
 
 #: src/theme/layouts.rs
 msgid "Points"
-msgstr ""
+msgstr "要点"
 
 #: src/theme/layouts.rs
 msgctxt "layout"
 msgid "Text"
-msgstr ""
+msgstr "文本"
 
 #: src/theme/layouts.rs
 msgid "Lower-third lyrics"
-msgstr ""
+msgstr "下方三分之一歌词"
 
 #: src/theme/layouts.rs
 msgid "One big line in the middle."
-msgstr ""
+msgstr "中间一行大字。"
 
 #: src/theme/layouts.rs
 msgid "The first line is the title; the lines under it are smaller."
-msgstr ""
+msgstr "第一行是标题；下面的行字体较小。"
 
 #: src/theme/layouts.rs
 msgid "The quote on the first line, who said it on the next."
-msgstr ""
+msgstr "第一行是引言，下一行是出处。"
 
 #: src/theme/layouts.rs
 msgid "One short sentence, big and bold."
-msgstr ""
+msgstr "一句简短的话，大而醒目。"
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr ""
+msgstr "按圣经经文排版。"
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
-msgstr ""
+msgstr "底部的小字说明，让背景图片显示出来。"
 
 #: src/theme/layouts.rs
 msgid "Each line becomes a bullet point."
-msgstr ""
+msgstr "每行成为一个项目符号。"
 
 #: src/theme/layouts.rs
 msgid "Plain text, like an announcement."
-msgstr ""
+msgstr "纯文本，如报告事项。"
 
 #: src/theme/layouts.rs
 msgid "Laid out like song lyrics."
-msgstr ""
+msgstr "按诗歌歌词排版。"
 
 #: src/theme/layouts.rs
 msgid "Small text at the bottom of the screen."
-msgstr ""
+msgstr "屏幕底部的小字。"
 
 #: src/theme/saved.rs
 msgid "{name} copy {number}"
@@ -8576,27 +8551,27 @@ msgstr "{name} 副本 {number}"
 
 #: src/transfer.rs
 msgid "This service has no songs."
-msgstr ""
+msgstr "此聚会没有诗歌。"
 
 #: src/transfer.rs
 msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr ""
+msgstr "没有已保存的主题可导出。请在“设置 → 主题”中创建一个。"
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
-msgstr ""
+msgstr "这不是 RustyPresenter 主题包。"
 
 #: src/transfer.rs
 msgid "This theme pack was made by a newer RustyPresenter. Update to open it."
-msgstr ""
+msgstr "此主题包由更新版本的 RustyPresenter 创建。请更新后再打开。"
 
 #: src/transfer.rs
 msgid "The clipboard has no text. Copy the words first."
-msgstr ""
+msgstr "剪贴板中没有文字。请先复制文字。"
 
 #: src/transfer.rs
 msgid "{name} (imported)"
-msgstr ""
+msgstr "{name}（已导入）"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
@@ -8656,19 +8631,19 @@ msgstr "更改舞台布局"
 
 #: src/ui/dialogs/automation.rs
 msgid "Play item {n}"
-msgstr ""
+msgstr "播放第 {n} 项"
 
 #: src/ui/dialogs/automation.rs
 msgid "Every day"
-msgstr ""
+msgstr "每天"
 
 #: src/ui/dialogs/automation.rs
 msgid "Weekdays"
-msgstr ""
+msgstr "工作日"
 
 #: src/ui/dialogs/automation.rs
 msgid "{days} at {time}"
-msgstr ""
+msgstr "{days} {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Count down {time}"
@@ -8689,7 +8664,7 @@ msgstr[0] "{n} 个步骤"
 
 #: src/ui/dialogs/automation.rs
 msgid "Next: {day} {date}, {time}"
-msgstr ""
+msgstr "下次：{day} {date} {time}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Do nothing"
@@ -8705,7 +8680,7 @@ msgstr "填写框：{fields}"
 
 #: src/ui/dialogs/automation.rs
 msgid "Leave it as it is"
-msgstr ""
+msgstr "保持原样"
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
@@ -8713,7 +8688,7 @@ msgstr "已保存。"
 
 #: src/ui/dialogs/design_editor.rs
 msgid "Appears on Next {step} of {of}"
-msgstr ""
+msgstr "按“下一张”时出现（第 {step}/{of} 步）"
 
 #: src/ui/dialogs/mod.rs
 msgid "Automation"
@@ -8725,15 +8700,15 @@ msgstr "显示消息"
 
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
-msgstr ""
+msgstr "正在播放：{title} · 剩余 {time}"
 
 #: src/ui/dialogs/network.rs
 msgid "Network"
-msgstr ""
+msgstr "网络"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
-msgstr ""
+msgstr "每行发送一条命令：next、prev、clear、clear slide、logo、go 3（第 3 项）、go 3 2（其第 2 张幻灯片）、status。如设了密码，请先发送“password …”。每行都会回复 OK 或 ERR。"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
@@ -8814,34 +8789,27 @@ msgstr "清理"
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
 msgid_plural "Show {n} ready-made themes"
-msgstr[0] ""
+msgstr[0] "显示 {n} 个现成主题"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "复活节主日\n上午 9 点和 11 点聚会"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“你们要休息，要知道我是神。”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
-msgstr ""
+msgstr "神的恩典够用"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Youth camp in the mountains"
-msgstr ""
+msgstr "山区青年营"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "每天祷告\n读圣经\n服事邻舍"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -8918,19 +8886,19 @@ msgstr "翻译文件 (.po)"
 
 #: src/ui/operator/file_input.rs
 msgid "Text file (.txt)"
-msgstr ""
+msgstr "文本文件 (.txt)"
 
 #: src/ui/operator/file_input.rs
 msgid "Playlist (.m3u8)"
-msgstr ""
+msgstr "播放列表 (.m3u8)"
 
 #: src/ui/operator/file_input.rs
 msgid "Theme pack (.rpthemes)"
-msgstr ""
+msgstr "主题包 (.rpthemes)"
 
 #: src/ui/operator/file_input.rs
 msgid "PowerPoint (.pptx)"
-msgstr ""
+msgstr "PowerPoint (.pptx)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -9042,7 +9010,7 @@ msgstr "“帮助 → 报告问题…”会生成一份待填写的说明，并�
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
-msgstr ""
+msgstr "选择聚会前要执行的操作，然后点击“保存”。"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -9062,58 +9030,58 @@ msgstr "声音已重新送到会众音响。"
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
-msgstr ""
+msgstr "获取 FFmpeg"
 
 #: src/ui/operator/record.rs
 msgid "Not now"
-msgstr ""
+msgstr "以后再说"
 
 #: src/ui/operator/record.rs
 msgid "Getting FFmpeg for recording"
-msgstr ""
+msgstr "正在获取录制所需的 FFmpeg"
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg is ready. Press Record to start recording."
-msgstr ""
+msgstr "FFmpeg 已就绪。按“录制”开始录制。"
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
-msgstr ""
+msgstr "无法下载 FFmpeg。请检查网络连接，或自行安装：{command}"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
-msgstr ""
+msgstr "已保存到 {path}"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved {n} picture in {path}"
 msgid_plural "Saved {n} pictures in {path}"
-msgstr[0] ""
+msgstr[0] "已将 {n} 张图片保存到 {path}"
 
 #: src/ui/operator/transfer.rs
 msgid "Added “{title}” with {n} slide of words. Pictures and layout are not copied: add it as pictures to keep them."
 msgid_plural "Added “{title}” with {n} slides of words. Pictures and layout are not copied: add it as pictures to keep them."
-msgstr[0] ""
+msgstr[0] "已添加“{title}”，含 {n} 张文字幻灯片。图片和版式不会复制：如需保留，请以图片形式添加。"
 
 #: src/ui/operator/transfer.rs
 msgid "Added {n} theme."
 msgid_plural "Added {n} themes."
-msgstr[0] ""
+msgstr[0] "已添加 {n} 个主题。"
 
 #: src/ui/operator/transfer.rs
 msgid "{service} words"
-msgstr ""
+msgstr "{service} 歌词"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
-msgstr ""
+msgstr "请先选择摄像机或输入其名称。"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Added “{name}”."
-msgstr ""
+msgstr "已添加“{name}”。"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Remove “{name}” from the video inputs?"
-msgstr ""
+msgstr "要从视频输入中移除“{name}”吗？"
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"
