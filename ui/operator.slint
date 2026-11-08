@@ -35,6 +35,7 @@ import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
 import { MenuKeys, MouseRings } from "keys.slint";
 import { QuickSearchDialog } from "dialogs/quick-search.slint";
 import { PanelExtras } from "operator/extras.slint";
+import { SlideActs } from "operator/action-palette.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
 
@@ -687,6 +688,17 @@ export component OperatorWindow inherits Window {
                 title: @tr("Calendar…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("calendar"); }
+            }
+            // N15 and N16.
+            MenuItem {
+                title: SlideActs.open ? @tr("Hide the action palette") : @tr("Action palette");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("action-palette"); }
+            }
+            MenuItem {
+                title: @tr("Start pre-service");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("start-preservice"); }
             }
         }
         Menu {

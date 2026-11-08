@@ -158,6 +158,8 @@ pub(super) struct SlidesState {
     /// N37 and N8: the view, and the size slider (0 until moved: `MIN_CELL`). Kept for this session only, like Zoom.
     view: SlideView,
     min_cell: u16,
+    /// N15: each slide's action badge (how many, and their names).
+    acts: Vec<(i32, String)>,
 }
 
 impl Operator {
@@ -179,6 +181,9 @@ impl Operator {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
         });
+        let acts = super::action_palette::badges(self, key.as_ref().map_or(0, |k| k.slides.len()));
+        let acts_changed = { let mut s = self.slides.borrow_mut(); let changed = s.acts != acts; s.acts = acts; changed };
+        super::action_palette::render(self);
         if self.slides.borrow().built != key {
             let other_item = self.slides.borrow().built.as_ref().map(|k| k.id) != key.as_ref().map(|k| k.id);
             if other_item { ui.invoke_slides_scroll_to_top(); }
@@ -192,6 +197,10 @@ impl Operator {
             self.measure_grid(ui.get_slides_grid_width());
             self.fill_grid();
             self.draw_thumbs();
+        } else if acts_changed {
+            // In place, so the grid keeps its rows.
+            let n = self.slides.borrow().built.as_ref().map_or(0, |k| k.slides.len());
+            for i in 0..n { self.set_cell(i) }
         }
         self.mark_slides();
     }
@@ -314,6 +323,8 @@ impl Operator {
             tag: slide.tag.as_deref().unwrap_or("").into(),
             tag_color: slide.tag.as_deref().map_or_else(slint::Color::default, |t| tag_color(&k.settings.sections, t)),
             text: slide_text(slide).into(),
+            actions: s.acts.get(idx).map_or(0, |a| a.0),
+            actions_tip: s.acts.get(idx).map(|a| a.1.as_str()).unwrap_or("").into(),
         }
     }
 

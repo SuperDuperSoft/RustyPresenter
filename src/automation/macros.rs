@@ -52,7 +52,7 @@ pub enum MacroColor {
 }
 
 /// One saved macro step (spec §4.2). Stored as `Lenient<MacroStep>`, so a step from a newer
-/// version loads and is written back unchanged. Jump, Refresh and RunMacro are never steps.
+/// version loads and is written back unchanged. Jump and Refresh are never steps; RunMacro is a slide action only (N15).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "step", rename_all = "snake_case")]
 pub enum MacroStep {
@@ -84,13 +84,25 @@ pub enum MacroStep {
     StageLayoutAuto,
     /// N13: start (`true`) or stop the walk-in music.
     Music { play: bool },
+    // N15: the action palette's own steps (macros can use all but RunMacro).
+    /// Play a service item's video, picture or sound on its layer; the live slide and its words stay.
+    PlayMedia { target: ItemTarget },
+    /// Play an audio playlist (N13). Until playlists exist it only says so.
+    PlayPlaylist { playlist: Uuid },
+    /// Show the live item in another theme from now on.
+    UseTheme { theme: Uuid },
+    /// Go to slide `slide` (0-based) of the live item.
+    GoToSlide { slide: usize },
+    /// A slide action only: that macro's steps run in its place.
+    RunMacro { #[serde(rename = "macro")] macro_id: Uuid },
 }
 
 impl MacroStep {
     /// Changes slides or what a screen shows, so it needs the operator's fresh look.
     fn is_relative(&self) -> bool {
         use MacroStep::*;
-        matches!(self, ShowItem { .. } | Next | Prev | Clear { .. } | Logo | ScreenView { .. })
+        matches!(self, ShowItem { .. } | Next | Prev | Clear { .. } | Logo | ScreenView { .. } | PlayMedia { .. } | UseTheme { .. }
+            | GoToSlide { .. } | RunMacro { .. })
     }
 
     /// Touches only overlays, timers, messages or the stage, never the slide.
@@ -164,6 +176,10 @@ pub enum PlannedStep {
     StageLayout { layout: Uuid },
     StageLayoutAuto,
     Music { play: bool },
+    PlayMedia { item_id: Uuid },
+    PlayPlaylist { playlist: Uuid },
+    UseTheme { theme: Uuid },
+    GoToSlide { slide: usize },
 }
 
 impl PlannedStep {
@@ -171,8 +187,8 @@ impl PlannedStep {
         use PlannedStep::*;
         match self {
             ShowItem { .. } | Next | Prev | Clear(_) | Logo | Overlay { .. } | ScreenView { .. } | TimerShow { .. }
-            | TimerHide { .. } | MessageShow { .. } | MessageHide => StepClass::Live,
-            TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. } | AutoAdvance { .. } => {
+            | TimerHide { .. } | MessageShow { .. } | MessageHide | PlayMedia { .. } | UseTheme { .. } | GoToSlide { .. } => StepClass::Live,
+            TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. } | AutoAdvance { .. } | PlayPlaylist { .. } => {
                 StepClass::Runtime
             }
             StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } => StepClass::Action,
@@ -284,6 +300,14 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
             }
             MacroStep::StageLayoutAuto => PlannedStep::StageLayoutAuto,
             MacroStep::Music { play } => PlannedStep::Music { play: *play },
+            MacroStep::PlayMedia { target } => {
+                PlannedStep::PlayMedia { item_id: ctx.item(target).ok_or_else(|| deleted(strings::StepTarget::Item))? }
+            }
+            MacroStep::PlayPlaylist { playlist } => PlannedStep::PlayPlaylist { playlist: *playlist },
+            MacroStep::UseTheme { theme } => PlannedStep::UseTheme { theme: *theme },
+            MacroStep::GoToSlide { slide } => PlannedStep::GoToSlide { slide: *slide },
+            // Slide actions put the macro's own steps here before resolving; one left over was deleted.
+            MacroStep::RunMacro { .. } => return Err(deleted(strings::StepTarget::Macro)),
         };
         steps.push(Planned { number, step: planned });
     }

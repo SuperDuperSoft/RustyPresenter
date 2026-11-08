@@ -33,6 +33,9 @@ pub struct PreService {
     pub place: OverlayPlace,
     pub caption: String,
     pub end: PreServiceEnd,
+    /// N16: the stage screen's layout while the countdown runs; `None` leaves it as it is.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stage_layout: Option<Uuid>,
 }
 
 impl Default for PreService {
@@ -43,6 +46,7 @@ impl Default for PreService {
             place: OverlayPlace::TopRight,
             caption: strings::service_starts_in().into(),
             end: PreServiceEnd::Hide,
+            stage_layout: None,
         }
     }
 }
@@ -59,6 +63,7 @@ pub fn build(p: &PreService) -> Vec<MacroStep> {
     let mut steps: Vec<MacroStep> = [&p.music_title, &p.loop_title].into_iter().flatten().map(show).collect();
     steps.push(MacroStep::TimerRestart { timer: PRE_SERVICE_TIMER_ID });
     steps.push(MacroStep::TimerShow { timer: PRE_SERVICE_TIMER_ID });
+    if let Some(layout) = p.stage_layout { steps.push(MacroStep::StageLayout { layout }) }
     steps
 }
 
@@ -171,6 +176,17 @@ mod tests {
             MacroStep::TimerRestart { timer: PRE_SERVICE_TIMER_ID },
             MacroStep::TimerShow { timer: PRE_SERVICE_TIMER_ID },
         ]);
+    }
+
+    #[test]
+    fn build_sets_the_stage_layout_last() {
+        let layout = Uuid::from_u128(0x5);
+        let p = PreService { music_title: Some("Walk-in music".into()), stage_layout: Some(layout), ..PreService::default() };
+        let steps = build(&p);
+        assert_eq!(steps.first(), Some(&show("Walk-in music")));
+        assert_eq!(steps.last(), Some(&MacroStep::StageLayout { layout }));
+        let back: PreService = serde_json::from_value(serde_json::to_value(&p).unwrap()).unwrap();
+        assert_eq!(back, p);
     }
 
     #[test]

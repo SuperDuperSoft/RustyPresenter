@@ -4,12 +4,14 @@ import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox, TipBox, Segmented } from "../widgets.slint";
 import { RangeSlider } from "../dialogs/form.slint";
 import { PanelExtras } from "extras.slint";
+import { SlideActs, ActionPalette } from "action-palette.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
 /// `tag` is the slide's label ("Instrumental", N19) or "", shown on the picture in `tag-color`.
 /// `text` is what the slide says (or what kind of file it shows), for the Easy and Table views (N37).
-export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color, text: string }
+/// `actions`: how many things the slide does when it goes live (N15), and `actions-tip` lists them.
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color, text: string, actions: int, actions-tip: string }
 /// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
 export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
@@ -242,9 +244,56 @@ component Thumb inherits Rectangle {
         }
     }
 
+    // N15: a palette tile dropped here goes on this slide.
+    if drop.has-drag: Rectangle {
+        width: root.width;
+        height: screen.height;
+        border-radius: 9px;
+        border-width: 3px;
+        border-color: Theme.accent;
+        background: Theme.accent.with-alpha(0.15);
+    }
+    drop := DropArea {
+        can-drop(e) => { return SlideActs.can-drop(e.data) ? DragAction.copy : DragAction.none; }
+        dropped(e) => {
+            SlideActs.dropped(root.cell.idx, e.data);
+            return e.proposed-action;
+        }
+    }
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+    }
+    // N15: what the slide does when it goes live. A click opens the action palette on it.
+    if root.cell.actions > 0: actions-badge := Rectangle {
+        x: 8px;
+        y: screen.height - self.height - 8px;
+        width: self.preferred-width;
+        height: 22px;
+        border-radius: 11px;
+        background: Theme.accent;
+        accessible-role: button;
+        accessible-label: root.cell.actions-tip;
+        accessible-action-default => { SlideActs.badge(root.cell.idx); }
+        HorizontalLayout {
+            padding-left: 6px;
+            padding-right: 8px;
+            spacing: 2px;
+            VerticalLayout { alignment: center; Icon { width: 14px; height: 14px; name: "bolt"; color: Theme.accent-ink; } }
+            Text {
+                text: root.cell.actions;
+                color: Theme.accent-ink;
+                font-family: Theme.font;
+                font-size: 11.5px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
+        }
+        badge-ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { SlideActs.badge(root.cell.idx); }
+        }
+        Tooltip { TipBox { text: root.cell.actions-tip; } }
     }
 }
 
@@ -649,6 +698,16 @@ export component SlidesPanel inherits VerticalLayout {
             }
         }
         Rectangle { horizontal-stretch: 1; }
+        // N15: the action palette.
+        palette-btn := Btn {
+            horizontal-stretch: 0;
+            small: true;
+            primary: SlideActs.open;
+            icon: "bolt";
+            text: @tr("Actions");
+            tooltip: @tr("Things a slide does when it goes live: drag them onto a slide");
+            clicked => { SlideActs.toggle(); }
+        }
         // N29: while on, a click on a slide puts it on the stage screen only.
         stage-mode := Btn {
             horizontal-stretch: 0;
@@ -659,6 +718,13 @@ export component SlidesPanel inherits VerticalLayout {
             tooltip: PanelExtras.stage-mode ? @tr("The next slide you click goes to the stage screen only. Click again to cancel.") : @tr("Send the next slide you click to the stage screen only, as a note for the band");
             clicked => { PanelExtras.toggle-stage-mode(); }
         }
+    }
+
+    if SlideActs.open && root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        action-palette := ActionPalette {}
     }
 
     // N29: what is on the stage screen only, and how to take it down.

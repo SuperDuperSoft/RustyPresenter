@@ -60,6 +60,9 @@ export global AutomationDlg {
     in-out property <int> p-loop;
     in property <[string]> p-music-options;
     in-out property <int> p-music;
+    /// N16: "Leave it as it is", then the stage layouts.
+    in property <[string]> p-stage-options;
+    in-out property <int> p-stage;
     in-out property <int> p-place;
     in-out property <string> p-caption;
     in-out property <int> p-end;
@@ -299,6 +302,10 @@ component PreServiceForm inherits VerticalLayout {
     Labelled {
         label: @tr("Play music");
         p-music := Select { options: AutomationDlg.p-music-options; index <=> AutomationDlg.p-music; }
+    }
+    Labelled {
+        label: @tr("Stage screen");
+        p-stage := Select { options: AutomationDlg.p-stage-options; index <=> AutomationDlg.p-stage; }
     }
     Labelled {
         label: @tr("Countdown position");

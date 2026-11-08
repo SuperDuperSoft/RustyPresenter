@@ -38,7 +38,7 @@ pub const CUSTOM_TEXT: &str = "{Message}";
 
 /// What a macro step points at that can be deleted.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum StepTarget { Item, Timer, Overlay, ScreenView, Message, StageLayout }
+pub enum StepTarget { Item, Timer, Overlay, ScreenView, Message, StageLayout, Macro }
 
 /// One whole sentence per kind of thing, so a translation can put the words in its own order.
 pub fn cant_run_deleted(name: &str, n: usize, thing: StepTarget) -> String {
@@ -53,6 +53,7 @@ pub fn cant_run_deleted(name: &str, n: usize, thing: StepTarget) -> String {
         StepTarget::StageLayout => {
             tr!("Couldn't run “{name}”: step {step}'s stage layout was deleted. Edit the macro.", name = name, step = n)
         }
+        StepTarget::Macro => tr!("Couldn't run “{name}”: step {step}'s macro was deleted.", name = name, step = n),
     }
 }
 pub fn cant_run_newer(name: &str, n: usize) -> String {

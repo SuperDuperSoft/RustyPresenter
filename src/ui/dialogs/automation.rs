@@ -123,9 +123,24 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
         MacroStep::StageMessageShow { text } => with(StepKind::StageMessage, text.clone()),
         MacroStep::StageMessageHide => kind_label(StepKind::StageMessageHide),
         MacroStep::ScreenView { .. } => crate::tr!("Change what a screen shows"),
-        MacroStep::StageLayout { .. } => crate::tr!("Change the stage layout"),
+        MacroStep::StageLayout { layout } => {
+            let name = crate::stage::presets::builtins().iter().chain(&data.stage_layouts).find(|l| l.id == *layout).map(|l| l.name.clone());
+            match name { Some(n) => crate::tr!("Stage: {name}", name = n), None => crate::tr!("Change the stage layout") }
+        }
         MacroStep::StageLayoutAuto => crate::tr!("Let the stage layout follow the slides"),
         MacroStep::Music { play } => kind_label(if *play { StepKind::MusicPlay } else { StepKind::MusicStop }),
+        MacroStep::PlayMedia { target: ItemTarget::Titled { title } } => crate::tr!("Play “{title}”", title = title),
+        MacroStep::PlayMedia { target: ItemTarget::Number { n } } => crate::tr!("Play item {n}", n = n),
+        MacroStep::PlayPlaylist { .. } => crate::tr!("Play a playlist"),
+        MacroStep::UseTheme { theme } => {
+            let name = data.catalog().find(*theme).map_or_else(|| "?".to_string(), |t| t.name);
+            crate::tr!("Theme: {name}", name = name)
+        }
+        MacroStep::GoToSlide { slide } => crate::tr!("Go to slide {n}", n = slide + 1),
+        MacroStep::RunMacro { macro_id } => {
+            let name = a.macros.iter().find(|m| m.id == *macro_id).map_or_else(|| "?".to_string(), |m| m.name.clone());
+            crate::tr!("Run “{name}”", name = name)
+        }
     }
 }
 
@@ -170,6 +185,8 @@ struct State {
     /// Pre-service: the titles behind the two lists (index 0 is "None").
     loops: Vec<String>,
     music: Vec<String>,
+    /// The stage layouts behind the Stage screen list (index 0 is "Leave it as it is").
+    stages: Vec<Uuid>,
     /// The at-zero list's macros (after "Do nothing" and "Hide it from the screen").
     at_zero: Vec<Uuid>,
     /// Calendar: the "What to do" list's choices, and the days picked.
@@ -584,9 +601,14 @@ fn preservice_form(op: &Operator, st: &St, d: &Data) {
     g.set_p_place(PLACES.iter().position(|x| *x == p.place).unwrap_or(0) as i32);
     g.set_p_caption(p.caption.as_str().into());
     g.set_p_end(ENDS.iter().position(|e| *e == p.end).unwrap_or(0) as i32);
+    let layouts: Vec<(Uuid, String)> = crate::stage::presets::builtins().iter().chain(&d.stage_layouts).map(|l| (l.id, l.name.clone())).collect();
+    let stage_names = std::iter::once(crate::tr!("Leave it as it is")).chain(layouts.iter().map(|l| l.1.clone())).collect();
+    g.set_p_stage(p.stage_layout.and_then(|id| layouts.iter().position(|l| l.0 == id)).map_or(0, |i| i as i32 + 1));
+    g.set_p_stage_options(set_strings(stage_names));
     let mut s = st.borrow_mut();
     s.loops = loops;
     s.music = music;
+    s.stages = layouts.into_iter().map(|l| l.0).collect();
 }
 
 /// After a save: show the note or the error, then reload the list on the saved row.
@@ -735,6 +757,7 @@ fn preservice_save(op: &Rc<Operator>, st: &St) {
         place: PLACES.get(g.get_p_place().max(0) as usize).copied().unwrap_or_default(),
         caption: g.get_p_caption().trim().to_string(),
         end: ENDS.get(g.get_p_end().max(0) as usize).copied().unwrap_or_default(),
+        stage_layout: (g.get_p_stage() > 0).then(|| s.stages.get(g.get_p_stage() as usize - 1).copied()).flatten(),
     };
     drop(s);
     call(op, st, "automation/preservice/save", serde_json::to_value(p).unwrap_or_default());

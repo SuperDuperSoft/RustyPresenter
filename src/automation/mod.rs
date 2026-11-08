@@ -15,6 +15,7 @@ pub mod music;
 pub mod music_out;
 pub mod preservice;
 pub mod runtime;
+pub mod slide_actions;
 pub mod slots;
 pub mod task;
 
@@ -53,6 +54,9 @@ pub struct Automation {
     /// N17: what runs by itself at set times.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub calendar: Vec<calendar::CalendarEntry>,
+    /// N15: what each service item's slides do when taken live, by item id.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
+    pub slide_actions: BTreeMap<Uuid, slide_actions::ItemActions>,
 }
 
 /// A map whose entries this version can't read are left out instead of failing the load (spec §4.1).

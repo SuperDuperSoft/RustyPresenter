@@ -496,3 +496,76 @@ fn calendar_entry_starts_the_countdown_when_its_time_comes() {
     act(&app, "automation/calendar/delete", serde_json::json!({ "id": id })).unwrap();
     assert!(app.data.lock().unwrap().automation.calendar.is_empty());
 }
+
+fn add_actions(app: &Arc<App>, item: Uuid, slide: usize, steps: Vec<MacroStep>) -> Result<Value, ActionError> {
+    act(app, "automation/slide-actions/add", serde_json::json!({ "item": item, "slide": slide, "steps": steps }))
+}
+
+#[test]
+fn slide_actions_run_when_the_slide_goes_live_once() {
+    let app = test_app();
+    let item = text_item(&app, "Welcome", 3);
+    add_actions(&app, item, 1, vec![MacroStep::TimerRestart { timer: STOPWATCH_ID }, MacroStep::TimerShow { timer: STOPWATCH_ID }]).unwrap();
+    show(&app, item, 0);
+    assert!(keys(&app).is_empty(), "slide 1 has no actions");
+    // N29's stage-only slide is a preview for the band: it never runs them.
+    cmd(&app, Command::StageOnly { item_id: Some(item), slide: 1 }, None);
+    assert!(keys(&app).is_empty());
+    let v = version(&app);
+    cmd(&app, Command::Next, Some(v));
+    assert_eq!(keys(&app), [slots::timer_key(STOPWATCH_ID)]);
+    assert_eq!(snapshot(&app, STOPWATCH_ID).state, TimerState::Running);
+    assert_eq!(version(&app), v + 2, "the slide, then its actions as one change");
+    // A room report or an edit doesn't run them again; taking the slide live again does.
+    cmd(&app, Command::HideTimer { timer: STOPWATCH_ID }, None);
+    app.room_event(RoomEvent::Committed { version: version(&app) });
+    assert!(keys(&app).is_empty());
+    show(&app, item, 1);
+    assert_eq!(keys(&app), [slots::timer_key(STOPWATCH_ID)]);
+}
+
+#[test]
+fn a_slide_action_that_moves_on_doesnt_set_off_the_next_slide() {
+    let app = test_app();
+    let item = text_item(&app, "Loop", 3);
+    add_actions(&app, item, 2, vec![MacroStep::GoToSlide { slide: 0 }]).unwrap();
+    add_actions(&app, item, 0, vec![MacroStep::GoToSlide { slide: 2 }]).unwrap();
+    show(&app, item, 2);
+    assert_eq!(slide(&app), Some((item, 0)), "slide 3 goes back to slide 1");
+    show(&app, item, 1);
+    assert_eq!(slide(&app), Some((item, 1)));
+}
+
+#[test]
+fn slide_actions_run_macros_and_say_what_failed() {
+    let app = test_app();
+    let item = text_item(&app, "Welcome", 2);
+    let m = save_macro(&app, "Sermon on", vec![MacroStep::TimerRestart { timer: SERMON_ID }, MacroStep::TimerShow { timer: SERMON_ID }]);
+    add_actions(&app, item, 0, vec![MacroStep::RunMacro { macro_id: m }, MacroStep::PlayPlaylist { playlist: Uuid::from_u128(7) }]).unwrap();
+    show(&app, item, 0);
+    assert_eq!(keys(&app), [slots::timer_key(SERMON_ID)]);
+    let notice = app.live.lock().unwrap().notice.clone().unwrap_or_default();
+    assert!(notice.contains(&slide_actions::playlists_not_ready()), "{notice}");
+    // A macro can't hold a Run macro step.
+    let e = act(&app, "automation/macro/save", serde_json::to_value(Macro { name: "Loop".into(), steps: vec![Lenient::Known(MacroStep::RunMacro { macro_id: m })], ..Macro::default() }).unwrap());
+    assert_eq!(e.unwrap_err().message, "A macro can't run another macro.");
+    // Removing takes it off; the slide does nothing then.
+    act(&app, "automation/slide-actions/remove", serde_json::json!({ "item": item, "slide": 0, "index": 1 })).unwrap();
+    act(&app, "automation/slide-actions/remove", serde_json::json!({ "item": item, "slide": 0, "index": 0 })).unwrap();
+    assert!(app.data.lock().unwrap().automation.slide_actions.is_empty());
+}
+
+#[test]
+fn start_countdown_sets_the_stage_layout_too() {
+    let app = test_app();
+    let layout = crate::stage::presets::builtins()[1].id;
+    act(&app, "automation/preservice/save", serde_json::json!({ "stage_layout": layout })).unwrap();
+    let service = app.data.lock().unwrap().service().unwrap().id;
+    let soon = (Local::now() + TimeDelta::minutes(61)).format("%H:%M").to_string();
+    act(&app, "automation/starts-at", serde_json::json!({ "service": service, "at": soon })).unwrap();
+    let r = run_macro(&app, PRE_SERVICE_MACRO_ID, Some(version(&app)), Some(epoch(&app).unwrap()));
+    // Near midnight that time has passed, and the macro is refused.
+    if Local::now().date_naive() == (Local::now() + TimeDelta::minutes(61)).date_naive() {
+        assert_eq!(app.data.lock().unwrap().settings.stage.layout, layout, "{r}");
+    }
+}

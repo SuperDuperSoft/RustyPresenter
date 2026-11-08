@@ -48,6 +48,8 @@ pub struct AutomationRuntime {
     pub music_sent: Option<(MusicWant, crate::media_prefs::SoundOut)>,
     /// N17: when the calendar last looked and what it fired.
     pub calendar: CalendarState,
+    /// `Live::went` when slide actions last looked: each slide taken live runs its actions once (N15).
+    pub slide_went: u64,
     published: Arc<TimersView>,
     published_at: Option<DateTime<Utc>>,
 }
