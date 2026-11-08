@@ -180,6 +180,9 @@ impl Editor {
     /// A new text box with the editor's sample words.
     pub fn add_text(&mut self) -> Result<Uuid, String> { self.add(ObjKind::Text { text: s::sample_text(), style: TextStyle::default() }) }
 
+    /// A new web page, its address still to type.
+    pub fn add_web(&mut self) -> Result<Uuid, String> { self.add(ObjKind::Web { url: String::new() }) }
+
     pub fn delete(&mut self) {
         let sel = std::mem::take(&mut self.sel);
         self.edit(|e| e.slide_mut().objects.retain(|o| !sel.contains(&o.id)));
@@ -361,7 +364,11 @@ impl Editor {
 
     pub fn set_text(&mut self, t: &str) {
         let t = t.to_string();
-        self.edit_chosen(Field::Text, |o| if let ObjKind::Text { text, .. } = &mut o.kind { *text = t.clone() });
+        self.edit_chosen(Field::Text, |o| match &mut o.kind {
+            ObjKind::Text { text, .. } => *text = t.clone(),
+            ObjKind::Web { url } => *url = t.clone(),
+            _ => {}
+        });
     }
 
     /// Changes the text style of the chosen text boxes.

@@ -229,3 +229,11 @@ fn the_pen_draws_a_line_in_a_box_of_its_own_and_a_dot_is_dropped() {
     e.pen_up();
     assert!(e.slide().objects.is_empty(), "a dot is no line");
 }
+
+#[test]
+fn a_web_page_takes_its_address_from_the_words_box() {
+    let mut e = Editor::new(vec![]);
+    e.add_web().unwrap();
+    e.set_text("https://church.example/give");
+    assert_eq!(e.primary().unwrap().kind, ObjKind::Web { url: "https://church.example/give".into() });
+}

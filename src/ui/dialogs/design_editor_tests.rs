@@ -133,3 +133,43 @@ fn the_pen_draws_a_line() {
     g(&op).invoke_release();
     assert_eq!((g(&op).get_objects().row_count(), g(&op).get_kind()), (1, 4));
 }
+
+#[test]
+fn a_web_page_gets_its_address_typed_in() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, None);
+    click(&op, "DesignEditorDialog::add-web-btn");
+    assert_eq!(g(&op).get_kind(), 5);
+    assert!(find(&op, "Inspector::web-url").is_some());
+    g(&op).invoke_text_edited("https://church.example".into());
+    click(&op, "DesignEditorDialog::save");
+    assert_eq!(designs(&app)[0].2[0].objects[0].kind, ObjKind::Web { url: "https://church.example".into() });
+}
+
+#[test]
+fn live_edit_save_and_show_now_puts_the_change_on_screen() {
+    use crate::{app::LiveUpdate, live::{Command, SlideLayer}};
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, None);
+    g(&op).invoke_add_text();
+    g(&op).invoke_text_edited("Old point".into());
+    click(&op, "DesignEditorDialog::save");
+    let id = designs(&app)[0].0;
+    refresh(&op);
+    op.ops().cmd(Command::Show { item_id: id, slide: 0 }, None, |o| assert!(o.ok, "{o:?}"));
+    op.apply_live(LiveUpdate::new(app.live_view()));
+    open(&op, Some(id));
+    assert!(g(&op).get_live());
+    g(&op).invoke_select_slide(0);
+    g(&op).invoke_next(false);
+    g(&op).invoke_text_edited("New point".into());
+    click(&op, "DesignEditorDialog::save-and-show");
+    assert_eq!(op.dialog(), None);
+    let words = match &app.live_view().frame.slide { Some(SlideLayer::Design { design, .. }) => design.words(), _ => String::new() };
+    assert_eq!(words, "New point");
+    open(&op, None);
+    assert!(!g(&op).get_live(), "new slides are not on screen");
+    assert!(find(&op, "DesignEditorDialog::save-and-show").is_none());
+}

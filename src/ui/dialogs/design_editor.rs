@@ -142,6 +142,7 @@ fn show(g: &DesignDlg, ss: &Session) {
         }
         ObjKind::Shape { shape } => g.set_shape(shape_index(*shape)),
         ObjKind::Picture { fit, .. } => g.set_fit(match fit { Fit::Fit => 0, Fit::Fill => 1, Fit::Stretch => 2 }),
+        ObjKind::Web { url } => if g.get_text().as_str() != url { g.set_text(url.as_str().into()) },
         _ => {}
     }
     let l = &o.look;
@@ -199,6 +200,8 @@ pub fn open(op: &Rc<Operator>, item: Option<Uuid>) {
     g.set_error("".into());
     g.set_text("".into());
     g.set_notes("".into());
+    // Live Edit: these slides are on screen now, so Save and show now is offered.
+    g.set_live(item.is_some() && item == op.shown_live().and_then(|l| Some(l.view().cursor.as_ref()?.item_id)));
     let media: Vec<DesignMediaVm> = ss.media.iter().map(|m| DesignMediaVm { name: m.name.as_str().into(), video: m.kind == MediaKind::Video }).collect();
     g.set_media(ModelRc::new(VecModel::from(media)));
     show(&g, &ss);
@@ -266,6 +269,7 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     on!(on_move_slide, |e, up: bool| e.ed.move_slide(up));
     on!(on_delete_slide, |e| e.ed.delete_slide());
     on!(on_add_text, fallible |e| e.ed.add_text().map(|_| ()));
+    on!(on_add_web, fallible |e| e.ed.add_web().map(|_| ()));
     on!(on_add_shape, fallible |e, i: i32| e.ed.add(ObjKind::Shape { shape: shape_of(i) }).map(|_| ()));
     on!(on_add_media, fallible |e, i: i32| match e.media.get(i.max(0) as usize).map(media_object) {
         Some(k) => e.ed.add(k).map(|_| ()),
@@ -329,18 +333,22 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     let (me, ss2) = (Rc::downgrade(op), ss.clone());
     g.on_paste_style(move || if let Some(op) = me.upgrade() { command(&op, &ss2, "v", true, false) });
     let (me, ss2) = (Rc::downgrade(op), ss.clone());
-    g.on_save(move || if let Some(op) = me.upgrade() { save(&op, &ss2) });
+    g.on_save(move || if let Some(op) = me.upgrade() { save(&op, &ss2, false) });
+    let (me, ss2) = (Rc::downgrade(op), ss.clone());
+    g.on_save_and_show(move || if let Some(op) = me.upgrade() { save(&op, &ss2, true) });
     let (me, ss2) = (Rc::downgrade(op), ss.clone());
     g.on_cancel(move || if let Some(op) = me.upgrade() { cancel(&op, &ss2) });
 }
 
 /// Saves the item (a new one is added to the service) and closes. On an error the dialog stays open with it.
-fn save(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
+/// `show_now` (Live Edit): once saved, Update screen shows the new version of the live slide.
+fn save(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>, show_now: bool) {
     let (body, route) = { let s = ss.borrow(); (s.save_body(), if s.item.is_some() { "service/update" } else { "service/add" }) };
     let me = Rc::downgrade(op);
     op.ops().call::<serde_json::Value>(route, body, move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
+            Ok(_) if show_now => { op.close_dialog(); crate::ui::dialogs::song_editor::refresh_live(&op) }
             Ok(_) => { op.close_dialog(); op.toast(s::saved(), false) }
             Err(e) => op.ui.global::<DesignDlg>().set_error(e.into()),
         }

@@ -26,6 +26,8 @@ export global DesignDlg {
     in property <bool> can-redo;
     in property <bool> pen;
     in property <string> error;
+    /// The item is on screen now (Live Edit): Save and show now is offered.
+    in property <bool> live;
     /// How many objects are chosen.
     in property <int> chosen;
     // The first chosen object: 0 text, 1 shape, 2 picture, 3 video, 4 drawn line, 5 web page, 6 newer kind.
@@ -65,6 +67,7 @@ export global DesignDlg {
     callback move-slide(bool);
     callback delete-slide();
     callback add-text();
+    callback add-web();
     callback add-shape(int);
     callback add-media(int);
     callback toggle-pen();
@@ -113,6 +116,7 @@ export global DesignDlg {
     callback title-edited(string);
     callback cancel();
     callback save();
+    callback save-and-show();
 }
 
 component SmallText inherits Text {
@@ -333,6 +337,17 @@ component Inspector inherits VerticalLayout {
                 }
             }
         }
+        if DesignDlg.kind == 5: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Web address"); }
+            web-url := TextField {
+                label: @tr("Web address");
+                placeholder: "https://";
+                text <=> DesignDlg.text;
+                edited(t) => { DesignDlg.text-edited(t); }
+            }
+            SmallText { text: @tr("The room shows the page's address here."); }
+        }
         if DesignDlg.kind == 3: SmallText { text: @tr("The room shows the video's first picture here."); }
         if DesignDlg.kind == 6: SmallText { text: @tr("A newer RustyPresenter made this object. It can be moved or removed here."); }
         Switch { text: @tr("Fill"); on: DesignDlg.has-fill; toggled(v) => { DesignDlg.fill-on(v); } }
@@ -441,6 +456,7 @@ export component DesignEditorDialog inherits VerticalLayout {
                         tooltip: DesignDlg.media.length > 0 ? "" : @tr("Import pictures into the media library first");
                         clicked => { media-menu.show(); }
                     }
+                    add-web-btn := Btn { small: true; icon: "plus"; text: @tr("Web page"); clicked => { DesignDlg.add-web(); } }
                     pen-btn := Btn { small: true; icon: "edit"; primary: DesignDlg.pen; text: @tr("Draw"); clicked => { DesignDlg.toggle-pen(); } }
                     Rectangle { width: 10px; }
                     undo-btn := Btn { small: true; icon: "restart"; text: @tr("Undo"); enabled: DesignDlg.can-undo; clicked => { DesignDlg.undo(); } }
@@ -580,6 +596,10 @@ export component DesignEditorDialog inherits VerticalLayout {
         cancel := Btn {
             text: @tr("Cancel");
             clicked => { DesignDlg.cancel(); }
+        }
+        if DesignDlg.live: save-and-show := Btn {
+            text: @tr("Save and show now");
+            clicked => { DesignDlg.save-and-show(); }
         }
         save := Btn {
             primary: true;
