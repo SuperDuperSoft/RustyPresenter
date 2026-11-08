@@ -26,10 +26,17 @@ done
 cargo about generate about.hbs -o "$OUT"
 cat "$DIR/native.txt" >> "$OUT"
 
+# A placeholder (see packaging/licenses/mpv-Copyright.txt) is a file still waiting for its real text: left out.
+PLACEHOLDER=RUSTYPRESENTER-LICENCE-PLACEHOLDER
 missing=0
 for name in "${FILES[@]}"; do
   if [[ ! -f "$DIR/$name" ]]; then
     echo "licenses.sh: $DIR/$name is missing" >&2
+    missing=1
+    continue
+  fi
+  if grep -q "$PLACEHOLDER" "$DIR/$name"; then
+    echo "licenses.sh: $DIR/$name is still a placeholder; its first lines say how to fill it" >&2
     missing=1
     continue
   fi
