@@ -6,6 +6,7 @@ pub mod strings;
 use super::DialogKind;
 use crate::{
     app::Monitor,
+    screen_fix::{CORNER, ScreenFix, TestPattern},
     model::{Screen, ScreenOutput, ScreenSetup, ScreenTarget},
     platform::monitors::MonitorId,
     ui::{ScreenList, ScreenRow, ScreensDialogState, operator::{view::OperatorSnapshot, window::Operator}},
@@ -19,7 +20,10 @@ use uuid::Uuid;
 const SAVE_AFTER: Duration = Duration::from_millis(400);
 
 /// What was typed and not saved yet. While it is there, a redraw leaves the fields alone.
-struct Typing { id: Uuid, name: Option<String>, size: Option<(u32, u32)> }
+struct Typing { id: Uuid, name: Option<String>, size: Option<(u32, u32)>, fix: Option<ScreenFix> }
+
+/// One press of a corner arrow: half a percent of the screen.
+const NUDGE: f32 = 0.005;
 
 thread_local! {
     static TYPING: RefCell<Option<Typing>> = const { RefCell::new(None) };
@@ -40,8 +44,15 @@ pub fn outputs(monitors: &[Monitor], current: &ScreenTarget) -> (Vec<(String, Sc
         ScreenTarget::None => Some(0),
         ScreenTarget::Window => Some(1),
         ScreenTarget::Monitor(saved) => monitors.iter().position(|m| is_monitor(m, saved)).map(|i| i + 2),
+        ScreenTarget::Placeholder => None,
     };
-    let at = at.unwrap_or_else(|| { list.push((strings::output_gone(), current.clone())); list.len() - 1 });
+    let at = at.unwrap_or_else(|| {
+        if *current == ScreenTarget::Placeholder { return list.len() }
+        list.push((strings::output_gone(), current.clone()));
+        list.len() - 1
+    });
+    list.push((strings::output_placeholder(), ScreenTarget::Placeholder));
+    let at = at.min(list.len() - 1);
     (list, at)
 }
 
@@ -69,6 +80,7 @@ fn status(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Scree
     let open = setup.keyed(group).iter().any(|(key, x)| x.id == screen.id && s.windows.contains(key));
     if open { (strings::showing(), "ok") }
     else if target == ScreenTarget::None { (strings::no_output(), "") }
+    else if target == ScreenTarget::Placeholder { (strings::placeholder(), "") }
     else if monitor_gone(s, &target) { (strings::unplugged(), "warn") }
     else { (strings::off(), "") }
 }
@@ -92,6 +104,8 @@ fn typed_name(screen: &Screen) -> String {
 
 /// What a screen's note says: the first audience screen is the one with sound; the screen you work on gets covered.
 fn note(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen) -> String {
+    if screen.output().target == ScreenTarget::Placeholder { return strings::placeholder_note() }
+    if group == "stage" && screen.mirror { return strings::stage_mirrors() }
     let keyed = setup.keyed("audience");
     if group == "audience" && let Some((_, first)) = keyed.first().filter(|_| keyed.iter().skip(1).any(|(_, x)| x.id == screen.id)) {
         return strings::mirrors(&first.name)
@@ -106,7 +120,8 @@ fn note(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen)
 pub fn open(op: &Rc<Operator>) {
     op.open_dialog(DialogKind::Screens);
     op.on_dialog_refresh(draw);
-    op.on_dialog_close(save_typing);
+    op.on_dialog_close(closed);
+    op.ui.global::<ScreensDialogState>().set_tab(0);
     draw(op);
     op.request_refresh();
 }
@@ -141,12 +156,106 @@ fn draw(op: &Rc<Operator>) {
         g.set_height_text(o.height.to_string().into());
     }
     g.set_has_size(o.target != ScreenTarget::None);
-    g.set_size_editable(o.target == ScreenTarget::Window);
+    g.set_size_editable(matches!(o.target, ScreenTarget::Window | ScreenTarget::Placeholder));
+    g.set_is_stage(group == "stage");
+    g.set_mirror(screen.mirror);
+    draw_picture(&g, screen, moved || !typing);
     let (w, h) = real_size(&s, &o);
     g.set_size(format!("{w} × {h}").into());
     g.set_aspect(aspect(w, h).into());
     g.set_note(note(&s, setup, group, screen).into());
     g.set_can_remove(setup.group(group).is_some_and(|x| x.screens.len() > 1));
+}
+
+/// The Picture tab (N20). `fresh`: the numbers are redrawn from the saved fix (not while one is being changed).
+fn draw_picture(g: &ScreensDialogState, screen: &Screen, fresh: bool) {
+    let tests = [strings::test_off(), strings::test_grid(), strings::test_bars(), strings::test_white(), strings::test_black()];
+    g.set_tests(ModelRc::new(VecModel::from(tests.into_iter().map(SharedString::from).collect::<Vec<_>>())));
+    g.set_test(TestPattern::ALL.iter().position(|t| *t == screen.test).unwrap_or(0) as i32);
+    g.set_corners(ModelRc::new(VecModel::from(strings::corner_names().into_iter().map(SharedString::from).collect::<Vec<_>>())));
+    let f = TYPING.with_borrow(|t| t.as_ref().filter(|t| t.id == screen.id).and_then(|t| t.fix)).unwrap_or(screen.fix);
+    if fresh {
+        let pc = |v: f32| (v * 100.0).round() as i32;
+        g.set_red(pc(f.red));
+        g.set_green(pc(f.green));
+        g.set_blue(pc(f.blue));
+        g.set_gamma(pc(f.gamma));
+        g.set_black(pc(f.black));
+        g.set_delay_text(f.delay.to_string().into());
+    }
+    let c = f.corners[g.get_corner().clamp(0, 3) as usize];
+    g.set_corner_at(strings::corner_at(c[0], c[1]).into());
+    g.set_delay_ms(strings::delay_ms(f.delay_ms()).into());
+    let gl = crate::video::drawing() == crate::video::DrawMode::OpenGl;
+    g.set_fix_note(if gl { String::new() } else { strings::fix_needs_opengl() }.into());
+}
+
+/// The fix being changed: as typed, else as saved.
+fn current_fix(op: &Operator) -> Option<(Uuid, ScreenFix)> {
+    let id = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()).ok()?;
+    let typed = TYPING.with_borrow(|t| t.as_ref().filter(|t| t.id == id).and_then(|t| t.fix));
+    let saved = op.state.borrow().snap.as_ref()?.settings.screens.find(id).map(|(_, s)| s.fix)?;
+    Some((id, typed.unwrap_or(saved)))
+}
+
+/// A change to the fix from the Picture tab: shown at once, saved once the changes stop.
+fn fix_changed(op: &Rc<Operator>, change: impl FnOnce(&mut ScreenFix)) {
+    let Some((_, mut fix)) = current_fix(op) else { return };
+    change(&mut fix);
+    let fix = fix.clamped();
+    typed(op, |t| t.fix = Some(fix));
+    draw(op);
+}
+
+/// The colour sliders' numbers into the fix.
+fn colour(op: &Rc<Operator>) {
+    let g = op.ui.global::<ScreensDialogState>();
+    let v = |x: i32| x as f32 / 100.0;
+    let (r, gr, b, gamma, black) = (v(g.get_red()), v(g.get_green()), v(g.get_blue()), v(g.get_gamma()), v(g.get_black()));
+    fix_changed(op, |f| (f.red, f.green, f.blue, f.gamma, f.black) = (r, gr, b, gamma, black));
+}
+
+fn nudge(op: &Rc<Operator>, dx: i32, dy: i32) {
+    let corner = op.ui.global::<ScreensDialogState>().get_corner().clamp(0, 3) as usize;
+    fix_changed(op, |f| {
+        let c = &mut f.corners[corner];
+        c[0] = (c[0] + dx as f32 * NUDGE).clamp(-CORNER, CORNER);
+        c[1] = (c[1] + dy as f32 * NUDGE).clamp(-CORNER, CORNER);
+    });
+}
+
+fn delay(op: &Rc<Operator>) {
+    let text = op.ui.global::<ScreensDialogState>().get_delay_text();
+    if let Ok(frames) = text.trim().parse::<u32>() { fix_changed(op, |f| f.delay = frames) }
+}
+
+fn reset_fix(op: &Rc<Operator>) {
+    let Some((id, _)) = current_fix(op) else { return };
+    TYPING.with_borrow_mut(|t| if let Some(t) = t.as_mut().filter(|t| t.id == id) { t.fix = None });
+    let g = op.ui.global::<ScreensDialogState>();
+    g.set_delay_text("0".into());
+    run(op, "screens/update", json!({ "id": id, "fix": ScreenFix::default() }));
+    op.on_next_read(select_fresh);
+}
+
+/// Redraws the Picture tab's numbers from what is saved.
+fn select_fresh(op: &Rc<Operator>) {
+    let Some(s) = op.state.borrow().snap.clone() else { return };
+    let Some(id) = shown(op, &s.settings.screens) else { return };
+    if let Some((_, screen)) = s.settings.screens.find(id) { draw_picture(&op.ui.global::<ScreensDialogState>(), screen, true) }
+}
+
+fn pick_test(op: &Rc<Operator>, at: usize) {
+    let Ok(id) = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()) else { return };
+    let pattern = TestPattern::ALL.get(at).copied().unwrap_or_default();
+    run(op, "screens/test", json!({ "id": id, "pattern": pattern }));
+}
+
+/// Closing: what was typed is saved, and every test pattern goes off (a service never starts on colour bars).
+fn closed(op: &Rc<Operator>) {
+    save_typing(op);
+    let testing = op.state.borrow().snap.as_ref().is_some_and(|s| s.settings.screens.clone().clear_tests());
+    if testing { run(op, "screens/test", json!({ "pattern": TestPattern::Off })) }
 }
 
 /// Runs a change, and tells the operator when it fails.
@@ -159,14 +268,15 @@ fn run(op: &Rc<Operator>, action: &'static str, body: Value) {
 fn save_typing(op: &Rc<Operator>) {
     SAVE.with(Timer::stop);
     let Some(t) = TYPING.take() else { return };
-    run(op, "screens/update", json!({ "id": t.id, "name": t.name, "size": t.size }));
+    run(op, "screens/update", json!({ "id": t.id, "name": t.name, "size": t.size, "fix": t.fix }));
 }
 
 /// Notes what was typed, and saves it once the typing stops.
 fn typed(op: &Rc<Operator>, change: impl FnOnce(&mut Typing)) {
     let Ok(id) = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()) else { return };
     TYPING.with_borrow_mut(|t| {
-        let t = t.get_or_insert(Typing { id, name: None, size: None });
+        if t.as_ref().is_some_and(|t| t.id != id) { *t = None }
+        let t = t.get_or_insert(Typing { id, name: None, size: None, fix: None });
         change(t);
     });
     let me = Rc::downgrade(op);
@@ -257,6 +367,18 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     g.on_remove(on(Rc::new(remove)));
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_identify(move || if let Some(op) = me.upgrade() { run(&op, "screens/identify", json!({})) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_set_mirror(move |on| if let Some(op) = me.upgrade() {
+        save_typing(&op);
+        if let Ok(id) = Uuid::parse_str(&op.ui.global::<ScreensDialogState>().get_selected()) { run(&op, "screens/update", json!({ "id": id, "mirror": on })) }
+    });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_pick_test(move |at| if let Some(op) = me.upgrade() { pick_test(&op, at.max(0) as usize) });
+    g.on_colour(on(Rc::new(colour)));
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_nudge(move |dx, dy| if let Some(op) = me.upgrade() { nudge(&op, dx, dy) });
+    g.on_reset_fix(on(Rc::new(reset_fix)));
+    g.on_delay(on(Rc::new(delay)));
     // Refresh: the follower re-reads everything, monitors included, and the snapshot's arrival redraws the dialog.
     // `App::monitors()` is never called on the Slint thread.
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -528,11 +650,11 @@ mod tests {
     fn refresh_requests_a_new_read_with_monitors() {
         let (app, d) = with_displays(vec![mon("A", true)]);
         let op = open_screens(&app);
-        assert_eq!(state(&op).get_outputs().row_count(), 3);
+        assert_eq!(state(&op).get_outputs().row_count(), 4);
         d.monitors.lock().unwrap().push(mon("B", false));
         click(&op, "ScreensDialog::refresh-btn", 0);
         assert_eq!(op.state.borrow().snap.as_ref().unwrap().monitors.len(), 2, "a new read, monitors included");
-        assert_eq!(state(&op).get_outputs().row_count(), 4, "and the dialog was redrawn");
+        assert_eq!(state(&op).get_outputs().row_count(), 5, "and the dialog was redrawn");
         assert!(find_all(&op, "ScreensDialog::one-screen-note").is_empty());
     }
 
@@ -540,9 +662,13 @@ mod tests {
     fn output_list_and_aspect() {
         let ms = [mon("A", true)];
         let (list, at) = outputs(&ms, &ScreenTarget::Window);
-        assert_eq!((list.len(), at), (3, 1));
+        assert_eq!((list.len(), at), (4, 1));
         let (list, at) = outputs(&ms, &ScreenTarget::Monitor("A".into()));
-        assert_eq!((list.len(), at), (3, 2));
+        assert_eq!((list.len(), at), (4, 2));
+        let (list, at) = outputs(&ms, &ScreenTarget::Placeholder);
+        assert_eq!((list.len(), at), (4, 3), "the placeholder is last");
+        let (list, at) = outputs(&ms, &ScreenTarget::Monitor("gone".into()));
+        assert_eq!((list.len(), at, list[3].1.clone()), (5, 3, ScreenTarget::Monitor("gone".into())), "an unplugged one before it");
         assert_eq!(aspect(1920, 1080), "1.78 (16:9)");
         assert_eq!(aspect(1280, 800), "1.60 (8:5)");
         assert_eq!(aspect(0, 1080), "");
@@ -554,5 +680,90 @@ mod tests {
         assert!(is_monitor(&now, r"\\.\DISPLAY2|1920×1080|1920,0"), "same name");
         assert!(is_monitor(&now, r"\\.\DISPLAY2"), "an older bare name");
         assert!(!is_monitor(&now, r"\\.\DISPLAY3|1280×720|1920,0"));
+    }
+
+    #[test]
+    fn a_placeholder_is_set_up_without_its_projector() {
+        let (app, d) = with_displays(vec![mon("A", true)]);
+        let op = open_screens(&app);
+        let last = state(&op).get_outputs().row_count() as i32 - 1;
+        assert_eq!(state(&op).get_outputs().row_data(last as usize).unwrap(), "Placeholder (connect the projector later)");
+        state(&op).invoke_pick_output(last);
+        refresh(&op);
+        settle(&op);
+        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].output().target, ScreenTarget::Placeholder);
+        assert_eq!(rows(&op, 0)[0].status, "Placeholder");
+        assert!(state(&op).get_size_editable(), "its size can be typed, as the projector's will be");
+        assert!(state(&op).get_note().contains("Nothing shows on a placeholder"));
+        act(&op, "screens/power", json!({ "group": "audience", "on": true }));
+        assert!(d.calls.lock().unwrap().is_empty() && d.sized.lock().unwrap().is_empty(), "nothing opens");
+    }
+
+    #[test]
+    fn the_picture_tab_changes_colour_corners_and_delay() {
+        let (app, _d) = with_displays(vec![mon("A", true), mon("B", false)]);
+        let op = open_screens(&app);
+        click(&op, "Tabs::tab", 1);
+        assert_eq!(state(&op).get_tab(), 1);
+        assert!(find(&op, "PictureFix::reset-btn").is_some());
+        let g = state(&op);
+        g.set_red(90);
+        g.set_gamma(120);
+        g.invoke_colour();
+        g.set_corner(1);
+        g.invoke_nudge(-1, 0);
+        g.invoke_nudge(-1, 1);
+        assert_eq!(g.get_corner_at(), "Moved left 1.0 %, down 0.5 %");
+        g.set_delay_text("3".into());
+        g.invoke_delay();
+        assert_eq!(g.get_delay_ms(), "about 48 ms");
+        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].fix.is_default(), "saved once the changes stop");
+        op.close_dialog();
+        settle(&op);
+        let fix = app.data.lock().unwrap().settings.screens.audience.screens[0].fix;
+        assert_eq!((fix.red, fix.gamma, fix.delay), (0.9, 1.2, 3));
+        assert!((fix.corners[1][0] + 0.01).abs() < 1e-6 && (fix.corners[1][1] - 0.005).abs() < 1e-6, "{:?}", fix.corners);
+        // Opened again: the numbers are the saved ones, and Reset puts it all back.
+        let op = open_screens(&app);
+        assert_eq!((state(&op).get_red(), state(&op).get_gamma(), state(&op).get_delay_text().to_string()), (90, 120, "3".to_string()));
+        state(&op).invoke_reset_fix();
+        refresh(&op);
+        settle(&op);
+        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].fix.is_default());
+        assert_eq!(state(&op).get_red(), 100);
+    }
+
+    #[test]
+    fn a_test_pattern_shows_until_the_dialog_closes() {
+        let (app, _d) = with_displays(vec![mon("A", true)]);
+        let op = open_screens(&app);
+        let stage = rows(&op, 1)[0].id.to_string();
+        select(&op, &stage);
+        state(&op).invoke_pick_test(1);
+        refresh(&op);
+        settle(&op);
+        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens[0].test, TestPattern::Grid);
+        assert_eq!(state(&op).get_test(), 1);
+        assert!(!app.history.lock().unwrap().can_undo(), "a test pattern is not an edit to undo");
+        op.close_dialog();
+        settle(&op);
+        assert!(app.data.lock().unwrap().settings.screens.stage.screens[0].test.is_off());
+    }
+
+    #[test]
+    fn a_stage_screen_can_show_the_audience_picture() {
+        let (app, d) = with_displays(vec![mon("A", true), mon("B", false)]);
+        let op = open_screens(&app);
+        assert!(find(&op, "ScreensDialog::mirror-toggle").is_none(), "only stage screens have it");
+        let stage = rows(&op, 1)[0].id.to_string();
+        select(&op, &stage);
+        update(&op, json!({ "id": stage, "target": { "kind": "monitor", "monitor": "B" } }));
+        act(&op, "screens/power", json!({ "group": "stage", "on": true }));
+        click(&op, "ScreensDialog::mirror-toggle", 0);
+        refresh(&op);
+        settle(&op);
+        assert!(app.data.lock().unwrap().settings.screens.stage.screens[0].mirror);
+        assert_eq!(*d.open.lock().unwrap(), [format!("room:{stage}")], "an audience window on the stage monitor");
+        assert!(state(&op).get_note().contains("Shows the audience picture"));
     }
 }

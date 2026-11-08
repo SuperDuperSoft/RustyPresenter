@@ -222,7 +222,7 @@ impl NativeScreens {
         let (list, main) = self.seen.lock().unwrap().clone();
         for w in &windows {
             if restored.as_ref().is_some_and(|roles| !roles.iter().any(|r| *r == w.key)) { continue }
-            let id = match &w.target { ScreenTarget::Monitor(m) => Some(m.as_str()), ScreenTarget::Window => None, ScreenTarget::None => continue };
+            let id = match &w.target { ScreenTarget::Monitor(m) => Some(m.as_str()), ScreenTarget::Window => None, ScreenTarget::None | ScreenTarget::Placeholder => continue };
             let Some(m) = reopen_target(id, &list, main.as_ref(), restored.is_some()) else { continue };
             let plain = m.is_none();
             let opened = self.show(&w.key, m);
@@ -314,8 +314,8 @@ impl NativeScreens {
         let operator = DESK.with(|d| d.borrow().operator.as_ref().and_then(std::rc::Weak::upgrade)).filter(|o| o.focused());
         let win = match kind(role) {
             "room" if role == "room" => Win::Room(Room::open(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
-            "room" => Win::Room(Room::open_mirror(app, self.renderer.clone(), self.mpv.clone(), mon.clone())?),
-            "stage" => Win::Stage(Stage::open(app, mon.clone())?),
+            "room" => Win::Room(Room::open_mirror(app, self.renderer.clone(), self.mpv.clone(), mon.clone(), role)?),
+            "stage" => Win::Stage(Stage::open_as(app, mon.clone(), role)?),
             _ => return Err("unknown window".into()),
         };
         if let Some(op) = operator {
@@ -443,6 +443,9 @@ impl Screens for NativeScreens {
 /// switches are turned off instead (saved, so the top bar shows it), and nothing opens until the operator switches
 /// them on. After a crash (`restored`) what was open always comes back.
 pub fn start_windows(app: &App, restored: bool) -> Vec<crate::model::ScreenWindow> {
+    // A test pattern left on is never what a service should start with (N20).
+    let testing = app.data.lock().unwrap().settings.screens.clone().clear_tests();
+    if testing && let Err(e) = app.edit_untracked(|d| { d.settings.screens.clear_tests(); Ok(()) }) { eprintln!("Could not turn the test patterns off: {e}") }
     let (on, windows) = { let d = app.data.lock().unwrap(); (d.settings.screens_at_start, d.settings.screens.windows()) };
     if on || restored || windows.is_empty() { return windows }
     let off = app.edit_untracked(|d| {
@@ -739,6 +742,14 @@ mod tests {
         let screens = app.data.lock().unwrap().settings.screens.clone();
         assert!(!screens.audience.on && !screens.stage.on, "the switches show off, so one click turns them on");
         assert_eq!(screens.audience.screens[0].output().target, ScreenTarget::Window, "where they show is kept");
+    }
+
+    #[test]
+    fn test_patterns_are_off_at_start() {
+        let app = test_app();
+        app.edit(|d| { d.settings.screens.assign("audience", ScreenTarget::Window); d.settings.screens.audience.screens[0].test = crate::screen_fix::TestPattern::Grid; Ok(()) }).unwrap();
+        start_windows(&app, false);
+        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].test.is_off());
     }
 
     #[test]

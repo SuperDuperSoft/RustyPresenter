@@ -2,6 +2,7 @@
 pub mod ffi;
 pub mod graphics;
 pub mod player;
+pub mod postpass;
 pub mod surface;
 
 pub use player::{FrameGrabber, Options, Player, PlayerReport, Players, Role, players};

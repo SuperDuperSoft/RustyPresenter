@@ -64,6 +64,8 @@ pub struct VideoSurface {
     on_frame: Box<dyn Fn(Option<slint::Image>)>,
     st: RefCell<State>,
     probe: RefCell<Option<Box<dyn FnMut(&glow::Context, PhysicalSize)>>>,
+    /// The screen's colour fix and corner pin (N20), run over each finished frame.
+    fix: RefCell<(crate::screen_fix::ScreenFix, super::postpass::PostPass)>,
 }
 
 /// A player with a render context from this surface.
@@ -129,6 +131,7 @@ impl VideoSurface {
             on_frame: Box::new(on_frame),
             st: RefCell::default(),
             probe: RefCell::new(None),
+            fix: RefCell::default(),
         };
         if mode == DrawMode::OpenGl {
             let slot: Rc<RefCell<Option<Rc<VideoSurface>>>> = Rc::default();
@@ -226,6 +229,22 @@ impl VideoSurface {
         self.st.borrow().want.is_some()
     }
 
+    /// The colour fix and corner pin for every frame from now on (N20). OpenGL only; in software drawing it does
+    /// nothing. Redraws when it changed.
+    pub fn set_fix(&self, fix: crate::screen_fix::ScreenFix) {
+        let mut f = self.fix.borrow_mut();
+        if f.0 == fix { return }
+        f.0 = fix;
+        drop(f);
+        (self.redraw)();
+    }
+
+    /// The fix in use.
+    pub fn fix(&self) -> crate::screen_fix::ScreenFix { self.fix.borrow().0 }
+
+    /// Whether the fix can show here (OpenGL drawing).
+    pub fn can_fix(&self) -> bool { self.mode == DrawMode::OpenGl }
+
     /// Diagnostics only: called after Slint has drawn each OpenGL frame (e.g. readback).
     pub fn set_gl_probe(&self, f: impl FnMut(&glow::Context, PhysicalSize) + 'static) {
         *self.probe.borrow_mut() = Some(Box::new(f));
@@ -303,6 +322,14 @@ impl VideoSurface {
     }
 
     fn notify(self: &Rc<Self>, state: RenderingState, api: &GraphicsAPI) {
+        // The fix and the probe go first, so the frame's time as `ui::pacing` sees it includes them.
+        if matches!(state, RenderingState::AfterRendering) && let (Some(gl), Some(size)) = (self.st.borrow().gl.as_ref(), (self.size)()) {
+            let mut fix = self.fix.borrow_mut();
+            let f = fix.0;
+            unsafe { fix.1.run(gl, size, &f) };
+            drop(fix);
+            if let Some(f) = self.probe.borrow_mut().as_mut() { f(gl, size) }
+        }
         crate::ui::pacing::on_render("room", self.vsync, &state, api);
         match state {
             RenderingState::RenderingSetup => {
@@ -313,10 +340,6 @@ impl VideoSurface {
             RenderingState::BeforeRendering => self.draw_gl(api),
             RenderingState::AfterRendering => {
                 let st = self.st.borrow();
-                let Some(gl) = st.gl.as_ref() else { return };
-                if let (Some(f), Some(size)) = (self.probe.borrow_mut().as_mut(), (self.size)()) {
-                    f(gl, size);
-                }
                 if let Some((p, rc)) = st.drawn(false) {
                     unsafe { (p.mpv().render_context_report_swap)(rc) };
                 }
@@ -334,6 +357,7 @@ impl VideoSurface {
                     drop(b.p.take_render());
                     st.adding.push(b.p);
                 }
+                if let Some(gl) = st.gl.as_ref() { unsafe { self.fix.borrow_mut().1.free(gl) } }
                 st.gl = None;
             }
             _ => {}
@@ -475,11 +499,11 @@ fn create(p: &Player, params: &mut [mpv_render_param]) -> Result<RenderContext, 
 
 /// GL state mpv may change and FemtoVG relies on (C1 gotcha 3).
 #[derive(Default)]
-struct SavedGl {
+pub(super) struct SavedGl {
     program: i32,
     vao: i32,
     array_buf: i32,
-    draw_fbo: i32,
+    pub(super) draw_fbo: i32,
     read_fbo: i32,
     active_tex: i32,
     tex: [i32; 2],
@@ -492,7 +516,7 @@ struct SavedGl {
 const CAPS: [u32; 5] = [glow::SCISSOR_TEST, glow::BLEND, glow::CULL_FACE, glow::DEPTH_TEST, glow::STENCIL_TEST];
 const BLEND: [u32; 6] = [glow::BLEND_SRC_RGB, glow::BLEND_DST_RGB, glow::BLEND_SRC_ALPHA, glow::BLEND_DST_ALPHA, glow::BLEND_EQUATION_RGB, glow::BLEND_EQUATION_ALPHA];
 
-unsafe fn save_gl(gl: &glow::Context) -> SavedGl {
+pub(super) unsafe fn save_gl(gl: &glow::Context) -> SavedGl {
     unsafe {
         let mut s = SavedGl {
             program: gl.get_parameter_i32(glow::CURRENT_PROGRAM),
@@ -522,7 +546,7 @@ fn nz(v: i32) -> Option<NonZeroU32> {
     NonZeroU32::new(v as u32)
 }
 
-unsafe fn restore_gl(gl: &glow::Context, s: &SavedGl) {
+pub(super) unsafe fn restore_gl(gl: &glow::Context, s: &SavedGl) {
     unsafe {
         gl.use_program(nz(s.program).map(glow::NativeProgram));
         gl.bind_vertex_array(nz(s.vao).map(glow::NativeVertexArray));

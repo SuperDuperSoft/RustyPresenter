@@ -45,7 +45,11 @@ struct EditorCtx {
 
 /// `openSongEditor(song, {addAfter})`: `song_id` is a library song to edit, or `None` for a new one. A song that is
 /// no longer in the library opens as a new one.
-pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None) }
+pub fn open_song_editor(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool) { open_song_editor_at(op, song_id, add_after, None, None) }
+
+/// A new song, filled in from `song` (its title, words and credits) for checking before it is saved (N32: a song
+/// from the clipboard).
+pub fn open_new_song(op: &Rc<Operator>, song: crate::model::Song, add_after: bool) { open_song_editor_at(op, None, add_after, None, Some(song)) }
 
 /// Edit words on the live song (FEAT-4 §3.4): the editor with the caret at the live section's first lyric line,
 /// found from the live slide's occurrence in the order that built it (service item `item_id`'s own, if it has one).
@@ -57,18 +61,18 @@ pub fn edit_live_words(op: &Rc<Operator>, item_id: Uuid, song_id: Uuid, occurren
         let order = snap.items.iter().find(|i| i.id == item_id).map_or(song.arrangement.as_slice(), |i| crate::slides::item_order(&i.item, song));
         crate::sections::arrangement::caret_for_occurrence(&song.lyrics, order, o)
     });
-    open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)));
+    open_song_editor_at(op, Some(song_id), false, Some(caret.unwrap_or(0)), None);
 }
 
 /// The song on screen now, if any.
 fn live_song(op: &Operator) -> Option<Uuid> { op.shown_live().and_then(|l| l.view().item.as_ref()?.song_id) }
 
 /// `caret`: where the lyrics' caret goes (a byte offset), for Edit words.
-fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>) {
+fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>, fill: Option<crate::model::Song>) {
     let song = song_id.and_then(|id| op.state.borrow().snap.as_ref()?.data.songs.iter().find(|s| s.id == id).cloned());
     let song_id = song.as_ref().map(|s| s.id);
     op.open_dialog(DialogKind::SongEditor { song_id, add_after });
-    let s = song.clone().unwrap_or_default();
+    let s = song.clone().or(fill).unwrap_or_default();
     let st = op.ui.global::<SongEditorState>();
     st.set_title(s.title.as_str().into());
     st.set_writers(s.writers.as_str().into());

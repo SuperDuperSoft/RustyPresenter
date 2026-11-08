@@ -29,6 +29,9 @@ export component StageWindow inherits Window {
     preferred-height: 720px;
 
     in property <bool> connected;
+    /// A test pattern over everything (Screen Configuration, N20).
+    in property <bool> testing;
+    in property <image> test-pattern;
     in property <string> item-title: @tr("Waiting for the service…");
     in property <string> clock;
     /// Time left on the playing video or audio, `−m:ss`; empty hides it.
@@ -310,5 +313,13 @@ export component StageWindow inherits Window {
             source: root.drawing;
             image-fit: contain;
         }
+    }
+    if root.testing: test-pattern := Image {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        source: root.test-pattern;
+        image-fit: fill;
     }
 }

@@ -11,6 +11,7 @@ use crate::render::drawing::DrawingCanvas;
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
+use crate::screen_fix::{ScreenFix, TestPattern};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
 use slint::{ComponentHandle, Timer, TimerMode};
@@ -113,7 +114,13 @@ fn setters(i: usize) -> (SetSide, SetSide, SetOp, SetOp) {
 }
 
 /// Work for the UI thread, from the prepare, report and update threads.
-enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent), Drawing(Option<Px>) }
+enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(PlayerReport), Device(SoundOut), Event(RoomEvent), Drawing(Option<Px>), Fix(ScreenFix, TestPattern) }
+
+/// This window's screen fix and test pattern (N20), from the setup: the screen its window name stands for.
+fn fix_of(app: &App, role: &str) -> (ScreenFix, TestPattern) {
+    let d = app.data.lock().unwrap();
+    d.settings.screens.screen_for(role).map_or_else(Default::default, |s| (s.fix, s.test))
+}
 
 /// What the room's threads share.
 struct Shared {
@@ -130,6 +137,8 @@ struct Shared {
     wake: Box<dyn Fn() + Send + Sync>,
     /// The size the phone drawing is drawn at (the room's canvas).
     canvas: Mutex<(u32, u32)>,
+    /// The window name, for its screen's fix ("room", "room:<id>").
+    role: String,
 }
 
 impl Shared {
@@ -192,6 +201,11 @@ struct Inner {
     on_top: Cell<Option<bool>>,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
     swap_probe: RefCell<Option<Box<dyn Fn()>>>,
+    /// The screen's fix (its delay is used here; colour and corners go to `surface`) and test pattern (N20).
+    fix: Cell<(ScreenFix, TestPattern)>,
+    /// Live views held back by the screen's delay, oldest first, with when each is due.
+    delayed: RefCell<VecDeque<(std::time::Instant, LiveUpdate)>>,
+    delay_timer: Timer,
     me: Weak<Inner>,
 }
 
@@ -200,7 +214,7 @@ impl Inner {
     fn pump(&self) {
         self.shared.queued.store(false, Ordering::Release);
         let latest = self.shared.latest.lock().unwrap().take();
-        if let Some(u) = latest { self.view(&u) }
+        if let Some(u) = latest { self.arrived(u) }
         loop {
             let m = self.shared.inbox.lock().unwrap().pop_front();
             match m {
@@ -209,8 +223,48 @@ impl Inner {
                 Some(Msg::Device(d)) => self.sync_device(&d),
                 Some(Msg::Event(ev)) => self.shared.emit(ev),
                 Some(Msg::Drawing(px)) => self.ui.set_drawing(px.map(Px::image).unwrap_or_default()),
+                Some(Msg::Fix(fix, test)) => self.set_fix(fix, test),
                 None => break,
             }
+        }
+    }
+
+    /// A new live view: shown now, or once the screen's delay has passed (N20).
+    fn arrived(&self, u: LiveUpdate) {
+        let wait = self.fix.get().0.delay_ms();
+        if wait == 0 && self.delayed.borrow().is_empty() { return self.view(&u) }
+        self.delayed.borrow_mut().push_back((std::time::Instant::now() + Duration::from_millis(wait), u));
+        self.next_delayed();
+    }
+
+    /// Shows the views now due (the newest of them; older ones would only flash) and waits for the next.
+    fn next_delayed(&self) {
+        let now = std::time::Instant::now();
+        let mut due = None;
+        while self.delayed.borrow().front().is_some_and(|(at, _)| *at <= now) { due = self.delayed.borrow_mut().pop_front().map(|(_, u)| u) }
+        if let Some(u) = due { self.view(&u) }
+        let next = self.delayed.borrow().front().map(|(at, _)| at.saturating_duration_since(now));
+        if let Some(wait) = next {
+            let me = self.me.clone();
+            self.delay_timer.start(TimerMode::SingleShot, wait, move || if let Some(i) = me.upgrade() { i.next_delayed() });
+        }
+    }
+
+    /// The screen's fix and test pattern (N20): colour and corners for the GL pass, the pattern over everything.
+    fn set_fix(&self, fix: ScreenFix, test: TestPattern) {
+        let (old_fix, old_test) = self.fix.replace((fix, test));
+        self.surface.set_fix(fix);
+        if fix.delay < old_fix.delay || fix.delay == 0 {
+            // A shorter wait: what is held back is due sooner.
+            let wait = Duration::from_millis(fix.delay_ms());
+            for (at, _) in self.delayed.borrow_mut().iter_mut() { *at = (*at).min(std::time::Instant::now() + wait) }
+            self.next_delayed();
+        }
+        if test != old_test {
+            let px = crate::screen_fix::pattern_pixels(test, self.canvas());
+            let (w, h) = self.canvas();
+            self.ui.set_test_pattern(px.map(|p| slint::Image::from_rgba8(slint::SharedPixelBuffer::clone_from_slice(&p, w.max(1), h.max(1)))).unwrap_or_default());
+            self.ui.set_testing(!test.is_off());
         }
     }
 
@@ -474,16 +528,19 @@ impl Room {
     /// Open the room window, full screen on `monitor` (a plain window without one). Without
     /// libmpv everything but video and audio works; those report the missing player.
     pub fn open(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>) -> Result<Rc<Room>, String> {
-        Self::open_as(app, renderer, mpv, monitor, false)
+        Self::open_as(app, renderer, mpv, monitor, None)
     }
 
     /// An extra audience screen: it follows the same live view, silently, and leaves telling the live engine what is
     /// on air to the room.
-    pub fn open_mirror(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>) -> Result<Rc<Room>, String> {
-        Self::open_as(app, renderer, mpv, monitor, true)
+    /// `role` is its window name ("room:<id>"), for its screen's fix.
+    pub fn open_mirror(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, role: &str) -> Result<Rc<Room>, String> {
+        Self::open_as(app, renderer, mpv, monitor, Some(role))
     }
 
-    fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror: bool) -> Result<Rc<Room>, String> {
+    fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror_of: Option<&str>) -> Result<Rc<Room>, String> {
+        let mirror = mirror_of.is_some();
+        let role = mirror_of.unwrap_or("room").to_string();
         let ui = RoomWindow::new().map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         // Slint picks the computer's language for the first window; show the app's.
         crate::i18n::sync_slint();
@@ -502,7 +559,7 @@ impl Room {
         let weak = ui.as_weak();
         let wake = Box::new(move || { let _ = weak.upgrade_in_event_loop(|ui| ui.invoke_pump()); });
         let (events, rx) = std::sync::mpsc::channel();
-        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)) });
+        let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)), role: role.clone() });
         let to_shared = shared.clone();
         let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
         let to_live = app.clone();
@@ -518,7 +575,8 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(), me: me.clone(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(),
+                fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
@@ -529,6 +587,8 @@ impl Room {
         forward(reports, shared.clone());
         follow(app.clone(), rx, shared);
         *room.inner.shared.canvas.lock().unwrap() = room.inner.canvas();
+        let (fix, test) = fix_of(&app, &role);
+        room.inner.set_fix(fix, test);
         room.inner.view(&app.live_view());
         Ok(room)
     }
@@ -612,6 +672,7 @@ fn drawer(shared: Arc<Shared>) -> std::sync::mpsc::Sender<Arc<Drawing>> {
 fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, shared: Arc<Shared>) {
     let sound = move |app: &App| app.sound_out();
     let mut device = sound(&app);
+    let mut fix = fix_of(&app, &shared.role);
     let drawings = drawer(shared.clone());
     // The drawing last handed to the drawer. `rev` only grows, so an older one (a live view read before the newest
     // strokes, sent after them) is left out.
@@ -627,6 +688,11 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, share
                 if now != device {
                     device = now.clone();
                     shared.send(Msg::Device(now));
+                }
+                let now = fix_of(&app, &shared.role);
+                if now != fix {
+                    fix = now;
+                    shared.send(Msg::Fix(now.0, now.1));
                 }
                 continue;
             }
@@ -740,6 +806,50 @@ mod tests {
         assert!(!shown(&room, Kind::Media) && !shown(&room, Kind::Logo) && !ui.get_video());
         // The crossfade runs on the room's own timer and ends fully in.
         assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0 && !room.inner.fader.running()));
+    }
+
+    /// The room's screen in the setup, changed by `f`.
+    fn fix_room(app: &App, f: impl FnOnce(&mut Screen)) {
+        app.edit(|d| { d.settings.screens.assign("audience", ScreenTarget::Window); f(&mut d.settings.screens.audience.screens[0]); Ok(()) }).unwrap();
+        app.broadcast_data();
+    }
+
+    #[test]
+    fn a_screen_delay_holds_changes_back() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        fix_room(&app, |s| s.fix.delay = 30); // 480 ms
+        let room = open(&app);
+        let item = scripture(&app);
+        let started = Instant::now();
+        let v = show(&app, item);
+        pump_until(&room, 0.25, || false);
+        assert!(app.live_view().committed < v, "still waiting");
+        assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
+        assert!(started.elapsed() >= Duration::from_millis(480));
+        // No delay: the next change is not held.
+        fix_room(&app, |s| s.fix.delay = 0);
+        assert!(pump_until(&room, 5.0, || room.inner.fix.get().0.delay == 0));
+        let v = run(&app, Command::ClearSlide);
+        let started = Instant::now();
+        assert!(pump_until(&room, 15.0, || app.live_view().committed == v));
+        assert!(started.elapsed() < Duration::from_millis(480), "{:?}", started.elapsed());
+    }
+
+    #[test]
+    fn a_test_pattern_covers_the_room_and_follows_the_setup() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let room = open(&app);
+        let ui = &room.inner.ui;
+        assert!(!ui.get_testing());
+        fix_room(&app, |s| { s.test = crate::screen_fix::TestPattern::Bars; s.fix.red = 0.8 });
+        assert!(pump_until(&room, 5.0, || ui.get_testing()), "the pattern comes up");
+        assert!(ui.get_test_pattern().size().width > 0);
+        assert_eq!(room.inner.surface.fix().red, 0.8, "the colour fix goes to the picture");
+        app.edit_untracked(|d| { d.settings.screens.clear_tests(); Ok(()) }).unwrap();
+        app.broadcast_data();
+        assert!(pump_until(&room, 5.0, || !ui.get_testing()), "and goes again");
     }
 
     #[test]

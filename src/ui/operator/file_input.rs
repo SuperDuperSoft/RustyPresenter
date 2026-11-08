@@ -62,7 +62,7 @@ pub fn drop_plan(paths: Vec<PathBuf>) -> Option<DropPlan> {
 
 /// The web `accept` lists (`operator.js:413,476,491,492,726,900,948`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv, WebPage, Translation }
+pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv, WebPage, Translation, Text, Playlist, ThemePack, Pptx }
 
 impl Filter {
     pub fn name(self) -> String {
@@ -77,6 +77,10 @@ impl Filter {
             Filter::Csv => crate::usage::strings::filter_csv(),
             Filter::WebPage => crate::print::strings::filter_page(),
             Filter::Translation => crate::tr!("Translation file (.po)"),
+            Filter::Text => crate::tr!("Text file (.txt)"),
+            Filter::Playlist => crate::tr!("Playlist (.m3u8)"),
+            Filter::ThemePack => crate::tr!("Theme pack (.rpthemes)"),
+            Filter::Pptx => crate::tr!("PowerPoint (.pptx)"),
         }
     }
 
@@ -92,6 +96,10 @@ impl Filter {
             Filter::Csv => vec!["csv"],
             Filter::WebPage => vec!["html"],
             Filter::Translation => vec!["po"],
+            Filter::Text => vec!["txt"],
+            Filter::Playlist => vec![crate::transfer::PLAYLIST_EXT],
+            Filter::ThemePack => vec![crate::transfer::THEME_EXT],
+            Filter::Pptx => crate::import::pptx_text::EXT.to_vec(),
         }
     }
 }

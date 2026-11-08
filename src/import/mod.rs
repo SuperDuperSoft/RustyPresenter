@@ -17,6 +17,7 @@ pub mod openlyrics;
 pub mod opensong;
 pub mod pdf;
 pub mod powerpoint;
+pub mod pptx_text;
 pub mod probe;
 pub mod propresenter;
 pub mod sniff;

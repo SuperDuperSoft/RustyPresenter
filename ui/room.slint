@@ -115,6 +115,9 @@ export component RoomWindow inherits Window {
     in property <image> video-frame;
     /// Fade-through-black overlay, 0–1 (a change that starts or stops a foreground video), set as it fades.
     in property <float> black;
+    /// A test pattern over everything (Screen Configuration, N20).
+    in property <bool> testing;
+    in property <image> test-pattern;
     /// Work arrived for the room glue (prepared layers, player reports, live updates).
     callback pump();
 
@@ -186,5 +189,11 @@ export component RoomWindow inherits Window {
     black := Rectangle {
         background: Theme.room-black;
         opacity: root.black;
+    }
+    if root.testing: test-pattern := Image {
+        width: root.width;
+        height: root.height;
+        source: root.test-pattern;
+        image-fit: fill;
     }
 }

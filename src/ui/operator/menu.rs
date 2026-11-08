@@ -46,11 +46,14 @@ pub enum MenuAction {
     BibleInfo,
     /// Settings → Translations…: the translation editor on the language in use.
     Translations,
+    /// File → Import / Export's words, pictures, playlist and theme items (N32).
+    Transfer(super::transfer::Transfer),
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
 pub fn action(id: &str) -> Option<MenuAction> {
     use MenuAction::{Add, Settings};
+    if let Some(t) = super::transfer::action(id) { return Some(MenuAction::Transfer(t)) }
     Some(match id {
         "add-song" => Add(AddTab::Song),
         "add-bible" => Add(AddTab::Scripture),
@@ -126,6 +129,7 @@ impl Operator {
                 if let Some(id) = chosen { super::bible_extras::info(self, &id) }
             }
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
+            Some(MenuAction::Transfer(t)) => self.transfer(t),
             None => {}
         }
     }
