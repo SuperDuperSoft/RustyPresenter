@@ -1,15 +1,6 @@
 # French for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Native-Name: Français\n"
-"X-English-Name: French\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fr\nPlural-Forms: nplurals=2; plural=(n > 1);\nX-Native-Name: Français\nX-English-Name: French\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -21,7 +12,7 @@ msgstr "non connecté"
 
 #: ui/bible-picker.slint
 msgid "About {}"
-msgstr ""
+msgstr "À propos de {}"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
@@ -705,7 +696,7 @@ msgstr "Rejouer (boucle)"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
 msgid "Go to the next slide"
-msgstr ""
+msgstr "Passer à la diapo suivante"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
@@ -781,7 +772,7 @@ msgstr "Les superpositions restent sur l’écran de la salle pendant que les di
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
-msgstr ""
+msgstr "Filtrer les superpositions"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -945,7 +936,7 @@ msgstr "Téléphones associés"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
-msgstr ""
+msgstr "Peut dessiner sur les diapos"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -1005,19 +996,19 @@ msgstr "Enregistrer la page web…"
 
 #: ui/dialogs/quick-search.slint src/ui/dialogs/quick_search.rs
 msgid "Quick search"
-msgstr ""
+msgstr "Recherche rapide"
 
 #: ui/dialogs/quick-search.slint
 msgid "Find a song, a file, a slide set or a service"
-msgstr ""
+msgstr "Trouver un chant, un fichier, un jeu de diapos ou un culte"
 
 #: ui/dialogs/quick-search.slint
 msgid "Add to the service (Ctrl+Enter)"
-msgstr ""
+msgstr "Ajouter au culte (Ctrl+Entrée)"
 
 #: ui/dialogs/quick-search.slint
 msgid "Enter opens it · Ctrl+Enter adds it to the service · Esc closes"
-msgstr ""
+msgstr "Entrée l’ouvre · Ctrl+Entrée l’ajoute au culte · Échap ferme"
 
 #: ui/dialogs/quick-search.slint ui/dialogs/services.slint
 msgid "Open"
@@ -1097,7 +1088,7 @@ msgstr "Ouvrir depuis un fichier"
 
 #: ui/dialogs/services.slint
 msgid "Filter services and templates"
-msgstr ""
+msgstr "Filtrer les cultes et modèles"
 
 #: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
@@ -1245,51 +1236,51 @@ msgstr "Clavier"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
-msgstr ""
+msgstr "Réinitialiser toutes les touches"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Esc cancels. New keys work once you save the settings."
-msgstr ""
+msgstr "Échap annule. Les nouvelles touches fonctionnent une fois les paramètres enregistrés."
 
 #: ui/dialogs/settings-keys.slint src/ui/operator/help.rs
 msgid "(no key)"
-msgstr ""
+msgstr "(aucune touche)"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Default"
-msgstr ""
+msgstr "Par défaut"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Go back to the key this had at first"
-msgstr ""
+msgstr "Revenir à la touche d’origine"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Press a key…"
-msgstr ""
+msgstr "Appuyez sur une touche…"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Change"
-msgstr ""
+msgstr "Changer"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Clear groups"
-msgstr ""
+msgstr "Groupes d’effacement"
 
 #: ui/dialogs/settings-keys.slint
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
-msgstr ""
+msgstr "Un groupe d’effacement retire plusieurs couches de l’écran avec une seule touche. Le menu Affichage les liste aussi."
 
 #: ui/dialogs/settings-keys.slint
 msgid "Group name"
-msgstr ""
+msgstr "Nom du groupe"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Delete group"
-msgstr ""
+msgstr "Supprimer le groupe"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Add a clear group"
-msgstr ""
+msgstr "Ajouter un groupe d’effacement"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
@@ -1309,11 +1300,11 @@ msgstr "Les traductions sont faites par des bénévoles. Si la vôtre manque ou 
 
 #: ui/dialogs/settings-language.slint
 msgid "Edit this translation…"
-msgstr ""
+msgstr "Modifier cette traduction…"
 
 #: ui/dialogs/settings-language.slint ui/dialogs/translation-editor.slint
 msgid "Add a language…"
-msgstr ""
+msgstr "Ajouter une langue…"
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
@@ -1365,15 +1356,15 @@ msgstr "Paroles en MAJUSCULES"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
-msgstr ""
+msgstr "Fondu au changement de thème"
 
 #: ui/dialogs/settings-look.slint
 msgid "(no fade)"
-msgstr ""
+msgstr "(pas de fondu)"
 
 #: ui/dialogs/settings-look.slint
 msgid "({} s)"
-msgstr ""
+msgstr "({} s)"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
@@ -1393,115 +1384,115 @@ msgstr "Arrière-plan par défaut"
 
 #: ui/dialogs/settings-media.slint
 msgid "New pictures and videos"
-msgstr ""
+msgstr "Nouvelles images et vidéos"
 
 #: ui/dialogs/settings-media.slint
 msgid "When the shape doesn't match the screen"
-msgstr ""
+msgstr "Quand le format ne correspond pas à l’écran"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fit (black bars)"
-msgstr ""
+msgstr "Ajuster (bandes noires)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fill (cut the edges)"
-msgstr ""
+msgstr "Remplir (bords coupés)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stretch"
-msgstr ""
+msgstr "Étirer"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a video ends"
-msgstr ""
+msgstr "Quand une vidéo se termine"
 
 #: ui/dialogs/settings-media.slint
 msgid "For videos added from now on. Change one video in its Edit window."
-msgstr ""
+msgstr "Pour les vidéos ajoutées désormais. Pour une seule vidéo, modifiez-la dans sa fenêtre Modifier."
 
 #: ui/dialogs/settings-media.slint
 msgid "Pictures added together as slides"
-msgstr ""
+msgstr "Images ajoutées ensemble comme diapos"
 
 #: ui/dialogs/settings-media.slint
 msgid "Each picture stays this long, then the next one comes up."
-msgstr ""
+msgstr "Chaque image reste affichée ce temps-là, puis la suivante apparaît."
 
 #: ui/dialogs/settings-media.slint
 msgid "Until Next is pressed"
-msgstr ""
+msgstr "Jusqu’à un appui sur Suivant"
 
 #: ui/dialogs/settings-media.slint
 msgid "5 seconds"
-msgstr ""
+msgstr "5 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "8 seconds"
-msgstr ""
+msgstr "8 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "10 seconds"
-msgstr ""
+msgstr "10 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "15 seconds"
-msgstr ""
+msgstr "15 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "20 seconds"
-msgstr ""
+msgstr "20 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "30 seconds"
-msgstr ""
+msgstr "30 secondes"
 
 #: ui/dialogs/settings-media.slint
 msgid "1 minute"
-msgstr ""
+msgstr "1 minute"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound"
-msgstr ""
+msgstr "Son"
 
 #: ui/dialogs/settings-media.slint
 msgid "Headphones (Listen)"
-msgstr ""
+msgstr "Casque (écoute)"
 
 #: ui/dialogs/settings-media.slint
 msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr ""
+msgstr "Affichage → Écouter au casque envoie le son uniquement ici, pour vérifier une vidéo sans que la salle l’entende."
 
 #: ui/dialogs/settings-media.slint
 msgid "Delay the room's sound (milliseconds)"
-msgstr ""
+msgstr "Retarder le son de la salle (millisecondes)"
 
 #: ui/dialogs/settings-media.slint
 msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr ""
+msgstr "Si le son arrive avant l’image sur le projecteur, essayez entre 50 et 150. 0 = aucun retard."
 
 #: ui/dialogs/settings-media.slint
 msgid "Speakers"
-msgstr ""
+msgstr "Haut-parleurs"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stereo (as recorded)"
-msgstr ""
+msgstr "Stéréo (comme enregistré)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Mono (both speakers the same)"
-msgstr ""
+msgstr "Mono (même son des deux côtés)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Swap left and right"
-msgstr ""
+msgstr "Inverser gauche et droite"
 
 #: ui/dialogs/settings-media.slint
 msgid "Left speaker only"
-msgstr ""
+msgstr "Haut-parleur gauche seul"
 
 #: ui/dialogs/settings-media.slint
 msgid "Right speaker only"
-msgstr ""
+msgstr "Haut-parleur droit seul"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -1509,67 +1500,67 @@ msgstr "Médiathèque"
 
 #: ui/dialogs/settings-media.slint
 msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr ""
+msgstr "Chaque fichier ajouté est copié dans le dossier de RustyPresenter : déplacer ou supprimer l’original ne casse donc jamais une diapo."
 
 #: ui/dialogs/settings-media.slint ui/operator.slint
 msgid "Clean up unused media…"
-msgstr ""
+msgstr "Nettoyer les médias inutilisés…"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Sections"
-msgstr ""
+msgstr "Sections"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
-msgstr ""
+msgstr "Chaque type de section a une couleur et une touche. Laissez une case vide pour garder le nom ou la touche habituels."
 
 #: ui/dialogs/settings-sections.slint
 msgid "Colour of {}"
-msgstr ""
+msgstr "Couleur de {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Name of {}"
-msgstr ""
+msgstr "Nom de {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Key for {}"
-msgstr ""
+msgstr "Touche pour {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "More section names"
-msgstr ""
+msgstr "Autres noms de section"
 
 #: ui/dialogs/settings-sections.slint
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
-msgstr ""
+msgstr "Un nom utilisé dans vos chants, comme « Spontané ». Il prend la couleur et la touche du type choisi."
 
 #: ui/dialogs/settings-sections.slint
 msgid "New section name"
-msgstr ""
+msgstr "Nouveau nom de section"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide labels"
-msgstr ""
+msgstr "Étiquettes de diapo"
 
 #: ui/dialogs/settings-sections.slint
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
-msgstr ""
+msgstr "Dans l’éditeur de chant, « Étiqueter cette diapo » en ajoute une à une diapo. Elle apparaît sur la vignette de la diapo."
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide label"
-msgstr ""
+msgstr "Étiquette de diapo"
 
 #: ui/dialogs/settings-sections.slint
 msgid "New label, like “Choir only”"
-msgstr ""
+msgstr "Nouvelle étiquette, comme « Chorale seule »"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Add label"
-msgstr ""
+msgstr "Ajouter l’étiquette"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
-msgstr ""
+msgstr "Utiliser les noms, couleurs et étiquettes habituels"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
@@ -1589,7 +1580,7 @@ msgstr "Un thème définit l’apparence du texte des diapos : police, taille, c
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter themes"
-msgstr ""
+msgstr "Filtrer les thèmes"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1605,7 +1596,7 @@ msgstr "Images, vidéos, couleurs et dégradés conservés par l’église, prê
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter backgrounds"
-msgstr ""
+msgstr "Filtrer les arrière-plans"
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
@@ -1717,11 +1708,11 @@ msgstr "Chants et passages bibliques. Certaines Bibles exigent l’affichage de 
 
 #: ui/dialogs/settings.slint
 msgid "Show the copyright line"
-msgstr ""
+msgstr "Afficher la ligne de copyright"
 
 #: ui/dialogs/settings.slint
 msgid "On first and last slide"
-msgstr ""
+msgstr "Sur la première et la dernière diapo"
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
@@ -1733,11 +1724,11 @@ msgstr "Sur la dernière diapo"
 
 #: ui/dialogs/settings.slint
 msgid "Copyright line"
-msgstr ""
+msgstr "Ligne de copyright"
 
 #: ui/dialogs/settings.slint
 msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr ""
+msgstr "Utilisez {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} et {{license}}. Les parties vides entre · sont omises. Vide : la ligne habituelle."
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
@@ -1761,15 +1752,15 @@ msgstr "Rapport d’utilisation des chants…"
 
 #: ui/dialogs/settings.slint
 msgid "General"
-msgstr ""
+msgstr "Général"
 
 #: ui/dialogs/settings.slint
 msgid "Sections and labels"
-msgstr ""
+msgstr "Sections et étiquettes"
 
 #: ui/dialogs/settings.slint
 msgid "Video and graphics"
-msgstr ""
+msgstr "Vidéo et graphismes"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
@@ -1785,15 +1776,15 @@ msgstr "Ne changez ceci que si les écrans clignotent, restent noirs ou si Rusty
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
-msgstr ""
+msgstr "Performances"
 
 #: ui/dialogs/settings.slint
 msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr ""
+msgstr "Affiche sous l’aperçu en direct le nombre d’images par seconde dessinées par les écrans, et la mémoire vidéo libre si la carte graphique l’indique. Des chiffres bas signifient que l’ordinateur peine."
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Show performance"
-msgstr ""
+msgstr "Afficher les performances"
 
 #: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint
 msgid "Screens"
@@ -1809,11 +1800,11 @@ msgstr "Garder l’écran de la salle au premier plan quand il a son propre moni
 
 #: ui/dialogs/settings.slint
 msgid "At start"
-msgstr ""
+msgstr "Au démarrage"
 
 #: ui/dialogs/settings.slint
 msgid "Turn the screens on when RustyPresenter starts"
-msgstr ""
+msgstr "Allumer les écrans au démarrage de RustyPresenter"
 
 #: ui/dialogs/settings.slint src/strings/stage.rs
 msgid "Stage layout"
@@ -1825,43 +1816,43 @@ msgstr "Ce qu’affiche l’écran de scène. Fenêtre → Dispositions de scèn
 
 #: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
 msgid "Phone drawing"
-msgstr ""
+msgstr "Dessin au téléphone"
 
 #: ui/dialogs/settings.slint
 msgid "Drawing from a phone"
-msgstr ""
+msgstr "Dessin depuis un téléphone"
 
 #: ui/dialogs/settings.slint
 msgid "Keep drawings when the slide changes"
-msgstr ""
+msgstr "Garder les dessins au changement de diapo"
 
 #: ui/dialogs/settings.slint
 msgid "Show drawings on the stage screen"
-msgstr ""
+msgstr "Afficher les dessins sur l’écran de scène"
 
 #: ui/dialogs/settings.slint
 msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr ""
+msgstr "L’encre éphémère disparaît après (secondes, 1–30)"
 
 #: ui/dialogs/settings.slint
 msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr ""
+msgstr "Sur le téléphone, l’encre « Éphémère » fonctionne comme un pointeur laser : elle disparaît d’elle-même."
 
 #: ui/dialogs/settings.slint
 msgid "Limits"
-msgstr ""
+msgstr "Limites"
 
 #: ui/dialogs/settings.slint
 msgid "Limit phone drawing"
-msgstr ""
+msgstr "Limiter le dessin au téléphone"
 
 #: ui/dialogs/settings.slint
 msgid "Most lines on the screen at once"
-msgstr ""
+msgstr "Nombre maximal de traits à l’écran"
 
 #: ui/dialogs/settings.slint
 msgid "Most drawing updates a second from one phone"
-msgstr ""
+msgstr "Mises à jour de dessin max. par seconde et par téléphone"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1953,23 +1944,23 @@ msgstr "Auteurs"
 
 #: ui/dialogs/song-editor.slint
 msgid "Artist"
-msgstr ""
+msgstr "Artiste"
 
 #: ui/dialogs/song-editor.slint
 msgid "Who sings it"
-msgstr ""
+msgstr "Qui le chante"
 
 #: ui/dialogs/song-editor.slint
 msgid "Publisher"
-msgstr ""
+msgstr "Éditeur"
 
 #: ui/dialogs/song-editor.slint
 msgid "Year"
-msgstr ""
+msgstr "Année"
 
 #: ui/dialogs/song-editor.slint
 msgid "2006"
-msgstr ""
+msgstr "2006"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
@@ -1993,27 +1984,15 @@ msgstr "— noms de section sur leur propre ligne ; une ligne vide dans une sec
 
 #: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
-msgstr ""
+msgstr "Insérer un saut de diapo"
 
 #: ui/dialogs/song-editor.slint
 msgid "Starts a new slide where the cursor is"
-msgstr ""
+msgstr "Commence une nouvelle diapo à l’emplacement du curseur"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Couplet 1]\n"
-"Grâce infinie, ô quel beau son\n"
-"Qui sauva le misérable que j’étais\n"
-"\n"
-"Refrain\n"
-"Mes chaînes sont brisées…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Couplet 1]\nGrâce infinie, ô quel beau son\nQui sauva le misérable que j’étais\n\nRefrain\nMes chaînes sont brisées…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2061,7 +2040,7 @@ msgstr "Dispositions de scène"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Filter layouts"
-msgstr ""
+msgstr "Filtrer les dispositions"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
@@ -2165,43 +2144,43 @@ msgstr "Modifier les dispositions de scène…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
-msgstr ""
+msgstr "Relu"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show the app in this language"
-msgstr ""
+msgstr "Afficher l’application dans cette langue"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search the English or your words"
-msgstr ""
+msgstr "Rechercher dans l’anglais ou vos textes"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Untranslated"
-msgstr ""
+msgstr "Non traduit"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Needs review"
-msgstr ""
+msgstr "À relire"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Changed by me"
-msgstr ""
+msgstr "Modifié par moi"
 
 #: ui/dialogs/translation-editor.slint
 msgid "English"
-msgstr ""
+msgstr "Anglais"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Your language"
-msgstr ""
+msgstr "Votre langue"
 
 #: ui/dialogs/translation-editor.slint
 msgid "(shows in English)"
-msgstr ""
+msgstr "(affiché en anglais)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show more"
-msgstr ""
+msgstr "Afficher plus"
 
 #: ui/dialogs/translation-editor.slint src/strings/add.rs src/ui/dialogs/quick_search.rs
 msgid "Nothing matches."
@@ -2209,31 +2188,31 @@ msgstr "Aucun résultat."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Click a text above to translate it."
-msgstr ""
+msgstr "Cliquez sur un texte ci-dessus pour le traduire."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Type it in your language (empty shows the English)"
-msgstr ""
+msgstr "Tapez-le dans votre langue (vide = affiché en anglais)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "This is right"
-msgstr ""
+msgstr "C’est correct"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reset this entry to built-in"
-msgstr ""
+msgstr "Rétablir le texte intégré"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Import…"
-msgstr ""
+msgstr "Importer…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Export…"
-msgstr ""
+msgstr "Exporter…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Mark as reviewed"
-msgstr ""
+msgstr "Marquer comme relu"
 
 #: ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
@@ -2241,43 +2220,43 @@ msgstr "Terminé"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Pick your language. You can start from nothing (the English shows until you type) or from a copy of a language that is close to yours."
-msgstr ""
+msgstr "Choisissez votre langue. Vous pouvez partir de zéro (l’anglais s’affiche tant que vous n’avez rien tapé) ou d’une copie d’une langue proche de la vôtre."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search languages"
-msgstr ""
+msgstr "Rechercher une langue"
 
 #: ui/dialogs/translation-editor.slint
 msgid "My language is not in the list"
-msgstr ""
+msgstr "Ma langue n’est pas dans la liste"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in your language"
-msgstr ""
+msgstr "Nom dans votre langue"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in English"
-msgstr ""
+msgstr "Nom en anglais"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts (from the gettext plural list; leave as it is if unsure)"
-msgstr ""
+msgstr "Règle de pluriel (d’après la liste des pluriels gettext ; laissez tel quel en cas de doute)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts"
-msgstr ""
+msgstr "Règle de pluriel"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Start from"
-msgstr ""
+msgstr "Partir de"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Add language"
-msgstr ""
+msgstr "Ajouter la langue"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -2353,11 +2332,11 @@ msgstr "Enregistrer en tableur (CSV)…"
 
 #: ui/filter.slint
 msgid "Filter"
-msgstr ""
+msgstr "Filtrer"
 
 #: ui/filter.slint
 msgid "Clear the filter"
-msgstr ""
+msgstr "Effacer le filtre"
 
 #: ui/identify.slint
 msgid "Identify screen"
@@ -2405,11 +2384,11 @@ msgstr "mise à jour…"
 
 #: ui/operator/live.slint
 msgid "Drawing"
-msgstr ""
+msgstr "Dessin"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "Clear drawing"
-msgstr ""
+msgstr "Effacer le dessin"
 
 #: ui/operator/live.slint
 msgid "−15 s"
@@ -2493,7 +2472,7 @@ msgstr "Rechercher des médias"
 
 #: ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
-msgstr ""
+msgstr "Taille de l’image"
 
 #: ui/operator/media.slint
 msgid "Import"
@@ -2537,7 +2516,7 @@ msgstr "L’écran de la salle est éteint"
 
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
-msgstr ""
+msgstr "L’écran de scène est éteint"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -2625,7 +2604,7 @@ msgstr "Ajoutez des chants, des vidéos et des diapos, tapez un verset biblique 
 
 #: ui/operator/service.slint
 msgid "Filter the service"
-msgstr ""
+msgstr "Filtrer le culte"
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2677,51 +2656,51 @@ msgstr "Revenir à la taille des paramètres"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
-msgstr ""
+msgstr "‹ Verset"
 
 #: ui/operator/slides.slint
 msgid "Add the verse before this passage"
-msgstr ""
+msgstr "Ajouter le verset précédant ce passage"
 
 #: ui/operator/slides.slint
 msgid "Verse ›"
-msgstr ""
+msgstr "Verset ›"
 
 #: ui/operator/slides.slint
 msgid "Add the verse after this passage"
-msgstr ""
+msgstr "Ajouter le verset suivant ce passage"
 
 #: ui/operator/slides.slint
 msgid "Save to library"
-msgstr ""
+msgstr "Enregistrer dans la bibliothèque"
 
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
-msgstr ""
+msgstr "Garder ce passage dans la bibliothèque de chants, pour le modifier ou le réutiliser"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
-msgstr ""
+msgstr "Scène seule"
 
 #: ui/operator/slides.slint
 msgid "The next slide you click goes to the stage screen only. Click again to cancel."
-msgstr ""
+msgstr "La prochaine diapo cliquée ira uniquement sur l’écran de scène. Cliquez à nouveau pour annuler."
 
 #: ui/operator/slides.slint
 msgid "Send the next slide you click to the stage screen only, as a note for the band"
-msgstr ""
+msgstr "Envoyer la prochaine diapo cliquée uniquement sur l’écran de scène, comme note pour les musiciens"
 
 #: ui/operator/slides.slint
 msgid "On the stage screen only: {}"
-msgstr ""
+msgstr "Uniquement sur l’écran de scène : {}"
 
 #: ui/operator/slides.slint
 msgid "Click a slide to show it on the stage screen only. The room won't see it."
-msgstr ""
+msgstr "Cliquez sur une diapo pour l’afficher uniquement sur l’écran de scène. La salle ne la verra pas."
 
 #: ui/operator/slides.slint
 msgid "Take it down"
-msgstr ""
+msgstr "La retirer"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
@@ -2737,15 +2716,15 @@ msgstr "Cet élément n’a pas encore de diapos. Cliquez sur Modifier pour en a
 
 #: ui/operator/slides.slint
 msgid "Grid"
-msgstr ""
+msgstr "Grille"
 
 #: ui/operator/slides.slint
 msgid "Easy"
-msgstr ""
+msgstr "Simple"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Table"
-msgstr ""
+msgstr "Tableau"
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
@@ -2757,7 +2736,7 @@ msgstr "Changer ou créer des cultes"
 
 #: ui/operator/topbar.slint
 msgid "Recent verses"
-msgstr ""
+msgstr "Versets récents"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
@@ -2873,7 +2852,7 @@ msgstr "Quitter"
 
 #: ui/operator.slint
 msgid "Quick search…"
-msgstr ""
+msgstr "Recherche rapide…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
@@ -2889,23 +2868,23 @@ msgstr "Case Bible"
 
 #: ui/operator.slint
 msgid "Recent verses…"
-msgstr ""
+msgstr "Versets récents…"
 
 #: ui/operator.slint
 msgid "Add the verse before"
-msgstr ""
+msgstr "Ajouter le verset précédent"
 
 #: ui/operator.slint
 msgid "Add the verse after"
-msgstr ""
+msgstr "Ajouter le verset suivant"
 
 #: ui/operator.slint
 msgid "Save passage to song library"
-msgstr ""
+msgstr "Enregistrer le passage dans la bibliothèque de chants"
 
 #: ui/operator.slint
 msgid "About this Bible…"
-msgstr ""
+msgstr "À propos de cette Bible…"
 
 #: ui/operator.slint
 msgid "View"
@@ -2929,11 +2908,11 @@ msgstr "Arrêter l’audio"
 
 #: ui/operator.slint
 msgid "Stop listening in headphones"
-msgstr ""
+msgstr "Arrêter l’écoute au casque"
 
 #: ui/operator.slint
 msgid "Listen in headphones"
-msgstr ""
+msgstr "Écouter au casque"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
@@ -2941,11 +2920,11 @@ msgstr "Effacer les superpositions"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the message"
-msgstr ""
+msgstr "Effacer le message"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the timers"
-msgstr ""
+msgstr "Effacer les minuteurs"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2957,27 +2936,27 @@ msgstr "Afficher la médiathèque"
 
 #: ui/operator.slint
 msgid "Show slides as"
-msgstr ""
+msgstr "Afficher les diapos en"
 
 #: ui/operator.slint
 msgid "Grid of pictures"
-msgstr ""
+msgstr "Grille d’images"
 
 #: ui/operator.slint
 msgid "Easy view (big words)"
-msgstr ""
+msgstr "Vue simple (gros texte)"
 
 #: ui/operator.slint
 msgid "Preview the room screen"
-msgstr ""
+msgstr "Aperçu de l’écran de la salle"
 
 #: ui/operator.slint
 msgid "Preview the stage screen"
-msgstr ""
+msgstr "Aperçu de l’écran de scène"
 
 #: ui/operator.slint
 msgid "Hide performance"
-msgstr ""
+msgstr "Masquer les performances"
 
 #: ui/operator.slint
 msgid "Zoom in"
@@ -3001,11 +2980,11 @@ msgstr "Écrans…"
 
 #: ui/operator.slint
 msgid "Close the room window"
-msgstr ""
+msgstr "Fermer la fenêtre de la salle"
 
 #: ui/operator.slint
 msgid "Room screen in a window"
-msgstr ""
+msgstr "Écran de la salle dans une fenêtre"
 
 #: ui/operator.slint
 msgid "Phone remote…"
@@ -3017,15 +2996,15 @@ msgstr "Message de scène…"
 
 #: ui/operator.slint
 msgid "Slide clicks go to the room again"
-msgstr ""
+msgstr "Les clics sur les diapos vont de nouveau à la salle"
 
 #: ui/operator.slint
 msgid "Next slide click: stage only"
-msgstr ""
+msgstr "Prochain clic sur une diapo : scène seule"
 
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
-msgstr ""
+msgstr "Retirer la diapo de scène seule"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
@@ -3049,7 +3028,7 @@ msgstr "Chants…"
 
 #: ui/operator.slint
 msgid "Sections and slide labels…"
-msgstr ""
+msgstr "Sections et étiquettes de diapo…"
 
 #: ui/operator.slint
 msgid "Bible…"
@@ -3061,7 +3040,7 @@ msgstr "Vidéo…"
 
 #: ui/operator.slint
 msgid "Media and sound…"
-msgstr ""
+msgstr "Médias et son…"
 
 #: ui/operator.slint
 msgid "Backups…"
@@ -3069,11 +3048,11 @@ msgstr "Sauvegardes…"
 
 #: ui/operator.slint
 msgid "Keys and clear groups…"
-msgstr ""
+msgstr "Touches et groupes d’effacement…"
 
 #: ui/operator.slint
 msgid "Translations…"
-msgstr ""
+msgstr "Traductions…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
@@ -3085,15 +3064,15 @@ msgstr "Vérifier le culte"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
-msgstr ""
+msgstr "Retrouver ma souris"
 
 #: ui/operator.slint
 msgid "Tutorials"
-msgstr ""
+msgstr "Tutoriels"
 
 #: ui/operator.slint
 msgid "Report a problem…"
-msgstr ""
+msgstr "Signaler un problème…"
 
 #: ui/operator.slint
 msgid "Open logs folder"
@@ -3121,7 +3100,7 @@ msgstr "Fin du culte"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "STAGE ONLY"
-msgstr ""
+msgstr "SCÈNE SEULE"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
@@ -3129,7 +3108,7 @@ msgstr "SUIVANT"
 
 #: ui/stage.slint
 msgid "The slide with its drawing"
-msgstr ""
+msgstr "La diapo avec son dessin"
 
 #: ui/widgets.slint
 msgid "Cut"
@@ -3149,11 +3128,11 @@ msgstr "Impossible d’enregistrer : {error}"
 
 #: src/app.rs
 msgid "That item isn't in the service any more."
-msgstr ""
+msgstr "Cet élément n’est plus dans le culte."
 
 #: src/app.rs
 msgid "That slide isn't there any more."
-msgstr ""
+msgstr "Cette diapo n’existe plus."
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
@@ -3485,11 +3464,11 @@ msgstr "Collez d’abord le texte du verset."
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
-msgstr ""
+msgstr "il n’est pas enregistré en texte UTF-8"
 
 #: src/i18n/mod.rs
 msgid "The translation file {file} could not be read ({reason}), so it is not used."
-msgstr ""
+msgstr "Le fichier de traduction {file} n’a pas pu être lu ({reason}) ; il n’est donc pas utilisé."
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
@@ -3529,11 +3508,11 @@ msgstr "Touchez une diapo pour l’afficher à l’écran."
 
 #: src/i18n/remote_strings.rs
 msgid "Take it off the stage"
-msgstr ""
+msgstr "Le retirer de la scène"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
-msgstr ""
+msgstr "Écran de scène uniquement (la salle ne le verra pas)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
@@ -3577,23 +3556,23 @@ msgstr "(Vide)"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
-msgstr ""
+msgstr "Dessiner sur la diapo"
 
 #: src/i18n/remote_strings.rs
 msgid "Highlighter"
-msgstr ""
+msgstr "Surligneur"
 
 #: src/i18n/remote_strings.rs
 msgid "Pen size"
-msgstr ""
+msgstr "Taille du stylo"
 
 #: src/i18n/remote_strings.rs
 msgid "Stays"
-msgstr ""
+msgstr "Reste"
 
 #: src/i18n/remote_strings.rs
 msgid "Fades"
-msgstr ""
+msgstr "Éphémère"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -3601,35 +3580,35 @@ msgstr "Téléphone Android"
 
 #: src/i18n/user.rs
 msgid "Fill in every box, or this text stays in English."
-msgstr ""
+msgstr "Remplissez chaque case, sinon ce texte reste en anglais."
 
 #: src/i18n/user.rs
 msgid "Keep {gaps} exactly as in the English: the app puts a name or number there."
-msgstr ""
+msgstr "Gardez {gaps} exactement comme en anglais : l’application y met un nom ou un nombre."
 
 #: src/i18n/user.rs
 msgid "{gaps} is not in the English. Remove it, or copy the part in curly brackets exactly."
-msgstr ""
+msgstr "{gaps} ne figure pas dans l’anglais. Supprimez-le, ou copiez exactement la partie entre accolades."
 
 #: src/i18n/user.rs
 msgid "This file could not be read ({reason})."
-msgstr ""
+msgstr "Ce fichier n’a pas pu être lu ({reason})."
 
 #: src/i18n/user.rs
 msgid "This file does not say which language it is."
-msgstr ""
+msgstr "Ce fichier n’indique pas sa langue."
 
 #: src/i18n/user.rs
 msgid "“{code}” is not a language code. Use letters such as “es”, or “pt-BR” with a country."
-msgstr ""
+msgstr "« {code} » n’est pas un code de langue. Utilisez des lettres comme « es », ou « pt-BR » avec un pays."
 
 #: src/i18n/user.rs
 msgid "{language} is already in the list."
-msgstr ""
+msgstr "{language} est déjà dans la liste."
 
 #: src/i18n/user.rs
 msgid "The plural rule is not right. Copy it from the gettext plural list."
-msgstr ""
+msgstr "La règle de pluriel est incorrecte. Copiez-la depuis la liste des pluriels gettext."
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
@@ -3861,43 +3840,43 @@ msgstr "Aucun chant ProPresenter trouvé dans {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
-msgstr ""
+msgstr "Ce téléphone n’a pas le droit de dessiner sur les diapos. Demandez à l’opérateur de l’autoriser."
 
 #: src/live/drawing/actions.rs
 msgid "The drawing is full. Clear it to draw more."
-msgstr ""
+msgstr "Le dessin est plein. Effacez-le pour dessiner davantage."
 
 #: src/live/drawing/actions.rs
 msgid "Drawing too fast. Slow down a little."
-msgstr ""
+msgstr "Dessin trop rapide. Ralentissez un peu."
 
 #: src/live/drawing/actions.rs
 msgid "Pair this phone first."
-msgstr ""
+msgstr "Associez d’abord ce téléphone."
 
 #: src/live/drawing/actions.rs
 msgid "That phone is no longer paired."
-msgstr ""
+msgstr "Ce téléphone n’est plus associé."
 
 #: src/live/drawing.rs
 msgid "A point is off the slide."
-msgstr ""
+msgstr "Un point est hors de la diapo."
 
 #: src/live/drawing.rs
 msgid "That colour isn't one of the pen colours."
-msgstr ""
+msgstr "Cette couleur ne fait pas partie des couleurs du stylo."
 
 #: src/live/drawing.rs
 msgid "That pen size isn't right."
-msgstr ""
+msgstr "Cette taille de stylo est incorrecte."
 
 #: src/live/drawing.rs
 msgid "A line needs at least one point."
-msgstr ""
+msgstr "Un trait doit avoir au moins un point."
 
 #: src/live/drawing.rs
 msgid "That line was cleared."
-msgstr ""
+msgstr "Ce trait a été effacé."
 
 #: src/live.rs
 msgid "That item is not in the service."
@@ -3966,8 +3945,8 @@ msgstr "RustyPresenter n’a pas pu faire fonctionner ses fenêtres : {reason}"
 #: src/media_care.rs
 msgid "Take this file out of the media library? No service or template uses it."
 msgid_plural "Take these {n} files out of the media library? No service or template uses them."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Retirer ce fichier de la médiathèque ? Aucun culte ni modèle ne l’utilise."
+msgstr[1] "Retirer ces {n} fichiers de la médiathèque ? Aucun culte ni modèle ne les utilise."
 
 #: src/media_care.rs src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
@@ -3977,29 +3956,29 @@ msgstr[1] "…et {n} autres"
 
 #: src/media_care.rs
 msgid "This frees {size} on this computer. Backups keep their own copies, but this can't be undone."
-msgstr ""
+msgstr "Cela libère {size} sur cet ordinateur. Les sauvegardes gardent leurs propres copies, mais c’est irréversible."
 
 #: src/media_care.rs
 msgid "{n} GB"
-msgstr ""
+msgstr "{n} Go"
 
 #: src/media_care.rs
 msgid "{n} MB"
-msgstr ""
+msgstr "{n} Mo"
 
 #: src/media_care.rs
 msgid "{n} KB"
-msgstr ""
+msgstr "{n} Ko"
 
 #: src/media_care.rs
 msgid "Choose your headphones in Settings → Media first."
-msgstr ""
+msgstr "Choisissez d’abord votre casque dans Paramètres → Médias."
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
 msgid_plural "Took {n} files out of the media library and freed {size}."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{n} fichier retiré de la médiathèque, {size} libéré(s)."
+msgstr[1] "{n} fichiers retirés de la médiathèque, {size} libéré(s)."
 
 #: src/model.rs
 msgid "Sunday Service"
@@ -4111,7 +4090,7 @@ msgstr "Non autorisé depuis le téléphone."
 
 #: src/server.rs
 msgid "Could not draw the slide."
-msgstr ""
+msgstr "Impossible de dessiner la diapo."
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
@@ -4137,27 +4116,27 @@ msgstr "(audio)"
 
 #: src/shortcuts.rs
 msgid "Ctrl + {key}"
-msgstr ""
+msgstr "Ctrl + {key}"
 
 #: src/shortcuts.rs
 msgid "Alt + {key}"
-msgstr ""
+msgstr "Alt + {key}"
 
 #: src/shortcuts.rs
 msgid "Shift + {key}"
-msgstr ""
+msgstr "Maj + {key}"
 
 #: src/shortcuts.rs
 msgid "Space"
-msgstr ""
+msgstr "Espace"
 
 #: src/shortcuts.rs
 msgid "Page Down"
-msgstr ""
+msgstr "Pg suiv"
 
 #: src/shortcuts.rs
 msgid "Page Up"
-msgstr ""
+msgstr "Pg préc"
 
 #: src/shortcuts.rs src/strings/settings.rs
 msgid "Enter"
@@ -4169,15 +4148,15 @@ msgstr "Échap"
 
 #: src/shortcuts.rs
 msgid "Backspace"
-msgstr ""
+msgstr "Retour arrière"
 
 #: src/shortcuts.rs
 msgid "Clear group: {name}"
-msgstr ""
+msgstr "Groupe d’effacement : {name}"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
-msgstr ""
+msgstr "Tout sauf l’arrière-plan"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -5171,11 +5150,11 @@ msgstr "Supprimer le dossier « {name} » ? Ses fichiers restent dans la bibl
 
 #: src/strings/operator.rs
 msgid "slide {n}"
-msgstr ""
+msgstr "diapo {n}"
 
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
-msgstr ""
+msgstr "Uniquement sur l’écran de scène. La salle n’a pas changé."
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -5932,51 +5911,51 @@ msgstr "Cette Bible a été retirée. Ajoutez-la à nouveau dans Paramètres →
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
-msgstr ""
+msgstr "Sélectionnez d’abord un passage biblique."
 
 #: src/strings/scripture.rs
 msgid "There is no verse before this one."
-msgstr ""
+msgstr "Il n’y a pas de verset avant celui-ci."
 
 #: src/strings/scripture.rs
 msgid "There is no verse after this one."
-msgstr ""
+msgstr "Il n’y a pas de verset après celui-ci."
 
 #: src/strings/scripture.rs
 msgid "{reference} ({bible})"
-msgstr ""
+msgstr "{reference} ({bible})"
 
 #: src/strings/scripture.rs
 msgid "Saved “{title}” to the song library."
-msgstr ""
+msgstr "« {title} » enregistré dans la bibliothèque de chants."
 
 #: src/strings/scripture.rs
 msgid "Language: {language}"
-msgstr ""
+msgstr "Langue : {language}"
 
 #: src/strings/scripture.rs
 msgid "Comes from: {provider}"
-msgstr ""
+msgstr "Provenance : {provider}"
 
 #: src/strings/scripture.rs
 msgid "Copyright: {notice}"
-msgstr ""
+msgstr "Copyright : {notice}"
 
 #: src/strings/scripture.rs
 msgid "Licence: {licence}"
-msgstr ""
+msgstr "Licence : {licence}"
 
 #: src/strings/scripture.rs
 msgid "Not connected yet. Add its key in Settings → Bible."
-msgstr ""
+msgstr "Pas encore connectée. Ajoutez sa clé dans Paramètres → Bible."
 
 #: src/strings/scripture.rs
 msgid "This Bible isn't on this computer and no online service has it."
-msgstr ""
+msgstr "Cette Bible n’est pas sur cet ordinateur et aucun service en ligne ne la propose."
 
 #: src/strings/scripture.rs
 msgid "No copyright notice is known. Check the licence before showing it in public."
-msgstr ""
+msgstr "Aucune mention de copyright connue. Vérifiez la licence avant de l’afficher en public."
 
 #: src/strings/services.rs
 msgid "Name for the copy"
@@ -5999,12 +5978,8 @@ msgid "Settings saved"
 msgstr "Paramètres enregistrés"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Grâce infinie, ô quel beau son\n"
-"Qui sauva le misérable que j’étais"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Grâce infinie, ô quel beau son\nQui sauva le misérable que j’étais"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6150,7 +6125,7 @@ msgstr "Rétablir ce qu’Annuler a défait"
 
 #: src/strings/settings.rs
 msgid "Quick search: songs, files and services (Enter opens, Ctrl + Enter adds)"
-msgstr ""
+msgstr "Recherche rapide : chants, fichiers et cultes (Entrée ouvre, Ctrl + Entrée ajoute)"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -6282,35 +6257,35 @@ msgstr "Autre"
 
 #: src/strings/song.rs
 msgid "Instrumental"
-msgstr ""
+msgstr "Instrumental"
 
 #: src/strings/song.rs
 msgid "Repeat"
-msgstr ""
+msgstr "Répétition"
 
 #: src/strings/song.rs
 msgid "Spoken Word"
-msgstr ""
+msgstr "Texte parlé"
 
 #: src/strings/song.rs
 msgid "Label this slide…"
-msgstr ""
+msgstr "Étiqueter cette diapo…"
 
 #: src/strings/song.rs
 msgid "Example: {line}"
-msgstr ""
+msgstr "Exemple : {line}"
 
 #: src/strings/song.rs
 msgid "“{color}” is not a colour. Use #rrggbb, like #6aa8ff."
-msgstr ""
+msgstr "« {color} » n’est pas une couleur. Utilisez #rrggbb, comme #6aa8ff."
 
 #: src/strings/song.rs
 msgid "“{key}” is not a letter. Section keys are one letter each."
-msgstr ""
+msgstr "« {key} » n’est pas une lettre. Chaque touche de section est une seule lettre."
 
 #: src/strings/song.rs
 msgid "{first} and {second} both use the key {key}."
-msgstr ""
+msgstr "{first} et {second} utilisent tous deux la touche {key}."
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
@@ -7422,15 +7397,15 @@ msgstr "Afficher le message"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
-msgstr ""
+msgstr "Tapez un titre de chant, des mots des paroles, un nom de fichier ou un culte."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
-msgstr ""
+msgstr "Dans ce culte"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "{kind} · In this service"
-msgstr ""
+msgstr "{kind} · Dans ce culte"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -7446,107 +7421,107 @@ msgstr "Afficher un message à l’écran"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Media & background"
-msgstr ""
+msgstr "Médias et arrière-plan"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Overlays (pictures, clocks, signs)"
-msgstr ""
+msgstr "Superpositions (images, horloges, panneaux)"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
-msgstr ""
+msgstr "Nouveau groupe d’effacement"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Press the new key for “{what}”"
-msgstr ""
+msgstr "Appuyez sur la nouvelle touche pour « {what} »"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Tab moves between buttons, so it cannot be a shortcut. Press another key."
-msgstr ""
+msgstr "Tab sert à passer d’un bouton à l’autre, ce ne peut donc pas être un raccourci. Appuyez sur une autre touche."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use it"
-msgstr ""
+msgstr "L’utiliser"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} is already the key for “{what}”. It will move here."
-msgstr ""
+msgstr "{key} est déjà la touche de « {what} ». Elle sera déplacée ici."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr ""
+msgstr "{key} fait aussi passer le chant en direct à une section (Paramètres → Chants → Touches de section)."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
-msgstr ""
+msgstr "{key} choisit aussi une Bible pendant que vous tapez dans la case Bible."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Text boxes use {key} for editing. It will do this instead, even while you type."
-msgstr ""
+msgstr "Les zones de texte utilisent {key} pour l’édition. La touche fera ceci à la place, même pendant la saisie."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use {key} for “{what}”?"
-msgstr ""
+msgstr "Utiliser {key} pour « {what} » ?"
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Nothing to clean up: every file in the media library is used."
-msgstr ""
+msgstr "Rien à nettoyer : chaque fichier de la médiathèque est utilisé."
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Clean up"
-msgstr ""
+msgstr "Nettoyer"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
-msgstr ""
+msgstr "{done} sur {total} traduits"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Showing {shown} of {total}"
-msgstr ""
+msgstr "{shown} affichés sur {total}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Used in: {places}"
-msgstr ""
+msgstr "Utilisé dans : {places}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "For {numbers}…"
-msgstr ""
+msgstr "Pour {numbers}…"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The translation could not be saved: {reason}"
-msgstr ""
+msgstr "La traduction n’a pas pu être enregistrée : {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Marked as reviewed. Thank you!"
-msgstr ""
+msgstr "Marqué comme relu. Merci !"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Saved {file}. Send it to the RustyPresenter project to share it with other churches."
-msgstr ""
+msgstr "{file} enregistré. Envoyez-le au projet RustyPresenter pour le partager avec d’autres églises."
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The file could not be saved: {reason}"
-msgstr ""
+msgstr "Le fichier n’a pas pu être enregistré : {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Imported {language}"
-msgstr ""
+msgstr "{language} importé"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Nothing (the English shows until you type)"
-msgstr ""
+msgstr "Rien (l’anglais s’affiche tant que vous n’avez rien tapé)"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "A copy of {language}"
-msgstr ""
+msgstr "Une copie de {language}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Pick a language from the list, or tick “My language is not in the list”."
-msgstr ""
+msgstr "Choisissez une langue dans la liste, ou cochez « Ma langue n’est pas dans la liste »."
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
-msgstr ""
+msgstr "{language} ajouté. Tapez vos textes, puis choisissez-le dans Paramètres → Langue."
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -7568,115 +7543,115 @@ msgstr[1] "{n} problèmes"
 
 #: src/ui/operator/file_input.rs
 msgid "Translation file (.po)"
-msgstr ""
+msgstr "Fichier de traduction (.po)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
-msgstr ""
+msgstr "Cet ordinateur ne permet pas à RustyPresenter de déplacer le pointeur de la souris. Cherchez-le sur chaque écran."
 
 #: src/ui/operator/help.rs
 msgid "Could not open the page. It is at {path}"
-msgstr ""
+msgstr "Impossible d’ouvrir la page. Elle se trouve ici : {path}"
 
 #: src/ui/operator/help.rs
 msgid "Report a problem with RustyPresenter"
-msgstr ""
+msgstr "Signaler un problème avec RustyPresenter"
 
 #: src/ui/operator/help.rs
 msgid "Please write below what happened and what you expected instead."
-msgstr ""
+msgstr "Décrivez ci-dessous ce qui s’est passé et ce que vous attendiez à la place."
 
 #: src/ui/operator/help.rs
 msgid "If you can, list the steps that make it happen again."
-msgstr ""
+msgstr "Si possible, indiquez les étapes qui reproduisent le problème."
 
 #: src/ui/operator/help.rs
 msgid "The app's log files are in this folder (Help → Open logs folder):"
-msgstr ""
+msgstr "Les fichiers journaux de l’application sont dans ce dossier (Aide → Ouvrir le dossier des journaux) :"
 
 #: src/ui/operator/help.rs
 msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by e-mail from another computer."
-msgstr ""
+msgstr "Enregistrez ce fichier, puis envoyez-le avec les fichiers journaux les plus récents à la personne qui s’occupe de RustyPresenter dans votre église, sur une clé USB ou par e-mail depuis un autre ordinateur."
 
 #: src/ui/operator/help.rs
 msgid "What happened:"
-msgstr ""
+msgstr "Ce qui s’est passé :"
 
 #: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
-msgstr ""
+msgstr "RustyPresenter : tutoriels rapides"
 
 #: src/ui/operator/help.rs
 msgid "Get ready for Sunday"
-msgstr ""
+msgstr "Se préparer pour dimanche"
 
 #: src/ui/operator/help.rs
 msgid "File → New service makes this week's service. File → Services… opens an older one or copies last week."
-msgstr ""
+msgstr "Fichier → Nouveau culte crée le culte de la semaine. Fichier → Cultes… en ouvre un plus ancien ou copie celui de la semaine dernière."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
-msgstr ""
+msgstr "Fichier → Ajouter au culte ajoute chants, passages bibliques, vidéos, diapos et annonces. Faites glisser les éléments pour changer leur ordre."
 
 #: src/ui/operator/help.rs
 msgid "Help → Check the service finds missing files and empty items before the service starts."
-msgstr ""
+msgstr "Aide → Vérifier le culte repère les fichiers manquants et les éléments vides avant le début du culte."
 
 #: src/ui/operator/help.rs
 msgid "Put things on the screen"
-msgstr ""
+msgstr "Afficher à l’écran"
 
 #: src/ui/operator/help.rs
 msgid "Click a slide: it goes on the screen at once. The red outline shows what the room sees."
-msgstr ""
+msgstr "Cliquez sur une diapo : elle s’affiche aussitôt à l’écran. Le contour rouge montre ce que voit la salle."
 
 #: src/ui/operator/help.rs
 msgid "Next slide: {next}. Back: {back}."
-msgstr ""
+msgstr "Diapo suivante : {next}. Précédente : {back}."
 
 #: src/ui/operator/help.rs
 msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
-msgstr ""
+msgstr "Fenêtre → Écrans… choisit quel moniteur est l’écran de la salle et lequel est l’écran de scène."
 
 #: src/ui/operator/help.rs
 msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr ""
+msgstr "Paramètres → Touches et groupes d’effacement… modifie ces touches et crée vos propres groupes d’effacement."
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
-msgstr ""
+msgstr "Passages bibliques"
 
 #: src/ui/operator/help.rs
 msgid "{key} puts the cursor in the Bible box. Type a reference such as John 3:16-18 and press Enter."
-msgstr ""
+msgstr "{key} place le curseur dans la case Bible. Tapez une référence comme John 3:16-18 et appuyez sur Entrée."
 
 #: src/ui/operator/help.rs
 msgid "Edit → Find a verse… finds a passage by its words."
-msgstr ""
+msgstr "Modifier → Trouver un verset… trouve un passage d’après ses mots."
 
 #: src/ui/operator/help.rs
 msgid "Edit → Quick search… finds a song in the library. Double-click a song to edit its words."
-msgstr ""
+msgstr "Modifier → Recherche rapide… trouve un chant dans la bibliothèque. Double-cliquez sur un chant pour modifier ses paroles."
 
 #: src/ui/operator/help.rs
 msgid "While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse."
-msgstr ""
+msgstr "Quand un chant est à l’écran, C passe au refrain, B au pont et 1–9 au couplet correspondant."
 
 #: src/ui/operator/help.rs
 msgid "When something goes wrong"
-msgstr ""
+msgstr "En cas de problème"
 
 #: src/ui/operator/help.rs
 msgid "Lost the mouse on the projector? {key} brings it back to this window."
-msgstr ""
+msgstr "Souris perdue sur le projecteur ? {key} la ramène dans cette fenêtre."
 
 #: src/ui/operator/help.rs
 msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
-msgstr ""
+msgstr "L’écran de la salle affiche autre chose que prévu : appuyez sur les touches d’effacement ci-dessus, puis affichez à nouveau la diapo."
 
 #: src/ui/operator/help.rs
 msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr ""
+msgstr "Aide → Signaler un problème… rédige une note à compléter et indique où se trouvent les fichiers journaux."
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -7688,39 +7663,39 @@ msgstr "Agrandissez la fenêtre pour zoomer davantage."
 
 #: src/ui/operator/menu.rs
 msgid "Listening: the sound goes to your headphones only. The room hears nothing."
-msgstr ""
+msgstr "Écoute : le son va uniquement dans votre casque. La salle n’entend rien."
 
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
-msgstr ""
+msgstr "Le son va de nouveau à la salle."
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"
-msgstr ""
+msgstr "{screen} : non mesuré"
 
 #: src/ui/perf.rs
 msgid "{screen}: still picture"
-msgstr ""
+msgstr "{screen} : image fixe"
 
 #: src/ui/perf.rs
 msgid "{screen} {fps} fps"
-msgstr ""
+msgstr "{screen} {fps} i/s"
 
 #: src/ui/perf.rs
 msgid "This window"
-msgstr ""
+msgstr "Cette fenêtre"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free of {total}"
-msgstr ""
+msgstr "Mémoire vidéo : {free} libres sur {total}"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free"
-msgstr ""
+msgstr "Mémoire vidéo : {free} libres"
 
 #: src/ui/perf.rs
 msgid "Video memory: this graphics card does not say"
-msgstr ""
+msgstr "Mémoire vidéo : cette carte graphique ne l’indique pas"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -7977,18 +7952,3 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
-
-#~ msgid "Smaller thumbnails"
-#~ msgstr "Vignettes plus petites"
-
-#~ msgid "Bigger thumbnails"
-#~ msgstr "Vignettes plus grandes"
-
-#~ msgid "Find…"
-#~ msgstr "Rechercher…"
-
-#~ msgid "Find a song"
-#~ msgstr "Trouver un chant"
-
-#~ msgid "Ctrl + Shift + M"
-#~ msgstr "Ctrl + Maj + M"

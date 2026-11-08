@@ -1,15 +1,6 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ht\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Kreyòl ayisyen\n"
-"X-English-Name: Haitian Creole\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -21,7 +12,7 @@ msgstr "pa konekte"
 
 #: ui/bible-picker.slint
 msgid "About {}"
-msgstr ""
+msgstr "Konsènan {}"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
@@ -705,7 +696,7 @@ msgstr "Jwe ankò (an bouk)"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
 msgid "Go to the next slide"
-msgstr ""
+msgstr "Ale nan pwochen diapo a"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
@@ -781,7 +772,7 @@ msgstr "Kouch yo rete sou ekran sal la pandan diapo yo ap chanje: yon logo nan k
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
-msgstr ""
+msgstr "Filtre kouch yo"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -945,7 +936,7 @@ msgstr "Telefòn ki konekte"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
-msgstr ""
+msgstr "Ka desine sou diapo yo"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -1005,19 +996,19 @@ msgstr "Anrejistre paj wèb…"
 
 #: ui/dialogs/quick-search.slint src/ui/dialogs/quick_search.rs
 msgid "Quick search"
-msgstr ""
+msgstr "Rechèch rapid"
 
 #: ui/dialogs/quick-search.slint
 msgid "Find a song, a file, a slide set or a service"
-msgstr ""
+msgstr "Jwenn yon chante, yon fichye, yon seri diapo oswa yon sèvis"
 
 #: ui/dialogs/quick-search.slint
 msgid "Add to the service (Ctrl+Enter)"
-msgstr ""
+msgstr "Ajoute nan sèvis la (Ctrl+Enter)"
 
 #: ui/dialogs/quick-search.slint
 msgid "Enter opens it · Ctrl+Enter adds it to the service · Esc closes"
-msgstr ""
+msgstr "Enter louvri l · Ctrl+Enter ajoute l nan sèvis la · Esc fèmen"
 
 #: ui/dialogs/quick-search.slint ui/dialogs/services.slint
 msgid "Open"
@@ -1097,7 +1088,7 @@ msgstr "Louvri yon fichye"
 
 #: ui/dialogs/services.slint
 msgid "Filter services and templates"
-msgstr ""
+msgstr "Filtre sèvis ak modèl yo"
 
 #: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
@@ -1245,51 +1236,51 @@ msgstr "Klavye"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
-msgstr ""
+msgstr "Reyinisyalize tout kle yo"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Esc cancels. New keys work once you save the settings."
-msgstr ""
+msgstr "Esc anile. Nouvo kle yo mache lè ou anrejistre paramèt yo."
 
 #: ui/dialogs/settings-keys.slint src/ui/operator/help.rs
 msgid "(no key)"
-msgstr ""
+msgstr "(pa gen kle)"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Default"
-msgstr ""
+msgstr "Pa defo"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Go back to the key this had at first"
-msgstr ""
+msgstr "Retounen nan kle li te genyen okòmansman"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Press a key…"
-msgstr ""
+msgstr "Peze yon kle…"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Change"
-msgstr ""
+msgstr "Chanje"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Clear groups"
-msgstr ""
+msgstr "Gwoup efase"
 
 #: ui/dialogs/settings-keys.slint
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
-msgstr ""
+msgstr "Yon gwoup efase retire plizyè kouch sou ekran an ak yon sèl kle. Meni Afichaj la montre yo tou."
 
 #: ui/dialogs/settings-keys.slint
 msgid "Group name"
-msgstr ""
+msgstr "Non gwoup"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Delete group"
-msgstr ""
+msgstr "Efase gwoup"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Add a clear group"
-msgstr ""
+msgstr "Ajoute yon gwoup efase"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
@@ -1309,11 +1300,11 @@ msgstr "Se volontè ki fè tradiksyon yo. Si pa w la manke oswa li gen erè, ou 
 
 #: ui/dialogs/settings-language.slint
 msgid "Edit this translation…"
-msgstr ""
+msgstr "Modifye tradiksyon sa a…"
 
 #: ui/dialogs/settings-language.slint ui/dialogs/translation-editor.slint
 msgid "Add a language…"
-msgstr ""
+msgstr "Ajoute yon lang…"
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
@@ -1365,15 +1356,15 @@ msgstr "Pawòl an MAJISKIL"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
-msgstr ""
+msgstr "Tranzisyon lè tèm nan chanje"
 
 #: ui/dialogs/settings-look.slint
 msgid "(no fade)"
-msgstr ""
+msgstr "(san tranzisyon)"
 
 #: ui/dialogs/settings-look.slint
 msgid "({} s)"
-msgstr ""
+msgstr "({} s)"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
@@ -1393,115 +1384,115 @@ msgstr "Fon pa defo"
 
 #: ui/dialogs/settings-media.slint
 msgid "New pictures and videos"
-msgstr ""
+msgstr "Nouvo foto ak videyo"
 
 #: ui/dialogs/settings-media.slint
 msgid "When the shape doesn't match the screen"
-msgstr ""
+msgstr "Lè fòm nan pa matche ak ekran an"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fit (black bars)"
-msgstr ""
+msgstr "Ajiste (ba nwa)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fill (cut the edges)"
-msgstr ""
+msgstr "Ranpli (koupe bò yo)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stretch"
-msgstr ""
+msgstr "Etire"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a video ends"
-msgstr ""
+msgstr "Lè yon videyo fini"
 
 #: ui/dialogs/settings-media.slint
 msgid "For videos added from now on. Change one video in its Edit window."
-msgstr ""
+msgstr "Pou videyo ou ajoute apati kounye a. Chanje yon sèl videyo nan fenèt Modifye li."
 
 #: ui/dialogs/settings-media.slint
 msgid "Pictures added together as slides"
-msgstr ""
+msgstr "Foto ajoute ansanm kòm diapo"
 
 #: ui/dialogs/settings-media.slint
 msgid "Each picture stays this long, then the next one comes up."
-msgstr ""
+msgstr "Chak foto rete pandan tan sa a, epi pwochen an parèt."
 
 #: ui/dialogs/settings-media.slint
 msgid "Until Next is pressed"
-msgstr ""
+msgstr "Jiskaske yo peze Pwochen"
 
 #: ui/dialogs/settings-media.slint
 msgid "5 seconds"
-msgstr ""
+msgstr "5 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "8 seconds"
-msgstr ""
+msgstr "8 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "10 seconds"
-msgstr ""
+msgstr "10 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "15 seconds"
-msgstr ""
+msgstr "15 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "20 seconds"
-msgstr ""
+msgstr "20 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "30 seconds"
-msgstr ""
+msgstr "30 segonn"
 
 #: ui/dialogs/settings-media.slint
 msgid "1 minute"
-msgstr ""
+msgstr "1 minit"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound"
-msgstr ""
+msgstr "Son"
 
 #: ui/dialogs/settings-media.slint
 msgid "Headphones (Listen)"
-msgstr ""
+msgstr "Kas (Koute)"
 
 #: ui/dialogs/settings-media.slint
 msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr ""
+msgstr "Afichaj → Koute nan kas voye son an isit la sèlman, pou ou ka tcheke yon videyo san sal la pa tande l."
 
 #: ui/dialogs/settings-media.slint
 msgid "Delay the room's sound (milliseconds)"
-msgstr ""
+msgstr "Retade son sal la (milisegonn)"
 
 #: ui/dialogs/settings-media.slint
 msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr ""
+msgstr "Si son an vini anvan imaj la sou pwojektè a, eseye 50 a 150. 0 vle di pa gen reta."
 
 #: ui/dialogs/settings-media.slint
 msgid "Speakers"
-msgstr ""
+msgstr "Opalè"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stereo (as recorded)"
-msgstr ""
+msgstr "Estereyo (jan l anrejistre a)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Mono (both speakers the same)"
-msgstr ""
+msgstr "Mono (de opalè yo menm bagay)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Swap left and right"
-msgstr ""
+msgstr "Chanje gòch ak dwat"
 
 #: ui/dialogs/settings-media.slint
 msgid "Left speaker only"
-msgstr ""
+msgstr "Opalè gòch sèlman"
 
 #: ui/dialogs/settings-media.slint
 msgid "Right speaker only"
-msgstr ""
+msgstr "Opalè dwat sèlman"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -1509,67 +1500,67 @@ msgstr "Bibliyotèk medya"
 
 #: ui/dialogs/settings-media.slint
 msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr ""
+msgstr "Chak fichye ou ajoute kopye nan pwòp dosye RustyPresenter, kidonk si ou deplase oswa efase orijinal la, sa p ap janm kase yon diapo."
 
 #: ui/dialogs/settings-media.slint ui/operator.slint
 msgid "Clean up unused media…"
-msgstr ""
+msgstr "Netwaye medya ki pa itilize…"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Sections"
-msgstr ""
+msgstr "Seksyon"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
-msgstr ""
+msgstr "Chak kalite seksyon gen yon koulè ak yon kle. Kite yon bwat vid pou non oswa kle abityèl la."
 
 #: ui/dialogs/settings-sections.slint
 msgid "Colour of {}"
-msgstr ""
+msgstr "Koulè {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Name of {}"
-msgstr ""
+msgstr "Non {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Key for {}"
-msgstr ""
+msgstr "Kle pou {}"
 
 #: ui/dialogs/settings-sections.slint
 msgid "More section names"
-msgstr ""
+msgstr "Plis non seksyon"
 
 #: ui/dialogs/settings-sections.slint
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
-msgstr ""
+msgstr "Yon non chante ou yo itilize, tankou “Espontane”. Li pran koulè ak kle kalite ou chwazi a."
 
 #: ui/dialogs/settings-sections.slint
 msgid "New section name"
-msgstr ""
+msgstr "Nouvo non seksyon"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide labels"
-msgstr ""
+msgstr "Etikèt diapo"
 
 #: ui/dialogs/settings-sections.slint
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
-msgstr ""
+msgstr "Nan editè chante a, “Mete etikèt sou diapo sa a” mete youn sou yon diapo. Li parèt sou ti imaj diapo a."
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide label"
-msgstr ""
+msgstr "Etikèt diapo"
 
 #: ui/dialogs/settings-sections.slint
 msgid "New label, like “Choir only”"
-msgstr ""
+msgstr "Nouvo etikèt, tankou “Koral sèlman”"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Add label"
-msgstr ""
+msgstr "Ajoute etikèt"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
-msgstr ""
+msgstr "Itilize non, koulè ak etikèt abityèl yo"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
@@ -1589,7 +1580,7 @@ msgstr "Yon tèm se fason tèks diapo a parèt: polis, gwosè, koulè ak ki kote
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter themes"
-msgstr ""
+msgstr "Filtre tèm yo"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1605,7 +1596,7 @@ msgstr "Foto, videyo, koulè ak degrade legliz la kenbe, pare pou chwazi pou nen
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter backgrounds"
-msgstr ""
+msgstr "Filtre fon yo"
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
@@ -1717,11 +1708,11 @@ msgstr "Chante ak pasaj Bib. Gen Bib ki mande pou yo montre kredi yo; li parèt 
 
 #: ui/dialogs/settings.slint
 msgid "Show the copyright line"
-msgstr ""
+msgstr "Montre liy dwa otè a"
 
 #: ui/dialogs/settings.slint
 msgid "On first and last slide"
-msgstr ""
+msgstr "Sou premye ak dènye diapo"
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
@@ -1733,11 +1724,11 @@ msgstr "Sou dènye diapo"
 
 #: ui/dialogs/settings.slint
 msgid "Copyright line"
-msgstr ""
+msgstr "Liy dwa otè"
 
 #: ui/dialogs/settings.slint
 msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr ""
+msgstr "Itilize {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} ak {{license}}. Pati ant · ki vid yo pa parèt. Vid: liy abityèl la."
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
@@ -1761,15 +1752,15 @@ msgstr "Rapò itilizasyon chante…"
 
 #: ui/dialogs/settings.slint
 msgid "General"
-msgstr ""
+msgstr "Jeneral"
 
 #: ui/dialogs/settings.slint
 msgid "Sections and labels"
-msgstr ""
+msgstr "Seksyon ak etikèt"
 
 #: ui/dialogs/settings.slint
 msgid "Video and graphics"
-msgstr ""
+msgstr "Videyo ak grafik"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
@@ -1785,15 +1776,15 @@ msgstr "Chanje sa sèlman si ekran yo ap tranble, rete nwa oswa RustyPresenter a
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
-msgstr ""
+msgstr "Pèfòmans"
 
 #: ui/dialogs/settings.slint
 msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr ""
+msgstr "Montre anba apèsi dirèk la konbyen imaj pa segonn ekran yo desine, ak memwa videyo ki lib lè kat grafik la bay li. Ti chif vle di òdinatè a ap bat."
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Show performance"
-msgstr ""
+msgstr "Montre pèfòmans"
 
 #: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint
 msgid "Screens"
@@ -1809,11 +1800,11 @@ msgstr "Kenbe ekran sal la devan lè li gen pwòp monitè pa l (tranzisyon pi do
 
 #: ui/dialogs/settings.slint
 msgid "At start"
-msgstr ""
+msgstr "Lè l demare"
 
 #: ui/dialogs/settings.slint
 msgid "Turn the screens on when RustyPresenter starts"
-msgstr ""
+msgstr "Limen ekran yo lè RustyPresenter demare"
 
 #: ui/dialogs/settings.slint src/strings/stage.rs
 msgid "Stage layout"
@@ -1825,43 +1816,43 @@ msgstr "Sa ekran sèn nan montre. Fenèt → Aranjman sèn… pou fè pa w."
 
 #: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
 msgid "Phone drawing"
-msgstr ""
+msgstr "Desen telefòn"
 
 #: ui/dialogs/settings.slint
 msgid "Drawing from a phone"
-msgstr ""
+msgstr "Desen soti nan yon telefòn"
 
 #: ui/dialogs/settings.slint
 msgid "Keep drawings when the slide changes"
-msgstr ""
+msgstr "Kenbe desen yo lè diapo a chanje"
 
 #: ui/dialogs/settings.slint
 msgid "Show drawings on the stage screen"
-msgstr ""
+msgstr "Montre desen yo sou ekran sèn nan"
 
 #: ui/dialogs/settings.slint
 msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr ""
+msgstr "Lank k ap disparèt efase apre (segonn, 1–30)"
 
 #: ui/dialogs/settings.slint
 msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr ""
+msgstr "Sou telefòn nan, lank “Disparèt” mache tankou yon pwentè lazè: li ale pou kont li."
 
 #: ui/dialogs/settings.slint
 msgid "Limits"
-msgstr ""
+msgstr "Limit"
 
 #: ui/dialogs/settings.slint
 msgid "Limit phone drawing"
-msgstr ""
+msgstr "Limite desen telefòn"
 
 #: ui/dialogs/settings.slint
 msgid "Most lines on the screen at once"
-msgstr ""
+msgstr "Plis liy sou ekran an an menm tan"
 
 #: ui/dialogs/settings.slint
 msgid "Most drawing updates a second from one phone"
-msgstr ""
+msgstr "Plis mizajou desen pa segonn soti nan yon telefòn"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1953,23 +1944,23 @@ msgstr "Otè"
 
 #: ui/dialogs/song-editor.slint
 msgid "Artist"
-msgstr ""
+msgstr "Atis"
 
 #: ui/dialogs/song-editor.slint
 msgid "Who sings it"
-msgstr ""
+msgstr "Kiyès ki chante l"
 
 #: ui/dialogs/song-editor.slint
 msgid "Publisher"
-msgstr ""
+msgstr "Piblikatè"
 
 #: ui/dialogs/song-editor.slint
 msgid "Year"
-msgstr ""
+msgstr "Ane"
 
 #: ui/dialogs/song-editor.slint
 msgid "2006"
-msgstr ""
+msgstr "2006"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
@@ -1993,27 +1984,15 @@ msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyo
 
 #: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
-msgstr ""
+msgstr "Mete koupi diapo"
 
 #: ui/dialogs/song-editor.slint
 msgid "Starts a new slide where the cursor is"
-msgstr ""
+msgstr "Kòmanse yon nouvo diapo kote kurseur la ye"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Kouplè 1]\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"[Koral]\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2061,7 +2040,7 @@ msgstr "Aranjman sèn"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Filter layouts"
-msgstr ""
+msgstr "Filtre aranjman yo"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
@@ -2165,43 +2144,43 @@ msgstr "Modifye aranjman sèn…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
-msgstr ""
+msgstr "Revize"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show the app in this language"
-msgstr ""
+msgstr "Montre aplikasyon an nan lang sa a"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search the English or your words"
-msgstr ""
+msgstr "Chèche nan anglè a oswa nan mo pa w yo"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Untranslated"
-msgstr ""
+msgstr "Pa tradui"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Needs review"
-msgstr ""
+msgstr "Bezwen revizyon"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Changed by me"
-msgstr ""
+msgstr "Mwen chanje l"
 
 #: ui/dialogs/translation-editor.slint
 msgid "English"
-msgstr ""
+msgstr "Anglè"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Your language"
-msgstr ""
+msgstr "Lang ou"
 
 #: ui/dialogs/translation-editor.slint
 msgid "(shows in English)"
-msgstr ""
+msgstr "(parèt an anglè)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show more"
-msgstr ""
+msgstr "Montre plis"
 
 #: ui/dialogs/translation-editor.slint src/strings/add.rs src/ui/dialogs/quick_search.rs
 msgid "Nothing matches."
@@ -2209,31 +2188,31 @@ msgstr "Anyen pa koresponn."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Click a text above to translate it."
-msgstr ""
+msgstr "Klike sou yon tèks anwo a pou tradui l."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Type it in your language (empty shows the English)"
-msgstr ""
+msgstr "Tape l nan lang ou (vid montre anglè a)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "This is right"
-msgstr ""
+msgstr "Sa a kòrèk"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reset this entry to built-in"
-msgstr ""
+msgstr "Remete antre sa a jan l te ye okòmansman"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Import…"
-msgstr ""
+msgstr "Enpòte…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Export…"
-msgstr ""
+msgstr "Ekspòte…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Mark as reviewed"
-msgstr ""
+msgstr "Make kòm revize"
 
 #: ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
@@ -2241,43 +2220,43 @@ msgstr "Fini"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Pick your language. You can start from nothing (the English shows until you type) or from a copy of a language that is close to yours."
-msgstr ""
+msgstr "Chwazi lang ou. Ou ka kòmanse apati anyen (anglè a parèt jiskaske ou tape) oswa apati yon kopi yon lang ki pre pa w la."
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search languages"
-msgstr ""
+msgstr "Chèche lang"
 
 #: ui/dialogs/translation-editor.slint
 msgid "My language is not in the list"
-msgstr ""
+msgstr "Lang mwen pa nan lis la"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Code"
-msgstr ""
+msgstr "Kòd"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in your language"
-msgstr ""
+msgstr "Non nan lang ou"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in English"
-msgstr ""
+msgstr "Non an anglè"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts (from the gettext plural list; leave as it is if unsure)"
-msgstr ""
+msgstr "Kijan li konte (soti nan lis pliryèl gettext la; kite l jan l ye si ou pa sèten)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts"
-msgstr ""
+msgstr "Kijan li konte"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Start from"
-msgstr ""
+msgstr "Kòmanse apati"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Add language"
-msgstr ""
+msgstr "Ajoute lang"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -2353,11 +2332,11 @@ msgstr "Anrejistre kòm tablo (CSV)…"
 
 #: ui/filter.slint
 msgid "Filter"
-msgstr ""
+msgstr "Filtre"
 
 #: ui/filter.slint
 msgid "Clear the filter"
-msgstr ""
+msgstr "Efase filtè a"
 
 #: ui/identify.slint
 msgid "Identify screen"
@@ -2405,11 +2384,11 @@ msgstr "ap mete ajou…"
 
 #: ui/operator/live.slint
 msgid "Drawing"
-msgstr ""
+msgstr "Desen"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "Clear drawing"
-msgstr ""
+msgstr "Efase desen"
 
 #: ui/operator/live.slint
 msgid "−15 s"
@@ -2493,7 +2472,7 @@ msgstr "Chèche medya"
 
 #: ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
-msgstr ""
+msgstr "Gwosè imaj"
 
 #: ui/operator/media.slint
 msgid "Import"
@@ -2537,7 +2516,7 @@ msgstr "Ekran sal la etenn"
 
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
-msgstr ""
+msgstr "Ekran sèn nan etenn"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -2625,7 +2604,7 @@ msgstr "Ajoute chante, videyo ak diapo, tape yon vèsè Bib anwo a, oswa rale fi
 
 #: ui/operator/service.slint
 msgid "Filter the service"
-msgstr ""
+msgstr "Filtre sèvis la"
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2677,51 +2656,51 @@ msgstr "Retounen nan gwosè ki nan Paramèt"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
-msgstr ""
+msgstr "‹ Vèsè"
 
 #: ui/operator/slides.slint
 msgid "Add the verse before this passage"
-msgstr ""
+msgstr "Ajoute vèsè ki anvan pasaj sa a"
 
 #: ui/operator/slides.slint
 msgid "Verse ›"
-msgstr ""
+msgstr "Vèsè ›"
 
 #: ui/operator/slides.slint
 msgid "Add the verse after this passage"
-msgstr ""
+msgstr "Ajoute vèsè ki apre pasaj sa a"
 
 #: ui/operator/slides.slint
 msgid "Save to library"
-msgstr ""
+msgstr "Anrejistre nan bibliyotèk"
 
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
-msgstr ""
+msgstr "Kenbe pasaj sa a nan bibliyotèk chante a, pou modifye l oswa itilize l ankò"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
-msgstr ""
+msgstr "Sèn sèlman"
 
 #: ui/operator/slides.slint
 msgid "The next slide you click goes to the stage screen only. Click again to cancel."
-msgstr ""
+msgstr "Pwochen diapo ou klike a ale sou ekran sèn nan sèlman. Klike ankò pou anile."
 
 #: ui/operator/slides.slint
 msgid "Send the next slide you click to the stage screen only, as a note for the band"
-msgstr ""
+msgstr "Voye pwochen diapo ou klike a sou ekran sèn nan sèlman, kòm yon nòt pou mizisyen yo"
 
 #: ui/operator/slides.slint
 msgid "On the stage screen only: {}"
-msgstr ""
+msgstr "Sou ekran sèn nan sèlman: {}"
 
 #: ui/operator/slides.slint
 msgid "Click a slide to show it on the stage screen only. The room won't see it."
-msgstr ""
+msgstr "Klike sou yon diapo pou montre l sou ekran sèn nan sèlman. Sal la p ap wè l."
 
 #: ui/operator/slides.slint
 msgid "Take it down"
-msgstr ""
+msgstr "Retire l"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
@@ -2737,15 +2716,15 @@ msgstr "Eleman sa a poko gen diapo. Klike Modifye pou ajoute kèk."
 
 #: ui/operator/slides.slint
 msgid "Grid"
-msgstr ""
+msgstr "Griy"
 
 #: ui/operator/slides.slint
 msgid "Easy"
-msgstr ""
+msgstr "Fasil"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Table"
-msgstr ""
+msgstr "Tablo"
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
@@ -2757,7 +2736,7 @@ msgstr "Chanje oswa kreye sèvis"
 
 #: ui/operator/topbar.slint
 msgid "Recent verses"
-msgstr ""
+msgstr "Vèsè resan"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
@@ -2873,7 +2852,7 @@ msgstr "Sòti"
 
 #: ui/operator.slint
 msgid "Quick search…"
-msgstr ""
+msgstr "Rechèch rapid…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
@@ -2889,23 +2868,23 @@ msgstr "Bwat Bib"
 
 #: ui/operator.slint
 msgid "Recent verses…"
-msgstr ""
+msgstr "Vèsè resan…"
 
 #: ui/operator.slint
 msgid "Add the verse before"
-msgstr ""
+msgstr "Ajoute vèsè ki anvan an"
 
 #: ui/operator.slint
 msgid "Add the verse after"
-msgstr ""
+msgstr "Ajoute vèsè ki apre a"
 
 #: ui/operator.slint
 msgid "Save passage to song library"
-msgstr ""
+msgstr "Anrejistre pasaj nan bibliyotèk chante"
 
 #: ui/operator.slint
 msgid "About this Bible…"
-msgstr ""
+msgstr "Konsènan Bib sa a…"
 
 #: ui/operator.slint
 msgid "View"
@@ -2929,11 +2908,11 @@ msgstr "Kanpe son"
 
 #: ui/operator.slint
 msgid "Stop listening in headphones"
-msgstr ""
+msgstr "Sispann koute nan kas"
 
 #: ui/operator.slint
 msgid "Listen in headphones"
-msgstr ""
+msgstr "Koute nan kas"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
@@ -2941,11 +2920,11 @@ msgstr "Efase kouch yo"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the message"
-msgstr ""
+msgstr "Efase mesaj la"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the timers"
-msgstr ""
+msgstr "Efase kontè yo"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2957,27 +2936,27 @@ msgstr "Montre bibliyotèk medya"
 
 #: ui/operator.slint
 msgid "Show slides as"
-msgstr ""
+msgstr "Montre diapo yo kòm"
 
 #: ui/operator.slint
 msgid "Grid of pictures"
-msgstr ""
+msgstr "Griy imaj"
 
 #: ui/operator.slint
 msgid "Easy view (big words)"
-msgstr ""
+msgstr "Afichaj fasil (gwo mo)"
 
 #: ui/operator.slint
 msgid "Preview the room screen"
-msgstr ""
+msgstr "Apèsi ekran sal la"
 
 #: ui/operator.slint
 msgid "Preview the stage screen"
-msgstr ""
+msgstr "Apèsi ekran sèn nan"
 
 #: ui/operator.slint
 msgid "Hide performance"
-msgstr ""
+msgstr "Kache pèfòmans"
 
 #: ui/operator.slint
 msgid "Zoom in"
@@ -3001,11 +2980,11 @@ msgstr "Ekran…"
 
 #: ui/operator.slint
 msgid "Close the room window"
-msgstr ""
+msgstr "Fèmen fenèt sal la"
 
 #: ui/operator.slint
 msgid "Room screen in a window"
-msgstr ""
+msgstr "Ekran sal la nan yon fenèt"
 
 #: ui/operator.slint
 msgid "Phone remote…"
@@ -3017,15 +2996,15 @@ msgstr "Mesaj pou sèn…"
 
 #: ui/operator.slint
 msgid "Slide clicks go to the room again"
-msgstr ""
+msgstr "Klik sou diapo ale nan sal la ankò"
 
 #: ui/operator.slint
 msgid "Next slide click: stage only"
-msgstr ""
+msgstr "Pwochen klik diapo: sèn sèlman"
 
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
-msgstr ""
+msgstr "Retire diapo sèn-sèlman an"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
@@ -3049,7 +3028,7 @@ msgstr "Chante…"
 
 #: ui/operator.slint
 msgid "Sections and slide labels…"
-msgstr ""
+msgstr "Seksyon ak etikèt diapo…"
 
 #: ui/operator.slint
 msgid "Bible…"
@@ -3061,7 +3040,7 @@ msgstr "Videyo…"
 
 #: ui/operator.slint
 msgid "Media and sound…"
-msgstr ""
+msgstr "Medya ak son…"
 
 #: ui/operator.slint
 msgid "Backups…"
@@ -3069,11 +3048,11 @@ msgstr "Sovgad…"
 
 #: ui/operator.slint
 msgid "Keys and clear groups…"
-msgstr ""
+msgstr "Kle ak gwoup efase…"
 
 #: ui/operator.slint
 msgid "Translations…"
-msgstr ""
+msgstr "Tradiksyon…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
@@ -3085,15 +3064,15 @@ msgstr "Tcheke sèvis la"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
-msgstr ""
+msgstr "Jwenn sourit mwen"
 
 #: ui/operator.slint
 msgid "Tutorials"
-msgstr ""
+msgstr "Leson"
 
 #: ui/operator.slint
 msgid "Report a problem…"
-msgstr ""
+msgstr "Rapòte yon pwoblèm…"
 
 #: ui/operator.slint
 msgid "Open logs folder"
@@ -3121,7 +3100,7 @@ msgstr "Fen sèvis la"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "STAGE ONLY"
-msgstr ""
+msgstr "SÈN SÈLMAN"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
@@ -3129,7 +3108,7 @@ msgstr "PWOCHEN"
 
 #: ui/stage.slint
 msgid "The slide with its drawing"
-msgstr ""
+msgstr "Diapo a ak desen li"
 
 #: ui/widgets.slint
 msgid "Cut"
@@ -3149,11 +3128,11 @@ msgstr "Pa t ka anrejistre: {error}"
 
 #: src/app.rs
 msgid "That item isn't in the service any more."
-msgstr ""
+msgstr "Eleman sa a pa nan sèvis la ankò."
 
 #: src/app.rs
 msgid "That slide isn't there any more."
-msgstr ""
+msgstr "Diapo sa a pa la ankò."
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
@@ -3485,11 +3464,11 @@ msgstr "Kole tèks vèsè a anvan."
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
-msgstr ""
+msgstr "li pa anrejistre kòm tèks UTF-8"
 
 #: src/i18n/mod.rs
 msgid "The translation file {file} could not be read ({reason}), so it is not used."
-msgstr ""
+msgstr "Nou pa t ka li fichye tradiksyon {file} la ({reason}), kidonk li pa itilize."
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
@@ -3529,11 +3508,11 @@ msgstr "Tape sou yon diapo pou mete l sou ekran an."
 
 #: src/i18n/remote_strings.rs
 msgid "Take it off the stage"
-msgstr ""
+msgstr "Retire l sou sèn nan"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
-msgstr ""
+msgstr "Ekran sèn sèlman (sal la p ap wè l)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
@@ -3577,23 +3556,23 @@ msgstr "(Vid)"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
-msgstr ""
+msgstr "Desine sou diapo a"
 
 #: src/i18n/remote_strings.rs
 msgid "Highlighter"
-msgstr ""
+msgstr "Makè"
 
 #: src/i18n/remote_strings.rs
 msgid "Pen size"
-msgstr ""
+msgstr "Gwosè plim"
 
 #: src/i18n/remote_strings.rs
 msgid "Stays"
-msgstr ""
+msgstr "Rete"
 
 #: src/i18n/remote_strings.rs
 msgid "Fades"
-msgstr ""
+msgstr "Disparèt"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -3601,35 +3580,35 @@ msgstr "Telefòn Android"
 
 #: src/i18n/user.rs
 msgid "Fill in every box, or this text stays in English."
-msgstr ""
+msgstr "Ranpli chak bwat, sinon tèks sa a ap rete an anglè."
 
 #: src/i18n/user.rs
 msgid "Keep {gaps} exactly as in the English: the app puts a name or number there."
-msgstr ""
+msgstr "Kenbe {gaps} egzakteman jan l ye nan anglè a: aplikasyon an mete yon non oswa yon nimewo la."
 
 #: src/i18n/user.rs
 msgid "{gaps} is not in the English. Remove it, or copy the part in curly brackets exactly."
-msgstr ""
+msgstr "{gaps} pa nan anglè a. Retire l, oswa kopye pati ki nan akolad yo egzakteman."
 
 #: src/i18n/user.rs
 msgid "This file could not be read ({reason})."
-msgstr ""
+msgstr "Nou pa t ka li fichye sa a ({reason})."
 
 #: src/i18n/user.rs
 msgid "This file does not say which language it is."
-msgstr ""
+msgstr "Fichye sa a pa di ki lang li ye."
 
 #: src/i18n/user.rs
 msgid "“{code}” is not a language code. Use letters such as “es”, or “pt-BR” with a country."
-msgstr ""
+msgstr "“{code}” se pa yon kòd lang. Itilize lèt tankou “es”, oswa “pt-BR” ak yon peyi."
 
 #: src/i18n/user.rs
 msgid "{language} is already in the list."
-msgstr ""
+msgstr "{language} deja nan lis la."
 
 #: src/i18n/user.rs
 msgid "The plural rule is not right. Copy it from the gettext plural list."
-msgstr ""
+msgstr "Règ pliryèl la pa kòrèk. Kopye l nan lis pliryèl gettext la."
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
@@ -3861,43 +3840,43 @@ msgstr "Pa jwenn okenn chante ProPresenter nan {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
-msgstr ""
+msgstr "Telefòn sa a pa gen dwa desine sou diapo yo. Mande operatè a pou pèmèt li."
 
 #: src/live/drawing/actions.rs
 msgid "The drawing is full. Clear it to draw more."
-msgstr ""
+msgstr "Desen an plen. Efase l pou desine plis."
 
 #: src/live/drawing/actions.rs
 msgid "Drawing too fast. Slow down a little."
-msgstr ""
+msgstr "Ou desine twò vit. Ralanti yon ti kras."
 
 #: src/live/drawing/actions.rs
 msgid "Pair this phone first."
-msgstr ""
+msgstr "Konekte telefòn sa a anvan."
 
 #: src/live/drawing/actions.rs
 msgid "That phone is no longer paired."
-msgstr ""
+msgstr "Telefòn sa a pa konekte ankò."
 
 #: src/live/drawing.rs
 msgid "A point is off the slide."
-msgstr ""
+msgstr "Yon pwen andeyò diapo a."
 
 #: src/live/drawing.rs
 msgid "That colour isn't one of the pen colours."
-msgstr ""
+msgstr "Koulè sa a pa youn nan koulè plim yo."
 
 #: src/live/drawing.rs
 msgid "That pen size isn't right."
-msgstr ""
+msgstr "Gwosè plim sa a pa kòrèk."
 
 #: src/live/drawing.rs
 msgid "A line needs at least one point."
-msgstr ""
+msgstr "Yon liy bezwen omwen yon pwen."
 
 #: src/live/drawing.rs
 msgid "That line was cleared."
-msgstr ""
+msgstr "Liy sa a te efase."
 
 #: src/live.rs
 msgid "That item is not in the service."
@@ -3966,8 +3945,8 @@ msgstr "RustyPresenter pa t ka fè fenèt li yo mache: {reason}"
 #: src/media_care.rs
 msgid "Take this file out of the media library? No service or template uses it."
 msgid_plural "Take these {n} files out of the media library? No service or template uses them."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Retire fichye sa a nan bibliyotèk medya a? Okenn sèvis oswa modèl pa itilize l."
+msgstr[1] "Retire {n} fichye sa yo nan bibliyotèk medya a? Okenn sèvis oswa modèl pa itilize yo."
 
 #: src/media_care.rs src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
@@ -3977,29 +3956,29 @@ msgstr[1] "…ak {n} lòt"
 
 #: src/media_care.rs
 msgid "This frees {size} on this computer. Backups keep their own copies, but this can't be undone."
-msgstr ""
+msgstr "Sa libere {size} sou òdinatè sa a. Sovgad yo kenbe pwòp kopi pa yo, men ou pa ka defèt sa."
 
 #: src/media_care.rs
 msgid "{n} GB"
-msgstr ""
+msgstr "{n} GB"
 
 #: src/media_care.rs
 msgid "{n} MB"
-msgstr ""
+msgstr "{n} MB"
 
 #: src/media_care.rs
 msgid "{n} KB"
-msgstr ""
+msgstr "{n} KB"
 
 #: src/media_care.rs
 msgid "Choose your headphones in Settings → Media first."
-msgstr ""
+msgstr "Chwazi kas ou nan Paramèt → Medya anvan."
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
 msgid_plural "Took {n} files out of the media library and freed {size}."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Retire {n} fichye nan bibliyotèk medya a epi libere {size}."
+msgstr[1] "Retire {n} fichye nan bibliyotèk medya a epi libere {size}."
 
 #: src/model.rs
 msgid "Sunday Service"
@@ -4111,7 +4090,7 @@ msgstr "Pa pèmèt sou telefòn nan."
 
 #: src/server.rs
 msgid "Could not draw the slide."
-msgstr ""
+msgstr "Nou pa t ka desine diapo a."
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
@@ -4137,27 +4116,27 @@ msgstr "(son)"
 
 #: src/shortcuts.rs
 msgid "Ctrl + {key}"
-msgstr ""
+msgstr "Ctrl + {key}"
 
 #: src/shortcuts.rs
 msgid "Alt + {key}"
-msgstr ""
+msgstr "Alt + {key}"
 
 #: src/shortcuts.rs
 msgid "Shift + {key}"
-msgstr ""
+msgstr "Shift + {key}"
 
 #: src/shortcuts.rs
 msgid "Space"
-msgstr ""
+msgstr "Espas"
 
 #: src/shortcuts.rs
 msgid "Page Down"
-msgstr ""
+msgstr "Page Down"
 
 #: src/shortcuts.rs
 msgid "Page Up"
-msgstr ""
+msgstr "Page Up"
 
 #: src/shortcuts.rs src/strings/settings.rs
 msgid "Enter"
@@ -4169,15 +4148,15 @@ msgstr "Esc"
 
 #: src/shortcuts.rs
 msgid "Backspace"
-msgstr ""
+msgstr "Backspace"
 
 #: src/shortcuts.rs
 msgid "Clear group: {name}"
-msgstr ""
+msgstr "Gwoup efase: {name}"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
-msgstr ""
+msgstr "Tout bagay eksepte fon an"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -5171,11 +5150,11 @@ msgstr "Efase dosye “{name}”? Fichye li yo rete nan bibliyotèk la."
 
 #: src/strings/operator.rs
 msgid "slide {n}"
-msgstr ""
+msgstr "diapo {n}"
 
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
-msgstr ""
+msgstr "Sou ekran sèn nan sèlman. Sal la pa chanje."
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -5932,51 +5911,51 @@ msgstr "Bib sa a te retire. Ajoute l ankò nan Paramèt → Bib."
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
-msgstr ""
+msgstr "Chwazi yon pasaj Bib anvan."
 
 #: src/strings/scripture.rs
 msgid "There is no verse before this one."
-msgstr ""
+msgstr "Pa gen vèsè anvan sa a."
 
 #: src/strings/scripture.rs
 msgid "There is no verse after this one."
-msgstr ""
+msgstr "Pa gen vèsè apre sa a."
 
 #: src/strings/scripture.rs
 msgid "{reference} ({bible})"
-msgstr ""
+msgstr "{reference} ({bible})"
 
 #: src/strings/scripture.rs
 msgid "Saved “{title}” to the song library."
-msgstr ""
+msgstr "“{title}” anrejistre nan bibliyotèk chante a."
 
 #: src/strings/scripture.rs
 msgid "Language: {language}"
-msgstr ""
+msgstr "Lang: {language}"
 
 #: src/strings/scripture.rs
 msgid "Comes from: {provider}"
-msgstr ""
+msgstr "Soti nan: {provider}"
 
 #: src/strings/scripture.rs
 msgid "Copyright: {notice}"
-msgstr ""
+msgstr "Dwa otè: {notice}"
 
 #: src/strings/scripture.rs
 msgid "Licence: {licence}"
-msgstr ""
+msgstr "Lisans: {licence}"
 
 #: src/strings/scripture.rs
 msgid "Not connected yet. Add its key in Settings → Bible."
-msgstr ""
+msgstr "Poko konekte. Ajoute kle li nan Paramèt → Bib."
 
 #: src/strings/scripture.rs
 msgid "This Bible isn't on this computer and no online service has it."
-msgstr ""
+msgstr "Bib sa a pa sou òdinatè sa a e okenn sèvis sou entènèt pa genyen l."
 
 #: src/strings/scripture.rs
 msgid "No copyright notice is known. Check the licence before showing it in public."
-msgstr ""
+msgstr "Nou pa konnen okenn avi dwa otè. Tcheke lisans lan anvan ou montre l an piblik."
 
 #: src/strings/services.rs
 msgid "Name for the copy"
@@ -5999,12 +5978,8 @@ msgid "Settings saved"
 msgstr "Paramèt anrejistre"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Gras etonan, ala dous son an\n"
-"Ki sove yon malere tankou m"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Gras etonan, ala dous son an\nKi sove yon malere tankou m"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6150,7 +6125,7 @@ msgstr "Refè sa Defèt te anile"
 
 #: src/strings/settings.rs
 msgid "Quick search: songs, files and services (Enter opens, Ctrl + Enter adds)"
-msgstr ""
+msgstr "Rechèch rapid: chante, fichye ak sèvis (Enter louvri, Ctrl + Enter ajoute)"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -6282,35 +6257,35 @@ msgstr "Lòt"
 
 #: src/strings/song.rs
 msgid "Instrumental"
-msgstr ""
+msgstr "Enstrimantal"
 
 #: src/strings/song.rs
 msgid "Repeat"
-msgstr ""
+msgstr "Repete"
 
 #: src/strings/song.rs
 msgid "Spoken Word"
-msgstr ""
+msgstr "Pawòl pale"
 
 #: src/strings/song.rs
 msgid "Label this slide…"
-msgstr ""
+msgstr "Mete etikèt sou diapo sa a…"
 
 #: src/strings/song.rs
 msgid "Example: {line}"
-msgstr ""
+msgstr "Egzanp: {line}"
 
 #: src/strings/song.rs
 msgid "“{color}” is not a colour. Use #rrggbb, like #6aa8ff."
-msgstr ""
+msgstr "“{color}” se pa yon koulè. Itilize #rrggbb, tankou #6aa8ff."
 
 #: src/strings/song.rs
 msgid "“{key}” is not a letter. Section keys are one letter each."
-msgstr ""
+msgstr "“{key}” se pa yon lèt. Chak kle seksyon se yon sèl lèt."
 
 #: src/strings/song.rs
 msgid "{first} and {second} both use the key {key}."
-msgstr ""
+msgstr "{first} ak {second} tou de itilize kle {key}."
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
@@ -7422,15 +7397,15 @@ msgstr "Montre mesaj"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
-msgstr ""
+msgstr "Tape yon tit chante, mo nan pawòl yo, yon non fichye oswa yon sèvis."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
-msgstr ""
+msgstr "Nan sèvis sa a"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "{kind} · In this service"
-msgstr ""
+msgstr "{kind} · Nan sèvis sa a"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -7446,107 +7421,107 @@ msgstr "Montre yon mesaj sou ekran an"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Media & background"
-msgstr ""
+msgstr "Medya ak fon"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Overlays (pictures, clocks, signs)"
-msgstr ""
+msgstr "Kouch (foto, lè, pankat)"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
-msgstr ""
+msgstr "Nouvo gwoup efase"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Press the new key for “{what}”"
-msgstr ""
+msgstr "Peze nouvo kle pou “{what}”"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Tab moves between buttons, so it cannot be a shortcut. Press another key."
-msgstr ""
+msgstr "Tab deplase ant bouton yo, kidonk li pa ka yon rakousi. Peze yon lòt kle."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use it"
-msgstr ""
+msgstr "Itilize l"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} is already the key for “{what}”. It will move here."
-msgstr ""
+msgstr "{key} deja se kle pou “{what}”. L ap deplase vin isit la."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr ""
+msgstr "{key} fè chante k ap pase a sote nan yon seksyon tou (Paramèt → Chante → Kle seksyon)."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
-msgstr ""
+msgstr "{key} chwazi yon bouton Bib tou pandan w ap tape nan bwat Bib la."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Text boxes use {key} for editing. It will do this instead, even while you type."
-msgstr ""
+msgstr "Bwat tèks yo itilize {key} pou modifye. L ap fè sa pito, menm pandan w ap tape."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use {key} for “{what}”?"
-msgstr ""
+msgstr "Itilize {key} pou “{what}”?"
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Nothing to clean up: every file in the media library is used."
-msgstr ""
+msgstr "Pa gen anyen pou netwaye: chak fichye nan bibliyotèk medya a itilize."
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Clean up"
-msgstr ""
+msgstr "Netwaye"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
-msgstr ""
+msgstr "{done} sou {total} tradui"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Showing {shown} of {total}"
-msgstr ""
+msgstr "Ap montre {shown} sou {total}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Used in: {places}"
-msgstr ""
+msgstr "Itilize nan: {places}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "For {numbers}…"
-msgstr ""
+msgstr "Pou {numbers}…"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The translation could not be saved: {reason}"
-msgstr ""
+msgstr "Nou pa t ka anrejistre tradiksyon an: {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Marked as reviewed. Thank you!"
-msgstr ""
+msgstr "Make kòm revize. Mèsi!"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Saved {file}. Send it to the RustyPresenter project to share it with other churches."
-msgstr ""
+msgstr "{file} anrejistre. Voye l bay pwojè RustyPresenter la pou pataje l ak lòt legliz."
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The file could not be saved: {reason}"
-msgstr ""
+msgstr "Nou pa t ka anrejistre fichye a: {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Imported {language}"
-msgstr ""
+msgstr "{language} enpòte"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Nothing (the English shows until you type)"
-msgstr ""
+msgstr "Anyen (anglè a parèt jiskaske ou tape)"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "A copy of {language}"
-msgstr ""
+msgstr "Yon kopi {language}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Pick a language from the list, or tick “My language is not in the list”."
-msgstr ""
+msgstr "Chwazi yon lang nan lis la, oswa make “Lang mwen pa nan lis la”."
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
-msgstr ""
+msgstr "{language} ajoute. Tape mo ou yo, epi chwazi l nan Paramèt → Lang."
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -7568,115 +7543,115 @@ msgstr[1] "{n} pwoblèm"
 
 #: src/ui/operator/file_input.rs
 msgid "Translation file (.po)"
-msgstr ""
+msgstr "Fichye tradiksyon (.po)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
-msgstr ""
+msgstr "Òdinatè sa a pa kite RustyPresenter deplase flèch sourit la. Chèche l sou chak ekran."
 
 #: src/ui/operator/help.rs
 msgid "Could not open the page. It is at {path}"
-msgstr ""
+msgstr "Nou pa t ka louvri paj la. Li nan {path}"
 
 #: src/ui/operator/help.rs
 msgid "Report a problem with RustyPresenter"
-msgstr ""
+msgstr "Rapòte yon pwoblèm ak RustyPresenter"
 
 #: src/ui/operator/help.rs
 msgid "Please write below what happened and what you expected instead."
-msgstr ""
+msgstr "Tanpri ekri anba a sa k te pase ak sa ou te espere pito."
 
 #: src/ui/operator/help.rs
 msgid "If you can, list the steps that make it happen again."
-msgstr ""
+msgstr "Si ou kapab, bay etap ki fè l rive ankò yo."
 
 #: src/ui/operator/help.rs
 msgid "The app's log files are in this folder (Help → Open logs folder):"
-msgstr ""
+msgstr "Fichye jounal aplikasyon an nan dosye sa a (Èd → Louvri dosye jounal yo):"
 
 #: src/ui/operator/help.rs
 msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by e-mail from another computer."
-msgstr ""
+msgstr "Anrejistre fichye sa a, epi voye l ak dènye fichye jounal yo bay moun ki okipe RustyPresenter pou legliz ou, sou yon kle USB oswa pa imèl soti nan yon lòt òdinatè."
 
 #: src/ui/operator/help.rs
 msgid "What happened:"
-msgstr ""
+msgstr "Sa k te pase:"
 
 #: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
-msgstr ""
+msgstr "RustyPresenter: leson rapid"
 
 #: src/ui/operator/help.rs
 msgid "Get ready for Sunday"
-msgstr ""
+msgstr "Prepare pou dimanch"
 
 #: src/ui/operator/help.rs
 msgid "File → New service makes this week's service. File → Services… opens an older one or copies last week."
-msgstr ""
+msgstr "Fichye → Nouvo sèvis fè sèvis semèn sa a. Fichye → Sèvis… louvri yon ansyen oswa kopye semèn pase a."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
-msgstr ""
+msgstr "Fichye → Ajoute nan sèvis ajoute chante, pasaj Bib, videyo, diapo ak anons. Trennen eleman yo pou chanje lòd yo."
 
 #: src/ui/operator/help.rs
 msgid "Help → Check the service finds missing files and empty items before the service starts."
-msgstr ""
+msgstr "Èd → Tcheke sèvis la jwenn fichye ki manke ak eleman ki vid anvan sèvis la kòmanse."
 
 #: src/ui/operator/help.rs
 msgid "Put things on the screen"
-msgstr ""
+msgstr "Mete bagay sou ekran an"
 
 #: src/ui/operator/help.rs
 msgid "Click a slide: it goes on the screen at once. The red outline shows what the room sees."
-msgstr ""
+msgstr "Klike sou yon diapo: li ale sou ekran an touswit. Kad wouj la montre sa sal la wè."
 
 #: src/ui/operator/help.rs
 msgid "Next slide: {next}. Back: {back}."
-msgstr ""
+msgstr "Pwochen diapo: {next}. Retounen: {back}."
 
 #: src/ui/operator/help.rs
 msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
-msgstr ""
+msgstr "Fenèt → Ekran… chwazi ki monitè ki ekran sal la ak ki youn ki ekran sèn nan."
 
 #: src/ui/operator/help.rs
 msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr ""
+msgstr "Paramèt → Kle ak gwoup efase… chanje kle sa yo epi fè pwòp gwoup efase pa w."
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
-msgstr ""
+msgstr "Pasaj Bib"
 
 #: src/ui/operator/help.rs
 msgid "{key} puts the cursor in the Bible box. Type a reference such as John 3:16-18 and press Enter."
-msgstr ""
+msgstr "{key} mete kurseur la nan bwat Bib la. Tape yon referans tankou John 3:16-18 epi peze Enter."
 
 #: src/ui/operator/help.rs
 msgid "Edit → Find a verse… finds a passage by its words."
-msgstr ""
+msgstr "Modifye → Chèche yon vèsè… jwenn yon pasaj pa mo li yo."
 
 #: src/ui/operator/help.rs
 msgid "Edit → Quick search… finds a song in the library. Double-click a song to edit its words."
-msgstr ""
+msgstr "Modifye → Rechèch rapid… jwenn yon chante nan bibliyotèk la. Klike de fwa sou yon chante pou modifye pawòl li yo."
 
 #: src/ui/operator/help.rs
 msgid "While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse."
-msgstr ""
+msgstr "Pandan yon chante sou ekran an, C sote nan koral la, B nan pon an ak 1–9 nan kouplè sa a."
 
 #: src/ui/operator/help.rs
 msgid "When something goes wrong"
-msgstr ""
+msgstr "Lè yon bagay mal mache"
 
 #: src/ui/operator/help.rs
 msgid "Lost the mouse on the projector? {key} brings it back to this window."
-msgstr ""
+msgstr "Pèdi sourit la sou pwojektè a? {key} mennen l tounen nan fenèt sa a."
 
 #: src/ui/operator/help.rs
 msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
-msgstr ""
+msgstr "Ekran sal la montre move bagay: peze kle efase ki anwo yo, epi montre diapo a ankò."
 
 #: src/ui/operator/help.rs
 msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr ""
+msgstr "Èd → Rapòte yon pwoblèm… ekri yon nòt pou ranpli epi di ki kote fichye jounal yo ye."
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -7688,39 +7663,39 @@ msgstr "Agrandi fenèt la pou grandi plis."
 
 #: src/ui/operator/menu.rs
 msgid "Listening: the sound goes to your headphones only. The room hears nothing."
-msgstr ""
+msgstr "Ap koute: son an ale nan kas ou sèlman. Sal la pa tande anyen."
 
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
-msgstr ""
+msgstr "Son an ale nan sal la ankò."
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"
-msgstr ""
+msgstr "{screen}: pa mezire"
 
 #: src/ui/perf.rs
 msgid "{screen}: still picture"
-msgstr ""
+msgstr "{screen}: imaj fiks"
 
 #: src/ui/perf.rs
 msgid "{screen} {fps} fps"
-msgstr ""
+msgstr "{screen} {fps} fps"
 
 #: src/ui/perf.rs
 msgid "This window"
-msgstr ""
+msgstr "Fenèt sa a"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free of {total}"
-msgstr ""
+msgstr "Memwa videyo {free} lib sou {total}"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free"
-msgstr ""
+msgstr "Memwa videyo {free} lib"
 
 #: src/ui/perf.rs
 msgid "Video memory: this graphics card does not say"
-msgstr ""
+msgstr "Memwa videyo: kat grafik sa a pa di"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -7977,18 +7952,3 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
-
-#~ msgid "Smaller thumbnails"
-#~ msgstr "Ti imaj pi piti"
-
-#~ msgid "Bigger thumbnails"
-#~ msgstr "Ti imaj pi gwo"
-
-#~ msgid "Find…"
-#~ msgstr "Chèche…"
-
-#~ msgid "Find a song"
-#~ msgstr "Chèche yon chante"
-
-#~ msgid "Ctrl + Shift + M"
-#~ msgstr "Ctrl + Shift + M"

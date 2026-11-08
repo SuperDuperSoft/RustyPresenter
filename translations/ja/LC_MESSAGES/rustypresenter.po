@@ -1,15 +1,6 @@
 # Japanese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ja\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 日本語\n"
-"X-English-Name: Japanese\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ja\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 日本語\nX-English-Name: Japanese\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -21,7 +12,7 @@ msgstr "未接続"
 
 #: ui/bible-picker.slint
 msgid "About {}"
-msgstr ""
+msgstr "{} について"
 
 #: ui/bible-picker.slint
 msgid "Favourite"
@@ -705,7 +696,7 @@ msgstr "もう一度再生（ループ）"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
 msgid "Go to the next slide"
-msgstr ""
+msgstr "次のスライドへ"
 
 #: ui/dialogs/item-edit.slint
 msgid "Repeat until stopped"
@@ -781,7 +772,7 @@ msgstr "オーバーレイは、スライドを切り替えても会場画面に
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
-msgstr ""
+msgstr "オーバーレイを絞り込む"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Duplicate"
@@ -945,7 +936,7 @@ msgstr "ペアリング済みのスマホ"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
-msgstr ""
+msgstr "スライドへの書き込みを許可"
 
 #: ui/dialogs/phone.slint
 msgid "None yet."
@@ -1005,19 +996,19 @@ msgstr "Web ページとして保存…"
 
 #: ui/dialogs/quick-search.slint src/ui/dialogs/quick_search.rs
 msgid "Quick search"
-msgstr ""
+msgstr "クイック検索"
 
 #: ui/dialogs/quick-search.slint
 msgid "Find a song, a file, a slide set or a service"
-msgstr ""
+msgstr "曲、ファイル、スライドセット、礼拝を検索"
 
 #: ui/dialogs/quick-search.slint
 msgid "Add to the service (Ctrl+Enter)"
-msgstr ""
+msgstr "礼拝に追加 (Ctrl+Enter)"
 
 #: ui/dialogs/quick-search.slint
 msgid "Enter opens it · Ctrl+Enter adds it to the service · Esc closes"
-msgstr ""
+msgstr "Enter で開く · Ctrl+Enter で礼拝に追加 · Esc で閉じる"
 
 #: ui/dialogs/quick-search.slint ui/dialogs/services.slint
 msgid "Open"
@@ -1097,7 +1088,7 @@ msgstr "ファイルから開く"
 
 #: ui/dialogs/services.slint
 msgid "Filter services and templates"
-msgstr ""
+msgstr "礼拝とテンプレートを絞り込む"
 
 #: ui/dialogs/services.slint ui/dialogs/settings-themes.slint
 msgid "Rename"
@@ -1245,51 +1236,51 @@ msgstr "キーボード"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
-msgstr ""
+msgstr "すべてのキーをリセット"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Esc cancels. New keys work once you save the settings."
-msgstr ""
+msgstr "Esc でキャンセルします。新しいキーは設定を保存すると使えます。"
 
 #: ui/dialogs/settings-keys.slint src/ui/operator/help.rs
 msgid "(no key)"
-msgstr ""
+msgstr "（キーなし）"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Default"
-msgstr ""
+msgstr "既定"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Go back to the key this had at first"
-msgstr ""
+msgstr "最初のキーに戻す"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Press a key…"
-msgstr ""
+msgstr "キーを押してください…"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Change"
-msgstr ""
+msgstr "変更"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Clear groups"
-msgstr ""
+msgstr "クリアグループ"
 
 #: ui/dialogs/settings-keys.slint
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
-msgstr ""
+msgstr "クリアグループを使うと、1つのキーで複数のレイヤーを画面から消せます。「表示」メニューにも表示されます。"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Group name"
-msgstr ""
+msgstr "グループ名"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Delete group"
-msgstr ""
+msgstr "グループを削除"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Add a clear group"
-msgstr ""
+msgstr "クリアグループを追加"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
@@ -1309,11 +1300,11 @@ msgstr "翻訳はボランティアによって作られています。お使い
 
 #: ui/dialogs/settings-language.slint
 msgid "Edit this translation…"
-msgstr ""
+msgstr "この翻訳を編集…"
 
 #: ui/dialogs/settings-language.slint ui/dialogs/translation-editor.slint
 msgid "Add a language…"
-msgstr ""
+msgstr "言語を追加…"
 
 #: ui/dialogs/settings-language.slint
 msgid "Help translate RustyPresenter"
@@ -1365,15 +1356,15 @@ msgstr "歌詞をすべて大文字に"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
-msgstr ""
+msgstr "テーマ変更時にフェード"
 
 #: ui/dialogs/settings-look.slint
 msgid "(no fade)"
-msgstr ""
+msgstr "（フェードなし）"
 
 #: ui/dialogs/settings-look.slint
 msgid "({} s)"
-msgstr ""
+msgstr "（{} 秒）"
 
 #: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
 msgid "Logo"
@@ -1393,115 +1384,115 @@ msgstr "既定の背景"
 
 #: ui/dialogs/settings-media.slint
 msgid "New pictures and videos"
-msgstr ""
+msgstr "新しい画像と動画"
 
 #: ui/dialogs/settings-media.slint
 msgid "When the shape doesn't match the screen"
-msgstr ""
+msgstr "縦横比が画面と合わないとき"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fit (black bars)"
-msgstr ""
+msgstr "全体を表示（黒帯）"
 
 #: ui/dialogs/settings-media.slint
 msgid "Fill (cut the edges)"
-msgstr ""
+msgstr "全体を埋める（端を切る）"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stretch"
-msgstr ""
+msgstr "引き伸ばす"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a video ends"
-msgstr ""
+msgstr "動画の終了時"
 
 #: ui/dialogs/settings-media.slint
 msgid "For videos added from now on. Change one video in its Edit window."
-msgstr ""
+msgstr "今後追加する動画に適用されます。個別の動画は各動画の編集ウィンドウで変更してください。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Pictures added together as slides"
-msgstr ""
+msgstr "まとめて追加した画像のスライド"
 
 #: ui/dialogs/settings-media.slint
 msgid "Each picture stays this long, then the next one comes up."
-msgstr ""
+msgstr "各画像をこの時間表示してから、次の画像に切り替えます。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Until Next is pressed"
-msgstr ""
+msgstr "「次へ」を押すまで"
 
 #: ui/dialogs/settings-media.slint
 msgid "5 seconds"
-msgstr ""
+msgstr "5 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "8 seconds"
-msgstr ""
+msgstr "8 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "10 seconds"
-msgstr ""
+msgstr "10 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "15 seconds"
-msgstr ""
+msgstr "15 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "20 seconds"
-msgstr ""
+msgstr "20 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "30 seconds"
-msgstr ""
+msgstr "30 秒"
 
 #: ui/dialogs/settings-media.slint
 msgid "1 minute"
-msgstr ""
+msgstr "1 分"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound"
-msgstr ""
+msgstr "サウンド"
 
 #: ui/dialogs/settings-media.slint
 msgid "Headphones (Listen)"
-msgstr ""
+msgstr "ヘッドホン（モニター）"
 
 #: ui/dialogs/settings-media.slint
 msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr ""
+msgstr "「表示 → ヘッドホンでモニター」を選ぶと音声がここだけに出力されるので、会場に聞かせずに動画を確認できます。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Delay the room's sound (milliseconds)"
-msgstr ""
+msgstr "会場の音声の遅延（ミリ秒）"
 
 #: ui/dialogs/settings-media.slint
 msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr ""
+msgstr "プロジェクターで音声が映像より先に出る場合は、50～150 を試してください。0 は遅延なしです。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Speakers"
-msgstr ""
+msgstr "スピーカー"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stereo (as recorded)"
-msgstr ""
+msgstr "ステレオ（録音どおり）"
 
 #: ui/dialogs/settings-media.slint
 msgid "Mono (both speakers the same)"
-msgstr ""
+msgstr "モノラル（両スピーカー同じ）"
 
 #: ui/dialogs/settings-media.slint
 msgid "Swap left and right"
-msgstr ""
+msgstr "左右を入れ替える"
 
 #: ui/dialogs/settings-media.slint
 msgid "Left speaker only"
-msgstr ""
+msgstr "左スピーカーのみ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Right speaker only"
-msgstr ""
+msgstr "右スピーカーのみ"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -1509,67 +1500,67 @@ msgstr "メディアライブラリ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr ""
+msgstr "追加したファイルはすべて RustyPresenter 専用のフォルダーにコピーされるので、元のファイルを移動・削除してもスライドが壊れることはありません。"
 
 #: ui/dialogs/settings-media.slint ui/operator.slint
 msgid "Clean up unused media…"
-msgstr ""
+msgstr "未使用のメディアを整理…"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Sections"
-msgstr ""
+msgstr "セクション"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
-msgstr ""
+msgstr "セクションの種類ごとに色とキーがあります。通常の名前やキーを使う場合は空欄のままにしてください。"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Colour of {}"
-msgstr ""
+msgstr "{} の色"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Name of {}"
-msgstr ""
+msgstr "{} の名前"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Key for {}"
-msgstr ""
+msgstr "{} のキー"
 
 #: ui/dialogs/settings-sections.slint
 msgid "More section names"
-msgstr ""
+msgstr "その他のセクション名"
 
 #: ui/dialogs/settings-sections.slint
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
-msgstr ""
+msgstr "曲で使われる名前（例:「Spontaneous」）。選んだ種類の色とキーが割り当てられます。"
 
 #: ui/dialogs/settings-sections.slint
 msgid "New section name"
-msgstr ""
+msgstr "新しいセクション名"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide labels"
-msgstr ""
+msgstr "スライドラベル"
 
 #: ui/dialogs/settings-sections.slint
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
-msgstr ""
+msgstr "曲エディターで「このスライドにラベルを付ける」を使うとスライドにラベルを付けられます。ラベルはスライドのサムネイルに表示されます。"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Slide label"
-msgstr ""
+msgstr "スライドラベル"
 
 #: ui/dialogs/settings-sections.slint
 msgid "New label, like “Choir only”"
-msgstr ""
+msgstr "新しいラベル（例:「聖歌隊のみ」）"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Add label"
-msgstr ""
+msgstr "ラベルを追加"
 
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
-msgstr ""
+msgstr "通常の名前、色、ラベルを使う"
 
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
@@ -1589,7 +1580,7 @@ msgstr "テーマとはスライドの文字の見た目（フォント、サイ
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter themes"
-msgstr ""
+msgstr "テーマを絞り込む"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "New theme"
@@ -1605,7 +1596,7 @@ msgstr "教会で保管している画像、動画、色、グラデーション
 
 #: ui/dialogs/settings-themes.slint
 msgid "Filter backgrounds"
-msgstr ""
+msgstr "背景を絞り込む"
 
 #: ui/dialogs/settings-themes.slint
 msgid "No backgrounds yet."
@@ -1717,11 +1708,11 @@ msgstr "曲と聖句。クレジット表示が必要な聖書もあります。
 
 #: ui/dialogs/settings.slint
 msgid "Show the copyright line"
-msgstr ""
+msgstr "著作権表示を表示"
 
 #: ui/dialogs/settings.slint
 msgid "On first and last slide"
-msgstr ""
+msgstr "最初と最後のスライド"
 
 #: ui/dialogs/settings.slint
 msgid "On first slide"
@@ -1733,11 +1724,11 @@ msgstr "最後のスライド"
 
 #: ui/dialogs/settings.slint
 msgid "Copyright line"
-msgstr ""
+msgstr "著作権表示"
 
 #: ui/dialogs/settings.slint
 msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr ""
+msgstr "{{title}}、{{artist}}、{{author}}、{{publisher}}、{{year}}、{{copyright}}、{{ccli}}、{{license}} が使えます。· で区切られた部分のうち中身が空のものは省略されます。空欄の場合は通常の表示になります。"
 
 #: ui/dialogs/settings.slint
 msgid "Church CCLI license #"
@@ -1761,15 +1752,15 @@ msgstr "曲の使用レポート…"
 
 #: ui/dialogs/settings.slint
 msgid "General"
-msgstr ""
+msgstr "一般"
 
 #: ui/dialogs/settings.slint
 msgid "Sections and labels"
-msgstr ""
+msgstr "セクションとラベル"
 
 #: ui/dialogs/settings.slint
 msgid "Video and graphics"
-msgstr ""
+msgstr "動画とグラフィックス"
 
 #: ui/dialogs/settings.slint
 msgid "Sound goes to"
@@ -1785,15 +1776,15 @@ msgstr "画面がちらつく、黒いままになる、または RustyPresenter
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
-msgstr ""
+msgstr "パフォーマンス"
 
 #: ui/dialogs/settings.slint
 msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr ""
+msgstr "ライブプレビューの下に、画面の 1 秒あたりの描画フレーム数と、グラフィックカードが報告する場合は空きビデオメモリを表示します。数値が低い場合はコンピューターの負荷が高いことを示します。"
 
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Show performance"
-msgstr ""
+msgstr "パフォーマンスを表示"
 
 #: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint
 msgid "Screens"
@@ -1809,11 +1800,11 @@ msgstr "会場画面に専用モニターがある場合は前面に保つ（フ
 
 #: ui/dialogs/settings.slint
 msgid "At start"
-msgstr ""
+msgstr "起動時"
 
 #: ui/dialogs/settings.slint
 msgid "Turn the screens on when RustyPresenter starts"
-msgstr ""
+msgstr "RustyPresenter の起動時に画面をオンにする"
 
 #: ui/dialogs/settings.slint src/strings/stage.rs
 msgid "Stage layout"
@@ -1825,43 +1816,43 @@ msgstr "ステージ画面に表示する内容。「ウィンドウ → ステ�
 
 #: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
 msgid "Phone drawing"
-msgstr ""
+msgstr "スマホからの書き込み"
 
 #: ui/dialogs/settings.slint
 msgid "Drawing from a phone"
-msgstr ""
+msgstr "スマホからの書き込み"
 
 #: ui/dialogs/settings.slint
 msgid "Keep drawings when the slide changes"
-msgstr ""
+msgstr "スライドが変わっても書き込みを残す"
 
 #: ui/dialogs/settings.slint
 msgid "Show drawings on the stage screen"
-msgstr ""
+msgstr "書き込みをステージ画面に表示"
 
 #: ui/dialogs/settings.slint
 msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr ""
+msgstr "消えるインクが消えるまでの時間（秒、1～30）"
 
 #: ui/dialogs/settings.slint
 msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr ""
+msgstr "スマホの「消える」インクはレーザーポインターのように使えます。自動で消えます。"
 
 #: ui/dialogs/settings.slint
 msgid "Limits"
-msgstr ""
+msgstr "制限"
 
 #: ui/dialogs/settings.slint
 msgid "Limit phone drawing"
-msgstr ""
+msgstr "スマホからの書き込みを制限"
 
 #: ui/dialogs/settings.slint
 msgid "Most lines on the screen at once"
-msgstr ""
+msgstr "画面上の最大線数"
 
 #: ui/dialogs/settings.slint
 msgid "Most drawing updates a second from one phone"
-msgstr ""
+msgstr "1 台のスマホからの 1 秒あたりの最大描画更新数"
 
 #: ui/dialogs/settings.slint
 msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
@@ -1953,23 +1944,23 @@ msgstr "作者"
 
 #: ui/dialogs/song-editor.slint
 msgid "Artist"
-msgstr ""
+msgstr "アーティスト"
 
 #: ui/dialogs/song-editor.slint
 msgid "Who sings it"
-msgstr ""
+msgstr "歌っている人"
 
 #: ui/dialogs/song-editor.slint
 msgid "Publisher"
-msgstr ""
+msgstr "出版社"
 
 #: ui/dialogs/song-editor.slint
 msgid "Year"
-msgstr ""
+msgstr "年"
 
 #: ui/dialogs/song-editor.slint
 msgid "2006"
-msgstr ""
+msgstr "2006"
 
 #: ui/dialogs/song-editor.slint
 msgid "CCLI song #"
@@ -1993,27 +1984,15 @@ msgstr "— セクション名はそれぞれ独立した行に。セクショ�
 
 #: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
-msgstr ""
+msgstr "スライド区切りを挿入"
 
 #: ui/dialogs/song-editor.slint
 msgid "Starts a new slide where the cursor is"
-msgstr ""
+msgstr "カーソル位置から新しいスライドを始めます"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"バース 1\n"
-"驚くばかりの 恵みなりき\n"
-"この身の汚れを 知れる我に\n"
-"\n"
-"サビ\n"
-"鎖は解かれ…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "バース 1\n驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に\n\nサビ\n鎖は解かれ…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2061,7 +2040,7 @@ msgstr "ステージレイアウト"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Filter layouts"
-msgstr ""
+msgstr "レイアウトを絞り込む"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "On stage"
@@ -2165,43 +2144,43 @@ msgstr "ステージレイアウトを編集…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
-msgstr ""
+msgstr "確認済み"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show the app in this language"
-msgstr ""
+msgstr "アプリをこの言語で表示"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search the English or your words"
-msgstr ""
+msgstr "英語または訳語で検索"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Untranslated"
-msgstr ""
+msgstr "未翻訳"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Needs review"
-msgstr ""
+msgstr "要確認"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Changed by me"
-msgstr ""
+msgstr "自分で変更"
 
 #: ui/dialogs/translation-editor.slint
 msgid "English"
-msgstr ""
+msgstr "英語"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Your language"
-msgstr ""
+msgstr "あなたの言語"
 
 #: ui/dialogs/translation-editor.slint
 msgid "(shows in English)"
-msgstr ""
+msgstr "（英語で表示）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Show more"
-msgstr ""
+msgstr "さらに表示"
 
 #: ui/dialogs/translation-editor.slint src/strings/add.rs src/ui/dialogs/quick_search.rs
 msgid "Nothing matches."
@@ -2209,31 +2188,31 @@ msgstr "一致するものがありません。"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Click a text above to translate it."
-msgstr ""
+msgstr "上のテキストをクリックして翻訳してください。"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Type it in your language (empty shows the English)"
-msgstr ""
+msgstr "あなたの言語で入力してください（空欄なら英語で表示）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "This is right"
-msgstr ""
+msgstr "これで正しい"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reset this entry to built-in"
-msgstr ""
+msgstr "この項目を内蔵の訳に戻す"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Import…"
-msgstr ""
+msgstr "取り込む…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Export…"
-msgstr ""
+msgstr "エクスポート…"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Mark as reviewed"
-msgstr ""
+msgstr "確認済みにする"
 
 #: ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
@@ -2241,43 +2220,43 @@ msgstr "完了"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Pick your language. You can start from nothing (the English shows until you type) or from a copy of a language that is close to yours."
-msgstr ""
+msgstr "言語を選んでください。何もない状態から始める（入力するまで英語が表示されます）か、あなたの言語に近い言語のコピーから始められます。"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Search languages"
-msgstr ""
+msgstr "言語を検索"
 
 #: ui/dialogs/translation-editor.slint
 msgid "My language is not in the list"
-msgstr ""
+msgstr "自分の言語が一覧にない"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Code"
-msgstr ""
+msgstr "コード"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in your language"
-msgstr ""
+msgstr "あなたの言語での名前"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Name in English"
-msgstr ""
+msgstr "英語での名前"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts (from the gettext plural list; leave as it is if unsure)"
-msgstr ""
+msgstr "数え方（gettext の複数形リストから。分からない場合はそのままにしてください）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "How it counts"
-msgstr ""
+msgstr "数え方"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Start from"
-msgstr ""
+msgstr "元にする言語"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Add language"
-msgstr ""
+msgstr "言語を追加"
 
 #: ui/dialogs/usage.slint
 msgid "Keep a song use log for CCLI reporting"
@@ -2353,11 +2332,11 @@ msgstr "スプレッドシート (CSV) として保存…"
 
 #: ui/filter.slint
 msgid "Filter"
-msgstr ""
+msgstr "絞り込み"
 
 #: ui/filter.slint
 msgid "Clear the filter"
-msgstr ""
+msgstr "絞り込みを解除"
 
 #: ui/identify.slint
 msgid "Identify screen"
@@ -2405,11 +2384,11 @@ msgstr "更新中…"
 
 #: ui/operator/live.slint
 msgid "Drawing"
-msgstr ""
+msgstr "書き込み"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "Clear drawing"
-msgstr ""
+msgstr "書き込みを消去"
 
 #: ui/operator/live.slint
 msgid "−15 s"
@@ -2493,7 +2472,7 @@ msgstr "メディアを検索"
 
 #: ui/operator/media.slint ui/operator/slides.slint
 msgid "Picture size"
-msgstr ""
+msgstr "画像サイズ"
 
 #: ui/operator/media.slint
 msgid "Import"
@@ -2537,7 +2516,7 @@ msgstr "会場画面はオフです"
 
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
-msgstr ""
+msgstr "ステージ画面はオフです"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -2625,7 +2604,7 @@ msgstr "曲、動画、スライドを追加するか、上部に聖句を入力
 
 #: ui/operator/service.slint
 msgid "Filter the service"
-msgstr ""
+msgstr "礼拝を絞り込む"
 
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
@@ -2677,51 +2656,51 @@ msgstr "設定のサイズに戻す"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
-msgstr ""
+msgstr "‹ 前の節"
 
 #: ui/operator/slides.slint
 msgid "Add the verse before this passage"
-msgstr ""
+msgstr "この聖句の前の節を追加"
 
 #: ui/operator/slides.slint
 msgid "Verse ›"
-msgstr ""
+msgstr "次の節 ›"
 
 #: ui/operator/slides.slint
 msgid "Add the verse after this passage"
-msgstr ""
+msgstr "この聖句の次の節を追加"
 
 #: ui/operator/slides.slint
 msgid "Save to library"
-msgstr ""
+msgstr "ライブラリに保存"
 
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
-msgstr ""
+msgstr "この聖句を曲ライブラリに保存して、編集や再利用ができるようにします"
 
 #: ui/operator/slides.slint src/i18n/remote_strings.rs
 msgid "Stage only"
-msgstr ""
+msgstr "ステージのみ"
 
 #: ui/operator/slides.slint
 msgid "The next slide you click goes to the stage screen only. Click again to cancel."
-msgstr ""
+msgstr "次にクリックしたスライドはステージ画面にのみ表示されます。もう一度クリックするとキャンセルします。"
 
 #: ui/operator/slides.slint
 msgid "Send the next slide you click to the stage screen only, as a note for the band"
-msgstr ""
+msgstr "次にクリックしたスライドを、バンドへのメモとしてステージ画面にのみ送ります"
 
 #: ui/operator/slides.slint
 msgid "On the stage screen only: {}"
-msgstr ""
+msgstr "ステージ画面のみ: {}"
 
 #: ui/operator/slides.slint
 msgid "Click a slide to show it on the stage screen only. The room won't see it."
-msgstr ""
+msgstr "スライドをクリックするとステージ画面にのみ表示されます。会場には表示されません。"
 
 #: ui/operator/slides.slint
 msgid "Take it down"
-msgstr ""
+msgstr "取り下げる"
 
 #: ui/operator/slides.slint
 msgid "Choose something from the service list."
@@ -2737,15 +2716,15 @@ msgstr "この項目にはまだスライドがありません。「編集」を
 
 #: ui/operator/slides.slint
 msgid "Grid"
-msgstr ""
+msgstr "グリッド"
 
 #: ui/operator/slides.slint
 msgid "Easy"
-msgstr ""
+msgstr "簡単"
 
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Table"
-msgstr ""
+msgstr "表"
 
 #: ui/operator/topbar.slint ui/operator.slint
 msgid "RustyPresenter"
@@ -2757,7 +2736,7 @@ msgstr "礼拝の切り替え・作成"
 
 #: ui/operator/topbar.slint
 msgid "Recent verses"
-msgstr ""
+msgstr "最近の聖句"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
@@ -2873,7 +2852,7 @@ msgstr "終了"
 
 #: ui/operator.slint
 msgid "Quick search…"
-msgstr ""
+msgstr "クイック検索…"
 
 #: ui/operator.slint
 msgid "Find a verse…"
@@ -2889,23 +2868,23 @@ msgstr "聖書ボックス"
 
 #: ui/operator.slint
 msgid "Recent verses…"
-msgstr ""
+msgstr "最近の聖句…"
 
 #: ui/operator.slint
 msgid "Add the verse before"
-msgstr ""
+msgstr "前の節を追加"
 
 #: ui/operator.slint
 msgid "Add the verse after"
-msgstr ""
+msgstr "次の節を追加"
 
 #: ui/operator.slint
 msgid "Save passage to song library"
-msgstr ""
+msgstr "聖句を曲ライブラリに保存"
 
 #: ui/operator.slint
 msgid "About this Bible…"
-msgstr ""
+msgstr "この聖書について…"
 
 #: ui/operator.slint
 msgid "View"
@@ -2929,11 +2908,11 @@ msgstr "音声を停止"
 
 #: ui/operator.slint
 msgid "Stop listening in headphones"
-msgstr ""
+msgstr "ヘッドホンでのモニターを停止"
 
 #: ui/operator.slint
 msgid "Listen in headphones"
-msgstr ""
+msgstr "ヘッドホンでモニター"
 
 #: ui/operator.slint src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
@@ -2941,11 +2920,11 @@ msgstr "オーバーレイをクリア"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the message"
-msgstr ""
+msgstr "メッセージをクリア"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the timers"
-msgstr ""
+msgstr "タイマーをクリア"
 
 #: ui/operator.slint
 msgid "Hide media library"
@@ -2957,27 +2936,27 @@ msgstr "メディアライブラリを表示"
 
 #: ui/operator.slint
 msgid "Show slides as"
-msgstr ""
+msgstr "スライドの表示方法"
 
 #: ui/operator.slint
 msgid "Grid of pictures"
-msgstr ""
+msgstr "画像のグリッド"
 
 #: ui/operator.slint
 msgid "Easy view (big words)"
-msgstr ""
+msgstr "簡単表示（大きな文字）"
 
 #: ui/operator.slint
 msgid "Preview the room screen"
-msgstr ""
+msgstr "会場画面をプレビュー"
 
 #: ui/operator.slint
 msgid "Preview the stage screen"
-msgstr ""
+msgstr "ステージ画面をプレビュー"
 
 #: ui/operator.slint
 msgid "Hide performance"
-msgstr ""
+msgstr "パフォーマンスを隠す"
 
 #: ui/operator.slint
 msgid "Zoom in"
@@ -3001,11 +2980,11 @@ msgstr "画面…"
 
 #: ui/operator.slint
 msgid "Close the room window"
-msgstr ""
+msgstr "会場ウィンドウを閉じる"
 
 #: ui/operator.slint
 msgid "Room screen in a window"
-msgstr ""
+msgstr "会場画面をウィンドウで表示"
 
 #: ui/operator.slint
 msgid "Phone remote…"
@@ -3017,15 +2996,15 @@ msgstr "ステージメッセージ…"
 
 #: ui/operator.slint
 msgid "Slide clicks go to the room again"
-msgstr ""
+msgstr "スライドのクリックを会場に戻す"
 
 #: ui/operator.slint
 msgid "Next slide click: stage only"
-msgstr ""
+msgstr "次のスライドクリック: ステージのみ"
 
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
-msgstr ""
+msgstr "ステージ専用スライドを取り下げる"
 
 #: ui/operator.slint
 msgid "Stage layouts…"
@@ -3049,7 +3028,7 @@ msgstr "曲…"
 
 #: ui/operator.slint
 msgid "Sections and slide labels…"
-msgstr ""
+msgstr "セクションとスライドラベル…"
 
 #: ui/operator.slint
 msgid "Bible…"
@@ -3061,7 +3040,7 @@ msgstr "動画…"
 
 #: ui/operator.slint
 msgid "Media and sound…"
-msgstr ""
+msgstr "メディアとサウンド…"
 
 #: ui/operator.slint
 msgid "Backups…"
@@ -3069,11 +3048,11 @@ msgstr "バックアップ…"
 
 #: ui/operator.slint
 msgid "Keys and clear groups…"
-msgstr ""
+msgstr "キーとクリアグループ…"
 
 #: ui/operator.slint
 msgid "Translations…"
-msgstr ""
+msgstr "翻訳…"
 
 #: ui/operator.slint
 msgid "Keyboard shortcuts"
@@ -3085,15 +3064,15 @@ msgstr "礼拝を確認"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
-msgstr ""
+msgstr "マウスを探す"
 
 #: ui/operator.slint
 msgid "Tutorials"
-msgstr ""
+msgstr "チュートリアル"
 
 #: ui/operator.slint
 msgid "Report a problem…"
-msgstr ""
+msgstr "問題を報告…"
 
 #: ui/operator.slint
 msgid "Open logs folder"
@@ -3121,7 +3100,7 @@ msgstr "礼拝の終わり"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "STAGE ONLY"
-msgstr ""
+msgstr "ステージのみ"
 
 #: ui/stage.slint src/strings/stage.rs
 msgid "NEXT"
@@ -3129,7 +3108,7 @@ msgstr "次"
 
 #: ui/stage.slint
 msgid "The slide with its drawing"
-msgstr ""
+msgstr "書き込み付きのスライド"
 
 #: ui/widgets.slint
 msgid "Cut"
@@ -3149,11 +3128,11 @@ msgstr "保存できませんでした: {error}"
 
 #: src/app.rs
 msgid "That item isn't in the service any more."
-msgstr ""
+msgstr "その項目はもう礼拝にありません。"
 
 #: src/app.rs
 msgid "That slide isn't there any more."
-msgstr ""
+msgstr "そのスライドはもうありません。"
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
@@ -3485,11 +3464,11 @@ msgstr "先に聖句のテキストを貼り付けてください。"
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
-msgstr ""
+msgstr "UTF-8 テキストとして保存されていません"
 
 #: src/i18n/mod.rs
 msgid "The translation file {file} could not be read ({reason}), so it is not used."
-msgstr ""
+msgstr "翻訳ファイル {file} を読み込めなかったため（{reason}）、使用されません。"
 
 #: src/i18n/remote_strings.rs
 msgid "RustyPresenter Remote"
@@ -3529,11 +3508,11 @@ msgstr "スライドをタップすると画面に表示されます。"
 
 #: src/i18n/remote_strings.rs
 msgid "Take it off the stage"
-msgstr ""
+msgstr "ステージから取り下げる"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
-msgstr ""
+msgstr "ステージ画面のみ（会場には表示されません）"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
@@ -3577,23 +3556,23 @@ msgstr "（クリア）"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
-msgstr ""
+msgstr "スライドに書き込む"
 
 #: src/i18n/remote_strings.rs
 msgid "Highlighter"
-msgstr ""
+msgstr "蛍光ペン"
 
 #: src/i18n/remote_strings.rs
 msgid "Pen size"
-msgstr ""
+msgstr "ペンの太さ"
 
 #: src/i18n/remote_strings.rs
 msgid "Stays"
-msgstr ""
+msgstr "残る"
 
 #: src/i18n/remote_strings.rs
 msgid "Fades"
-msgstr ""
+msgstr "消える"
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -3601,35 +3580,35 @@ msgstr "Android スマホ"
 
 #: src/i18n/user.rs
 msgid "Fill in every box, or this text stays in English."
-msgstr ""
+msgstr "すべての欄を入力してください。入力しないとこのテキストは英語のままになります。"
 
 #: src/i18n/user.rs
 msgid "Keep {gaps} exactly as in the English: the app puts a name or number there."
-msgstr ""
+msgstr "{gaps} は英語のとおりに残してください。アプリがそこに名前や数値を入れます。"
 
 #: src/i18n/user.rs
 msgid "{gaps} is not in the English. Remove it, or copy the part in curly brackets exactly."
-msgstr ""
+msgstr "{gaps} は英語にありません。削除するか、波かっこの部分を正確にコピーしてください。"
 
 #: src/i18n/user.rs
 msgid "This file could not be read ({reason})."
-msgstr ""
+msgstr "このファイルを読み込めませんでした（{reason}）。"
 
 #: src/i18n/user.rs
 msgid "This file does not say which language it is."
-msgstr ""
+msgstr "このファイルには言語が記載されていません。"
 
 #: src/i18n/user.rs
 msgid "“{code}” is not a language code. Use letters such as “es”, or “pt-BR” with a country."
-msgstr ""
+msgstr "「{code}」は言語コードではありません。「es」のような文字、または国付きの「pt-BR」を使ってください。"
 
 #: src/i18n/user.rs
 msgid "{language} is already in the list."
-msgstr ""
+msgstr "{language} はすでに一覧にあります。"
 
 #: src/i18n/user.rs
 msgid "The plural rule is not right. Copy it from the gettext plural list."
-msgstr ""
+msgstr "複数形のルールが正しくありません。gettext の複数形リストからコピーしてください。"
 
 #: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
 msgid "Untitled song"
@@ -3861,43 +3840,43 @@ msgstr "{path} に ProPresenter の曲が見つかりませんでした。"
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
-msgstr ""
+msgstr "このスマホはスライドへの書き込みが許可されていません。オペレーターに許可を依頼してください。"
 
 #: src/live/drawing/actions.rs
 msgid "The drawing is full. Clear it to draw more."
-msgstr ""
+msgstr "書き込みがいっぱいです。さらに書くには消去してください。"
 
 #: src/live/drawing/actions.rs
 msgid "Drawing too fast. Slow down a little."
-msgstr ""
+msgstr "書き込みが速すぎます。少しゆっくり書いてください。"
 
 #: src/live/drawing/actions.rs
 msgid "Pair this phone first."
-msgstr ""
+msgstr "先にこのスマホをペアリングしてください。"
 
 #: src/live/drawing/actions.rs
 msgid "That phone is no longer paired."
-msgstr ""
+msgstr "そのスマホはペアリングが解除されています。"
 
 #: src/live/drawing.rs
 msgid "A point is off the slide."
-msgstr ""
+msgstr "スライドの外に点があります。"
 
 #: src/live/drawing.rs
 msgid "That colour isn't one of the pen colours."
-msgstr ""
+msgstr "その色はペンの色にありません。"
 
 #: src/live/drawing.rs
 msgid "That pen size isn't right."
-msgstr ""
+msgstr "そのペンの太さは正しくありません。"
 
 #: src/live/drawing.rs
 msgid "A line needs at least one point."
-msgstr ""
+msgstr "線には少なくとも 1 つの点が必要です。"
 
 #: src/live/drawing.rs
 msgid "That line was cleared."
-msgstr ""
+msgstr "その線は消去されました。"
 
 #: src/live.rs
 msgid "That item is not in the service."
@@ -3966,7 +3945,7 @@ msgstr "RustyPresenter はウィンドウを実行できませんでした: {rea
 #: src/media_care.rs
 msgid "Take this file out of the media library? No service or template uses it."
 msgid_plural "Take these {n} files out of the media library? No service or template uses them."
-msgstr[0] ""
+msgstr[0] "メディアライブラリから {n} 個のファイルを削除しますか？ どの礼拝やテンプレートでも使われていません。"
 
 #: src/media_care.rs src/strings/preflight.rs src/ui/operator/checks.rs
 msgid "…and {n} more"
@@ -3975,28 +3954,28 @@ msgstr[0] "…ほか {n} 件"
 
 #: src/media_care.rs
 msgid "This frees {size} on this computer. Backups keep their own copies, but this can't be undone."
-msgstr ""
+msgstr "これにより、このコンピューターの {size} が解放されます。バックアップには別のコピーが残りますが、この操作は元に戻せません。"
 
 #: src/media_care.rs
 msgid "{n} GB"
-msgstr ""
+msgstr "{n} GB"
 
 #: src/media_care.rs
 msgid "{n} MB"
-msgstr ""
+msgstr "{n} MB"
 
 #: src/media_care.rs
 msgid "{n} KB"
-msgstr ""
+msgstr "{n} KB"
 
 #: src/media_care.rs
 msgid "Choose your headphones in Settings → Media first."
-msgstr ""
+msgstr "先に「設定 → メディア」でヘッドホンを選んでください。"
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
 msgid_plural "Took {n} files out of the media library and freed {size}."
-msgstr[0] ""
+msgstr[0] "メディアライブラリから {n} 個のファイルを削除し、{size} を解放しました。"
 
 #: src/model.rs
 msgid "Sunday Service"
@@ -4108,7 +4087,7 @@ msgstr "スマホからは実行できません。"
 
 #: src/server.rs
 msgid "Could not draw the slide."
-msgstr ""
+msgstr "スライドを描画できませんでした。"
 
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
@@ -4133,27 +4112,27 @@ msgstr "（音声）"
 
 #: src/shortcuts.rs
 msgid "Ctrl + {key}"
-msgstr ""
+msgstr "Ctrl + {key}"
 
 #: src/shortcuts.rs
 msgid "Alt + {key}"
-msgstr ""
+msgstr "Alt + {key}"
 
 #: src/shortcuts.rs
 msgid "Shift + {key}"
-msgstr ""
+msgstr "Shift + {key}"
 
 #: src/shortcuts.rs
 msgid "Space"
-msgstr ""
+msgstr "Space"
 
 #: src/shortcuts.rs
 msgid "Page Down"
-msgstr ""
+msgstr "Page Down"
 
 #: src/shortcuts.rs
 msgid "Page Up"
-msgstr ""
+msgstr "Page Up"
 
 #: src/shortcuts.rs src/strings/settings.rs
 msgid "Enter"
@@ -4165,15 +4144,15 @@ msgstr "Esc"
 
 #: src/shortcuts.rs
 msgid "Backspace"
-msgstr ""
+msgstr "Backspace"
 
 #: src/shortcuts.rs
 msgid "Clear group: {name}"
-msgstr ""
+msgstr "クリアグループ: {name}"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
-msgstr ""
+msgstr "背景以外すべて"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -5152,11 +5131,11 @@ msgstr "フォルダー「{name}」を削除しますか？中のファイルは
 
 #: src/strings/operator.rs
 msgid "slide {n}"
-msgstr ""
+msgstr "スライド {n}"
 
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
-msgstr ""
+msgstr "ステージ画面のみに表示しています。会場は変わっていません。"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -5905,51 +5884,51 @@ msgstr "その聖書は削除されました。「設定 → 聖書」でもう�
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
-msgstr ""
+msgstr "先に聖書箇所を選択してください。"
 
 #: src/strings/scripture.rs
 msgid "There is no verse before this one."
-msgstr ""
+msgstr "これより前の節はありません。"
 
 #: src/strings/scripture.rs
 msgid "There is no verse after this one."
-msgstr ""
+msgstr "これより後の節はありません。"
 
 #: src/strings/scripture.rs
 msgid "{reference} ({bible})"
-msgstr ""
+msgstr "{reference} ({bible})"
 
 #: src/strings/scripture.rs
 msgid "Saved “{title}” to the song library."
-msgstr ""
+msgstr "「{title}」を曲ライブラリに保存しました。"
 
 #: src/strings/scripture.rs
 msgid "Language: {language}"
-msgstr ""
+msgstr "言語: {language}"
 
 #: src/strings/scripture.rs
 msgid "Comes from: {provider}"
-msgstr ""
+msgstr "提供元: {provider}"
 
 #: src/strings/scripture.rs
 msgid "Copyright: {notice}"
-msgstr ""
+msgstr "著作権: {notice}"
 
 #: src/strings/scripture.rs
 msgid "Licence: {licence}"
-msgstr ""
+msgstr "ライセンス: {licence}"
 
 #: src/strings/scripture.rs
 msgid "Not connected yet. Add its key in Settings → Bible."
-msgstr ""
+msgstr "まだ接続されていません。「設定 → 聖書」でキーを追加してください。"
 
 #: src/strings/scripture.rs
 msgid "This Bible isn't on this computer and no online service has it."
-msgstr ""
+msgstr "この聖書はこのコンピューターになく、どのオンラインサービスにもありません。"
 
 #: src/strings/scripture.rs
 msgid "No copyright notice is known. Check the licence before showing it in public."
-msgstr ""
+msgstr "著作権表示が不明です。公の場で表示する前にライセンスを確認してください。"
 
 #: src/strings/services.rs
 msgid "Name for the copy"
@@ -5972,12 +5951,8 @@ msgid "Settings saved"
 msgstr "設定を保存しました"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"驚くばかりの 恵みなりき\n"
-"この身の汚れを 知れる我に"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6122,7 +6097,7 @@ msgstr "元に戻した操作をやり直す"
 
 #: src/strings/settings.rs
 msgid "Quick search: songs, files and services (Enter opens, Ctrl + Enter adds)"
-msgstr ""
+msgstr "クイック検索: 曲、ファイル、礼拝（Enter で開く、Ctrl + Enter で追加）"
 
 #: src/strings/settings.rs
 msgid "Jump the live song to Verse 1–9, Chorus, Pre-chorus, Bridge, Tag, Intro, Ending, Interlude or the next Verse"
@@ -6254,35 +6229,35 @@ msgstr "その他"
 
 #: src/strings/song.rs
 msgid "Instrumental"
-msgstr ""
+msgstr "インスト"
 
 #: src/strings/song.rs
 msgid "Repeat"
-msgstr ""
+msgstr "繰り返し"
 
 #: src/strings/song.rs
 msgid "Spoken Word"
-msgstr ""
+msgstr "語り"
 
 #: src/strings/song.rs
 msgid "Label this slide…"
-msgstr ""
+msgstr "このスライドにラベルを付ける…"
 
 #: src/strings/song.rs
 msgid "Example: {line}"
-msgstr ""
+msgstr "例: {line}"
 
 #: src/strings/song.rs
 msgid "“{color}” is not a colour. Use #rrggbb, like #6aa8ff."
-msgstr ""
+msgstr "「{color}」は色ではありません。#6aa8ff のように #rrggbb の形式で入力してください。"
 
 #: src/strings/song.rs
 msgid "“{key}” is not a letter. Section keys are one letter each."
-msgstr ""
+msgstr "「{key}」は文字ではありません。セクションキーはそれぞれ 1 文字です。"
 
 #: src/strings/song.rs
 msgid "{first} and {second} both use the key {key}."
-msgstr ""
+msgstr "{first} と {second} の両方がキー {key} を使っています。"
 
 #: src/strings/song.rs
 msgid "Section keys work on songs."
@@ -7384,15 +7359,15 @@ msgstr "メッセージを表示"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, words from the lyrics, a file name or a service."
-msgstr ""
+msgstr "曲のタイトル、歌詞の一部、ファイル名、または礼拝を入力してください。"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
-msgstr ""
+msgstr "この礼拝内"
 
 #: src/ui/dialogs/quick_search.rs
 msgid "{kind} · In this service"
-msgstr ""
+msgstr "{kind} · この礼拝内"
 
 #: src/ui/dialogs/settings.rs
 msgid "{day} at {time} UTC"
@@ -7408,107 +7383,107 @@ msgstr "画面にメッセージを表示"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Media & background"
-msgstr ""
+msgstr "メディアと背景"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Overlays (pictures, clocks, signs)"
-msgstr ""
+msgstr "オーバーレイ（画像、時計、案内）"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
-msgstr ""
+msgstr "新しいクリアグループ"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Press the new key for “{what}”"
-msgstr ""
+msgstr "「{what}」の新しいキーを押してください"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Tab moves between buttons, so it cannot be a shortcut. Press another key."
-msgstr ""
+msgstr "Tab はボタン間の移動に使うため、ショートカットにはできません。別のキーを押してください。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use it"
-msgstr ""
+msgstr "使う"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} is already the key for “{what}”. It will move here."
-msgstr ""
+msgstr "{key} はすでに「{what}」のキーです。こちらに移動します。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr ""
+msgstr "{key} は表示中の曲のセクションへのジャンプにも使われます（設定 → 曲 → セクションキー）。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
-msgstr ""
+msgstr "{key} は聖書ボックスに入力中、聖書チップの選択にも使われます。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Text boxes use {key} for editing. It will do this instead, even while you type."
-msgstr ""
+msgstr "テキストボックスでは {key} を編集に使います。入力中でもこちらの動作が優先されます。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Use {key} for “{what}”?"
-msgstr ""
+msgstr "{key} を「{what}」に使いますか？"
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Nothing to clean up: every file in the media library is used."
-msgstr ""
+msgstr "整理するものはありません。メディアライブラリのファイルはすべて使用中です。"
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Clean up"
-msgstr ""
+msgstr "整理"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
-msgstr ""
+msgstr "{total} 件中 {done} 件翻訳済み"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Showing {shown} of {total}"
-msgstr ""
+msgstr "{total} 件中 {shown} 件を表示"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Used in: {places}"
-msgstr ""
+msgstr "使用箇所: {places}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "For {numbers}…"
-msgstr ""
+msgstr "{numbers} の場合…"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The translation could not be saved: {reason}"
-msgstr ""
+msgstr "翻訳を保存できませんでした: {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Marked as reviewed. Thank you!"
-msgstr ""
+msgstr "確認済みにしました。ありがとうございます！"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Saved {file}. Send it to the RustyPresenter project to share it with other churches."
-msgstr ""
+msgstr "{file} を保存しました。他の教会と共有するには、RustyPresenter プロジェクトに送ってください。"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "The file could not be saved: {reason}"
-msgstr ""
+msgstr "ファイルを保存できませんでした: {reason}"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Imported {language}"
-msgstr ""
+msgstr "{language} を取り込みました"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Nothing (the English shows until you type)"
-msgstr ""
+msgstr "なし（入力するまで英語が表示されます）"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "A copy of {language}"
-msgstr ""
+msgstr "{language} のコピー"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "Pick a language from the list, or tick “My language is not in the list”."
-msgstr ""
+msgstr "一覧から言語を選ぶか、「自分の言語が一覧にない」にチェックを入れてください。"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
-msgstr ""
+msgstr "{language} を追加しました。訳語を入力してから、「設定 → 言語」で選んでください。"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -7529,115 +7504,115 @@ msgstr[0] "{n} 件の問題"
 
 #: src/ui/operator/file_input.rs
 msgid "Translation file (.po)"
-msgstr ""
+msgstr "翻訳ファイル (.po)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
-msgstr ""
+msgstr "このコンピューターでは RustyPresenter がマウスポインターを動かせません。各画面で探してください。"
 
 #: src/ui/operator/help.rs
 msgid "Could not open the page. It is at {path}"
-msgstr ""
+msgstr "ページを開けませんでした。場所は {path} です"
 
 #: src/ui/operator/help.rs
 msgid "Report a problem with RustyPresenter"
-msgstr ""
+msgstr "RustyPresenter の問題を報告"
 
 #: src/ui/operator/help.rs
 msgid "Please write below what happened and what you expected instead."
-msgstr ""
+msgstr "何が起きたか、本来どうなるはずだったかを下に書いてください。"
 
 #: src/ui/operator/help.rs
 msgid "If you can, list the steps that make it happen again."
-msgstr ""
+msgstr "可能であれば、問題を再現する手順を書いてください。"
 
 #: src/ui/operator/help.rs
 msgid "The app's log files are in this folder (Help → Open logs folder):"
-msgstr ""
+msgstr "アプリのログファイルはこのフォルダーにあります（ヘルプ → ログフォルダーを開く）:"
 
 #: src/ui/operator/help.rs
 msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by e-mail from another computer."
-msgstr ""
+msgstr "このファイルを保存し、最新のログファイルと一緒に、教会で RustyPresenter を担当している人に送ってください（USB メモリーや、別のコンピューターからのメールで）。"
 
 #: src/ui/operator/help.rs
 msgid "What happened:"
-msgstr ""
+msgstr "起きたこと:"
 
 #: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
-msgstr ""
+msgstr "RustyPresenter: クイックチュートリアル"
 
 #: src/ui/operator/help.rs
 msgid "Get ready for Sunday"
-msgstr ""
+msgstr "日曜日の準備"
 
 #: src/ui/operator/help.rs
 msgid "File → New service makes this week's service. File → Services… opens an older one or copies last week."
-msgstr ""
+msgstr "「ファイル → 新しい礼拝」で今週の礼拝を作成します。「ファイル → 礼拝…」で以前の礼拝を開いたり、先週の礼拝をコピーしたりできます。"
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
-msgstr ""
+msgstr "「ファイル → 礼拝に追加」で曲、聖書箇所、動画、スライド、お知らせを追加します。項目をドラッグすると順序を変更できます。"
 
 #: src/ui/operator/help.rs
 msgid "Help → Check the service finds missing files and empty items before the service starts."
-msgstr ""
+msgstr "「ヘルプ → 礼拝を確認」で、礼拝の開始前に見つからないファイルや空の項目を見つけられます。"
 
 #: src/ui/operator/help.rs
 msgid "Put things on the screen"
-msgstr ""
+msgstr "画面に表示する"
 
 #: src/ui/operator/help.rs
 msgid "Click a slide: it goes on the screen at once. The red outline shows what the room sees."
-msgstr ""
+msgstr "スライドをクリックすると、すぐに画面に表示されます。赤い枠は会場で見えているものを示します。"
 
 #: src/ui/operator/help.rs
 msgid "Next slide: {next}. Back: {back}."
-msgstr ""
+msgstr "次のスライド: {next}。戻る: {back}。"
 
 #: src/ui/operator/help.rs
 msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
-msgstr ""
+msgstr "「ウィンドウ → 画面…」で、どのモニターを会場画面とステージ画面にするか選びます。"
 
 #: src/ui/operator/help.rs
 msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr ""
+msgstr "「設定 → キーとクリアグループ…」でこれらのキーを変更したり、独自のクリアグループを作成したりできます。"
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
-msgstr ""
+msgstr "聖書箇所"
 
 #: src/ui/operator/help.rs
 msgid "{key} puts the cursor in the Bible box. Type a reference such as John 3:16-18 and press Enter."
-msgstr ""
+msgstr "{key} で聖書ボックスにカーソルが移ります。John 3:16-18 のような参照箇所を入力して Enter を押してください。"
 
 #: src/ui/operator/help.rs
 msgid "Edit → Find a verse… finds a passage by its words."
-msgstr ""
+msgstr "「編集 → 聖句を検索…」で言葉から聖書箇所を探せます。"
 
 #: src/ui/operator/help.rs
 msgid "Edit → Quick search… finds a song in the library. Double-click a song to edit its words."
-msgstr ""
+msgstr "「編集 → クイック検索…」でライブラリから曲を探せます。曲をダブルクリックすると歌詞を編集できます。"
 
 #: src/ui/operator/help.rs
 msgid "While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse."
-msgstr ""
+msgstr "曲を表示中は、C でサビ、B でブリッジ、1～9 でその番号のバースにジャンプします。"
 
 #: src/ui/operator/help.rs
 msgid "When something goes wrong"
-msgstr ""
+msgstr "問題が起きたとき"
 
 #: src/ui/operator/help.rs
 msgid "Lost the mouse on the projector? {key} brings it back to this window."
-msgstr ""
+msgstr "プロジェクターでマウスを見失ったら、{key} でこのウィンドウに戻せます。"
 
 #: src/ui/operator/help.rs
 msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
-msgstr ""
+msgstr "会場画面に違うものが表示されている場合: 上のクリアキーを押してから、もう一度スライドを表示してください。"
 
 #: src/ui/operator/help.rs
 msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr ""
+msgstr "「ヘルプ → 問題を報告…」で記入用のメモを作成し、ログファイルの場所を表示します。"
 
 #: src/ui/operator/menu.rs
 msgid "Could not open the logs folder. It is at {path}"
@@ -7649,39 +7624,39 @@ msgstr "さらに拡大するにはウィンドウを大きくしてください
 
 #: src/ui/operator/menu.rs
 msgid "Listening: the sound goes to your headphones only. The room hears nothing."
-msgstr ""
+msgstr "モニター中: 音声はヘッドホンにのみ出力されます。会場には何も聞こえません。"
 
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
-msgstr ""
+msgstr "音声が再び会場に出力されます。"
 
 #: src/ui/perf.rs
 msgid "{screen}: not measured"
-msgstr ""
+msgstr "{screen}: 未測定"
 
 #: src/ui/perf.rs
 msgid "{screen}: still picture"
-msgstr ""
+msgstr "{screen}: 静止画"
 
 #: src/ui/perf.rs
 msgid "{screen} {fps} fps"
-msgstr ""
+msgstr "{screen} {fps} fps"
 
 #: src/ui/perf.rs
 msgid "This window"
-msgstr ""
+msgstr "このウィンドウ"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free of {total}"
-msgstr ""
+msgstr "ビデオメモリ: {total} 中 {free} 空き"
 
 #: src/ui/perf.rs
 msgid "Video memory {free} free"
-msgstr ""
+msgstr "ビデオメモリ: {free} 空き"
 
 #: src/ui/perf.rs
 msgid "Video memory: this graphics card does not say"
-msgstr ""
+msgstr "ビデオメモリ: このグラフィックカードは報告しません"
 
 #: src/ui/room/prepare.rs
 msgid "picture could not be loaded"
@@ -7938,18 +7913,3 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
-
-#~ msgid "Smaller thumbnails"
-#~ msgstr "サムネイルを小さく"
-
-#~ msgid "Bigger thumbnails"
-#~ msgstr "サムネイルを大きく"
-
-#~ msgid "Find…"
-#~ msgstr "検索…"
-
-#~ msgid "Find a song"
-#~ msgstr "曲を検索"
-
-#~ msgid "Ctrl + Shift + M"
-#~ msgstr "Ctrl + Shift + M"
