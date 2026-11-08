@@ -472,7 +472,7 @@ mod tests {
     }
 
     fn row(kind: &str, slides: usize) -> ItemRow {
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "T".into(), body: String::new() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "T".into(), body: String::new(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         ItemRow { id: item.id, kind: kind.into(), title: "T".into(), subtitle: String::new(), slides: (0..slides).map(|i| text_slide(&format!("S{i}"), "x")).collect(), item, notes: vec![] }
     }
 
@@ -708,7 +708,7 @@ mod tests {
         app.edit(|d| {
             d.settings.translation = "GONE".into();
             let bg = Some(Background::Color { color: "#112233".into() });
-            d.service_mut().unwrap().items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into() }, background: bg, notes: String::new(), theme: None });
+            d.service_mut().unwrap().items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: bg, notes: String::new(), theme: None });
             Ok(())
         }).unwrap();
         let s = OperatorSnapshot::read(&app);

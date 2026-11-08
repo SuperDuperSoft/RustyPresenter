@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut d = app.data.lock().unwrap();
         let body = "Welcome to church!\n\nCoffee after the service\n\nYouth group Friday 7 PM".to_string();
-        d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body }, background: None, notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body, layout: Default::default() }, background: None, notes: String::new(), theme: None });
         d.automation.advance.insert(item, rustypresenter::automation::advance::AutoAdvance { secs: 8, loop_item: true });
         for (name, steps) in [
             ("Walk-in", vec![MacroStep::TimerRestart { timer: STOPWATCH_ID }]),

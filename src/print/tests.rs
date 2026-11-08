@@ -25,7 +25,7 @@ fn sample() -> (Data, Service) {
             per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }),
         item(ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: false }),
         item(ItemKind::Deck { deck_id: deck.id }),
-        item(ItemKind::Text { title: "Welcome".into(), body: "\nWelcome to <church> & friends\nsecond".into() }),
+        item(ItemKind::Text { title: "Welcome".into(), body: "\nWelcome to <church> & friends\nsecond".into(), layout: Default::default() }),
         item(ItemKind::Blank { label: "Song".into(), want: BlankKind::Song }),
     ];
     s.items[1].notes = "Key of G".into();

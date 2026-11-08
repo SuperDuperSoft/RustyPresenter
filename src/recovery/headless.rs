@@ -86,7 +86,7 @@ mod tests {
 
     fn text_item(app: &App, text: &str) -> Uuid {
         let id = Uuid::new_v4();
-        let kind = ItemKind::Text { title: "t".into(), body: text.into() };
+        let kind = ItemKind::Text { title: "t".into(), body: text.into(), layout: Default::default() };
         app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         id
     }

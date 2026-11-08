@@ -9,7 +9,7 @@ use crate::model::{ItemKind, ServiceItem};
 use crate::theme::strings;
 
 pub(super) fn text_item(body: &str) -> ServiceItem {
-    ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "t".into(), body: body.into() }, background: None, notes: String::new(), theme: None }
+    ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "t".into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None }
 }
 
 pub(super) fn cmd(app: &App, cmd: Command) -> crate::live::Outcome {

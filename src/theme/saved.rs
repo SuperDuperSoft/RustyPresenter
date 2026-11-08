@@ -23,17 +23,13 @@ pub struct SavedTheme {
     pub background: Option<Background>,
 }
 
-/// The built-in themes defined in code. FEAT-1 has none; FEAT-7 adds its stream lower third here.
 /// The built-in lower-third theme: smaller text at the bottom on a see-through band, for a livestream or a screen
 /// where the picture must stay visible (FEAT-7's stream screen view uses it).
 pub const LOWER_THIRD_ID: ThemeId = Uuid::from_u128(0x00000000_0000_4000_8000_000000000102);
 
-/// The read-only built-in themes, with fixed ids. Never stored in `Data.themes`; saving one stores an edited copy
-/// there, which `find` prefers (deleting that copy is Reset).
-pub fn builtin() -> Vec<SavedTheme> {
-    let style = Theme { size: 64, scripture_size: 52, position: "lower".into(), band: true, band_opacity: 55, ..Theme::default() };
-    vec![SavedTheme { id: LOWER_THIRD_ID, name: strings::lower_third_name().into(), style, background: None }]
-}
+/// The read-only built-in themes, with fixed ids (`theme::builtins`, N25). Never stored in `Data.themes`; saving one
+/// stores an edited copy there, which `find` prefers (deleting that copy is Reset).
+pub fn builtin() -> Vec<SavedTheme> { crate::theme::builtins::all() }
 
 /// Everything theme lookups need, borrowed from the stored data.
 #[derive(Clone, Debug)]
@@ -165,7 +161,9 @@ pub fn validate_save(cat: &Catalog, mut t: SavedTheme) -> Result<SavedTheme, Str
     if is_reserved(&t.name.to_lowercase()) {
         return Err(strings::theme_name_reserved().into());
     }
-    if cat.name_taken(&t.name, t.id) {
+    // A theme saved before a built-in of the same name came keeps its name.
+    let keeps_name = cat.saved.iter().any(|s| s.id == t.id && s.name.trim().to_lowercase() == t.name.to_lowercase());
+    if cat.name_taken(&t.name, t.id) && !keeps_name {
         return Err(strings::theme_exists(&t.name));
     }
     if t.id.is_nil() {
@@ -319,7 +317,7 @@ mod tests {
     #[test]
     fn builtin_theme_resolves_and_override_wins() {
         let (s, b, saved) = fx();
-        assert_eq!(builtin().iter().map(|b| b.id).collect::<Vec<_>>(), [LOWER_THIRD_ID]);
+        assert_eq!(builtin()[0].id, LOWER_THIRD_ID);
         let cat = Catalog::new(&s, &b, &saved, None).with_builtins(vec![lower_third()]);
         assert_eq!(cat.find(LOWER), Some(lower_third()));
         assert_eq!(cat.resolve(Some(LOWER), text_item(None)).from, ThemeSource::Service(LOWER));
@@ -362,6 +360,15 @@ mod tests {
         assert_eq!(ok.name, "Christmas");
         // Saving a built-in under its own name stores the override.
         assert!(validate_save(&cat, lower_third()).is_ok());
+    }
+
+    #[test]
+    fn a_saved_theme_named_like_a_new_built_in_keeps_its_name() {
+        let (s, b, mut saved) = fx();
+        saved.push(SavedTheme { id: Uuid::from_u128(0xe1), name: "Ocean".into(), style: Theme::default(), background: None });
+        let cat = Catalog::new(&s, &b, &saved, None);
+        assert!(validate_save(&cat, saved[2].clone()).is_ok());
+        assert_eq!(validate_save(&cat, named("ocean")).unwrap_err(), theme_exists("ocean"), "a new one still can't take it");
     }
 
     #[test]

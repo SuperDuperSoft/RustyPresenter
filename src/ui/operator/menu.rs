@@ -434,7 +434,7 @@ mod window_tests {
         assert!(op.ui.get_menu_ready());
         assert!(op.ui.get_menu_can_save(), "there is a current service");
         assert!(!op.ui.get_menu_can_edit(), "nothing selected");
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item);
         refresh(&op);
         assert!(op.ui.get_menu_can_edit(), "the new item is selected");
@@ -448,7 +448,7 @@ mod window_tests {
     }
 
     fn text_item(title: &str) -> ServiceItem {
-        ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "a".into() }, background: None, notes: String::new(), theme: None }
+        ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "a".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None }
     }
 
     fn ctrl(op: &crate::ui::operator::window::Operator, c: &str) {
@@ -631,7 +631,7 @@ mod window_tests {
     #[test]
     fn f2_runs_through_the_menu_bar_and_clears_text() {
         let app = test_app();
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a1".into() }, background: None, notes: String::new(), theme: None };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a1".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         app.data.lock().unwrap().services[0].items.push(item.clone());
         let op = open(&app);
         refresh(&op);

@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ];
         let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), lyrics: "Verse 1\nAmazing grace, how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone".into(), ..Default::default() };
         d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None });
-        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Pancake breakfast".into(), body: "Sunday 9am".into() }, background: None, notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Pancake breakfast".into(), body: "Sunday 9am".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         d.songs.push(song);
     }
     let first_overlay = app.data.lock().unwrap().overlays[1].id;

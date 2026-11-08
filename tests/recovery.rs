@@ -90,7 +90,7 @@ impl Rig {
 
     /// Adds a text item and shows it.
     fn show_text(&self, text: &str) {
-        let kind = ItemKind::Text { title: "t".into(), body: text.into() };
+        let kind = ItemKind::Text { title: "t".into(), body: text.into(), layout: Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
         let added = self.request("POST", "/api/do/service/add", &serde_json::json!({ "item": item }).to_string()).expect("service/add");
         let reply: serde_json::Value = serde_json::from_str(added.split("\r\n\r\n").nth(1).unwrap().lines().find(|l| l.starts_with('{')).unwrap()).unwrap();
@@ -133,7 +133,7 @@ impl Drop for Rig {
 fn seed(root: &Path) {
     let store = Store::open(root.to_path_buf()).unwrap();
     let mut data = store.load().unwrap();
-    let kind = ItemKind::Text { title: "seed".into(), body: "seed".into() };
+    let kind = ItemKind::Text { title: "seed".into(), body: "seed".into(), layout: Default::default() };
     data.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None });
     store.save(&data).unwrap();
 }

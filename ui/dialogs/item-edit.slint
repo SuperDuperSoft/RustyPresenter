@@ -32,6 +32,10 @@ export global ItemEdit {
     /// Announcement.
     in-out property <string> title;
     in-out property <string> body;
+    /// N25: an announcement's layout (`theme::LayoutKind::ALL` order) and how to type each one.
+    in property <[string]> layout-options;
+    in property <[string]> layout-hints;
+    in-out property <int> layout-index: 7;
     /// Video: 0 = Clear the screen, 1 = Stay on last frame, 2 = Play again (loop).
     in-out property <bool> autoplay;
     in-out property <int> end-index;
@@ -308,6 +312,21 @@ export component ItemEditDialog inherits VerticalLayout {
             title-box := TextField {
                 label: @tr("Title");
                 text <=> ItemEdit.title;
+            }
+        }
+        if ItemEdit.kind == "text" && ItemEdit.layout-options.length > 0: Field {
+            label: @tr("Layout");
+            help: @tr("(from the theme)");
+            item-layout := Select {
+                options: ItemEdit.layout-options;
+                index <=> ItemEdit.layout-index;
+            }
+            layout-hint := Text {
+                text: ItemEdit.layout-hints[ItemEdit.layout-index];
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
             }
         }
         if ItemEdit.kind == "text": Field {

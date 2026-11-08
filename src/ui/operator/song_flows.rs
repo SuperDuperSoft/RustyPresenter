@@ -24,7 +24,7 @@ fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
 }
 
 fn add_text(app: &App) -> Uuid {
-    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hello".into() }, background: None, notes: String::new(), theme: None };
+    let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hello".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
     app.data.lock().unwrap().services[0].items.push(item.clone());
     item.id
 }

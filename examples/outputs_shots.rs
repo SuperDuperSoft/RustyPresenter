@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut d = app.data.lock().unwrap();
         d.settings.show_performance = true;
         let body = "Welcome to church!\n\nCoffee after the service".to_string();
-        d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body }, background: None, notes: "Band: start the intro".into(), theme: None });
+        d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body, layout: Default::default() }, background: None, notes: "Band: start the intro".into(), theme: None });
     }
     let v = app.live.lock().unwrap().version;
     let o = app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(v), cmd: Command::Show { item_id: item, slide: 0 } });

@@ -383,7 +383,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone() })).collect()),
             None => (crate::tr!("Missing slides"), "deck", vec![]),
         },
-        ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),
+        ItemKind::Text { title, body, .. } => (title.clone(), "text", text_slides(title, body)),
         ItemKind::Blank { label, want } => (crate::planning::blank_title(label, *want), "blank", vec![]),
         ItemKind::Header { title, .. } => (title.clone(), "header", vec![]),
     };
@@ -714,7 +714,7 @@ mod tests {
     fn build_item_and_build_scripture_agree() {
         let (data, item) = (Data::default(), three_bible_item(1));
         assert_eq!(build_item(&data, &item).2, build_scripture(&data, &item).slides);
-        assert!(build_scripture(&data, &ServiceItem { kind: ItemKind::Text { title: "A".into(), body: "a".into() }, ..item }).notes.is_empty());
+        assert!(build_scripture(&data, &ServiceItem { kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, ..item }).notes.is_empty());
     }
 
     #[test]

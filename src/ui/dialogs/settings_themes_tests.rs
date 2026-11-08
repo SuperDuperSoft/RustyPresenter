@@ -61,14 +61,18 @@ fn themes_tab_comes_after_look_and_lists_standard_first_with_star() {
     let labels: Vec<String> = find_all(&op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect();
     assert_eq!(labels[..3], ["Look", "Themes", "Language"]);
     assert_eq!(op.ui.global::<SettingsDlg>().get_tab(), 1);
-    assert_eq!(names(&op), ["Standard", "Lower third", "Christmas"]);
+    let mut expect = vec!["Standard".to_string()];
+    expect.extend(theme::builtin().into_iter().map(|b| b.name));
+    expect.push("Christmas".into());
+    assert_eq!(names(&op), expect, "Standard, the 15 built-ins, then saved themes");
+    let last = expect.len() - 1;
     let rows: Vec<ThemeListRow> = g(&op).get_rows().iter().collect();
     assert!(rows[0].is_default && rows[0].standard);
     assert_eq!(rows[0].sub, "Church default — used whenever nothing else is picked");
-    assert_eq!((rows[0].delete_label.as_str(), rows[1].delete_label.as_str(), rows[2].delete_label.as_str()), ("", "", "Delete"),
+    assert_eq!((rows[0].delete_label.as_str(), rows[1].delete_label.as_str(), rows[last].delete_label.as_str()), ("", "", "Delete"),
         "Standard and an unedited built-in can't be deleted");
     let stars = find_all(&op, "Star::ta");
-    assert_eq!(stars.len(), 3);
+    assert_eq!(stars.len(), 17);
     assert!(find(&op, "ThemeList::new-theme").is_some());
 }
 
@@ -140,7 +144,7 @@ fn delete_theme_asks_with_counts() {
     let t = saved(&app, "Youth");
     {
         let mut d = app.data.lock().unwrap();
-        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into() }, background: None, notes: String::new(), theme: Some(t.id) };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: None, notes: String::new(), theme: Some(t.id) };
         d.services[0].items.push(item);
     }
     let op = opened(&app);
@@ -215,10 +219,8 @@ fn theme_editor_preview_redraws_after_a_change() {
     assert_ne!(pixels(&g(&op).get_preview()), first, "drawn again 150 ms later");
     // The other samples.
     let before = pixels(&g(&op).get_preview());
-    g(&op).set_preview_tab(1);
-    g(&op).invoke_changed();
-    mock_elapsed_time(settings_look::PREVIEW_DELAY * 2);
-    settle();
+    g(&op).set_layout_index(LayoutKind::Scripture.index() as i32);
+    g(&op).invoke_layout_picked();
     assert_ne!(pixels(&g(&op).get_preview()), before, "the Scripture sample");
 }
 
@@ -328,7 +330,6 @@ fn filter_box_shows_for_a_long_list_and_keeps_each_rows_buttons() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Themes);
     settle();
-    assert!(find(&op, "ThemeList::themes-filter").is_none(), "a short list has no filter box");
     op.close_dialog();
     for n in ["Easter", "Youth", "Funeral", "Wedding", "Christmas Eve"] { saved(&app, n); }
     refresh(&op);
@@ -337,10 +338,95 @@ fn filter_box_shows_for_a_long_list_and_keeps_each_rows_buttons() {
     find(&op, "ThemeList::themes-filter").expect("six themes or more get a filter box").set_accessible_value("christmas");
     settle();
     let shown: Vec<String> = find_all(&op, "ThemeList::theme-row").iter().map(|r| r.accessible_label().unwrap().into()).collect();
-    assert_eq!(shown, ["Christmas", "Christmas Eve"]);
-    // The second row shown is "Christmas Eve": its Edit opens that theme, not the list's second.
-    find_all(&op, "ThemeList::edit").swap_remove(1).mock_single_click(PointerEventButton::Left);
+    assert_eq!(shown, ["Christmas red", "Christmas", "Christmas Eve"]);
+    // The third row shown is "Christmas Eve": its Edit opens that theme, not the list's third.
+    find_all(&op, "ThemeList::edit").swap_remove(2).mock_single_click(PointerEventButton::Left);
     settle();
     assert!(g(&op).get_editing());
     assert_eq!(g(&op).get_name(), "Christmas Eve");
+}
+
+// ---- N25: layouts and snap guides ----
+
+#[test]
+fn editor_lists_the_ten_layouts_and_shows_the_picked_ones_box() {
+    let app = test_app();
+    let op = opened(&app);
+    settings::open(&op, SettingsTab::Themes);
+    click(&op, "ThemeList::new-theme");
+    assert_eq!(g(&op).get_layout_names().row_count(), 10);
+    assert_eq!(g(&op).get_layout_index(), LayoutKind::Lyrics.index() as i32, "Lyrics first, like the old preview");
+    assert_eq!((g(&op).get_frame_x(), g(&op).get_frame_w()), (57, 886), "the screen inside its margins");
+    assert!(find(&op, "ThemeEditor::text-frame").is_some());
+    g(&op).set_layout_index(LayoutKind::Points.index() as i32);
+    g(&op).invoke_layout_picked();
+    assert_eq!((g(&op).get_frame_x(), g(&op).get_frame_y(), g(&op).get_layout_size(), g(&op).get_layout_align()), (120, 110, 80, 0));
+    assert!(!g(&op).get_layout_changed());
+}
+
+#[test]
+fn dragging_the_box_snaps_to_guides_and_saves_with_the_theme() {
+    let app = test_app();
+    let op = opened(&app);
+    settings::open(&op, SettingsTab::Themes);
+    click(&op, "ThemeList::new-theme");
+    g(&op).set_name("Sermon".into());
+    g(&op).set_layout_index(LayoutKind::MainPoint.index() as i32);
+    g(&op).invoke_layout_picked();
+    let before = pixels(&g(&op).get_preview());
+    // Main point's box is x 100, w 800. Moved 20 left nothing is near a guide; 40 left, its left edge (60) snaps to
+    // the margin at 57.
+    g(&op).invoke_drag_start(500.0, 500.0);
+    g(&op).invoke_drag_to(-20.0, 0.0);
+    assert_eq!(g(&op).get_frame_x(), 80, "no guide is near");
+    assert_eq!(g(&op).get_guides_x().row_count(), 0);
+    g(&op).invoke_drag_to(-40.0, 0.0);
+    assert_eq!(g(&op).get_frame_x(), 57, "the left edge snaps to the margin");
+    assert_eq!(g(&op).get_guides_x().iter().collect::<Vec<i32>>(), [57]);
+    g(&op).invoke_drag_done();
+    assert_eq!(g(&op).get_guides_x().row_count(), 0, "guides show only while dragging");
+    assert_ne!(pixels(&g(&op).get_preview()), before, "drawn again in the new place");
+    assert!(g(&op).get_layout_changed());
+    // The corner makes it bigger; with snapping off it goes exactly where it is dragged.
+    g(&op).set_snap(false);
+    g(&op).invoke_drag_start(857.0, 780.0);
+    g(&op).invoke_drag_to(-3.0, 20.0);
+    g(&op).invoke_drag_done();
+    assert_eq!((g(&op).get_frame_w(), g(&op).get_frame_h()), (797, 580));
+    g(&op).set_layout_size(140);
+    g(&op).invoke_layout_edited();
+    click(&op, "SettingsDialog::theme-save");
+    let t = app.data.lock().unwrap().themes.iter().find(|t| t.name == "Sermon").cloned().expect("saved");
+    let l = t.style.layouts.get(LayoutKind::MainPoint);
+    assert_eq!(l.frame, Some(layouts::Frame { x: 57, y: 220, w: 797, h: 580 }));
+    assert_eq!(l.size, 140);
+    assert!(!t.style.layouts.changed(LayoutKind::Title), "only the edited layout is stored");
+}
+
+#[test]
+fn a_press_outside_the_box_drags_nothing_and_reset_puts_a_layout_back() {
+    let app = test_app();
+    let op = opened(&app);
+    settings::open(&op, SettingsTab::Themes);
+    click(&op, "ThemeList::new-theme");
+    g(&op).set_layout_index(LayoutKind::Quote.index() as i32);
+    g(&op).invoke_layout_picked();
+    g(&op).invoke_drag_start(20.0, 20.0);
+    g(&op).invoke_drag_to(300.0, 300.0);
+    assert_eq!(g(&op).get_frame_x(), 140, "outside the box");
+    g(&op).set_layout_place(0);
+    g(&op).invoke_layout_edited();
+    assert!(g(&op).get_layout_changed());
+    click(&op, "ThemeEditor::reset-layout");
+    assert!(!g(&op).get_layout_changed());
+    assert_eq!(g(&op).get_layout_place(), 1);
+}
+
+#[test]
+fn every_layout_has_a_preview_sample() {
+    for k in LayoutKind::ALL {
+        let (slide, kind) = sample(k);
+        assert!(matches!(slide.content, SlideContent::Text { ref text, .. } if !text.is_empty()), "{k:?}");
+        assert_eq!(kind == "scripture", k == LayoutKind::Scripture);
+    }
 }

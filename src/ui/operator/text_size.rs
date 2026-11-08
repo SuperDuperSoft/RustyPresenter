@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn other_items_have_no_size_buttons() {
         let app = test_app();
-        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into() });
+        let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app, id);
         assert!(!op.ui.get_slides_text_size_shown());
         assert!(find(&op, "SlidesPanel::text-larger").is_none());

@@ -207,9 +207,20 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
 
     let top = PAD_Y * s;
     let bottom = if lower { PAD_BOTTOM_LOWER } else { PAD_Y } * s;
-    let body_box = Rect { x: PAD_X * s, y: top, w: cw - 2.0 * PAD_X * s, h: (ch - top - bottom - foot_h).max(0.0) };
+    // A layout's text box (N25): its own place on the screen, kept above the foot line.
+    let body_box = match theme.frame {
+        Some(f) => {
+            let (x, y) = (f32::from(f.x) / 1000.0 * cw, f32::from(f.y) / 1000.0 * ch);
+            let bottom_edge = (f32::from(f.y + f.h) / 1000.0 * ch).min(ch - foot_h);
+            Rect { x, y, w: f32::from(f.w) / 1000.0 * cw, h: (bottom_edge - y).max(0.0) }
+        }
+        None => Rect { x: PAD_X * s, y: top, w: cw - 2.0 * PAD_X * s, h: (ch - top - bottom - foot_h).max(0.0) },
+    };
+    // A frame is measured as it is; the full screen may use its padding too (like the web did).
+    let room = if theme.frame.is_some() { body_box.h } else { body_box.h + top + bottom - 4.0 * s };
 
     let text = if theme.uppercase && !slide.scripture { slide.text.to_uppercase() } else { slide.text.to_string() };
+    let text = if theme.bullets { bulleted(&text) } else { text };
     // Scripture keeps its own weight and alignment; songs and announcements take the theme's (FEAT-1 spec §4.1).
     let (weight, line, align, max) = if slide.scripture {
         (500, 1.32, Align::Left, or_default(theme.scripture_size, DEFAULT_SCRIPTURE_SIZE))
@@ -222,11 +233,22 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     // One size for the whole passage: never above what its fullest slide fits. Every fitted size is a step of
     // `fit_steps(max)`, so fitting from it continues the same steps.
     let max = slide.passage.iter().fold(max, |m, p| m.min(fonts.passage_fit(p, slide, theme, canvas)));
-    let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight));
+    let style = if theme.italic { cosmic_text::Style::Italic } else { cosmic_text::Style::Normal };
+    let attrs = Attrs::new().family(Family::Name(&family)).weight(Weight(weight)).style(style);
     let mut body = Buffer::new(&mut fonts.sys, Metrics::new(max * s, max * s * line));
     body.set_size(Some(body_box.w), None);
     body.set_wrap(Wrap::WordOrGlyph);
-    body.set_text(&text, &attrs, Shaping::Advanced, Some(align));
+    // A subtitle (N25): the lines after the first at `theme.subtitle` percent, set again at each size tried.
+    let sub = (theme.subtitle > 0 && slide.parallel.is_none()).then(|| text.split_once('\n')).flatten().map(|(a, b)| (format!("{a}\n"), b.to_string()));
+    let set_body = |body: &mut Buffer, px: f32| match &sub {
+        Some((first, rest)) => {
+            let k = f32::from(theme.subtitle.min(100)) / 100.0;
+            let small = attrs.clone().weight(Weight(400)).metrics(Metrics::new(px * s * k, px * s * k * line));
+            body.set_rich_text([(first.as_str(), attrs.clone()), (rest.as_str(), small)], &attrs, Shaping::Advanced, Some(align));
+        }
+        None => body.set_text(&text, &attrs, Shaping::Advanced, Some(align)),
+    };
+    set_body(&mut body, max);
 
     if let Some(p) = slide.parallel.filter(|p| !p.also.is_empty()) {
         let frame = super::parallel::Frame { family: &family, scale: s, canvas: (cw, ch), body_box, max_px: max, line, reference_px: REFERENCE_PX, lower };
@@ -240,10 +262,11 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let mut font_px = MIN_PX;
     for px in fit_steps(max) {
         body.set_metrics(Metrics::new(px * s, px * s * line));
+        if sub.is_some() { set_body(&mut body, px) }
         body.shape_until_scroll(&mut fonts.sys, false);
         font_px = px;
         // Like render.js, measure against the padded box: its clientHeight includes the vertical padding.
-        if text_height(&body) <= body_box.h + top + bottom - 4.0 * s && max_line_width(&body) <= body_box.w + 1.0 { break; }
+        if text_height(&body) <= room && max_line_width(&body) <= body_box.w + 1.0 { break; }
     }
 
     TextLayout {
@@ -270,6 +293,11 @@ pub fn passage_px(fonts: &mut Fonts, passage: &[PassageSlide], size: u32, theme:
     let first = passage.first().map_or("", |p| p.text.as_str());
     let slide = TextSlide { text: first, footer: passage.first().and_then(|p| p.footer.as_deref()), reference: passage.first().and_then(|p| p.reference.as_deref()), scripture: true, size, passage, parallel: None };
     layout(fonts, &slide, theme, canvas).font_px
+}
+
+/// Each line that has words starts with a bullet (the Points layout).
+fn bulleted(text: &str) -> String {
+    text.lines().map(|l| if l.trim().is_empty() { l.to_string() } else { format!("•  {}", l.trim_start_matches(['•', '-', '*', ' '])) }).collect::<Vec<_>>().join("\n")
 }
 
 /// A theme size, or the web's default when it is 0 (`t.size || 84`).
@@ -558,5 +586,31 @@ mod tests {
         for missing in ["성경전서 개역개정판", "Holy Bible 新译本", "መጽሐፍ ቅዱስ"] {
             assert!(f.lacks_glyphs(missing), "{missing:?}: Noto Sans has no glyph for it and no other face is loaded");
         }
+    }
+
+    fn lay_with(text: &str, t: Theme) -> TextLayout {
+        let t = Theme { font: BUNDLED_FAMILY.into(), ..t };
+        layout(&mut Fonts::new(), &slide(text), &t, (1920, 1080))
+    }
+
+    #[test]
+    fn a_layout_frame_places_the_text_box() {
+        let f = crate::theme::layouts::Frame { x: 500, y: 250, w: 250, h: 500 };
+        let l = lay_with("Grace", Theme { frame: Some(f), ..Theme::default() });
+        assert_eq!(l.body_box, Rect { x: 960.0, y: 270.0, w: 480.0, h: 540.0 });
+        // A long text shrinks to fit the smaller box.
+        let long = "How sweet the sound that saved a wretch like me ".repeat(3);
+        assert!(lay_with(&long, Theme { frame: Some(f), ..Theme::default() }).font_px < lay(&long).font_px);
+    }
+
+    #[test]
+    fn points_get_bullets_and_a_subtitle_is_smaller() {
+        let l = lay_with("One\n\nTwo", Theme { bullets: true, ..Theme::default() });
+        let lines: Vec<&str> = l.body.lines.iter().map(|x| x.text()).collect();
+        assert_eq!(lines, ["•  One", "", "•  Two"]);
+        let l = lay_with("Easter Sunday\nServices at 9 and 11", Theme { subtitle: 50, ..Theme::default() });
+        let heights: Vec<f32> = l.body.layout_runs().map(|r| r.line_height).collect();
+        assert_eq!(heights.len(), 2);
+        assert!((heights[1] - heights[0] / 2.0).abs() < 1.0, "{heights:?}");
     }
 }

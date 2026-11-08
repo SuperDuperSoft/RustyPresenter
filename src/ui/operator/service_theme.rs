@@ -144,7 +144,7 @@ mod tests {
             let mut d = app.data.lock().unwrap();
             d.themes.push(t.clone());
             for bg in [Some(Background::Color { color: "#ffffff".into() }), None] {
-                d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into() }, background: bg, notes: String::new(), theme: None });
+                d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: bg, notes: String::new(), theme: None });
             }
         }
         let op = open(&app);

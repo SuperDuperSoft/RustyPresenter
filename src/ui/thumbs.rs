@@ -294,7 +294,7 @@ mod tests {
             background: Some(Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 0 }) };
         d.themes.push(t.clone());
         d.services[0].theme = Some(t.id);
-        let item = crate::model::ServiceItem { id: uuid::Uuid::new_v4(), kind: crate::model::ItemKind::Text { title: "a".into(), body: "b".into() }, background: None, notes: String::new(), theme: None };
+        let item = crate::model::ServiceItem { id: uuid::Uuid::new_v4(), kind: crate::model::ItemKind::Text { title: "a".into(), body: "b".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         d.services[0].items.push(item.clone());
         let s = item_settings(&d, &item);
         assert_eq!((s.theme.size, s.background), (99, t.background.unwrap()));

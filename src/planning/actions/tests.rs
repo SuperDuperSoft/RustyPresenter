@@ -17,7 +17,7 @@ async fn copy_week_action_selects_new_service_and_reports_blanks() {
         let s = &mut d.services[0];
         s.name = "Service 1/4/2026".into();
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 1, 4);
-        s.items = vec![item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }), item(ItemKind::Text { title: "Hi".into(), body: "x".into() })];
+        s.items = vec![item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }), item(ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() })];
         s.id
     };
     let r = act(&app, "service/copy-week", json!({ "date": "2026-11-08", "blanks": true })).await.unwrap();
@@ -57,7 +57,7 @@ async fn fill_replaces_blank_in_place_and_refuses_non_blank() {
     let app = test_app();
     let mut blank = item(ItemKind::Blank { label: "Song".into(), want: BlankKind::Song });
     blank.notes = "upbeat".into();
-    let (bid, other) = (blank.id, item(ItemKind::Text { title: "Hi".into(), body: "x".into() }));
+    let (bid, other) = (blank.id, item(ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() }));
     let oid = other.id;
     app.data.lock().unwrap().services[0].items = vec![other, blank];
     let song = Uuid::new_v4();
@@ -81,7 +81,7 @@ async fn templates_save_make_rename_and_delete() {
     let sid = {
         let mut d = app.data.lock().unwrap();
         let s = &mut d.services[0];
-        s.items = vec![item(ItemKind::Text { title: "Welcome".into(), body: "x".into() }), item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None })];
+        s.items = vec![item(ItemKind::Text { title: "Welcome".into(), body: "x".into(), layout: Default::default() }), item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None })];
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 4); // a Wednesday
         s.id
     };
@@ -140,7 +140,7 @@ async fn new_service_is_dated_today() {
 async fn show_blank_says_choose_first_and_next_steps_over_it() {
     let app = test_app();
     let blank = item(ItemKind::Blank { label: "Song".into(), want: BlankKind::Song });
-    let (a, b) = (item(ItemKind::Text { title: "A".into(), body: "a".into() }), item(ItemKind::Text { title: "B".into(), body: "b".into() }));
+    let (a, b) = (item(ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }), item(ItemKind::Text { title: "B".into(), body: "b".into(), layout: Default::default() }));
     let (bid, aid, cid) = (blank.id, a.id, b.id);
     app.data.lock().unwrap().services[0].items = vec![a, blank, b];
     let cmd = |c: crate::live::Command, base: Option<u64>| crate::live::Envelope { id: Uuid::new_v4().to_string(), base, cmd: c };
