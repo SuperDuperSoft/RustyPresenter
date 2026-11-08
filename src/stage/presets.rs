@@ -9,6 +9,7 @@ pub const BAND: Uuid = Uuid::from_u128(0x5ea6e_0002_0000_0000_0000_0000_0000);
 pub const SPEAKER: Uuid = Uuid::from_u128(0x5ea6e_0003_0000_0000_0000_0000_0000);
 pub const LYRICS_ONLY: Uuid = Uuid::from_u128(0x5ea6e_0004_0000_0000_0000_0000_0000);
 pub const CLOCK_COUNTDOWN: Uuid = Uuid::from_u128(0x5ea6e_0005_0000_0000_0000_0000_0000);
+pub const SLIDES_NOTES: Uuid = Uuid::from_u128(0x5ea6e_0006_0000_0000_0000_0000_0000);
 
 /// Today's colours, shared by the presets.
 const GREY: &str = "#9aa3b5";
@@ -61,7 +62,7 @@ pub fn resolve_style(kind: &ElementKind, st: &ElementStyle) -> ResolvedStyle {
 /// The built-ins in menu order: Classic first.
 pub fn builtins() -> &'static [StageLayout] {
     static ALL: OnceLock<Vec<StageLayout>> = OnceLock::new();
-    ALL.get_or_init(|| vec![classic_layout(), lyrics_only_layout(), band_layout(), speaker_layout(), clock_countdown_layout()])
+    ALL.get_or_init(|| vec![classic_layout(), lyrics_only_layout(), band_layout(), speaker_layout(), clock_countdown_layout(), slides_notes_layout()])
 }
 
 /// A built-in layout by id.
@@ -188,6 +189,20 @@ fn speaker_layout() -> StageLayout {
         .done(&s::speaker())
 }
 
+/// For PowerPoint and Google Slides talks: the slide and the next one small, the presenter notes big.
+/// Change the sizes in Settings → Stage layouts (copy it, then drag the boxes or move the text size).
+fn slides_notes_layout() -> StageLayout {
+    use ElementKind::*;
+    B::new(SLIDES_NOTES)
+        .add(Clock { seconds: false, h24: false }, (3.0, 2.0, 30.0, 8.0), st(|s| s.align = Some(Align::Left)))
+        .add(current_timer(), (64.0, 2.0, 33.0, 8.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.caption = Some(false); }))
+        .add(CurrentSlide { pictures: true, keep_after_clear: false }, (3.0, 12.0, 36.0, 34.0), st(|s| s.max_size = Some(5.0)))
+        .add(NextSlide { pictures: true }, (3.0, 50.0, 36.0, 34.0), st(|s| { s.color = color(GOLD); s.max_size = Some(4.0); }))
+        .add(Notes, (42.0, 12.0, 55.0, 72.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.max_size = Some(8.0); s.bold = Some(false); }))
+        .add(StageMessage, (3.0, 86.0, 94.0, 12.0), ElementStyle::default())
+        .done(&s::slides_notes())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -197,7 +212,7 @@ mod tests {
     #[test]
     fn builtin_ids_are_stable() {
         assert_eq!(CLASSIC.to_string(), "0005ea6e-0001-0000-0000-000000000000");
-        assert_eq!(builtins().iter().map(|l| l.id).collect::<Vec<_>>(), vec![CLASSIC, LYRICS_ONLY, BAND, SPEAKER, CLOCK_COUNTDOWN]);
+        assert_eq!(builtins().iter().map(|l| l.id).collect::<Vec<_>>(), vec![CLASSIC, LYRICS_ONLY, BAND, SPEAKER, CLOCK_COUNTDOWN, SLIDES_NOTES]);
         assert_eq!(CLOCK_COUNTDOWN.to_string(), "0005ea6e-0005-0000-0000-000000000000");
         assert_eq!(classic().id, CLASSIC);
         // Box ids are fixed too, and unique across all layouts.
@@ -210,9 +225,18 @@ mod tests {
     }
 
     #[test]
+    fn slides_and_notes_has_small_pictures_and_big_notes() {
+        let l = by_id(SLIDES_NOTES).unwrap();
+        let area = |k: &ElementKind| kinds(l).iter().find(|(x, _)| *x == k).map(|(_, r)| r.w * r.h).unwrap();
+        let notes = area(&ElementKind::Notes);
+        assert!(notes > 2.0 * area(&ElementKind::CurrentSlide { pictures: true, keep_after_clear: false }), "notes are the big box");
+        assert!(notes > 2.0 * area(&ElementKind::NextSlide { pictures: true }));
+    }
+
+    #[test]
     fn builtin_names_are_unique() {
         let names: Vec<&str> = builtins().iter().map(|l| l.name.as_str()).collect();
-        assert_eq!(names, vec!["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown"]);
+        assert_eq!(names, vec!["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Slides and notes"]);
     }
 
     #[test]

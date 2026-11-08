@@ -11,6 +11,7 @@ pub fn lyrics_only() -> String { tr!("Lyrics only") }
 pub fn band() -> String { tr!("Band") }
 pub fn speaker() -> String { tr!("Speaker") }
 pub fn clock_countdown() -> String { tr!("Clock and countdown") }
+pub fn slides_notes() -> String { tr!("Slides and notes") }
 
 /// Box kinds for the editor's Add menu, in `ElementKind` order (`presets::all_kinds`).
 pub fn kind_names() -> [String; 12] {

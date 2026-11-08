@@ -37,6 +37,8 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         // N29: a slide on the stage screen only.
         ("Stage only", tr!("Stage only")),
         ("Take it off the stage", tr!("Take it off the stage")),
+        // Presenter notes on the phone (from PowerPoint or the slide's notes).
+        ("Presenter notes", tr!("Presenter notes")),
         ("Stage screen only (the room won't see it)", tr!("Stage screen only (the room won't see it)")),
         // remote.js
         ("Hide message", tr!("Hide message")),
@@ -55,6 +57,8 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("(Music playing)", tr!("(Music playing)")),
         ("(Clear)", tr!("(Clear)")),
         ("End of service", tr!("End of service")),
+        ("Hide presenter notes", tr!("Hide presenter notes")),
+        ("Show presenter notes", tr!("Show presenter notes")),
         // Drawing on the slide (web/draw.js).
         ("Draw on the slide", tr!("Draw on the slide")),
         ("Highlighter", tr!("Highlighter")),
