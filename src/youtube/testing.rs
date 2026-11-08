@@ -66,6 +66,14 @@ impl FakeReleases {
         self.pages.lock().unwrap().replies.insert(path.into(), Reply::Redirect(to.into()));
     }
 
+    /// A GitHub release file: like github.com, its address redirects to a storage server whose address names the
+    /// repository's number and a random id, never the release.
+    fn release_file(&self, path: &str, body: Vec<u8>) {
+        let stored = format!("/release-assets/github-production-release-asset/307260205/{}", uuid::Uuid::new_v4());
+        self.put(&stored, body);
+        self.redirect(path, &stored);
+    }
+
     pub(crate) fn hits(&self) -> usize { self.pages.lock().unwrap().hits }
 
     pub(crate) fn fail_all(&self, status: u16) { self.pages.lock().unwrap().fail = Some(status); }
@@ -78,8 +86,8 @@ impl FakeReleases {
     fn yt_dlp_at(&self, repo: &str, tag: &str, exe: &[u8]) {
         let zip = zip_of(&[("yt-dlp.exe", exe), ("_internal/python314.dll", b"py")]);
         let sums = format!("{}  yt-dlp.exe\n{}  yt-dlp_win.zip\n", digest_hex(b"one-file"), digest_hex(&zip));
-        self.put(&format!("/{repo}/releases/download/{tag}/yt-dlp_win.zip"), zip);
-        self.put(&format!("/{repo}/releases/download/{tag}/SHA2-256SUMS"), sums.into_bytes());
+        self.release_file(&format!("/{repo}/releases/download/{tag}/yt-dlp_win.zip"), zip);
+        self.release_file(&format!("/{repo}/releases/download/{tag}/SHA2-256SUMS"), sums.into_bytes());
         self.redirect(&format!("/{repo}/releases/latest/download/SHA2-256SUMS"), &format!("/{repo}/releases/download/{tag}/SHA2-256SUMS"));
     }
 
@@ -87,16 +95,15 @@ impl FakeReleases {
     pub(crate) fn deno_release(&self, tag: &str, asset: &str, zip: &[u8], powershell: bool) {
         let sha = digest_hex(zip);
         let sums = if powershell { format!("\nAlgorithm : SHA256\nHash      : {}\nPath      : C:\\a\\{asset}\n", sha.to_uppercase()) } else { format!("{sha}  {asset}\n") };
-        self.put(&format!("/deno/releases/download/{tag}/{asset}"), zip.to_vec());
-        self.put(&format!("/deno/releases/download/{tag}/{asset}.sha256sum"), sums.into_bytes());
+        self.release_file(&format!("/deno/releases/download/{tag}/{asset}"), zip.to_vec());
+        self.release_file(&format!("/deno/releases/download/{tag}/{asset}.sha256sum"), sums.into_bytes());
         self.redirect(&format!("/deno/releases/latest/download/{asset}.sha256sum"), &format!("/deno/releases/download/{tag}/{asset}.sha256sum"));
     }
 
     /// yt-dlp/FFmpeg-Builds: one rolling release named `latest`.
-    #[cfg_attr(not(windows), allow(dead_code))] // only the Windows-only layout test uses it
     pub(crate) fn ffmpeg_builds(&self, asset: &str, zip: &[u8]) {
-        self.put(&format!("/ffmpeg-builds/releases/download/latest/{asset}"), zip.to_vec());
-        self.put("/ffmpeg-builds/releases/download/latest/checksums.sha256", format!("{}  {asset}\n", digest_hex(zip)).into_bytes());
+        self.release_file(&format!("/ffmpeg-builds/releases/download/latest/{asset}"), zip.to_vec());
+        self.release_file("/ffmpeg-builds/releases/download/latest/checksums.sha256", format!("{}  {asset}\n", digest_hex(zip)).into_bytes());
         self.redirect("/ffmpeg-builds/releases/latest/download/checksums.sha256", "/ffmpeg-builds/releases/download/latest/checksums.sha256");
     }
 

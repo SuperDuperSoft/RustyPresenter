@@ -161,7 +161,8 @@ impl YtError {
             YtError::EmptyPlaylist => tr::empty_playlist().into(),
             YtError::DiskFull => tr::disk_full().into(),
             YtError::Broken => tr::broken().into(),
-            YtError::Setup(FetchError::Offline | FetchError::Http(_)) => tr::setup_offline().into(),
+            // The plain words first, then exactly what failed (which file, which status), for whoever helps.
+            YtError::Setup(e @ (FetchError::Offline(_) | FetchError::Http(..))) => format!("{}\n{}", tr::setup_offline(), e.detail().unwrap_or_default()),
             YtError::Setup(FetchError::Checksum) => tr::setup_checksum().into(),
             YtError::Setup(FetchError::NoBuild) => tr::setup_no_build().into(),
             YtError::Setup(FetchError::DiskFull) => tr::disk_full().into(),

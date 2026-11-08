@@ -69,10 +69,10 @@ pub struct Installed {
 /// Why a helper could not be fetched. `crate::youtube::YtError` words these for the operator.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FetchError {
-    /// No connection, a time-out, or the release page could not be reached.
-    Offline,
-    /// The release page answered with this HTTP status.
-    Http(u16),
+    /// No connection, a time-out, or the release page could not be reached; what went wrong, for the log.
+    Offline(String),
+    /// The release page answered with this HTTP status, for this address.
+    Http(u16, String),
     /// What arrived did not match its published fingerprint; it was thrown away.
     Checksum,
     /// The release has no build for this computer.
@@ -85,10 +85,39 @@ pub enum FetchError {
 
 impl From<reqwest::Error> for FetchError {
     fn from(e: reqwest::Error) -> Self {
-        if let Some(s) = e.status() { FetchError::Http(s.as_u16()) }
-        else if e.is_connect() || e.is_timeout() || e.is_request() || e.is_body() { FetchError::Offline }
-        else { FetchError::Other(e.to_string()) }
+        if let Some(s) = e.status() { FetchError::Http(s.as_u16(), e.url().map(|u| u.to_string()).unwrap_or_default()) }
+        else if e.is_connect() || e.is_timeout() || e.is_request() || e.is_body() { FetchError::Offline(causes(&e)) }
+        else { FetchError::Other(causes(&e)) }
     }
+}
+
+impl FetchError {
+    /// What exactly went wrong, in one line for the operator's message and the log. `None` when the message
+    /// already says it all.
+    pub fn detail(&self) -> Option<String> {
+        match self {
+            FetchError::Offline(d) | FetchError::Other(d) => Some(d.clone()),
+            FetchError::Http(status, url) => Some(crate::tr!("HTTP {status} for {address}", status = status, address = url)),
+            _ => None,
+        }
+    }
+}
+
+/// An error and everything under it (`error sending request: client error (Connect): invalid peer certificate`).
+fn causes(e: &dyn std::error::Error) -> String {
+    let mut s = e.to_string();
+    let mut next = e.source();
+    while let Some(c) = next {
+        let t = c.to_string();
+        if !s.contains(&t) { s = format!("{s}: {t}") }
+        next = c.source();
+    }
+    s
+}
+
+/// A file or folder that could not be written, with its path.
+fn io_at(path: &Path, e: std::io::Error) -> FetchError {
+    if is_disk_full(&e) { FetchError::DiskFull } else { FetchError::Other(crate::tr!("couldn't write to {path} ({error})", path = path.display(), error = e)) }
 }
 
 impl From<std::io::Error> for FetchError {
@@ -326,8 +355,12 @@ impl Fetcher {
                 }
             },
             None => {
-                let plan = self.plan(tool, Channel::Stable).await?;
-                self.install(plan, progress, cancel).await
+                let r = match self.plan(tool, Channel::Stable).await {
+                    Ok(plan) => self.install(plan, progress, cancel).await,
+                    Err(e) => Err(e),
+                };
+                if let Err(e) = &r { eprintln!("{} could not be fetched: {e:?}", tool.folder()) }
+                r
             }
         }
     }
@@ -378,8 +411,8 @@ impl Fetcher {
             Tool::YtDlp => {
                 let b = builds.yt_dlp.ok_or(FetchError::NoBuild)?;
                 let base = if channel == Channel::Nightly { &sources.yt_dlp_nightly } else { &sources.yt_dlp };
-                let (at, sums) = get_text(&format!("{base}/latest/download/SHA2-256SUMS")).await?;
-                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
+                let tag = latest_tag(base, "SHA2-256SUMS").await?;
+                let (_, sums) = get_text(&format!("{base}/download/{tag}/SHA2-256SUMS")).await?;
                 let sha = sum_for(&sums, b.asset).ok_or(FetchError::NoBuild)?;
                 let unpack = if b.zip { Unpack::Zip } else { Unpack::Save(b.exe.into()) };
                 let parts = vec![Part { url: format!("{base}/download/{tag}/{}", b.asset), sha: Some(sha), unpack }];
@@ -388,8 +421,8 @@ impl Fetcher {
             Tool::Deno => {
                 let asset = builds.deno.ok_or(FetchError::NoBuild)?;
                 let base = &sources.deno;
-                let (at, sums) = get_text(&format!("{base}/latest/download/{asset}.sha256sum")).await?;
-                let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
+                let tag = latest_tag(base, &format!("{asset}.sha256sum")).await?;
+                let (_, sums) = get_text(&format!("{base}/download/{tag}/{asset}.sha256sum")).await?;
                 let sha = sum_for(&sums, asset).ok_or_else(|| FetchError::Other(crate::tr!("no fingerprint for {file}", file = "Deno")))?;
                 let parts = vec![Part { url: format!("{base}/download/{tag}/{asset}"), sha: Some(sha), unpack: Unpack::Zip }];
                 Ok(Plan { tool, version: tag, exe: exe_name("deno"), channel, parts })
@@ -397,8 +430,8 @@ impl Fetcher {
             Tool::Ffmpeg => match builds.ffmpeg.ok_or(FetchError::NoBuild)? {
                 FfBuild::Builds(asset) => {
                     let base = &sources.ffmpeg_builds;
-                    let (at, sums) = get_text(&format!("{base}/latest/download/checksums.sha256")).await?;
-                    let tag = tag_of(&at).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = at)))?;
+                    let tag = latest_tag(base, "checksums.sha256").await?;
+                    let (_, sums) = get_text(&format!("{base}/download/{tag}/checksums.sha256")).await?;
                     let sha = sum_for(&sums, asset).ok_or(FetchError::NoBuild)?;
                     // The release is rebuilt in place ("latest"), so its fingerprint names the version.
                     let version = format!("{tag}-{}", &sha[..12]);
@@ -417,9 +450,9 @@ impl Fetcher {
     /// Downloads and checks every part into a new folder beside the old version, then switches to it.
     async fn install(&self, plan: Plan, progress: &(dyn Fn(u8) + Send + Sync), cancel: &CancellationToken) -> Result<Installed, FetchError> {
         let root = self.root(plan.tool);
-        tokio::fs::create_dir_all(&root).await?;
+        tokio::fs::create_dir_all(&root).await.map_err(|e| io_at(&root, e))?;
         let stage = root.join(format!(".new-{}", Uuid::new_v4().simple()));
-        tokio::fs::create_dir_all(&stage).await?;
+        tokio::fs::create_dir_all(&stage).await.map_err(|e| io_at(&stage, e))?;
         let r = self.fill(&plan, &stage, progress, cancel).await;
         let (version, sha) = match r {
             Ok(v) => v,
@@ -448,14 +481,14 @@ impl Fetcher {
             name = format!("{name}-{}", &Uuid::new_v4().simple().to_string()[..8]);
             dest = root.join(&name);
         }
-        if let Err(e) = tokio::fs::rename(&stage, &dest).await {
+        if let Err(e) = rename_retrying(&stage, &dest).await {
             let _ = tokio::fs::remove_dir_all(&stage).await;
-            return Err(e.into());
+            return Err(io_at(&dest, e));
         }
         let state = State { version, exe: format!("{name}/{}", plan.exe), sha, checked: now_secs(), channel: plan.channel };
         if let Err(e) = write_state(&root, &state) {
             let _ = std::fs::remove_dir_all(&dest);
-            return Err(e.into());
+            return Err(io_at(&root.join("current.json"), e));
         }
         clean_old(&root, &name);
         progress(100);
@@ -526,22 +559,66 @@ fn clean_old(root: &Path, keep: &str) {
 /// connection gives up. rustls with ring, like `bible::sources::client`.
 fn client() -> Result<&'static reqwest::Client, FetchError> {
     static CLIENT: OnceLock<Result<reqwest::Client, String>> = OnceLock::new();
-    CLIENT.get_or_init(|| {
-        let _ = rustls::crypto::ring::default_provider().install_default();
-        let b = reqwest::Client::builder()
-            .connect_timeout(Duration::from_secs(15))
-            .read_timeout(Duration::from_secs(60))
-            .user_agent(concat!("RustyPresenter/", env!("CARGO_PKG_VERSION")));
-        // Tests talk to a server on this computer; a proxy in the environment must not get in the way.
-        #[cfg(test)]
-        let b = b.no_proxy();
-        b.build().map_err(|e| e.to_string())
-    }).as_ref().map_err(|e| FetchError::Other(e.clone()))
+    CLIENT.get_or_init(|| build_client(reqwest::redirect::Policy::default())).as_ref().map_err(|e| FetchError::Other(e.clone()))
+}
+
+/// The same, but stopping at the first redirect (see `latest_tag`).
+fn first_hop_client() -> Result<&'static reqwest::Client, FetchError> {
+    static CLIENT: OnceLock<Result<reqwest::Client, String>> = OnceLock::new();
+    CLIENT.get_or_init(|| build_client(reqwest::redirect::Policy::none())).as_ref().map_err(|e| FetchError::Other(e.clone()))
+}
+
+fn build_client(redirects: reqwest::redirect::Policy) -> Result<reqwest::Client, String> {
+    let _ = rustls::crypto::ring::default_provider().install_default();
+    let b = reqwest::Client::builder()
+        .connect_timeout(Duration::from_secs(15))
+        .read_timeout(Duration::from_secs(60))
+        .redirect(redirects)
+        .user_agent(concat!("RustyPresenter/", env!("CARGO_PKG_VERSION")));
+    // Tests talk to a server on this computer; a proxy in the environment must not get in the way.
+    #[cfg(test)]
+    let b = b.no_proxy();
+    b.build().map_err(|e| causes(&e))
+}
+
+/// The release GitHub's "latest" stands for. `<base>/latest/download/<file>` redirects to
+/// `<base>/download/<tag>/<file>`, which redirects again to a storage server whose address holds the repository's
+/// number, not the tag; so only the first redirect is read.
+async fn latest_tag(base: &str, file: &str) -> Result<String, FetchError> {
+    let url = format!("{base}/latest/download/{file}");
+    let resp = first_hop_client()?.get(&url).send().await?;
+    let status = resp.status();
+    if !status.is_redirection() {
+        return Err(if status.is_success() { FetchError::Other(crate::tr!("no release in {address}", address = url)) } else { FetchError::Http(status.as_u16(), url) });
+    }
+    let to = resp.headers().get(reqwest::header::LOCATION).and_then(|v| v.to_str().ok()).and_then(|to| resp.url().join(to).ok());
+    to.and_then(|to| tag_of(to.as_str())).ok_or_else(|| FetchError::Other(crate::tr!("no release in {address}", address = url)))
+}
+
+/// Renames a just-unpacked folder. On Windows a virus scanner can hold a new program open for a moment, which makes
+/// the rename fail with "access denied"; it is tried again for a few seconds.
+async fn rename_retrying(from: &Path, to: &Path) -> std::io::Result<()> {
+    let mut tries = 0;
+    loop {
+        match tokio::fs::rename(from, to).await {
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied && tries < 20 => {
+                tries += 1;
+                tokio::time::sleep(Duration::from_millis(250)).await;
+            }
+            r => return r,
+        }
+    }
+}
+
+/// The answer, or its HTTP status with the address asked for (not the long signed one it was redirected to).
+fn ok_or_status(resp: reqwest::Response, url: &str) -> Result<reqwest::Response, FetchError> {
+    let status = resp.status();
+    if status.is_client_error() || status.is_server_error() { Err(FetchError::Http(status.as_u16(), url.to_string())) } else { Ok(resp) }
 }
 
 /// A small text file, and the address it came from after redirects.
 pub(crate) async fn get_text(url: &str) -> Result<(String, String), FetchError> {
-    let resp = client()?.get(url).send().await?.error_for_status()?;
+    let resp = ok_or_status(client()?.get(url).send().await?, url)?;
     let at = resp.url().to_string();
     if resp.content_length().is_some_and(|n| n > 1024 * 1024) {
         return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
@@ -551,7 +628,7 @@ pub(crate) async fn get_text(url: &str) -> Result<(String, String), FetchError> 
 
 /// A small binary file (a video's picture).
 pub(crate) async fn get_bytes(url: &str, limit: u64) -> Result<Vec<u8>, FetchError> {
-    let resp = client()?.get(url).send().await?.error_for_status()?;
+    let resp = ok_or_status(client()?.get(url).send().await?, url)?;
     if resp.content_length().is_some_and(|n| n > limit) {
         return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
     }
@@ -562,14 +639,14 @@ pub(crate) async fn get_bytes(url: &str, limit: u64) -> Result<Vec<u8>, FetchErr
 async fn download(url: &str, file: &Path, progress: &(dyn Fn(u64, Option<u64>) + Send + Sync), cancel: &CancellationToken) -> Result<(String, String), FetchError> {
     let mut resp = tokio::select! {
         _ = cancel.cancelled() => return Err(FetchError::Cancelled),
-        r = client()?.get(url).send() => r?.error_for_status()?,
+        r = client()?.get(url).send() => ok_or_status(r?, url)?,
     };
     let at = resp.url().to_string();
     let total = resp.content_length();
     if total.is_some_and(|n| n > MAX_DOWNLOAD) {
         return Err(FetchError::Other(crate::tr!("{address} is too big", address = url)));
     }
-    let mut out = tokio::fs::File::create(file).await?;
+    let mut out = tokio::fs::File::create(file).await.map_err(|e| io_at(file, e))?;
     let (mut hasher, mut done) = (Sha256::new(), 0u64);
     progress(0, total);
     loop {
@@ -614,8 +691,8 @@ fn unpack_into(file: &Path, dest: &Path, unpack: &Unpack) -> Result<(), FetchErr
             rel
         };
         let out = dest.join(&rel);
-        if let Some(dir) = out.parent() { std::fs::create_dir_all(dir)?; }
-        let mut w = std::fs::File::create(&out)?;
+        if let Some(dir) = out.parent() { std::fs::create_dir_all(dir).map_err(|e| io_at(dir, e))?; }
+        let mut w = std::fs::File::create(&out).map_err(|e| io_at(&out, e))?;
         std::io::copy(&mut entry, &mut w)?;
         #[cfg(unix)]
         if let Some(mode) = entry.unix_mode() {
@@ -639,8 +716,6 @@ mod tests {
     use super::*;
     use crate::youtube::testing::{FakeReleases, zip_of};
 
-    const YT_SUMS_NAME: &str = "yt-dlp_win.zip";
-
     fn quiet(_: u8) {}
 
     fn temp() -> PathBuf {
@@ -649,8 +724,9 @@ mod tests {
         d
     }
 
+    /// The real Windows file names (checked against the release pages on 2026-11-08).
     fn win_builds() -> Builds {
-        Builds { yt_dlp: Some(YtBuild { asset: YT_SUMS_NAME, exe: "yt-dlp.exe", zip: true }), deno: Some("deno-x86_64-pc-windows-msvc.zip"), ffmpeg: Some(FfBuild::Builds("ffmpeg-win64.zip")) }
+        builds("windows", "x86_64")
     }
 
     fn fetcher(server: &FakeReleases, deps: &Path) -> Fetcher {
@@ -808,7 +884,7 @@ mod tests {
     async fn deno_and_ffmpeg_install_with_their_own_layouts() {
         let server = FakeReleases::start().await;
         server.deno_release("v2.9.8", "deno-x86_64-pc-windows-msvc.zip", &zip_of(&[("deno.exe", b"deno")]), true);
-        server.ffmpeg_builds("ffmpeg-win64.zip", &zip_of(&[("x/bin/ffmpeg.exe", b"ff"), ("x/bin/ffprobe.exe", b"fp"), ("x/bin/ffplay.exe", b"no")]));
+        server.ffmpeg_builds("ffmpeg-master-latest-win64-gpl-shared.zip", &zip_of(&[("x/bin/ffmpeg.exe", b"ff"), ("x/bin/ffprobe.exe", b"fp"), ("x/bin/ffplay.exe", b"no")]));
         let deps = temp();
         let f = fetcher(&server, &deps);
         let cancel = CancellationToken::new();
@@ -819,6 +895,30 @@ mod tests {
         assert!(ff.exe.ends_with(exe_name("ffmpeg")), "{:?}", ff.exe);
         assert!(ff.exe.with_file_name("ffprobe.exe").is_file());
         assert!(!ff.exe.with_file_name("ffplay.exe").exists());
+        let _ = std::fs::remove_dir_all(deps);
+    }
+
+    /// GitHub sends `latest/download/<file>` to `download/<tag>/<file>` and that on to a storage server whose
+    /// address has the repository's number where the tag was: the tag must come from the first hop (Jake's 404).
+    #[tokio::test]
+    async fn github_releases_are_found_through_their_redirects() {
+        let server = FakeReleases::start().await;
+        server.yt_dlp_release("2026.10.26", b"exe v1");
+        server.deno_release("v2.9.7", "deno-x86_64-pc-windows-msvc.zip", &zip_of(&[("deno.exe", b"deno")]), true);
+        server.ffmpeg_builds("ffmpeg-master-latest-win64-gpl-shared.zip", &zip_of(&[("x/bin/ffmpeg.exe", b"ff")]));
+        let f = fetcher(&server, &temp());
+        let yt = f.plan(Tool::YtDlp, Channel::Stable).await.unwrap();
+        assert_eq!(yt.version, "2026.10.26");
+        assert!(yt.parts[0].url.ends_with("/yt-dlp/releases/download/2026.10.26/yt-dlp_win.zip"), "{}", yt.parts[0].url);
+        let deno = f.plan(Tool::Deno, Channel::Stable).await.unwrap();
+        assert_eq!(deno.version, "v2.9.7");
+        let ff = f.plan(Tool::Ffmpeg, Channel::Stable).await.unwrap();
+        assert!(ff.version.starts_with("latest-"), "{}", ff.version);
+        assert!(ff.parts[0].url.ends_with("/ffmpeg-builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip"));
+        // And the whole install works through them.
+        let deps = temp();
+        let i = fetcher(&server, &deps).ensure(Tool::YtDlp, true, &quiet, &CancellationToken::new()).await.unwrap();
+        assert_eq!(std::fs::read(&i.exe).unwrap(), b"exe v1");
         let _ = std::fs::remove_dir_all(deps);
     }
 
@@ -848,7 +948,14 @@ mod tests {
         let f = Fetcher::new(deps.clone());
         f.set_sources(Sources { yt_dlp: "http://127.0.0.1:9/yt".into(), ..Sources::default() });
         f.set_builds(win_builds());
-        assert_eq!(f.ensure(Tool::YtDlp, true, &quiet, &CancellationToken::new()).await, Err(FetchError::Offline));
+        let r = f.ensure(Tool::YtDlp, true, &quiet, &CancellationToken::new()).await;
+        assert!(matches!(&r, Err(FetchError::Offline(d)) if d.contains("127.0.0.1:9")), "the reason names the address: {r:?}");
+        // A missing file says which, and with what status.
+        let server = FakeReleases::start().await;
+        let f2 = fetcher(&server, &deps);
+        let r = f2.ensure(Tool::YtDlp, true, &quiet, &CancellationToken::new()).await;
+        assert!(matches!(&r, Err(FetchError::Http(404, u)) if u.ends_with("/yt-dlp/releases/latest/download/SHA2-256SUMS")), "{r:?}");
+        assert_eq!(r.unwrap_err().detail().unwrap(), format!("HTTP 404 for {}/latest/download/SHA2-256SUMS", server.sources().yt_dlp));
         f.set_builds(Builds { yt_dlp: None, deno: None, ffmpeg: None });
         assert_eq!(f.ensure(Tool::YtDlp, true, &quiet, &CancellationToken::new()).await, Err(FetchError::NoBuild));
         let _ = std::fs::remove_dir_all(deps);

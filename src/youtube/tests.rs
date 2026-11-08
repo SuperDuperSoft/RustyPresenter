@@ -141,7 +141,10 @@ fn errors_in_plain_words() {
     // Every error has its own words, never yt-dlp's jargon.
     assert_eq!(YtError::Offline.message(), "Can't reach YouTube. Check the internet connection and try again.");
     assert_eq!(YtError::Setup(FetchError::Checksum).message(), tr::setup_checksum());
-    assert_eq!(YtError::Setup(FetchError::Offline).message(), tr::setup_offline());
+    // Setup failures keep the plain first line and add what exactly failed under it.
+    let http = YtError::Setup(FetchError::Http(404, "https://github.com/yt-dlp/yt-dlp/releases/download/x/yt-dlp_win.zip".into()));
+    assert_eq!(http.message(), format!("{}\nHTTP 404 for https://github.com/yt-dlp/yt-dlp/releases/download/x/yt-dlp_win.zip", tr::setup_offline()));
+    assert_eq!(YtError::Setup(FetchError::Offline("timed out".into())).message(), format!("{}\ntimed out", tr::setup_offline()));
     assert_eq!(YtError::Other("x".into()).message(), "The download didn't work: x");
 }
 
