@@ -269,6 +269,8 @@ pub struct App {
     pub(crate) search: OnceLock<crate::scripture::search::SearchService>,
     /// Listen (N21): the sound goes to the operator's headphones only. Never saved, so every start has it off.
     pub(crate) listening: AtomicBool,
+    /// The room screen's size (width << 32 | height), so the phone draws on a picture of the same shape.
+    room_canvas: AtomicU64,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -301,6 +303,17 @@ pub(crate) const MAX_PHONES: usize = 5;
 pub(crate) fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
 
 impl App {
+    /// The room screen's size in pixels (1920×1080 until a room screen opens).
+    pub fn room_canvas(&self) -> (u32, u32) {
+        let v = self.room_canvas.load(Ordering::Relaxed);
+        ((v >> 32) as u32, v as u32)
+    }
+
+    /// The room screen tells its size; an empty size is ignored.
+    pub fn set_room_canvas(&self, (w, h): (u32, u32)) {
+        if w > 0 && h > 0 { self.room_canvas.store((w as u64) << 32 | h as u64, Ordering::Relaxed) }
+    }
+
     pub fn new(store: Store, data: Data, port: u16, lan_url: Option<String>) -> Arc<Self> {
         let (tx, _) = broadcast::channel(256);
         let phones: Vec<Phone> = std::fs::read(store.root.join("phones.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
@@ -317,7 +330,7 @@ impl App {
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
-            listening: AtomicBool::new(false),
+            listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080),
         });
         crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         {

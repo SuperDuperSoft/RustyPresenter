@@ -68,6 +68,10 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         // The ink switch: lines that stay, or fade away by themselves like a laser pointer.
         ("Stays", tr!("Stays")),
         ("Fades", tr!("Fades")),
+        // Hints in the drawing view: the first time it opens, and while the phone is held upright.
+        ("Draw with your finger", tr!("Draw with your finger")),
+        ("Turn the phone sideways for a bigger slide", tr!("Turn the phone sideways for a bigger slide")),
+        ("Colour", tr!("Colour")),
         // N13: the walk-in music.
         ("Walk-in music", tr!("Walk-in music")),
         ("Next song", tr!("Next song")),

@@ -248,7 +248,7 @@ async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Byte
 #[derive(Deserialize)]
 struct SlideSize { #[serde(default)] w: Option<u32> }
 
-/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide (16:9). Paired phones only.
+/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the room screen's shape. Paired phones only.
 async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
     let width = q.w.unwrap_or(960);
@@ -258,10 +258,12 @@ async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Quer
     ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], jpeg).into_response()
 }
 
-/// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, 16:9.
-pub fn live_slide_size(width: u32) -> (u32, u32) {
+/// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, the room screen's shape
+/// (`canvas`; 16:9 when it has no size).
+pub fn live_slide_size(width: u32, canvas: (u32, u32)) -> (u32, u32) {
     let w = width.clamp(160, 1920);
-    (w, w * 9 / 16)
+    let (cw, ch) = if canvas.0 > 0 && canvas.1 > 0 { canvas } else { (16, 9) };
+    (w, ((w as u64 * ch as u64 + cw as u64 / 2) / cw as u64).clamp(1, 1920) as u32)
 }
 
 /// The live slide drawn like an operator thumbnail (the shared slide renderer), as a JPEG. Black when nothing
@@ -269,7 +271,7 @@ pub fn live_slide_size(width: u32) -> (u32, u32) {
 pub fn live_slide_jpeg(app: &App, width: u32) -> Result<Vec<u8>, String> {
     use crate::ui::thumbs;
     static RENDER: thumbs::TextRenderer = thumbs::TextRenderer::new();
-    let size = live_slide_size(width);
+    let size = live_slide_size(width, app.room_canvas());
     let rgba = thumbs::live_slide(app, size, &RENDER);
     let rgb: Vec<u8> = rgba.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
     let mut out = Vec::new();
@@ -382,6 +384,8 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         // Drawing: whether this phone may draw (its Draw button), and its strokes still up.
         "may_draw": may_draw,
         "fade_secs": live.drawing.fade_after.as_secs(),
+        // The room screen's shape: the phone draws on a slide of the same shape, so lines land where drawn.
+        "aspect": app.room_canvas(),
         "my_strokes": phone.map(|id| live.drawing.ids_of(id)).unwrap_or_default(),
         // ...and when a translation is edited in the app.
         "words": crate::i18n::revision(),
@@ -808,8 +812,8 @@ msgstr[1] "{n} Folien"
         let b = axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap();
         let img = image::load_from_memory_with_format(&b, image::ImageFormat::Jpeg).unwrap();
         assert_eq!((img.width(), img.height()), (320, 180), "the size the phone asked for, 16:9");
-        assert_eq!(live_slide_size(10), (160, 90));
-        assert_eq!(live_slide_size(9999), (1920, 1080));
+        assert_eq!(live_slide_size(10, (1920, 1080)), (160, 90));
+        assert_eq!(live_slide_size(9999, (1920, 1080)), (1920, 1080));
         // Over the network too: no cookie, no picture.
         let addr = served(test_app()).await;
         assert_eq!(status_of(addr, "GET", "/remote/live-slide?w=320").await, 401);
@@ -827,6 +831,27 @@ msgstr[1] "{n} Folien"
         let p = img.get_pixel(4, 4);
         assert!(p[2] > 100 && p[0] < 70, "the slide's blue background, not black: {p:?}");
         assert!(img.pixels().any(|p| p[0] > 200 && p[1] > 200 && p[2] > 200), "the white words");
+    }
+
+    #[tokio::test]
+    async fn the_phone_picture_and_view_follow_the_rooms_shape() {
+        let app = test_app();
+        assert_eq!(app.room_canvas(), (1920, 1080), "16:9 until a room screen says otherwise");
+        app.set_room_canvas((1024, 768));
+        assert_eq!(app.room_canvas(), (1024, 768));
+        app.set_room_canvas((0, 768));
+        assert_eq!(app.room_canvas(), (1024, 768), "an empty size is ignored");
+        assert_eq!(live_slide_size(320, (1024, 768)), (320, 240));
+        assert_eq!(live_slide_size(400, (1080, 1920)), (400, 711), "a portrait screen");
+        assert_eq!(live_slide_size(1920, (3000, 100)), (1920, 64));
+        assert_eq!(live_slide_size(320, (0, 0)), (320, 180));
+        let (me, h) = paired(&app, "tok", true);
+        let r = remote_live_slide(State(app.clone()), h, Query(SlideSize { w: Some(320) })).await;
+        let b = axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap();
+        let img = image::load_from_memory_with_format(&b, image::ImageFormat::Jpeg).unwrap();
+        assert_eq!((img.width(), img.height()), (320, 240), "4:3, the room's shape, so lines land where they are drawn");
+        let v: Value = serde_json::from_str(&remote_view(&app, Some(me))).unwrap();
+        assert_eq!(v["aspect"], json!([1024, 768]));
     }
 
     #[tokio::test]
