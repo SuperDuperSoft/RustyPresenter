@@ -173,3 +173,21 @@ fn live_edit_save_and_show_now_puts_the_change_on_screen() {
     assert!(!g(&op).get_live(), "new slides are not on screen");
     assert!(find(&op, "DesignEditorDialog::save-and-show").is_none());
 }
+
+#[test]
+fn ctrl_c_x_and_v_copy_objects_to_another_slide() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, None);
+    g(&op).invoke_add_text();
+    g(&op).invoke_command("c".into(), false, false);
+    g(&op).invoke_command("v".into(), false, false);
+    assert_eq!(g(&op).get_objects().row_count(), 2, "pasted beside the original");
+    g(&op).invoke_command("x".into(), false, false);
+    assert_eq!(g(&op).get_objects().row_count(), 1, "cut");
+    g(&op).invoke_add_slide(false);
+    g(&op).invoke_command("v".into(), false, false);
+    assert_eq!((g(&op).get_objects().row_count(), g(&op).get_chosen()), (1, 1), "the cut box on the new slide, chosen");
+    g(&op).invoke_command("z".into(), false, false);
+    assert_eq!(g(&op).get_objects().row_count(), 0, "Ctrl+Z takes the paste back");
+}

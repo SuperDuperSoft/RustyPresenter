@@ -4,7 +4,7 @@ use super::{confirm, settings::{Edit, strings as st}, strings as dlg};
 use crate::{
     live::ClearLayer,
     sections::{SectionKind, SectionLook},
-    shortcuts::{Action, Chord, Clash, ClearGroup, KeySettings, Keymap, clashes, labels, reserved},
+    shortcuts::{Action, Chord, Clash, ClearGroup, EditKey, KeySettings, Keymap, clashes, labels, reserved},
     ui::{ClearGroupRow, KeysDlg, SettingsDlg, SettingsHelpRow, operator::window::Operator},
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
@@ -76,7 +76,26 @@ pub fn help_rows(keys: &KeySettings, sections: &SectionLook) -> Vec<HelpRow> {
         rows.push(HelpRow { keys: labels(chords), what: what(*action, &keys.clear_groups), action: Some(*action), changed });
     }
     rows.push(fixed(st::key_esc(), st::do_esc()));
+    // The fixed Windows keys (`EditKey`), and ↑ ↓ in the service list.
+    rows.push(fixed(labels(&[Chord::new("ArrowUp", false, false, false), Chord::new("ArrowDown", false, false, false)]), st::do_list_step()));
+    for e in EditKey::ALL { rows.push(fixed(labels(&e.chords()), edit_what(e))) }
     rows
+}
+
+/// What a fixed Windows key does, as the Help table says it.
+pub fn edit_what(e: EditKey) -> String {
+    match e {
+        EditKey::Delete => st::do_delete(),
+        EditKey::Copy => st::do_copy(),
+        EditKey::Cut => st::do_cut(),
+        EditKey::Duplicate => st::do_duplicate(),
+        EditKey::MoveUp => st::do_move_up(),
+        EditKey::MoveDown => st::do_move_down(),
+        EditKey::NewService => st::do_new_service(),
+        EditKey::OpenService => st::do_open_service(),
+        EditKey::Print => st::do_print(),
+        EditKey::Settings => st::do_settings(),
+    }
 }
 
 /// Draws the table and the groups from the edited settings.

@@ -1,7 +1,7 @@
 //! Operator keyboard shortcuts (`operator.js:305-320`): which key does what, as pure functions, and the glue that
 //! runs it for the window's key scope (`keys` in `ui/operator.slint`).
 use super::window::Operator;
-use crate::{live::Command, shortcuts::{Action, Chord, Keymap, Reach}, ui::ops::outcome_toast};
+use crate::{live::Command, shortcuts::{Action, Chord, EditKey, Keymap, Reach}, ui::ops::outcome_toast};
 use slint::platform::Key;
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
@@ -30,6 +30,10 @@ pub enum KeyAction {
     ClearGroup(Uuid),
     /// Alt+M: Find my mouse (N35).
     FindMouse,
+    /// Delete, Ctrl+C / X / D, Alt+↑ / ↓ outside a text field: the selected service item (or media file).
+    Edit(EditKey),
+    /// ↑ (`false`) or ↓ (`true`) after a click in the service list: the item above or below is selected.
+    ListStep(bool),
     None,
 }
 
@@ -40,6 +44,8 @@ pub struct KeyCtx {
     pub in_text_field: bool,
     pub in_bible_box: bool,
     pub dialog_open: bool,
+    /// The service list was clicked last: ↑ and ↓ move its selection instead of Back and Next.
+    pub in_list: bool,
 }
 
 /// The web name of a special key, from the private-use character Slint delivers for it. `None` means the text is
@@ -97,6 +103,13 @@ pub fn route(key: &str, ctrl_or_cmd: bool, alt: bool, ctx: KeyCtx) -> KeyAction 
 /// work; then the fixed keys: Alt+1–5 in the Bible box, Esc in a text box and the song's section keys.
 pub fn route_in(pressed: &Chord, ctx: KeyCtx, map: &Keymap) -> KeyAction {
     let typing = ctx.in_text_field || ctx.in_bible_box;
+    if ctx.in_list && !typing && !ctx.dialog_open && !pressed.ctrl && !pressed.alt && !pressed.shift {
+        match pressed.key.as_str() {
+            "ArrowUp" => return KeyAction::ListStep(false),
+            "ArrowDown" => return KeyAction::ListStep(true),
+            _ => {}
+        }
+    }
     if let Some(action) = map.action_for(pressed) {
         let quiet = !pressed.types_text();
         let works = match action.reach() {
@@ -115,6 +128,9 @@ pub fn route_in(pressed: &Chord, ctx: KeyCtx, map: &Keymap) -> KeyAction {
     }
     if typing {
         return if key == "Escape" { KeyAction::Blur } else { KeyAction::None };
+    }
+    if let Some(e) = EditKey::of(pressed).filter(|e| !e.menu_only()) {
+        return KeyAction::Edit(e);
     }
     if crate::sections::jump_for_key(key, pressed.ctrl, pressed.alt).is_some() && let Some(c) = key.chars().next() {
         return KeyAction::JumpSection(c.to_ascii_lowercase());
@@ -205,7 +221,8 @@ impl Operator {
             if !is_modifier(text) { crate::ui::dialogs::settings_keys::captured(self, pressed) }
             return true;
         }
-        let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open: self.covered() };
+        let in_list = self.state.borrow().list == super::window::ListFocus::Service;
+        let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open: self.covered(), in_list };
         match route_in(&pressed, ctx, &self.keymap()) {
             KeyAction::Clear(cmd) => self.command(cmd, None),
             KeyAction::FocusBible => self.ui.invoke_focus_bible(),
@@ -214,13 +231,15 @@ impl Operator {
                 self.state.borrow_mut().armed = None;
                 self.step(action == KeyAction::Next);
             }
-            KeyAction::TakeArmedOrSelected => self.take_armed_or_selected(),
+            KeyAction::TakeArmedOrSelected => {
+                self.state.borrow_mut().list = super::window::ListFocus::Live;
+                self.take_armed_or_selected();
+            }
             KeyAction::Blur => self.ui.invoke_focus_keys(),
             KeyAction::PickTranslation(i) => self.ui.invoke_pick_translation(i as i32),
-            KeyAction::PasteLink => match crate::ui::dialogs::add_youtube::pasted_link() {
-                Some(link) => crate::ui::dialogs::add_youtube::open_with_link(self, &link),
-                None => return false,
-            },
+            KeyAction::PasteLink => return self.paste(),
+            KeyAction::Edit(e) => return self.edit_key(e),
+            KeyAction::ListStep(down) => return self.step_selection(down),
             KeyAction::JumpSection(c) => return self.jump_section(c),
             KeyAction::Undo => self.undo(false),
             KeyAction::Redo => self.undo(true),
@@ -257,10 +276,10 @@ mod tests {
     use super::*;
     use slint::platform::Key;
 
-    const PLAIN: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false };
-    const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false };
-    const BIBLE: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false };
-    const DIALOG: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: true };
+    const PLAIN: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false, in_list: false };
+    const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false, in_list: false };
+    const BIBLE: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: false, in_list: false };
+    const DIALOG: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: true, in_list: false };
 
     #[test]
     fn section_keys_jump_only_outside_text_fields() {
@@ -274,12 +293,12 @@ mod tests {
         assert_eq!(route("V", false, false, PLAIN), KeyAction::JumpSection('v'));
         assert_eq!(route("c", false, true, PLAIN), KeyAction::None, "Alt+C is not a jump");
         assert_eq!(route("c", false, false, DIALOG), KeyAction::None, "not with a dialog open");
-        assert_eq!(route("c", true, false, PLAIN), KeyAction::None, "Ctrl+C is not a jump");
+        assert_eq!(route("c", true, false, PLAIN), KeyAction::Edit(EditKey::Copy), "Ctrl+C is not a jump: it copies");
     }
 
     #[test]
     fn f_keys_clear_even_while_typing_or_in_a_dialog() {
-        let ctx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: true };
+        let ctx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: true, in_list: false };
         assert_eq!(route("F1", false, false, ctx), KeyAction::Clear(Command::ClearAll));
         assert_eq!(route("F2", false, false, ctx), KeyAction::Clear(Command::ClearSlide));
         assert_eq!(route("F3", false, false, ctx), KeyAction::Clear(Command::ClearMedia));
@@ -386,7 +405,7 @@ mod tests {
     #[test]
     fn the_bible_box_counts_as_a_text_field_on_its_own() {
         // Its focus comes from `has-focus`, not `OperatorState`, so the caller may set only `in_bible_box`.
-        let ctx = KeyCtx { in_text_field: false, in_bible_box: true, dialog_open: false };
+        let ctx = KeyCtx { in_text_field: false, in_bible_box: true, dialog_open: false, in_list: false };
         assert_eq!(route("ArrowRight", false, false, ctx), KeyAction::None);
         assert_eq!(route("Escape", false, false, ctx), KeyAction::Blur);
     }
@@ -420,7 +439,7 @@ mod tests {
     #[test]
     fn f7_f8_f9_clear_the_message_the_timers_and_the_first_group() {
         use crate::live::ClearLayer;
-        let ctx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: true };
+        let ctx = KeyCtx { in_text_field: true, in_bible_box: true, dialog_open: true, in_list: false };
         assert_eq!(route("F7", false, false, ctx), KeyAction::Clear(Command::ClearLayers { layers: vec![ClearLayer::Message] }));
         assert_eq!(route("F8", false, false, ctx), KeyAction::Clear(Command::ClearLayers { layers: vec![ClearLayer::Timers] }));
         assert_eq!(route("F9", false, false, ctx), KeyAction::ClearGroup(crate::shortcuts::BUILTIN_GROUP));
@@ -451,6 +470,33 @@ mod tests {
         assert_eq!(r("F10", TYPING), KeyAction::Find);
         assert_eq!(r("F10", DIALOG), KeyAction::None);
         assert_eq!(route_in(&Chord::new("f", true, false, false), PLAIN, &map), KeyAction::None, "Ctrl+F is free now");
+    }
+
+    #[test]
+    fn delete_copy_cut_duplicate_and_move_work_only_outside_text_fields_and_dialogs() {
+        let r = |key: &str, ctrl, alt, ctx| route_in(&Chord::new(key, ctrl, alt, false), ctx, &Keymap::default());
+        for (key, ctrl, alt, e) in [("Delete", false, false, EditKey::Delete), ("Backspace", false, false, EditKey::Delete),
+            ("c", true, false, EditKey::Copy), ("x", true, false, EditKey::Cut), ("d", true, false, EditKey::Duplicate),
+            ("ArrowUp", false, true, EditKey::MoveUp), ("ArrowDown", false, true, EditKey::MoveDown),
+            ("ArrowUp", true, false, EditKey::MoveUp), ("ArrowDown", true, false, EditKey::MoveDown)] {
+            assert_eq!(r(key, ctrl, alt, PLAIN), KeyAction::Edit(e), "{key}");
+            for ctx in [TYPING, BIBLE, DIALOG] { assert_eq!(r(key, ctrl, alt, ctx), KeyAction::None, "{key} {ctx:?}: the text box keeps it") }
+        }
+        assert_eq!(r("n", true, false, PLAIN), KeyAction::None, "Ctrl+N is the menu bar's");
+        assert_eq!(r("C", true, false, PLAIN), KeyAction::Edit(EditKey::Copy), "Caps Lock");
+    }
+
+    #[test]
+    fn up_and_down_move_the_service_list_only_after_a_click_in_it() {
+        let list = KeyCtx { in_list: true, ..PLAIN };
+        assert_eq!(route("ArrowUp", false, false, list), KeyAction::ListStep(false));
+        assert_eq!(route("ArrowDown", false, false, list), KeyAction::ListStep(true));
+        assert_eq!(route("ArrowDown", false, false, PLAIN), KeyAction::Next, "the live keys as before");
+        for key in ["ArrowRight", " ", "PageDown"] { assert_eq!(route(key, false, false, list), KeyAction::Next, "{key:?} is still Next") }
+        assert_eq!(route("ArrowLeft", false, false, list), KeyAction::Prev);
+        assert_eq!(route("ArrowUp", false, true, list), KeyAction::Edit(EditKey::MoveUp));
+        assert_eq!(route("ArrowDown", false, false, KeyCtx { in_text_field: true, ..list }), KeyAction::None);
+        assert_eq!(route("ArrowDown", false, false, KeyCtx { dialog_open: true, ..list }), KeyAction::None);
     }
 
     #[test]

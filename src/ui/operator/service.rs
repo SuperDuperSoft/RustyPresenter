@@ -93,11 +93,12 @@ impl Operator {
     }
 
     /// A click on a row: select it and drop the Bible arm; nothing goes live (`operator.js:134`).
-    fn select_item(&self, id: Uuid) {
+    pub(super) fn select_item(&self, id: Uuid) {
         {
             let mut st = self.state.borrow_mut();
             st.selected = Some(id);
             st.armed = None;
+            st.list = super::window::ListFocus::Service;
         }
         self.mark_service();
         self.render_slides();
@@ -105,6 +106,7 @@ impl Operator {
 
     /// A double-click: show the item's first slide, if it has one (`operator.js:135`).
     fn show_first(self: &Rc<Self>, id: Uuid) {
+        self.state.borrow_mut().list = super::window::ListFocus::Live;
         if crate::ui::dialogs::services::planning_double_click(self, id) { return }
         let has_slides = self.state.borrow().snap.as_ref()
             .and_then(|s| s.items.iter().find(|i| i.id == id))
@@ -117,7 +119,7 @@ impl Operator {
     }
 
     /// `service/remove` or `service/move`; a failure is an error toast with the core's message (`guard()`).
-    fn service_action(self: &Rc<Self>, action: &'static str, body: serde_json::Value) {
+    pub(super) fn service_action(self: &Rc<Self>, action: &'static str, body: serde_json::Value) {
         let me = Rc::downgrade(self);
         self.ops.call::<serde_json::Value>(action, body, move |r| {
             if let (Some(op), Err(e)) = (me.upgrade(), r) { op.toast(&e, true); }

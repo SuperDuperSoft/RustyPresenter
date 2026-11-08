@@ -99,7 +99,7 @@ fn try_again(op: &Rc<Operator>, id: Uuid) {
 }
 
 /// The trash button: asks first, then `media/delete` or `deck/delete`. The core refuses one still in a service.
-fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
+pub(crate) fn delete(op: &Rc<Operator>, tab: AddTab, id: Uuid) {
     let Some(snap) = op.state.borrow().snap.clone() else { return };
     let (question, action) = match tab {
         AddTab::Media => match snap.data.media.iter().find(|m| m.id == id) {

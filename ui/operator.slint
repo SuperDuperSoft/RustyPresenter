@@ -315,6 +315,7 @@ export component OperatorWindow inherits Window {
             title: @tr("File");
             MenuItem {
                 title: @tr("New service…");
+                shortcut: MenuKeys.new-service;
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); ServicesDialogState.new-service(); }
             }
@@ -325,6 +326,7 @@ export component OperatorWindow inherits Window {
             }
             MenuItem {
                 title: @tr("Open a service file…");
+                shortcut: MenuKeys.open-file;
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); ServicesDialogState.open-file(); }
             }
@@ -446,6 +448,7 @@ export component OperatorWindow inherits Window {
             MenuSeparator {}
             MenuItem {
                 title: @tr("Print service order…");
+                shortcut: MenuKeys.print;
                 enabled: root.menu-can-save;
                 activated => { root.focus-keys(); root.menu("print"); }
             }
@@ -474,6 +477,50 @@ export component OperatorWindow inherits Window {
                 shortcut: MenuKeys.redo;
                 enabled: root.menu-ready && root.can-redo && !OperatorState.focus-in-text;
                 activated => { root.menu("redo"); }
+            }
+            MenuSeparator {}
+            // The selected service item (or media file); a text box keeps these keys for its own editing.
+            MenuItem {
+                title: @tr("Cut");
+                shortcut: MenuKeys.cut;
+                enabled: root.menu-can-edit && !OperatorState.focus-in-text;
+                activated => { root.menu("cut"); }
+            }
+            MenuItem {
+                title: @tr("Copy");
+                shortcut: MenuKeys.copy;
+                enabled: root.menu-can-edit && !OperatorState.focus-in-text;
+                activated => { root.menu("copy"); }
+            }
+            MenuItem {
+                title: @tr("Paste");
+                shortcut: MenuKeys.paste;
+                enabled: root.menu-ready && !OperatorState.focus-in-text;
+                activated => { root.menu("paste"); }
+            }
+            MenuItem {
+                title: @tr("Duplicate");
+                shortcut: MenuKeys.duplicate;
+                enabled: root.menu-can-edit && !OperatorState.focus-in-text;
+                activated => { root.menu("duplicate"); }
+            }
+            MenuItem {
+                title: @tr("Delete");
+                shortcut: MenuKeys.delete;
+                enabled: root.menu-ready && !OperatorState.focus-in-text;
+                activated => { root.menu("delete"); }
+            }
+            MenuItem {
+                title: @tr("Move up");
+                shortcut: MenuKeys.move-up;
+                enabled: root.menu-can-edit && !OperatorState.focus-in-text;
+                activated => { root.menu("move-up"); }
+            }
+            MenuItem {
+                title: @tr("Move down");
+                shortcut: MenuKeys.move-down;
+                enabled: root.menu-can-edit && !OperatorState.focus-in-text;
+                activated => { root.menu("move-down"); }
             }
             MenuSeparator {}
             MenuItem {
@@ -712,6 +759,7 @@ export component OperatorWindow inherits Window {
             title: @tr("Settings");
             MenuItem {
                 title: @tr("Settings…");
+                shortcut: MenuKeys.settings;
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.settings(); }
             }

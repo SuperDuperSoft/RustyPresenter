@@ -203,6 +203,33 @@ impl Editor {
         Ok(())
     }
 
+    /// Ctrl+C: the chosen objects, to paste on any slide.
+    pub fn copy_objects(&self) -> Vec<Obj> { self.chosen().into_iter().cloned().collect() }
+
+    /// Ctrl+X: the chosen objects, taken off the slide (one undo step).
+    pub fn cut_objects(&mut self) -> Vec<Obj> {
+        let objs = self.copy_objects();
+        self.delete();
+        objs
+    }
+
+    /// Ctrl+V: copies of `objs` on this slide, chosen instead; a little right and down when the originals are here.
+    pub fn paste_objects(&mut self, objs: &[Obj]) -> Result<(), String> {
+        if objs.is_empty() { return Ok(()) }
+        if self.slide().objects.len() + objs.len() > MAX_OBJECTS { return Err(s::too_many_objects()) }
+        let here = objs.iter().any(|o| self.slide().objects.iter().any(|h| h.id == o.id));
+        self.edit(|e| {
+            let copies: Vec<Obj> = objs.iter().cloned().map(|mut o| {
+                o.id = Uuid::new_v4();
+                if here { o.rect = geom::move_by(o.rect, 2.0, 2.0) }
+                o
+            }).collect();
+            e.sel = copies.iter().map(|o| o.id).collect();
+            e.slide_mut().objects.extend(copies);
+        });
+        Ok(())
+    }
+
     pub fn select(&mut self, id: Uuid, add: bool) {
         if !self.slide().objects.iter().any(|o| o.id == id) { return }
         if add {

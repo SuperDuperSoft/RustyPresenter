@@ -4,7 +4,7 @@
 use super::window::Operator;
 use crate::{
     print::html::escape,
-    shortcuts::{Action, Chord, ClearGroup, Keymap, labels},
+    shortcuts::{Action, Chord, ClearGroup, EditKey, Keymap, labels},
     ui::{FindMouse, MenuGroup, MenuKeys},
 };
 use slint::{ComponentHandle, Keys, Model, ModelRc, VecModel};
@@ -39,6 +39,21 @@ pub(crate) fn render_keys(op: &Operator, map: &Keymap, groups: &[ClearGroup]) {
     g.set_clear_message(key(Action::ClearMessage));
     g.set_clear_timers(key(Action::ClearTimers));
     g.set_find_mouse(key(Action::FindMouse));
+    g.set_paste(key(Action::PasteLink));
+    let edit = |e: EditKey| -> Keys {
+        if off { return Keys::default() }
+        e.menu_key(map).and_then(|c| Keys::from_parts(c.slint_parts().iter().map(String::as_str)).ok()).unwrap_or_default()
+    };
+    g.set_delete(edit(EditKey::Delete));
+    g.set_cut(edit(EditKey::Cut));
+    g.set_copy(edit(EditKey::Copy));
+    g.set_duplicate(edit(EditKey::Duplicate));
+    g.set_move_up(edit(EditKey::MoveUp));
+    g.set_move_down(edit(EditKey::MoveDown));
+    g.set_new_service(edit(EditKey::NewService));
+    g.set_open_file(edit(EditKey::OpenService));
+    g.set_print(edit(EditKey::Print));
+    g.set_settings(edit(EditKey::Settings));
     let rows: Vec<MenuGroup> = groups.iter().map(|gr| MenuGroup { name: gr.name.as_str().into(), keys: key(Action::Group(gr.id)) }).collect();
     if g.get_groups().iter().ne(rows.iter().cloned()) { g.set_groups(ModelRc::new(VecModel::from(rows))) }
     g.set_capturing(off);
