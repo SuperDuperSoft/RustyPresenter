@@ -246,6 +246,9 @@ pub struct Thumbs {
     waiting: Rc<RefCell<HashMap<ThumbKey, Vec<Done>>>>,
     /// `None` in inline mode (tests), which draws at once on the calling thread.
     worker: Option<Worker>,
+    /// Tests: requests kept here instead of drawn, until `release`, as if the worker were still busy.
+    #[cfg(test)]
+    held: RefCell<Option<Vec<(ThumbKey, ThumbJob, Done)>>>,
 }
 
 impl Thumbs {
@@ -263,17 +266,19 @@ impl Thumbs {
             }
         });
         let worker = started.ok().map(|_| Worker { jobs: tx, generation });
-        Self { renderer: TextRenderer::new(), store_root, cache: Rc::default(), waiting: Rc::default(), worker }
+        Self { renderer: TextRenderer::new(), store_root, cache: Rc::default(), waiting: Rc::default(), worker, #[cfg(test)] held: RefCell::default() }
     }
 
     /// Thumbnails drawn at once on the calling thread, for tests on the testing backend (no event loop).
     pub fn inline(store_root: PathBuf) -> Self {
-        Self { renderer: TextRenderer::new(), store_root, cache: Rc::default(), waiting: Rc::default(), worker: None }
+        Self { renderer: TextRenderer::new(), store_root, cache: Rc::default(), waiting: Rc::default(), worker: None, #[cfg(test)] held: RefCell::default() }
     }
 
     /// Calls `done` on the UI thread with the thumbnail for `key`: at once when it is cached (or in inline mode),
     /// else once the worker has drawn it. `done` is dropped uncalled when `cancel_pending` runs first.
     pub fn request(&self, key: ThumbKey, job: ThumbJob, done: impl FnOnce(Pixels) + 'static) {
+        #[cfg(test)]
+        if let Some(held) = self.held.borrow_mut().as_mut() { return held.push((key, job, Box::new(done))) }
         let cached = self.cache.borrow_mut().get(&key);
         if let Some(px) = cached { return done(px) }
         let Some(worker) = &self.worker else { return self.draw_here(key, &job, done) };
@@ -291,10 +296,23 @@ impl Thumbs {
         let _ = worker.jobs.send(Job { key, job, generation: worker.generation.load(Ordering::Acquire), reply });
     }
 
+    /// Tests: holds every request from now on, as if the worker were busy.
+    #[cfg(test)]
+    pub fn hold(&self) { *self.held.borrow_mut() = Some(Vec::new()) }
+
+    /// Tests: draws the held requests (none dropped by `cancel_pending`) and stops holding.
+    #[cfg(test)]
+    pub fn release(&self) {
+        let held = self.held.borrow_mut().take().unwrap_or_default();
+        for (key, job, done) in held { self.draw_here(key, &job, done) }
+    }
+
     /// Forgets every request still waiting (the grid they were for was replaced); the worker skips their jobs.
     pub fn cancel_pending(&self) {
         if let Some(w) = &self.worker { w.generation.fetch_add(1, Ordering::AcqRel); }
         self.waiting.borrow_mut().clear();
+        #[cfg(test)]
+        if let Some(held) = self.held.borrow_mut().as_mut() { held.clear() }
     }
 
     fn draw_here(&self, key: ThumbKey, job: &ThumbJob, done: impl FnOnce(Pixels)) {

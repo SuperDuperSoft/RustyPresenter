@@ -187,15 +187,28 @@ impl Operator {
         if self.slides.borrow().built != key {
             let other_item = self.slides.borrow().built.as_ref().map(|k| k.id) != key.as_ref().map(|k| k.id);
             if other_item { ui.invoke_slides_scroll_to_top(); }
-            {
+            let n = key.as_ref().map_or(0, |k| k.slides.len());
+            let same_rows = {
                 let mut s = self.slides.borrow_mut();
-                s.images = vec![Image::default(); key.as_ref().map_or(0, |k| k.slides.len())];
+                let same_rows = !other_item && s.images.len() == n;
+                if other_item {
+                    s.images = vec![Image::default(); n];
+                    s.live = None;
+                    s.scrolled = None;
+                } else {
+                    // The same item drawn again (a new theme, an edit): each old picture stays until its new one
+                    // arrives, so the grid never blanks.
+                    s.images.resize(n, Image::default());
+                }
                 s.built = key;
-                s.live = None;
-                s.scrolled = None;
+                same_rows
+            };
+            let (cols, _) = self.measure_grid(ui.get_slides_grid_width());
+            if same_rows && !cols && self.slide_rows.row_count() == chunk_rows(n, self.slides.borrow().cols).len() {
+                for i in 0..n { self.set_cell(i) }
+            } else {
+                self.fill_grid();
             }
-            self.measure_grid(ui.get_slides_grid_width());
-            self.fill_grid();
             self.draw_thumbs();
         } else if acts_changed {
             // In place, so the grid keeps its rows.
@@ -607,6 +620,33 @@ mod tests {
         assert!(find(&op, "SlidesPanel::nothing").is_none());
         assert_eq!(find(&op, "Empty::empty-text").unwrap().accessible_label().unwrap(), "Choose something from the service list.");
         assert_eq!(op.ui.get_slides_title(), "Pick an item on the left");
+    }
+
+    /// The top-left pixel of each cell's thumbnail (`None`: not drawn).
+    fn corners(op: &Operator) -> Vec<Option<[u8; 4]>> {
+        cells(op).iter().map(|c| c.image.to_rgba8().map(|px| { let p = px.as_slice()[0]; [p.r, p.g, p.b, p.a] })).collect()
+    }
+
+    #[test]
+    fn theme_change_keeps_the_old_thumbnails_until_the_new_ones_arrive() {
+        let app = test_app();
+        add_text(&app, "A", "1\n\n2\n\n3");
+        let t = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(),
+            background: Some(Background::Color { color: "#3a2412".into() }) };
+        app.data.lock().unwrap().themes.push(t.clone());
+        let op = opened(&app);
+        let before = corners(&op);
+        assert!(before.iter().all(Option::is_some), "drawn");
+        // The worker is busy: the new thumbnails have not arrived yet.
+        op.thumbs.hold();
+        let p = op.ui.global::<crate::ui::ServicePlanning>();
+        let at = p.get_theme_options().iter().position(|l| l == "Christmas").unwrap() as i32;
+        p.invoke_pick_theme(at);
+        refresh(&op);
+        assert_eq!(app.data.lock().unwrap().services[0].theme, Some(t.id));
+        assert_eq!(corners(&op), before, "no cell is blanked while the new thumbnails are drawn");
+        op.thumbs.release();
+        assert_eq!(corners(&op), vec![Some([0x3a, 0x24, 0x12, 255]); 3], "then the new theme's thumbnails replace them");
     }
 
     #[test]
