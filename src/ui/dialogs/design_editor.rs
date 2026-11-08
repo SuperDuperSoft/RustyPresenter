@@ -21,6 +21,8 @@ use uuid::Uuid;
 thread_local! {
     /// The style copied with Ctrl+Alt+C (N27): kept while the app runs, so it can go on another item's slides.
     static STYLE: RefCell<Option<StyleCopy>> = const { RefCell::new(None) };
+    /// The objects copied with Ctrl+C or Ctrl+X, to paste on any slide while the app runs.
+    static OBJECTS: RefCell<Vec<crate::design::Obj>> = const { RefCell::new(Vec::new()) };
 }
 
 /// The size the slide in the middle is drawn at, and each slide in the list.
@@ -244,6 +246,9 @@ fn command(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>, key: &str, alt: bool, s
             ("z", false) => ss.ed.undo(),
             ("y", false) => ss.ed.redo(),
             ("d", false) => return ss.ed.duplicate(),
+            ("c", false) => { let objs = ss.ed.copy_objects(); if !objs.is_empty() { OBJECTS.with(|c| *c.borrow_mut() = objs) } }
+            ("x", false) => { let objs = ss.ed.cut_objects(); if !objs.is_empty() { OBJECTS.with(|c| *c.borrow_mut() = objs) } }
+            ("v", false) => return ss.ed.paste_objects(&OBJECTS.with(|c| c.borrow().clone())),
             ("a", false) => ss.ed.select_all(),
             _ => {}
         }

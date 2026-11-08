@@ -243,3 +243,29 @@ fn a_web_page_takes_its_address_from_the_words_box() {
     e.set_text("https://church.example/give");
     assert_eq!(e.primary().unwrap().kind, ObjKind::Web { url: "https://church.example/give".into() });
 }
+
+#[test]
+fn copy_cut_and_paste_objects() {
+    let mut e = Editor::new(vec![]);
+    let a = shape_at(&mut e, r(10.0, 10.0, 10.0, 10.0));
+    let copied = e.copy_objects();
+    assert_eq!(copied.len(), 1);
+    e.paste_objects(&copied).unwrap();
+    assert_eq!(e.slide().objects.len(), 2);
+    assert_ne!(e.sel, vec![a], "the copy is chosen");
+    assert_eq!(rect_of(&e, e.sel[0]), r(12.0, 12.0, 10.0, 10.0), "a little right and down, beside the original");
+    // On another slide it goes in the same place.
+    e.add_slide(false).unwrap();
+    e.paste_objects(&copied).unwrap();
+    assert_eq!(rect_of(&e, e.sel[0]), r(10.0, 10.0, 10.0, 10.0));
+    e.undo();
+    assert!(e.slide().objects.is_empty(), "one undo step");
+    // Cut: copied, then gone.
+    e.select_slide(0);
+    e.select(a, false);
+    let cut = e.cut_objects();
+    assert_eq!(cut.len(), 1);
+    assert_eq!(e.slide().objects.len(), 1);
+    assert!(e.copy_objects().is_empty(), "nothing chosen now");
+    assert!(e.paste_objects(&[]).is_ok());
+}
