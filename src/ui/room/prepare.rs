@@ -106,9 +106,10 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
         Kind::Slide => match f.slide.as_ref()? {
             SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme } => Source::Text(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-                size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone()
+                size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
             }),
-            SlideLayer::Image { asset } => picture(asset, false, 1.0),
+            SlideLayer::Image { asset, .. } => picture(asset, false, 1.0),
+            SlideLayer::Design { design, .. } => Source::Text(RenderKey::design(design, job.theme.clone(), job.canvas, app.store.assets())),
         },
         // The logo sits on black at up to 70 % of the screen (`logoEl` in `render.js`).
         Kind::Logo => match &job.logo { Some(a) => picture(a, false, 0.7), None => Source::Fill(BLACK) },
@@ -173,23 +174,24 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
 
 /// The render keys of the live item's text slides either side of the live one, as the room would draw them (in the
 /// item's own theme).
-pub(super) fn neighbours(live: &Live, canvas: (u32, u32)) -> Vec<RenderKey> {
+pub(super) fn neighbours(live: &Live, canvas: (u32, u32), assets: std::path::PathBuf) -> Vec<RenderKey> {
     let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return vec![] };
     let scripture = item.kind == "scripture";
     let passage = crate::model::passage(&item.kind, &item.slides);
     [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
         SlideContent::Text { text, footer, reference, size, parallel } => Some(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
-            size: *size, passage: passage.clone(), theme: item.theme.clone(), canvas, parallel: parallel.clone()
+            size: *size, passage: passage.clone(), theme: item.theme.clone(), canvas, parallel: parallel.clone(), design: None
         }),
+        SlideContent::Design { design, .. } => Some(RenderKey::design(design, item.theme.clone(), canvas, assets.clone())),
         _ => None,
     }).collect()
 }
 
 /// While the room shows a text slide, has the renderer draw the next and previous ones when it is idle.
 fn prefetch_neighbours(work: &Work, job: &Job) {
-    if !matches!(job.frame.slide, Some(SlideLayer::Text { .. })) { return }
-    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, job.canvas) };
+    if !matches!(job.frame.slide, Some(SlideLayer::Text { .. } | SlideLayer::Design { .. })) { return }
+    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, job.canvas, work.app.store.assets()) };
     for k in keys { work.renderer.prefetch(k) }
 }
 
@@ -249,18 +251,18 @@ mod tests {
     #[test]
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
         let mut live = Live::new();
-        assert!(neighbours(&live, (64, 36)).is_empty(), "nothing live");
-        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into() });
+        assert!(neighbours(&live, (64, 36), Default::default()).is_empty(), "nothing live");
+        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into(), transition: None });
         live.item = Some(LiveItem {
             item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
             background: Background::Color { color: "#000000".into() }, theme: Theme::default(),
         });
         let at = |live: &mut Live, slide| live.cursor = Some(Cursor { item_id: uuid::Uuid::nil(), item_index: 0, slide });
-        let texts = |live: &Live| neighbours(live, (64, 36)).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
+        let texts = |live: &Live| neighbours(live, (64, 36), Default::default()).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
         at(&mut live, 0);
         assert_eq!(texts(&live), ["two"], "nothing before the first slide");
         // The same size and passage as the room's own key, or the drawing done ahead is never used.
-        let key = neighbours(&live, (64, 36)).remove(0);
+        let key = neighbours(&live, (64, 36), Default::default()).remove(0);
         assert_eq!(key.size, 90);
         assert_eq!(key.passage.iter().map(|s| s.text.as_str()).collect::<Vec<_>>(), ["one", "two", "four"]);
         at(&mut live, 1);

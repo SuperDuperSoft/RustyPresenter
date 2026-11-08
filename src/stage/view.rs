@@ -84,6 +84,7 @@ pub fn label(slide: &Slide) -> String {
         SlideContent::Video { .. } => s::video().into(),
         SlideContent::Still { .. } => s::picture().into(),
         SlideContent::Audio { .. } => s::audio().into(),
+        SlideContent::Design { design, .. } => design.words(),
     }
 }
 
@@ -91,7 +92,7 @@ pub fn label(slide: &Slide) -> String {
 /// Keynote) always shows as one: its name alone tells the stage nothing. Background pictures show only when the box asks.
 fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<String>) -> CellContent {
     match &slide.content {
-        SlideContent::Image { asset } => CellContent::Picture { asset: asset.clone(), caption },
+        SlideContent::Image { asset, .. } => CellContent::Picture { asset: asset.clone(), caption },
         SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
         _ => match slide.chords.as_ref().filter(|_| chords) {
             Some(with) => CellContent::text(with.clone(), caption),
@@ -323,7 +324,7 @@ mod tests {
 
     #[test]
     fn picture_slides_always_show_as_pictures_on_stage() {
-        let pic = slide(SlideContent::Image { asset: "a.png".into() });
+        let pic = slide(SlideContent::Image { asset: "a.png".into(), transition: None });
         let mut v = song_view(&[pic.clone()], 0);
         v.frame.media = Some(Inst { inst: 1, v: MediaLayer::Still { asset: "a.png".into() } });
         assert_eq!(only(&v, &[], CUR), CellContent::Picture { asset: "a.png".into(), caption: None }, "a PowerPoint slide shows itself, not its name");
@@ -400,7 +401,7 @@ mod tests {
     #[test]
     fn deck_slides_show_their_speaker_notes() {
         let mut data = crate::model::Data::default();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()], transitions: vec![] };
         data.decks.push(deck.clone());
         let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
         let (_, kind, s) = crate::slides::build_item(&data, &item);

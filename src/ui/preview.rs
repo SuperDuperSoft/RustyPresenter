@@ -59,9 +59,11 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
     let slide = match &frame.slide {
         Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme: own }) => Source::Text(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-            size: *max, passage: passage.clone(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone()
+            size: *max, passage: passage.clone(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone(), design: None
         }),
-        Some(SlideLayer::Image { asset }) => picture(asset, false, 1.0),
+        Some(SlideLayer::Image { asset, .. }) => picture(asset, false, 1.0),
+        // The picture folder is filled in where it is drawn (`draw`).
+        Some(SlideLayer::Design { design, .. }) => Source::Text(RenderKey::design(design, theme.clone(), size, PathBuf::new())),
         None => Source::Hidden,
     };
     // The logo sits on black at up to 70 % of the screen; without a logo file it is plain black.
@@ -97,7 +99,7 @@ fn draw(source: &Source, size: (u32, u32), renderer: &TextRenderer, store: &Stor
             Drawn::Pic(prepare::painted(bg, path.as_deref(), size).ok(), Color::default())
         }
         Source::Text(key) => {
-            let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone()));
+            let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone().with_assets(store.assets())));
             Drawn::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default())
         }
     }

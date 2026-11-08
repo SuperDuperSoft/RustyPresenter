@@ -22,6 +22,7 @@ import { PhoneDialog } from "dialogs/phone.slint";
 import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
 import { StageLayoutsDialog } from "dialogs/stage-layouts.slint";
+import { DesignEditorDialog } from "dialogs/design-editor.slint";
 import { OverlaysDialog } from "dialogs/overlays.slint";
 import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
@@ -401,6 +402,11 @@ export component OperatorWindow inherits Window {
                 MenuItem {
                     title: @tr("Announcement…");
                     activated => { root.focus-keys(); root.menu("add-text"); }
+                }
+                // N26: slides made in the slide editor.
+                MenuItem {
+                    title: @tr("Designed slides…");
+                    activated => { root.focus-keys(); root.menu("add-design"); }
                 }
             }
             MenuItem {
@@ -1000,6 +1006,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "settings": SettingsDialog {}
             if root.dialog-kind == "usage": UsageDialog {}
             if root.dialog-kind == "stage-layouts": StageLayoutsDialog {}
+            if root.dialog-kind == "design": DesignEditorDialog {}
             if root.dialog-kind == "overlays": OverlaysDialog {}
             if root.dialog-kind == "automation": AutomationDialog {}
             if root.dialog-kind == "show-message": ShowMessageDialog {}

@@ -1,0 +1,603 @@
+// The slide editor (N26, N27): the item's slides on the left, the slide in the middle with the tools above it, and
+// the chosen object's settings (or the slide's, with nothing chosen) on the right. Set and answered by
+// `src/ui/dialogs/design_editor.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, TextArea, Lbl, Select, RangeSlider, Toggle, Check } from "form.slint";
+import { TransitionPicker } from "transition.slint";
+import { DesignCanvas, DesignObjVm, DesignGuideVm } from "design-canvas.slint";
+
+export { DesignObjVm, DesignGuideVm }
+
+/// One slide in the list.
+export struct DesignSlideVm { name: string, thumb: image, builds: int, selected: bool }
+
+/// A picture or video from the media library that can go on a slide.
+export struct DesignMediaVm { name: string, video: bool }
+
+export global DesignDlg {
+    in-out property <string> title;
+    in property <[DesignSlideVm]> slides;
+    in property <image> picture;
+    in property <[DesignObjVm]> objects;
+    in property <[DesignGuideVm]> guides;
+    in property <[DesignMediaVm]> media;
+    in property <bool> can-undo;
+    in property <bool> can-redo;
+    in property <bool> pen;
+    in property <string> error;
+    /// The item is on screen now (Live Edit): Save and show now is offered.
+    in property <bool> live;
+    /// How many objects are chosen.
+    in property <int> chosen;
+    // The first chosen object: 0 text, 1 shape, 2 picture, 3 video, 4 drawn line, 5 web page, 6 newer kind.
+    in property <int> kind;
+    in-out property <string> text;
+    in-out property <int> size: 72;
+    in-out property <string> color: "#ffffff";
+    in property <bool> bold;
+    in property <bool> italic;
+    in-out property <int> align: 1;
+    in-out property <int> valign: 1;
+    in property <bool> shrink;
+    in-out property <int> shape;
+    in-out property <int> fit;
+    in property <bool> has-fill;
+    in-out property <string> fill: "#3b82f6";
+    in property <bool> has-outline;
+    in-out property <string> outline-color: "#ffffff";
+    in-out property <int> outline-width: 4;
+    in property <bool> has-shadow;
+    in-out property <int> shadow-blur: 16;
+    in-out property <int> soft;
+    in-out property <int> radius;
+    in-out property <int> opacity: 100;
+    in-out property <int> rotation;
+    in property <bool> build;
+    /// "Appears on Next 2 of 3", or "".
+    in property <string> build-note;
+    // The slide, with nothing chosen.
+    in-out property <int> transition;
+    in-out property <int> transition-ms: 400;
+    in-out property <int> transition-dir;
+    in-out property <string> notes;
+    in property <bool> style-copied;
+
+    callback select-slide(int);
+    callback add-slide(bool);
+    callback move-slide(bool);
+    callback delete-slide();
+    callback add-text();
+    callback add-web();
+    callback add-shape(int);
+    callback add-media(int);
+    callback toggle-pen();
+    callback press(float, float, float, float, bool, bool);
+    callback drag(float, float);
+    callback release();
+    callback nudge(int, bool);
+    callback command(string, bool, bool);
+    callback remove();
+    callback next(bool);
+    callback undo();
+    callback redo();
+    callback align-to(int);
+    callback distribute(bool);
+    callback order(int);
+    callback duplicate();
+    callback copy-style();
+    callback paste-style();
+    callback text-edited(string);
+    callback size-changed(int);
+    callback color-changed(string);
+    callback bold-changed(bool);
+    callback italic-changed(bool);
+    callback align-changed(int);
+    callback valign-changed(int);
+    callback shrink-changed(bool);
+    callback shape-changed(int);
+    callback fit-changed(int);
+    callback fill-on(bool);
+    callback fill-changed(string);
+    callback outline-on(bool);
+    callback outline-color-changed(string);
+    callback outline-width-changed(int);
+    callback shadow-on(bool);
+    callback shadow-blur-changed(int);
+    callback soft-changed(int);
+    callback radius-changed(int);
+    callback opacity-changed(int);
+    callback rotation-changed(int);
+    callback build-on(bool);
+    callback build-move(bool);
+    callback transition-changed(int);
+    callback transition-ms-changed(int);
+    callback transition-dir-changed(int);
+    callback transition-to-all();
+    callback notes-edited(string);
+    callback title-edited(string);
+    callback cancel();
+    callback save();
+    callback save-and-show();
+}
+
+component SmallText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    wrap: word-wrap;
+}
+
+component Swatch inherits Rectangle {
+    in property <string> hex;
+    in property <color> shade;
+    in property <string> current;
+    callback picked(string);
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    background: root.shade;
+    border-color: root.current == root.hex ? Theme.accent : Theme.line;
+    border-width: 2px;
+    accessible-role: button;
+    accessible-label: root.hex;
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.picked(root.hex); }
+    }
+}
+
+/// A row of colour swatches and a field to type one.
+component ColorRow inherits VerticalLayout {
+    in property <string> label;
+    in-out property <string> value;
+    callback changed(string);
+    spacing: 4px;
+    HorizontalLayout {
+        spacing: 5px;
+        alignment: start;
+        Swatch { hex: "#ffffff"; shade: #ffffff; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#000000"; shade: #000000; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#f5c66b"; shade: #f5c66b; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#3b82f6"; shade: #3b82f6; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#ef4444"; shade: #ef4444; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#22c55e"; shade: #22c55e; current: root.value; picked(h) => { root.changed(h); } }
+        Swatch { hex: "#1f2937"; shade: #1f2937; current: root.value; picked(h) => { root.changed(h); } }
+    }
+    TextField {
+        label: root.label;
+        text <=> root.value;
+        edited(t) => { root.changed(t); }
+    }
+}
+
+/// A switch with its words beside it.
+component Switch inherits HorizontalLayout {
+    in property <string> text;
+    in property <bool> on;
+    callback toggled(bool);
+    spacing: 8px;
+    Toggle { label: root.text; on: root.on; toggled(v) => { root.toggled(v); } }
+    Text {
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 13px;
+        vertical-alignment: center;
+    }
+}
+
+/// The item's slides and what can be done with them.
+component SlideList inherits VerticalLayout {
+    spacing: 4px;
+    alignment: start;
+    Lbl { label: @tr("Slides"); }
+    for s[i] in DesignDlg.slides: slide-row := Rectangle {
+        height: 104px;
+        border-radius: 8px;
+        background: s.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+        border-color: s.selected ? Theme.accent : transparent;
+        border-width: 1px;
+        accessible-role: list-item;
+        accessible-label: s.name;
+        accessible-item-selected: s.selected;
+        row-ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { DesignDlg.select-slide(i); }
+        }
+        VerticalLayout {
+            padding: 5px;
+            spacing: 3px;
+            Image {
+                height: 76px;
+                source: s.thumb;
+                image-fit: contain;
+            }
+            Text {
+                text: s.builds > 0 ? @tr("{} · {} builds", s.name, s.builds) : s.name;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 12px;
+                overflow: elide;
+                horizontal-alignment: center;
+            }
+        }
+    }
+    Rectangle { height: 6px; }
+    add-slide-btn := Btn { small: true; icon: "plus"; text: @tr("New slide"); clicked => { DesignDlg.add-slide(false); } }
+    copy-slide-btn := Btn { small: true; icon: "copy"; text: @tr("Copy slide"); clicked => { DesignDlg.add-slide(true); } }
+    HorizontalLayout {
+        spacing: 4px;
+        up-btn := Btn { small: true; text: "↑"; tooltip: @tr("Move earlier"); clicked => { DesignDlg.move-slide(true); } }
+        down-btn := Btn { small: true; text: "↓"; tooltip: @tr("Move later"); clicked => { DesignDlg.move-slide(false); } }
+    }
+    delete-slide-btn := Btn { small: true; icon: "trash"; danger: true; text: @tr("Delete slide"); clicked => { DesignDlg.delete-slide(); } }
+}
+
+/// The chosen object's settings, or the slide's when nothing is chosen.
+component Inspector inherits VerticalLayout {
+    spacing: 6px;
+    alignment: start;
+    if DesignDlg.chosen == 0: VerticalLayout {
+        spacing: 6px;
+        Lbl { label: @tr("This slide"); }
+        SmallText { text: @tr("Click an object to change it. Shift+click chooses more than one."); }
+        Lbl { label: @tr("Transition"); }
+        transition := TransitionPicker {
+            kind <=> DesignDlg.transition;
+            dir <=> DesignDlg.transition-dir;
+            ms <=> DesignDlg.transition-ms;
+            kind-changed(i) => { DesignDlg.transition-changed(i); }
+            dir-changed(i) => { DesignDlg.transition-dir-changed(i); }
+            ms-changed(v) => { DesignDlg.transition-ms-changed(v); }
+        }
+        all-btn := Btn { small: true; text: @tr("Use on every slide"); clicked => { DesignDlg.transition-to-all(); } }
+        Lbl { label: @tr("Notes"); }
+        notes := TextArea {
+            label: @tr("Notes");
+            placeholder: @tr("For the stage screen and the operator");
+            text <=> DesignDlg.notes;
+            edited(t) => { DesignDlg.notes-edited(t); }
+        }
+    }
+    if DesignDlg.chosen > 0: VerticalLayout {
+        spacing: 6px;
+        if DesignDlg.chosen > 1: SmallText { text: @tr("{} objects chosen. Changes go on all of them.", DesignDlg.chosen); }
+        if DesignDlg.kind == 0: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Words"); }
+            words := TextArea {
+                label: @tr("Words");
+                min-height: 80px;
+                text <=> DesignDlg.text;
+                edited(t) => { DesignDlg.text-edited(t); }
+            }
+            Lbl { label: @tr("Text size ({} px)", DesignDlg.size); }
+            RangeSlider {
+                minimum: 12;
+                maximum: 300;
+                value <=> DesignDlg.size;
+                changed(v) => { DesignDlg.size-changed(v); }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                Check { text: @tr("Bold"); checked: DesignDlg.bold; toggled(v) => { DesignDlg.bold-changed(v); } }
+                Check { text: @tr("Italic"); checked: DesignDlg.italic; toggled(v) => { DesignDlg.italic-changed(v); } }
+            }
+            Check { text: @tr("Shrink to fit the box"); checked: DesignDlg.shrink; toggled(v) => { DesignDlg.shrink-changed(v); } }
+            Lbl { label: @tr("Text colour"); }
+            ColorRow {
+                label: @tr("Text colour");
+                value <=> DesignDlg.color;
+                changed(c) => { DesignDlg.color-changed(c); }
+            }
+            HorizontalLayout {
+                alignment: start;
+                Segmented {
+                    labels: [@tr("Left"), @tr("Centre"), @tr("Right")];
+                    index <=> DesignDlg.align;
+                    changed(i) => { DesignDlg.align-changed(i); }
+                }
+            }
+            HorizontalLayout {
+                alignment: start;
+                Segmented {
+                    labels: [@tr("Top"), @tr("Middle"), @tr("Bottom")];
+                    index <=> DesignDlg.valign;
+                    changed(i) => { DesignDlg.valign-changed(i); }
+                }
+            }
+        }
+        if DesignDlg.kind == 1: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Shape"); }
+            Select {
+                options: [@tr("Rectangle"), @tr("Circle"), @tr("Triangle"), @tr("Line"), @tr("Arrow")];
+                index <=> DesignDlg.shape;
+                changed(i) => { DesignDlg.shape-changed(i); }
+            }
+        }
+        if DesignDlg.kind == 2: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Picture"); }
+            HorizontalLayout {
+                alignment: start;
+                Segmented {
+                    labels: [@tr("Fit"), @tr("Fill"), @tr("Stretch")];
+                    index <=> DesignDlg.fit;
+                    changed(i) => { DesignDlg.fit-changed(i); }
+                }
+            }
+        }
+        if DesignDlg.kind == 5: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Web address"); }
+            web-url := TextField {
+                label: @tr("Web address");
+                placeholder: "https://";
+                text <=> DesignDlg.text;
+                edited(t) => { DesignDlg.text-edited(t); }
+            }
+            SmallText { text: @tr("The room shows the page's address here."); }
+        }
+        if DesignDlg.kind == 3: SmallText { text: @tr("The room shows the video's first picture here."); }
+        if DesignDlg.kind == 6: SmallText { text: @tr("A newer RustyPresenter made this object. It can be moved or removed here."); }
+        Switch { text: @tr("Fill"); on: DesignDlg.has-fill; toggled(v) => { DesignDlg.fill-on(v); } }
+        if DesignDlg.has-fill: ColorRow {
+            label: @tr("Fill colour");
+            value <=> DesignDlg.fill;
+            changed(c) => { DesignDlg.fill-changed(c); }
+        }
+        Switch { text: @tr("Outline"); on: DesignDlg.has-outline; toggled(v) => { DesignDlg.outline-on(v); } }
+        if DesignDlg.has-outline: VerticalLayout {
+            spacing: 6px;
+            ColorRow {
+                label: @tr("Outline colour");
+                value <=> DesignDlg.outline-color;
+                changed(c) => { DesignDlg.outline-color-changed(c); }
+            }
+            Lbl { label: @tr("Outline width ({} px)", DesignDlg.outline-width); }
+            RangeSlider {
+                minimum: 1;
+                maximum: 40;
+                value <=> DesignDlg.outline-width;
+                changed(v) => { DesignDlg.outline-width-changed(v); }
+            }
+        }
+        Switch { text: @tr("Shadow"); on: DesignDlg.has-shadow; toggled(v) => { DesignDlg.shadow-on(v); } }
+        if DesignDlg.has-shadow: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Shadow softness ({} px)", DesignDlg.shadow-blur); }
+            RangeSlider {
+                minimum: 0;
+                maximum: 80;
+                value <=> DesignDlg.shadow-blur;
+                changed(v) => { DesignDlg.shadow-blur-changed(v); }
+            }
+        }
+        Lbl { label: @tr("Soft edges ({} px)", DesignDlg.soft); }
+        RangeSlider {
+            minimum: 0;
+            maximum: 200;
+            value <=> DesignDlg.soft;
+            changed(v) => { DesignDlg.soft-changed(v); }
+        }
+        Lbl { label: @tr("Round corners ({} px)", DesignDlg.radius); }
+        RangeSlider {
+            minimum: 0;
+            maximum: 200;
+            value <=> DesignDlg.radius;
+            changed(v) => { DesignDlg.radius-changed(v); }
+        }
+        Lbl { label: @tr("See-through ({}% shown)", DesignDlg.opacity); }
+        RangeSlider {
+            minimum: 0;
+            maximum: 100;
+            value <=> DesignDlg.opacity;
+            changed(v) => { DesignDlg.opacity-changed(v); }
+        }
+        Lbl { label: @tr("Turn ({}°)", DesignDlg.rotation); }
+        RangeSlider {
+            minimum: -180;
+            maximum: 180;
+            value <=> DesignDlg.rotation;
+            changed(v) => { DesignDlg.rotation-changed(v); }
+        }
+        Lbl { label: @tr("Build"); }
+        Switch { text: @tr("Appears on Next"); on: DesignDlg.build; toggled(v) => { DesignDlg.build-on(v); } }
+        if DesignDlg.build: VerticalLayout {
+            spacing: 6px;
+            SmallText { text: DesignDlg.build-note; }
+            HorizontalLayout {
+                spacing: 4px;
+                alignment: start;
+                Btn { small: true; text: @tr("Earlier"); clicked => { DesignDlg.build-move(true); } }
+                Btn { small: true; text: @tr("Later"); clicked => { DesignDlg.build-move(false); } }
+            }
+        }
+    }
+}
+
+export component DesignEditorDialog inherits VerticalLayout {
+    DialogBody {
+        HorizontalLayout {
+            spacing: 14px;
+            list := SlideList {
+                width: 160px;
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 6px;
+                alignment: start;
+                title := TextField {
+                    label: @tr("Name");
+                    placeholder: @tr("Name");
+                    text <=> DesignDlg.title;
+                    edited(t) => { DesignDlg.title-edited(t); }
+                }
+                HorizontalLayout {
+                    spacing: 5px;
+                    alignment: start;
+                    add-text-btn := Btn { small: true; icon: "plus"; text: @tr("Text"); clicked => { DesignDlg.add-text(); } }
+                    add-shape-btn := Btn { small: true; icon: "plus"; text: @tr("Shape"); clicked => { shape-menu.show(); } }
+                    add-media-btn := Btn {
+                        small: true;
+                        icon: "image";
+                        text: @tr("Picture or video");
+                        enabled: DesignDlg.media.length > 0;
+                        tooltip: DesignDlg.media.length > 0 ? "" : @tr("Import pictures into the media library first");
+                        clicked => { media-menu.show(); }
+                    }
+                    add-web-btn := Btn { small: true; icon: "plus"; text: @tr("Web page"); clicked => { DesignDlg.add-web(); } }
+                    pen-btn := Btn { small: true; icon: "edit"; primary: DesignDlg.pen; text: @tr("Draw"); clicked => { DesignDlg.toggle-pen(); } }
+                    Rectangle { width: 10px; }
+                    undo-btn := Btn { small: true; icon: "restart"; text: @tr("Undo"); enabled: DesignDlg.can-undo; clicked => { DesignDlg.undo(); } }
+                    redo-btn := Btn { small: true; text: @tr("Redo"); enabled: DesignDlg.can-redo; clicked => { DesignDlg.redo(); } }
+                }
+                HorizontalLayout {
+                    spacing: 4px;
+                    alignment: start;
+                    Btn { small: true; text: "⇤"; tooltip: @tr("Align left"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(0); } }
+                    Btn { small: true; text: "↔"; tooltip: @tr("Centre across"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(1); } }
+                    Btn { small: true; text: "⇥"; tooltip: @tr("Align right"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(2); } }
+                    Btn { small: true; text: "⤒"; tooltip: @tr("Align top"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(3); } }
+                    Btn { small: true; text: "↕"; tooltip: @tr("Centre down"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(4); } }
+                    Btn { small: true; text: "⤓"; tooltip: @tr("Align bottom"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.align-to(5); } }
+                    Btn { small: true; text: @tr("Space across"); enabled: DesignDlg.chosen > 2; clicked => { DesignDlg.distribute(true); } }
+                    Btn { small: true; text: @tr("Space down"); enabled: DesignDlg.chosen > 2; clicked => { DesignDlg.distribute(false); } }
+                }
+                HorizontalLayout {
+                    spacing: 4px;
+                    alignment: start;
+                    Btn { small: true; text: @tr("To front"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.order(0); } }
+                    Btn { small: true; text: @tr("To back"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.order(3); } }
+                    Btn { small: true; icon: "copy"; text: @tr("Duplicate"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.duplicate(); } }
+                    Btn { small: true; icon: "trash"; text: @tr("Remove"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.remove(); } }
+                    copy-style-btn := Btn { small: true; text: @tr("Copy style"); tooltip: "Ctrl+Alt+C"; clicked => { DesignDlg.copy-style(); } }
+                    paste-style-btn := Btn { small: true; text: @tr("Paste style"); tooltip: "Ctrl+Alt+V"; enabled: DesignDlg.style-copied; clicked => { DesignDlg.paste-style(); } }
+                }
+                canvas := DesignCanvas {
+                    height: 400px;
+                    picture: DesignDlg.picture;
+                    objects: DesignDlg.objects;
+                    guides: DesignDlg.guides;
+                    handles: DesignDlg.chosen == 1;
+                    pen: DesignDlg.pen;
+                    press(x, y, tx, ty, add, free) => { DesignDlg.press(x, y, tx, ty, add, free); }
+                    drag(x, y) => { DesignDlg.drag(x, y); }
+                    release => { DesignDlg.release(); }
+                    nudge(k, shift) => { DesignDlg.nudge(k, shift); }
+                    command(key, alt, shift) => { DesignDlg.command(key, alt, shift); }
+                    remove => { DesignDlg.remove(); }
+                    next(back) => { DesignDlg.next(back); }
+                }
+                hint := SmallText {
+                    text: DesignDlg.pen
+                        ? @tr("Drag on the slide to draw. Press Draw again to stop.")
+                        : @tr("Drag to move, drag a corner to resize, arrows nudge, Alt moves freely. Ctrl+Alt+C copies a style, Ctrl+Alt+V pastes it.");
+                }
+                shape-menu := PopupWindow {
+                    x: add-shape-btn.x;
+                    y: add-shape-btn.y + add-shape-btn.height + 2px;
+                    width: 200px;
+                    height: 5 * 34px + 8px;
+                    close-policy: close-on-click-outside;
+                    Rectangle {
+                        background: Theme.panel-2;
+                        border-color: Theme.line;
+                        border-width: 1px;
+                        border-radius: 9px;
+                        VerticalLayout {
+                            padding: 4px;
+                            for name[i] in [@tr("Rectangle"), @tr("Circle"), @tr("Triangle"), @tr("Line"), @tr("Arrow")]: Rectangle {
+                                height: 34px;
+                                border-radius: 6px;
+                                background: shape-ta.has-hover ? Theme.raise : transparent;
+                                accessible-role: list-item;
+                                accessible-label: name;
+                                shape-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => { DesignDlg.add-shape(i); shape-menu.close(); canvas.focus-canvas(); }
+                                }
+                                Text { x: 10px; text: name; color: Theme.text; font-family: Theme.font; font-size: 13px; vertical-alignment: center; }
+                            }
+                        }
+                    }
+                }
+                media-menu := PopupWindow {
+                    x: add-media-btn.x;
+                    y: add-media-btn.y + add-media-btn.height + 2px;
+                    width: 300px;
+                    height: min(10, DesignDlg.media.length) * 34px + 8px;
+                    close-policy: close-on-click-outside;
+                    Rectangle {
+                        background: Theme.panel-2;
+                        border-color: Theme.line;
+                        border-width: 1px;
+                        border-radius: 9px;
+                        Flickable {
+                            x: 4px;
+                            y: 4px;
+                            width: parent.width - 8px;
+                            height: parent.height - 8px;
+                            content-height: DesignDlg.media.length * 34px;
+                            VerticalLayout {
+                                for m[i] in DesignDlg.media: Rectangle {
+                                    height: 34px;
+                                    border-radius: 6px;
+                                    background: media-ta.has-hover ? Theme.raise : transparent;
+                                    accessible-role: list-item;
+                                    accessible-label: m.name;
+                                    media-ta := TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { DesignDlg.add-media(i); media-menu.close(); canvas.focus-canvas(); }
+                                    }
+                                    Text {
+                                        x: 10px;
+                                        width: parent.width - 20px;
+                                        text: m.video ? @tr("Video: {}", m.name) : m.name;
+                                        color: Theme.text;
+                                        font-family: Theme.font;
+                                        font-size: 13px;
+                                        overflow: elide;
+                                        vertical-alignment: center;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            inspector := Inspector {
+                width: 250px;
+            }
+        }
+    }
+    DialogFoot {
+        if DesignDlg.error != "": error := Text {
+            horizontal-stretch: 1;
+            text: DesignDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            vertical-alignment: center;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { DesignDlg.cancel(); }
+        }
+        if DesignDlg.live: save-and-show := Btn {
+            text: @tr("Save and show now");
+            clicked => { DesignDlg.save-and-show(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { DesignDlg.save(); }
+        }
+    }
+}

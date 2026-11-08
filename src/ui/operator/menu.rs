@@ -56,6 +56,8 @@ pub enum MenuAction {
     Record,
     /// Settings → Network… (N31).
     Network,
+    /// File → Add to service → Designed slides… (N26): the slide editor on new slides.
+    AddDesign,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -104,6 +106,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "translations" => MenuAction::Translations,
         "record" => MenuAction::Record,
         "network" => MenuAction::Network,
+        "add-design" => MenuAction::AddDesign,
         _ => return None,
     })
 }
@@ -149,6 +152,7 @@ impl Operator {
             Some(MenuAction::Transfer(t)) => self.transfer(t),
             Some(MenuAction::Record) => self.toggle_recording(),
             Some(MenuAction::Network) => crate::ui::dialogs::network::open(self),
+            Some(MenuAction::AddDesign) => crate::ui::dialogs::design_editor::open(self, None),
             None => {}
         }
     }
@@ -324,6 +328,7 @@ mod tests {
         assert_eq!(action("zoom-reset"), Some(MenuAction::Zoom(0)));
         assert_eq!(action("exit"), Some(MenuAction::Exit));
         assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
+        assert_eq!(action("add-design"), Some(MenuAction::AddDesign));
         assert_eq!(action("automation"), Some(MenuAction::Automation));
         assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
         assert_eq!(action("find-mouse"), Some(MenuAction::FindMouse));

@@ -291,7 +291,7 @@ fn composite(pix: &mut PixmapMut, cov: &Coverage, dy: i32, color: [u8; 4], opaci
 const BOX_BLUR_MIN_SIGMA: f32 = 2.0;
 
 /// How far, in pixels, `blur` spreads coverage.
-fn blur_reach(sigma: f32) -> usize {
+pub(crate) fn blur_reach(sigma: f32) -> usize {
     if !(sigma > 0.0) { 0 } else if sigma < BOX_BLUR_MIN_SIGMA { kernel_radius(sigma) } else { box_radii(sigma).iter().sum() }
 }
 
@@ -299,7 +299,7 @@ fn kernel_radius(sigma: f32) -> usize { (3.0 * sigma).ceil() as usize }
 
 /// Blur coverage values with a Gaussian of standard deviation `sigma`. Outside the slice counts as
 /// uncovered (as past the canvas edge).
-fn blur(data: &mut [f32], w: usize, h: usize, sigma: f32) {
+pub(crate) fn blur(data: &mut [f32], w: usize, h: usize, sigma: f32) {
     if !(sigma > 0.0) || w == 0 || h == 0 { return; }
     let mut tmp = vec![0.0f32; data.len()];
     if sigma < BOX_BLUR_MIN_SIGMA {

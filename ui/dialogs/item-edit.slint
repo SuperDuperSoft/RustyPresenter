@@ -8,11 +8,13 @@ import { TextField, TextArea, Check, Note, RangeSlider, Select } from "form.slin
 import { BackgroundPicker, BgChoice } from "background-picker.slint";
 import { BiblePickButton, TranslationChip } from "../bible-picker.slint";
 import { ArrangementStrip, ArrChipRow, ArrAddRow } from "arrangement.slint";
+import { TransitionPicker } from "transition.slint";
 
 export { BgChoice }
 
-/// One slide of a deck in "Speaker notes": "Slide 3" and its notes.
-export struct DeckNoteRow { label: string, notes: string }
+/// One slide of a deck in "Speaker notes" and "Slide transitions": "Slide 3", its notes, and its transition as
+/// `TransitionPicker` shows it (`transition` 0: Normal).
+export struct DeckNoteRow { label: string, notes: string, transition: int, dir: int, ms: int }
 
 /// What the open Item edit shows and what the user changed.
 export global ItemEdit {
@@ -63,6 +65,12 @@ export global ItemEdit {
     /// A deck's slides with their speaker notes (empty for other items).
     in property <[DeckNoteRow]> deck-notes;
     callback deck-note-edited(int, string);
+    /// A deck slide's transition changed: (slide, kind / way / ms).
+    callback deck-transition-changed(int, int);
+    callback deck-transition-dir-changed(int, int);
+    callback deck-transition-ms-changed(int, int);
+    /// That slide's transition on every slide.
+    callback deck-transition-to-all(int);
     /// FEAT-2: song, scripture, announcement and slides items can turn their own slides.
     in property <bool> advance-shown;
     /// The item has at least two slides.
@@ -389,6 +397,38 @@ export component ItemEditDialog inherits VerticalLayout {
                     min-height: 48px;
                     text: row.notes;
                     edited(t) => { ItemEdit.deck-note-edited(i, t); }
+                }
+            }
+        }
+        if ItemEdit.deck-notes.length > 0: Field {
+            label: @tr("Slide transitions");
+            help: @tr("How each slide comes on screen. Normal uses the usual fade.");
+            for row[i] in ItemEdit.deck-notes: VerticalLayout {
+                spacing: 4px;
+                padding-bottom: 6px;
+                Text {
+                    text: row.label;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+                deck-transition := TransitionPicker {
+                    normal: true;
+                    label: row.label;
+                    kind: row.transition;
+                    dir: row.dir;
+                    ms: row.ms;
+                    kind-changed(k) => { ItemEdit.deck-transition-changed(i, k); }
+                    dir-changed(d) => { ItemEdit.deck-transition-dir-changed(i, d); }
+                    ms-changed(v) => { ItemEdit.deck-transition-ms-changed(i, v); }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    deck-transition-all := Btn {
+                        small: true;
+                        text: @tr("Use for all slides");
+                        clicked => { ItemEdit.deck-transition-to-all(i); }
+                    }
                 }
             }
         }

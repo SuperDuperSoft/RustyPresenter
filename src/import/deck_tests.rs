@@ -239,6 +239,23 @@ async fn speaker_notes_are_kept_per_slide() {
 }
 
 #[tokio::test]
+async fn slide_transitions_are_kept_per_slide() {
+    let d = dir();
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(3), None));
+    let file = staged(&app, &crate::import::transitions::tests::sample_pptx());
+    let id = start(app.clone(), file, "Talk".into());
+    finished(&app, id).await;
+    let deck = app.data.lock().unwrap().decks[0].clone();
+    assert_eq!(deck.transitions, crate::import::transitions::tests::sample_transitions());
+    // Two pictures for three slides: they would land on the wrong slides.
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), None));
+    let file = staged(&app, &crate::import::transitions::tests::sample_pptx());
+    let id = start(app.clone(), file, "Talk".into());
+    finished(&app, id).await;
+    assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
+}
+
+#[tokio::test]
 async fn speaker_notes_from_an_odp() {
     let d = dir();
     let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(3), None));

@@ -1280,7 +1280,7 @@ impl App {
             if assets.is_empty() { return Err(ActionError::bad(tr!("Choose at least one picture."))); }
             for a in &assets { if !app.store.asset_path(a).exists() { return Err(ActionError::bad(tr!("A picture is missing. Try uploading again."))); } }
             let id = Uuid::new_v4();
-            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![] }); Ok(()) }));
+            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![], transitions: vec![] }); Ok(()) }));
             Ok(json!({ "id": id }))
         }
         "deck/rename" => {
@@ -1293,6 +1293,12 @@ impl App {
             #[derive(Deserialize)] struct N { id: Uuid, notes: Vec<String> }
             let N { id, notes } = parse(body)?;
             tryr!(app.edit(|d| { if let Some(x) = d.decks.iter_mut().find(|x| x.id == id) { x.notes = crate::model::deck_notes(notes, x.slides.len()); } Ok(()) }));
+            Ok(json!({}))
+        }
+        "deck/transitions" => {
+            #[derive(Deserialize)] struct T { id: Uuid, transitions: Vec<Option<crate::design::Transition>> }
+            let T { id, transitions } = parse(body)?;
+            tryr!(app.edit(|d| { if let Some(x) = d.decks.iter_mut().find(|x| x.id == id) { x.transitions = crate::model::deck_transitions(transitions, x.slides.len()); } Ok(()) }));
             Ok(json!({}))
         }
         "deck/delete" => {

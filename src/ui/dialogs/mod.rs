@@ -8,6 +8,7 @@ pub mod add_youtube;
 pub mod ask;
 pub mod automation;
 pub mod background;
+pub mod design_editor;
 pub mod find_verse;
 pub mod item_edit;
 pub mod music;
@@ -89,6 +90,8 @@ pub enum DialogKind {
     Music,
     /// N31: Settings → Network… (remote password, stage view on phones, TCP control).
     Network,
+    /// N26: the slide editor on a designed item (`None`: new slides).
+    Design(Option<Uuid>),
 }
 
 impl DialogKind {
@@ -97,7 +100,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_)) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -125,6 +128,7 @@ impl DialogKind {
             DialogKind::Translations => "translations",
             DialogKind::Music => "music",
             DialogKind::Network => "network",
+            DialogKind::Design(_) => "design",
         }
     }
 }
@@ -248,6 +252,7 @@ impl Operator {
             DialogKind::Translations => translation_editor::title(),
             DialogKind::Music => crate::tr!("Walk-in music"),
             DialogKind::Network => network::title(),
+            DialogKind::Design(_) => crate::design::strings::editor_title(),
         }
     }
 }

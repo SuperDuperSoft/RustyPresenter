@@ -11,6 +11,7 @@ use crate::{
     model::{ItemKind, MediaStatus, ServiceItem, Song, VerseText},
     scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
     sections::{arrangement, strings as song_tr},
+    design::{Dir, Transition, TransitionKind, TRANSITION_MAX_MS},
     ui::{ArrAddRow, DeckNoteRow, ItemEdit, operator::{bible, view, window::Operator}},
 };
 use serde::Deserialize;
@@ -34,8 +35,9 @@ struct Edit {
     order: Option<(Song, Vec<String>)>,
     /// What each line of the Theme box picks (`None`: the service's).
     themes: Vec<Option<crate::theme::ThemeId>>,
-    /// Deck: its id, its notes as the dialog opened, and the rows of "Speaker notes".
-    deck_notes: Option<(Uuid, Vec<String>, Rc<VecModel<DeckNoteRow>>)>,
+    /// Deck: its id, its notes and transitions as the dialog opened, and the rows of "Speaker notes" and "Slide
+    /// transitions".
+    deck_notes: Option<(Uuid, Vec<String>, Vec<Option<Transition>>, Rc<VecModel<DeckNoteRow>>)>,
 }
 
 /// `+ <label>` buttons per row under the order strip.
@@ -53,6 +55,9 @@ use crate::media_prefs::ENDS;
 /// Opens Item edit for service item `id` (the row's Edit button or the slides header's). Nothing happens when the
 /// item is not in the newest snapshot.
 pub fn open(op: &Rc<Operator>, id: Uuid) {
+    // N26: designed slides are edited in the slide editor.
+    let design = op.state.borrow().snap.as_ref().and_then(|s| s.data.service().and_then(|sv| sv.items.iter().find(|i| i.id == id)).map(|i| matches!(i.kind, ItemKind::Design { .. })));
+    if design == Some(true) { return super::design_editor::open(op, Some(id)) }
     let Some(snap) = op.state.borrow().snap.clone() else { return };
     let Some(row) = snap.items.iter().find(|i| i.id == id) else { return };
     let item = row.item.clone();
@@ -134,15 +139,16 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             g.set_has_name(true);
             g.set_name(d.title.as_str().into());
             name = Some(Name::Deck { id: d.id, was: d.title.clone() });
-            let rows = Rc::new(VecModel::from((0..d.slides.len()).map(|i| DeckNoteRow {
+            let rows = Rc::new(VecModel::from((0..d.slides.len()).map(|i| with_transition(DeckNoteRow {
                 label: crate::tr!("Slide {n}", n = i + 1).into(),
                 notes: d.notes.get(i).map_or("", String::as_str).into(),
-            }).collect::<Vec<_>>()));
+                ..Default::default()
+            }, d.transitions.get(i).copied().flatten())).collect::<Vec<_>>()));
             g.set_deck_notes(ModelRc::from(rows.clone()));
-            deck_notes = Some((d.id, d.notes.clone(), rows));
+            deck_notes = Some((d.id, d.notes.clone(), d.transitions.clone(), rows));
         },
         // FEAT-6: a blank keeps its notes and background here; a header is renamed from the service list.
-        ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+        ItemKind::Blank { .. } | ItemKind::Header { .. } | ItemKind::Design { .. } => {}
     }
     let has_background = matches!(item.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. } | ItemKind::Text { .. });
     g.set_has_background(has_background);
@@ -204,10 +210,27 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_order_add(move |label| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { change_order(&op, &e, |v| v.push(label.into())) });
     let e = Rc::downgrade(edit);
     g.on_deck_note_edited(move |i, text| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
-        if let Some((_, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
+        if let Some((_, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
             row.notes = text;
             rows.set_row_data(i, row);
         }
+    });
+    let e = Rc::downgrade(edit);
+    g.on_deck_transition_changed(move |i, k| deck_row(&e, i, |r| {
+        let ms = if r.transition == 0 { Transition::default().ms as i32 } else { r.ms };
+        *r = with_transition(r.clone(), (k > 0).then(|| Transition { kind: TransitionKind::from_index(k - 1), ms: ms as u32, dir: Dir::from_index(r.dir) }));
+    }));
+    let e = Rc::downgrade(edit);
+    g.on_deck_transition_dir_changed(move |i, d| deck_row(&e, i, |r| r.dir = Dir::from_index(d).index()));
+    let e = Rc::downgrade(edit);
+    g.on_deck_transition_ms_changed(move |i, ms| deck_row(&e, i, |r| r.ms = ms.clamp(0, TRANSITION_MAX_MS as i32)));
+    let e = Rc::downgrade(edit);
+    g.on_deck_transition_to_all(move |i| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
+        let Some((_, _, _, rows)) = &e.borrow().deck_notes else { return };
+        let Some(from) = rows.row_data(i) else { return };
+        // A new list, so every picker shows it (one the user changed no longer follows its row).
+        let all: Vec<DeckNoteRow> = rows.iter().map(|r| DeckNoteRow { transition: from.transition, dir: from.dir, ms: from.ms, ..r }).collect();
+        rows.set_vec(all);
     });
     g.on_order_drag_data(arr_drag_data);
     g.on_order_drag_index(|d| arr_drag_index(&d));
@@ -436,7 +459,7 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
         ItemKind::Song { arrangement, .. } => if let Some((_, order)) = &edit.order {
             *arrangement = (!g.get_usual_order()).then(|| order.clone());
         },
-        ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+        ItemKind::Deck { .. } | ItemKind::Design { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     if let Some(p) = &edit.picker { item.background = p.value.clone() }
     if let Some(t) = usize::try_from(g.get_theme_index()).ok().and_then(|i| edit.themes.get(i)) { item.theme = *t }
@@ -457,9 +480,39 @@ pub fn theme_choices(data: &crate::model::Data, item: &ServiceItem) -> Vec<(Stri
     out
 }
 
+/// A deck row with `t` as its picker shows it (Normal when `None`).
+fn with_transition(row: DeckNoteRow, t: Option<Transition>) -> DeckNoteRow {
+    match t {
+        Some(t) => DeckNoteRow { transition: t.kind.index() + 1, dir: t.dir.index(), ms: t.ms as i32, ..row },
+        None => DeckNoteRow { transition: 0, dir: 0, ms: Transition::default().ms as i32, ..row },
+    }
+}
+
+/// A deck row's transition (`None`: Normal).
+fn row_transition(row: &DeckNoteRow) -> Option<Transition> {
+    (row.transition > 0).then(|| Transition { kind: TransitionKind::from_index(row.transition - 1), ms: row.ms.max(0) as u32, dir: Dir::from_index(row.dir) })
+}
+
+/// Changes deck row `i` with `f`.
+fn deck_row(e: &std::rc::Weak<RefCell<Edit>>, i: i32, f: impl FnOnce(&mut DeckNoteRow)) {
+    let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) else { return };
+    if let Some((_, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
+        f(&mut row);
+        rows.set_row_data(i, row);
+    }
+}
+
+/// `deck/transitions` when a deck's slide transitions were changed.
+fn deck_transitions_call(edit: &Edit) -> Option<(&'static str, serde_json::Value)> {
+    let (id, _, was, rows) = edit.deck_notes.as_ref()?;
+    let n = rows.row_count();
+    let typed = crate::model::deck_transitions(rows.iter().map(|r| row_transition(&r)).collect(), n);
+    (typed != crate::model::deck_transitions(was.clone(), n)).then(|| ("deck/transitions", serde_json::json!({ "id": id, "transitions": typed })))
+}
+
 /// `deck/notes` when a deck's speaker notes were changed.
 fn deck_notes_call(edit: &Edit) -> Option<(&'static str, serde_json::Value)> {
-    let (id, was, rows) = edit.deck_notes.as_ref()?;
+    let (id, was, _, rows) = edit.deck_notes.as_ref()?;
     let typed: Vec<String> = rows.iter().map(|r| r.notes.to_string()).collect();
     let typed = crate::model::deck_notes(typed, rows.row_count());
     (typed != crate::model::deck_notes(was.clone(), rows.row_count())).then(|| ("deck/notes", serde_json::json!({ "id": id, "notes": typed })))
@@ -485,7 +538,7 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>, breaks: bool) {
     if g.get_advance_shown() && !save_advance(op, edit.borrow().item.id) { return }
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
-        let library: Vec<_> = e.name.as_ref().and_then(|n| rename(n, &g.get_name())).into_iter().chain(deck_notes_call(&e)).collect();
+        let library: Vec<_> = e.name.as_ref().and_then(|n| rename(n, &g.get_name())).into_iter().chain(deck_notes_call(&e)).chain(deck_transitions_call(&e)).collect();
         (collect(&e, &g), library, e.bible.clone(), e.item.clone())
     };
     let Some(lookup) = relookup(&was, &item, chosen.as_deref()) else { return rename_then_update(op, item, rename, None, breaks) };
@@ -1196,7 +1249,7 @@ mod tests {
         assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise");
 
         // Slides: "Name" renames the deck.
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         refresh(&op);
@@ -1209,7 +1262,7 @@ mod tests {
     #[test]
     fn deck_speaker_notes_are_edited_per_slide() {
         let app = test_app();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1232,6 +1285,47 @@ mod tests {
         open(&op, text);
         settle();
         assert!(find_all(&op, "ItemEditDialog::deck-note").is_empty());
+    }
+
+    #[test]
+    fn deck_slide_transitions_are_shown_changed_and_used_for_all() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let app = test_app();
+        let pushed = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)] };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert_eq!(find_all(&op, "ItemEditDialog::deck-transition").len(), 3, "one picker per slide");
+        let g = op.ui.global::<ItemEdit>();
+        let row = |i: usize| { let r = g.get_deck_notes().row_data(i).unwrap(); (r.transition, r.dir, r.ms) };
+        assert_eq!((row(0), row(1)), ((0, 0, 400), (4, 2, 800)), "Normal, then Push up from the file");
+        // Slide 3: Wipe, to the right, 1.2 s.
+        g.invoke_deck_transition_changed(2, 5);
+        g.invoke_deck_transition_dir_changed(2, 1);
+        g.invoke_deck_transition_ms_changed(2, 1200);
+        settle();
+        press(&op, "ItemEditDialog::save");
+        let wipe = Transition { kind: TransitionKind::Wipe, ms: 1200, dir: Dir::Right };
+        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![None, Some(pushed), Some(wipe)]);
+        // Use for all slides; then Normal everywhere saves none.
+        refresh(&op);
+        open(&op, id);
+        settle();
+        let g = op.ui.global::<ItemEdit>();
+        g.invoke_deck_transition_to_all(2);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![Some(wipe); 3]);
+        refresh(&op);
+        open(&op, id);
+        settle();
+        let g = op.ui.global::<ItemEdit>();
+        g.invoke_deck_transition_changed(0, 0);
+        g.invoke_deck_transition_to_all(0);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
     }
 
     #[test]

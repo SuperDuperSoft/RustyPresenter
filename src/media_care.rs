@@ -40,7 +40,8 @@ fn frame_assets(f: &Frame, set: &mut BTreeSet<AssetId>) {
         Some(MediaLayer::Video { asset, .. } | MediaLayer::Still { asset }) => { set.insert(asset.clone()); }
         None => {}
     }
-    if let Some(SlideLayer::Image { asset }) = &f.slide { set.insert(asset.clone()); }
+    if let Some(SlideLayer::Image { asset, .. }) = &f.slide { set.insert(asset.clone()); }
+    if let Some(SlideLayer::Design { design, .. }) = &f.slide { set.extend(design.assets()); }
     if let Some(a) = &f.audio { set.insert(a.v.asset.clone()); }
     set.extend(crate::theme::assets::slot_assets(&f.overlays));
 }
@@ -54,7 +55,8 @@ pub fn on_air(live: &Live) -> BTreeSet<AssetId> {
         set.extend(item.background.asset().cloned());
         for s in &item.slides {
             match &s.content {
-                SlideContent::Image { asset } | SlideContent::Video { asset, .. } | SlideContent::Still { asset } | SlideContent::Audio { asset, .. } => { set.insert(asset.clone()); }
+                SlideContent::Image { asset, .. } | SlideContent::Video { asset, .. } | SlideContent::Still { asset } | SlideContent::Audio { asset, .. } => { set.insert(asset.clone()); }
+                SlideContent::Design { design, .. } => set.extend(design.assets()),
                 SlideContent::Text { .. } => {}
             }
         }
@@ -238,7 +240,7 @@ mod tests {
     fn files_the_rest_of_the_app_uses_stay() {
         let mut d = Data::default();
         d.settings.logo = Some("logo.png".into());
-        d.decks.push(crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![] });
+        d.decks.push(crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![], transitions: vec![] });
         // The same picture as a library file and a background: the entry goes, the file stays.
         let pic = file("Sunset", "sun.jpg");
         d.backgrounds.push(crate::model::BackgroundEntry::new("Sunset", crate::model::Background::Image { asset: "sun.jpg".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));

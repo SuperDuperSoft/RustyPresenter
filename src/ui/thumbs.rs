@@ -79,10 +79,15 @@ pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_backgroun
             background: Some(background), media: None, picture: None,
             text: Some(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: kind == "scripture",
-                size: *max, passage: passage.to_vec(), theme: settings.theme.clone(), canvas: size, parallel: parallel.clone()
+                size: *max, passage: passage.to_vec(), theme: settings.theme.clone(), canvas: size, parallel: parallel.clone(), design: None
             }),
         },
-        SlideContent::Image { asset } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
+        // The picture folder is filled in where it is drawn (`compose`).
+        SlideContent::Design { design, .. } => ThumbJob {
+            background: Some(background), media: None, picture: None,
+            text: Some(RenderKey::design(design, settings.theme.clone(), size, PathBuf::new())),
+        },
+        SlideContent::Image { asset, .. } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
         SlideContent::Video { asset, .. } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Video { thumb: video_thumb(media, asset) }), picture: None, text: None },
         SlideContent::Still { asset } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Still { asset: asset.clone() }), picture: None, text: None },
         SlideContent::Audio { .. } => ThumbJob { background: None, media: None, picture: None, text: None },
@@ -127,7 +132,7 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     }
     if let Some(p) = job.picture.as_deref().and_then(picture) { contain(&mut img, &p) }
     if let Some(key) = &job.text {
-        let text = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone()));
+        let text = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone().with_assets(store.assets())));
         if (text.width, text.height) == (w, h) { over_premultiplied(&mut img, &text.rgba_premul) }
     }
     Pixels::clone_from_slice(img.as_raw(), w, h)
@@ -366,7 +371,7 @@ mod tests {
     fn thumb_layers_follow_slide_to_layers() {
         let s = settings();
         let slide = |content| Slide::new("x", content);
-        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", &[], None, &s, &[], (64, 36));
+        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into(), transition: None }), "deck", &[], None, &s, &[], (64, 36));
         assert_eq!((deck.background, deck.picture.as_deref()), (None, Some("a.png")), "a deck picture has no background");
         let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", &[], None, &s, &[], (64, 36));
         assert_eq!(video.media, Some(ThumbMedia::Video { thumb: None }));

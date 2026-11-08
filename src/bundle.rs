@@ -90,6 +90,8 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
                 },
                 None => missing.push(strings::deck_gone().into()),
             },
+            // N26: the pictures and videos on designed slides travel with them.
+            ItemKind::Design { title, slides } => for a in slides.iter().flat_map(|d| d.assets()) { need(&a, strings::file_gone(title), &mut missing) },
             ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
         if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &item.background {
@@ -263,7 +265,7 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
         item.id = Uuid::new_v4();
         match &mut item.kind {
             ItemKind::Song { song_id: id, .. } | ItemKind::Media { media_id: id, .. } | ItemKind::Deck { deck_id: id } => mapped(id),
-            ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+            ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Design { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
         }
     }
     service.id = Uuid::new_v4();

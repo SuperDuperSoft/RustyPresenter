@@ -51,20 +51,20 @@ pub fn line_up(notes: Option<Vec<String>>, slides: usize) -> Vec<String> {
 }
 
 /// A zip with its entries found by lower-case name (OPC part names ignore case).
-struct Package<R> {
+pub(super) struct Package<R> {
     zip: zip::ZipArchive<R>,
     names: HashMap<String, String>,
     budget: u64,
 }
 
 impl<R: Read + Seek> Package<R> {
-    fn open(r: R) -> Option<Self> {
+    pub(super) fn open(r: R) -> Option<Self> {
         let zip = zip::ZipArchive::new(r).ok()?;
         let names = zip.file_names().flatten().map(|n| (n.to_ascii_lowercase(), n.into_owned())).collect();
         Some(Package { zip, names, budget: BUDGET })
     }
 
-    fn part(&mut self, name: &str) -> Option<String> {
+    pub(super) fn part(&mut self, name: &str) -> Option<String> {
         let entry = self.names.get(&name.to_ascii_lowercase())?.clone();
         let bytes = read_part(&mut self.zip, &entry, MAX_PART.min(self.budget))?;
         self.budget -= bytes.len() as u64;
@@ -104,17 +104,35 @@ fn split(part: &str) -> (&str, &str) {
     part.rsplit_once('/').unwrap_or(("", part))
 }
 
-fn is(n: &Node, local: &str) -> bool {
+pub(super) fn is(n: &Node, local: &str) -> bool {
     n.is_element() && n.tag_name().name() == local
 }
 
 /// An attribute by local name, whatever its namespace.
-fn attr<'a>(n: &Node<'a, '_>, local: &str) -> Option<&'a str> {
+pub(super) fn attr<'a>(n: &Node<'a, '_>, local: &str) -> Option<&'a str> {
     n.attributes().find(|a| a.name() == local).map(|a| a.value())
 }
 
 pub fn pptx<R: Read + Seek>(r: R) -> Option<Vec<String>> {
     let mut p = Package::open(r)?;
+    let mut out = Vec::new();
+    for (slide, _) in pptx_slides(&mut p)? {
+        let (dir, file) = split(&slide);
+        let notes = p
+            .rels(&format!("{dir}/_rels/{file}.rels"), dir)
+            .into_values()
+            .find(|(ty, _)| ty.ends_with("/notesSlide"))
+            .and_then(|(_, target)| p.part(&target))
+            .and_then(|xml| Document::parse(&xml).ok().map(|d| notes_text(&d)))
+            .unwrap_or_default();
+        out.push(notes);
+    }
+    Some(out)
+}
+
+/// The part name and XML of each slide that makes a picture, in show order (hidden ones left out). A slide that is
+/// listed but missing still makes a picture, with no XML.
+pub(super) fn pptx_slides<R: Read + Seek>(p: &mut Package<R>) -> Option<Vec<(String, Option<String>)>> {
     let xml = p.part("ppt/presentation.xml")?;
     let pres = Document::parse(&xml).ok()?;
     // `r:id` of each `<p:sldId>` (which also has a plain `id`), in show order.
@@ -126,22 +144,14 @@ pub fn pptx<R: Read + Seek>(r: R) -> Option<Vec<String>> {
     let rels = p.rels("ppt/_rels/presentation.xml.rels", "ppt");
     let mut out = Vec::new();
     for slide in ids.iter().filter_map(|id| rels.get(id)).map(|(_, target)| target.clone()) {
-        // A slide that is listed but missing still makes a picture, with no notes.
-        if let Some(xml) = p.part(&slide) {
-            let doc = Document::parse(&xml).ok()?;
+        let xml = p.part(&slide);
+        if let Some(xml) = &xml {
+            let doc = Document::parse(xml).ok()?;
             if attr(&doc.root_element(), "show").is_some_and(|v| matches!(v.trim(), "0" | "false")) {
                 continue;
             }
         }
-        let (dir, file) = split(&slide);
-        let notes = p
-            .rels(&format!("{dir}/_rels/{file}.rels"), dir)
-            .into_values()
-            .find(|(ty, _)| ty.ends_with("/notesSlide"))
-            .and_then(|(_, target)| p.part(&target))
-            .and_then(|xml| Document::parse(&xml).ok().map(|d| notes_text(&d)))
-            .unwrap_or_default();
-        out.push(notes);
+        out.push((slide, xml));
     }
     Some(out)
 }
@@ -191,18 +201,25 @@ pub fn odp<R: Read + Seek>(r: R) -> Option<Vec<String>> {
     let mut p = Package::open(r)?;
     let xml = p.part("content.xml")?;
     let doc = Document::parse(&xml).ok()?;
-    // Hidden slides use a page style whose properties say `presentation:visibility="hidden"`.
+    let out = odp_pages(&doc)
+        .into_iter()
+        .map(|page| page.children().find(|n| is(n, "notes")).map(|n| odp_notes(n)).unwrap_or_default())
+        .collect();
+    Some(out)
+}
+
+/// The pages of a LibreOffice presentation that make a picture, in order. Hidden slides use a page style whose
+/// properties say `presentation:visibility="hidden"`.
+pub(super) fn odp_pages<'a, 'i>(doc: &'a Document<'i>) -> Vec<Node<'a, 'i>> {
     let hidden: HashSet<&str> = doc
         .descendants()
         .filter(|n| is(n, "style") && n.children().any(|c| is(&c, "drawing-page-properties") && attr(&c, "visibility") == Some("hidden")))
         .filter_map(|n| attr(&n, "name"))
         .collect();
-    let pages = doc.descendants().filter(|n| is(n, "page") && n.parent().is_some_and(|p| is(&p, "presentation")));
-    let out = pages
+    doc.descendants()
+        .filter(|n| is(n, "page") && n.parent().is_some_and(|p| is(&p, "presentation")))
         .filter(|page| !attr(page, "style-name").is_some_and(|s| hidden.contains(s)))
-        .map(|page| page.children().find(|n| is(n, "notes")).map(|n| odp_notes(n)).unwrap_or_default())
-        .collect();
-    Some(out)
+        .collect()
 }
 
 /// The `presentation:class="notes"` frame's text, else the longest frame that is not the slide picture.

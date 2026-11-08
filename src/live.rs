@@ -66,7 +66,14 @@ pub enum SlideLayer {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         theme: Option<Theme>,
     },
-    Image { asset: AssetId },
+    Image {
+        asset: AssetId,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transition: Option<crate::design::Transition>,
+    },
+    /// A designed slide (N26). `build`: it adds the next build to the slide just before it, so the room fades in
+    /// only what is new.
+    Design { design: crate::design::Design, #[serde(default, skip_serializing_if = "std::ops::Not::not")] build: bool },
 }
 
 fn is_zero(n: &u32) -> bool { *n == 0 }
@@ -710,8 +717,17 @@ impl Live {
                 self.frame.media = None;
                 self.frame.logo = false;
             }
-            SlideContent::Image { asset } => {
-                self.frame.slide = Some(SlideLayer::Image { asset });
+            SlideContent::Design { design, step, .. } => {
+                // Next from the slide before it: only the new build fades in.
+                let build = step > 0 && slide > 0 && self.cursor.as_ref().is_some_and(|c| c.item_id == item.item_id && c.slide == slide - 1)
+                    && matches!(self.frame.slide, Some(SlideLayer::Design { .. }));
+                self.frame.slide = Some(SlideLayer::Design { design, build });
+                self.set_background(Some(item.background.clone()));
+                self.frame.media = None;
+                self.frame.logo = false;
+            }
+            SlideContent::Image { asset, transition } => {
+                self.frame.slide = Some(SlideLayer::Image { asset, transition });
                 self.set_background(None);
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -900,7 +916,7 @@ mod tests {
 
     fn video(asset: &str, end: EndAction) -> Slide { Slide::new(asset, SlideContent::Video { asset: asset.into(), autoplay: true, end }) }
     fn audio(asset: &str) -> Slide { Slide::new(asset, SlideContent::Audio { asset: asset.into(), looped: false }) }
-    fn deck(asset: &str) -> Slide { Slide::new(asset, SlideContent::Image { asset: asset.into() }) }
+    fn deck(asset: &str) -> Slide { Slide::new(asset, SlideContent::Image { asset: asset.into(), transition: None }) }
 
     static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     fn env(cmd: Command, base: Option<u64>) -> Envelope {
@@ -912,6 +928,25 @@ mod tests {
     fn commit(l: &mut Live) { let v = l.version; l.report(RoomEvent::Committed { version: v }); }
 
     fn saved(l: &Live) -> LiveState { state::snapshot(l, vec![], 1).expect("something was committed") }
+
+    #[test]
+    fn next_through_builds_marks_each_as_a_build_but_a_jump_is_not() {
+        use crate::design::{Design, Obj, ObjKind, PctRect, TextStyle};
+        let t = |b| Obj { build: b, ..Obj::new(ObjKind::Text { text: "x".into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 10.0, 10.0)) };
+        let slides = crate::slides::design_slides(&[Design { objects: vec![t(0), t(1), t(2)], ..Default::default() }]);
+        let p = plan(vec![("Sermon", slides)]);
+        let mut l = Live::new();
+        let build = |l: &Live| match &l.frame.slide { Some(SlideLayer::Design { build, design }) => Some((*build, design.objects.len())), _ => None };
+        next(&mut l, &p);
+        assert_eq!(build(&l), Some((false, 1)));
+        next(&mut l, &p);
+        assert_eq!(build(&l), Some((true, 2)));
+        next(&mut l, &p);
+        assert_eq!(build(&l), Some((true, 3)));
+        l.apply(env(Command::Show { item_id: p.order[0], slide: 1 }, None), &p);
+        assert_eq!(build(&l), Some((false, 2)), "going back is a whole new slide");
+        assert!(l.frame.background.is_some());
+    }
 
     #[test]
     fn committed_is_none_until_something_commits() {

@@ -458,7 +458,7 @@ mod tests {
     #[test]
     fn stage_text_labels_non_text_slides() {
         let cases = [
-            (SlideContent::Image { asset: "a.png".into() }, "(slide picture)"),
+            (SlideContent::Image { asset: "a.png".into(), transition: None }, "(slide picture)"),
             (SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: EndAction::Stop }, "(video)"),
             (SlideContent::Still { asset: "s.jpg".into() }, "(picture)"),
             (SlideContent::Audio { asset: "m.mp3".into(), looped: false }, "(audio)"),

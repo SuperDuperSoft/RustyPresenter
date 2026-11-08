@@ -20,9 +20,9 @@ export struct LiveSong { line: string, kind: string, edit: bool, banner: string,
 export component LiveColumn inherits Rectangle {
     in property <bool> pending;
     in property <string> live-what;
-    in property <string> notice;
     /// The live slide's speaker or stage notes, shown small under the monitor.
     in property <string> notes;
+    in property <string> notice;
     in property <bool> logo-on;
     in property <string> up-next-title;
     in property <string> up-next-body: @tr("—");

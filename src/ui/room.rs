@@ -4,7 +4,7 @@
 pub mod prepare;
 mod record;
 
-use super::{RoomWindow, Side, fade::{Chan, Fader}};
+use super::{Geo, RoomWindow, Side, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent, drawing::Drawing};
 use crate::media_prefs::{Scale, SoundOut};
@@ -14,6 +14,7 @@ use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
 use crate::screen_fix::{ScreenFix, TestPattern};
+use crate::design::{Dir, Transition, TransitionKind};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
 use slint::{ComponentHandle, Timer, TimerMode};
@@ -36,7 +37,65 @@ fn slot(kind: Kind) -> Option<usize> {
 
 /// How long a plan's layers crossfade: Settings' look fade when only the look changed (N9; 0 cuts), else `FADE`.
 fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
+    // N26: a designed slide's own transition. Through black, the layers change while the screen is black.
+    if let Some(t) = plan.transition {
+        return match t.kind {
+            // A push or wipe moves the slide; the other layers crossfade for the same time.
+            TransitionKind::Fade | TransitionKind::Push | TransitionKind::Wipe => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))),
+            TransitionKind::Cut | TransitionKind::Black => Duration::ZERO,
+        };
+    }
     if plan.look_change { Duration::from_millis(u64::from(view.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS))) } else { FADE }
+}
+
+/// Each half of a fade through black: a designed slide's own time, else `HALF`.
+fn half_for(plan: &Plan) -> Duration {
+    match plan.transition {
+        Some(t) if t.kind == TransitionKind::Black => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS) / 2)),
+        _ => HALF,
+    }
+}
+
+/// A push or wipe on the slide layer: which way, and whether the new picture is on face b.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Move { kind: TransitionKind, dir: Dir, new_b: bool }
+
+/// The push or wipe a plan's slide moves in with, if any.
+fn moving(t: Option<Transition>) -> Option<Transition> { t.filter(|t| t.kind.moves()) }
+
+/// Where a face is `p` (0–1) of the way through a push or wipe going `dir`; `new`: the face coming in.
+fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
+    let (vx, vy) = dir.step();
+    let mut g = Geo::default();
+    match kind {
+        // The new slide comes in from the far side as the old one goes out the near one.
+        TransitionKind::Push => {
+            let k = if new { p - 1.0 } else { p };
+            (g.x, g.y) = (vx * k, vy * k);
+        }
+        // The edge moves `dir`: the new slide shows behind it, the old one ahead of it.
+        TransitionKind::Wipe => {
+            let cut = if new { 1.0 - p } else { p };
+            match (dir, new) {
+                (Dir::Left, true) | (Dir::Right, false) => g.l = cut,
+                (Dir::Left, false) | (Dir::Right, true) => g.r = cut,
+                (Dir::Up, true) | (Dir::Down, false) => g.t = cut,
+                (Dir::Up, false) | (Dir::Down, true) => g.b = cut,
+            }
+        }
+        _ => {}
+    }
+    g
+}
+
+/// Writes both slide faces' places for `mv` at `p` (none: both in place).
+fn set_geo(ui: &RoomWindow, mv: Option<Move>, p: f32) {
+    let (a, b) = match mv {
+        Some(m) => (geo(m.kind, m.dir, p, !m.new_b), geo(m.kind, m.dir, p, m.new_b)),
+        None => (Geo::default(), Geo::default()),
+    };
+    ui.set_slide_a_geo(a);
+    ui.set_slide_b_geo(b);
 }
 
 /// The playback instance a layer key names (only players report).
@@ -68,7 +127,7 @@ fn video_dim(kind: Kind, f: &Frame) -> Option<slint::Color> {
 /// visible. The window gets each face's picture and opacity as separate properties, so a change writes only the
 /// face it touches (writing one struct for the whole layer dirtied both pictures).
 #[derive(Clone, Default)]
-struct Faces { a: Side, b: Side, b_top: bool, shown: bool }
+struct Faces { a: Side, b: Side, b_top: bool, shown: bool, serial: u64 }
 
 impl Faces {
     /// The face that is current (shown, or fading out once the layer is hidden).
@@ -78,6 +137,7 @@ impl Faces {
     /// Puts `side` on the face that is not showing and makes it current, so it fades in over the old one.
     /// True when that is face b.
     fn put(&mut self, side: Side) -> bool {
+        self.serial += 1;
         if self.shown { self.b_top = !self.b_top }
         if self.b_top { self.b = side } else { self.a = side }
         self.shown = true;
@@ -201,6 +261,9 @@ struct Inner {
     /// Runs once a second while a bound overlay (a clock) is on: a new text prepares only the overlay layer.
     clock: Timer,
     black: Chan,
+    /// How far a push or wipe on the slide layer is (0–1), and which one runs (`None`: the faces sit still).
+    motion: Chan,
+    moving: Rc<Cell<Option<Move>>>,
     /// The window level last set (`Room::set_on_top`); `None` until the window exists.
     on_top: Cell<Option<bool>>,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
@@ -400,16 +463,17 @@ impl Inner {
     fn swap(&self, prep: Prep, commit: RoomEvent) {
         self.flush();
         if !prep.plan.fade_through_black { return self.apply(prep, Some(commit)) }
-        self.fader.fade(self.black, 1.0, HALF);
+        let half = half_for(&prep.plan);
+        self.fader.fade(self.black, 1.0, half);
         *self.deferred.borrow_mut() = Some((prep, Some(commit)));
         let me = self.me.clone();
-        self.fade.start(TimerMode::SingleShot, HALF, move || if let Some(i) = me.upgrade() { i.flush() });
+        self.fade.start(TimerMode::SingleShot, half, move || if let Some(i) = me.upgrade() { i.flush() });
     }
 
     /// Applies a swap that waited for black, and fades back in.
     fn flush(&self) {
         let d = self.deferred.borrow_mut().take();
-        if let Some((prep, commit)) = d { self.apply(prep, commit); self.fader.fade(self.black, 0.0, HALF) }
+        if let Some((prep, commit)) = d { let half = half_for(&prep.plan); self.apply(prep, commit); self.fader.fade(self.black, 0.0, half) }
     }
 
     fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
@@ -422,6 +486,8 @@ impl Inner {
         for (kind, got) in prep.got {
             let old = slot(kind).and_then(|s| players[s].take());
             match got {
+                Got::Pic(side) if kind == Kind::Slide && prep.plan.build => self.put_over(kind, side, fade),
+                Got::Pic(side) if kind == Kind::Slide && let Some(t) = moving(prep.plan.transition) => self.put_moving(side, t),
                 Got::Pic(side) => self.put(kind, side, fade),
                 Got::Play(p) => {
                     // Video is drawn under the scene (audio has no layer); a background video's Darken is a black
@@ -491,15 +557,77 @@ impl Inner {
     /// Puts `side` on `kind`'s hidden face (only that face's picture is written) and crossfades to it.
     fn put(&self, kind: Kind, side: Side, fade: Duration) {
         let Some(i) = index(kind) else { return };
+        if kind == Kind::Slide { self.end_motion() }
         let (on_b, ops) = { let mut f = self.faces.borrow_mut(); let on_b = f[i].put(side.clone()); (on_b, f[i].ops()) };
         let (set_a, set_b, _, _) = setters(i);
         if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
         self.fade_to(i, ops, fade);
     }
 
+    /// N26 builds: `side` holds everything on screen plus what is new, so it fades in over the old picture (or the
+    /// old one fades out over it) with the old one kept at full: what stays never dims, only the new part appears.
+    fn put_over(&self, kind: Kind, side: Side, fade: Duration) {
+        let Some(i) = index(kind) else { return };
+        if kind == Kind::Slide { self.end_motion() }
+        let (was_shown, on_b, serial) = { let mut f = self.faces.borrow_mut(); let was = f[i].shown; let on_b = f[i].put(side.clone()); (was, on_b, f[i].serial) };
+        let (set_a, set_b, _, _) = setters(i);
+        if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
+        let ops = self.faces.borrow()[i].ops();
+        if !was_shown { return self.fade_to(i, ops, fade) }
+        let (ca, cb) = self.face_ops[i];
+        if on_b {
+            self.fader.fade(ca, 1.0, Duration::ZERO);
+            self.fader.fade(cb, 1.0, fade);
+            // Once the new face is up, the old one under it goes (it would darken see-through edges twice).
+            let me = self.me.clone();
+            Timer::single_shot(fade, move || if let Some(me) = me.upgrade() {
+                if me.faces.borrow()[i].serial == serial { me.fader.fade(ca, 0.0, Duration::ZERO) }
+            });
+        } else {
+            self.fader.fade(ca, 1.0, Duration::ZERO);
+            self.fader.fade(cb, 0.0, fade);
+        }
+    }
+
+    /// Push and wipe: `side` goes on the slide's hidden face, fully up, and moves in over `t.ms` as the old face
+    /// moves out (or is uncovered); then the old face goes.
+    fn put_moving(&self, side: Side, t: Transition) {
+        let Some(i) = index(Kind::Slide) else { return };
+        self.end_motion();
+        let (on_b, serial) = { let mut f = self.faces.borrow_mut(); let on_b = f[i].put(side.clone()); (on_b, f[i].serial) };
+        let (set_a, set_b, _, _) = setters(i);
+        if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
+        let (ca, cb) = self.face_ops[i];
+        let (new, old) = if on_b { (cb, ca) } else { (ca, cb) };
+        self.moving.set(Some(Move { kind: t.kind, dir: t.dir, new_b: on_b }));
+        set_geo(&self.ui, self.moving.get(), 0.0);
+        self.fader.jump(new, 1.0);
+        let dur = Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS)));
+        self.fader.fade(self.motion, 1.0, dur);
+        let me = self.me.clone();
+        Timer::single_shot(dur, move || if let Some(me) = me.upgrade() && me.faces.borrow()[i].serial == serial {
+            me.fader.jump(old, 0.0);
+            me.end_motion();
+        });
+    }
+
+    /// Stops a push or wipe where it is: both slide faces back in place (a new slide cuts in over it).
+    fn end_motion(&self) {
+        if self.moving.take().is_none() { return }
+        self.fader.jump(self.motion, 0.0);
+        set_geo(&self.ui, None, 0.0);
+        // The face that was going out goes at once.
+        let Some(i) = index(Kind::Slide) else { return };
+        let (a, b) = self.faces.borrow()[i].ops();
+        let (ca, cb) = self.face_ops[i];
+        self.fader.jump(ca, a);
+        self.fader.jump(cb, b);
+    }
+
     /// Fades `kind` out (its pictures stay, for a later crossfade).
     fn hide(&self, kind: Kind, fade: Duration) {
         let Some(i) = index(kind) else { return };
+        if kind == Kind::Slide { self.end_motion() }
         let ops = { let mut f = self.faces.borrow_mut(); f[i].shown = false; f[i].ops() };
         self.fade_to(i, ops, fade);
     }
@@ -577,13 +705,15 @@ impl Room {
         let op = |set: SetOp| { let w = ui.as_weak(); fader.channel(0.0, move |v| if let Some(ui) = w.upgrade() { set(&ui, v) }) };
         let face_ops: [(Chan, Chan); 5] = std::array::from_fn(|i| { let (_, _, a, b) = setters(i); (op(a), op(b)) });
         let black = op(RoomWindow::set_black);
+        let moving: Rc<Cell<Option<Move>>> = Rc::default();
+        let motion = { let (w, m) = (ui.as_weak(), moving.clone()); fader.channel(0.0, move |p| if let Some(ui) = w.upgrade() { set_geo(&ui, m.get(), p) }) };
         let inner = Rc::new_cyclic(|me: &Weak<Inner>| {
             let me2 = me.clone();
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, on_top: Cell::default(), swap_probe: RefCell::default(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, on_top: Cell::default(), swap_probe: RefCell::default(),
                 fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), rec: RefCell::default(), me: me.clone(),
             }
         });
@@ -817,7 +947,7 @@ mod tests {
     #[test]
     fn a_look_change_fades_for_the_settings_time() {
         let mut v = test_app().live_view();
-        let plan = |look_change| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change };
+        let plan = |look_change| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change, transition: None, build: false };
         v.look_fade_ms = 2500;
         assert_eq!(fade_for(&plan(true), &v), Duration::from_millis(2500));
         assert_eq!(fade_for(&plan(false), &v), FADE, "a new slide crossfades as always");
@@ -825,6 +955,82 @@ mod tests {
         assert_eq!(fade_for(&plan(true), &v), Duration::ZERO, "0 cuts");
         v.look_fade_ms = 60_000;
         assert_eq!(fade_for(&plan(true), &v), Duration::from_secs(5), "never longer than Settings offers");
+    }
+
+    #[test]
+    fn a_designed_slide_fades_cuts_or_goes_through_black_for_its_own_time() {
+        use crate::design::Transition;
+        let v = test_app().live_view();
+        let plan = |kind, ms| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change: false, transition: Some(Transition { kind, ms, ..Default::default() }), build: false };
+        assert_eq!(fade_for(&plan(TransitionKind::Fade, 1200), &v), Duration::from_millis(1200));
+        assert_eq!(fade_for(&plan(TransitionKind::Cut, 1200), &v), Duration::ZERO);
+        assert_eq!(half_for(&plan(TransitionKind::Black, 1200)), Duration::from_millis(600));
+        assert_eq!(half_for(&plan(TransitionKind::Fade, 1200)), HALF);
+    }
+
+    #[test]
+    fn push_and_wipe_move_the_faces_the_way_they_go() {
+        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b };
+        let z = Geo::default();
+        // Push left: the new slide comes in from the right, the old one goes out to the left.
+        assert_eq!(geo(TransitionKind::Push, Dir::Left, 0.0, true), g(1.0, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Push, Dir::Left, 0.25, false), g(-0.25, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Push, Dir::Up, 0.5, true), g(0.0, 0.5, 0.0, 0.0, 0.0, 0.0), "up: in from below");
+        assert_eq!(geo(TransitionKind::Push, Dir::Down, 1.0, true), z);
+        // Wipe right: the edge moves right, the new slide showing to the left of it.
+        assert_eq!(geo(TransitionKind::Wipe, Dir::Right, 0.25, true), g(0.0, 0.0, 0.0, 0.75, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Wipe, Dir::Right, 0.25, false), g(0.0, 0.0, 0.25, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Wipe, Dir::Left, 0.25, true), g(0.0, 0.0, 0.75, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Wipe, Dir::Down, 0.5, true), g(0.0, 0.0, 0.0, 0.0, 0.0, 0.5));
+        assert_eq!(geo(TransitionKind::Wipe, Dir::Up, 0.5, false), g(0.0, 0.0, 0.0, 0.0, 0.0, 0.5));
+        assert_eq!(geo(TransitionKind::Fade, Dir::Up, 0.5, false), z);
+        let v = test_app().live_view();
+        let plan = |kind| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change: false, transition: Some(Transition { kind, ms: 900, dir: Dir::Up }), build: false };
+        assert_eq!(fade_for(&plan(TransitionKind::Push), &v), Duration::from_millis(900), "the other layers fade as it moves");
+        assert_eq!(moving(plan(TransitionKind::Wipe).transition).map(|t| t.kind), Some(TransitionKind::Wipe));
+        assert_eq!(moving(plan(TransitionKind::Fade).transition), None);
+    }
+
+    #[test]
+    fn a_pushed_slide_moves_in_and_the_old_one_goes_after() {
+        i_slint_backend_testing::init_no_event_loop();
+        let room = open(&test_app());
+        let (i, ui) = (&room.inner, &room.inner.ui);
+        let side = || Side { image: Default::default(), color: slint::Color::from_argb_u8(255, 1, 2, 3) };
+        i.put(Kind::Slide, side(), Duration::ZERO);
+        let slot = index(Kind::Slide).unwrap();
+        let (ca, cb) = i.face_ops[slot];
+        i.put_moving(side(), Transition { kind: TransitionKind::Push, ms: 300, dir: Dir::Left });
+        // The new face (b) is up at once, starting off to the right; the old one stays up as it goes.
+        assert_eq!((i.fader.target(ca), i.fader.target(cb)), (1.0, 1.0));
+        assert!(ui.get_slide_b_geo().x > 0.95 && ui.get_slide_a_geo().x.abs() < 0.05, "{:?}", (ui.get_slide_b_geo(), ui.get_slide_a_geo()));
+        assert!(pump_until(&room, 3.0, || i.moving.get().is_none() && !i.fader.running()));
+        assert_eq!((ui.get_slide_a_geo(), ui.get_slide_b_geo()), (Geo::default(), Geo::default()));
+        assert_eq!((i.fader.value(ca), i.fader.value(cb)), (0.0, 1.0));
+        // A slide that crossfades in mid-wipe stops the wipe: both faces back in place.
+        i.put_moving(side(), Transition { kind: TransitionKind::Wipe, ms: 2000, dir: Dir::Right });
+        assert!(ui.get_slide_a_geo().r > 0.9, "the new face (a) starts cut away");
+        i.put(Kind::Slide, side(), FADE);
+        assert_eq!((i.moving.get(), ui.get_slide_a_geo()), (None, Geo::default()));
+        assert!(shown(&room, Kind::Slide));
+    }
+
+    #[test]
+    fn a_build_fades_the_new_face_in_over_the_old_held_at_full() {
+        i_slint_backend_testing::init_no_event_loop();
+        let room = open(&test_app());
+        let i = &room.inner;
+        let side = || Side { image: Default::default(), color: slint::Color::from_argb_u8(255, 1, 2, 3) };
+        i.put(Kind::Slide, side(), FADE);
+        let slot = index(Kind::Slide).unwrap();
+        let (ca, cb) = i.face_ops[slot];
+        i.put_over(Kind::Slide, side(), FADE);
+        // The new face is b (on top): it fades in while a stays up.
+        assert!(i.faces.borrow()[slot].b_top);
+        assert_eq!((i.fader.target(ca), i.fader.target(cb)), (1.0, 1.0));
+        i.put_over(Kind::Slide, side(), FADE);
+        // The new face is a (under): it is up at once and b fades out over it.
+        assert_eq!((i.fader.target(ca), i.fader.target(cb)), (1.0, 0.0));
     }
 
     #[test]
@@ -1002,7 +1208,7 @@ mod tests {
         let app = test_app();
         let room = open(&app);
         let i = &room.inner;
-        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true, look_change: false }, Frame::default()), RoomEvent::Committed { version: 0 });
+        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true, look_change: false, transition: None, build: false }, Frame::default()), RoomEvent::Committed { version: 0 });
         swap(100);
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
         swap(101);

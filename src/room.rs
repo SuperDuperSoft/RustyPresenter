@@ -20,6 +20,10 @@ pub struct Plan {
     pub token: u64, pub version: u64, pub prepare: Vec<Want>, pub remove: Vec<Kind>, pub fade_through_black: bool,
     /// N9: only the look (theme) of what is up changed, so the room fades for Settings' look fade time.
     pub look_change: bool,
+    /// N26: a new designed slide's own transition, or an imported deck slide's.
+    pub transition: Option<crate::design::Transition>,
+    /// N26: the new slide adds a build to the one on screen: only what is new fades in.
+    pub build: bool,
 }
 
 #[derive(Debug)]
@@ -126,13 +130,21 @@ impl RoomState {
                 _ => {}
             }
         }
-        let fade_through_black = next.keys[1] != self.shown.keys[1] && (next.video || self.shown.video);
+        // N26: a designed slide coming in brings its own transition; so does a deck slide that has one.
+        let (transition, build) = match &view.frame.slide {
+            _ if next.keys[2] == self.shown.keys[2] => (None, false),
+            Some(SlideLayer::Design { design, build }) => (Some(design.transition), *build),
+            Some(SlideLayer::Image { transition, .. }) => (*transition, false),
+            _ => (None, false),
+        };
+        let black = transition.is_some_and(|t| t.kind == crate::design::TransitionKind::Black) && !build && self.shown.keys[2].is_some();
+        let fade_through_black = (next.keys[1] != self.shown.keys[1] && (next.video || self.shown.video)) || black;
         // The same slide (or none) and media in another look: a look change (N9).
         let look_change = self.shown.version.is_some() && next.look != self.shown.look && next.content == self.shown.content
             && next.keys[1] == self.shown.keys[1];
         self.token += 1;
         self.pending = Some((self.token, next));
-        Some(Plan { token: self.token, version: view.version, prepare, remove, fade_through_black, look_change })
+        Some(Plan { token: self.token, version: view.version, prepare, remove, fade_through_black, look_change, transition, build })
     }
 
     /// Everything for `token` is prepared: swap it in if it is still the newest.
@@ -189,6 +201,41 @@ mod tests {
         let p = r.plan(v).expect("plan");
         assert!(matches!(r.ready(p.token), Ready::Swap { .. }));
         p
+    }
+
+    #[test]
+    fn a_deck_slide_brings_its_own_transition_or_none() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let pic = |asset: &str, transition| Some(SlideLayer::Image { asset: asset.into(), transition });
+        let push = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
+        let mut r = RoomState::new();
+        let p = show(&mut r, &view(1, Frame { slide: pic("1.png", None), ..Default::default() }));
+        assert_eq!(p.transition, None, "none from the file: the normal crossfade");
+        let p = show(&mut r, &view(2, Frame { slide: pic("2.png", Some(push)), ..Default::default() }));
+        assert_eq!((p.transition, p.build, p.fade_through_black), (Some(push), false, false));
+        let black = Transition { kind: TransitionKind::Black, ms: 800, dir: Dir::Left };
+        let p = show(&mut r, &view(3, Frame { slide: pic("3.png", Some(black)), ..Default::default() }));
+        assert!(p.fade_through_black);
+        // The same slide again (only the logo changed): nothing moves.
+        let p = show(&mut r, &view(4, Frame { slide: pic("3.png", Some(black)), logo: true, ..Default::default() }));
+        assert_eq!((p.transition, p.fade_through_black), (None, false));
+    }
+
+    #[test]
+    fn a_designed_slide_brings_its_transition_and_a_build_never_goes_through_black() {
+        use crate::design::{Design, Transition, TransitionKind};
+        let design = |kind, build| Some(SlideLayer::Design { design: Design { transition: Transition { kind, ms: 900, ..Default::default() }, ..Default::default() }, build });
+        let mut r = RoomState::new();
+        let p = show(&mut r, &view(1, Frame { slide: design(TransitionKind::Black, false), ..Default::default() }));
+        assert_eq!((p.transition.map(|t| t.ms), p.fade_through_black), (Some(900), false), "nothing was up: nothing to go black from");
+        let p = show(&mut r, &view(2, Frame { slide: text("words"), ..Default::default() }));
+        assert_eq!(p.transition, None);
+        let p = show(&mut r, &view(3, Frame { slide: design(TransitionKind::Black, false), ..Default::default() }));
+        assert!(p.fade_through_black && !p.build);
+        let mut d = design(TransitionKind::Black, true);
+        if let Some(SlideLayer::Design { design, .. }) = &mut d { design.notes = "another step".into() }
+        let p = show(&mut r, &view(4, Frame { slide: d, ..Default::default() }));
+        assert!(p.build && !p.fade_through_black);
     }
 
     #[test]
