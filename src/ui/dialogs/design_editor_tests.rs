@@ -57,6 +57,7 @@ fn the_add_menu_opens_the_editor_and_save_adds_the_item() {
     let (id, title, slides) = &saved[0];
     assert_eq!((title.as_str(), slides.len(), slides[0].objects.len(), slides[0].steps()), ("Sermon", 1, 2, 1));
     // Edit the selected item opens it again in the editor.
+    refresh(&op);
     crate::ui::dialogs::item_edit::open(&op, *id);
     assert_eq!(op.dialog(), Some(DialogKind::Design(Some(*id))));
     assert_eq!(g(&op).get_title(), "Sermon");

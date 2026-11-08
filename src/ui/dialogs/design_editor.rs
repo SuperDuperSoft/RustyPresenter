@@ -189,7 +189,7 @@ pub fn open(op: &Rc<Operator>, item: Option<Uuid>) {
     };
     let item = found.map(|i| i.id);
     let ss = Session {
-        ed: Editor::new(slides), item, stored_title: if item.is_some() { title.clone() } else { String::new() }, title, pen: false,
+        ed: Editor::new(slides), item, stored_title: title.clone(), title, pen: false,
         background, theme: look.theme, media: usable_media(&data.media), store: Store { root: op.app().store.root.clone() },
         renderer: TextRenderer::new(), thumbs: RefCell::default(),
     };
