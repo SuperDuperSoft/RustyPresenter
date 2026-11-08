@@ -3,7 +3,6 @@
 //! Mirrors `web/output.js` (`keys`, `apply`, the `token` rule, `syncPause`).
 use crate::app::LiveView;
 use crate::live::{Frame, MediaLayer, RoomEvent, SlideLayer};
-use crate::model::Background;
 use std::time::Duration;
 
 /// What a layer shows; a layer is re-prepared only when its key changes.
@@ -171,7 +170,7 @@ pub fn draw_background(frame: &Frame) -> bool { !is_video(frame) }
 mod tests {
     use super::*;
     use crate::live::{AudioLayer, Inst, SlideLayer};
-    use crate::model::{EndAction, Theme};
+    use crate::model::{Background, EndAction, Theme};
 
     fn view(version: u64, frame: Frame) -> LiveView {
         LiveView { version, committed: 0, pending: true, frame, cursor: None, item: None, slide: None, next: None, sections: vec![], changed: None, media: None,
