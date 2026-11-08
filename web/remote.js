@@ -202,6 +202,7 @@ function render() {
   $('logoBtn').classList.toggle('on', air.logo);
   $('media').classList.toggle('on', !!V.media);
   $('drawBtn').classList.toggle('on', !!V.may_draw);
+  $('nowImg').closest('.now').classList.toggle('candraw', !!V.may_draw);
   onView(V);
   if (V.media) $('mediaBtn').textContent = V.media.paused ? '▶ ' + t('Play video') : '❚❚ ' + t('Pause video');
   const liveId = V.cursor && V.cursor.item_id;
@@ -328,6 +329,8 @@ $('next').onclick = () => send('next', {}, true);
 $('prev').onclick = () => send('prev', {}, true);
 document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(b.dataset.c));
 $('drawBtn').onclick = () => openDraw(V);
+// A tap on the live picture draws on it too.
+$('picBox').onclick = () => { if (V && V.may_draw) openDraw(V); };
 initDraw({ t, toast, relogin: start });
 $('stageOff').onclick = () => send('stage_only');
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });

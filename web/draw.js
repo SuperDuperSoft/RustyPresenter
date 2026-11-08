@@ -1,7 +1,9 @@
 // Drawing on the live slide from the phone or tablet, like a sports telestrator: circle a word, underline a line.
-// The live slide is a picture (/remote/live-slide) with a canvas on top. Finger, mouse and pen all come as Pointer
-// Events. While drawing, the points go to the computer in small batches (every 40 ms) as 0–1 of the slide, so the
-// room screen shows the line as it is drawn, at any screen size. The computer checks everything again.
+// One tap on Draw (or on the live picture) fills the screen with the slide, at the room screen's own shape, and the
+// finger draws straight away. The page can't scroll, zoom or reload under the finger while this is open.
+// Finger, mouse and pen all come as Pointer Events. While drawing, the points go to the computer in small batches
+// (every 40 ms) as 0–1 of the slide, so the room screen shows the line as it is drawn, at any screen size. The
+// computer checks everything again.
 // Ink either stays, or fades like a laser pointer: a few seconds after the finger lifts it fades out and is gone.
 
 // The same six colours, sizes and highlighter as the computer (src/live/drawing.rs).
@@ -11,69 +13,118 @@ const HIGHLIGHTER = 44;
 const HIGHLIGHTER_ALPHA = 110 / 255;
 const BATCH_MS = 40;
 const FADE_OUT_MS = 500;
+// A line may start this far (CSS px) outside the slide, kept on its edge; further out is a stray touch.
+const EDGE_PX = 28;
+// After a pen lifts, a hand resting on the glass doesn't draw for this long.
+const PALM_MS = 800;
+// Points closer than this (CSS px) to the last one add nothing.
+const MIN_STEP_PX = 1.2;
+const SAVED = 'rp-draw';
 
 const $ = id => document.getElementById(id);
 let app = null;                       // { t, toast, relogin } from remote.js
 const t = (en, args) => app.t(en, args);
 
-let color = PALETTE[0], size = 1, highlighter = false, fades = false;
+// The tool choice: size 0–2 is a pen, 3 the highlighter. Remembered on this phone.
+let color = PALETTE[0], size = 1, fades = false, drewBefore = false;
 let fadeMs = 3000;                    // Settings → "Fading ink disappears after", from the remote view
+let aspect = 16 / 9;                  // the room screen's shape (the remote view, then the picture itself)
 let strokes = [];                     // my lines on screen: { id, color, width, pen, ink, pts, sent, acked, ended }
 let cur = null;                       // the line under the finger
 let nextId = Date.now() % 1000000;    // stroke numbers, fresh after a reload
 const fingers = new Set();            // pointers down: two or more is a pinch, which never draws
-let pinched = false;
+let pinched = false, penUp = -Infinity, penDown = false;
 const queue = [];                     // commands waiting to go, one request at a time (so they arrive in order)
-let busy = false, version = null, open = false;
+let busy = false, version = null, open = false, painting = false;
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVED) || '{}');
+    if (PALETTE.includes(s.color)) color = s.color;
+    if (Number.isInteger(s.size) && s.size >= 0 && s.size <= SIZES.length) size = s.size;
+    if (typeof s.fades === 'boolean') fades = s.fades;
+    drewBefore = !!s.drew;
+  } catch { /* private window: the defaults */ }
+}
+function save() {
+  try { localStorage.setItem(SAVED, JSON.stringify({ color, size, fades, drew: drewBefore })); } catch { /* private window */ }
+}
 
 export function initDraw(helpers) {
   app = helpers;
+  load();
   $('swatches').replaceChildren(...PALETTE.map(c => {
     const b = document.createElement('button');
-    b.className = 'sw'; b.style.background = c; b.dataset.c = c;
+    b.className = 'sw'; b.dataset.c = c; b.style.setProperty('--c', c);
+    b.append(document.createElement('i'));
     b.onclick = () => { color = c; tools(); };
     return b;
   }));
-  $('sizes').replaceChildren(...SIZES.map((w, i) => {
+  $('sizes').replaceChildren(...[...SIZES, HIGHLIGHTER].map((w, i) => {
     const b = document.createElement('button');
-    b.className = 'size'; b.title = t('Pen size');
-    const dot = document.createElement('i'); dot.style.width = dot.style.height = (6 + i * 6) + 'px';
+    b.className = 'size' + (i === SIZES.length ? ' hl' : '');
+    const dot = document.createElement('i');
+    if (i < SIZES.length) dot.style.width = dot.style.height = (6 + i * 7) + 'px';
     b.append(dot);
-    b.onclick = () => { size = i; highlighter = false; tools(); };
+    b.onclick = () => { size = i; tools(); };
     return b;
   }));
-  $('hlBtn').onclick = () => { highlighter = !highlighter; tools(); };
   $('inkStays').onclick = () => { fades = false; tools(); };
   $('inkFades').onclick = () => { fades = true; tools(); };
   $('undoBtn').onclick = undo;
   $('clearBtn').onclick = clearAll;
-  $('doneBtn').onclick = closeDraw;
-  const pad = $('pad');
-  pad.addEventListener('pointerdown', down);
-  pad.addEventListener('pointermove', move);
-  pad.addEventListener('pointerup', up);
-  pad.addEventListener('pointercancel', up);
-  // No page scrolling, zooming or long-press menu while drawing.
-  pad.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-  pad.addEventListener('contextmenu', e => e.preventDefault());
-  pad.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+  $('doneBtn').onclick = () => { if (history.state && history.state.rpDraw) history.back(); else closeDraw(); };
+  addEventListener('popstate', () => { if (open) closeDraw(); });
+  // The whole black area takes the finger, so a line that starts just off the slide still draws.
+  const board = $('board');
+  board.addEventListener('pointerdown', down);
+  board.addEventListener('pointermove', move);
+  board.addEventListener('pointerup', up);
+  board.addEventListener('pointercancel', up);
+  // No page scrolling, pull-to-refresh, zooming (double tap or pinch) or long-press menu while drawing.
+  const draw = $('draw');
+  const stop = e => e.preventDefault();
+  board.addEventListener('touchstart', stop, { passive: false });
+  draw.addEventListener('touchmove', stop, { passive: false });
+  draw.addEventListener('dblclick', stop);
+  draw.addEventListener('gesturestart', stop);
+  draw.addEventListener('contextmenu', stop);
+  draw.addEventListener('wheel', stop, { passive: false });
+  $('slideImg').addEventListener('load', () => {
+    const img = $('slideImg');
+    if (img.naturalWidth && img.naturalHeight) setAspect(img.naturalWidth / img.naturalHeight);
+  });
   addEventListener('resize', () => { if (open) fit(); });
   setInterval(flush, BATCH_MS);
   tools();
 }
 
 function tools() {
-  document.querySelectorAll('#swatches .sw').forEach(b => b.classList.toggle('sel', b.dataset.c === color));
-  document.querySelectorAll('#sizes .size').forEach((b, i) => { b.classList.toggle('sel', !highlighter && i === size); b.style.color = color; });
-  $('hlBtn').classList.toggle('sel', highlighter);
+  document.querySelectorAll('#swatches .sw').forEach(b => { b.classList.toggle('sel', b.dataset.c === color); b.title = b.ariaLabel = t('Colour'); });
+  document.querySelectorAll('#sizes .size').forEach((b, i) => {
+    b.classList.toggle('sel', i === size);
+    b.style.setProperty('--c', color);
+    b.title = b.ariaLabel = i === SIZES.length ? t('Highlighter') : t('Pen size');
+  });
   $('inkStays').classList.toggle('sel', !fades);
   $('inkFades').classList.toggle('sel', fades);
+  save();
 }
 
 export function openDraw(view) {
+  if (open) return;
   open = true;
+  document.documentElement.classList.add('drawing');
   $('draw').classList.add('on');
+  // The phone's Back button closes the drawing view, not the remote.
+  try { history.pushState({ rpDraw: true }, ''); } catch { /* ignore */ }
+  // Full screen where the phone allows it (Android, iPad): a bigger slide, no address bar.
+  const el = document.documentElement;
+  if (el.requestFullscreen && !document.fullscreenElement) el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
   version = view ? view.version : null;
+  if (view && view.aspect) setAspect(view.aspect[0] / view.aspect[1]);
+  $('drawHint').classList.toggle('gone', drewBefore);
+  tools();
   fit();
   loadSlide();
 }
@@ -81,12 +132,15 @@ export function openDraw(view) {
 function closeDraw() {
   end();
   open = false;
+  document.documentElement.classList.remove('drawing');
   $('draw').classList.remove('on');
+  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
 }
 
 // A new remote view: a new slide means a new picture. `my_strokes` says which of my lines are still up.
 export function onView(view) {
   if (view.fade_secs) fadeMs = view.fade_secs * 1000;
+  if (view.aspect && view.aspect[0] > 0 && view.aspect[1] > 0) setAspect(view.aspect[0] / view.aspect[1]);
   if (open && view.version !== version) { version = view.version; loadSlide(); }
   keepOnly(view.my_strokes || []);
 }
@@ -101,52 +155,85 @@ function keepOnly(ids) {
   if (strokes.length !== before) paint();
 }
 
-// The slide box: as big as fits, 16:9, the canvas at the screen's real pixels.
+function setAspect(a) {
+  if (!isFinite(a) || a <= 0 || Math.abs(a - aspect) < 0.005) return;
+  aspect = a;
+  $('turnHint').hidden = aspect < 1.1;
+  if (open) fit();
+}
+
+// The slide box: as big as fits at the room's shape (black bars round it).
+export function fitSize(boardW, boardH, a) {
+  const w = Math.min(boardW, boardH * a);
+  return [Math.max(1, Math.floor(w)), Math.max(1, Math.floor(w / a))];
+}
+
+// The canvas at the screen's real pixels.
 function fit() {
   const board = $('board'), box = $('slideBox'), pad = $('pad');
-  const w = Math.min(board.clientWidth, board.clientHeight * 16 / 9);
+  const [w, h] = fitSize(board.clientWidth, board.clientHeight, aspect);
   box.style.width = w + 'px';
-  box.style.height = (w * 9 / 16) + 'px';
+  box.style.height = h + 'px';
   const dpr = devicePixelRatio || 1;
   pad.width = Math.round(w * dpr);
-  pad.height = Math.round(w * 9 / 16 * dpr);
-  paint();
+  pad.height = Math.round(h * dpr);
+  draw();
 }
 
 function loadSlide() {
-  const w = Math.round($('pad').width) || 960;
+  const w = Math.min(1920, Math.round($('pad').width) || 960);
   $('slideImg').src = `/remote/live-slide?w=${w}&v=${version}`;
 }
 
-// Where a pointer is, as 0–1 of the slide (kept on it when the finger slides off the edge).
-function point(e) {
-  const r = $('pad').getBoundingClientRect();
+// Where a pointer is, as 0–1 of the slide (kept on it when the finger slides off the edge), and whether it is on
+// the slide or within `edge` CSS pixels of it.
+export function toSlide(x, y, r, edge = 0) {
   const c = v => Math.min(1, Math.max(0, v));
-  return [c((e.clientX - r.left) / r.width), c((e.clientY - r.top) / r.height)];
+  const near = x >= r.left - edge && x <= r.right + edge && y >= r.top - edge && y <= r.bottom + edge;
+  return { p: [c((x - r.left) / r.width), c((y - r.top) / r.height)], near };
 }
+const rect = () => $('pad').getBoundingClientRect();
+
+// A finger resting on the glass while a pen draws (or just after) is the hand, not a line.
+const palm = e => e.pointerType === 'touch' && (penDown || performance.now() - penUp < PALM_MS);
 
 function down(e) {
+  if (e.pointerType === 'pen') penDown = true;
+  if (palm(e)) return;
   fingers.add(e.pointerId);
   if (fingers.size > 1) { pinched = true; return cancel(); }
   if (pinched || (e.pointerType === 'mouse' && e.button !== 0)) return;
-  e.target.setPointerCapture(e.pointerId);
-  cur = { id: nextId++, color, width: highlighter ? HIGHLIGHTER : SIZES[size], pen: highlighter ? 'highlighter' : 'pen', ink: fades ? 'fades' : 'stays', pts: [point(e)], sent: 0, acked: false, ended: null };
+  const at = toSlide(e.clientX, e.clientY, rect(), EDGE_PX);
+  if (!at.near) return;
+  e.preventDefault();
+  try { $('board').setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  const hl = size === SIZES.length;
+  cur = { id: nextId++, pointer: e.pointerId, color, width: hl ? HIGHLIGHTER : SIZES[size], pen: hl ? 'highlighter' : 'pen', ink: fades ? 'fades' : 'stays', pts: [at.p], sent: 0, acked: false, ended: null };
   strokes.push(cur);
+  if (!drewBefore) { drewBefore = true; save(); $('drawHint').classList.add('gone'); }
   paint();
 }
 
 function move(e) {
-  if (!cur || pinched || !fingers.has(e.pointerId)) return;
+  if (!cur || pinched || e.pointerId !== cur.pointer) return;
   // A pen gives more points than one per frame: take them all, for a smooth line.
-  const all = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
-  for (const ev of all.length ? all : [e]) cur.pts.push(point(ev));
-  paint();
+  const all = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  const r = rect(), minX = MIN_STEP_PX / r.width, minY = MIN_STEP_PX / r.height;
+  let added = false;
+  for (const ev of all.length ? all : [e]) {
+    const p = toSlide(ev.clientX, ev.clientY, r).p, last = cur.pts[cur.pts.length - 1];
+    if (Math.abs(p[0] - last[0]) < minX && Math.abs(p[1] - last[1]) < minY) continue;
+    cur.pts.push(p);
+    added = true;
+  }
+  if (added) paint();
 }
 
 function up(e) {
-  fingers.delete(e.pointerId);
+  if (e.pointerType === 'pen') { penDown = false; penUp = performance.now(); }
+  if (!fingers.delete(e.pointerId)) return;
   if (fingers.size === 0) pinched = false;
-  end();
+  if (cur && e.pointerId === cur.pointer) end();
 }
 
 // The finger lifted: send what is left, then say the line is done.
@@ -163,7 +250,7 @@ function end() {
 function fadeFrame() {
   const now = performance.now();
   strokes = strokes.filter(s => opacity(s, now) > 0);
-  paint();
+  draw();
   if (strokes.some(s => s.ink === 'fades' && s.ended !== null)) requestAnimationFrame(fadeFrame);
 }
 
@@ -237,9 +324,16 @@ async function pump() {
   }
 }
 
+// At most one redraw a frame, however many points come in.
+function paint() {
+  if (painting) return;
+  painting = true;
+  requestAnimationFrame(() => { painting = false; draw(); });
+}
+
 // Draws my lines the way the room does: smooth curves through the points, round ends and corners, the highlighter
 // see-through and even where it crosses itself (one path per line).
-function paint() {
+function draw() {
   const pad = $('pad'), g = pad.getContext('2d');
   g.clearRect(0, 0, pad.width, pad.height);
   g.lineCap = 'round';

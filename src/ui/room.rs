@@ -366,6 +366,7 @@ impl Inner {
             Timer::single_shot(w.timeout, move || if let Some(i) = me.upgrade() { i.timed_out(token, kind, why) });
         }
         *self.shared.canvas.lock().unwrap() = self.canvas();
+        if self.shared.role == "room" { self.work.app.set_room_canvas(self.canvas()) }
         let waiting = wants.iter().map(|w| w.kind).collect();
         let fade = fade_for(&plan, view);
         *self.prep.borrow_mut() = Some(Prep { plan, frame: view.frame.clone(), pause: room::pause_sync(view), waiting, got: vec![], heard: HashMap::new(), fade });
@@ -725,6 +726,7 @@ impl Room {
         forward(reports, shared.clone());
         follow(app.clone(), rx, shared);
         *room.inner.shared.canvas.lock().unwrap() = room.inner.canvas();
+        if role == "room" { app.set_room_canvas(room.inner.canvas()) }
         let (fix, test) = fix_of(&app, &role);
         room.inner.set_fix(fix, test);
         // N12: off the Slint thread, so the data lock is never waited for there.

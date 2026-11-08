@@ -152,7 +152,7 @@ struct Size { #[serde(default)] w: Option<u32> }
 /// The next slide's picture as a JPEG, `w` pixels wide (16:9).
 async fn next_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Size>) -> Response {
     if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
-    let size = crate::server::live_slide_size(q.w.unwrap_or(640));
+    let size = crate::server::live_slide_size(q.w.unwrap_or(640), (16, 9));
     let jpeg = tokio::task::spawn_blocking(move || {
         static RENDER: crate::ui::thumbs::TextRenderer = crate::ui::thumbs::TextRenderer::new();
         let px = crate::ui::thumbs::next_slide(&app, size, &RENDER);
