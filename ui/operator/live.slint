@@ -21,6 +21,8 @@ export component LiveColumn inherits Rectangle {
     in property <bool> pending;
     in property <string> live-what;
     in property <string> notice;
+    /// The live slide's speaker or stage notes, shown small under the monitor.
+    in property <string> notes;
     in property <bool> logo-on;
     in property <string> up-next-title;
     in property <string> up-next-body: @tr("—");
@@ -146,6 +148,16 @@ export component LiveColumn inherits Rectangle {
                     show-stage: OutputsState.view == 1;
                     stage-frame: OutputsState.stage-frame;
                     stage-off: OutputsState.stage-off;
+                }
+
+                if root.notes != "": live-notes := Text {
+                    text: @tr("Notes: {}", root.notes);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
                 }
 
                 // N33: how smoothly the screens draw.

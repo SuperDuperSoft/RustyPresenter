@@ -11,6 +11,9 @@ import { ArrangementStrip, ArrChipRow, ArrAddRow } from "arrangement.slint";
 
 export { BgChoice }
 
+/// One slide of a deck in "Speaker notes": "Slide 3" and its notes.
+export struct DeckNoteRow { label: string, notes: string }
+
 /// What the open Item edit shows and what the user changed.
 export global ItemEdit {
     /// The row's kind: song, scripture, text, video, image, audio or deck.
@@ -53,6 +56,9 @@ export global ItemEdit {
     in-out property <int> theme-index;
     in property <[color]> palette;
     in-out property <string> notes;
+    /// A deck's slides with their speaker notes (empty for other items).
+    in property <[DeckNoteRow]> deck-notes;
+    callback deck-note-edited(int, string);
     /// FEAT-2: song, scripture, announcement and slides items can turn their own slides.
     in property <bool> advance-shown;
     /// The item has at least two slides.
@@ -347,6 +353,26 @@ export component ItemEditDialog inherits VerticalLayout {
             name-box := TextField {
                 label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
                 text <=> ItemEdit.name;
+            }
+        }
+        if ItemEdit.deck-notes.length > 0: Field {
+            label: @tr("Speaker notes");
+            help: @tr("Shown on the stage screen with each slide");
+            for row[i] in ItemEdit.deck-notes: VerticalLayout {
+                spacing: 4px;
+                padding-bottom: 6px;
+                Text {
+                    text: row.label;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+                deck-note := TextArea {
+                    label: row.label;
+                    min-height: 48px;
+                    text: row.notes;
+                    edited(t) => { ItemEdit.deck-note-edited(i, t); }
+                }
             }
         }
         if ItemEdit.not-ready: VerticalLayout {

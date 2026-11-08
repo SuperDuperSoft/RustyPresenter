@@ -29,7 +29,7 @@ pub enum Kind {
 }
 
 /// Parts bigger than this uncompressed are not parsed (zip-bomb guard).
-const MAX_PART: u64 = 50 * 1024 * 1024;
+pub(super) const MAX_PART: u64 = 50 * 1024 * 1024;
 /// At most this much of one slide is inflated to find its root, which comes right after the XML prolog.
 const SLIDE_HEAD: u64 = 64 * 1024;
 const OLE_MAGIC: &[u8] = b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
@@ -112,7 +112,7 @@ fn sniff_zip<R: Read + Seek>(r: R) -> Kind {
 }
 
 /// A whole zip entry, or `None` when it is missing, unreadable or over `limit` bytes.
-fn read_part<R: Read + Seek>(zip: &mut zip::ZipArchive<R>, name: &str, limit: u64) -> Option<Vec<u8>> {
+pub(super) fn read_part<R: Read + Seek>(zip: &mut zip::ZipArchive<R>, name: &str, limit: u64) -> Option<Vec<u8>> {
     let f = zip.by_name(name).ok()?;
     if f.size() > limit {
         return None;

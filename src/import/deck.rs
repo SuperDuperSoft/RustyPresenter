@@ -2,7 +2,7 @@
 //! happens in a `WorkDir`, and one `App::edit` adds the deck once every slide is in the store, so a failed or
 //! cancelled import adds nothing.
 use super::{
-    CANCELLED, Stage, WorkDir, libreoffice::LibreOffice, pdf::PdfRenderer, percent, powerpoint::PowerPoint,
+    CANCELLED, Stage, WorkDir, libreoffice::LibreOffice, notes, pdf::PdfRenderer, percent, powerpoint::PowerPoint,
     sniff::{self, encrypted, Kind, not_presentation},
     strings::{self, fallback_note, keynote_package, lo_snap, pdf_no_slides, pdfium_missing, slide_not_saved},
 };
@@ -165,6 +165,7 @@ impl Import<'_> {
         let input = work.path().join(format!("input.{}", sniff::staged_ext(&kind).ok_or(not_presentation())?));
         move_or_copy(file, &input).map_err(|_| slide_not_saved())?;
         self.app.job_progress(self.job, percent(Stage::Prepare, 1.0));
+        let notes = notes_off_thread(&input, notes::format(&kind)).await;
 
         let made = match route {
             Route::Pdf => Made { slides: self.render(&converters, input, work.path(), None).await?, note: None },
@@ -175,9 +176,10 @@ impl Import<'_> {
         if made.slides.is_empty() {
             return Err(pdf_no_slides());
         }
+        let notes = notes::line_up(notes, made.slides.len());
         let slides = self.publish(made.slides).await?;
         let id = Uuid::new_v4();
-        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone() }); Ok(()) })?;
+        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone(), notes: notes.clone() }); Ok(()) })?;
         self.app.job_result(self.job, id);
         if let Some(note) = made.note {
             self.app.job_note(self.job, note);
@@ -251,6 +253,12 @@ impl Import<'_> {
             if cancel.is_cancelled() { Err(CANCELLED.to_string()) } else { Ok(assets) }
         }).await.map_err(|_| slide_not_saved())?
     }
+}
+
+/// The speaker notes, read before the converter sees the file. `None` when there are none to read.
+async fn notes_off_thread(file: &Path, format: Option<notes::Format>) -> Option<Vec<String>> {
+    let (file, format) = (file.to_path_buf(), format?);
+    tokio::task::spawn_blocking(move || notes::read(&file, format)).await.ok().flatten()
 }
 
 async fn sniff_off_thread(file: PathBuf) -> Result<Kind, String> {

@@ -228,6 +228,38 @@ async fn libreoffice_import_adds_note() {
 }
 
 #[tokio::test]
+async fn speaker_notes_are_kept_per_slide() {
+    let d = dir();
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(3), None));
+    let file = staged(&app, &crate::import::notes::tests::sample_pptx());
+    let id = start(app.clone(), file, "Talk".into());
+    finished(&app, id).await;
+    let deck = app.data.lock().unwrap().decks[0].clone();
+    assert_eq!((deck.slides.len(), deck.notes), (3, crate::import::notes::tests::sample_notes()));
+}
+
+#[tokio::test]
+async fn speaker_notes_from_an_odp() {
+    let d = dir();
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(3), None));
+    let file = staged(&app, &crate::import::notes::tests::sample_odp());
+    let id = start(app.clone(), file, "Talk".into());
+    finished(&app, id).await;
+    assert_eq!(app.data.lock().unwrap().decks[0].notes, ["Hello  world", "First\nSecond\nline", ""]);
+}
+
+#[tokio::test]
+async fn speaker_notes_left_out_when_the_slide_count_differs() {
+    let d = dir();
+    let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), None));
+    let file = staged(&app, &crate::import::notes::tests::sample_pptx());
+    let id = start(app.clone(), file, "Talk".into());
+    finished(&app, id).await;
+    let deck = app.data.lock().unwrap().decks[0].clone();
+    assert_eq!((deck.slides.len(), deck.notes.len()), (2, 0));
+}
+
+#[tokio::test]
 async fn a_slide_count_that_differs_is_noted_beside_the_program() {
     let d = dir();
     let app = app_with(converters(Some(libreoffice::tests::fake("pdf", &d)), pages(2), None));

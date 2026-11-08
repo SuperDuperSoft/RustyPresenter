@@ -381,6 +381,23 @@ mod tests {
     }
 
     #[test]
+    fn deck_slides_show_their_speaker_notes() {
+        let mut data = crate::model::Data::default();
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()] };
+        data.decks.push(deck.clone());
+        let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
+        let (_, kind, s) = crate::slides::build_item(&data, &item);
+        assert_eq!(kind, "deck");
+        assert_eq!(words(&only(&song_view(&s, 0), &s, ElementKind::Notes)), ("Welcome", false));
+        assert_eq!(only(&song_view(&s, 1), &s, ElementKind::Notes), CellContent::Empty);
+        assert_eq!(words(&only(&song_view(&s, 2), &s, ElementKind::Notes)), ("Pray", false));
+        // The item's own stage notes fill the slides that have none.
+        let item = crate::model::ServiceItem { notes: "Sermon".into(), ..item };
+        let (_, _, s) = crate::slides::build_item(&data, &item);
+        assert_eq!(s.iter().map(|s| s.notes.as_str()).collect::<Vec<_>>(), ["Welcome", "Sermon", "Pray"]);
+    }
+
+    #[test]
     fn clock_formats_12h_24h_seconds() {
         let t = chrono::NaiveTime::from_hms_opt(18, 5, 30).unwrap();
         assert_eq!(clock(t, false, false), "6:05 PM");
