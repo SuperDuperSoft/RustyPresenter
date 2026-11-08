@@ -46,6 +46,10 @@ pub enum MenuAction {
     BibleInfo,
     /// Settings → Translations…: the translation editor on the language in use.
     Translations,
+    /// Window → Action palette (N15): opens or closes it in the slides column.
+    ActionPalette,
+    /// Window → Start pre-service (N16): the Start countdown macro, or its tab when it isn't set up yet.
+    StartPreService,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -89,6 +93,8 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         "bible-info" => MenuAction::BibleInfo,
         "translations" => MenuAction::Translations,
+        "action-palette" => MenuAction::ActionPalette,
+        "start-preservice" => MenuAction::StartPreService,
         _ => return None,
     })
 }
@@ -126,8 +132,20 @@ impl Operator {
                 if let Some(id) = chosen { super::bible_extras::info(self, &id) }
             }
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
+            Some(MenuAction::ActionPalette) => super::action_palette::toggle(self),
+            Some(MenuAction::StartPreService) => self.start_preservice(),
             None => {}
         }
+    }
+
+    /// N16: one click sets up pre-service (music, loop, countdown and stage layout, as the Pre-service tab says).
+    fn start_preservice(self: &Rc<Self>) {
+        let id = crate::automation::preservice::PRE_SERVICE_MACRO_ID;
+        let set_up = self.state.borrow().snap.as_ref().is_some_and(|s| s.data.automation.macros.iter().any(|m| m.id == id));
+        if set_up { return super::automation::run_macro(self, &id.to_string()) }
+        crate::ui::dialogs::automation::open(self);
+        crate::ui::dialogs::automation::goto(self, 3, -1);
+        self.toast(&crate::tr!("Choose what pre-service does, then click Save."), false);
     }
 
     /// Edit → Undo or Redo (also Ctrl+Z / Ctrl+Y): the toast says what was undone. Like any edit, it never changes

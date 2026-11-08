@@ -204,6 +204,10 @@ pub enum Command {
     /// N29: show slide `slide` of `item_id` on the stage screen only; no `item_id` takes it down. The App keeps it
     /// (`App::set_stage_only`); the room never changes.
     StageOnly { #[serde(default)] item_id: Option<Uuid>, #[serde(default)] slide: usize },
+    /// N15: play service item `item_id`'s video, picture or sound on its layer. The live slide stays where it is.
+    PlayMedia { item_id: Uuid },
+    /// N15: show the live item in saved theme `theme` until another item goes live.
+    UseTheme { theme: Uuid },
 }
 
 /// One layer a clear key or clear group takes down (N18). `Overlays` is the saved ones only (pictures, clocks,
@@ -250,6 +254,8 @@ pub trait Plan {
     fn logo(&self) -> Option<AssetId> { None }
     /// FEAT-2's timers and message templates.
     fn automation(&self) -> Option<&crate::automation::Automation> { None }
+    /// A theme's text style, for `Command::UseTheme` (N15).
+    fn theme_style(&self, _id: Uuid) -> Option<Theme> { None }
 }
 
 /// What a change touched, weakest first (FEAT-2 spec §5.2). Only `commit_change` bumps the version.
@@ -339,6 +345,10 @@ pub struct Live {
     pub drawing: std::sync::Arc<drawing::Drawing>,
     /// Settings → "Keep drawings when the slide changes" (the App keeps it in step with the settings).
     pub keep_drawing: bool,
+    /// Counts every slide taken live (`go`), so the App runs a slide's actions once each time (N15).
+    pub went: u64,
+    /// N15 "Use theme": the live item's theme until another item goes live.
+    theme_for: Option<(Uuid, Theme)>,
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
@@ -355,7 +365,7 @@ impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
             audio_status: None, notice: None, restored_version: None, clear_epoch: 0, changed: None, visual_version: 0, manual_version: 0,
-            origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, went: 0, theme_for: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
     }
@@ -621,7 +631,37 @@ impl Live {
             Command::ClearLayers { layers } => { self.clear_layers(layers); Ok(()) }
             // The App keeps the stage-only slide (`App::command`); the engine never shows it.
             Command::StageOnly { .. } => Ok(()),
+            Command::PlayMedia { item_id } => self.play_media(plan, *item_id),
+            Command::UseTheme { theme } => self.use_theme(plan, *theme),
         }
+    }
+
+    /// N15: an item's video or picture on the media layer, or its sound on the audio layer, over or under what is up.
+    fn play_media(&mut self, plan: &dyn Plan, item_id: Uuid) -> Result<(), String> {
+        if !plan.order().contains(&item_id) { return Err(crate::tr!("That item is not in the service.")) }
+        let item = plan.build(item_id).ok_or_else(|| crate::tr!("That item has nothing to show."))?;
+        let inst = self.inst();
+        match item.slides.first().map(|s| s.content.clone()) {
+            Some(SlideContent::Video { asset, end, .. }) => self.frame.media = Some(Inst { inst, v: MediaLayer::Video { asset, end, paused: false } }),
+            Some(SlideContent::Still { asset }) => self.frame.media = Some(Inst { inst, v: MediaLayer::Still { asset } }),
+            Some(SlideContent::Audio { asset, looped }) => {
+                self.frame.audio = Some(Inst { inst, v: AudioLayer { asset, title: item.title.clone(), looped, paused: false } })
+            }
+            _ => return Err(crate::tr!("That item isn't a video, picture or sound.")),
+        }
+        self.bump();
+        Ok(())
+    }
+
+    /// N15: the live item's words in theme `id` from now on (the next item has its own theme again).
+    fn use_theme(&mut self, plan: &dyn Plan, id: Uuid) -> Result<(), String> {
+        let style = plan.theme_style(id).ok_or_else(|| crate::tr!("That theme was deleted."))?;
+        let item = self.item.as_mut().ok_or_else(|| crate::tr!("Nothing is live yet."))?;
+        item.theme = style.clone();
+        self.theme_for = Some((item.item_id, style.clone()));
+        if let Some(SlideLayer::Text { theme, .. }) = &mut self.frame.slide { *theme = Some(style) }
+        self.bump();
+        Ok(())
     }
 
     /// N18: takes `layers` down. A screen layer always makes a new version, like F2; overlays only when one went.
@@ -693,7 +733,14 @@ impl Live {
     /// | Video         | removed     | unchanged (hidden) | new instance, plays from start  | off  | continues  |
     /// | Still image   | removed     | unchanged (hidden) | still image (replaces video)    | off  | continues  |
     /// | Audio item    | unchanged   | unchanged          | unchanged                       | unchanged | new instance from start |
-    fn go(&mut self, item: LiveItem, index: usize, slide: usize) {
+    fn go(&mut self, mut item: LiveItem, index: usize, slide: usize) {
+        self.went += 1;
+        // "Use theme" lasts while the item stays live, even when one of its slides is clicked (a fresh build).
+        match &self.theme_for {
+            Some((id, style)) if *id == item.item_id => item.theme = style.clone(),
+            Some(_) => self.theme_for = None,
+            None => {}
+        }
         // A drawing belongs to the slide it was drawn on (unless the church keeps them).
         let moved = self.cursor.as_ref().is_none_or(|c| (c.item_id, c.slide) != (item.item_id, slide));
         if moved && !self.keep_drawing { self.clear_drawing(); }
@@ -1305,6 +1352,52 @@ mod tests {
         assert!(l.clear_drawing());
         assert!(!l.clear_drawing(), "nothing left");
     }
+
+    /// A plan whose themes are all one big style (N15 "Use theme").
+    struct ThemedPlan(TestPlan);
+    impl Plan for ThemedPlan {
+        fn order(&self) -> Vec<Uuid> { self.0.order() }
+        fn build(&self, id: Uuid) -> Option<LiveItem> { self.0.build(id) }
+        fn theme_style(&self, _id: Uuid) -> Option<Theme> { Some(Theme { size: 99, ..Theme::default() }) }
+    }
+
+    #[test]
+    fn play_media_keeps_the_slide_and_the_cursor() {
+        let p = plan(vec![("Song", vec![text("a1"), text("a2")]), ("Walk-in", vec![audio("walk.mp3")]), ("Clip", vec![video("v.mp4", EndAction::Stop)])]);
+        let mut l = Live::new();
+        next(&mut l, &p);
+        let cursor = l.cursor.clone();
+        assert!(l.apply(env(Command::PlayMedia { item_id: p.order[1] }, None), &p).ok);
+        assert_eq!(l.frame.audio.as_ref().map(|a| a.v.asset.as_str()), Some("walk.mp3"));
+        assert!(l.apply(env(Command::PlayMedia { item_id: p.order[2] }, None), &p).ok);
+        assert!(matches!(l.frame.media.as_ref().map(|m| &m.v), Some(MediaLayer::Video { .. })));
+        assert_eq!(shown(&l).as_deref(), Some("a1"), "the words stay");
+        assert_eq!(l.cursor, cursor, "Next still walks the song");
+        let words = l.apply(env(Command::PlayMedia { item_id: p.order[0] }, None), &p);
+        assert_eq!(words.error, Some(crate::tr!("That item isn't a video, picture or sound.")));
+    }
+
+    #[test]
+    fn use_theme_lasts_while_the_item_is_live() {
+        let p = ThemedPlan(plan(vec![("Song", vec![text("a1"), text("a2")]), ("Next", vec![text("b1")])]));
+        let mut l = Live::new();
+        assert!(!l.apply(env(Command::UseTheme { theme: Uuid::nil() }, None), &p).ok, "nothing live");
+        let b = l.version;
+        l.apply(env(Command::Next, Some(b)), &p);
+        let went = l.went;
+        assert!(l.apply(env(Command::UseTheme { theme: Uuid::nil() }, None), &p).ok);
+        let size = |l: &Live| match &l.frame.slide { Some(SlideLayer::Text { theme, .. }) => theme.as_ref().map(|t| t.size), _ => None };
+        assert_eq!(size(&l), Some(99));
+        assert_eq!(l.went, went, "a theme change takes no slide live");
+        let (b, item) = (l.version, p.0.order[0]);
+        l.apply(env(Command::Show { item_id: item, slide: 1 }, Some(b)), &p);
+        assert_eq!(size(&l), Some(99), "a click on another of its slides keeps it");
+        assert_eq!(l.went, went + 1);
+        let b = l.version;
+        l.apply(env(Command::Next, Some(b)), &p);
+        assert_eq!(size(&l), Some(Theme::default().size), "the next item has its own");
+    }
+
 }
 
 #[cfg(test)]

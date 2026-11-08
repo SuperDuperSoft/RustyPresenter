@@ -148,6 +148,7 @@ impl Operator {
         bible::wire(&op);
         super::bible_extras::wire(&op);
         super::stage_only::wire(&op);
+        super::action_palette::wire(&op);
         overlays::wire(&op);
         super::overlay_strip::wire(&op);
         super::list_filter::wire(&op);

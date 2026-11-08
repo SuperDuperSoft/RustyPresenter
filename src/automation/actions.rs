@@ -8,7 +8,7 @@ use crate::automation::macros::{ClearWhich, Macro, MacroStep, PlannedStep, Resol
 use crate::automation::messages::{self, MessageTemplate};
 use crate::automation::preservice::{PRE_SERVICE_MACRO_ID, PreRun, PreServiceEnd, EndInput, PreService, end_plan};
 use crate::automation::runtime::{AutomationRuntime, Due};
-use crate::automation::{Automation, apply_preservice, slots, strings};
+use crate::automation::{Automation, apply_preservice, slide_actions, slots, strings};
 use crate::lenient::Lenient;
 use crate::live::{BatchStep, Command, Envelope, Live, Outcome};
 use crate::model::Data;
@@ -86,6 +86,7 @@ pub fn validate_macro(a: &Automation, mut m: Macro) -> Result<Macro, String> {
     if m.id == PRE_SERVICE_MACRO_ID || m.builtin == Some(Builtin::PreService) { return Err(strings::preservice_locked()) }
     m.name = name_ok(&m.name)?;
     if m.steps.len() > MAX_STEPS { return Err(strings::too_many_steps()) }
+    if m.steps.iter().any(|s| matches!(s.known(), Some(MacroStep::RunMacro { .. }))) { return Err(crate::tr!("A macro can't run another macro.")) }
     if !a.macros.iter().any(|x| x.id == m.id) && a.macros.len() >= MAX_MACROS { return Err(strings::too_many_macros()) }
     for s in &m.steps {
         if let Some(MacroStep::MessageShow { template, values }) = s.known()
@@ -103,6 +104,7 @@ pub fn uses(a: &Automation, id: Uuid) -> (usize, usize) {
         MacroStep::TimerShow { timer } | MacroStep::TimerHide { timer } | MacroStep::TimerStart { timer } | MacroStep::TimerPause { timer }
         | MacroStep::TimerReset { timer } | MacroStep::TimerRestart { timer } => *timer == id,
         MacroStep::MessageShow { template, .. } => *template == id,
+        MacroStep::RunMacro { macro_id } => *macro_id == id,
         _ => false,
     };
     let macros = a.macros.iter().filter(|m| m.id != id && m.steps.iter().any(|s| s.known().is_some_and(names))).count();
@@ -260,6 +262,18 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             }).map_err(bad)?;
             Ok(json!({}))
         }
+        "automation/slide-actions/add" => {
+            #[derive(Deserialize)] struct A { item: Uuid, slide: usize, steps: Vec<MacroStep> }
+            let A { item, slide, steps } = parse(body)?;
+            app.edit(|d| slide_actions::add(&mut d.automation, item, slide, steps)).map_err(bad)?;
+            Ok(json!({}))
+        }
+        "automation/slide-actions/remove" => {
+            #[derive(Deserialize)] struct R { item: Uuid, slide: usize, index: usize }
+            let R { item, slide, index } = parse(body)?;
+            app.edit(|d| slide_actions::remove(&mut d.automation, item, slide, index)).map_err(bad)?;
+            Ok(json!({}))
+        }
         "automation/watching" => {
             #[derive(Deserialize)] struct W { on: bool }
             let W { on } = parse(body)?;
@@ -324,6 +338,7 @@ impl App {
     /// hide by itself, an adoption remaps the auto slide, and stale bookkeeping goes. `committed`: the room
     /// committed this version. Takes the locks itself.
     pub(crate) fn automation_after(&self, committed: Option<u64>) {
+        self.slide_actions_fire();
         let now = Utc::now();
         {
             let data = self.data.lock().unwrap();
@@ -388,7 +403,7 @@ impl App {
         seen_clear: Option<u64>, now: DateTime<Utc>, at_zero: Option<&str>) -> Result<(Outcome, Option<(String, bool)>, Vec<PlannedStep>), String> {
         let items: Vec<(Uuid, String)> = data.service().map(|s| s.items.iter().map(|i| (i.id, crate::slides::build_item(data, i).0)).collect()).unwrap_or_default();
         let overlays: Vec<Uuid> = data.overlays.iter().map(|o| o.id).collect();
-        let layouts: Vec<Uuid> = crate::stage::presets::builtins().iter().map(|l| l.id).collect();
+        let layouts: Vec<Uuid> = crate::stage::presets::builtins().iter().chain(&data.stage_layouts).map(|l| l.id).collect();
         let ctx = ResolveCtx { timers: &data.automation.timers, runs: &rt.timers, templates: &data.automation.messages, overlays: &overlays,
             stage_layouts: &layouts, screen_views: &[], items: &items, now, tz: &Local, starts_at: starts_at(data) };
         let resolved = resolve(m, &ctx)?;
@@ -418,6 +433,10 @@ impl App {
                     Some(Command::ShowMessage { template: *template, values, seen_clear: None })
                 }
                 PlannedStep::MessageHide => Some(Command::HideMessage),
+                PlannedStep::PlayMedia { item_id } => Some(Command::PlayMedia { item_id: *item_id }),
+                PlannedStep::UseTheme { theme } => Some(Command::UseTheme { theme: *theme }),
+                // Nothing live: a runtime step that says so.
+                PlannedStep::GoToSlide { slide } => live.cursor.as_ref().map(|c| Command::Show { item_id: c.item_id, slide: *slide }),
                 PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto => {
                     stage.push((p.number, p.step.clone()));
                     continue;
@@ -437,6 +456,8 @@ impl App {
                 PlannedStep::TimerRestart { timer, .. } => timer_op(rt, data, def(timer)?, "timer/restart", None, now, epoch),
                 PlannedStep::AutoAdvance { on } => { rt.auto.set_on(*on, input.as_ref(), now); Ok(()) }
                 PlannedStep::ScreenView { .. } => Err(strings::screen_views_not_yet()),
+                PlannedStep::PlayPlaylist { .. } => Err(slide_actions::playlists_not_ready()),
+                PlannedStep::GoToSlide { .. } => Err(crate::tr!("Nothing is live yet.")),
                 _ => Ok(()),
             }
         };
@@ -446,7 +467,8 @@ impl App {
             if o.error.as_deref().is_some_and(|e| e.starts_with("stale")) { o.error = Some(strings::stale_try_again()) }
             return Ok((o, None, vec![]));
         }
-        if m.id == PRE_SERVICE_MACRO_ID {
+        // A slide that runs Start countdown counts as its button (`slide_actions::as_macro`).
+        if m.id == PRE_SERVICE_MACRO_ID || m.builtin == Some(Builtin::PreService) {
             let loop_item = data.automation.pre_service.as_ref().and_then(|p| p.loop_title.as_ref())
                 .and_then(|t| items.iter().find(|(_, x)| x.trim().to_lowercase() == t.trim().to_lowercase()).map(|(id, _)| *id));
             rt.pre = Some(PreRun { manual_version: live.manual_version, loop_item, timer_run: rt.timers.get(&PRE_SERVICE_TIMER_ID).map_or(0, |r| r.run) });
@@ -462,6 +484,34 @@ impl App {
         if problem { live.notice = Some(toast.clone()) }
         let toast = Some((toast, problem));
         Ok((b.outcome, toast, stage.into_iter().map(|(_, s)| s).collect()))
+    }
+
+    /// N15: a slide just went live (by a click, Next, a macro or auto-advance): its actions run once, as one change
+    /// after it. A slide an action goes to doesn't run its own, so two slides can never set each other off.
+    fn slide_actions_fire(&self) {
+        let (ran, stage) = {
+            let data = self.data.lock().unwrap();
+            let mut live = self.live.lock().unwrap();
+            let mut rt = self.automation.lock().unwrap();
+            if live.went == rt.slide_went { return }
+            rt.slide_went = live.went;
+            let Some(c) = live.cursor.clone() else { return };
+            let steps = slide_actions::of(&data.automation, c.item_id, c.slide);
+            if steps.is_empty() { return }
+            let m = slide_actions::as_macro(&data.automation, slide_actions::run_name(c.slide), steps);
+            let (base, seen) = (Some(live.version), Some(live.clear_epoch));
+            let r = self.run_resolved(&data, &mut live, &mut rt, &m, &format!("slide-{}", Uuid::new_v4()), base, seen, Utc::now(), None);
+            rt.slide_went = live.went;
+            match r {
+                Ok((o, _, stage)) => (o.ok && !o.duplicate, stage),
+                Err(e) => { live.notice = Some(e); (true, vec![]) }
+            }
+        };
+        for s in stage { self.stage_step(s) }
+        if ran {
+            self.after_command();
+            self.publish_timers(Utc::now(), true);
+        }
     }
 
     /// A stage step, after the screen steps (FEAT-3).

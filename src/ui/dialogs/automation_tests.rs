@@ -122,3 +122,21 @@ fn running_timer_gets_a_chip_that_pauses() {
     op.ui.global::<AutoStrip>().invoke_timer_toggle(SERMON_ID.to_string().into());
     assert_eq!(app.timers().timers.iter().find(|t| t.id == SERMON_ID).unwrap().state, TimerState::Paused);
 }
+
+#[test]
+fn pre_service_tab_saves_a_stage_layout_and_the_menu_runs_it() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    goto(&op, 3, -1);
+    let options: Vec<String> = g(&op).get_p_stage_options().iter().map(|s| s.to_string()).collect();
+    assert_eq!(options[0], "Leave it as it is");
+    assert!(options.len() > 2, "the built-in layouts are there: {options:?}");
+    g(&op).set_p_stage(2);
+    g(&op).invoke_preservice_save();
+    let want = crate::stage::presets::builtins()[1].id;
+    let data = app.data.lock().unwrap();
+    assert_eq!(data.automation.pre_service.as_ref().and_then(|p| p.stage_layout), Some(want));
+    let m = data.automation.macros.first().unwrap();
+    assert_eq!(m.steps.last(), Some(&Lenient::Known(MacroStep::StageLayout { layout: want })));
+}

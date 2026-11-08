@@ -277,6 +277,7 @@ impl Plan for DataPlan<'_> {
     }
     fn logo(&self) -> Option<AssetId> { self.0.settings.logo.clone() }
     fn automation(&self) -> Option<&crate::automation::Automation> { Some(&self.0.automation) }
+    fn theme_style(&self, id: Uuid) -> Option<crate::theme::Theme> { self.0.catalog().find(id).map(|t| t.style) }
     fn order(&self) -> Vec<Uuid> { self.0.service().map(|s| s.items.iter().map(|i| i.id).collect()).unwrap_or_default() }
     fn build(&self, id: Uuid) -> Option<LiveItem> {
         let service = self.0.service()?;

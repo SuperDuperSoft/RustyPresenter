@@ -41,6 +41,8 @@ pub struct AutomationRuntime {
     pub last_message: Option<Uuid>,
     /// The `shown` id of the message last seen up, so a new one is noticed once.
     pub message_up: Option<Uuid>,
+    /// `Live::went` when slide actions last looked: each slide taken live runs its actions once (N15).
+    pub slide_went: u64,
     published: Arc<TimersView>,
     published_at: Option<DateTime<Utc>>,
 }
