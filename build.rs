@@ -1,13 +1,6 @@
 fn main() {
     i18n_bundle();
-    // Element ids stay in the generated code so the testing backend can find elements by id (check C4).
-    // `@tr` text is looked up in `translations/<lang>/LC_MESSAGES/rustypresenter.po`, with no context unless the
-    // `.slint` gives one (I18N spec D2).
-    let slint = slint_build::CompilerConfiguration::new()
-        .with_debug_info(true)
-        .with_bundled_translations("translations")
-        .with_default_translation_context(slint_build::DefaultTranslationContext::None);
-    slint_build::compile_with_config("ui/app.slint", slint).expect("slint build failed");
+    // The screens (`ui/*.slint`) are compiled by `crates/rp-ui`.
     #[cfg(windows)]
     windows_resources();
 }

@@ -1,5 +1,5 @@
-//! Native screens: the `.slint` files under `ui/` (compiled by `build.rs` from `ui/app.slint`) and their Rust glue.
-slint::include_modules!();
+//! Native screens: the `.slint` files under `ui/` (compiled by `crates/rp-ui` from `ui/app.slint`) and their Rust glue.
+pub use rp_ui::*;
 
 pub mod stage;
 pub mod room;

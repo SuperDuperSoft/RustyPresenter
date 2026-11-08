@@ -1,0 +1,13 @@
+[package]
+name = "rp-ui"
+version = "0.2.0"
+edition = "2024"
+description = "RustyPresenter's screens: the code Slint makes from ui/app.slint, in its own crate so it builds apart from the app"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+slint = { version = "1.18", features = ["unstable-winit-030", "raw-window-handle-06"] }
+
+[build-dependencies]
+slint-build = "1.18"

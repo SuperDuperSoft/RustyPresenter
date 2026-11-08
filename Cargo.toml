@@ -20,6 +20,8 @@ cosmic-text = "0.19.0"
 tiny-skia = "0.12.0"
 libloading = "0.8"
 slint = { version = "1.18", features = ["unstable-winit-030", "raw-window-handle-06"] }
+# The screens, compiled from ui/app.slint in their own crate.
+rp-ui = { path = "crates/rp-ui" }
 # Only for the `gpu-apis` feature: `require_wgpu_30` and its settings. Internal API, so pinned to the version slint uses.
 i-slint-backend-selector = { version = "=1.18.1", optional = true, default-features = false }
 glow = "0.18"
@@ -69,9 +71,6 @@ gpu-apis = ["renderer-wgpu", "dep:i-slint-backend-selector", "i-slint-backend-se
 # It downloads Skia while building, so it can't be built offline. With it, Settings → Video → Graphics offers Vulkan,
 # Direct3D (Windows) and Metal (macOS).
 renderer-skia = ["slint/renderer-skia", "slint/renderer-skia-opengl", "slint/renderer-skia-vulkan"]
-
-[build-dependencies]
-slint-build = "1.18"
 
 [target.'cfg(windows)'.build-dependencies]
 # The icon and the manifest. Already in the lock file; compiled by MinGW's windres or MSVC's rc.
