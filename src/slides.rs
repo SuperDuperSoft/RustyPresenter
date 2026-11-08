@@ -7,6 +7,8 @@ pub fn section_label(line: &str) -> Option<String> {
     if t.is_empty() || t.len() > 40 { return None; }
     let bracketed = t.starts_with('[') && t.ends_with(']');
     let inner = t.trim_matches(['[', ']']).trim().trim_end_matches(':').trim();
+    // N10: a line of chords ("[G]", "[G] [C]") is part of the song, not a heading.
+    if bracketed && strip_chords(t).is_some() { return None; }
     if bracketed && !inner.is_empty() { return Some(inner.to_string()); }
     let lower = inner.to_ascii_lowercase();
     let head = lower.split_whitespace().next().unwrap_or("");
@@ -58,6 +60,47 @@ pub fn parse_sections(lyrics: &str) -> Vec<Section> {
     out
 }
 
+/// N10: is `s` (without its brackets) a chord name: `G`, `F#m7`, `Bbmaj7`, `Dsus4`, `C/E`?
+pub fn is_chord(s: &str) -> bool {
+    fn root(s: &str) -> Option<&str> {
+        let rest = s.strip_prefix(|c: char| ('A'..='G').contains(&c))?;
+        Some(rest.strip_prefix(['#', 'b']).unwrap_or(rest))
+    }
+    let (main, bass) = match s.split_once('/') { Some((m, b)) => (m, Some(b)), None => (s, None) };
+    let Some(mut q) = root(main) else { return false };
+    while !q.is_empty() {
+        let word = ["maj", "min", "dim", "aug", "sus", "add", "m", "M"].into_iter().find(|w| q.starts_with(w));
+        q = match word {
+            Some(w) => &q[w.len()..],
+            None if q.starts_with(|c: char| c.is_ascii_digit() || "+-#b()°ø".contains(c)) => &q[q.chars().next().map_or(1, char::len_utf8)..],
+            None => return false,
+        };
+    }
+    bass.is_none_or(|b| root(b).is_some_and(str::is_empty))
+}
+
+/// N10: `text` without its `[chord]`s, or None when it has none. Other brackets (`[x2]`) stay. Lines that held only
+/// chords go, and the spaces chords leave are tidied.
+pub fn strip_chords(text: &str) -> Option<String> {
+    let mut found = false;
+    let lines: Vec<String> = text.lines().filter_map(|line| {
+        let (mut out, mut rest, mut had) = (String::new(), line, false);
+        while let Some(i) = rest.find('[') {
+            out.push_str(&rest[..i]);
+            let tail = &rest[i + 1..];
+            match tail.find(']') {
+                Some(e) if is_chord(&tail[..e]) => { had = true; rest = &tail[e + 1..]; }
+                _ => { out.push('['); rest = tail; }
+            }
+        }
+        out.push_str(rest);
+        found |= had;
+        let tidy = if had { out.split_whitespace().collect::<Vec<_>>().join(" ") } else { out };
+        (!(had && tidy.is_empty())).then_some(tidy)
+    }).collect();
+    found.then(|| lines.join("\n"))
+}
+
 /// Split lines into pages of at most `n` lines.
 pub fn chunk_lines(lines: &[String], n: usize) -> Vec<String> {
     lines.chunks(n.max(1)).map(|c| c.join("\n")).collect()
@@ -107,7 +150,10 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
             let n = pages.len();
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
+                // N10: chords stay out of the room's words; the stage can show them.
+                let (text, chords) = match strip_chords(&text) { Some(plain) => (plain, Some(text)), None => (text, None) };
                 let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None });
+                slide.chords = chords;
                 if p == 0 { slide.tag = tag.clone() }
                 slides.push(slide);
             }
@@ -397,6 +443,23 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn chords_are_named_and_stripped_for_the_room() {
+        for c in ["G", "F#m7", "Bbmaj7", "Dsus4", "C/E", "Am", "E7(b9)", "Cadd9", "F#/A#"] { assert!(is_chord(c), "{c}"); }
+        for c in ["x2", "Chorus", "Bridge", "H", "G/x", "", "Repeat", "Ab Cd"] { assert!(!is_chord(c), "{c}"); }
+        assert_eq!(strip_chords("[G]Amazing [C]grace, how [G]sweet\nThe sound"), Some("Amazing grace, how sweet\nThe sound".into()));
+        assert_eq!(strip_chords("Sing it [x2]"), None, "not a chord");
+        assert_eq!(strip_chords("[G] [D]\nWords"), Some("Words".into()), "a line of chords only goes");
+        assert_eq!(section_label("[G]"), None);
+        assert_eq!(section_label("[Chorus]").as_deref(), Some("Chorus"));
+        let song = Song { lyrics: "Verse 1\n[G]Amazing [C]grace\nHow sweet".into(), ..usual_song() };
+        let slides = song_slides(&song, &Settings::default());
+        let SlideContent::Text { text, .. } = &slides[0].content else { panic!() };
+        assert_eq!(text, "Amazing grace\nHow sweet");
+        assert_eq!(slides[0].chords.as_deref(), Some("[G]Amazing [C]grace\nHow sweet"));
+        assert_eq!(song_slides(&usual_song(), &Settings::default())[0].chords, None, "no chords, nothing kept");
+    }
 
     #[test]
     fn labels_are_recognized_but_lyrics_are_not() {

@@ -14,19 +14,24 @@ pub fn clock_countdown() -> String { tr!("Clock and countdown") }
 pub fn slides_notes() -> String { tr!("Slides and notes") }
 
 /// Box kinds for the editor's Add menu, in `ElementKind` order (`presets::all_kinds`).
-pub fn kind_names() -> [String; 12] {
+pub fn kind_names() -> [String; 14] {
     [
         tr!("Current slide"), tr!("Next slide"), tr!("Section"), tr!("Next section"), tr!("Item title"), tr!("Slides left"),
         tr!("Notes"), tr!("Clock"), tr!("Timer"), tr!("Video time left"), tr!("Message"), tr!("Text"),
+        tr!("Next slide picture"), tr!("Shape"),
     ]
 }
-pub fn kind_help() -> [String; 12] {
+pub fn kind_help() -> [String; 14] {
     [
         tr!("the words on screen now"), tr!("the words coming next"), tr!("Verse, Chorus, Bridge…"), tr!("the next part of the song"),
         tr!("the live item's name"), tr!("“3 slides left”"), tr!("the slide's stage notes"), tr!("the time of day"), tr!("a countdown or count-up"),
         tr!("time left on the video or audio"), tr!("messages sent from the back"), tr!("words you type once"),
+        tr!("the next slide as the room will see it"), tr!("a box, circle or line"),
     ]
 }
+
+/// N10: the shapes, in `ShapeKind::ALL` order.
+pub fn shape_names() -> [String; 4] { [tr!("Box"), tr!("Rounded box"), tr!("Circle"), tr!("Line")] }
 
 /// Slides that have no words of their own.
 pub fn slide_picture() -> String { tr!("(slide picture)") }
@@ -108,10 +113,10 @@ pub fn now_on_stage(name: &str) -> String { tr!("The stage shows “{name}”.",
 pub fn your_words() -> String { tr!("Your words here") }
 
 /// Words the editor shows in each kind of box, in `ElementKind` order (`presets::all_kinds`).
-pub fn sample_words() -> [String; 12] {
+pub fn sample_words() -> [String; 14] {
     [
         tr!("Amazing grace, how sweet the sound"), tr!("That saved a wretch like me"), tr!("Chorus"), tr!("Verse 2"),
         tr!("Amazing Grace"), slides_left(3), tr!("Slow down on the last line"), "9:41 AM".into(), "5:00".into(),
-        "−2:05".into(), tr!("Last chorus"), String::new(),
+        "−2:05".into(), tr!("Last chorus"), String::new(), tr!("(picture of the next slide)"), String::new(),
     ]
 }

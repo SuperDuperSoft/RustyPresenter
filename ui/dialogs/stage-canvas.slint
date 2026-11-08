@@ -19,6 +19,10 @@ export struct StageBoxVm {
     selected: bool,
     /// Made by a newer RustyPresenter: drawn hatched, can only be removed.
     unknown: bool,
+    /// N10: can't be moved; not drawn on the stage; a shape (0 box, 1 rounded, 2 circle, 3 line; -1 none).
+    locked: bool,
+    hidden: bool,
+    shape: int,
 }
 
 /// A snap line while a box is dragged: `vertical` at x = `at` %, else horizontal at y = `at` %.
@@ -30,6 +34,8 @@ export component StageCanvas inherits Rectangle {
     in property <color> screen-bg;
     /// A built-in layout: shown, but nothing moves.
     in property <bool> locked;
+    /// N10: lines every 10 % and rulers along the top and left.
+    in property <bool> show-grid;
     /// Pointer down at (x, y) %, with how many % a handle reaches each way; `free` = Alt held (no snapping).
     callback press(float, float, float, float, bool);
     /// The pointer moved while down, at (x, y) %.
@@ -43,11 +49,12 @@ export component StageCanvas inherits Rectangle {
     callback duplicate-box();
     callback next-box(bool);
 
-    // The 16:9 screen, as big as fits and centred.
-    property <length> sw: min(root.width, root.height * 16 / 9);
+    // The 16:9 screen, as big as fits and centred (beside the rulers when they show).
+    property <length> ruler: root.show-grid ? 16px : 0px;
+    property <length> sw: min(root.width - self.ruler, (root.height - self.ruler) * 16 / 9);
     property <length> sh: self.sw * 9 / 16;
-    property <length> sx: (root.width - self.sw) / 2;
-    property <length> sy: (root.height - self.sh) / 2;
+    property <length> sx: self.ruler + (root.width - self.ruler - self.sw) / 2;
+    property <length> sy: self.ruler + (root.height - self.ruler - self.sh) / 2;
     /// How far a handle reaches, in px.
     property <length> grab: 9px;
 
@@ -77,6 +84,51 @@ export component StageCanvas inherits Rectangle {
             reject
         }
 
+        if root.show-grid: ruler-top := Rectangle {
+            x: root.sx;
+            y: root.sy - root.ruler;
+            width: root.sw;
+            height: root.ruler;
+            accessible-role: none;
+            for t in [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]: Rectangle {
+                x: t * root.sw / 100;
+                width: 1px;
+                y: parent.height - (t == 50 ? 8px : 5px);
+                height: t == 50 ? 8px : 5px;
+                background: Theme.faint;
+                if t > 0: Text {
+                    x: 3px;
+                    y: -parent.y + 1px;
+                    text: t;
+                    color: Theme.faint;
+                    font-family: Theme.font;
+                    font-size: 9px;
+                }
+            }
+        }
+        if root.show-grid: ruler-left := Rectangle {
+            x: root.sx - root.ruler;
+            y: root.sy;
+            width: root.ruler;
+            height: root.sh;
+            accessible-role: none;
+            for t in [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]: Rectangle {
+                y: t * root.sh / 100;
+                height: 1px;
+                x: parent.width - (t == 50 ? 8px : 5px);
+                width: t == 50 ? 8px : 5px;
+                background: Theme.faint;
+                if t > 0: Text {
+                    x: -parent.x + 1px;
+                    y: 2px;
+                    text: t;
+                    color: Theme.faint;
+                    font-family: Theme.font;
+                    font-size: 9px;
+                }
+            }
+        }
+
         screen := Rectangle {
             x: root.sx;
             y: root.sy;
@@ -89,12 +141,31 @@ export component StageCanvas inherits Rectangle {
             accessible-role: groupbox;
             accessible-label: @tr("Stage screen");
 
+            if root.show-grid: Rectangle {
+                for t in [10, 20, 30, 40, 50, 60, 70, 80, 90]: Rectangle {
+                    x: t * root.sw / 100;
+                    width: 1px;
+                    height: root.sh;
+                    background: Theme.line;
+                    opacity: t == 50 ? 0.9 : 0.45;
+                }
+                for t in [10, 20, 30, 40, 50, 60, 70, 80, 90]: Rectangle {
+                    y: t * root.sh / 100;
+                    height: 1px;
+                    width: root.sw;
+                    background: Theme.line;
+                    opacity: t == 50 ? 0.9 : 0.45;
+                }
+            }
+
             for b in root.boxes: box := Rectangle {
                 x: b.x * root.sw / 100;
                 y: b.y * root.sh / 100;
                 width: b.w * root.sw / 100;
                 height: b.h * root.sh / 100;
-                background: b.unknown ? Theme.raise : b.fill;
+                opacity: b.hidden ? 0.4 : 1;
+                background: b.unknown ? Theme.raise : b.shape == 2 || b.shape == 3 ? transparent : b.fill;
+                border-radius: b.shape == 1 ? 10px : 0;
                 border-color: b.selected ? Theme.accent : Theme.dash;
                 border-width: b.selected ? 2px : 1px;
                 clip: true;
@@ -110,6 +181,19 @@ export component StageCanvas inherits Rectangle {
                     stroke: Theme.faint;
                     stroke-width: 1px;
                     commands: "M 0 20 L 20 0 M 0 50 L 50 0 M 0 80 L 80 0 M 10 100 L 100 10 M 40 100 L 100 40 M 70 100 L 100 70";
+                }
+                if b.shape == 2: Path {
+                    width: parent.width;
+                    height: parent.height;
+                    viewbox-width: 100;
+                    viewbox-height: 100;
+                    fill: b.fill;
+                    commands: "M 0 50 A 50 50 0 1 0 100 50 A 50 50 0 1 0 0 50 Z";
+                }
+                if b.shape == 3: Rectangle {
+                    y: (parent.height - self.height) / 2;
+                    height: 3px;
+                    background: b.color;
                 }
                 // Under the name tab, using the whole box like the stage does.
                 sample := Text {
@@ -135,7 +219,7 @@ export component StageCanvas inherits Rectangle {
                     height: 14px;
                     background: b.selected ? Theme.accent : Theme.caption-bg;
                     name := Text {
-                        text: b.name;
+                        text: b.locked && b.hidden ? @tr("{} · locked · hidden", b.name) : b.locked ? @tr("{} · locked", b.name) : b.hidden ? @tr("{} · hidden", b.name) : b.name;
                         color: b.selected ? Theme.accent-ink : Theme.text;
                         font-family: Theme.font;
                         font-size: 10px;
@@ -156,7 +240,7 @@ export component StageCanvas inherits Rectangle {
 
             // The chosen box's eight handles.
             for b in root.boxes: Rectangle {
-                if b.selected && !b.unknown && !root.locked: Rectangle {
+                if b.selected && !b.unknown && !root.locked && !b.locked: Rectangle {
                     for h in [
                         { hx: 0.0, hy: 0.0 }, { hx: 0.5, hy: 0.0 }, { hx: 1.0, hy: 0.0 }, { hx: 1.0, hy: 0.5 },
                         { hx: 1.0, hy: 1.0 }, { hx: 0.5, hy: 1.0 }, { hx: 0.0, hy: 1.0 }, { hx: 0.0, hy: 0.5 }

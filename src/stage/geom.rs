@@ -170,7 +170,7 @@ pub fn duplicate_box(els: &mut Vec<Lenient<StageElement>>, id: Uuid, new_id: Uui
     let i = known_at(els, id).ok_or_else(String::new)?;
     if els.len() >= MAX_BOXES { return Err(s::too_many_boxes().into()); }
     let mut copy = els[i].known().cloned().ok_or_else(String::new)?;
-    (copy.id, copy.rect) = (new_id, move_by(copy.rect, GRID, GRID));
+    (copy.id, copy.rect, copy.locked) = (new_id, move_by(copy.rect, GRID, GRID), false);
     els.insert(i + 1, Lenient::Known(copy));
     Ok(new_id)
 }
@@ -237,7 +237,7 @@ mod tests {
     fn r(x: f32, y: f32, w: f32, h: f32) -> PctRect { PctRect::new(x, y, w, h) }
     fn id(n: u128) -> Uuid { Uuid::from_u128(n) }
     fn boxed(n: u128, rect: PctRect, style: ElementStyle) -> Lenient<StageElement> {
-        Lenient::Known(StageElement { id: id(n), kind: ElementKind::ItemTitle, rect, style })
+        Lenient::Known(StageElement { id: id(n), kind: ElementKind::ItemTitle, rect, style, locked: false, hidden: false })
     }
     fn el(rect: PctRect, style: ElementStyle) -> Lenient<StageElement> { boxed(1, rect, style) }
     fn layout_with(elements: Vec<Lenient<StageElement>>) -> StageLayout {
@@ -285,7 +285,7 @@ mod tests {
     fn sanitise_truncates_on_char_boundaries() {
         let mut l = layout_with(vec![Lenient::Known(StageElement {
             id: id(1), kind: ElementKind::Text { text: "🙏".repeat(250) }, rect: R10,
-            style: ElementStyle { caption_text: Some("é".repeat(50)), ..Default::default() } })]);
+            style: ElementStyle { caption_text: Some("é".repeat(50)), ..Default::default() }, locked: false, hidden: false })]);
         l.name = "é".repeat(300);
         assert!(sanitise_layout(&mut l));
         assert_eq!(l.name.chars().count(), 60);

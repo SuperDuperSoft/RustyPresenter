@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title data-t>Stage screen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { color-scheme: dark; --text:#eceef3; --muted:#8d95a8; --accent:#f5b94a; --line:#2a303b; --panel:#171a21; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: var(--text); font: 16px/1.25 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; overflow: hidden; }
+  button { font: inherit; border: 0; cursor: pointer; }
+  /* The 16:9 stage, as big as fits, centred. */
+  #screen { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, calc(100vh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; display: none; }
+  .cell { position: absolute; overflow: hidden; display: flex; flex-direction: column; border-radius: 1cqh; }
+  #screen { container-type: size; }
+  .cell .cap { flex: none; color: #8b93a7; font-size: 2.2cqh; letter-spacing: .12em; text-transform: uppercase; margin: 1.2cqh 1.2cqh 0; }
+  .cell .words { flex: 1; min-height: 0; margin: 1.2cqh; white-space: pre-wrap; overflow-wrap: anywhere; display: flex; flex-direction: column; }
+  .cell img { flex: 1; min-height: 0; width: calc(100% - 2.4cqh); margin: 1.2cqh; object-fit: contain; }
+  .cell.message { background: #f5c66b !important; color: #1a1405 !important; font-weight: 650; }
+  #banner { position: absolute; left: 0; top: 0; right: 0; height: 16cqh; background: #f5c66b; color: #1a1405; font-weight: 700; font-size: 6cqh; display: none; align-items: center; justify-content: center; text-align: center; }
+  .gate { max-width: 380px; margin: 18vh auto 0; padding: 0 22px; text-align: center; display: none; }
+  .gate h1 { font-size: 24px; margin: 0 0 10px; }
+  .gate p { color: var(--muted); margin: 0 0 20px; }
+  .gate input { width: 100%; font-size: 20px; padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--text); outline: 0; }
+  .gate input:focus { border-color: var(--accent); }
+  .gate button { width: 100%; margin-top: 14px; padding: 16px; border-radius: 14px; background: var(--accent); color: #1a1405; font-weight: 800; font-size: 18px; }
+  .err { color: #ff6b6b; margin-top: 14px; min-height: 1.4em; }
+  #lost { position: absolute; right: 12px; bottom: 10px; color: #ff6b6b; font-size: 13px; display: none; }
+</style>
+</head>
+<body>
+<div class="gate" id="login">
+  <h1 data-t>Stage screen</h1>
+  <p data-t>This stage screen needs a password.</p>
+  <input id="pw" type="password" autocomplete="current-password">
+  <button id="open" data-t>Open</button>
+  <div class="err" id="err"></div>
+</div>
+<div class="gate" id="off"><h1 data-t>Stage screen</h1><p id="offText"></p></div>
+<div id="screen"><div id="cells"></div><div id="banner"></div></div>
+<div id="lost" data-t>Not connected</div>
+<script type="module" src="/static/stage-view.js"></script>
+</body>
+</html>

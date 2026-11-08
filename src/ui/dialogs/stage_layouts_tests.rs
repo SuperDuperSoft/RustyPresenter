@@ -206,6 +206,55 @@ fn unknown_box_is_listed_and_can_be_removed_but_not_moved() {
 }
 
 #[test]
+fn a_locked_box_cannot_be_moved_resized_nudged_or_removed() {
+    let (mut ed, id) = with_box(PctRect::new(10.0, 10.0, 20.0, 20.0));
+    ed.set_locked(true);
+    assert!(ed.selected_box().unwrap().locked);
+    ed.press((15.0, 15.0), (1.0, 1.0), false);
+    ed.drag_to((50.0, 50.0));
+    ed.release();
+    ed.press((30.0, 30.0), (1.0, 1.0), false); // the corner handle
+    ed.drag_to((60.0, 60.0));
+    ed.release();
+    ed.nudge(Nudge::Right, false);
+    ed.remove_box();
+    assert_eq!(rect(&ed, id), PctRect::new(10.0, 10.0, 20.0, 20.0));
+    assert_eq!(ed.sel, Some(id), "still chosen, so it can be unlocked");
+    // Its settings still change, and a copy is not locked.
+    ed.set_size(12);
+    assert_eq!(ed.selected_box().unwrap().style.max_size, Some(12.0));
+    ed.duplicate_box().unwrap();
+    assert!(!ed.selected_box().unwrap().locked);
+    ed.select_box(id);
+    ed.set_locked(false);
+    ed.nudge(Nudge::Right, false);
+    assert_eq!(rect(&ed, id).x, 12.5);
+    ed.undo();
+    ed.undo();
+    assert!(ed.selected_box().unwrap().locked, "lock and unlock are undo steps");
+}
+
+#[test]
+fn hide_chords_and_shapes_are_box_settings() {
+    let (mut ed, _) = with_box(PctRect::new(10.0, 10.0, 20.0, 20.0));
+    ed.set_hidden(true);
+    assert!(ed.selected_box().unwrap().hidden);
+    ed.set_kind(1);
+    ed.set_chords(true);
+    assert_eq!(ed.selected_box().unwrap().kind, ElementKind::NextSlide { pictures: false, chords: true });
+    ed.set_kind(13);
+    ed.set_shape(2);
+    assert_eq!(ed.selected_box().unwrap().kind, ElementKind::Shape { shape: ShapeKind::Ellipse });
+    ed.set_color("#ff0000");
+    assert_eq!((ed.selected_box().unwrap().style.fill.as_deref(), ed.selected_box().unwrap().style.color.as_deref()), (Some("#ff0000"), None), "a shape's colour is its fill");
+    ed.set_shape(3);
+    ed.set_color("#00ff00");
+    assert_eq!(ed.selected_box().unwrap().style.color.as_deref(), Some("#00ff00"), "a line's colour is its text colour");
+    let rows = box_rows(&ed);
+    assert_eq!((rows[0].shape, rows[0].hidden, rows[0].locked), (3, true, false));
+}
+
+#[test]
 fn picker_lists_every_layout_with_the_one_on_stage() {
     let o = ours("Ours");
     assert_eq!(picker(&[o.clone()], o.id), (vec!["Classic".into(), "Lyrics only".into(), "Band".into(), "Speaker".into(), "Clock and countdown".into(), "Slides and notes".into(), "Ours".into()], 6));
@@ -263,6 +312,26 @@ fn duplicate_edit_and_save_reaches_the_data() {
     assert_eq!(d.stage_layouts.len(), 1);
     assert_eq!(d.stage_layouts[0].name, "Classic copy");
     assert_eq!(d.stage_layouts[0].elements.len(), 10);
+}
+
+#[test]
+fn lock_hide_and_grid_controls_in_the_window() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    g(&op).invoke_new_layout();
+    g(&op).invoke_add_box(13);
+    settle();
+    assert!(g(&op).get_box_is_shape());
+    click(&op, "BoxPanel::lock-check");
+    assert!(g(&op).get_box_locked());
+    assert!(g(&op).get_boxes().row_data(0).unwrap().locked);
+    click(&op, "BoxPanel::hide-check");
+    assert!(g(&op).get_boxes().row_data(0).unwrap().hidden);
+    assert!(!g(&op).get_show_grid());
+    click(&op, "StageLayoutsDialog::grid-check");
+    assert!(g(&op).get_show_grid());
+    assert!(find(&op, "StageCanvas::ruler-top").is_some());
 }
 
 #[test]

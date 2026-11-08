@@ -6,7 +6,7 @@ use crate::{
     lenient::Lenient,
     render::{color::is_color, parse_color},
     stage::{
-        Align, ElementKind, PctRect, StageElement, StageLayout,
+        Align, ElementKind, PctRect, ShapeKind, StageElement, StageLayout,
         geom::{self, Guide, Handle, Nudge, UndoStack},
         presets, strings as s,
     },
@@ -157,6 +157,7 @@ impl Editor {
 
     pub fn remove_box(&mut self) {
         let Some(id) = self.sel else { return };
+        if self.selected_box().is_some_and(|e| e.locked) { return }
         self.edit(|l, sel| { if geom::delete_box(&mut l.elements, id) { *sel = None } });
     }
 
@@ -169,14 +170,15 @@ impl Editor {
     pub fn press(&mut self, p: (f32, f32), tol: (f32, f32), free: bool) {
         self.drag = None;
         if self.locked() { return }
-        let handle = self.selected_box().and_then(|e| handle_at(e.rect, p, tol).map(|h| (e.id, e.rect, h)));
+        let handle = self.selected_box().filter(|e| !e.locked).and_then(|e| handle_at(e.rect, p, tol).map(|h| (e.id, e.rect, h)));
         if let Some((id, orig, h)) = handle {
             self.drag = Some(Drag { id, handle: Some(h), start: p, orig, before: self.draft.clone(), moved: false, free });
             return;
         }
         self.sel = geom::hit_test(p, &self.current().elements);
         self.last = None;
-        if let Some(e) = self.selected_box() {
+        // N10: a locked box can be chosen but not moved.
+        if let Some(e) = self.selected_box().filter(|e| !e.locked) {
             self.drag = Some(Drag { id: e.id, handle: None, start: p, orig: e.rect, before: self.draft.clone(), moved: false, free });
         }
     }
@@ -204,6 +206,7 @@ impl Editor {
 
     pub fn nudge(&mut self, key: Nudge, shift: bool) {
         let Some(id) = self.sel else { return };
+        if self.selected_box().is_some_and(|e| e.locked) { return }
         self.edit(|l, _| if let Some(e) = l.elements.iter_mut().filter_map(Lenient::known_mut).find(|e| e.id == id) { e.rect = geom::nudge(e.rect, key, shift) });
     }
 
@@ -244,11 +247,38 @@ impl Editor {
         self.edit_box(Field::Size, |e| e.style.max_size = Some(v));
     }
 
-    /// A colour that doesn't read is ignored (the field keeps what was typed).
+    /// A colour that doesn't read is ignored (the field keeps what was typed). A shape's colour is its fill
+    /// (a line's is its text colour).
     pub fn set_color(&mut self, c: &str) {
         let c = c.trim().to_string();
         if !is_color(&c) { return }
-        self.edit_box(Field::Color, |e| e.style.color = Some(c));
+        self.edit_box(Field::Color, |e| if fills(&e.kind) { e.style.fill = Some(c) } else { e.style.color = Some(c) });
+    }
+
+    /// N10: lock the chosen box so it can't be moved, resized or removed by mistake.
+    pub fn set_locked(&mut self, on: bool) { self.edit_selected(|e| e.locked = on) }
+
+    /// N10: keep the chosen box but don't draw it on the stage.
+    pub fn set_hidden(&mut self, on: bool) { self.edit_selected(|e| e.hidden = on) }
+
+    /// N10: a slide box shows the song's chords too.
+    pub fn set_chords(&mut self, on: bool) {
+        self.edit_selected(|e| match &mut e.kind {
+            ElementKind::CurrentSlide { chords, .. } | ElementKind::NextSlide { chords, .. } => *chords = on,
+            _ => {}
+        })
+    }
+
+    /// N10: the chosen shape box's shape, `ShapeKind::ALL[i]`.
+    pub fn set_shape(&mut self, i: usize) {
+        let Some(k) = ShapeKind::ALL.get(i).copied() else { return };
+        self.edit_selected(|e| if let ElementKind::Shape { shape } = &mut e.kind { *shape = k });
+    }
+
+    /// One undo step changing the chosen box (a known one).
+    fn edit_selected(&mut self, f: impl FnOnce(&mut StageElement)) {
+        let Some(id) = self.sel else { return };
+        self.edit(|l, _| if let Some(e) = l.elements.iter_mut().filter_map(Lenient::known_mut).find(|e| e.id == id) { f(e) });
     }
 
     pub fn set_align(&mut self, i: i32) {
@@ -263,6 +293,9 @@ impl Editor {
         self.edit_box(Field::Text, |e| if let ElementKind::Text { text } = &mut e.kind { *text = t });
     }
 }
+
+/// A shape (but not a line) is coloured by its fill.
+fn fills(kind: &ElementKind) -> bool { matches!(kind, ElementKind::Shape { shape } if *shape != ShapeKind::Line) }
 
 /// The handle of `r` under `p`, corners first.
 fn handle_at(r: PctRect, p: (f32, f32), tol: (f32, f32)) -> Option<Handle> {
@@ -315,16 +348,18 @@ pub fn box_rows(ed: &Editor) -> Vec<StageBoxVm> {
                 let st = presets::resolve_style(&e.kind, &e.style);
                 let k = presets::kind_index(&e.kind);
                 let sample = match &e.kind { ElementKind::Text { text } => text.clone(), _ => samples[k].clone() };
+                let shape = match &e.kind { ElementKind::Shape { shape } => shape.index() as i32, _ => -1 };
                 StageBoxVm {
                     id: id.to_string().into(), x: e.rect.x, y: e.rect.y, w: e.rect.w, h: e.rect.h,
                     name: names[k].as_str().into(), sample: sample.into(), color: color(&st.color),
                     fill: st.fill.as_deref().map_or(slint::Color::from_argb_u8(0, 0, 0, 0), color), size: st.max_size,
                     align: match st.align { Align::Left => 0, Align::Center => 1, Align::Right => 2 }, selected, unknown: false,
+                    locked: e.locked, hidden: e.hidden, shape,
                 }
             }
             Lenient::Unknown(v) => {
                 let r = unknown_rect(v)?;
-                StageBoxVm { id: id.to_string().into(), x: r.x, y: r.y, w: r.w, h: r.h, selected, unknown: true, ..Default::default() }
+                StageBoxVm { id: id.to_string().into(), x: r.x, y: r.y, w: r.w, h: r.h, selected, unknown: true, shape: -1, ..Default::default() }
             }
         })
     }).collect()
@@ -355,7 +390,17 @@ fn show(g: &StageLayoutsDlg, ed: &Editor) {
         g.set_box_kind(presets::kind_index(&e.kind) as i32);
         g.set_box_size(st.max_size.round() as i32);
         // Typing a colour is not overwritten while it doesn't read yet.
-        if is_color(&g.get_box_color()) || !ed.typing_color() { g.set_box_color(st.color.as_str().into()) }
+        let shown = if fills(&e.kind) { st.fill.clone().unwrap_or_default() } else { st.color.clone() };
+        if is_color(&g.get_box_color()) || !ed.typing_color() { g.set_box_color(shown.as_str().into()) }
+        g.set_box_locked(e.locked);
+        g.set_box_hidden(e.hidden);
+        let chords = match &e.kind { ElementKind::CurrentSlide { chords, .. } | ElementKind::NextSlide { chords, .. } => Some(*chords), _ => None };
+        g.set_box_is_slide(chords.is_some());
+        g.set_box_chords(chords.unwrap_or(false));
+        let shape = match &e.kind { ElementKind::Shape { shape } => Some(*shape), _ => None };
+        g.set_box_is_shape(shape.is_some());
+        g.set_box_shape(shape.map_or(0, |k| k.index() as i32));
+        g.set_box_fills(fills(&e.kind));
         g.set_box_align(match st.align { Align::Left => 0, Align::Center => 1, Align::Right => 2 });
         let text = match &e.kind { ElementKind::Text { text } => Some(text.clone()), _ => None };
         g.set_box_is_text(text.is_some());
@@ -383,6 +428,8 @@ pub fn open(op: &Rc<Operator>) {
     let help: Vec<SharedString> = s::kind_help().iter().map(|n| n.as_str().into()).collect();
     g.set_kind_names(ModelRc::new(VecModel::from(names)));
     g.set_kind_help(ModelRc::new(VecModel::from(help)));
+    let shapes: Vec<SharedString> = s::shape_names().iter().map(|n| n.as_str().into()).collect();
+    g.set_shape_names(ModelRc::new(VecModel::from(shapes)));
     g.set_error("".into());
     g.set_box_color("".into());
     g.set_box_text("".into());
@@ -422,6 +469,10 @@ fn connect(op: &Rc<Operator>, ed: &Rc<RefCell<Editor>>) {
     on!(on_color_changed, |e, c: SharedString| e.set_color(&c));
     on!(on_align_changed, |e, i: i32| e.set_align(i));
     on!(on_text_edited, |e, t: SharedString| e.set_text(&t));
+    on!(on_locked_changed, |e, v: bool| e.set_locked(v));
+    on!(on_hidden_changed, |e, v: bool| e.set_hidden(v));
+    on!(on_chords_changed, |e, v: bool| e.set_chords(v));
+    on!(on_shape_changed, |e, i: i32| e.set_shape(i.max(0) as usize));
     let toast_err = |op: &Rc<Operator>, r: Result<(), String>| if let Err(e) = r { op.toast(e, true) };
     let (me, ed2) = (Rc::downgrade(op), ed.clone());
     g.on_add_box(move |i| if let Some(op) = me.upgrade() {

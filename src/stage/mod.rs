@@ -40,6 +40,12 @@ pub struct StageElement {
     pub rect: PctRect,
     #[serde(default)]
     pub style: ElementStyle,
+    /// N10: the editor won't move, resize or remove it until it is unlocked.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub locked: bool,
+    /// N10: kept in the layout but not drawn on the stage.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub hidden: bool,
 }
 
 /// A box's place, in % of the window (0..=100).
@@ -98,8 +104,12 @@ pub enum VAlign { Top, Middle, Bottom }
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ElementKind {
     /// The slide on air. `pictures` shows picture slides as pictures; `keep_after_clear` keeps dim words after Clear Slide.
-    CurrentSlide { #[serde(default)] pictures: bool, #[serde(default)] keep_after_clear: bool },
-    NextSlide { #[serde(default)] pictures: bool },
+    /// `chords` (N10) shows a song's chords with its words, as typed in the lyrics (`[G]Amazing`).
+    CurrentSlide {
+        #[serde(default)] pictures: bool, #[serde(default)] keep_after_clear: bool,
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")] chords: bool,
+    },
+    NextSlide { #[serde(default)] pictures: bool, #[serde(default, skip_serializing_if = "std::ops::Not::not")] chords: bool },
     /// The live song section ("Chorus").
     SectionName,
     /// The next song section that differs from the live one.
@@ -114,6 +124,20 @@ pub enum ElementKind {
     MediaTimeLeft,
     StageMessage,
     Text { text: String },
+    /// N10: a picture of the next slide as the room will show it.
+    NextPicture,
+    /// N10: a plain shape in the box's fill colour (lines use the text colour).
+    Shape { #[serde(default)] shape: ShapeKind },
+}
+
+/// N10: the shapes a stage box can be.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ShapeKind { #[default] Rectangle, Rounded, Ellipse, Line }
+
+impl ShapeKind {
+    pub const ALL: [ShapeKind; 4] = [ShapeKind::Rectangle, ShapeKind::Rounded, ShapeKind::Ellipse, ShapeKind::Line];
+    pub fn index(self) -> usize { Self::ALL.iter().position(|k| *k == self).unwrap_or(0) }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -259,7 +283,7 @@ mod tests {
             json!({"id": el, "kind": {"type": "notes", "x": 1}, "rect": r}),
             json!({"id": el, "kind": {"type": "item_title"}, "rect": r, "style": {"shadow": 1}}),
             json!({"id": el, "kind": {"type": "item_title"}, "rect": {"x": 0, "y": 0, "w": 10, "h": 10, "r": 4}}),
-            json!({"id": el, "kind": {"type": "item_title"}, "rect": r, "locked": true}),
+            json!({"id": el, "kind": {"type": "item_title"}, "rect": r, "spin": true}),
         ];
         for e in extended {
             let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [e.clone()]})).unwrap();
@@ -270,6 +294,30 @@ mod tests {
         let plain = json!({"id": el, "kind": {"type": "item_title"}, "rect": {"x": 3, "y": 2, "w": 44, "h": 6}, "style": {"color": null}});
         let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [plain]})).unwrap();
         assert!(matches!(l.elements[0], Lenient::Known(_)));
+    }
+
+    #[test]
+    fn locked_hidden_chords_and_shapes_round_trip_and_old_boxes_stay_plain() {
+        use serde_json::json;
+        let (id, el) = ("00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002");
+        let r = json!({"x": 0.0, "y": 0.0, "w": 10.0, "h": 10.0});
+        let new = json!({"id": id, "name": "X", "elements": [
+            {"id": el, "kind": {"type": "next_slide", "pictures": false, "chords": true}, "rect": r, "style": {}, "locked": true, "hidden": true},
+            {"id": el, "kind": {"type": "shape", "shape": "ellipse"}, "rect": r, "style": {}},
+            {"id": el, "kind": {"type": "next_picture"}, "rect": r, "style": {}}]});
+        let l: StageLayout = serde_json::from_value(new.clone()).unwrap();
+        let e = l.elements[0].known().unwrap();
+        assert!(e.locked && e.hidden);
+        assert_eq!(e.kind, ElementKind::NextSlide { pictures: false, chords: true });
+        assert_eq!(l.elements[1].known().unwrap().kind, ElementKind::Shape { shape: ShapeKind::Ellipse });
+        assert_eq!(l.elements[2].known().unwrap().kind, ElementKind::NextPicture);
+        assert_eq!(serde_json::to_value(&l).unwrap()["elements"], new["elements"]);
+        // An old box writes no new keys.
+        let old = json!({"id": el, "kind": {"type": "next_slide", "pictures": false}, "rect": r, "style": {}});
+        let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [old.clone()]})).unwrap();
+        assert!(!l.elements[0].known().unwrap().locked);
+        assert_eq!(serde_json::to_value(&l).unwrap()["elements"][0], old);
+        assert_eq!(serde_json::from_value::<ElementKind>(json!({"type": "shape"})).unwrap(), ElementKind::Shape { shape: ShapeKind::Rectangle });
     }
 
     #[test]

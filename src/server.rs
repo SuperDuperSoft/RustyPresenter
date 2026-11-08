@@ -130,6 +130,8 @@ struct PairReq {
     /// The one-time secret from the QR code's `#pair=` (instead of the PIN).
     #[serde(default)] pair: String,
     #[serde(default)] name: String,
+    /// N31: the remote's password, when the church set one (Settings → Network).
+    #[serde(default)] password: String,
 }
 
 async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Json(req): Json<PairReq>) -> Response {
@@ -149,10 +151,14 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     };
     let by_qr = !req.pair.trim().is_empty();
     let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
-    if !right {
+    // N31: on top of the code, the remote's password when one is set. A wrong one counts like a wrong code.
+    let needed = app.data.lock().unwrap().settings.network.remote_password.clone();
+    let password_ok = needed.as_deref().is_none_or(|h| crate::network::password::verify(&req.password, h));
+    if !right || !password_ok {
         p.failures += 1;
         if p.failures >= 5 { *pairing = None; return bad(crate::tr!("Too many wrong codes. Start pairing again on the computer.")); }
-        return bad(if by_qr { crate::tr!("That QR code has expired. On the computer, click Pair a phone again.") } else { crate::tr!("That code isn't right.") });
+        if !right { return bad(if by_qr { crate::tr!("That QR code has expired. On the computer, click Pair a phone again.") } else { crate::tr!("That code isn't right.") }) }
+        return bad(crate::network::strings::wrong_password());
     }
     *pairing = None;
     drop(pairing);
@@ -179,7 +185,8 @@ fn i18n_map() -> Value {
 }
 
 async fn remote_status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
-    ok(json!({ "paired": phone_for(&app, &headers).is_some() }))
+    let password = app.data.lock().unwrap().settings.network.remote_password.is_some();
+    ok(json!({ "paired": phone_for(&app, &headers).is_some(), "password": password }))
 }
 
 fn same_origin(headers: &HeaderMap) -> bool {
@@ -400,6 +407,8 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/remote/music", post(remote_music))
         .route("/remote/draw", post(remote_draw))
         .route("/remote/live-slide", get(remote_live_slide))
+        // N31: the stage screen on a phone or tablet.
+        .merge(crate::network::stage_view::routes())
         .with_state(app)
 }
 
@@ -543,7 +552,7 @@ msgstr[1] "{n} Folien"
     #[test]
     fn every_remote_word_is_listed() {
         let m = i18n_map();
-        let js = concat!(include_str!("../web/remote.js"), include_str!("../web/draw.js"));
+        let js = concat!(include_str!("../web/remote.js"), include_str!("../web/draw.js"), include_str!("../web/stage-view.js"));
         let mut asked = Vec::new();
         for (at, _) in js.match_indices("t('") {
             if js[..at].ends_with(|c: char| c.is_alphanumeric() || c == '_' || c == '.') { continue }
@@ -694,6 +703,36 @@ msgstr[1] "{n} Folien"
         let (_, _, v) = pair(&app, 2, json!({ "pair": secret })).await;
         assert_eq!(v["error"], "Too fast — wait a second and try again.");
         assert!(app.pairing.lock().unwrap().is_some());
+    }
+
+    #[tokio::test]
+    async fn a_remote_password_is_needed_on_top_of_the_code_when_set() {
+        let app = lan_app();
+        app.data.lock().unwrap().settings.network.remote_password = Some(crate::network::password::hash("worship"));
+        let st: Value = serde_json::from_slice(&axum::body::to_bytes(remote_status(State(app.clone()), HeaderMap::new()).await.into_body(), usize::MAX).await.unwrap()).unwrap();
+        assert_eq!(st["password"], true, "the page asks for it");
+        let (_, pin, secret) = start(&app).await;
+        let (s, c, v) = pair(&app, 2, json!({ "pin": pin })).await;
+        assert_eq!((s, c, v["error"].as_str()), (StatusCode::BAD_REQUEST, None, Some("That password isn't right.")));
+        let (s, c, _) = pair(&app, 3, json!({ "pair": secret, "password": "praise" })).await;
+        assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        assert_eq!(app.pairing.lock().unwrap().as_ref().unwrap().failures, 2, "wrong passwords count like wrong codes");
+        let (s, c, _) = pair(&app, 4, json!({ "pair": secret, "password": "worship" })).await;
+        assert_eq!(s, StatusCode::OK);
+        assert!(c.is_some());
+        // Without a password set, nothing changes.
+        let app = lan_app();
+        let (_, pin, _) = start(&app).await;
+        assert_eq!(pair(&app, 2, json!({ "pin": pin })).await.0, StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn the_stage_view_is_served_but_off_by_default() {
+        let addr = served(test_app()).await;
+        assert_eq!(status_of(addr, "GET", "/stage-view").await, 200);
+        assert_eq!(status_of(addr, "GET", "/static/stage-view.js").await, 200);
+        assert_eq!(status_of(addr, "GET", "/stage-view/events").await, 401);
+        assert_eq!(status_of(addr, "GET", "/stage-view/next.jpg").await, 401);
     }
 
     #[test]

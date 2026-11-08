@@ -54,6 +54,8 @@ pub enum MenuAction {
     Transfer(super::transfer::Transfer),
     /// File → Start recording, or Stop recording (N22; also the Record button).
     Record,
+    /// Settings → Network… (N31).
+    Network,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -101,6 +103,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "bible-info" => MenuAction::BibleInfo,
         "translations" => MenuAction::Translations,
         "record" => MenuAction::Record,
+        "network" => MenuAction::Network,
         _ => return None,
     })
 }
@@ -145,6 +148,7 @@ impl Operator {
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
             Some(MenuAction::Transfer(t)) => self.transfer(t),
             Some(MenuAction::Record) => self.toggle_recording(),
+            Some(MenuAction::Network) => crate::ui::dialogs::network::open(self),
             None => {}
         }
     }

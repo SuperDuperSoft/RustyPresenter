@@ -236,6 +236,8 @@ pub struct App {
     /// See `LiveView::stage_only`. Gone when the app closes.
     stage_only: Mutex<Option<StageOnly>>,
     pub remote_conns: AtomicUsize,
+    /// N31: stage view sign-ins and the TCP control.
+    pub(crate) net: crate::network::NetState,
     state_writer: Mutex<Option<StateWriter>>,
     /// Numbers saved states, newest highest.
     state_seq: AtomicU64,
@@ -309,7 +311,7 @@ impl App {
             store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
-            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0),
+            room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0), net: Default::default(),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
@@ -1337,6 +1339,8 @@ impl App {
                 s.recent_files = std::mem::take(&mut d.settings.recent_files);
                 s.bible_history = std::mem::take(&mut d.settings.bible_history);
                 s.look_fade_ms = s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS);
+                // N31: only `network/save` changes these (it hashes the passwords).
+                s.network = std::mem::take(&mut d.settings.network);
                 d.settings = s;
                 Ok(())
             }));
@@ -1605,6 +1609,7 @@ impl App {
         a if crate::automation::actions::handles(a) => crate::automation::actions::run(app, a, body).await,
         a if crate::transfer::handles(a) => crate::transfer::run(app, a, body).await,
         a if crate::media_care::handles(a) => crate::media_care::run(app, a, body).await,
+        a if crate::network::actions::handles(a) => crate::network::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

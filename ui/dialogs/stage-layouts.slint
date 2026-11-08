@@ -4,7 +4,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, TopBtn, Segmented } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, Lbl, Select, RangeSlider, Note } from "form.slint";
+import { TextField, Lbl, Select, RangeSlider, Note, Check } from "form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
 import { StageCanvas, StageBoxVm, StageGuideVm } from "stage-canvas.slint";
 
@@ -37,6 +37,17 @@ export global StageLayoutsDlg {
     in-out property <int> box-align: 1;
     in-out property <string> box-text;
     in property <bool> box-is-text;
+    // N10: lock, hide, chords on slide boxes, a shape's shape; `box-fills` = the colour is the shape's fill.
+    in-out property <bool> box-locked;
+    in-out property <bool> box-hidden;
+    in property <bool> box-is-slide;
+    in-out property <bool> box-chords;
+    in property <bool> box-is-shape;
+    in-out property <int> box-shape;
+    in property <bool> box-fills;
+    in property <[string]> shape-names;
+    /// N10: the grid and rulers on the picture.
+    in-out property <bool> show-grid;
     // The top bar's picker: every layout's name and which one is on stage.
     in property <[string]> picker-names;
     in property <int> picker-current: -1;
@@ -63,6 +74,10 @@ export global StageLayoutsDlg {
     callback color-changed(string);
     callback align-changed(int);
     callback text-edited(string);
+    callback locked-changed(bool);
+    callback hidden-changed(bool);
+    callback chords-changed(bool);
+    callback shape-changed(int);
     callback cancel();
     callback save();
     // The top bar's picker.
@@ -219,8 +234,9 @@ component BoxPanel inherits VerticalLayout {
         Text {
             x: 10px;
             width: parent.width - 20px;
-            text: b.unknown ? @tr("Needs a newer RustyPresenter") : b.name;
-            color: b.unknown ? Theme.muted : Theme.text;
+            text: b.unknown ? @tr("Needs a newer RustyPresenter")
+                : b.locked && b.hidden ? @tr("{} · locked · hidden", b.name) : b.locked ? @tr("{} · locked", b.name) : b.hidden ? @tr("{} · hidden", b.name) : b.name;
+            color: b.unknown || b.hidden ? Theme.muted : Theme.text;
             font-family: Theme.font;
             font-size: 13px;
             overflow: elide;
@@ -244,7 +260,7 @@ component BoxPanel inherits VerticalLayout {
             small: true;
             icon: "trash";
             text: @tr("Remove");
-            enabled: !StageLayoutsDlg.locked && StageLayoutsDlg.has-box;
+            enabled: !StageLayoutsDlg.locked && StageLayoutsDlg.has-box && !StageLayoutsDlg.box-locked;
             clicked => { StageLayoutsDlg.remove-box(); }
         }
     }
@@ -285,11 +301,35 @@ component BoxPanel inherits VerticalLayout {
     Rectangle { height: 8px; }
     if StageLayoutsDlg.has-box && !StageLayoutsDlg.box-unknown && !StageLayoutsDlg.locked: VerticalLayout {
         spacing: 6px;
+        lock-check := Check {
+            text: @tr("Locked (can't be moved by mistake)");
+            checked <=> StageLayoutsDlg.box-locked;
+            toggled(v) => { StageLayoutsDlg.locked-changed(v); }
+        }
+        hide-check := Check {
+            text: @tr("Hidden on the stage");
+            checked <=> StageLayoutsDlg.box-hidden;
+            toggled(v) => { StageLayoutsDlg.hidden-changed(v); }
+        }
         Lbl { label: @tr("Shows"); }
         kind := Select {
             options: StageLayoutsDlg.kind-names;
             index <=> StageLayoutsDlg.box-kind;
             changed(i) => { StageLayoutsDlg.kind-changed(i); }
+        }
+        if StageLayoutsDlg.box-is-slide: chords-check := Check {
+            text: @tr("Show chords (typed in the lyrics like [G])");
+            checked <=> StageLayoutsDlg.box-chords;
+            toggled(v) => { StageLayoutsDlg.chords-changed(v); }
+        }
+        if StageLayoutsDlg.box-is-shape: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Shape"); }
+            shape := Select {
+                options: StageLayoutsDlg.shape-names;
+                index <=> StageLayoutsDlg.box-shape;
+                changed(i) => { StageLayoutsDlg.shape-changed(i); }
+            }
         }
         if StageLayoutsDlg.box-is-text: VerticalLayout {
             spacing: 6px;
@@ -299,14 +339,14 @@ component BoxPanel inherits VerticalLayout {
                 edited(t) => { StageLayoutsDlg.text-edited(t); }
             }
         }
-        Lbl { label: @tr("Biggest text ({}%)", StageLayoutsDlg.box-size); }
-        size := RangeSlider {
+        if !StageLayoutsDlg.box-is-shape: Lbl { label: @tr("Biggest text ({}%)", StageLayoutsDlg.box-size); }
+        if !StageLayoutsDlg.box-is-shape: size := RangeSlider {
             minimum: 2;
             maximum: 40;
             value <=> StageLayoutsDlg.box-size;
             changed(v) => { StageLayoutsDlg.size-changed(v); }
         }
-        Lbl { label: @tr("Text colour"); }
+        Lbl { label: StageLayoutsDlg.box-fills ? @tr("Colour") : @tr("Text colour"); }
         HorizontalLayout {
             spacing: 6px;
             alignment: start;
@@ -318,12 +358,12 @@ component BoxPanel inherits VerticalLayout {
             Swatch { hex: "#7ee08a"; shade: #7ee08a; picked(h) => { StageLayoutsDlg.color-changed(h); } }
         }
         color := TextField {
-            label: @tr("Text colour");
+            label: StageLayoutsDlg.box-fills ? @tr("Colour") : @tr("Text colour");
             text <=> StageLayoutsDlg.box-color;
             edited(t) => { StageLayoutsDlg.color-changed(t); }
         }
-        Lbl { label: @tr("Alignment"); }
-        HorizontalLayout {
+        if !StageLayoutsDlg.box-is-shape: Lbl { label: @tr("Alignment"); }
+        if !StageLayoutsDlg.box-is-shape: HorizontalLayout {
             alignment: start;
             align := Segmented {
                 labels: [@tr("Left"), @tr("Centre"), @tr("Right")];
@@ -363,6 +403,11 @@ export component StageLayoutsDialog inherits VerticalLayout {
                         enabled: StageLayoutsDlg.can-redo;
                         clicked => { StageLayoutsDlg.redo(); }
                     }
+                    grid-check := Check {
+                        padding-bottom: 0;
+                        text: @tr("Grid");
+                        checked <=> StageLayoutsDlg.show-grid;
+                    }
                     hint := SmallText {
                         horizontal-stretch: 1;
                         vertical-alignment: center;
@@ -377,6 +422,7 @@ export component StageLayoutsDialog inherits VerticalLayout {
                     guides: StageLayoutsDlg.guides;
                     screen-bg: StageLayoutsDlg.screen-bg;
                     locked: StageLayoutsDlg.locked;
+                    show-grid: StageLayoutsDlg.show-grid;
                     press(x, y, tx, ty, free) => { StageLayoutsDlg.press(x, y, tx, ty, free); }
                     drag(x, y) => { StageLayoutsDlg.drag(x, y); }
                     release => { StageLayoutsDlg.release(); }

@@ -59,21 +59,37 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 
 /// What the window draws: the live view, the stage layout and the live item's slides (for "next section").
 #[derive(Clone)]
-struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView> }
+struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView>, next_picture: Option<super::thumbs::Pixels> }
 
 /// The layout on stage is the church's stage default (Classic when it names no layout), built-in or the church's own.
-fn read(app: &App, live: LiveUpdate) -> Shown {
+fn read(app: &App, live: LiveUpdate, pictures: &NextPictures) -> Shown {
     let layout = {
         let d = app.data.lock().unwrap();
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
-    Shown { live, layout, slides, timers: app.timers() }
+    let wants = layout.elements.iter().filter_map(|e| e.known()).any(|e| e.kind == stage::ElementKind::NextPicture && !e.hidden);
+    let next_picture = wants.then(|| pictures.get(app, live.version));
+    Shown { live, layout, slides, timers: app.timers(), next_picture }
+}
+
+/// N10: the next slide's picture, drawn again only when the live view changes. Off the UI thread.
+#[derive(Default)]
+struct NextPictures { last: Mutex<Option<(u64, super::thumbs::Pixels)>>, renderer: super::thumbs::TextRenderer }
+
+impl NextPictures {
+    fn get(&self, app: &App, version: u64) -> super::thumbs::Pixels {
+        let mut last = self.last.lock().unwrap();
+        if let Some((v, px)) = last.as_ref() && *v == version { return px.clone() }
+        let px = super::thumbs::next_slide(app, (640, 360), &self.renderer);
+        *last = Some((version, px.clone()));
+        px
+    }
 }
 
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
 #[derive(Default)]
-struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState> }
+struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState>, pictures: NextPictures }
 
 #[derive(Hash, PartialEq, Eq)]
 struct FitKey { text: String, w: i32, h: i32, bold: bool, max: i32, min: i32 }
@@ -134,7 +150,8 @@ fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
     drop(state);
     ui.set_bg(color(&v.background));
     ui.set_banner(v.message_fallback.unwrap_or_default().into());
-    let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c)).collect();
+    let picture = shown.next_picture.clone().map(slint::Image::from_rgba8).unwrap_or_default();
+    let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c, &picture)).collect();
     let model = ui.get_cells();
     match model.as_any().downcast_ref::<VecModel<StageCellVm>>() {
         Some(m) if m.row_count() == rows.len() => {
@@ -146,27 +163,33 @@ fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
 }
 
 /// One box for the window, its words sized to fit. Empty boxes are not drawn.
-fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell) -> Option<StageCellVm> {
+fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture: &slint::Image) -> Option<StageCellVm> {
+    let st = &c.style;
+    let base = || StageCellVm {
+        x: c.rect.x, y: c.rect.y, w: c.rect.w, h: c.rect.h, color: color(&st.color),
+        fill: st.fill.as_deref().map_or(slint::Color::from_argb_u8(0, 0, 0, 0), color), shape: -1, ..Default::default()
+    };
     let (text, caption, dim, red, message) = match &c.content {
         CellContent::Empty => return None,
+        CellContent::Shape { shape } => return Some(StageCellVm { shape: shape.index() as i32, ..base() }),
+        CellContent::NextPicture { caption } => return Some(StageCellVm {
+            caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, picture: next_picture.clone(), ..base()
+        }),
         CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
         // Pictures on stage are not drawn yet: the box names the slide instead.
         CellContent::Picture { caption, .. } => (s::slide_picture(), caption.clone().unwrap_or_default(), false, false, false),
         CellContent::Message { text } => (text.clone(), String::new(), false, false, true),
     };
-    let st = &c.style;
     let bold = st.bold || message;
     let size = fit_cell(ui, screen, &text, c, !caption.is_empty(), bold);
     Some(StageCellVm {
-        x: c.rect.x, y: c.rect.y, w: c.rect.w, h: c.rect.h,
         text: text.into(),
         caption: caption.to_uppercase().into(),
-        color: color(&st.color),
-        fill: st.fill.as_deref().map_or(slint::Color::from_argb_u8(0, 0, 0, 0), color),
         size,
         align: match st.align { Align::Left => 0, Align::Center => 1, Align::Right => 2 },
         valign: match st.valign { VAlign::Top => 0, VAlign::Middle => 1, VAlign::Bottom => 2 },
         bold, dim, red, message,
+        ..base()
     })
 }
 
@@ -236,7 +259,7 @@ impl Stage {
         tick(&ui, &screen);
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();
-        show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view())));
+        show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen.pictures));
         ui.set_connected(true);
         ui.show().map_err(|e| crate::tr!("Could not open the stage screen: {error}", error = e))?;
         if let Some(m) = &monitor {
@@ -331,7 +354,7 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: s
             }
         };
         if closed.load(Ordering::Relaxed) { return; }
-        let shown = read(&app, update);
+        let shown = read(&app, update, &screen.pictures);
         if latest.lock().unwrap().replace(shown).is_some() { continue; } // already queued: it will draw this one
         let (latest, screen) = (latest.clone(), screen.clone());
         let sent = ui.upgrade_in_event_loop(move |ui| if let Some(s) = latest.lock().unwrap().take() { show(&ui, &screen, s) });
@@ -555,7 +578,7 @@ mod tests {
         let ours = crate::stage::StageLayout {
             id: Uuid::new_v4(), name: "Ours".into(), background: "#102030".into(), font: String::new(),
             elements: vec![crate::lenient::Lenient::Known(crate::stage::StageElement {
-                id: Uuid::new_v4(), kind: crate::stage::ElementKind::ItemTitle, rect: crate::stage::PctRect::new(10.0, 20.0, 50.0, 10.0), style: Default::default(),
+                id: Uuid::new_v4(), kind: crate::stage::ElementKind::ItemTitle, rect: crate::stage::PctRect::new(10.0, 20.0, 50.0, 10.0), style: Default::default(), locked: false, hidden: false,
             })],
         };
         let app = app_with_layout(ours.id);
@@ -595,9 +618,32 @@ mod tests {
         let long = "Amazing grace how sweet the sound that saved a wretch like me, I once was lost but now am found, was blind but now I see. ".repeat(3);
         v.slide.as_mut().unwrap().content = SlideContent::Text { text: long.clone(), footer: None, reference: None, size: 0, parallel: None };
         let screen = StageScreen::default();
-        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default() });
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default(), next_picture: None });
         let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
         assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn shapes_and_the_next_slide_picture_are_drawn_and_hidden_boxes_are_not() {
+        use crate::stage::{ElementKind, ShapeKind, StageElement, PctRect};
+        i_slint_backend_testing::init_no_event_loop();
+        let el = |n: u128, kind, hidden| crate::lenient::Lenient::Known(StageElement {
+            id: Uuid::from_u128(n), kind, rect: PctRect::new(0.0, 0.0, 40.0, 40.0), style: Default::default(), locked: false, hidden,
+        });
+        let ours = crate::stage::StageLayout {
+            id: Uuid::new_v4(), name: "Ours".into(), background: "#000000".into(), font: String::new(),
+            elements: vec![el(1, ElementKind::Shape { shape: ShapeKind::Ellipse }, false), el(2, ElementKind::NextPicture, false), el(3, ElementKind::ItemTitle, true)],
+        };
+        let app = app_with_layout(ours.id);
+        app.data.lock().unwrap().stage_layouts.push(ours);
+        let stage = Stage::open(app, None).unwrap();
+        let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+        assert_eq!(cells.len(), 2, "the hidden title is not drawn");
+        assert_eq!((cells[0].shape, cells[0].has_picture), (2, false));
+        assert_eq!((cells[1].shape, cells[1].has_picture, cells[1].caption.as_str()), (-1, true, "NEXT"));
+        let size = cells[1].picture.size();
+        assert_eq!((size.width, size.height), (640, 360));
         stage.ui.hide().unwrap();
     }
 

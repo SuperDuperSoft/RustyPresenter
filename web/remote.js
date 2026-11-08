@@ -61,6 +61,8 @@ async function pairFromLink() {
   if (!m) return false;
   const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
   if (st.paired) return false;
+  // N31: with a password the QR code still saves typing the code; the password is asked first.
+  if (st.password) { qrSecret = m[1]; return false; }
   const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pair: m[1], name: phoneName() }) }).catch(() => null);
   if (r && r.ok) { toast(t('Connected'), true); return false; }
   await start();
@@ -68,21 +70,34 @@ async function pairFromLink() {
   return true;
 }
 
+let qrSecret = null;
+
 async function start() {
   const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
   if (st.paired) { $('pair').style.display = 'none'; $('app').style.display = 'flex'; connect(); }
-  else { $('pair').style.display = 'block'; $('app').style.display = 'none'; setTimeout(() => $('pin').focus(), 50); }
+  else {
+    $('pair').style.display = 'block'; $('app').style.display = 'none';
+    // N31: the password field when the church set one; the code field unless the QR code gave the secret.
+    for (const id of ['pw', 'pwHelp']) $(id).style.display = st.password ? 'block' : 'none';
+    $('pin').style.display = qrSecret ? 'none' : 'block';
+    $('pw').placeholder = t('Password');
+    setTimeout(() => $(qrSecret || !st.password ? 'pin' : 'pw').focus(), 50);
+  }
 }
 
 $('notesBtn').onclick = toggleNotes;
 $('pairBtn').onclick = async () => {
   $('pairErr').textContent = '';
-  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), name: phoneName() }) });
+  const code = qrSecret ? { pair: qrSecret } : { pin: $('pin').value.trim() };
+  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...code, password: $('pw').value, name: phoneName() }) });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) { $('pairErr').textContent = j.error || t('Could not connect.'); return; }
+  if (!r.ok) { $('pairErr').textContent = j.error || t('Could not connect.'); if (j.error === t('That QR code has expired. On the computer, click Pair a phone again.')) { qrSecret = null; start(); } return; }
+  qrSecret = null;
+  $('pw').value = '';
   start();
 };
 $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('pairBtn').click(); });
+$('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('pairBtn').click(); });
 
 function connect() {
   if (es) es.close();

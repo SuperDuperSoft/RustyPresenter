@@ -11,6 +11,7 @@ pub mod background;
 pub mod find_verse;
 pub mod item_edit;
 pub mod music;
+pub mod network;
 pub mod overlays;
 pub mod phone;
 pub mod print;
@@ -86,6 +87,8 @@ pub enum DialogKind {
     Translations,
     /// N13: the walk-in music's songs, shuffle and volume.
     Music,
+    /// N31: Settings → Network… (remote password, stage view on phones, TCP control).
+    Network,
 }
 
 impl DialogKind {
@@ -121,6 +124,7 @@ impl DialogKind {
             DialogKind::QuickSearch => "quick-search",
             DialogKind::Translations => "translations",
             DialogKind::Music => "music",
+            DialogKind::Network => "network",
         }
     }
 }
@@ -243,6 +247,7 @@ impl Operator {
             DialogKind::QuickSearch => quick_search::title(),
             DialogKind::Translations => translation_editor::title(),
             DialogKind::Music => crate::tr!("Walk-in music"),
+            DialogKind::Network => network::title(),
         }
     }
 }

@@ -82,11 +82,14 @@ pub struct Slide {
     /// A song slide's label (N19): "Instrumental", from a `{Instrumental}` line on top of it in the lyrics.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tag: Option<String>,
+    /// N10: a song slide's words with the chords typed in the lyrics (`[G]Amazing [C]grace`), for the stage only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub chords: Option<String>,
 }
 
 impl Slide {
     /// A slide with no notes, no section and no label.
-    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None, tag: None } }
+    pub fn new(label: impl Into<String>, content: SlideContent) -> Self { Self { label: label.into(), content, notes: String::new(), section: None, tag: None, chords: None } }
 }
 
 // ---------- Library ----------
@@ -514,6 +517,9 @@ pub struct Settings {
     /// The stage screen's layout (FEAT-3). A value this version can't read loads as Classic.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub stage: crate::stage::StageSettings,
+    /// N31: phone remote password, stage view on phones, TCP control. Saved only by `network/save`.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub network: crate::network::NetworkSettings,
     /// The Print dialog's choices, remembered.
     pub print: PrintSettings,
     /// How dates are written; `None` = by the computer's region.
@@ -659,6 +665,7 @@ impl Default for Settings {
             parallel_layout: Default::default(),
             ui_language: String::new(),
             stage: Default::default(),
+            network: Default::default(),
             print: PrintSettings::default(),
             date_order: None,
             section_keys: true,

@@ -26,6 +26,7 @@ import { OverlaysDialog } from "dialogs/overlays.slint";
 import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { MusicDialog } from "dialogs/music.slint";
+import { NetworkDialog } from "dialogs/network.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { TranslationEditorDialog } from "dialogs/translation-editor.slint";
@@ -701,6 +702,11 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.menu("overlays"); }
             }
             MenuItem {
+                title: @tr("Network…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("network"); }
+            }
+            MenuItem {
                 title: @tr("Songs…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("settings-songs"); }
@@ -1002,6 +1008,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "quick-search": QuickSearchDialog { window-height: root.height; }
             if root.dialog-kind == "translations": TranslationEditorDialog { window-height: root.height; }
             if root.dialog-kind == "music": MusicDialog {}
+            if root.dialog-kind == "network": NetworkDialog {}
         }
 
         for a in root.ask: AskOverlay {
