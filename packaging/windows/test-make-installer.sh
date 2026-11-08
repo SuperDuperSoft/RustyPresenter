@@ -77,6 +77,10 @@ new_case() {
   cp "$REPO/Cargo.toml" "$REPO/LICENSE-MIT" "$REPO/LICENSE-APACHE" "$REPO/THIRD-PARTY-LICENSES.txt" "$C/repo/"
   cp -r "$REPO/packaging/licenses" "$REPO/packaging/icons" "$C/repo/packaging/"
   cp "$REPO/packaging/pins.env" "$C/repo/packaging/"
+  # Start from the first-run state: the licence texts the installer fills in are still placeholders.
+  for l in mpv-Copyright.txt pdfium-LICENSE.txt; do
+    printf 'RUSTYPRESENTER-LICENCE-PLACEHOLDER\nFilled in by the first installer build.\n' >"$C/repo/packaging/licenses/$l"
+  done
   cp "$REPO/packaging/windows/make-installer.sh" "$REPO/packaging/windows/rustypresenter.nsi" "$C/repo/packaging/windows/"
   echo "exe" >"$C/build/rustypresenter.exe"
   # The exe imports libstdc++, which imports libgcc_s and winpthread; KERNEL32 is Windows' own.
