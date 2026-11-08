@@ -11,10 +11,10 @@ use crate::{
     model::{ItemKind, MediaStatus, ServiceItem, Song, VerseText},
     scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
     sections::{arrangement, strings as song_tr},
-    ui::{ArrAddRow, ItemEdit, operator::{bible, view, window::Operator}},
+    ui::{ArrAddRow, DeckNoteRow, ItemEdit, operator::{bible, view, window::Operator}},
 };
 use serde::Deserialize;
-use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
+use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}};
 use uuid::Uuid;
 
@@ -34,6 +34,8 @@ struct Edit {
     order: Option<(Song, Vec<String>)>,
     /// What each line of the Theme box picks (`None`: the service's).
     themes: Vec<Option<crate::theme::ThemeId>>,
+    /// Deck: its id, its notes as the dialog opened, and the rows of "Speaker notes".
+    deck_notes: Option<(Uuid, Vec<String>, Rc<VecModel<DeckNoteRow>>)>,
 }
 
 /// `+ <label>` buttons per row under the order strip.
@@ -70,6 +72,8 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_looped(false);
     g.set_has_name(false);
     g.set_name("".into());
+    g.set_deck_notes(ModelRc::default());
+    let mut deck_notes = None;
     g.set_not_ready(false);
     g.set_translation("".into());
     g.set_translation_changed(false);
@@ -132,6 +136,12 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             g.set_has_name(true);
             g.set_name(d.title.as_str().into());
             name = Some(Name::Deck { id: d.id, was: d.title.clone() });
+            let rows = Rc::new(VecModel::from((0..d.slides.len()).map(|i| DeckNoteRow {
+                label: crate::tr!("Slide {n}", n = i + 1).into(),
+                notes: d.notes.get(i).map_or("", String::as_str).into(),
+            }).collect::<Vec<_>>()));
+            g.set_deck_notes(ModelRc::from(rows.clone()));
+            deck_notes = Some((d.id, d.notes.clone(), rows));
         },
         // FEAT-6: a blank keeps its notes and background here; a header is renamed from the service list.
         ItemKind::Blank { .. } | ItemKind::Header { .. } | ItemKind::Design { .. } => {}
@@ -145,7 +155,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_theme_options(ModelRc::new(VecModel::from(themes.iter().map(|(l, _)| l.as_str().into()).collect::<Vec<slint::SharedString>>())));
     g.set_theme_index(themes.iter().position(|(_, t)| *t == item.theme).unwrap_or(0) as i32);
     let themes = themes.into_iter().map(|(_, t)| t).collect();
-    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0, order, themes }));
+    let edit = Rc::new(RefCell::new(Edit { item, name, picker, bible, also, also_slot: 0, order, themes, deck_notes }));
 
     op.open_dialog(DialogKind::ItemEdit(id));
     draw_choices(op, &edit);
@@ -157,6 +167,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     op.on_dialog_close(|op| {
         OPEN.with(|o| o.borrow_mut().take());
         op.ui.global::<ItemEdit>().set_choices(ModelRc::default());
+        op.ui.global::<ItemEdit>().set_deck_notes(ModelRc::default());
     });
 }
 
@@ -190,6 +201,13 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_order_remove(move |i| if let (Some(op), Some(e), Ok(i)) = (me.upgrade(), e.upgrade(), usize::try_from(i)) { change_order(&op, &e, |v| arrangement::remove(v, i)) });
     let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
     g.on_order_add(move |label| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { change_order(&op, &e, |v| v.push(label.into())) });
+    let e = Rc::downgrade(edit);
+    g.on_deck_note_edited(move |i, text| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
+        if let Some((_, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
+            row.notes = text;
+            rows.set_row_data(i, row);
+        }
+    });
     g.on_order_drag_data(arr_drag_data);
     g.on_order_drag_index(|d| arr_drag_index(&d));
     g.on_upload(with(|op, edit| {
@@ -437,6 +455,14 @@ pub fn theme_choices(data: &crate::model::Data, item: &ServiceItem) -> Vec<(Stri
     out
 }
 
+/// `deck/notes` when a deck's speaker notes were changed.
+fn deck_notes_call(edit: &Edit) -> Option<(&'static str, serde_json::Value)> {
+    let (id, was, rows) = edit.deck_notes.as_ref()?;
+    let typed: Vec<String> = rows.iter().map(|r| r.notes.to_string()).collect();
+    let typed = crate::model::deck_notes(typed, rows.row_count());
+    (typed != crate::model::deck_notes(was.clone(), rows.row_count())).then(|| ("deck/notes", serde_json::json!({ "id": id, "notes": typed })))
+}
+
 /// `parts.saveName`: a rename when the name changed and is not blank, sent trimmed.
 fn rename(name: &Name, typed: &str) -> Option<(&'static str, serde_json::Value)> {
     let trimmed = typed.trim();
@@ -457,7 +483,8 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>, breaks: bool) {
     if g.get_advance_shown() && !save_advance(op, edit.borrow().item.id) { return }
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
-        (collect(&e, &g), e.name.as_ref().and_then(|n| rename(n, &g.get_name())), e.bible.clone(), e.item.clone())
+        let library: Vec<_> = e.name.as_ref().and_then(|n| rename(n, &g.get_name())).into_iter().chain(deck_notes_call(&e)).collect();
+        (collect(&e, &g), library, e.bible.clone(), e.item.clone())
     };
     let Some(lookup) = relookup(&was, &item, chosen.as_deref()) else { return rename_then_update(op, item, rename, None, breaks) };
     let me = Rc::downgrade(op);
@@ -488,8 +515,8 @@ fn save_advance(op: &Rc<Operator>, item: Uuid) -> bool {
     true
 }
 
-/// The rename (if any), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
-fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'static str, serde_json::Value)>, note: Option<String>, breaks: bool) {
+/// The library changes (rename, speaker notes), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
+fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Vec<(&'static str, serde_json::Value)>, note: Option<String>, breaks: bool) {
     let id = item.id;
     let mut body = serde_json::to_value(&item).unwrap_or_default();
     // `service/update` keeps a key that is not sent: send the usual order as an explicit null.
@@ -511,19 +538,21 @@ fn rename_then_update(op: &Rc<Operator>, item: ServiceItem, rename: Option<(&'st
             }
         });
     };
-    match rename {
-        None => update(op),
-        Some((action, body)) => {
-            let me = Rc::downgrade(op);
-            op.ops().call::<serde_json::Value>(action, body, move |r| {
-                let Some(op) = me.upgrade() else { return };
-                match r {
-                    Ok(_) => update(&op),
-                    Err(e) => op.toast(e, true),
-                }
-            });
+    library_then(op, rename, update);
+}
+
+/// The library changes (rename, speaker notes) one after another, then `then`. A failure stops with a toast.
+fn library_then(op: &Rc<Operator>, mut calls: Vec<(&'static str, serde_json::Value)>, then: impl FnOnce(&Rc<Operator>) + 'static) {
+    if calls.is_empty() { return then(op) }
+    let (action, body) = calls.remove(0);
+    let me = Rc::downgrade(op);
+    op.ops().call::<serde_json::Value>(action, body, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(_) => library_then(&op, calls, then),
+            Err(e) => op.toast(e, true),
         }
-    }
+    });
 }
 
 /// The lookup Save needs first: the passage's reference in the Bible the picker chose and in every Also Bible, when
@@ -1145,7 +1174,7 @@ mod tests {
         assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise");
 
         // Slides: "Name" renames the deck.
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![] };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         refresh(&op);
@@ -1153,6 +1182,34 @@ mod tests {
         type_into(&op, "ItemEditDialog::name-box", "Notices");
         press(&op, "ItemEditDialog::save");
         assert_eq!(app.data.lock().unwrap().decks[0].title, "Notices");
+    }
+
+    #[test]
+    fn deck_speaker_notes_are_edited_per_slide() {
+        let app = test_app();
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()] };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        let boxes = find_all(&op, "ItemEditDialog::deck-note");
+        assert_eq!(boxes.len(), 3, "one box per slide");
+        assert_eq!(boxes[0].accessible_value().unwrap(), "Welcome");
+        assert_eq!(boxes[2].accessible_label().unwrap(), "Slide 3");
+        boxes[2].set_accessible_value("Pray");
+        boxes[0].set_accessible_value("");
+        settle();
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].notes, ["", "", "Pray"]);
+        assert_eq!(op.dialog(), None);
+
+        // Other items show no speaker notes.
+        let text = push(&app, ItemKind::Text { title: "T".into(), body: "b".into() });
+        refresh(&op);
+        open(&op, text);
+        settle();
+        assert!(find_all(&op, "ItemEditDialog::deck-note").is_empty());
     }
 
     #[test]

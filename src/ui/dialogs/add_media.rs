@@ -344,8 +344,8 @@ mod tests {
     #[test]
     fn deck_rows_show_slide_count() {
         let app = test_app();
-        let old = Deck { id: Uuid::new_v4(), title: "Easter".into(), slides: vec!["a.png".into()] };
-        let new = Deck { id: Uuid::new_v4(), title: "Missions".into(), slides: vec!["b.png".into(), "c.png".into(), "d.png".into()] };
+        let old = Deck { id: Uuid::new_v4(), title: "Easter".into(), slides: vec!["a.png".into()], notes: vec![] };
+        let new = Deck { id: Uuid::new_v4(), title: "Missions".into(), slides: vec!["b.png".into(), "c.png".into(), "d.png".into()], notes: vec![] };
         app.data.lock().unwrap().decks.extend([old, new.clone()]);
         let op = opened(&app);
         open_add(&op, AddTab::Deck);
@@ -414,6 +414,7 @@ mod tests {
         settle(&op);
         let on_screen = |text: &str| i_slint_backend_testing::ElementHandle::find_by_accessible_label(&op.ui, text).count();
         assert_eq!((on_screen("Import presentation"), on_screen("Import PowerPoint")), (1, 0));
+        assert_eq!(on_screen("Download it as PowerPoint (.pptx) to keep your speaker notes."), 1, "Google Slides users are told how to keep notes");
         assert_eq!(op.ui.global::<AddState>().get_deck_help(), "", "no converters yet: nothing to say");
     }
 }

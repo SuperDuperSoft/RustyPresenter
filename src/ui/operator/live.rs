@@ -44,6 +44,7 @@ impl Operator {
         ui.set_live_pending(v.pending);
         ui.set_live_what(view::live_what(v).into());
         ui.set_live_notice(v.notice.clone().unwrap_or_default().into());
+        ui.set_live_notes(v.slide.as_ref().map_or("", |s| s.notes.as_str()).into());
         ui.set_live_song(live_song(v));
         if let Some(crate::ui::dialogs::DialogKind::SongEditor { song_id: Some(id), .. }) = self.dialog() {
             ui.global::<crate::ui::SongEditorState>().set_live_song(v.item.as_ref().and_then(|i| i.song_id) == Some(id));
@@ -466,6 +467,20 @@ mod tests {
         v.version += 1;
         op.apply_live(LiveUpdate::new(v));
         assert!(find(&op, "LiveColumn::pending").is_none());
+    }
+
+    #[test]
+    fn live_slide_notes_show_under_the_monitor() {
+        let app = test_app();
+        let op = opened(&app);
+        assert!(find(&op, "LiveColumn::live-notes").is_none());
+        let mut v = app.live_view();
+        let mut slide = crate::model::Slide::new("Slide 1", crate::model::SlideContent::Image { asset: "a.png".into() });
+        slide.notes = "Welcome everyone".into();
+        v.slide = Some(slide);
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v));
+        assert_eq!(label(&op, "LiveColumn::live-notes"), "Notes: Welcome everyone");
     }
 
     #[test]
