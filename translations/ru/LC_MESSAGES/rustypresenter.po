@@ -82,6 +82,10 @@ msgstr "Слайды из картинок"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: в Google Slides выберите Файл → Скачать → Microsoft PowerPoint (.pptx) или PDF, затем импортируйте этот файл сюда. Файлы Keynote и PDF тоже подходят."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "Скачайте его как PowerPoint (.pptx), чтобы сохранить заметки докладчика."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Копировать"
@@ -709,6 +713,14 @@ msgstr "Звук продолжает играть при смене слайд�
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Название в библиотеке"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Заметки докладчика"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Показываются на экране сцены с каждым слайдом"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "обновление…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Заметки: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Рисунок"
 
@@ -2426,6 +2442,10 @@ msgstr "Исправьте текст текущей песни. Экран из
 msgid "Update screen"
 msgstr "Обновить экран"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Следующее"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Назад (← или Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "Далее"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Далее (→, Пробел или Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Следующее"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Убрать со сцены"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Заметки докладчика"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Только экран сцены (зал не увидит)"
 
@@ -3553,6 +3573,14 @@ msgstr "(Играет музыка)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Пусто)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Скрыть заметки докладчика"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Показать заметки докладчика"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4170,7 +4198,7 @@ msgstr "Песня не найдена"
 msgid "Missing media"
 msgstr "Медиа не найдено"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Слайд {n}"
 
@@ -6402,6 +6430,10 @@ msgstr "Проповедник"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Часы и отсчёт"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Слайды и заметки"
 
 #: src/strings/stage.rs
 msgid "Current slide"

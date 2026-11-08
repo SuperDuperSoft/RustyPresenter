@@ -82,6 +82,10 @@ msgstr "사진으로 슬라이드 만들기"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google 프레젠테이션: Google 프레젠테이션에서 파일 → 다운로드 → Microsoft PowerPoint(.pptx) 또는 PDF를 선택한 다음, 그 파일을 여기서 가져오세요. Keynote와 PDF 파일도 사용할 수 있어요."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "발표자 메모를 유지하려면 PowerPoint(.pptx)로 다운로드하세요."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "복사"
@@ -709,6 +713,14 @@ msgstr "슬라이드를 바꿔도 오디오는 계속 재생돼요. 오디오 �
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "라이브러리 이름"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "발표자 메모"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "각 슬라이드와 함께 무대 화면에 표시돼요"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "업데이트 중…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "메모: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "그리기"
 
@@ -2426,6 +2442,10 @@ msgstr "라이브 중인 찬양의 가사를 고쳐요. 원할 때만 화면이 
 msgid "Update screen"
 msgstr "화면 업데이트"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "다음 순서"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "이전(← 또는 Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "다음"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "다음(→, Space 또는 Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "다음 순서"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "무대에서 내리기"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "발표자 메모"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "무대 화면만(예배당에는 안 보여요)"
 
@@ -3553,6 +3573,14 @@ msgstr "(음악 재생 중)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(지움)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "발표자 메모 숨기기"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "발표자 메모 보기"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4162,7 +4190,7 @@ msgstr "없는 찬양"
 msgid "Missing media"
 msgstr "없는 미디어"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "슬라이드 {n}"
 
@@ -6346,6 +6374,10 @@ msgstr "설교자"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "시계 및 카운트다운"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "슬라이드와 메모"
 
 #: src/strings/stage.rs
 msgid "Current slide"

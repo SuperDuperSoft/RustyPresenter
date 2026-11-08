@@ -88,6 +88,10 @@ msgstr ""
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr ""
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr ""
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr ""
@@ -714,6 +718,14 @@ msgstr ""
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
 msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
@@ -2395,6 +2407,10 @@ msgid "updating…"
 msgstr ""
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr ""
 
@@ -3523,6 +3539,10 @@ msgid "Take it off the stage"
 msgstr ""
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr ""
 
@@ -3564,6 +3584,14 @@ msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
 msgstr ""
 
 #: src/i18n/remote_strings.rs
@@ -4178,7 +4206,7 @@ msgstr ""
 msgid "Missing media"
 msgstr ""
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr ""
 
@@ -6387,6 +6415,10 @@ msgstr ""
 
 #: src/strings/stage.rs
 msgid "Clock and countdown"
+msgstr ""
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
 msgstr ""
 
 #: src/strings/stage.rs

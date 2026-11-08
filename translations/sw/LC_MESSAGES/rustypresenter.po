@@ -82,6 +82,10 @@ msgstr "Tengeneza slaidi kutoka picha"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: katika Google Slides chagua File → Download → Microsoft PowerPoint (.pptx) au PDF, kisha leta faili hiyo hapa. Faili za Keynote na PDF zinafaa pia."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "Ipakue kama PowerPoint (.pptx) ili kuhifadhi maelezo ya mzungumzaji."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Nakili"
@@ -709,6 +713,14 @@ msgstr "Sauti inaendelea kucheza unapobadilisha slaidi. Isimamishe kwa Safisha S
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Jina kwenye maktaba"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Maelezo ya mzungumzaji"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Yanaonyeshwa kwenye skrini ya jukwaa pamoja na kila slaidi"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "inasasisha…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Maelezo: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Mchoro"
 
@@ -2426,6 +2442,10 @@ msgstr "Rekebisha maneno ya wimbo ulio hewani. Skrini hubadilika tu utakaposema.
 msgid "Update screen"
 msgstr "Sasisha skrini"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Kinachofuata"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Nyuma (← au Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "Ifuatayo"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Ifuatayo (→, Space au Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kinachofuata"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Iondoe jukwaani"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Maelezo ya mwasilishaji"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Skrini ya jukwaa pekee (ukumbi hautaiona)"
 
@@ -3553,6 +3573,14 @@ msgstr "(Muziki unacheza)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Tupu)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Ficha maelezo ya mwasilishaji"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Onyesha maelezo ya mwasilishaji"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4194,7 @@ msgstr "Wimbo haupo"
 msgid "Missing media"
 msgstr "Midia haipo"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Slaidi {n}"
 
@@ -6374,6 +6402,10 @@ msgstr "Mhubiri"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Saa na kuhesabu"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Slaidi na maelezo"
 
 #: src/strings/stage.rs
 msgid "Current slide"

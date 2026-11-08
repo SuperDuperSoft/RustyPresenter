@@ -74,6 +74,7 @@ async function start() {
   else { $('pair').style.display = 'block'; $('app').style.display = 'none'; setTimeout(() => $('pin').focus(), 50); }
 }
 
+$('notesBtn').onclick = toggleNotes;
 $('pairBtn').onclick = async () => {
   $('pairErr').textContent = '';
   const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), name: phoneName() }) });
@@ -105,11 +106,30 @@ function connect() {
   };
 }
 
+// Presenter notes on or off, remembered on this phone.
+let notesOn = true;
+try { notesOn = localStorage.getItem('rp-notes') !== 'off'; } catch (e) {}
+function renderNotesBtn() { $('notesBtn').textContent = notesOn ? t('Hide presenter notes') : t('Show presenter notes'); $('notesBtn').classList.toggle('on', notesOn); }
+function toggleNotes() {
+  notesOn = !notesOn;
+  try { localStorage.setItem('rp-notes', notesOn ? 'on' : 'off'); } catch (e) {}
+  if (V) render(); else renderNotesBtn();
+}
+
 function render() {
   $('svc').textContent = V.service || t('Service');
   const air = V.on_air;
   $('now').textContent = air.logo ? t('(Logo)') : V.current && (air.slide || air.media) ? V.current.text : air.audio ? t('(Music playing)') : t('(Clear)');
   $('nowLabel').textContent = V.current && (air.slide || air.media) ? V.current.label : '';
+  // A picture slide (PowerPoint, PDF) shows itself; its presenter notes show below when the phone has them on.
+  const shown = V.current && (air.slide || air.media) && !air.logo;
+  const pic = !!(shown && V.current.picture);
+  $('nowImg').closest('.now').classList.toggle('pic', pic);
+  if (pic) { const src = `/remote/live-slide?w=${Math.min(1920, Math.round(innerWidth * (devicePixelRatio || 1)))}&v=${V.version}`; if ($('nowImg')._src !== src) { $('nowImg')._src = src; $('nowImg').src = src; } }
+  const notes = shown ? (V.current.notes || '') : '';
+  $('notesText').textContent = notes;
+  $('pnotes').classList.toggle('on', notesOn && notes !== '');
+  renderNotesBtn();
   renderSections();
   renderAuto();
   // N29: a slide on the stage screen only.

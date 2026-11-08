@@ -34,7 +34,7 @@ fn opens_on_the_stage_default_and_lists_builtins_first() {
     let ed = Editor::new(vec![o.clone()], o.id);
     assert_eq!(ed.layout, o.id);
     let names: Vec<&str> = ed.all().iter().map(|l| l.name.as_str()).collect();
-    assert_eq!(names, ["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Ours"]);
+    assert_eq!(names, ["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Slides and notes", "Ours"]);
     assert!(!ed.locked());
     assert!(Editor::new(vec![], Uuid::new_v4()).locked(), "a default that is gone opens Classic");
 }
@@ -68,7 +68,7 @@ fn new_rename_delete_and_save_body() {
     assert!(ed.current().elements.is_empty());
     ed.rename("  Ours  ");
     assert_eq!(ed.current().name, "Ours");
-    ed.select_layout(5);
+    ed.select_layout(6);
     assert_eq!(ed.current().name, "Old");
     ed.delete();
     assert_eq!(ed.layout, CLASSIC);
@@ -208,7 +208,7 @@ fn unknown_box_is_listed_and_can_be_removed_but_not_moved() {
 #[test]
 fn picker_lists_every_layout_with_the_one_on_stage() {
     let o = ours("Ours");
-    assert_eq!(picker(&[o.clone()], o.id), (vec!["Classic".into(), "Lyrics only".into(), "Band".into(), "Speaker".into(), "Clock and countdown".into(), "Ours".into()], 5));
+    assert_eq!(picker(&[o.clone()], o.id), (vec!["Classic".into(), "Lyrics only".into(), "Band".into(), "Speaker".into(), "Clock and countdown".into(), "Slides and notes".into(), "Ours".into()], 6));
     assert_eq!(picker(&[], Uuid::new_v4()).1, 0);
 }
 
@@ -242,7 +242,7 @@ fn window_menu_opens_the_editor() {
     op.ui.invoke_menu("stage-layouts".into());
     assert_eq!(op.dialog(), Some(DialogKind::StageLayouts));
     assert_eq!(op.ui.get_dialog_title(), "Stage layouts");
-    assert_eq!(g(&op).get_layouts().row_count(), 5);
+    assert_eq!(g(&op).get_layouts().row_count(), 6);
     assert!(g(&op).get_locked());
     assert!(find(&op, "StageLayoutsDialog::canvas").is_some());
 }
@@ -253,7 +253,7 @@ fn duplicate_edit_and_save_reaches_the_data() {
     let op = opened(&app);
     open(&op);
     click(&op, "LayoutList::duplicate-btn");
-    assert_eq!(g(&op).get_layouts().row_count(), 6);
+    assert_eq!(g(&op).get_layouts().row_count(), 7);
     assert!(!g(&op).get_locked());
     g(&op).invoke_add_box(7);
     assert_eq!(g(&op).get_boxes().row_count(), 10, "Classic's nine boxes and the clock");
@@ -277,7 +277,7 @@ fn save_error_keeps_dialog_and_changes() {
     assert_eq!(op.dialog(), Some(DialogKind::StageLayouts));
     assert_eq!(g(&op).get_error(), "There is already a stage layout called “classic”.");
     assert!(app.data.lock().unwrap().stage_layouts.is_empty());
-    assert_eq!(g(&op).get_layouts().row_data(5).unwrap().name, "classic");
+    assert_eq!(g(&op).get_layouts().row_data(6).unwrap().name, "classic");
 }
 
 #[test]
@@ -307,11 +307,11 @@ fn delete_asks_with_what_uses_the_layout() {
     }
     let op = opened(&app);
     open(&op);
-    assert_eq!(g(&op).get_layouts().row_data(5).unwrap().on_stage, true);
+    assert_eq!(g(&op).get_layouts().row_data(6).unwrap().on_stage, true);
     click(&op, "LayoutList::delete-btn");
     assert_eq!(asked(&op).as_deref(), Some("Delete “Band 2”? It is used by the stage default. The default will use Classic."));
     ask::answer(&op, true, String::new());
-    assert_eq!(g(&op).get_layouts().row_count(), 5);
+    assert_eq!(g(&op).get_layouts().row_count(), 6);
     click(&op, "StageLayoutsDialog::save");
     let d = app.data.lock().unwrap();
     assert!(d.stage_layouts.is_empty());
@@ -330,7 +330,7 @@ fn use_on_stage_saves_then_sets_the_default() {
     assert_eq!(d.settings.stage.layout, d.stage_layouts[0].id);
     drop(d);
     assert_eq!(op.dialog(), Some(DialogKind::StageLayouts), "stays open");
-    assert!(g(&op).get_layouts().row_data(5).unwrap().on_stage);
+    assert!(g(&op).get_layouts().row_data(6).unwrap().on_stage);
 }
 
 #[test]
@@ -339,7 +339,7 @@ fn top_bar_picker_sets_the_stage_layout() {
     app.data.lock().unwrap().settings.screens.stage.on = true;
     let op = opened(&app);
     g(&op).invoke_fill_picker();
-    assert_eq!(g(&op).get_picker_names().row_count(), 5);
+    assert_eq!(g(&op).get_picker_names().row_count(), 6);
     assert_eq!(g(&op).get_picker_current(), 0);
     g(&op).invoke_pick(3);
     assert_eq!(app.data.lock().unwrap().settings.stage.layout, SPEAKER);
@@ -356,7 +356,7 @@ fn settings_video_tab_picks_the_stage_layout() {
     let op = opened(&app);
     crate::ui::dialogs::settings::open(&op, crate::ui::dialogs::SettingsTab::Video);
     let s = op.ui.global::<SettingsDlg>();
-    assert_eq!(s.get_stage_layout_names().row_count(), 5);
+    assert_eq!(s.get_stage_layout_names().row_count(), 6);
     assert_eq!(s.get_stage_layout(), 0);
     s.set_stage_layout(2);
     let mut settings = app.data.lock().unwrap().settings.clone();

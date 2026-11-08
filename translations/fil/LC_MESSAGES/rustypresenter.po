@@ -82,6 +82,10 @@ msgstr "Gumawa ng slides mula sa mga larawan"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Microsoft PowerPoint (.pptx) o PDF, saka i-import dito ang file na iyon. Gumagana rin ang mga Keynote at PDF file."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "I-download ito bilang PowerPoint (.pptx) para manatili ang iyong speaker notes."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopyahin"
@@ -709,6 +713,14 @@ msgstr "Patuloy na tumutugtog ang audio habang nagpapalit ka ng slide. Ihinto it
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Pangalan sa library"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Speaker notes"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Ipinapakita sa stage screen kasama ng bawat slide"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "nag-a-update…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Notes: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Drawing"
 
@@ -2426,6 +2442,10 @@ msgstr "Ayusin ang mga salita ng live na kanta. Magbabago lang ang screen kapag 
 msgid "Update screen"
 msgstr "I-update ang screen"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Kasunod"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Bumalik (← o Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "Susunod"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Susunod (→, Space o Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kasunod"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Alisin ito sa stage"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Presenter notes"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Stage screen lang (hindi ito makikita ng silid)"
 
@@ -3553,6 +3573,14 @@ msgstr "(May tumutugtog na musika)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Blangko)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Itago ang presenter notes"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Ipakita ang presenter notes"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4194,7 @@ msgstr "Nawawalang kanta"
 msgid "Missing media"
 msgstr "Nawawalang media"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Slide {n}"
 
@@ -6374,6 +6402,10 @@ msgstr "Tagapagsalita"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Orasan at countdown"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Slides at notes"
 
 #: src/strings/stage.rs
 msgid "Current slide"

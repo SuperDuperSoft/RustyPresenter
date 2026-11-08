@@ -82,6 +82,10 @@ msgstr "Tạo trang chiếu từ hình ảnh"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: trong Google Slides, chọn Tệp → Tải xuống → Microsoft PowerPoint (.pptx) hoặc PDF, rồi nhập tệp đó vào đây. Tệp Keynote và PDF cũng dùng được."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "Hãy tải xuống dưới dạng PowerPoint (.pptx) để giữ ghi chú của người nói."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Sao chép"
@@ -709,6 +713,14 @@ msgstr "Âm thanh vẫn phát khi bạn chuyển trang chiếu. Dừng bằng X�
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Tên trong thư viện"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Ghi chú của người nói"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Hiện trên màn hình sân khấu cùng mỗi trang chiếu"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "đang cập nhật…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Ghi chú: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Vẽ"
 
@@ -2426,6 +2442,10 @@ msgstr "Sửa lời bài hát đang chiếu. Màn hình chỉ thay đổi khi b�
 msgid "Update screen"
 msgstr "Cập nhật màn hình"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Kế tiếp"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Lùi (← hoặc Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "Tiếp"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Tiếp (→, Space hoặc Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kế tiếp"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Gỡ khỏi sân khấu"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Ghi chú người trình bày"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Chỉ màn hình sân khấu (hội trường sẽ không thấy)"
 
@@ -3553,6 +3573,14 @@ msgstr "(Đang phát nhạc)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Trống)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Ẩn ghi chú người trình bày"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Hiện ghi chú người trình bày"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4162,7 +4190,7 @@ msgstr "Thiếu bài hát"
 msgid "Missing media"
 msgstr "Thiếu tệp đa phương tiện"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Trang {n}"
 
@@ -6346,6 +6374,10 @@ msgstr "Diễn giả"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Đồng hồ và đếm ngược"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Trang chiếu và ghi chú"
 
 #: src/strings/stage.rs
 msgid "Current slide"

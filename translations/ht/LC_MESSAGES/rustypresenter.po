@@ -82,6 +82,10 @@ msgstr "Fè diapo ak foto"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Microsoft PowerPoint (.pptx) oswa PDF, epi enpòte fichye sa a isit la. Fichye Keynote ak PDF mache tou."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "Telechaje l kòm PowerPoint (.pptx) pou w kenbe nòt oratè yo."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopye"
@@ -709,6 +713,14 @@ msgstr "Son an kontinye jwe pandan ou chanje diapo. Kanpe l ak Efase Son (F4) os
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Non nan bibliyotèk"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Nòt oratè"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Parèt sou ekran sèn nan ak chak slide"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "ap mete ajou…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Nòt: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Desen"
 
@@ -2426,6 +2442,10 @@ msgstr "Korije mo chante k ap pase a. Ekran an chanje sèlman lè ou di l."
 msgid "Update screen"
 msgstr "Mete ekran ajou"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Apre sa"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Retounen (← oswa Page Up)"
@@ -2437,10 +2457,6 @@ msgstr "Pwochen"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Pwochen (→, Espas oswa Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Apre sa"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Retire l sou sèn nan"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Nòt prezantatè"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Ekran sèn sèlman (sal la p ap wè l)"
 
@@ -3553,6 +3573,14 @@ msgstr "(Mizik ap jwe)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Vid)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Kache nòt prezantatè yo"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Montre nòt prezantatè yo"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4194,7 @@ msgstr "Chante ki manke"
 msgid "Missing media"
 msgstr "Medya ki manke"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Diapo {n}"
 
@@ -6374,6 +6402,10 @@ msgstr "Predikatè"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Lè ak kont alanvè"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Slide ak nòt"
 
 #: src/strings/stage.rs
 msgid "Current slide"

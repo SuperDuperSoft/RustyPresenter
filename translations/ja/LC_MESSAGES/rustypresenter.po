@@ -82,6 +82,10 @@ msgstr "画像からスライドを作成"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google スライド: Google スライドで「ファイル → ダウンロード → Microsoft PowerPoint (.pptx)」または PDF を選び、そのファイルをここで取り込んでください。Keynote や PDF ファイルも使えます。"
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "発表者のメモを残すには、PowerPoint (.pptx) としてダウンロードしてください。"
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "コピー"
@@ -709,6 +713,14 @@ msgstr "スライドを切り替えても音声は再生を続けます。「音
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "ライブラリでの名前"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "発表者のメモ"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "各スライドと一緒にステージ画面に表示されます"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "更新中…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "メモ: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "書き込み"
 
@@ -2426,6 +2442,10 @@ msgstr "ライブ中の曲の歌詞を修正します。画面は指示するま
 msgid "Update screen"
 msgstr "画面を更新"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "次の項目"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "戻る（← または Page Up）"
@@ -2437,10 +2457,6 @@ msgstr "次へ"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "次へ（→、Space、または Page Down）"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "次の項目"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "ステージから取り下げる"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "発表者メモ"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "ステージ画面のみ（会場には表示されません）"
 
@@ -3553,6 +3573,14 @@ msgstr "（音楽再生中）"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "（クリア）"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "発表者メモを隠す"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "発表者メモを表示"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4162,7 +4190,7 @@ msgstr "曲が見つかりません"
 msgid "Missing media"
 msgstr "メディアが見つかりません"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "スライド {n}"
 
@@ -6346,6 +6374,10 @@ msgstr "説教者"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "時計とカウントダウン"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "スライドとメモ"
 
 #: src/strings/stage.rs
 msgid "Current slide"

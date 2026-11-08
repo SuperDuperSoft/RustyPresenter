@@ -81,10 +81,12 @@ pub fn label(slide: &Slide) -> String {
     }
 }
 
-/// A slide's words, or its picture when the box shows pictures.
+/// A slide's words, or its picture. A slide that is a picture (PowerPoint, PDF, Keynote) always shows as
+/// one: its name alone tells the stage nothing. Background pictures show only when the box asks.
 fn slide_content(slide: &Slide, pictures: bool, caption: Option<String>) -> CellContent {
     match &slide.content {
-        SlideContent::Image { asset } | SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
+        SlideContent::Image { asset } => CellContent::Picture { asset: asset.clone(), caption },
+        SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
         _ => CellContent::text(label(slide), caption),
     }
 }
@@ -303,11 +305,15 @@ mod tests {
     }
 
     #[test]
-    fn classic_picture_slide_shows_label_and_pictures_option_shows_picture() {
+    fn picture_slides_always_show_as_pictures_on_stage() {
         let pic = slide(SlideContent::Image { asset: "a.png".into() });
         let mut v = song_view(&[pic.clone()], 0);
         v.frame.media = Some(Inst { inst: 1, v: MediaLayer::Still { asset: "a.png".into() } });
-        assert_eq!(words(&only(&v, &[], CUR)), ("(slide picture)", false));
+        assert_eq!(only(&v, &[], CUR), CellContent::Picture { asset: "a.png".into(), caption: None }, "a PowerPoint slide shows itself, not its name");
+        let still = slide(SlideContent::Still { asset: "s.jpg".into() });
+        v.slide = Some(still);
+        assert_eq!(words(&only(&v, &[], CUR)), ("(picture)", false), "a background picture still needs the option");
+        v.slide = Some(pic);
         let with = only(&v, &[], ElementKind::CurrentSlide { pictures: true, keep_after_clear: false });
         assert_eq!(with, CellContent::Picture { asset: "a.png".into(), caption: None });
         let video = slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: EndAction::Stop });

@@ -82,6 +82,10 @@ msgstr "Crear diapositivas con imágenes"
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: en Google Slides elige Archivo → Descargar → Microsoft PowerPoint (.pptx) o PDF, y luego importa ese archivo aquí. También funcionan los archivos de Keynote y PDF."
 
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr "Descárgalo como PowerPoint (.pptx) para conservar tus notas del orador."
+
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Copiar"
@@ -709,6 +713,14 @@ msgstr "El audio sigue sonando mientras cambias de diapositiva. Detenlo con Limp
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Nombre en la biblioteca"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr "Notas del orador"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr "Se muestran en la pantalla del escenario con cada diapositiva"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -2383,6 +2395,10 @@ msgid "updating…"
 msgstr "actualizando…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Notas: {}"
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Dibujo"
 
@@ -2426,6 +2442,10 @@ msgstr "Corrige la letra de la canción en vivo. La pantalla cambia solo cuando 
 msgid "Update screen"
 msgstr "Actualizar pantalla"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "A continuación"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Atrás (← o Re Pág)"
@@ -2437,10 +2457,6 @@ msgstr "Siguiente"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Siguiente (→, Espacio o Av Pág)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "A continuación"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3527,10 @@ msgid "Take it off the stage"
 msgstr "Quitarla del escenario"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr "Notas del presentador"
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Solo pantalla del escenario (la sala no la verá)"
 
@@ -3553,6 +3573,14 @@ msgstr "(Música sonando)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Pantalla vacía)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr "Ocultar notas del presentador"
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr "Mostrar notas del presentador"
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4194,7 @@ msgstr "Falta la canción"
 msgid "Missing media"
 msgstr "Falta el archivo multimedia"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Diapositiva {n}"
 
@@ -6374,6 +6402,10 @@ msgstr "Predicador"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Reloj y cuenta regresiva"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr "Diapositivas y notas"
 
 #: src/strings/stage.rs
 msgid "Current slide"
