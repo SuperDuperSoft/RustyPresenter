@@ -197,7 +197,9 @@ impl Operator {
             self.fill_grid();
             self.draw_thumbs();
         } else if acts_changed {
-            self.fill_grid();
+            // In place, so the grid keeps its rows.
+            let n = self.slides.borrow().built.as_ref().map_or(0, |k| k.slides.len());
+            for i in 0..n { self.set_cell(i) }
         }
         self.mark_slides();
     }

@@ -8,7 +8,6 @@ use crate::ui::dialogs::automation::step_label;
 use serde_json::{Value, json};
 use slint::{ComponentHandle, DataTransfer, ModelRc, SharedString, VecModel};
 use std::rc::{Rc, Weak};
-use uuid::Uuid;
 
 /// A dragged tile: plain text `act:` and its steps as JSON.
 const DRAG_PREFIX: &str = "act:";
@@ -48,7 +47,7 @@ pub(super) fn render(op: &Operator) {
     let Some(snap) = st.snap.as_ref() else { return };
     let item = st.selected.and_then(|id| snap.items.iter().find(|i| i.id == id));
     let (d, a) = (&snap.data, &snap.data.automation);
-    let tiles = slide_actions::palette(d);
+    let tiles = slide_actions::palette(d, item.map_or(0, |i| i.slides.len()));
     let groups: Vec<PaletteGroup> = GROUPS.iter().filter_map(|grp| {
         let mine: Vec<PaletteTile> = tiles.iter().filter(|t| t.group == *grp).map(|t| PaletteTile {
             label: t.label.as_str().into(),
@@ -145,6 +144,7 @@ mod tests {
     };
     use slint::{Model, platform::PointerEventButton};
     use std::sync::Arc;
+    use uuid::Uuid;
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into() }, background: None, notes: String::new(), theme: None };
@@ -183,12 +183,14 @@ mod tests {
         assert!(!g.invoke_can_drop(DataTransfer::default()), "a file or other text is not a tile");
         g.invoke_dropped(2, d);
         refresh(&op);
-        let a = &app.data.lock().unwrap().automation;
-        assert_eq!(slide_actions::of(a, id, 2).len(), 2, "both steps of the tile");
+        assert_eq!(slide_actions::of(&app.data.lock().unwrap().automation, id, 2).len(), 2, "both steps of the tile");
         assert_eq!(g.get_slide(), 2, "the palette shows the slide it went on");
         assert_eq!(g.get_current().row_count(), 1);
         assert_eq!(badges(&op, 3)[2].0, 2);
-        assert!(find(&op, "Thumb::actions-badge").is_some(), "the thumbnail has a badge");
+        // The thumbnail's cell carries the count its badge shows. (The testing backend doesn't reach the badge
+        // element itself by id, so this checks the model the badge is drawn from.)
+        let acts: Vec<i32> = op.ui.get_slide_rows().iter().flat_map(|r| r.cells.iter().map(|c| c.actions).collect::<Vec<_>>()).collect();
+        assert_eq!(acts, [0, 0, 2], "the thumbnail has a badge");
         assert_eq!(app.live_view().frame.overlays.len(), 0, "adding runs nothing");
         let _ = STOPWATCH_ID;
     }

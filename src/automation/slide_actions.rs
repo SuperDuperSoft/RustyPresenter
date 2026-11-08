@@ -13,6 +13,8 @@ use uuid::Uuid;
 
 /// A slide can do this many things at the most.
 pub const MAX_PER_SLIDE: usize = 8;
+/// The palette offers "Go to slide" for this many slides at the most.
+const MAX_GO_TO: usize = 20;
 
 /// One item's slide actions, by 0-based slide.
 pub type ItemActions = BTreeMap<usize, Vec<Lenient<MacroStep>>>;
@@ -99,8 +101,8 @@ pub struct Tile { pub group: Group, pub label: String, pub steps: Vec<MacroStep>
 
 fn tile(group: Group, label: String, steps: Vec<MacroStep>) -> Tile { Tile { group, label, steps, off: None } }
 
-/// Every action a slide can do, by group.
-pub fn palette(data: &Data) -> Vec<Tile> {
+/// Every action a slide can do, by group. `slides` is the selected item's slide count (for "Go to slide").
+pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
     let a = &data.automation;
     let mut t = vec![];
     for (label, step) in [
@@ -149,12 +151,16 @@ pub fn palette(data: &Data) -> Vec<Tile> {
     for l in crate::stage::presets::builtins().iter().chain(&data.stage_layouts) {
         t.push(tile(Group::Stage, tr!("Stage: {name}", name = l.name), vec![MacroStep::StageLayout { layout: l.id }]));
     }
+    t.push(tile(Group::Stage, tr!("Let the stage layout follow the slides"), vec![MacroStep::StageLayoutAuto]));
     t.push(tile(Group::Stage, tr!("Hide the stage message"), vec![MacroStep::StageMessageHide]));
     for r in data.catalog().rows() {
         t.push(tile(Group::Themes, tr!("Theme: {name}", name = r.name), vec![MacroStep::UseTheme { theme: r.id }]));
     }
+    t.push(Tile { group: Group::Themes, label: tr!("Change what a screen shows"), steps: vec![], off: Some(super::strings::screen_views_not_yet()) });
+    for n in 0..slides.clamp(1, MAX_GO_TO) {
+        t.push(tile(Group::Slides, tr!("Go to slide {n}", n = n + 1), vec![MacroStep::GoToSlide { slide: n }]));
+    }
     for (label, step) in [
-        (tr!("Go to slide {n}", n = 1), MacroStep::GoToSlide { slide: 0 }),
         (tr!("Next slide"), MacroStep::Next),
         (tr!("Pause automatic slides"), MacroStep::AutoAdvance { on: false }),
         (tr!("Resume automatic slides"), MacroStep::AutoAdvance { on: true }),
@@ -216,7 +222,7 @@ mod tests {
     fn palette_has_every_kind_of_action() {
         let mut d = Data::default();
         crate::automation::apply_preservice(&mut d.automation, Default::default());
-        let tiles = palette(&d);
+        let tiles = palette(&d, 3);
         for g in GROUPS.iter().filter(|g| **g != Group::Overlays) {
             assert!(tiles.iter().any(|t| t.group == *g), "{g:?} has tiles");
         }
@@ -227,6 +233,12 @@ mod tests {
         assert!(tiles.iter().any(|t| t.label == "Theme: Standard"));
         let playlist = tiles.iter().find(|t| t.label == "Play a playlist").unwrap();
         assert!(playlist.off.is_some() && playlist.steps.is_empty(), "a stub until N13");
+        assert!(tiles.iter().any(|t| t.steps == [MacroStep::StageLayoutAuto]));
+        let go: Vec<_> = tiles.iter().filter(|t| matches!(t.steps[..], [MacroStep::GoToSlide { .. }])).map(|t| t.label.as_str()).collect();
+        assert_eq!(go, ["Go to slide 1", "Go to slide 2", "Go to slide 3"], "one for each slide of the item");
+        assert_eq!(palette(&d, 0).iter().filter(|t| t.label.starts_with("Go to slide")).count(), 1);
+        let look = tiles.iter().find(|t| t.label == "Change what a screen shows").unwrap();
+        assert!(look.off.is_some(), "a stub until screen views");
         let nursery = tiles.iter().find(|t| t.label == "Show “Nursery”").unwrap();
         assert!(nursery.off.is_some(), "a message with blanks needs a macro");
     }
