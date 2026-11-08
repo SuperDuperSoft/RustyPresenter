@@ -9,6 +9,7 @@ pub mod live;
 pub mod media_care;
 pub mod media_prefs;
 pub mod model;
+pub mod network;
 pub mod planning;
 pub mod print;
 pub mod report_page;

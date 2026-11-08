@@ -16,6 +16,8 @@ const RED: &str = "#ff6b6b";
 const GOLD: &str = "#f5c66b";
 const NOTE_BLUE: &str = "#cfe3ff";
 const NOTE_FILL: &str = "#12151b";
+/// A new shape's colour.
+pub const SHAPE_FILL: &str = "#2a3140";
 
 /// Every kind's defaults: white, centred, bold, 3 % floor, no caption except Next, Next section and Timer.
 pub fn kind_defaults(kind: &ElementKind) -> ResolvedStyle {
@@ -26,15 +28,18 @@ pub fn kind_defaults(kind: &ElementKind) -> ResolvedStyle {
         Clock { .. } => 8.0,
         Timer { .. } => 10.0,
         Text { .. } => 5.0,
-        SectionName | NextSection | ItemTitle | SlidesLeft | Notes | MediaTimeLeft => 4.0,
+        SectionName | NextSection | ItemTitle | SlidesLeft | Notes | MediaTimeLeft | NextPicture | Shape { .. } => 4.0,
     };
     let caption = match kind {
         NextSlide { .. } => Some(s::next()),
         NextSection => Some(s::next_section()),
+        NextPicture => Some(s::next()),
         Timer { .. } => Some(String::new()), // the timer's name, filled in by the view
         _ => None,
     };
-    ResolvedStyle { color: "#ffffff".into(), max_size, min_size: 3.0, align: Align::Center, valign: VAlign::Middle, bold: true, caption, fill: None }
+    // A shape needs a fill to be seen.
+    let fill = matches!(kind, Shape { .. }).then(|| SHAPE_FILL.to_string());
+    ResolvedStyle { color: "#ffffff".into(), max_size, min_size: 3.0, align: Align::Center, valign: VAlign::Middle, bold: true, caption, fill }
 }
 
 /// A style with the kind's defaults under the box's own choices.
@@ -80,10 +85,11 @@ pub fn all_layouts(church: &[StageLayout]) -> impl Iterator<Item = &StageLayout>
 }
 
 /// One box of every kind, in `ElementKind` order (the editor's Add menu; names in `strings::kind_names`).
-pub fn all_kinds() -> [ElementKind; 12] {
+pub fn all_kinds() -> [ElementKind; 14] {
     use ElementKind::*;
-    [CurrentSlide { pictures: false, keep_after_clear: false }, NextSlide { pictures: false }, SectionName, NextSection, ItemTitle,
-     SlidesLeft, Notes, Clock { seconds: false, h24: false }, current_timer(), MediaTimeLeft, StageMessage, Text { text: String::new() }]
+    [CurrentSlide { pictures: false, keep_after_clear: false, chords: false }, NextSlide { pictures: false, chords: false }, SectionName, NextSection, ItemTitle,
+     SlidesLeft, Notes, Clock { seconds: false, h24: false }, current_timer(), MediaTimeLeft, StageMessage, Text { text: String::new() },
+     NextPicture, Shape { shape: super::ShapeKind::Rectangle }]
 }
 
 /// Where `kind` sits in `all_kinds` (and `strings::kind_names`).
@@ -92,12 +98,13 @@ pub fn kind_index(kind: &ElementKind) -> usize {
     match kind {
         CurrentSlide { .. } => 0, NextSlide { .. } => 1, SectionName => 2, NextSection => 3, ItemTitle => 4, SlidesLeft => 5,
         Notes => 6, Clock { .. } => 7, Timer { .. } => 8, MediaTimeLeft => 9, StageMessage => 10, Text { .. } => 11,
+        NextPicture => 12, Shape { .. } => 13,
     }
 }
 
 /// A new box of `kind`, 30 % × 15 % in the middle of the window, with the kind's look.
 pub fn new_box(kind: ElementKind, id: Uuid) -> StageElement {
-    StageElement { id, kind, rect: super::geom::new_box_rect(), style: ElementStyle::default() }
+    StageElement { id, kind, rect: super::geom::new_box_rect(), style: ElementStyle::default(), locked: false, hidden: false }
 }
 
 pub fn classic() -> &'static StageLayout { &builtins()[0] }
@@ -110,7 +117,7 @@ impl B {
     fn add(&mut self, kind: ElementKind, (x, y, w, h): (f32, f32, f32, f32), style: ElementStyle) -> &mut Self {
         self.n += 1;
         let id = Uuid::from_u128(self.layout.as_u128() + self.n);
-        self.out.push(Lenient::Known(StageElement { id, kind, rect: PctRect::new(x, y, w, h), style }));
+        self.out.push(Lenient::Known(StageElement { id, kind, rect: PctRect::new(x, y, w, h), style, locked: false, hidden: false }));
         self
     }
     fn done(&mut self, name: &str) -> StageLayout {
@@ -132,10 +139,10 @@ fn classic_layout() -> StageLayout {
         .add(MediaTimeLeft, (64.0, 2.0, 13.0, 6.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); }))
         .add(current_timer(), (64.0, 2.0, 13.0, 6.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.max_size = Some(4.0); s.caption = Some(false); }))
         .add(Clock { seconds: false, h24: false }, (78.0, 1.0, 19.0, 8.0), st(|s| s.align = Some(Align::Right)))
-        .add(CurrentSlide { pictures: false, keep_after_clear: false }, (3.0, 10.0, 94.0, 52.0), ElementStyle::default())
+        .add(CurrentSlide { pictures: false, keep_after_clear: false, chords: false }, (3.0, 10.0, 94.0, 52.0), ElementStyle::default())
         .add(StageMessage, (3.0, 63.0, 94.0, 11.0), ElementStyle::default())
         .add(Notes, (3.0, 63.0, 94.0, 11.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.bold = Some(false); }))
-        .add(NextSlide { pictures: false }, (3.0, 76.0, 94.0, 22.0), st(|s| { s.color = color(GOLD); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.bold = Some(false); }))
+        .add(NextSlide { pictures: false, chords: false }, (3.0, 76.0, 94.0, 22.0), st(|s| { s.color = color(GOLD); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.bold = Some(false); }))
         .done(&s::classic())
 }
 
@@ -143,8 +150,8 @@ fn classic_layout() -> StageLayout {
 fn lyrics_only_layout() -> StageLayout {
     use ElementKind::*;
     B::new(LYRICS_ONLY)
-        .add(CurrentSlide { pictures: false, keep_after_clear: false }, (3.0, 3.0, 94.0, 62.0), st(|s| s.max_size = Some(12.0)))
-        .add(NextSlide { pictures: false }, (3.0, 68.0, 94.0, 29.0), st(|s| s.color = color(GOLD)))
+        .add(CurrentSlide { pictures: false, keep_after_clear: false, chords: false }, (3.0, 3.0, 94.0, 62.0), st(|s| s.max_size = Some(12.0)))
+        .add(NextSlide { pictures: false, chords: false }, (3.0, 68.0, 94.0, 29.0), st(|s| s.color = color(GOLD)))
         .add(StageMessage, (3.0, 3.0, 94.0, 14.0), ElementStyle::default())
         .done(&s::lyrics_only())
 }
@@ -166,8 +173,8 @@ fn band_layout() -> StageLayout {
         .add(SectionName, (3.0, 2.0, 30.0, 9.0), st(|s| { s.align = Some(Align::Left); s.max_size = Some(6.0); }))
         .add(NextSection, (35.0, 2.0, 30.0, 9.0), st(|s| { s.color = color(GOLD); s.max_size = Some(5.0); }))
         .add(Clock { seconds: false, h24: false }, (70.0, 2.0, 27.0, 9.0), st(|s| { s.align = Some(Align::Right); s.max_size = Some(6.0); }))
-        .add(CurrentSlide { pictures: false, keep_after_clear: false }, (3.0, 13.0, 94.0, 50.0), st(|s| s.max_size = Some(10.0)))
-        .add(NextSlide { pictures: false }, (3.0, 65.0, 62.0, 22.0), st(|s| { s.color = color(GOLD); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); }))
+        .add(CurrentSlide { pictures: false, keep_after_clear: false, chords: false }, (3.0, 13.0, 94.0, 50.0), st(|s| s.max_size = Some(10.0)))
+        .add(NextSlide { pictures: false, chords: false }, (3.0, 65.0, 62.0, 22.0), st(|s| { s.color = color(GOLD); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); }))
         .add(SlidesLeft, (68.0, 65.0, 29.0, 10.0), st(|s| { s.color = color(GREY); s.align = Some(Align::Right); }))
         .add(MediaTimeLeft, (68.0, 76.0, 29.0, 11.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.max_size = Some(6.0); }))
         .add(current_timer(), (68.0, 76.0, 29.0, 11.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.max_size = Some(6.0); s.caption = Some(false); }))
@@ -181,7 +188,7 @@ fn speaker_layout() -> StageLayout {
     B::new(SPEAKER)
         .add(Clock { seconds: false, h24: false }, (3.0, 2.0, 30.0, 14.0), st(|s| s.align = Some(Align::Left)))
         .add(current_timer(), (60.0, 2.0, 37.0, 20.0), st(|s| { s.align = Some(Align::Right); s.max_size = Some(18.0); }))
-        .add(CurrentSlide { pictures: true, keep_after_clear: false }, (3.0, 24.0, 45.0, 40.0), st(|s| s.max_size = Some(6.0)))
+        .add(CurrentSlide { pictures: true, keep_after_clear: false, chords: false }, (3.0, 24.0, 45.0, 40.0), st(|s| s.max_size = Some(6.0)))
         .add(Notes, (51.0, 24.0, 46.0, 56.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.max_size = Some(6.0); s.bold = Some(false); }))
         .add(SlidesLeft, (3.0, 66.0, 45.0, 14.0), st(|s| s.color = color(GREY)))
         .add(StageMessage, (3.0, 82.0, 94.0, 16.0), ElementStyle::default())
@@ -227,14 +234,14 @@ mod tests {
     fn classic_matches_todays_stage_regions() {
         let k = kinds(classic());
         let at = |want: &ElementKind| k.iter().find(|(kind, _)| *kind == want).map(|(_, r)| *r).unwrap();
-        assert_eq!(at(&ElementKind::CurrentSlide { pictures: false, keep_after_clear: false }), PctRect::new(3.0, 10.0, 94.0, 52.0));
+        assert_eq!(at(&ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: false }), PctRect::new(3.0, 10.0, 94.0, 52.0));
         assert_eq!(at(&ElementKind::Notes), PctRect::new(3.0, 63.0, 94.0, 11.0));
-        assert_eq!(at(&ElementKind::NextSlide { pictures: false }), PctRect::new(3.0, 76.0, 94.0, 22.0));
+        assert_eq!(at(&ElementKind::NextSlide { pictures: false, chords: false }), PctRect::new(3.0, 76.0, 94.0, 22.0));
         // Media time is listed before the timer in the same box, so media wins it.
         let media = k.iter().position(|(kind, _)| **kind == ElementKind::MediaTimeLeft).unwrap();
         let timer = k.iter().position(|(kind, _)| matches!(kind, ElementKind::Timer { .. })).unwrap();
         assert!(media < timer && k[media].1 == k[timer].1);
-        let slide = resolve_style(&ElementKind::CurrentSlide { pictures: false, keep_after_clear: false }, &ElementStyle::default());
+        let slide = resolve_style(&ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: false }, &ElementStyle::default());
         assert_eq!((slide.max_size, slide.min_size), (9.0, 3.0));
     }
 
@@ -294,13 +301,25 @@ mod tests {
         assert_eq!(s::kind_names()[kind_index(&ElementKind::Notes)], "Notes");
         let b = new_box(ElementKind::Clock { seconds: false, h24: false }, Uuid::from_u128(9));
         assert_eq!((b.id, b.rect, b.style.clone()), (Uuid::from_u128(9), PctRect::new(35.0, 42.5, 30.0, 15.0), ElementStyle::default()));
+        for (i, k) in all.iter().enumerate() { assert_eq!(kind_index(k), i, "{k:?}"); }
+        assert_eq!(s::sample_words().len(), all.len());
+    }
+
+    #[test]
+    fn a_shape_has_a_fill_and_a_next_picture_a_caption() {
+        let shape = resolve_style(&ElementKind::Shape { shape: crate::stage::ShapeKind::Ellipse }, &ElementStyle::default());
+        assert_eq!(shape.fill.as_deref(), Some(SHAPE_FILL));
+        let own = resolve_style(&ElementKind::Shape { shape: crate::stage::ShapeKind::Line }, &st(|s| s.fill = color("#ff0000")));
+        assert_eq!(own.fill.as_deref(), Some("#ff0000"));
+        assert_eq!(resolve_style(&ElementKind::NextPicture, &ElementStyle::default()).caption.as_deref(), Some("NEXT"));
+        assert_eq!(s::shape_names().len(), crate::stage::ShapeKind::ALL.len());
     }
 
     #[test]
     fn styles_resolve_over_kind_defaults() {
-        let next = resolve_style(&ElementKind::NextSlide { pictures: false }, &ElementStyle::default());
+        let next = resolve_style(&ElementKind::NextSlide { pictures: false, chords: false }, &ElementStyle::default());
         assert_eq!((next.caption.as_deref(), next.max_size, next.color.as_str()), (Some("NEXT"), 6.0, "#ffffff"));
-        let off = resolve_style(&ElementKind::NextSlide { pictures: false }, &st(|s| s.caption = Some(false)));
+        let off = resolve_style(&ElementKind::NextSlide { pictures: false, chords: false }, &st(|s| s.caption = Some(false)));
         assert_eq!(off.caption, None);
         let own = resolve_style(&ElementKind::Notes, &st(|s| { s.caption = Some(true); s.caption_text = Some("FOR YOU".into()); s.max_size = Some(2.5); }));
         assert_eq!(own.caption.as_deref(), Some("FOR YOU"));

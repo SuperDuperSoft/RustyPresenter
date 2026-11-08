@@ -847,17 +847,23 @@ impl Live {
 
     /// The slide that Next would show (for the stage display and phone).
     pub fn next_preview(&self, plan: &dyn Plan) -> Option<(String, Slide)> {
+        self.next_slot(plan).map(|(item, n)| (item.title.clone(), item.slides[n].clone()))
+    }
+
+    /// The item and the index of the slide `next_preview` names (N10: the stage draws it as a picture).
+    pub fn next_slot(&self, plan: &dyn Plan) -> Option<(std::borrow::Cow<'_, LiveItem>, usize)> {
+        use std::borrow::Cow;
         let Some(c) = &self.cursor else {
             let id = *plan.order().first()?;
             let item = plan.build(id)?;
-            return item.slides.first().map(|s| (item.title.clone(), s.clone()));
+            return (!item.slides.is_empty()).then_some((Cow::Owned(item), 0));
         };
         let item = self.item.as_ref()?;
-        if c.slide + 1 < item.slides.len() { return Some((item.title.clone(), item.slides[c.slide + 1].clone())); }
+        if c.slide + 1 < item.slides.len() { return Some((Cow::Borrowed(item), c.slide + 1)); }
         let order = plan.order();
         let mut idx = match order.iter().position(|i| *i == c.item_id) { Some(p) => p + 1, None => c.item_index };
         while let Some(id) = order.get(idx) {
-            if let Some(it) = plan.build(*id) { if let Some(s) = it.slides.first() { return Some((it.title.clone(), s.clone())); } }
+            if let Some(it) = plan.build(*id) { if !it.slides.is_empty() { return Some((Cow::Owned(it), 0)); } }
             idx += 1;
         }
         None

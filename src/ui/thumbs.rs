@@ -156,6 +156,27 @@ pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRender
     }
 }
 
+/// N10: the slide Next would show, drawn like a thumbnail at `size` (the stage's next-slide picture). Black at the end
+/// of the service.
+pub fn next_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRenderer) -> Pixels {
+    let job = {
+        let data = app.data.lock().unwrap();
+        let live = app.live.lock().unwrap();
+        live.next_slot(&crate::app::DataPlan(&data)).map(|(item, n)| {
+            let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
+            let passage = crate::model::passage(&item.kind, &item.slides);
+            thumb(&item.slides[n], &item.kind, &passage, Some(&item.background), &settings, &data.media, size).1
+        })
+    };
+    match job {
+        Some(job) => compose(&job, size, renderer, &app.store),
+        None => {
+            let black = RgbaImage::from_pixel(size.0.max(1), size.1.max(1), Rgba([0, 0, 0, 255]));
+            Pixels::clone_from_slice(black.as_raw(), black.width(), black.height())
+        }
+    }
+}
+
 /// `over` (premultiplied, same size) drawn onto opaque `img`.
 pub fn put_over(img: &mut Pixels, over: &[u8]) {
     let (w, h) = (img.width(), img.height());

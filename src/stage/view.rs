@@ -34,6 +34,10 @@ pub enum CellContent {
     Text { text: String, dim: bool, caption: Option<String>, red: bool },
     Picture { asset: AssetId, caption: Option<String> },
     Message { text: String },
+    /// N10: a picture of the next slide, drawn by the screen that shows the stage.
+    NextPicture { caption: Option<String> },
+    /// N10: a plain shape.
+    Shape { shape: super::ShapeKind },
 }
 
 impl CellContent {
@@ -41,7 +45,7 @@ impl CellContent {
 }
 
 pub fn build(inp: &StageInputs, layout: &StageLayout) -> StageView {
-    let mut cells: Vec<Cell> = layout.elements.iter().filter_map(|e| e.known()).map(|e| {
+    let mut cells: Vec<Cell> = layout.elements.iter().filter_map(|e| e.known()).filter(|e| !e.hidden).map(|e| {
         let mut style = resolve_style(&e.kind, &e.style);
         let content = content(inp, &e.kind, &style);
         if e.style.color.is_none() && matches!(e.kind, ElementKind::SectionName | ElementKind::NextSection) {
@@ -81,11 +85,14 @@ pub fn label(slide: &Slide) -> String {
     }
 }
 
-/// A slide's words, or its picture when the box shows pictures.
-fn slide_content(slide: &Slide, pictures: bool, caption: Option<String>) -> CellContent {
+/// A slide's words (with its chords when `chords`), or its picture when the box shows pictures.
+fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<String>) -> CellContent {
     match &slide.content {
         SlideContent::Image { asset } | SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
-        _ => CellContent::text(label(slide), caption),
+        _ => match slide.chords.as_ref().filter(|_| chords) {
+            Some(with) => CellContent::text(with.clone(), caption),
+            None => CellContent::text(label(slide), caption),
+        },
     }
 }
 
@@ -116,28 +123,30 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
     match kind {
         // N29: a slide for the stage only takes the current slide's box, marked so the band knows the room
         // doesn't see it.
-        ElementKind::CurrentSlide { pictures, .. } if live.stage_only.is_some() => {
+        ElementKind::CurrentSlide { pictures, chords, .. } if live.stage_only.is_some() => {
             let only = live.stage_only.as_ref().map(|o| &o.slide);
-            only.map_or(CellContent::Empty, |slide| slide_content(slide, *pictures, Some(s::stage_only().into())))
+            only.map_or(CellContent::Empty, |slide| slide_content(slide, *pictures, *chords, Some(s::stage_only().into())))
         }
-        ElementKind::CurrentSlide { pictures, keep_after_clear } => {
+        ElementKind::CurrentSlide { pictures, keep_after_clear, chords } => {
             let f = &live.frame;
             let on_air = f.slide.is_some() || f.media.is_some();
             match &live.slide {
-                Some(slide) if on_air => slide_content(slide, *pictures, caption),
+                Some(slide) if on_air => slide_content(slide, *pictures, *chords, caption),
                 _ if f.logo => CellContent::Text { text: s::logo().into(), dim: true, caption, red: false },
                 // Clear Slide leaves the background (or media) up; Clear All leaves nothing.
                 Some(slide) if *keep_after_clear && f.background.is_some() => CellContent::Text { text: label(slide), dim: true, caption, red: false },
                 _ => CellContent::Text { text: String::new(), dim: true, caption, red: false },
             }
         }
-        ElementKind::NextSlide { pictures } => match &live.next {
-            Some(n) => {
-                let other_item = live.item.as_ref().is_none_or(|i| i.title != n.title);
-                slide_content(&n.slide, *pictures, caption.map(|c| if other_item { s::next_item(&n.title) } else { c }))
-            }
+        ElementKind::NextSlide { pictures, chords } => match &live.next {
+            Some(n) => slide_content(&n.slide, *pictures, *chords, next_caption(live, caption)),
             None => CellContent::text(s::end_of_service(), caption),
         },
+        ElementKind::NextPicture => match &live.next {
+            Some(_) => CellContent::NextPicture { caption: next_caption(live, caption) },
+            None => CellContent::text(s::end_of_service(), caption),
+        },
+        ElementKind::Shape { shape } => CellContent::Shape { shape: *shape },
         ElementKind::SectionName => match &live.slide {
             Some(slide) if is_song(live) => CellContent::text(section_of(&slide.label), caption),
             _ => CellContent::Empty,
@@ -179,6 +188,12 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
         ElementKind::StageMessage => CellContent::Empty,
         ElementKind::Text { text } => CellContent::text(text.clone(), caption),
     }
+}
+
+/// "NEXT", or "NEXT · Welcome" when the next slide is in another item.
+fn next_caption(live: &LiveView, caption: Option<String>) -> Option<String> {
+    let other_item = live.next.as_ref().is_some_and(|n| live.item.as_ref().is_none_or(|i| i.title != n.title));
+    caption.map(|c| match &live.next { Some(n) if other_item => s::next_item(&n.title), _ => c })
 }
 
 /// A timer's time from `timers::text`; red when over or finished, dim with "· paused" when paused.
@@ -240,7 +255,7 @@ mod tests {
     }
     /// A one-box layout.
     fn one(kind: ElementKind) -> StageLayout {
-        let e = StageElement { id: Uuid::from_u128(1), kind, rect: PctRect::new(0.0, 0.0, 50.0, 50.0), style: ElementStyle::default() };
+        let e = StageElement { id: Uuid::from_u128(1), kind, rect: PctRect::new(0.0, 0.0, 50.0, 50.0), style: ElementStyle::default(), locked: false, hidden: false };
         StageLayout { id: Uuid::from_u128(100), name: "One".into(), background: BACKGROUND.into(), font: String::new(), elements: vec![Lenient::Known(e)] }
     }
     fn only(live: &LiveView, slides: &[Slide], kind: ElementKind) -> CellContent { view_of(live, slides, &one(kind)).cells.remove(0).content }
@@ -251,13 +266,13 @@ mod tests {
         let id = layout.elements.iter().filter_map(|e| e.known()).find(|e| &e.kind == kind).unwrap().id;
         &v.cells.iter().find(|c| c.element == id).unwrap().content
     }
-    const CUR: ElementKind = ElementKind::CurrentSlide { pictures: false, keep_after_clear: false };
+    const CUR: ElementKind = ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: false };
 
     #[test]
     fn current_and_next_slide_follow_the_live_view() {
         let v = song_view(&song(), 0);
         assert_eq!(words(&only(&v, &song(), CUR)), ("Amazing grace", false));
-        let next = only(&v, &song(), ElementKind::NextSlide { pictures: false });
+        let next = only(&v, &song(), ElementKind::NextSlide { pictures: false, chords: false });
         assert_eq!(next, CellContent::Text { text: "That saved a wretch".into(), dim: false, caption: Some("NEXT".into()), red: false });
     }
 
@@ -268,7 +283,7 @@ mod tests {
         let c = only(&v, &song(), CUR);
         assert_eq!(c, CellContent::Text { text: "Watch me for the ending".into(), dim: false, caption: Some("STAGE ONLY".into()), red: false });
         // The room's slide is still Next's starting point.
-        let next = only(&v, &song(), ElementKind::NextSlide { pictures: false });
+        let next = only(&v, &song(), ElementKind::NextSlide { pictures: false, chords: false });
         assert_eq!(words(&next).0, "That saved a wretch");
         v.stage_only = None;
         assert_eq!(words(&only(&v, &song(), CUR)), ("Amazing grace", false));
@@ -285,7 +300,7 @@ mod tests {
 
     #[test]
     fn keep_after_clear_shows_dim_words_after_clear_slide_only() {
-        let keep = ElementKind::CurrentSlide { pictures: false, keep_after_clear: true };
+        let keep = ElementKind::CurrentSlide { pictures: false, keep_after_clear: true, chords: false };
         let mut v = song_view(&song(), 0);
         v.frame.slide = None;
         v.frame.background = Some(Inst { inst: 1, v: Background::Color { color: "#000".into() } });
@@ -299,7 +314,7 @@ mod tests {
         let v = empty_view();
         assert_eq!(words(&only(&v, &[], CUR)), ("", true));
         assert_eq!(words(&only(&v, &[], ElementKind::ItemTitle)), ("Nothing live", false));
-        assert_eq!(words(&only(&v, &[], ElementKind::NextSlide { pictures: false })), ("End of service", false));
+        assert_eq!(words(&only(&v, &[], ElementKind::NextSlide { pictures: false, chords: false })), ("End of service", false));
     }
 
     #[test]
@@ -308,18 +323,18 @@ mod tests {
         let mut v = song_view(&[pic.clone()], 0);
         v.frame.media = Some(Inst { inst: 1, v: MediaLayer::Still { asset: "a.png".into() } });
         assert_eq!(words(&only(&v, &[], CUR)), ("(slide picture)", false));
-        let with = only(&v, &[], ElementKind::CurrentSlide { pictures: true, keep_after_clear: false });
+        let with = only(&v, &[], ElementKind::CurrentSlide { pictures: true, keep_after_clear: false, chords: false });
         assert_eq!(with, CellContent::Picture { asset: "a.png".into(), caption: None });
         let video = slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: EndAction::Stop });
         v.slide = Some(video);
-        assert_eq!(words(&only(&v, &[], ElementKind::CurrentSlide { pictures: true, keep_after_clear: false })), ("(video)", false));
+        assert_eq!(words(&only(&v, &[], ElementKind::CurrentSlide { pictures: true, keep_after_clear: false, chords: false })), ("(video)", false));
     }
 
     #[test]
     fn next_slide_names_next_item_when_crossing() {
         let mut v = song_view(&song(), 3);
         v.next = Some(NextUp { title: "Welcome".into(), slide: text("Good morning") });
-        let c = only(&v, &song(), ElementKind::NextSlide { pictures: false });
+        let c = only(&v, &song(), ElementKind::NextSlide { pictures: false, chords: false });
         assert_eq!(c, CellContent::Text { text: "Good morning".into(), dim: false, caption: Some("NEXT · Welcome".into()), red: false });
     }
 
@@ -498,6 +513,42 @@ mod tests {
         let out = view_of(&empty_view(), &[], &l);
         assert_eq!(out.cells.len(), 1);
         assert_eq!(out.layout_id, l.id);
+    }
+
+    #[test]
+    fn hidden_boxes_are_not_drawn() {
+        let mut l = one(ElementKind::ItemTitle);
+        l.elements[0].known_mut().unwrap().hidden = true;
+        assert!(view_of(&empty_view(), &[], &l).cells.is_empty());
+        l.elements[0].known_mut().unwrap().locked = true;
+        l.elements[0].known_mut().unwrap().hidden = false;
+        assert_eq!(view_of(&empty_view(), &[], &l).cells.len(), 1, "locked boxes still show");
+    }
+
+    #[test]
+    fn slide_boxes_show_chords_only_when_asked() {
+        let mut s = song();
+        s[1].chords = Some("[G]That saved a [D]wretch".into());
+        s[0].chords = Some("[C]Amazing grace".into());
+        let v = song_view(&s, 0);
+        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: false })).0, "That saved a wretch");
+        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })).0, "[G]That saved a [D]wretch");
+        assert_eq!(words(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })).0, "[C]Amazing grace");
+        // A slide without chords shows its words.
+        let v = song_view(&s, 2);
+        assert_eq!(words(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })).0, "My chains are gone");
+    }
+
+    #[test]
+    fn next_picture_and_shapes() {
+        let v = song_view(&song(), 0);
+        assert_eq!(only(&v, &song(), ElementKind::NextPicture), CellContent::NextPicture { caption: Some("NEXT".into()) });
+        let mut cross = song_view(&song(), 3);
+        cross.next = Some(NextUp { title: "Welcome".into(), slide: text("Hi") });
+        assert_eq!(only(&cross, &song(), ElementKind::NextPicture), CellContent::NextPicture { caption: Some("NEXT · Welcome".into()) });
+        assert_eq!(words(&only(&song_view(&song(), 3), &song(), ElementKind::NextPicture)).0, "End of service");
+        let shape = ElementKind::Shape { shape: crate::stage::ShapeKind::Ellipse };
+        assert_eq!(only(&empty_view(), &[], shape), CellContent::Shape { shape: crate::stage::ShapeKind::Ellipse });
     }
 
     #[test]

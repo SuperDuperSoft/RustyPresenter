@@ -20,6 +20,11 @@ export struct StageCellVm {
     red: bool,
     /// A stage message: yellow box, dark words.
     message: bool,
+    /// N10: a shape instead of words: 0 box, 1 rounded, 2 circle, 3 line; -1 = not a shape.
+    shape: int,
+    /// N10: a picture (the next slide) instead of words.
+    has-picture: bool,
+    picture: image,
 }
 
 export component StageWindow inherits Window {
@@ -248,10 +253,23 @@ export component StageWindow inherits Window {
             y: c.y * root.height / 100;
             width: c.w * root.width / 100;
             height: c.h * root.height / 100;
-            background: c.message ? #f5c66b : c.fill;
-            border-radius: 1 * vh;
+            background: c.message ? #f5c66b : c.shape >= 0 && c.shape != 0 && c.shape != 1 ? transparent : c.fill;
+            border-radius: c.shape == 0 ? 0 : c.shape == 1 ? 3 * vh : 1 * vh;
             clip: true;
-            VerticalLayout {
+            if c.shape == 2: Path {
+                width: parent.width;
+                height: parent.height;
+                viewbox-width: 100;
+                viewbox-height: 100;
+                fill: c.fill;
+                commands: "M 0 50 A 50 50 0 1 0 100 50 A 50 50 0 1 0 0 50 Z";
+            }
+            if c.shape == 3: Rectangle {
+                y: (parent.height - self.height) / 2;
+                height: max(2px, 0.6 * vh);
+                background: c.color;
+            }
+            if c.shape < 0: VerticalLayout {
                 padding: 1.2 * vh;
                 spacing: 0.6 * vh;
                 if c.caption != "": Text {
@@ -262,7 +280,12 @@ export component StageWindow inherits Window {
                     letter-spacing: 0.12 * 2.2 * vh;
                     horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
                 }
-                cell-t := Text {
+                if c.has-picture: Image {
+                    vertical-stretch: 1;
+                    source: c.picture;
+                    image-fit: contain;
+                }
+                if !c.has-picture: cell-t := Text {
                     vertical-stretch: 1;
                     text: c.text;
                     color: c.red ? #ff4f55 : c.message ? #1a1405 : c.color;

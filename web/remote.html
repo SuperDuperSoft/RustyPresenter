@@ -17,6 +17,8 @@
   .pair p { color: var(--muted); margin: 0 0 22px; }
   .pair input { width: 100%; font: 700 34px/1 ui-monospace, Consolas, monospace; letter-spacing: .3em; text-align: center; padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--panel); color: var(--text); outline: 0; }
   .pair input:focus { border-color: var(--accent); }
+  .pair .pw { font: 20px/1.2 inherit; letter-spacing: 0; margin-top: 4px; display: none; }
+  .pair .pwhelp { margin: 16px 0 8px; display: none; }
   .pair button { width: 100%; margin-top: 14px; padding: 16px; border-radius: 14px; background: var(--accent); color: #1a1405; font-weight: 800; font-size: 18px; }
   .err { color: #ff9a9e; margin-top: 12px; min-height: 22px; }
   .app { display: none; flex-direction: column; min-height: 100vh; padding: 12px; gap: 12px; }
@@ -114,6 +116,8 @@
   <h1 data-t>Phone remote</h1>
   <p id="pairHelp">On the presentation computer, click <b>Phone</b> → <b>Pair a phone</b>, then type the 6-digit code here.</p>
   <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+  <p id="pwHelp" class="pwhelp" data-t>This remote needs a password too.</p>
+  <input id="pw" class="pw" type="password" autocomplete="current-password">
   <button id="pairBtn" data-t>Connect</button>
   <div class="err" id="pairErr"></div>
 </div>

@@ -172,7 +172,7 @@ mod tests {
         assert_eq!(err(vec![layout(L2, "classic")], &[]), "There is already a stage layout called “classic”.");
         let mut big = layout(L2, "Big");
         big.elements = (0..25).map(|n| Lenient::Known(StageElement { id: Uuid::from_u128(n), kind: ElementKind::Notes,
-            rect: PctRect::new(0.0, 0.0, 10.0, 10.0), style: ElementStyle::default() })).collect();
+            rect: PctRect::new(0.0, 0.0, 10.0, 10.0), style: ElementStyle::default(), locked: false, hidden: false })).collect();
         assert_eq!(err(vec![big], &[]), "A stage layout can have at most 24 boxes.");
     }
 
@@ -198,7 +198,7 @@ mod tests {
         let v = serde_json::json!({"id": "x", "kind": {"type": "hologram"}});
         let mut l = layout(L1, "Ours");
         l.elements = vec![Lenient::Unknown(v.clone()), Lenient::Known(StageElement { id: Uuid::from_u128(1), kind: ElementKind::Notes,
-            rect: PctRect::new(f32::NAN, 0.0, 150.0, 10.0), style: ElementStyle::default() })];
+            rect: PctRect::new(f32::NAN, 0.0, 150.0, 10.0), style: ElementStyle::default(), locked: false, hidden: false })];
         let out = plan_replace(&[], vec![l], &[]).unwrap();
         assert_eq!(out[0].elements[0], Lenient::Unknown(v));
         assert_eq!(out[0].elements[1].known().unwrap().rect, PctRect::new(0.0, 0.0, 100.0, 10.0));

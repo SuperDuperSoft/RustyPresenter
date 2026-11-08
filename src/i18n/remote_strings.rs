@@ -64,6 +64,12 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         // The ink switch: lines that stay, or fade away by themselves like a laser pointer.
         ("Stays", tr!("Stays")),
         ("Fades", tr!("Fades")),
+        // N31: the remote's password (Settings → Network), and the stage screen on a phone or tablet (web/stage-view.*).
+        ("Password", tr!("Password")),
+        ("This remote needs a password too.", tr!("This remote needs a password too.")),
+        ("Stage screen", tr!("Stage screen")),
+        ("This stage screen needs a password.", tr!("This stage screen needs a password.")),
+        ("Open", tr!("Open")),
         // The name a newly paired phone gets in the computer's list of phones.
         ("Android phone", tr!("Android phone")),
     ]

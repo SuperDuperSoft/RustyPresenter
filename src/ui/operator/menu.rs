@@ -46,6 +46,8 @@ pub enum MenuAction {
     BibleInfo,
     /// Settings → Translations…: the translation editor on the language in use.
     Translations,
+    /// Settings → Network… (N31).
+    Network,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -89,6 +91,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         "bible-info" => MenuAction::BibleInfo,
         "translations" => MenuAction::Translations,
+        "network" => MenuAction::Network,
         _ => return None,
     })
 }
@@ -126,6 +129,7 @@ impl Operator {
                 if let Some(id) = chosen { super::bible_extras::info(self, &id) }
             }
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
+            Some(MenuAction::Network) => crate::ui::dialogs::network::open(self),
             None => {}
         }
     }

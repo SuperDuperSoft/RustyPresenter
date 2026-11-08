@@ -10,6 +10,7 @@ pub mod automation;
 pub mod background;
 pub mod find_verse;
 pub mod item_edit;
+pub mod network;
 pub mod overlays;
 pub mod phone;
 pub mod print;
@@ -82,6 +83,8 @@ pub enum DialogKind {
     QuickSearch,
     /// The app's words in a language, edited in the app (Settings → Translations…).
     Translations,
+    /// N31: Settings → Network… (remote password, stage view on phones, TCP control).
+    Network,
 }
 
 impl DialogKind {
@@ -116,6 +119,7 @@ impl DialogKind {
             DialogKind::SlideBreaks(_) => "slide-breaks",
             DialogKind::QuickSearch => "quick-search",
             DialogKind::Translations => "translations",
+            DialogKind::Network => "network",
         }
     }
 }
@@ -237,6 +241,7 @@ impl Operator {
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
             DialogKind::QuickSearch => quick_search::title(),
             DialogKind::Translations => translation_editor::title(),
+            DialogKind::Network => network::title(),
         }
     }
 }

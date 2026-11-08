@@ -1,0 +1,133 @@
+// Network (N31): a password for the phone remote, the stage screen on a phone or tablet, and the TCP control for
+// other gear. Everything starts off. Filled and answered by `src/ui/dialogs/network.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Note, Check } from "form.slint";
+
+export global NetworkDlg {
+    // A password: asked for (`*-pw-on`), already saved (`*-pw-set`, so an empty field keeps it), and a new one typed.
+    in-out property <bool> remote-pw-on;
+    in property <bool> remote-pw-set;
+    in-out property <string> remote-pw;
+    in-out property <bool> stage-on;
+    in-out property <bool> stage-pw-on;
+    in property <bool> stage-pw-set;
+    in-out property <string> stage-pw;
+    in property <string> stage-url;
+    in-out property <bool> tcp-on;
+    in-out property <string> tcp-port: "4319";
+    in-out property <bool> tcp-pw-on;
+    in property <bool> tcp-pw-set;
+    in-out property <string> tcp-pw;
+    in property <string> tcp-address;
+    in property <string> tcp-help;
+    in property <string> error;
+    callback save();
+    callback cancel();
+}
+
+component Section inherits VerticalLayout {
+    in property <string> title;
+    spacing: 6px;
+    padding-bottom: 14px;
+    Lbl { label: root.title; }
+    @children
+}
+
+component Muted inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    wrap: word-wrap;
+}
+
+export component NetworkDialog inherits VerticalLayout {
+    DialogBody {
+        Section {
+            title: @tr("Phone remote");
+            remote-pw-check := Check {
+                text: @tr("Ask for a password when a phone pairs");
+                checked <=> NetworkDlg.remote-pw-on;
+            }
+            if NetworkDlg.remote-pw-on: remote-pw := TextField {
+                password: true;
+                label: @tr("Remote password");
+                placeholder: NetworkDlg.remote-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+                text <=> NetworkDlg.remote-pw;
+            }
+            Muted { text: @tr("Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."); }
+        }
+        Section {
+            title: @tr("Stage screen on a phone or tablet");
+            stage-check := Check {
+                text: @tr("Show the stage screen to phones and tablets (read only)");
+                checked <=> NetworkDlg.stage-on;
+            }
+            if NetworkDlg.stage-on: VerticalLayout {
+                spacing: 6px;
+                stage-pw-check := Check {
+                    text: @tr("Ask for a password");
+                    checked <=> NetworkDlg.stage-pw-on;
+                }
+                if NetworkDlg.stage-pw-on: stage-pw := TextField {
+                    password: true;
+                    label: @tr("Stage screen password");
+                    placeholder: NetworkDlg.stage-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+                    text <=> NetworkDlg.stage-pw;
+                }
+                if NetworkDlg.stage-url != "": stage-url := Note {
+                    bold: NetworkDlg.stage-url;
+                    text: @tr("Open this address on the singer's iPad or phone (same Wi-Fi as this computer).");
+                }
+            }
+        }
+        Section {
+            title: @tr("Control from other gear (TCP)");
+            tcp-check := Check {
+                text: @tr("Let other gear send commands over the network");
+                checked <=> NetworkDlg.tcp-on;
+            }
+            if NetworkDlg.tcp-on: VerticalLayout {
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    Muted { text: @tr("Port"); vertical-alignment: center; }
+                    tcp-port := TextField {
+                        width: 100px;
+                        label: @tr("Port");
+                        text <=> NetworkDlg.tcp-port;
+                    }
+                    if NetworkDlg.tcp-address != "": Muted { text: NetworkDlg.tcp-address; vertical-alignment: center; }
+                }
+                tcp-pw-check := Check {
+                    text: @tr("Ask for a password");
+                    checked <=> NetworkDlg.tcp-pw-on;
+                }
+                if NetworkDlg.tcp-pw-on: tcp-pw := TextField {
+                    password: true;
+                    label: @tr("TCP password");
+                    placeholder: NetworkDlg.tcp-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+                    text <=> NetworkDlg.tcp-pw;
+                }
+                tcp-help := Note {
+                    text: NetworkDlg.tcp-help;
+                }
+            }
+        }
+        if NetworkDlg.error != "": net-error := Text {
+            text: NetworkDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        net-cancel := Btn { text: @tr("Cancel"); clicked => { NetworkDlg.cancel(); } }
+        net-save := Btn { primary: true; text: @tr("Save"); clicked => { NetworkDlg.save(); } }
+    }
+}
