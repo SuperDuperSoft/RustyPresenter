@@ -1,6 +1,15 @@
 # Portuguese (Brazil) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: pt-BR\nPlural-Forms: nplurals=2; plural=(n > 1);\nX-Native-Name: Português (Brasil)\nX-English-Name: Portuguese (Brazil)\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: pt-BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Native-Name: Português (Brasil)\n"
+"X-English-Name: Portuguese (Brazil)\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -81,6 +90,10 @@ msgstr "Criar slides a partir de imagens"
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Apresentações: no Google Apresentações, escolha Arquivo → Fazer download → Microsoft PowerPoint (.pptx) ou PDF e depois importe esse arquivo aqui. Arquivos Keynote e PDF também funcionam."
+
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr ""
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -709,6 +722,14 @@ msgstr "O áudio continua tocando enquanto você muda os slides. Pare-o com Limp
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Nome na biblioteca"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1991,8 +2012,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Começa um novo slide onde está o cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Estrofe 1]\nMaravilhosa graça, que doce som\nQue salvou um miserável como eu\n\n[Refrão]\nMinhas correntes caíram…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Estrofe 1]\n"
+"Maravilhosa graça, que doce som\n"
+"Que salvou um miserável como eu\n"
+"\n"
+"[Refrão]\n"
+"Minhas correntes caíram…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2383,6 +2416,10 @@ msgid "updating…"
 msgstr "atualizando…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Desenho"
 
@@ -2426,6 +2463,10 @@ msgstr "Corrija a letra da música ao vivo. A tela só muda quando você mandar.
 msgid "Update screen"
 msgstr "Atualizar tela"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "A seguir"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Voltar (← ou Page Up)"
@@ -2437,10 +2478,6 @@ msgstr "Avançar"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Avançar (→, Espaço ou Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "A seguir"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3548,10 @@ msgid "Take it off the stage"
 msgstr "Tirar do palco"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Só na tela do palco (o salão não verá)"
 
@@ -3553,6 +3594,14 @@ msgstr "(Música tocando)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Limpo)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4215,7 @@ msgstr "Música ausente"
 msgid "Missing media"
 msgstr "Mídia ausente"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Slide {n}"
 
@@ -5978,8 +6027,12 @@ msgid "Settings saved"
 msgstr "Configurações salvas"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Maravilhosa graça, que doce som\nQue salvou um miserável como eu"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Maravilhosa graça, que doce som\n"
+"Que salvou um miserável como eu"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6374,6 +6427,10 @@ msgstr "Pregador"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Relógio e contagem"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr ""
 
 #: src/strings/stage.rs
 msgid "Current slide"

@@ -1,6 +1,15 @@
 # Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fil\nPlural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\nX-Native-Name: Filipino\nX-English-Name: Filipino\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fil\n"
+"Plural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\n"
+"X-Native-Name: Filipino\n"
+"X-English-Name: Filipino\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -81,6 +90,10 @@ msgstr "Gumawa ng slides mula sa mga larawan"
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Microsoft PowerPoint (.pptx) o PDF, saka i-import dito ang file na iyon. Gumagana rin ang mga Keynote at PDF file."
+
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr ""
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -709,6 +722,14 @@ msgstr "Patuloy na tumutugtog ang audio habang nagpapalit ka ng slide. Ihinto it
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Pangalan sa library"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1991,8 +2012,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Nagsisimula ng bagong slide kung nasaan ang cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2383,6 +2416,10 @@ msgid "updating…"
 msgstr "nag-a-update…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Drawing"
 
@@ -2426,6 +2463,10 @@ msgstr "Ayusin ang mga salita ng live na kanta. Magbabago lang ang screen kapag 
 msgid "Update screen"
 msgstr "I-update ang screen"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Kasunod"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Bumalik (← o Page Up)"
@@ -2437,10 +2478,6 @@ msgstr "Susunod"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Susunod (→, Space o Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kasunod"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3548,10 @@ msgid "Take it off the stage"
 msgstr "Alisin ito sa stage"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Stage screen lang (hindi ito makikita ng silid)"
 
@@ -3553,6 +3594,14 @@ msgstr "(May tumutugtog na musika)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Blangko)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4166,7 +4215,7 @@ msgstr "Nawawalang kanta"
 msgid "Missing media"
 msgstr "Nawawalang media"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Slide {n}"
 
@@ -5978,8 +6027,12 @@ msgid "Settings saved"
 msgstr "Na-save ang settings"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6374,6 +6427,10 @@ msgstr "Tagapagsalita"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Orasan at countdown"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr ""
 
 #: src/strings/stage.rs
 msgid "Current slide"

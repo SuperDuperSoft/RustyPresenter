@@ -1,6 +1,15 @@
 # Russian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ru\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Русский\nX-English-Name: Russian\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Native-Name: Русский\n"
+"X-English-Name: Russian\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -81,6 +90,10 @@ msgstr "Слайды из картинок"
 #: ui/dialogs/add-media.slint
 msgid "Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too."
 msgstr "Google Slides: в Google Slides выберите Файл → Скачать → Microsoft PowerPoint (.pptx) или PDF, затем импортируйте этот файл сюда. Файлы Keynote и PDF тоже подходят."
+
+#: ui/dialogs/add-media.slint
+msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
+msgstr ""
 
 #: ui/dialogs/add-media.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
@@ -709,6 +722,14 @@ msgstr "Звук продолжает играть при смене слайд�
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
 msgstr "Название в библиотеке"
+
+#: ui/dialogs/item-edit.slint
+msgid "Speaker notes"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shown on the stage screen with each slide"
+msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -1991,8 +2012,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Начинает новый слайд с места курсора"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Куплет 1]\nО благодать, спасён тобой\nЯ из пучины бед\n\n[Припев]\nЦепей уж нет…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Куплет 1]\n"
+"О благодать, спасён тобой\n"
+"Я из пучины бед\n"
+"\n"
+"[Припев]\n"
+"Цепей уж нет…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2383,6 +2416,10 @@ msgid "updating…"
 msgstr "обновление…"
 
 #: ui/operator/live.slint
+msgid "Notes: {}"
+msgstr ""
+
+#: ui/operator/live.slint
 msgid "Drawing"
 msgstr "Рисунок"
 
@@ -2426,6 +2463,10 @@ msgstr "Исправьте текст текущей песни. Экран из
 msgid "Update screen"
 msgstr "Обновить экран"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs
+msgid "Up next"
+msgstr "Следующее"
+
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Назад (← или Page Up)"
@@ -2437,10 +2478,6 @@ msgstr "Далее"
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
 msgstr "Далее (→, Пробел или Page Down)"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Следующее"
 
 #: ui/operator/live.slint src/i18n/remote_strings.rs
 msgid "Clear All"
@@ -3511,6 +3548,10 @@ msgid "Take it off the stage"
 msgstr "Убрать со сцены"
 
 #: src/i18n/remote_strings.rs
+msgid "Presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
 msgstr "Только экран сцены (зал не увидит)"
 
@@ -3553,6 +3594,14 @@ msgstr "(Играет музыка)"
 #: src/i18n/remote_strings.rs
 msgid "(Clear)"
 msgstr "(Пусто)"
+
+#: src/i18n/remote_strings.rs
+msgid "Hide presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Show presenter notes"
+msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "Draw on the slide"
@@ -4170,7 +4219,7 @@ msgstr "Песня не найдена"
 msgid "Missing media"
 msgstr "Медиа не найдено"
 
-#: src/slides.rs
+#: src/slides.rs src/ui/dialogs/item_edit.rs
 msgid "Slide {n}"
 msgstr "Слайд {n}"
 
@@ -6005,8 +6054,12 @@ msgid "Settings saved"
 msgstr "Настройки сохранены"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "О благодать, как сладок звук,\nЧто спас меня, грешного"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"О благодать, как сладок звук,\n"
+"Что спас меня, грешного"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -6402,6 +6455,10 @@ msgstr "Проповедник"
 #: src/strings/stage.rs
 msgid "Clock and countdown"
 msgstr "Часы и отсчёт"
+
+#: src/strings/stage.rs
+msgid "Slides and notes"
+msgstr ""
 
 #: src/strings/stage.rs
 msgid "Current slide"
