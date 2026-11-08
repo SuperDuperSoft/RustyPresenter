@@ -93,6 +93,9 @@ case "$(basename "$2")" in
 esac
 EOF
   chmod +x "$C/tools/mingw64/bin/objdump.exe"
+  # strip: logs what it was given and shrinks the file, like the real one.
+  printf '#!/usr/bin/env bash\necho "$*" >>"%s/log/strip.txt"\necho small >"${@: -1}"\n' "$T" >"$C/tools/mingw64/bin/strip.exe"
+  chmod +x "$C/tools/mingw64/bin/strip.exe"
   for d in libstdc++-6.dll libgcc_s_seh-1.dll libwinpthread-1.dll libunused-1.dll; do echo "$d" >"$C/tools/mingw64/bin/$d"; done
   : >"$T/log/curl.txt"
 }
@@ -124,6 +127,7 @@ check "dry run changes no file" cmp -s "$T/before.txt" "$T/after.txt"
 check "dry run downloads nothing" test ! -s "$T/log/curl.txt"
 for n in 1 2 3 4 5; do check "dry run prints step $n" has "$C/out.txt" "== Step $n:"; done
 check "dry run names the NSIS pin" has "$C/out.txt" "NSIS_SHA256 is 'TODO'"
+check "dry run says it strips" has "$C/out.txt" "would strip the debug info"
 check "dry run names the setup file" has "$C/out.txt" "$SETUP"
 check "dry run says it changed nothing" has "$C/out.txt" "dry run finished; nothing was changed"
 
@@ -159,6 +163,10 @@ for f in rustypresenter.exe pdfium.dll libmpv-2.dll libstdc++-6.dll libgcc_s_seh
   licenses/FFmpeg-COPYING.LGPLv2.1.txt licenses/pdfium-abseil.txt licenses/libmpv-NOTE.txt; do
   check "staged $f" test -s "$S/$f"
 done
+check "the staged exe is stripped" has "$T/log/strip.txt" "--strip-debug $S/rustypresenter.exe"
+check "the staged libmpv is stripped" has "$T/log/strip.txt" "--strip-debug $S/libmpv-2.dll"
+check "the built exe is left alone" grep -qx exe "$C/build/rustypresenter.exe"
+check "the log says how big it is now" has "$C/out.txt" "stripped debug info: rustypresenter.exe"
 check "an unneeded MinGW DLL is left out" test ! -e "$S/libunused-1.dll"
 check "Windows' own DLLs are not copied" test ! -e "$S/KERNEL32.dll"
 check "native.txt is not staged" test ! -e "$S/licenses/native.txt"
@@ -202,6 +210,7 @@ code=0; run || { code=$?; cat "$C/out.txt"; }
 S="$C/tools/installer/work/stage"
 check "release run exits 0" test "$code" = 0
 check "release libmpv staged" cmp -s "$F/libmpv/libmpv-2.dll" "$S/libmpv-2.dll"
+check "release libmpv is not stripped" bash -c "! grep -q 'release.*libmpv-2.dll' '$T/log/strip.txt'"
 check "mpv Copyright from the zip" cmp -s "$F/libmpv/Copyright" "$S/licenses/mpv-Copyright.txt"
 check "libmpv notices staged" test -s "$S/licenses/libmpv-dav1d-COPYING.txt"
 check "BUILDINFO staged" test -s "$S/licenses/libmpv-BUILDINFO.txt"

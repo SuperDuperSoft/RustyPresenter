@@ -284,6 +284,25 @@ step "Put the program files together in $STAGE"
 mingw_imports() { "$OBJDUMP" -p "$(winpath "$1")" 2>/dev/null | sed -n 's/^[[:space:]]*DLL Name:[[:space:]]*//p' | tr -d '\r'; }
 # Copies every DLL the exe needs from MinGW's bin (libstdc++, libgcc_s, libwinpthread...), and what those need.
 # Outside the build window that folder is not on the PATH, so the app would not start without them.
+# The build keeps debug info (for crash backtraces on the build PC); the copies that go into the setup file
+# don't need it: it is most of the exe's size. --strip-debug keeps the symbol names. Only the staged copies change.
+strip_debug() {
+  local tool="$MINGW_BIN/strip.exe" f
+  [[ -x "$tool" ]] || tool="$MINGW_BIN/strip"
+  if [[ ! -x "$tool" ]]; then
+    say "NOTE: no strip in $MINGW_BIN, so the setup file keeps the debug info (it works, it is just bigger)"
+    return 0
+  fi
+  # A release libmpv stays byte-for-byte what was verified; the build PC's own copy may carry debug info.
+  local files=("$STAGE/rustypresenter.exe")
+  [[ $MPV_FROM == local ]] && files+=("$STAGE/libmpv-2.dll")
+  for f in "${files[@]}"; do
+    [[ -f "$f" ]] || continue
+    "$tool" --strip-debug "$(winpath "$f")" || die "strip failed on $f"
+    say "stripped debug info: $(basename "$f") is now $(( $(wc -c <"$f") / 1048576 )) MB"
+  done
+}
+
 copy_mingw_runtime() {
   OBJDUMP="$MINGW_BIN/objdump.exe"
   [[ -x "$OBJDUMP" ]] || OBJDUMP="$MINGW_BIN/objdump"
@@ -312,6 +331,7 @@ if [[ $DRY == 1 ]]; then
   say "would copy $EXE"
   say "would copy pdfium.dll$([[ $MPV_FROM != none ]] && echo ", libmpv-2.dll")"
   say "would add any MinGW runtime DLL the exe imports, from $MINGW_BIN (checked with objdump)"
+  say "would strip the debug info from the copied rustypresenter.exe$([[ $MPV_FROM == local ]] && echo " and libmpv-2.dll") (strip --strip-debug)"
   say "would copy LICENSE-MIT, LICENSE-APACHE, THIRD-PARTY-LICENSES.txt, the real texts in packaging/licenses/ and the libraries' own notices into licenses/"
 else
   mkdir -p "$STAGE/licenses"
@@ -321,6 +341,7 @@ else
     release) cp "$WORK/libmpv/libmpv-2.dll" "$STAGE/" ;;
     local) cp "$DEPS/mpv/libmpv-2.dll" "$STAGE/" ;;
   esac
+  strip_debug
   copy_mingw_runtime
   cp "$SRC/LICENSE-MIT" "$SRC/LICENSE-APACHE" "$STAGE/"
   cp "$SRC/THIRD-PARTY-LICENSES.txt" "$STAGE/licenses/"
