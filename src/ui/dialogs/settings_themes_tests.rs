@@ -74,7 +74,8 @@ fn themes_tab_comes_after_look_and_lists_standard_first_with_star() {
     let stars = find_all(&op, "Star::ta");
     assert_eq!(stars.len(), 2, "the ready-made themes wait behind their button");
     assert!(rows[1].ready_made && !rows[0].ready_made && !rows[last].ready_made);
-    assert_eq!(find(&op, "ThemeList::ready-made").unwrap().accessible_label().unwrap(), "Show 15 ready-made themes");
+    assert!(find(&op, "ThemeList::ready-made").is_some());
+    assert_eq!(g(&op).get_ready_made_label(), "Show 15 ready-made themes");
     assert!(find(&op, "ThemeList::new-theme").is_some());
     click(&op, "ThemeList::ready-made");
     let shown: Vec<String> = find_all(&op, "ThemeList::theme-row").iter().map(|r| r.accessible_label().unwrap().into()).collect();
