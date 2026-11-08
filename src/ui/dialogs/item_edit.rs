@@ -51,6 +51,9 @@ use crate::media_prefs::ENDS;
 /// Opens Item edit for service item `id` (the row's Edit button or the slides header's). Nothing happens when the
 /// item is not in the newest snapshot.
 pub fn open(op: &Rc<Operator>, id: Uuid) {
+    // N26: designed slides are edited in the slide editor.
+    let design = op.state.borrow().snap.as_ref().and_then(|s| s.data.service().and_then(|sv| sv.items.iter().find(|i| i.id == id)).map(|i| matches!(i.kind, ItemKind::Design { .. })));
+    if design == Some(true) { return super::design_editor::open(op, Some(id)) }
     let Some(snap) = op.state.borrow().snap.clone() else { return };
     let Some(row) = snap.items.iter().find(|i| i.id == id) else { return };
     let item = row.item.clone();
@@ -131,7 +134,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             name = Some(Name::Deck { id: d.id, was: d.title.clone() });
         },
         // FEAT-6: a blank keeps its notes and background here; a header is renamed from the service list.
-        ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+        ItemKind::Blank { .. } | ItemKind::Header { .. } | ItemKind::Design { .. } => {}
     }
     let has_background = matches!(item.kind, ItemKind::Song { .. } | ItemKind::Scripture { .. } | ItemKind::Text { .. });
     g.set_has_background(has_background);
@@ -413,7 +416,7 @@ fn collect(edit: &Edit, g: &ItemEdit) -> ServiceItem {
         ItemKind::Song { arrangement, .. } => if let Some((_, order)) = &edit.order {
             *arrangement = (!g.get_usual_order()).then(|| order.clone());
         },
-        ItemKind::Deck { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
+        ItemKind::Deck { .. } | ItemKind::Design { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
     }
     if let Some(p) = &edit.picker { item.background = p.value.clone() }
     if let Some(t) = usize::try_from(g.get_theme_index()).ok().and_then(|i| edit.themes.get(i)) { item.theme = *t }

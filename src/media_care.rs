@@ -41,6 +41,7 @@ fn frame_assets(f: &Frame, set: &mut BTreeSet<AssetId>) {
         None => {}
     }
     if let Some(SlideLayer::Image { asset }) = &f.slide { set.insert(asset.clone()); }
+    if let Some(SlideLayer::Design { design, .. }) = &f.slide { set.extend(design.assets()); }
     if let Some(a) = &f.audio { set.insert(a.v.asset.clone()); }
     set.extend(crate::theme::assets::slot_assets(&f.overlays));
 }
@@ -55,6 +56,7 @@ pub fn on_air(live: &Live) -> BTreeSet<AssetId> {
         for s in &item.slides {
             match &s.content {
                 SlideContent::Image { asset } | SlideContent::Video { asset, .. } | SlideContent::Still { asset } | SlideContent::Audio { asset, .. } => { set.insert(asset.clone()); }
+                SlideContent::Design { design, .. } => set.extend(design.assets()),
                 SlideContent::Text { .. } => {}
             }
         }

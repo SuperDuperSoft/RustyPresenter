@@ -8,6 +8,7 @@ pub mod add_youtube;
 pub mod ask;
 pub mod automation;
 pub mod background;
+pub mod design_editor;
 pub mod find_verse;
 pub mod item_edit;
 pub mod overlays;
@@ -82,6 +83,8 @@ pub enum DialogKind {
     QuickSearch,
     /// The app's words in a language, edited in the app (Settings → Translations…).
     Translations,
+    /// N26: the slide editor on a designed item (`None`: new slides).
+    Design(Option<Uuid>),
 }
 
 impl DialogKind {
@@ -90,7 +93,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_)) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -116,6 +119,7 @@ impl DialogKind {
             DialogKind::SlideBreaks(_) => "slide-breaks",
             DialogKind::QuickSearch => "quick-search",
             DialogKind::Translations => "translations",
+            DialogKind::Design(_) => "design",
         }
     }
 }
@@ -237,6 +241,7 @@ impl Operator {
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
             DialogKind::QuickSearch => quick_search::title(),
             DialogKind::Translations => translation_editor::title(),
+            DialogKind::Design(_) => crate::design::strings::editor_title(),
         }
     }
 }

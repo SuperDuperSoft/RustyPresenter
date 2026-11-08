@@ -369,6 +369,7 @@ pub fn slide_text(s: &Slide) -> String {
         SlideContent::Video { .. } => crate::tr!("(video)"),
         SlideContent::Still { .. } => crate::tr!("(picture)"),
         SlideContent::Audio { .. } => crate::tr!("(audio)"),
+        SlideContent::Design { design, .. } => design.words(),
     }
 }
 

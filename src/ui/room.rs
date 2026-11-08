@@ -11,6 +11,7 @@ use crate::render::drawing::DrawingCanvas;
 use crate::platform::monitors::{self, MonitorId};
 use crate::render::{Generation, Renderer};
 use crate::room::{self, Kind, LayerKey, Plan, Ready, RoomState};
+use crate::design::TransitionKind;
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
 use slint::{ComponentHandle, Timer, TimerMode};
@@ -33,7 +34,19 @@ fn slot(kind: Kind) -> Option<usize> {
 
 /// How long a plan's layers crossfade: Settings' look fade when only the look changed (N9; 0 cuts), else `FADE`.
 fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
+    // N26: a designed slide's own transition. Through black, the layers change while the screen is black.
+    if let Some(t) = plan.transition {
+        return match t.kind { TransitionKind::Fade => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))), _ => Duration::ZERO };
+    }
     if plan.look_change { Duration::from_millis(u64::from(view.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS))) } else { FADE }
+}
+
+/// Each half of a fade through black: a designed slide's own time, else `HALF`.
+fn half_for(plan: &Plan) -> Duration {
+    match plan.transition {
+        Some(t) if t.kind == TransitionKind::Black => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS) / 2)),
+        _ => HALF,
+    }
 }
 
 /// The playback instance a layer key names (only players report).
@@ -65,7 +78,7 @@ fn video_dim(kind: Kind, f: &Frame) -> Option<slint::Color> {
 /// visible. The window gets each face's picture and opacity as separate properties, so a change writes only the
 /// face it touches (writing one struct for the whole layer dirtied both pictures).
 #[derive(Clone, Default)]
-struct Faces { a: Side, b: Side, b_top: bool, shown: bool }
+struct Faces { a: Side, b: Side, b_top: bool, shown: bool, serial: u64 }
 
 impl Faces {
     /// The face that is current (shown, or fading out once the layer is hidden).
@@ -75,6 +88,7 @@ impl Faces {
     /// Puts `side` on the face that is not showing and makes it current, so it fades in over the old one.
     /// True when that is face b.
     fn put(&mut self, side: Side) -> bool {
+        self.serial += 1;
         if self.shown { self.b_top = !self.b_top }
         if self.b_top { self.b = side } else { self.a = side }
         self.shown = true;
@@ -339,16 +353,17 @@ impl Inner {
     fn swap(&self, prep: Prep, commit: RoomEvent) {
         self.flush();
         if !prep.plan.fade_through_black { return self.apply(prep, Some(commit)) }
-        self.fader.fade(self.black, 1.0, HALF);
+        let half = half_for(&prep.plan);
+        self.fader.fade(self.black, 1.0, half);
         *self.deferred.borrow_mut() = Some((prep, Some(commit)));
         let me = self.me.clone();
-        self.fade.start(TimerMode::SingleShot, HALF, move || if let Some(i) = me.upgrade() { i.flush() });
+        self.fade.start(TimerMode::SingleShot, half, move || if let Some(i) = me.upgrade() { i.flush() });
     }
 
     /// Applies a swap that waited for black, and fades back in.
     fn flush(&self) {
         let d = self.deferred.borrow_mut().take();
-        if let Some((prep, commit)) = d { self.apply(prep, commit); self.fader.fade(self.black, 0.0, HALF) }
+        if let Some((prep, commit)) = d { let half = half_for(&prep.plan); self.apply(prep, commit); self.fader.fade(self.black, 0.0, half) }
     }
 
     fn apply(&self, prep: Prep, commit: Option<RoomEvent>) {
@@ -361,6 +376,7 @@ impl Inner {
         for (kind, got) in prep.got {
             let old = slot(kind).and_then(|s| players[s].take());
             match got {
+                Got::Pic(side) if kind == Kind::Slide && prep.plan.build => self.put_over(kind, side, fade),
                 Got::Pic(side) => self.put(kind, side, fade),
                 Got::Play(p) => {
                     // Video is drawn under the scene (audio has no layer); a background video's Darken is a black
@@ -434,6 +450,30 @@ impl Inner {
         let (set_a, set_b, _, _) = setters(i);
         if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
         self.fade_to(i, ops, fade);
+    }
+
+    /// N26 builds: `side` holds everything on screen plus what is new, so it fades in over the old picture (or the
+    /// old one fades out over it) with the old one kept at full: what stays never dims, only the new part appears.
+    fn put_over(&self, kind: Kind, side: Side, fade: Duration) {
+        let Some(i) = index(kind) else { return };
+        let (was_shown, on_b, serial) = { let mut f = self.faces.borrow_mut(); let was = f[i].shown; let on_b = f[i].put(side.clone()); (was, on_b, f[i].serial) };
+        let (set_a, set_b, _, _) = setters(i);
+        if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
+        let ops = self.faces.borrow()[i].ops();
+        if !was_shown { return self.fade_to(i, ops, fade) }
+        let (ca, cb) = self.face_ops[i];
+        if on_b {
+            self.fader.fade(ca, 1.0, Duration::ZERO);
+            self.fader.fade(cb, 1.0, fade);
+            // Once the new face is up, the old one under it goes (it would darken see-through edges twice).
+            let me = self.me.clone();
+            Timer::single_shot(fade, move || if let Some(me) = me.upgrade() {
+                if me.faces.borrow()[i].serial == serial { me.fader.fade(ca, 0.0, Duration::ZERO) }
+            });
+        } else {
+            self.fader.fade(ca, 1.0, Duration::ZERO);
+            self.fader.fade(cb, 0.0, fade);
+        }
     }
 
     /// Fades `kind` out (its pictures stay, for a later crossfade).
@@ -715,7 +755,7 @@ mod tests {
     #[test]
     fn a_look_change_fades_for_the_settings_time() {
         let mut v = test_app().live_view();
-        let plan = |look_change| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change };
+        let plan = |look_change| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change, transition: None, build: false };
         v.look_fade_ms = 2500;
         assert_eq!(fade_for(&plan(true), &v), Duration::from_millis(2500));
         assert_eq!(fade_for(&plan(false), &v), FADE, "a new slide crossfades as always");
@@ -723,6 +763,35 @@ mod tests {
         assert_eq!(fade_for(&plan(true), &v), Duration::ZERO, "0 cuts");
         v.look_fade_ms = 60_000;
         assert_eq!(fade_for(&plan(true), &v), Duration::from_secs(5), "never longer than Settings offers");
+    }
+
+    #[test]
+    fn a_designed_slide_fades_cuts_or_goes_through_black_for_its_own_time() {
+        use crate::design::Transition;
+        let v = test_app().live_view();
+        let plan = |kind, ms| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change: false, transition: Some(Transition { kind, ms }), build: false };
+        assert_eq!(fade_for(&plan(TransitionKind::Fade, 1200), &v), Duration::from_millis(1200));
+        assert_eq!(fade_for(&plan(TransitionKind::Cut, 1200), &v), Duration::ZERO);
+        assert_eq!(half_for(&plan(TransitionKind::Black, 1200)), Duration::from_millis(600));
+        assert_eq!(half_for(&plan(TransitionKind::Fade, 1200)), HALF);
+    }
+
+    #[test]
+    fn a_build_fades_the_new_face_in_over_the_old_held_at_full() {
+        i_slint_backend_testing::init_no_event_loop();
+        let room = open(&test_app());
+        let i = &room.inner;
+        let side = || Side { image: Default::default(), color: slint::Color::from_argb_u8(255, 1, 2, 3) };
+        i.put(Kind::Slide, side(), FADE);
+        let slot = index(Kind::Slide).unwrap();
+        let (ca, cb) = i.face_ops[slot];
+        i.put_over(Kind::Slide, side(), FADE);
+        // The new face is b (on top): it fades in while a stays up.
+        assert!(i.faces.borrow()[slot].b_top);
+        assert_eq!((i.fader.target(ca), i.fader.target(cb)), (1.0, 1.0));
+        i.put_over(Kind::Slide, side(), FADE);
+        // The new face is a (under): it is up at once and b fades out over it.
+        assert_eq!((i.fader.target(ca), i.fader.target(cb)), (1.0, 0.0));
     }
 
     #[test]
@@ -856,7 +925,7 @@ mod tests {
         let app = test_app();
         let room = open(&app);
         let i = &room.inner;
-        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true, look_change: false }, Frame::default()), RoomEvent::Committed { version: 0 });
+        let swap = |token| i.swap(prep(Plan { token, version: 0, prepare: vec![], remove: vec![], fade_through_black: true, look_change: false, transition: None, build: false }, Frame::default()), RoomEvent::Committed { version: 0 });
         swap(100);
         i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(150));
         swap(101);

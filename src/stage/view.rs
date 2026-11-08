@@ -78,6 +78,7 @@ pub fn label(slide: &Slide) -> String {
         SlideContent::Video { .. } => s::video().into(),
         SlideContent::Still { .. } => s::picture().into(),
         SlideContent::Audio { .. } => s::audio().into(),
+        SlideContent::Design { design, .. } => design.words(),
     }
 }
 

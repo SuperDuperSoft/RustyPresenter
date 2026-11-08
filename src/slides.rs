@@ -321,6 +321,21 @@ pub fn text_slides(title: &str, body: &str) -> Vec<Slide> {
     slides
 }
 
+/// A designed item's slides (N26): each slide, then one more for each of its builds, so Next shows the next build.
+pub fn design_slides(designs: &[crate::design::Design]) -> Vec<Slide> {
+    let mut out = Vec::new();
+    for (i, d) in designs.iter().enumerate() {
+        let steps = d.steps();
+        for step in 0..=steps {
+            let label = if step == 0 { crate::design::strings::slide_name(i + 1) } else { crate::design::strings::build_name(i + 1, step, steps) };
+            let mut slide = Slide::new(label, SlideContent::Design { design: d.at_step(step), step, steps });
+            slide.notes = d.notes.clone();
+            out.push(slide);
+        }
+    }
+    out
+}
+
 /// A passage's slides and what the operator should know about them (Nov 5 spec §3): each verse a Bible lacks, and
 /// each Bible left out of the slides. The note shows under the slides grid.
 pub struct ScriptureBuild { pub slides: Vec<Slide>, pub notes: Vec<String> }
@@ -384,6 +399,7 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             None => (crate::tr!("Missing slides"), "deck", vec![]),
         },
         ItemKind::Text { title, body } => (title.clone(), "text", text_slides(title, body)),
+        ItemKind::Design { title, slides } => (title.clone(), "design", design_slides(slides)),
         ItemKind::Blank { label, want } => (crate::planning::blank_title(label, *want), "blank", vec![]),
         ItemKind::Header { title, .. } => (title.clone(), "header", vec![]),
     };

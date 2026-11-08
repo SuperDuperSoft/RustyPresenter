@@ -169,5 +169,10 @@ export component SettingsHelp inherits HorizontalLayout {
         Note {
             text: @tr("Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.");
         }
+        // N26, N27: the slide editor's own keys (they work only on its slide).
+        Lbl { label: @tr("In the slide editor"); }
+        slide-editor-keys := Note {
+            text: @tr("Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object.");
+        }
     }
 }

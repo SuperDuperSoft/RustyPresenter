@@ -89,6 +89,7 @@ fn order_blocks(data: &Data, service: &Service, options: &PrintSettings, out: &m
                 None => ("deck", tr::missing_slides().into(), String::new(), false),
             },
             ItemKind::Text { title, body } => ("text", title.clone(), first_line(body), false),
+            ItemKind::Design { title, slides } => ("text", title.clone(), slides.first().map(|d| first_line(&d.words())).unwrap_or_default(), false),
             ItemKind::Blank { label, want } => {
                 let asked;
                 let label = if label.trim().is_empty() { asked = planning::strings::blank_label(*want); &asked } else { label.trim() };

@@ -46,6 +46,8 @@ pub enum MenuAction {
     BibleInfo,
     /// Settings → Translations…: the translation editor on the language in use.
     Translations,
+    /// File → Add to service → Designed slides… (N26): the slide editor on new slides.
+    AddDesign,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -89,6 +91,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "slides-table" => MenuAction::SlideView(super::slides::SlideView::Table),
         "bible-info" => MenuAction::BibleInfo,
         "translations" => MenuAction::Translations,
+        "add-design" => MenuAction::AddDesign,
         _ => return None,
     })
 }
@@ -126,6 +129,7 @@ impl Operator {
                 if let Some(id) = chosen { super::bible_extras::info(self, &id) }
             }
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
+            Some(MenuAction::AddDesign) => crate::ui::dialogs::design_editor::open(self, None),
             None => {}
         }
     }
@@ -301,6 +305,7 @@ mod tests {
         assert_eq!(action("zoom-reset"), Some(MenuAction::Zoom(0)));
         assert_eq!(action("exit"), Some(MenuAction::Exit));
         assert_eq!(action("stage-layouts"), Some(MenuAction::StageLayouts));
+        assert_eq!(action("add-design"), Some(MenuAction::AddDesign));
         assert_eq!(action("automation"), Some(MenuAction::Automation));
         assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
         assert_eq!(action("find-mouse"), Some(MenuAction::FindMouse));

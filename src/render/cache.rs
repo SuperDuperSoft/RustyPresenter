@@ -21,6 +21,43 @@ pub struct RenderKey {
     pub parallel: Option<crate::scripture::Parallel>,
     pub theme: Theme,
     pub canvas: (u32, u32),
+    /// A designed slide (N26) to draw instead of the text: then only `theme`'s font and `canvas` count.
+    pub design: Option<DesignKey>,
+}
+
+/// A designed slide as the renderer draws it: the slide as JSON (so the key can be hashed) and the folder its
+/// pictures are in.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct DesignKey { pub json: String, pub assets: std::path::PathBuf }
+
+impl RenderKey {
+    /// A design key made without its picture folder (`design` with an empty path) gets `dir`.
+    pub fn with_assets(mut self, dir: std::path::PathBuf) -> RenderKey {
+        if let Some(d) = &mut self.design && d.assets.as_os_str().is_empty() { d.assets = dir }
+        self
+    }
+
+    /// The key that draws `design` at `canvas`, its pictures read from `assets`.
+    pub fn design(design: &crate::design::Design, theme: Theme, canvas: (u32, u32), assets: std::path::PathBuf) -> RenderKey {
+        RenderKey {
+            text: String::new(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme, canvas,
+            design: Some(DesignKey { json: serde_json::to_string(design).unwrap_or_default(), assets }),
+        }
+    }
+}
+
+/// Draws whatever `key` asks for.
+pub fn draw_key(fonts: &mut Fonts, key: &RenderKey) -> Rendered {
+    if let Some(dk) = &key.design {
+        let d: crate::design::Design = serde_json::from_str(&dk.json).unwrap_or_default();
+        let mut picture = |a: &str| image::ImageReader::open(dk.assets.join(a)).ok()?.with_guessed_format().ok()?.decode().ok().map(|i| i.into_rgba8());
+        return super::design::render_design(fonts, &d, &key.theme.font, key.canvas, &mut picture);
+    }
+    let slide = TextSlide {
+        text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture,
+        size: key.size, passage: &key.passage, parallel: key.parallel.as_ref(),
+    };
+    render_text(fonts, &slide, &key.theme, key.canvas)
 }
 
 /// Default memory cap for cached pixels: 256 MB, about 32 full-HD slides.
@@ -98,12 +135,8 @@ impl Renderer {
                 // Another request may have rendered this key while the job waited in line.
                 let hit = worker_cache.lock().unwrap().get(&key);
                 let r = hit.unwrap_or_else(|| {
-                    let slide = TextSlide {
-                        text: &key.text, footer: key.footer.as_deref(), reference: key.reference.as_deref(), scripture: key.scripture,
-                        size: key.size, passage: &key.passage, parallel: key.parallel.as_ref(),
-                    };
                     // A panic while drawing one slide must not stop the renderer for every screen: show it blank.
-                    let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| render_text(&mut fonts, &slide, &key.theme, key.canvas)));
+                    let drawn = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| draw_key(&mut fonts, &key)));
                     let r = Arc::new(drawn.unwrap_or_else(|_| {
                         eprintln!("Could not draw a slide ({:?}); showing it blank", key.text.chars().take(40).collect::<String>());
                         fonts = Fonts::new();
@@ -183,7 +216,7 @@ mod tests {
     use super::*;
 
     fn key(text: &str, canvas: (u32, u32)) -> RenderKey {
-        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas }
+        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas, design: None }
     }
 
     #[tokio::test]

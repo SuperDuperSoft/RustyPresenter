@@ -244,6 +244,7 @@ pub fn next_up(view: &LiveView) -> (String, String) {
         SlideContent::Video { .. } => tr::video(),
         SlideContent::Still { .. } => tr::picture(),
         SlideContent::Audio { .. } => tr::audio(),
+        SlideContent::Design { design, .. } => design.words(),
     };
     (format!("{} · {}", n.title, n.slide.label), body)
 }

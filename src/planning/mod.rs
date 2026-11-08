@@ -183,7 +183,7 @@ pub fn blank_kind(kind: &ItemKind) -> Option<BlankKind> {
         ItemKind::Scripture { .. } => BlankKind::Scripture,
         ItemKind::Media { .. } => BlankKind::Media,
         ItemKind::Deck { .. } => BlankKind::Deck,
-        ItemKind::Text { .. } => BlankKind::Text,
+        ItemKind::Text { .. } | ItemKind::Design { .. } => BlankKind::Text,
         ItemKind::Blank { .. } | ItemKind::Header { .. } => return None,
     })
 }

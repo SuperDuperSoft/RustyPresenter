@@ -56,6 +56,7 @@ pub fn slide_text(slide: &Slide) -> String {
         SlideContent::Image { .. } | SlideContent::Still { .. } => super::strings::media_picture(),
         SlideContent::Video { .. } => super::strings::media_video(),
         SlideContent::Audio { .. } => super::strings::media_audio(),
+        SlideContent::Design { design, .. } => design.words(),
     }
 }
 

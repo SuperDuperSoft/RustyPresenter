@@ -2,6 +2,7 @@
 //! thumbnails all draw text slides with this code, so what you see is what the room sees.
 pub mod background;
 pub mod cache;
+pub mod design;
 pub mod color;
 pub mod drawing;
 pub mod layout;
@@ -9,7 +10,7 @@ pub mod overlay;
 pub mod parallel;
 pub mod raster;
 
-pub use cache::{Generation, RenderKey, Renderer, Wanted};
+pub use cache::{DesignKey, Generation, RenderKey, Renderer, Wanted};
 pub use color::parse_color;
 pub use layout::{Fonts, Rect, TextLayout, TextSlide, fit_steps, layout, passage_px};
 pub use raster::{Premul, Rendered, render_text};

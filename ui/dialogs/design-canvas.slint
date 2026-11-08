@@ -1,0 +1,135 @@
+// The slide editor's picture of the slide (N26): the slide as the room draws it (a picture made in Rust), with a
+// frame round each chosen object, the handles of the one chosen, and the snap guides. Pointer and keys go to Rust in
+// % of the slide (`src/ui/dialogs/design_editor.rs`), like the stage layout editor's canvas.
+import { Theme } from "../theme.slint";
+
+/// One object's frame, in % of the slide (before turning).
+export struct DesignObjVm { id: string, x: float, y: float, w: float, h: float, rotation: float, selected: bool }
+
+/// A snap line while an object is dragged: `vertical` at x = `at` %, else horizontal at y = `at` %.
+export struct DesignGuideVm { vertical: bool, at: float }
+
+export component DesignCanvas inherits Rectangle {
+    in property <image> picture;
+    in property <[DesignObjVm]> objects;
+    in property <[DesignGuideVm]> guides;
+    /// Exactly one object is chosen: it gets handles.
+    in property <bool> handles;
+    /// The pen is on: dragging draws a line.
+    in property <bool> pen;
+    /// Pointer down at (x, y) %, with how many % a handle reaches each way; `add` = Shift, `free` = Alt.
+    callback press(float, float, float, float, bool, bool);
+    callback drag(float, float);
+    callback release();
+    /// Arrows: 0 left, 1 right, 2 up, 3 down; Shift resizes.
+    callback nudge(int, bool);
+    /// A key with Ctrl (and maybe Alt or Shift) held: "z", "y", "d", "a", "c", "v"…
+    callback command(string, bool, bool);
+    callback remove();
+    callback next(bool);
+
+    // The 16:9 slide, as big as fits and centred.
+    property <length> sw: min(root.width, root.height * 16 / 9);
+    property <length> sh: self.sw * 9 / 16;
+    property <length> sx: (root.width - self.sw) / 2;
+    property <length> sy: (root.height - self.sh) / 2;
+    property <length> grab: 9px;
+
+    public function focus-canvas() { keys.focus(); }
+
+    keys := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        key-pressed(event) => {
+            if event.modifiers.control {
+                if event.text == "" { return reject; }
+                root.command(event.text, event.modifiers.alt, event.modifiers.shift);
+                return accept;
+            }
+            if event.text == Key.LeftArrow { root.nudge(0, event.modifiers.shift); return accept; }
+            if event.text == Key.RightArrow { root.nudge(1, event.modifiers.shift); return accept; }
+            if event.text == Key.UpArrow { root.nudge(2, event.modifiers.shift); return accept; }
+            if event.text == Key.DownArrow { root.nudge(3, event.modifiers.shift); return accept; }
+            if event.text == Key.Delete || event.text == Key.Backspace { root.remove(); return accept; }
+            if event.text == Key.Tab { root.next(false); return accept; }
+            if event.text == Key.Backtab { root.next(true); return accept; }
+            reject
+        }
+
+        screen := Rectangle {
+            x: root.sx;
+            y: root.sy;
+            width: root.sw;
+            height: root.sh;
+            background: #000000;
+            border-color: keys.has-focus ? Theme.accent : Theme.line;
+            border-width: 1px;
+            clip: true;
+            accessible-role: groupbox;
+            accessible-label: @tr("Slide");
+
+            Image {
+                width: parent.width;
+                height: parent.height;
+                source: root.picture;
+                image-fit: fill;
+            }
+
+            for o in root.objects: Rectangle {
+                x: o.x * root.sw / 100;
+                y: o.y * root.sh / 100;
+                width: o.w * root.sw / 100;
+                height: o.h * root.sh / 100;
+                border-color: o.selected ? Theme.accent : #ffffff30;
+                border-width: o.selected ? 2px : 1px;
+                accessible-role: list-item;
+                accessible-label: o.id;
+                accessible-item-selected: o.selected;
+            }
+
+            for g in root.guides: Rectangle {
+                x: g.vertical ? g.at * root.sw / 100 : 0;
+                y: g.vertical ? 0 : g.at * root.sh / 100;
+                width: g.vertical ? 1px : root.sw;
+                height: g.vertical ? root.sh : 1px;
+                background: Theme.accent;
+            }
+
+            // The chosen object's eight handles.
+            for o in root.objects: Rectangle {
+                if o.selected && root.handles && !root.pen: Rectangle {
+                    for h in [
+                        { hx: 0.0, hy: 0.0 }, { hx: 0.5, hy: 0.0 }, { hx: 1.0, hy: 0.0 }, { hx: 1.0, hy: 0.5 },
+                        { hx: 1.0, hy: 1.0 }, { hx: 0.5, hy: 1.0 }, { hx: 0.0, hy: 1.0 }, { hx: 0.0, hy: 0.5 }
+                    ]: Rectangle {
+                        x: (o.x + o.w * h.hx) * root.sw / 100 - 4px;
+                        y: (o.y + o.h * h.hy) * root.sh / 100 - 4px;
+                        width: 8px;
+                        height: 8px;
+                        background: Theme.accent;
+                        border-color: Theme.accent-ink;
+                        border-width: 1px;
+                    }
+                }
+            }
+
+            pointer := TouchArea {
+                mouse-cursor: root.pen ? crosshair : default;
+                pointer-event(e) => {
+                    if e.button != PointerEventButton.left { return; }
+                    if e.kind == PointerEventKind.down {
+                        keys.focus();
+                        root.press(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100,
+                            root.grab / root.sw * 100, root.grab / root.sh * 100, e.modifiers.shift, e.modifiers.alt);
+                    }
+                    if e.kind == PointerEventKind.up { root.release(); }
+                }
+                moved => {
+                    if self.pressed { root.drag(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100); }
+                }
+            }
+        }
+    }
+}

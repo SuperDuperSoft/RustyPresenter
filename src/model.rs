@@ -45,6 +45,8 @@ pub enum SlideContent {
     Still { asset: AssetId },
     /// Audio-only item (walk-in music). Does not change visuals.
     Audio { asset: AssetId, looped: bool },
+    /// A designed slide (N26) as shown after `step` of its `steps` builds (0: before any).
+    Design { design: crate::design::Design, #[serde(default)] step: u16, #[serde(default)] steps: u16 },
 }
 
 fn is_zero(n: &u32) -> bool { *n == 0 }
@@ -223,6 +225,8 @@ pub enum ItemKind {
     Media { media_id: Uuid, #[serde(default = "yes")] autoplay: bool, #[serde(default)] end: EndAction, #[serde(default)] looped: bool },
     Deck { deck_id: Uuid },
     Text { title: String, body: String },
+    /// Slides made in the slide editor (N26): text boxes, shapes, pictures… placed freely.
+    Design { title: String, #[serde(default)] slides: Vec<crate::design::Design> },
     /// A part of the service still to be chosen (FEAT-6). Shows no slides; Next and Prev step over it.
     Blank { #[serde(default)] label: String, #[serde(default)] want: BlankKind },
     /// A coloured heading in the service list ("Worship", "Message"). Shows no slides.
@@ -710,6 +714,10 @@ impl Data {
         }
         // FEAT-3: hand-edited stage layouts made safe to draw.
         for l in &mut self.stage_layouts { changed |= crate::stage::geom::sanitise_layout(l); }
+        // N26: hand-edited designed slides made safe to draw.
+        for i in self.services.iter_mut().flat_map(|s| &mut s.items) {
+            if let ItemKind::Design { slides, .. } = &mut i.kind { for d in slides { changed |= d.sanitise() } }
+        }
         // FEAT-2: the built-in timers and messages, once.
         changed |= crate::automation::seed(&mut self.automation);
         changed
@@ -739,6 +747,10 @@ impl Data {
         }
         for d in &self.decks { set.extend(d.slides.iter().cloned()); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
+        // N26: pictures and videos on designed slides.
+        for i in self.services.iter().flat_map(|s| &s.items).chain(self.templates.iter().flat_map(|t| &t.items)) {
+            if let ItemKind::Design { slides, .. } = &i.kind { for d in slides { set.extend(d.assets()) } }
+        }
         set.extend(crate::theme::assets::referenced(&self.themes, &self.backgrounds, &self.overlays));
         for t in &self.templates { for i in &t.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
         set
