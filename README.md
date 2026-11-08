@@ -8,14 +8,25 @@ Church presentation app: song lyrics, Bible verses, PowerPoint slides, videos, p
 
 Download the installer for your computer from the [releases page](https://github.com/SuperDuperSoft/RustyPresenter/releases). The releases are not signed yet, so the first start shows a warning.
 
-**Windows:** run the installer; it needs no administrator password.
+**Windows:** double-click `RustyPresenter-Setup-<version>.exe`. It needs no administrator password.
 
+- It installs RustyPresenter for you only, in `%LOCALAPPDATA%\Programs\RustyPresenter` (for example `C:\Users\<you>\AppData\Local\Programs\RustyPresenter`), and adds it to the Start menu and the desktop.
+- A newer setup file updates it in place: run it, and your songs, services and settings stay. Close RustyPresenter first.
+- To remove it: **Settings → Apps → Installed apps → RustyPresenter → Uninstall**. Your songs, services, media, Bibles, settings and backups in `%LOCALAPPDATA%\RustyPresenter` are kept, unless you tick **Also delete that folder** on the uninstaller's second page.
 - If SmartScreen appears, click **More info**, then **Run anyway**. If Smart App Control is on, Windows blocks the app outright and these buttons do not appear.
 - On the first start Windows asks whether RustyPresenter may use the network. Tick **Private networks** and click **Allow**, or phones cannot connect. Do this before pairing a phone.
 
 **macOS** (Apple silicon): open the `.dmg` and drag the app to Applications. On first start, go to **System Settings → Privacy & Security** and click **Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/RustyPresenter.app`.
 
 **Linux:** either run `sudo apt install ./rustypresenter_*.deb`, or make the AppImage runnable with `chmod +x` and start it. The AppImage needs `libfuse2`.
+
+### Make the Windows installer yourself
+
+On the PC that builds RustyPresenter, double-click **`make-installer.cmd`** in the RustyPresenter folder (the one with `.tools` in it). It builds the newest version the same way as `try-latest.cmd`, downloads the installer maker (NSIS) and the video and PDF libraries into `.tools\installer` the first time, checks every download against `packaging\pins.env`, and puts `RustyPresenter-Setup-<version>.exe` on your Desktop. It needs Git for Windows and the tools in `.tools`; no Visual Studio. The first run takes 10 to 15 minutes, later runs a few.
+
+- If it stops with "The installer was NOT made yet", a download is new and its fingerprint is not in the code yet: send `.tools\xfer\make-installer\hashes.txt` to whoever maintains the code, and run it again once they have added it.
+- Everything it did is written to `.tools\xfer\make-installer\installer.txt` (and the build to `build.txt` next to it).
+- `make-installer.cmd --dry-run` (typed in a Command Prompt in that folder) only lists the steps.
 
 To import PowerPoint and Keynote files without PowerPoint, install LibreOffice (free) from [libreoffice.org](https://www.libreoffice.org/download/download/):
 

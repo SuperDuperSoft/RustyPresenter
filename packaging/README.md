@@ -17,6 +17,10 @@ The packaged binary is `rustypresenter`.
 | `packaging/icons/` | 32, 128, 256 and 512 PNGs and `icon.ico`, made from `icons/icon.ico` (its largest image is 256 px, so the 512 PNG is scaled up). `icon.icns` is generated on macOS by `stage.sh` and not committed |
 | `packaging/libmpv/` | the LGPL libmpv build scripts (Plan 4 Task 16) |
 | `packaging/windows/installer.nsi` | cargo-packager 0.11.8's NSIS template with the per-user install folder moved (see below) |
+| `make-installer.cmd` (repo root) | builds the setup file on a Windows PC with MinGW, no cargo-packager (see "Windows installer on a PC") |
+| `packaging/windows/make-installer.sh` | what `make-installer.cmd` runs in Git Bash: downloads, checks, licences, staging, makensis |
+| `packaging/windows/rustypresenter.nsi` | the plain NSIS script it compiles |
+| `packaging/windows/test-make-installer.sh`, `check-nsi.py` | tests of both that run without Windows (CI `packaging` job) |
 | `packaging/macos/entitlements.plist` | disables library validation so the ad-hoc signed app can load its dylibs |
 | `packaging/licenses/` | licence texts appended to `THIRD-PARTY-LICENSES.txt` (Plan 4 Task 14) |
 
@@ -99,11 +103,48 @@ cargo packager --release -c Packager.toml -f appimage,deb  # Linux
 CI does all of this in `.github/workflows/package.yml` on `v*` tags. The LGPL libmpv
 itself comes from `.github/workflows/libmpv.yml`.
 
+## Windows installer on a PC
+
+`make-installer.cmd` makes `RustyPresenter-Setup-<version>.exe` on the Desktop of a PC that builds with the MinGW
+toolchain in `.tools` (no MSVC, no cargo-packager). It builds the release exe exactly like `try-latest.cmd`
+(the branch in `.tools\xfer\latest-branch.txt`, checked out in `%USERPROFILE%\rp-wt\windows-check`, built in
+`%LOCALAPPDATA%\RustyPresenter\build-check`; run from any other checkout, it builds that checkout), then runs
+`packaging/windows/make-installer.sh` in Git Bash:
+
+1. Downloads into `.tools\installer\downloads`, once: the NSIS zip (`NSIS_URL`, SourceForge), pdfium
+   (`PDFIUM_TAG`), and libmpv: the LGPL release `libmpv-r<N>` when `LIBMPV_SHA256_WINDOWS` is pinned, otherwise the
+   PC's own `%LOCALAPPDATA%\RustyPresenter\deps\mpv\libmpv-2.dll` plus mpv's `Copyright` from `MPV_COPYRIGHT_URL`.
+   No libmpv at all still makes an installer, without video. Every file is checked against `pins.env`.
+2. A pin that says `TODO` is not trusted. The file goes to `downloads\unverified\`, its sha256 and sha1 to
+   `.tools\xfer\make-installer\hashes.txt`, and the run stops (exit 3) before building. Compare them with the
+   publisher (SourceForge lists sha1 for NSIS; for mpv's `Copyright`, compare the text), then pin the sha256.
+3. Fills the placeholders `packaging/licenses/mpv-Copyright.txt` and `pdfium-LICENSE.txt` in the tree it built from
+   with the real texts, and copies them to `.tools\xfer\make-installer\licenses\` to be committed (then run
+   `scripts/licenses.sh`). `FFmpeg-COPYING.LGPLv2.1.txt` is committed already; the release zip's copy wins when there is one.
+4. Stages `rustypresenter.exe`, `pdfium.dll`, `libmpv-2.dll`, every MinGW runtime DLL the exe imports (found with
+   `objdump`; outside the build window `.tools\mingw64\bin` is not on the PATH), `LICENSE-*` and `licenses\`
+   (`THIRD-PARTY-LICENSES.txt`, the real texts above, the libraries' own notices as `stage.sh` names them).
+5. Writes the File and Delete lists and runs `makensis` on `rustypresenter.nsi`.
+
+The installer is per user with no admin rights, in `%LOCALAPPDATA%\Programs\RustyPresenter`, with Start menu and
+desktop shortcuts and an entry in Settings → Apps under the same uninstall key as cargo-packager's, so the two
+builds upgrade each other. Running a newer one upgrades in place (it refuses while the app is open). The
+uninstaller deletes only the files it installed; the data folder `%LOCALAPPDATA%\RustyPresenter` goes only when its
+box, unticked by default, is ticked, and never in a silent (`/S`) uninstall. The program folder may not be the data
+folder.
+
+`make-installer.cmd --dry-run` and `make-installer.sh --dry-run` print every step and change nothing. Without
+Windows: `packaging/windows/test-make-installer.sh` runs the script with fake downloads, `makensis` and `objdump`,
+and `python3 packaging/windows/check-nsi.py` checks the `.nsi` statically (blocks, calls, `un.` functions, labels,
+defines, variables). Only `makensis` on the PC compiles it for real.
+
 ## Bumping a pin
 
 - **pdfium:** pick a `chromium/<build>` tag of `bblanchon/pdfium-binaries`, then copy the
   sha256 digests of `pdfium-win-x64.tgz`, `pdfium-mac-arm64.tgz` and `pdfium-linux-x64.tgz`
   from the release (the GitHub API lists them as `digest`).
+- **NSIS:** change `NSIS_VERSION` and `NSIS_URL`, set `NSIS_SHA256=TODO`, run `make-installer.cmd` once and pin the
+  sha256 from `hashes.txt` after checking its sha1 on SourceForge.
 - **libmpv:** bump `LIBMPV_REV` and the source versions, run `libmpv.yml`, publish its
   artifacts as release `libmpv-r<N>`, then fill in the three `LIBMPV_SHA256_*` values.
 
