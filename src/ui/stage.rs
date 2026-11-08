@@ -4,7 +4,7 @@
 use super::{StageCellVm, StageWindow};
 use crate::{
     app::{App, LiveUpdate, LiveView, Update},
-    model::Slide,
+    model::{Slide, SlideContent},
     platform::monitors::{self, MonitorId},
     stage::{self, presets, strings as s, view::{self, CellContent, StageInputs}, Align, StageLayout, StageState, VAlign},
     timers::TimersView,
@@ -62,7 +62,8 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView>, next_picture: Option<super::thumbs::Pixels> }
 
 /// The layout on stage is the church's stage default (Classic when it names no layout), built-in or the church's own.
-fn read(app: &App, live: LiveUpdate, pictures: &NextPictures) -> Shown {
+fn read(app: &App, live: LiveUpdate, screen: &StageScreen) -> Shown {
+    let pictures = &screen.pictures;
     let layout = {
         let d = app.data.lock().unwrap();
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
@@ -70,7 +71,16 @@ fn read(app: &App, live: LiveUpdate, pictures: &NextPictures) -> Shown {
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
     let wants = layout.elements.iter().filter_map(|e| e.known()).any(|e| e.kind == stage::ElementKind::NextPicture && !e.hidden);
     let next_picture = wants.then(|| pictures.get(app, live.version));
-    Shown { live, layout, slides, timers: app.timers(), next_picture }
+    let timers = app.timers();
+    // The slide pictures the boxes will show (current and next PowerPoint slides), decoded here, not on the window.
+    let assets: Vec<String> = {
+        let state = screen.state.lock().unwrap();
+        let inputs = StageInputs { live: &live, slides: &slides, timers: &timers, state: &state, now: chrono::Local::now().time() };
+        view::build(&inputs, &layout).cells.into_iter().filter_map(|c| match c.content { CellContent::Picture { asset, .. } => Some(asset), _ => None }).collect()
+    };
+    let dir = app.store.assets();
+    for a in &assets { screen.slide_pictures.load(&dir, a) }
+    Shown { live, layout, slides, timers, next_picture }
 }
 
 /// N10: the next slide's picture, drawn again only when the live view changes. Off the UI thread.
@@ -87,9 +97,33 @@ impl NextPictures {
     }
 }
 
+/// PowerPoint / PDF / Keynote slide pictures for the stage boxes, decoded once (off the window's thread) and
+/// kept for the last few slides.
+#[derive(Default)]
+struct SlidePictures { cache: Mutex<Vec<(String, super::thumbs::Pixels)>> }
+
+impl SlidePictures {
+    const KEEP: usize = 6;
+    /// The picture for `asset`, from the cache.
+    fn get(&self, asset: &str) -> Option<super::thumbs::Pixels> {
+        self.cache.lock().unwrap().iter().find(|(a, _)| a == asset).map(|(_, px)| px.clone())
+    }
+    /// Decodes `asset` from the media folder unless it is already kept. A file that can't be read is skipped.
+    fn load(&self, assets: &std::path::Path, asset: &str) {
+        if self.get(asset).is_some() { return }
+        let Ok(px) = super::room::prepare::picture(&assets.join(asset), (1280, 720), false) else { return };
+        let px = match px { super::room::prepare::Px::Straight(b) | super::room::prepare::Px::Premul(b) => b };
+        let mut cache = self.cache.lock().unwrap();
+        cache.retain(|(a, _)| a != asset);
+        cache.push((asset.to_string(), px));
+        if cache.len() > Self::KEEP { cache.remove(0); }
+    }
+}
+
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
 #[derive(Default)]
-struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState>, pictures: NextPictures }
+struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState>, pictures: NextPictures,
+    slide_pictures: SlidePictures }
 
 #[derive(Hash, PartialEq, Eq)]
 struct FitKey { text: String, w: i32, h: i32, bold: bool, max: i32, min: i32 }
@@ -105,11 +139,15 @@ fn fit(ui: &StageWindow) {
 }
 
 fn show(ui: &StageWindow, screen: &StageScreen, shown: Shown) {
-    let cells = shown.layout.id != presets::CLASSIC;
+    // Classic's plain text screen can't show a PowerPoint/PDF slide: it switches to its boxes for those.
+    let cells = shown.layout.id != presets::CLASSIC || picture_slide(&shown.live);
     ui.set_use_cells(cells);
     if cells { draw_cells(ui, screen, &shown) } else { show_classic(ui, &shown.live, &classic_timer(screen, &shown.timers)) }
     *screen.last.lock().unwrap() = Some(shown);
 }
+
+/// The live slide is a picture (PowerPoint, PDF, Keynote): the stage shows the slide itself.
+fn picture_slide(v: &LiveView) -> bool { matches!(v.slide.as_ref().map(|s| &s.content), Some(SlideContent::Image { .. })) }
 
 fn redraw(ui: &StageWindow, screen: &StageScreen) {
     let last = screen.last.lock().unwrap().clone();
@@ -176,8 +214,13 @@ fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture:
             caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, picture: next_picture.clone(), ..base()
         }),
         CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
-        // Pictures on stage are not drawn yet: the box names the slide instead.
-        CellContent::Picture { caption, .. } => (s::slide_picture(), caption.clone().unwrap_or_default(), false, false, false),
+        // The slide itself (a PowerPoint/PDF slide); its name only while the picture can't be read.
+        CellContent::Picture { asset, caption } => match screen.slide_pictures.get(asset) {
+            Some(px) => return Some(StageCellVm {
+                caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, picture: slint::Image::from_rgba8(px), ..base()
+            }),
+            None => (s::slide_picture(), caption.clone().unwrap_or_default(), false, false, false),
+        },
         CellContent::Message { text } => (text.clone(), String::new(), false, false, true),
     };
     let bold = st.bold || message;
@@ -259,7 +302,7 @@ impl Stage {
         tick(&ui, &screen);
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();
-        show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen.pictures));
+        show(&ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen));
         ui.set_connected(true);
         ui.show().map_err(|e| crate::tr!("Could not open the stage screen: {error}", error = e))?;
         if let Some(m) = &monitor {
@@ -354,7 +397,7 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: s
             }
         };
         if closed.load(Ordering::Relaxed) { return; }
-        let shown = read(&app, update, &screen.pictures);
+        let shown = read(&app, update, &screen);
         if latest.lock().unwrap().replace(shown).is_some() { continue; } // already queued: it will draw this one
         let (latest, screen) = (latest.clone(), screen.clone());
         let sent = ui.upgrade_in_event_loop(move |ui| if let Some(s) = latest.lock().unwrap().take() { show(&ui, &screen, s) });
@@ -536,6 +579,29 @@ mod tests {
         }
         assert!(app.command(Envelope { id: "n1".into(), base: Some(0), cmd: Command::Next }).ok);
         app
+    }
+
+    #[test]
+    fn a_powerpoint_slide_shows_itself_on_the_classic_stage() {
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        std::fs::create_dir_all(app.store.assets()).unwrap();
+        image::RgbaImage::from_pixel(32, 18, image::Rgba([200, 30, 30, 255])).save(app.store.asset_path("s1.png")).unwrap();
+        {
+            let mut data = app.data.lock().unwrap();
+            let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+            let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
+            data.decks.push(deck);
+            data.services[0].items.push(item);
+        }
+        assert!(app.command(Envelope { id: "n1".into(), base: Some(0), cmd: Command::Next }).ok);
+        let stage = Stage::open(app, None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        assert!(stage.ui.get_use_cells(), "Classic switches to its boxes for a picture slide");
+        let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+        assert!(cells.iter().any(|c| c.has_picture && c.picture.size().width > 0), "the slide is drawn, not named");
+        assert!(cells.iter().all(|c| c.text != "(slide picture)"));
+        stage.ui.hide().unwrap();
     }
 
     #[test]
