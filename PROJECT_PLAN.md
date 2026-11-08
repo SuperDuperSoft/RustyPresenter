@@ -1287,3 +1287,11 @@ Jake said to keep adding features ("nah ima keep adding features"). Branch **`fi
 - **Evidence (Linux sandbox):** check 0 warnings; tests lib 2299 passed / 2 ignored, all integration tests pass, i18n_catalogs 4/4. Nothing run on Windows.
 - **Bible book names in other languages:** design note `docs/superpowers/specs/2026-11-06-bible-book-names-ui-language-design.md`; not built.
 - **For Jake:** `windows-check.cmd finish-2`. Try Settings → Themes, Window → Automation, Window → Stage layouts, Ctrl+Z, Edit → Find a verse.
+
+### November 7, 2026 (evening) — Claude (cloud session, branch `finish-3`)
+
+`finish-3` = `finish-2` + this round, merged and tested together (Linux: lib 2473 passed / 2 ignored, all integration and translation tests pass, 0 warnings). For Jake's first live test (Sunday Nov 8).
+- ProPresenter ideas done: N5 preview picker (room/stage), N30 room in a window, N33 performance line + screens at start; N8 filter boxes + picture-size slider, N14 Quick search (Ctrl+F), N37 Grid/Easy/Table views; N18 clear key per layer (F7 message, F8 timers, F9 everything-but-background, F10–F12 church groups) + clear groups, N28 shortcut editor (Settings → Help), N35 Find my mouse (Alt+M), tutorials, report a problem; N19 section names/colours/keys + slide labels, N34 insert slide break, N36 copyright line template; N21 headphones listen, sound delay, speaker routing (untested: no sound in the cloud), N23 clean up unused media, N24 import defaults (Settings → Media); N6 recent verses, ‹ Verse / Verse ›, save to library, Bible info; N9 theme-change fade; N29 stage only (operator + phone).
+- Also: phone/tablet drawing on the live slide (stays/fades ink, no limits by default, optional limits), fixed dialog placement (Jake's request), Vulkan/DX12/Metal via wgpu (`gpu-apis` default; Auto stays OpenGL — femtovg-wgpu was slow with 3 windows in an earlier test), in-app translation editor (patched i-slint-core for runtime overrides), Japanese (13 languages, all independently reviewed), live column pins Back/Next and clears.
+- Not done / next: PowerPoint + Google Slides speaker notes and Google Slides link import (branch `pptnotes`, in progress); N3, N10–N13, N15–N17, N20, N22, N25–N27, N31, N32; installer + licence files; phone drawing aspect for non-16:9 rooms.
+- Jake: `try-latest.cmd` (it now builds `finish-3`).
