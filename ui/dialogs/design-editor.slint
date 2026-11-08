@@ -474,8 +474,8 @@ export component DesignEditorDialog inherits VerticalLayout {
                     Btn { small: true; text: @tr("To back"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.order(3); } }
                     Btn { small: true; icon: "copy"; text: @tr("Duplicate"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.duplicate(); } }
                     Btn { small: true; icon: "trash"; text: @tr("Remove"); enabled: DesignDlg.chosen > 0; clicked => { DesignDlg.remove(); } }
-                    copy-style-btn := Btn { small: true; text: @tr("Copy style"); tooltip: "Ctrl+Alt+C"; clicked => { DesignDlg.copy-style(); } }
-                    paste-style-btn := Btn { small: true; text: @tr("Paste style"); tooltip: "Ctrl+Alt+V"; enabled: DesignDlg.style-copied; clicked => { DesignDlg.paste-style(); } }
+                    copy-style-btn := Btn { small: true; text: @tr("Copy style"); tooltip: @tr("Ctrl+Alt+C"); clicked => { DesignDlg.copy-style(); } }
+                    paste-style-btn := Btn { small: true; text: @tr("Paste style"); tooltip: @tr("Ctrl+Alt+V"); enabled: DesignDlg.style-copied; clicked => { DesignDlg.paste-style(); } }
                 }
                 canvas := DesignCanvas {
                     height: 400px;

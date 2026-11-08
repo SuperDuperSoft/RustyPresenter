@@ -424,7 +424,7 @@ pub const USER_TEXT_PROPERTIES: &[&str] = &[
 pub fn bare_texts(src: &str) -> Vec<BareText> {
     let mut out = Vec::new();
     for (i, line) in src.lines().enumerate() {
-        let code = line.split("//").next().unwrap_or_default();
+        let code = before_line_comment(line);
         for prop in USER_TEXT_PROPERTIES {
             let mut from = 0;
             while let Some(p) = code[from..].find(prop) {
@@ -442,6 +442,22 @@ pub fn bare_texts(src: &str) -> Vec<BareText> {
         }
     }
     out
+}
+
+/// `line` up to its `//` comment; a `//` inside a string (`"https://"`) is not one.
+fn before_line_comment(line: &str) -> &str {
+    let b = line.as_bytes();
+    let (mut i, mut quoted) = (0, false);
+    while i < b.len() {
+        match b[i] {
+            b'\\' if quoted => i += 1,
+            b'"' => quoted = !quoted,
+            b'/' if !quoted && b.get(i + 1) == Some(&b'/') => return &line[..i],
+            _ => {}
+        }
+        i += 1;
+    }
+    line
 }
 
 /// The strings with letters in an expression that are not in `@tr(…)` and not compared.
@@ -625,10 +641,11 @@ mod tests {
             Text { text: @tr("Verses: {}", "x" + "y"); }
             // text: "in a comment";
             Pill { label: "Room on"; accessible-label: "Room"; }
+            TextField { placeholder: "https://"; } // a "comment"
         "#;
         let found = bare_texts(src);
         let found: Vec<(usize, &str, &str)> = found.iter().map(|b| (b.line, b.property.as_str(), b.text.as_str())).collect();
-        assert_eq!(found, [(2, "text", "Hello"), (4, "tooltip", "Bare B"), (12, "label", "Room on"), (12, "accessible-label", "Room")]);
+        assert_eq!(found, [(2, "text", "Hello"), (4, "tooltip", "Bare B"), (12, "label", "Room on"), (12, "accessible-label", "Room"), (13, "placeholder", "https://")]);
         let allow = Allow::parse("# symbols\nHello\n\nfile: ui/gallery.slint\n");
         assert!(allow.allows("ui/x.slint", "Hello"));
         assert!(!allow.allows("ui/x.slint", "Bare B"));

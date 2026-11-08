@@ -42,9 +42,19 @@ fn old_app_files_are_gone() {
 #[test]
 fn no_ffmpeg_left() {
     // The word itself stays: About reads mpv's `ffmpeg-version` and shows the LGPL notice.
+    // Playback and conversion no longer use FFmpeg (mpv plays everything). Recording (N22) does need it: these are
+    // the only places allowed to name it, each for that feature alone. Anything else stays an error.
     let uses = ["find_tool", "Command::new(\"ffmpeg\"", "Command::new(\"ffprobe\"", "media::ffmpeg", "plan_video", "plan_audio", "spawn_conversion", "Update::Convert", "Gyan.FFmpeg"];
+    let recording = [
+        // How to install FFmpeg, shown when Record finds none.
+        ("Gyan.FFmpeg", "src/platform/tools.rs"),
+        ("Gyan.FFmpeg", "src/strings/tools.rs"),
+        // The recording tests check the finished file.
+        ("Command::new(\"ffprobe\"", "src/record/run_tests.rs"),
+    ];
+    let allowed = |u: &str, file: &Path| recording.iter().any(|(a, f)| *a == u && file == root().join(f));
     let found: Vec<String> = text_of(&["src", "ui"]).iter()
-        .flat_map(|(file, text)| uses.iter().filter(move |u| text.contains(**u)).map(move |u| format!("{u} in {}", file.display())))
+        .flat_map(|(file, text)| uses.iter().filter(move |u| text.contains(**u) && !allowed(u, file)).map(move |u| format!("{u} in {}", file.display())))
         .collect();
     assert!(found.is_empty(), "{found:#?}");
 }

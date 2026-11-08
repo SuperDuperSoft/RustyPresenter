@@ -7,3 +7,6 @@ file: ui/gallery.slint
 
 # The letter in the brand mark (top left of the operator).
 R
+
+# The start of a web address, as the hint in an empty address box.
+https://

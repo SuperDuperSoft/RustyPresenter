@@ -596,7 +596,8 @@ export component TopBar inherits Rectangle {
             record-btn := RecordBtn {
                 recording: root.recording;
                 time: root.record-time;
-                narrow: root.narrow;
+                // Only the dot below 1400 px: with its word the bar overflows just above `narrow`.
+                narrow: root.compact;
                 clicked => { root.record(); }
             }
         }

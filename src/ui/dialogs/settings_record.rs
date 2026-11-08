@@ -52,7 +52,9 @@ pub(super) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.size = usize::try_from(g.get_record_size()).ok().and_then(|i| Preset::ALL.get(i).copied()).unwrap_or(p.size);
     let folder = g.get_record_folder().to_string();
     p.folder = if std::path::Path::new(&folder) == record::default_folder() { String::new() } else { folder };
-    p.sound = read_sound(g).key();
+    // Unchanged keeps the saved spelling (empty is the app's sound too), so an untouched form has no changes.
+    let sound = read_sound(g);
+    if sound != p.sound() { p.sound = sound.key() }
 }
 
 /// Lists the microphones (when FFmpeg is there) and connects "Choose folder…".

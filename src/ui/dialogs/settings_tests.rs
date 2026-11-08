@@ -715,3 +715,15 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     assert_eq!((crate::i18n::current().as_str(), tab_labels()[2].as_str()), ("en", "Language"));
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
 }
+
+#[test]
+fn an_untouched_form_reads_back_the_settings_it_was_given() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Songs);
+    settle();
+    let saved = app.data.lock().unwrap().settings.clone();
+    let mut read = saved.clone();
+    read_form(&g(&op), &mut read);
+    assert_eq!(read, saved);
+}
