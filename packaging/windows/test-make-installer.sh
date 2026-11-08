@@ -93,6 +93,8 @@ EOF
   : >"$T/log/curl.txt"
 }
 pin() { sed -i "s|^$1=.*|$1=$2|" "$C/repo/packaging/pins.env"; }
+# The cases start from the first-run state, whatever the real pins.env holds now.
+unpin_all() { pin NSIS_SHA256 TODO; pin MPV_COPYRIGHT_SHA256 TODO; }
 pin_all() {
   pin NSIS_SHA256 "$(sha "$F/nsis-3.11.zip")"
   pin PDFIUM_SHA256_WINDOWS "$(sha "$F/pdfium-win-x64.tgz")"
@@ -108,6 +110,7 @@ SETUP="RustyPresenter-Setup-$(sed -n 's/^version = "\([^"]*\)".*/\1/p' "$REPO/Ca
 
 # ---- 1. dry run: prints every step, touches nothing
 new_case dry
+unpin_all
 echo dll >"$C/deps/mpv/libmpv-2.dll"
 (cd "$C" && find . | sort) >"$T/before.txt"
 code=0; run --dry-run || code=$?
@@ -122,6 +125,7 @@ check "dry run says it changed nothing" has "$C/out.txt" "dry run finished; noth
 
 # ---- 2. TODO pins: downloads them only to show their hashes, then stops before building
 new_case unpinned
+unpin_all
 echo dll >"$C/deps/mpv/libmpv-2.dll"
 pin PDFIUM_SHA256_WINDOWS "$(sha "$F/pdfium-win-x64.tgz")"
 code=0; run || code=$?
