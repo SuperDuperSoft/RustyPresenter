@@ -284,8 +284,9 @@ step "Put the program files together in $STAGE"
 mingw_imports() { "$OBJDUMP" -p "$(winpath "$1")" 2>/dev/null | sed -n 's/^[[:space:]]*DLL Name:[[:space:]]*//p' | tr -d '\r'; }
 # Copies every DLL the exe needs from MinGW's bin (libstdc++, libgcc_s, libwinpthread...), and what those need.
 # Outside the build window that folder is not on the PATH, so the app would not start without them.
-# The build keeps debug info (for crash backtraces on the build PC); the copies that go into the setup file
-# don't need it: it is most of the exe's size. --strip-debug keeps the symbol names. Only the staged copies change.
+# The build keeps its symbol table (57 MB of the exe, for backtraces with names on the build PC); the copies
+# that go into the setup file don't need it. The exe gets --strip-all (panic messages still say where);
+# the build PC's libmpv only --strip-debug. Only the staged copies change.
 strip_debug() {
   local tool="$MINGW_BIN/strip.exe" f
   [[ -x "$tool" ]] || tool="$MINGW_BIN/strip"
@@ -298,8 +299,10 @@ strip_debug() {
   [[ $MPV_FROM == local ]] && files+=("$STAGE/libmpv-2.dll")
   for f in "${files[@]}"; do
     [[ -f "$f" ]] || continue
-    "$tool" --strip-debug "$(winpath "$f")" || die "strip failed on $f"
-    say "stripped debug info: $(basename "$f") is now $(( $(wc -c <"$f") / 1048576 )) MB"
+    local how=--strip-debug
+    [[ $(basename "$f") == rustypresenter.exe ]] && how=--strip-all
+    "$tool" "$how" "$(winpath "$f")" || die "strip failed on $f"
+    say "stripped ($how): $(basename "$f") is now $(( $(wc -c <"$f") / 1048576 )) MB"
   done
 }
 
@@ -331,7 +334,7 @@ if [[ $DRY == 1 ]]; then
   say "would copy $EXE"
   say "would copy pdfium.dll$([[ $MPV_FROM != none ]] && echo ", libmpv-2.dll")"
   say "would add any MinGW runtime DLL the exe imports, from $MINGW_BIN (checked with objdump)"
-  say "would strip the debug info from the copied rustypresenter.exe$([[ $MPV_FROM == local ]] && echo " and libmpv-2.dll") (strip --strip-debug)"
+  say "would strip the debug info from the copied rustypresenter.exe$([[ $MPV_FROM == local ]] && echo " and libmpv-2.dll") (strip)"
   say "would copy LICENSE-MIT, LICENSE-APACHE, THIRD-PARTY-LICENSES.txt, the real texts in packaging/licenses/ and the libraries' own notices into licenses/"
 else
   mkdir -p "$STAGE/licenses"

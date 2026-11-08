@@ -163,10 +163,10 @@ for f in rustypresenter.exe pdfium.dll libmpv-2.dll libstdc++-6.dll libgcc_s_seh
   licenses/FFmpeg-COPYING.LGPLv2.1.txt licenses/pdfium-abseil.txt licenses/libmpv-NOTE.txt; do
   check "staged $f" test -s "$S/$f"
 done
-check "the staged exe is stripped" has "$T/log/strip.txt" "--strip-debug $S/rustypresenter.exe"
+check "the staged exe is stripped" has "$T/log/strip.txt" "--strip-all $S/rustypresenter.exe"
 check "the staged libmpv is stripped" has "$T/log/strip.txt" "--strip-debug $S/libmpv-2.dll"
 check "the built exe is left alone" grep -qx exe "$C/build/rustypresenter.exe"
-check "the log says how big it is now" has "$C/out.txt" "stripped debug info: rustypresenter.exe"
+check "the log says how big it is now" has "$C/out.txt" "stripped (--strip-all): rustypresenter.exe"
 check "an unneeded MinGW DLL is left out" test ! -e "$S/libunused-1.dll"
 check "Windows' own DLLs are not copied" test ! -e "$S/KERNEL32.dll"
 check "native.txt is not staged" test ! -e "$S/licenses/native.txt"
