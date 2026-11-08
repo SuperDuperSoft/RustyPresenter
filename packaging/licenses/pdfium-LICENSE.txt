@@ -1,14 +1,9 @@
-RUSTYPRESENTER-LICENCE-PLACEHOLDER
-This file must hold the exact text of pdfium's "LICENSE" file (bblanchon/pdfium-binaries, tag chromium/8125), and it does not yet. It was not written
-from memory: it must be the real file.
+Copyright 2014-2025 Benoit Blanchon
 
-Where the real text comes from: the file "LICENSE" at the top of pdfium-win-x64.tgz from that release (the archive pinned in packaging/pins.env).
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-How it gets filled:
-- On Jake's PC, make-installer.cmd fills it by itself from the pinned download, ships it in the installer, and
-  keeps a copy in .tools\xfer\make-installer\licenses\pdfium-LICENSE.txt for Claude to commit.
-- By hand: replace this whole file with the real text.
-Then run scripts/licenses.sh and commit this file and THIRD-PARTY-LICENSES.txt together.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-Until then scripts/licenses.sh leaves this file out of THIRD-PARTY-LICENSES.txt (and fails under CI), and the
-installers do not ship it.
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+This package also includes third-party software. See the licenses/ directory for their respective licenses.
