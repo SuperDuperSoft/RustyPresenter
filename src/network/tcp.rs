@@ -131,7 +131,8 @@ pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
         ("status", _) => return reply(status(app)),
         _ => return reply(format!("ERR unknown command {verb:?}; send help")),
     };
-    let base = matches!(cmd, Command::Show { .. }).then(|| app.live.lock().unwrap().version);
+    // Gear acts on whatever is on screen now: the newest version is the base.
+    let base = Some(app.live.lock().unwrap().version);
     let out = app.command(Envelope { id: format!("tcp-{}", Uuid::new_v4().simple()), base, cmd });
     if out.ok { reply("OK") } else { reply(format!("ERR {}", out.error.unwrap_or_default())) }
 }

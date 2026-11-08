@@ -65,12 +65,14 @@ pub fn build(inp: &StageInputs, layout: &StageLayout) -> StageView {
     }
 }
 
-/// Boxes in exactly the same place: the first one with something to show wins, the rest go empty.
+/// Boxes in exactly the same place: the first one with something to show wins, the rest go empty. Shapes (N10)
+/// are drawn behind or over others and never take a place.
 pub fn shared_rect_priority(cells: &mut [Cell]) {
+    let takes = |c: &CellContent| !matches!(c, CellContent::Empty | CellContent::Shape { .. });
     for i in 0..cells.len() {
-        if cells[i].content == CellContent::Empty { continue; }
+        if !takes(&cells[i].content) { continue; }
         let rect = cells[i].rect;
-        if cells[..i].iter().any(|c| c.rect == rect && c.content != CellContent::Empty) { cells[i].content = CellContent::Empty; }
+        if cells[..i].iter().any(|c| c.rect == rect && takes(&c.content)) { cells[i].content = CellContent::Empty; }
     }
 }
 
@@ -548,7 +550,11 @@ mod tests {
         assert_eq!(only(&cross, &song(), ElementKind::NextPicture), CellContent::NextPicture { caption: Some("NEXT · Welcome".into()) });
         assert_eq!(words(&only(&song_view(&song(), 3), &song(), ElementKind::NextPicture)).0, "End of service");
         let shape = ElementKind::Shape { shape: crate::stage::ShapeKind::Ellipse };
-        assert_eq!(only(&empty_view(), &[], shape), CellContent::Shape { shape: crate::stage::ShapeKind::Ellipse });
+        assert_eq!(only(&empty_view(), &[], shape.clone()), CellContent::Shape { shape: crate::stage::ShapeKind::Ellipse });
+        // A shape in the same place as a box does not empty it.
+        let mut l = one(shape);
+        l.elements.push(one(ElementKind::ItemTitle).elements.remove(0));
+        assert_eq!(view_of(&empty_view(), &[], &l).cells[1].content, CellContent::text("Nothing live", None));
     }
 
     #[test]

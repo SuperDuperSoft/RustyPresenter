@@ -300,11 +300,11 @@ mod tests {
     fn locked_hidden_chords_and_shapes_round_trip_and_old_boxes_stay_plain() {
         use serde_json::json;
         let (id, el) = ("00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002");
-        let r = json!({"x": 0, "y": 0, "w": 10, "h": 10});
+        let r = json!({"x": 0.0, "y": 0.0, "w": 10.0, "h": 10.0});
         let new = json!({"id": id, "name": "X", "elements": [
-            {"id": el, "kind": {"type": "next_slide", "pictures": false, "chords": true}, "rect": r, "locked": true, "hidden": true},
-            {"id": el, "kind": {"type": "shape", "shape": "ellipse"}, "rect": r},
-            {"id": el, "kind": {"type": "next_picture"}, "rect": r}]});
+            {"id": el, "kind": {"type": "next_slide", "pictures": false, "chords": true}, "rect": r, "style": {}, "locked": true, "hidden": true},
+            {"id": el, "kind": {"type": "shape", "shape": "ellipse"}, "rect": r, "style": {}},
+            {"id": el, "kind": {"type": "next_picture"}, "rect": r, "style": {}}]});
         let l: StageLayout = serde_json::from_value(new.clone()).unwrap();
         let e = l.elements[0].known().unwrap();
         assert!(e.locked && e.hidden);
@@ -313,7 +313,7 @@ mod tests {
         assert_eq!(l.elements[2].known().unwrap().kind, ElementKind::NextPicture);
         assert_eq!(serde_json::to_value(&l).unwrap()["elements"], new["elements"]);
         // An old box writes no new keys.
-        let old = json!({"id": el, "kind": {"type": "next_slide", "pictures": false}, "rect": r});
+        let old = json!({"id": el, "kind": {"type": "next_slide", "pictures": false}, "rect": r, "style": {}});
         let l: StageLayout = serde_json::from_value(json!({"id": id, "name": "X", "elements": [old.clone()]})).unwrap();
         assert!(!l.elements[0].known().unwrap().locked);
         assert_eq!(serde_json::to_value(&l).unwrap()["elements"][0], old);
