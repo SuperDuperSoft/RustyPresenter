@@ -388,7 +388,7 @@ mod tests {
         TimerSnapshot { id: Uuid::from_u128(n), name: "Sermon".into(), kind: TimerKind::Duration { secs: 1800 }, state, value_ms, overrun, on_stage: true, on_remote: false }
     }
     fn timer_content(t: TimerSnapshot, r: TimerRef) -> CellContent {
-        let timers = TimersView { timers: vec![t], auto: None };
+        let timers = TimersView { timers: vec![t], auto: None, music: None };
         build_with(&empty_view(), &[], &timers, &StageState::default(), &one(ElementKind::Timer { timer: r })).cells.remove(0).content
     }
 
@@ -439,7 +439,7 @@ mod tests {
     #[test]
     fn classic_media_wins_shared_rect_over_timer() {
         let classic = presets::classic();
-        let timers = TimersView { timers: vec![snap(1, TimerState::Running, 60_000, false)], auto: None };
+        let timers = TimersView { timers: vec![snap(1, TimerState::Running, 60_000, false)], auto: None, music: None };
         let mut v = song_view(&song(), 0);
         let timer = ElementKind::Timer { timer: TimerRef::Current };
         let out = build_with(&v, &song(), &timers, &StageState::default(), classic);

@@ -309,7 +309,19 @@ fn phone_automation(app: &App, phone: Uuid, env: &Envelope) -> Result<(), String
 
 /// The phone's timer lines: only timers marked "Show on phone".
 fn remote_timers(v: &crate::timers::TimersView) -> String {
-    json!({ "type": "timers", "timers": timer_lines(v) }).to_string()
+    json!({ "type": "timers", "timers": timer_lines(v), "music": v.music }).to_string()
+}
+
+/// N13: a walk-in music control from a paired phone: `{ op: "toggle" | "next" | "stop" | "volume", … }`.
+async fn remote_music(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
+    if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
+    if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() }
+    let Ok(v) = serde_json::from_slice::<Value>(&body) else { return bad(crate::tr!("Bad command.")) };
+    let Some(op) = crate::automation::music::MusicOp::parse(v["op"].as_str().unwrap_or_default(), &v) else { return bad(crate::tr!("Bad command.")) };
+    match app.music(op) {
+        Ok(()) => ok(json!({ "ok": true })),
+        Err(e) => ok(json!({ "ok": false, "error": e })),
+    }
 }
 
 fn timer_lines(v: &crate::timers::TimersView) -> Vec<Value> {
@@ -349,6 +361,8 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         "messages": data.automation.messages.iter().filter(|t| t.remote).map(|t| json!({ "id": t.id, "name": t.name, "fields": crate::automation::messages::parse(&t.text).fields })).collect::<Vec<_>>(),
         "message_shown": crate::automation::slots::shown_message(&live.frame.overlays).is_some(),
         "timers": timer_lines(&timers),
+        // N13: the walk-in music.
+        "music": timers.music,
         // N29: the slide on the stage screen only, if any.
         "stage_only": app.live_view_stage_only().map(|o| json!({ "item_id": o.item_id, "slide": o.index, "label": o.slide.label, "text": slide_text(&o.slide) })),
         // I18N: the page reads `/i18n.json` again when this changes.
@@ -383,6 +397,7 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/i18n.json", get(remote_i18n))
         .route("/remote/events", get(remote_events))
         .route("/remote/command", post(remote_command))
+        .route("/remote/music", post(remote_music))
         .route("/remote/draw", post(remote_draw))
         .route("/remote/live-slide", get(remote_live_slide))
         .with_state(app)

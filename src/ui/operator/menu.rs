@@ -28,6 +28,10 @@ pub enum MenuAction {
     StageLayouts,
     /// Window → Automation… (FEAT-2).
     Automation,
+    /// Window → Walk-in music… (N13).
+    Music,
+    /// Window → Calendar… (N17): the Automation dialog's Calendar tab.
+    Calendar,
     /// Edit → Find a verse… (FEAT-5).
     FindVerse,
     /// Help → Find my mouse (N35, also Alt+M).
@@ -80,6 +84,8 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "exit" => MenuAction::Exit,
         "stage-layouts" => MenuAction::StageLayouts,
         "automation" => MenuAction::Automation,
+        "music" => MenuAction::Music,
+        "calendar" => MenuAction::Calendar,
         "find-verse" => MenuAction::FindVerse,
         "find-mouse" => MenuAction::FindMouse,
         "tutorials" => MenuAction::Tutorials,
@@ -114,6 +120,11 @@ impl Operator {
             Some(MenuAction::Exit) => self.window().dispatch_event(WindowEvent::CloseRequested),
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
+            Some(MenuAction::Music) => crate::ui::dialogs::music::open(self),
+            Some(MenuAction::Calendar) => {
+                crate::ui::dialogs::automation::open(self);
+                crate::ui::dialogs::automation::goto(self, crate::ui::dialogs::automation::CALENDAR_TAB, -1);
+            }
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
             Some(MenuAction::FindMouse) => self.find_mouse(),
             Some(MenuAction::Tutorials) => self.tutorials(),
@@ -536,6 +547,11 @@ mod window_tests {
         op.close_dialog();
         op.ui.invoke_menu("automation".into());
         assert_eq!(op.dialog(), Some(DialogKind::Automation));
+        op.ui.invoke_menu("music".into());
+        assert_eq!(op.dialog(), Some(DialogKind::Music));
+        op.ui.invoke_menu("calendar".into());
+        assert_eq!(op.dialog(), Some(DialogKind::Automation));
+        assert_eq!(op.ui.global::<crate::ui::AutomationDlg>().get_tab(), crate::ui::dialogs::automation::CALENDAR_TAB);
         let bar = include_str!("../../../ui/operator.slint");
         assert!(bar.contains("root.menu(\"find-verse\")") && bar.contains("root.menu(\"automation\")"), "the bar has both items");
     }

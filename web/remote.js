@@ -90,7 +90,7 @@ function connect() {
   es.onmessage = e => {
     const m = JSON.parse(e.data);
     // FEAT-2: a tick sends only the timer lines.
-    if (m.type === 'timers') { if (V) { V.timers = m.timers; renderAuto(); } return; }
+    if (m.type === 'timers') { if (V) { V.timers = m.timers; V.music = m.music; renderAuto(); } return; }
     // Drawing: which of this phone's lines are still on the slide.
     if (m.type === 'drawing') { onMine(m.mine); return; }
     if (m.type !== 'remote') return;
@@ -152,7 +152,8 @@ function renderSections() {
 // FEAT-2: messages and macros marked for the phone, and the timers marked "Show on phone".
 function renderAuto() {
   const msgs = V.messages || [], timers = V.timers || [], macros = V.macros || [];
-  $('auto').classList.toggle('on', !!(msgs.length || timers.length || macros.length || V.message_shown));
+  $('auto').classList.toggle('on', !!(msgs.length || timers.length || macros.length || V.message_shown || V.music));
+  renderMusic();
   $('msgHead').style.display = msgs.length || V.message_shown ? '' : 'none';
   const mb = msgs.map(m => { const b = document.createElement('button'); b.textContent = m.name; b.onclick = () => askMessage(m); return b; });
   if (V.message_shown) { const h = document.createElement('button'); h.className = 'hide'; h.textContent = t('Hide message'); h.onclick = () => send('hide_message'); mb.push(h); }
@@ -176,6 +177,33 @@ function renderAuto() {
     return b;
   }));
 }
+// N13: the walk-in music, playing apart from the slides.
+function renderMusic() {
+  const m = V.music;
+  $('musicHead').style.display = m ? '' : 'none';
+  $('music').classList.toggle('on', !!m);
+  if (!m) return;
+  const playing = m.state === 'playing';
+  $('musicTitle').textContent = m.state === 'stopped' ? t('Not playing') : m.title;
+  $('musicTime').textContent = m.state === 'stopped' ? '' : t('{time} left', { time: clock(m.left_ms) });
+  $('musicPlay').textContent = playing ? '❚❚ ' + t('Pause') : '▶ ' + t('Play');
+  $('musicNext').disabled = $('musicStop').disabled = m.state === 'stopped';
+  if (document.activeElement !== $('musicVol')) $('musicVol').value = m.volume;
+}
+const clock = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+async function music(op, body = {}) {
+  try {
+    const r = await fetch('/remote/music', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ op, ...body }) });
+    if (r.status === 401) return start();
+    const out = await r.json();
+    if (!out.ok && out.error) toast(out.error);
+  } catch { toast(t('Not connected')); }
+}
+$('musicPlay').onclick = () => music('toggle');
+$('musicNext').onclick = () => music('next');
+$('musicStop').onclick = () => music('stop');
+$('musicVol').oninput = e => music('volume', { volume: Number(e.target.value) });
+
 function askMessage(m) {
   ask(m.name, m.fields, t('Show'), vals => send('show_message', { template: m.id, values: vals, seen_clear: V.clear_epoch }));
 }

@@ -119,7 +119,7 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
     refresh(&op);
     let item = with_text_item(&op);
     let service = op.app().data.lock().unwrap().services[0].id;
-    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 31] = [
+    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 32] = [
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),
         ("Add media", Box::new(|op| add::open_add(op, AddTab::Media))),
@@ -146,6 +146,7 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
         ("Stage layouts", Box::new(stage_layouts::open)),
         ("Overlays", Box::new(overlays::open)),
         ("Automation", Box::new(automation::open)),
+        ("Walk-in music", Box::new(crate::ui::dialogs::music::open)),
         ("Show message", Box::new(show_message::open)),
         ("Find verse", Box::new(|op| find_verse::open(op, ""))),
         ("Slide breaks", Box::new(move |op| slide_breaks::open(op, item))),
@@ -219,11 +220,11 @@ fn tabbed_dialogs_keep_their_place_and_size_on_every_tab() {
         }
         assert!(first.3 <= 860.5 && first.3 >= (size.1 - 200.0).min(800.0), "Settings is tall: {first:?} at {size:?}");
         op.close_dialog();
-        // Automation: its four tabs.
+        // Automation: its five tabs.
         automation::open(&op);
         resize(&op, size);
         let first = card(&op);
-        for tab in [1, 2, 3, 0] {
+        for tab in [1, 2, 3, 4, 0] {
             automation::goto(&op, tab, -1);
             resize(&op, size);
             let name = format!("Automation tab {tab}");

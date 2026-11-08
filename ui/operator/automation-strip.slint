@@ -3,7 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Icon, TipBox } from "../widgets.slint";
 
-export struct AutoTimerChip { id: string, name: string, text: string, over: bool, running: bool, can-pause: bool, in-room: bool }
+export struct AutoTimerChip { id: string, name: string, text: string, over: bool, running: bool, can-pause: bool, in-room: bool, media: bool }
 export struct AutoMacroBtn { id: string, name: string, color: color }
 /// Up to three macro buttons on one row.
 export struct AutoMacroRow { buttons: [AutoMacroBtn] }
@@ -15,6 +15,16 @@ export global AutoStrip {
     in property <string> auto-label;
     in property <[AutoTimerChip]> timers;
     in property <[AutoMacroRow]> macros;
+    // N13: the walk-in music's mini player.
+    in property <bool> music-shown;
+    in property <bool> music-playing;
+    in property <bool> music-stopped: true;
+    in property <string> music-title;
+    in property <string> music-time;
+    callback music-toggle();
+    callback music-next();
+    callback music-stop();
+    callback open-music();
     callback message();
     callback auto-toggle();
     callback timer-toggle(string);
@@ -127,7 +137,7 @@ export component AutomationStrip inherits VerticalLayout {
                 }
                 VerticalLayout {
                     alignment: center;
-                    if t.can-pause || !t.running: ChipBtn {
+                    if !t.media && (t.can-pause || !t.running): ChipBtn {
                         icon: t.running ? "pause" : "play";
                         tooltip: t.running ? @tr("Pause") : @tr("Start");
                         clicked => { AutoStrip.timer-toggle(t.id); }
@@ -142,13 +152,95 @@ export component AutomationStrip inherits VerticalLayout {
                         clicked => { AutoStrip.timer-room(t.id); }
                     }
                 }
-                VerticalLayout {
+                if !t.media: VerticalLayout {
                     alignment: center;
                     ChipBtn {
                         icon: "restart";
                         tooltip: @tr("Reset");
                         clicked => { AutoStrip.timer-reset(t.id); }
                     }
+                }
+            }
+        }
+    }
+
+    // N13: the walk-in music, one compact row.
+    if AutoStrip.music-shown: music-row := Rectangle {
+        height: 34px;
+        border-radius: 9px;
+        background: Theme.raise;
+        border-width: 1px;
+        border-color: AutoStrip.music-playing ? Theme.accent : Theme.line;
+        accessible-role: groupbox;
+        accessible-label: @tr("Walk-in music");
+        HorizontalLayout {
+            padding-left: 9px;
+            padding-right: 3px;
+            spacing: 2px;
+            VerticalLayout {
+                alignment: center;
+                Icon { name: "audio"; color: AutoStrip.music-playing ? Theme.accent : Theme.muted; }
+            }
+            Rectangle { width: 6px; }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                Text {
+                    text: @tr("Walk-in music");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 10.5px;
+                    overflow: elide;
+                }
+                music-title := Text {
+                    text: AutoStrip.music-title;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    overflow: elide;
+                }
+            }
+            if AutoStrip.music-time != "": VerticalLayout {
+                alignment: center;
+                Text {
+                    text: AutoStrip.music-time;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    font-weight: 700;
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                music-toggle := ChipBtn {
+                    icon: AutoStrip.music-playing ? "pause" : "play";
+                    tooltip: AutoStrip.music-playing ? @tr("Pause the walk-in music") : @tr("Play the walk-in music");
+                    clicked => { AutoStrip.music-toggle(); }
+                }
+            }
+            if !AutoStrip.music-stopped: VerticalLayout {
+                alignment: center;
+                music-next := ChipBtn {
+                    icon: "chevron-right";
+                    tooltip: @tr("Next song");
+                    clicked => { AutoStrip.music-next(); }
+                }
+            }
+            if !AutoStrip.music-stopped: VerticalLayout {
+                alignment: center;
+                music-stop := ChipBtn {
+                    icon: "close";
+                    tooltip: @tr("Stop the walk-in music");
+                    clicked => { AutoStrip.music-stop(); }
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                music-list := ChipBtn {
+                    icon: "dots";
+                    tooltip: @tr("Walk-in music songs and volume");
+                    clicked => { AutoStrip.open-music(); }
                 }
             }
         }

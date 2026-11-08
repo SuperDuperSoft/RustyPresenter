@@ -122,3 +122,72 @@ fn running_timer_gets_a_chip_that_pauses() {
     op.ui.global::<AutoStrip>().invoke_timer_toggle(SERMON_ID.to_string().into());
     assert_eq!(app.timers().timers.iter().find(|t| t.id == SERMON_ID).unwrap().state, TimerState::Paused);
 }
+
+#[test]
+fn video_and_audio_timers_save_from_the_kind_list() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    for (kind, want) in [(3, TimerKind::VideoLeft), (4, TimerKind::AudioLeft)] {
+        g(&op).invoke_new_one();
+        g(&op).set_t_name(format!("Left {kind}").into());
+        g(&op).set_t_kind(kind);
+        g(&op).invoke_save();
+        assert_eq!(g(&op).get_error(), "");
+        let t = app.data.lock().unwrap().automation.timers.iter().find(|t| t.name == format!("Left {kind}")).cloned().expect("saved");
+        assert_eq!(t.kind, Lenient::Known(want));
+        assert_eq!(g(&op).get_t_kind(), kind, "the form opens again on its kind");
+    }
+    let subs: Vec<String> = g(&op).get_rows().iter().map(|r| r.sub.to_string()).collect();
+    assert!(subs.contains(&"Time left in the video".to_string()) && subs.contains(&"Time left in the audio".to_string()), "{subs:?}");
+}
+
+#[test]
+fn calendar_entries_are_made_on_their_tab() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op);
+    goto(&op, CALENDAR_TAB, -1);
+    g(&op).invoke_new_one();
+    assert_eq!(g(&op).get_c_day_names().row_count(), 7);
+    assert_eq!(g(&op).get_c_days().row_data(0), Some(true), "a new entry is on Sundays");
+    g(&op).set_c_name("Sunday countdown".into());
+    g(&op).set_c_at("10:45".into());
+    g(&op).invoke_c_day_toggle(3); // and Wednesdays
+    let pick = |k: StepKind| {
+        let macros = app.data.lock().unwrap().automation.macros.len();
+        (macros + STEP_KINDS.iter().position(|x| *x == k).unwrap()) as i32
+    };
+    g(&op).set_c_what(pick(StepKind::TimerRestart));
+    g(&op).invoke_c_what_changed();
+    g(&op).set_step_target(1); // Sermon
+    g(&op).invoke_save();
+    assert_eq!(g(&op).get_error(), "");
+    let e = app.data.lock().unwrap().automation.calendar[0].clone();
+    assert_eq!((e.name.as_str(), e.at, e.days), ("Sunday countdown", TimeOfDay::new(10, 45), 0b1001));
+    assert_eq!(e.run.known(), Some(&crate::automation::calendar::CalendarRun::Step { step: MacroStep::TimerRestart { timer: SERMON_ID } }));
+    assert_eq!(g(&op).get_rows().row_data(0).unwrap().sub, "Sun, Wed at 10:45 AM · Restart timer: Sermon");
+    assert!(g(&op).get_c_next().starts_with("Next: "), "{}", g(&op).get_c_next());
+    // It opens again with what was saved.
+    g(&op).invoke_pick(0);
+    assert_eq!(g(&op).get_c_what(), pick(StepKind::TimerRestart));
+    assert_eq!(g(&op).get_step_target(), 1);
+    // Try it now.
+    g(&op).invoke_calendar_run();
+    assert_eq!(g(&op).get_note(), crate::automation::strings::calendar_ran("Sunday countdown"));
+    assert_eq!(app.timers().timers.iter().find(|t| t.id == SERMON_ID).unwrap().state, TimerState::Running);
+    // No days is refused with the core's words.
+    g(&op).invoke_c_day_toggle(0);
+    g(&op).invoke_c_day_toggle(3);
+    g(&op).invoke_save();
+    assert_eq!(g(&op).get_error(), crate::automation::strings::calendar_no_days());
+    g(&op).invoke_delete();
+    assert!(app.data.lock().unwrap().automation.calendar.is_empty());
+}
+
+#[test]
+fn days_read_plainly() {
+    assert_eq!(days_label(0x7f), "Every day");
+    assert_eq!(days_label(0b011_1110), "Weekdays");
+    assert_eq!(days_label(0b100_0001), "Sun, Sat");
+}

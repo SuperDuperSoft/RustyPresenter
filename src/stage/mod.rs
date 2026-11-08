@@ -203,7 +203,7 @@ mod tests {
     fn timer(n: u128, state: TimerState, on_stage: bool) -> TimerSnapshot {
         TimerSnapshot { id: Uuid::from_u128(n), name: format!("T{n}"), kind: TimerKind::CountUp, state, value_ms: 0, overrun: false, on_stage, on_remote: false }
     }
-    fn view(ts: Vec<TimerSnapshot>) -> TimersView { TimersView { timers: ts, auto: None } }
+    fn view(ts: Vec<TimerSnapshot>) -> TimersView { TimersView { timers: ts, auto: None, music: None } }
     use TimerState::*;
 
     #[test]

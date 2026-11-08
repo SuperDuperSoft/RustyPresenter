@@ -1,0 +1,160 @@
+// N13: the walk-in music. Its own list of songs, shuffle and volume; it plays on while the slides change. Every
+// change is kept at once. Filled and answered by `src/ui/dialogs/music.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { Lbl, Select, Check, Note, RangeSlider } from "form.slint";
+
+export struct MusicRow { title: string, length: string, playing: bool }
+
+export global MusicDlg {
+    in property <[MusicRow]> rows;
+    in property <[string]> library;
+    in-out property <int> pick;
+    in-out property <bool> shuffle;
+    in-out property <bool> repeat: true;
+    in-out property <int> volume: 70;
+    in property <bool> playing;
+    in property <bool> stopped: true;
+    in property <string> now;
+    in property <string> error;
+    callback add();
+    callback add-all();
+    callback import();
+    callback play-row(int);
+    callback move(int, int);
+    callback remove(int);
+    callback shuffle-changed();
+    callback repeat-changed();
+    callback volume-changed(int);
+    callback toggle();
+    callback next();
+    callback stop();
+    callback done();
+}
+
+export component MusicDialog inherits VerticalLayout {
+    DialogBody {
+        Note { text: @tr("The walk-in music plays on while the slides change. Clear audio and Clear All stop it."); }
+        Rectangle { height: 12px; }
+        if MusicDlg.now != "": music-now := Text {
+            text: MusicDlg.now;
+            color: Theme.accent;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            overflow: elide;
+        }
+        Rectangle { height: 8px; }
+        Lbl { label: @tr("Songs"); }
+        Rectangle { height: 6px; }
+        for r[i] in MusicDlg.rows: music-row := Rectangle {
+            background: r.playing ? Theme.raise : Theme.panel-2;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: r.playing ? Theme.accent : transparent;
+            HorizontalLayout {
+                padding: 5px;
+                padding-left: 10px;
+                spacing: 4px;
+                Text {
+                    width: 26px;
+                    text: i + 1;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    vertical-alignment: center;
+                }
+                Text {
+                    horizontal-stretch: 1;
+                    text: r.title;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+                Text {
+                    text: r.length;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    vertical-alignment: center;
+                }
+                Btn { horizontal-stretch: 0; small: true; icon: "play"; tooltip: @tr("Play this song now"); clicked => { MusicDlg.play-row(i); } }
+                Btn { horizontal-stretch: 0; small: true; text: @tr("Up"); tooltip: @tr("Move up"); clicked => { MusicDlg.move(i, -1); } }
+                Btn { horizontal-stretch: 0; small: true; text: @tr("Down"); tooltip: @tr("Move down"); clicked => { MusicDlg.move(i, 1); } }
+                Btn { horizontal-stretch: 0; small: true; icon: "trash"; tooltip: @tr("Remove"); clicked => { MusicDlg.remove(i); } }
+            }
+        }
+        if MusicDlg.rows.length == 0: Text {
+            text: @tr("No songs yet. Add audio from the media library below.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+        }
+        Rectangle { height: 12px; }
+        Lbl { label: @tr("Add a song"); }
+        Rectangle { height: 6px; }
+        if MusicDlg.library.length > 0: HorizontalLayout {
+            spacing: 8px;
+            music-pick := Select { horizontal-stretch: 1; options: MusicDlg.library; index <=> MusicDlg.pick; }
+            music-add := Btn { horizontal-stretch: 0; small: true; icon: "plus"; text: @tr("Add"); clicked => { MusicDlg.add(); } }
+            music-add-all := Btn { horizontal-stretch: 0; small: true; text: @tr("Add all"); clicked => { MusicDlg.add-all(); } }
+        }
+        if MusicDlg.library.length == 0: HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            Text {
+                text: @tr("There is no audio in the media library yet.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+            }
+            music-import := Btn { small: true; icon: "upload"; text: @tr("Import audio…"); clicked => { MusicDlg.import(); } }
+        }
+        Rectangle { height: 14px; }
+        music-shuffle := Check { text: @tr("Shuffle"); checked <=> MusicDlg.shuffle; toggled => { MusicDlg.shuffle-changed(); } }
+        music-repeat := Check { text: @tr("Start again after the last song"); checked <=> MusicDlg.repeat; toggled => { MusicDlg.repeat-changed(); } }
+        Rectangle { height: 10px; }
+        HorizontalLayout {
+            spacing: 12px;
+            Text {
+                text: @tr("Volume {}%", MusicDlg.volume);
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                min-width: 110px;
+            }
+            music-volume := RangeSlider {
+                horizontal-stretch: 1;
+                minimum: 0;
+                maximum: 100;
+                value <=> MusicDlg.volume;
+                changed(v) => { MusicDlg.volume-changed(v); }
+            }
+        }
+        if MusicDlg.error != "": music-error := Text {
+            text: MusicDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    DialogFoot {
+        if !MusicDlg.stopped: music-stop := Btn { icon: "close"; text: @tr("Stop"); clicked => { MusicDlg.stop(); } }
+        if !MusicDlg.stopped: music-next := Btn { icon: "chevron-right"; text: @tr("Next song"); clicked => { MusicDlg.next(); } }
+        music-toggle := Btn {
+            icon: MusicDlg.playing ? "pause" : "play";
+            text: MusicDlg.playing ? @tr("Pause") : @tr("Play");
+            clicked => { MusicDlg.toggle(); }
+        }
+        music-done := Btn { primary: true; text: @tr("Done"); clicked => { MusicDlg.done(); } }
+    }
+}
