@@ -475,7 +475,7 @@ mod tests {
         let op = opened(&app);
         assert!(find(&op, "LiveColumn::live-notes").is_none());
         let mut v = app.live_view();
-        let mut slide = crate::model::Slide::new("Slide 1", crate::model::SlideContent::Image { asset: "a.png".into() });
+        let mut slide = crate::model::Slide::new("Slide 1", crate::model::SlideContent::Image { asset: "a.png".into(), transition: None });
         slide.notes = "Welcome everyone".into();
         v.slide = Some(slide);
         v.version += 1;

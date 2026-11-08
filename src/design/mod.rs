@@ -148,10 +148,16 @@ impl Default for ObjShadow {
 /// How the room changes to this slide.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(default)]
-pub struct Transition { pub kind: TransitionKind, pub ms: u32 }
+pub struct Transition {
+    pub kind: TransitionKind,
+    pub ms: u32,
+    /// Which way a push or wipe moves (the new slide comes in from the other side).
+    #[serde(skip_serializing_if = "Dir::is_left")]
+    pub dir: Dir,
+}
 
 impl Default for Transition {
-    fn default() -> Self { Transition { kind: TransitionKind::Fade, ms: 400 } }
+    fn default() -> Self { Transition { kind: TransitionKind::Fade, ms: 400, dir: Dir::Left } }
 }
 
 /// The longest transition offered.
@@ -159,7 +165,33 @@ pub const TRANSITION_MAX_MS: u32 = 5000;
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[serde(rename_all = "snake_case")]
-pub enum TransitionKind { #[default] Fade, Cut, Black }
+pub enum TransitionKind { #[default] Fade, Cut, Black, Push, Wipe }
+
+impl TransitionKind {
+    /// Every kind, in the order the pickers offer them.
+    pub const ALL: [TransitionKind; 5] = [TransitionKind::Fade, TransitionKind::Cut, TransitionKind::Black, TransitionKind::Push, TransitionKind::Wipe];
+
+    /// Its place in `ALL` (the pickers' index).
+    pub fn index(self) -> i32 { Self::ALL.iter().position(|k| *k == self).unwrap_or(0) as i32 }
+    pub fn from_index(i: i32) -> TransitionKind { Self::ALL[i.clamp(0, Self::ALL.len() as i32 - 1) as usize] }
+    /// Push and Wipe move one way.
+    pub fn moves(self) -> bool { matches!(self, TransitionKind::Push | TransitionKind::Wipe) }
+}
+
+/// The way a push or wipe moves.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum Dir { #[default] Left, Right, Up, Down }
+
+impl Dir {
+    pub const ALL: [Dir; 4] = [Dir::Left, Dir::Right, Dir::Up, Dir::Down];
+    pub fn index(self) -> i32 { Self::ALL.iter().position(|d| *d == self).unwrap_or(0) as i32 }
+    pub fn from_index(i: i32) -> Dir { Self::ALL[i.clamp(0, 3) as usize] }
+    pub fn reverse(self) -> Dir { match self { Dir::Left => Dir::Right, Dir::Right => Dir::Left, Dir::Up => Dir::Down, Dir::Down => Dir::Up } }
+    /// One step the way it moves, as (x, y) on screen (y down).
+    pub fn step(self) -> (f32, f32) { match self { Dir::Left => (-1.0, 0.0), Dir::Right => (1.0, 0.0), Dir::Up => (0.0, -1.0), Dir::Down => (0.0, 1.0) } }
+    fn is_left(&self) -> bool { *self == Dir::Left }
+}
 
 impl Obj {
     /// A new object of `kind` at `rect`, fully shown, no look.
@@ -275,6 +307,17 @@ mod tests {
     }
 
     #[test]
+    fn a_transition_writes_its_way_only_when_it_is_not_left() {
+        let t = Transition { kind: TransitionKind::Fade, ms: 700, dir: Dir::Left };
+        assert_eq!(serde_json::to_value(t).unwrap(), serde_json::json!({ "kind": "fade", "ms": 700 }));
+        let t = Transition { kind: TransitionKind::Push, ms: 700, dir: Dir::Up };
+        let json = serde_json::to_value(t).unwrap();
+        assert_eq!(json, serde_json::json!({ "kind": "push", "ms": 700, "dir": "up" }));
+        assert_eq!(serde_json::from_value::<Transition>(json).unwrap(), t);
+        assert_eq!((TransitionKind::from_index(TransitionKind::Wipe.index()), Dir::from_index(9)), (TransitionKind::Wipe, Dir::Down));
+    }
+
+    #[test]
     fn an_object_kind_from_a_newer_version_loads_as_unknown() {
         let d: Design = serde_json::from_str(r#"{"objects":[{"id":"00000000-0000-0000-0000-000000000001","kind":{"type":"hologram","x":1},"rect":{"x":0,"y":0,"w":10,"h":10}}]}"#).unwrap();
         assert_eq!(d.objects[0].kind, ObjKind::Unknown);
@@ -297,7 +340,7 @@ mod tests {
         o.rotation = 540.0;
         o.opacity = 250;
         if let ObjKind::Text { style, .. } = &mut o.kind { style.size = 9000.0 }
-        let mut d = Design { objects: vec![o], transition: Transition { kind: TransitionKind::Cut, ms: 99_999 }, ..Default::default() };
+        let mut d = Design { objects: vec![o], transition: Transition { kind: TransitionKind::Cut, ms: 99_999, ..Default::default() }, ..Default::default() };
         assert!(d.sanitise());
         let o = &d.objects[0];
         assert_eq!((o.rect.x, o.rect.y, o.rect.w, o.rect.h), (0.0, 99.0, 1.0, 15.0));

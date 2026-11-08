@@ -118,7 +118,7 @@ async fn library_deletes_are_blocked_by_templates() {
         let mut d = app.data.lock().unwrap();
         d.songs.push(Song { id: song, title: "S".into(), lyrics: "x".into(), ..Default::default() });
         d.media.push(MediaFile { id: media, name: "M".into(), kind: MediaKind::Image, asset: "a.png".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
-        d.decks.push(Deck { id: deck, title: "D".into(), slides: vec![], notes: vec![] });
+        d.decks.push(Deck { id: deck, title: "D".into(), slides: vec![], notes: vec![], transitions: vec![] });
         d.templates.push(ServiceTemplate { id: Uuid::new_v4(), name: "Sunday".into(), day: None, items: vec![
             item(ItemKind::Song { song_id: song, arrangement: None }), item(ItemKind::Media { media_id: media, autoplay: true, end: EndAction::Stop, looped: false }), item(ItemKind::Deck { deck_id: deck }),
         ] });

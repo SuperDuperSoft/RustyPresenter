@@ -61,7 +61,7 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
             size: *max, passage: passage.clone(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone(), design: None
         }),
-        Some(SlideLayer::Image { asset }) => picture(asset, false, 1.0),
+        Some(SlideLayer::Image { asset, .. }) => picture(asset, false, 1.0),
         // The picture folder is filled in where it is drawn (`draw`).
         Some(SlideLayer::Design { design, .. }) => Source::Text(RenderKey::design(design, theme.clone(), size, PathBuf::new())),
         None => Source::Hidden,

@@ -5,6 +5,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Segmented } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, TextArea, Lbl, Select, RangeSlider, Toggle, Check } from "form.slint";
+import { TransitionPicker } from "transition.slint";
 import { DesignCanvas, DesignObjVm, DesignGuideVm } from "design-canvas.slint";
 
 export { DesignObjVm, DesignGuideVm }
@@ -59,6 +60,7 @@ export global DesignDlg {
     // The slide, with nothing chosen.
     in-out property <int> transition;
     in-out property <int> transition-ms: 400;
+    in-out property <int> transition-dir;
     in-out property <string> notes;
     in property <bool> style-copied;
 
@@ -111,6 +113,7 @@ export global DesignDlg {
     callback build-move(bool);
     callback transition-changed(int);
     callback transition-ms-changed(int);
+    callback transition-dir-changed(int);
     callback transition-to-all();
     callback notes-edited(string);
     callback title-edited(string);
@@ -241,23 +244,13 @@ component Inspector inherits VerticalLayout {
         Lbl { label: @tr("This slide"); }
         SmallText { text: @tr("Click an object to change it. Shift+click chooses more than one."); }
         Lbl { label: @tr("Transition"); }
-        HorizontalLayout {
-            alignment: start;
-            transition := Segmented {
-                labels: [@tr("Fade"), @tr("Cut"), @tr("Through black")];
-                index <=> DesignDlg.transition;
-                changed(i) => { DesignDlg.transition-changed(i); }
-            }
-        }
-        if DesignDlg.transition != 1: VerticalLayout {
-            spacing: 6px;
-            Lbl { label: @tr("Time ({} ms)", DesignDlg.transition-ms); }
-            RangeSlider {
-                minimum: 100;
-                maximum: 3000;
-                value <=> DesignDlg.transition-ms;
-                changed(v) => { DesignDlg.transition-ms-changed(v); }
-            }
+        transition := TransitionPicker {
+            kind <=> DesignDlg.transition;
+            dir <=> DesignDlg.transition-dir;
+            ms <=> DesignDlg.transition-ms;
+            kind-changed(i) => { DesignDlg.transition-changed(i); }
+            dir-changed(i) => { DesignDlg.transition-dir-changed(i); }
+            ms-changed(v) => { DesignDlg.transition-ms-changed(v); }
         }
         all-btn := Btn { small: true; text: @tr("Use on every slide"); clicked => { DesignDlg.transition-to-all(); } }
         Lbl { label: @tr("Notes"); }

@@ -145,6 +145,9 @@ impl Editor {
 
     pub fn set_transition(&mut self, kind: TransitionKind) { self.edit_slide(None, |d| d.transition.kind = kind) }
 
+    /// Which way this slide's push or wipe goes.
+    pub fn set_transition_dir(&mut self, dir: super::Dir) { self.edit_slide(None, |d| d.transition.dir = dir) }
+
     pub fn set_transition_ms(&mut self, ms: i32) {
         let ms = (ms.max(0) as u32).min(super::TRANSITION_MAX_MS);
         self.edit_slide(Some(Field::TransitionMs), |d| d.transition.ms = ms)

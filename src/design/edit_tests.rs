@@ -192,6 +192,12 @@ fn slides_add_copy_move_and_delete() {
     assert_eq!((e.at, e.slides[0].transition.kind), (0, TransitionKind::Cut));
     e.transition_to_all();
     assert!(e.slides.iter().all(|d| d.transition.kind == TransitionKind::Cut));
+    e.set_transition(TransitionKind::Push);
+    e.set_transition_dir(crate::design::Dir::Up);
+    e.transition_to_all();
+    assert!(e.slides.iter().all(|d| (d.transition.kind, d.transition.dir) == (TransitionKind::Push, crate::design::Dir::Up)));
+    e.set_transition(TransitionKind::Cut);
+    e.transition_to_all();
     e.delete_slide();
     assert_eq!(e.slides.len(), 1);
     e.delete_slide();

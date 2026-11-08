@@ -124,7 +124,8 @@ fn show(g: &DesignDlg, ss: &Session) {
     g.set_style_copied(STYLE.with(|c| c.borrow().is_some()));
     g.set_chosen(ed.sel.len() as i32);
     let d = ed.slide();
-    g.set_transition(match d.transition.kind { TransitionKind::Fade => 0, TransitionKind::Cut => 1, TransitionKind::Black => 2 });
+    g.set_transition(d.transition.kind.index());
+    g.set_transition_dir(d.transition.dir.index());
     g.set_transition_ms(d.transition.ms as i32);
     if g.get_notes().as_str() != d.notes { g.set_notes(d.notes.as_str().into()) }
     let Some(o) = ed.primary() else { return };
@@ -321,7 +322,8 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     on!(on_rotation_changed, |e, v: i32| e.ed.set_rotation(v as f32));
     on!(on_build_on, |e, v: bool| e.ed.set_build(v));
     on!(on_build_move, |e, earlier: bool| e.ed.move_build(earlier));
-    on!(on_transition_changed, |e, i: i32| e.ed.set_transition([TransitionKind::Fade, TransitionKind::Cut, TransitionKind::Black][i.clamp(0, 2) as usize]));
+    on!(on_transition_changed, |e, i: i32| e.ed.set_transition(TransitionKind::from_index(i)));
+    on!(on_transition_dir_changed, |e, i: i32| e.ed.set_transition_dir(crate::design::Dir::from_index(i)));
     on!(on_transition_ms_changed, |e, v: i32| e.ed.set_transition_ms(v));
     on!(on_transition_to_all, |e| e.ed.transition_to_all());
     on!(on_notes_edited, |e, t: SharedString| e.ed.set_notes(&t));

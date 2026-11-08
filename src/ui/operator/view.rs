@@ -619,7 +619,7 @@ mod tests {
         v.next = Some(NextUp { title: "Amazing Grace".into(), slide: text_slide("Verse 2", "Twas grace") });
         assert_eq!(next_up(&v), ("Amazing Grace · Verse 2".into(), "Twas grace".into()));
         let placeholder = |content| { let mut v = view(); v.next = Some(NextUp { title: "X".into(), slide: Slide::new("L", content) }); next_up(&v).1 };
-        assert_eq!(placeholder(SlideContent::Image { asset: "s.png".into() }), "Slide picture");
+        assert_eq!(placeholder(SlideContent::Image { asset: "s.png".into(), transition: None }), "Slide picture");
         assert_eq!(placeholder(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: EndAction::Stop }), "Video");
         assert_eq!(placeholder(SlideContent::Still { asset: "p.png".into() }), "Picture");
         assert_eq!(placeholder(SlideContent::Audio { asset: "a.mp3".into(), looped: false }), "Audio");

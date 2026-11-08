@@ -173,7 +173,7 @@ mod tests {
     fn a_picture_slide_logs_null() {
         let app = test_app();
         let log = Log::default();
-        let frame = Frame { slide: Some(SlideLayer::Image { asset: "s.png".into() }), ..Frame::default() };
+        let frame = Frame { slide: Some(SlideLayer::Image { asset: "s.png".into(), transition: None }), ..Frame::default() };
         app.live.lock().unwrap().restore(&saved(frame), true);
         run(app.clone(), log.clone());
         until("the line", || log.text().contains('\n'));

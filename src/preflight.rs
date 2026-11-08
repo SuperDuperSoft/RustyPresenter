@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn deck_counts_its_missing_slides() {
-        let deck = Deck { id: Uuid::new_v4(), title: "Sermon".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![] };
+        let deck = Deck { id: Uuid::new_v4(), title: "Sermon".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![] };
         let mut d = data(vec![ItemKind::Deck { deck_id: deck.id }]);
         d.decks.push(deck);
         assert_eq!(run(&d, &|a| a == "2.png"), [s::item(1, "Sermon", &s::slides_missing(2, 3))]);

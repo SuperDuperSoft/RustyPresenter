@@ -66,7 +66,11 @@ pub enum SlideLayer {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         theme: Option<Theme>,
     },
-    Image { asset: AssetId },
+    Image {
+        asset: AssetId,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transition: Option<crate::design::Transition>,
+    },
     /// A designed slide (N26). `build`: it adds the next build to the slide just before it, so the room fades in
     /// only what is new.
     Design { design: crate::design::Design, #[serde(default, skip_serializing_if = "std::ops::Not::not")] build: bool },
@@ -720,8 +724,8 @@ impl Live {
                 self.frame.media = None;
                 self.frame.logo = false;
             }
-            SlideContent::Image { asset } => {
-                self.frame.slide = Some(SlideLayer::Image { asset });
+            SlideContent::Image { asset, transition } => {
+                self.frame.slide = Some(SlideLayer::Image { asset, transition });
                 self.set_background(None);
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -904,7 +908,7 @@ mod tests {
 
     fn video(asset: &str, end: EndAction) -> Slide { Slide::new(asset, SlideContent::Video { asset: asset.into(), autoplay: true, end }) }
     fn audio(asset: &str) -> Slide { Slide::new(asset, SlideContent::Audio { asset: asset.into(), looped: false }) }
-    fn deck(asset: &str) -> Slide { Slide::new(asset, SlideContent::Image { asset: asset.into() }) }
+    fn deck(asset: &str) -> Slide { Slide::new(asset, SlideContent::Image { asset: asset.into(), transition: None }) }
 
     static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     fn env(cmd: Command, base: Option<u64>) -> Envelope {

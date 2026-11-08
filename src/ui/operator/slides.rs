@@ -663,7 +663,7 @@ mod tests {
 
     #[test]
     fn slide_text_says_what_a_file_slide_is() {
-        let pic = Slide::new("Slide 1", SlideContent::Image { asset: "a.png".into() });
+        let pic = Slide::new("Slide 1", SlideContent::Image { asset: "a.png".into(), transition: None });
         assert_eq!(slide_text(&pic), "Picture");
         let text = Slide::new("x", SlideContent::Text { text: " a \n\n b".into(), footer: None, reference: None, size: 0, parallel: None });
         assert_eq!(slide_text(&text), "a\nb");

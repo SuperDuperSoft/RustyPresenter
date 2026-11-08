@@ -233,7 +233,7 @@ mod tests {
         async fn pictures_added_as_a_slideshow_turn_by_themselves() {
             let app = test_app();
             let deck = Uuid::new_v4();
-            app.data.lock().unwrap().decks.push(Deck { id: deck, title: "Notices".into(), slides: vec!["a.png".into(), "b.png".into()] });
+            app.data.lock().unwrap().decks.push(Deck { id: deck, title: "Notices".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![] });
             app.data.lock().unwrap().settings.media.picture_secs = 8;
             let shows = add(&app, json!({ "kind": "deck", "deck_id": deck, "slideshow": true })).await;
             let talk = add(&app, json!({ "kind": "deck", "deck_id": deck })).await;

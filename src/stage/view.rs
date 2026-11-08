@@ -85,7 +85,7 @@ pub fn label(slide: &Slide) -> String {
 /// A slide's words, or its picture when the box shows pictures.
 fn slide_content(slide: &Slide, pictures: bool, caption: Option<String>) -> CellContent {
     match &slide.content {
-        SlideContent::Image { asset } | SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
+        SlideContent::Image { asset, .. } | SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
         _ => CellContent::text(label(slide), caption),
     }
 }
@@ -305,7 +305,7 @@ mod tests {
 
     #[test]
     fn classic_picture_slide_shows_label_and_pictures_option_shows_picture() {
-        let pic = slide(SlideContent::Image { asset: "a.png".into() });
+        let pic = slide(SlideContent::Image { asset: "a.png".into(), transition: None });
         let mut v = song_view(&[pic.clone()], 0);
         v.frame.media = Some(Inst { inst: 1, v: MediaLayer::Still { asset: "a.png".into() } });
         assert_eq!(words(&only(&v, &[], CUR)), ("(slide picture)", false));
@@ -378,7 +378,7 @@ mod tests {
     #[test]
     fn deck_slides_show_their_speaker_notes() {
         let mut data = crate::model::Data::default();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into(), String::new(), "Pray".into()], transitions: vec![] };
         data.decks.push(deck.clone());
         let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
         let (_, kind, s) = crate::slides::build_item(&data, &item);

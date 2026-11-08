@@ -103,7 +103,7 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
                 size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
             }),
-            SlideLayer::Image { asset } => picture(asset, false, 1.0),
+            SlideLayer::Image { asset, .. } => picture(asset, false, 1.0),
             SlideLayer::Design { design, .. } => Source::Text(RenderKey::design(design, job.theme.clone(), job.canvas, app.store.assets())),
         },
         // The logo sits on black at up to 70 % of the screen (`logoEl` in `render.js`).
@@ -243,7 +243,7 @@ mod tests {
     fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
         let mut live = Live::new();
         assert!(neighbours(&live, (64, 36), Default::default()).is_empty(), "nothing live");
-        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into() });
+        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into(), transition: None });
         live.item = Some(LiveItem {
             item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
             background: Background::Color { color: "#000000".into() }, theme: Theme::default(),

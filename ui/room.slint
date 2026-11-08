@@ -61,6 +61,62 @@ export component FadeLayer {
     }
 }
 
+/// Where a face is during a push or wipe, as shares of the screen: `x`/`y` moves the picture, `l`/`r`/`t`/`b` cut
+/// that much off each side (a wipe). All 0: the whole picture in place.
+export struct Geo { x: float, y: float, l: float, r: float, t: float, b: float }
+
+/// A face that can move and be cut (`Geo`). The cut is a clip with no opacity of its own, so it needs no
+/// offscreen layer.
+component MoveFace {
+    in property <Side> side;
+    in property <float> op: 1;
+    in property <Geo> geo;
+    in property <ImageFit> fit;
+    Rectangle {
+        x: root.width * root.geo.l;
+        y: root.height * root.geo.t;
+        width: root.width * max(0, 1 - root.geo.l - root.geo.r);
+        height: root.height * max(0, 1 - root.geo.t - root.geo.b);
+        clip: true;
+        Face {
+            x: root.width * (root.geo.x - root.geo.l);
+            y: root.height * (root.geo.y - root.geo.t);
+            width: root.width;
+            height: root.height;
+            side: root.side;
+            op: root.op;
+            fit: root.fit;
+        }
+    }
+}
+
+/// The slide layer: two faces that crossfade, or push and wipe (Rust sets `a-geo`/`b-geo` as it moves).
+export component MoveLayer {
+    in property <Side> a;
+    in property <Side> b;
+    in property <float> a-op;
+    in property <float> b-op;
+    in property <Geo> a-geo;
+    in property <Geo> b-geo;
+    in property <ImageFit> fit: contain;
+    MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.a;
+        op: root.a-op;
+        geo: root.a-geo;
+        fit: root.fit;
+    }
+    MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.b;
+        op: root.b-op;
+        geo: root.b-geo;
+        fit: root.fit;
+    }
+}
+
 /// One face shown at once, with no fade: the operator's live monitor cuts straight to the new picture.
 export component CutLayer {
     in property <Side> side;
@@ -98,6 +154,9 @@ export component RoomWindow inherits Window {
     in property <Side> slide-b;
     in property <float> slide-a-op;
     in property <float> slide-b-op;
+    /// Where each slide face is while a push or wipe runs.
+    in property <Geo> slide-a-geo;
+    in property <Geo> slide-b-geo;
     in property <Side> logo-a;
     in property <Side> logo-b;
     in property <float> logo-a-op;
@@ -150,13 +209,15 @@ export component RoomWindow inherits Window {
         b-op: root.media-b-op;
         fit: root.media-fit == 1 ? ImageFit.cover : root.media-fit == 2 ? ImageFit.fill : ImageFit.contain;
     }
-    slide := FadeLayer {
+    slide := MoveLayer {
         width: root.width;
         height: root.height;
         a: root.slide-a;
         b: root.slide-b;
         a-op: root.slide-a-op;
         b-op: root.slide-b-op;
+        a-geo: root.slide-a-geo;
+        b-geo: root.slide-b-geo;
     }
     logo := FadeLayer {
         width: root.width;

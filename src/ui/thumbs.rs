@@ -87,7 +87,7 @@ pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_backgroun
             background: Some(background), media: None, picture: None,
             text: Some(RenderKey::design(design, settings.theme.clone(), size, PathBuf::new())),
         },
-        SlideContent::Image { asset } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
+        SlideContent::Image { asset, .. } => ThumbJob { background: None, media: None, picture: Some(asset.clone()), text: None },
         SlideContent::Video { asset, .. } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Video { thumb: video_thumb(media, asset) }), picture: None, text: None },
         SlideContent::Still { asset } => ThumbJob { background: Some(background), media: Some(ThumbMedia::Still { asset: asset.clone() }), picture: None, text: None },
         SlideContent::Audio { .. } => ThumbJob { background: None, media: None, picture: None, text: None },
@@ -350,7 +350,7 @@ mod tests {
     fn thumb_layers_follow_slide_to_layers() {
         let s = settings();
         let slide = |content| Slide::new("x", content);
-        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into() }), "deck", &[], None, &s, &[], (64, 36));
+        let (_, deck) = thumb(&slide(SlideContent::Image { asset: "a.png".into(), transition: None }), "deck", &[], None, &s, &[], (64, 36));
         assert_eq!((deck.background, deck.picture.as_deref()), (None, Some("a.png")), "a deck picture has no background");
         let (_, video) = thumb(&slide(SlideContent::Video { asset: "v.mp4".into(), autoplay: true, end: Default::default() }), "video", &[], None, &s, &[], (64, 36));
         assert_eq!(video.media, Some(ThumbMedia::Video { thumb: None }));

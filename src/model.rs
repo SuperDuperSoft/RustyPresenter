@@ -37,8 +37,13 @@ pub enum SlideContent {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         parallel: Option<crate::scripture::Parallel>,
     },
-    /// A full-screen deck slide image (PowerPoint, images).
-    Image { asset: AssetId },
+    /// A full-screen deck slide image (PowerPoint, images), with the slide's own transition from the file or
+    /// Item edit (`None`: the normal crossfade).
+    Image {
+        asset: AssetId,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        transition: Option<crate::design::Transition>,
+    },
     /// Foreground video with its own audio.
     Video { asset: AssetId, autoplay: bool, end: EndAction },
     /// Full-screen still image on the media layer.
@@ -170,6 +175,18 @@ pub struct Deck {
     /// when the last slides have none.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub notes: Vec<String>,
+    /// Each slide's own transition, from the presentation or Item edit (`None`: the normal crossfade). Shorter
+    /// than `slides` (or empty) when the last slides have none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub transitions: Vec<Option<crate::design::Transition>>,
+}
+
+/// Transitions for a deck of `slides` slides, kept short like `deck_notes`, each no longer than the editor offers.
+pub fn deck_transitions(mut t: Vec<Option<crate::design::Transition>>, slides: usize) -> Vec<Option<crate::design::Transition>> {
+    t.truncate(slides);
+    for x in t.iter_mut().flatten() { x.ms = x.ms.min(crate::design::TRANSITION_MAX_MS) }
+    while t.last().is_some_and(Option::is_none) { t.pop(); }
+    t
 }
 
 /// Notes for a deck of `slides` slides, kept short: none past the last slide, no empty ones at the end.
@@ -983,7 +1000,7 @@ mod deck_notes_tests {
         let id = Uuid::new_v4();
         let old = serde_json::json!({ "id": id, "title": "Talk", "slides": ["1.png", "2.png"] });
         let deck: Deck = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![] });
+        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![] });
         assert_eq!(serde_json::to_value(&deck).unwrap(), old, "no notes key when there are none");
         let with = Deck { notes: vec!["Hi".into()], ..deck };
         assert_eq!(serde_json::from_value::<Deck>(serde_json::to_value(&with).unwrap()).unwrap(), with);
@@ -995,5 +1012,24 @@ mod deck_notes_tests {
         assert_eq!(deck_notes(n(&["a", "", "b", "c"]), 3), n(&["a", "", "b"]));
         assert_eq!(deck_notes(n(&["a", "", " "]), 3), n(&["a"]));
         assert_eq!(deck_notes(n(&["", ""]), 2), Vec::<String>::new());
+    }
+
+    #[test]
+    fn deck_transitions_are_kept_short_and_reach_each_slide() {
+        use crate::design::{Dir, Transition, TransitionKind};
+        let wipe = Transition { kind: TransitionKind::Wipe, ms: 99_999, dir: Dir::Down };
+        let short = Transition { ms: crate::design::TRANSITION_MAX_MS, ..wipe };
+        assert_eq!(deck_transitions(vec![None, Some(wipe), None, Some(wipe)], 3), vec![None, Some(short)]);
+        assert_eq!(deck_transitions(vec![None, None], 2), vec![]);
+        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(short)] };
+        let json = serde_json::to_value(&deck).unwrap();
+        assert_eq!(json["transitions"], serde_json::json!([null, { "kind": "wipe", "ms": crate::design::TRANSITION_MAX_MS, "dir": "down" }]));
+        assert_eq!(serde_json::from_value::<Deck>(json).unwrap(), deck);
+        let mut data = Data::default();
+        data.decks.push(deck.clone());
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
+        let (_, _, slides) = crate::slides::build_item(&data, &item);
+        let t: Vec<_> = slides.iter().map(|s| match &s.content { SlideContent::Image { transition, .. } => *transition, _ => panic!() }).collect();
+        assert_eq!(t, vec![None, Some(short), None]);
     }
 }
