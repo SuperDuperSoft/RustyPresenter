@@ -168,7 +168,7 @@ mod tests {
     fn with_items(app: &App) {
         let mut d = app.data.lock().unwrap();
         for (t, body) in [("Welcome", "Hello\n\nStand"), ("Notices", "Coffee")] {
-            d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.into(), body: body.into() }, background: None, notes: String::new(), theme: None });
+            d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         }
     }
 

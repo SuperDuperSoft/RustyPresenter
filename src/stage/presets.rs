@@ -203,8 +203,8 @@ fn slides_notes_layout() -> StageLayout {
     B::new(SLIDES_NOTES)
         .add(Clock { seconds: false, h24: false }, (3.0, 2.0, 30.0, 8.0), st(|s| s.align = Some(Align::Left)))
         .add(current_timer(), (64.0, 2.0, 33.0, 8.0), st(|s| { s.color = color(RED); s.align = Some(Align::Right); s.caption = Some(false); }))
-        .add(CurrentSlide { pictures: true, keep_after_clear: false }, (3.0, 12.0, 36.0, 34.0), st(|s| s.max_size = Some(5.0)))
-        .add(NextSlide { pictures: true }, (3.0, 50.0, 36.0, 34.0), st(|s| { s.color = color(GOLD); s.max_size = Some(4.0); }))
+        .add(CurrentSlide { pictures: true, keep_after_clear: false, chords: false }, (3.0, 12.0, 36.0, 34.0), st(|s| s.max_size = Some(5.0)))
+        .add(NextSlide { pictures: true, chords: false }, (3.0, 50.0, 36.0, 34.0), st(|s| { s.color = color(GOLD); s.max_size = Some(4.0); }))
         .add(Notes, (42.0, 12.0, 55.0, 72.0), st(|s| { s.color = color(NOTE_BLUE); s.fill = color(NOTE_FILL); s.align = Some(Align::Left); s.valign = Some(VAlign::Top); s.max_size = Some(8.0); s.bold = Some(false); }))
         .add(StageMessage, (3.0, 86.0, 94.0, 12.0), ElementStyle::default())
         .done(&s::slides_notes())
@@ -236,8 +236,8 @@ mod tests {
         let l = by_id(SLIDES_NOTES).unwrap();
         let area = |k: &ElementKind| kinds(l).iter().find(|(x, _)| *x == k).map(|(_, r)| r.w * r.h).unwrap();
         let notes = area(&ElementKind::Notes);
-        assert!(notes > 2.0 * area(&ElementKind::CurrentSlide { pictures: true, keep_after_clear: false }), "notes are the big box");
-        assert!(notes > 2.0 * area(&ElementKind::NextSlide { pictures: true }));
+        assert!(notes > 2.0 * area(&ElementKind::CurrentSlide { pictures: true, keep_after_clear: false, chords: false }), "notes are the big box");
+        assert!(notes > 2.0 * area(&ElementKind::NextSlide { pictures: true, chords: false }));
     }
 
     #[test]
