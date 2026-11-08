@@ -3,7 +3,8 @@
 use crate::automation::advance::AutoState;
 use crate::automation::messages::MessageTemplate;
 use crate::automation::preservice::PreRun;
-use crate::timers::{AtZero, AutoReadout, Builtin, PRE_SERVICE_TIMER_ID, RunState, TimeOfDay, TimerDef, TimerKind, TimerRun, TimersView};
+use crate::automation::{calendar::CalendarState, music::{MusicReadout, MusicRun, MusicWant}, music_out::Want};
+use crate::timers::{AtZero, AutoReadout, Builtin, MediaLeft, PRE_SERVICE_TIMER_ID, RunState, TimeOfDay, TimerDef, TimerKind, TimerRun, TimersView};
 use chrono::{DateTime, TimeDelta, TimeZone, Utc};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -41,6 +42,12 @@ pub struct AutomationRuntime {
     pub last_message: Option<Uuid>,
     /// The `shown` id of the message last seen up, so a new one is noticed once.
     pub message_up: Option<Uuid>,
+    /// N13: the walk-in music's run, its player's channel and what it was last told.
+    pub music: MusicRun,
+    pub music_out: Option<std::sync::mpsc::Sender<Option<Want>>>,
+    pub music_sent: Option<(MusicWant, crate::media_prefs::SoundOut)>,
+    /// N17: when the calendar last looked and what it fired.
+    pub calendar: CalendarState,
     published: Arc<TimersView>,
     published_at: Option<DateTime<Utc>>,
 }
@@ -50,9 +57,16 @@ impl AutomationRuntime {
 
     /// Every timer's readout in Timers-tab order; timers of an unknown kind are left out.
     pub fn view<Tz: TimeZone>(&self, defs: &[TimerDef], now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>, auto: Option<AutoReadout>) -> TimersView {
+        self.view_with(defs, now, tz, starts_at, auto, &MediaLeft::default(), None)
+    }
+
+    /// `view`, with what the video and audio timers read and the walk-in music's readout (N3, N13).
+    #[allow(clippy::too_many_arguments)]
+    pub fn view_with<Tz: TimeZone>(&self, defs: &[TimerDef], now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>, auto: Option<AutoReadout>,
+        media: &MediaLeft, music: Option<MusicReadout>) -> TimersView {
         let stopped = TimerRun::default();
-        let timers = defs.iter().filter_map(|d| self.timers.get(&d.id).unwrap_or(&stopped).snapshot(d, now, tz, starts_at)).collect();
-        TimersView { timers, auto }
+        let timers = defs.iter().filter_map(|d| self.timers.get(&d.id).unwrap_or(&stopped).snapshot_with(d, now, tz, starts_at, media)).collect();
+        TimersView { timers, auto, music }
     }
 
     /// Countdowns that reached zero since the last look, once per run.
@@ -239,7 +253,7 @@ mod tests {
     #[test]
     fn publishes_changes_at_most_every_250ms_and_shares_the_arc() {
         let mut rt = AutomationRuntime::default();
-        let v = |n| TimersView { timers: vec![], auto: Some(AutoReadout { next_in_secs: n, paused: false }) };
+        let v = |n| TimersView { timers: vec![], auto: Some(AutoReadout { next_in_secs: n, paused: false }), music: None };
         let first = rt.offer(v(5), t0()).expect("a change goes out");
         assert!(Arc::ptr_eq(&first, &rt.current()));
         assert!(rt.offer(v(5), ms(1000)).is_none(), "same view");

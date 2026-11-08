@@ -59,10 +59,32 @@ pub enum TimerKind {
     UntilTime { target: TimeTarget },
     #[default]
     CountUp,
+    /// N3: time left in the video on the screen. Follows the video; start and pause do nothing.
+    VideoLeft,
+    /// N3: time left in the audio playing (an audio item, else the walk-in music).
+    AudioLeft,
 }
 
 impl TimerKind {
-    pub fn is_countdown(&self) -> bool { matches!(self, TimerKind::Duration { .. } | TimerKind::UntilTime { .. }) }
+    pub fn is_countdown(&self) -> bool { matches!(self, TimerKind::Duration { .. } | TimerKind::UntilTime { .. } | TimerKind::VideoLeft | TimerKind::AudioLeft) }
+
+    /// Reads the playing video or audio instead of counting by itself (N3).
+    pub fn follows_media(&self) -> bool { matches!(self, TimerKind::VideoLeft | TimerKind::AudioLeft) }
+}
+
+/// What a video or audio timer reads (N3): the time left and whether it is paused, for each.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct MediaLeft { pub video: Option<MediaClock>, pub audio: Option<MediaClock> }
+
+/// One player's time left, in milliseconds, and whether it is paused.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct MediaClock { pub left_ms: i64, pub paused: bool }
+
+impl MediaClock {
+    /// From a player's position and length in seconds; `None` before the length is known.
+    pub fn from_secs(position: f64, duration: f64, paused: bool) -> Option<MediaClock> {
+        (duration > 0.0).then(|| MediaClock { left_ms: ((duration - position).max(0.0) * 1000.0) as i64, paused })
+    }
 }
 
 /// The time a countdown-to-a-time aims at.
@@ -192,7 +214,13 @@ pub struct AutoReadout { pub next_in_secs: u32, pub paused: bool }
 
 /// Everything a tick publishes: timers in Timers-tab order (unknown kinds left out) and auto-advance.
 #[derive(Clone, Debug, PartialEq, Default, Serialize)]
-pub struct TimersView { pub timers: Vec<TimerSnapshot>, pub auto: Option<AutoReadout> }
+pub struct TimersView {
+    pub timers: Vec<TimerSnapshot>,
+    pub auto: Option<AutoReadout>,
+    /// N13: the walk-in music, for the mini player and the phone.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub music: Option<crate::automation::music::MusicReadout>,
+}
 
 /// The shared formatter: `m:ss` under an hour, `h:mm:ss` from an hour, `+` for overrun.
 /// Truncates to whole seconds, so callers pass a `display_ms` value.
@@ -302,6 +330,7 @@ impl TimerRun {
         use crate::automation::strings;
         match def.kind.known().ok_or_else(|| strings::timer_needs_newer())? {
             TimerKind::Duration { .. } | TimerKind::CountUp => Ok(RunState::Running { since: ctx.now, carried_ms: 0 }),
+            TimerKind::VideoLeft | TimerKind::AudioLeft => Ok(RunState::Stopped),
             TimerKind::UntilTime { target } => {
                 Ok(RunState::RunningTo { target: until_target(target, ctx.starts_at, ctx.now, ctx.tz)? })
             }
@@ -310,7 +339,12 @@ impl TimerRun {
 
     /// Starts or resumes. Already running is a no-op; on `Err` nothing changes.
     pub fn start<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
-        if def.kind.known().is_none() { return Err(crate::automation::strings::timer_needs_newer().into()) }
+        match def.kind.known() {
+            None => return Err(crate::automation::strings::timer_needs_newer().into()),
+            // A video or audio timer follows its player: nothing to start.
+            Some(k) if k.follows_media() => return Ok(()),
+            _ => {}
+        }
         match self.state {
             RunState::Running { .. } | RunState::RunningTo { .. } => {}
             RunState::Paused { elapsed_ms } => self.state = RunState::Running { since: ctx.now, carried_ms: elapsed_ms },
@@ -404,7 +438,22 @@ impl TimerRun {
     /// The readout at `now`, quantised to whole seconds. `None` for a kind from a newer version.
     pub fn snapshot<Tz: TimeZone>(&self, def: &TimerDef, now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>)
         -> Option<TimerSnapshot> {
+        self.snapshot_with(def, now, tz, starts_at, &MediaLeft::default())
+    }
+
+    /// `snapshot`, with what the video and audio timers read (N3).
+    pub fn snapshot_with<Tz: TimeZone>(&self, def: &TimerDef, now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>, media: &MediaLeft)
+        -> Option<TimerSnapshot> {
         let kind = def.kind.known()?;
+        if kind.follows_media() {
+            let clock = if *kind == TimerKind::VideoLeft { media.video } else { media.audio };
+            let state = match clock { None => TimerState::Stopped, Some(c) if c.paused => TimerState::Paused, Some(_) => TimerState::Running };
+            let raw = clock.map_or(0, |c| c.left_ms.max(0));
+            return Some(TimerSnapshot {
+                id: def.id, name: def.name.clone(), kind: kind.clone(), state, value_ms: display_ms(raw, true), overrun: false,
+                on_stage: def.on_stage, on_remote: def.on_remote,
+            });
+        }
         let elapsed = i64::try_from(self.elapsed_ms(now)).unwrap_or(i64::MAX);
         let raw = match (&self.state, kind) {
             (RunState::Finished, _) => 0,
@@ -413,7 +462,7 @@ impl TimerRun {
             (RunState::RunningTo { target }, TimerKind::UntilTime { .. }) => (*target - now).num_milliseconds(),
             (RunState::Stopped, TimerKind::UntilTime { target }) => until_target(target, starts_at, now, tz)
                 .map_or(0, |t| (t - now).num_milliseconds()),
-            (_, TimerKind::UntilTime { .. }) => 0,
+            (_, TimerKind::UntilTime { .. }) | (_, TimerKind::VideoLeft | TimerKind::AudioLeft) => 0,
         };
         let raw = if def.overrun == Overrun::Stop { raw.max(0) } else { raw };
         let state = match self.state {
@@ -436,7 +485,7 @@ impl TimerRun {
 }
 
 #[cfg(test)]
-mod test_zone {
+pub(crate) mod test_zone {
     //! America/Chicago for 2026 only, so tests need no time zone database (replaces `chrono-tz`).
     use chrono::{FixedOffset, MappedLocalTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
 
@@ -891,5 +940,36 @@ mod tests {
         c.start(&count_up(), &ctx(at(0))).unwrap();
         assert!(!c.check_zero(&count_up(), at(60_000)));
         assert!(!TimerRun::default().check_zero(&def, at(60_000)));
+    }
+
+    fn media_timer(kind: TimerKind) -> TimerDef { TimerDef { kind: Lenient::Known(kind), ..TimerDef::default() } }
+
+    #[test]
+    fn video_and_audio_timers_read_their_player() {
+        let (v, a) = (media_timer(TimerKind::VideoLeft), media_timer(TimerKind::AudioLeft));
+        let r = TimerRun::default();
+        let none = r.snapshot(&v, at(0), &Utc, None).unwrap();
+        assert_eq!((none.state, none.value_ms), (TimerState::Stopped, 0), "nothing playing reads 0:00, stopped");
+        let media = MediaLeft { video: MediaClock::from_secs(10.4, 90.0, false), audio: MediaClock::from_secs(3.0, 125.0, true) };
+        let sv = r.snapshot_with(&v, at(0), &Utc, None, &media).unwrap();
+        assert_eq!((sv.state, text(sv.value_ms)), (TimerState::Running, "1:20".to_string()), "time left rounds up like a countdown");
+        let sa = r.snapshot_with(&a, at(0), &Utc, None, &media).unwrap();
+        assert_eq!((sa.state, text(sa.value_ms)), (TimerState::Paused, "2:02".to_string()));
+        assert_eq!(MediaClock::from_secs(5.0, 0.0, false), None, "no length yet");
+        assert_eq!(MediaClock::from_secs(95.0, 90.0, false).map(|c| c.left_ms), Some(0), "never below zero");
+    }
+
+    #[test]
+    fn video_and_audio_timers_ignore_start_pause_and_never_fire() {
+        let v = media_timer(TimerKind::VideoLeft);
+        let mut r = TimerRun::default();
+        r.start(&v, &ctx(at(0))).unwrap();
+        r.pause(at(1_000)).unwrap();
+        r.restart(&v, &ctx(at(2_000))).unwrap();
+        assert_eq!(r.state, RunState::Stopped);
+        assert!(!r.check_zero(&v, at(60_000)));
+        assert!(TimerKind::AudioLeft.is_countdown() && TimerKind::AudioLeft.follows_media() && !TimerKind::CountUp.follows_media());
+        assert_eq!(serde_json::to_value(TimerKind::VideoLeft).unwrap(), serde_json::json!({"type":"video_left"}));
+        assert_eq!(serde_json::from_str::<TimerKind>(r#"{"type":"audio_left"}"#).unwrap(), TimerKind::AudioLeft);
     }
 }

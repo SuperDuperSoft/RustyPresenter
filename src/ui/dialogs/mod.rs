@@ -10,6 +10,7 @@ pub mod automation;
 pub mod background;
 pub mod find_verse;
 pub mod item_edit;
+pub mod music;
 pub mod overlays;
 pub mod phone;
 pub mod print;
@@ -82,6 +83,8 @@ pub enum DialogKind {
     QuickSearch,
     /// The app's words in a language, edited in the app (Settings → Translations…).
     Translations,
+    /// N13: the walk-in music's songs, shuffle and volume.
+    Music,
 }
 
 impl DialogKind {
@@ -116,6 +119,7 @@ impl DialogKind {
             DialogKind::SlideBreaks(_) => "slide-breaks",
             DialogKind::QuickSearch => "quick-search",
             DialogKind::Translations => "translations",
+            DialogKind::Music => "music",
         }
     }
 }
@@ -237,6 +241,7 @@ impl Operator {
             DialogKind::SlideBreaks(_) => crate::scripture::strings::slide_breaks(),
             DialogKind::QuickSearch => quick_search::title(),
             DialogKind::Translations => translation_editor::title(),
+            DialogKind::Music => crate::tr!("Walk-in music"),
         }
     }
 }

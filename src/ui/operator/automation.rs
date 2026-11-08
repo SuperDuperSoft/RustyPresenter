@@ -2,7 +2,7 @@
 //! button follows the frame, timer chips follow `Update::Timers`, macro buttons follow the data.
 use super::window::Operator;
 use crate::{
-    automation::{macros::MacroColor, slots},
+    automation::{macros::MacroColor, music::{MusicReadout, MusicState}, slots},
     live::Command,
     timers::{RunState, TimerState, TimersView},
     ui::{AutoMacroBtn, AutoMacroRow, AutoStrip, AutoTimerChip, ops::outcome_toast},
@@ -45,6 +45,7 @@ pub fn timer_chips(view: &TimersView, in_room: &[Uuid], can_pause: impl Fn(Uuid)
             running: t.state == TimerState::Running,
             can_pause: can_pause(t.id),
             in_room: in_room.contains(&t.id),
+            media: t.kind.follows_media(),
         })
         .collect()
 }
@@ -69,6 +70,7 @@ pub fn render(op: &Operator) {
         .map(|m| AutoMacroBtn { id: m.id.to_string().into(), name: m.name.as_str().into(), color: macro_color(m.color) }).collect();
     let rows: Vec<AutoMacroRow> = buttons.chunks(3).map(|c| AutoMacroRow { buttons: ModelRc::new(VecModel::from(c.to_vec())) }).collect();
     g.set_macros(ModelRc::new(VecModel::from(rows)));
+    music(op, view.music.as_ref());
     match &view.auto {
         Some(a) => {
             g.set_auto_shown(true);
@@ -77,6 +79,19 @@ pub fn render(op: &Operator) {
         }
         None => g.set_auto_shown(false),
     }
+}
+
+/// N13: the mini player, from the newest readout.
+fn music(op: &Operator, m: Option<&MusicReadout>) {
+    let g = op.ui.global::<AutoStrip>();
+    g.set_music_shown(m.is_some());
+    let Some(m) = m else { return };
+    let stopped = m.state == MusicState::Stopped;
+    g.set_music_playing(m.state == MusicState::Playing);
+    g.set_music_stopped(stopped);
+    let title = if stopped { crate::trn!("{n} song", "{n} songs", m.count) } else { m.title.clone() };
+    g.set_music_title(title.into());
+    g.set_music_time(if stopped { String::new() } else { crate::timers::text(m.left_ms) }.into());
 }
 
 /// The live view the operator last saw: its version and clear epoch.
@@ -131,6 +146,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
         op.command(cmd, None);
     }));
     g.on_run_macro(with_id(|op, id| run_macro(op, id)));
+    g.on_music_toggle(with(|op| call(op, "automation/music/toggle", json!({}))));
+    g.on_music_next(with(|op| call(op, "automation/music/next", json!({}))));
+    g.on_music_stop(with(|op| call(op, "automation/music/stop", json!({}))));
+    g.on_open_music(with(|op| crate::ui::dialogs::music::open(op)));
 }
 
 /// Runs a macro from its button: it sends the screen the operator saw, so a stale one says so (spec §7).

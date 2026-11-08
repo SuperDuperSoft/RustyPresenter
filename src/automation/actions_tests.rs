@@ -407,3 +407,92 @@ fn adoption_remaps_auto_run_without_restarting() {
     let run = app.automation.lock().unwrap().auto.run.clone().unwrap();
     assert_eq!((run.slide, run.due), (0, due));
 }
+
+/// N3: a video and an audio timer read what plays, on every screen's readout.
+#[test]
+fn video_and_audio_timers_follow_what_plays() {
+    use crate::live::{AudioLayer, Inst, PlayStatus};
+    let app = test_app();
+    let v = act(&app, "automation/timer/save", serde_json::json!({ "name": "Video", "kind": { "type": "video_left" }, "on_stage": true, "on_remote": true })).unwrap();
+    let a = act(&app, "automation/timer/save", serde_json::json!({ "name": "Audio", "kind": { "type": "audio_left" } })).unwrap();
+    let (vid, aid): (Uuid, Uuid) = (serde_json::from_value(v["id"].clone()).unwrap(), serde_json::from_value(a["id"].clone()).unwrap());
+    assert_eq!(snapshot(&app, vid).state, TimerState::Stopped);
+    {
+        let mut live = app.live.lock().unwrap();
+        live.frame.media = Some(Inst { inst: 5, v: MediaLayer::Video { asset: "v.mp4".into(), end: crate::model::EndAction::Stop, paused: false } });
+        live.media_status = Some(PlayStatus { inst: 5, state: PlayState::Playing, position: 30.2, duration: 90.0 });
+        live.frame.audio = Some(Inst { inst: 6, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: true } });
+        live.audio_status = Some(PlayStatus { inst: 6, state: PlayState::Paused, position: 5.0, duration: 65.0 });
+    }
+    app.automation_changed();
+    assert!(!app.automation_tick(Utc::now()), "a video playing keeps the ticker awake for its timer");
+    let s = snapshot(&app, vid);
+    assert_eq!((s.state, crate::timers::text(s.value_ms)), (TimerState::Running, "1:00".to_string()));
+    let s = snapshot(&app, aid);
+    assert_eq!((s.state, crate::timers::text(s.value_ms)), (TimerState::Paused, "1:00".to_string()));
+    // Start does nothing to it, and an old status of another video is not read.
+    act(&app, "timer/start", serde_json::json!({ "id": vid })).unwrap();
+    app.live.lock().unwrap().media_status.as_mut().unwrap().inst = 4;
+    app.automation_changed();
+    assert_eq!(snapshot(&app, vid).state, TimerState::Stopped);
+}
+
+/// N13: the walk-in music plays apart from the slides, and Clear audio or Clear All stops it.
+#[test]
+fn walk_in_music_keeps_playing_through_slides_and_stops_on_clear_audio() {
+    use crate::automation::music::{MusicList, MusicState, Track};
+    let app = test_app();
+    let tracks: Vec<Track> = (1..=2).map(|i| Track { id: Uuid::from_u128(i), asset: format!("{i}.mp3"), title: format!("Song {i}"), duration: None }).collect();
+    act(&app, "automation/music/save", serde_json::to_value(MusicList { tracks, ..MusicList::default() }).unwrap()).unwrap();
+    assert!(act(&app, "automation/music/dance", serde_json::json!({})).is_err());
+    act(&app, "automation/music/play", serde_json::json!({})).unwrap();
+    let state = |app: &App| app.timers().music.as_ref().map(|m| m.state);
+    assert_eq!(state(&app), Some(MusicState::Playing));
+    let item = text_item(&app, "Welcome", 3);
+    show(&app, item, 0);
+    cmd(&app, Command::Next, Some(version(&app)));
+    cmd(&app, Command::ClearSlide, None);
+    assert_eq!(state(&app), Some(MusicState::Playing), "slides and Clear text leave it playing");
+    // A song that ends goes on to the next one.
+    let inst = app.automation.lock().unwrap().music.inst;
+    app.music_report(crate::video::PlayerReport { inst, player: 1, state: PlayState::Ended, position: 1.0, duration: 1.0, error: None });
+    assert_eq!(app.timers().music.as_ref().unwrap().title, "Song 2");
+    cmd(&app, Command::ClearAudio, None);
+    assert_eq!(state(&app), Some(MusicState::Stopped));
+    act(&app, "automation/music/play", serde_json::json!({})).unwrap();
+    cmd(&app, Command::ClearAll, None);
+    assert_eq!(state(&app), Some(MusicState::Stopped), "Clear All stops it too");
+    // A macro step starts it.
+    let m = act(&app, "automation/macro/save", serde_json::json!({ "name": "Walk-in", "steps": [{ "step": "music", "play": true }] })).unwrap();
+    let out = act(&app, "automation/run", serde_json::json!({ "id": m["id"] })).unwrap();
+    assert_eq!(out["ok"], true, "{out}");
+    assert_eq!(state(&app), Some(MusicState::Playing));
+}
+
+/// N17: an entry fires once when its time comes on a chosen day, from the ticker, and runs its step.
+#[test]
+fn calendar_entry_starts_the_countdown_when_its_time_comes() {
+    use crate::automation::calendar::{CalendarEntry, EVERY_DAY, next_due};
+    let app = test_app();
+    let e = serde_json::json!({ "name": "Countdown", "at": "10:45", "days": EVERY_DAY, "run": { "type": "step", "step": { "step": "timer_start", "timer": SERMON_ID } } });
+    let saved = act(&app, "automation/calendar/save", e.clone()).unwrap();
+    let id: Uuid = serde_json::from_value(saved["id"].clone()).unwrap();
+    assert!(act(&app, "automation/calendar/save", serde_json::json!({ "name": "None", "at": "10:45", "days": 0, "run": e["run"] })).is_err(), "no days");
+    let entry: CalendarEntry = app.data.lock().unwrap().automation.calendar[0].clone();
+    // The next 10:45 on this computer's clock, whatever its time zone.
+    let due = next_due(&entry, Utc::now(), &Local).unwrap();
+    app.automation_tick(due - TimeDelta::seconds(30));
+    assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Stopped);
+    assert!(!app.automation_tick(due - TimeDelta::seconds(3)), "due soon: the ticker stays awake");
+    app.automation_tick(due + TimeDelta::milliseconds(200));
+    assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Running, "it ran at its time");
+    act(&app, "timer/reset", serde_json::json!({ "id": SERMON_ID })).unwrap();
+    app.automation_tick(due + TimeDelta::seconds(1));
+    assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Stopped, "once only");
+    // Try it now runs it at once.
+    let r = act(&app, "automation/calendar/run", serde_json::json!({ "id": id })).unwrap();
+    assert_eq!(r["toast"], crate::automation::strings::calendar_ran("Countdown"));
+    assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Running);
+    act(&app, "automation/calendar/delete", serde_json::json!({ "id": id })).unwrap();
+    assert!(app.data.lock().unwrap().automation.calendar.is_empty());
+}

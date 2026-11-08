@@ -82,6 +82,8 @@ pub enum MacroStep {
     StageMessageHide,
     StageLayout { layout: Uuid },
     StageLayoutAuto,
+    /// N13: start (`true`) or stop the walk-in music.
+    Music { play: bool },
 }
 
 impl MacroStep {
@@ -96,7 +98,7 @@ impl MacroStep {
         use MacroStep::*;
         matches!(self, TimerShow { .. } | TimerHide { .. } | MessageShow { .. } | MessageHide | Overlay { .. }
             | TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. }
-            | StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto)
+            | StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. })
     }
 }
 
@@ -161,6 +163,7 @@ pub enum PlannedStep {
     StageMessageHide,
     StageLayout { layout: Uuid },
     StageLayoutAuto,
+    Music { play: bool },
 }
 
 impl PlannedStep {
@@ -172,7 +175,7 @@ impl PlannedStep {
             TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. } | AutoAdvance { .. } => {
                 StepClass::Runtime
             }
-            StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto => StepClass::Action,
+            StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } => StepClass::Action,
         }
     }
 
@@ -280,6 +283,7 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
                 PlannedStep::StageLayout { layout: *layout }
             }
             MacroStep::StageLayoutAuto => PlannedStep::StageLayoutAuto,
+            MacroStep::Music { play } => PlannedStep::Music { play: *play },
         };
         steps.push(Planned { number, step: planned });
     }
@@ -540,6 +544,7 @@ mod tests {
             (P::StageMessageHide, Action, false),
             (P::StageLayout { layout: LAYOUT }, Action, false),
             (P::StageLayoutAuto, Action, false),
+            (P::Music { play: true }, Action, false),
         ];
         for (step, class, show) in rows {
             assert_eq!(step.class(), class, "{step:?}");
@@ -562,5 +567,12 @@ mod tests {
         assert_eq!(cant_run_deleted("Walk-in", 3, StepTarget::Timer),
                    "Couldn't run “Walk-in”: step 3's timer was deleted. Edit the macro.");
         assert_eq!(cant_run_newer("Walk-in", 4), "Couldn't run “Walk-in”: step 4 needs a newer RustyPresenter.");
+    }
+
+    #[test]
+    fn music_steps_touch_no_slide_and_round_trip() {
+        let m = Macro { steps: vec![Lenient::Known(MacroStep::Music { play: true }), Lenient::Known(MacroStep::Music { play: false })], ..Macro::default() };
+        assert!(m.is_overlay_only() && !m.is_relative());
+        assert_eq!(serde_json::to_value(MacroStep::Music { play: true }).unwrap(), serde_json::json!({"step":"music","play":true}));
     }
 }

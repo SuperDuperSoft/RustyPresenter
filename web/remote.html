@@ -81,6 +81,10 @@
   .macro { color: #111 !important; }
   .timer { display: flex; justify-content: space-between; background: var(--panel); border-radius: 12px; padding: 10px 14px; font-weight: 700; }
   .timer .over { color: var(--live); }
+  .music { display: none; flex-direction: column; gap: 8px; }
+  .music.on { display: flex; }
+  .vol { display: flex; align-items: center; gap: 12px; color: var(--muted); font-weight: 600; }
+  .vol input { flex: 1; accent-color: var(--accent); }
   .sheet input { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); color: var(--text); margin-bottom: 10px; }
   .stage { display: none; background: var(--panel); border-radius: 16px; padding: 12px 16px; border: 1.5px solid rgba(255,159,107,.6); }
   .stage.on { display: block; }
@@ -144,6 +148,12 @@
     <h2 id="msgHead" data-t>Message</h2><div class="row" id="msgs"></div>
     <h2 id="timerHead" data-t>Timers</h2><div id="timers"></div>
     <h2 id="macroHead" data-t>Macros</h2><div class="row" id="macros"></div>
+    <h2 id="musicHead" data-t>Walk-in music</h2>
+    <div class="music" id="music">
+      <div class="timer"><span id="musicTitle"></span><span id="musicTime"></span></div>
+      <div class="row"><button id="musicPlay"></button><button id="musicNext" data-t>Next song</button><button id="musicStop" data-t>Stop</button></div>
+      <label class="vol"><span data-t>Volume</span><input type="range" id="musicVol" min="0" max="100"></label>
+    </div>
   </div>
   <div class="items"><h2 data-t>Service</h2><div id="items"></div></div>
 </div>

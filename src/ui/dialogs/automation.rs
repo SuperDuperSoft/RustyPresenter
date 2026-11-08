@@ -4,6 +4,7 @@ use super::{DialogKind, confirm, strings as dlg};
 use crate::{
     automation::{
         Automation,
+        calendar::{CalendarEntry, CalendarRun, EVERY_DAY, next_due},
         macros::{ClearWhich, ItemTarget, Macro, MacroColor, MacroStep},
         messages::{self, HIDE_AFTER_CHOICES, MessagePlace, MessageTemplate},
         preservice::{PRE_SERVICE_MACRO_ID, PreService, PreServiceEnd},
@@ -22,17 +23,20 @@ const PLACES: [OverlayPlace; 5] = [OverlayPlace::TopRight, OverlayPlace::TopLeft
 const COLORS: [MacroColor; 8] = [MacroColor::Amber, MacroColor::Red, MacroColor::Orange, MacroColor::Green, MacroColor::Teal, MacroColor::Blue, MacroColor::Purple, MacroColor::Gray];
 const ENDS: [PreServiceEnd; 4] = [PreServiceEnd::Hide, PreServiceEnd::Logo, PreServiceEnd::ClearAll, PreServiceEnd::FirstItem];
 
+/// The Calendar tab's number (N17).
+pub const CALENDAR_TAB: i32 = 4;
+
 /// The kinds of step the Add step list offers, in its order (spec §3.4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StepKind { ShowItem, Next, Prev, Clear(ClearWhich), Logo, TimerStart, TimerPause, TimerReset, TimerRestart, TimerShow, TimerHide,
-    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide }
+    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop }
 
-pub const STEP_KINDS: [StepKind; 23] = [
+pub const STEP_KINDS: [StepKind; 25] = [
     StepKind::ShowItem, StepKind::Next, StepKind::Prev, StepKind::Clear(ClearWhich::All), StepKind::Clear(ClearWhich::Slide),
     StepKind::Clear(ClearWhich::Media), StepKind::Clear(ClearWhich::Audio), StepKind::Clear(ClearWhich::Overlays), StepKind::Logo,
     StepKind::TimerStart, StepKind::TimerPause, StepKind::TimerReset, StepKind::TimerRestart, StepKind::TimerShow, StepKind::TimerHide,
     StepKind::MessageShow, StepKind::MessageHide, StepKind::OverlayOn, StepKind::OverlayOff, StepKind::AutoOff, StepKind::AutoOn,
-    StepKind::StageMessage, StepKind::StageMessageHide,
+    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop,
 ];
 
 fn kind_label(k: StepKind) -> String {
@@ -60,6 +64,8 @@ fn kind_label(k: StepKind) -> String {
         StepKind::AutoOn => crate::tr!("Resume automatic slides"),
         StepKind::StageMessage => crate::tr!("Show a message to the stage"),
         StepKind::StageMessageHide => crate::tr!("Hide the stage message"),
+        StepKind::MusicPlay => crate::tr!("Play the walk-in music"),
+        StepKind::MusicStop => crate::tr!("Stop the walk-in music"),
     }
 }
 
@@ -119,6 +125,7 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
         MacroStep::ScreenView { .. } => crate::tr!("Change what a screen shows"),
         MacroStep::StageLayout { .. } => crate::tr!("Change the stage layout"),
         MacroStep::StageLayoutAuto => crate::tr!("Let the stage layout follow the slides"),
+        MacroStep::Music { play } => kind_label(if *play { StepKind::MusicPlay } else { StepKind::MusicStop }),
     }
 }
 
@@ -145,6 +152,8 @@ pub fn build_step(k: StepKind, target: Option<(Uuid, String)>, text: &str) -> Op
         StepKind::AutoOn => MacroStep::AutoAdvance { on: true },
         StepKind::StageMessage => MacroStep::StageMessageShow { text: text.trim().to_string() },
         StepKind::StageMessageHide => MacroStep::StageMessageHide,
+        StepKind::MusicPlay => MacroStep::Music { play: true },
+        StepKind::MusicStop => MacroStep::Music { play: false },
     })
 }
 
@@ -163,6 +172,38 @@ struct State {
     music: Vec<String>,
     /// The at-zero list's macros (after "Do nothing" and "Hide it from the screen").
     at_zero: Vec<Uuid>,
+    /// Calendar: the "What to do" list's choices, and the days picked.
+    cal_what: Vec<CalWhat>,
+    cal_days: u8,
+}
+
+/// One choice of the calendar's "What to do" list: a macro, or one step.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum CalWhat { Macro(Uuid), Step(StepKind) }
+
+/// The days' short names, Sunday first (bit 0 of `CalendarEntry::days`).
+pub fn day_names() -> [String; 7] {
+    [crate::tr!("Sun"), crate::tr!("Mon"), crate::tr!("Tue"), crate::tr!("Wed"), crate::tr!("Thu"), crate::tr!("Fri"), crate::tr!("Sat")]
+}
+
+/// "Every day", "Weekdays" or the days' names: "Sun, Wed".
+pub fn days_label(days: u8) -> String {
+    match days & EVERY_DAY {
+        EVERY_DAY => crate::tr!("Every day"),
+        0b011_1110 => crate::tr!("Weekdays"),
+        d => day_names().into_iter().enumerate().filter(|(i, _)| d & (1 << i) != 0).map(|(_, n)| n).collect::<Vec<_>>().join(", "),
+    }
+}
+
+/// A calendar entry's line in the list: when it runs and what it does.
+fn calendar_sub(e: &CalendarEntry, d: &Data) -> String {
+    let what = match e.run.known() {
+        Some(CalendarRun::Macro { macro_id }) => d.automation.macros.iter().find(|m| m.id == *macro_id).map_or_else(|| "?".to_string(), |m| m.name.clone()),
+        Some(CalendarRun::Step { step }) => step_label(&Lenient::Known(step.clone()), &d.automation, d),
+        None => crate::tr!("Needs a newer RustyPresenter"),
+    };
+    let when = crate::tr!("{days} at {time}", days = days_label(e.days), time = e.at.label());
+    if e.on { format!("{when} · {what}") } else { format!("{} · {when} · {what}", crate::tr!("Off")) }
 }
 
 type St = Rc<RefCell<State>>;
@@ -234,6 +275,24 @@ fn connect(op: &Rc<Operator>, st: &St) {
         show_steps(&op, &s);
     });
     g.on_preservice_save(with(preservice_save));
+    let (me, s) = (Rc::downgrade(op), st.clone());
+    g.on_c_day_toggle(move |i| if let Some(op) = me.upgrade() && (0..7).contains(&i) {
+        s.borrow_mut().cal_days ^= 1 << i;
+        show_days(&op, &s);
+    });
+    g.on_c_what_changed(with(|op, st| calendar_targets(op, st, &data(op), None)));
+    g.on_calendar_run(with(|op, st| {
+        let Some(id) = st.borrow().selected else { return };
+        let me = Rc::downgrade(op);
+        op.ops().call::<Value>("automation/calendar/run", json!({ "id": id }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            let g = op.ui.global::<AutomationDlg>();
+            match r {
+                Ok(v) => { g.set_error("".into()); g.set_note(v["toast"].as_str().unwrap_or_default().into()) }
+                Err(e) => { g.set_note("".into()); g.set_error(e.into()) }
+            }
+        });
+    }));
 }
 
 fn clear_messages(op: &Operator) {
@@ -250,6 +309,8 @@ fn timer_sub(t: &TimerDef) -> String {
         Some(TimerKind::UntilTime { target: TimeTarget::ServiceStart }) => crate::tr!("Count down to the service start"),
         Some(TimerKind::UntilTime { target: TimeTarget::Fixed { at } }) => crate::tr!("Count down to {time}", time = at.label()),
         Some(TimerKind::CountUp) => crate::tr!("Count up"),
+        Some(TimerKind::VideoLeft) => crate::tr!("Time left in the video"),
+        Some(TimerKind::AudioLeft) => crate::tr!("Time left in the audio"),
         None => crate::tr!("Needs a newer RustyPresenter"),
     }
 }
@@ -268,6 +329,9 @@ fn load(op: &Rc<Operator>, st: &St) {
             id: m.id.to_string().into(), title: m.name.as_str().into(),
             sub: crate::trn!("{n} step", "{n} steps", m.steps.len()).into(), readout: "".into(), over: false, locked: m.id == PRE_SERVICE_MACRO_ID,
         })).collect(),
+        CALENDAR_TAB => a.calendar.iter().map(|e| (e.id, AutoListRow {
+            id: e.id.to_string().into(), title: e.name.as_str().into(), sub: calendar_sub(e, &d).into(), readout: "".into(), over: false, locked: false,
+        })).collect(),
         _ => vec![],
     };
     let selected = st.borrow().selected.filter(|id| rows.iter().any(|(r, _)| r == id));
@@ -280,6 +344,7 @@ fn load(op: &Rc<Operator>, st: &St) {
         (1, Some(id)) => if let Some(t) = a.messages.iter().find(|t| t.id == id) { message_form(op, t) },
         (2, Some(id)) => if let Some(m) = a.macros.iter().find(|m| m.id == id) { macro_form(op, st, m, &d) },
         (3, _) => preservice_form(op, st, &d),
+        (CALENDAR_TAB, Some(id)) => if let Some(e) = a.calendar.iter().find(|e| e.id == id) { calendar_form(op, st, e, &d) },
         _ => {}
     }
     readouts(op);
@@ -295,8 +360,113 @@ fn new_form(op: &Rc<Operator>, st: &St) {
         0 => timer_form(op, st, &TimerDef { kind: Lenient::Known(TimerKind::Duration { secs: 300 }), ..TimerDef::default() }, &d),
         1 => message_form(op, &MessageTemplate::default()),
         2 => macro_form(op, st, &Macro::default(), &d),
+        CALENDAR_TAB => {
+            // A new entry starts on the first macro, or else on the walk-in music, on Sundays at 10:45.
+            let run = match d.automation.macros.first() {
+                Some(m) => CalendarRun::Macro { macro_id: m.id },
+                None => CalendarRun::Step { step: MacroStep::Music { play: true } },
+            };
+            calendar_form(op, st, &CalendarEntry { run: Lenient::Known(run), ..CalendarEntry::default() }, &d)
+        }
         _ => {}
     }
+}
+
+fn calendar_form(op: &Operator, st: &St, e: &CalendarEntry, d: &Data) {
+    let g = op.ui.global::<AutomationDlg>();
+    g.set_c_name(e.name.as_str().into());
+    g.set_c_at(format!("{:02}:{:02}", e.at.hour, e.at.minute).into());
+    g.set_c_on(e.on);
+    g.set_c_day_names(set_strings(day_names().to_vec()));
+    let mut what: Vec<CalWhat> = d.automation.macros.iter().map(|m| CalWhat::Macro(m.id)).collect();
+    what.extend(STEP_KINDS.iter().map(|k| CalWhat::Step(*k)));
+    let labels: Vec<String> = what.iter().map(|w| match w {
+        CalWhat::Macro(id) => crate::tr!("Run “{name}”", name = d.automation.macros.iter().find(|m| m.id == *id).map(|m| m.name.clone()).unwrap_or_default()),
+        CalWhat::Step(k) => kind_label(*k),
+    }).collect();
+    g.set_c_what_options(set_strings(labels));
+    let (chosen, step) = match e.run.known() {
+        Some(CalendarRun::Macro { macro_id }) => (what.iter().position(|w| *w == CalWhat::Macro(*macro_id)), None),
+        Some(CalendarRun::Step { step }) => (what.iter().position(|w| matches!(w, CalWhat::Step(k) if step_kind_of(step) == Some(*k))), Some(step.clone())),
+        None => (None, None),
+    };
+    g.set_c_what(chosen.unwrap_or(0) as i32);
+    {
+        let mut s = st.borrow_mut();
+        s.cal_what = what;
+        s.cal_days = e.days;
+    }
+    calendar_targets(op, st, d, step.as_ref());
+    show_days(op, st);
+    let next = if e.id.is_nil() { None } else { next_due(e, chrono::Utc::now(), &chrono::Local) };
+    g.set_c_next(next.map(|t| next_label(t.with_timezone(&chrono::Local))).unwrap_or_default().into());
+}
+
+/// "Next: Sun Jun 7, 10:45 AM"-style line, with the app's own day names.
+pub fn next_label<Tz: chrono::TimeZone>(t: chrono::DateTime<Tz>) -> String {
+    use chrono::{Datelike, Timelike};
+    let day = day_names()[t.weekday().num_days_from_sunday() as usize].clone();
+    let time = TimeOfDay::new(t.hour() as u8, t.minute() as u8).label();
+    crate::tr!("Next: {day} {date}, {time}", day = day, date = format!("{}/{}", t.month(), t.day()), time = time)
+}
+
+/// The step kind a saved step was made with, to pick it again in the list.
+fn step_kind_of(step: &MacroStep) -> Option<StepKind> {
+    STEP_KINDS.iter().copied().find(|k| {
+        let probe = build_step(*k, Some((Uuid::nil(), String::new())), "");
+        probe.is_some_and(|p| std::mem::discriminant(&p) == std::mem::discriminant(step) && match (&p, step) {
+            (MacroStep::Clear { which: a }, MacroStep::Clear { which: b }) => a == b,
+            (MacroStep::Overlay { on: a, .. }, MacroStep::Overlay { on: b, .. }) => a == b,
+            (MacroStep::AutoAdvance { on: a }, MacroStep::AutoAdvance { on: b }) => a == b,
+            (MacroStep::Music { play: a }, MacroStep::Music { play: b }) => a == b,
+            _ => true,
+        })
+    })
+}
+
+/// The chosen calendar step's second list (and text box), picking the saved target when there is one.
+fn calendar_targets(op: &Operator, st: &St, d: &Data, step: Option<&MacroStep>) {
+    let g = op.ui.global::<AutomationDlg>();
+    let kind = match st.borrow().cal_what.get(g.get_c_what().max(0) as usize) { Some(CalWhat::Step(k)) => Some(*k), _ => None };
+    let t = kind.map(|k| targets(k, d)).unwrap_or_default();
+    let saved = step.and_then(|s| match s {
+        MacroStep::ShowItem { target: ItemTarget::Titled { title }, .. } => t.iter().position(|(_, n)| n == title),
+        MacroStep::TimerStart { timer } | MacroStep::TimerPause { timer } | MacroStep::TimerReset { timer } | MacroStep::TimerRestart { timer }
+        | MacroStep::TimerShow { timer } | MacroStep::TimerHide { timer } => t.iter().position(|(id, _)| id == timer),
+        MacroStep::MessageShow { template, .. } => t.iter().position(|(id, _)| id == template),
+        MacroStep::Overlay { id, .. } => t.iter().position(|(x, _)| x == id),
+        _ => None,
+    });
+    g.set_step_targets(set_strings(t.iter().map(|(_, n)| n.clone()).collect()));
+    g.set_step_target(saved.unwrap_or(0) as i32);
+    g.set_step_needs_text(matches!(kind, Some(StepKind::MessageShow | StepKind::StageMessage)));
+    g.set_step_text(match step {
+        Some(MacroStep::StageMessageShow { text }) => text.as_str().into(),
+        Some(MacroStep::MessageShow { values, .. }) => values.iter().map(|(k, v)| format!("{k}={v}")).collect::<Vec<_>>().join(", ").into(),
+        _ => "".into(),
+    });
+    st.borrow_mut().targets = t;
+}
+
+fn show_days(op: &Operator, st: &St) {
+    let days = st.borrow().cal_days;
+    let on: Vec<bool> = (0..7).map(|i| days & (1 << i) != 0).collect();
+    op.ui.global::<AutomationDlg>().set_c_days(ModelRc::new(VecModel::from(on)));
+}
+
+fn calendar_from_form(op: &Operator, st: &St) -> Result<CalendarEntry, String> {
+    let g = op.ui.global::<AutomationDlg>();
+    let at = TimeOfDay::parse(&g.get_c_at()).ok_or_else(|| crate::tr!("Type the time like 10:30."))?;
+    let s = st.borrow();
+    let run = match s.cal_what.get(g.get_c_what().max(0) as usize) {
+        Some(CalWhat::Macro(id)) => CalendarRun::Macro { macro_id: *id },
+        Some(CalWhat::Step(k)) => {
+            let target = s.targets.get(g.get_step_target().max(0) as usize).cloned();
+            CalendarRun::Step { step: build_step(*k, target, &g.get_step_text()).ok_or_else(crate::automation::strings::calendar_pick_what)? }
+        }
+        None => return Err(crate::automation::strings::calendar_pick_what()),
+    };
+    Ok(CalendarEntry { id: s.selected.unwrap_or_default(), name: g.get_c_name().to_string(), at, days: s.cal_days, run: Lenient::Known(run), on: g.get_c_on() })
 }
 
 fn timer_form(op: &Operator, st: &St, t: &TimerDef, d: &Data) {
@@ -306,6 +476,8 @@ fn timer_form(op: &Operator, st: &St, t: &TimerDef, d: &Data) {
         Some(TimerKind::UntilTime { target: TimeTarget::ServiceStart }) => (0, true, String::new(), 0),
         Some(TimerKind::UntilTime { target: TimeTarget::Fixed { at } }) => (0, false, format!("{:02}:{:02}", at.hour, at.minute), 0),
         Some(TimerKind::Duration { secs }) => (1, true, String::new(), *secs),
+        Some(TimerKind::VideoLeft) => (3, true, String::new(), 0),
+        Some(TimerKind::AudioLeft) => (4, true, String::new(), 0),
         _ => (2, true, String::new(), 0),
     };
     g.set_t_kind(kind);
@@ -446,6 +618,8 @@ fn timer_from_form(op: &Operator, st: &St) -> Result<TimerDef, String> {
             let (m, s) = (n(g.get_t_minutes()).unwrap_or(0), n(g.get_t_seconds()).unwrap_or(0));
             TimerKind::Duration { secs: m.saturating_mul(60).saturating_add(s) }
         }
+        3 => TimerKind::VideoLeft,
+        4 => TimerKind::AudioLeft,
         _ => TimerKind::CountUp,
     };
     let at_zero = match g.get_t_at_zero() {
@@ -492,6 +666,10 @@ fn save(op: &Rc<Operator>, st: &St) {
             };
             call(op, st, "automation/macro/save", serde_json::to_value(m).unwrap_or_default());
         }
+        CALENDAR_TAB => match calendar_from_form(op, st) {
+            Ok(e) => call(op, st, "automation/calendar/save", serde_json::to_value(e).unwrap_or_default()),
+            Err(e) => g.set_error(e.into()),
+        },
         _ => {}
     }
 }
@@ -499,7 +677,7 @@ fn save(op: &Rc<Operator>, st: &St) {
 fn delete(op: &Rc<Operator>, st: &St) {
     let g = op.ui.global::<AutomationDlg>();
     let Some(id) = st.borrow().selected else { return };
-    let action = match g.get_tab() { 0 => "automation/timer/delete", 1 => "automation/message/delete", _ => "automation/macro/delete" };
+    let action = match g.get_tab() { 0 => "automation/timer/delete", 1 => "automation/message/delete", CALENDAR_TAB => "automation/calendar/delete", _ => "automation/macro/delete" };
     let (me, s) = (Rc::downgrade(op), st.clone());
     op.ops().call::<Value>(action, json!({ "id": id }), move |r| {
         let Some(op) = me.upgrade() else { return };

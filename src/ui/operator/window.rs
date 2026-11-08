@@ -261,6 +261,7 @@ impl Operator {
     pub fn apply_timers(&self) {
         super::automation::render(self);
         crate::ui::dialogs::automation::readouts(self);
+        crate::ui::dialogs::music::readouts(self);
     }
 
     /// The item the live cursor is on (`L.cursor.item_id`), if any.

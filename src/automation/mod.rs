@@ -8,8 +8,11 @@ pub mod strings;
 
 pub mod actions;
 pub mod advance;
+pub mod calendar;
 pub mod macros;
 pub mod messages;
+pub mod music;
+pub mod music_out;
 pub mod preservice;
 pub mod runtime;
 pub mod slots;
@@ -44,6 +47,12 @@ pub struct Automation {
     /// Each service item's slide auto-advance, by item id (spec §3.5).
     #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
     pub advance: BTreeMap<Uuid, advance::AutoAdvance>,
+    /// N13: the walk-in music.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub music: music::MusicList,
+    /// N17: what runs by itself at set times.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub calendar: Vec<calendar::CalendarEntry>,
 }
 
 /// A map whose entries this version can't read are left out instead of failing the load (spec §4.1).

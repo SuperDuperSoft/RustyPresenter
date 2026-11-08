@@ -130,3 +130,16 @@ pub fn stage_auto_not_yet() -> String { tr!("The stage layout can't follow the s
 /// *(plan copy)* FEAT-7 screen views.
 pub fn screen_views_not_yet() -> String { tr!("Screen views aren't available yet.") }
 pub fn confirm_run(name: &str) -> String { tr!("Run “{name}”?", name = name) }
+
+// N13: walk-in music.
+pub fn music_empty() -> String { tr!("Add some songs to the walk-in music first.") }
+pub fn music_track_gone() -> String { tr!("That song isn't in the walk-in music any more.") }
+pub fn music_too_many() -> String { tr!("The walk-in music can hold 500 songs at most.") }
+pub fn music_failed(why: &str) -> String { tr!("The walk-in music stopped: {reason}", reason = why) }
+
+// N17: the calendar.
+pub fn calendar_macro_gone(name: &str) -> String { tr!("“{name}” runs a macro that was deleted.", name = name) }
+pub fn calendar_no_days() -> String { tr!("Pick at least one day.") }
+pub fn calendar_pick_what() -> String { tr!("Pick what to do.") }
+pub fn calendar_too_many() -> String { tr!("The calendar can hold 50 entries at most.") }
+pub fn calendar_ran(name: &str) -> String { tr!("Calendar: ran “{name}”.", name = name) }

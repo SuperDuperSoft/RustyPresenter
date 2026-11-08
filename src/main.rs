@@ -115,6 +115,8 @@ fn main() {
     println!("  Video drawing: {}{}\n", if mode == video::DrawMode::OpenGl { "GPU (OpenGL)" } else { "software" }, if mpv.is_none() { ", video player missing" } else { "" });
 
     rustypresenter::import::media::at_start(&app, mpv.clone(), rt.handle());
+    // N13: the walk-in music's own player.
+    rustypresenter::automation::music_out::start(&app, mpv.clone());
 
     let native = NativeScreens::new(&app, Renderer::new(), mpv);
     app.set_screens(native.clone());

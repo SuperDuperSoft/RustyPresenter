@@ -1,4 +1,4 @@
-// The Automation dialog (FEAT-2 §3.2–§3.6): Timers · Messages · Macros · Pre-service. A list on the left, the
+// The Automation dialog (FEAT-2 §3.2–§3.6): Timers · Messages · Macros · Pre-service · Calendar (N17). A list on the left, the
 // chosen one's form on the right. Filled and answered by `src/ui/dialogs/automation.rs`.
 import { Theme } from "../theme.slint";
 import { Btn, Segmented } from "../widgets.slint";
@@ -64,6 +64,16 @@ export global AutomationDlg {
     in-out property <string> p-caption;
     in-out property <int> p-end;
 
+    // Calendar (N17)
+    in-out property <string> c-name;
+    in-out property <string> c-at;
+    in property <[bool]> c-days;
+    in property <[string]> c-day-names;
+    in property <[string]> c-what-options;
+    in-out property <int> c-what;
+    in-out property <bool> c-on: true;
+    in property <string> c-next;
+
     callback tab-changed(int);
     callback pick(int);
     callback new-one();
@@ -78,6 +88,9 @@ export global AutomationDlg {
     callback step-move(int, int);
     callback step-remove(int);
     callback preservice-save();
+    callback c-day-toggle(int);
+    callback c-what-changed();
+    callback calendar-run();
 }
 
 component Gap inherits Rectangle { height: 12px; }
@@ -98,8 +111,8 @@ component TimerForm inherits VerticalLayout {
     }
     Labelled {
         label: @tr("Kind");
-        t-kind := Segmented {
-            labels: [@tr("Count down to a time"), @tr("Count down"), @tr("Count up")];
+        t-kind := Select {
+            options: [@tr("Count down to a time"), @tr("Count down"), @tr("Count up"), @tr("Time left in the video"), @tr("Time left in the audio")];
             index <=> AutomationDlg.t-kind;
         }
     }
@@ -122,11 +135,21 @@ component TimerForm inherits VerticalLayout {
             t-seconds := TextField { width: 80px; text <=> AutomationDlg.t-seconds; label: @tr("Seconds"); }
         }
     }
-    if AutomationDlg.t-kind != 2: t-overrun := Check {
+    if AutomationDlg.t-kind >= 3: Text {
+        text: AutomationDlg.t-kind == 3
+            ? @tr("Shows how long the video on the screen has left. It follows the video: there is nothing to start.")
+            : @tr("Shows how long the audio playing has left (an audio item, or else the walk-in music).");
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+    if AutomationDlg.t-kind >= 3: Gap {}
+    if AutomationDlg.t-kind < 2: t-overrun := Check {
         text: @tr("Keep counting after zero (+m:ss)");
         checked <=> AutomationDlg.t-keep-counting;
     }
-    Labelled {
+    if AutomationDlg.t-kind < 3: Labelled {
         label: @tr("When it reaches zero");
         t-at-zero := Select { options: AutomationDlg.t-at-zero-options; index <=> AutomationDlg.t-at-zero; }
     }
@@ -304,6 +327,61 @@ component PreServiceForm inherits VerticalLayout {
     }
 }
 
+/// N17: one calendar entry.
+component CalendarForm inherits VerticalLayout {
+    Labelled {
+        label: @tr("Name");
+        c-name := TextField { text <=> AutomationDlg.c-name; placeholder: @tr("Sunday countdown"); }
+    }
+    Labelled {
+        label: @tr("Time (like 10:45 or 18:30)");
+        c-at := TextField { width: 140px; text <=> AutomationDlg.c-at; }
+    }
+    Labelled {
+        label: @tr("Days");
+        HorizontalLayout {
+            spacing: 6px;
+            alignment: start;
+            for d[i] in AutomationDlg.c-day-names: c-day := Rectangle {
+                width: 52px;
+                height: 32px;
+                border-radius: 9px;
+                border-width: 1px;
+                border-color: AutomationDlg.c-days[i] ? Theme.accent : Theme.line;
+                background: AutomationDlg.c-days[i] ? Theme.accent : day-ta.has-hover ? Theme.panel-2 : Theme.raise;
+                accessible-role: checkbox;
+                accessible-checked: AutomationDlg.c-days[i];
+                accessible-label: d;
+                accessible-action-default => { AutomationDlg.c-day-toggle(i); }
+                Text {
+                    text: d;
+                    color: AutomationDlg.c-days[i] ? Theme.accent-ink : Theme.text;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                day-ta := TouchArea { mouse-cursor: pointer; clicked => { AutomationDlg.c-day-toggle(i); } }
+            }
+        }
+    }
+    Labelled {
+        label: @tr("What to do");
+        c-what := Select { options: AutomationDlg.c-what-options; index <=> AutomationDlg.c-what; changed => { AutomationDlg.c-what-changed(); } }
+        if AutomationDlg.step-targets.length > 0: c-target := Select { options: AutomationDlg.step-targets; index <=> AutomationDlg.step-target; }
+        if AutomationDlg.step-needs-text: c-text := TextField { text <=> AutomationDlg.step-text; }
+    }
+    c-on := Check { text: @tr("On"); checked <=> AutomationDlg.c-on; }
+    if AutomationDlg.c-next != "": c-next := Text {
+        text: AutomationDlg.c-next;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        wrap: word-wrap;
+    }
+}
+
 export component AutomationDialog inherits VerticalLayout {
     HorizontalLayout {
         vertical-stretch: 0;
@@ -311,7 +389,7 @@ export component AutomationDialog inherits VerticalLayout {
         padding-right: 22px;
         padding-bottom: 8px;
         tabs := Segmented {
-            labels: [@tr("Timers"), @tr("Messages"), @tr("Macros"), @tr("Pre-service")];
+            labels: [@tr("Timers"), @tr("Messages"), @tr("Macros"), @tr("Pre-service"), @tr("Calendar")];
             index <=> AutomationDlg.tab;
             changed(i) => { AutomationDlg.tab-changed(i); }
         }
@@ -385,7 +463,7 @@ export component AutomationDialog inherits VerticalLayout {
                     new-btn := Btn {
                         small: true;
                         icon: "plus";
-                        text: AutomationDlg.tab == 0 ? @tr("New timer") : AutomationDlg.tab == 1 ? @tr("New message") : @tr("New macro");
+                        text: AutomationDlg.tab == 0 ? @tr("New timer") : AutomationDlg.tab == 1 ? @tr("New message") : AutomationDlg.tab == 4 ? @tr("New calendar entry") : @tr("New macro");
                         clicked => { AutomationDlg.new-one(); }
                     }
                 }
@@ -404,6 +482,7 @@ export component AutomationDialog inherits VerticalLayout {
                 if AutomationDlg.editing && AutomationDlg.tab == 0: TimerForm {}
                 if AutomationDlg.editing && AutomationDlg.tab == 1: MessageForm {}
                 if AutomationDlg.editing && AutomationDlg.tab == 2: MacroForm {}
+                if AutomationDlg.editing && AutomationDlg.tab == 4: CalendarForm {}
             }
         }
         if AutomationDlg.note != "": auto-note := Text {
@@ -424,11 +503,16 @@ export component AutomationDialog inherits VerticalLayout {
         }
     }
     DialogFoot {
-        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0: timer-reset := Btn {
+        if AutomationDlg.tab == 4 && AutomationDlg.editing && AutomationDlg.selected >= 0: calendar-run := Btn {
+            icon: "play";
+            text: @tr("Try it now");
+            clicked => { AutomationDlg.calendar-run(); }
+        }
+        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0 && AutomationDlg.t-kind < 3: timer-reset := Btn {
             text: @tr("Reset");
             clicked => { AutomationDlg.timer-reset(); }
         }
-        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0: timer-start := Btn {
+        if AutomationDlg.tab == 0 && AutomationDlg.editing && AutomationDlg.selected >= 0 && AutomationDlg.t-kind < 3: timer-start := Btn {
             icon: AutomationDlg.t-running ? "pause" : "play";
             text: AutomationDlg.t-running ? @tr("Pause") : @tr("Start");
             clicked => { AutomationDlg.timer-start(); }

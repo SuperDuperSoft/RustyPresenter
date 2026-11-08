@@ -323,6 +323,8 @@ pub struct Live {
     pub restored_version: Option<u64>,
     /// Moves on with every clear (F1–F6), so a show sent before the sender saw a clear is refused.
     pub clear_epoch: u64,
+    /// N13: moves on with every Clear audio and Clear everything, which stop the walk-in music too.
+    pub audio_clears: u64,
     /// The live item no longer matches the library and the room would look different (FEAT-4 banner).
     pub changed: Option<LiveChange>,
     /// The version of the last visual change (FEAT-2): auto-advance re-arms only when this moves.
@@ -354,7 +356,7 @@ impl Default for Live {
 impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
-            audio_status: None, notice: None, restored_version: None, clear_epoch: 0, changed: None, visual_version: 0, manual_version: 0,
+            audio_status: None, notice: None, restored_version: None, clear_epoch: 0, audio_clears: 0, changed: None, visual_version: 0, manual_version: 0,
             origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
         l.remember();
         l
@@ -532,10 +534,10 @@ impl Live {
                 self.go(item, index, slide);
                 Ok(())
             }
-            Command::ClearAll => { self.frame = Frame::default(); self.clear_drawing(); self.bump(); Ok(()) }
+            Command::ClearAll => { self.frame = Frame::default(); self.clear_drawing(); self.audio_clears += 1; self.bump(); Ok(()) }
             Command::ClearSlide => { self.frame.slide = None; self.clear_drawing(); self.bump(); Ok(()) }
             Command::ClearMedia => { self.frame.background = None; self.frame.media = None; self.bump(); Ok(()) }
-            Command::ClearAudio => { self.frame.audio = None; self.bump(); Ok(()) }
+            Command::ClearAudio => { self.frame.audio = None; self.audio_clears += 1; self.bump(); Ok(()) }
             Command::Logo => {
                 self.frame.slide = None; self.frame.background = None; self.frame.media = None; self.frame.logo = true;
                 self.clear_drawing();
@@ -632,7 +634,7 @@ impl Live {
             match layer {
                 ClearLayer::Slide => { self.frame.slide = None; self.clear_drawing(); visual = true }
                 ClearLayer::Media => { self.frame.background = None; self.frame.media = None; visual = true }
-                ClearLayer::Audio => { self.frame.audio = None; visual = true }
+                ClearLayer::Audio => { self.frame.audio = None; self.audio_clears += 1; visual = true }
                 ClearLayer::Logo => { self.frame.logo = false; visual = true }
                 ClearLayer::Overlays => overlay |= self.retain_overlays(|s| s.key == MESSAGE_KEY || s.key.starts_with(TIMER_PREFIX)),
                 ClearLayer::Message => overlay |= self.hide_overlay(MESSAGE_KEY),

@@ -10,9 +10,9 @@ use crate::automation::preservice::{PRE_SERVICE_MACRO_ID, PreRun, PreServiceEnd,
 use crate::automation::runtime::{AutomationRuntime, Due};
 use crate::automation::{Automation, apply_preservice, slots, strings};
 use crate::lenient::Lenient;
-use crate::live::{BatchStep, Command, Envelope, Live, Outcome};
+use crate::live::{BatchStep, Command, Envelope, Live, MediaLayer, Outcome, PlayState};
 use crate::model::Data;
-use crate::timers::{AtZero, Builtin, PRE_SERVICE_TIMER_ID, SetNow, StartCtx, TimeOfDay, TimerDef, TimerKind, TimersView};
+use crate::timers::{AtZero, Builtin, MediaClock, MediaLeft, PRE_SERVICE_TIMER_ID, SetNow, StartCtx, TimeOfDay, TimerDef, TimerKind, TimersView};
 use chrono::{DateTime, Local, Utc};
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -118,6 +118,8 @@ pub fn delete_question(name: &str, (macros, timers): (usize, usize)) -> Option<S
 pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, ActionError> {
     let bad = ActionError::bad;
     match action {
+        a if a.starts_with("automation/music/") => super::music::run(app, a, body).await,
+        a if a.starts_with("automation/calendar/") => super::calendar::run(app, a, body).await,
         "timer/start" | "timer/pause" | "timer/reset" | "timer/restart" => {
             let Id { id } = parse(body)?;
             app.timer_control(action, id, None).map_err(bad)?;
@@ -287,6 +289,30 @@ fn timer_op(rt: &mut AutomationRuntime, data: &Data, def: &TimerDef, op: &str, s
     }
 }
 
+/// What the video and audio timers read now (N3): the video on the screen, and the audio item playing or else the
+/// walk-in music.
+pub fn media_left(live: &Live, music: &super::music::MusicRun) -> MediaLeft {
+    let status = |inst: u64, s: &Option<crate::live::PlayStatus>, paused: bool| {
+        s.as_ref().filter(|s| s.inst == inst).and_then(|s| MediaClock::from_secs(s.position, s.duration, paused || s.state == PlayState::Paused))
+    };
+    let video = live.frame.media.as_ref().and_then(|m| match m.v {
+        MediaLayer::Video { paused, .. } => status(m.inst, &live.media_status, paused),
+        MediaLayer::Still { .. } => None,
+    });
+    let audio = live.frame.audio.as_ref().map_or_else(|| music.clock(), |a| status(a.inst, &live.audio_status, a.v.paused));
+    MediaLeft { video, audio }
+}
+
+/// A video or audio timer exists and its player is playing, so its readout moves.
+fn media_ticking(defs: &[TimerDef], media: &MediaLeft) -> bool {
+    let moving = |c: Option<MediaClock>| c.is_some_and(|c| !c.paused);
+    defs.iter().filter_map(|d| d.kind.known()).any(|k| match k {
+        TimerKind::VideoLeft => moving(media.video),
+        TimerKind::AudioLeft => moving(media.audio),
+        _ => false,
+    })
+}
+
 impl App {
     /// The newest timer readout: the same `Arc` the last `Update::Timers` carried (spec §4.4).
     pub fn timers(&self) -> Arc<TimersView> { self.automation.lock().unwrap().current() }
@@ -312,9 +338,12 @@ impl App {
     pub(crate) fn publish_timers(&self, now: DateTime<Utc>, force: bool) {
         let sent = {
             let data = self.data.lock().unwrap();
+            let live = self.live.lock().unwrap();
             let mut rt = self.automation.lock().unwrap();
             let auto = rt.auto.readout(now);
-            let view = rt.view(&data.automation.timers, now, &Local, starts_at(&data), auto);
+            let media = media_left(&live, &rt.music);
+            let music = rt.music.readout(&data.automation.music);
+            let view = rt.view_with(&data.automation.timers, now, &Local, starts_at(&data), auto, &media, music);
             if force { rt.offer_now(view, now) } else { rt.offer(view, now) }
         };
         if let Some(v) = sent { let _ = self.tx.send(Update::Timers(v)); }
@@ -350,6 +379,8 @@ impl App {
             rt.message_up = up;
             rt.prune(&data.automation.timers, up);
         }
+        let clears = self.live.lock().unwrap().audio_clears;
+        if self.music_after_clear(clears) { self.music_changed() }
         self.publish_timers(now, false);
         self.ticker_wake.notify_one();
     }
@@ -418,7 +449,8 @@ impl App {
                     Some(Command::ShowMessage { template: *template, values, seen_clear: None })
                 }
                 PlannedStep::MessageHide => Some(Command::HideMessage),
-                PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto => {
+                PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto
+                | PlannedStep::Music { .. } => {
                     stage.push((p.number, p.step.clone()));
                     continue;
                 }
@@ -471,6 +503,10 @@ impl App {
             PlannedStep::StageMessageHide => self.set_stage_message(""),
             PlannedStep::StageLayout { layout } => { let _ = self.edit(|d| { d.settings.stage.layout = layout; Ok(()) }); }
             PlannedStep::StageLayoutAuto => self.set_notice(&strings::stage_auto_not_yet()),
+            PlannedStep::Music { play } => {
+                let op = if play { super::music::MusicOp::Play } else { super::music::MusicOp::Stop };
+                if let Err(e) = self.music(op) { self.set_notice(&e) }
+            }
             _ => {}
         }
     }
@@ -484,13 +520,21 @@ impl App {
     /// One wake of the ticker at `now`: fire what is due, then publish the readout. True when nothing runs, so
     /// the ticker can sleep until woken.
     pub fn automation_tick(&self, now: DateTime<Utc>) -> bool {
-        let (dues, hides, next) = {
+        let (dues, hides, next, calendar) = {
             let data = self.data.lock().unwrap();
             let _live = self.live.lock().unwrap();
             let mut rt = self.automation.lock().unwrap();
             let dues = rt.zero_crossings(&data.automation.timers, now);
-            (dues, rt.due_hides(now), rt.auto.due(now))
+            let calendar = rt.calendar.due(&data.automation.calendar, now, &Local);
+            (dues, rt.due_hides(now), rt.auto.due(now), calendar)
         };
+        for (id, _) in calendar {
+            match self.calendar_run(id, now) {
+                Ok(toast) => self.set_notice(&toast),
+                Err(e) => self.set_notice(&e),
+            }
+        }
+        self.music_save_volume(now);
         for d in dues {
             match d {
                 Due::TimerAtZero { timer, run } => self.timer_at_zero(timer, run, now),
@@ -503,7 +547,33 @@ impl App {
         let data = self.data.lock().unwrap();
         let live = self.live.lock().unwrap();
         let rt = self.automation.lock().unwrap();
-        rt.is_idle(&data.automation.timers, &slots::room_timers(&live.frame.overlays), self.automation_watching.load(Ordering::Relaxed))
+        // A calendar entry due in a few seconds, or a volume waiting to be saved, keeps the ticker awake.
+        let soon = super::calendar::CalendarState::soon(&data.automation.calendar, now, &Local) || rt.music.volume.is_some()
+            || media_ticking(&data.automation.timers, &media_left(&live, &rt.music));
+        !soon && rt.is_idle(&data.automation.timers, &slots::room_timers(&live.frame.overlays), self.automation_watching.load(Ordering::Relaxed))
+    }
+
+    /// Runs calendar entry `id` now (N17), as its time came or from "Try it now". Returns the operator's note.
+    pub fn calendar_run(&self, id: Uuid, now: DateTime<Utc>) -> Result<String, String> {
+        let (out, toast, stage) = {
+            let data = self.data.lock().unwrap();
+            let mut live = self.live.lock().unwrap();
+            let mut rt = self.automation.lock().unwrap();
+            let e = data.automation.calendar.iter().find(|e| e.id == id).ok_or_else(strings::macro_gone)?;
+            let m = super::calendar::as_macro(e, &data.automation.macros)?;
+            // Nobody is looking: it runs on the screen as it is now.
+            let (base, seen) = (Some(live.version), Some(live.clear_epoch));
+            let name = e.name.clone();
+            let run_id = format!("calendar-{}", Uuid::new_v4());
+            let (out, toast, stage) = self.run_resolved(&data, &mut live, &mut rt, &m, &run_id, base, seen, now, None)?;
+            let toast = match toast { Some((t, true)) => t, _ => strings::calendar_ran(&name) };
+            (out, toast, stage)
+        };
+        if !out.ok { return Err(out.error.unwrap_or_default()) }
+        for s in stage { self.stage_step(s) }
+        if !out.duplicate { self.after_command() }
+        self.publish_timers(Utc::now(), true);
+        Ok(toast)
     }
 
     fn internal(&self, cmd: Command) -> bool {
