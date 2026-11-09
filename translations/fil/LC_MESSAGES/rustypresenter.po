@@ -834,9 +834,10 @@ msgstr "Pagpasok"
 msgid "Emphasis"
 msgstr "Pagdiin"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
-msgstr "Lumabas"
+msgstr "Exit"
 
 #: ui/dialogs/design-editor.slint
 msgid "Motion path"
@@ -3749,6 +3750,10 @@ msgstr "Settings ng pag-record…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "I-print ang ayos ng service…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Lumabas"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

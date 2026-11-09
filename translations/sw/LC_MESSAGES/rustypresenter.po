@@ -834,9 +834,10 @@ msgstr "Kuingia"
 msgid "Emphasis"
 msgstr "Msisitizo"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
-msgstr "Toka"
+msgstr "Kutoka"
 
 #: ui/dialogs/design-editor.slint
 msgid "Motion path"
@@ -3749,6 +3750,10 @@ msgstr "Mipangilio ya kurekodi…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "Chapisha mpangilio wa ibada…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Toka"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

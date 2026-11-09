@@ -12,7 +12,7 @@
 name = "rustypresenter"
 productName = "RustyPresenter"
 identifier = "church.gracefirst.rustypresenter"
-version = "1.0.0"                    # keep equal to Cargo.toml; CI checks it (ci.yml version-match)
+version = "1.1.0"                    # keep equal to Cargo.toml; CI checks it (ci.yml version-match)
 publisher = "RustyPresenter contributors"
 outDir = "dist"
 # Binaries are read from here, not from outDir. cargo-packager 0.11.8 accepts but

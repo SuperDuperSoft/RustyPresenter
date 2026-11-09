@@ -4475,7 +4475,7 @@ dependencies = [
 
 [[package]]
 name = "rp-ui"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "slint",
  "slint-build",
@@ -4636,7 +4636,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
 name = "rustypresenter"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "arboard",
  "axum",

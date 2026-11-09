@@ -834,7 +834,8 @@ msgstr "Вхід"
 msgid "Emphasis"
 msgstr "Виділення"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "Вихід"
 
@@ -3749,6 +3750,10 @@ msgstr "Налаштування запису…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "Надрукувати порядок служіння…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Вихід"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

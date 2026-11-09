@@ -834,9 +834,10 @@ msgstr "Entrada"
 msgid "Emphasis"
 msgstr "Énfasis"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
-msgstr "Salir"
+msgstr "Salida"
 
 #: ui/dialogs/design-editor.slint
 msgid "Motion path"
@@ -3749,6 +3750,10 @@ msgstr "Ajustes de grabación…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "Imprimir orden del culto…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Salir"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

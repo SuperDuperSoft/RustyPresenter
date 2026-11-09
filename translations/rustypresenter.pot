@@ -840,7 +840,8 @@ msgstr ""
 msgid "Emphasis"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr ""
 
@@ -3760,6 +3761,10 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Print service order…"
+msgstr ""
+
+#: ui/operator.slint
+msgid "Exit"
 msgstr ""
 
 #: ui/operator.slint ui/widgets.slint

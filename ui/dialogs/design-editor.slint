@@ -473,7 +473,7 @@ component Inspector inherits VerticalLayout {
             spacing: 6px;
             anim-kind := Select {
                 accessible-label: @tr("Kind of animation");
-                options: [@tr("Entrance"), @tr("Emphasis"), @tr("Exit"), @tr("Motion path")];
+                options: [@tr("Entrance"), @tr("Emphasis"), @tr("animation step" => "Exit"), @tr("Motion path")];
                 index <=> DesignDlg.anim-kind;
                 changed(i) => { DesignDlg.anim-kind-changed(i); }
             }

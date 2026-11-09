@@ -834,7 +834,8 @@ msgstr "開始"
 msgid "Emphasis"
 msgstr "強調"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "終了"
 
@@ -3749,6 +3750,10 @@ msgstr "録画の設定…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "礼拝順序を印刷…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "終了"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

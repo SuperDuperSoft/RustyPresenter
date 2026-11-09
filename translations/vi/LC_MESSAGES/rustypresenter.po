@@ -834,7 +834,8 @@ msgstr "Lối vào"
 msgid "Emphasis"
 msgstr "Nhấn mạnh"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "Thoát"
 
@@ -3749,6 +3750,10 @@ msgstr "Cài đặt ghi hình…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "In thứ tự buổi lễ…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Thoát"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

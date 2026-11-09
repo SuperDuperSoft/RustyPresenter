@@ -834,7 +834,8 @@ msgstr "进入"
 msgid "Emphasis"
 msgstr "强调"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "退出"
 
@@ -3749,6 +3750,10 @@ msgstr "录制设置…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "打印聚会流程…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "退出"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

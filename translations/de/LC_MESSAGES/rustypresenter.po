@@ -834,7 +834,8 @@ msgstr "Eingang"
 msgid "Emphasis"
 msgstr "Hervorhebung"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "Beenden"
 
@@ -3749,6 +3750,10 @@ msgstr "Aufnahmeeinstellungen…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "Ablauf drucken…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Beenden"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

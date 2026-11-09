@@ -834,7 +834,8 @@ msgstr "Antre"
 msgid "Emphasis"
 msgstr "Anfaz"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
 msgstr "Sòti"
 
@@ -3749,6 +3750,10 @@ msgstr "Paramèt anrejistreman…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "Enprime lòd sèvis la…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "Sòti"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"

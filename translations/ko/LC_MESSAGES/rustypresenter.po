@@ -834,9 +834,10 @@ msgstr "나타내기"
 msgid "Emphasis"
 msgstr "강조"
 
-#: ui/dialogs/design-editor.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint
+msgctxt "animation step"
 msgid "Exit"
-msgstr "종료"
+msgstr "끝내기"
 
 #: ui/dialogs/design-editor.slint
 msgid "Motion path"
@@ -3749,6 +3750,10 @@ msgstr "녹화 설정…"
 #: ui/operator.slint
 msgid "Print service order…"
 msgstr "예배 순서 인쇄…"
+
+#: ui/operator.slint
+msgid "Exit"
+msgstr "종료"
 
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
