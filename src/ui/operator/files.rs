@@ -174,8 +174,8 @@ fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Op
 
 fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
     let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
-    // A .pptx can come in as slides to edit (1.1) or as pictures: asked each time; Cancel skips the file.
-    if crate::import::pptx_text::EXT.contains(&ext(&path).as_str()) {
+    // A .pptx or .odp can come in as slides to edit (1.1) or as pictures: asked each time; Cancel skips the file.
+    if crate::import::pptx_text::EXT.contains(&ext(&path).as_str()) || ext(&path) == "odp" {
         let me = Rc::downgrade(op);
         dialogs::choose(op, &tr::pptx_how(&file_name(&path)), &tr::editable_slides(), &tr::as_pictures(), move |answer| {
             let Some(op) = me.upgrade() else { return };

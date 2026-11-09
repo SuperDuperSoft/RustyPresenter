@@ -72,8 +72,11 @@ impl<R: Read + Seek> Package<R> {
         Some(text.trim_start_matches('\u{feff}').to_string())
     }
 
-    /// A part's bytes (a picture), counted against the same budget. At most `max` bytes.
-    pub(super) fn bytes(&mut self, name: &str, max: u64) -> Option<Vec<u8>> {
+    /// A part's bytes (a picture), counted against the same budget.
+    pub(super) fn bytes(&mut self, name: &str) -> Option<Vec<u8>> { self.bytes_max(name, MAX_PART) }
+
+    /// A part's bytes, at most `max` of them (a video may be larger than a picture).
+    pub(super) fn bytes_max(&mut self, name: &str, max: u64) -> Option<Vec<u8>> {
         let entry = self.names.get(&name.to_ascii_lowercase())?.clone();
         let bytes = read_part(&mut self.zip, &entry, max.min(self.budget))?;
         self.budget -= bytes.len() as u64;
@@ -237,7 +240,7 @@ pub(super) fn odp_pages<'a, 'i>(doc: &'a Document<'i>) -> Vec<Node<'a, 'i>> {
 }
 
 /// The `presentation:class="notes"` frame's text, else the longest frame that is not the slide picture.
-fn odp_notes(notes: Node) -> String {
+pub(super) fn odp_notes(notes: Node) -> String {
     let (mut found, mut best) = (None::<String>, String::new());
     for frame in notes.descendants().filter(|n| is(n, "frame")) {
         let class = attr(&frame, "class");
@@ -268,7 +271,7 @@ fn odf_lines(n: Node, out: &mut Vec<String>) {
     }
 }
 
-fn odf_inline(n: Node, s: &mut String) {
+pub(super) fn odf_inline(n: Node, s: &mut String) {
     for c in n.children() {
         if c.is_text() {
             s.push_str(c.text().unwrap_or(""));

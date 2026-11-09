@@ -1,5 +1,5 @@
 //! User-facing strings for importing decks and media (Plan 4).
-use crate::tr;
+use crate::{tr, trn};
 
 pub fn encrypted() -> String { tr!("This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again.") }
 pub fn not_presentation() -> String { tr!("This doesn't look like a PowerPoint file.") }
@@ -41,6 +41,18 @@ pub fn adding(name: &str) -> String {
 // Importing a presentation (Plan 4 Task 6c).
 pub fn importing(name: &str) -> String {
     tr!("Importing “{name}”", name = name)
+}
+// Editable slides from a LibreOffice file (1.1).
+pub fn odp_unreadable() -> String { tr!("This presentation could not be read as editable slides.") }
+/// What an object that could not be copied is called on its grey box, when it has no name of its own.
+pub fn odp_table() -> String { tr!("Table") }
+pub fn odp_chart() -> String { tr!("Chart") }
+pub fn odp_object() -> String { tr!("Embedded object") }
+pub fn odp_media() -> String { tr!("Video") }
+pub fn odp_picture() -> String { tr!("Picture") }
+pub fn odp_placeholders(count: usize) -> String {
+    trn!("{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place.",
+        "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places.", count)
 }
 pub fn keynote_package() -> String { tr!("Save the Keynote file as a single file and import again.") }
 pub fn waiting_for_libreoffice() -> String { tr!("Waiting for LibreOffice…") }

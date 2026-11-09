@@ -7,7 +7,6 @@
 //! its name and any words it has, and is counted in `Converted::lost`, so the operator can choose Pictures instead.
 //! Text boxes have one style: the style of most of their words. Paragraph builds animate the whole text box.
 use super::notes::{self, attr, is, Package};
-use super::sniff::MAX_PART;
 use crate::design::{
     Anim, AnimKind, Design, Dir, Effect, Fit, HAlign, Look, MotionPath, Obj, ObjKind, Outline, PctRect, Seg, Shape, Start,
     TextStyle, Transition, TransitionKind, VAlign, MAX_OBJECTS,
@@ -444,10 +443,11 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
     /// A grey box with `text` where something could not come over.
     fn lost(&self, made: &mut Made, node: Node, b: Box_, text: String, on_slide: bool) {
         made.lost += 1;
-        let style = TextStyle { size: 28.0, color: "#374151".into(), align: HAlign::Center, valign: VAlign::Middle, shrink: true, ..TextStyle::default() };
+        // The same grey box as the .odp import's (`odp_design`).
+        let style = TextStyle { size: 36.0, color: "#ffffff".into(), align: HAlign::Center, valign: VAlign::Middle, shrink: true, ..TextStyle::default() };
         let mut o = Obj::new(ObjKind::Text { text, style }, self.pct(&b));
         o.rotation = b.rot as f32;
-        o.look = Look { fill: Some("#e5e7eb".into()), outline: Some(Outline { color: "#9ca3af".into(), width: 2.0 }), ..Look::default() };
+        o.look = Look { fill: Some("#4b5563".into()), outline: Some(Outline { color: "#9ca3af".into(), width: 3.0 }), ..Look::default() };
         let id = made.push(o);
         if on_slide && let Some(s) = shape_id(node) { made.ids.entry(s).or_default().push(id); }
     }
@@ -642,7 +642,7 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         let (_, part) = rels.get(rid)?;
         let ext = part.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
         if !PICTURE_EXT.contains(&ext.as_str()) { return None }
-        let bytes = io.p.bytes(part, MAX_PART)?;
+        let bytes = io.p.bytes(part)?;
         let side = |a: &str| crop.and_then(|c| attr(&c, a)).and_then(|v| v.parse::<f64>().ok()).unwrap_or(0.0) / 100_000.0;
         let (l, t, r, b) = (side("l"), side("t"), side("r"), side("b"));
         if (l, t, r, b) != (0.0, 0.0, 0.0, 0.0) && let Ok(img) = image::load_from_memory(&bytes) {
@@ -662,7 +662,7 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         let (_, part) = rels.get(rid)?;
         let ext = part.rsplit_once('.').map(|(_, e)| e.to_ascii_lowercase()).unwrap_or_default();
         if !super::media::VIDEO.contains(&ext.as_str()) { return None }
-        let bytes = io.p.bytes(part, MAX_VIDEO)?;
+        let bytes = io.p.bytes_max(part, MAX_VIDEO)?;
         (io.put)(&bytes, &ext)
     }
 
@@ -868,15 +868,16 @@ fn name_of(n: Node) -> String {
     c.and_then(|c| attr(&c, "descr").filter(|d| !d.trim().is_empty()).or(attr(&c, "name"))).unwrap_or("").to_string()
 }
 
-fn only_pptx() -> String { crate::tr!("Only PowerPoint files saved as .pptx can come in as editable slides. Add it as pictures instead.") }
+fn only_pptx() -> String { crate::tr!("Only .pptx and .odp files can come in as editable slides. Add it as pictures instead.") }
 
 /// The job's note when some objects came over only as grey boxes.
 pub fn lost_note(n: usize) -> String {
     crate::trn!("{n} object couldn't be converted; use Pictures for an exact look.", "{n} objects couldn't be converted; use Pictures for an exact look.", n)
 }
 
-/// Starts importing `file` (the staged copy, which this import owns) as one item of designed slides at the end of
-/// the open service, and returns the job. The job's result is the new item's id.
+/// Starts importing `file` (the staged copy, which this import owns: a .pptx, or an .odp through `odp_design`) as
+/// one item of designed slides at the end of the open service, and returns the job. The job's result is the new
+/// item's id.
 pub fn start(app: Arc<App>, file: PathBuf, display: String) -> Uuid {
     let (job, cancel) = app.job_start_cancellable(&super::strings::importing(&display));
     tokio::spawn(async move {
@@ -893,9 +894,14 @@ pub fn start(app: Arc<App>, file: PathBuf, display: String) -> Uuid {
 
 async fn run(app: &Arc<App>, job: Uuid, file: &Path, title: String, cancel: &CancellationToken) -> Result<(), String> {
     let (a, f, c) = (app.clone(), file.to_path_buf(), cancel.clone());
-    let made = tokio::task::spawn_blocking(move || -> Result<Converted, String> {
+    let made = tokio::task::spawn_blocking(move || -> Result<(Vec<Design>, Option<String>), String> {
         match sniff::sniff(&f) {
             Ok(Kind::Ooxml { .. }) => {}
+            Ok(Kind::Odp) => {
+                let odp = super::odp_design::odp_to_designs(&f, &a.store)?;
+                let note = (odp.placeholders > 0).then(|| super::strings::odp_placeholders(odp.placeholders));
+                return Ok((odp.designs, note));
+            }
             Ok(Kind::Encrypted) => return Err(sniff::encrypted()),
             _ => return Err(only_pptx()),
         }
@@ -911,16 +917,16 @@ async fn run(app: &Arc<App>, job: Uuid, file: &Path, title: String, cancel: &Can
         };
         let made = read(&f, &mut put).ok_or_else(sniff::not_presentation)?;
         if c.is_cancelled() { return Err(CANCELLED.into()) }
-        Ok(made)
+        Ok((made.slides, (made.lost > 0).then(|| lost_note(made.lost))))
     }).await.map_err(|_| slide_not_saved())??;
-    let mut slides = made.slides;
+    let (mut slides, note) = made;
     if slides.is_empty() { return Err(pdf_no_slides()) }
     slides.truncate(MAX_SLIDES);
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Design { title, slides }, background: None, notes: String::new(), theme: None };
     let id = item.id;
     app.edit(|d| { d.service_mut().ok_or_else(|| crate::tr!("No service is open."))?.items.push(item); Ok(()) })?;
     app.job_result(job, id);
-    if made.lost > 0 { app.job_note(job, lost_note(made.lost)) }
+    if let Some(note) = note { app.job_note(job, note) }
     Ok(())
 }
 

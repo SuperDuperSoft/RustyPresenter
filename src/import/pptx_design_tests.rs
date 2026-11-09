@@ -218,7 +218,7 @@ fn pictures_are_stored_cropped_and_unknown_things_become_grey_boxes() {
     assert_eq!(objs[0].opacity, 60);
     // A picture we can't draw (EMF) and the table: grey boxes with the description, and the table's words.
     assert!(matches!(&objs[1].kind, ObjKind::Text { text, .. } if text == "Pastor Dave"), "{:?}", objs[1].kind);
-    assert_eq!(objs[1].look.fill.as_deref(), Some("#e5e7eb"));
+    assert_eq!(objs[1].look.fill.as_deref(), Some("#4b5563"), "the same grey box as the .odp import's");
     assert!(matches!(&objs[2].kind, ObjKind::Text { text, .. } if text == "Time  |  Event\n9am  |  Prayer"));
     assert!(near(objs[2].rect.x, 50.0) && near(objs[2].rect.y, 50.0));
     // The video, with its picture as the still.
@@ -377,4 +377,23 @@ async fn the_job_puts_the_slides_in_the_service_and_says_what_was_lost() {
     let card = app.jobs.lock().unwrap().iter().find(|j| j.id == job).cloned().expect("the card stays for its note");
     assert_eq!(card.note.as_deref(), Some(lost_note(1).as_str()));
     assert_eq!(lost_note(1), "1 object couldn't be converted; use Pictures for an exact look.");
+}
+
+#[tokio::test]
+async fn an_odp_file_comes_in_through_the_same_job() {
+    use crate::app::{test_app, ImportPurpose, Imported};
+    let app = test_app();
+    let content = r#"<?xml version="1.0" encoding="UTF-8"?><office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"><office:body><office:presentation><draw:page draw:name="1"/><draw:page draw:name="2"/></office:presentation></office:body></office:document-content>"#;
+    let file = std::env::temp_dir().join(format!("v11-pptx-{}.odp", Uuid::new_v4()));
+    std::fs::write(&file, zip_of(&[("mimetype".into(), b"application/vnd.oasis.opendocument.presentation".to_vec()), ("content.xml".into(), content.as_bytes().to_vec())])).unwrap();
+    let Imported::Job(job) = app.import_path(&file, ImportPurpose::Slides, |_| {}).await.unwrap() else { panic!("no job") };
+    let began = std::time::Instant::now();
+    while !app.job_ends.lock().unwrap().iter().any(|(j, _)| *j == job) {
+        assert!(began.elapsed() < std::time::Duration::from_secs(20), "timed out");
+        tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+    }
+    let made = app.job_ends.lock().unwrap().iter().find(|(j, _)| *j == job).unwrap().1.expect("made an item");
+    let d = app.data.lock().unwrap().clone();
+    let item = d.service().unwrap().items.iter().find(|i| i.id == made).unwrap().clone();
+    assert!(matches!(item.kind, ItemKind::Design { ref slides, .. } if slides.len() == 2), "{:?}", item.kind);
 }

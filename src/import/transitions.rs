@@ -114,37 +114,43 @@ fn side(d: &str) -> Option<Dir> {
 pub fn odp<R: Read + Seek>(r: R) -> Option<Vec<Option<Transition>>> {
     let mut p = Package::open(r)?;
     let xml = p.part("content.xml")?;
-    let doc = Document::parse(&xml).ok()?;
-    let styles: HashMap<&str, Node> = doc
-        .descendants()
-        .filter(|n| is(n, "style"))
-        .filter_map(|n| Some((attr(&n, "name")?, n.children().find(|c| is(c, "drawing-page-properties"))?)))
-        .collect();
-    let out = super::notes::odp_pages(&doc)
-        .into_iter()
-        .map(|page| attr(&page, "style-name").and_then(|s| styles.get(s)).and_then(|props| odp_transition(*props)))
-        .collect();
-    Some(out)
+    Some(odp_doc(&Document::parse(&xml).ok()?))
 }
 
 pub fn odp_advance<R: Read + Seek>(r: R) -> Option<Vec<Option<u32>>> {
     let mut p = Package::open(r)?;
     let xml = p.part("content.xml")?;
-    let doc = Document::parse(&xml).ok()?;
-    let styles: HashMap<&str, Node> = doc
-        .descendants()
+    Some(odp_advance_doc(&Document::parse(&xml).ok()?))
+}
+
+/// Each page style's `drawing-page-properties`, by style name.
+fn page_props<'a, 'i>(doc: &'a Document<'i>) -> HashMap<&'a str, Node<'a, 'i>> {
+    doc.descendants()
         .filter(|n| is(n, "style"))
         .filter_map(|n| Some((attr(&n, "name")?, n.children().find(|c| is(c, "drawing-page-properties"))?)))
-        .collect();
-    let out = super::notes::odp_pages(&doc)
+        .collect()
+}
+
+/// Each shown page's transition, from a parsed `content.xml`.
+pub(super) fn odp_doc(doc: &Document) -> Vec<Option<Transition>> {
+    let styles = page_props(doc);
+    super::notes::odp_pages(doc)
+        .into_iter()
+        .map(|page| attr(&page, "style-name").and_then(|s| styles.get(s)).and_then(|props| odp_transition(*props)))
+        .collect()
+}
+
+/// Each shown page's automatic time, from a parsed `content.xml`.
+pub(super) fn odp_advance_doc(doc: &Document) -> Vec<Option<u32>> {
+    let styles = page_props(doc);
+    super::notes::odp_pages(doc)
         .into_iter()
         .map(|page| {
             let props = attr(&page, "style-name").and_then(|s| styles.get(s))?;
             if attr(props, "transition-type") != Some("automatic") { return None }
             attr(props, "duration").and_then(iso_duration)
         })
-        .collect();
-    Some(out)
+        .collect()
 }
 
 /// An ISO 8601 time (`PT00H00M05S`, `PT1M30.5S`) in milliseconds, as LibreOffice writes a page's duration.
@@ -190,7 +196,7 @@ fn odp_transition(props: Node) -> Option<Transition> {
 }
 
 /// A SMIL clock value in milliseconds: "2s", "0.5s", "750ms" or plain seconds.
-fn seconds(v: &str) -> Option<u32> {
+pub(super) fn seconds(v: &str) -> Option<u32> {
     let v = v.trim();
     let (n, scale) = match v.strip_suffix("ms") {
         Some(n) => (n, 1.0),
