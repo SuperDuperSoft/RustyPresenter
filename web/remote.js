@@ -141,6 +141,7 @@ const WIPE = { left: p => `inset(0 ${p}% 0 0)`, right: p => `inset(0 0 0 ${p}%)`
 // Puts `src` on the live picture, playing `tr` ({ kind, ms, dir }: fade, cut, black, push, wipe, cover or uncover; the
 // rest fade) from the one shown.
 function showPicture(src, tr) {
+  stopAnim();
   const img = $('nowImg'), box = $('picBox');
   box.querySelectorAll('img.old').forEach(o => o.remove());
   img.getAnimations().forEach(a => a.cancel());
@@ -182,6 +183,59 @@ function showPicture(src, tr) {
   (img.decode ? img.decode() : Promise.resolve()).then(go, go);
 }
 
+// A designed slide's click group playing on the live picture ({ layer, old }), as the room plays it.
+let animRun = null;
+function stopAnim() {
+  if (!animRun) return;
+  animRun.layer.remove(); animRun.old.remove();
+  $('nowImg').style.visibility = '';
+  animRun = null;
+}
+
+// Plays the live designed slide's click group from the room's pictures: the picture under it and one per layer
+// (`/remote/live-anim/pic`), each moving layer by the frames the server sampled (`src/network/live_anim.rs`). A
+// new slide's pictures first come in with its transition over the old picture. `src` (the slide once played)
+// shows when it ends; if the group can't be fetched, `src` comes in with `tr` as usual.
+async function playAnim(src, tr, w) {
+  const img = $('nowImg'), box = $('picBox');
+  const still = () => img._src === src;
+  let a = null;
+  try { const r = await fetch(`/remote/live-anim?w=${w}`, { cache: 'no-store' }); if (r.ok) a = await r.json(); } catch (e) {}
+  if (!still()) return;
+  if (!a || !a.layers || !img.animate) { showPicture(src, tr); return; }
+  const layer = document.createElement('div'); layer.className = 'anim';
+  const pics = [], moves = [];
+  const add = (parent, i, at) => {
+    const p = new Image(); p.alt = ''; p.src = `/remote/live-anim/pic?v=${a.v}&w=${a.w}&i=${i}`;
+    if (at) Object.assign(p.style, { left: at[0] + '%', top: at[1] + '%', width: at[2] + '%', height: at[3] + '%' });
+    parent.append(p); pics.push(p); return p;
+  };
+  add(layer, 0);
+  for (const l of a.layers) {
+    const wrap = document.createElement('div'); wrap.className = 'lay'; layer.append(wrap);
+    const p = add(wrap, l.i, l.at);
+    if (!l.f) continue;
+    p.style.transformOrigin = `${l.o[0]}% ${l.o[1]}%`;
+    moves.push([p, l.f.map(([offset, opacity, x, y, r, s]) => ({ offset, opacity, transform: `translate(${x}%, ${y}%) rotate(${r}deg) scale(${s})` }))]);
+    if (l.c) moves.push([wrap, l.c.map(([offset, t, r, b, lf]) => ({ offset, clipPath: `inset(${t}% ${r}% ${b}% ${lf}%)` }))]);
+  }
+  await Promise.all(pics.map(p => (p.decode ? p.decode() : Promise.resolve()).catch(() => {})));
+  if (!still()) return;
+  const old = img.cloneNode(); old.removeAttribute('id'); old.className = 'old'; old.alt = '';
+  showPicture(src, null);
+  const lead = Math.max(0, Math.min(a.lead || 0, 5000));
+  // The old picture stays under the new one's pictures while they come in (only a new slide has a lead).
+  if (!lead) old.style.display = 'none';
+  img.style.visibility = 'hidden';
+  box.append(old, layer);
+  animRun = { layer, old };
+  if (lead) layer.animate([{ opacity: 0 }, { opacity: 1 }], { duration: lead, easing: 'ease-in-out' });
+  // The frames are already eased: linear between them.
+  for (const [el, k] of moves) el.animate(k, { duration: Math.max(1, a.ms), delay: lead, fill: 'both' });
+  const run = animRun;
+  setTimeout(() => { if (animRun === run) stopAnim(); }, lead + a.ms + 50);
+}
+
 function render() {
   $('svc').textContent = V.service || t('Service');
   const air = V.on_air;
@@ -193,10 +247,15 @@ function render() {
   $('nowImg').closest('.now').classList.toggle('pic', pic);
   const slideKey = shown && V.cursor ? `${V.cursor.item_id}:${V.cursor.slide}` : '';
   if (pic) {
-    const src = `/remote/live-slide?w=${Math.min(1920, Math.round(innerWidth * (devicePixelRatio || 1)))}&v=${V.version}`;
+    const w = Math.min(1920, Math.round(innerWidth * (devicePixelRatio || 1)));
+    const src = `/remote/live-slide?w=${w}&v=${V.version}`;
     // A new slide plays its own transition (from PowerPoint or the slide editor), as the room does.
     const tr = slideKey !== shownKey && shownPic ? V.current.transition : null;
-    if ($('nowImg')._src !== src) { $('nowImg')._src = src; showPicture(src, tr); }
+    if ($('nowImg')._src !== src) {
+      $('nowImg')._src = src;
+      // A designed slide's click group plays as the room plays it.
+      if (V.current.anim) playAnim(src, tr, w); else showPicture(src, tr);
+    }
   }
   shownKey = slideKey; shownPic = pic;
   const notes = shown ? (V.current.notes || '') : '';

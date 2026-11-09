@@ -1,7 +1,7 @@
 // The live column's monitor (`.monitor`, `operator.css:113`). It takes the room's inputs (`ui/room.slint`) so the
 // two screens stay in step; Rust prepares its layers off the UI thread (`src/ui/preview.rs`).
 import { Theme } from "../theme.slint";
-import { CutLayer, MoveLayer, Side, Geo } from "../room.slint";
+import { CutLayer, MoveLayer, Side, Geo, Sprite, SpriteLayer } from "../room.slint";
 
 /// `.monitor`: the live frame, 16:9, with the room's layers (background, media, slide, logo) over the video frame.
 export component LiveMonitor inherits Rectangle {
@@ -17,6 +17,8 @@ export component LiveMonitor inherits Rectangle {
     in property <float> slide-old-op;
     in property <Geo> slide-geo;
     in property <Geo> slide-old-geo;
+    /// A designed slide's click group while it plays, over the slide layer (the room's `SpriteLayer`).
+    in property <[Sprite]> sprites;
     in property <Side> logo;
     /// Lines drawn from a phone (`src/render/drawing.rs`), over the slide.
     in property <image> drawing;
@@ -84,6 +86,11 @@ export component LiveMonitor inherits Rectangle {
             b: root.slide;
             b-op: root.slide-op;
             b-geo: root.slide-geo;
+        }
+        SpriteLayer {
+            width: parent.width;
+            height: parent.height;
+            sprites: root.sprites;
         }
         CutLayer {
             width: parent.width;

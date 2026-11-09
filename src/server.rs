@@ -258,6 +258,28 @@ async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Quer
     ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], jpeg).into_response()
 }
 
+#[derive(Deserialize)]
+struct AnimPic { v: u64, w: u32, i: usize }
+
+/// The live designed slide's click group for the phone to play (`network::live_anim`), `w` pixels wide: `null`
+/// when none plays. Its pictures are at `/remote/live-anim/pic?v=…&w=…&i=…`. Paired phones only.
+async fn remote_live_anim(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
+    if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
+    let width = q.w.unwrap_or(960);
+    let Ok(Ok(made)) = tokio::task::spawn_blocking(move || crate::network::live_anim::phone_anim(&app, width)).await else {
+        return (StatusCode::INTERNAL_SERVER_ERROR, crate::tr!("Could not draw the slide.")).into_response()
+    };
+    let v = made.map(|a| { let mut j = a.json.clone(); j["v"] = json!(a.version); j["w"] = json!(a.width); j });
+    ([(header::CACHE_CONTROL, "no-store")], Json(v.unwrap_or(Value::Null))).into_response()
+}
+
+/// One picture of the group made for version `v` at width `w` (kept: the same version never changes).
+async fn remote_live_anim_pic(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<AnimPic>) -> Response {
+    if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
+    let Some((px, ctype)) = crate::network::live_anim::cached(q.v, q.w).and_then(|a| a.pics.get(q.i).cloned()) else { return StatusCode::NOT_FOUND.into_response() };
+    ([(header::CONTENT_TYPE, ctype), (header::CACHE_CONTROL, "private, max-age=600")], px).into_response()
+}
+
 /// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, the room screen's shape
 /// (`canvas`; 16:9 when it has no size).
 pub fn live_slide_size(width: u32, canvas: (u32, u32)) -> (u32, u32) {
@@ -337,10 +359,21 @@ fn timer_lines(v: &crate::timers::TimersView) -> Vec<Value> {
     v.timers.iter().filter(|t| t.on_remote).map(|t| json!({ "name": t.name, "text": crate::timers::text(t.value_ms), "over": t.overrun })).collect()
 }
 
-/// A picture slide's own transition, for the phone to play as the room does (`null`: the usual change).
-fn slide_transition(s: &crate::model::Slide) -> Option<crate::design::Transition> {
-    match &s.content { SlideContent::Image { transition, .. } => *transition, _ => None }
+/// A picture or designed slide's own transition, for the phone to play as the room does (`null`: the usual
+/// change). A build step on a designed slide has none: only its click plays.
+fn slide_transition(s: &crate::model::Slide, frame: &Frame) -> Option<crate::design::Transition> {
+    match (&s.content, &frame.slide) {
+        (SlideContent::Image { transition, .. }, _) => *transition,
+        (SlideContent::Design { design, .. }, Some(SlideLayer::Design { build: false, .. })) => Some(design.transition),
+        _ => None,
+    }
 }
+
+/// The phone shows the slide itself for a picture (PowerPoint, PDF) or designed slide.
+fn shows_picture(s: &crate::model::Slide) -> bool { matches!(s.content, SlideContent::Image { .. } | SlideContent::Design { .. }) }
+
+/// A designed slide's click group plays now (the phone asks `/remote/live-anim` for it).
+fn plays_anim(frame: &Frame) -> bool { matches!(&frame.slide, Some(SlideLayer::Design { play: Some(p), .. }) if p.duration_ms() > 0) }
 
 fn remote_view(app: &App, phone: Option<Uuid>) -> String {
     let may_draw = phone.is_some_and(|id| app.phones.lock().unwrap().iter().any(|p| p.id == id && p.may_draw));
@@ -353,7 +386,7 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         json!({ "id": i.id, "title": title, "kind": kind, "count": crate::trn!("{n} slide", "{n} slides", slides.len()), "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
     }).collect()).unwrap_or_default();
     let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
-    let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s), "notes": s.notes, "picture": matches!(s.content, SlideContent::Image { .. }), "transition": slide_transition(s) }));
+    let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s), "notes": s.notes, "picture": shows_picture(s), "transition": slide_transition(s, &live.frame), "anim": plays_anim(&live.frame) }));
     let next = live.next_preview(&plan).map(|(t, s)| json!({ "title": t, "label": s.label, "text": slide_text(&s) }));
     json!({
         "type": "remote",
@@ -417,6 +450,8 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/remote/music", post(remote_music))
         .route("/remote/draw", post(remote_draw))
         .route("/remote/live-slide", get(remote_live_slide))
+        .route("/remote/live-anim", get(remote_live_anim))
+        .route("/remote/live-anim/pic", get(remote_live_anim_pic))
         // N31: the stage screen on a phone or tablet.
         .merge(crate::network::stage_view::routes())
         .with_state(app)
@@ -516,7 +551,40 @@ mod tests {
         let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!(v["current"]["transition"], json!({ "kind": "push", "ms": 800, "dir": "up" }));
         let first = crate::model::Slide::new("Slide 1", SlideContent::Image { asset: "1.png".into(), transition: None });
-        assert_eq!(serde_json::to_value(slide_transition(&first)).unwrap(), Value::Null, "the usual change");
+        assert_eq!(serde_json::to_value(slide_transition(&first, &Frame::default())).unwrap(), Value::Null, "the usual change");
+    }
+
+    #[test]
+    fn the_phone_gets_a_designed_slides_picture_and_its_click_group() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Shape, Start};
+        let app = test_app();
+        let shape = |x| { let mut o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(x, 10.0, 20.0, 20.0)); o.look.fill = Some("#ff0000".into()); o };
+        let (a, b) = (shape(10.0), shape(60.0));
+        let mut fly = Anim::new(b.id, AnimKind::Entrance, Effect::Fly, Start::OnClick);
+        fly.dur_ms = 600;
+        let id = Uuid::new_v4();
+        let kind = crate::model::ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fly], ..Default::default() }] };
+        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        let base = app.live.lock().unwrap().version;
+        assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
+        let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!((v["current"]["picture"].clone(), v["current"]["anim"].clone()), (json!(true), json!(false)), "a designed slide shows itself; nothing plays as it comes up");
+        assert_eq!(v["current"]["transition"]["kind"], "fade");
+        assert!(crate::network::live_anim::phone_anim(&app, 640).unwrap().is_none());
+        let base = app.live.lock().unwrap().version;
+        assert!(app.command(Envelope { id: "n".into(), base: Some(base), cmd: Command::Next }).ok);
+        let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!(v["current"]["anim"], json!(true));
+        assert_eq!(v["current"]["transition"], Value::Null, "a click has no transition of its own");
+        let made = crate::network::live_anim::phone_anim(&app, 640).unwrap().unwrap();
+        let layers = made.json["layers"].as_array().unwrap();
+        assert_eq!(layers.len(), 2, "the still shape and the flying one");
+        assert_eq!(made.pics.len(), 3, "the picture under them and one per layer");
+        assert_eq!(made.json["lead"], 0);
+        assert!(made.json.to_string().len() < 1500, "small: {}", made.json.to_string().len());
+        let again = crate::network::live_anim::cached(made.version, 640).unwrap();
+        assert!(Arc::ptr_eq(&made, &again), "kept for the next phone");
+        assert_eq!(made.pics[1].1, "image/png");
     }
 
     #[tokio::test]

@@ -33,6 +33,9 @@ pub enum CellContent {
     /// `red` = over time (drawn red whatever the box colour).
     Text { text: String, dim: bool, caption: Option<String>, red: bool },
     Picture { asset: AssetId, caption: Option<String> },
+    /// A designed slide, drawn by the screen that shows the stage: the live one, or the `next` one. `words`: its
+    /// words, for a screen that can't draw it (the phone's stage view).
+    Designed { next: bool, words: String, caption: Option<String> },
     Message { text: String },
     /// N10: a picture of the next slide, drawn by the screen that shows the stage.
     NextPicture { caption: Option<String> },
@@ -89,10 +92,13 @@ pub fn label(slide: &Slide) -> String {
 }
 
 /// A slide's words (with its chords when `chords`), or its picture. A slide that is a picture (PowerPoint, PDF,
-/// Keynote) always shows as one: its name alone tells the stage nothing. Background pictures show only when the box asks.
-fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<String>) -> CellContent {
+/// Keynote) always shows as one: its name alone tells the stage nothing. So does a designed slide, live or next
+/// (`designed`: whether it is the next one; None for a slide the screen can't draw, which shows its words).
+/// Background pictures show only when the box asks.
+fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<String>, designed: Option<bool>) -> CellContent {
     match &slide.content {
         SlideContent::Image { asset, .. } => CellContent::Picture { asset: asset.clone(), caption },
+        SlideContent::Design { design, .. } if let Some(next) = designed => CellContent::Designed { next, words: design.words(), caption },
         SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
         _ => match slide.chords.as_ref().filter(|_| chords) {
             Some(with) => CellContent::text(with.clone(), caption),
@@ -130,13 +136,13 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
         // doesn't see it.
         ElementKind::CurrentSlide { pictures, chords, .. } if live.stage_only.is_some() => {
             let only = live.stage_only.as_ref().map(|o| &o.slide);
-            only.map_or(CellContent::Empty, |slide| slide_content(slide, *pictures, *chords, Some(s::stage_only().into())))
+            only.map_or(CellContent::Empty, |slide| slide_content(slide, *pictures, *chords, Some(s::stage_only().into()), None))
         }
         ElementKind::CurrentSlide { pictures, keep_after_clear, chords } => {
             let f = &live.frame;
             let on_air = f.slide.is_some() || f.media.is_some();
             match &live.slide {
-                Some(slide) if on_air => slide_content(slide, *pictures, *chords, caption),
+                Some(slide) if on_air => slide_content(slide, *pictures, *chords, caption, Some(false)),
                 _ if f.logo => CellContent::Text { text: s::logo().into(), dim: true, caption, red: false },
                 // Clear Slide leaves the background (or media) up; Clear All leaves nothing.
                 Some(slide) if *keep_after_clear && f.background.is_some() => CellContent::Text { text: label(slide), dim: true, caption, red: false },
@@ -144,7 +150,7 @@ fn content(inp: &StageInputs, kind: &ElementKind, style: &ResolvedStyle) -> Cell
             }
         }
         ElementKind::NextSlide { pictures, chords } => match &live.next {
-            Some(n) => slide_content(&n.slide, *pictures, *chords, next_caption(live, caption)),
+            Some(n) => slide_content(&n.slide, *pictures, *chords, next_caption(live, caption), Some(true)),
             None => CellContent::text(s::end_of_service(), caption),
         },
         ElementKind::NextPicture => match &live.next {
@@ -320,6 +326,18 @@ mod tests {
         assert_eq!(words(&only(&v, &[], CUR)), ("", true));
         assert_eq!(words(&only(&v, &[], ElementKind::ItemTitle)), ("Nothing live", false));
         assert_eq!(words(&only(&v, &[], ElementKind::NextSlide { pictures: false, chords: false })), ("End of service", false));
+    }
+
+    #[test]
+    fn designed_slides_show_as_pictures_on_stage() {
+        let d = slide(SlideContent::Design { design: Default::default(), step: 0, steps: 0, play: None });
+        let mut v = song_view(&[d.clone(), d.clone()], 0);
+        v.frame.slide = Some(SlideLayer::Design { design: Default::default(), build: false, play: None });
+        assert_eq!(only(&v, &[], CUR), CellContent::Designed { next: false, words: String::new(), caption: None }, "the live designed slide shows itself");
+        assert_eq!(only(&v, &[], ElementKind::NextSlide { pictures: false, chords: false }), CellContent::Designed { next: true, words: String::new(), caption: Some("NEXT".into()) });
+        let mut only_stage = v.clone();
+        only_stage.stage_only = Some(crate::app::StageOnly { item_id: Uuid::nil(), index: 1, slide: d });
+        assert!(matches!(only(&only_stage, &[], CUR), CellContent::Text { .. }), "a stage-only slide keeps its words");
     }
 
     #[test]

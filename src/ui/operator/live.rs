@@ -39,7 +39,13 @@ pub(super) struct LiveState {
     slide_now: Option<SlideLayer>,
     /// The monitor's slide transition, made on first use.
     motion: Option<Motion>,
+    /// A designed slide's click group playing on the monitor (the room's player, drawn small), and its pictures.
+    anim: Rc<crate::ui::room::anim::Animator>,
+    sprites: Option<Rc<VecModel<crate::ui::Sprite>>>,
 }
+
+/// A new designed slide's click group for the monitor to play, and whether it adds to the slide before it.
+type NewPlay = Option<(crate::design::Play, bool)>;
 
 /// A deck or designed slide's own transition on the monitor, moved by its own fader like the room's.
 struct Motion { fader: Fader, ch: Chan, playing: Rc<Cell<Option<Transition>>> }
@@ -137,22 +143,33 @@ impl Operator {
     fn render_monitor(&self, v: &LiveView) {
         self.preview.set_size(thumbs::thumb_size(self.ui.get_monitor_width(), self.ui.window().scale_factor()));
         let me = self.me.clone();
-        let transition = {
+        let (transition, play) = {
             let mut st = self.live.borrow_mut();
             let new = st.slide_now.as_ref() != v.frame.slide.as_ref();
             if new { st.slide_now = v.frame.slide.clone() }
-            if new { own_transition(v.frame.slide.as_ref()) } else { None }
+            let play: NewPlay = match &v.frame.slide { Some(SlideLayer::Design { play: Some(p), build, .. }) if new => Some(((**p).clone(), *build)), _ => None };
+            (if new { own_transition(v.frame.slide.as_ref()) } else { None }, play)
         };
-        self.preview.show(&v.frame, &v.theme, v.logo.as_deref(), move |layers| if let Some(op) = me.upgrade() { op.monitor_drawn(layers, transition) });
+        self.preview.show(&v.frame, &v.theme, v.logo.as_deref(), move |layers| if let Some(op) = me.upgrade() { op.monitor_drawn(layers, transition, play) });
         self.ui.set_monitor_bg_visible(preview::background_visible(&v.frame));
         self.follow_video(preview::drawn_video(&v.frame));
     }
 
     /// The monitor cuts straight to each new layer (no crossfade): a fade here would redraw the operator window
     /// for 400 ms on every slide change, while the room does its own crossfade. A slide with its own transition
-    /// (`transition`, a deck or designed slide) plays it, as the room does.
-    fn monitor_drawn(&self, layers: Vec<(Kind, Drawn)>, transition: Option<Transition>) {
+    /// (`transition`, a deck or designed slide) plays it, as the room does, and a new designed slide's click
+    /// group (`play`) plays over it with the room's pictures, drawn small.
+    fn monitor_drawn(&self, layers: Vec<(Kind, Drawn)>, transition: Option<Transition>, play: NewPlay) {
         for (kind, drawn) in layers {
+            if let Drawn::Anim(px, made) = drawn {
+                let side = Side { image: px.image(), color: Default::default() };
+                match &play {
+                    Some((p, build)) if kind == Kind::Slide => self.animate_slide(side, made, p.clone(), *build, transition),
+                    // Drawn again at a new size: the slide as it ends.
+                    _ => self.move_slide(side, None),
+                }
+                continue;
+            }
             let set: fn(&OperatorWindow, Side) = match kind {
                 Kind::Background => OperatorWindow::set_monitor_bg,
                 Kind::Media => OperatorWindow::set_monitor_media,
@@ -162,7 +179,7 @@ impl Operator {
             };
             let side = match drawn {
                 Drawn::Pic(px, color) => Side { image: px.map(|p| p.image()).unwrap_or_default(), color },
-                Drawn::Hidden => Side::default(),
+                Drawn::Hidden | Drawn::Anim(..) => Side::default(),
             };
             if kind == Kind::Slide { self.move_slide(side, transition) } else { set(&self.ui, side) }
         }
@@ -171,6 +188,7 @@ impl Operator {
     /// Puts the new slide on the monitor, playing `t` from the slide shown now (a cut when none, or when there was
     /// no slide to go through black from). A slide arriving mid-transition starts from where it is.
     fn move_slide(&self, side: Side, t: Option<Transition>) {
+        self.end_monitor_anim();
         let mut st = self.live.borrow_mut();
         let m = st.motion.get_or_insert_with(|| {
             let fader = Fader::new();
@@ -189,6 +207,53 @@ impl Operator {
         set_motion(&self.ui, t, if t.is_some() { 0.0 } else { 1.0 });
         if let Some(t) = t { m.fader.fade(m.ch, 1.0, Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS)))) }
     }
+
+    /// Plays a designed slide's click group on the monitor, as the room does: `side` (the slide once played) waits
+    /// hidden while the group's pictures play over it; a new slide's pictures first come in with its transition
+    /// as the old slide goes, a build's play at once. The frame timer runs only while it plays.
+    fn animate_slide(&self, side: Side, made: crate::ui::room::anim::Layers, play: crate::design::Play, build: bool, t: Option<Transition>) {
+        self.end_monitor_anim();
+        let (anim, sprites) = {
+            let mut st = self.live.borrow_mut();
+            if let Some(m) = &st.motion { m.playing.set(None); m.fader.jump(m.ch, 1.0) }
+            let ui = &self.ui;
+            let sprites = st.sprites.get_or_insert_with(|| {
+                let rows: Rc<VecModel<crate::ui::Sprite>> = Rc::default();
+                ui.set_monitor_sprites(ModelRc::from(rows.clone()));
+                rows
+            }).clone();
+            (st.anim.clone(), sprites)
+        };
+        let lead = t.filter(|t| !build && t.kind != TransitionKind::Cut && t.ms > 0).map_or(0, |t| t.ms.min(crate::design::TRANSITION_MAX_MS));
+        let old = self.ui.get_monitor_slide();
+        set_motion(&self.ui, None, 1.0);
+        if lead > 0 { self.ui.set_monitor_slide_old(old) }
+        self.ui.set_monitor_slide_old_op(if lead > 0 { 1.0 } else { 0.0 });
+        self.ui.set_monitor_slide(side);
+        self.ui.set_monitor_slide_op(0.0);
+        let canvas = made.canvas;
+        let run = crate::ui::room::anim::Running { imgs: made.images(), play, area: crate::ui::room::anim::area(canvas), lead_ms: lead as f32 };
+        let w = self.ui.as_weak();
+        anim.start(run, move |rows| {
+            let Some(ui) = w.upgrade() else { return };
+            match rows {
+                Some((rows, k)) => { crate::ui::room::anim::set_rows(&sprites, rows); if lead > 0 { ui.set_monitor_slide_old_op(1.0 - k) } }
+                None => { crate::ui::room::anim::set_rows(&sprites, vec![]); set_motion(&ui, None, 1.0) }
+            }
+        });
+    }
+
+    /// Stops the monitor's click group where it is: its pictures go and the slide shows.
+    fn end_monitor_anim(&self) {
+        let (anim, sprites) = { let st = self.live.borrow(); (st.anim.clone(), st.sprites.clone()) };
+        if !anim.stop() { return }
+        if let Some(s) = sprites { crate::ui::room::anim::set_rows(&s, vec![]) }
+        set_motion(&self.ui, None, 1.0);
+    }
+
+    /// Whether a click group is playing on the monitor.
+    #[cfg(test)]
+    pub(super) fn monitor_animating(&self) -> bool { self.live.borrow().anim.running() }
 
     /// Starts or stops the 4 Hz grab when the drawn video changes. With the room closed there is nothing to grab:
     /// the monitor stays black and says so.
@@ -704,6 +769,61 @@ mod tests {
         assert_eq!((op.ui.get_monitor_slide_geo(), op.ui.get_monitor_slide_old_geo()), (Geo::default(), Geo::default()));
         let old = op.ui.get_monitor_slide_old();
         assert!(old.image.size().width == 0 && old.color.alpha() == 0, "the old slide is gone once it is over");
+    }
+
+    #[test]
+    fn monitor_plays_a_designed_slides_click_group_then_shows_the_slide() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Shape, Start, Transition, TransitionKind};
+        let app = test_app();
+        let op = opened(&app);
+        let shape = |x| { let mut o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(x, 10.0, 20.0, 20.0)); o.look.fill = Some("#ff0000".into()); o };
+        let (a, b) = (shape(10.0), shape(60.0));
+        let mut fly = Anim::new(b.id, AnimKind::Entrance, Effect::Fly, Start::OnClick);
+        fly.dur_ms = 200;
+        let mut fade = Anim::new(a.id, AnimKind::Entrance, Effect::Fade, Start::WithPrevious);
+        fade.dur_ms = 200;
+        let transition = Transition { kind: TransitionKind::Fade, ms: 200, ..Default::default() };
+        let d = Design { objects: vec![a, b], anims: vec![fade, fly], transition, ..Default::default() };
+        let rows = || op.ui.get_monitor_sprites().row_count();
+        let over = |op: &Operator| {
+            std::thread::sleep(Duration::from_millis(450));
+            i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(450));
+            assert!(!op.monitor_animating(), "the timer stops once it has played");
+        };
+        // A new slide: group 0 comes in with the slide's transition, then plays.
+        let mut v = app.live_view();
+        v.frame.slide = Some(SlideLayer::Design { design: d.at_step(0), build: false, play: d.play(0).map(Box::new) });
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v.clone()));
+        assert!(op.monitor_animating());
+        assert_eq!(rows(), 1, "the fading shape");
+        assert_eq!(op.ui.get_monitor_sprites().row_data(0).unwrap().op, 0.0);
+        assert_eq!(op.ui.get_monitor_slide_op(), 0.0, "the slide waits under them");
+        assert!(op.ui.get_monitor_slide().image.size().width > 0);
+        // A redraw of the same slide (a resize) starts nothing new.
+        op.apply_live(LiveUpdate::new(v.clone()));
+        over(&op);
+        assert_eq!((rows(), op.ui.get_monitor_slide_op()), (0, 1.0));
+        // The click: both shapes, the flying one starting off the slide, the old slide gone at once.
+        v.frame.slide = Some(SlideLayer::Design { design: d.at_step(1), build: true, play: d.play(1).map(Box::new) });
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v.clone()));
+        assert_eq!(rows(), 2);
+        let flying = op.ui.get_monitor_sprites().row_data(1).unwrap();
+        assert!(flying.dy > 0.5, "it comes up from below: {}", flying.dy);
+        assert_eq!((op.ui.get_monitor_slide_op(), op.ui.get_monitor_slide_old_op()), (0.0, 0.0));
+        over(&op);
+        assert_eq!((rows(), op.ui.get_monitor_slide_op()), (0, 1.0));
+        // Any other slide stops a group at once.
+        v.frame.slide = Some(SlideLayer::Design { design: d.at_step(0), build: false, play: d.play(0).map(Box::new) });
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v.clone()));
+        assert!(op.monitor_animating());
+        v.frame.slide = None;
+        v.version += 1;
+        op.apply_live(LiveUpdate::new(v));
+        assert!(!op.monitor_animating());
+        assert_eq!(rows(), 0);
     }
 
     #[test]

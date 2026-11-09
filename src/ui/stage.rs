@@ -14,6 +14,7 @@ use std::{collections::HashMap, rc::Rc, sync::{Arc, Mutex, atomic::{AtomicBool, 
 use tokio::sync::broadcast::error::RecvError;
 
 use crate::stage::view::label;
+use crate::network::live_anim::LiveGroup;
 use crate::screen_fix::{ScreenFix, TestPattern};
 
 /// Everything the stage shows, worked out from one live view.
@@ -59,7 +60,12 @@ fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
 
 /// What the window draws: the live view, the stage layout and the live item's slides (for "next section").
 #[derive(Clone)]
-struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView>, next_picture: Option<super::thumbs::Pixels> }
+struct Shown { live: LiveUpdate, layout: StageLayout, slides: Vec<Slide>, timers: Arc<TimersView>, next_picture: Option<super::thumbs::Pixels>,
+    /// The live designed slide's picture, and its click group to play once (taken by the window) when it is new.
+    live_picture: Option<super::thumbs::Pixels>, group: Option<Arc<Mutex<Option<LiveGroup>>>> }
+
+/// The size the stage draws designed slides at.
+const DESIGNED: (u32, u32) = (960, 540);
 
 /// The layout on stage is the church's stage default (Classic when it names no layout), built-in or the church's own.
 fn read(app: &App, live: LiveUpdate, screen: &StageScreen) -> Shown {
@@ -69,18 +75,27 @@ fn read(app: &App, live: LiveUpdate, screen: &StageScreen) -> Shown {
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
     let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
-    let wants = layout.elements.iter().filter_map(|e| e.known()).any(|e| e.kind == stage::ElementKind::NextPicture && !e.hidden);
-    let next_picture = wants.then(|| pictures.get(app, live.version));
     let timers = app.timers();
     // The slide pictures the boxes will show (current and next PowerPoint slides), decoded here, not on the window.
-    let assets: Vec<String> = {
+    let contents: Vec<CellContent> = {
         let state = screen.state.lock().unwrap();
         let inputs = StageInputs { live: &live, slides: &slides, timers: &timers, state: &state, now: chrono::Local::now().time() };
-        view::build(&inputs, &layout).cells.into_iter().filter_map(|c| match c.content { CellContent::Picture { asset, .. } => Some(asset), _ => None }).collect()
+        view::build(&inputs, &layout).cells.into_iter().map(|c| c.content).collect()
     };
     let dir = app.store.assets();
-    for a in &assets { screen.slide_pictures.load(&dir, a) }
-    Shown { live, layout, slides, timers, next_picture }
+    for c in &contents { if let CellContent::Picture { asset, .. } = c { screen.slide_pictures.load(&dir, asset) } }
+    let wants = contents.iter().any(|c| matches!(c, CellContent::NextPicture { .. } | CellContent::Designed { next: true, .. }));
+    let next_picture = wants.then(|| pictures.get(app, live.version));
+    // A designed slide live: its picture, and its click group once per live version.
+    let designed = contents.iter().any(|c| matches!(c, CellContent::Designed { next: false, .. }));
+    let live_picture = designed.then(|| screen.live_pictures.get(app, live.version));
+    let group = designed.then(|| {
+        let mut made = screen.group_made.lock().unwrap();
+        if *made == Some(live.version) { return None }
+        *made = Some(live.version);
+        crate::network::live_anim::live_group(app, DESIGNED).filter(|g| g.version == live.version)
+    }).flatten().map(|g| Arc::new(Mutex::new(Some(g))));
+    Shown { live, layout, slides, timers, next_picture, live_picture, group }
 }
 
 /// N10: the next slide's picture, drawn again only when the live view changes. Off the UI thread.
@@ -92,6 +107,20 @@ impl NextPictures {
         let mut last = self.last.lock().unwrap();
         if let Some((v, px)) = last.as_ref() && *v == version { return px.clone() }
         let px = super::thumbs::next_slide(app, (640, 360), &self.renderer);
+        *last = Some((version, px.clone()));
+        px
+    }
+}
+
+/// The live designed slide's picture, drawn again only when the live view changes. Off the UI thread.
+#[derive(Default)]
+struct LivePictures { last: Mutex<Option<(u64, super::thumbs::Pixels)>>, renderer: super::thumbs::TextRenderer }
+
+impl LivePictures {
+    fn get(&self, app: &App, version: u64) -> super::thumbs::Pixels {
+        let mut last = self.last.lock().unwrap();
+        if let Some((v, px)) = last.as_ref() && *v == version { return px.clone() }
+        let px = super::thumbs::live_slide(app, DESIGNED, &self.renderer);
         *last = Some((version, px.clone()));
         px
     }
@@ -123,7 +152,54 @@ impl SlidePictures {
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
 #[derive(Default)]
 struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState>, pictures: NextPictures,
-    slide_pictures: SlidePictures }
+    slide_pictures: SlidePictures, live_pictures: LivePictures,
+    /// The live version whose click group was last made, so each plays once.
+    group_made: Mutex<Option<u64>> }
+
+/// The stage's click-group player (UI thread only): the shared frame timer, the window's sprites and the live
+/// version it plays.
+struct StagePlayer { anim: crate::ui::room::anim::Animator, sprites: Rc<VecModel<crate::ui::Sprite>>, version: std::cell::Cell<u64> }
+
+thread_local! {
+    /// Each open stage window's player, by its `StageScreen`.
+    static PLAYERS: std::cell::RefCell<Vec<(usize, Rc<StagePlayer>)>> = std::cell::RefCell::default();
+}
+
+fn screen_key(screen: &StageScreen) -> usize { screen as *const StageScreen as usize }
+
+fn player(ui: &StageWindow, screen: &StageScreen) -> Rc<StagePlayer> {
+    let key = screen_key(screen);
+    PLAYERS.with_borrow_mut(|all| {
+        if let Some((_, p)) = all.iter().find(|(k, _)| *k == key) { return p.clone() }
+        let p = Rc::new(StagePlayer { anim: Default::default(), sprites: Rc::default(), version: Default::default() });
+        ui.set_anim_sprites(p.sprites.clone().into());
+        all.push((key, p.clone()));
+        p
+    })
+}
+
+/// Plays a new designed slide's click group in the current slide's box (the room's player and pictures, drawn
+/// at the box's size); any other live slide stops it. The frame timer runs only while it plays.
+fn play_group(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
+    use crate::ui::room::anim;
+    let p = player(ui, screen);
+    match shown.group.as_ref().and_then(|g| g.lock().unwrap().take()) {
+        Some(g) => {
+            p.version.set(g.version);
+            let canvas = (g.base.width(), g.base.height());
+            ui.set_anim_base(slint::Image::from_rgba8(g.base));
+            ui.set_animating(true);
+            let run = anim::Running { imgs: anim::Layers { canvas, layers: g.layers }.images(), play: g.play, area: anim::area(canvas), lead_ms: 0.0 };
+            let (w, sprites) = (ui.as_weak(), p.sprites.clone());
+            p.anim.start(run, move |rows| match rows {
+                Some((rows, _)) => anim::set_rows(&sprites, rows),
+                None => { anim::set_rows(&sprites, vec![]); if let Some(ui) = w.upgrade() { ui.set_animating(false) } }
+            });
+        }
+        None if shown.live.version != p.version.get() => if p.anim.stop() { anim::set_rows(&p.sprites, vec![]); ui.set_animating(false) },
+        None => {}
+    }
+}
 
 #[derive(Hash, PartialEq, Eq)]
 struct FitKey { text: String, w: i32, h: i32, bold: bool, max: i32, min: i32 }
@@ -143,11 +219,12 @@ fn show(ui: &StageWindow, screen: &StageScreen, shown: Shown) {
     let cells = shown.layout.id != presets::CLASSIC || picture_slide(&shown.live);
     ui.set_use_cells(cells);
     if cells { draw_cells(ui, screen, &shown) } else { show_classic(ui, &shown.live, &classic_timer(screen, &shown.timers)) }
+    play_group(ui, screen, &shown);
     *screen.last.lock().unwrap() = Some(shown);
 }
 
-/// The live slide is a picture (PowerPoint, PDF, Keynote): the stage shows the slide itself.
-fn picture_slide(v: &LiveView) -> bool { matches!(v.slide.as_ref().map(|s| &s.content), Some(SlideContent::Image { .. })) }
+/// The live slide is a picture (PowerPoint, PDF, Keynote) or a designed slide: the stage shows the slide itself.
+fn picture_slide(v: &LiveView) -> bool { matches!(v.slide.as_ref().map(|s| &s.content), Some(SlideContent::Image { .. } | SlideContent::Design { .. })) }
 
 fn redraw(ui: &StageWindow, screen: &StageScreen) {
     let last = screen.last.lock().unwrap().clone();
@@ -189,7 +266,8 @@ fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
     ui.set_bg(color(&v.background));
     ui.set_banner(v.message_fallback.unwrap_or_default().into());
     let picture = shown.next_picture.clone().map(slint::Image::from_rgba8).unwrap_or_default();
-    let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c, &picture)).collect();
+    let live = shown.live_picture.clone().map(slint::Image::from_rgba8).unwrap_or_default();
+    let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c, &picture, &live)).collect();
     let model = ui.get_cells();
     match model.as_any().downcast_ref::<VecModel<StageCellVm>>() {
         Some(m) if m.row_count() == rows.len() => {
@@ -201,7 +279,7 @@ fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
 }
 
 /// One box for the window, its words sized to fit. Empty boxes are not drawn.
-fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture: &slint::Image) -> Option<StageCellVm> {
+fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture: &slint::Image, live_picture: &slint::Image) -> Option<StageCellVm> {
     let st = &c.style;
     let base = || StageCellVm {
         x: c.rect.x, y: c.rect.y, w: c.rect.w, h: c.rect.h, color: color(&st.color),
@@ -212,6 +290,10 @@ fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture:
         CellContent::Shape { shape } => return Some(StageCellVm { shape: shape.index() as i32, ..base() }),
         CellContent::NextPicture { caption } => return Some(StageCellVm {
             caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, picture: next_picture.clone(), ..base()
+        }),
+        CellContent::Designed { next, caption, .. } => return Some(StageCellVm {
+            caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, anim: !next,
+            picture: if *next { next_picture.clone() } else { live_picture.clone() }, ..base()
         }),
         CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
         // The slide itself (a PowerPoint/PDF slide); its name only while the picture can't be read.
@@ -275,7 +357,7 @@ fn show_test(ui: &StageWindow, test: TestPattern) {
 }
 
 /// An open stage window. It follows the live view until it is dropped.
-pub struct Stage { ui: StageWindow, _clock: Timer, closed: Arc<AtomicBool> }
+pub struct Stage { ui: StageWindow, _clock: Timer, closed: Arc<AtomicBool>, key: usize }
 
 impl Stage {
     /// Open the stage window, full screen on `monitor` (a plain window without one).
@@ -309,15 +391,20 @@ impl Stage {
             if let Err(e) = monitors::fullscreen_on(&ui, m) { let _ = ui.hide(); return Err(e); }
         }
         let closed = Arc::new(AtomicBool::new(false));
+        let key = screen_key(&screen);
         follow(app, rx, ui.as_weak(), screen, closed.clone(), (role.to_string(), shared_fix, test));
-        Ok(Rc::new(Stage { ui, _clock: clock, closed }))
+        Ok(Rc::new(Stage { ui, _clock: clock, closed, key }))
     }
 
     pub fn window(&self) -> &slint::Window { self.ui.window() }
 }
 
 impl Drop for Stage {
-    fn drop(&mut self) { self.closed.store(true, Ordering::Relaxed); let _ = self.ui.hide(); }
+    fn drop(&mut self) {
+        self.closed.store(true, Ordering::Relaxed);
+        let _ = self.ui.hide();
+        PLAYERS.with_borrow_mut(|all| all.retain(|(k, _)| *k != self.key));
+    }
 }
 
 /// The drawing panel's size: the live slide, small, with the phone drawing on it.
@@ -605,6 +692,46 @@ mod tests {
     }
 
     #[test]
+    fn a_designed_slide_shows_itself_and_plays_its_clicks_on_stage() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Shape, Start};
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let shape = |x| { let mut o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(x, 10.0, 20.0, 20.0)); o.look.fill = Some("#ff0000".into()); o };
+        let (a, b) = (shape(10.0), shape(60.0));
+        let mut fly = Anim::new(b.id, AnimKind::Entrance, Effect::Fly, Start::OnClick);
+        fly.dur_ms = 200;
+        let id = Uuid::new_v4();
+        let kind = ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fly], ..Default::default() }] };
+        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        let cmd = |cmd| { let base = app.live_view().version; assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(base), cmd }).ok) };
+        cmd(Command::Show { item_id: id, slide: 0 });
+        let stage = Stage::open(app.clone(), None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        assert!(stage.ui.get_use_cells(), "Classic switches to its boxes for a designed slide");
+        let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
+        let now = cells.iter().find(|c| c.anim).expect("the live slide's box");
+        assert!(now.has_picture && now.picture.size().width > 0, "the slide is drawn, not its words");
+        assert!(cells.iter().any(|c| c.has_picture && !c.anim && c.picture.size().width > 0), "so is the next one, still");
+        assert!(!stage.ui.get_animating(), "nothing plays as it comes up");
+        // The click plays in the current slide's box, once.
+        cmd(Command::Next);
+        let screen = Arc::new(StageScreen::default());
+        show(&stage.ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen));
+        assert!(stage.ui.get_animating());
+        assert_eq!(stage.ui.get_anim_sprites().row_count(), 2, "the still shape and the flying one");
+        assert!(stage.ui.get_anim_base().size().width > 0);
+        show(&stage.ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen));
+        assert!(stage.ui.get_animating(), "a redraw (the clock) does not stop it");
+        std::thread::sleep(Duration::from_millis(300));
+        i_slint_backend_testing::mock_elapsed_time(Duration::from_millis(300));
+        assert!(!stage.ui.get_animating(), "over: the picture shows");
+        assert_eq!(stage.ui.get_anim_sprites().row_count(), 0);
+        show(&stage.ui, &screen, read(&app, LiveUpdate::new(app.live_view()), &screen));
+        assert!(!stage.ui.get_animating(), "it plays once");
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
     fn classic_default_keeps_todays_screen() {
         i_slint_backend_testing::init_no_event_loop();
         let stage = Stage::open(app_with_layout(crate::stage::presets::CLASSIC), None).unwrap();
@@ -684,7 +811,7 @@ mod tests {
         let long = "Amazing grace how sweet the sound that saved a wretch like me, I once was lost but now am found, was blind but now I see. ".repeat(3);
         v.slide.as_mut().unwrap().content = SlideContent::Text { text: long.clone(), footer: None, reference: None, size: 0, parallel: None };
         let screen = StageScreen::default();
-        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default(), next_picture: None });
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default(), next_picture: None, live_picture: None, group: None });
         let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
         assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
         stage.ui.hide().unwrap();
