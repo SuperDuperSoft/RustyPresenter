@@ -233,7 +233,8 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
         let Some((_, _, _, _, rows)) = &e.borrow().deck_notes else { return };
         let Some(from) = rows.row_data(i) else { return };
         // A new list, so every picker shows it (one the user changed no longer follows its row).
-        let all: Vec<DeckNoteRow> = rows.iter().map(|r| DeckNoteRow { transition: from.transition, dir: from.dir, ms: from.ms, ..r }).collect();
+        // The auto-advance time beside the button goes too.
+        let all: Vec<DeckNoteRow> = rows.iter().map(|r| DeckNoteRow { transition: from.transition, dir: from.dir, ms: from.ms, advance: from.advance.clone(), ..r }).collect();
         rows.set_vec(all);
     });
     g.on_order_drag_data(arr_drag_data);
@@ -1348,6 +1349,24 @@ mod tests {
         g.invoke_deck_transition_to_all(0);
         press(&op, "ItemEditDialog::save");
         assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
+    }
+
+    #[test]
+    fn use_for_all_slides_also_copies_the_auto_advance_time() {
+        let app = test_app();
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(4000)] };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        let g = op.ui.global::<ItemEdit>();
+        g.invoke_deck_transition_to_all(1);
+        settle();
+        let shown: Vec<String> = (0..3).map(|i| g.get_deck_notes().row_data(i).unwrap().advance.into()).collect();
+        assert_eq!(shown, ["4", "4", "4"]);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(4000); 3]);
     }
 
     #[test]
