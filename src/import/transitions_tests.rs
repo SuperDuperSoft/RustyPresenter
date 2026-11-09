@@ -83,7 +83,7 @@ fn newer_powerpoint_choice_wins_over_its_fallback() {
     assert_eq!(one(alt), t(TransitionKind::Fade, 2000, Dir::Left));
     // Only a fallback.
     let alt = r#"<mc:AlternateContent><mc:Fallback><p:transition spd="med"><p:cover dir="r"/></p:transition></mc:Fallback></mc:AlternateContent>"#;
-    assert_eq!(one(alt), t(TransitionKind::Push, 750, Dir::Right));
+    assert_eq!(one(alt), t(TransitionKind::Cover, 750, Dir::Right));
 }
 
 #[test]
@@ -93,13 +93,14 @@ fn powerpoint_kinds_map_to_what_the_room_draws() {
     assert_eq!(k(r#"<p:fade thruBlk="1"/>"#), t(TransitionKind::Black, 500, Dir::Left));
     assert_eq!(k("<p:cut/>"), t(TransitionKind::Cut, 500, Dir::Left));
     assert_eq!(k(r#"<p:cut thruBlk="true"/>"#), t(TransitionKind::Black, 500, Dir::Left));
-    assert_eq!(k("<p:dissolve/>"), t(TransitionKind::Fade, 500, Dir::Left));
+    assert_eq!(k("<p:dissolve/>"), t(TransitionKind::Dissolve, 500, Dir::Left));
     assert_eq!(k("<p:push/>"), t(TransitionKind::Push, 500, Dir::Left), "PowerPoint's default side");
-    assert_eq!(k(r#"<p:pull dir="ru"/>"#), t(TransitionKind::Push, 500, Dir::Right));
-    assert_eq!(k(r#"<p:split orient="vert" dir="in"/>"#), t(TransitionKind::Wipe, 500, Dir::Right));
-    assert_eq!(k(r#"<p:split/>"#), t(TransitionKind::Wipe, 500, Dir::Down));
+    assert_eq!(k(r#"<p:pull dir="ru"/>"#), t(TransitionKind::Uncover, 500, Dir::Right));
+    assert_eq!(k(r#"<p:cover/>"#), t(TransitionKind::Cover, 500, Dir::Left));
+    assert_eq!(k(r#"<p:split orient="vert" dir="in"/>"#), t(TransitionKind::Split, 500, Dir::Left), "opens sideways");
+    assert_eq!(k(r#"<p:split/>"#), t(TransitionKind::Split, 500, Dir::Up), "opens up and down");
     assert_eq!(k(r#"<p:strips dir="ld"/>"#), t(TransitionKind::Wipe, 500, Dir::Left), "another kind with a side wipes");
-    assert_eq!(k(r#"<p:zoom dir="in"/>"#), t(TransitionKind::Fade, 500, Dir::Left));
+    assert_eq!(k(r#"<p:zoom dir="in"/>"#), t(TransitionKind::Zoom, 500, Dir::Left));
     assert_eq!(k(r#"<p:randomBar dir="vert"/>"#), t(TransitionKind::Fade, 500, Dir::Left));
     assert_eq!(k(r#"<p14:vortex dir="u"/>"#), t(TransitionKind::Wipe, 500, Dir::Up));
     // Never longer than the editor offers.

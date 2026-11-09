@@ -168,7 +168,7 @@ impl Ops {
     /// Copies a file from this computer into the library (`App::import_path`).
     pub fn import(&self, path: PathBuf, purpose: ImportPurpose, progress: impl Fn(u8) + Send + Sync + 'static, done: impl FnOnce(Result<Imported, String>) + 'static) {
         #[cfg(test)]
-        if let Some(r) = testing::IMPORTS.with(|i| i.borrow_mut().pop_front()) { return done(r) }
+        if let Some(r) = testing::IMPORTS.with(|i| i.borrow_mut().pop_front()) { testing::PURPOSES.with(|p| p.borrow_mut().push(purpose)); return done(r) }
         let app = self.app.clone();
         let work = async move { app.import_path(&path, purpose, progress).await.map_err(|e| e.message) };
         self.run(work, |r| done(r.and_then(|r| r)));
@@ -193,6 +193,8 @@ pub(crate) mod testing {
         /// What the next `Ops::import` calls answer, in order, without touching the file (a PowerPoint job without
         /// PowerPoint). Once empty, imports are real again.
         pub(crate) static IMPORTS: RefCell<VecDeque<Result<Imported, String>>> = RefCell::default();
+        /// What those imports were for, in order.
+        pub(crate) static PURPOSES: RefCell<Vec<crate::app::ImportPurpose>> = RefCell::default();
     }
 
     /// Queues the answer of the next import.
