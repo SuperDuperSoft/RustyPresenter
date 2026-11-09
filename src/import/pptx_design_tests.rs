@@ -124,7 +124,7 @@ fn run(file: Vec<u8>) -> (Converted, Vec<(AssetId, Vec<u8>)>) {
 }
 
 fn texts(d: &Design) -> Vec<(&str, &TextStyle, PctRect)> {
-    d.objects.iter().filter_map(|o| match &o.kind { ObjKind::Text { text, style } => Some((text.as_str(), style, o.rect)), _ => None }).collect()
+    d.objects.iter().filter_map(|o| match &o.kind { ObjKind::Text { text, style, .. } => Some((text.as_str(), style, o.rect)), _ => None }).collect()
 }
 
 fn near(a: f32, b: f32) -> bool { (a - b).abs() < 0.05 }
@@ -187,7 +187,7 @@ fn shapes_lines_and_their_fills_come_over() {
     assert_eq!(objs[0].look.outline, Some(Outline { color: "#4472c4".into(), width: 4.0 }));
     assert!(matches!(&objs[1].kind, ObjKind::Text { text, .. } if text == "Joy") && objs[1].rect == objs[0].rect);
     // The rounded box: one text object with the style's fill, outline and font colour.
-    let ObjKind::Text { text, style } = &objs[2].kind else { panic!("{:?}", objs[2].kind) };
+    let ObjKind::Text { text, style, .. } = &objs[2].kind else { panic!("{:?}", objs[2].kind) };
     assert_eq!((text.as_str(), style.color.as_str(), style.valign), ("Give", "#ffffff", VAlign::Middle));
     assert_eq!(objs[2].look.fill.as_deref(), Some("#4472c4"));
     assert_eq!(objs[2].look.outline.as_ref().map(|o| o.color.as_str()), Some("#223962"));
@@ -219,12 +219,14 @@ fn pictures_are_stored_cropped_and_unknown_things_become_grey_boxes() {
     // A picture we can't draw (EMF) and the table: grey boxes with the description, and the table's words.
     assert!(matches!(&objs[1].kind, ObjKind::Text { text, .. } if text == "Pastor Dave"), "{:?}", objs[1].kind);
     assert_eq!(objs[1].look.fill.as_deref(), Some("#4b5563"), "the same grey box as the .odp import's");
-    assert!(matches!(&objs[2].kind, ObjKind::Text { text, .. } if text == "Time  |  Event\n9am  |  Prayer"));
+    // The table is a table now (its words and look: `tables_keep_their_grid_words_fills_and_borders`).
+    let ObjKind::Table { table } = &objs[2].kind else { panic!("{:?}", objs[2].kind) };
+    assert_eq!(table.text(), "Time\tEvent\n9am\tPrayer");
     assert!(near(objs[2].rect.x, 50.0) && near(objs[2].rect.y, 50.0));
     // The video, with its picture as the still.
     let ObjKind::Video { asset, thumb: Some(_), .. } = &objs[3].kind else { panic!("{:?}", objs[3].kind) };
     assert!(asset.ends_with(".mp4"));
-    assert_eq!(c.lost, 2);
+    assert_eq!(c.lost, 1, "only the EMF picture");
 }
 
 #[test]
@@ -320,7 +322,7 @@ fn powerpoint_preset_table() {
     let cv_preset = |class: &str, id: u32, sub: u32| {
         let doc = Document::parse("<x/>").unwrap();
         let geo = Geo { s: 1.0, ox: 0.0, oy: 0.0, cx: W, cy: H };
-        let cv = Conv { geo: &geo, major: String::new(), minor: String::new(), title: vec![], body: vec![], other: vec![], deflt: vec![], layout: None, master: None, colors: Colors::from_theme(None) };
+        let cv = Conv { geo: &geo, major: String::new(), minor: String::new(), title: vec![], body: vec![], other: vec![], deflt: vec![], layout: None, master: None, colors: Colors::from_theme(None), table_styles: HashMap::new() };
         cv.preset(doc.root_element(), class, id, sub).map(|a| (a.kind, a.effect, a.dir))
     };
     use AnimKind::*;
@@ -396,4 +398,142 @@ async fn an_odp_file_comes_in_through_the_same_job() {
     let d = app.data.lock().unwrap().clone();
     let item = d.service().unwrap().items.iter().find(|i| i.id == made).unwrap().clone();
     assert!(matches!(item.kind, ItemKind::Design { ref slides, .. } if slides.len() == 2), "{:?}", item.kind);
+}
+
+#[test]
+fn words_keep_their_own_looks_spacing_and_line_breaks() {
+    let body = r#"<a:p><a:pPr algn="ctr"><a:lnSpc><a:spcPct val="150000"/></a:lnSpc><a:spcAft><a:spcPts val="1200"/></a:spcAft></a:pPr><a:r><a:rPr lang="en-US" sz="3200" b="1"><a:solidFill><a:srgbClr val="FFC000"/></a:solidFill></a:rPr><a:t>Amazing</a:t></a:r><a:r><a:rPr lang="en-US" sz="3200" i="1" u="sng"/><a:t> grace</a:t></a:r><a:br><a:rPr lang="en-US" sz="3200"/></a:br><a:r><a:rPr lang="en-US" sz="3200" strike="sngStrike"/><a:t>how sweet the sound</a:t></a:r></a:p>
+<a:p><a:pPr algn="r"><a:spcBef><a:spcPct val="50000"/></a:spcBef><a:buFont typeface="Arial"/><a:buChar char="&#8226;"/></a:pPr><a:r><a:rPr lang="en-US" sz="3200"/><a:t>that saved a wretch like me</a:t></a:r></a:p>"#;
+    let tb = sp(4, "TextBox 3", "", &(xf(0, 0, 6_096_000, 3_429_000) + r#"<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/>"#), body);
+    let (c, _) = run(pptx(&[(slide_xml(&tb, ""), vec![])], &[0], (12_192_000, 6_858_000)));
+    let o = c.slides[0].objects.iter().find(|o| matches!(o.kind, ObjKind::Text { .. })).unwrap();
+    let ObjKind::Text { text, style, paras } = &o.kind else { unreachable!() };
+    // The break makes a line of its own; the bullet is the paragraph's mark.
+    assert_eq!(text, "Amazing grace\nhow sweet the sound\n• that saved a wretch like me");
+    assert_eq!(paras.len(), 3);
+    // The box takes the look of most words (plain black 32 pt); the runs keep what differs.
+    assert_eq!((style.size, style.color.as_str(), style.bold, style.underline, style.align), (64.0, "#000000", false, false, HAlign::Center));
+    assert_eq!(paras[0].runs[0], Run { text: "Amazing".into(), color: Some("#ffc000".into()), bold: Some(true), ..Run::default() });
+    assert_eq!(paras[0].runs[1], Run { text: " grace".into(), italic: Some(true), underline: Some(true), ..Run::default() });
+    assert_eq!(paras[1].runs[0], Run { text: "how sweet the sound".into(), strike: Some(true), ..Run::default() });
+    // 150 % lines on both lines of the first paragraph; 12 pt after it (24 px), after its last line only.
+    assert_eq!((paras[0].line, paras[1].line, paras[0].after, paras[1].after), (Some(1.5), Some(1.5), 0.0, 24.0));
+    // Half a line (of 32 pt) before the last; it is right-aligned and marked.
+    assert_eq!((paras[2].before, paras[2].align, paras[2].bullet.as_str()), (32.0, Some(HAlign::Right), "•"));
+    // Old files: one style, no paragraphs; this survives a save.
+    let json = serde_json::to_string(&c.slides[0]).unwrap();
+    assert_eq!(serde_json::from_str::<Design>(&json).unwrap(), c.slides[0]);
+}
+
+#[test]
+fn a_paragraph_build_animates_each_paragraph() {
+    let body = r#"<a:p><a:r><a:t>Welcome</a:t></a:r></a:p><a:p><a:pPr><a:buChar char="&#8226;"/></a:pPr><a:r><a:t>Coffee</a:t></a:r></a:p><a:p><a:pPr><a:buChar char="&#8226;"/></a:pPr><a:r><a:t>Prayer</a:t></a:r><a:br/><a:r><a:t>at ten</a:t></a:r></a:p>"#;
+    let tb = sp(4, "TextBox 3", "", &(xf(0, 0, 6_096_000, 3_429_000) + r#"<a:prstGeom prst="rect"/><a:noFill/>"#), body);
+    let by_para = |n: u32| format!(r#"<p:spTgt spid="4"><p:txEl><p:pRg st="{n}" end="{n}"/></p:txEl></p:spTgt>"#);
+    let steps = [
+        effect(5, 4, "clickEffect", "entr", 10, 0, 0, &behave(4, 500, "")).replace(r#"<p:spTgt spid="4"/>"#, &by_para(1)),
+        effect(10, 4, "clickEffect", "entr", 10, 0, 0, &behave(4, 500, "")).replace(r#"<p:spTgt spid="4"/>"#, &by_para(2)),
+    ].concat();
+    let timing = format!(r#"<p:timing><p:tnLst><p:par><p:cTn id="1" dur="indefinite" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>{steps}</p:childTnLst></p:cTn></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst><p:bldLst><p:bldP spid="4" grpId="0" build="p"/></p:bldLst></p:timing>"#);
+    let (c, _) = run(pptx(&[(slide_xml(&tb, &timing), vec![])], &[0], (12_192_000, 6_858_000)));
+    let d = &c.slides[0];
+    let text_id = d.objects.iter().find(|o| matches!(o.kind, ObjKind::Text { .. })).unwrap().id;
+    assert_eq!(d.anims.iter().map(|a| (a.obj, a.para)).collect::<Vec<_>>(), [(text_id, Some((1, 1))), (text_id, Some((2, 3)))], "the line break made two of ours");
+    assert_eq!(d.steps(), 2);
+    // Shown: the first paragraph, then one more each click.
+    let shown = |step: u16| d.at_step(step).objects.iter().filter_map(|o| match &o.kind {
+        ObjKind::Text { paras, .. } => Some(paras.iter().filter(|p| !p.hidden).map(|p| p.words()).collect::<Vec<_>>().join("|")),
+        _ => None,
+    }).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("|");
+    assert_eq!(shown(0), "Welcome");
+    assert_eq!(shown(1), "Welcome|Coffee");
+    assert_eq!(shown(2), "Welcome|Coffee|Prayer|at ten");
+}
+
+/// A graphic frame holding `data` at the bottom right quarter.
+fn frame(id: u32, name: &str, data: &str) -> String {
+    format!(r#"<p:graphicFrame><p:nvGraphicFramePr><p:cNvPr id="{id}" name="{name}"/><p:cNvGraphicFramePr/><p:nvPr/></p:nvGraphicFramePr><p:xfrm><a:off x="6096000" y="3429000"/><a:ext cx="6096000" cy="3429000"/></p:xfrm><a:graphic>{data}</a:graphic></p:graphicFrame>"#)
+}
+
+#[test]
+fn tables_keep_their_grid_words_fills_and_borders() {
+    let cell = |t: &str, extra: &str, pr: &str| format!(r#"<a:tc{extra}><a:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US" sz="2000"/><a:t>{t}</a:t></a:r></a:p></a:txBody><a:tcPr anchor="ctr">{pr}</a:tcPr></a:tc>"#);
+    let border = r#"<a:lnB w="25400"><a:solidFill><a:srgbClr val="FF0000"/></a:solidFill></a:lnB>"#;
+    let tbl = format!(r#"<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table"><a:tbl><a:tblPr firstRow="1" bandRow="1"><a:tableStyleId>{{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}}</a:tableStyleId></a:tblPr><a:tblGrid><a:gridCol w="2032000"/><a:gridCol w="4064000"/></a:tblGrid>
+<a:tr h="370840">{}{}</a:tr><a:tr h="740000">{}{}</a:tr><a:tr h="370840">{}{}</a:tr></a:tbl></a:graphicData>"#,
+        cell("Time", "", ""), cell("Event", "", ""),
+        cell("9am", "", &format!(r#"{border}<a:solidFill><a:srgbClr val="00FF00"/></a:solidFill>"#)), cell("Prayer", "", ""),
+        cell("Both", r#" gridSpan="2""#, ""), cell("", r#" hMerge="1""#, ""));
+    let (c, _) = run(pptx(&[(slide_xml(&frame(20, "Table 19", &tbl), ""), vec![])], &[0], (12_192_000, 6_858_000)));
+    assert_eq!(c.lost, 0);
+    let o = c.slides[0].objects.last().unwrap();
+    let ObjKind::Table { table } = &o.kind else { panic!("{:?}", o.kind) };
+    assert_eq!((table.cols.as_slice(), table.rows.as_slice()), (&[2_032_000.0, 4_064_000.0][..], &[370_840.0, 740_000.0, 370_840.0][..]));
+    assert_eq!(table.text(), "Time\tEvent\n9am\tPrayer\nBoth\t");
+    // Most cells: 20 pt black on the body rows; the header row is white and bold (PowerPoint's default design).
+    assert_eq!((table.style.size, table.style.color.as_str(), table.style.bold), (40.0, "#000000", false));
+    assert_eq!(table.cells[0].paras[0].runs[0], Run { text: "Time".into(), color: Some("#ffffff".into()), bold: Some(true), ..Run::default() });
+    assert_eq!(table.cells[0].fill.as_deref(), Some("#4472c4"));
+    // A cell's own fill and bottom border win; banded rows take the style's tints.
+    assert_eq!(table.cells[2].fill.as_deref(), Some("#00ff00"));
+    assert_eq!(table.cells[2].borders[3], Some(Outline { color: "#ff0000".into(), width: 4.0 }));
+    assert_eq!(table.cells[2].borders[0].as_ref().map(|b| b.color.as_str()), Some("#ffffff"));
+    assert_ne!(table.cells[3].fill, table.cells[5].fill, "banded");
+    assert_eq!(table.cells[2].valign, Some(VAlign::Middle));
+    assert_eq!((table.cells[4].span_cols, table.cells[5].merged), (2, true));
+    assert_eq!(c.slides[0].words(), "Time  Event\n9am  Prayer\nBoth");
+}
+
+#[test]
+fn charts_use_their_stored_picture_and_smartart_its_drawing() {
+    let chart = frame(30, "Chart 29", r#"<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" r:id="rId5"/></a:graphicData>"#);
+    let emf_chart = frame(31, "Chart 30", r#"<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" r:id="rId6"/></a:graphicData>"#);
+    let smart = frame(32, "Diagram 31", r#"<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/diagram"><dgm:relIds xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram" r:dm="rId7" r:lo="rId8" r:qs="rId9" r:cs="rId10"/></a:graphicData>"#);
+    // An ink drawing kept as a picture for older PowerPoints.
+    let alt = format!(r#"<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"><mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p14"><p:contentPart r:id="rId12"/></mc:Choice><mc:Fallback><p:pic><p:nvPicPr><p:cNvPr id="33" name="Ink 32"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId2"/></p:blipFill><p:spPr><a:xfrm flipH="1"><a:off x="0" y="0"/><a:ext cx="1219200" cy="1219200"/></a:xfrm></p:spPr></p:pic></mc:Fallback></mc:AlternateContent>"#);
+    let data = r#"<dgm:dataModel xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><dgm:ptLst/><dgm:extLst><a:ext uri="http://schemas.microsoft.com/office/drawing/2008/diagram"><dsp:dataModelExt xmlns:dsp="http://schemas.microsoft.com/office/drawing/2008/diagram" relId="rId11" minVer="http://schemas.openxmlformats.org/drawingml/2006/diagram"/></a:ext></dgm:extLst></dgm:dataModel>"#;
+    let dsp_sp = |id: u32, x: i64, text: &str| format!(r#"<dsp:sp modelId="{{{id}}}"><dsp:nvSpPr><dsp:cNvPr id="0" name=""/><dsp:cNvSpPr/></dsp:nvSpPr><dsp:spPr><a:xfrm><a:off x="{x}" y="0"/><a:ext cx="3048000" cy="1714500"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val="accent1"/></a:solidFill></dsp:spPr><dsp:style><a:lnRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:lnRef><a:fillRef idx="1"><a:scrgbClr r="0" g="0" b="0"/></a:fillRef><a:effectRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:effectRef><a:fontRef idx="minor"><a:schemeClr val="lt1"/></a:fontRef></dsp:style><dsp:txBody><a:bodyPr anchor="ctr"/><a:lstStyle/><a:p><a:pPr algn="ctr"/><a:r><a:rPr lang="en-US" sz="2400"/><a:t>{text}</a:t></a:r></a:p></dsp:txBody><dsp:txXfrm><a:off x="{x}" y="0"/><a:ext cx="3048000" cy="1714500"/></dsp:txXfrm></dsp:sp>"#);
+    let drawing = format!(r#"<dsp:drawing xmlns:dsp="http://schemas.microsoft.com/office/drawing/2008/diagram" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><dsp:spTree><dsp:nvGrpSpPr><dsp:cNvPr id="0" name=""/><dsp:cNvGrpSpPr/></dsp:nvGrpSpPr><dsp:grpSpPr/>{}{}</dsp:spTree></dsp:drawing>"#, dsp_sp(1, 0, "Worship"), dsp_sp(2, 3_048_000, "Word"));
+    let slide = slide_xml(&[chart, emf_chart, smart, alt].concat(), "");
+    let rels_list = vec![("rId2", "image", "../media/photo.png"), ("rId5", "chart", "../charts/chart1.xml"), ("rId6", "chart", "../charts/chart2.xml"), ("rId7", "diagramData", "../diagrams/data1.xml"), ("rId11", "diagramDrawing", "../diagrams/drawing1.xml")];
+    let more = vec![
+        ("ppt/charts/chart1.xml".to_string(), br#"<c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"/>"#.to_vec()),
+        ("ppt/charts/_rels/chart1.xml.rels".to_string(), rels(&[("rId1", "image", "../media/chart1.png")]).into_bytes()),
+        ("ppt/media/chart1.png".to_string(), png(8, 4)),
+        ("ppt/charts/chart2.xml".to_string(), br#"<c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"/>"#.to_vec()),
+        ("ppt/charts/_rels/chart2.xml.rels".to_string(), rels(&[("rId1", "image", "../media/old.emf")]).into_bytes()),
+        ("ppt/diagrams/data1.xml".to_string(), data.as_bytes().to_vec()),
+        ("ppt/diagrams/drawing1.xml".to_string(), drawing.into_bytes()),
+    ];
+    let (c, stored) = run(pptx_with(&[(slide, rels_list)], &[0], (12_192_000, 6_858_000), more));
+    let objs = &c.slides[0].objects[2..];
+    // The chart's picture where the chart was.
+    let ObjKind::Picture { asset, .. } = &objs[0].kind else { panic!("{:?}", objs[0].kind) };
+    assert_eq!(image::load_from_memory(&stored.iter().find(|(a, _)| a == asset).unwrap().1).unwrap().width(), 8);
+    assert!(near(objs[0].rect.x, 50.0) && near(objs[0].rect.w, 50.0));
+    // Only an EMF picture: still a grey box.
+    assert!(matches!(&objs[1].kind, ObjKind::Text { text, .. } if text == "Chart 30") && objs[1].look.fill.as_deref() == Some("#4b5563"));
+    // The SmartArt's two boxes with their words, placed in the frame.
+    let words: Vec<(&str, f32)> = objs.iter().filter_map(|o| match &o.kind { ObjKind::Text { text, .. } if o.look.fill.as_deref() == Some("#4472c4") => Some((text.as_str(), o.rect.x)), _ => None }).collect();
+    assert_eq!(words.len(), 2, "{objs:#?}");
+    assert_eq!(words[0].0, "Worship");
+    assert!(near(words[0].1, 50.0) && near(words[1].1, 75.0), "{words:?}");
+    // The ink's stored picture, mirrored.
+    let ink = objs.last().unwrap();
+    assert!(matches!(ink.kind, ObjKind::Picture { .. }) && ink.flip_h && !ink.flip_v);
+    assert_eq!(c.lost, 1);
+}
+
+#[test]
+fn flipped_shapes_are_mirrored_and_words_stay_readable() {
+    let shapes = [
+        sp(5, "Tri", "", r#"<a:xfrm flipV="1"><a:off x="0" y="0"/><a:ext cx="1219200" cy="1219200"/></a:xfrm><a:prstGeom prst="triangle"/><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill>"#, ""),
+        sp(6, "Arrow", "", r#"<a:xfrm flipH="1"><a:off x="0" y="0"/><a:ext cx="1219200" cy="609600"/></a:xfrm><a:prstGeom prst="rightArrow"/><a:solidFill><a:srgbClr val="FFFFFF"/></a:solidFill>"#, ""),
+        sp(7, "Words", "", r#"<a:xfrm flipH="1"><a:off x="0" y="0"/><a:ext cx="1219200" cy="609600"/></a:xfrm><a:prstGeom prst="rect"/>"#, r#"<a:p><a:r><a:t>Read me</a:t></a:r></a:p>"#),
+    ].concat();
+    let (c, _) = run(pptx(&[(slide_xml(&shapes, ""), vec![])], &[0], (12_192_000, 6_858_000)));
+    let o = &c.slides[0].objects[2..];
+    assert!(matches!(o[0].kind, ObjKind::Shape { shape: Shape::Triangle }) && o[0].flip_v && !o[0].flip_h && o[0].rotation == 0.0, "upside down by a mirror, not a turn");
+    assert!(matches!(o[1].kind, ObjKind::Shape { shape: Shape::Arrow }) && o[1].flip_h, "points left");
+    assert!(matches!(o[2].kind, ObjKind::Text { .. }) && !o[2].flip_h);
 }

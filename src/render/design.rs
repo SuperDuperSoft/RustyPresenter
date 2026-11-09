@@ -4,8 +4,8 @@
 use super::color::parse_color;
 use super::layout::{BUNDLED_FAMILY, CANVAS_W, Fonts, clamp_canvas, max_line_width, text_height};
 use super::raster::{Premul, Rendered, blur, blur_reach};
-use crate::design::{Design, Fit, HAlign, Obj, ObjKind, Shape, TextStyle, VAlign, strings as s};
-use cosmic_text::{Align, Attrs, Buffer, Color, Family, Metrics, Shaping, Style, SwashCache, Weight, Wrap};
+use crate::design::{Design, Fit, HAlign, Obj, ObjKind, Para, Shape, Table, TextStyle, VAlign, rich, strings as s};
+use cosmic_text::{Align, Attrs, Buffer, Color, Family, Metrics, Shaping, Style, SwashCache, UnderlineStyle, Weight, Wrap};
 use image::RgbaImage;
 use slint::{Rgba8Pixel, SharedPixelBuffer};
 use tiny_skia::{FillRule, FilterQuality, LineCap, LineJoin, Mask, Paint, PathBuilder, Pixmap, PixmapMut, PixmapPaint, PixmapRef, Rect, Stroke, Transform};
@@ -145,9 +145,18 @@ fn draw_obj(pix: &mut PixmapMut, fonts: &mut Fonts, o: &Obj, (ax, ay, aw, ah): (
     let fill = o.look.fill.as_deref();
     let stroke = |w: f32| Stroke { width: w.max(0.5), line_cap: LineCap::Round, line_join: LineJoin::Round, ..Stroke::default() };
     match &o.kind {
-        ObjKind::Text { text, style } => {
+        ObjKind::Text { text, style, paras } => {
             if let (Some(f), Some(path)) = (fill, round_rect(content, radius)) { local.fill_path(&path, &paint(f), FillRule::Winding, Transform::identity(), None) }
-            draw_words(&mut local, fonts, text, style, content, sc, theme_font);
+            if paras.is_empty() && !style.underline && !style.strike && style.line == 1.0 {
+                draw_words(&mut local, fonts, text, style, content, sc, theme_font);
+            } else {
+                draw_paras(&mut local, fonts, &rich::paragraphs(text, paras), style, content, sc, theme_font, TEXT_PAD * sc);
+            }
+            outline_box(&mut local, o, content, radius, line_w);
+        }
+        ObjKind::Table { table } => {
+            if let (Some(f), Some(path)) = (fill, round_rect(content, radius)) { local.fill_path(&path, &paint(f), FillRule::Winding, Transform::identity(), None) }
+            draw_table(&mut local, fonts, table, content, sc, theme_font);
             outline_box(&mut local, o, content, radius, line_w);
         }
         ObjKind::Shape { shape } => {
@@ -199,7 +208,10 @@ fn draw_obj(pix: &mut PixmapMut, fonts: &mut Fonts, o: &Obj, (ax, ay, aw, ah): (
     }
     if o.look.soft > 0.0 { feather(&mut local, content, o.look.soft * sc) }
     let (cx, cy) = (ax + (o.rect.x + o.rect.w / 2.0) / 100.0 * aw, ay + (o.rect.y + o.rect.h / 2.0) / 100.0 * ah);
-    let place = Transform::from_translate(cx, cy).pre_rotate(o.rotation).pre_translate(-(lw as f32) / 2.0, -(lh as f32) / 2.0);
+    // Mirrored about its middle; words are not (as PowerPoint keeps them readable).
+    let words = matches!(o.kind, ObjKind::Text { .. } | ObjKind::Table { .. });
+    let (fx, fy) = if words { (1.0, 1.0) } else { (if o.flip_h { -1.0 } else { 1.0 }, if o.flip_v { -1.0 } else { 1.0 }) };
+    let place = Transform::from_translate(cx, cy).pre_rotate(o.rotation).pre_scale(fx, fy).pre_translate(-(lw as f32) / 2.0, -(lh as f32) / 2.0);
     let opacity = f32::from(o.opacity.min(100)) / 100.0;
     if let Some(sh) = &o.look.shadow && sh.opacity > 0 {
         if let Some((shadow, reach)) = shadow_of(&local, &sh.color, sh.blur * sc) {
@@ -266,6 +278,134 @@ fn draw_words(local: &mut Pixmap, fonts: &mut Fonts, text: &str, st: &TextStyle,
             }
         }
     });
+}
+
+/// The font a style asks for, if this computer has it, else the bundled one.
+fn family_of(fonts: &Fonts, font: &str, theme_font: &str) -> String {
+    let wanted = if font.trim().is_empty() { theme_font } else { font };
+    if fonts.has_family(wanted) { wanted.to_string() } else { BUNDLED_FAMILY.to_string() }
+}
+
+/// One paragraph laid out: its words, the space around it, how far in it starts.
+struct Laid { buf: Buffer, before: f32, after: f32, indent: f32, height: f32, hidden: bool }
+
+/// `paras` laid out `avail_w` wide at `k` times their size.
+fn lay_paras(fonts: &mut Fonts, paras: &[Para], st: &TextStyle, avail_w: f32, sc: f32, k: f32, theme_font: &str) -> Vec<Laid> {
+    paras.iter().map(|p| {
+        let line = p.line.unwrap_or(st.line);
+        let first = p.runs.first().map_or_else(|| st.clone(), |r| r.style(st));
+        let px = |size: f32| size.clamp(crate::design::SIZE_MIN, crate::design::SIZE_MAX) * sc * k;
+        let base = px(first.size);
+        let metrics = |size: f32| Metrics::new(size, size * LINE * line);
+        let indent = f32::from(p.level) * px(st.size) * 0.9;
+        let mut buf = Buffer::new(&mut fonts.sys, metrics(base));
+        buf.set_size(Some((avail_w - indent).max(1.0)), None);
+        buf.set_wrap(Wrap::WordOrGlyph);
+        let mark = (!p.bullet.is_empty()).then(|| format!("{} ", p.bullet));
+        let pieces: Vec<(&str, TextStyle)> = mark.as_deref().map(|m| (m, TextStyle { underline: false, strike: false, ..first.clone() })).into_iter()
+            .chain(p.runs.iter().filter(|r| !r.text.is_empty()).map(|r| (r.text.as_str(), r.style(st)))).collect();
+        let families: Vec<String> = pieces.iter().map(|(_, s)| family_of(fonts, &s.font, theme_font)).collect();
+        let spans = pieces.iter().zip(&families).map(|((t, s), fam)| {
+            let [r, g, b, a] = parse_color(&s.color);
+            let mut at = Attrs::new().family(Family::Name(fam)).weight(if s.bold { Weight::BOLD } else { Weight::NORMAL })
+                .style(if s.italic { Style::Italic } else { Style::Normal }).color(Color::rgba(r, g, b, a)).metrics(metrics(px(s.size)));
+            if s.underline { at = at.underline(UnderlineStyle::Single) }
+            if s.strike { at = at.strikethrough() }
+            (*t, at)
+        });
+        let fam0 = family_of(fonts, &first.font, theme_font);
+        let deflt = Attrs::new().family(Family::Name(&fam0));
+        let align = match p.align.unwrap_or(st.align) { HAlign::Left => Align::Left, HAlign::Center => Align::Center, HAlign::Right => Align::Right };
+        buf.set_rich_text(spans, &deflt, Shaping::Advanced, Some(align));
+        buf.shape_until_scroll(&mut fonts.sys, false);
+        let height = match text_height(&buf) { h if h > 0.0 => h, _ => base * LINE * line };
+        Laid { buf, before: p.before * sc * k, after: p.after * sc * k, indent, height, hidden: p.hidden }
+    }).collect()
+}
+
+/// Paragraphs of runs laid out in `content` (less `pad` each side), shrunk to fit when the style asks.
+#[allow(clippy::too_many_arguments)]
+fn draw_paras(local: &mut Pixmap, fonts: &mut Fonts, paras: &[Para], st: &TextStyle, content: Rect, sc: f32, theme_font: &str, pad: f32) {
+    if paras.iter().all(|p| p.hidden || p.words().trim().is_empty()) { return }
+    let (avail_w, avail_h) = ((content.width() - 2.0 * pad).max(1.0), (content.height() - 2.0 * pad).max(1.0));
+    let total = |laid: &[Laid]| laid.iter().map(|l| l.before + l.height + l.after).sum::<f32>();
+    let widest = |laid: &[Laid]| laid.iter().map(|l| l.indent + max_line_width(&l.buf)).fold(0.0, f32::max);
+    let mut k = 1.0;
+    let mut laid = lay_paras(fonts, paras, st, avail_w, sc, k, theme_font);
+    if st.shrink {
+        let floor = crate::design::SIZE_MIN / st.size.max(crate::design::SIZE_MIN);
+        while k > floor && (total(&laid) > avail_h + 0.5 || widest(&laid) > avail_w + 1.0) {
+            k = (k * 0.94).max(floor);
+            laid = lay_paras(fonts, paras, st, avail_w, sc, k, theme_font);
+        }
+    }
+    let th = total(&laid);
+    let mut y = content.y() + pad + match st.valign { VAlign::Top => 0.0, VAlign::Middle => (avail_h - th) / 2.0, VAlign::Bottom => avail_h - th };
+    let [r, g, b, a] = parse_color(&st.color);
+    for l in &mut laid {
+        y += l.before;
+        if !l.hidden { draw_buf(local, fonts, &mut l.buf, content.x() + pad + l.indent, y, Color::rgba(r, g, b, a)) }
+        y += l.height + l.after;
+    }
+}
+
+/// Laid-out words onto `local` at (x, y), each glyph in its own colour (`color` when it has none).
+fn draw_buf(local: &mut Pixmap, fonts: &mut Fonts, buf: &mut Buffer, x: f32, y: f32, color: Color) {
+    let (w, h) = (local.width() as i32, local.height() as i32);
+    let data = local.data_mut();
+    let (ox, oy) = (x.round() as i32, y.round() as i32);
+    buf.draw(&mut fonts.sys, &mut SwashCache::new(), color, |gx, gy, gw, gh, c| {
+        let cov = u32::from(c.a());
+        if cov == 0 { return }
+        for py in (gy + oy).max(0)..(gy + oy + gh as i32).min(h) {
+            for px in (gx + ox).max(0)..(gx + ox + gw as i32).min(w) {
+                let i = ((py * w + px) * 4) as usize;
+                let inv = 255 - cov;
+                for (k, ch) in [c.r(), c.g(), c.b(), 255].into_iter().enumerate() {
+                    let src = if k == 3 { cov } else { u32::from(ch) * cov / 255 };
+                    data[i + k] = (src + u32::from(data[i + k]) * inv / 255).min(255) as u8;
+                }
+            }
+        }
+    });
+}
+
+/// Space between a table cell's edge and its words, in 1080p pixels.
+const CELL_PAD: f32 = 10.0;
+
+/// A table in `content`: cell fills, then words, then borders.
+fn draw_table(local: &mut Pixmap, fonts: &mut Fonts, t: &Table, content: Rect, sc: f32, theme_font: &str) {
+    let (nc, nr) = (t.cols.len(), t.rows.len());
+    if nc == 0 || nr == 0 { return }
+    let edges = |sizes: &[f32], start: f32, len: f32| -> Vec<f32> {
+        let sum: f32 = sizes.iter().map(|v| v.max(0.0)).sum::<f32>().max(f32::EPSILON);
+        let mut at = start;
+        std::iter::once(start).chain(sizes.iter().map(|v| { at += v.max(0.0) / sum * len; at })).collect()
+    };
+    let (xs, ys) = (edges(&t.cols, content.x(), content.width()), edges(&t.rows, content.y(), content.height()));
+    let cells: Vec<(Rect, &crate::design::Cell)> = (0..nr).flat_map(|r| (0..nc).map(move |c| (r, c))).filter_map(|(r, c)| {
+        let cell = t.cell(r, c).filter(|cell| !cell.merged)?;
+        let (c2, r2) = ((c + usize::from(cell.span_cols.max(1))).min(nc), (r + usize::from(cell.span_rows.max(1))).min(nr));
+        Some((Rect::from_ltrb(xs[c], ys[r], xs[c2], ys[r2])?, cell))
+    }).collect();
+    for (rect, cell) in &cells {
+        if let Some(f) = &cell.fill { local.fill_rect(*rect, &paint(f), Transform::identity(), None) }
+    }
+    for (rect, cell) in &cells {
+        let st = TextStyle { valign: cell.valign.unwrap_or(VAlign::Top), ..t.style.clone() };
+        draw_paras(local, fonts, &rich::paragraphs(&cell.text, &cell.paras), &st, *rect, sc, theme_font, CELL_PAD * sc);
+    }
+    for (rect, cell) in &cells {
+        let (l, tp, r, b) = (rect.left(), rect.top(), rect.right(), rect.bottom());
+        for (side, ol) in cell.borders.iter().enumerate() {
+            let Some(ol) = ol.as_ref().filter(|o| o.width > 0.0) else { continue };
+            let ((x0, y0), (x1, y1)) = match side { 0 => ((l, tp), (l, b)), 1 => ((l, tp), (r, tp)), 2 => ((r, tp), (r, b)), _ => ((l, b), (r, b)) };
+            let mut pb = PathBuilder::new();
+            pb.move_to(x0, y0);
+            pb.line_to(x1, y1);
+            if let Some(p) = pb.finish() { local.stroke_path(&p, &paint(&ol.color), &Stroke { width: (ol.width * sc).max(0.5), line_cap: LineCap::Square, ..Stroke::default() }, Transform::identity(), None) }
+        }
+    }
 }
 
 /// A picture in `content` by `fit`, cut to the box (with its rounded corners).
@@ -370,7 +510,7 @@ mod tests {
 
     #[test]
     fn text_draws_inside_its_box_in_its_colour() {
-        let o = Obj::new(ObjKind::Text { text: "HELLO".into(), style: TextStyle { color: "#00ff00".into(), size: 200.0, ..TextStyle::default() } }, PctRect::new(10.0, 10.0, 80.0, 40.0));
+        let o = Obj::new(ObjKind::text("HELLO", TextStyle { color: "#00ff00".into(), size: 200.0, ..TextStyle::default() }), PctRect::new(10.0, 10.0, 80.0, 40.0));
         let r = draw(&Design { objects: vec![o], ..Default::default() }, (320, 180));
         let lit: Vec<(u32, u32)> = (0..180).flat_map(|y| (0..320).map(move |x| (x, y))).filter(|&(x, y)| at(&r, x, y)[3] > 128).collect();
         assert!(!lit.is_empty());
@@ -419,6 +559,62 @@ mod tests {
         let r = draw(&Design { objects: vec![line, path], ..Default::default() }, (160, 90));
         assert_eq!(at(&r, 80, 45)[3], 255);
         assert!(at(&r, 16, 9)[0] > 200);
+    }
+
+    fn lit(r: &Rendered) -> Vec<(u32, u32, [u8; 4])> {
+        (0..r.height).flat_map(|y| (0..r.width).map(move |x| (x, y))).map(|(x, y)| (x, y, at(r, x, y))).filter(|p| p.2[3] > 200).collect()
+    }
+
+    #[test]
+    fn runs_draw_in_their_own_colours_and_hidden_paragraphs_keep_their_place() {
+        use crate::design::{Para, Run};
+        let para = |t: &str, color: &str, hidden: bool| Para { runs: vec![Run { text: t.into(), color: Some(color.into()), ..Run::default() }], hidden, ..Para::default() };
+        let style = TextStyle { size: 150.0, shrink: false, valign: VAlign::Top, align: HAlign::Left, ..TextStyle::default() };
+        let mk = |paras: Vec<Para>| Obj::new(ObjKind::rich(paras, style.clone()), PctRect::new(0.0, 0.0, 100.0, 100.0));
+        let both = draw(&Design { objects: vec![mk(vec![para("RED", "#ff0000", false), para("BLUE", "#0000ff", false)])], ..Default::default() }, (320, 180));
+        let px = lit(&both);
+        let red = px.iter().filter(|p| p.2 == [255, 0, 0, 255]).map(|p| p.1).max().unwrap();
+        let blue = px.iter().filter(|p| p.2 == [0, 0, 255, 255]).map(|p| p.1).min().unwrap();
+        assert!(red < blue, "red on the first line, blue below it");
+        let first_hidden = draw(&Design { objects: vec![mk(vec![para("RED", "#ff0000", true), para("BLUE", "#0000ff", false)])], ..Default::default() }, (320, 180));
+        let px2 = lit(&first_hidden);
+        assert!(px2.iter().all(|p| p.2[0] == 0), "no red");
+        assert_eq!(px2.iter().map(|p| p.1).min(), Some(blue), "blue stays where it was");
+    }
+
+    #[test]
+    fn underline_and_line_spacing_show() {
+        let st = TextStyle { size: 120.0, shrink: false, valign: VAlign::Top, ..TextStyle::default() };
+        let words = |st: TextStyle| draw(&Design { objects: vec![Obj::new(ObjKind::text("ace\nace", st), PctRect::new(0.0, 0.0, 100.0, 100.0))], ..Default::default() }, (320, 180));
+        let rows = |r: &Rendered| lit(r).iter().map(|p| p.1).collect::<std::collections::BTreeSet<_>>();
+        let plain = rows(&words(st.clone()));
+        let under = rows(&words(TextStyle { underline: true, ..st.clone() }));
+        assert!(under.len() > plain.len(), "the underline adds rows");
+        let low = |r: &std::collections::BTreeSet<u32>| *r.iter().max().unwrap();
+        assert!(low(&rows(&words(TextStyle { line: 2.0, ..st }))) > low(&plain) + 10, "double spacing pushes the second line down");
+    }
+
+    #[test]
+    fn a_table_draws_cell_fills_and_borders() {
+        use crate::design::{Cell, Table};
+        let cell = |fill: &str| Cell { fill: Some(fill.into()), ..Cell::default() };
+        let mut c0 = cell("#ff0000");
+        c0.borders[2] = Some(Outline { color: "#ffffff".into(), width: 40.0 });
+        let t = Table { cols: vec![1.0, 3.0], rows: vec![1.0], cells: vec![c0, cell("#0000ff")], style: TextStyle::default() };
+        let r = draw(&Design { objects: vec![Obj::new(ObjKind::Table { table: t }, PctRect::new(0.0, 0.0, 100.0, 100.0))], ..Default::default() }, (160, 90));
+        assert_eq!(at(&r, 10, 45), [255, 0, 0, 255]);
+        assert_eq!(at(&r, 100, 45), [0, 0, 255, 255]);
+        assert_eq!(at(&r, 40, 45), [255, 255, 255, 255], "the border between the cells, at a quarter");
+    }
+
+    #[test]
+    fn a_flipped_picture_is_mirrored() {
+        let img = RgbaImage::from_fn(10, 10, |x, _| if x < 5 { image::Rgba([255, 0, 0, 255]) } else { image::Rgba([0, 0, 255, 255]) });
+        let mut o = Obj::new(ObjKind::Picture { asset: "p.png".into(), fit: Fit::Stretch }, PctRect::new(0.0, 0.0, 100.0, 100.0));
+        let r = |o: &Obj| render_design(&mut Fonts::bundled_only(), &Design { objects: vec![o.clone()], ..Default::default() }, "", (160, 90), &mut |_| Some(img.clone()));
+        assert_eq!(at(&r(&o), 10, 45)[0], 255);
+        o.flip_h = true;
+        assert_eq!(at(&r(&o), 10, 45), [0, 0, 255, 255]);
     }
 
     #[test]

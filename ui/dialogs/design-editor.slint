@@ -39,6 +39,12 @@ export global DesignDlg {
     in-out property <string> color: "#ffffff";
     in property <bool> bold;
     in property <bool> italic;
+    in property <bool> underline;
+    in property <bool> strike;
+    /// Some words have a look of their own (an imported slide): the settings here change the whole box.
+    in property <bool> mixed;
+    /// The chosen object is a table: the words are its cells (a row per line, cells split by tabs).
+    in property <bool> is-table;
     in-out property <int> align: 1;
     in-out property <int> valign: 1;
     in property <bool> shrink;
@@ -114,6 +120,8 @@ export global DesignDlg {
     callback color-changed(string);
     callback bold-changed(bool);
     callback italic-changed(bool);
+    callback underline-changed(bool);
+    callback strike-changed(bool);
     callback align-changed(int);
     callback valign-changed(int);
     callback shrink-changed(bool);
@@ -318,7 +326,11 @@ component Inspector inherits VerticalLayout {
                 spacing: 12px;
                 Check { text: @tr("Bold"); checked: DesignDlg.bold; toggled(v) => { DesignDlg.bold-changed(v); } }
                 Check { text: @tr("Italic"); checked: DesignDlg.italic; toggled(v) => { DesignDlg.italic-changed(v); } }
+                Check { text: @tr("Underline"); checked: DesignDlg.underline; toggled(v) => { DesignDlg.underline-changed(v); } }
+                Check { text: @tr("Strike through"); checked: DesignDlg.strike; toggled(v) => { DesignDlg.strike-changed(v); } }
             }
+            if DesignDlg.mixed: SmallText { text: @tr("Some words here have their own look. These settings change the whole box."); }
+            if DesignDlg.is-table: SmallText { text: @tr("A table: one row per line, cells split by tabs."); }
             Check { text: @tr("Shrink to fit the box"); checked: DesignDlg.shrink; toggled(v) => { DesignDlg.shrink-changed(v); } }
             Lbl { label: @tr("Text colour"); }
             ColorRow {

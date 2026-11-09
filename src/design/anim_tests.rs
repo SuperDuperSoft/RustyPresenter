@@ -1,7 +1,7 @@
 use super::*;
 use crate::design::{Design, Dir, Obj, ObjKind, PctRect, TextStyle};
 
-fn text(t: &str) -> Obj { Obj::new(ObjKind::Text { text: t.into(), style: TextStyle::default() }, PctRect::new(10.0, 10.0, 40.0, 20.0)) }
+fn text(t: &str) -> Obj { Obj::new(ObjKind::text(t, TextStyle::default()), PctRect::new(10.0, 10.0, 40.0, 20.0)) }
 
 fn names(d: &Design) -> Vec<String> {
     d.objects.iter().map(|o| match &o.kind { ObjKind::Text { text, .. } => text.clone(), _ => String::new() }).collect()
@@ -187,4 +187,32 @@ fn a_play_draws_still_runs_together_and_each_moving_object_alone() {
     assert_eq!(p.layers(), vec![(vec![0, 1], None), (vec![2], Some(2)), (vec![3, 4], None)]);
     // Click 1 brings e; c is still hidden and left out.
     assert_eq!(s.play(1).unwrap().layers(), vec![(vec![0, 1, 3], None), (vec![4], Some(4))]);
+}
+
+#[test]
+fn paragraph_steps_show_their_paragraphs_one_click_at_a_time() {
+    use crate::design::{Para, Run};
+    let paras = vec![Para { runs: vec![Run::plain("Title")], ..Para::default() }, Para { runs: vec![Run::plain("One")], bullet: "•".into(), ..Para::default() }, Para { runs: vec![Run::plain("Two")], bullet: "•".into(), ..Para::default() }];
+    let mut o = Obj::new(ObjKind::rich(paras, TextStyle::default()), PctRect::new(10.0, 10.0, 40.0, 20.0));
+    o.look.fill = Some("#000000".into());
+    let id = o.id;
+    let step = |n: u16| Anim { para: Some((n, n)), ..Anim::new(id, AnimKind::Entrance, Effect::Fade, Start::OnClick) };
+    let d = Design { objects: vec![o], anims: vec![step(1), step(2)], ..Default::default() };
+    assert_eq!(d.steps(), 2);
+    let shown = |s: u16| d.at_step(s).objects.iter().map(|o| match &o.kind {
+        ObjKind::Text { paras, .. } => paras.iter().filter(|p| !p.hidden).map(|p| p.words()).collect::<Vec<_>>().join("+"),
+        _ => String::new(),
+    }).collect::<Vec<_>>();
+    assert_eq!(shown(0), ["Title"]);
+    assert_eq!(shown(1), ["Title", "One"]);
+    assert_eq!(shown(2), ["Title", "One", "Two"]);
+    // The box keeps the fill; the pieces have none, and each plays as its own layer.
+    let at2 = d.at_step(2);
+    assert!(at2.objects[0].look.fill.is_some() && at2.objects[1].look.fill.is_none());
+    let play = d.play(1).unwrap();
+    assert_eq!(play.tracks.len(), 1);
+    assert_eq!((play.objects.len(), play.tracks[0].obj, play.shown.as_slice()), (3, 1, &[true, false, false][..]));
+    // Saved and loaded, the step keeps its paragraphs.
+    let back: Design = serde_json::from_str(&serde_json::to_string(&d).unwrap()).unwrap();
+    assert_eq!(back.anims[0].para, Some((1, 1)));
 }

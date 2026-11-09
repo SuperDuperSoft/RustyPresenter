@@ -5,12 +5,14 @@
 //! its snapping and resizing helpers (`stage::geom`) work here too.
 pub mod anim;
 pub mod edit;
+pub mod rich;
 #[path = "../strings/design.rs"]
 pub mod strings;
 
 use crate::model::AssetId;
 pub use crate::stage::PctRect;
 pub use anim::{Anim, AnimKind, Effect, MotionPath, Play, Pose, Seg, Start};
+pub use rich::{Cell, Para, Run, Table};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -77,7 +79,14 @@ pub struct Obj {
     /// 1.0 builds, read only: 1, 2…: appeared on that Next. Loading turns them into `Design::anims` and sets 0.
     #[serde(default, skip_serializing)]
     pub build: u16,
+    /// Mirrored left to right / top to bottom (shapes, pictures and lines; words stay readable).
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub flip_h: bool,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub flip_v: bool,
 }
+
+fn is_false(v: &bool) -> bool { !*v }
 
 fn hundred() -> u8 { 100 }
 fn is_zero_f(v: &f32) -> bool { *v == 0.0 }
@@ -86,7 +95,10 @@ fn is_zero_f(v: &f32) -> bool { *v == 0.0 }
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ObjKind {
-    Text { text: String, #[serde(default)] style: TextStyle },
+    /// Words. `paras` (1.2), when not empty, are the same words line by line with looks of their own (`rich`).
+    Text { text: String, #[serde(default)] style: TextStyle, #[serde(default, skip_serializing_if = "Vec::is_empty")] paras: Vec<Para> },
+    /// A table (1.2).
+    Table { table: Table },
     Shape { shape: Shape },
     Picture { asset: AssetId, #[serde(default)] fit: Fit },
     /// A video on the slide. The room shows its first frame (`thumb`) where it sits.
@@ -135,11 +147,20 @@ pub struct TextStyle {
     pub valign: VAlign,
     /// Words too long for the box get smaller instead of running out of it.
     pub shrink: bool,
+    #[serde(skip_serializing_if = "is_false")]
+    pub underline: bool,
+    #[serde(skip_serializing_if = "is_false")]
+    pub strike: bool,
+    /// Line spacing, times single spacing.
+    #[serde(skip_serializing_if = "is_one")]
+    pub line: f32,
 }
+
+fn is_one(v: &f32) -> bool { *v == 1.0 }
 
 impl Default for TextStyle {
     fn default() -> Self {
-        TextStyle { font: String::new(), size: 72.0, color: "#ffffff".into(), bold: false, italic: false, align: HAlign::Center, valign: VAlign::Middle, shrink: true }
+        TextStyle { font: String::new(), size: 72.0, color: "#ffffff".into(), bold: false, italic: false, align: HAlign::Center, valign: VAlign::Middle, shrink: true, underline: false, strike: false, line: 1.0 }
     }
 }
 
@@ -234,9 +255,21 @@ impl Dir {
 
 impl Obj {
     /// A new object of `kind` at `rect`, fully shown, no look.
-    pub fn new(kind: ObjKind, rect: PctRect) -> Obj { Obj { id: Uuid::new_v4(), kind, rect, rotation: 0.0, opacity: 100, look: Look::default(), build: 0 } }
+    pub fn new(kind: ObjKind, rect: PctRect) -> Obj { Obj { id: Uuid::new_v4(), kind, rect, rotation: 0.0, opacity: 100, look: Look::default(), build: 0, flip_h: false, flip_v: false } }
 
-    pub fn text_style(&self) -> Option<&TextStyle> { match &self.kind { ObjKind::Text { style, .. } => Some(style), _ => None } }
+    pub fn text_style(&self) -> Option<&TextStyle> { match &self.kind { ObjKind::Text { style, .. } => Some(style), ObjKind::Table { table } => Some(&table.style), _ => None } }
+}
+
+impl ObjKind {
+    /// Words in one look.
+    pub fn text(text: impl Into<String>, style: TextStyle) -> ObjKind { ObjKind::Text { text: text.into(), style, paras: vec![] } }
+
+    /// Words with looks of their own (`paras`, kept only when they differ from the box's look).
+    pub fn rich(paras: Vec<Para>, style: TextStyle) -> ObjKind {
+        let text = rich::plain(&paras);
+        let paras = rich::retext(&paras, &text);
+        ObjKind::Text { text, style, paras }
+    }
 }
 
 impl Design {
@@ -246,6 +279,7 @@ impl Design {
     /// The slide as shown after `step` Nexts (and the steps that play by themselves first): hidden objects left
     /// out, moved, grown and turned ones where they ended, no steps. Past the last step: as after the last.
     pub fn at_step(&self, step: u16) -> Design {
+        if self.anims.iter().any(|a| a.para.is_some()) { return self.split_paras().at_step(step) }
         let st = self.states_after(usize::from(step.min(self.steps())));
         let objects = self.objects.iter().zip(&st).filter(|(_, s)| s.shown).map(|(o, s)| anim::posed(o, s)).collect();
         Design { objects, anims: vec![], ..self.clone() }
@@ -253,8 +287,14 @@ impl Design {
 
     /// The slide's words, top to bottom, for the stage screen and the phone.
     pub fn words(&self) -> String {
-        let mut texts: Vec<(&PctRect, &str)> = self.objects.iter().filter_map(|o| match &o.kind {
-            ObjKind::Text { text, .. } if !text.trim().is_empty() => Some((&o.rect, text.trim())),
+        let mut texts: Vec<(&PctRect, String)> = self.objects.iter().filter_map(|o| match &o.kind {
+            // Paragraphs still to come in (a paragraph build) are left out.
+            ObjKind::Text { paras, .. } if paras.iter().any(|p| p.hidden) => {
+                let shown: Vec<String> = paras.iter().filter(|p| !p.hidden).map(Para::line_text).collect();
+                Some((&o.rect, shown.join("\n").trim().to_string())).filter(|(_, t)| !t.is_empty())
+            }
+            ObjKind::Text { text, .. } if !text.trim().is_empty() => Some((&o.rect, text.trim().to_string())),
+            ObjKind::Table { table } => Some((&o.rect, table.words())).filter(|(_, t)| !t.is_empty()),
             _ => None,
         }).collect();
         texts.sort_by(|a, b| a.0.y.total_cmp(&b.0.y).then(a.0.x.total_cmp(&b.0.x)));
@@ -285,7 +325,13 @@ impl Design {
             if let Some(ol) = &mut l.outline { ol.width = finite(ol.width, 4.0).clamp(0.0, 100.0) }
             if let Some(s) = &mut l.shadow { s.blur = finite(s.blur, 16.0).clamp(0.0, 200.0); s.dx = finite(s.dx, 0.0).clamp(-200.0, 200.0); s.dy = finite(s.dy, 0.0).clamp(-200.0, 200.0); s.opacity = s.opacity.min(100) }
             match &mut o.kind {
-                ObjKind::Text { style, .. } => style.size = finite(style.size, 72.0).clamp(SIZE_MIN, SIZE_MAX),
+                ObjKind::Text { text, style, paras } => {
+                    rich::sanitise(paras);
+                    if !paras.is_empty() && rich::plain(paras) != *text { paras.clear() }
+                    style.size = finite(style.size, 72.0).clamp(SIZE_MIN, SIZE_MAX);
+                    style.line = finite(style.line, 1.0).clamp(0.5, 5.0);
+                }
+                ObjKind::Table { table } => table.sanitise(),
                 ObjKind::Path { points, width, .. } => {
                     *width = finite(*width, 8.0).clamp(1.0, 100.0);
                     points.retain(|p| p.0.is_finite() && p.1.is_finite());
@@ -315,7 +361,7 @@ mod tests {
     use super::*;
 
     fn text(t: &str, build: u16) -> Obj {
-        Obj { build, ..Obj::new(ObjKind::Text { text: t.into(), style: TextStyle::default() }, PctRect::new(10.0, 10.0, 50.0, 20.0)) }
+        Obj { build, ..Obj::new(ObjKind::text(t, TextStyle::default()), PctRect::new(10.0, 10.0, 50.0, 20.0)) }
     }
 
     #[test]
@@ -390,7 +436,7 @@ mod slide_tests {
 
     #[test]
     fn an_item_shows_each_build_as_its_own_next() {
-        let t = |s: &str, build| Obj { build, ..Obj::new(ObjKind::Text { text: s.into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 50.0, 20.0)) };
+        let t = |s: &str, build| Obj { build, ..Obj::new(ObjKind::text(s, TextStyle::default()), PctRect::new(0.0, 0.0, 50.0, 20.0)) };
         let mut d = Design { objects: vec![t("title", 0), t("point", 1)], notes: "Pray first".into(), ..Default::default() };
         d.upgrade_builds();
         let slides = crate::slides::design_slides(&[d, Design::default()]);
