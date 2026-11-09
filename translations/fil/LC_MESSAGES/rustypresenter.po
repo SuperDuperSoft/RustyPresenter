@@ -422,7 +422,7 @@ msgstr "Abo"
 msgid "Steps"
 msgstr "Mga hakbang"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Up"
 msgstr "Pataas"
 
@@ -430,7 +430,7 @@ msgstr "Pataas"
 msgid "Move up"
 msgstr "Ilipat pataas"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Down"
 msgstr "Pababa"
 
@@ -650,6 +650,14 @@ msgstr "Transition"
 msgid "Use on every slide"
 msgstr "Gamitin sa bawat slide"
 
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+msgid "Stop"
+msgstr "Ihinto"
+
+#: ui/dialogs/design-editor.slint
+msgid "Preview animations"
+msgstr "I-preview ang mga animation"
+
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
 msgstr "Notes"
@@ -726,7 +734,7 @@ msgstr "Linya"
 msgid "Arrow"
 msgstr "Arrow"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "Larawan"
 
@@ -799,12 +807,12 @@ msgid "Turn ({}°)"
 msgstr "Ikot ({}°)"
 
 #: ui/dialogs/design-editor.slint
-msgid "Build"
-msgstr "Build"
+msgid "Animations"
+msgstr "Mga animation"
 
 #: ui/dialogs/design-editor.slint
-msgid "Appears on Next"
-msgstr "Lalabas sa Susunod"
+msgid "Add animation"
+msgstr "Magdagdag ng animation"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
@@ -813,6 +821,94 @@ msgstr "Pauna"
 #: ui/dialogs/design-editor.slint
 msgid "Later"
 msgstr "Pahuli"
+
+#: ui/dialogs/design-editor.slint
+msgid "Kind of animation"
+msgstr "Uri ng animation"
+
+#: ui/dialogs/design-editor.slint
+msgid "Entrance"
+msgstr "Pagpasok"
+
+#: ui/dialogs/design-editor.slint
+msgid "Emphasis"
+msgstr "Pagdiin"
+
+#: ui/dialogs/design-editor.slint ui/operator.slint
+msgid "Exit"
+msgstr "Lumabas"
+
+#: ui/dialogs/design-editor.slint
+msgid "Motion path"
+msgstr "Motion path"
+
+#: ui/dialogs/design-editor.slint
+msgid "Effect"
+msgstr "Epekto"
+
+#: ui/dialogs/design-editor.slint
+msgid "Starts"
+msgstr "Magsisimula"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "On click"
+msgstr "Sa pag-click"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "With previous"
+msgstr "Kasabay ng nauna"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "After previous"
+msgstr "Pagkatapos ng nauna"
+
+#: ui/dialogs/design-editor.slint
+msgid "Side"
+msgstr "Gilid"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the left side"
+msgstr "Mula sa kaliwa"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the right side"
+msgstr "Mula sa kanan"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the top"
+msgstr "Mula sa itaas"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the bottom"
+msgstr "Mula sa ibaba"
+
+#: ui/dialogs/design-editor.slint
+msgid "Arc"
+msgstr "Arko"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves across ({}% of the slide)"
+msgstr "Gumagalaw pahalang ({}% ng slide)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves down ({}% of the slide)"
+msgstr "Gumagalaw pababa ({}% ng slide)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Turns ({}°)"
+msgstr "Umiikot ({}°)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Grows to ({}%)"
+msgstr "Lumalaki hanggang ({}%)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Wait first ({} ms)"
+msgstr "Maghintay muna ({} ms)"
+
+#: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
+msgid "Time ({} ms)"
+msgstr "Tagal ({} ms)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
@@ -1193,10 +1289,6 @@ msgstr "Ulitin pagkatapos ng huling kanta"
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
 msgstr "Volume {}%"
-
-#: ui/dialogs/music.slint src/i18n/remote_strings.rs
-msgid "Stop"
-msgstr "Ihinto"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
@@ -2510,7 +2602,7 @@ msgstr "Mga theme"
 msgid "Language"
 msgstr "Wika"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "Video"
 
@@ -2787,6 +2879,26 @@ msgid "Wipe"
 msgstr "Wipe"
 
 #: ui/dialogs/transition.slint
+msgid "Cover"
+msgstr "Cover"
+
+#: ui/dialogs/transition.slint
+msgid "Uncover"
+msgstr "Uncover"
+
+#: ui/dialogs/transition.slint
+msgid "Split"
+msgstr "Split"
+
+#: ui/dialogs/transition.slint
+msgid "Zoom"
+msgstr "Zoom"
+
+#: ui/dialogs/transition.slint
+msgid "Dissolve"
+msgstr "Dissolve"
+
+#: ui/dialogs/transition.slint
 msgid "Which way"
 msgstr "Direksyon"
 
@@ -2797,10 +2909,6 @@ msgstr "Pakaliwa"
 #: ui/dialogs/transition.slint
 msgid "To the right"
 msgstr "Pakanan"
-
-#: ui/dialogs/transition.slint
-msgid "Time ({} ms)"
-msgstr "Tagal ({} ms)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3474,7 +3582,7 @@ msgstr "Wala pang slides ang item na ito. I-click ang I-edit para magdagdag."
 msgid "Easy"
 msgstr "Madali"
 
-#: ui/operator/slides.slint ui/operator.slint
+#: ui/operator/slides.slint ui/operator.slint src/strings/import.rs
 msgid "Table"
 msgstr "Table"
 
@@ -3642,10 +3750,6 @@ msgstr "Settings ng pag-record…"
 msgid "Print service order…"
 msgstr "I-print ang ayos ng service…"
 
-#: ui/operator.slint
-msgid "Exit"
-msgstr "Lumabas"
-
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
 msgstr "I-paste"
@@ -3758,11 +3862,11 @@ msgstr "I-preview ang stage screen"
 msgid "Hide performance"
 msgstr "Itago ang performance"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
 msgstr "Palakihin"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom out"
 msgstr "Paliitin"
 
@@ -3986,7 +4090,7 @@ msgstr "Bigyan ng pamagat ang kanta."
 msgid "This song is in a service. Remove it from the service first."
 msgstr "Nasa isang service ang kantang ito. Alisin muna ito sa service."
 
-#: src/app.rs src/transfer.rs
+#: src/app.rs src/import/pptx_design.rs src/transfer.rs
 msgid "No service is open."
 msgstr "Walang bukas na service."
 
@@ -4789,6 +4893,16 @@ msgstr "OpenLyrics na kanta ito, hindi OpenSong"
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
 msgstr "hindi ito OpenSong na kanta"
+
+#: src/import/pptx_design.rs
+msgid "Only .pptx and .odp files can come in as editable slides. Add it as pictures instead."
+msgstr "Ang .pptx at .odp file lang ang puwedeng ipasok bilang mga editable na slide. Idagdag na lang ito bilang mga larawan."
+
+#: src/import/pptx_design.rs
+msgid "{n} object couldn't be converted; use Pictures for an exact look."
+msgid_plural "{n} objects couldn't be converted; use Pictures for an exact look."
+msgstr[0] "Hindi na-convert ang {n} object; gamitin ang Mga larawan para sa eksaktong itsura."
+msgstr[1] "Hindi na-convert ang {n} na object; gamitin ang Mga larawan para sa eksaktong itsura."
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
@@ -5930,6 +6044,74 @@ msgstr "Na-paste ang style"
 msgid "That picture could not be read."
 msgstr "Hindi mabasa ang larawang iyon."
 
+#: src/strings/design.rs
+msgid "Appear"
+msgstr "Lumitaw"
+
+#: src/strings/design.rs
+msgid "Fade in"
+msgstr "Fade in"
+
+#: src/strings/design.rs
+msgid "Fly in"
+msgstr "Fly in"
+
+#: src/strings/design.rs
+msgid "Float in"
+msgstr "Float in"
+
+#: src/strings/design.rs
+msgid "Wipe in"
+msgstr "Wipe in"
+
+#: src/strings/design.rs
+msgid "Split open"
+msgstr "Split open"
+
+#: src/strings/design.rs
+msgid "Disappear"
+msgstr "Mawala"
+
+#: src/strings/design.rs
+msgid "Fade out"
+msgstr "Fade out"
+
+#: src/strings/design.rs
+msgid "Fly out"
+msgstr "Fly out"
+
+#: src/strings/design.rs
+msgid "Float out"
+msgstr "Float out"
+
+#: src/strings/design.rs
+msgid "Wipe out"
+msgstr "Wipe out"
+
+#: src/strings/design.rs
+msgid "Split closed"
+msgstr "Split closed"
+
+#: src/strings/design.rs
+msgid "Spin"
+msgstr "Ikot"
+
+#: src/strings/design.rs
+msgid "Grow"
+msgstr "Lumaki"
+
+#: src/strings/design.rs
+msgid "Pulse"
+msgstr "Pulse"
+
+#: src/strings/design.rs
+msgid "Move along a path"
+msgstr "Gumalaw sa isang path"
+
+#: src/strings/design.rs
+msgid "{n}. {effect} · {start} · {secs} s"
+msgstr "{n}. {effect} · {start} · {secs} s"
+
 #: src/strings/dialogs.rs
 msgid "Services"
 msgstr "Mga service"
@@ -6025,6 +6207,24 @@ msgstr "Idinadagdag ang “{name}”"
 #: src/strings/import.rs
 msgid "Importing “{name}”"
 msgstr "Ini-import ang “{name}”"
+
+#: src/strings/import.rs
+msgid "This presentation could not be read as editable slides."
+msgstr "Hindi mabasa ang presentation na ito bilang mga editable na slide."
+
+#: src/strings/import.rs
+msgid "Chart"
+msgstr "Chart"
+
+#: src/strings/import.rs
+msgid "Embedded object"
+msgstr "Naka-embed na object"
+
+#: src/strings/import.rs
+msgid "{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place."
+msgid_plural "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places."
+msgstr[0] "Hindi nakopya ang {n} object (table, chart o naka-embed na object); may gray na kahon sa puwesto nito."
+msgstr[1] "Hindi nakopya ang {n} na object (mga table, chart o naka-embed na object); may mga gray na kahon sa mga puwesto nila."
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
@@ -6251,6 +6451,14 @@ msgstr "Itago ang pareho"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "Handa na ang “{title}”"
+
+#: src/strings/operator.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
+msgstr "Paano ipapasok ang “{name}”? Ang mga editable na slide ay puwedeng baguhin sa Slide editor. Ang mga larawan ay kamukhang-kamukha ng sa PowerPoint."
+
+#: src/strings/operator.rs
+msgid "Editable slides"
+msgstr "Mga editable na slide"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
@@ -8779,10 +8987,6 @@ msgstr "Hayaan na lang"
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
 msgstr "Na-save."
-
-#: src/ui/dialogs/design_editor.rs
-msgid "Appears on Next {step} of {of}"
-msgstr "Lalabas sa Susunod {step} sa {of}"
 
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."

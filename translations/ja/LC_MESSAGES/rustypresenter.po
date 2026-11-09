@@ -422,7 +422,7 @@ msgstr "灰色"
 msgid "Steps"
 msgstr "ステップ"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Up"
 msgstr "上へ"
 
@@ -430,7 +430,7 @@ msgstr "上へ"
 msgid "Move up"
 msgstr "上へ移動"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Down"
 msgstr "下へ"
 
@@ -650,6 +650,14 @@ msgstr "トランジション"
 msgid "Use on every slide"
 msgstr "すべてのスライドに適用"
 
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+msgid "Stop"
+msgstr "停止"
+
+#: ui/dialogs/design-editor.slint
+msgid "Preview animations"
+msgstr "アニメーションのプレビュー"
+
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
 msgstr "メモ"
@@ -726,7 +734,7 @@ msgstr "線"
 msgid "Arrow"
 msgstr "矢印"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "画像"
 
@@ -799,12 +807,12 @@ msgid "Turn ({}°)"
 msgstr "回転（{}°）"
 
 #: ui/dialogs/design-editor.slint
-msgid "Build"
-msgstr "ビルド"
+msgid "Animations"
+msgstr "アニメーション"
 
 #: ui/dialogs/design-editor.slint
-msgid "Appears on Next"
-msgstr "「次へ」で表示"
+msgid "Add animation"
+msgstr "アニメーションの追加"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
@@ -813,6 +821,94 @@ msgstr "前へ"
 #: ui/dialogs/design-editor.slint
 msgid "Later"
 msgstr "後へ"
+
+#: ui/dialogs/design-editor.slint
+msgid "Kind of animation"
+msgstr "アニメーションの種類"
+
+#: ui/dialogs/design-editor.slint
+msgid "Entrance"
+msgstr "開始"
+
+#: ui/dialogs/design-editor.slint
+msgid "Emphasis"
+msgstr "強調"
+
+#: ui/dialogs/design-editor.slint ui/operator.slint
+msgid "Exit"
+msgstr "終了"
+
+#: ui/dialogs/design-editor.slint
+msgid "Motion path"
+msgstr "アニメーションの軌跡"
+
+#: ui/dialogs/design-editor.slint
+msgid "Effect"
+msgstr "効果"
+
+#: ui/dialogs/design-editor.slint
+msgid "Starts"
+msgstr "タイミング"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "On click"
+msgstr "クリック時"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "With previous"
+msgstr "直前の動作と同時"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "After previous"
+msgstr "直前の動作の後"
+
+#: ui/dialogs/design-editor.slint
+msgid "Side"
+msgstr "方向"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the left side"
+msgstr "左から"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the right side"
+msgstr "右から"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the top"
+msgstr "上から"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the bottom"
+msgstr "下から"
+
+#: ui/dialogs/design-editor.slint
+msgid "Arc"
+msgstr "アーチ"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves across ({}% of the slide)"
+msgstr "横に移動（スライドの {}%）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves down ({}% of the slide)"
+msgstr "下に移動（スライドの {}%）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Turns ({}°)"
+msgstr "回転（{}°）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Grows to ({}%)"
+msgstr "拡大（{}% まで）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Wait first ({} ms)"
+msgstr "先に待つ（{} ms）"
+
+#: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
+msgid "Time ({} ms)"
+msgstr "時間（{} ミリ秒）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
@@ -1193,10 +1289,6 @@ msgstr "最後の曲の後に最初から再生"
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
 msgstr "音量 {}%"
-
-#: ui/dialogs/music.slint src/i18n/remote_strings.rs
-msgid "Stop"
-msgstr "停止"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
@@ -2510,7 +2602,7 @@ msgstr "テーマ"
 msgid "Language"
 msgstr "言語"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "動画"
 
@@ -2787,6 +2879,26 @@ msgid "Wipe"
 msgstr "ワイプ"
 
 #: ui/dialogs/transition.slint
+msgid "Cover"
+msgstr "カバー"
+
+#: ui/dialogs/transition.slint
+msgid "Uncover"
+msgstr "アンカバー"
+
+#: ui/dialogs/transition.slint
+msgid "Split"
+msgstr "スプリット"
+
+#: ui/dialogs/transition.slint
+msgid "Zoom"
+msgstr "ズーム"
+
+#: ui/dialogs/transition.slint
+msgid "Dissolve"
+msgstr "ディゾルブ"
+
+#: ui/dialogs/transition.slint
 msgid "Which way"
 msgstr "方向"
 
@@ -2797,10 +2909,6 @@ msgstr "左へ"
 #: ui/dialogs/transition.slint
 msgid "To the right"
 msgstr "右へ"
-
-#: ui/dialogs/transition.slint
-msgid "Time ({} ms)"
-msgstr "時間（{} ミリ秒）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3474,7 +3582,7 @@ msgstr "この項目にはまだスライドがありません。「編集」を
 msgid "Easy"
 msgstr "簡単"
 
-#: ui/operator/slides.slint ui/operator.slint
+#: ui/operator/slides.slint ui/operator.slint src/strings/import.rs
 msgid "Table"
 msgstr "表"
 
@@ -3642,10 +3750,6 @@ msgstr "録画の設定…"
 msgid "Print service order…"
 msgstr "礼拝順序を印刷…"
 
-#: ui/operator.slint
-msgid "Exit"
-msgstr "終了"
-
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
 msgstr "貼り付け"
@@ -3758,11 +3862,11 @@ msgstr "ステージ画面をプレビュー"
 msgid "Hide performance"
 msgstr "パフォーマンスを隠す"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
 msgstr "拡大"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom out"
 msgstr "縮小"
 
@@ -3986,7 +4090,7 @@ msgstr "曲にタイトルを付けてください。"
 msgid "This song is in a service. Remove it from the service first."
 msgstr "この曲は礼拝で使われています。先に礼拝から削除してください。"
 
-#: src/app.rs src/transfer.rs
+#: src/app.rs src/import/pptx_design.rs src/transfer.rs
 msgid "No service is open."
 msgstr "開いている礼拝がありません。"
 
@@ -4789,6 +4893,15 @@ msgstr "OpenSong ではなく OpenLyrics の曲です"
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
 msgstr "OpenSong の曲ではありません"
+
+#: src/import/pptx_design.rs
+msgid "Only .pptx and .odp files can come in as editable slides. Add it as pictures instead."
+msgstr "編集可能なスライドとして取り込めるのは .pptx と .odp ファイルだけです。代わりに画像として追加してください。"
+
+#: src/import/pptx_design.rs
+msgid "{n} object couldn't be converted; use Pictures for an exact look."
+msgid_plural "{n} objects couldn't be converted; use Pictures for an exact look."
+msgstr[0] "{n} 個のオブジェクトを変換できませんでした。見た目をそのまま保つには「画像」を使ってください。"
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
@@ -5916,6 +6029,74 @@ msgstr "スタイルを貼り付けました"
 msgid "That picture could not be read."
 msgstr "その画像を読み込めませんでした。"
 
+#: src/strings/design.rs
+msgid "Appear"
+msgstr "アピール"
+
+#: src/strings/design.rs
+msgid "Fade in"
+msgstr "フェードイン"
+
+#: src/strings/design.rs
+msgid "Fly in"
+msgstr "スライドイン"
+
+#: src/strings/design.rs
+msgid "Float in"
+msgstr "フロートイン"
+
+#: src/strings/design.rs
+msgid "Wipe in"
+msgstr "ワイプイン"
+
+#: src/strings/design.rs
+msgid "Split open"
+msgstr "スプリット（開く）"
+
+#: src/strings/design.rs
+msgid "Disappear"
+msgstr "クリア"
+
+#: src/strings/design.rs
+msgid "Fade out"
+msgstr "フェードアウト"
+
+#: src/strings/design.rs
+msgid "Fly out"
+msgstr "スライドアウト"
+
+#: src/strings/design.rs
+msgid "Float out"
+msgstr "フロートアウト"
+
+#: src/strings/design.rs
+msgid "Wipe out"
+msgstr "ワイプアウト"
+
+#: src/strings/design.rs
+msgid "Split closed"
+msgstr "スプリット（閉じる）"
+
+#: src/strings/design.rs
+msgid "Spin"
+msgstr "スピン"
+
+#: src/strings/design.rs
+msgid "Grow"
+msgstr "拡大"
+
+#: src/strings/design.rs
+msgid "Pulse"
+msgstr "パルス"
+
+#: src/strings/design.rs
+msgid "Move along a path"
+msgstr "軌跡に沿って移動"
+
+#: src/strings/design.rs
+msgid "{n}. {effect} · {start} · {secs} s"
+msgstr "{n}. {effect} · {start} · {secs} 秒"
+
 #: src/strings/dialogs.rs
 msgid "Services"
 msgstr "礼拝"
@@ -6011,6 +6192,23 @@ msgstr "「{name}」を追加中"
 #: src/strings/import.rs
 msgid "Importing “{name}”"
 msgstr "「{name}」を取り込み中"
+
+#: src/strings/import.rs
+msgid "This presentation could not be read as editable slides."
+msgstr "このプレゼンテーションを編集可能なスライドとして読み込めませんでした。"
+
+#: src/strings/import.rs
+msgid "Chart"
+msgstr "グラフ"
+
+#: src/strings/import.rs
+msgid "Embedded object"
+msgstr "埋め込みオブジェクト"
+
+#: src/strings/import.rs
+msgid "{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place."
+msgid_plural "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places."
+msgstr[0] "{n} 個のオブジェクト（表、グラフ、埋め込みオブジェクト）をコピーできませんでした。灰色の枠がその場所を示しています。"
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
@@ -6232,6 +6430,14 @@ msgstr "両方残す"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "「{title}」の準備ができました"
+
+#: src/strings/operator.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
+msgstr "「{name}」をどのように取り込みますか？編集可能なスライドはスライドエディターで変更できます。画像は PowerPoint とまったく同じ見た目になります。"
+
+#: src/strings/operator.rs
+msgid "Editable slides"
+msgstr "編集可能なスライド"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
@@ -8741,10 +8947,6 @@ msgstr "そのままにする"
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
 msgstr "保存しました。"
-
-#: src/ui/dialogs/design_editor.rs
-msgid "Appears on Next {step} of {of}"
-msgstr "「次へ」で表示 {step}/{of}"
 
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."

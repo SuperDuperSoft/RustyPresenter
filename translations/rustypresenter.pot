@@ -428,7 +428,7 @@ msgstr ""
 msgid "Steps"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Up"
 msgstr ""
 
@@ -436,7 +436,7 @@ msgstr ""
 msgid "Move up"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Down"
 msgstr ""
 
@@ -656,6 +656,14 @@ msgstr ""
 msgid "Use on every slide"
 msgstr ""
 
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+msgid "Stop"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Preview animations"
+msgstr ""
+
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
 msgstr ""
@@ -732,7 +740,7 @@ msgstr ""
 msgid "Arrow"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr ""
 
@@ -805,11 +813,11 @@ msgid "Turn ({}°)"
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
-msgid "Build"
+msgid "Animations"
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
-msgid "Appears on Next"
+msgid "Add animation"
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
@@ -818,6 +826,94 @@ msgstr ""
 
 #: ui/dialogs/design-editor.slint
 msgid "Later"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Kind of animation"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Entrance"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Emphasis"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint ui/operator.slint
+msgid "Exit"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Motion path"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Effect"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Starts"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "On click"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "With previous"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "After previous"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Side"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "From the left side"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "From the right side"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "From the top"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "From the bottom"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Arc"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves across ({}% of the slide)"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves down ({}% of the slide)"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Turns ({}°)"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Grows to ({}%)"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Wait first ({} ms)"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
+msgid "Time ({} ms)"
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
@@ -1198,10 +1294,6 @@ msgstr ""
 
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
-msgstr ""
-
-#: ui/dialogs/music.slint src/i18n/remote_strings.rs
-msgid "Stop"
 msgstr ""
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
@@ -2516,7 +2608,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr ""
 
@@ -2799,6 +2891,26 @@ msgid "Wipe"
 msgstr ""
 
 #: ui/dialogs/transition.slint
+msgid "Cover"
+msgstr ""
+
+#: ui/dialogs/transition.slint
+msgid "Uncover"
+msgstr ""
+
+#: ui/dialogs/transition.slint
+msgid "Split"
+msgstr ""
+
+#: ui/dialogs/transition.slint
+msgid "Zoom"
+msgstr ""
+
+#: ui/dialogs/transition.slint
+msgid "Dissolve"
+msgstr ""
+
+#: ui/dialogs/transition.slint
 msgid "Which way"
 msgstr ""
 
@@ -2808,10 +2920,6 @@ msgstr ""
 
 #: ui/dialogs/transition.slint
 msgid "To the right"
-msgstr ""
-
-#: ui/dialogs/transition.slint
-msgid "Time ({} ms)"
 msgstr ""
 
 #: ui/dialogs/translation-editor.slint
@@ -3486,7 +3594,7 @@ msgstr ""
 msgid "Easy"
 msgstr ""
 
-#: ui/operator/slides.slint ui/operator.slint
+#: ui/operator/slides.slint ui/operator.slint src/strings/import.rs
 msgid "Table"
 msgstr ""
 
@@ -3654,10 +3762,6 @@ msgstr ""
 msgid "Print service order…"
 msgstr ""
 
-#: ui/operator.slint
-msgid "Exit"
-msgstr ""
-
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
 msgstr ""
@@ -3770,11 +3874,11 @@ msgstr ""
 msgid "Hide performance"
 msgstr ""
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
 msgstr ""
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom out"
 msgstr ""
 
@@ -3998,7 +4102,7 @@ msgstr ""
 msgid "This song is in a service. Remove it from the service first."
 msgstr ""
 
-#: src/app.rs src/transfer.rs
+#: src/app.rs src/import/pptx_design.rs src/transfer.rs
 msgid "No service is open."
 msgstr ""
 
@@ -4801,6 +4905,16 @@ msgstr ""
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
 msgstr ""
+
+#: src/import/pptx_design.rs
+msgid "Only .pptx and .odp files can come in as editable slides. Add it as pictures instead."
+msgstr ""
+
+#: src/import/pptx_design.rs
+msgid "{n} object couldn't be converted; use Pictures for an exact look."
+msgid_plural "{n} objects couldn't be converted; use Pictures for an exact look."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
@@ -5942,6 +6056,74 @@ msgstr ""
 msgid "That picture could not be read."
 msgstr ""
 
+#: src/strings/design.rs
+msgid "Appear"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Fade in"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Fly in"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Float in"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Wipe in"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Split open"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Disappear"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Fade out"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Fly out"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Float out"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Wipe out"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Split closed"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Spin"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Grow"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Pulse"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "Move along a path"
+msgstr ""
+
+#: src/strings/design.rs
+msgid "{n}. {effect} · {start} · {secs} s"
+msgstr ""
+
 #: src/strings/dialogs.rs
 msgid "Services"
 msgstr ""
@@ -6037,6 +6219,24 @@ msgstr ""
 #: src/strings/import.rs
 msgid "Importing “{name}”"
 msgstr ""
+
+#: src/strings/import.rs
+msgid "This presentation could not be read as editable slides."
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Chart"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "Embedded object"
+msgstr ""
+
+#: src/strings/import.rs
+msgid "{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place."
+msgid_plural "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
@@ -6262,6 +6462,14 @@ msgstr ""
 
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Editable slides"
 msgstr ""
 
 #: src/strings/operator.rs
@@ -8792,10 +9000,6 @@ msgstr ""
 
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
-msgstr ""
-
-#: src/ui/dialogs/design_editor.rs
-msgid "Appears on Next {step} of {of}"
 msgstr ""
 
 #: src/ui/dialogs/item_edit.rs

@@ -422,7 +422,7 @@ msgstr "灰色"
 msgid "Steps"
 msgstr "步骤"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Up"
 msgstr "上移"
 
@@ -430,7 +430,7 @@ msgstr "上移"
 msgid "Move up"
 msgstr "上移"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Down"
 msgstr "下移"
 
@@ -650,6 +650,14 @@ msgstr "切换效果"
 msgid "Use on every slide"
 msgstr "用于所有幻灯片"
 
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+msgid "Stop"
+msgstr "停止"
+
+#: ui/dialogs/design-editor.slint
+msgid "Preview animations"
+msgstr "预览动画"
+
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
 msgstr "备注"
@@ -726,7 +734,7 @@ msgstr "线条"
 msgid "Arrow"
 msgstr "箭头"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "图片"
 
@@ -799,12 +807,12 @@ msgid "Turn ({}°)"
 msgstr "旋转（{}°）"
 
 #: ui/dialogs/design-editor.slint
-msgid "Build"
-msgstr "分步显示"
+msgid "Animations"
+msgstr "动画"
 
 #: ui/dialogs/design-editor.slint
-msgid "Appears on Next"
-msgstr "按“下一张”时出现"
+msgid "Add animation"
+msgstr "添加动画"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
@@ -813,6 +821,94 @@ msgstr "提前"
 #: ui/dialogs/design-editor.slint
 msgid "Later"
 msgstr "延后"
+
+#: ui/dialogs/design-editor.slint
+msgid "Kind of animation"
+msgstr "动画类型"
+
+#: ui/dialogs/design-editor.slint
+msgid "Entrance"
+msgstr "进入"
+
+#: ui/dialogs/design-editor.slint
+msgid "Emphasis"
+msgstr "强调"
+
+#: ui/dialogs/design-editor.slint ui/operator.slint
+msgid "Exit"
+msgstr "退出"
+
+#: ui/dialogs/design-editor.slint
+msgid "Motion path"
+msgstr "动作路径"
+
+#: ui/dialogs/design-editor.slint
+msgid "Effect"
+msgstr "效果"
+
+#: ui/dialogs/design-editor.slint
+msgid "Starts"
+msgstr "开始"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "On click"
+msgstr "单击时"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "With previous"
+msgstr "与上一动画同时"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "After previous"
+msgstr "上一动画之后"
+
+#: ui/dialogs/design-editor.slint
+msgid "Side"
+msgstr "方向"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the left side"
+msgstr "自左侧"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the right side"
+msgstr "自右侧"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the top"
+msgstr "自顶部"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the bottom"
+msgstr "自底部"
+
+#: ui/dialogs/design-editor.slint
+msgid "Arc"
+msgstr "弧形"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves across ({}% of the slide)"
+msgstr "横向移动（幻灯片的 {}%）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves down ({}% of the slide)"
+msgstr "向下移动（幻灯片的 {}%）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Turns ({}°)"
+msgstr "旋转（{}°）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Grows to ({}%)"
+msgstr "放大到（{}%）"
+
+#: ui/dialogs/design-editor.slint
+msgid "Wait first ({} ms)"
+msgstr "先等待（{} 毫秒）"
+
+#: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
+msgid "Time ({} ms)"
+msgstr "时长（{} ms）"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
@@ -1193,10 +1289,6 @@ msgstr "最后一首后从头播放"
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
 msgstr "音量 {}%"
-
-#: ui/dialogs/music.slint src/i18n/remote_strings.rs
-msgid "Stop"
-msgstr "停止"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
@@ -2510,7 +2602,7 @@ msgstr "主题"
 msgid "Language"
 msgstr "语言"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "视频"
 
@@ -2787,6 +2879,26 @@ msgid "Wipe"
 msgstr "擦除"
 
 #: ui/dialogs/transition.slint
+msgid "Cover"
+msgstr "覆盖"
+
+#: ui/dialogs/transition.slint
+msgid "Uncover"
+msgstr "揭开"
+
+#: ui/dialogs/transition.slint
+msgid "Split"
+msgstr "分割"
+
+#: ui/dialogs/transition.slint
+msgid "Zoom"
+msgstr "缩放"
+
+#: ui/dialogs/transition.slint
+msgid "Dissolve"
+msgstr "溶解"
+
+#: ui/dialogs/transition.slint
 msgid "Which way"
 msgstr "方向"
 
@@ -2797,10 +2909,6 @@ msgstr "向左"
 #: ui/dialogs/transition.slint
 msgid "To the right"
 msgstr "向右"
-
-#: ui/dialogs/transition.slint
-msgid "Time ({} ms)"
-msgstr "时长（{} ms）"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3474,7 +3582,7 @@ msgstr "此项目还没有幻灯片。点击“编辑”添加。"
 msgid "Easy"
 msgstr "简易"
 
-#: ui/operator/slides.slint ui/operator.slint
+#: ui/operator/slides.slint ui/operator.slint src/strings/import.rs
 msgid "Table"
 msgstr "表格"
 
@@ -3642,10 +3750,6 @@ msgstr "录制设置…"
 msgid "Print service order…"
 msgstr "打印聚会流程…"
 
-#: ui/operator.slint
-msgid "Exit"
-msgstr "退出"
-
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
 msgstr "粘贴"
@@ -3758,11 +3862,11 @@ msgstr "预览舞台屏幕"
 msgid "Hide performance"
 msgstr "隐藏性能"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
 msgstr "放大"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom out"
 msgstr "缩小"
 
@@ -3986,7 +4090,7 @@ msgstr "请为诗歌输入标题。"
 msgid "This song is in a service. Remove it from the service first."
 msgstr "这首诗歌在某个聚会中。请先将其从聚会中移除。"
 
-#: src/app.rs src/transfer.rs
+#: src/app.rs src/import/pptx_design.rs src/transfer.rs
 msgid "No service is open."
 msgstr "没有打开的聚会。"
 
@@ -4789,6 +4893,15 @@ msgstr "这是 OpenLyrics 诗歌，不是 OpenSong"
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
 msgstr "不是 OpenSong 诗歌"
+
+#: src/import/pptx_design.rs
+msgid "Only .pptx and .odp files can come in as editable slides. Add it as pictures instead."
+msgstr "只有 .pptx 和 .odp 文件可以作为可编辑幻灯片导入。请改为以图片方式添加。"
+
+#: src/import/pptx_design.rs
+msgid "{n} object couldn't be converted; use Pictures for an exact look."
+msgid_plural "{n} objects couldn't be converted; use Pictures for an exact look."
+msgstr[0] "有 {n} 个对象无法转换；如需完全一致的外观，请使用“图片”。"
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
@@ -5916,6 +6029,74 @@ msgstr "样式已粘贴"
 msgid "That picture could not be read."
 msgstr "无法读取该图片。"
 
+#: src/strings/design.rs
+msgid "Appear"
+msgstr "出现"
+
+#: src/strings/design.rs
+msgid "Fade in"
+msgstr "淡入"
+
+#: src/strings/design.rs
+msgid "Fly in"
+msgstr "飞入"
+
+#: src/strings/design.rs
+msgid "Float in"
+msgstr "浮入"
+
+#: src/strings/design.rs
+msgid "Wipe in"
+msgstr "擦除进入"
+
+#: src/strings/design.rs
+msgid "Split open"
+msgstr "劈裂展开"
+
+#: src/strings/design.rs
+msgid "Disappear"
+msgstr "消失"
+
+#: src/strings/design.rs
+msgid "Fade out"
+msgstr "淡出"
+
+#: src/strings/design.rs
+msgid "Fly out"
+msgstr "飞出"
+
+#: src/strings/design.rs
+msgid "Float out"
+msgstr "浮出"
+
+#: src/strings/design.rs
+msgid "Wipe out"
+msgstr "擦除退出"
+
+#: src/strings/design.rs
+msgid "Split closed"
+msgstr "劈裂合拢"
+
+#: src/strings/design.rs
+msgid "Spin"
+msgstr "陀螺旋"
+
+#: src/strings/design.rs
+msgid "Grow"
+msgstr "放大"
+
+#: src/strings/design.rs
+msgid "Pulse"
+msgstr "脉冲"
+
+#: src/strings/design.rs
+msgid "Move along a path"
+msgstr "沿路径移动"
+
+#: src/strings/design.rs
+msgid "{n}. {effect} · {start} · {secs} s"
+msgstr "{n}. {effect} · {start} · {secs} 秒"
+
 #: src/strings/dialogs.rs
 msgid "Services"
 msgstr "聚会"
@@ -6011,6 +6192,23 @@ msgstr "正在添加“{name}”"
 #: src/strings/import.rs
 msgid "Importing “{name}”"
 msgstr "正在导入“{name}”"
+
+#: src/strings/import.rs
+msgid "This presentation could not be read as editable slides."
+msgstr "无法将此演示文稿读取为可编辑幻灯片。"
+
+#: src/strings/import.rs
+msgid "Chart"
+msgstr "图表"
+
+#: src/strings/import.rs
+msgid "Embedded object"
+msgstr "嵌入对象"
+
+#: src/strings/import.rs
+msgid "{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place."
+msgid_plural "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places."
+msgstr[0] "有 {n} 个对象（表格、图表或嵌入对象）无法复制；灰色方框标出了它们的位置。"
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
@@ -6232,6 +6430,14 @@ msgstr "两者都保留"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "“{title}”已就绪"
+
+#: src/strings/operator.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
+msgstr "“{name}”要以什么方式导入？可编辑幻灯片可以在幻灯片编辑器中修改。图片的外观与 PowerPoint 完全相同。"
+
+#: src/strings/operator.rs
+msgid "Editable slides"
+msgstr "可编辑幻灯片"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
@@ -8741,10 +8947,6 @@ msgstr "保持原样"
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
 msgstr "已保存。"
-
-#: src/ui/dialogs/design_editor.rs
-msgid "Appears on Next {step} of {of}"
-msgstr "按“下一张”时出现（第 {step}/{of} 步）"
 
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."

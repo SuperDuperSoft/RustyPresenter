@@ -422,7 +422,7 @@ msgstr "Серый"
 msgid "Steps"
 msgstr "Шаги"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Up"
 msgstr "Вверх"
 
@@ -430,7 +430,7 @@ msgstr "Вверх"
 msgid "Move up"
 msgstr "Переместить вверх"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/transition.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/transition.slint
 msgid "Down"
 msgstr "Вниз"
 
@@ -650,6 +650,14 @@ msgstr "Переход"
 msgid "Use on every slide"
 msgstr "Для всех слайдов"
 
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+msgid "Stop"
+msgstr "Стоп"
+
+#: ui/dialogs/design-editor.slint
+msgid "Preview animations"
+msgstr "Просмотр анимации"
+
 #: ui/dialogs/design-editor.slint src/strings/stage.rs
 msgid "Notes"
 msgstr "Заметки"
@@ -726,7 +734,7 @@ msgstr "Линия"
 msgid "Arrow"
 msgstr "Стрелка"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "Картинка"
 
@@ -799,12 +807,12 @@ msgid "Turn ({}°)"
 msgstr "Поворот ({}°)"
 
 #: ui/dialogs/design-editor.slint
-msgid "Build"
-msgstr "Появление"
+msgid "Animations"
+msgstr "Анимация"
 
 #: ui/dialogs/design-editor.slint
-msgid "Appears on Next"
-msgstr "Появляется по «Далее»"
+msgid "Add animation"
+msgstr "Добавить анимацию"
 
 #: ui/dialogs/design-editor.slint
 msgid "Earlier"
@@ -813,6 +821,94 @@ msgstr "Раньше"
 #: ui/dialogs/design-editor.slint
 msgid "Later"
 msgstr "Позже"
+
+#: ui/dialogs/design-editor.slint
+msgid "Kind of animation"
+msgstr "Тип анимации"
+
+#: ui/dialogs/design-editor.slint
+msgid "Entrance"
+msgstr "Вход"
+
+#: ui/dialogs/design-editor.slint
+msgid "Emphasis"
+msgstr "Выделение"
+
+#: ui/dialogs/design-editor.slint ui/operator.slint
+msgid "Exit"
+msgstr "Выход"
+
+#: ui/dialogs/design-editor.slint
+msgid "Motion path"
+msgstr "Путь перемещения"
+
+#: ui/dialogs/design-editor.slint
+msgid "Effect"
+msgstr "Эффект"
+
+#: ui/dialogs/design-editor.slint
+msgid "Starts"
+msgstr "Начало"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "On click"
+msgstr "По щелчку"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "With previous"
+msgstr "С предыдущим"
+
+#: ui/dialogs/design-editor.slint src/strings/design.rs
+msgid "After previous"
+msgstr "После предыдущего"
+
+#: ui/dialogs/design-editor.slint
+msgid "Side"
+msgstr "Сторона"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the left side"
+msgstr "Слева"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the right side"
+msgstr "Справа"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the top"
+msgstr "Сверху"
+
+#: ui/dialogs/design-editor.slint
+msgid "From the bottom"
+msgstr "Снизу"
+
+#: ui/dialogs/design-editor.slint
+msgid "Arc"
+msgstr "Дуга"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves across ({}% of the slide)"
+msgstr "Сдвиг по горизонтали ({}% слайда)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Moves down ({}% of the slide)"
+msgstr "Сдвиг вниз ({}% слайда)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Turns ({}°)"
+msgstr "Поворот ({}°)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Grows to ({}%)"
+msgstr "Увеличение до ({}%)"
+
+#: ui/dialogs/design-editor.slint
+msgid "Wait first ({} ms)"
+msgstr "Сначала подождать ({} мс)"
+
+#: ui/dialogs/design-editor.slint ui/dialogs/transition.slint
+msgid "Time ({} ms)"
+msgstr "Время ({} мс)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Picture or video"
@@ -1193,10 +1289,6 @@ msgstr "Начать заново после последней песни"
 #: ui/dialogs/music.slint
 msgid "Volume {}%"
 msgstr "Громкость {}%"
-
-#: ui/dialogs/music.slint src/i18n/remote_strings.rs
-msgid "Stop"
-msgstr "Стоп"
 
 #: ui/dialogs/music.slint ui/operator/automation-strip.slint src/i18n/remote_strings.rs
 msgid "Next song"
@@ -2510,7 +2602,7 @@ msgstr "Темы"
 msgid "Language"
 msgstr "Язык"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
 msgstr "Видео"
 
@@ -2787,6 +2879,26 @@ msgid "Wipe"
 msgstr "Стирание"
 
 #: ui/dialogs/transition.slint
+msgid "Cover"
+msgstr "Наплыв"
+
+#: ui/dialogs/transition.slint
+msgid "Uncover"
+msgstr "Открывание"
+
+#: ui/dialogs/transition.slint
+msgid "Split"
+msgstr "Разделение"
+
+#: ui/dialogs/transition.slint
+msgid "Zoom"
+msgstr "Масштабирование"
+
+#: ui/dialogs/transition.slint
+msgid "Dissolve"
+msgstr "Рассеивание"
+
+#: ui/dialogs/transition.slint
 msgid "Which way"
 msgstr "Направление"
 
@@ -2797,10 +2909,6 @@ msgstr "Влево"
 #: ui/dialogs/transition.slint
 msgid "To the right"
 msgstr "Вправо"
-
-#: ui/dialogs/transition.slint
-msgid "Time ({} ms)"
-msgstr "Время ({} мс)"
 
 #: ui/dialogs/translation-editor.slint
 msgid "Reviewed"
@@ -3474,7 +3582,7 @@ msgstr "В этом пункте пока нет слайдов. Нажмите 
 msgid "Easy"
 msgstr "Просто"
 
-#: ui/operator/slides.slint ui/operator.slint
+#: ui/operator/slides.slint ui/operator.slint src/strings/import.rs
 msgid "Table"
 msgstr "Таблица"
 
@@ -3642,10 +3750,6 @@ msgstr "Настройки записи…"
 msgid "Print service order…"
 msgstr "Печать порядка служения…"
 
-#: ui/operator.slint
-msgid "Exit"
-msgstr "Выход"
-
 #: ui/operator.slint ui/widgets.slint
 msgid "Paste"
 msgstr "Вставить"
@@ -3758,11 +3862,11 @@ msgstr "Просмотр экрана сцены"
 msgid "Hide performance"
 msgstr "Скрыть производительность"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
 msgstr "Увеличить"
 
-#: ui/operator.slint
+#: ui/operator.slint src/strings/design.rs
 msgid "Zoom out"
 msgstr "Уменьшить"
 
@@ -3986,7 +4090,7 @@ msgstr "Укажите название песни."
 msgid "This song is in a service. Remove it from the service first."
 msgstr "Эта песня есть в служении. Сначала уберите её из служения."
 
-#: src/app.rs src/transfer.rs
+#: src/app.rs src/import/pptx_design.rs src/transfer.rs
 msgid "No service is open."
 msgstr "Служение не открыто."
 
@@ -4789,6 +4893,17 @@ msgstr "это песня OpenLyrics, а не OpenSong"
 #: src/import/opensong.rs
 msgid "it isn't an OpenSong song"
 msgstr "это не песня OpenSong"
+
+#: src/import/pptx_design.rs
+msgid "Only .pptx and .odp files can come in as editable slides. Add it as pictures instead."
+msgstr "Как редактируемые слайды можно добавить только файлы .pptx и .odp. Добавьте файл как картинки."
+
+#: src/import/pptx_design.rs
+msgid "{n} object couldn't be converted; use Pictures for an exact look."
+msgid_plural "{n} objects couldn't be converted; use Pictures for an exact look."
+msgstr[0] "Не удалось преобразовать {n} объект; для точного вида используйте «Картинки»."
+msgstr[1] "Не удалось преобразовать {n} объекта; для точного вида используйте «Картинки»."
+msgstr[2] "Не удалось преобразовать {n} объектов; для точного вида используйте «Картинки»."
 
 #: src/import/pptx_text.rs
 msgid "Only PowerPoint files saved as .pptx can be read as words. Save it as .pptx in PowerPoint, or add it as pictures."
@@ -5944,6 +6059,74 @@ msgstr "Стиль вставлен"
 msgid "That picture could not be read."
 msgstr "Не удалось прочитать эту картинку."
 
+#: src/strings/design.rs
+msgid "Appear"
+msgstr "Появление"
+
+#: src/strings/design.rs
+msgid "Fade in"
+msgstr "Плавное появление"
+
+#: src/strings/design.rs
+msgid "Fly in"
+msgstr "Вылет"
+
+#: src/strings/design.rs
+msgid "Float in"
+msgstr "Всплывание"
+
+#: src/strings/design.rs
+msgid "Wipe in"
+msgstr "Стирание (вход)"
+
+#: src/strings/design.rs
+msgid "Split open"
+msgstr "Разделение (вход)"
+
+#: src/strings/design.rs
+msgid "Disappear"
+msgstr "Исчезновение"
+
+#: src/strings/design.rs
+msgid "Fade out"
+msgstr "Плавное исчезновение"
+
+#: src/strings/design.rs
+msgid "Fly out"
+msgstr "Вылет за край"
+
+#: src/strings/design.rs
+msgid "Float out"
+msgstr "Уплывание"
+
+#: src/strings/design.rs
+msgid "Wipe out"
+msgstr "Стирание (выход)"
+
+#: src/strings/design.rs
+msgid "Split closed"
+msgstr "Разделение (выход)"
+
+#: src/strings/design.rs
+msgid "Spin"
+msgstr "Вращение"
+
+#: src/strings/design.rs
+msgid "Grow"
+msgstr "Увеличение"
+
+#: src/strings/design.rs
+msgid "Pulse"
+msgstr "Пульсация"
+
+#: src/strings/design.rs
+msgid "Move along a path"
+msgstr "Движение по пути"
+
+#: src/strings/design.rs
+msgid "{n}. {effect} · {start} · {secs} s"
+msgstr "{n}. {effect} · {start} · {secs} с"
+
 #: src/strings/dialogs.rs
 msgid "Services"
 msgstr "Служения"
@@ -6039,6 +6222,25 @@ msgstr "Добавление «{name}»"
 #: src/strings/import.rs
 msgid "Importing “{name}”"
 msgstr "Импорт «{name}»"
+
+#: src/strings/import.rs
+msgid "This presentation could not be read as editable slides."
+msgstr "Не удалось прочитать эту презентацию как редактируемые слайды."
+
+#: src/strings/import.rs
+msgid "Chart"
+msgstr "Диаграмма"
+
+#: src/strings/import.rs
+msgid "Embedded object"
+msgstr "Внедрённый объект"
+
+#: src/strings/import.rs
+msgid "{n} object (a table, chart or embedded object) could not be copied; a grey box marks its place."
+msgid_plural "{n} objects (tables, charts or embedded objects) could not be copied; grey boxes mark their places."
+msgstr[0] "Не удалось скопировать {n} объект (таблицу, диаграмму или внедрённый объект); его место отмечено серым прямоугольником."
+msgstr[1] "Не удалось скопировать {n} объекта (таблицы, диаграммы или внедрённые объекты); их места отмечены серыми прямоугольниками."
+msgstr[2] "Не удалось скопировать {n} объектов (таблицы, диаграммы или внедрённые объекты); их места отмечены серыми прямоугольниками."
 
 #: src/strings/import.rs
 msgid "Save the Keynote file as a single file and import again."
@@ -6270,6 +6472,14 @@ msgstr "Оставить обе"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "«{title}» готово"
+
+#: src/strings/operator.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
+msgstr "Как добавить «{name}»? Редактируемые слайды можно менять в редакторе слайдов. Картинки выглядят точно как в PowerPoint."
+
+#: src/strings/operator.rs
+msgid "Editable slides"
+msgstr "Редактируемые слайды"
 
 #: src/strings/operator.rs
 msgid "Name these slides"
@@ -8817,10 +9027,6 @@ msgstr "Оставить как есть"
 #: src/ui/dialogs/automation.rs
 msgid "Saved."
 msgstr "Сохранено."
-
-#: src/ui/dialogs/design_editor.rs
-msgid "Appears on Next {step} of {of}"
-msgstr "Появляется по «Далее» {step} из {of}"
 
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."
