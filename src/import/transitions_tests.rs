@@ -105,8 +105,9 @@ fn powerpoint_kinds_map_to_what_the_room_draws() {
     assert_eq!(k(r#"<p14:vortex dir="u"/>"#), t(TransitionKind::Wipe, 500, Dir::Up));
     // Never longer than the editor offers.
     assert_eq!(one(r#"<p:transition p14:dur="60000"><p:fade/></p:transition>"#), t(TransitionKind::Fade, TRANSITION_MAX_MS, Dir::Left));
-    // A sound only: no effect.
-    assert_eq!(one(r#"<p:transition><p:sndAc><p:stSnd/></p:sndAc></p:transition>"#), t(TransitionKind::Cut, 500, Dir::Left));
+    // A sound or an "After" time only: PowerPoint's "None", so the normal crossfade.
+    assert_eq!(one(r#"<p:transition><p:sndAc><p:stSnd/></p:sndAc></p:transition>"#), None);
+    assert_eq!(one(r#"<p:transition spd="slow" advTm="3000"/>"#), None);
 }
 
 /// LibreOffice: four pages, the third hidden, with transitions in their page styles.

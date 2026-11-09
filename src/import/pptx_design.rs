@@ -9,7 +9,7 @@
 use super::notes::{self, attr, is, Package};
 use crate::design::{
     Anim, AnimKind, Design, Dir, Effect, Fit, HAlign, Look, MotionPath, Obj, ObjKind, Outline, PctRect, Seg, Shape, Start,
-    TextStyle, Transition, TransitionKind, VAlign, MAX_OBJECTS,
+    TextStyle, VAlign, MAX_OBJECTS,
 };
 use super::{
     sniff::{self, Kind}, strings::{pdf_no_slides, slide_not_saved}, WorkDir, CANCELLED,
@@ -142,7 +142,8 @@ fn slide<R: Read + Seek>(io: &mut Io<R>, geo: &Geo, part: &str, xml: &str, pres_
     }
     if let Some(t) = tree(Some(sld.root_element())) { cv.walk(io, &mut made, t, &mut vec![], &slide_rels, true) }
 
-    let transition = super::transitions::slide_transition(&sld).unwrap_or(Transition { kind: TransitionKind::Cut, ..Transition::default() });
+    // No transition in the file: the app's normal crossfade, as for picture slides.
+    let transition = super::transitions::slide_transition(&sld).unwrap_or_default();
     let anims = cv.anims(sld.root_element(), &made.ids);
     let lost = made.lost + made.objs.len().saturating_sub(MAX_OBJECTS);
     let mut d = Design { objects: made.objs, transition, notes: String::new(), anims };
