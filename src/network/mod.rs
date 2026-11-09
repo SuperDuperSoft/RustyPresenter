@@ -4,6 +4,7 @@
 pub mod actions;
 pub mod password;
 pub mod stage_view;
+pub mod live_anim;
 pub mod tcp;
 #[path = "../strings/network.rs"]
 pub mod strings;

@@ -36,10 +36,13 @@ pub enum Source {
     /// A picture on black; `cover` fills the screen (an image background), `scale` is its share (the logo's 70 %).
     Picture { asset: String, cover: bool, scale: f32 },
     Text(RenderKey),
+    /// A designed slide with a click group to play: its end picture and the group's pictures (as the room's).
+    Animated(RenderKey, Box<crate::design::Play>),
 }
 
-/// One layer as drawn: a picture over a fill, or hidden.
-pub enum Drawn { Pic(Option<Px>, Color), Hidden }
+/// One layer as drawn: a picture over a fill, or hidden. `Anim`: a designed slide's end picture and its click
+/// group's pictures.
+pub enum Drawn { Pic(Option<Px>, Color), Hidden, Anim(Px, super::room::anim::Layers) }
 
 /// What each layer of `frame` shows at `size` (`prepare::source` in the room).
 pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32)) -> [(Kind, Source); 4] {
@@ -63,7 +66,10 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
         }),
         Some(SlideLayer::Image { asset, .. }) => picture(asset, false, 1.0),
         // The picture folder is filled in where it is drawn (`draw`).
-        Some(SlideLayer::Design { design, .. }) => Source::Text(RenderKey::design(design, theme.clone(), size, PathBuf::new())),
+        Some(SlideLayer::Design { design, play, .. }) => {
+            let key = RenderKey::design(design, theme.clone(), size, PathBuf::new());
+            match play { Some(p) if p.duration_ms() > 0 => Source::Animated(key, p.clone()), _ => Source::Text(key) }
+        }
         None => Source::Hidden,
     };
     // The logo sits on black at up to 70 % of the screen; without a logo file it is plain black.
@@ -101,6 +107,11 @@ fn draw(source: &Source, size: (u32, u32), renderer: &TextRenderer, store: &Stor
         Source::Text(key) => {
             let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone().with_assets(store.assets())));
             Drawn::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default())
+        }
+        Source::Animated(key, play) => {
+            let r = block_on(renderer.get_or_init(|| Renderer::with_cap(RENDER_CAP)).render(key.clone().with_assets(store.assets())));
+            let layers = prepare::play_layers(play, &key.theme.font, size, &store.assets());
+            Drawn::Anim(Px::Premul(r.rgba_premul.buffer()), super::room::anim::Layers { canvas: size, layers })
         }
     }
 }

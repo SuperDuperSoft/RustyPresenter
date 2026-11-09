@@ -8,7 +8,7 @@ import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slide
 import { MediaBin, BinRow, BinFolder } from "operator/media.slint";
 import { LiveColumn, TransportCell, LiveSong } from "operator/live.slint";
 import { OutputsState } from "operator/outputs.slint";
-import { Side, Geo } from "room.slint";
+import { Side, Geo, Sprite } from "room.slint";
 import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
 import { DialogShell } from "dialogs/shell.slint";
 import { AskOverlay, AskRow } from "dialogs/ask.slint";
@@ -184,6 +184,8 @@ export component OperatorWindow inherits Window {
     in property <float> monitor-slide-old-op;
     in property <Geo> monitor-slide-geo;
     in property <Geo> monitor-slide-old-geo;
+    /// A designed slide's click group playing on the monitor (`src/ui/operator/live.rs`).
+    in property <[Sprite]> monitor-sprites;
     in property <Side> monitor-logo;
     in property <image> monitor-drawing;
     in property <bool> drawing-on;
@@ -1037,6 +1039,7 @@ export component OperatorWindow inherits Window {
                         monitor-slide-old-op: root.monitor-slide-old-op;
                         monitor-slide-geo: root.monitor-slide-geo;
                         monitor-slide-old-geo: root.monitor-slide-old-geo;
+                        monitor-sprites: root.monitor-sprites;
                         monitor-logo: root.monitor-logo;
                         monitor-drawing: root.monitor-drawing;
                         drawing-on: root.drawing-on;

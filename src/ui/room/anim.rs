@@ -1,17 +1,19 @@
 //! A designed slide's click group playing in the room (1.1): each picture of `Play::layers` is a `Sprite`, moved
 //! from Rust every frame (`fade::TICK`, like the transitions) from `Play::pose`. Pure parts here; the timer and
-//! the faces are in `room.rs` (`put_animated`).
+//! the faces are in `room.rs` (`put_animated`). `Animator` is the frame timer the room, the operator's monitor
+//! share: it runs only while a group plays.
 use crate::design::{Play, Pose};
 use crate::render::design::{AnimLayer, slide_area};
 use crate::ui::Sprite;
-use slint::Image;
+use slint::{Image, Model, Timer, TimerMode, VecModel};
+use std::{cell::RefCell, rc::Rc, time::Instant};
 
 /// One layer's picture and place, in shares of the canvas, and the object it is (None: a still run).
 #[derive(Clone)]
-pub(in crate::ui) struct SpriteImg { pub image: Image, pub x: f32, pub y: f32, pub w: f32, pub h: f32, pub obj: Option<usize> }
+pub struct SpriteImg { pub image: Image, pub x: f32, pub y: f32, pub w: f32, pub h: f32, pub obj: Option<usize> }
 
 /// Layers drawn off the UI thread (pixels are `Send`, an `Image` is not).
-pub(in crate::ui) struct Layers { pub canvas: (u32, u32), pub layers: Vec<AnimLayer> }
+pub struct Layers { pub canvas: (u32, u32), pub layers: Vec<AnimLayer> }
 
 impl Layers {
     /// The pictures, placed in shares of the canvas.
@@ -25,14 +27,14 @@ impl Layers {
 }
 
 /// The slide's 16:9 part of the canvas, in shares of it.
-pub(in crate::ui) fn area(canvas: (u32, u32)) -> (f32, f32, f32, f32) {
+pub(crate) fn area(canvas: (u32, u32)) -> (f32, f32, f32, f32) {
     let (x, y, w, h) = slide_area(canvas);
     let (cw, ch) = (canvas.0.max(1) as f32, canvas.1.max(1) as f32);
     (x / cw, y / ch, w / cw, h / ch)
 }
 
 /// `img` at `t_ms` into `play`, on a canvas whose slide is at `area` (shares).
-pub(in crate::ui) fn sprite_at(img: &SpriteImg, play: &Play, t_ms: f32, (ax, ay, aw, ah): (f32, f32, f32, f32)) -> Sprite {
+pub(crate) fn sprite_at(img: &SpriteImg, play: &Play, t_ms: f32, (ax, ay, aw, ah): (f32, f32, f32, f32)) -> Sprite {
     let mut s = Sprite { image: img.image.clone(), x: img.x, y: img.y, w: img.w, h: img.h, ox: 0.5, oy: 0.5, scale: 1.0, op: 1.0, cw: 1.0, ch: 1.0, ..Default::default() };
     let Some(i) = img.obj else { return s };
     let Some(o) = play.objects.get(i) else { return s };
@@ -48,6 +50,66 @@ pub(in crate::ui) fn sprite_at(img: &SpriteImg, play: &Play, t_ms: f32, (ax, ay,
         (s.cw, s.ch) = ((bw * (1.0 - l - r)).max(0.0), (bh * (1.0 - t - b)).max(0.0));
     }
     s
+}
+
+/// A click group playing: its pictures, the slide's place, and `lead_ms`, the slide's own transition before it
+/// (group 0 of a new slide): the pictures, as they are when the group starts, come in over it, then it plays.
+pub(in crate::ui) struct Running { pub imgs: Vec<SpriteImg>, pub play: Play, pub area: (f32, f32, f32, f32), pub lead_ms: f32 }
+
+impl Running {
+    /// How long it all takes.
+    pub fn total_ms(&self) -> f32 { self.lead_ms + self.play.duration_ms() as f32 }
+
+    /// The pictures `t_ms` after it started and how far the lead is (0–1); None once it is over.
+    pub fn at(&self, t_ms: f32) -> Option<(Vec<Sprite>, f32)> {
+        if t_ms >= self.total_ms() { return None }
+        let k = if self.lead_ms > 0.0 { crate::ui::fade::ease(t_ms / self.lead_ms) } else { 1.0 };
+        let t = (t_ms - self.lead_ms).max(0.0);
+        let rows = self.imgs.iter().map(|img| { let mut s = sprite_at(img, &self.play, t, self.area); s.op *= k; s }).collect();
+        Some((rows, k))
+    }
+}
+
+/// Plays a `Running` on the shared frame timer (`fade::TICK`), only while it runs: each frame hands `frame` the
+/// pictures and how far the lead is, then `None` once it is over.
+#[derive(Default)]
+pub(in crate::ui) struct Animator { run: Rc<RefCell<Option<(Running, Instant)>>>, timer: Rc<Timer> }
+
+impl Animator {
+    /// Starts `run` (stopping what played), drawing its first frame now.
+    pub fn start(&self, run: Running, frame: impl Fn(Option<(Vec<Sprite>, f32)>) + 'static) {
+        *self.run.borrow_mut() = Some((run, Instant::now()));
+        let (cell, timer) = (self.run.clone(), Rc::downgrade(&self.timer));
+        let tick = move || {
+            let rows = cell.borrow().as_ref().map(|(r, at)| r.at(at.elapsed().as_secs_f32() * 1000.0));
+            match rows {
+                None => {}
+                Some(Some(rows)) => frame(Some(rows)),
+                Some(None) => {
+                    cell.borrow_mut().take();
+                    if let Some(t) = timer.upgrade() { t.stop() }
+                    frame(None)
+                }
+            }
+        };
+        tick();
+        if self.run.borrow().is_none() { return self.timer.stop() }
+        self.timer.start(TimerMode::Repeated, crate::ui::fade::TICK, tick);
+    }
+
+    /// Stops it where it is; false when nothing played. `frame` is not called.
+    pub fn stop(&self) -> bool {
+        self.timer.stop();
+        self.run.borrow_mut().take().is_some()
+    }
+
+    #[cfg(test)]
+    pub fn running(&self) -> bool { self.run.borrow().is_some() }
+}
+
+/// Writes the sprites' rows: changed in place when the count is the same, so the window keeps its items.
+pub(in crate::ui) fn set_rows(model: &VecModel<Sprite>, rows: Vec<Sprite>) {
+    if model.row_count() == rows.len() { for (i, r) in rows.into_iter().enumerate() { model.set_row_data(i, r) } } else { model.set_vec(rows) }
 }
 
 #[cfg(test)]
@@ -74,5 +136,26 @@ mod tests {
         assert!((s.cx - 0.45).abs() < 1e-4 && (s.cw - 0.1).abs() < 1e-4 && (s.cy - 0.5).abs() < 1e-4, "{} {} {}", s.cx, s.cw, s.cy);
         // A 4:3 canvas: the slide sits in the middle band.
         assert_eq!(area((1600, 1200)), (0.0, 0.125, 1.0, 0.75));
+    }
+
+    #[test]
+    fn a_lead_brings_the_starting_pictures_in_then_the_group_plays() {
+        let o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(50.0, 50.0, 20.0, 20.0));
+        let mut fade = Anim::new(o.id, AnimKind::Entrance, Effect::Fade, Start::WithPrevious);
+        fade.dur_ms = 1000;
+        let play = Design { objects: vec![o], anims: vec![fade], ..Default::default() }.play(0).unwrap();
+        let img = |obj| SpriteImg { image: Image::default(), x: 0.5, y: 0.5, w: 0.2, h: 0.2, obj };
+        let run = Running { imgs: vec![img(None), img(Some(0))], play, area: (0.0, 0.0, 1.0, 1.0), lead_ms: 400.0 };
+        assert_eq!(run.total_ms(), 1400.0);
+        let (rows, k) = run.at(200.0).unwrap();
+        assert!((k - 0.5).abs() < 1e-4 && (rows[0].op - 0.5).abs() < 1e-4, "the still part comes in with the transition");
+        assert_eq!(rows[1].op, 0.0, "the fading one waits, hidden");
+        let (rows, k) = run.at(900.0).unwrap();
+        assert_eq!((k, rows[0].op), (1.0, 1.0));
+        assert!(rows[1].op > 0.3 && rows[1].op < 0.7, "half way in: {}", rows[1].op);
+        assert!(run.at(1400.0).is_none());
+        // No lead: it plays at once.
+        let run = Running { lead_ms: 0.0, ..run };
+        assert_eq!(run.at(0.0).unwrap().1, 1.0);
     }
 }

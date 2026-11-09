@@ -234,6 +234,17 @@ pub(in crate::ui) fn overlays(fonts: &mut Fonts, slots: &[OverlaySlot], theme_fo
     (Px::Premul(crate::render::overlay::compose(&placed, canvas).rgba_premul.buffer()), failed)
 }
 
+/// Fonts for the click-group pictures drawn away from the room (the operator's monitor, the phone), loaded once.
+static PLAY_FONTS: Mutex<Option<Fonts>> = Mutex::new(None);
+
+/// `play`'s pictures at `canvas` (`render_layers`), its pictures read from the media folder `assets`.
+pub fn play_layers(play: &crate::design::Play, theme_font: &str, canvas: (u32, u32), assets: &Path) -> Vec<crate::render::design::AnimLayer> {
+    let mut fonts = PLAY_FONTS.lock().unwrap_or_else(|e| e.into_inner());
+    let fonts = fonts.get_or_insert_with(Fonts::new);
+    let mut picture = |a: &str| decode(&assets.join(a)).ok();
+    crate::render::design::render_layers(fonts, play, theme_font, canvas, &mut picture)
+}
+
 fn decode(path: &Path) -> Result<image::RgbaImage, String> {
     Ok(image::ImageReader::open(path).map_err(unreadable)?.with_guessed_format().map_err(unreadable)?.decode().map_err(unreadable)?.into_rgba8())
 }

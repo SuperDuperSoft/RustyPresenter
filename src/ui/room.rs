@@ -2,7 +2,7 @@
 //! with a crossfade once every new layer is ready, then reported as committed (as `web/output.js`).
 /// Shared with the operator's live monitor (`ui::preview`), which draws the same layers small.
 pub mod prepare;
-pub(super) mod anim;
+pub mod anim;
 mod record;
 
 use super::{Geo, RoomWindow, Side, Sprite, fade::{Chan, Fader}};
@@ -18,7 +18,7 @@ use crate::screen_fix::{ScreenFix, TestPattern};
 use crate::design::{Dir, Transition, TransitionKind};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
-use slint::{ComponentHandle, Model, Timer, TimerMode, VecModel};
+use slint::{ComponentHandle, Timer, TimerMode, VecModel};
 use std::{cell::{Cell, RefCell}, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}, mpsc::Sender};
 use tokio::sync::broadcast::error::RecvError;
@@ -235,13 +235,6 @@ impl Shared {
     }
 }
 
-/// A click group playing (`put_animated`): its pictures, since when, the slide's place and how long it takes.
-struct Running { imgs: Vec<anim::SpriteImg>, play: crate::design::Play, start: std::time::Instant, area: (f32, f32, f32, f32), dur: u32 }
-
-/// Writes the sprites' rows: changed in place when the count is the same, so the window keeps its items.
-fn set_rows(model: &VecModel<Sprite>, rows: Vec<Sprite>) {
-    if model.row_count() == rows.len() { for (i, r) in rows.into_iter().enumerate() { model.set_row_data(i, r) } } else { model.set_vec(rows) }
-}
 
 /// What a prepared layer shows. `Anim`: a designed slide's end picture and its click group's pictures.
 enum Got { Pic(Side), Play(Rc<Player>), Anim(Side, Vec<anim::SpriteImg>) }
@@ -287,9 +280,8 @@ struct Inner {
     /// How far a push or wipe on the slide layer is (0–1), and which one runs (`None`: the faces sit still).
     motion: Chan,
     moving: Rc<Cell<Option<Move>>>,
-    /// A designed slide's click group while it plays, its frame timer and the window's sprites.
-    anim: RefCell<Option<Running>>,
-    anim_timer: Timer,
+    /// A designed slide's click group while it plays (on its own frame timer) and the window's sprites.
+    anim: anim::Animator,
     sprites: Rc<VecModel<Sprite>>,
     /// The window level last set (`Room::set_on_top`); `None` until the window exists.
     on_top: Cell<Option<bool>>,
@@ -649,7 +641,8 @@ impl Inner {
 
     /// A designed slide's click group: `side` (the slide once it has played) goes on the hidden face, unseen, and
     /// the group's pictures play over the slide layer; then the face shows and they go. A build's old face goes at
-    /// once (the pictures hold all of it); a new slide's fades out under them.
+    /// once (the pictures hold all of it); a new slide's fades out under them as they come in with its
+    /// transition, and then the group plays (group 0).
     fn put_animated(&self, side: Side, imgs: Vec<anim::SpriteImg>, play: crate::design::Play, build: bool, fade: Duration) {
         let Some(i) = index(Kind::Slide) else { return };
         self.end_motion();
@@ -660,34 +653,21 @@ impl Inner {
         let (new, old) = if on_b { (cb, ca) } else { (ca, cb) };
         self.fader.jump(new, 0.0);
         if build { self.fader.jump(old, 0.0) } else { self.fader.fade(old, 0.0, fade) }
-        let dur = play.duration_ms();
-        let area = anim::area(self.canvas());
-        *self.anim.borrow_mut() = Some(Running { imgs, play, start: std::time::Instant::now(), area, dur });
-        self.anim_tick();
-        let me = self.me.clone();
-        self.anim_timer.start(TimerMode::Repeated, super::fade::TICK, move || if let Some(i) = me.upgrade() { i.anim_tick() });
-    }
-
-    /// Moves the playing group on to now; once it is over, the slide's face takes its place.
-    fn anim_tick(&self) {
-        let over = {
-            let a = self.anim.borrow();
-            let Some(run) = a.as_ref() else { return };
-            let t = run.start.elapsed().as_secs_f32() * 1000.0;
-            if t < run.dur as f32 {
-                let rows: Vec<Sprite> = run.imgs.iter().map(|img| anim::sprite_at(img, &run.play, t, run.area)).collect();
-                set_rows(&self.sprites, rows);
-                false
-            } else { true }
-        };
-        if over { self.end_anim() }
+        let lead_ms = if build { 0.0 } else { fade.as_secs_f32() * 1000.0 };
+        let run = anim::Running { imgs, play, area: anim::area(self.canvas()), lead_ms };
+        let (me, sprites) = (self.me.clone(), self.sprites.clone());
+        self.anim.start(run, move |rows| match rows {
+            Some((rows, _)) => anim::set_rows(&sprites, rows),
+            None => if let Some(i) = me.upgrade() { i.after_anim() },
+        });
     }
 
     /// Ends a playing group where it is: its pictures go and the slide's faces show as they should.
-    fn end_anim(&self) {
-        if self.anim.borrow_mut().take().is_none() { return }
-        self.anim_timer.stop();
-        set_rows(&self.sprites, vec![]);
+    fn end_anim(&self) { if self.anim.stop() { self.after_anim() } }
+
+    /// A group is over: its pictures go and the slide's faces show as they should.
+    fn after_anim(&self) {
+        anim::set_rows(&self.sprites, vec![]);
         let Some(i) = index(Kind::Slide) else { return };
         let (a, b) = self.faces.borrow()[i].ops();
         let (ca, cb) = self.face_ops[i];
@@ -800,7 +780,7 @@ impl Room {
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, anim: RefCell::default(), anim_timer: Timer::default(), sprites, on_top: Cell::default(), swap_probe: RefCell::default(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, anim: anim::Animator::default(), sprites, on_top: Cell::default(), swap_probe: RefCell::default(),
                 fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), rec: RefCell::default(), me: me.clone(),
             }
         });
@@ -967,6 +947,7 @@ mod tests {
     use crate::{app::test_app, live::*, model::*, room::Plan};
     use std::time::{Duration, Instant};
     use uuid::Uuid;
+    use slint::Model;
 
     fn add(app: &App, kind: ItemKind) -> Uuid {
         let id = Uuid::new_v4();
@@ -1184,6 +1165,29 @@ mod tests {
         step(Command::Prev);
         assert!(pump_until(&room, 15.0, || room.inner.prep.borrow().is_none() && app.live_view().frame.slide.is_some() && ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0));
         assert_eq!(ui.get_sprites().row_count(), 0);
+    }
+
+    #[test]
+    fn group_0_comes_in_with_the_slides_transition_then_plays() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Shape, Start, Transition, TransitionKind};
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let shape = |x| { let mut o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(x, 10.0, 20.0, 20.0)); o.look.fill = Some("#ff0000".into()); o };
+        let (a, b) = (shape(10.0), shape(60.0));
+        let mut fade = Anim::new(b.id, AnimKind::Entrance, Effect::Fade, Start::WithPrevious);
+        fade.dur_ms = 600;
+        let transition = Transition { kind: TransitionKind::Fade, ms: 800, ..Default::default() };
+        let id = add(&app, ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fade], transition, ..Default::default() }] });
+        let room = open(&app);
+        let ui = &room.inner.ui;
+        show(&app, id);
+        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() > 0), "group 0 plays as the slide comes up");
+        let row = |r| ui.get_sprites().row_data(r).unwrap();
+        assert_eq!(ui.get_sprites().row_count(), 2);
+        assert!(row(0).op < 1.0, "the still shape comes in with the transition, not a cut: {}", row(0).op);
+        assert_eq!(row(1).op, 0.0, "the fading shape waits for the transition");
+        assert!(pump_until(&room, 5.0, || ui.get_sprites().row_count() == 0), "they go once it has played");
+        assert_eq!(ui.get_slide_a_op() + ui.get_slide_b_op(), 1.0);
     }
 
     /// The room's screen in the setup, changed by `f`.
