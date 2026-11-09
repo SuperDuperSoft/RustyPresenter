@@ -1,5 +1,6 @@
 use super::*;
 use std::io::{Cursor, Write};
+use crate::design::{Transition, TransitionKind};
 
 const NS: &str = r#"xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main""#;
 const RT: &str = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
@@ -264,7 +265,7 @@ fn slides_come_in_show_order_with_notes_backgrounds_and_transitions() {
     assert!(matches!(a.objects[0].kind, ObjKind::Picture { fit: Fit::Fill, .. }));
     assert_eq!(a.transition, Transition { kind: TransitionKind::Cover, ms: 1000, dir: Dir::Left });
     assert_eq!(b.notes, "Pray first");
-    assert_eq!(b.transition.kind, TransitionKind::Cut, "no transition in the file: none here");
+    assert_eq!(b.transition, Transition::default(), "no transition in the file: the normal crossfade");
 }
 
 /// One effect as PowerPoint writes it, inside its click group.

@@ -342,7 +342,7 @@ document.querySelectorAll('.clears button').forEach(b => b.onclick = () => send(
 $('drawBtn').onclick = () => openDraw(V);
 // A tap on the live picture draws on it too.
 $('picBox').onclick = () => { if (V && V.may_draw) openDraw(V); };
-initDraw({ t, toast, relogin: start });
+initDraw({ t, toast, relogin: start, go: back => send(back ? 'prev' : 'next', {}, true) });
 $('stageOff').onclick = () => send('stage_only');
 $('mediaBtn').onclick = () => V && V.media && send('media_pause', { inst: V.media.inst, paused: !V.media.paused });
 

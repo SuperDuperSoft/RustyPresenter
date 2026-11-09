@@ -82,6 +82,9 @@ pub fn bible_added(label: &str) -> String { tr!("{passage} added — press Enter
 pub fn added_to_service() -> String { tr!("Added to the service") }
 pub fn uploading(name: &str) -> String { tr!("Uploading {name}", name = name) }
 pub fn uploading_pictures(n: usize) -> String { trn!("Uploading {n} picture", "Uploading {n} pictures", n) }
+/// The row under the service list while a file comes in.
+pub fn importing_file(name: &str) -> String { tr!("Importing {name}…", name = name) }
+pub fn importing_pictures(n: usize) -> String { trn!("Importing {n} picture…", "Importing {n} pictures…", n) }
 pub fn media_added(name: &str) -> String { tr!("{name} added", name = name) }
 pub fn song_imported(title: &str) -> String { tr!("Imported “{title}”", title = title) }
 pub fn song_in_library(title: &str) -> String { tr!("“{title}” is already in the library.", title = title) }

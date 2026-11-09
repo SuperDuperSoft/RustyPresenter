@@ -10,6 +10,30 @@ export struct DesignObjVm { id: string, x: float, y: float, w: float, h: float, 
 /// A snap line while an object is dragged: `vertical` at x = `at` %, else horizontal at y = `at` %.
 export struct DesignGuideVm { vertical: bool, at: float }
 
+/// A round handle on a motion path at (`px`, `py`) % of a `sw` × `sh` slide; dragging it reports where to, in %.
+component PathHandle inherits Rectangle {
+    in property <length> sw;
+    in property <length> sh;
+    in property <float> px;
+    in property <float> py;
+    callback moved-to(float, float);
+    x: self.px * self.sw / 100 - 8px;
+    y: self.py * self.sh / 100 - 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: Theme.accent;
+    border-color: #ffffff;
+    border-width: 2px;
+    accessible-role: slider;
+    TouchArea {
+        mouse-cursor: move;
+        moved => {
+            if self.pressed { root.moved-to((root.x + self.mouse-x) / root.sw * 100, (root.y + self.mouse-y) / root.sh * 100); }
+        }
+    }
+}
+
 export component DesignCanvas inherits Rectangle {
     in property <image> picture;
     in property <[DesignObjVm]> objects;
@@ -22,6 +46,17 @@ export component DesignCanvas inherits Rectangle {
     in property <[Sprite]> sprites;
     in property <bool> previewing;
     /// Pointer down at (x, y) %, with how many % a handle reaches each way; `add` = Shift, `free` = Alt.
+    /// The motion step being edited: its path (SVG commands in % of the slide), its end and, for an arc, the middle
+    /// of its bend.
+    in property <bool> path-shown;
+    in property <string> path-commands;
+    in property <float> path-end-x;
+    in property <float> path-end-y;
+    in property <bool> path-has-bend;
+    in property <float> path-bend-x;
+    in property <float> path-bend-y;
+    /// A path handle dragged to (x, y) %: 0 the end, 1 the bend.
+    callback path-drag(int, float, float);
     callback press(float, float, float, float, bool, bool);
     callback drag(float, float);
     callback release();
@@ -140,6 +175,37 @@ export component DesignCanvas inherits Rectangle {
                 moved => {
                     if self.pressed { root.drag(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100); }
                 }
+            }
+
+            // The motion path, over the object handles: its line, then a dot to drag at the end (and the bend).
+            if root.path-shown && !root.previewing && !root.pen: Path {
+                x: 0;
+                y: 0;
+                width: root.sw;
+                height: root.sh;
+                viewbox-x: 0;
+                viewbox-y: 0;
+                viewbox-width: 100;
+                viewbox-height: 100;
+                commands: root.path-commands;
+                stroke: Theme.accent;
+                stroke-width: 2px;
+            }
+            if root.path-shown && !root.previewing && !root.pen && root.path-has-bend: path-bend := PathHandle {
+                sw: root.sw;
+                sh: root.sh;
+                px: root.path-bend-x;
+                py: root.path-bend-y;
+                accessible-label: @tr("Bend of the motion path");
+                moved-to(x, y) => { root.path-drag(1, x, y); }
+            }
+            if root.path-shown && !root.previewing && !root.pen: path-end := PathHandle {
+                sw: root.sw;
+                sh: root.sh;
+                px: root.path-end-x;
+                py: root.path-end-y;
+                accessible-label: @tr("End of the motion path");
+                moved-to(x, y) => { root.path-drag(0, x, y); }
             }
         }
     }

@@ -12,17 +12,17 @@ use crate::{
     import::{CANCELLED, deck::DECK_EXT, media},
     model::{AssetId, Deck, ItemKind, ServiceItem},
     platform::winit_events::{self, Dispatcher, WindowEvent},
-    ui::dialogs,
+    ui::{ImportingRow, ServicePlanning, dialogs},
 };
-use slint::Timer;
+use slint::{ComponentHandle, Model, ModelRc, Timer, VecModel};
 use serde::Deserialize;
 use serde_json::json;
 use std::{
-    cell::RefCell,
+    cell::{Cell, RefCell},
     cmp::Ordering,
     collections::VecDeque,
     path::{Path, PathBuf},
-    rc::Rc,
+    rc::{Rc, Weak},
     time::Duration,
 };
 use uuid::Uuid;
@@ -122,6 +122,85 @@ pub struct FilesState {
     #[cfg_attr(test, allow(dead_code))]
     last_folder: RefCell<Option<PathBuf>>,
     events: Dispatcher<WindowEvent>,
+    /// The "Importing…" rows under the service list, oldest first, and their model.
+    importing: RefCell<Vec<Importing>>,
+    importing_rows: Rc<VecModel<ImportingRow>>,
+}
+
+/// One "Importing `<name>`…" row: what it is called and whose progress it shows.
+struct Importing { id: Uuid, label: String, follows: Follows }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Follows {
+    Nothing,
+    /// The window's own upload card.
+    Client(Uuid),
+    /// The core's conversion job; the row stays until the job's slides are added (or it fails).
+    Server(Uuid),
+}
+
+/// Shows an "Importing…" row under the service list from the moment a file is dropped or picked; the row goes when
+/// this is dropped, unless `until_job` handed it to a conversion job.
+pub struct ImportRow { op: Weak<Operator>, id: Uuid, handed_over: Cell<bool> }
+
+impl ImportRow {
+    pub fn new(op: &Operator, label: String) -> ImportRow {
+        let id = Uuid::new_v4();
+        op.files.importing.borrow_mut().push(Importing { id, label, follows: Follows::Nothing });
+        op.render_importing();
+        ImportRow { op: op.me.clone(), id, handed_over: Cell::new(false) }
+    }
+
+    fn follow(&self, follows: Follows) {
+        let Some(op) = self.op.upgrade() else { return };
+        if let Some(row) = op.files.importing.borrow_mut().iter_mut().find(|r| r.id == self.id) { row.follows = follows }
+        op.render_importing();
+    }
+
+    /// The row's bar follows this upload card.
+    pub fn follow_card(&self, job: &JobHandle) { self.follow(Follows::Client(job.id())) }
+
+    /// The row stays until conversion job `job` has ended and its slides are in the service.
+    fn until_job(&self, job: Uuid) {
+        self.handed_over.set(true);
+        self.follow(Follows::Server(job));
+    }
+}
+
+impl Drop for ImportRow {
+    fn drop(&mut self) {
+        if self.handed_over.get() { return }
+        let Some(op) = self.op.upgrade() else { return };
+        op.files.importing.borrow_mut().retain(|r| r.id != self.id);
+        op.render_importing();
+    }
+}
+
+impl Operator {
+    /// Copies the "Importing…" rows to the service list, with each one's progress; called with the job cards.
+    pub(super) fn render_importing(&self) {
+        let snap = self.state.borrow();
+        let rows: Vec<ImportingRow> = self.files.importing.borrow().iter().map(|r| {
+            let percent = match r.follows {
+                Follows::Nothing => None,
+                Follows::Client(id) => self.client_percent(id),
+                Follows::Server(id) => snap.snap.as_ref().and_then(|s| s.jobs.iter().find(|j| j.id == id)).map(|j| j.percent),
+            };
+            ImportingRow { id: r.id.to_string().into(), label: r.label.as_str().into(), percent: i32::from(percent.unwrap_or(0)) }
+        }).collect();
+        drop(snap);
+        let model = &self.files.importing_rows;
+        if model.row_count() != rows.len() { return model.set_vec(rows) }
+        for (i, row) in rows.into_iter().enumerate() {
+            if model.row_data(i).as_ref() != Some(&row) { model.set_row_data(i, row) }
+        }
+    }
+
+    /// Conversion job `job` is over (its slides are in, or it failed): its row goes.
+    fn end_import_job(&self, job: Uuid) {
+        self.files.importing.borrow_mut().retain(|r| r.follows != Follows::Server(job));
+        self.render_importing();
+    }
 }
 
 /// A deck import whose result is added to the service when its job ends (`watchDeckJob`, Task 6c).
@@ -162,7 +241,11 @@ fn file_name(path: &Path) -> String { path.file_name().unwrap_or(path.as_os_str(
 /// `uploadFiles(files, {add: true})`: each file in turn, as a client job "Uploading `<name>`", then into the
 /// service. A song or media file is added quietly with its own toast; a deck is added when its job ends. A
 /// failure toasts "`<file>`: `<error>`" and the next file goes on. The open dialog is redrawn at the end.
-pub fn add_files(op: &Rc<Operator>, paths: Vec<PathBuf>) { next_file(op, paths.into()); }
+pub fn add_files(op: &Rc<Operator>, paths: Vec<PathBuf>) {
+    // Every file gets its "Importing…" row at once, before the first one starts.
+    let queue = paths.into_iter().map(|p| { let row = ImportRow::new(op, tr::importing_file(&file_name(&p))); (p, row) }).collect();
+    next_file(op, queue);
+}
 
 /// Adds an imported song to the service; `toast` ends that file.
 fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Operator>, Result<Option<String>, String>) + 'static) {
@@ -172,35 +255,39 @@ fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Op
     });
 }
 
-fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
-    let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
+fn next_file(op: &Rc<Operator>, mut rest: VecDeque<(PathBuf, ImportRow)>) {
+    let Some((path, row)) = rest.pop_front() else { return op.dialog_refresh() };
     // A .pptx or .odp can come in as slides to edit (1.1) or as pictures: asked each time; Cancel skips the file.
     if crate::import::pptx_text::EXT.contains(&ext(&path).as_str()) || ext(&path) == "odp" {
         let me = Rc::downgrade(op);
         dialogs::choose(op, &tr::pptx_how(&file_name(&path)), &tr::editable_slides(), &tr::as_pictures(), move |answer| {
             let Some(op) = me.upgrade() else { return };
             match answer {
-                Some(editable) => import_file(&op, path, if editable { ImportPurpose::Slides } else { ImportPurpose::PowerPoint }, rest),
-                None => next_file(&op, rest),
+                Some(editable) => import_file(&op, path, row, if editable { ImportPurpose::Slides } else { ImportPurpose::PowerPoint }, rest),
+                None => { drop(row); next_file(&op, rest) }
             }
         });
         return;
     }
     let purpose = route(&path).purpose();
-    import_file(op, path, purpose, rest);
+    import_file(op, path, row, purpose, rest);
 }
 
-fn import_file(op: &Rc<Operator>, path: PathBuf, purpose: ImportPurpose, rest: VecDeque<PathBuf>) {
+fn import_file(op: &Rc<Operator>, path: PathBuf, row: ImportRow, purpose: ImportPurpose, rest: VecDeque<(PathBuf, ImportRow)>) {
     let name = file_name(&path);
     let job = op.client_job(tr::uploading(&name));
+    row.follow_card(&job);
+    let row = Rc::new(row);
     let progress = job.progress();
     let me = Rc::downgrade(op);
     op.ops.import(path.clone(), purpose, progress, move |r| {
         drop(job);
         let Some(op) = me.upgrade() else { return };
         let shown = name.clone();
-        // Each file ends with its toast (none for a deck, which comes later), then the next file starts.
+        let kept = row.clone();
+        // Each file ends with its toast (none for a deck, which comes later) and its row goes, then the next starts.
         let then = move |op: &Rc<Operator>, r: Result<Option<String>, String>| {
+            drop(kept);
             match r {
                 Ok(text) => if let Some(text) = text { op.toast(text, false) },
                 Err(e) => op.toast(tr::file_failed(&name, &e), true),
@@ -239,6 +326,7 @@ fn import_file(op: &Rc<Operator>, path: PathBuf, purpose: ImportPurpose, rest: V
                 });
             }
             Ok(Imported::Job(job)) => {
+                row.until_job(job);
                 op.files.watches.borrow_mut().push(DeckWatch(job));
                 op.watch_decks();
                 then(&op, Ok(None));
@@ -256,23 +344,26 @@ impl Operator {
         let Some(s) = self.state.borrow().snap.clone() else { return };
         let (mut ready, mut added) = (VecDeque::new(), Vec::new());
         let items = s.data.service().map(|sv| sv.items.as_slice()).unwrap_or(&[]);
+        let mut over = Vec::new();
         self.files.watches.borrow_mut().retain(|w| match w.step(&s.job_ends, &s.data.decks, items) {
             DeckWatchStep::Wait => true,
-            DeckWatchStep::Nothing => false,
-            DeckWatchStep::Added(title) => { added.push(title); false }
-            DeckWatchStep::Ready(id, title) => { ready.push_back((id, title)); false }
+            DeckWatchStep::Nothing => { over.push(w.0); false }
+            DeckWatchStep::Added(title) => { over.push(w.0); added.push(title); false }
+            DeckWatchStep::Ready(id, title) => { ready.push_back((id, title, w.0)); false }
         });
+        for job in over { self.end_import_job(job) }
         for title in added { op.toast(tr::deck_ready(&title), false) }
         add_decks(&op, ready);
     }
 }
 
-/// Adds each finished deck, with its own "“T” is ready" toast.
-fn add_decks(op: &Rc<Operator>, mut rest: VecDeque<(Uuid, String)>) {
-    let Some((id, title)) = rest.pop_front() else { return };
+/// Adds each finished deck (with the job that made it), with its own "“T” is ready" toast.
+fn add_decks(op: &Rc<Operator>, mut rest: VecDeque<(Uuid, String, Uuid)>) {
+    let Some((id, title, job)) = rest.pop_front() else { return };
     let me = Rc::downgrade(op);
     add_item(op, json!({ "kind": "deck", "deck_id": id }), true, move |r| {
         let Some(op) = me.upgrade() else { return };
+        op.end_import_job(job);
         match r {
             Ok(_) => { op.toast(tr::deck_ready(&title), false); add_decks(&op, rest) }
             Err(e) => op.toast(e, true),
@@ -286,14 +377,16 @@ fn add_decks(op: &Rc<Operator>, mut rest: VecDeque<(Uuid, String)>) {
 pub fn images_to_deck(op: &Rc<Operator>, mut paths: Vec<PathBuf>) {
     if paths.is_empty() { return }
     sort_by_name(&mut paths);
+    let row = ImportRow::new(op, tr::importing_pictures(paths.len()));
     let job = op.client_job(tr::uploading_pictures(paths.len()));
+    row.follow_card(&job);
     let first = suggested_title(&paths[0]);
     let total = paths.len();
-    next_picture(op, Pictures { rest: paths.into(), assets: Vec::new(), total, job, first });
+    next_picture(op, Pictures { rest: paths.into(), assets: Vec::new(), total, job, first, row });
 }
 
-/// `imagesToDeck`'s progress between uploads.
-struct Pictures { rest: VecDeque<PathBuf>, assets: Vec<AssetId>, total: usize, job: JobHandle, first: String }
+/// `imagesToDeck`'s progress between uploads; the card and the row stay until the end.
+struct Pictures { rest: VecDeque<PathBuf>, assets: Vec<AssetId>, total: usize, job: JobHandle, first: String, row: ImportRow }
 
 fn next_picture(op: &Rc<Operator>, mut p: Pictures) {
     let Some(path) = p.rest.pop_front() else { return name_deck(op, p) };
@@ -317,7 +410,7 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
     let first = p.first.clone();
     dialogs::prompt(op, &tr::name_these_slides(), &first, move |answer| {
         let Some(op) = me.upgrade() else { return };
-        let Pictures { assets, job, .. } = p;
+        let Pictures { assets, job, row, .. } = p;
         let me = Rc::downgrade(&op);
         op.ops.call::<Added>("deck/from-images", json!({ "title": deck_title(answer.as_deref()), "assets": assets }), move |r| {
             let Some(op) = me.upgrade() else { return };
@@ -330,10 +423,10 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
                             Ok(_) => op.close_dialog(),
                             Err(e) => op.toast(e, true),
                         }
-                        drop(job);
+                        drop((job, row));
                     });
                 }
-                Err(e) => { op.toast(e, true); drop(job); }
+                Err(e) => { op.toast(e, true); drop((job, row)); }
             }
         });
     });
@@ -341,6 +434,7 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
 
 /// Installs the operator window's one event filter and its desktop drop handler (`operator.js:601-612`).
 pub(super) fn wire(op: &Rc<Operator>) {
+    op.ui.global::<ServicePlanning>().set_importing(ModelRc::from(op.files.importing_rows.clone()));
     winit_events::attach(op.window(), op.files.events.clone());
     let me = Rc::downgrade(op);
     op.files.events.add(move |e| {
@@ -877,6 +971,59 @@ mod window_tests {
         assert_eq!(toasts(&op), [("“Talk” is ready".to_string(), false), ("“Notices” is ready".to_string(), false)]);
     }
 
+    /// The "Importing…" rows under the service list.
+    fn importing(op: &Operator) -> Vec<String> { op.ui.global::<ServicePlanning>().get_importing().iter().map(|r| r.label.to_string()).collect() }
+
+    #[test]
+    fn importing_rows_show_from_the_pick_until_the_slides_are_in() {
+        let app = test_app();
+        let op = opened(&app);
+        let job = app.job_start("Importing “Talk”");
+        crate::ui::ops::testing::will_import(Ok(Imported::Job(job)));
+        let dir = folder();
+        testing::will_pick(vec![PathBuf::from("Talk.pptx"), png(&dir, "pic.png", 4)]);
+        crate::ui::dialogs::add::open_add(&op, AddTab::Deck);
+        slint::ComponentHandle::global::<crate::ui::AddState>(&op.ui).invoke_import_deck();
+        assert_eq!(importing(&op), ["Importing Talk.pptx…", "Importing pic.png…"], "every file at once, while the first one asks");
+        assert!(find(&op, "ServiceColumn::importing").is_some(), "drawn in the service list");
+        ask::answer(&op, true, String::new());
+        assert_eq!(importing(&op), ["Importing Talk.pptx…"], "the picture is in; the slides are still being made");
+        app.job_progress(job, 40);
+        refresh(&op);
+        assert_eq!(op.ui.global::<ServicePlanning>().get_importing().row_data(0).unwrap().percent, 40, "the job's progress");
+        let id = Uuid::new_v4();
+        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+        app.job_result(job, id);
+        app.job_end(job, None);
+        refresh(&op);
+        assert_eq!(items(&app).len(), 2);
+        assert!(importing(&op).is_empty(), "gone once the slides are added");
+    }
+
+    #[test]
+    fn importing_rows_go_when_a_file_fails_or_is_skipped() {
+        let app = test_app();
+        let op = opened(&app);
+        let dir = folder();
+        add_files(&op, vec![dir.join("gone.mp4")]);
+        assert!(toasts(&op)[0].1);
+        assert!(importing(&op).is_empty(), "a failed file leaves no row");
+        // A dropped .pptx shows its row while it asks; Cancel skips it.
+        drag_and_drop(&op, &[dir.join("talk.pptx")]);
+        mock_elapsed_time(Duration::from_millis(1));
+        assert_eq!(importing(&op), ["Importing talk.pptx…"]);
+        ask::answer(&op, false, String::new());
+        assert!(importing(&op).is_empty());
+        // A failed conversion job.
+        let job = app.job_start("Importing “Talk”");
+        crate::ui::ops::testing::will_import(Ok(Imported::Job(job)));
+        add_files(&op, vec![dir.join("talk.pdf")]);
+        assert_eq!(importing(&op), ["Importing talk.pdf…"]);
+        app.job_end(job, Some("No.".into()));
+        refresh(&op);
+        assert!(importing(&op).is_empty());
+    }
+
     fn hint_shown(op: &Operator) -> bool { find(op, "DropHint::box").is_some() }
 
     /// What winit sends for a drop of `files`: one hover per file, then one drop per file.
@@ -922,7 +1069,9 @@ mod window_tests {
         assert_eq!((q.text.as_str(), q.ok_label.as_str(), q.cancel_label.as_str()), ("Make 3 pictures into one set of slides?", "One slide set", "Separate pictures"));
         ask::answer(&op, true, String::new());
         assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "Name these slides");
+        assert_eq!(importing(&op), ["Importing 3 pictures…"]);
         ask::answer(&op, true, "Easter".into());
+        assert!(importing(&op).is_empty());
         assert!(matches!(items(&app)[..], [ItemKind::Deck { .. }]));
         assert_eq!(app.data.lock().unwrap().decks[0].slides.len(), 3);
     }

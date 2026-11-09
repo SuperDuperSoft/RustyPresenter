@@ -4,7 +4,8 @@
 use super::{password, strings as s};
 use crate::{
     app::App,
-    stage::{self, Align, VAlign, StageState, view::{self, CellContent, StageInputs}},
+    model::{Slide, SlideContent},
+    stage::{self, Align, ElementKind, VAlign, StageState, view::{self, CellContent, StageInputs}},
 };
 use axum::{
     Json, Router,
@@ -30,6 +31,7 @@ pub fn routes() -> Router<Arc<App>> {
         .route("/stage-view/login", post(login))
         .route("/stage-view/events", get(events))
         .route("/stage-view/next.jpg", get(next_picture))
+        .route("/stage-view/live.jpg", get(live_picture))
 }
 
 fn asset(body: &'static str, ctype: &'static str) -> Response {
@@ -100,6 +102,17 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
     let slides = app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default();
     state.track_timers(&timers);
     let v = view::build(&StageInputs { live: &live, slides: &slides, timers: &timers, state, now: chrono::Local::now().time() }, &layout);
+    // A picture slide (PowerPoint, PDF) or a designed slide shows as its picture: the live one or the next one.
+    let drawn = |s: &Slide, content: &CellContent| matches!(content, CellContent::Picture { .. }) || matches!(s.content, SlideContent::Design { .. });
+    let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
+    let picture_of = |c: &view::Cell| -> Option<&'static str> {
+        let kind = layout.elements.iter().filter_map(|e| e.known()).find(|e| e.id == c.element).map(|e| &e.kind)?;
+        match kind {
+            ElementKind::CurrentSlide { .. } if live.stage_only.is_none() && on_air => live.slide.as_ref().filter(|s| drawn(s, &c.content)).map(|_| "live"),
+            ElementKind::NextSlide { .. } => live.next.as_ref().filter(|n| drawn(&n.slide, &c.content)).map(|_| "next"),
+            _ => None,
+        }
+    };
     let cells: Vec<Value> = v.cells.iter().filter_map(|c| {
         let st = &c.style;
         let mut cell = json!({
@@ -110,10 +123,11 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
         });
         let (kind, extra) = match &c.content {
             CellContent::Empty => return None,
+            CellContent::Picture { caption, .. } | CellContent::Text { caption, .. } if let Some(src) = picture_of(c) => ("picture", json!({ "caption": caption, "src": src })),
             CellContent::Text { text, dim, caption, red } => ("text", json!({ "text": text, "dim": dim, "caption": caption, "red": red })),
             CellContent::Picture { caption, .. } => ("text", json!({ "text": stage::strings::slide_picture(), "caption": caption })),
             CellContent::Message { text } => ("message", json!({ "text": text })),
-            CellContent::NextPicture { caption } => ("picture", json!({ "caption": caption })),
+            CellContent::NextPicture { caption } => ("picture", json!({ "caption": caption, "src": "next" })),
             CellContent::Shape { shape } => ("shape", json!({ "shape": shape })),
         };
         cell["kind"] = kind.into();
@@ -161,6 +175,15 @@ async fn next_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q):
         image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, 85).encode(&rgb, size.0, size.1, image::ExtendedColorType::Rgb8).map(|_| out)
     }).await;
     match jpeg {
+        Ok(Ok(b)) => ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], b).into_response(),
+        _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    }
+}
+
+/// The slide on the room screen now as a JPEG, `w` pixels wide, the room's shape (the phone remote's picture).
+async fn live_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Size>) -> Response {
+    if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
+    match tokio::task::spawn_blocking(move || crate::server::live_slide_jpeg(&app, q.w.unwrap_or(640))).await {
         Ok(Ok(b)) => ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], b).into_response(),
         _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
@@ -225,6 +248,39 @@ mod tests {
         assert!(cells[0]["text"].as_str().unwrap().contains(':'));
     }
 
+    /// Shows slide 0 of a new item with `slides`.
+    fn show(app: &Arc<App>, kind: crate::model::ItemKind) {
+        use crate::live::{Command, Envelope};
+        let id = uuid::Uuid::new_v4();
+        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        let base = app.live.lock().unwrap().version;
+        assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
+    }
+
+    /// The slide boxes of the Classic layout: (kind, src or text).
+    fn slide_boxes(app: &App) -> Vec<(String, String)> {
+        app.data.lock().unwrap().settings.stage.layout = stage::presets::CLASSIC;
+        let v = stage_json(app, &mut StageState::default());
+        v["cells"].as_array().unwrap().iter().filter(|c| c["y"].as_f64() == Some(10.0) || c["y"].as_f64() == Some(76.0))
+            .map(|c| (c["kind"].as_str().unwrap().to_string(), c["src"].as_str().or(c["text"].as_str()).unwrap_or_default().to_string())).collect()
+    }
+
+    #[tokio::test]
+    async fn picture_and_designed_slides_show_their_pictures() {
+        let app = test_app();
+        let deck = crate::model::Deck { id: uuid::Uuid::new_v4(), title: "Talk".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        show(&app, crate::model::ItemKind::Deck { deck_id: deck.id });
+        assert_eq!(slide_boxes(&app), [("picture".into(), "live".into()), ("picture".into(), "next".into())], "not \"(slide picture)\"");
+        let app = test_app();
+        show(&app, crate::model::ItemKind::Design { title: "Welcome".into(), slides: vec![crate::design::Design::default(); 2] });
+        assert_eq!(slide_boxes(&app), [("picture".into(), "live".into()), ("picture".into(), "next".into())]);
+        // Words stay words.
+        let app = test_app();
+        show(&app, crate::model::ItemKind::Text { title: "T".into(), body: "Hello".into(), layout: Default::default() });
+        assert_eq!(slide_boxes(&app)[0], ("text".into(), "Hello".into()));
+    }
+
     #[tokio::test]
     async fn the_pages_are_served_and_the_picture_needs_permission() {
         let app = test_app();
@@ -234,7 +290,11 @@ mod tests {
         turn_on(&app, None);
         let r = next_picture(State(app.clone()), HeaderMap::new(), Query(Size { w: Some(320) })).await;
         assert_eq!((r.status(), r.headers()[header::CONTENT_TYPE].to_str().unwrap()), (StatusCode::OK, "image/jpeg"));
+        let r = live_picture(State(app.clone()), HeaderMap::new(), Query(Size { w: Some(320) })).await;
+        assert_eq!((r.status(), r.headers()[header::CONTENT_TYPE].to_str().unwrap()), (StatusCode::OK, "image/jpeg"));
         let b: Value = serde_json::from_slice(&axum::body::to_bytes(status(State(app.clone()), HeaderMap::new()).await.into_body(), usize::MAX).await.unwrap()).unwrap();
         assert_eq!((b["on"].as_bool(), b["password"].as_bool(), b["allowed"].as_bool()), (Some(true), Some(false), Some(true)));
+        app.data.lock().unwrap().settings.network.stage_view = false;
+        assert_eq!(live_picture(State(app.clone()), HeaderMap::new(), Query(Size { w: Some(320) })).await.status(), StatusCode::UNAUTHORIZED);
     }
 }

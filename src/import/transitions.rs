@@ -59,14 +59,14 @@ fn chosen<'a, 'i>(doc: &'a Document<'i>) -> Option<Node<'a, 'i>> {
     all.iter().find(|n| in_(n, "Choice")).or_else(|| all.iter().find(|n| in_(n, "Fallback"))).or(all.first()).copied()
 }
 
-/// A slide's transition.
-pub fn slide_transition(doc: &Document) -> Option<Transition> { chosen(doc).map(pptx_transition) }
+/// A slide's transition (`None`: PowerPoint's "None", so the app's normal crossfade).
+pub fn slide_transition(doc: &Document) -> Option<Transition> { chosen(doc).and_then(pptx_transition) }
 
 /// A slide's "After" time (`advTm`, milliseconds).
 pub fn slide_advance(doc: &Document) -> Option<u32> { attr(&chosen(doc)?, "advTm")?.trim().parse().ok() }
 
-/// One `<p:transition>` element as the room's transition.
-fn pptx_transition(t: Node) -> Transition {
+/// One `<p:transition>` element as the room's transition; none when it has no effect.
+fn pptx_transition(t: Node) -> Option<Transition> {
     // `p14:dur` is milliseconds; `spd` is PowerPoint's three old speeds.
     let ms = attr(&t, "dur").and_then(|d| d.trim().parse::<u32>().ok()).unwrap_or(match attr(&t, "spd") {
         Some("slow") => 1000,
@@ -74,10 +74,8 @@ fn pptx_transition(t: Node) -> Transition {
         _ => 500,
     });
     let ms = ms.min(TRANSITION_MAX_MS);
-    let Some(e) = t.children().find(|n| n.is_element() && !is(n, "sndAc") && !is(n, "extLst")) else {
-        // A transition with no effect: PowerPoint's "None".
-        return Transition { kind: TransitionKind::Cut, ms, dir: Dir::default() };
-    };
+    // No effect (only a sound or an "After" time): PowerPoint's "None".
+    let e = t.children().find(|n| n.is_element() && !is(n, "sndAc") && !is(n, "extLst"))?;
     let black = attr(&e, "thruBlk").is_some_and(|v| matches!(v, "1" | "true"));
     let dir = attr(&e, "dir").and_then(side);
     let kind = match e.tag_name().name() {
@@ -87,17 +85,17 @@ fn pptx_transition(t: Node) -> Transition {
         "fade" => TransitionKind::Fade,
         "dissolve" => TransitionKind::Dissolve,
         "zoom" => TransitionKind::Zoom,
-        "push" => return Transition { kind: TransitionKind::Push, ms, dir: dir.unwrap_or_default() },
-        "cover" => return Transition { kind: TransitionKind::Cover, ms, dir: dir.unwrap_or_default() },
-        "pull" => return Transition { kind: TransitionKind::Uncover, ms, dir: dir.unwrap_or_default() },
+        "push" => return Some(Transition { kind: TransitionKind::Push, ms, dir: dir.unwrap_or_default() }),
+        "cover" => return Some(Transition { kind: TransitionKind::Cover, ms, dir: dir.unwrap_or_default() }),
+        "pull" => return Some(Transition { kind: TransitionKind::Uncover, ms, dir: dir.unwrap_or_default() }),
         // A vertical split line opens sideways.
-        "split" => return Transition { kind: TransitionKind::Split, ms, dir: if attr(&e, "orient") == Some("vert") { Dir::Left } else { Dir::Up } },
+        "split" => return Some(Transition { kind: TransitionKind::Split, ms, dir: if attr(&e, "orient") == Some("vert") { Dir::Left } else { Dir::Up } }),
         _ => match dir {
-            Some(dir) => return Transition { kind: TransitionKind::Wipe, ms, dir },
+            Some(dir) => return Some(Transition { kind: TransitionKind::Wipe, ms, dir }),
             None => TransitionKind::Fade,
         },
     };
-    Transition { kind, ms, dir: Dir::default() }
+    Some(Transition { kind, ms, dir: Dir::default() })
 }
 
 /// An OOXML direction (`l`, `u`, `r`, `d`, or a corner like `lu`, which goes by its first side).

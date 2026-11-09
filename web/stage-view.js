@@ -70,7 +70,8 @@ function cell(c, ver) {
   if (c.caption) { const cap = document.createElement('div'); cap.className = 'cap'; cap.textContent = c.caption; cap.style.textAlign = c.align; el.append(cap); }
   if (c.kind === 'picture') {
     const img = document.createElement('img');
-    img.src = '/stage-view/next.jpg?w=640&v=' + ver;
+    // The live slide or the next one, drawn by the computer; asked again when the slide changes.
+    img.src = '/stage-view/' + (c.src === 'live' ? 'live' : 'next') + '.jpg?w=640&v=' + ver;
     img.alt = '';
     el.append(img);
     return el;
