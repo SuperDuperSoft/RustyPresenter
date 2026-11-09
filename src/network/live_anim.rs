@@ -61,20 +61,20 @@ fn png(px: &slint::SharedPixelBuffer<slint::Rgba8Pixel>) -> Result<Vec<u8>, Stri
     Ok(out)
 }
 
-/// The live slide's click group for a phone `width` wide (the room screen's shape). None when no group plays.
-pub fn phone_anim(app: &App, width: u32) -> Result<Option<Arc<PhoneAnim>>, String> {
+/// The live designed slide's click group drawn at `size`: the live version, the picture under it (the slide with
+/// its objects left out; they are all in the layers), the group, its lead (the slide's own transition, ms; 0 for
+/// a click) and its layers. None when no group plays. Shared with the stage screen.
+pub struct LiveGroup { pub version: u64, pub base: crate::ui::thumbs::Pixels, pub play: Play, pub lead_ms: u32, pub layers: Vec<crate::render::design::AnimLayer> }
+
+pub fn live_group(app: &App, size: (u32, u32)) -> Option<LiveGroup> {
     use crate::ui::thumbs;
-    let size = crate::server::live_slide_size(width, app.room_canvas());
-    let (version, job, play, lead, font) = {
+    let (version, job, play, lead_ms, font) = {
         let data = app.data.lock().unwrap();
         let live = app.live.lock().unwrap();
-        if let Some(a) = cached(live.version, size.0) { return Ok(Some(a)) }
-        let Some(SlideLayer::Design { design, build, play: Some(play) }) = &live.frame.slide else { return Ok(None) };
-        if play.duration_ms() == 0 { return Ok(None) }
-        let Some((c, item)) = live.cursor.as_ref().zip(live.item.as_ref()) else { return Ok(None) };
-        let Some(slide) = item.slides.get(c.slide) else { return Ok(None) };
-        // The picture under the group: the slide with its objects left out (they are all in the layers).
-        let mut under = slide.clone();
+        let Some(SlideLayer::Design { design, build, play: Some(play) }) = &live.frame.slide else { return None };
+        if play.duration_ms() == 0 { return None }
+        let (c, item) = live.cursor.as_ref().zip(live.item.as_ref())?;
+        let mut under = item.slides.get(c.slide)?.clone();
         if let SlideContent::Design { design: d, .. } = &mut under.content { d.objects.clear() }
         let settings = crate::model::Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
         let passage = crate::model::passage(&item.kind, &item.slides);
@@ -85,15 +85,23 @@ pub fn phone_anim(app: &App, width: u32) -> Result<Option<Arc<PhoneAnim>>, Strin
     };
     static RENDER: thumbs::TextRenderer = thumbs::TextRenderer::new();
     let base = thumbs::compose(&job, size, &RENDER, &app.store);
-    let rgb: Vec<u8> = base.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
+    let layers = crate::ui::room::prepare::play_layers(&play, &font, size, &app.store.assets());
+    Some(LiveGroup { version, base, play, lead_ms, layers })
+}
+
+/// The live slide's click group for a phone `width` wide (the room screen's shape). None when no group plays.
+pub fn phone_anim(app: &App, width: u32) -> Result<Option<Arc<PhoneAnim>>, String> {
+    let size = crate::server::live_slide_size(width, app.room_canvas());
+    if let Some(a) = cached(app.live.lock().unwrap().version, size.0) { return Ok(Some(a)) }
+    let Some(g) = live_group(app, size) else { return Ok(None) };
+    let rgb: Vec<u8> = g.base.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
     let mut jpeg = Vec::new();
     image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 85).encode(&rgb, size.0, size.1, image::ExtendedColorType::Rgb8).map_err(|e| e.to_string())?;
-    let layers = crate::ui::room::prepare::play_layers(&play, &font, size, &app.store.assets());
     let mut pics = vec![(jpeg, "image/jpeg")];
-    for l in &layers { pics.push((png(&l.px)?, "image/png")) }
-    let imgs = anim::Layers { canvas: size, layers }.images();
-    let json = describe(&play, &imgs, size, lead);
-    let made = Arc::new(PhoneAnim { version, width: size.0, json, pics });
+    for l in &g.layers { pics.push((png(&l.px)?, "image/png")) }
+    let imgs = anim::Layers { canvas: size, layers: g.layers }.images();
+    let json = describe(&g.play, &imgs, size, g.lead_ms);
+    let made = Arc::new(PhoneAnim { version: g.version, width: size.0, json, pics });
     *LAST.lock().unwrap() = Some(made.clone());
     Ok(Some(made))
 }

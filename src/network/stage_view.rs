@@ -112,6 +112,7 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
             CellContent::Empty => return None,
             CellContent::Text { text, dim, caption, red } => ("text", json!({ "text": text, "dim": dim, "caption": caption, "red": red })),
             CellContent::Picture { caption, .. } => ("text", json!({ "text": stage::strings::slide_picture(), "caption": caption })),
+            CellContent::Designed { words, caption, .. } => ("text", json!({ "text": words, "caption": caption })),
             CellContent::Message { text } => ("message", json!({ "text": text })),
             CellContent::NextPicture { caption } => ("picture", json!({ "caption": caption })),
             CellContent::Shape { shape } => ("shape", json!({ "shape": shape })),

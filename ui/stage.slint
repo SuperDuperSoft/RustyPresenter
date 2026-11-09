@@ -1,5 +1,6 @@
 // The stage screen for the people on the platform (same content as `web/stage.html`).
 // Sizes follow the web page's vh/vw units, so the screen scales with the monitor.
+import { Sprite, SpriteLayer } from "room.slint";
 
 /// One box of a stage layout (`stage::view::Cell`), placed in % of the window. Rust picks `size` so the words fit.
 export struct StageCellVm {
@@ -25,6 +26,8 @@ export struct StageCellVm {
     /// N10: a picture (the next slide) instead of words.
     has-picture: bool,
     picture: image,
+    /// The live designed slide: its click group plays over the picture (`anim-*` on the window).
+    anim: bool,
 }
 
 export component StageWindow inherits Window {
@@ -59,6 +62,11 @@ export component StageWindow inherits Window {
     in property <bool> use-cells;
     in property <color> bg: #07080a;
     in property <[StageCellVm]> cells;
+    /// A designed slide's click group playing in the current slide's box (`src/ui/stage.rs`): the picture under
+    /// it and its pictures, as the room plays them.
+    in property <bool> animating;
+    in property <image> anim-base;
+    in property <[Sprite]> anim-sprites;
     /// A message when the layout has no message box: a banner over the top of the screen.
     in property <string> banner;
     /// Words Rust measures (with `probe-*`) to find the size that fits a box.
@@ -283,10 +291,34 @@ export component StageWindow inherits Window {
                     letter-spacing: 0.12 * 2.2 * vh;
                     horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
                 }
-                if c.has-picture: Image {
+                if c.has-picture: Rectangle {
                     vertical-stretch: 1;
-                    source: c.picture;
-                    image-fit: contain;
+                    Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: c.picture;
+                        image-fit: contain;
+                    }
+                    // Over the picture, where `contain` put it.
+                    if c.anim && root.animating: Rectangle {
+                        property <float> ar: c.picture.width / max(1, c.picture.height);
+                        width: min(parent.width, parent.height * self.ar);
+                        height: self.width / max(0.01, self.ar);
+                        x: (parent.width - self.width) / 2;
+                        y: (parent.height - self.height) / 2;
+                        clip: true;
+                        Image {
+                            width: parent.width;
+                            height: parent.height;
+                            source: root.anim-base;
+                            image-fit: fill;
+                        }
+                        SpriteLayer {
+                            width: parent.width;
+                            height: parent.height;
+                            sprites: root.anim-sprites;
+                        }
+                    }
                 }
                 if !c.has-picture: cell-t := Text {
                     vertical-stretch: 1;
