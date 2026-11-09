@@ -616,6 +616,14 @@ msgstr ""
 msgid "Slide"
 msgstr ""
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr ""
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr ""
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr ""
@@ -690,6 +698,22 @@ msgstr ""
 
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
@@ -891,6 +915,10 @@ msgstr ""
 
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
+msgstr ""
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
 msgstr ""
 
 #: ui/dialogs/design-editor.slint
@@ -1211,6 +1239,14 @@ msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
 msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
@@ -6442,6 +6478,16 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr ""
 
@@ -6467,10 +6513,6 @@ msgstr ""
 
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
-msgstr ""
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
 msgstr ""
 
 #: src/strings/operator.rs
@@ -6888,6 +6930,54 @@ msgstr ""
 
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr ""
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
 msgstr ""
 
 #: src/strings/preflight.rs
@@ -8426,10 +8516,6 @@ msgstr ""
 
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
-msgstr ""
-
-#: src/strings/themes.rs
-msgid "Underline"
 msgstr ""
 
 #: src/strings/themes.rs

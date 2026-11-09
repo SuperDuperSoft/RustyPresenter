@@ -610,6 +610,14 @@ msgstr "Escolher qualquer cor"
 msgid "Slide"
 msgstr "Slide"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Curva da trajetória"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Fim da trajetória"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} etapas"
@@ -685,6 +693,22 @@ msgstr "Negrito"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Itálico"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Sublinhado"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Tachado"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "Algumas palavras aqui têm aparência própria. Estas opções mudam a caixa inteira."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Uma tabela: uma linha por linha de texto, células separadas por tabulações."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "De baixo"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Arco"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Ou arraste o ponto no fim da trajetória no slide (e o do meio de um arco)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Avançar sozinho após (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Desligado"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Aparece como"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Como aparece…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "Enviando {n} imagem"
 msgstr[1] "Enviando {n} imagens"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "Importando {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "Importando {n} imagem…"
+msgstr[1] "Importando {n} imagens…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} adicionado"
 
@@ -6456,10 +6502,6 @@ msgstr "Manter ambas"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "“{title}” está pronto"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Como “{name}” deve entrar? Slides editáveis podem ser alterados no editor de slides. Imagens ficam exatamente iguais ao PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "Clique em “Criar um culto” no modelo que você quer, em Modelos."
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Digite um dia da semana, como Domingo, ou deixe vazio para qualquer dia."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Slide {n} de {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Executar no PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "“Executar no PowerPoint” precisa do Microsoft PowerPoint em um computador com Windows."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Como “{name}” deve entrar? Slides editáveis podem ser alterados no editor de slides. Imagens ficam exatamente como no PowerPoint. “Executar no PowerPoint” reproduz todas as animações, transições e vídeos no próprio PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Como “{title}” deve aparecer? Slides editáveis, e uma apresentação sem o arquivo, são importados de novo a partir da apresentação."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Escolha de novo o arquivo de apresentação de “{title}”."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "“{title}” agora é executado no PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "“{title}” agora aparece como imagens."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "“Executar no PowerPoint” precisa da tela do salão em um monitor. Ligue a tela do salão em Telas; até lá, o salão mostra as imagens dos slides."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "O PowerPoint não conseguiu executar “{title}”: {error} Em vez disso, o salão mostra as imagens dos slides."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "O PowerPoint encerrou a apresentação de slides de “{title}”. Agora o salão mostra as imagens dos slides; clique em um slide para iniciar o PowerPoint de novo."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "O PowerPoint não respondeu."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Usado pela(s) visualização(ões) de tela: {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Convertendo {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Sublinhado"
 
 #: src/strings/themes.rs
 msgid "Gold"

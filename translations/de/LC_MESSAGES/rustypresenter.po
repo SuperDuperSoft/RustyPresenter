@@ -610,6 +610,14 @@ msgstr "Beliebige Farbe wählen"
 msgid "Slide"
 msgstr "Folie"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Krümmung des Animationspfads"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Ende des Animationspfads"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} Aufbauschritte"
@@ -685,6 +693,22 @@ msgstr "Fett"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Kursiv"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Unterstrichen"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Durchgestrichen"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "Einige Wörter hier haben ein eigenes Aussehen. Diese Einstellungen ändern das ganze Feld."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Eine Tabelle: eine Zeile pro Tabellenzeile, Zellen durch Tabulatoren getrennt."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Von unten"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Bogen"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Oder ziehen Sie den Punkt am Ende des Pfads auf der Folie (und den in der Mitte eines Bogens)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Automatisch weiter nach (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Aus"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Anzeige als"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Anzeigeart…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "{n} Bild wird hochgeladen"
 msgstr[1] "{n} Bilder werden hochgeladen"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "{name} wird importiert…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "{n} Bild wird importiert…"
+msgstr[1] "{n} Bilder werden importiert…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} hinzugefügt"
 
@@ -6456,10 +6502,6 @@ msgstr "Beide behalten"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "„{title}“ ist bereit"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Wie soll „{name}“ übernommen werden? Bearbeitbare Folien können im Folieneditor geändert werden. Bilder sehen genau wie in PowerPoint aus."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "Klicken Sie unter „Vorlagen“ bei der gewünschten Vorlage auf „Got
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Geben Sie einen Wochentag ein, z. B. Sonntag, oder lassen Sie es leer für jeden Tag."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Folie {n} von {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "In PowerPoint abspielen"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "„In PowerPoint abspielen“ benötigt Microsoft PowerPoint auf einem Windows-Computer."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Wie soll „{name}“ übernommen werden? Bearbeitbare Folien lassen sich im Folieneditor ändern. Bilder sehen genau wie in PowerPoint aus. „In PowerPoint abspielen“ zeigt jede Animation, jeden Übergang und jedes Video in PowerPoint selbst."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Wie soll „{title}“ angezeigt werden? Bearbeitbare Folien und eine Präsentation ohne ihre Datei werden erneut aus der Präsentation übernommen."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Wählen Sie die Präsentationsdatei für „{title}“ erneut aus."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "„{title}“ wird jetzt in PowerPoint abgespielt."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "„{title}“ wird jetzt als Bilder angezeigt."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "„In PowerPoint abspielen“ benötigt den Saalbildschirm auf einem Monitor. Schalten Sie den Saalbildschirm unter Bildschirme ein; bis dahin zeigt der Saal die Folienbilder."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint konnte „{title}“ nicht abspielen: {error} Der Saal zeigt stattdessen die Folienbilder."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint hat die Bildschirmpräsentation von „{title}“ beendet. Der Saal zeigt jetzt die Folienbilder; klicken Sie auf eine Folie, um PowerPoint erneut zu starten."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint hat nicht geantwortet."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Verwendet von Bildschirmansicht(en): {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Wird konvertiert… {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Unterstrichen"
 
 #: src/strings/themes.rs
 msgid "Gold"

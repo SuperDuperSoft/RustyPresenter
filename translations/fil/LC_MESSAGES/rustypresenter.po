@@ -610,6 +610,14 @@ msgstr "Pumili ng anumang kulay"
 msgid "Slide"
 msgstr "Slide"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Kurba ng motion path"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Dulo ng motion path"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} build"
@@ -685,6 +693,22 @@ msgstr "Bold"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Italic"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Underline"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Strikethrough"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "May sariling itsura ang ilang salita rito. Binabago ng mga setting na ito ang buong box."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Table: isang row bawat linya, hinahati ng tab ang mga cell."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Mula sa ibaba"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Arko"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "O i-drag ang tuldok sa dulo ng path sa slide (at ang nasa gitna ng arko)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Kusang lumipat pagkatapos ng (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Off"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Ipinapakita bilang"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Paano ipinapakita…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "Ina-upload ang {n} larawan"
 msgstr[1] "Ina-upload ang {n} na larawan"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "Ini-import ang {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "Ini-import ang {n} larawan…"
+msgstr[1] "Ini-import ang {n} na larawan…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "Naidagdag ang {name}"
 
@@ -6456,10 +6502,6 @@ msgstr "Itago ang pareho"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "Handa na ang “{title}”"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Paano ipapasok ang “{name}”? Ang mga editable na slide ay puwedeng baguhin sa Slide editor. Ang mga larawan ay kamukhang-kamukha ng sa PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "I-click ang “Gumawa ng service” sa template na gusto mo, sa ilalim n
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Mag-type ng araw ng linggo, tulad ng Linggo, o iwanang blangko para sa kahit anong araw."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Slide {n} sa {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Patakbuhin sa PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "Kailangan ng “Patakbuhin sa PowerPoint” ang Microsoft PowerPoint sa isang Windows computer."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Paano papasok ang “{name}”? Mababago ang mga editable na slide sa slide editor. Kamukhang-kamukha ng PowerPoint ang mga larawan. Pinapatugtog ng “Patakbuhin sa PowerPoint” ang bawat animation, transition at video sa PowerPoint mismo."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Paano ipapakita ang “{title}”? Ang mga editable na slide, at ang presentation na wala na ang file, ay papasok ulit mula sa presentation."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Piliin ulit ang presentation file para sa “{title}”."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "Tumatakbo na sa PowerPoint ang “{title}”."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "Ipinapakita na bilang mga larawan ang “{title}”."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "Kailangan ng “Patakbuhin sa PowerPoint” na nasa isang monitor ang screen sa silid. I-on ang screen sa silid sa Mga Screen; hanggang doon, mga larawan ng slide ang ipinapakita sa silid."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "Hindi mapatakbo ng PowerPoint ang “{title}”: {error} Mga larawan ng slide ang ipinapakita sa silid sa halip."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "Tinapos ng PowerPoint ang slide show ng “{title}”. Mga larawan ng slide na ang ipinapakita sa silid; mag-click ng slide para simulan ulit ang PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "Hindi sumagot ang PowerPoint."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Ginagamit ng screen view: {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Kino-convert {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Underline"
 
 #: src/strings/themes.rs
 msgid "Gold"

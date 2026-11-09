@@ -610,6 +610,14 @@ msgstr "任选颜色"
 msgid "Slide"
 msgstr "幻灯片"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "动作路径的弯曲点"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "动作路径的终点"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} 个分步动画"
@@ -685,6 +693,22 @@ msgstr "粗体"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "斜体"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "下划线"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "删除线"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "这里有些文字有单独的样式。这些设置会更改整个文本框。"
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "表格：每行一排，单元格用 Tab 分隔。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "自底部"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "弧形"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "也可以在幻灯片上拖动路径终点的圆点（弧形中间的圆点也可以）。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "自动翻页间隔（秒）"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "关"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "显示方式"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "显示方式…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6409,6 +6445,15 @@ msgid_plural "Uploading {n} pictures"
 msgstr[0] "正在上传 {n} 张图片"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "正在导入 {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "正在导入 {n} 张图片…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "已添加 {name}"
 
@@ -6435,10 +6480,6 @@ msgstr "两者都保留"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "“{title}”已就绪"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "“{name}”要以什么方式导入？可编辑幻灯片可以在幻灯片编辑器中修改。图片的外观与 PowerPoint 完全相同。"
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6852,6 +6893,54 @@ msgstr "在“模板”下，点击所需模板上的“创建聚会”。"
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "输入星期几，如 星期日，或留空表示任意一天。"
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "幻灯片 {n}/{total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "在 PowerPoint 中放映"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "“在 PowerPoint 中放映”需要在 Windows 电脑上安装 Microsoft PowerPoint。"
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "要如何导入“{name}”？可编辑幻灯片可以在幻灯片编辑器中修改。图片看起来与 PowerPoint 完全一样。“在 PowerPoint 中放映”会在 PowerPoint 本身中播放所有动画、切换效果和视频。"
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "要如何显示“{title}”？可编辑幻灯片以及缺少文件的演示文稿会从演示文稿重新导入。"
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "请重新选择“{title}”的演示文稿文件。"
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "“{title}”现在在 PowerPoint 中放映。"
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "“{title}”现在以图片显示。"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "“在 PowerPoint 中放映”需要会众屏幕在一台显示器上。请在“屏幕”中打开会众屏幕；在此之前，会众屏幕显示幻灯片图片。"
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint 无法放映“{title}”：{error} 会众屏幕改为显示幻灯片图片。"
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint 已结束“{title}”的幻灯片放映。会众屏幕现在显示幻灯片图片；点击一张幻灯片即可重新启动 PowerPoint。"
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint 没有响应。"
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8376,10 +8465,6 @@ msgstr "被屏幕视图使用：{views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "正在转换 {percent}%"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "下划线"
 
 #: src/strings/themes.rs
 msgid "Gold"

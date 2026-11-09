@@ -610,6 +610,14 @@ msgstr "Chwazi nenpòt koulè"
 msgid "Slide"
 msgstr "Diapo"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Koub chemen mouvman an"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Bout chemen mouvman an"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} etap"
@@ -685,6 +693,22 @@ msgstr "Gra"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Italik"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Souliye"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Bare"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "Gen kèk mo isit la ki gen pwòp aparans yo. Paramèt sa yo chanje tout bwat la."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Yon tablo: yon ranje pou chak liy, selil yo separe ak tab."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Sot anba"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Ak"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Oswa trennen pwen ki nan bout chemen an sou diapo a (ak sa ki nan mitan yon ak)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Avanse pou kont li apre (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Etenn"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Parèt kòm"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Kijan li parèt…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "N ap voye {n} foto"
 msgstr[1] "N ap voye {n} foto"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "N ap enpòte {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "N ap enpòte {n} foto…"
+msgstr[1] "N ap enpòte {n} foto…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} ajoute"
 
@@ -6456,10 +6502,6 @@ msgstr "Kenbe toude"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "“{title}” pare"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Kijan “{name}” dwe antre? Diapo ou ka modifye yo ka chanje nan editè diapo a. Foto yo parèt egzakteman tankou nan PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "Klike “Fè yon sèvis” sou modèl ou vle a, anba Modèl."
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Tape yon jou nan semèn nan, tankou Dimanch, oswa kite l vid pou nenpòt jou."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Diapo {n} sou {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Lanse nan PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "“Lanse nan PowerPoint” bezwen Microsoft PowerPoint sou yon òdinatè Windows."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Kijan “{name}” dwe antre? Ou ka chanje diapo ou ka modifye yo nan editè diapo a. Foto yo parèt egzakteman tankou nan PowerPoint. “Lanse nan PowerPoint” jwe chak animasyon, tranzisyon ak videyo nan PowerPoint menm."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Kijan “{title}” dwe parèt? Diapo ou ka modifye yo, ak yon prezantasyon ki pa gen fichye li, ap antre ankò soti nan prezantasyon an."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Chwazi fichye prezantasyon an pou “{title}” ankò."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "“{title}” ap kouri nan PowerPoint kounye a."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "“{title}” parèt kòm foto kounye a."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "“Lanse nan PowerPoint” bezwen ekran sal la sou yon monitè. Limen ekran sal la nan Ekran; jiskaske sa fèt, sal la montre foto diapo yo."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint pa t ka lanse “{title}”: {error} Sal la montre foto diapo yo pito."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint fini prezantasyon diapo “{title}” la. Sal la montre foto diapo yo kounye a; klike sou yon diapo pou lanse PowerPoint ankò."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint pa t reponn."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Vi ekran ki itilize l: {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Ap konvèti {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Souliye"
 
 #: src/strings/themes.rs
 msgid "Gold"

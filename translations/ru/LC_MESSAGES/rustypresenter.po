@@ -610,6 +610,14 @@ msgstr "Любой цвет"
 msgid "Slide"
 msgstr "Слайд"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Изгиб пути перемещения"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Конец пути перемещения"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · анимаций: {}"
@@ -685,6 +693,22 @@ msgstr "Жирный"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Курсив"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Подчёркнутый"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Зачёркнутый"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "У некоторых слов здесь своё оформление. Эти настройки меняют всю рамку."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Таблица: одна строка таблицы на строку, ячейки разделяются табуляцией."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Снизу"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Дуга"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Или перетащите точку в конце пути на слайде (и точку в середине дуги)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Автопереход через (с)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Выкл."
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Показ как"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Способ показа…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6451,6 +6487,17 @@ msgstr[1] "Загрузка {n} картинок"
 msgstr[2] "Загрузка {n} картинок"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "Импорт {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "Импорт {n} картинки…"
+msgstr[1] "Импорт {n} картинок…"
+msgstr[2] "Импорт {n} картинок…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} добавлено"
 
@@ -6477,10 +6524,6 @@ msgstr "Оставить обе"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "«{title}» готово"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Как добавить «{name}»? Редактируемые слайды можно менять в редакторе слайдов. Картинки выглядят точно как в PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6902,6 +6945,54 @@ msgstr "Нажмите «Создать служение» у нужного ш�
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Введите день недели, например воскресенье, или оставьте пустым для любого дня."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Слайд {n} из {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Запуск в PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "Для «Запуска в PowerPoint» нужен Microsoft PowerPoint на компьютере с Windows."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Как добавить «{name}»? Редактируемые слайды можно менять в редакторе слайдов. Картинки выглядят точно как в PowerPoint. «Запуск в PowerPoint» воспроизводит все анимации, переходы и видео в самом PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Как показывать «{title}»? Редактируемые слайды, а также презентация без своего файла, будут заново импортированы из презентации."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Выберите файл презентации для «{title}» ещё раз."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "«{title}» теперь запускается в PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "«{title}» теперь показывается картинками."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "Для «Запуска в PowerPoint» экран зала должен быть на мониторе. Включите экран зала в разделе «Экраны»; до тех пор зал показывает картинки слайдов."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint не смог запустить «{title}»: {error} Вместо этого зал показывает картинки слайдов."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint завершил показ слайдов «{title}». Теперь зал показывает картинки слайдов; нажмите на слайд, чтобы снова запустить PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint не ответил."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8450,10 +8541,6 @@ msgstr "Используется в видах экрана: {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Преобразование {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Подчёркнутый"
 
 #: src/strings/themes.rs
 msgid "Gold"

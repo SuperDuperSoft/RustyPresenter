@@ -610,6 +610,14 @@ msgstr "Chagua rangi yoyote"
 msgid "Slide"
 msgstr "Slaidi"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Mpindo wa njia ya mwendo"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Mwisho wa njia ya mwendo"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · hatua {}"
@@ -685,6 +693,22 @@ msgstr "Nzito"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Italiki"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Pigia mstari"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Kata mstari"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "Baadhi ya maneno hapa yana mwonekano wao. Mipangilio hii inabadilisha kisanduku kizima."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Jedwali: safu moja kwa kila mstari, visanduku vimetenganishwa kwa vichupo (Tab)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Kutoka chini"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Tao"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Au buruta nukta iliyo mwishoni mwa njia kwenye slaidi (na ile iliyo katikati ya tao)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Songa yenyewe baada ya (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Imezimwa"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Inaonyeshwa kama"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Jinsi inavyoonyeshwa…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "Inapakia picha {n}"
 msgstr[1] "Inapakia picha {n}"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "Inaleta {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "Inaleta picha {n}…"
+msgstr[1] "Inaleta picha {n}…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} imeongezwa"
 
@@ -6456,10 +6502,6 @@ msgstr "Weka zote mbili"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "“{title}” uko tayari"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "“{name}” iingie vipi? Slaidi zinazoharirika zinaweza kubadilishwa kwenye kihariri cha slaidi. Picha zinaonekana sawasawa na PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "Bofya “Tengeneza ibada” kwenye kiolezo unachotaka, chini ya Violezo.
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Andika siku ya wiki, kama Jumapili, au uache tupu kwa siku yoyote."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Slaidi {n} kati ya {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Endesha katika PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "“Endesha katika PowerPoint” inahitaji Microsoft PowerPoint kwenye kompyuta ya Windows."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "“{name}” iingie vipi? Slaidi zinazoharirika zinaweza kubadilishwa kwenye kihariri cha slaidi. Picha zinaonekana sawasawa na PowerPoint. “Endesha katika PowerPoint” inacheza kila uhuishaji, mpito na video ndani ya PowerPoint yenyewe."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "“{title}” ionyeshwe vipi? Slaidi zinazoharirika, na wasilisho lisilo na faili yake, huletwa tena kutoka kwenye wasilisho."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Chagua tena faili ya wasilisho ya “{title}”."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "“{title}” sasa inaendeshwa katika PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "“{title}” sasa inaonyeshwa kama picha."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "“Endesha katika PowerPoint” inahitaji skrini ya ukumbi iwe kwenye kifuatiliaji. Washa skrini ya ukumbi katika Skrini; hadi hapo ukumbi unaonyesha picha za slaidi."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint haikuweza kuendesha “{title}”: {error} Badala yake ukumbi unaonyesha picha za slaidi."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint imemaliza onyesho la slaidi la “{title}”. Sasa ukumbi unaonyesha picha za slaidi; bofya slaidi ili kuanzisha PowerPoint tena."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint haikujibu."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Inatumiwa na mwonekano wa skrini: {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Inageuza {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Pigia mstari"
 
 #: src/strings/themes.rs
 msgid "Gold"

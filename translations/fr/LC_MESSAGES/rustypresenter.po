@@ -610,6 +610,14 @@ msgstr "Choisir n’importe quelle couleur"
 msgid "Slide"
 msgstr "Diapo"
 
+#: ui/dialogs/design-canvas.slint
+msgid "Bend of the motion path"
+msgstr "Courbure de la trajectoire"
+
+#: ui/dialogs/design-canvas.slint
+msgid "End of the motion path"
+msgstr "Fin de la trajectoire"
+
 #: ui/dialogs/design-editor.slint
 msgid "{} · {} builds"
 msgstr "{} · {} apparitions"
@@ -685,6 +693,22 @@ msgstr "Gras"
 #: ui/dialogs/design-editor.slint src/strings/themes.rs
 msgid "Italic"
 msgstr "Italique"
+
+#: ui/dialogs/design-editor.slint src/strings/themes.rs
+msgid "Underline"
+msgstr "Souligné"
+
+#: ui/dialogs/design-editor.slint
+msgid "Strike through"
+msgstr "Barré"
+
+#: ui/dialogs/design-editor.slint
+msgid "Some words here have their own look. These settings change the whole box."
+msgstr "Certains mots ont ici leur propre style. Ces réglages modifient toute la zone."
+
+#: ui/dialogs/design-editor.slint
+msgid "A table: one row per line, cells split by tabs."
+msgstr "Un tableau : une ligne par rangée, cellules séparées par des tabulations."
 
 #: ui/dialogs/design-editor.slint
 msgid "Shrink to fit the box"
@@ -886,6 +910,10 @@ msgstr "Depuis le bas"
 #: ui/dialogs/design-editor.slint
 msgid "Arc"
 msgstr "Arc"
+
+#: ui/dialogs/design-editor.slint
+msgid "Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."
+msgstr "Ou faites glisser le point au bout de la trajectoire sur la diapo (et celui au milieu d’un arc)."
 
 #: ui/dialogs/design-editor.slint
 msgid "Moves across ({}% of the slide)"
@@ -1206,6 +1234,14 @@ msgstr "Avancer seul après (s)"
 #: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
 msgid "Off"
 msgstr "Désactivé"
+
+#: ui/dialogs/item-edit.slint
+msgid "Shows as"
+msgstr "Affiché comme"
+
+#: ui/dialogs/item-edit.slint
+msgid "How it shows…"
+msgstr "Mode d’affichage…"
 
 #: ui/dialogs/item-edit.slint ui/operator/service.slint
 msgid "Theme"
@@ -6430,6 +6466,16 @@ msgstr[0] "Envoi de {n} image"
 msgstr[1] "Envoi de {n} images"
 
 #: src/strings/operator.rs
+msgid "Importing {name}…"
+msgstr "Importation de {name}…"
+
+#: src/strings/operator.rs
+msgid "Importing {n} picture…"
+msgid_plural "Importing {n} pictures…"
+msgstr[0] "Importation de {n} image…"
+msgstr[1] "Importation de {n} images…"
+
+#: src/strings/operator.rs
 msgid "{name} added"
 msgstr "{name} ajouté"
 
@@ -6456,10 +6502,6 @@ msgstr "Garder les deux"
 #: src/strings/operator.rs
 msgid "“{title}” is ready"
 msgstr "« {title} » est prêt"
-
-#: src/strings/operator.rs
-msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint."
-msgstr "Comment importer « {name} » ? Les diapos modifiables peuvent être changées dans l’éditeur de diapos. Les images ressemblent exactement à PowerPoint."
 
 #: src/strings/operator.rs
 msgid "Editable slides"
@@ -6877,6 +6919,54 @@ msgstr "Cliquez sur « Créer un culte » sur le modèle voulu, sous Modèles.
 #: src/strings/planning.rs
 msgid "Type a day of the week, like Sunday, or leave it empty for any day."
 msgstr "Tapez un jour de la semaine, comme dimanche, ou laissez vide pour n’importe quel jour."
+
+#: src/strings/pplive.rs
+msgid "Slide {n} of {total}"
+msgstr "Diapo {n} sur {total}"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint"
+msgstr "Lancer dans PowerPoint"
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer."
+msgstr "« Lancer dans PowerPoint » nécessite Microsoft PowerPoint sur un ordinateur Windows."
+
+#: src/strings/pplive.rs
+msgid "How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself."
+msgstr "Comment importer « {name} » ? Les diapos modifiables peuvent être changées dans l’éditeur de diapos. Les images sont exactement comme dans PowerPoint. « Lancer dans PowerPoint » joue chaque animation, transition et vidéo dans PowerPoint lui-même."
+
+#: src/strings/pplive.rs
+msgid "How should “{title}” show? Editable slides and a deck without its file come in again from the presentation."
+msgstr "Comment afficher « {title} » ? Les diapos modifiables, ainsi qu’une présentation sans son fichier, sont réimportées depuis la présentation."
+
+#: src/strings/pplive.rs
+msgid "Choose the presentation file for “{title}” again."
+msgstr "Choisissez de nouveau le fichier de présentation de « {title} »."
+
+#: src/strings/pplive.rs
+msgid "“{title}” runs in PowerPoint now."
+msgstr "« {title} » est maintenant lancé dans PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "“{title}” shows as pictures now."
+msgstr "« {title} » s’affiche maintenant en images."
+
+#: src/strings/pplive.rs
+msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgstr "« Lancer dans PowerPoint » nécessite l’écran de la salle sur un moniteur. Allumez l’écran de la salle dans Écrans ; en attendant, la salle affiche les images des diapos."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
+msgstr "PowerPoint n’a pas pu lancer « {title} » : {error} La salle affiche les images des diapos à la place."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint ended the slide show of “{title}”. The room shows the slide pictures now; click a slide to start PowerPoint again."
+msgstr "PowerPoint a arrêté le diaporama de « {title} ». La salle affiche maintenant les images des diapos ; cliquez sur une diapo pour relancer PowerPoint."
+
+#: src/strings/pplive.rs
+msgid "PowerPoint did not answer."
+msgstr "PowerPoint n’a pas répondu."
 
 #: src/strings/preflight.rs
 msgid "All set. Every song, file and screen for this service was found."
@@ -8413,10 +8503,6 @@ msgstr "Utilisé par les vues d’écran : {views}"
 #: src/strings/themes.rs
 msgid "Converting {percent} %"
 msgstr "Conversion {percent} %"
-
-#: src/strings/themes.rs
-msgid "Underline"
-msgstr "Souligné"
 
 #: src/strings/themes.rs
 msgid "Gold"
