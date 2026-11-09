@@ -64,6 +64,9 @@ export global ItemEdit {
     in-out property <string> notes;
     /// A deck's slides with their speaker notes (empty for other items).
     in property <[DeckNoteRow]> deck-notes;
+    /// 1.2: how a deck shows ("Pictures", "Run in PowerPoint"), and its button to change that.
+    in property <string> deck-shows-as;
+    callback deck-how();
     callback deck-note-edited(int, string);
     /// A deck slide's transition changed: (slide, kind / way / ms).
     callback deck-transition-changed(int, int);
@@ -380,6 +383,25 @@ export component ItemEditDialog inherits VerticalLayout {
             name-box := TextField {
                 label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
                 text <=> ItemEdit.name;
+            }
+        }
+        if ItemEdit.kind == "deck": Field {
+            label: @tr("Shows as");
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                Text {
+                    text: ItemEdit.deck-shows-as;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                deck-how := Btn {
+                    small: true;
+                    text: @tr("How it shows…");
+                    clicked => { ItemEdit.deck-how(); }
+                }
             }
         }
         if ItemEdit.deck-notes.length > 0: Field {

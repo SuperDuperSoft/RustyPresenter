@@ -344,8 +344,8 @@ mod tests {
     #[test]
     fn deck_rows_show_slide_count() {
         let app = test_app();
-        let old = Deck { id: Uuid::new_v4(), title: "Easter".into(), slides: vec!["a.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
-        let new = Deck { id: Uuid::new_v4(), title: "Missions".into(), slides: vec!["b.png".into(), "c.png".into(), "d.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        let old = Deck { id: Uuid::new_v4(), title: "Easter".into(), slides: vec!["a.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
+        let new = Deck { id: Uuid::new_v4(), title: "Missions".into(), slides: vec!["b.png".into(), "c.png".into(), "d.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         app.data.lock().unwrap().decks.extend([old, new.clone()]);
         let op = opened(&app);
         open_add(&op, AddTab::Deck);

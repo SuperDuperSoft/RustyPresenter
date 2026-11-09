@@ -198,6 +198,26 @@ pub struct Deck {
     /// operator moves on). Shorter than `slides` (or empty) when the last slides have none.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub advance_ms: Vec<Option<u32>>,
+    /// 1.2: the presentation file itself, kept so it can run in PowerPoint (`pplive`). `None` for decks made
+    /// only of pictures.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub show: Option<DeckShow>,
+}
+
+/// A deck's own presentation file (1.2 "Run in PowerPoint"). The slide pictures stay too: the operator, stage
+/// and phone show them, and the room shows them when PowerPoint cannot run.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct DeckShow {
+    /// The file in the asset store (with its extension, so PowerPoint knows what it is).
+    pub file: AssetId,
+    /// Runs in PowerPoint on the room screen. False: shown as pictures, the file kept for switching back.
+    #[serde(default)]
+    pub run: bool,
+}
+
+impl Deck {
+    /// The file to run in PowerPoint, when this deck is set to run there.
+    pub fn runs_in_powerpoint(&self) -> Option<&AssetId> { self.show.as_ref().filter(|s| s.run).map(|s| &s.file) }
 }
 
 /// The longest auto-advance time a slide can have (one hour).
@@ -857,7 +877,7 @@ impl Data {
             set.insert(m.asset.clone());
             set.extend(m.original_asset.iter().chain(&m.thumb).cloned());
         }
-        for d in &self.decks { set.extend(d.slides.iter().cloned()); }
+        for d in &self.decks { set.extend(d.slides.iter().cloned().chain(d.show.iter().map(|s| s.file.clone()))); }
         for s in &self.services { for i in &s.items { if let Some(b) = &i.background { bg(b, &mut set); } } }
         // N26: pictures and videos on designed slides.
         for i in self.services.iter().flat_map(|s| &s.items).chain(self.templates.iter().flat_map(|t| &t.items)) {
@@ -1125,7 +1145,7 @@ mod deck_notes_tests {
         let id = Uuid::new_v4();
         let old = serde_json::json!({ "id": id, "title": "Talk", "slides": ["1.png", "2.png"] });
         let deck: Deck = serde_json::from_value(old.clone()).unwrap();
-        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] });
+        assert_eq!(deck, Deck { id, title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
         assert_eq!(serde_json::to_value(&deck).unwrap(), old, "no notes key when there are none");
         let with = Deck { notes: vec!["Hi".into()], ..deck };
         assert_eq!(serde_json::from_value::<Deck>(serde_json::to_value(&with).unwrap()).unwrap(), with);
@@ -1144,7 +1164,7 @@ mod deck_notes_tests {
         assert_eq!(deck_advance(vec![None, Some(5000), None, Some(9_999_999)], 3), vec![None, Some(5000)]);
         assert_eq!(deck_advance(vec![Some(9_999_999)], 1), vec![Some(ADVANCE_MAX_MS)]);
         assert_eq!(deck_advance(vec![None, None], 2), vec![]);
-        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(5000)] };
+        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(5000)], show: None };
         let json = serde_json::to_value(&deck).unwrap();
         assert_eq!(json["advance_ms"], serde_json::json!([null, 5000]));
         assert_eq!(serde_json::from_value::<Deck>(json).unwrap(), deck);
@@ -1163,7 +1183,7 @@ mod deck_notes_tests {
         let short = Transition { ms: crate::design::TRANSITION_MAX_MS, ..wipe };
         assert_eq!(deck_transitions(vec![None, Some(wipe), None, Some(wipe)], 3), vec![None, Some(short)]);
         assert_eq!(deck_transitions(vec![None, None], 2), vec![]);
-        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(short)], advance_ms: vec![] };
+        let deck = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(short)], advance_ms: vec![], show: None };
         let json = serde_json::to_value(&deck).unwrap();
         assert_eq!(json["transitions"], serde_json::json!([null, { "kind": "wipe", "ms": crate::design::TRANSITION_MAX_MS, "dir": "down" }]));
         assert_eq!(serde_json::from_value::<Deck>(json).unwrap(), deck);

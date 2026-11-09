@@ -399,6 +399,11 @@ pub fn build_item(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec
     (title, kind, slides)
 }
 
+/// A deck slide's label: "Slide 3", or "Slide 3 of 12" for a deck that runs in PowerPoint (the stage shows it).
+fn deck_label(d: &crate::model::Deck, i: usize) -> String {
+    if d.runs_in_powerpoint().is_some() { crate::pplive::strings::slide_of(i + 1, d.slides.len()) } else { crate::tr!("Slide {n}", n = i + 1) }
+}
+
 /// `build_item` and the item's notes for the operator (`build_scripture`).
 pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'static str, Vec<Slide>, Vec<String>) {
     let s = &data.settings;
@@ -442,10 +447,11 @@ pub fn build_item_with_notes(data: &Data, item: &ServiceItem) -> (String, &'stat
             None => (crate::tr!("Missing media"), "video", vec![]),
         },
         ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
+            // 1.2: a deck that runs in PowerPoint keeps PowerPoint's own timings, and its label says where it is.
             Some(d) => (d.title.clone(), "deck", d.slides.iter().enumerate().map(|(i, a)| Slide {
                 notes: d.notes.get(i).cloned().unwrap_or_default(),
-                advance_ms: d.advance_ms.get(i).copied().flatten(),
-                ..Slide::new(crate::tr!("Slide {n}", n = i + 1), SlideContent::Image { asset: a.clone(), transition: d.transitions.get(i).copied().flatten() })
+                advance_ms: d.advance_ms.get(i).copied().flatten().filter(|_| d.runs_in_powerpoint().is_none()),
+                ..Slide::new(deck_label(d, i), SlideContent::Image { asset: a.clone(), transition: d.transitions.get(i).copied().flatten() })
             }).collect()),
             None => (crate::tr!("Missing slides"), "deck", vec![]),
         },

@@ -20,7 +20,7 @@ fn media(name: &str, a: &str) -> MediaFile { MediaFile { id: Uuid::new_v4(), nam
 fn sample(s: &Store) -> Data {
     let mut d = Data::default();
     let (v, slide, bg, other) = (asset(s, b"video", "mp4"), asset(s, b"slide", "png"), asset(s, b"bg", "jpg"), asset(s, b"not used", "png"));
-    let (sg, m, deck) = (song("Amazing Grace", "22025", "Verse 1\nAmazing grace"), media("clip", &v), Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec![slide], notes: vec![], transitions: vec![], advance_ms: vec![] });
+    let (sg, m, deck) = (song("Amazing Grace", "22025", "Verse 1\nAmazing grace"), media("clip", &v), Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec![slide], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
     let mut first = item(ItemKind::Song { song_id: sg.id, arrangement: None });
     first.background = Some(Background::Image { asset: bg, dim: 0 });
     first.notes = "Key of G".into();
@@ -213,12 +213,12 @@ fn two_titles_without_ccli_are_only_the_same_with_the_same_words() {
 fn media_and_decks_match_by_their_files() {
     let mut there = Data::default();
     let local = media("Local name", &format!("{HEX}.mp4"));
-    let local_deck = Deck { id: Uuid::new_v4(), title: "Local".into(), slides: vec![format!("{HEX}.png")], notes: vec![], transitions: vec![], advance_ms: vec![] };
+    let local_deck = Deck { id: Uuid::new_v4(), title: "Local".into(), slides: vec![format!("{HEX}.png")], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
     let (mid, did) = (local.id, local_deck.id);
     there.media.push(local);
     there.decks.push(local_deck);
     let m = media("Other name", &format!("{HEX}.mp4"));
-    let deck = Deck { id: Uuid::new_v4(), title: "Other".into(), slides: vec![format!("{HEX}.png")], notes: vec![], transitions: vec![], advance_ms: vec![] };
+    let deck = Deck { id: Uuid::new_v4(), title: "Other".into(), slides: vec![format!("{HEX}.png")], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Media { media_id: m.id, autoplay: false, end: EndAction::Loop, looped: false }), item(ItemKind::Deck { deck_id: deck.id })];
     let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![deck], fonts: vec![] });
@@ -317,7 +317,7 @@ fn every_asset_field_is_checked() {
     let cases: Vec<Box<dyn FnOnce(&mut Contents)>> = vec![
         Box::new(|c| c.media[0].thumb = Some("../x.jpg".into())),
         Box::new(|c| c.media[0].original_asset = Some("../x.mp4".into())),
-        Box::new(|c| c.decks.push(Deck { id: Uuid::new_v4(), title: "d".into(), slides: vec!["../x.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] })),
+        Box::new(|c| c.decks.push(Deck { id: Uuid::new_v4(), title: "d".into(), slides: vec!["../x.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None })),
         Box::new(|c| c.service.items[0].background = Some(Background::Video { asset: "../x.mp4".into(), dim: 0 })),
     ];
     for edit in cases {

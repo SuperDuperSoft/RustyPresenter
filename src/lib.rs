@@ -15,6 +15,7 @@ pub mod planning;
 pub mod print;
 pub mod report_page;
 pub mod platform;
+pub mod pplive;
 pub mod preflight;
 pub mod record;
 pub mod recovery;

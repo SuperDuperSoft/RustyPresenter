@@ -271,6 +271,8 @@ pub struct App {
     pub(crate) listening: AtomicBool,
     /// The room screen's size (width << 32 | height), so the phone draws on a picture of the same shape.
     room_canvas: AtomicU64,
+    /// 1.2: decks that run in PowerPoint (`pplive`).
+    pub(crate) pplive: crate::pplive::app::Hub,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -330,7 +332,7 @@ impl App {
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
-            listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080),
+            listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(),
         });
         crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         {
@@ -512,12 +514,16 @@ impl App {
                 Err(e) => Outcome { ok: false, version, error: Some(e), duplicate: false },
             };
         }
+        // 1.2: Next/Back on a deck running in PowerPoint click there first.
+        if let Some(out) = self.show_command(&env) { return out }
+        let cmd = env.cmd.clone();
         let out = {
             let data = self.data.lock().unwrap();
             let mut live = self.live.lock().unwrap();
             live.apply(env, &DataPlan(&data))
         };
         if out.ok && !out.duplicate {
+            self.show_after_command(&cmd);
             self.broadcast_live();
             if self.room_conns.load(Ordering::Relaxed) == 0 { self.note_song_use(false); }
             self.automation_after(None);
@@ -1280,6 +1286,7 @@ impl App {
                 "powerpoint" => ImportPurpose::PowerPoint,
                 "lyrics" => ImportPurpose::Lyrics,
                 "slides" => ImportPurpose::Slides,
+                "show" => ImportPurpose::Show,
                 other => return Err(ActionError::bad(tr!("Bad request: unknown purpose {purpose}", purpose = other))),
             };
             Ok(match app.import_path(&path, purpose, |_| {}).await? {
@@ -1295,7 +1302,7 @@ impl App {
             if assets.is_empty() { return Err(ActionError::bad(tr!("Choose at least one picture."))); }
             for a in &assets { if !app.store.asset_path(a).exists() { return Err(ActionError::bad(tr!("A picture is missing. Try uploading again."))); } }
             let id = Uuid::new_v4();
-            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }));
+            tryr!(app.edit(|d| { d.decks.push(Deck { id, title, slides: assets, notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }));
             Ok(json!({ "id": id }))
         }
         "deck/rename" => {
@@ -1318,6 +1325,21 @@ impl App {
                 if let Some(x) = d.decks.iter_mut().find(|x| x.id == id) {
                     x.transitions = crate::model::deck_transitions(transitions, x.slides.len());
                     if let Some(a) = advance_ms { x.advance_ms = crate::model::deck_advance(a, x.slides.len()); }
+                }
+                Ok(())
+            }));
+            Ok(json!({}))
+        }
+        "deck/show" => {
+            // 1.2: run a deck in PowerPoint, or show it as pictures again. Only a deck that kept its file can run.
+            #[derive(Deserialize)] struct S { id: Uuid, run: bool }
+            let S { id, run } = parse(body)?;
+            tryr!(app.edit(|d| {
+                let deck = d.decks.iter_mut().find(|x| x.id == id).ok_or_else(|| tr!("That item is gone."))?;
+                match &mut deck.show {
+                    Some(show) => show.run = run,
+                    None if run => return Err(crate::pplive::strings::choose_file_again(&deck.title)),
+                    None => {}
                 }
                 Ok(())
             }));
@@ -1649,7 +1671,7 @@ impl App {
 
 /// What a file is being imported for. Picks what `App::import_staged` does with it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics, /** A .pptx as editable designed slides (1.1). */ Slides }
+pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics, /** A .pptx as editable designed slides (1.1). */ Slides, /** Pictures, and the file kept to run in PowerPoint (1.2). */ Show }
 
 /// What to do when an imported song has the same CCLI # as one in the library.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
@@ -1747,6 +1769,7 @@ impl App {
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => return Ok(Imported::Job(import::deck::start(app.clone(), tmp, display))),
+            ImportPurpose::Show => return Ok(Imported::Job(import::deck::start_as(app.clone(), tmp, display, true))),
             ImportPurpose::Slides => return Ok(Imported::Job(import::pptx_design::start(app.clone(), tmp, display))),
             ImportPurpose::Asset | ImportPurpose::Media => {}
         }

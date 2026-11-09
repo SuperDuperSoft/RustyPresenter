@@ -575,7 +575,7 @@ fn a_powerpoint_slides_own_time_turns_it_and_stops_on_the_last() {
     let app = test_app();
     let deck_id = Uuid::new_v4();
     let slides = vec!["1.png".to_string(), "2.png".into(), "3.png".into()];
-    app.edit(|d| { d.decks.push(crate::model::Deck { id: deck_id, title: "Talk".into(), slides, notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+    app.edit(|d| { d.decks.push(crate::model::Deck { id: deck_id, title: "Talk".into(), slides, notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
     act(&app, "deck/transitions", serde_json::json!({ "id": deck_id, "transitions": [], "advance_ms": [5000, 5000, 5000, 5000] })).unwrap();
     assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000); 3]);
     let r = act(&app, "service/add", serde_json::json!({ "item": { "kind": "deck", "deck_id": deck_id } })).unwrap();

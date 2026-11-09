@@ -504,7 +504,7 @@ mod tests {
         use crate::design::{Dir, Transition, TransitionKind};
         let app = test_app();
         let push = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![None, Some(push)], advance_ms: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![None, Some(push)], advance_ms: vec![], show: None };
         let id = Uuid::new_v4();
         {
             let mut d = app.data.lock().unwrap();

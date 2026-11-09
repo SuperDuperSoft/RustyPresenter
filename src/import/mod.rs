@@ -42,6 +42,10 @@ pub fn init(app: &Arc<App>) -> impl Future<Output = ()> + Send + 'static {
     let powerpoint = tools::powerpoint_installed().then(powerpoint::PowerPoint::new);
     let converters = Arc::new(deck::Converters::new(Box::new(tools::find_soffice), pdf, powerpoint, root.clone()));
     app.set_converters(converters.clone());
+    // 1.2: decks can run in PowerPoint itself, which is only ever installed on Windows.
+    if cfg!(windows) && converters.powerpoint.is_some() {
+        app.set_show_host(Box::new(crate::pplive::host::PsHost::new(crate::pplive::host::Launcher::powershell(), app.store.tmp().join("pplive"))));
+    }
     async move {
         let deps = root.join("deps");
         let _ = tokio::task::spawn_blocking(move || libreoffice::kill_leftover(&deps)).await;

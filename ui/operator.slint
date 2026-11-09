@@ -289,6 +289,7 @@ export component OperatorWindow inherits Window {
     in property <[AskRow]> ask;
     callback ask-answer(bool, string);
     callback ask-other();
+    callback ask-third();
 
     /// Keys offered to Rust before the focused field sees them (`capture-key-pressed`): the F-keys and every Ctrl or
     /// Alt key, which a church may use as a shortcut (N28). Rust says no to the ones it does not use, and the field
@@ -1098,6 +1099,7 @@ export component OperatorWindow inherits Window {
             ask: a;
             answer(ok, text) => { root.ask-answer(ok, text); }
             other => { root.ask-other(); }
+            third => { root.ask-third(); }
         }
     }
 

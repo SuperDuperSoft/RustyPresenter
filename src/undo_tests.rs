@@ -190,7 +190,7 @@ fn every_library_list_is_covered() {
     let (mut h, mut d) = (History::default(), Data::default());
     edit(&mut h, &mut d, |d| {
         d.media_folders.push("Kids".into());
-        d.decks.push(Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] });
+        d.decks.push(Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
         d.default_theme = Some(Uuid::new_v4());
     });
     assert_eq!(h.undo(&mut d).unwrap(), "Undone: the last change");

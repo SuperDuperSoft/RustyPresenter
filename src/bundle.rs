@@ -159,7 +159,7 @@ fn is_asset_id(id: &str) -> bool {
 
 /// Every asset the contents name.
 fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
-    let mut set: BTreeSet<AssetId> = c.decks.iter().flat_map(|d| d.slides.iter().cloned()).collect();
+    let mut set: BTreeSet<AssetId> = c.decks.iter().flat_map(|d| d.slides.iter().cloned().chain(d.show.iter().map(|s| s.file.clone()))).collect();
     for m in &c.media {
         set.insert(m.asset.clone());
         set.extend(m.original_asset.iter().chain(&m.thumb).cloned());

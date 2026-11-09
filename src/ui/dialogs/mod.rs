@@ -45,7 +45,7 @@ use crate::ui::operator::{view, window::Operator};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
-pub use ask::{choose, confirm, prompt};
+pub use ask::{choose, choose3, confirm, prompt};
 
 /// The tiles of Add to service (`operator.js:385-388`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -265,6 +265,8 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     op.ui.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { ask::answer(&op, ok, text.into()) });
     let me = Rc::downgrade(op);
     op.ui.on_ask_other(move || if let Some(op) = me.upgrade() { ask::answer_other(&op) });
+    let me = Rc::downgrade(op);
+    op.ui.on_ask_third(move || if let Some(op) = me.upgrade() { ask::answer_third(&op) });
     add::wire_add_button(op);
     services::wire(op);
     print::wire(op);
@@ -420,12 +422,50 @@ mod tests {
     }
 
     #[test]
+    fn choose3_has_three_answers_and_a_greyed_third_says_why() {
+        let app = test_app();
+        let op = opened(&app);
+        let got = Rc::new(Cell::new(None));
+        let ask = |got: &Rc<Cell<Option<Option<usize>>>>, why: Option<&str>| {
+            let got = got.clone();
+            ask::choose3(&op, "Which?", ["First", "Second", "Third"], why, move |a| got.set(Some(a)));
+        };
+        ask(&got, None);
+        settle(&op);
+        key(&op, Key::Return);
+        assert_eq!(got.take(), Some(Some(0)), "Enter takes the first");
+        ask(&got, None);
+        settle(&op);
+        find(&op, "AskOverlay::other").unwrap().mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(got.take(), Some(Some(1)));
+        ask(&got, None);
+        settle(&op);
+        find(&op, "AskOverlay::third").unwrap().mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(got.take(), Some(Some(2)));
+        // Greyed: the click does nothing, the reason is shown, and Esc still answers.
+        ask(&got, Some("Needs PowerPoint."));
+        settle(&op);
+        find(&op, "AskOverlay::third").unwrap().mock_single_click(PointerEventButton::Left);
+        settle(&op);
+        assert_eq!(got.take(), None);
+        ask::answer_third(&op);
+        assert_eq!(got.take(), None, "nor from Rust");
+        assert_eq!(slint::Model::row_data(&op.ui.get_ask(), 0).unwrap().third_note, "Needs PowerPoint.");
+        key(&op, Key::Escape);
+        assert_eq!(got.take(), Some(None));
+        assert!(!ask_up(&op));
+    }
+
+    #[test]
     fn a_plain_confirm_has_no_third_button() {
         let app = test_app();
         let op = opened(&app);
         confirm(&op, "Sure?", "OK", "Cancel", false, |_| {});
         settle(&op);
         assert!(find(&op, "AskOverlay::other").is_none());
+        assert!(find(&op, "AskOverlay::third").is_none());
     }
 
     #[test]
