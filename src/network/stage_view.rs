@@ -123,7 +123,7 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
         });
         let (kind, extra) = match &c.content {
             CellContent::Empty => return None,
-            CellContent::Picture { caption, .. } | CellContent::Text { caption, .. } if let Some(src) = picture_of(c) => ("picture", json!({ "caption": caption, "src": src })),
+            CellContent::Picture { caption, .. } | CellContent::Text { caption, .. } | CellContent::Designed { caption, .. } if let Some(src) = picture_of(c) => ("picture", json!({ "caption": caption, "src": src })),
             CellContent::Text { text, dim, caption, red } => ("text", json!({ "text": text, "dim": dim, "caption": caption, "red": red })),
             CellContent::Picture { caption, .. } => ("text", json!({ "text": stage::strings::slide_picture(), "caption": caption })),
             CellContent::Designed { words, caption, .. } => ("text", json!({ "text": words, "caption": caption })),
