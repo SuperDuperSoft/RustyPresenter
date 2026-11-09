@@ -84,9 +84,14 @@ fn pptx_transition(t: Node) -> Transition {
         "cut" if black => TransitionKind::Black,
         "cut" => TransitionKind::Cut,
         "fade" if black => TransitionKind::Black,
-        "fade" | "dissolve" | "zoom" => TransitionKind::Fade,
-        "push" | "cover" | "pull" => return Transition { kind: TransitionKind::Push, ms, dir: dir.unwrap_or_default() },
-        "split" => return Transition { kind: TransitionKind::Wipe, ms, dir: if attr(&e, "orient") == Some("vert") { Dir::Right } else { Dir::Down } },
+        "fade" => TransitionKind::Fade,
+        "dissolve" => TransitionKind::Dissolve,
+        "zoom" => TransitionKind::Zoom,
+        "push" => return Transition { kind: TransitionKind::Push, ms, dir: dir.unwrap_or_default() },
+        "cover" => return Transition { kind: TransitionKind::Cover, ms, dir: dir.unwrap_or_default() },
+        "pull" => return Transition { kind: TransitionKind::Uncover, ms, dir: dir.unwrap_or_default() },
+        // A vertical split line opens sideways.
+        "split" => return Transition { kind: TransitionKind::Split, ms, dir: if attr(&e, "orient") == Some("vert") { Dir::Left } else { Dir::Up } },
         _ => match dir {
             Some(dir) => return Transition { kind: TransitionKind::Wipe, ms, dir },
             None => TransitionKind::Fade,

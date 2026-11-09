@@ -1279,6 +1279,7 @@ impl App {
                 "asset" => ImportPurpose::Asset,
                 "powerpoint" => ImportPurpose::PowerPoint,
                 "lyrics" => ImportPurpose::Lyrics,
+                "slides" => ImportPurpose::Slides,
                 other => return Err(ActionError::bad(tr!("Bad request: unknown purpose {purpose}", purpose = other))),
             };
             Ok(match app.import_path(&path, purpose, |_| {}).await? {
@@ -1648,7 +1649,7 @@ impl App {
 
 /// What a file is being imported for. Picks what `App::import_staged` does with it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics }
+pub enum ImportPurpose { Media, Asset, PowerPoint, Lyrics, /** A .pptx as editable designed slides (1.1). */ Slides }
 
 /// What to do when an imported song has the same CCLI # as one in the library.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
@@ -1746,6 +1747,7 @@ impl App {
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => return Ok(Imported::Job(import::deck::start(app.clone(), tmp, display))),
+            ImportPurpose::Slides => return Ok(Imported::Job(import::pptx_design::start(app.clone(), tmp, display))),
             ImportPurpose::Asset | ImportPurpose::Media => {}
         }
 

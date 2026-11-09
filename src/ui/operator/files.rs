@@ -10,7 +10,7 @@ use super::{
 use crate::{
     app::{ImportPurpose, Imported},
     import::{CANCELLED, deck::DECK_EXT, media},
-    model::{AssetId, Deck},
+    model::{AssetId, Deck, ItemKind, ServiceItem},
     platform::winit_events::{self, Dispatcher, WindowEvent},
     ui::dialogs,
 };
@@ -135,14 +135,17 @@ pub enum DeckWatchStep {
     Nothing,
     /// The job made this deck (id, title).
     Ready(Uuid, String),
+    /// The job put editable slides in the service itself (their title).
+    Added(String),
 }
 
 impl DeckWatch {
     /// One look at a new snapshot. Only the job's own result counts, never "every new deck".
-    pub fn step(self, ends: &[(Uuid, Option<Uuid>)], decks: &[Deck]) -> DeckWatchStep {
+    pub fn step(self, ends: &[(Uuid, Option<Uuid>)], decks: &[Deck], items: &[ServiceItem]) -> DeckWatchStep {
         match ends.iter().find(|(job, _)| *job == self.0) {
             None => DeckWatchStep::Wait,
             Some((_, None)) => DeckWatchStep::Nothing,
+            Some((_, Some(id))) if let Some(ItemKind::Design { title, .. }) = items.iter().find(|i| i.id == *id).map(|i| &i.kind) => DeckWatchStep::Added(title.clone()),
             // A read can catch the end of the job and not the deck it made; the next read has both.
             Some((_, Some(id))) => decks.iter().find(|d| d.id == *id).map_or(DeckWatchStep::Wait, |d| DeckWatchStep::Ready(d.id, d.title.clone())),
         }
@@ -171,11 +174,28 @@ fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Op
 
 fn next_file(op: &Rc<Operator>, mut rest: VecDeque<PathBuf>) {
     let Some(path) = rest.pop_front() else { return op.dialog_refresh() };
+    // A .pptx can come in as slides to edit (1.1) or as pictures: asked each time; Cancel skips the file.
+    if crate::import::pptx_text::EXT.contains(&ext(&path).as_str()) {
+        let me = Rc::downgrade(op);
+        dialogs::choose(op, &tr::pptx_how(&file_name(&path)), &tr::editable_slides(), &tr::as_pictures(), move |answer| {
+            let Some(op) = me.upgrade() else { return };
+            match answer {
+                Some(editable) => import_file(&op, path, if editable { ImportPurpose::Slides } else { ImportPurpose::PowerPoint }, rest),
+                None => next_file(&op, rest),
+            }
+        });
+        return;
+    }
+    let purpose = route(&path).purpose();
+    import_file(op, path, purpose, rest);
+}
+
+fn import_file(op: &Rc<Operator>, path: PathBuf, purpose: ImportPurpose, rest: VecDeque<PathBuf>) {
     let name = file_name(&path);
     let job = op.client_job(tr::uploading(&name));
     let progress = job.progress();
     let me = Rc::downgrade(op);
-    op.ops.import(path.clone(), route(&path).purpose(), progress, move |r| {
+    op.ops.import(path.clone(), purpose, progress, move |r| {
         drop(job);
         let Some(op) = me.upgrade() else { return };
         let shown = name.clone();
@@ -234,12 +254,15 @@ impl Operator {
     pub(super) fn watch_decks(&self) {
         let Some(op) = self.me.upgrade() else { return };
         let Some(s) = self.state.borrow().snap.clone() else { return };
-        let mut ready = VecDeque::new();
-        self.files.watches.borrow_mut().retain(|w| match w.step(&s.job_ends, &s.data.decks) {
+        let (mut ready, mut added) = (VecDeque::new(), Vec::new());
+        let items = s.data.service().map(|sv| sv.items.as_slice()).unwrap_or(&[]);
+        self.files.watches.borrow_mut().retain(|w| match w.step(&s.job_ends, &s.data.decks, items) {
             DeckWatchStep::Wait => true,
             DeckWatchStep::Nothing => false,
+            DeckWatchStep::Added(title) => { added.push(title); false }
             DeckWatchStep::Ready(id, title) => { ready.push_back((id, title)); false }
         });
+        for title in added { op.toast(tr::deck_ready(&title), false) }
         add_decks(&op, ready);
     }
 }
@@ -748,10 +771,13 @@ mod window_tests {
         let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
         let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
         let w = DeckWatch(job);
-        assert_eq!(w.step(&[(other, Some(old.id))], &[old.clone(), new.clone()]), DeckWatchStep::Wait, "another job's end, and a new deck that may be anyone's");
-        assert_eq!(w.step(&[(job, Some(new.id))], std::slice::from_ref(&old)), DeckWatchStep::Wait, "a read that has the end but not yet the deck");
-        assert_eq!(w.step(&[(job, Some(new.id))], &[old.clone(), new.clone()]), DeckWatchStep::Ready(new.id, "Talk".into()));
-        assert_eq!(w.step(&[(job, None)], &[old, new]), DeckWatchStep::Nothing, "failed or cancelled");
+        assert_eq!(w.step(&[(other, Some(old.id))], &[old.clone(), new.clone()], &[]), DeckWatchStep::Wait, "another job's end, and a new deck that may be anyone's");
+        assert_eq!(w.step(&[(job, Some(new.id))], std::slice::from_ref(&old), &[]), DeckWatchStep::Wait, "a read that has the end but not yet the deck");
+        assert_eq!(w.step(&[(job, Some(new.id))], &[old.clone(), new.clone()], &[]), DeckWatchStep::Ready(new.id, "Talk".into()));
+        assert_eq!(w.step(&[(job, None)], &[old.clone(), new.clone()], &[]), DeckWatchStep::Nothing, "failed or cancelled");
+        // Editable slides: the job put its item in the service.
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Design { title: "Talk".into(), slides: vec![] }, background: None, notes: String::new(), theme: None };
+        assert_eq!(w.step(&[(job, Some(item.id))], &[old, new], std::slice::from_ref(&item)), DeckWatchStep::Added("Talk".into()));
     }
 
     #[test]

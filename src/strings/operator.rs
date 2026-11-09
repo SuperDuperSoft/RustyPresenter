@@ -89,6 +89,11 @@ pub fn song_updated(title: &str) -> String { tr!("Updated “{title}”", title 
 pub fn update_existing() -> String { tr!("Update existing") }
 pub fn keep_both() -> String { tr!("Keep both") }
 pub fn deck_ready(title: &str) -> String { tr!("“{title}” is ready", title = title) }
+pub fn pptx_how(name: &str) -> String {
+    tr!("How should “{name}” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint.", name = name)
+}
+pub fn editable_slides() -> String { tr!("Editable slides") }
+pub fn as_pictures() -> String { tr!("Pictures") }
 pub fn file_failed(name: &str, err: &str) -> String { format!("{name}: {err}") }
 pub fn name_these_slides() -> String { tr!("Name these slides") }
 

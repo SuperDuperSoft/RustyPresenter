@@ -72,8 +72,19 @@ impl<R: Read + Seek> Package<R> {
         Some(text.trim_start_matches('\u{feff}').to_string())
     }
 
+    /// A part's bytes (a picture), counted against the same budget. At most `max` bytes.
+    pub(super) fn bytes(&mut self, name: &str, max: u64) -> Option<Vec<u8>> {
+        let entry = self.names.get(&name.to_ascii_lowercase())?.clone();
+        let bytes = read_part(&mut self.zip, &entry, max.min(self.budget))?;
+        self.budget -= bytes.len() as u64;
+        Some(bytes)
+    }
+
+    /// Raises the budget (a designed import also reads the pictures).
+    pub(super) fn with_budget(mut self, budget: u64) -> Self { self.budget = budget; self }
+
     /// `Id → (type, part name)` of a `.rels` part. Targets are relative to `base` (the source part's folder).
-    fn rels(&mut self, name: &str, base: &str) -> HashMap<String, (String, String)> {
+    pub(super) fn rels(&mut self, name: &str, base: &str) -> HashMap<String, (String, String)> {
         let Some(xml) = self.part(name) else { return HashMap::new() };
         let Ok(doc) = Document::parse(&xml) else { return HashMap::new() };
         doc.descendants()
@@ -84,7 +95,7 @@ impl<R: Read + Seek> Package<R> {
 }
 
 /// A relationship target as a part name: absolute (`/ppt/…`) or relative to `base`, with `..` worked out.
-fn resolve(base: &str, target: &str) -> String {
+pub(super) fn resolve(base: &str, target: &str) -> String {
     let mut parts: Vec<&str> = match target.strip_prefix('/') {
         Some(_) => Vec::new(),
         None => base.split('/').filter(|s| !s.is_empty()).collect(),
@@ -100,7 +111,7 @@ fn resolve(base: &str, target: &str) -> String {
 }
 
 /// The folder and the file name of a part name.
-fn split(part: &str) -> (&str, &str) {
+pub(super) fn split(part: &str) -> (&str, &str) {
     part.rsplit_once('/').unwrap_or(("", part))
 }
 
@@ -117,17 +128,20 @@ pub fn pptx<R: Read + Seek>(r: R) -> Option<Vec<String>> {
     let mut p = Package::open(r)?;
     let mut out = Vec::new();
     for (slide, _) in pptx_slides(&mut p)? {
-        let (dir, file) = split(&slide);
-        let notes = p
-            .rels(&format!("{dir}/_rels/{file}.rels"), dir)
-            .into_values()
-            .find(|(ty, _)| ty.ends_with("/notesSlide"))
-            .and_then(|(_, target)| p.part(&target))
-            .and_then(|xml| Document::parse(&xml).ok().map(|d| notes_text(&d)))
-            .unwrap_or_default();
-        out.push(notes);
+        out.push(slide_notes(&mut p, &slide));
     }
     Some(out)
+}
+
+/// The notes of one slide (part name), "" when it has none.
+pub(super) fn slide_notes<R: Read + Seek>(p: &mut Package<R>, slide: &str) -> String {
+    let (dir, file) = split(slide);
+    p.rels(&format!("{dir}/_rels/{file}.rels"), dir)
+        .into_values()
+        .find(|(ty, _)| ty.ends_with("/notesSlide"))
+        .and_then(|(_, target)| p.part(&target))
+        .and_then(|xml| Document::parse(&xml).ok().map(|d| notes_text(&d)))
+        .unwrap_or_default()
 }
 
 /// The part name and XML of each slide that makes a picture, in show order (hidden ones left out). A slide that is
