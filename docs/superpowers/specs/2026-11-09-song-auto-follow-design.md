@@ -23,15 +23,15 @@ Assumptions (correct me): runs fully on the church PC, offline (no cloud, no aud
 
 ## 3. How it works (approach)
 
-Chosen: **on-device Whisper (pure Rust, Candle) + a lyrics aligner + voice activity**. Rejected: cloud speech (needs internet, sends church audio away, costs money); sound-alike matching only (worse with talk/ad-libs). No C++ toolchain (Jake: never MSVC); new crates come from Jake's PC once (cargo fetch there, sent to the cloud vendor dir).
+Chosen: **our own Rust lyrics follower (forced aligner + beat/voice tracker) on a small CTC acoustic model run in pure Rust (Candle)**; Whisper only as an optional extra (Bible-verse detection, off-script check). Why: we already know the words, so the task is *alignment*, not transcription. A CTC model (wav2vec2-style, ~30–90 MB; multilingual phoneme variant for other languages) gives sound probabilities every 20 ms, streams with low latency and doesn't invent words; our aligner walks those probabilities through the known lyrics (Viterbi/beam over the lyric phoneme sequence), which is the standard approach for lyrics-to-audio alignment. Later: fine-tune the acoustic model on sung audio (public lyrics-alignment data + the church's own rehearsal recordings) to improve singing accuracy. Rejected: training a speech model from scratch (needs thousands of hours of labelled singing and large GPU clusters); Whisper as the core (transcribes in chunks → slow to react, can hallucinate words over music, doesn't use the known lyrics well); cloud speech (needs internet, sends church audio away, costs money). No C++ toolchain (Jake: never MSVC); new crates come from Jake's PC once (cargo fetch there, sent to the cloud vendor dir).
 
 Pipeline (one background thread group, never on the UI thread):
 1. **Capture** the main mix (cpal input device chosen in settings; later the leader's channel or any input), 16 kHz mono.
 2. **Clean-up:** band-pass for voice + optional vocal isolation (later: a small source-separation model if the PC is fast enough).
 3. **Voice activity (VAD):** singing / speaking / instrumental / silence, per 100 ms, with a short history. Distinguishes singing from talking (pitch stability, harmonic ratio, tempo-locked rhythm) — used for blanking and to ignore talk.
-4. **Recognition:** Whisper (tiny/base/small, user picks; auto-picked from a speed check) on a rolling 2–5 s window every ~0.5 s, with the **song's own lyrics as the prompt** (Whisper's initial prompt / vocabulary bias) so it hears the song's words.
-5. **Aligner:** the song's slides (in the planned arrangement order, but every section is a candidate) become a word sequence with phonetic keys. Heard words are matched with a fuzzy, sound-alike score (Double Metaphone + edit distance) using a streaming alignment (beam over positions) that prefers continuing forward in the plan, allows jumps to other sections only with strong evidence (several consecutive matched words), and never jumps on one word.
-6. **Prediction, not reaction (the key point).** Speech recognition lags 1–2 s, so it is only used to *confirm and correct* where the singers are. The switch itself is timed by a **low-latency beat/onset and voice tracker (~50 ms)** plus the known lyrics: from the current position, the remaining syllables on the slide, and the measured singing pace (syllables per beat, beats per second), it predicts when the next line starts and switches **lead time** (default 2 s) before it. Rehearsal learning stores each line's duration for this team, making the prediction near-exact. If the prediction and recognition disagree, recognition wins at the next safe moment (never mid-line flicker).
+4. **Acoustic model:** a CTC model (Candle) turns each 20 ms frame of audio into letter/phoneme probabilities, streaming (rolling ~1 s context, ~0.2–0.4 s latency). Model size picked from a speed check (Fast / Balanced / Best).
+5. **Aligner (ours):** the song's slides (planned arrangement order, but every section a candidate) become a phoneme/letter sequence (a small Rust grapheme-to-phoneme step + per-song pronunciation fixes). A streaming beam search over positions in that sequence scores the incoming probabilities; it prefers continuing forward in the plan, allows jumps to other sections only with strong evidence (a run of ≥4 well-matched words), never jumps on one word, and reports a confidence. When the match score falls (talk, prayer, ad-libs), it reports "off-script" instead of guessing. Optional Whisper pass (if the PC is fast) double-checks off-script audio and spots quoted Bible references.
+6. **Prediction, not reaction (the key point).** Hearing words always lags (the aligner ~0.3–0.5 s, Whisper 1–2 s), so word matching is only used to *confirm and correct* where the singers are. The switch itself is timed by a **low-latency beat/onset and voice tracker (~50 ms)** plus the known lyrics: from the current position, the remaining syllables on the slide, and the measured singing pace (syllables per beat, beats per second), it predicts when the next line starts and switches **lead time** (default 2 s) before it. Rehearsal learning stores each line's duration for this team, making the prediction near-exact. If the prediction and recognition disagree, recognition wins at the next safe moment (never mid-line flicker).
 7. **Decision:** moves the live slide (Automatic) or highlights it (Suggest) through the normal live engine (same path as Next, so undo/stage/phone/livestream all follow).
 
 ## 4. Rules (the careful part)
@@ -74,11 +74,12 @@ Pipeline (one background thread group, never on the UI thread):
 
 1. **Aligner + predictor + rules + Suggest/Auto plumbing** with a fake recognizer and fake beat tracker (testable now).
 2. **Audio capture + low-latency beat/voice tracker + VAD + blanking.**
-3. **Whisper (Candle) + model download + speed check.**
+3. **CTC acoustic model in Candle + model download + speed check;** optional Whisper extra.
 4. **UI:** chips, light, settings, test, stage/phone, log, Practice mode.
 5. **Rehearsal learning, Bible-verse suggestion, vocal isolation (if fast enough).**
 
 ## 9. Open points
 
-- New Rust crates (candle-core, candle-nn, candle-transformers, tokenizers, cpal, maybe rubato) must be fetched on Jake's PC once and copied to the cloud build — one script for Jake to run.
-- Model files (~75–500 MB) download on first use from Hugging Face; pinned by checksum.
+- New Rust crates (candle-core, candle-nn, candle-transformers, cpal, rubato; tokenizers only for the Whisper extra) must be fetched on Jake's PC once and copied to the cloud build — one script for Jake to run.
+- Model files (CTC ~30–90 MB; optional Whisper ~75–500 MB) download on first use from Hugging Face; pinned by checksum. Licences checked (Apache-2.0/MIT models only).
+- Later: fine-tuning the acoustic model on singing (public lyrics-alignment data + rehearsal recordings, with permission).
