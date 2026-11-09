@@ -75,6 +75,14 @@ export global DesignDlg {
     /// A motion path's end, in % of the slide across and down from where the object is.
     in-out property <int> anim-path-x;
     in-out property <int> anim-path-y;
+    /// The motion step's path drawn on the slide, with handles to drag (see `DesignCanvas`).
+    in property <bool> path-shown;
+    in property <string> path-commands;
+    in property <float> path-end-x;
+    in property <float> path-end-y;
+    in property <bool> path-has-bend;
+    in property <float> path-bend-x;
+    in property <float> path-bend-y;
     /// The slide's animations play in the picture (Preview).
     in property <bool> previewing;
     in property <[Sprite]> preview-sprites;
@@ -142,6 +150,8 @@ export global DesignDlg {
     callback anim-dur-changed(int);
     callback anim-amount-changed(int);
     callback anim-path-changed(int, int);
+    /// A path handle dragged on the slide to (x, y) %: 0 the end, 1 the bend.
+    callback anim-path-drag(int, float, float);
     callback anim-preset(int);
     callback preview();
     callback transition-changed(int);
@@ -506,6 +516,7 @@ component Inspector inherits VerticalLayout {
                     Btn { small: true; text: @tr("Right"); clicked => { DesignDlg.anim-preset(3); } }
                     Btn { small: true; text: @tr("Arc"); clicked => { DesignDlg.anim-preset(4); } }
                 }
+                SmallText { text: @tr("Or drag the dot at the end of the path on the slide (and the one in the middle of an arc)."); }
                 Lbl { label: @tr("Moves across ({}% of the slide)", DesignDlg.anim-path-x); }
                 RangeSlider {
                     minimum: -100;
@@ -616,6 +627,14 @@ export component DesignEditorDialog inherits VerticalLayout {
                     pen: DesignDlg.pen;
                     sprites: DesignDlg.preview-sprites;
                     previewing: DesignDlg.previewing;
+                    path-shown: DesignDlg.path-shown;
+                    path-commands: DesignDlg.path-commands;
+                    path-end-x: DesignDlg.path-end-x;
+                    path-end-y: DesignDlg.path-end-y;
+                    path-has-bend: DesignDlg.path-has-bend;
+                    path-bend-x: DesignDlg.path-bend-x;
+                    path-bend-y: DesignDlg.path-bend-y;
+                    path-drag(which, x, y) => { DesignDlg.anim-path-drag(which, x, y); }
                     press(x, y, tx, ty, add, free) => { DesignDlg.press(x, y, tx, ty, add, free); }
                     drag(x, y) => { DesignDlg.drag(x, y); }
                     release => { DesignDlg.release(); }

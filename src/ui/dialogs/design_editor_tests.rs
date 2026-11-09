@@ -228,3 +228,57 @@ fn the_animations_panel_edits_the_chosen_objects_steps_and_preview_plays_them() 
     assert_eq!(rows(&op).len(), 1);
     assert_eq!(g(&op).get_anim_at(), -1);
 }
+
+#[test]
+fn dragging_a_motion_paths_end_turns_and_stretches_it() {
+    let near = |a: (f32, f32), b: (f32, f32)| (a.0 - b.0).abs() < 0.01 && (a.1 - b.1).abs() < 0.01;
+    let line = drag_path_end(&MotionPath::line((0.0, -25.0)), (10.0, 5.0));
+    assert!(near(line.moved(), (10.0, 5.0)), "{line:?}");
+    // An arc keeps its bend and still ends where it was dragged.
+    let arc = drag_path_end(&motion_preset(4), (0.0, 30.0));
+    assert!(matches!(arc.segs[..], [Seg::Cubic { .. }]));
+    assert!(near(*arc.points().last().unwrap(), (0.0, 30.0)));
+    // A path that ends where it starts becomes a line to the dot.
+    assert!(near(drag_path_end(&MotionPath::line((0.0, 0.0)), (5.0, 5.0)).moved(), (5.0, 5.0)));
+    // The bend: the middle of the curve goes where it is dragged; the ends stay.
+    let bent = drag_path_bend(&motion_preset(4), (15.0, -30.0));
+    let v = path_view(&bent, (50.0, 50.0));
+    assert!(near(v.bend.unwrap(), (65.0, 20.0)), "{v:?}");
+    assert!(near(v.end, (80.0, 50.0)));
+    assert!(v.commands.starts_with("M 50.00 50.00 L "));
+    assert_eq!(path_view(&MotionPath::line((10.0, 0.0)), (50.0, 50.0)), PathView { commands: "M 50.00 50.00 L 60.00 50.00".into(), end: (60.0, 50.0), bend: None });
+    assert_eq!(drag_path_bend(&MotionPath::line((10.0, 0.0)), (1.0, 1.0)), MotionPath::line((10.0, 0.0)), "a line has no bend");
+}
+
+#[test]
+fn a_motion_step_shows_its_path_on_the_slide_with_handles_to_drag() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, None);
+    g(&op).invoke_add_shape(0);
+    let o = g(&op).get_objects().row_data(0).unwrap();
+    let mid = (o.x + o.w / 2.0, o.y + o.h / 2.0);
+    g(&op).invoke_anim_add();
+    assert!(!g(&op).get_path_shown(), "a fade has no path");
+    g(&op).invoke_anim_kind_changed(3);
+    settle();
+    assert!(g(&op).get_path_shown());
+    assert_eq!((g(&op).get_path_end_x(), g(&op).get_path_end_y()), (mid.0, mid.1 - 25.0), "it goes up");
+    assert!(find(&op, "DesignCanvas::path-end").is_some(), "a dot to drag at the end");
+    assert!(find(&op, "DesignCanvas::path-bend").is_none(), "a line has no bend");
+    // Dragging the end dot sets where it goes; the sliders follow.
+    g(&op).invoke_anim_path_drag(0, mid.0 + 10.0, mid.1 + 5.0);
+    assert_eq!((g(&op).get_anim_path_x(), g(&op).get_anim_path_y()), (10, 5));
+    // An arc gets a second dot for its bend.
+    g(&op).invoke_anim_preset(4);
+    settle();
+    assert!(g(&op).get_path_has_bend());
+    assert!(find(&op, "DesignCanvas::path-bend").is_some());
+    g(&op).invoke_anim_path_drag(1, mid.0 + 15.0, mid.1 - 30.0);
+    assert!(((g(&op).get_path_bend_x() - (mid.0 + 15.0)).abs() < 0.01) && ((g(&op).get_path_bend_y() - (mid.1 - 30.0)).abs() < 0.01));
+    assert_eq!((g(&op).get_anim_path_x(), g(&op).get_anim_path_y()), (30, 0), "the end stays");
+    // One undo takes the whole bend drag back.
+    g(&op).invoke_anim_path_drag(1, mid.0 + 10.0, mid.1 - 40.0);
+    g(&op).invoke_undo();
+    assert!((g(&op).get_path_bend_y() - (mid.1 - 15.0)).abs() < 0.01, "back to the arc as it was: {}", g(&op).get_path_bend_y());
+}

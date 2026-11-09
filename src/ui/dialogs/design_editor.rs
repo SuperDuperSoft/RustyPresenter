@@ -4,7 +4,7 @@
 use super::{DialogKind, confirm};
 use crate::{
     design::{
-        AnimKind, Design, Dir, Effect, Fit, HAlign, ObjKind, Shape, Start, TextStyle, TransitionKind, VAlign,
+        AnimKind, Design, Dir, Effect, Fit, HAlign, MotionPath, ObjKind, Seg, Shape, Start, TextStyle, TransitionKind, VAlign,
         edit::{AlignTo, Editor, Field, Order, StyleCopy, motion_preset},
         strings as s,
     },
@@ -142,6 +142,7 @@ fn show(g: &DesignDlg, ss: &Session) {
     g.set_transition_dir(d.transition.dir.index());
     g.set_transition_ms(d.transition.ms as i32);
     if g.get_notes().as_str() != d.notes { g.set_notes(d.notes.as_str().into()) }
+    show_path(g, ss);
     let Some(o) = ed.primary() else { return };
     g.set_kind(kind_index(&o.kind));
     match &o.kind {
@@ -175,6 +176,85 @@ fn show(g: &DesignDlg, ss: &Session) {
     g.set_opacity(i32::from(o.opacity));
     g.set_rotation(o.rotation.round() as i32);
     show_anims(g, ss);
+}
+
+/// The motion step being edited, drawn on the slide with its handles (or nothing).
+fn show_path(g: &DesignDlg, ss: &Session) {
+    let view = ss.path_from().map(|(path, from)| path_view(&path, from));
+    g.set_path_shown(view.is_some());
+    let Some(v) = view else { return };
+    g.set_path_commands(v.commands.into());
+    (g.set_path_end_x(v.end.0), g.set_path_end_y(v.end.1));
+    g.set_path_has_bend(v.bend.is_some());
+    if let Some((x, y)) = v.bend { (g.set_path_bend_x(x), g.set_path_bend_y(y)); }
+}
+
+/// A motion path as the slide editor draws it, in % of the slide: the line (SVG commands), its end, and the middle
+/// of the bend when it is one arc.
+#[derive(Debug, PartialEq)]
+pub(crate) struct PathView { pub commands: String, pub end: (f32, f32), pub bend: Option<(f32, f32)> }
+
+/// `path` drawn from `from` (the middle of its object).
+pub(crate) fn path_view(path: &MotionPath, from: (f32, f32)) -> PathView {
+    let at = |p: (f32, f32)| (from.0 + p.0, from.1 + p.1);
+    let pts: Vec<(f32, f32)> = path.points().into_iter().map(at).collect();
+    let commands = pts.iter().enumerate().map(|(i, p)| format!("{} {:.2} {:.2}", if i == 0 { "M" } else { "L" }, p.0, p.1)).collect::<Vec<_>>().join(" ");
+    PathView { commands, end: *pts.last().unwrap_or(&from), bend: arc(path).map(|(start, c1, c2, to)| at(cubic_mid(start, c1, c2, to))) }
+}
+
+/// The path's one curve (start, both control points, end), when it is a single arc.
+fn arc(path: &MotionPath) -> Option<((f32, f32), (f32, f32), (f32, f32), (f32, f32))> {
+    let (start, rest) = match path.segs.as_slice() {
+        [Seg::Move { to }, rest @ ..] => (*to, rest),
+        rest => ((0.0, 0.0), rest),
+    };
+    match rest { [Seg::Cubic { c1, c2, to }] => Some((start, *c1, *c2, *to)), _ => None }
+}
+
+fn cubic_mid(a: (f32, f32), b: (f32, f32), c: (f32, f32), d: (f32, f32)) -> (f32, f32) {
+    ((a.0 + 3.0 * b.0 + 3.0 * c.0 + d.0) / 8.0, (a.1 + 3.0 * b.1 + 3.0 * c.1 + d.1) / 8.0)
+}
+
+/// The path with its end dragged to `to` (relative to the object): the whole path turns and stretches about its
+/// start (on a 16:9 screen), so an arc keeps its shape. A path that ends where it starts becomes a line.
+pub(crate) fn drag_path_end(path: &MotionPath, to: (f32, f32)) -> MotionPath {
+    let pts = path.points();
+    let (start, end) = (pts[0], *pts.last().unwrap_or(&pts[0]));
+    // On screen: % across times 16, % down times 9.
+    let (ox, oy) = ((end.0 - start.0) * 16.0, (end.1 - start.1) * 9.0);
+    let (nx, ny) = ((to.0 - start.0) * 16.0, (to.1 - start.1) * 9.0);
+    let len = ox * ox + oy * oy;
+    if len < 1e-3 {
+        let mut segs: Vec<Seg> = path.segs.iter().take_while(|s| matches!(s, Seg::Move { .. })).copied().take(1).collect();
+        segs.push(Seg::Line { to });
+        return MotionPath { segs, ease: path.ease };
+    }
+    // `new / old` as complex numbers: a turn and a stretch.
+    let (re, im) = ((nx * ox + ny * oy) / len, (ny * ox - nx * oy) / len);
+    let map = |p: (f32, f32)| {
+        let (x, y) = ((p.0 - start.0) * 16.0, (p.1 - start.1) * 9.0);
+        (start.0 + (re * x - im * y) / 16.0, start.1 + (im * x + re * y) / 9.0)
+    };
+    let segs = path.segs.iter().map(|s| match *s {
+        Seg::Move { to } => Seg::Move { to: map(to) },
+        Seg::Line { to } => Seg::Line { to: map(to) },
+        Seg::Cubic { c1, c2, to } => Seg::Cubic { c1: map(c1), c2: map(c2), to: map(to) },
+    }).collect();
+    MotionPath { segs, ease: path.ease }
+}
+
+/// An arc with the middle of its bend dragged to `to` (relative to the object): both control points move so the
+/// curve passes through it. Other paths are left as they are.
+pub(crate) fn drag_path_bend(path: &MotionPath, to: (f32, f32)) -> MotionPath {
+    let Some((start, c1, c2, end)) = arc(path) else { return path.clone() };
+    let mid = cubic_mid(start, c1, c2, end);
+    let d = ((to.0 - mid.0) * 4.0 / 3.0, (to.1 - mid.1) * 4.0 / 3.0);
+    let mut out = path.clone();
+    if let Some(Seg::Cubic { c1, c2, .. }) = out.segs.last_mut() {
+        *c1 = (c1.0 + d.0, c1.1 + d.1);
+        *c2 = (c2.0 + d.0, c2.1 + d.1);
+    }
+    out
 }
 
 const KINDS: [AnimKind; 4] = [AnimKind::Entrance, AnimKind::Emphasis, AnimKind::Exit, AnimKind::Motion];
@@ -212,6 +292,14 @@ fn show_anims(g: &DesignDlg, ss: &Session) {
 impl Session {
     /// The step being edited, if it is still one of the first chosen object's.
     fn anim(&self) -> Option<usize> { self.anim_at.filter(|i| self.ed.anims_of_primary().contains(i)) }
+
+    /// The motion step being edited, with the middle of its object, while the slide is not previewing.
+    fn path_from(&self) -> Option<(MotionPath, (f32, f32))> {
+        if self.preview.is_some() || self.pen { return None }
+        let a = &self.ed.slide().anims[self.anim()?];
+        let o = self.ed.primary()?;
+        (a.kind == AnimKind::Motion).then(|| (a.path.clone().unwrap_or_else(|| motion_preset(0)), (o.rect.x + o.rect.w / 2.0, o.rect.y + o.rect.h / 2.0)))
+    }
 
     /// Changes the step being edited; `field` merges a dragged slider into one undo step.
     fn set_anim(&mut self, field: Option<Field>, f: impl FnOnce(&mut crate::design::Anim)) {
@@ -452,6 +540,11 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     on!(on_anim_amount_changed, |e, v: i32| e.set_anim(Some(Field::AnimAmount), |a| a.amount = Some(v as f32)));
     on!(on_anim_path_changed, |e, x: i32, y: i32| e.set_anim(Some(Field::AnimPath), |a| a.path = Some(crate::design::MotionPath::line((x as f32, y as f32)))));
     on!(on_anim_preset, |e, n: i32| e.set_anim(None, |a| a.path = Some(motion_preset(n))));
+    on!(on_anim_path_drag, |e, which: i32, x: f32, y: f32| if let Some((path, from)) = e.path_from() {
+        let to = (x.clamp(-50.0, 150.0) - from.0, y.clamp(-50.0, 150.0) - from.1);
+        let path = if which == 1 { drag_path_bend(&path, to) } else { drag_path_end(&path, to) };
+        e.set_anim(Some(Field::AnimPath), |a| a.path = Some(path));
+    });
     let (me, ss2) = (Rc::downgrade(op), ss.clone());
     g.on_preview(move || if let Some(op) = me.upgrade() { toggle_preview(&op, &ss2) });
     on!(on_transition_changed, |e, i: i32| e.ed.set_transition(TransitionKind::from_index(i)));
