@@ -37,6 +37,39 @@ pub fn render_design(fonts: &mut Fonts, d: &Design, theme_font: &str, canvas: (u
     Rendered { width: w, height: h, rgba_premul: Premul::from_buffer(px), font_px: 0.0, font_fallback: false }
 }
 
+/// One picture of a click group as it plays (`Play::layers`): pixels cropped to what is drawn, where they sit on
+/// the canvas (x, y in pixels), and the object it is when it animates on its own.
+pub struct AnimLayer { pub px: SharedPixelBuffer<Rgba8Pixel>, pub x: u32, pub y: u32, pub obj: Option<usize> }
+
+/// Draws `play`'s layers at `canvas`, each cropped to its pixels (an empty layer is left out).
+pub fn render_layers(fonts: &mut Fonts, play: &crate::design::Play, theme_font: &str, canvas: (u32, u32), picture: &mut dyn FnMut(&str) -> Option<RgbaImage>) -> Vec<AnimLayer> {
+    play.layers().into_iter().filter_map(|(objs, obj)| {
+        let d = Design { objects: objs.iter().map(|i| play.objects[*i].clone()).collect(), ..Design::default() };
+        let r = render_design(fonts, &d, theme_font, canvas, picture);
+        let (x, y, px) = crop(&r)?;
+        Some(AnimLayer { px, x, y, obj })
+    }).collect()
+}
+
+/// The part of `r` that has any pixels, and where it starts. None when it is all clear.
+fn crop(r: &Rendered) -> Option<(u32, u32, SharedPixelBuffer<Rgba8Pixel>)> {
+    let (w, h) = (r.width as usize, r.height as usize);
+    let px: &[u8] = &r.rgba_premul;
+    let (mut l, mut t, mut rt, mut b) = (w, h, 0usize, 0usize);
+    for y in 0..h {
+        let row = &px[y * w * 4..(y + 1) * w * 4];
+        let Some(first) = row.chunks_exact(4).position(|p| p[3] != 0) else { continue };
+        let last = row.chunks_exact(4).rposition(|p| p[3] != 0).unwrap_or(first);
+        (l, rt, t, b) = (l.min(first), rt.max(last + 1), t.min(y), y + 1);
+    }
+    if l >= rt || t >= b { return None }
+    let (cw, ch) = (rt - l, b - t);
+    let mut out: SharedPixelBuffer<Rgba8Pixel> = SharedPixelBuffer::new(cw as u32, ch as u32);
+    let dst = out.make_mut_bytes();
+    for y in 0..ch { dst[y * cw * 4..(y + 1) * cw * 4].copy_from_slice(&px[((t + y) * w + l) * 4..((t + y) * w + rt) * 4]) }
+    Some((l as u32, t as u32, out))
+}
+
 fn sk_color(c: [u8; 4], alpha: f32) -> tiny_skia::Color {
     tiny_skia::Color::from_rgba8(c[0], c[1], c[2], (f32::from(c[3]) * alpha.clamp(0.0, 1.0)).round() as u8)
 }
@@ -386,5 +419,15 @@ mod tests {
         let r = draw(&Design { objects: vec![line, path], ..Default::default() }, (160, 90));
         assert_eq!(at(&r, 80, 45)[3], 255);
         assert!(at(&r, 16, 9)[0] > 200);
+    }
+
+    #[test]
+    fn a_play_is_drawn_as_cropped_layers() {
+        use crate::design::{Anim, AnimKind, Effect, Start};
+        let (a, b) = (shape(PctRect::new(0.0, 0.0, 50.0, 50.0), "#ff0000"), shape(PctRect::new(50.0, 50.0, 25.0, 25.0), "#00ff00"));
+        let d = Design { anims: vec![Anim::new(b.id, AnimKind::Entrance, Effect::Fade, Start::OnClick)], objects: vec![a, b], ..Default::default() };
+        let layers = render_layers(&mut Fonts::bundled_only(), &d.play(1).unwrap(), "Noto Sans", (160, 90), &mut |_| None);
+        let at = |l: &AnimLayer| (l.x, l.y, l.px.width(), l.px.height(), l.obj);
+        assert_eq!(layers.iter().map(at).collect::<Vec<_>>(), [(0, 0, 80, 45, None), (80, 45, 40, 23, Some(1))]);
     }
 }

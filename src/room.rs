@@ -133,7 +133,7 @@ impl RoomState {
         // N26: a designed slide coming in brings its own transition; so does a deck slide that has one.
         let (transition, build) = match &view.frame.slide {
             _ if next.keys[2] == self.shown.keys[2] => (None, false),
-            Some(SlideLayer::Design { design, build }) => (Some(design.transition), *build),
+            Some(SlideLayer::Design { design, build, .. }) => (Some(design.transition), *build),
             Some(SlideLayer::Image { transition, .. }) => (*transition, false),
             _ => (None, false),
         };
@@ -224,7 +224,7 @@ mod tests {
     #[test]
     fn a_designed_slide_brings_its_transition_and_a_build_never_goes_through_black() {
         use crate::design::{Design, Transition, TransitionKind};
-        let design = |kind, build| Some(SlideLayer::Design { design: Design { transition: Transition { kind, ms: 900, ..Default::default() }, ..Default::default() }, build });
+        let design = |kind, build| Some(SlideLayer::Design { design: Design { transition: Transition { kind, ms: 900, ..Default::default() }, ..Default::default() }, build, play: None });
         let mut r = RoomState::new();
         let p = show(&mut r, &view(1, Frame { slide: design(TransitionKind::Black, false), ..Default::default() }));
         assert_eq!((p.transition.map(|t| t.ms), p.fade_through_black), (Some(900), false), "nothing was up: nothing to go black from");

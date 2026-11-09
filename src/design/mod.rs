@@ -1,13 +1,16 @@
 //! N26 designed slides: free objects (text boxes, shapes, pictures, video, drawn lines) on a 16:9 slide, with
-//! builds (objects that appear one Next at a time) and a transition per slide. Pure model; the editor's logic is
+//! animation steps (`anim`: entrances, exits, emphasis, motion, played one click group per Next) and a transition
+//! per slide. Pure model; the editor's logic is
 //! `edit`, the drawing `render::design`. Places are in % of the slide, as the stage layout editor's (`PctRect`), so
 //! its snapping and resizing helpers (`stage::geom`) work here too.
+pub mod anim;
 pub mod edit;
 #[path = "../strings/design.rs"]
 pub mod strings;
 
 use crate::model::AssetId;
 pub use crate::stage::PctRect;
+pub use anim::{Anim, AnimKind, Effect, MotionPath, Play, Pose, Seg, Start};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -20,6 +23,7 @@ pub const SIZE_MAX: f32 = 400.0;
 
 /// One designed slide.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+#[serde(from = "DesignWire")]
 pub struct Design {
     /// Drawn in order: later objects on top.
     #[serde(default)]
@@ -29,6 +33,30 @@ pub struct Design {
     /// The slide's notes for the stage screen and the operator.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub notes: String,
+    /// The objects' animation steps, in order (`anim`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub anims: Vec<Anim>,
+}
+
+/// A stored slide as read, before old builds become steps.
+#[derive(Deserialize)]
+struct DesignWire {
+    #[serde(default)]
+    objects: Vec<Obj>,
+    #[serde(default)]
+    transition: Transition,
+    #[serde(default)]
+    notes: String,
+    #[serde(default)]
+    anims: Vec<Anim>,
+}
+
+impl From<DesignWire> for Design {
+    fn from(w: DesignWire) -> Design {
+        let mut d = Design { objects: w.objects, transition: w.transition, notes: w.notes, anims: w.anims };
+        d.upgrade_builds();
+        d
+    }
 }
 
 /// One object on a slide.
@@ -46,14 +74,13 @@ pub struct Obj {
     pub opacity: u8,
     #[serde(default)]
     pub look: Look,
-    /// 0: shown with the slide. 1, 2…: appears on that Next (a build); objects with the same number appear together.
-    #[serde(default, skip_serializing_if = "is_zero_u")]
+    /// 1.0 builds, read only: 1, 2…: appeared on that Next. Loading turns them into `Design::anims` and sets 0.
+    #[serde(default, skip_serializing)]
     pub build: u16,
 }
 
 fn hundred() -> u8 { 100 }
 fn is_zero_f(v: &f32) -> bool { *v == 0.0 }
-fn is_zero_u(v: &u16) -> bool { *v == 0 }
 
 /// What an object is.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -151,7 +178,8 @@ impl Default for ObjShadow {
 pub struct Transition {
     pub kind: TransitionKind,
     pub ms: u32,
-    /// Which way a push or wipe moves (the new slide comes in from the other side).
+    /// Which way a push, wipe, cover or uncover moves (the new slide comes in from the other side); for a split,
+    /// Left/Right open sideways and Up/Down open up and down.
     #[serde(skip_serializing_if = "Dir::is_left")]
     pub dir: Dir,
 }
@@ -163,19 +191,30 @@ impl Default for Transition {
 /// The longest transition offered.
 pub const TRANSITION_MAX_MS: u32 = 5000;
 
+/// How a slide comes in. Cover: the new slide moves in over the old; Uncover: the old one moves off it; Split:
+/// the new one opens from the middle; Zoom: it grows from the middle; Dissolve plays as a fade.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[serde(rename_all = "snake_case")]
-pub enum TransitionKind { #[default] Fade, Cut, Black, Push, Wipe }
+pub enum TransitionKind {
+    #[default]
+    Fade, Cut, Black, Push, Wipe, Cover, Uncover, Split, Zoom,
+    /// Also what a kind from a newer version loads as (so it is last).
+    #[serde(other)]
+    Dissolve,
+}
 
 impl TransitionKind {
     /// Every kind, in the order the pickers offer them.
-    pub const ALL: [TransitionKind; 5] = [TransitionKind::Fade, TransitionKind::Cut, TransitionKind::Black, TransitionKind::Push, TransitionKind::Wipe];
+    pub const ALL: [TransitionKind; 10] = [TransitionKind::Fade, TransitionKind::Cut, TransitionKind::Black, TransitionKind::Push, TransitionKind::Wipe,
+        TransitionKind::Cover, TransitionKind::Uncover, TransitionKind::Split, TransitionKind::Zoom, TransitionKind::Dissolve];
 
     /// Its place in `ALL` (the pickers' index).
     pub fn index(self) -> i32 { Self::ALL.iter().position(|k| *k == self).unwrap_or(0) as i32 }
     pub fn from_index(i: i32) -> TransitionKind { Self::ALL[i.clamp(0, Self::ALL.len() as i32 - 1) as usize] }
-    /// Push and Wipe move one way.
-    pub fn moves(self) -> bool { matches!(self, TransitionKind::Push | TransitionKind::Wipe) }
+    /// The slide faces move or are cut while it runs (the rest are fades or cuts).
+    pub fn moves(self) -> bool { matches!(self, TransitionKind::Push | TransitionKind::Wipe | TransitionKind::Cover | TransitionKind::Uncover | TransitionKind::Split | TransitionKind::Zoom) }
+    /// It goes one way (`Transition::dir`).
+    pub fn has_dir(self) -> bool { self.moves() && self != TransitionKind::Zoom }
 }
 
 /// The way a push or wipe moves.
@@ -201,22 +240,15 @@ impl Obj {
 }
 
 impl Design {
-    /// How many Nexts the slide's builds take (0: none).
-    pub fn steps(&self) -> u16 {
-        let mut b: Vec<u16> = self.objects.iter().map(|o| o.build).filter(|b| *b > 0).collect();
-        b.sort_unstable();
-        b.dedup();
-        b.len() as u16
-    }
+    /// How many Nexts the slide's steps take (0: none): one per OnClick step.
+    pub fn steps(&self) -> u16 { self.anims.iter().filter(|a| a.start == Start::OnClick).count().min(usize::from(u16::MAX)) as u16 }
 
-    /// The slide as shown after `step` Nexts: objects of later builds left out. Steps count the distinct build
-    /// numbers in order, so numbers with gaps (1, 4) still take one Next each.
+    /// The slide as shown after `step` Nexts (and the steps that play by themselves first): hidden objects left
+    /// out, moved, grown and turned ones where they ended, no steps. Past the last step: as after the last.
     pub fn at_step(&self, step: u16) -> Design {
-        let mut b: Vec<u16> = self.objects.iter().map(|o| o.build).filter(|b| *b > 0).collect();
-        b.sort_unstable();
-        b.dedup();
-        let upto = if step == 0 { 0 } else { b.get(usize::from(step) - 1).copied().unwrap_or(u16::MAX) };
-        Design { objects: self.objects.iter().filter(|o| o.build <= upto).cloned().collect(), ..self.clone() }
+        let st = self.states_after(usize::from(step.min(self.steps())));
+        let objects = self.objects.iter().zip(&st).filter(|(_, s)| s.shown).map(|(o, s)| anim::posed(o, s)).collect();
+        Design { objects, anims: vec![], ..self.clone() }
     }
 
     /// The slide's words, top to bottom, for the stage screen and the phone.
@@ -264,6 +296,8 @@ impl Design {
             }
         }
         self.transition.ms = self.transition.ms.min(TRANSITION_MAX_MS);
+        self.upgrade_builds();
+        self.sanitise_anims();
         *self != before
     }
 }
@@ -286,7 +320,8 @@ mod tests {
 
     #[test]
     fn steps_count_distinct_builds_and_at_step_shows_them_in_order() {
-        let d = Design { objects: vec![text("title", 0), text("one", 1), text("two", 4), text("two too", 4)], ..Default::default() };
+        let mut d = Design { objects: vec![text("title", 0), text("one", 1), text("two", 4), text("two too", 4)], ..Default::default() };
+        d.upgrade_builds();
         assert_eq!(d.steps(), 2);
         let words = |s| d.at_step(s).objects.iter().map(|o| match &o.kind { ObjKind::Text { text, .. } => text.clone(), _ => String::new() }).collect::<Vec<_>>();
         assert_eq!(words(0), ["title"]);
@@ -356,10 +391,11 @@ mod slide_tests {
     #[test]
     fn an_item_shows_each_build_as_its_own_next() {
         let t = |s: &str, build| Obj { build, ..Obj::new(ObjKind::Text { text: s.into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 50.0, 20.0)) };
-        let d = Design { objects: vec![t("title", 0), t("point", 1)], notes: "Pray first".into(), ..Default::default() };
+        let mut d = Design { objects: vec![t("title", 0), t("point", 1)], notes: "Pray first".into(), ..Default::default() };
+        d.upgrade_builds();
         let slides = crate::slides::design_slides(&[d, Design::default()]);
         assert_eq!(slides.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(), ["Slide 1", "Slide 1 · 1 of 1", "Slide 2"]);
-        assert!(matches!(&slides[0].content, SlideContent::Design { design, step: 0, steps: 1 } if design.objects.len() == 1));
+        assert!(matches!(&slides[0].content, SlideContent::Design { design, step: 0, steps: 1, .. } if design.objects.len() == 1));
         assert!(matches!(&slides[1].content, SlideContent::Design { design, step: 1, .. } if design.objects.len() == 2));
         assert_eq!((slides[1].notes.as_str(), slides[2].notes.as_str()), ("Pray first", ""));
     }

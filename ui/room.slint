@@ -62,8 +62,9 @@ export component FadeLayer {
 }
 
 /// Where a face is during a push or wipe, as shares of the screen: `x`/`y` moves the picture, `l`/`r`/`t`/`b` cut
-/// that much off each side (a wipe). All 0: the whole picture in place.
-export struct Geo { x: float, y: float, l: float, r: float, t: float, b: float }
+/// that much off each side (a wipe), `z` shrinks it about the middle (a zoom: 1 - z of its size). `over`: face a
+/// is drawn over face b. All 0: the whole picture in place.
+export struct Geo { x: float, y: float, l: float, r: float, t: float, b: float, z: float, over: bool }
 
 /// A face that can move and be cut (`Geo`). The cut is a clip with no opacity of its own, so it needs no
 /// offscreen layer.
@@ -79,10 +80,10 @@ component MoveFace {
         height: root.height * max(0, 1 - root.geo.t - root.geo.b);
         clip: true;
         Face {
-            x: root.width * (root.geo.x - root.geo.l);
-            y: root.height * (root.geo.y - root.geo.t);
-            width: root.width;
-            height: root.height;
+            x: root.width * (root.geo.x - root.geo.l + root.geo.z / 2);
+            y: root.height * (root.geo.y - root.geo.t + root.geo.z / 2);
+            width: root.width * (1 - root.geo.z);
+            height: root.height * (1 - root.geo.z);
             side: root.side;
             op: root.op;
             fit: root.fit;
@@ -99,7 +100,7 @@ export component MoveLayer {
     in property <Geo> a-geo;
     in property <Geo> b-geo;
     in property <ImageFit> fit: contain;
-    MoveFace {
+    if !root.a-geo.over: MoveFace {
         width: root.width;
         height: root.height;
         side: root.a;
@@ -115,6 +116,15 @@ export component MoveLayer {
         geo: root.b-geo;
         fit: root.fit;
     }
+    // A split or zoom brings the new face in over the old one, whichever face it is on.
+    if root.a-geo.over: MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.a;
+        op: root.a-op;
+        geo: root.a-geo;
+        fit: root.fit;
+    }
 }
 
 /// One face shown at once, with no fade: the operator's live monitor cuts straight to the new picture.
@@ -128,6 +138,35 @@ export component CutLayer {
         side: root.side;
         fit: root.fit;
         scale: root.scale;
+    }
+}
+
+/// One picture of a designed slide's click group while it plays (`src/ui/room/anim.rs`), in shares of the window:
+/// the picture's place (`x`, `y`, `w`, `h`) moved by `dx`/`dy`, grown `scale` times and turned `rot` degrees about
+/// (`ox`, `oy`) (shares of the picture), at opacity `op`, shown only inside the clip box (`cx`, `cy`, `cw`, `ch`).
+export struct Sprite { image: image, x: float, y: float, w: float, h: float, dx: float, dy: float, ox: float, oy: float, scale: float, rot: float, op: float, cx: float, cy: float, cw: float, ch: float }
+
+/// A click group's pictures, moved by Rust each frame. The clip has no opacity of its own (no offscreen layer).
+export component SpriteLayer {
+    in property <[Sprite]> sprites;
+    for s in root.sprites: Rectangle {
+        x: root.width * s.cx;
+        y: root.height * s.cy;
+        width: root.width * s.cw;
+        height: root.height * s.ch;
+        clip: true;
+        Image {
+            x: root.width * (s.x + s.dx - s.cx);
+            y: root.height * (s.y + s.dy - s.cy);
+            width: root.width * s.w;
+            height: root.height * s.h;
+            source: s.image;
+            image-fit: fill;
+            opacity: s.op;
+            transform-origin: { x: self.width * s.ox, y: self.height * s.oy };
+            transform-rotation: s.rot * 1deg;
+            transform-scale: s.scale;
+        }
     }
 }
 
@@ -157,6 +196,8 @@ export component RoomWindow inherits Window {
     /// Where each slide face is while a push or wipe runs.
     in property <Geo> slide-a-geo;
     in property <Geo> slide-b-geo;
+    /// A designed slide's click group while it plays, over the slide layer (which is hidden meanwhile).
+    in property <[Sprite]> sprites;
     in property <Side> logo-a;
     in property <Side> logo-b;
     in property <float> logo-a-op;
@@ -223,6 +264,11 @@ export component RoomWindow inherits Window {
         b-op: root.slide-b-op;
         a-geo: root.slide-a-geo;
         b-geo: root.slide-b-geo;
+    }
+    sprites := SpriteLayer {
+        width: root.width;
+        height: root.height;
+        sprites: root.sprites;
     }
     logo := FadeLayer {
         width: root.width;

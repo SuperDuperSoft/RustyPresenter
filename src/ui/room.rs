@@ -2,9 +2,10 @@
 //! with a crossfade once every new layer is ready, then reported as committed (as `web/output.js`).
 /// Shared with the operator's live monitor (`ui::preview`), which draws the same layers small.
 pub mod prepare;
+pub(super) mod anim;
 mod record;
 
-use super::{Geo, RoomWindow, Side, fade::{Chan, Fader}};
+use super::{Geo, RoomWindow, Side, Sprite, fade::{Chan, Fader}};
 use crate::app::{App, LiveUpdate, LiveView, Update};
 use crate::live::{Frame, MediaLayer, PlayState, RoomEvent, drawing::Drawing};
 use crate::media_prefs::{Scale, SoundOut};
@@ -17,7 +18,7 @@ use crate::screen_fix::{ScreenFix, TestPattern};
 use crate::design::{Dir, Transition, TransitionKind};
 use crate::video::{self, FrameGrabber, Options, Player, PlayerReport, VideoSurface, ffi::Mpv};
 use prepare::{Fresh, Job, Made, Px, Work};
-use slint::{ComponentHandle, Timer, TimerMode};
+use slint::{ComponentHandle, Model, Timer, TimerMode, VecModel};
 use std::{cell::{Cell, RefCell}, collections::{HashMap, VecDeque}, rc::{Rc, Weak}, time::Duration};
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}, mpsc::Sender};
 use tokio::sync::broadcast::error::RecvError;
@@ -41,8 +42,8 @@ fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
     if let Some(t) = plan.transition {
         return match t.kind {
             // A push or wipe moves the slide; the other layers crossfade for the same time.
-            TransitionKind::Fade | TransitionKind::Push | TransitionKind::Wipe => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))),
             TransitionKind::Cut | TransitionKind::Black => Duration::ZERO,
+            _ => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))),
         };
     }
     if plan.look_change { Duration::from_millis(u64::from(view.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS))) } else { FADE }
@@ -74,18 +75,32 @@ pub(crate) fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
             (g.x, g.y) = (vx * k, vy * k);
         }
         // The edge moves `dir`: the new slide shows behind it, the old one ahead of it.
-        TransitionKind::Wipe => {
-            let cut = if new { 1.0 - p } else { p };
-            match (dir, new) {
-                (Dir::Left, true) | (Dir::Right, false) => g.l = cut,
-                (Dir::Left, false) | (Dir::Right, true) => g.r = cut,
-                (Dir::Up, true) | (Dir::Down, false) => g.t = cut,
-                (Dir::Up, false) | (Dir::Down, true) => g.b = cut,
-            }
-        }
+        TransitionKind::Wipe => wipe(&mut g, dir, p, new),
+        // The new slide moves in over the old one, which is cut where the new one is (so either may be on top).
+        TransitionKind::Cover => if new { (g.x, g.y) = (vx * (p - 1.0), vy * (p - 1.0)) } else { wipe(&mut g, dir, p, false) },
+        // The old slide moves off; the new one shows where it has gone.
+        TransitionKind::Uncover => if new { wipe(&mut g, dir, p, true) } else { (g.x, g.y) = (vx * p, vy * p) },
+        // The new slide opens from the middle, over the old one.
+        TransitionKind::Split => if new {
+            let cut = (1.0 - p) / 2.0;
+            if vx != 0.0 { (g.l, g.r) = (cut, cut) } else { (g.t, g.b) = (cut, cut) }
+            g.over = true;
+        },
+        TransitionKind::Zoom => if new { g.z = 1.0 - p; g.over = true },
         _ => {}
     }
     g
+}
+
+/// A wipe's cut on one face: the edge moves `dir`, the new slide behind it, the old one ahead of it.
+fn wipe(g: &mut Geo, dir: Dir, p: f32, new: bool) {
+    let cut = if new { 1.0 - p } else { p };
+    match (dir, new) {
+        (Dir::Left, true) | (Dir::Right, false) => g.l = cut,
+        (Dir::Left, false) | (Dir::Right, true) => g.r = cut,
+        (Dir::Up, true) | (Dir::Down, false) => g.t = cut,
+        (Dir::Up, false) | (Dir::Down, true) => g.b = cut,
+    }
 }
 
 /// Writes both slide faces' places for `mv` at `p` (none: both in place).
@@ -220,8 +235,16 @@ impl Shared {
     }
 }
 
-/// What a prepared layer shows.
-enum Got { Pic(Side), Play(Rc<Player>) }
+/// A click group playing (`put_animated`): its pictures, since when, the slide's place and how long it takes.
+struct Running { imgs: Vec<anim::SpriteImg>, play: crate::design::Play, start: std::time::Instant, area: (f32, f32, f32, f32), dur: u32 }
+
+/// Writes the sprites' rows: changed in place when the count is the same, so the window keeps its items.
+fn set_rows(model: &VecModel<Sprite>, rows: Vec<Sprite>) {
+    if model.row_count() == rows.len() { for (i, r) in rows.into_iter().enumerate() { model.set_row_data(i, r) } } else { model.set_vec(rows) }
+}
+
+/// What a prepared layer shows. `Anim`: a designed slide's end picture and its click group's pictures.
+enum Got { Pic(Side), Play(Rc<Player>), Anim(Side, Vec<anim::SpriteImg>) }
 
 /// The newest plan while its layers are prepared. `heard`: what players not made yet reported, by
 /// serial (`Some` = failed); readiness is per player, as an older plan's player may share the instance.
@@ -264,6 +287,10 @@ struct Inner {
     /// How far a push or wipe on the slide layer is (0–1), and which one runs (`None`: the faces sit still).
     motion: Chan,
     moving: Rc<Cell<Option<Move>>>,
+    /// A designed slide's click group while it plays, its frame timer and the window's sprites.
+    anim: RefCell<Option<Running>>,
+    anim_timer: Timer,
+    sprites: Rc<VecModel<Sprite>>,
     /// The window level last set (`Room::set_on_top`); `None` until the window exists.
     on_top: Cell<Option<bool>>,
     /// Diagnostics only (`Room::set_swap_probe`): called each time a new view is put on screen.
@@ -405,6 +432,10 @@ impl Inner {
                 let side = Side { image: px.map(Px::image).unwrap_or_default(), color };
                 if let Some(p) = self.prep.borrow_mut().as_mut() { p.got.push((kind, Got::Pic(side))); p.done(kind) }
             }
+            Ok(Made::Anim(px, layers)) => {
+                let side = Side { image: px.image(), color: Default::default() };
+                if let Some(p) = self.prep.borrow_mut().as_mut() { p.got.push((kind, Got::Anim(side, layers.images()))); p.done(kind) }
+            }
             Ok(Made::Player(Fresh(player))) => {
                 let player = Rc::new(player);
                 if kind != Kind::Audio { self.surface.add(player.clone()) } // a render context, so it loads undrawn
@@ -490,6 +521,10 @@ impl Inner {
                 Got::Pic(side) if kind == Kind::Slide && prep.plan.build => self.put_over(kind, side, fade),
                 Got::Pic(side) if kind == Kind::Slide && let Some(t) = moving(prep.plan.transition) => self.put_moving(side, t),
                 Got::Pic(side) => self.put(kind, side, fade),
+                Got::Anim(side, imgs) => match &prep.frame.slide {
+                    Some(crate::live::SlideLayer::Design { play: Some(play), .. }) => self.put_animated(side, imgs, (**play).clone(), prep.plan.build, fade),
+                    _ => self.put(kind, side, fade),
+                },
                 Got::Play(p) => {
                     // Video is drawn under the scene (audio has no layer); a background video's Darken is a black
                     // fill on its layer.
@@ -612,8 +647,57 @@ impl Inner {
         });
     }
 
+    /// A designed slide's click group: `side` (the slide once it has played) goes on the hidden face, unseen, and
+    /// the group's pictures play over the slide layer; then the face shows and they go. A build's old face goes at
+    /// once (the pictures hold all of it); a new slide's fades out under them.
+    fn put_animated(&self, side: Side, imgs: Vec<anim::SpriteImg>, play: crate::design::Play, build: bool, fade: Duration) {
+        let Some(i) = index(Kind::Slide) else { return };
+        self.end_motion();
+        let on_b = self.faces.borrow_mut()[i].put(side.clone());
+        let (set_a, set_b, _, _) = setters(i);
+        if on_b { set_b(&self.ui, side) } else { set_a(&self.ui, side) }
+        let (ca, cb) = self.face_ops[i];
+        let (new, old) = if on_b { (cb, ca) } else { (ca, cb) };
+        self.fader.jump(new, 0.0);
+        if build { self.fader.jump(old, 0.0) } else { self.fader.fade(old, 0.0, fade) }
+        let dur = play.duration_ms();
+        let area = anim::area(self.canvas());
+        *self.anim.borrow_mut() = Some(Running { imgs, play, start: std::time::Instant::now(), area, dur });
+        self.anim_tick();
+        let me = self.me.clone();
+        self.anim_timer.start(TimerMode::Repeated, super::fade::TICK, move || if let Some(i) = me.upgrade() { i.anim_tick() });
+    }
+
+    /// Moves the playing group on to now; once it is over, the slide's face takes its place.
+    fn anim_tick(&self) {
+        let over = {
+            let a = self.anim.borrow();
+            let Some(run) = a.as_ref() else { return };
+            let t = run.start.elapsed().as_secs_f32() * 1000.0;
+            if t < run.dur as f32 {
+                let rows: Vec<Sprite> = run.imgs.iter().map(|img| anim::sprite_at(img, &run.play, t, run.area)).collect();
+                set_rows(&self.sprites, rows);
+                false
+            } else { true }
+        };
+        if over { self.end_anim() }
+    }
+
+    /// Ends a playing group where it is: its pictures go and the slide's faces show as they should.
+    fn end_anim(&self) {
+        if self.anim.borrow_mut().take().is_none() { return }
+        self.anim_timer.stop();
+        set_rows(&self.sprites, vec![]);
+        let Some(i) = index(Kind::Slide) else { return };
+        let (a, b) = self.faces.borrow()[i].ops();
+        let (ca, cb) = self.face_ops[i];
+        self.fader.jump(ca, a);
+        self.fader.jump(cb, b);
+    }
+
     /// Stops a push or wipe where it is: both slide faces back in place (a new slide cuts in over it).
     fn end_motion(&self) {
+        self.end_anim();
         if self.moving.take().is_none() { return }
         self.fader.jump(self.motion, 0.0);
         set_geo(&self.ui, None, 0.0);
@@ -708,13 +792,15 @@ impl Room {
         let black = op(RoomWindow::set_black);
         let moving: Rc<Cell<Option<Move>>> = Rc::default();
         let motion = { let (w, m) = (ui.as_weak(), moving.clone()); fader.channel(0.0, move |p| if let Some(ui) = w.upgrade() { set_geo(&ui, m.get(), p) }) };
+        let sprites: Rc<VecModel<Sprite>> = Rc::default();
+        ui.set_sprites(slint::ModelRc::from(sprites.clone()));
         let inner = Rc::new_cyclic(|me: &Weak<Inner>| {
             let me2 = me.clone();
             ui.on_pump(move || if let Some(i) = me2.upgrade() { i.pump() });
             Inner {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
-                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, on_top: Cell::default(), swap_probe: RefCell::default(),
+                faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, anim: RefCell::default(), anim_timer: Timer::default(), sprites, on_top: Cell::default(), swap_probe: RefCell::default(),
                 fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), rec: RefCell::default(), me: me.clone(),
             }
         });
@@ -972,7 +1058,7 @@ mod tests {
 
     #[test]
     fn push_and_wipe_move_the_faces_the_way_they_go() {
-        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b };
+        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b, ..Default::default() };
         let z = Geo::default();
         // Push left: the new slide comes in from the right, the old one goes out to the left.
         assert_eq!(geo(TransitionKind::Push, Dir::Left, 0.0, true), g(1.0, 0.0, 0.0, 0.0, 0.0, 0.0));
@@ -991,6 +1077,24 @@ mod tests {
         assert_eq!(fade_for(&plan(TransitionKind::Push), &v), Duration::from_millis(900), "the other layers fade as it moves");
         assert_eq!(moving(plan(TransitionKind::Wipe).transition).map(|t| t.kind), Some(TransitionKind::Wipe));
         assert_eq!(moving(plan(TransitionKind::Fade).transition), None);
+    }
+
+    #[test]
+    fn cover_uncover_split_and_zoom_move_the_faces() {
+        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b, ..Default::default() };
+        // Cover left: the new slide comes in from the right; the old one is cut where it is.
+        assert_eq!(geo(TransitionKind::Cover, Dir::Left, 0.25, true), g(0.75, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Cover, Dir::Left, 0.25, false), g(0.0, 0.0, 0.0, 0.25, 0.0, 0.0));
+        // Uncover left: the old slide goes out to the left; the new one shows where it was.
+        assert_eq!(geo(TransitionKind::Uncover, Dir::Left, 0.25, false), g(-0.25, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Uncover, Dir::Left, 0.25, true), g(0.0, 0.0, 0.75, 0.0, 0.0, 0.0));
+        let split = geo(TransitionKind::Split, Dir::Up, 0.5, true);
+        assert_eq!((split.t, split.b, split.l, split.over), (0.25, 0.25, 0.0, true));
+        let zoom = geo(TransitionKind::Zoom, Dir::Left, 0.25, true);
+        assert_eq!((zoom.z, zoom.over), (0.75, true));
+        assert_eq!(geo(TransitionKind::Zoom, Dir::Left, 0.25, false), Geo::default());
+        assert!(TransitionKind::Zoom.moves() && !TransitionKind::Zoom.has_dir() && !TransitionKind::Dissolve.moves());
+        assert_eq!(serde_json::from_str::<TransitionKind>("\"morph\"").unwrap(), TransitionKind::Dissolve, "a newer kind plays as a fade");
     }
 
     #[test]
@@ -1050,6 +1154,36 @@ mod tests {
         assert!(!shown(&room, Kind::Media) && !shown(&room, Kind::Logo) && !ui.get_video());
         // The crossfade runs on the room's own timer and ends fully in.
         assert!(pump_until(&room, 2.0, || ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0 && !room.inner.fader.running()));
+    }
+
+    #[test]
+    fn a_click_plays_its_animation_over_the_slide_then_the_slide_takes_over() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Shape, Start};
+        i_slint_backend_testing::init_no_event_loop();
+        let app = test_app();
+        let shape = |x| { let mut o = Obj::new(ObjKind::Shape { shape: Shape::Rect }, PctRect::new(x, 10.0, 20.0, 20.0)); o.look.fill = Some("#ff0000".into()); o };
+        let (a, b) = (shape(10.0), shape(60.0));
+        let mut fly = Anim::new(b.id, AnimKind::Entrance, Effect::Fly, Start::OnClick);
+        fly.dur_ms = 600;
+        let id = add(&app, ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fly], ..Default::default() }] });
+        let v = show(&app, id);
+        let room = open(&app);
+        let ui = &room.inner.ui;
+        assert!(pump_until(&room, 15.0, || app.live_view().committed == v && !room.inner.fader.running()));
+        assert_eq!(ui.get_sprites().row_count(), 0, "nothing plays as the slide comes up");
+        let step = |cmd| { let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(app.live_view().version), cmd }); assert!(out.ok, "{out:?}"); out.version };
+        let v = step(Command::Next);
+        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() > 0), "the click's pictures go up");
+        assert_eq!(app.live_view().committed, v);
+        let rows: Vec<_> = (0..ui.get_sprites().row_count()).filter_map(|r| ui.get_sprites().row_data(r)).collect();
+        assert_eq!(rows.len(), 2, "the still shape and the flying one");
+        assert_eq!(ui.get_slide_a_op() + ui.get_slide_b_op(), 0.0, "the slide layer waits under them");
+        assert!(pump_until(&room, 5.0, || ui.get_sprites().row_count() == 0), "they go once it has played");
+        assert_eq!(ui.get_slide_a_op() + ui.get_slide_b_op(), 1.0);
+        // Back: straight to the slide as it was, nothing plays.
+        step(Command::Prev);
+        assert!(pump_until(&room, 15.0, || room.inner.prep.borrow().is_none() && app.live_view().frame.slide.is_some() && ui.get_slide_a_op() + ui.get_slide_b_op() == 1.0));
+        assert_eq!(ui.get_sprites().row_count(), 0);
     }
 
     /// The room's screen in the setup, changed by `f`.

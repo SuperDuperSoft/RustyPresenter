@@ -47,8 +47,9 @@ fn the_add_menu_opens_the_editor_and_save_adds_the_item() {
     assert_eq!(g(&op).get_text(), "Your words here");
     g(&op).invoke_text_edited("Point one".into());
     g(&op).invoke_add_shape(1);
-    g(&op).invoke_build_on(true);
-    assert_eq!(g(&op).get_build_note(), "Appears on Next 1 of 1");
+    g(&op).invoke_anim_add();
+    assert_eq!(g(&op).get_anim_rows().row_data(0).unwrap(), "1. Fade in · On click · 0.5 s");
+    assert_eq!(g(&op).get_anim_at(), 0);
     g(&op).invoke_title_edited("Sermon".into());
     click(&op, "DesignEditorDialog::save");
     assert_eq!(op.dialog(), None);
@@ -190,4 +191,40 @@ fn ctrl_c_x_and_v_copy_objects_to_another_slide() {
     assert_eq!((g(&op).get_objects().row_count(), g(&op).get_chosen()), (1, 1), "the cut box on the new slide, chosen");
     g(&op).invoke_command("z".into(), false, false);
     assert_eq!(g(&op).get_objects().row_count(), 0, "Ctrl+Z takes the paste back");
+}
+
+#[test]
+fn the_animations_panel_edits_the_chosen_objects_steps_and_preview_plays_them() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, None);
+    g(&op).invoke_add_shape(0);
+    g(&op).invoke_anim_add();
+    g(&op).invoke_anim_add();
+    let rows = |op: &Operator| g(op).get_anim_rows().iter().map(|r| r.to_string()).collect::<Vec<_>>();
+    assert_eq!(rows(&op), ["1. Fade in · On click · 0.5 s", "2. Fade out · On click · 0.5 s"]);
+    assert_eq!(g(&op).get_anim_at(), 1, "the new step is the one edited");
+    g(&op).invoke_anim_kind_changed(3);
+    assert_eq!(g(&op).get_anim_path_y(), -25, "a motion starts going up");
+    g(&op).invoke_anim_preset(3);
+    assert_eq!((g(&op).get_anim_path_x(), g(&op).get_anim_path_y()), (25, 0));
+    g(&op).invoke_anim_pick(0);
+    g(&op).invoke_anim_effect_changed(2);
+    assert!(g(&op).get_anim_has_dir(), "Fly in comes from a side");
+    g(&op).invoke_anim_dir_changed(0);
+    g(&op).invoke_anim_start_changed(2);
+    g(&op).invoke_anim_dur_changed(1200);
+    assert_eq!(rows(&op)[0], "1. Fly in · After previous · 1.2 s");
+    g(&op).invoke_anim_move(false);
+    assert_eq!(g(&op).get_anim_at(), 1);
+    assert_eq!(rows(&op)[1], "2. Fly in · After previous · 1.2 s");
+    // Preview: the pictures play over the bare background, then the slide comes back.
+    g(&op).invoke_preview();
+    assert!(g(&op).get_previewing());
+    assert!(g(&op).get_preview_sprites().row_count() > 0);
+    g(&op).invoke_preview();
+    assert!(!g(&op).get_previewing() && g(&op).get_preview_sprites().row_count() == 0);
+    g(&op).invoke_anim_remove();
+    assert_eq!(rows(&op).len(), 1);
+    assert_eq!(g(&op).get_anim_at(), -1);
 }

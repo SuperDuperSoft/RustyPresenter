@@ -2,6 +2,7 @@
 // frame round each chosen object, the handles of the one chosen, and the snap guides. Pointer and keys go to Rust in
 // % of the slide (`src/ui/dialogs/design_editor.rs`), like the stage layout editor's canvas.
 import { Theme } from "../theme.slint";
+import { Sprite, SpriteLayer } from "../room.slint";
 
 /// One object's frame, in % of the slide (before turning).
 export struct DesignObjVm { id: string, x: float, y: float, w: float, h: float, rotation: float, selected: bool }
@@ -17,6 +18,9 @@ export component DesignCanvas inherits Rectangle {
     in property <bool> handles;
     /// The pen is on: dragging draws a line.
     in property <bool> pen;
+    /// Preview: the slide's animations play over the picture (which then holds only the background).
+    in property <[Sprite]> sprites;
+    in property <bool> previewing;
     /// Pointer down at (x, y) %, with how many % a handle reaches each way; `add` = Shift, `free` = Alt.
     callback press(float, float, float, float, bool, bool);
     callback drag(float, float);
@@ -77,7 +81,14 @@ export component DesignCanvas inherits Rectangle {
                 image-fit: fill;
             }
 
+            if root.previewing: SpriteLayer {
+                width: parent.width;
+                height: parent.height;
+                sprites: root.sprites;
+            }
+
             for o in root.objects: Rectangle {
+                visible: !root.previewing;
                 x: o.x * root.sw / 100;
                 y: o.y * root.sh / 100;
                 width: o.w * root.sw / 100;

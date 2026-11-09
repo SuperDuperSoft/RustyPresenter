@@ -1,7 +1,7 @@
 //! The slide editor's logic (N26, N27), with no UI: the slides being edited, what is chosen, dragging with snap
 //! guides, align and distribute, order, builds, undo, and copy / paste of a style. Reuses the stage layout editor's
 //! geometry (`stage::geom`).
-use super::{Design, HAlign, Look, Obj, ObjKind, Outline, PctRect, Shape, TextStyle, TransitionKind, VAlign, MAX_OBJECTS, MAX_SLIDES, strings as s};
+use super::{Anim, AnimKind, Design, Effect, HAlign, MotionPath, Seg, Start, Look, Obj, ObjKind, Outline, PctRect, Shape, TextStyle, TransitionKind, VAlign, MAX_OBJECTS, MAX_SLIDES, strings as s};
 use crate::stage::geom::{self, Guide, Handle, Nudge, UndoStack};
 use uuid::Uuid;
 
@@ -12,7 +12,7 @@ pub const STEP: f32 = 1.0;
 
 /// Which setting was changed last, so a slider drag or typing is one undo step.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Field { Text, Size, Color, Font, Rotation, Opacity, Fill, OutlineColor, OutlineWidth, Shadow, Soft, Radius, Notes, TransitionMs, PathColor }
+pub enum Field { Text, Size, Color, Font, Rotation, Opacity, Fill, OutlineColor, OutlineWidth, Shadow, Soft, Radius, Notes, TransitionMs, PathColor, AnimDelay, AnimDur, AnimAmount, AnimPath }
 
 /// Align the chosen objects: to each other when there are several, else to the slide.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -188,7 +188,11 @@ impl Editor {
 
     pub fn delete(&mut self) {
         let sel = std::mem::take(&mut self.sel);
-        self.edit(|e| e.slide_mut().objects.retain(|o| !sel.contains(&o.id)));
+        self.edit(|e| {
+            let d = e.slide_mut();
+            d.objects.retain(|o| !sel.contains(&o.id));
+            d.anims.retain(|a| !sel.contains(&a.obj));
+        });
     }
 
     /// Copies of the chosen objects, a little right and down, chosen instead.
@@ -514,28 +518,100 @@ impl Editor {
 
     // ---- builds ----
 
-    /// The chosen objects appear on a Next of their own (after the slide's other builds), or with the slide.
+    /// The chosen objects appear on a Next of their own (after the slide's other steps), or with the slide.
     pub fn set_build(&mut self, on: bool) {
-        let next = self.slide().objects.iter().map(|o| o.build).max().unwrap_or(0) + 1;
         let sel = self.sel.clone();
         self.edit(|e| {
-            for o in e.slide_mut().objects.iter_mut().filter(|o| sel.contains(&o.id)) {
-                if !on { o.build = 0 } else if o.build == 0 { o.build = next }
+            let d = e.slide_mut();
+            if !on { return d.anims.retain(|a| !(sel.contains(&a.obj) && a.kind == AnimKind::Entrance)) }
+            let mut start = Start::OnClick;
+            let new: Vec<Uuid> = sel.iter().filter(|id| !d.anims.iter().any(|a| a.obj == **id && a.kind == AnimKind::Entrance)).copied().collect();
+            for id in new {
+                d.anims.push(Anim::new(id, AnimKind::Entrance, Effect::Appear, start));
+                start = Start::WithPrevious;
             }
-            tidy_builds(e.slide_mut());
         });
     }
 
-    /// Swaps the first chosen object's build with the one before (`earlier`) or after it.
+    /// Swaps the first chosen object's click (its first entrance's) with the one before (`earlier`) or after it.
     pub fn move_build(&mut self, earlier: bool) {
-        let Some(b) = self.primary().map(|o| o.build).filter(|b| *b > 0) else { return };
-        let other = if earlier { b.checked_sub(1).filter(|v| *v > 0) } else { Some(b + 1).filter(|v| *v <= self.slide().steps()) };
-        let Some(other) = other else { return };
-        self.edit(|e| for o in &mut e.slide_mut().objects {
-            if o.build == b { o.build = other } else if o.build == other { o.build = b }
+        let Some(id) = self.primary().map(|o| o.id) else { return };
+        let click = self.slide().click_of(id);
+        if click == 0 { return }
+        let other = if earlier { click - 1 } else { click + 1 };
+        if other == 0 || other > self.slide().steps() { return }
+        self.edit(|e| e.slide_mut().swap_clicks(click.min(other)));
+    }
+
+    // ---- animations (1.1) ----
+
+    /// The slide's steps of the first chosen object, as indexes into `Design::anims`.
+    pub fn anims_of_primary(&self) -> Vec<usize> {
+        let Some(id) = self.primary().map(|o| o.id) else { return vec![] };
+        self.slide().anims.iter().enumerate().filter(|(_, a)| a.obj == id).map(|(i, _)| i).collect()
+    }
+
+    /// A new step for the first chosen object at the end of the slide's list: it fades in on a click of its own
+    /// (fades out once it already comes in). Its index.
+    pub fn add_anim(&mut self) -> Option<usize> {
+        let id = self.primary()?.id;
+        if self.slide().anims.len() >= super::anim::MAX_ANIMS { return None }
+        let comes_in = self.slide().anims.iter().any(|a| a.obj == id && a.kind == AnimKind::Entrance);
+        let kind = if comes_in { AnimKind::Exit } else { AnimKind::Entrance };
+        self.edit(|e| e.slide_mut().anims.push(Anim::new(id, kind, Effect::Fade, Start::OnClick)));
+        Some(self.slide().anims.len() - 1)
+    }
+
+    pub fn remove_anim(&mut self, i: usize) {
+        if i >= self.slide().anims.len() { return }
+        self.edit(|e| { e.slide_mut().anims.remove(i); });
+    }
+
+    /// Moves step `i` one place earlier (`up`) or later in the slide's list. Its new index.
+    pub fn move_anim(&mut self, i: usize, up: bool) -> usize {
+        let n = self.slide().anims.len();
+        let j = if up { i.checked_sub(1) } else { Some(i + 1).filter(|j| *j < n) };
+        let Some(j) = j.filter(|_| i < n) else { return i };
+        self.edit(|e| e.slide_mut().anims.swap(i, j));
+        j
+    }
+
+    /// Changes step `i`; repeated changes of one `field` (a slider being dragged) make one undo step.
+    pub fn set_anim(&mut self, i: usize, field: Option<Field>, f: impl FnOnce(&mut Anim)) {
+        if i >= self.slide().anims.len() { return }
+        self.edit_slide(field, |d| f(&mut d.anims[i]));
+    }
+
+    /// A new kind for step `i`, with the kind's first effect unless its effect fits; a motion gets a path.
+    pub fn set_anim_kind(&mut self, i: usize, kind: AnimKind) {
+        self.set_anim(i, None, |a| {
+            a.kind = kind;
+            if !Effect::for_kind(kind).contains(&a.effect) { a.effect = Effect::for_kind(kind)[usize::from(kind != AnimKind::Emphasis && kind != AnimKind::Motion)] }
+            if a.effect != Effect::Appear && a.dur_ms == 0 { a.dur_ms = 500 }
+            if kind == AnimKind::Motion && a.path.is_none() { a.path = Some(motion_preset(0)) }
         });
     }
 
+    pub fn set_anim_effect(&mut self, i: usize, effect: Effect) {
+        self.set_anim(i, None, |a| {
+            a.effect = effect;
+            if effect == Effect::Appear { a.dur_ms = 0 } else if a.dur_ms == 0 { a.dur_ms = 500 }
+        });
+    }
+}
+
+/// The ready-made motion paths: 0 up, 1 down, 2 left, 3 right (a quarter of the slide), 4 an arc to the right.
+pub fn motion_preset(n: i32) -> MotionPath {
+    match n {
+        1 => MotionPath::line((0.0, 25.0)),
+        2 => MotionPath::line((-25.0, 0.0)),
+        3 => MotionPath::line((25.0, 0.0)),
+        4 => MotionPath { segs: vec![Seg::Cubic { c1: (0.0, -20.0), c2: (30.0, -20.0), to: (30.0, 0.0) }], ease: true },
+        _ => MotionPath::line((0.0, -25.0)),
+    }
+}
+
+impl Editor {
     // ---- copy and paste a style (N27) ----
 
     /// The first chosen object's style; with nothing chosen, the slide's first text box's.
@@ -555,16 +631,6 @@ impl Editor {
             o.opacity = style.opacity;
             if let (ObjKind::Text { style: own, .. }, Some(t)) = (&mut o.kind, &style.text) { *own = t.clone() }
         });
-    }
-}
-
-/// Build numbers made 1, 2, 3… in their order, so there are no gaps.
-fn tidy_builds(d: &mut Design) {
-    let mut b: Vec<u16> = d.objects.iter().map(|o| o.build).filter(|b| *b > 0).collect();
-    b.sort_unstable();
-    b.dedup();
-    for o in &mut d.objects {
-        if o.build > 0 { o.build = b.iter().position(|v| *v == o.build).map_or(0, |i| i as u16 + 1) }
     }
 }
 

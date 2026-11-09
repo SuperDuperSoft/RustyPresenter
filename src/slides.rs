@@ -374,7 +374,8 @@ pub fn design_slides(designs: &[crate::design::Design]) -> Vec<Slide> {
         let steps = d.steps();
         for step in 0..=steps {
             let label = if step == 0 { crate::design::strings::slide_name(i + 1) } else { crate::design::strings::build_name(i + 1, step, steps) };
-            let mut slide = Slide::new(label, SlideContent::Design { design: d.at_step(step), step, steps });
+            let play = d.play(step).map(Box::new);
+            let mut slide = Slide::new(label, SlideContent::Design { design: d.at_step(step), step, steps, play });
             slide.notes = d.notes.clone();
             out.push(slide);
         }

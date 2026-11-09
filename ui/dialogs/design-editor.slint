@@ -7,6 +7,7 @@ import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, TextArea, Lbl, Select, RangeSlider, Toggle, Check } from "form.slint";
 import { TransitionPicker } from "transition.slint";
 import { DesignCanvas, DesignObjVm, DesignGuideVm } from "design-canvas.slint";
+import { Sprite } from "../room.slint";
 
 export { DesignObjVm, DesignGuideVm }
 
@@ -54,9 +55,29 @@ export global DesignDlg {
     in-out property <int> radius;
     in-out property <int> opacity: 100;
     in-out property <int> rotation;
-    in property <bool> build;
-    /// "Appears on Next 2 of 3", or "".
-    in property <string> build-note;
+    // The first chosen object's animation steps (1.1): one line each, and the step being edited (-1: none).
+    in property <[string]> anim-rows;
+    in-out property <int> anim-at: -1;
+    /// The step's kind: 0 entrance, 1 emphasis, 2 exit, 3 motion; its effect among `anim-effects`.
+    in-out property <int> anim-kind;
+    in property <[string]> anim-effects;
+    in-out property <int> anim-effect;
+    /// 0 on click, 1 with previous, 2 after previous.
+    in-out property <int> anim-start;
+    in property <bool> anim-has-dir;
+    /// The side it comes from or goes to: left, right, top, bottom.
+    in-out property <int> anim-dir: 3;
+    in-out property <int> anim-delay;
+    in-out property <int> anim-dur: 500;
+    /// Spin (degrees) or Grow (percent); `anim-amount-kind` 1 spin, 2 grow, 0 neither.
+    in property <int> anim-amount-kind;
+    in-out property <int> anim-amount;
+    /// A motion path's end, in % of the slide across and down from where the object is.
+    in-out property <int> anim-path-x;
+    in-out property <int> anim-path-y;
+    /// The slide's animations play in the picture (Preview).
+    in property <bool> previewing;
+    in property <[Sprite]> preview-sprites;
     // The slide, with nothing chosen.
     in-out property <int> transition;
     in-out property <int> transition-ms: 400;
@@ -109,8 +130,20 @@ export global DesignDlg {
     callback radius-changed(int);
     callback opacity-changed(int);
     callback rotation-changed(int);
-    callback build-on(bool);
-    callback build-move(bool);
+    callback anim-add();
+    callback anim-remove();
+    callback anim-move(bool);
+    callback anim-pick(int);
+    callback anim-kind-changed(int);
+    callback anim-effect-changed(int);
+    callback anim-start-changed(int);
+    callback anim-dir-changed(int);
+    callback anim-delay-changed(int);
+    callback anim-dur-changed(int);
+    callback anim-amount-changed(int);
+    callback anim-path-changed(int, int);
+    callback anim-preset(int);
+    callback preview();
     callback transition-changed(int);
     callback transition-ms-changed(int);
     callback transition-dir-changed(int);
@@ -253,6 +286,7 @@ component Inspector inherits VerticalLayout {
             ms-changed(v) => { DesignDlg.transition-ms-changed(v); }
         }
         all-btn := Btn { small: true; text: @tr("Use on every slide"); clicked => { DesignDlg.transition-to-all(); } }
+        preview-btn := Btn { small: true; icon: "play"; text: DesignDlg.previewing ? @tr("Stop") : @tr("Preview animations"); clicked => { DesignDlg.preview(); } }
         Lbl { label: @tr("Notes"); }
         notes := TextArea {
             label: @tr("Notes");
@@ -404,16 +438,112 @@ component Inspector inherits VerticalLayout {
             value <=> DesignDlg.rotation;
             changed(v) => { DesignDlg.rotation-changed(v); }
         }
-        Lbl { label: @tr("Build"); }
-        Switch { text: @tr("Appears on Next"); on: DesignDlg.build; toggled(v) => { DesignDlg.build-on(v); } }
-        if DesignDlg.build: VerticalLayout {
-            spacing: 6px;
-            SmallText { text: DesignDlg.build-note; }
+        Lbl { label: @tr("Animations"); }
+        for row[i] in DesignDlg.anim-rows: Rectangle {
+            height: 26px;
+            border-radius: 4px;
+            background: i == DesignDlg.anim-at ? Theme.accent : pick.has-hover ? Theme.line : transparent;
+            accessible-role: list-item;
+            accessible-label: row;
+            accessible-item-selected: i == DesignDlg.anim-at;
             HorizontalLayout {
-                spacing: 4px;
-                alignment: start;
-                Btn { small: true; text: @tr("Earlier"); clicked => { DesignDlg.build-move(true); } }
-                Btn { small: true; text: @tr("Later"); clicked => { DesignDlg.build-move(false); } }
+                padding-left: 6px;
+                padding-right: 6px;
+                Text {
+                    text: row;
+                    vertical-alignment: center;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    color: i == DesignDlg.anim-at ? Theme.accent-ink : Theme.text;
+                    overflow: elide;
+                }
+            }
+            pick := TouchArea { clicked => { DesignDlg.anim-pick(i); } }
+        }
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: start;
+            anim-add-btn := Btn { small: true; icon: "plus"; text: @tr("Add animation"); clicked => { DesignDlg.anim-add(); } }
+            if DesignDlg.anim-at >= 0: Btn { small: true; text: @tr("Earlier"); clicked => { DesignDlg.anim-move(true); } }
+            if DesignDlg.anim-at >= 0: Btn { small: true; text: @tr("Later"); clicked => { DesignDlg.anim-move(false); } }
+            if DesignDlg.anim-at >= 0: Btn { small: true; text: @tr("Remove"); clicked => { DesignDlg.anim-remove(); } }
+        }
+        Btn { small: true; icon: "play"; text: DesignDlg.previewing ? @tr("Stop") : @tr("Preview animations"); clicked => { DesignDlg.preview(); } }
+        if DesignDlg.anim-at >= 0: VerticalLayout {
+            spacing: 6px;
+            anim-kind := Select {
+                accessible-label: @tr("Kind of animation");
+                options: [@tr("Entrance"), @tr("Emphasis"), @tr("Exit"), @tr("Motion path")];
+                index <=> DesignDlg.anim-kind;
+                changed(i) => { DesignDlg.anim-kind-changed(i); }
+            }
+            if DesignDlg.anim-kind != 3: Select {
+                accessible-label: @tr("Effect");
+                options: DesignDlg.anim-effects;
+                index <=> DesignDlg.anim-effect;
+                changed(i) => { DesignDlg.anim-effect-changed(i); }
+            }
+            Select {
+                accessible-label: @tr("Starts");
+                options: [@tr("On click"), @tr("With previous"), @tr("After previous")];
+                index <=> DesignDlg.anim-start;
+                changed(i) => { DesignDlg.anim-start-changed(i); }
+            }
+            if DesignDlg.anim-has-dir: Select {
+                accessible-label: @tr("Side");
+                options: [@tr("From the left side"), @tr("From the right side"), @tr("From the top"), @tr("From the bottom")];
+                index <=> DesignDlg.anim-dir;
+                changed(i) => { DesignDlg.anim-dir-changed(i); }
+            }
+            if DesignDlg.anim-kind == 3: VerticalLayout {
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 4px;
+                    alignment: start;
+                    Btn { small: true; text: @tr("Up"); clicked => { DesignDlg.anim-preset(0); } }
+                    Btn { small: true; text: @tr("Down"); clicked => { DesignDlg.anim-preset(1); } }
+                    Btn { small: true; text: @tr("Left"); clicked => { DesignDlg.anim-preset(2); } }
+                    Btn { small: true; text: @tr("Right"); clicked => { DesignDlg.anim-preset(3); } }
+                    Btn { small: true; text: @tr("Arc"); clicked => { DesignDlg.anim-preset(4); } }
+                }
+                Lbl { label: @tr("Moves across ({}% of the slide)", DesignDlg.anim-path-x); }
+                RangeSlider {
+                    minimum: -100;
+                    maximum: 100;
+                    value <=> DesignDlg.anim-path-x;
+                    changed(v) => { DesignDlg.anim-path-changed(v, DesignDlg.anim-path-y); }
+                }
+                Lbl { label: @tr("Moves down ({}% of the slide)", DesignDlg.anim-path-y); }
+                RangeSlider {
+                    minimum: -100;
+                    maximum: 100;
+                    value <=> DesignDlg.anim-path-y;
+                    changed(v) => { DesignDlg.anim-path-changed(DesignDlg.anim-path-x, v); }
+                }
+            }
+            if DesignDlg.anim-amount-kind > 0: VerticalLayout {
+                spacing: 6px;
+                Lbl { label: DesignDlg.anim-amount-kind == 1 ? @tr("Turns ({}°)", DesignDlg.anim-amount) : @tr("Grows to ({}%)", DesignDlg.anim-amount); }
+                RangeSlider {
+                    minimum: DesignDlg.anim-amount-kind == 1 ? -720 : 10;
+                    maximum: DesignDlg.anim-amount-kind == 1 ? 720 : 400;
+                    value <=> DesignDlg.anim-amount;
+                    changed(v) => { DesignDlg.anim-amount-changed(v); }
+                }
+            }
+            Lbl { label: @tr("Wait first ({} ms)", DesignDlg.anim-delay); }
+            RangeSlider {
+                minimum: 0;
+                maximum: 10000;
+                value <=> DesignDlg.anim-delay;
+                changed(v) => { DesignDlg.anim-delay-changed(v); }
+            }
+            Lbl { label: @tr("Time ({} ms)", DesignDlg.anim-dur); }
+            RangeSlider {
+                minimum: 0;
+                maximum: 10000;
+                value <=> DesignDlg.anim-dur;
+                changed(v) => { DesignDlg.anim-dur-changed(v); }
             }
         }
     }
@@ -484,6 +614,8 @@ export component DesignEditorDialog inherits VerticalLayout {
                     guides: DesignDlg.guides;
                     handles: DesignDlg.chosen == 1;
                     pen: DesignDlg.pen;
+                    sprites: DesignDlg.preview-sprites;
+                    previewing: DesignDlg.previewing;
                     press(x, y, tx, ty, add, free) => { DesignDlg.press(x, y, tx, ty, add, free); }
                     drag(x, y) => { DesignDlg.drag(x, y); }
                     release => { DesignDlg.release(); }
