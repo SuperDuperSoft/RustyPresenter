@@ -742,9 +742,10 @@ fn pieces<'a, 'i>(n: Node<'a, 'i>, style: Option<&'a str>, lines: &mut Vec<Vec<(
 }
 
 fn para_of<'a, 'i>(p: Node<'a, 'i>, prefix: String) -> Para<'a> {
-    let span = p.descendants().find(|d| is(d, "span") && d.descendants().any(|t| t.is_text() && !t.text().unwrap_or("").trim().is_empty())).and_then(|s| attr_in(&s, "text", "style-name"));
     let mut lines = vec![Vec::new()];
     pieces(p, None, &mut lines);
+    // The style of the first words.
+    let span = lines.iter().flatten().find(|(t, _)| !t.trim().is_empty()).and_then(|(_, s)| *s);
     let id = p.attributes().find(|a| a.name() == "id").map(|a| a.value());
     Para { prefix, para: attr_in(&p, "text", "style-name"), span, lines, id }
 }

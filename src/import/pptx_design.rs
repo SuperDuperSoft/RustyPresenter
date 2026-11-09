@@ -555,8 +555,7 @@ impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
         let data = f.descendants().find(|n| is(n, "graphicData"));
         let uri = data.and_then(|d| attr(&d, "uri")).unwrap_or("");
         let done = if let Some(tbl) = f.descendants().find(|n| is(n, "tbl")) {
-            self.table(io, made, tbl, placed);
-            true
+            self.table(made, tbl, placed)
         } else if uri.ends_with("/diagram") {
             self.smartart(io, made, f, b, groups, rels)
         } else {
@@ -627,10 +626,14 @@ impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
     }
 
     /// A table: its grid, cells' words, fills and borders (the cell's own, else the table style's).
-    fn table<R: Read + Seek>(&self, _io: &mut Io<R>, made: &mut Made, tbl: Node, b: Box_) {
-        let cols: Vec<f32> = tbl.children().find(|n| is(n, "tblGrid")).map(|g| g.children().filter(|n| is(n, "gridCol")).map(|c| attr(&c, "w").and_then(|v| v.parse::<f32>().ok()).unwrap_or(1.0)).collect()).unwrap_or_default();
-        let trs: Vec<Node> = tbl.children().filter(|n| is(n, "tr")).collect();
-        if cols.is_empty() || trs.is_empty() { return }
+    /// False when it has no cells.
+    fn table(&self, made: &mut Made, tbl: Node, b: Box_) -> bool {
+        let mut cols: Vec<f32> = tbl.children().find(|n| is(n, "tblGrid")).map(|g| g.children().filter(|n| is(n, "gridCol")).map(|c| attr(&c, "w").and_then(|v| v.parse::<f32>().ok()).unwrap_or(1.0)).collect()).unwrap_or_default();
+        let trs: Vec<Node> = tbl.children().filter(|n| is(n, "tr")).take(crate::design::rich::TABLE_MAX).collect();
+        // No grid: as many even columns as the widest row has cells.
+        if cols.is_empty() { cols = vec![1.0; trs.iter().map(|r| r.children().filter(|n| is(n, "tc")).count()).max().unwrap_or(0)] }
+        cols.truncate(crate::design::rich::TABLE_MAX);
+        if cols.is_empty() || trs.is_empty() { return false }
         let rows: Vec<f32> = trs.iter().map(|r| attr(r, "h").and_then(|v| v.parse::<f32>().ok()).filter(|h| *h > 0.0).unwrap_or(370_840.0)).collect();
         let pr = tbl.children().find(|n| is(n, "tblPr"));
         let flag = |a: &str| pr.and_then(|p| attr(&p, a)).is_some_and(|v| matches!(v, "1" | "true"));
@@ -690,6 +693,7 @@ impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
         let mut o = Obj::new(ObjKind::Table { table }, self.pct(&b));
         o.rotation = b.rot as f32;
         made.push(o);
+        true
     }
 
     /// The look of an empty cell's words.
