@@ -181,7 +181,7 @@ impl Editor {
     }
 
     /// A new text box with the editor's sample words.
-    pub fn add_text(&mut self) -> Result<Uuid, String> { self.add(ObjKind::Text { text: s::sample_text(), style: TextStyle::default() }) }
+    pub fn add_text(&mut self) -> Result<Uuid, String> { self.add(ObjKind::text(s::sample_text(), TextStyle::default())) }
 
     /// A new web page, its address still to type.
     pub fn add_web(&mut self) -> Result<Uuid, String> { self.add(ObjKind::Web { url: String::new() }) }
@@ -399,20 +399,40 @@ impl Editor {
     pub fn set_text(&mut self, t: &str) {
         let t = t.to_string();
         self.edit_chosen(Field::Text, |o| match &mut o.kind {
-            ObjKind::Text { text, .. } => *text = t.clone(),
+            ObjKind::Text { text, paras, .. } => {
+                // Lines that stayed keep their looks (1.2's mixed styles).
+                *paras = super::rich::retext(paras, &t);
+                *text = t.clone();
+            }
+            ObjKind::Table { table } => table.set_text(&t),
             ObjKind::Web { url } => *url = t.clone(),
             _ => {}
         });
     }
 
-    /// Changes the text style of the chosen text boxes.
+    /// Changes the text style of the chosen text boxes and tables (the whole box: words with a look of their own
+    /// take the change too).
     pub fn set_style(&mut self, field: Field, f: impl Fn(&mut TextStyle)) {
-        self.edit_chosen(field, |o| if let ObjKind::Text { style, .. } = &mut o.kind { f(style) });
+        self.edit_chosen(field, |o| match &mut o.kind {
+            ObjKind::Text { style, paras, .. } => {
+                let before = style.clone();
+                f(style);
+                super::rich::restyle(paras, &before, style);
+            }
+            ObjKind::Table { table } => {
+                let before = table.style.clone();
+                f(&mut table.style);
+                for c in &mut table.cells { super::rich::restyle(&mut c.paras, &before, &table.style) }
+            }
+            _ => {}
+        });
     }
 
     pub fn set_size(&mut self, px: f32) { let px = px.clamp(super::SIZE_MIN, super::SIZE_MAX); self.set_style(Field::Size, |s| s.size = px) }
     pub fn set_bold(&mut self, on: bool) { self.set_style_once(|s| s.bold = on) }
     pub fn set_italic(&mut self, on: bool) { self.set_style_once(|s| s.italic = on) }
+    pub fn set_underline(&mut self, on: bool) { self.set_style_once(|s| s.underline = on) }
+    pub fn set_strike(&mut self, on: bool) { self.set_style_once(|s| s.strike = on) }
     pub fn set_align(&mut self, a: HAlign) { self.set_style_once(|s| s.align = a) }
     pub fn set_valign(&mut self, a: VAlign) { self.set_style_once(|s| s.valign = a) }
     pub fn set_shrink(&mut self, on: bool) { self.set_style_once(|s| s.shrink = on) }
@@ -629,7 +649,11 @@ impl Editor {
         self.edit(|e| for o in e.slide_mut().objects.iter_mut().filter(|o| targets.contains(&o.id)) {
             o.look = style.look.clone();
             o.opacity = style.opacity;
-            if let (ObjKind::Text { style: own, .. }, Some(t)) = (&mut o.kind, &style.text) { *own = t.clone() }
+            match (&mut o.kind, &style.text) {
+                (ObjKind::Text { style: own, paras, .. }, Some(t)) => { super::rich::restyle(paras, own, t); *own = t.clone() }
+                (ObjKind::Table { table }, Some(t)) => { for c in &mut table.cells { super::rich::restyle(&mut c.paras, &table.style, t) } table.style = t.clone() }
+                _ => {}
+            }
         });
     }
 }

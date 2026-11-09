@@ -1,5 +1,5 @@
 use super::*;
-use crate::design::{HAlign, Transition, VAlign};
+use crate::design::{HAlign, Run, Transition, VAlign};
 use std::io::{Cursor, Write};
 
 const NS: &str = r#"xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0""#;
@@ -175,7 +175,15 @@ fn text_frames_bring_their_words_and_look() {
 "#);
     let o = drawn(&d);
     let texts: Vec<_> = o.iter().map(text_of).collect();
-    assert_eq!(texts, [Some("Amazing Grace"), Some("• How sweet\n• the sound\n    • that saved"), Some("a wretch like me\n1. one\n2. two"), Some("In a box"), None, Some("In a ring")]);
+    assert_eq!(texts, [Some("Amazing Grace"), Some("• How sweet\n• the sound\n• that saved"), Some("a wretch like me\n1. one\n2. two"), Some("In a box"), None, Some("In a ring")]);
+    // A list one level in is a paragraph one level in.
+    let ObjKind::Text { paras, .. } = &o[1].kind else { panic!() };
+    assert_eq!(paras.iter().map(|p| (p.level, p.bullet.as_str())).collect::<Vec<_>>(), [(0, "•"), (0, "•"), (1, "•")]);
+    // The words after the red span keep their own look (the paragraph's size, white on the dark box).
+    let ObjKind::Text { paras, .. } = &o[2].kind else { panic!() };
+    assert_eq!(paras[0].runs[0].text, "a wretch");
+    assert_eq!(paras[0].runs[1], Run { text: " like me".into(), font: Some("Liberation Sans".into()), color: Some("#ffffff".into()), bold: Some(false), italic: Some(false), underline: Some(false), ..Run::default() });
+    assert_eq!(paras[1].bullet, "1.");
     // The title: the master's title style. 44 pt of a 15.75 cm (446.5 pt) page is 44 / 446.5 of 1080 px.
     let t = o[0].text_style().unwrap();
     assert!(close(t.size, 44.0 / 446.4567 * 1080.0), "{}", t.size);
@@ -206,20 +214,24 @@ fn pictures_go_to_the_store_once_and_odd_objects_become_named_boxes() {
 </draw:g>
 <draw:frame draw:name="Prices" svg:width="14cm" svg:height="7.875cm" svg:x="0cm" svg:y="0cm"><table:table><table:table-row><table:table-cell><text:p>1</text:p></table:table-cell></table:table-row></table:table></draw:frame>
 <draw:frame presentation:class="chart" svg:width="14cm" svg:height="7.875cm" svg:x="0cm" svg:y="0cm"><draw:object xlink:href="./Object 1"/><draw:image xlink:href="./ObjectReplacements/Object 1"/></draw:frame>
+<draw:frame presentation:class="chart" svg:width="14cm" svg:height="7.875cm" svg:x="0cm" svg:y="0cm"><draw:object xlink:href="./Object 2"/><draw:image xlink:href="./ObjectReplacements/Object 2"/></draw:frame>
 <draw:frame draw:name="Gone" svg:width="2.8cm" svg:height="1.575cm" svg:x="0cm" svg:y="0cm"><draw:image xlink:href="Pictures/missing.png"/></draw:frame>
 </draw:page>"#);
-    let file = odp_file(&content, &styles_xml("", ("28cm", "15.75cm")), &[("Pictures/cross.png", b"PNGDATA"), ("Pictures/cross.svg", b"<svg/>")]);
+    let file = odp_file(&content, &styles_xml("", ("28cm", "15.75cm")), &[("Pictures/cross.png", b"PNGDATA"), ("Pictures/cross.svg", b"<svg/>"), ("ObjectReplacements/Object 1", b"\x89PNG chart"), ("ObjectReplacements/Object 2", b"VCLMTF svm")]);
     let (out, put) = convert_all(file);
-    assert_eq!(put, [(b"PNGDATA".to_vec(), "png".to_string())]);
+    assert_eq!(put, [(b"PNGDATA".to_vec(), "png".to_string()), (b"\x89PNG chart".to_vec(), "png".to_string())]);
     let o = drawn(&out.designs[0]);
-    assert_eq!(o.len(), 6);
+    assert_eq!(o.len(), 7);
     assert!(matches!(&o[0].kind, ObjKind::Picture { asset, fit: Fit::Stretch } if asset == "img1.png"));
     assert!(matches!(&o[1].kind, ObjKind::Picture { asset, .. } if asset == "img1.png"));
     assert!(rect_is(o[1].rect, 50.0, 50.0, 10.0, 10.0));
     assert!(matches!(o[2].kind, ObjKind::Shape { shape: Shape::Ellipse }));
-    assert_eq!((text_of(&o[3]), text_of(&o[4]), text_of(&o[5])), (Some("Prices"), Some("Chart"), Some("Gone")));
-    assert!(o[3].look.fill.is_some() && o[3].look.outline.is_some());
-    assert_eq!(out.placeholders, 3);
+    // The table is a table; the chart is its stored picture (one LibreOffice keeps as SVM stays a grey box).
+    assert!(matches!(&o[3].kind, ObjKind::Table { table } if table.text() == "1"));
+    assert!(matches!(&o[4].kind, ObjKind::Picture { asset, .. } if asset == "img2.png"));
+    assert_eq!((text_of(&o[5]), text_of(&o[6])), (Some("Chart"), Some("Gone")));
+    assert!(o[5].look.fill.is_some() && o[5].look.outline.is_some());
+    assert_eq!(out.placeholders, 2);
 }
 
 #[test]
@@ -352,4 +364,68 @@ fn a_file_converts_into_the_asset_store() {
     std::fs::write(&path, b"not a zip").unwrap();
     assert!(odp_to_designs(&path, &store).is_err());
     let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn paragraphs_keep_spacing_line_breaks_and_their_own_steps() {
+    let auto = r##"<style:style style:name="P2" style:family="paragraph"><style:paragraph-properties fo:line-height="150%" fo:margin-top="0.5cm" fo:margin-bottom="0cm"/></style:style>
+<style:style style:name="T2" style:family="text"><style:text-properties style:text-line-through-style="solid"/></style:style>"##;
+    let appear = effect("on-click", "0s", "entrance", "ooo-entrance-appear", "", &show("para2"));
+    let timing = format!(r#"<anim:par presentation:node-type="timing-root"><anim:seq presentation:node-type="main-sequence"><anim:par smil:begin="indefinite"><anim:par smil:begin="0s">{appear}</anim:par></anim:par></anim:seq></anim:par>"#);
+    let d = one_page(auto, &format!(r#"<draw:frame draw:id="box" xml:id="box" svg:width="14cm" svg:height="7.875cm" svg:x="0cm" svg:y="0cm"><draw:text-box><text:p text:style-name="P2" xml:id="para1" text:id="para1">Grace <text:span text:style-name="T2">old</text:span><text:line-break/>new</text:p><text:p xml:id="para2" text:id="para2">Second</text:p></draw:text-box></draw:frame>{timing}"#));
+    let o = &drawn(&d)[0];
+    let ObjKind::Text { text, paras, .. } = &o.kind else { panic!("{:?}", o.kind) };
+    assert_eq!(text, "Grace old\nnew\nSecond");
+    assert_eq!(paras[0].runs[1], Run { text: "old".into(), strike: Some(true), ..Run::default() });
+    // 150 % lines; 0.5 cm above the paragraph (not above its second line).
+    assert_eq!((paras[0].line, paras[1].line, paras[2].line), (Some(1.5), Some(1.5), None));
+    assert!(close(paras[0].before, 0.5 / 2.54 * 72.0 * 1080.0 / 446.4567) && paras[1].before == 0.0, "{}", paras[0].before);
+    // The step names the second paragraph: it alone comes in.
+    assert_eq!(d.anims.iter().map(|a| (a.obj, a.para)).collect::<Vec<_>>(), [(o.id, Some((2, 2)))]);
+    assert_eq!((d.at_step(0).words().as_str(), d.at_step(1).words().as_str()), ("Grace old\nnew", "Grace old\nnew\nSecond"), "the stage shows what is shown");
+    let drawn_words = |s| d.at_step(s).objects.iter().filter_map(|o| match &o.kind {
+        ObjKind::Text { paras, .. } => Some(paras.iter().filter(|p| !p.hidden).map(|p| p.words()).collect::<Vec<_>>().join("|")),
+        _ => None,
+    }).filter(|w| !w.is_empty()).collect::<Vec<_>>().join("|");
+    assert_eq!((drawn_words(0).as_str(), drawn_words(1).as_str()), ("Grace old|new", "Grace old|new|Second"));
+}
+
+#[test]
+fn tables_keep_columns_rows_cells_and_their_template() {
+    let auto = r##"<style:style style:name="co1" style:family="table-column"><style:table-column-properties style:column-width="4cm"/></style:style>
+<style:style style:name="co2" style:family="table-column"><style:table-column-properties style:column-width="10cm"/></style:style>
+<style:style style:name="ro1" style:family="table-row"><style:table-row-properties style:row-height="1.5cm"/></style:style>
+<style:style style:name="ce1" style:family="table-cell"><style:graphic-properties draw:fill="solid" draw:fill-color="#00ff00" draw:textarea-vertical-align="middle"/><style:paragraph-properties fo:border="0.06pt solid #ff0000"/></style:style>
+<style:style style:name="head" style:family="table-cell"><style:graphic-properties draw:fill="solid" draw:fill-color="#1f2a44"/><style:text-properties fo:color="#ffffff" fo:font-weight="bold"/></style:style>
+<style:style style:name="body" style:family="table-cell"><style:graphic-properties draw:fill="solid" draw:fill-color="#dddddd"/></style:style>
+<table:table-template table:name="church"><table:first-row table:style-name="head"/><table:body table:style-name="body"/></table:table-template>"##;
+    let d = one_page(auto, r#"<draw:frame draw:name="Times" svg:width="14cm" svg:height="4.5cm" svg:x="0cm" svg:y="0cm"><table:table table:template-name="church" table:use-first-row-styles="true">
+<table:table-column table:style-name="co1"/><table:table-column table:style-name="co2"/>
+<table:table-row table:style-name="ro1"><table:table-cell><text:p>Time</text:p></table:table-cell><table:table-cell><text:p>Event</text:p></table:table-cell></table:table-row>
+<table:table-row table:style-name="ro1"><table:table-cell table:style-name="ce1"><text:p>9am</text:p></table:table-cell><table:table-cell><text:p>Prayer</text:p></table:table-cell></table:table-row>
+<table:table-row table:style-name="ro1"><table:table-cell table:number-columns-spanned="2"><text:p>All welcome</text:p></table:table-cell><table:covered-table-cell/></table:table-row>
+</table:table></draw:frame>"#);
+    let o = &drawn(&d)[0];
+    let ObjKind::Table { table } = &o.kind else { panic!("{:?}", o.kind) };
+    assert!(close(table.cols[0] / table.cols[1], 0.4) && table.rows.len() == 3);
+    assert_eq!(table.text(), "Time\tEvent\n9am\tPrayer\nAll welcome\t");
+    // The template's first row: dark, white bold words; its body grey; the cell's own style wins.
+    assert_eq!((table.cells[0].fill.as_deref(), table.cells[3].fill.as_deref(), table.cells[2].fill.as_deref()), (Some("#1f2a44"), Some("#dddddd"), Some("#00ff00")));
+    assert_eq!((table.cells[0].paras[0].runs[0].bold, table.cells[0].paras[0].runs[0].color.as_deref()), (Some(true), Some("#ffffff")));
+    assert_eq!(table.cells[2].borders[0].as_ref().map(|b| b.color.as_str()), Some("#ff0000"));
+    assert_eq!(table.cells[2].valign, Some(VAlign::Middle));
+    assert_eq!((table.cells[4].span_cols, table.cells[5].merged), (2, true));
+}
+
+#[test]
+fn mirrored_shapes_and_pictures_stay_mirrored() {
+    let auto = r##"<style:style style:name="gr9" style:family="graphic"><style:graphic-properties style:mirror="horizontal"/></style:style>"##;
+    let content = content_xml(&format!("{SHAPE_STYLES}{auto}"), r#"<draw:page draw:name="p1" draw:style-name="dp1" draw:master-page-name="Default">
+<draw:custom-shape draw:style-name="gr2" svg:x="0cm" svg:y="0cm" svg:width="2.8cm" svg:height="1.575cm"><draw:enhanced-geometry draw:type="right-triangle" draw:mirror-vertical="true"/></draw:custom-shape>
+<draw:frame draw:style-name="gr9" svg:width="2.8cm" svg:height="1.575cm" svg:x="0cm" svg:y="0cm"><draw:image xlink:href="Pictures/cross.png"/></draw:frame>
+</draw:page>"#);
+    let (out, _) = convert_all(odp_file(&content, &styles_xml("", ("28cm", "15.75cm")), &[("Pictures/cross.png", b"PNGDATA")]));
+    let o = drawn(&out.designs[0]);
+    assert!(matches!(o[0].kind, ObjKind::Shape { shape: Shape::Triangle }) && o[0].flip_v && !o[0].flip_h);
+    assert!(matches!(o[1].kind, ObjKind::Picture { .. }) && o[1].flip_h && !o[1].flip_v);
 }

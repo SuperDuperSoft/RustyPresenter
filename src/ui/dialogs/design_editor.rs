@@ -109,7 +109,7 @@ pub fn media_object(m: &MediaFile) -> ObjKind {
 
 /// Which kind the side panel shows for an object.
 fn kind_index(k: &ObjKind) -> i32 {
-    match k { ObjKind::Text { .. } => 0, ObjKind::Shape { .. } => 1, ObjKind::Picture { .. } => 2, ObjKind::Video { .. } => 3, ObjKind::Path { .. } => 4, ObjKind::Web { .. } => 5, ObjKind::Unknown => 6 }
+    match k { ObjKind::Text { .. } | ObjKind::Table { .. } => 0, ObjKind::Shape { .. } => 1, ObjKind::Picture { .. } => 2, ObjKind::Video { .. } => 3, ObjKind::Path { .. } => 4, ObjKind::Web { .. } => 5, ObjKind::Unknown => 6 }
 }
 
 fn shape_of(i: i32) -> Shape { [Shape::Rect, Shape::Ellipse, Shape::Triangle, Shape::Line, Shape::Arrow][i.clamp(0, 4) as usize] }
@@ -145,9 +145,19 @@ fn show(g: &DesignDlg, ss: &Session) {
     show_path(g, ss);
     let Some(o) = ed.primary() else { return };
     g.set_kind(kind_index(&o.kind));
+    g.set_mixed(match &o.kind {
+        ObjKind::Text { paras, .. } => crate::design::rich::mixed(paras),
+        ObjKind::Table { table } => table.cells.iter().any(|c| crate::design::rich::mixed(&c.paras)),
+        _ => false,
+    });
+    g.set_is_table(matches!(o.kind, ObjKind::Table { .. }));
+    let words = match &o.kind { ObjKind::Table { table } => Some((table.text(), &table.style)), ObjKind::Text { text, style, .. } => Some((text.clone(), style)), _ => None };
     match &o.kind {
-        ObjKind::Text { text, style } => {
+        ObjKind::Text { .. } | ObjKind::Table { .. } => {
+            let (text, style) = words.expect("words");
             if g.get_text().as_str() != text { g.set_text(text.as_str().into()) }
+            g.set_underline(style.underline);
+            g.set_strike(style.strike);
             g.set_size(style.size.round() as i32);
             if crate::render::color::is_color(&g.get_color()) || !matches!(ss.ed_last(), Some(Field::Color)) { g.set_color(style.color.as_str().into()) }
             g.set_bold(style.bold);
@@ -503,6 +513,8 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     });
     on!(on_bold_changed, |e, v: bool| e.ed.set_bold(v));
     on!(on_italic_changed, |e, v: bool| e.ed.set_italic(v));
+    on!(on_underline_changed, |e, v: bool| e.ed.set_underline(v));
+    on!(on_strike_changed, |e, v: bool| e.ed.set_strike(v));
     on!(on_shrink_changed, |e, v: bool| e.ed.set_shrink(v));
     on!(on_align_changed, |e, i: i32| e.ed.set_align([HAlign::Left, HAlign::Center, HAlign::Right][i.clamp(0, 2) as usize]));
     on!(on_valign_changed, |e, i: i32| e.ed.set_valign([VAlign::Top, VAlign::Middle, VAlign::Bottom][i.clamp(0, 2) as usize]));

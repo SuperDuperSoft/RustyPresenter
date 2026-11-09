@@ -52,6 +52,9 @@ pub struct Anim {
     /// Motion: where the object goes.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub path: Option<MotionPath>,
+    /// 1.2: only these paragraphs of a text box (first, last; from 0), as PowerPoint's "By paragraph".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub para: Option<(u16, u16)>,
 }
 
 fn is_zero(v: &u32) -> bool { *v == 0 }
@@ -344,7 +347,10 @@ pub fn posed(o: &Obj, st: &ObjState) -> Obj {
     let (w, h) = (r.w * st.scale, r.h * st.scale);
     o.rect = super::PctRect::new(r.x + st.dx + (r.w - w) / 2.0, r.y + st.dy + (r.h - h) / 2.0, w, h);
     o.rotation = ((o.rotation + st.rot + 180.0).rem_euclid(360.0)) - 180.0;
-    if let super::ObjKind::Text { style, .. } = &mut o.kind && st.scale != 1.0 { style.size = (style.size * st.scale).clamp(super::SIZE_MIN, super::SIZE_MAX) }
+    if let super::ObjKind::Text { style, paras, .. } = &mut o.kind && st.scale != 1.0 {
+        style.size = (style.size * st.scale).clamp(super::SIZE_MIN, super::SIZE_MAX);
+        for r in paras.iter_mut().flat_map(|p| p.runs.iter_mut()) { if let Some(s) = &mut r.size { *s = (*s * st.scale).clamp(super::SIZE_MIN, super::SIZE_MAX) } }
+    }
     o
 }
 
@@ -389,6 +395,7 @@ impl Design {
 
     /// Group `group` to animate (0: the steps that play as the slide comes up). None when it has no steps.
     pub fn play(&self, group: u16) -> Option<Play> {
+        if self.anims.iter().any(|a| a.para.is_some()) { return self.split_paras().play(group) }
         let groups = self.groups();
         let g = groups.get(usize::from(group)).filter(|g| !g.is_empty())?;
         let st = if group == 0 { self.first_states() } else { self.states_after(usize::from(group) - 1) };
@@ -398,6 +405,40 @@ impl Design {
             Some(Track { obj: self.objects.iter().position(|o| o.id == a.obj)?, begin_ms: *begin, anim: a.clone() })
         }).collect();
         Some(Play { objects, shown: st.iter().map(|s| s.shown).collect(), tracks })
+    }
+
+    /// The slide with each text box that has paragraph steps cut into pieces: the box (its fill, outline and the
+    /// paragraphs no step names) and, right above it, one copy per paragraph range drawing only those paragraphs
+    /// (all laid out as in the whole box). The steps then point at the pieces, so paragraphs come and go as objects.
+    pub fn split_paras(&self) -> Design {
+        let mut d = self.clone();
+        let mut objects = Vec::with_capacity(d.objects.len());
+        for o in std::mem::take(&mut d.objects) {
+            let ranges: Vec<(u16, u16)> = d.anims.iter().filter(|a| a.obj == o.id).filter_map(|a| a.para).fold(vec![], |mut v, r| { if !v.contains(&r) { v.push(r) } v });
+            let super::ObjKind::Text { text, style, paras } = &o.kind else { objects.push(o); continue };
+            if ranges.is_empty() { objects.push(o); continue }
+            let all = super::rich::paragraphs(text, paras);
+            let inside = |i: usize, r: &(u16, u16)| (usize::from(r.0)..=usize::from(r.1)).contains(&i);
+            let only = |keep: &dyn Fn(usize) -> bool| -> Vec<super::Para> {
+                all.iter().enumerate().map(|(i, p)| super::Para { hidden: p.hidden || !keep(i), ..p.clone() }).collect()
+            };
+            let mut base = o.clone();
+            base.kind = super::ObjKind::Text { text: text.clone(), style: style.clone(), paras: only(&|i| !ranges.iter().any(|r| inside(i, r))) };
+            objects.push(base);
+            for (k, r) in ranges.iter().enumerate() {
+                let id = Uuid::from_u128(o.id.as_u128() ^ (((k as u128) + 1) << 96 | 0x9e37_79b9));
+                let piece = super::Obj {
+                    id,
+                    kind: super::ObjKind::Text { text: text.clone(), style: style.clone(), paras: only(&|i| inside(i, r)) },
+                    look: super::Look { fill: None, outline: None, ..o.look.clone() },
+                    ..o.clone()
+                };
+                objects.push(piece);
+                for a in d.anims.iter_mut().filter(|a| a.obj == o.id && a.para == Some(*r)) { a.obj = id; a.para = None }
+            }
+        }
+        d.objects = objects;
+        d
     }
 
     /// Old builds (`Obj::build`) as Appear steps, when the slide has no steps of its own; the builds are cleared.
@@ -453,7 +494,7 @@ impl Anim {
     /// A step with half a second's run, no delay, no side.
     pub fn new(obj: Uuid, kind: AnimKind, effect: Effect, start: Start) -> Anim {
         let dur_ms = if effect == Effect::Appear { 0 } else { 500 };
-        Anim { obj, kind, effect, start, delay_ms: 0, dur_ms, dir: None, amount: None, path: None }
+        Anim { obj, kind, effect, start, delay_ms: 0, dur_ms, dir: None, amount: None, path: None, para: None }
     }
 }
 

@@ -989,7 +989,7 @@ mod tests {
     #[test]
     fn next_through_builds_marks_each_as_a_build_but_a_jump_is_not() {
         use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Start, TextStyle, TransitionKind};
-        let t = || Obj::new(ObjKind::Text { text: "x".into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 10.0, 10.0));
+        let t = || Obj::new(ObjKind::text("x", TextStyle::default()), PctRect::new(0.0, 0.0, 10.0, 10.0));
         let objects = vec![t(), t(), t()];
         let anims = objects[1..].iter().map(|o| Anim::new(o.id, AnimKind::Entrance, Effect::Fade, Start::OnClick)).collect();
         let slides = crate::slides::design_slides(&[Design { objects, anims, ..Default::default() }]);

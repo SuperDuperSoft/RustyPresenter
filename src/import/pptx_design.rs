@@ -1,15 +1,20 @@
 //! 1.1: a PowerPoint file (.pptx, and Google Slides' "Download as PowerPoint") as designed slides the slide editor
-//! can change: text boxes, shapes, lines, pictures, videos, backgrounds, notes, the transition and the object
-//! animations. Placeholders take their place and text style from the slide's layout and master; theme colours and
-//! fonts are looked up. Slides are put on the 16:9 slide as large as they fit (a 4:3 deck sits in the middle).
+//! can change: text boxes, shapes, lines, pictures, videos, tables, backgrounds, notes, the transition and the
+//! object animations. Placeholders take their place and text style from the slide's layout and master; theme colours
+//! and fonts are looked up. Slides are put on the 16:9 slide as large as they fit (a 4:3 deck sits in the middle).
 //!
-//! What has no match here (tables, charts, SmartArt, odd shapes, pictures we can't draw) becomes a grey box with
-//! its name and any words it has, and is counted in `Converted::lost`, so the operator can choose Pictures instead.
-//! Text boxes have one style: the style of most of their words. Paragraph builds animate the whole text box.
+//! 1.2: the box takes the look of most of its words and every run keeps its own (bold, italic, underline, strike,
+//! size, colour, font), with paragraph alignment, line spacing, space before/after, levels and marks; paragraph
+//! builds animate each paragraph; tables are tables; SmartArt comes in as the shapes PowerPoint drew for it; a chart
+//! or embedded object as its stored picture; flipped shapes and pictures are mirrored.
+//!
+//! What still has no match (odd shapes, charts with no stored picture or only an EMF/WMF one, pictures we can't draw)
+//! becomes a grey box with its name and any words it has, and is counted in `Converted::lost`, so the operator can
+//! choose Pictures instead.
 use super::notes::{self, attr, is, Package};
 use crate::design::{
-    Anim, AnimKind, Design, Dir, Effect, Fit, HAlign, Look, MotionPath, Obj, ObjKind, Outline, PctRect, Seg, Shape, Start,
-    TextStyle, VAlign, MAX_OBJECTS,
+    Anim, AnimKind, Cell, Design, Dir, Effect, Fit, HAlign, Look, MotionPath, Obj, ObjKind, Outline, Para, PctRect, Run, Seg, Shape, Start,
+    Table, TextStyle, VAlign, MAX_OBJECTS,
 };
 use super::{
     sniff::{self, Kind}, strings::{pdf_no_slides, slide_not_saved}, WorkDir, CANCELLED,
@@ -121,6 +126,7 @@ fn slide<R: Read + Seek>(io: &mut Io<R>, geo: &Geo, part: &str, xml: &str, pres_
     let font = |which: &str| theme.as_ref().and_then(|t| t.descendants().find(|n| is(n, which))).and_then(|f| f.children().find(|n| is(n, "latin"))).and_then(|l| attr(&l, "typeface")).unwrap_or("").to_string();
     let styles = master.and_then(|m| m.children().find(|n| is(n, "txStyles")));
     let style = |name: &str| levels(styles.and_then(|s| s.children().find(|n| is(n, name))), &colors);
+    let table_styles = io.p.part("ppt/tableStyles.xml").map(|x| table_styles(&x, &colors, |emu| (emu * geo.s) as f32)).unwrap_or_default();
     let cv = Conv {
         geo,
         major: font("majorFont"),
@@ -132,6 +138,7 @@ fn slide<R: Read + Seek>(io: &mut Io<R>, geo: &Geo, part: &str, xml: &str, pres_
         layout,
         master,
         colors,
+        table_styles,
     };
     let mut made = Made::default();
     cv.background(io, &mut made, &[(Some(sld.root_element()), &slide_rels), (layout, &layout_rels), (master, &master_rels)]);
@@ -144,7 +151,7 @@ fn slide<R: Read + Seek>(io: &mut Io<R>, geo: &Geo, part: &str, xml: &str, pres_
 
     // No transition in the file: the app's normal crossfade, as for picture slides.
     let transition = super::transitions::slide_transition(&sld).unwrap_or_default();
-    let anims = cv.anims(sld.root_element(), &made.ids);
+    let anims = cv.anims(sld.root_element(), &made);
     let lost = made.lost + made.objs.len().saturating_sub(MAX_OBJECTS);
     let mut d = Design { objects: made.objs, transition, notes: String::new(), anims };
     d.sanitise();
@@ -157,11 +164,23 @@ struct Made {
     objs: Vec<Obj>,
     /// The file's shape id → the objects made for it (animations find them by it).
     ids: HashMap<String, Vec<Uuid>>,
+    /// A text object → where each of the file's paragraphs went (paragraph builds find them by it).
+    paras: HashMap<Uuid, Vec<(usize, usize)>>,
+    /// The next text object pushed has these paragraphs (`words`).
+    next_paras: Option<Vec<(usize, usize)>>,
     lost: usize,
 }
 
 impl Made {
-    fn push(&mut self, o: Obj) -> Uuid { let id = o.id; self.objs.push(o); id }
+    fn push(&mut self, o: Obj) -> Uuid {
+        let id = o.id;
+        if let Some(p) = self.next_paras.take() { self.paras.insert(id, p); }
+        self.objs.push(o);
+        id
+    }
+
+    /// The next object pushed is a text box with these paragraphs.
+    fn words(&mut self, starts: Vec<(usize, usize)>) { self.next_paras = Some(starts) }
 }
 
 /// A place on the file's slide, in EMU.
@@ -208,26 +227,43 @@ struct Props {
     size: Option<f64>,
     bold: Option<bool>,
     italic: Option<bool>,
+    underline: Option<bool>,
+    strike: Option<bool>,
     color: Option<[u8; 4]>,
     font: Option<String>,
     align: Option<HAlign>,
     /// Some(None): a bullet; Some(Some(_)): numbered; None: not set. `no_bullet` turns it off.
     bullet: Option<Bullet>,
+    line: Option<Spacing>,
+    before: Option<Spacing>,
+    after: Option<Spacing>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Bullet { None, Char, Number }
+
+/// A spacing: a share of the font size (1.0 = single) or points.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Spacing { Pct(f64), Pts(f64) }
 
 impl Props {
     fn over(&mut self, o: &Props) {
         if o.size.is_some() { self.size = o.size }
         if o.bold.is_some() { self.bold = o.bold }
         if o.italic.is_some() { self.italic = o.italic }
+        if o.underline.is_some() { self.underline = o.underline }
+        if o.strike.is_some() { self.strike = o.strike }
         if o.color.is_some() { self.color = o.color }
         if o.font.is_some() { self.font = o.font.clone() }
         if o.align.is_some() { self.align = o.align }
         if o.bullet.is_some() { self.bullet = o.bullet }
+        if o.line.is_some() { self.line = o.line }
+        if o.before.is_some() { self.before = o.before }
+        if o.after.is_some() { self.after = o.after }
     }
+
+    /// Only what a run's look is made of (paragraph settings left out), to count words by look.
+    fn run_look(&self) -> Props { Props { size: self.size, bold: self.bold, italic: self.italic, underline: self.underline, strike: self.strike, color: self.color, font: self.font.clone(), ..Props::default() } }
 }
 
 /// The nine levels of a list style (`lvl1pPr`…).
@@ -235,6 +271,13 @@ type Levels = Vec<Props>;
 
 fn levels(n: Option<Node>, c: &Colors) -> Levels {
     (1..=9).map(|i| n.and_then(|n| n.children().find(|k| is(k, &format!("lvl{i}pPr")))).map(|p| ppr(p, c)).unwrap_or_default()).collect()
+}
+
+/// `a:lnSpc`, `a:spcBef`, `a:spcAft`: a percentage (thousandths) or points (hundredths).
+fn spacing(n: Option<Node>) -> Option<Spacing> {
+    let n = n?;
+    let val = |name: &str| n.children().find(|k| is(k, name)).and_then(|k| attr(&k, "val")).and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0);
+    val("spcPct").map(|v| Spacing::Pct(v / 100_000.0)).or_else(|| val("spcPts").map(|v| Spacing::Pts(v / 100.0)))
 }
 
 /// A paragraph's properties (`a:pPr` or `a:lvlNpPr`) with its default run.
@@ -246,6 +289,9 @@ fn ppr(n: Node, c: &Colors) -> Props {
             "buNone" => p.bullet = Some(Bullet::None),
             "buChar" | "buBlip" => p.bullet = Some(Bullet::Char),
             "buAutoNum" => p.bullet = Some(Bullet::Number),
+            "lnSpc" => p.line = spacing(Some(k)),
+            "spcBef" => p.before = spacing(Some(k)),
+            "spcAft" => p.after = spacing(Some(k)),
             _ => {}
         }
     }
@@ -259,13 +305,60 @@ fn rpr(n: Node, c: &Colors) -> Props {
         size: attr(&n, "sz").and_then(|v| v.parse::<f64>().ok()).map(|v| v / 100.0),
         bold: flag("b"),
         italic: flag("i"),
+        underline: attr(&n, "u").map(|v| v != "none"),
+        strike: attr(&n, "strike").map(|v| v != "noStrike"),
         color: n.children().find(|k| is(k, "solidFill")).and_then(|f| c.color(f, None)),
         font: n.children().find(|k| is(k, "latin")).and_then(|l| attr(&l, "typeface")).map(str::to_string),
         ..Props::default()
     }
 }
 
+/// One part of a table style (whole table, banded rows, first row…): cell fill, borders (left, top, right,
+/// bottom) and words.
+#[derive(Clone, Default)]
+struct TblPart { fill: Option<[u8; 4]>, borders: [Option<Outline>; 4], text: Props }
+
+impl TblPart {
+    fn over(&mut self, o: &TblPart) {
+        if o.fill.is_some() { self.fill = o.fill }
+        for (a, b) in self.borders.iter_mut().zip(&o.borders) { if b.is_some() { *a = b.clone() } }
+        self.text.over(&o.text);
+    }
+}
+
+#[derive(Clone, Default)]
+struct TblStyle { whole: TblPart, band: TblPart, first_row: TblPart, last_row: TblPart, first_col: TblPart }
+
+/// The file's table styles (`ppt/tableStyles.xml`), by id.
+fn table_styles(xml: &str, c: &Colors, px: impl Fn(f64) -> f32) -> HashMap<String, TblStyle> {
+    let Ok(doc) = Document::parse(xml) else { return HashMap::new() };
+    let part = |st: Node, name: &str| -> TblPart {
+        let Some(n) = st.children().find(|k| is(k, name)) else { return TblPart::default() };
+        let tc = n.children().find(|k| is(k, "tcStyle"));
+        let fill = tc.and_then(|t| t.children().find(|k| is(k, "fill"))).and_then(|f| f.children().find(|k| is(k, "solidFill"))).and_then(|f| c.color(f, None));
+        let bdr = tc.and_then(|t| t.children().find(|k| is(k, "tcBdr")));
+        let line = |names: &[&str]| -> Option<Outline> {
+            let ln = names.iter().find_map(|nm| bdr.and_then(|b| b.children().find(|k| is(k, nm)))).and_then(|s| s.children().find(|k| is(k, "ln")))?;
+            let color = ln.children().find(|k| is(k, "solidFill")).and_then(|f| c.color(f, None))?;
+            Some(Outline { color: css(color), width: px(attr(&ln, "w").and_then(|v| v.parse::<f64>().ok()).unwrap_or(12_700.0)).max(1.0) })
+        };
+        let tx = n.children().find(|k| is(k, "tcTxStyle"));
+        let text = Props {
+            bold: tx.and_then(|t| attr(&t, "b")).map(|v| v == "on"),
+            italic: tx.and_then(|t| attr(&t, "i")).map(|v| v == "on"),
+            color: tx.and_then(|t| c.color(t, None)),
+            ..Props::default()
+        };
+        TblPart { fill, borders: [line(&["left", "insideV"]), line(&["top", "insideH"]), line(&["right", "insideV"]), line(&["bottom", "insideH"])], text }
+    };
+    doc.descendants().filter(|n| is(n, "tblStyle")).filter_map(|st| {
+        let id = attr(&st, "styleId")?.to_string();
+        Some((id, TblStyle { whole: part(st, "wholeTbl"), band: part(st, "band1H"), first_row: part(st, "firstRow"), last_row: part(st, "lastRow"), first_col: part(st, "firstCol") }))
+    }).collect()
+}
+
 /// The theme's colours, by scheme name, and the master's map from `tx1`/`bg1`… to them.
+#[derive(Clone)]
 struct Colors { scheme: HashMap<String, [u8; 3]>, map: HashMap<String, String> }
 
 impl Colors {
@@ -375,6 +468,7 @@ struct Conv<'g, 'a, 'i> {
     layout: Option<Node<'a, 'i>>,
     master: Option<Node<'a, 'i>>,
     colors: Colors,
+    table_styles: HashMap<String, TblStyle>,
 }
 
 /// A placeholder's kind as the master knows it.
@@ -386,7 +480,7 @@ fn ph_class(ty: &str) -> &str {
     }
 }
 
-impl<'a, 'i> Conv<'_, 'a, 'i> {
+impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
     fn pct(&self, b: &Box_) -> PctRect {
         let g = self.geo;
         PctRect::new(((g.ox + b.x * g.s) / W * 100.0) as f32, ((g.oy + b.y * g.s) / H * 100.0) as f32, (b.w * g.s / W * 100.0) as f32, (b.h * g.s / H * 100.0) as f32)
@@ -430,7 +524,7 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
                         made.ids.insert(id, ids);
                     }
                 }
-                "graphicFrame" => self.frame(made, c, groups, on_slide),
+                "graphicFrame" => self.frame(io, made, c, groups, rels, on_slide),
                 "AlternateContent" => {
                     let pick = c.children().find(|n| is(n, "Fallback")).or_else(|| c.children().find(|n| is(n, "Choice")));
                     if let Some(p) = pick { self.walk(io, made, p, groups, rels, on_slide) }
@@ -446,24 +540,190 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         made.lost += 1;
         // The same grey box as the .odp import's (`odp_design`).
         let style = TextStyle { size: 36.0, color: "#ffffff".into(), align: HAlign::Center, valign: VAlign::Middle, shrink: true, ..TextStyle::default() };
-        let mut o = Obj::new(ObjKind::Text { text, style }, self.pct(&b));
+        let mut o = Obj::new(ObjKind::text(text, style), self.pct(&b));
         o.rotation = b.rot as f32;
         o.look = Look { fill: Some("#4b5563".into()), outline: Some(Outline { color: "#9ca3af".into(), width: 3.0 }), ..Look::default() };
         let id = made.push(o);
         if on_slide && let Some(s) = shape_id(node) { made.ids.entry(s).or_default().push(id); }
     }
 
-    /// A table, chart, SmartArt or embedded object: a grey box with its name (a table's words).
-    fn frame(&self, made: &mut Made, f: Node, groups: &[Grp], on_slide: bool) {
+    /// A table (as a table), SmartArt (its drawn shapes), a chart or embedded object (its stored picture), else a
+    /// grey box with its name.
+    fn frame<R: Read + Seek>(&self, io: &mut Io<R>, made: &mut Made, f: Node, groups: &[Grp], rels: &Rels, on_slide: bool) {
         let Some((b, _)) = xfrm(f) else { return };
-        let b = place(b, groups);
-        let nv = f.descendants().find(|n| is(n, "cNvPr"));
-        let name = nv.and_then(|n| attr(&n, "descr").filter(|d| !d.trim().is_empty()).or(attr(&n, "name"))).unwrap_or("").to_string();
-        let rows: Vec<String> = f.descendants().filter(|n| is(n, "tr")).map(|tr| {
-            tr.children().filter(|n| is(n, "tc")).map(|tc| tc.descendants().filter(|n| is(n, "t")).filter_map(|t| t.text()).collect::<String>()).collect::<Vec<_>>().join("  |  ")
-        }).collect();
-        let text = if rows.iter().any(|r| !r.trim_matches([' ', '|']).is_empty()) { rows.join("\n") } else { name };
-        self.lost(made, f, b, text, on_slide);
+        let placed = place(b, groups);
+        let before = made.objs.len();
+        let data = f.descendants().find(|n| is(n, "graphicData"));
+        let uri = data.and_then(|d| attr(&d, "uri")).unwrap_or("");
+        let done = if let Some(tbl) = f.descendants().find(|n| is(n, "tbl")) {
+            self.table(made, tbl, placed)
+        } else if uri.ends_with("/diagram") {
+            self.smartart(io, made, f, b, groups, rels)
+        } else {
+            self.stored_picture(io, made, f, placed, rels)
+        };
+        if !done {
+            let nv = f.descendants().find(|n| is(n, "cNvPr"));
+            let name = nv.and_then(|n| attr(&n, "descr").filter(|d| !d.trim().is_empty()).or(attr(&n, "name"))).unwrap_or("").to_string();
+            return self.lost(made, f, placed, name, on_slide);
+        }
+        if on_slide && let Some(id) = shape_id(f) {
+            let ids: Vec<Uuid> = made.objs[before..].iter().map(|o| o.id).collect();
+            made.ids.entry(id).or_default().extend(ids);
+        }
+    }
+
+    /// A chart's or embedded object's picture as the file keeps it (its preview, or a picture the chart part
+    /// holds). False when there is none we can draw (an EMF/WMF preview stays a grey box).
+    fn stored_picture<R: Read + Seek>(&self, io: &mut Io<R>, made: &mut Made, f: Node, b: Box_, rels: &Rels) -> bool {
+        let mut found = f.descendants().filter(|n| is(n, "blip")).filter_map(|bl| attr(&bl, "embed")).find_map(|rid| self.media(io, rels, rid, None));
+        if found.is_none() {
+            // The chart part's own pictures (a saved preview).
+            let chart = f.descendants().find(|n| is(n, "chart")).and_then(|c| c.attributes().find(|a| a.name() == "id").map(|a| a.value().to_string()));
+            if let Some((_, part)) = chart.and_then(|c| rels.get(&c).cloned()) {
+                let crels = rels_of(io.p, &part);
+                let mut pics: Vec<&String> = crels.iter().filter(|(_, (ty, _))| ty.ends_with("/image")).map(|(id, _)| id).collect();
+                pics.sort();
+                found = pics.into_iter().find_map(|rid| self.media(io, &crels, rid, None));
+            }
+        }
+        let Some(asset) = found else { return false };
+        let mut o = Obj::new(ObjKind::Picture { asset, fit: Fit::Stretch }, self.pct(&b));
+        o.rotation = b.rot as f32;
+        made.push(o);
+        true
+    }
+
+    /// SmartArt: the shapes PowerPoint drew for it (`ppt/diagrams/drawingN.xml`), placed in the frame. False when
+    /// the file has no drawing for it.
+    fn smartart<R: Read + Seek>(&self, io: &mut Io<R>, made: &mut Made, f: Node, b: Box_, groups: &[Grp], rels: &Rels) -> bool {
+        let dm = f.descendants().find(|n| is(n, "relIds")).and_then(|r| r.attributes().find(|a| a.name() == "dm").map(|a| a.value().to_string()));
+        // The data part names its drawing by the slide's relationship id; else the slide's only drawing.
+        let by_data = dm.and_then(|dm| rels.get(&dm).cloned()).and_then(|(_, part)| io.p.part(&part)).and_then(|xml| {
+            let doc = Document::parse(&xml).ok()?;
+            let id = doc.descendants().find(|n| is(n, "dataModelExt")).and_then(|n| attr(&n, "relId"))?.to_string();
+            rels.get(&id).map(|(_, p)| p.clone())
+        });
+        let drawings: Vec<&String> = rels.values().filter(|(ty, _)| ty.ends_with("/diagramDrawing")).map(|(_, p)| p).collect();
+        let Some(part) = by_data.or_else(|| (drawings.len() == 1).then(|| drawings[0].clone())) else { return false };
+        let Some(xml) = io.p.part(&part) else { return false };
+        let Ok(doc) = Document::parse(&xml) else { return false };
+        let Some(tree) = doc.descendants().find(|n| is(n, "spTree")) else { return false };
+        let drels = rels_of(io.p, &part);
+        let mut gs = groups.to_vec();
+        // The drawing's shapes are placed from the frame's top left corner.
+        gs.push(Grp { off: (b.x, b.y), scale: (1.0, 1.0), ch: (0.0, 0.0), rot: b.rot, centre: (b.x + b.w / 2.0, b.y + b.h / 2.0) });
+        let before = made.objs.len();
+        self.alone().walk(io, made, tree, &mut gs, &drels, false);
+        made.objs.len() > before
+    }
+
+    /// The same look-ups without the slide's layout and master (for parts of their own, as SmartArt drawings).
+    fn alone<'b, 'j>(&self) -> Conv<'g, 'b, 'j> {
+        Conv {
+            geo: self.geo, major: self.major.clone(), minor: self.minor.clone(), title: self.title.clone(), body: self.body.clone(),
+            other: self.other.clone(), deflt: self.deflt.clone(), layout: None, master: None, colors: self.colors.clone(), table_styles: self.table_styles.clone(),
+        }
+    }
+
+    /// A table: its grid, cells' words, fills and borders (the cell's own, else the table style's).
+    /// False when it has no cells.
+    fn table(&self, made: &mut Made, tbl: Node, b: Box_) -> bool {
+        let mut cols: Vec<f32> = tbl.children().find(|n| is(n, "tblGrid")).map(|g| g.children().filter(|n| is(n, "gridCol")).map(|c| attr(&c, "w").and_then(|v| v.parse::<f32>().ok()).unwrap_or(1.0)).collect()).unwrap_or_default();
+        let trs: Vec<Node> = tbl.children().filter(|n| is(n, "tr")).take(crate::design::rich::TABLE_MAX).collect();
+        // No grid: as many even columns as the widest row has cells.
+        if cols.is_empty() { cols = vec![1.0; trs.iter().map(|r| r.children().filter(|n| is(n, "tc")).count()).max().unwrap_or(0)] }
+        cols.truncate(crate::design::rich::TABLE_MAX);
+        if cols.is_empty() || trs.is_empty() { return false }
+        let rows: Vec<f32> = trs.iter().map(|r| attr(r, "h").and_then(|v| v.parse::<f32>().ok()).filter(|h| *h > 0.0).unwrap_or(370_840.0)).collect();
+        let pr = tbl.children().find(|n| is(n, "tblPr"));
+        let flag = |a: &str| pr.and_then(|p| attr(&p, a)).is_some_and(|v| matches!(v, "1" | "true"));
+        let style_id = pr.and_then(|p| p.children().find(|n| is(n, "tableStyleId"))).and_then(|n| n.text()).map(|t| t.trim().to_string());
+        let ts = self.table_style(style_id.as_deref());
+        let (nr, nc) = (trs.len(), cols.len());
+        let mut cells: Vec<Cell> = Vec::with_capacity(nr * nc);
+        let mut looks: Vec<TextStyle> = Vec::new();
+        for (r, tr) in trs.iter().enumerate() {
+            let tcs: Vec<Node> = tr.children().filter(|n| is(n, "tc")).collect();
+            for c in 0..nc {
+                let Some(tc) = tcs.get(c) else { cells.push(Cell::default()); looks.push(self.text_default(&ts.whole.text)); continue };
+                // The style's part for this cell: whole table, banded rows, then first/last row and column.
+                let mut part = ts.whole.clone();
+                // The first body row is a band.
+                let first = usize::from(flag("firstRow"));
+                if flag("bandRow") && r >= first && (r - first) % 2 == 0 { part.over(&ts.band) }
+                if flag("firstRow") && r == 0 { part.over(&ts.first_row) }
+                if flag("lastRow") && r == nr - 1 && nr > 1 { part.over(&ts.last_row) }
+                if flag("firstCol") && c == 0 && !(flag("firstRow") && r == 0) { part.over(&ts.first_col) }
+                let tcpr = tc.children().find(|n| is(n, "tcPr"));
+                let words = tc.children().find(|n| is(n, "txBody")).map(|tx| self.text(tx, None, None, None, None, Some(&part.text)));
+                let fill = match self.fill(tcpr, None) { Fill::Color(c) => Some(css(c)), Fill::None => None, _ => part.fill.map(css) };
+                let side = |name: &str, i: usize| -> Option<Outline> {
+                    match tcpr.and_then(|p| p.children().find(|n| is(n, name))) {
+                        Some(ln) => {
+                            let fill = ln.children().find(|n| n.is_element() && matches!(n.tag_name().name(), "noFill" | "solidFill"))?;
+                            let color = if is(&fill, "solidFill") { self.colors.color(fill, None)? } else { return None };
+                            let w = attr(&ln, "w").and_then(|v| v.parse::<f64>().ok()).unwrap_or(12_700.0);
+                            Some(Outline { color: css(color), width: self.px(w).max(1.0) })
+                        }
+                        None => part.borders[i].clone(),
+                    }
+                };
+                let num = |a: &str| attr(tc, a).and_then(|v| v.parse::<u16>().ok()).unwrap_or(1);
+                let merged = attr(tc, "hMerge").or(attr(tc, "vMerge")).is_some_and(|v| matches!(v, "1" | "true"));
+                let valign = match tcpr.and_then(|p| attr(&p, "anchor")) { Some("ctr") => Some(VAlign::Middle), Some("b") => Some(VAlign::Bottom), _ => None };
+                let (text, paras, look) = match words.map(|w| (w.kind, w.style)) {
+                    Some((ObjKind::Text { text, paras, .. }, st)) => (text, paras, st),
+                    _ => (String::new(), vec![], self.text_default(&part.text)),
+                };
+                looks.push(look.clone());
+                cells.push(Cell {
+                    text, paras, fill,
+                    borders: [side("lnL", 0), side("lnT", 1), side("lnR", 2), side("lnB", 3)],
+                    span_cols: num("gridSpan").max(1), span_rows: num("rowSpan").max(1), merged, valign,
+                });
+            }
+        }
+        // The table's look is the one most cells have; each cell's own differences go in its runs.
+        let style = looks.iter().max_by_key(|l| looks.iter().filter(|m| m == l).count()).cloned().unwrap_or_default();
+        let style = TextStyle { shrink: false, valign: VAlign::Top, ..style };
+        for (cell, look) in cells.iter_mut().zip(&looks) {
+            cell.paras = crate::design::rich::rebase(&cell.paras, &cell.text, look, &style);
+        }
+        let table = Table { cols, rows, cells, style };
+        let mut o = Obj::new(ObjKind::Table { table }, self.pct(&b));
+        o.rotation = b.rot as f32;
+        made.push(o);
+        true
+    }
+
+    /// The look of an empty cell's words.
+    fn text_default(&self, over: &Props) -> TextStyle {
+        let mut p = Props { size: Some(18.0), color: Some([0, 0, 0, 255]), ..Props::default() };
+        p.over(&self.deflt[0]);
+        p.over(over);
+        TextStyle {
+            font: self.minor.clone(), size: self.px(p.size.unwrap_or(18.0) * EMU_PER_PT).clamp(crate::design::SIZE_MIN, crate::design::SIZE_MAX),
+            color: css(p.color.unwrap_or([0, 0, 0, 255])), bold: p.bold.unwrap_or(false), align: HAlign::Left, valign: VAlign::Top, shrink: false, ..TextStyle::default()
+        }
+    }
+
+    /// A table style by id: the file's (`ppt/tableStyles.xml`), else PowerPoint's default look
+    /// ("Medium Style 2 – Accent 1").
+    fn table_style(&self, id: Option<&str>) -> TblStyle {
+        if let Some(st) = id.and_then(|id| self.table_styles.get(id)) { return st.clone() }
+        let accent = self.colors.scheme.get("accent1").copied().unwrap_or([0x44, 0x72, 0xc4]);
+        let tint = |k: f64| { let t = |c: u8| (f64::from(c) * k + 255.0 * (1.0 - k)).round() as u8; [t(accent[0]), t(accent[1]), t(accent[2]), 255] };
+        let white = Some(Outline { color: "#ffffff".into(), width: self.px(12_700.0).max(1.0) });
+        let lines = [white.clone(), white.clone(), white.clone(), white];
+        let head = Props { bold: Some(true), color: Some([255, 255, 255, 255]), ..Props::default() };
+        TblStyle {
+            whole: TblPart { fill: Some(tint(0.2)), borders: lines.clone(), text: Props::default() },
+            band: TblPart { fill: Some(tint(0.4)), borders: lines.clone(), text: Props::default() },
+            first_row: TblPart { fill: Some([accent[0], accent[1], accent[2], 255]), borders: lines.clone(), text: head.clone() },
+            last_row: TblPart { fill: Some([accent[0], accent[1], accent[2], 255]), borders: lines.clone(), text: head.clone() },
+            first_col: TblPart { fill: Some([accent[0], accent[1], accent[2], 255]), borders: lines, text: head },
+        }
     }
 
     fn fill(&self, sppr: Option<Node>, style_ref: Option<Node>) -> Fill {
@@ -520,13 +780,22 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         }
         if fill == Fill::Unset { fill = self.fill(None, sref("fillRef")) }
         let outline = chain.iter().filter_map(sppr_of).find(|s| s.children().any(|n| is(&n, "ln") && n.has_children())).map_or_else(|| self.outline(sppr, sref("lnRef")), |s| self.outline(Some(s), sref("lnRef")));
-        let text = sp.children().find(|n| is(n, "txBody")).map(|tx| self.text(tx, ph, lay, mas, sref("fontRef")));
-        let text = text.filter(|(t, _)| !t.trim().is_empty());
+        let text = sp.children().find(|n| is(n, "txBody")).map(|tx| self.text(tx, ph, lay, mas, sref("fontRef"), None));
+        let text = text.filter(|w| !w.is_empty());
         let rect = self.pct(&b);
         let mut ids = Vec::new();
         let finish = |mut o: Obj, made: &mut Made, ids: &mut Vec<Uuid>| {
+            // A block arrow turned a quarter: the file's sides are its other sides.
+            let quarter = o.rotation.abs() == 90.0;
             o.rotation += b.rot as f32;
-            if b.flip_h && b.flip_v { o.rotation += 180.0 }
+            // Words are not mirrored: flipped top to bottom they are upside down, as in PowerPoint.
+            if matches!(o.kind, ObjKind::Text { .. }) {
+                if b.flip_v { o.rotation += 180.0 }
+            } else if quarter {
+                (o.flip_h, o.flip_v) = (b.flip_v, b.flip_h);
+            } else {
+                (o.flip_h, o.flip_v) = (b.flip_h, b.flip_v);
+            }
             ids.push(made.push(o));
         };
         let fill_css = match &fill { Fill::Color(c) => Some(css(*c)), _ => None };
@@ -539,20 +808,20 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
                 Some(asset) => finish(Obj::new(ObjKind::Picture { asset, fit: Fit::Stretch }, rect), made, &mut ids),
                 None => return self.lost(made, sp, b, name_of(sp), on_slide),
             }
-            if let Some((t, st)) = text { finish(Obj::new(ObjKind::Text { text: t, style: st }, rect), made, &mut ids) }
+            if let Some(w) = text { made.words(w.starts); finish(Obj::new(w.kind, rect), made, &mut ids) }
         } else if known_box || geom == "custom" || !matches!(geom.as_str(), "ellipse" | "flowChartConnector" | "triangle" | "rightArrow" | "leftArrow" | "upArrow" | "downArrow") {
             if !known_box { made.lost += 1 }
             let radius = if matches!(geom.as_str(), "roundRect" | "flowChartAlternateProcess") { self.px(b.w.min(b.h) * 0.166_67) } else { 0.0 };
             let look = Look { fill: fill_css, outline, radius, ..Look::default() };
             match text {
-                Some((t, st)) => finish(Obj { look, ..Obj::new(ObjKind::Text { text: t, style: st }, rect) }, made, &mut ids),
+                Some(w) => { made.words(w.starts); finish(Obj { look, ..Obj::new(w.kind, rect) }, made, &mut ids) }
                 None if look.fill.is_some() || look.outline.is_some() => finish(Obj { look, ..Obj::new(ObjKind::Shape { shape: Shape::Rect }, rect) }, made, &mut ids),
                 None => {}
             }
         } else {
             let (shape, turn) = match geom.as_str() {
                 "ellipse" | "flowChartConnector" => (Shape::Ellipse, 0.0),
-                "triangle" => (Shape::Triangle, if b.flip_v && !b.flip_h { 180.0 } else { 0.0 }),
+                "triangle" => (Shape::Triangle, 0.0),
                 "rightArrow" => (Shape::Arrow, 0.0),
                 "leftArrow" => (Shape::Arrow, 180.0),
                 "upArrow" => (Shape::Arrow, -90.0),
@@ -574,7 +843,7 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
             }
             o.rotation = turn;
             finish(o, made, &mut ids);
-            if let Some((t, st)) = text { finish(Obj::new(ObjKind::Text { text: t, style: st }, rect), made, &mut ids) }
+            if let Some(w) = text { made.words(w.starts); finish(Obj::new(w.kind, rect), made, &mut ids) }
         }
         if on_slide && let Some(s) = shape_id(sp) && !ids.is_empty() { made.ids.entry(s).or_default().extend(ids) }
     }
@@ -629,7 +898,8 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
             },
         };
         let mut o = Obj::new(kind, self.pct(&b));
-        o.rotation = b.rot as f32 + if b.flip_h && b.flip_v { 180.0 } else { 0.0 };
+        o.rotation = b.rot as f32;
+        (o.flip_h, o.flip_v) = (b.flip_h, b.flip_v);
         if let Some(a) = blip.and_then(|bl| bl.children().find(|n| is(n, "alphaModFix"))).and_then(|a| attr(&a, "amt")).and_then(|v| v.parse::<f64>().ok()) {
             o.opacity = (a / 1000.0).round().clamp(0.0, 100.0) as u8;
         }
@@ -690,8 +960,9 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         made.push(o);
     }
 
-    /// A text body's words (paragraphs on lines, bullets as "• ", numbers as "1. ") and the style of most of them.
-    fn text(&self, tx: Node, ph: Option<Node>, lay: Option<Node>, mas: Option<Node>, font_ref: Option<Node>) -> (String, TextStyle) {
+    /// A text body's paragraphs (a line break starts another), each run in its own look, and the box's look: the
+    /// look of most of its words. `Words::starts` maps the file's paragraphs to ours (for paragraph builds).
+    fn text(&self, tx: Node, ph: Option<Node>, lay: Option<Node>, mas: Option<Node>, font_ref: Option<Node>, extra: Option<&Props>) -> Words {
         let class = ph.map(|p| ph_class(attr(&p, "type").unwrap_or("obj")));
         let base_levels = match class { Some("title") => &self.title, Some("body") => &self.body, Some(_) => &self.other, None => &self.deflt };
         let lst = |n: Option<Node>| levels(n.and_then(|n| n.children().find(|c| is(c, "txBody"))).and_then(|t| t.children().find(|c| is(c, "lstStyle"))), &self.colors);
@@ -704,8 +975,12 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         let anchor = prs.iter().find_map(|b| attr(b, "anchor")).unwrap_or("t");
         let fit = prs.iter().find_map(|b| b.children().find(|c| matches!(c.tag_name().name(), "normAutofit" | "noAutofit" | "spAutoFit") && c.is_element()));
         let scale = fit.filter(|f| is(f, "normAutofit")).and_then(|f| attr(&f, "fontScale")).and_then(|v| v.parse::<f64>().ok()).map_or(1.0, |v| v / 100_000.0);
+        let size_px = |pt: f64| self.px(pt * scale * EMU_PER_PT).clamp(crate::design::SIZE_MIN, crate::design::SIZE_MAX);
 
-        let (mut lines, mut counts, mut align, mut number) = (Vec::new(), Vec::<(usize, Props)>::new(), None, 0);
+        // (paragraph look, its runs as (words, look)), per line.
+        let mut lines: Vec<(Props, u8, String, Vec<(String, Props)>)> = Vec::new();
+        let mut starts = Vec::new();
+        let (mut counts, mut align, mut number) = (Vec::<(usize, Props)>::new(), None, 0);
         for p in tx.children().filter(|n| is(n, "p")) {
             let ppr_n = p.children().find(|n| is(n, "pPr"));
             let lvl = ppr_n.and_then(|n| attr(&n, "lvl")).and_then(|v| v.parse::<usize>().ok()).unwrap_or(0).min(8);
@@ -713,33 +988,47 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
             pp.over(&base_levels[lvl]);
             for l in &chain { pp.over(&l[lvl]) }
             if font_color.is_some() { pp.color = font_color }
+            if let Some(e) = extra { pp.over(e) }
             pp.over(&own[lvl]);
             if let Some(n) = ppr_n { pp.over(&ppr(n, &self.colors)) }
-            let mut line = String::new();
+            let first = lines.len();
+            let mut runs: Vec<(String, Props)> = Vec::new();
+            let mut cut: Vec<Vec<(String, Props)>> = Vec::new();
             for r in p.children().filter(|n| n.is_element()) {
                 match r.tag_name().name() {
                     "r" | "fld" => {
-                        let t: String = r.children().filter(|n| is(n, "t")).filter_map(|n| n.text()).collect::<String>().replace('\u{b}', "\n");
+                        let t: String = r.children().filter(|n| is(n, "t")).filter_map(|n| n.text()).collect();
                         let mut rp = pp.clone();
                         if let Some(n) = r.children().find(|n| is(n, "rPr")) { rp.over(&rpr(n, &self.colors)) }
-                        counts.push((t.trim().chars().count(), rp));
-                        line.push_str(&t);
+                        counts.push((t.replace('\u{b}', "").trim().chars().count(), rp.run_look()));
+                        for (k, piece) in t.split('\u{b}').enumerate() {
+                            if k > 0 { cut.push(std::mem::take(&mut runs)) }
+                            if !piece.is_empty() { runs.push((piece.to_string(), rp.clone())) }
+                        }
                     }
-                    "br" => line.push('\n'),
+                    "br" => cut.push(std::mem::take(&mut runs)),
                     _ => {}
                 }
             }
-            if line.trim().is_empty() { number = 0; lines.push(String::new()); continue }
-            if align.is_none() { align = pp.align }
-            match pp.bullet {
-                Some(Bullet::Char) => { number = 0; line.insert_str(0, "• ") }
-                Some(Bullet::Number) => { number += 1; line.insert_str(0, &format!("{number}. ")) }
-                _ => number = 0,
+            cut.push(runs);
+            let empty = cut.iter().all(|r| r.iter().all(|(t, _)| t.trim().is_empty()));
+            let mark = if empty { number = 0; String::new() } else {
+                if align.is_none() { align = pp.align }
+                match pp.bullet {
+                    Some(Bullet::Char) => { number = 0; "•".to_string() }
+                    Some(Bullet::Number) => { number += 1; format!("{number}.") }
+                    _ => { number = 0; String::new() }
+                }
+            };
+            for (k, mut runs) in cut.into_iter().enumerate() {
+                // Trailing spaces go, as they did when words were one line.
+                if let Some((t, _)) = runs.last_mut() { let n = t.trim_end().len(); t.truncate(n) }
+                runs.retain(|(t, _)| !t.is_empty());
+                lines.push((pp.clone(), lvl as u8, if k == 0 { mark.clone() } else { String::new() }, runs));
             }
-            lines.push(line.trim_end().to_string());
+            starts.push((first, lines.len() - 1));
         }
-        let text = lines.join("\n").trim_matches('\n').to_string();
-        // The style of the most words (the first such on a tie).
+        // The look of the most words (the first such on a tie).
         let mut tally: Vec<(usize, Props)> = Vec::new();
         for (n, p) in counts {
             match tally.iter_mut().find(|(_, q)| *q == p) {
@@ -749,31 +1038,81 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         }
         let most = tally.iter().map(|(n, _)| *n).max().unwrap_or(0);
         let st = tally.into_iter().find(|(n, _)| *n == most).map(|(_, p)| p).unwrap_or(base);
-        let font = match st.font.as_deref() {
+        let font_of = |f: Option<&str>| match f {
             Some(f) if f.starts_with("+mj") => self.major.clone(),
             Some(f) if f.starts_with("+mn") => self.minor.clone(),
             Some(f) => f.to_string(),
             None => self.minor.clone(),
         };
         let style = TextStyle {
-            font,
-            size: self.px(st.size.unwrap_or(18.0) * scale * EMU_PER_PT).clamp(crate::design::SIZE_MIN, crate::design::SIZE_MAX),
+            font: font_of(st.font.as_deref()),
+            size: size_px(st.size.unwrap_or(18.0)),
             color: css(st.color.unwrap_or([0, 0, 0, 255])),
             bold: st.bold.unwrap_or(false),
             italic: st.italic.unwrap_or(false),
+            underline: st.underline.unwrap_or(false),
+            strike: st.strike.unwrap_or(false),
             align: align.unwrap_or(HAlign::Left),
             valign: match anchor { "ctr" => VAlign::Middle, "b" => VAlign::Bottom, _ => VAlign::Top },
             shrink: fit.is_some_and(|f| is(&f, "normAutofit")),
+            line: 1.0,
         };
-        (text, style)
+        let mut paras: Vec<Para> = lines.into_iter().enumerate().map(|(i, (pp, level, bullet, runs))| {
+            let first_pt = runs.first().and_then(|(_, r)| r.size).or(pp.size).unwrap_or(18.0);
+            let space = |s: Option<Spacing>| match s { Some(Spacing::Pts(v)) => size_px(v), Some(Spacing::Pct(v)) => size_px(first_pt * v), None => 0.0 };
+            let cont = starts.iter().any(|(a, b)| i > *a && i <= *b);
+            let last_of = starts.iter().any(|(_, b)| i == *b);
+            let line = match pp.line { Some(Spacing::Pct(v)) => v as f32, Some(Spacing::Pts(v)) => (v / (first_pt * 1.2)) as f32, None => 1.0 };
+            let runs = runs.into_iter().map(|(text, rp)| {
+                let mut r = Run {
+                    text,
+                    font: Some(font_of(rp.font.as_deref())),
+                    size: Some(size_px(rp.size.unwrap_or(18.0))),
+                    color: Some(css(rp.color.unwrap_or([0, 0, 0, 255]))),
+                    bold: Some(rp.bold.unwrap_or(false)),
+                    italic: Some(rp.italic.unwrap_or(false)),
+                    underline: Some(rp.underline.unwrap_or(false)),
+                    strike: Some(rp.strike.unwrap_or(false)),
+                };
+                r.simplify(&style);
+                r
+            }).collect();
+            Para {
+                runs,
+                align: pp.align.filter(|a| *a != style.align),
+                line: Some(line).filter(|l| (l - 1.0).abs() > 0.01),
+                before: if cont { 0.0 } else { space(pp.before) },
+                after: if last_of { space(pp.after) } else { 0.0 },
+                level,
+                bullet,
+                hidden: false,
+            }
+        }).collect();
+        // Empty lines at either end go (the words' box stays where it is).
+        let lead = paras.iter().take_while(|p| p.words().is_empty() && p.bullet.is_empty()).count();
+        paras.drain(..lead);
+        while paras.last().is_some_and(|p| p.words().is_empty() && p.bullet.is_empty()) { paras.pop(); }
+        let n = paras.len();
+        let starts = starts.into_iter().map(|(a, b)| (a.saturating_sub(lead).min(n.saturating_sub(1)), b.saturating_sub(lead).min(n.saturating_sub(1)))).collect();
+        Words { kind: ObjKind::rich(paras, style.clone()), style, starts }
     }
 
     /// The slide's main animation sequence as steps. Steps that start on a shape's own click (triggers) are left out.
-    fn anims(&self, sld: Node, ids: &HashMap<String, Vec<Uuid>>) -> Vec<Anim> {
+    fn anims(&self, sld: Node, made: &Made) -> Vec<Anim> {
         let Some(main) = sld.descendants().find(|n| is(n, "cTn") && attr(n, "nodeType") == Some("mainSeq")) else { return vec![] };
         let mut out = Vec::new();
         for ctn in main.descendants().filter(|n| is(n, "cTn") && attr(n, "presetClass").is_some()) {
-            let Some(objs) = ctn.descendants().find(|n| is(n, "spTgt")).and_then(|t| attr(&t, "spid")).and_then(|s| ids.get(s)) else { continue };
+            let Some(tgt) = ctn.descendants().find(|n| is(n, "spTgt")) else { continue };
+            let Some(objs) = attr(&tgt, "spid").and_then(|s| made.ids.get(s)) else { continue };
+            // "By paragraph": only the text box's paragraphs `st`..`end` (the file's numbering).
+            let prg = tgt.descendants().find(|n| is(n, "pRg")).and_then(|r| Some((attr(&r, "st")?.parse::<usize>().ok()?, attr(&r, "end")?.parse::<usize>().ok()?)));
+            let para_target = prg.and_then(|(st, end)| objs.iter().find_map(|o| {
+                let starts = made.paras.get(o)?;
+                let (a, b) = (starts.get(st)?.0, starts.get(end.max(st)).or(starts.last())?.1);
+                Some((*o, (a.min(usize::from(u16::MAX)) as u16, b.min(usize::from(u16::MAX)) as u16)))
+            }));
+            let one;
+            let objs: &[Uuid] = match para_target { Some((o, _)) => { one = [o]; &one } None => objs };
             let start = match attr(&ctn, "nodeType") { Some("clickEffect") => Start::OnClick, Some("afterEffect") => Start::AfterPrevious, _ => Start::WithPrevious };
             let ms = |v: Option<&str>| v.and_then(|v| v.trim().parse::<u32>().ok());
             let delay = ctn.children().find(|n| is(n, "stCondLst")).and_then(|c| c.children().find(|n| is(n, "cond"))).and_then(|c| ms(attr(&c, "delay"))).unwrap_or(0);
@@ -785,7 +1124,7 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
             a.delay_ms = delay;
             a.dur_ms = if a.effect == Effect::Appear { 0 } else { dur };
             for (k, obj) in objs.iter().enumerate() {
-                out.push(Anim { obj: *obj, start: if k == 0 { start } else { Start::WithPrevious }, ..a.clone() });
+                out.push(Anim { obj: *obj, start: if k == 0 { start } else { Start::WithPrevious }, para: para_target.map(|(_, r)| r), ..a.clone() });
             }
         }
         out
@@ -850,6 +1189,19 @@ impl<'a, 'i> Conv<'_, 'a, 'i> {
         }
         p
     }
+}
+
+/// A text body as we have it.
+struct Words {
+    /// `ObjKind::Text`.
+    kind: ObjKind,
+    style: TextStyle,
+    /// Each of the file's paragraphs: our first and last.
+    starts: Vec<(usize, usize)>,
+}
+
+impl Words {
+    fn is_empty(&self) -> bool { matches!(&self.kind, ObjKind::Text { text, .. } if text.trim().is_empty()) }
 }
 
 fn tree<'a, 'i>(n: Option<Node<'a, 'i>>) -> Option<Node<'a, 'i>> { n.and_then(|n| n.descendants().find(|c| is(c, "spTree"))) }

@@ -303,3 +303,22 @@ fn animations_are_added_changed_moved_and_removed_with_undo() {
     e.delete();
     assert!(e.slide().anims.is_empty(), "a deleted object's steps go with it");
 }
+
+#[test]
+fn typing_and_restyling_a_box_with_mixed_looks_keeps_the_looks_that_stay() {
+    use crate::design::{Para, Run};
+    let paras = vec![Para { runs: vec![Run { text: "Joy".into(), bold: Some(true), ..Run::default() }, Run::plain(" to the world")], ..Para::default() }];
+    let mut ed = Editor::new(vec![Design { objects: vec![Obj::new(ObjKind::rich(paras, TextStyle::default()), PctRect::new(0.0, 0.0, 50.0, 50.0))], ..Default::default() }]);
+    let id = ed.slide().objects[0].id;
+    ed.select(id, false);
+    ed.set_text("Joy to all the world");
+    let ObjKind::Text { text, paras, .. } = &ed.slide().objects[0].kind else { panic!() };
+    assert_eq!(text, "Joy to all the world");
+    assert_eq!(paras[0].runs, vec![Run { text: "Joy".into(), bold: Some(true), ..Run::default() }, Run::plain(" to all the world")]);
+    // Making the whole box bold clears the run's own bold: every word is bold now.
+    ed.set_bold(true);
+    ed.set_underline(true);
+    let ObjKind::Text { style, paras, .. } = &ed.slide().objects[0].kind else { panic!() };
+    assert!(style.bold && style.underline);
+    assert!(paras.iter().flat_map(|p| &p.runs).all(|r| r.bold.is_none()));
+}
