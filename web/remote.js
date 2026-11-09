@@ -138,7 +138,8 @@ const STEP = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
 // How the old picture is cut as a wipe's edge goes each way (top right bottom left, the room's `geo`).
 const WIPE = { left: p => `inset(0 ${p}% 0 0)`, right: p => `inset(0 0 0 ${p}%)`, up: p => `inset(0 0 ${p}% 0)`, down: p => `inset(${p}% 0 0 0)` };
 
-// Puts `src` on the live picture, playing `tr` ({ kind, ms, dir }: fade, cut, black, push or wipe) from the one shown.
+// Puts `src` on the live picture, playing `tr` ({ kind, ms, dir }: fade, cut, black, push, wipe, cover or uncover; the
+// rest fade) from the one shown.
 function showPicture(src, tr) {
   const img = $('nowImg'), box = $('picBox');
   box.querySelectorAll('img.old').forEach(o => o.remove());
@@ -156,6 +157,16 @@ function showPicture(src, tr) {
       const [x, y] = STEP[tr.dir] || STEP.left;
       a = old.animate([{ transform: 'none' }, { transform: `translate(${x * 100}%, ${y * 100}%)` }], opts);
       img.animate([{ transform: `translate(${-x * 100}%, ${-y * 100}%)` }, { transform: 'none' }], opts);
+    } else if (tr.kind === 'cover') {
+      const [x, y] = STEP[tr.dir] || STEP.left;
+      img.style.position = 'relative'; img.style.zIndex = 1;
+      a = img.animate([{ transform: `translate(${-x * 100}%, ${-y * 100}%)` }, { transform: 'none' }], opts);
+      a.onfinish = () => { img.style.position = img.style.zIndex = ''; old.remove(); };
+      setTimeout(() => old.remove(), ms + 50);
+      return;
+    } else if (tr.kind === 'uncover') {
+      const [x, y] = STEP[tr.dir] || STEP.left;
+      a = old.animate([{ transform: 'none' }, { transform: `translate(${x * 100}%, ${y * 100}%)` }], opts);
     } else if (tr.kind === 'wipe') {
       const cut = WIPE[tr.dir] || WIPE.left;
       a = old.animate([{ clipPath: cut(0) }, { clipPath: cut(100) }], opts);

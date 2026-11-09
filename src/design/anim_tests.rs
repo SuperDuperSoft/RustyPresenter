@@ -174,3 +174,17 @@ fn clicks_swap_whole_groups() {
     d.swap_clicks(1);
     assert_eq!((d.click_of(a.id), d.click_of(b.id), d.click_of(c.id)), (2, 1, 1));
 }
+
+#[test]
+fn a_play_draws_still_runs_together_and_each_moving_object_alone() {
+    let (a, b, c, d, e) = (text("a"), text("b"), text("c"), text("d"), text("e"));
+    let s = Design { objects: vec![a.clone(), b.clone(), c.clone(), d.clone(), e.clone()], anims: vec![
+        step(&e, AnimKind::Entrance, Effect::Fade, Start::OnClick),
+        step(&c, AnimKind::Entrance, Effect::Fade, Start::OnClick),
+    ], ..Default::default() };
+    // Click 2 brings c; e is already there.
+    let p = s.play(2).unwrap();
+    assert_eq!(p.layers(), vec![(vec![0, 1], None), (vec![2], Some(2)), (vec![3, 4], None)]);
+    // Click 1 brings e; c is still hidden and left out.
+    assert_eq!(s.play(1).unwrap().layers(), vec![(vec![0, 1, 3], None), (vec![4], Some(4))]);
+}

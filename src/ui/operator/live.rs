@@ -47,7 +47,7 @@ struct Motion { fader: Fader, ch: Chan, playing: Rc<Cell<Option<Transition>>> }
 /// The transition a newly live slide comes in with, as the room plays it (none for a build step).
 fn own_transition(slide: Option<&SlideLayer>) -> Option<Transition> {
     match slide? {
-        SlideLayer::Design { design, build: false } => Some(design.transition),
+        SlideLayer::Design { design, build: false, .. } => Some(design.transition),
         SlideLayer::Image { transition, .. } => *transition,
         _ => None,
     }

@@ -141,6 +141,35 @@ export component CutLayer {
     }
 }
 
+/// One picture of a designed slide's click group while it plays (`src/ui/room/anim.rs`), in shares of the window:
+/// the picture's place (`x`, `y`, `w`, `h`) moved by `dx`/`dy`, grown `scale` times and turned `rot` degrees about
+/// (`ox`, `oy`) (shares of the picture), at opacity `op`, shown only inside the clip box (`cx`, `cy`, `cw`, `ch`).
+export struct Sprite { image: image, x: float, y: float, w: float, h: float, dx: float, dy: float, ox: float, oy: float, scale: float, rot: float, op: float, cx: float, cy: float, cw: float, ch: float }
+
+/// A click group's pictures, moved by Rust each frame. The clip has no opacity of its own (no offscreen layer).
+export component SpriteLayer {
+    in property <[Sprite]> sprites;
+    for s in root.sprites: Rectangle {
+        x: root.width * s.cx;
+        y: root.height * s.cy;
+        width: root.width * s.cw;
+        height: root.height * s.ch;
+        clip: true;
+        Image {
+            x: root.width * (s.x + s.dx - s.cx);
+            y: root.height * (s.y + s.dy - s.cy);
+            width: root.width * s.w;
+            height: root.height * s.h;
+            source: s.image;
+            image-fit: fill;
+            opacity: s.op;
+            transform-origin: { x: self.width * s.ox, y: self.height * s.oy };
+            transform-rotation: s.rot * 1deg;
+            transform-scale: s.scale;
+        }
+    }
+}
+
 export component RoomWindow inherits Window {
     title: @tr("RustyPresenter — Room");
     background: transparent;
@@ -167,6 +196,8 @@ export component RoomWindow inherits Window {
     /// Where each slide face is while a push or wipe runs.
     in property <Geo> slide-a-geo;
     in property <Geo> slide-b-geo;
+    /// A designed slide's click group while it plays, over the slide layer (which is hidden meanwhile).
+    in property <[Sprite]> sprites;
     in property <Side> logo-a;
     in property <Side> logo-b;
     in property <float> logo-a-op;
@@ -233,6 +264,11 @@ export component RoomWindow inherits Window {
         b-op: root.slide-b-op;
         a-geo: root.slide-a-geo;
         b-geo: root.slide-b-geo;
+    }
+    sprites := SpriteLayer {
+        width: root.width;
+        height: root.height;
+        sprites: root.sprites;
     }
     logo := FadeLayer {
         width: root.width;

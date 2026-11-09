@@ -25,8 +25,9 @@ impl Px {
 pub(super) struct Fresh(pub(super) Player);
 unsafe impl Send for Fresh {}
 
-/// One prepared layer: a picture over a fill color, or a loaded, paused player.
-pub(super) enum Made { Pic(Option<Px>, Color), Player(Fresh) }
+/// One prepared layer: a picture over a fill color, or a loaded, paused player. `Anim`: a designed slide's
+/// picture once its click group has played, and the group's pictures to play it with.
+pub(super) enum Made { Pic(Option<Px>, Color), Player(Fresh), Anim(Px, super::anim::Layers) }
 
 /// What the prepare worker shares with the room. `generation` moves on with each new plan, so the worker drops
 /// what an older plan still had to do.
@@ -71,6 +72,8 @@ enum Source {
     Painted { bg: Background, picture: Option<PathBuf> },
     Picture { path: PathBuf, cover: bool, scale: f32 },
     Text(RenderKey),
+    /// A designed slide with a click group to play.
+    Animated(RenderKey, Box<crate::design::Play>),
     Overlays(Vec<OverlaySlot>),
     Player { role: Role, inst: u64, path: PathBuf },
 }
@@ -109,7 +112,10 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
                 size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
             }),
             SlideLayer::Image { asset, .. } => picture(asset, false, 1.0),
-            SlideLayer::Design { design, .. } => Source::Text(RenderKey::design(design, job.theme.clone(), job.canvas, app.store.assets())),
+            SlideLayer::Design { design, play, .. } => {
+                let key = RenderKey::design(design, job.theme.clone(), job.canvas, app.store.assets());
+                match play { Some(p) if p.duration_ms() > 0 => Source::Animated(key, p.clone()), _ => Source::Text(key) }
+            }
         },
         // The logo sits on black at up to 70 % of the screen (`logoEl` in `render.js`).
         Kind::Logo => match &job.logo { Some(a) => picture(a, false, 0.7), None => Source::Fill(BLACK) },
@@ -150,6 +156,16 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
                 // Shared with the renderer's cache, not copied.
                 let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
                 Ok(Made::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default()))
+            }
+            Source::Animated(key, play) => {
+                let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
+                let layers = {
+                    let mut fonts = work.fonts.lock().unwrap();
+                    let fonts = fonts.get_or_insert_with(Fonts::new);
+                    let mut picture = |a: &str| decode(&work.app.store.asset_path(a)).ok();
+                    crate::render::design::render_layers(fonts, &play, &job.theme.font, job.canvas, &mut picture)
+                };
+                Ok(Made::Anim(Px::Premul(r.rgba_premul.buffer()), super::anim::Layers { canvas: job.canvas, layers }))
             }
             Source::Player { role, inst, path } => {
                 let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };

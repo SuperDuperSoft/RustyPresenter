@@ -10,7 +10,7 @@ pub mod strings;
 
 use crate::model::AssetId;
 pub use crate::stage::PctRect;
-pub use anim::{Anim, AnimKind, Effect, MotionPath, Play, Seg, Start};
+pub use anim::{Anim, AnimKind, Effect, MotionPath, Play, Pose, Seg, Start};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -395,7 +395,7 @@ mod slide_tests {
         d.upgrade_builds();
         let slides = crate::slides::design_slides(&[d, Design::default()]);
         assert_eq!(slides.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(), ["Slide 1", "Slide 1 · 1 of 1", "Slide 2"]);
-        assert!(matches!(&slides[0].content, SlideContent::Design { design, step: 0, steps: 1 } if design.objects.len() == 1));
+        assert!(matches!(&slides[0].content, SlideContent::Design { design, step: 0, steps: 1, .. } if design.objects.len() == 1));
         assert!(matches!(&slides[1].content, SlideContent::Design { design, step: 1, .. } if design.objects.len() == 2));
         assert_eq!((slides[1].notes.as_str(), slides[2].notes.as_str()), ("Pray first", ""));
     }

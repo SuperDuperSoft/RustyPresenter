@@ -269,3 +269,37 @@ fn copy_cut_and_paste_objects() {
     assert!(e.copy_objects().is_empty(), "nothing chosen now");
     assert!(e.paste_objects(&[]).is_ok());
 }
+
+#[test]
+fn animations_are_added_changed_moved_and_removed_with_undo() {
+    use crate::design::{AnimKind, Effect, Seg, Start};
+    let mut e = Editor::new(vec![]);
+    let a = e.add_text().unwrap();
+    assert_eq!(e.add_anim(), Some(0));
+    assert_eq!(e.add_anim(), Some(1));
+    let s = e.slide();
+    assert_eq!((s.anims[0].obj, s.anims[0].kind, s.anims[0].effect, s.anims[0].start), (a, AnimKind::Entrance, Effect::Fade, Start::OnClick));
+    assert_eq!(s.anims[1].kind, AnimKind::Exit, "once it comes in, the next step takes it out");
+    e.set_anim_kind(1, AnimKind::Motion);
+    assert_eq!(e.slide().anims[1].effect, Effect::Path);
+    assert_eq!(e.slide().anims[1].path.as_ref().unwrap().segs, [Seg::Line { to: (0.0, -25.0) }]);
+    e.set_anim_kind(1, AnimKind::Emphasis);
+    assert_eq!(e.slide().anims[1].effect, Effect::Spin);
+    e.set_anim_effect(0, Effect::Appear);
+    assert_eq!(e.slide().anims[0].dur_ms, 0);
+    for ms in [100, 200, 300] { e.set_anim(0, Some(Field::AnimDelay), |x| x.delay_ms = ms) }
+    e.undo();
+    assert_eq!(e.slide().anims[0].delay_ms, 0, "a dragged slider is one undo step");
+    e.redo();
+    let b = e.add_text().unwrap();
+    e.add_anim();
+    assert_eq!(e.anims_of_primary(), [2]);
+    assert_eq!(e.move_anim(2, true), 1);
+    assert_eq!(e.slide().anims[1].obj, b);
+    assert_eq!(e.move_anim(0, true), 0, "already first");
+    e.remove_anim(1);
+    assert!(e.anims_of_primary().is_empty());
+    e.sel = vec![a];
+    e.delete();
+    assert!(e.slide().anims.is_empty(), "a deleted object's steps go with it");
+}

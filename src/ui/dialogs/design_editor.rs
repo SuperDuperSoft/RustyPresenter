@@ -4,15 +4,15 @@
 use super::{DialogKind, confirm};
 use crate::{
     design::{
-        Design, Fit, HAlign, ObjKind, Shape, TextStyle, TransitionKind, VAlign,
-        edit::{AlignTo, Editor, Field, Order, StyleCopy},
+        AnimKind, Design, Dir, Effect, Fit, HAlign, ObjKind, Shape, Start, TextStyle, TransitionKind, VAlign,
+        edit::{AlignTo, Editor, Field, Order, StyleCopy, motion_preset},
         strings as s,
     },
     model::{Background, ItemKind, MediaFile, MediaKind, MediaStatus, Theme},
     render::RenderKey,
     stage::geom::{Guide, Nudge},
     store::Store,
-    ui::{DesignDlg, DesignGuideVm, DesignMediaVm, DesignObjVm, DesignSlideVm, operator::window::Operator, thumbs::{self, TextRenderer, ThumbJob}},
+    ui::{DesignDlg, DesignGuideVm, DesignMediaVm, DesignObjVm, DesignSlideVm, Sprite, operator::window::Operator, room::anim::{self, SpriteImg}, thumbs::{self, TextRenderer, ThumbJob}},
 };
 use slint::{ComponentHandle, Image, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, collections::HashMap, rc::{Rc, Weak}};
@@ -46,7 +46,19 @@ pub struct Session {
     store: Store,
     renderer: TextRenderer,
     thumbs: RefCell<HashMap<String, Image>>,
+    /// The animation step the Animations panel edits (an index into the slide's `anims`).
+    pub anim_at: Option<usize>,
+    /// Preview: the slide's animations playing in the picture.
+    preview: Option<Preview>,
+    /// For drawing the preview's pictures, made on first use.
+    fonts: Option<crate::render::Fonts>,
 }
+
+/// The slide's click groups one after another, each with its pictures and when it starts (ms), and its timer.
+struct Preview { groups: Vec<(u32, crate::design::Play, Vec<SpriteImg>)>, start: std::time::Instant, end: u32, _timer: slint::Timer }
+
+/// The pause between clicks in the preview.
+const PREVIEW_GAP_MS: u32 = 700;
 
 impl Session {
     /// Something differs from what is saved.
@@ -162,9 +174,107 @@ fn show(g: &DesignDlg, ss: &Session) {
     g.set_radius(l.radius.round() as i32);
     g.set_opacity(i32::from(o.opacity));
     g.set_rotation(o.rotation.round() as i32);
-    g.set_build(o.build > 0);
-    let steps = d.steps();
-    g.set_build_note(if o.build > 0 { crate::tr!("Appears on Next {step} of {of}", step = o.build, of = steps).into() } else { SharedString::default() });
+    show_anims(g, ss);
+}
+
+const KINDS: [AnimKind; 4] = [AnimKind::Entrance, AnimKind::Emphasis, AnimKind::Exit, AnimKind::Motion];
+const STARTS: [Start; 3] = [Start::OnClick, Start::WithPrevious, Start::AfterPrevious];
+
+/// The Animations panel: the first chosen object's steps, and the one being edited.
+fn show_anims(g: &DesignDlg, ss: &Session) {
+    let d = ss.ed.slide();
+    let mine = ss.ed.anims_of_primary();
+    let rows: Vec<SharedString> = mine.iter().enumerate().map(|(n, i)| {
+        let a = &d.anims[*i];
+        s::anim_row(n + 1, &s::effect_name(a.kind, a.effect), &s::start_name(a.start), a.dur_ms as f32 / 1000.0).into()
+    }).collect();
+    g.set_anim_rows(ModelRc::new(VecModel::from(rows)));
+    let Some((row, a)) = ss.anim_at.and_then(|i| Some((mine.iter().position(|x| *x == i)?, &d.anims[i]))) else { return g.set_anim_at(-1) };
+    g.set_anim_at(row as i32);
+    g.set_anim_kind(KINDS.iter().position(|k| *k == a.kind).unwrap_or(0) as i32);
+    let effects = Effect::for_kind(a.kind);
+    g.set_anim_effects(ModelRc::new(VecModel::from(effects.iter().map(|e| SharedString::from(s::effect_name(a.kind, *e))).collect::<Vec<_>>())));
+    g.set_anim_effect(effects.iter().position(|e| *e == a.effect).unwrap_or(0) as i32);
+    g.set_anim_start(STARTS.iter().position(|x| *x == a.start).unwrap_or(0) as i32);
+    let has_dir = matches!(a.kind, AnimKind::Entrance | AnimKind::Exit) && a.effect.has_dir();
+    g.set_anim_has_dir(has_dir);
+    g.set_anim_dir(a.dir.unwrap_or(Dir::Down).index());
+    g.set_anim_delay(a.delay_ms as i32);
+    g.set_anim_dur(a.dur_ms as i32);
+    let amount_kind = match (a.kind, a.effect) { (AnimKind::Emphasis, Effect::Spin) => 1, (AnimKind::Emphasis, Effect::Grow) => 2, _ => 0 };
+    g.set_anim_amount_kind(amount_kind);
+    g.set_anim_amount(a.amount.unwrap_or(if amount_kind == 1 { 360.0 } else { 150.0 }).round() as i32);
+    let (x, y) = a.path.as_ref().map_or((0.0, 0.0), |p| p.moved());
+    g.set_anim_path_x(x.round() as i32);
+    g.set_anim_path_y(y.round() as i32);
+}
+
+impl Session {
+    /// The step being edited, if it is still one of the first chosen object's.
+    fn anim(&self) -> Option<usize> { self.anim_at.filter(|i| self.ed.anims_of_primary().contains(i)) }
+
+    /// Changes the step being edited; `field` merges a dragged slider into one undo step.
+    fn set_anim(&mut self, field: Option<Field>, f: impl FnOnce(&mut crate::design::Anim)) {
+        if let Some(i) = self.anim() { self.ed.set_anim(i, field, f) }
+    }
+
+    /// Preview's click groups, drawn at the picture's size.
+    fn preview_groups(&mut self) -> Vec<(u32, crate::design::Play, Vec<SpriteImg>)> {
+        let d = self.ed.slide().clone();
+        let fonts = self.fonts.get_or_insert_with(crate::render::Fonts::new);
+        let store = &self.store;
+        let mut picture = |a: &str| image::ImageReader::open(store.asset_path(a)).ok()?.with_guessed_format().ok()?.decode().ok().map(|i| i.into_rgba8());
+        let mut at = 0;
+        (0..=d.steps()).filter_map(|g| d.play(g)).map(|play| {
+            let layers = crate::render::design::render_layers(fonts, &play, &self.theme.font, PICTURE, &mut picture);
+            let start = at;
+            at += play.duration_ms() + PREVIEW_GAP_MS;
+            (start, play, anim::Layers { canvas: PICTURE, layers }.images())
+        }).collect()
+    }
+}
+
+/// The preview's pictures `t_ms` in, or None once it is over.
+fn preview_at(p: &Preview, t_ms: u32) -> Option<Vec<Sprite>> {
+    if t_ms >= p.end { return None }
+    let (start, play, imgs) = p.groups.iter().rev().find(|(s, _, _)| *s <= t_ms)?;
+    Some(imgs.iter().map(|i| anim::sprite_at(i, play, (t_ms - start) as f32, (0.0, 0.0, 1.0, 1.0))).collect())
+}
+
+/// Preview: plays the slide's animations in the picture, from the slide coming up to its last click; again: stops.
+fn toggle_preview(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
+    let g = op.ui.global::<DesignDlg>();
+    if ss.borrow_mut().preview.take().is_some() { return stop_preview(op, ss) }
+    let groups = ss.borrow_mut().preview_groups();
+    if groups.is_empty() { return }
+    let end = groups.last().map_or(0, |(s, p, _)| s + p.duration_ms() + PREVIEW_GAP_MS);
+    {
+        let s = ss.borrow();
+        let bare = Design { objects: vec![], ..s.ed.slide().clone() };
+        g.set_picture(s.draw(&bare, PICTURE));
+    }
+    g.set_previewing(true);
+    let timer = slint::Timer::default();
+    let (me, weak) = (Rc::downgrade(op), Rc::downgrade(ss));
+    timer.start(slint::TimerMode::Repeated, crate::ui::fade::TICK, move || {
+        let (Some(op), Some(ss)) = (me.upgrade(), weak.upgrade()) else { return };
+        let now = ss.borrow().preview.as_ref().map(|p| preview_at(p, p.start.elapsed().as_millis() as u32));
+        match now {
+            Some(Some(rows)) => op.ui.global::<DesignDlg>().set_preview_sprites(ModelRc::new(VecModel::from(rows))),
+            Some(None) => { ss.borrow_mut().preview = None; stop_preview(&op, &ss) }
+            None => {}
+        }
+    });
+    let p = Preview { groups, start: std::time::Instant::now(), end, _timer: timer };
+    if let Some(rows) = preview_at(&p, 0) { g.set_preview_sprites(ModelRc::new(VecModel::from(rows))) }
+    ss.borrow_mut().preview = Some(p);
+}
+
+fn stop_preview(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
+    let g = op.ui.global::<DesignDlg>();
+    g.set_previewing(false);
+    g.set_preview_sprites(ModelRc::default());
+    show(&g, &ss.borrow());
 }
 
 impl Session {
@@ -195,7 +305,7 @@ pub fn open(op: &Rc<Operator>, item: Option<Uuid>) {
     let ss = Session {
         ed: Editor::new(slides), item, stored_title: title.clone(), title, pen: false,
         background, theme: look.theme, media: usable_media(&data.media), store: Store { root: op.app().store.root.clone() },
-        renderer: TextRenderer::new(), thumbs: RefCell::default(),
+        renderer: TextRenderer::new(), thumbs: RefCell::default(), anim_at: None, preview: None, fonts: None,
     };
     op.open_dialog(DialogKind::Design(item));
     let g = op.ui.global::<DesignDlg>();
@@ -215,6 +325,7 @@ pub fn open(op: &Rc<Operator>, item: Option<Uuid>) {
 /// Runs `f` on the session, then redraws; an error from `f` shows as a toast.
 fn with(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>, f: impl FnOnce(&mut Session) -> Result<(), String>) {
     if op.dialog().is_none_or(|d| !matches!(d, DialogKind::Design(_))) { return }
+    if ss.borrow_mut().preview.take().is_some() { op.ui.global::<DesignDlg>().set_previewing(false); op.ui.global::<DesignDlg>().set_preview_sprites(ModelRc::default()) }
     let r = f(&mut ss.borrow_mut());
     show(&op.ui.global::<DesignDlg>(), &ss.borrow());
     if let Err(e) = r { op.toast(e, true) }
@@ -325,8 +436,24 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     on!(on_radius_changed, |e, v: i32| e.ed.set_radius(v as f32));
     on!(on_opacity_changed, |e, v: i32| e.ed.set_opacity(v));
     on!(on_rotation_changed, |e, v: i32| e.ed.set_rotation(v as f32));
-    on!(on_build_on, |e, v: bool| e.ed.set_build(v));
-    on!(on_build_move, |e, earlier: bool| e.ed.move_build(earlier));
+    on!(on_anim_add, |e| e.anim_at = e.ed.add_anim().or(e.anim_at));
+    on!(on_anim_remove, |e| if let Some(i) = e.anim() { e.ed.remove_anim(i); e.anim_at = None });
+    on!(on_anim_move, |e, up: bool| if let Some(i) = e.anim() { e.anim_at = Some(e.ed.move_anim(i, up)) });
+    on!(on_anim_pick, |e, row: i32| e.anim_at = e.ed.anims_of_primary().get(row.max(0) as usize).copied());
+    on!(on_anim_kind_changed, |e, k: i32| if let Some(i) = e.anim() { e.ed.set_anim_kind(i, KINDS[k.clamp(0, 3) as usize]) });
+    on!(on_anim_effect_changed, |e, n: i32| if let Some(i) = e.anim() {
+        let fx = Effect::for_kind(e.ed.slide().anims[i].kind);
+        e.ed.set_anim_effect(i, fx[(n.max(0) as usize).min(fx.len() - 1)]);
+    });
+    on!(on_anim_start_changed, |e, n: i32| e.set_anim(None, |a| a.start = STARTS[n.clamp(0, 2) as usize]));
+    on!(on_anim_dir_changed, |e, n: i32| e.set_anim(None, |a| a.dir = Some(Dir::from_index(n))));
+    on!(on_anim_delay_changed, |e, v: i32| e.set_anim(Some(Field::AnimDelay), |a| a.delay_ms = v.clamp(0, crate::design::anim::ANIM_MAX_MS as i32) as u32));
+    on!(on_anim_dur_changed, |e, v: i32| e.set_anim(Some(Field::AnimDur), |a| a.dur_ms = v.clamp(0, crate::design::anim::ANIM_MAX_MS as i32) as u32));
+    on!(on_anim_amount_changed, |e, v: i32| e.set_anim(Some(Field::AnimAmount), |a| a.amount = Some(v as f32)));
+    on!(on_anim_path_changed, |e, x: i32, y: i32| e.set_anim(Some(Field::AnimPath), |a| a.path = Some(crate::design::MotionPath::line((x as f32, y as f32)))));
+    on!(on_anim_preset, |e, n: i32| e.set_anim(None, |a| a.path = Some(motion_preset(n))));
+    let (me, ss2) = (Rc::downgrade(op), ss.clone());
+    g.on_preview(move || if let Some(op) = me.upgrade() { toggle_preview(&op, &ss2) });
     on!(on_transition_changed, |e, i: i32| e.ed.set_transition(TransitionKind::from_index(i)));
     on!(on_transition_dir_changed, |e, i: i32| e.ed.set_transition_dir(crate::design::Dir::from_index(i)));
     on!(on_transition_ms_changed, |e, v: i32| e.ed.set_transition_ms(v));

@@ -71,9 +71,15 @@ pub enum SlideLayer {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         transition: Option<crate::design::Transition>,
     },
-    /// A designed slide (N26). `build`: it adds the next build to the slide just before it, so the room fades in
-    /// only what is new.
-    Design { design: crate::design::Design, #[serde(default, skip_serializing_if = "std::ops::Not::not")] build: bool },
+    /// A designed slide (N26). `build`: it adds the next click to the slide just before it, so the room changes
+    /// only what is new. `play`: that click's animations (or, as the slide comes up, its own), for the room to play.
+    Design {
+        design: crate::design::Design,
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        build: bool,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        play: Option<Box<crate::design::Play>>,
+    },
 }
 
 fn is_zero(n: &u32) -> bool { *n == 0 }
@@ -764,11 +770,15 @@ impl Live {
                 self.frame.media = None;
                 self.frame.logo = false;
             }
-            SlideContent::Design { design, step, .. } => {
-                // Next from the slide before it: only the new build fades in.
-                let build = step > 0 && slide > 0 && self.cursor.as_ref().is_some_and(|c| c.item_id == item.item_id && c.slide == slide - 1)
-                    && matches!(self.frame.slide, Some(SlideLayer::Design { .. }));
-                self.frame.slide = Some(SlideLayer::Design { design, build });
+            SlideContent::Design { mut design, step, play, .. } => {
+                let from = self.cursor.as_ref().filter(|c| c.item_id == item.item_id).map(|c| c.slide);
+                // Next from the slide before it: only the new click plays.
+                let build = step > 0 && slide > 0 && from == Some(slide - 1) && matches!(self.frame.slide, Some(SlideLayer::Design { .. }));
+                // Back one click on the same slide: straight to how it was, no transition.
+                let back = from == Some(slide + 1) && matches!(&item.slides[slide + 1].content, SlideContent::Design { step: s, .. } if *s == step + 1);
+                if back { design.transition.kind = crate::design::TransitionKind::Cut }
+                let play = play.filter(|_| build || step == 0 && !back);
+                self.frame.slide = Some(SlideLayer::Design { design, build, play });
                 self.set_background(Some(item.background.clone()));
                 self.frame.media = None;
                 self.frame.logo = false;
@@ -978,20 +988,26 @@ mod tests {
 
     #[test]
     fn next_through_builds_marks_each_as_a_build_but_a_jump_is_not() {
-        use crate::design::{Design, Obj, ObjKind, PctRect, TextStyle};
-        let t = |b| Obj { build: b, ..Obj::new(ObjKind::Text { text: "x".into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 10.0, 10.0)) };
-        let slides = crate::slides::design_slides(&[Design { objects: vec![t(0), t(1), t(2)], ..Default::default() }]);
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Start, TextStyle, TransitionKind};
+        let t = || Obj::new(ObjKind::Text { text: "x".into(), style: TextStyle::default() }, PctRect::new(0.0, 0.0, 10.0, 10.0));
+        let objects = vec![t(), t(), t()];
+        let anims = objects[1..].iter().map(|o| Anim::new(o.id, AnimKind::Entrance, Effect::Fade, Start::OnClick)).collect();
+        let slides = crate::slides::design_slides(&[Design { objects, anims, ..Default::default() }]);
         let p = plan(vec![("Sermon", slides)]);
         let mut l = Live::new();
-        let build = |l: &Live| match &l.frame.slide { Some(SlideLayer::Design { build, design }) => Some((*build, design.objects.len())), _ => None };
+        let build = |l: &Live| match &l.frame.slide { Some(SlideLayer::Design { build, design, play }) => Some((*build, design.objects.len(), play.is_some())), _ => None };
         next(&mut l, &p);
-        assert_eq!(build(&l), Some((false, 1)));
+        assert_eq!(build(&l), Some((false, 1, false)));
         next(&mut l, &p);
-        assert_eq!(build(&l), Some((true, 2)));
+        assert_eq!(build(&l), Some((true, 2, true)), "the click's animation goes to the room");
         next(&mut l, &p);
-        assert_eq!(build(&l), Some((true, 3)));
-        l.apply(env(Command::Show { item_id: p.order[0], slide: 1 }, None), &p);
-        assert_eq!(build(&l), Some((false, 2)), "going back is a whole new slide");
+        assert_eq!(build(&l), Some((true, 3, true)));
+        let kind = |l: &Live| match &l.frame.slide { Some(SlideLayer::Design { design, .. }) => Some(design.transition.kind), _ => None };
+        l.apply(env(Command::Show { item_id: p.order[0], slide: 0 }, None), &p);
+        assert_eq!((build(&l), kind(&l)), (Some((false, 1, false)), Some(TransitionKind::Fade)), "a jump is a whole new slide");
+        next(&mut l, &p);
+        l.apply(env(Command::Show { item_id: p.order[0], slide: 0 }, None), &p);
+        assert_eq!((build(&l), kind(&l)), (Some((false, 1, false)), Some(TransitionKind::Cut)), "back one click cuts to how it was");
         assert!(l.frame.background.is_some());
     }
 

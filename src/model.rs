@@ -50,8 +50,17 @@ pub enum SlideContent {
     Still { asset: AssetId },
     /// Audio-only item (walk-in music). Does not change visuals.
     Audio { asset: AssetId, looped: bool },
-    /// A designed slide (N26) as shown after `step` of its `steps` builds (0: before any).
-    Design { design: crate::design::Design, #[serde(default)] step: u16, #[serde(default)] steps: u16 },
+    /// A designed slide (N26) as shown after `step` of its `steps` clicks (0: before any). `play`: the click group
+    /// that animates into it (for step 0, the steps that play by themselves as it comes up).
+    Design {
+        design: crate::design::Design,
+        #[serde(default)]
+        step: u16,
+        #[serde(default)]
+        steps: u16,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        play: Option<Box<crate::design::Play>>,
+    },
 }
 
 fn is_zero(n: &u32) -> bool { *n == 0 }

@@ -246,6 +246,18 @@ impl Play {
     /// Whether object `i` moves, shows or hides in this group.
     pub fn animated(&self, i: usize) -> bool { self.tracks.iter().any(|t| t.obj == i) }
 
+    /// What the room draws while the group plays, bottom to top: runs of objects that stay as they are (drawn
+    /// together, `None`) and each object that animates on its own (`Some(index)`).
+    pub fn layers(&self) -> Vec<(Vec<usize>, Option<usize>)> {
+        let mut out: Vec<(Vec<usize>, Option<usize>)> = vec![];
+        for i in 0..self.objects.len() {
+            if self.animated(i) { out.push((vec![i], Some(i))); continue }
+            if !self.shown.get(i).copied().unwrap_or(false) { continue }
+            match out.last_mut() { Some((run, None)) => run.push(i), _ => out.push((vec![i], None)) }
+        }
+        out
+    }
+
     /// Object `i` at `t_ms` into the group.
     pub fn pose(&self, i: usize, t_ms: f32) -> Pose {
         let mut pose = if self.shown.get(i).copied().unwrap_or(false) { Pose::SHOWN } else { Pose::HIDDEN };
