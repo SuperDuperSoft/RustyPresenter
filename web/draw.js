@@ -20,13 +20,18 @@ const PALM_MS = 800;
 // Points closer than this (CSS px) to the last one add nothing.
 const MIN_STEP_PX = 1.2;
 const SAVED = 'rp-draw';
+// The view's sizes, kept for each way up: the notes' share of the room, their text size, the buttons' size.
+const LAYOUT = 'rp-draw-layout';
+const SIZE_NAMES = ['Compact', 'Normal', 'Big'];
+let layouts = { portrait: { split: 0.3, text: 18, btn: 1 }, landscape: { split: 0.3, text: 16, btn: 1 } };
+const way = () => matchMedia('(orientation: landscape)').matches ? 'landscape' : 'portrait';
 
 const $ = id => document.getElementById(id);
 let app = null;                       // { t, toast, relogin } from remote.js
 const t = (en, args) => app.t(en, args);
 
 // The tool choice: size 0–2 is a pen, 3 the highlighter. Remembered on this phone.
-let color = PALETTE[0], size = 1, fades = false, drewBefore = false;
+let color = PALETTE[0], size = 1, fades = false, drewBefore = false, notesOn = true, notes = '';
 let fadeMs = 3000;                    // Settings → "Fading ink disappears after", from the remote view
 let aspect = 16 / 9;                  // the room screen's shape (the remote view, then the picture itself)
 let strokes = [];                     // my lines on screen: { id, color, width, pen, ink, pts, sent, acked, ended }
@@ -44,15 +49,74 @@ function load() {
     if (Number.isInteger(s.size) && s.size >= 0 && s.size <= SIZES.length) size = s.size;
     if (typeof s.fades === 'boolean') fades = s.fades;
     drewBefore = !!s.drew;
+    if (typeof s.notes === 'boolean') notesOn = s.notes;
   } catch { /* private window: the defaults */ }
 }
+function loadLayout() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LAYOUT) || '{}');
+    for (const k of ['portrait', 'landscape']) {
+      const v = s[k] || {}, l = layouts[k];
+      if (typeof v.split === 'number') l.split = clampSplit(v.split);
+      if (Number.isInteger(v.text)) l.text = Math.min(40, Math.max(12, v.text));
+      if (Number.isInteger(v.btn) && v.btn >= 0 && v.btn <= 2) l.btn = v.btn;
+    }
+  } catch { /* private window: the defaults */ }
+}
+function saveLayout() { try { localStorage.setItem(LAYOUT, JSON.stringify(layouts)); } catch { /* private window */ } }
+export const clampSplit = v => Math.min(0.7, Math.max(0.12, v));
+
+// Puts this way up's sizes on the view.
+function applyLayout() {
+  const l = layouts[way()], draw = $('draw');
+  draw.classList.remove('bs0', 'bs1', 'bs2');
+  draw.classList.add('bs' + l.btn);
+  draw.style.setProperty('--nt', l.text + 'px');
+  $('drawNotes').style.flexBasis = (l.split * 100).toFixed(1) + '%';
+  $('drawSizeName').textContent = t(SIZE_NAMES[l.btn]);
+  $('drawSizeBtn').title = t('Button size');
+  $('notesSmaller').title = $('notesSmaller').ariaLabel = t('Smaller notes text');
+  $('notesBigger').title = $('notesBigger').ariaLabel = t('Bigger notes text');
+  $('drawSplit').title = $('drawSplit').ariaLabel = t('Drag to make the notes bigger or smaller');
+  $('drawSplit').ariaOrientation = way() === 'landscape' ? 'vertical' : 'horizontal';
+}
+function changeLayout(f) { f(layouts[way()]); saveLayout(); applyLayout(); if (open) fit(); }
+
+// The bar between the slide and the notes: dragging it shares the room out. It never draws.
+function wireSplit() {
+  const bar = $('drawSplit');
+  let dragging = null;
+  bar.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = e.pointerId;
+    try { bar.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  });
+  bar.addEventListener('pointermove', e => {
+    if (e.pointerId !== dragging) return;
+    const r = bar.parentElement.getBoundingClientRect();
+    const share = way() === 'landscape' ? (r.right - e.clientX) / r.width : (r.bottom - e.clientY) / r.height;
+    layouts[way()].split = clampSplit(share);
+    applyLayout();
+    fit();
+  });
+  const done = e => { if (e.pointerId === dragging) { dragging = null; saveLayout(); } };
+  bar.addEventListener('pointerup', done);
+  bar.addEventListener('pointercancel', done);
+}
+
 function save() {
-  try { localStorage.setItem(SAVED, JSON.stringify({ color, size, fades, drew: drewBefore })); } catch { /* private window */ }
+  try { localStorage.setItem(SAVED, JSON.stringify({ color, size, fades, drew: drewBefore, notes: notesOn })); } catch { /* private window */ }
 }
 
 export function initDraw(helpers) {
   app = helpers;
   load();
+  loadLayout();
+  wireSplit();
+  $('notesSmaller').onclick = () => changeLayout(l => { l.text = Math.max(12, l.text - 2); });
+  $('notesBigger').onclick = () => changeLayout(l => { l.text = Math.min(40, l.text + 2); });
+  $('drawSizeBtn').onclick = () => changeLayout(l => { l.btn = (l.btn + 1) % 3; });
   $('swatches').replaceChildren(...PALETTE.map(c => {
     const b = document.createElement('button');
     b.className = 'sw'; b.dataset.c = c; b.style.setProperty('--c', c);
@@ -73,6 +137,11 @@ export function initDraw(helpers) {
   $('inkFades').onclick = () => { fades = true; tools(); };
   $('undoBtn').onclick = undo;
   $('clearBtn').onclick = clearAll;
+  // Back and Next turn the live slide without leaving the drawing; the computer keeps or clears the ink as it
+  // always does on a new slide.
+  $('drawPrev').onclick = () => { end(); app.go(true); };
+  $('drawNext').onclick = () => { end(); app.go(false); };
+  $('drawNotesBtn').onclick = () => { notesOn = !notesOn; tools(); showNotes(); if (open) fit(); };
   $('doneBtn').onclick = () => { if (history.state && history.state.rpDraw) history.back(); else closeDraw(); };
   addEventListener('popstate', () => { if (open) closeDraw(); });
   // The whole black area takes the finger, so a line that starts just off the slide still draws.
@@ -81,11 +150,12 @@ export function initDraw(helpers) {
   board.addEventListener('pointermove', move);
   board.addEventListener('pointerup', up);
   board.addEventListener('pointercancel', up);
-  // No page scrolling, pull-to-refresh, zooming (double tap or pinch) or long-press menu while drawing.
+  // No page scrolling, pull-to-refresh, zooming (double tap or pinch) or long-press menu while drawing. The notes
+  // still scroll.
   const draw = $('draw');
   const stop = e => e.preventDefault();
   board.addEventListener('touchstart', stop, { passive: false });
-  draw.addEventListener('touchmove', stop, { passive: false });
+  draw.addEventListener('touchmove', e => { if (!e.target.closest('#drawNotes')) e.preventDefault(); }, { passive: false });
   draw.addEventListener('dblclick', stop);
   draw.addEventListener('gesturestart', stop);
   draw.addEventListener('contextmenu', stop);
@@ -94,7 +164,7 @@ export function initDraw(helpers) {
     const img = $('slideImg');
     if (img.naturalWidth && img.naturalHeight) setAspect(img.naturalWidth / img.naturalHeight);
   });
-  addEventListener('resize', () => { if (open) fit(); });
+  addEventListener('resize', () => { applyLayout(); if (open) fit(); });
   setInterval(flush, BATCH_MS);
   tools();
 }
@@ -106,6 +176,11 @@ function tools() {
     b.style.setProperty('--c', color);
     b.title = b.ariaLabel = i === SIZES.length ? t('Highlighter') : t('Pen size');
   });
+  $('drawNotesBtn').classList.toggle('sel', notesOn);
+  $('drawNotesBtn').ariaPressed = String(notesOn);
+  $('drawNotesBtn').title = notesOn ? t('Hide presenter notes') : t('Show presenter notes');
+  $('drawPrev').textContent = '‹ ' + t('Back');
+  $('drawNext').textContent = t('Next') + ' ›';
   $('inkStays').classList.toggle('sel', !fades);
   $('inkFades').classList.toggle('sel', fades);
   save();
@@ -125,6 +200,8 @@ export function openDraw(view) {
   if (view && view.aspect) setAspect(view.aspect[0] / view.aspect[1]);
   $('drawHint').classList.toggle('gone', drewBefore);
   tools();
+  showNotes();
+  applyLayout();
   fit();
   loadSlide();
 }
@@ -139,6 +216,11 @@ function closeDraw() {
 
 // A new remote view: a new slide means a new picture. `my_strokes` says which of my lines are still up.
 export function onView(view) {
+  const air = view.on_air || {};
+  const shown = view.current && (air.slide || air.media) && !air.logo;
+  const was = notes;
+  notes = shown ? (view.current.notes || '') : '';
+  if (notes !== was) { showNotes(); if (open) fit(); }
   if (view.fade_secs) fadeMs = view.fade_secs * 1000;
   if (view.aspect && view.aspect[0] > 0 && view.aspect[1] > 0) setAspect(view.aspect[0] / view.aspect[1]);
   if (open && view.version !== version) { version = view.version; loadSlide(); }
@@ -153,6 +235,12 @@ function keepOnly(ids) {
   strokes = strokes.filter(s => !s.acked || ids.includes(s.id));
   if (cur && !strokes.includes(cur)) cur = null;
   if (strokes.length !== before) paint();
+}
+
+// The current slide's presenter notes, when there are some and the phone has them on.
+function showNotes() {
+  $('drawNotesText').textContent = notes;
+  $('drawNotes').parentElement.classList.toggle('non', notesOn && notes !== '');
 }
 
 function setAspect(a) {

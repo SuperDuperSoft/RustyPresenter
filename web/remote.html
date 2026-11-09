@@ -109,7 +109,7 @@
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   .draw.on { display: flex; }
   .tools { flex: none; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 8px; background: rgba(23,26,33,.94); }
-  .tools button { touch-action: manipulation; min-width: 48px; height: 48px; border-radius: 12px; background: var(--raise); font-weight: 700; font-size: 14px; padding: 0 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.05; }
+  .tools button { touch-action: manipulation; min-width: var(--tb); height: var(--tb); border-radius: 12px; background: var(--raise); font-weight: 700; font-size: 14px; padding: 0 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.05; }
   .tools button svg { width: 22px; height: 22px; flex: none; }
   .tools button span { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
   .tools button:active { transform: scale(.94); }
@@ -122,15 +122,40 @@
   .tools .seg button:last-child { border-radius: 0 12px 12px 0; }
   .tools .seg button span { font-size: 14px; }
   .tools .seg .sel { background: var(--accent); color: #1a1405; }
-  .tools .sw { width: 48px; min-width: 48px; height: 48px; border-radius: 50%; padding: 0; background: transparent; }
+  .tools .sw { width: var(--tb); min-width: var(--tb); height: var(--tb); border-radius: 50%; padding: 0; background: transparent; }
   .tools .sw i { display: block; width: 34px; height: 34px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1px rgba(255,255,255,.35); }
   .tools .sw.sel i { width: 40px; height: 40px; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #000; }
-  .tools .size { width: 52px; min-width: 52px; padding: 0; }
+  .tools .size { width: calc(var(--tb) + 4px); min-width: calc(var(--tb) + 4px); padding: 0; }
   .tools .size.sel { background: var(--accent); }
   .tools .size i { display: block; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
   .tools .size.hl i { width: 30px; height: 14px; border-radius: 4px; opacity: .55; }
   .tools.top .grow { flex: 1; }
   .tools.bottom { flex-direction: column; gap: 4px; padding-bottom: 8px; }
+  /* The slide with the presenter notes under it (beside it when sideways), and Back / Next along the bottom
+     (at the two sides when sideways). Only the board takes a finger for drawing. */
+  /* The sizes the user picks (remembered per phone and per way up): --tb the buttons, --nt the notes text, and the
+     notes' share of the room (flex-basis, set from draw.js). */
+  .draw { --tb: 48px; --nt: 18px; }
+  .draw.bs0 { --tb: 44px; }
+  .draw.bs2 { --tb: 62px; }
+  .dmain { flex: 1; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  .dsplit { display: none; flex: none; height: 28px; align-items: center; justify-content: center; touch-action: none; cursor: row-resize; background: #0c0e12; }
+  .dsplit i { display: block; width: 56px; height: 6px; border-radius: 3px; background: #8fb4ff; opacity: .7; }
+  .dmain.non .dsplit { display: flex; }
+  .dnotes { display: none; flex: 0 0 30%; min-height: 0; min-width: 0; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; background: var(--panel); padding: 4px 14px 10px; }
+  .dmain.non .dnotes { display: block; }
+  .dnhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 4px; position: sticky; top: 0; background: var(--panel); }
+  .dnhead .label { flex: 1 1 100px; color: #8fb4ff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .dnhead button { touch-action: manipulation; width: 44px; height: 44px; border-radius: 10px; background: var(--raise); font-weight: 800; font-size: 16px; }
+  .dnotes .text { font-size: var(--nt); font-weight: 500; color: #dce7ff; white-space: pre-wrap; }
+  .dnav { flex: none; display: flex; gap: 8px; padding: 6px 8px 8px; background: rgba(23,26,33,.94); }
+  .dnav button { touch-action: manipulation; flex: 1; min-height: calc(var(--tb) + 8px); border-radius: 14px; background: var(--raise); font-weight: 800; font-size: calc(var(--tb) * .36); }
+  .dnav .dnext { flex: 1.6; background: var(--accent); color: #1a1405; }
+  .dnav button:active { transform: scale(.96); }
+  .dview { display: flex; gap: 6px; }
+  .dview button { flex: none; min-width: var(--tb); padding: 0 6px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+  .dview button svg { width: 22px; height: 22px; }
+  .dview #drawNotesBtn.sel { background: #2b3f66; color: #dce7ff; }
   .board { position: relative; flex: 1; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: none; }
   .slide { position: relative; background: #111; touch-action: none; }
   .slide img, .slide canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
@@ -145,12 +170,21 @@
     .tools .seg button:first-child { border-radius: 12px 12px 0 0; }
     .tools .seg button:last-child { border-radius: 0 0 12px 12px; }
     .tools button span { max-width: 60px; }
-    .tools.top button { width: 64px; }
+    .tools.top button { width: calc(var(--tb) + 16px); }
     .tools.bottom { flex-direction: row; align-items: center; }
     .tools.bottom .grp { flex-direction: column; gap: 4px; }
-    .tools .sw { width: 44px; min-width: 44px; height: 44px; }
-    .tools .size { width: 48px; min-width: 48px; height: 48px; }
+    .tools .sw { width: max(44px, calc(var(--tb) - 4px)); min-width: max(44px, calc(var(--tb) - 4px)); height: max(44px, calc(var(--tb) - 4px)); }
+    .tools .size { width: var(--tb); min-width: var(--tb); height: var(--tb); }
     .turn { display: none; }
+    .dmain { flex-direction: row; }
+    .dsplit { height: auto; width: 28px; cursor: col-resize; }
+    .dsplit i { width: 6px; height: 56px; }
+    .dnav { display: contents; }
+    .dnav > button { flex: none; width: calc(var(--tb) + 16px); min-height: 0; border-radius: 0; font-size: 15px; padding: 0 4px; }
+    .dnav .dprev { order: -1; flex: none; }
+    .dnav .dnext { order: 99; flex: none; }
+    .dview { order: 98; flex-direction: column; justify-content: center; padding: 6px; background: rgba(23,26,33,.94); }
+    .dview button { height: var(--tb); border-radius: 12px; background: var(--raise); }
   }
 </style>
 </head>
@@ -201,12 +235,27 @@
     <button id="undoBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/></svg><span data-t>Undo</span></button>
     <button id="clearBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span data-t>Clear all</span></button>
   </div>
-  <div class="board" id="board">
-    <div class="slide" id="slideBox"><img id="slideImg" alt=""><canvas id="pad"></canvas></div>
-    <div class="hint big gone" id="drawHint" data-t>Draw with your finger</div>
-    <div class="hint turn" id="turnHint" data-t>Turn the phone sideways for a bigger slide</div>
+  <div class="dmain">
+    <div class="board" id="board">
+      <div class="slide" id="slideBox"><img id="slideImg" alt=""><canvas id="pad"></canvas></div>
+      <div class="hint big gone" id="drawHint" data-t>Draw with your finger</div>
+      <div class="hint turn" id="turnHint" data-t>Turn the phone sideways for a bigger slide</div>
+    </div>
+    <div class="dsplit" id="drawSplit" role="separator"><i></i></div>
+    <div class="dnotes" id="drawNotes">
+      <div class="dnhead"><span class="label" data-t>Presenter notes</span><button id="notesSmaller">A−</button><button id="notesBigger">A+</button></div>
+      <div class="text" id="drawNotesText"></div>
+    </div>
   </div>
   <div class="tools bottom"><div class="grp" id="swatches"></div><div class="grp" id="sizes"></div></div>
+  <div class="dnav">
+    <button class="dprev" id="drawPrev"></button>
+    <div class="dview">
+      <button id="drawNotesBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg><span data-t>Notes</span></button>
+      <button id="drawSizeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="7" height="7" rx="1.5"/><rect x="12" y="4" width="9" height="12" rx="2"/></svg><span id="drawSizeName"></span></button>
+    </div>
+    <button class="dnext" id="drawNext"></button>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 <script type="module" src="/static/remote.js"></script>
