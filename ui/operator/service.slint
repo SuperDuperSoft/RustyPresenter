@@ -4,14 +4,21 @@ import { Theme } from "../theme.slint";
 import { Btn, Chip, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 import { Select } from "../dialogs/form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
+import { Spinner } from "std-widgets.slint";
 
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
 /// Choose button; a header is a coloured band in `color`.
 /// `custom-order`: a song played in this service's own order (FEAT-4), shown as a "Custom order" badge.
 export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color, custom-order: bool }
 
+/// A file on its way into the service, shown under the list from the drop or pick until it is added or fails.
+/// `percent`: how much is copied (0: not known yet).
+export struct ImportingRow { id: string, label: string, percent: int }
+
 /// Blanks and headers in the service list (FEAT-6a, `src/ui/dialogs/services.rs`).
 export global ServicePlanning {
+    /// "Importing talk.pptx…" rows under the list (`src/ui/operator/files.rs`).
+    in property <[ImportingRow]> importing;
     /// Choose what goes in a blank: opens Add on the blank's kind.
     callback choose(string);
     /// The next colour for a header.
@@ -314,7 +321,49 @@ export component ServiceColumn inherits VerticalLayout {
                 }
             }
 
-            if root.loaded && root.rows.length == 0: empty := VerticalLayout {
+            // Files being imported, each with a spinner, until they are in the list.
+            for job in ServicePlanning.importing: VerticalLayout {
+                padding-bottom: 2px;
+                importing := Rectangle {
+                    height: 44px;
+                    border-radius: 8px;
+                    background: Theme.panel-2;
+                    accessible-role: progress-indicator;
+                    accessible-label: job.label;
+                    accessible-value: job.percent > 0 ? "\{job.percent}%" : "";
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        spacing: 10px;
+                        VerticalLayout {
+                            alignment: center;
+                            Spinner {
+                                width: 20px;
+                                height: 20px;
+                                indeterminate: true;
+                            }
+                        }
+                        Text {
+                            horizontal-stretch: 1;
+                            text: job.label;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+                        if job.percent > 0 && job.percent < 100: Text {
+                            text: "\{job.percent}%";
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: 12px;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            if root.loaded && root.rows.length == 0 && ServicePlanning.importing.length == 0: empty := VerticalLayout {
                 // `.empty`: padding 28px 18px, line-height 1.6; the `<b>` is a 15 px block 4 px above the text.
                 padding-top: 28px;
                 padding-bottom: 28px;

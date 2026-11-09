@@ -32,6 +32,9 @@ pub struct Overlays {
 pub struct JobHandle { op: Weak<Operator>, id: Uuid, percent: Arc<AtomicU8> }
 
 impl JobHandle {
+    /// Its card's id (an "Importing…" row follows its bar).
+    pub fn id(&self) -> Uuid { self.id }
+
     /// Sets the bar (0–100) at once; on the Slint thread.
     pub fn set_percent(&self, percent: u8) {
         self.percent.store(percent.min(100), Ordering::Relaxed);
@@ -112,9 +115,15 @@ impl Operator {
         JobHandle { op: self.me.clone(), id, percent }
     }
 
+    /// How far a client job is, while it runs.
+    pub(super) fn client_percent(&self, id: Uuid) -> Option<u8> {
+        self.overlays.client.borrow().iter().find(|j| j.id == id).map(|j| j.percent.load(Ordering::Relaxed))
+    }
+
     /// `renderJobs()`: client jobs, then the snapshot's. Rows are changed in place, so a card under the mouse
     /// keeps its hover while a bar moves.
     pub(super) fn render_jobs(&self) {
+        self.render_importing();
         let mut rows: Vec<JobRow> = self.overlays.client.borrow().iter().map(|j| JobRow {
             id: j.id.to_string().into(), label: j.label.as_str().into(), percent: j.percent.load(Ordering::Relaxed) as i32, ..JobRow::default()
         }).collect();
