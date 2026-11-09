@@ -855,6 +855,11 @@ mod window_tests {
         testing::will_pick(vec![PathBuf::from("Talk.pptx"), PathBuf::from("Notices.pptx")]);
         crate::ui::dialogs::add::open_add(&op, AddTab::Deck);
         slint::ComponentHandle::global::<crate::ui::AddState>(&op.ui).invoke_import_deck();
+        // Each .pptx asks how it comes in: the first as slides to edit, the second as pictures.
+        assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "How should “Talk.pptx” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint.");
+        ask::answer(&op, true, String::new());
+        ask::answer_other(&op);
+        assert_eq!(crate::ui::ops::testing::PURPOSES.with(|p| p.borrow().clone()), [ImportPurpose::Slides, ImportPurpose::PowerPoint]);
         refresh(&op);
         assert!(items(&app).is_empty(), "both decks are still converting");
         let decks = [("Talk", jobs[0]), ("Notices", jobs[1])].map(|(title, job)| {

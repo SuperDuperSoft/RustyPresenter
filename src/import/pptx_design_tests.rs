@@ -352,3 +352,29 @@ fn not_a_presentation_reads_as_none() {
     let mut put = |_: &[u8], _: &str| None;
     assert!(convert(Cursor::new(b"nope".to_vec()), &mut put).is_none());
 }
+
+#[tokio::test]
+async fn the_job_puts_the_slides_in_the_service_and_says_what_was_lost() {
+    use crate::app::{test_app, ImportPurpose, Imported};
+    let app = test_app();
+    let heart = sp(9, "Heart", "", &(xf(0, 0, 1_219_200, 1_219_200) + r#"<a:prstGeom prst="heart"/><a:solidFill><a:srgbClr val="FF00FF"/></a:solidFill>"#), "");
+    let dir = std::env::temp_dir().join(format!("v11-pptx-{}", Uuid::new_v4()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = dir.join("Welcome.pptx");
+    std::fs::write(&file, pptx(&[(slide_xml(&heart, ""), vec![])], &[0], (12_192_000, 6_858_000))).unwrap();
+    let Imported::Job(job) = app.import_path(&file, ImportPurpose::Slides, |_| {}).await.unwrap() else { panic!("no job") };
+    let began = std::time::Instant::now();
+    while !app.job_ends.lock().unwrap().iter().any(|(j, _)| *j == job) {
+        assert!(began.elapsed() < std::time::Duration::from_secs(20), "timed out");
+        tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+    }
+    let made = app.job_ends.lock().unwrap().iter().find(|(j, _)| *j == job).unwrap().1.expect("made an item");
+    let d = app.data.lock().unwrap().clone();
+    let item = d.service().unwrap().items.iter().find(|i| i.id == made).unwrap().clone();
+    let ItemKind::Design { title, slides } = item.kind else { panic!() };
+    assert_eq!((title.as_str(), slides.len(), slides[0].objects.len()), ("Welcome", 1, 3));
+    assert!(slides[0].assets().iter().all(|a| app.store.asset_path(a).exists()), "the logo is in the store");
+    let card = app.jobs.lock().unwrap().iter().find(|j| j.id == job).cloned().expect("the card stays for its note");
+    assert_eq!(card.note.as_deref(), Some(lost_note(1).as_str()));
+    assert_eq!(lost_note(1), "1 object couldn't be converted; use Pictures for an exact look.");
+}
