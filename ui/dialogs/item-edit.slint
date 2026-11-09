@@ -385,25 +385,6 @@ export component ItemEditDialog inherits VerticalLayout {
                 text <=> ItemEdit.name;
             }
         }
-        if ItemEdit.kind == "deck": Field {
-            label: @tr("Shows as");
-            HorizontalLayout {
-                alignment: start;
-                spacing: 12px;
-                Text {
-                    text: ItemEdit.deck-shows-as;
-                    color: Theme.text;
-                    font-family: Theme.font;
-                    font-size: Theme.base-size;
-                    vertical-alignment: center;
-                }
-                deck-how := Btn {
-                    small: true;
-                    text: @tr("How it shows…");
-                    clicked => { ItemEdit.deck-how(); }
-                }
-            }
-        }
         if ItemEdit.deck-notes.length > 0: Field {
             label: @tr("Speaker notes");
             help: @tr("Shown on the stage screen with each slide");
@@ -462,6 +443,25 @@ export component ItemEditDialog inherits VerticalLayout {
                         text: row.advance;
                         edited(t) => { ItemEdit.deck-advance-edited(i, t); }
                     }
+                }
+            }
+        }
+        if ItemEdit.kind == "deck": Field {
+            label: @tr("Shows as");
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                Text {
+                    text: ItemEdit.deck-shows-as;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                deck-how := Btn {
+                    small: true;
+                    text: @tr("How it shows…");
+                    clicked => { ItemEdit.deck-how(); }
                 }
             }
         }

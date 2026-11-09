@@ -1318,6 +1318,34 @@ mod tests {
     }
 
     #[test]
+    fn a_deck_says_how_it_shows_and_asks_to_change_it() {
+        use slint::Model;
+        let app = test_app();
+        let show = crate::model::DeckShow { file: "talk.pptx".into(), run: true };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: Some(show) };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert_eq!(op.ui.global::<ItemEdit>().get_deck_shows_as(), "Run in PowerPoint");
+        op.ui.global::<ItemEdit>().invoke_deck_how();
+        settle();
+        assert_eq!(op.dialog(), None, "the question replaces the dialog");
+        let row = op.ui.get_ask().row_data(0).unwrap();
+        assert_eq!(row.text, "How should “Talk” show? Editable slides and a deck without its file come in again from the presentation.");
+        assert!(!row.third_enabled, "no PowerPoint on this computer");
+        // Pictures: the kept file stays, only the deck's mode changes.
+        crate::ui::dialogs::ask::answer_other(&op);
+        let began = std::time::Instant::now();
+        while app.data.lock().unwrap().decks[0].show.as_ref().unwrap().run && began.elapsed() < std::time::Duration::from_secs(5) {
+            settle();
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        assert_eq!(app.data.lock().unwrap().decks[0].show, Some(crate::model::DeckShow { file: "talk.pptx".into(), run: false }));
+    }
+
+    #[test]
     fn deck_slide_transitions_are_shown_changed_and_used_for_all() {
         use crate::design::{Dir, Transition, TransitionKind};
         let app = test_app();
