@@ -666,7 +666,7 @@ msgstr "停止"
 msgid "Preview animations"
 msgstr "アニメーションのプレビュー"
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr "メモ"
 
@@ -4598,6 +4598,37 @@ msgstr "ステージから取り下げる"
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
 msgstr "発表者メモ"
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr "メモの文字を大きく"
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr "メモの文字を小さく"
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr "ドラッグしてメモの大きさを変えます"
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr "ボタンの大きさ"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr "小"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr "標準"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
+msgstr "大"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"

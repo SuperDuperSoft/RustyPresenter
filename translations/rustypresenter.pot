@@ -672,7 +672,7 @@ msgstr ""
 msgid "Preview animations"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr ""
 
@@ -4609,6 +4609,37 @@ msgstr ""
 
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr ""
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
 msgstr ""
 
 #: src/i18n/remote_strings.rs

@@ -666,7 +666,7 @@ msgstr "Стоп"
 msgid "Preview animations"
 msgstr "Попередній перегляд анімації"
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr "Нотатки"
 
@@ -4598,6 +4598,37 @@ msgstr "Прибрати зі сцени"
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
 msgstr "Нотатки доповідача"
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr "Більший текст нотаток"
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr "Менший текст нотаток"
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr "Перетягніть, щоб збільшити чи зменшити нотатки"
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr "Розмір кнопок"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr "Компактні"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr "Звичайні"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
+msgstr "Великі"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"

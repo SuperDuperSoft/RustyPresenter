@@ -666,7 +666,7 @@ msgstr "Kanpe"
 msgid "Preview animations"
 msgstr "Apèsi animasyon yo"
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr "Nòt"
 
@@ -4598,6 +4598,37 @@ msgstr "Retire l sou sèn nan"
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
 msgstr "Nòt prezantatè"
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr "Nòt pi gwo"
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr "Nòt pi piti"
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr "Rale pou fè nòt yo pi gwo oswa pi piti"
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr "Gwosè bouton"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr "Kontra"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr "Nòmal"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
+msgstr "Gwo"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"

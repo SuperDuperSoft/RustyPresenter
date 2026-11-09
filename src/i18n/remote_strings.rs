@@ -2,7 +2,7 @@
 //! each one up by its English text with `t('…')`; a test in `server.rs` checks that every one is listed here.
 //! Words the server makes itself (errors, "3 slides") are translated where they are made.
 
-use crate::tr;
+use crate::{tr, trc};
 
 /// `(English, the current language)` for every word of the phone remote.
 pub fn remote_strings() -> Vec<(&'static str, String)> {
@@ -39,6 +39,16 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Take it off the stage", tr!("Take it off the stage")),
         // Presenter notes on the phone (from PowerPoint or the slide's notes).
         ("Presenter notes", tr!("Presenter notes")),
+        // Drawing view (draw.js): notes panel and sizes.
+        ("Notes", tr!("Notes")),
+        ("Bigger notes text", tr!("Bigger notes text")),
+        ("Smaller notes text", tr!("Smaller notes text")),
+        ("Drag to make the notes bigger or smaller", tr!("Drag to make the notes bigger or smaller")),
+        ("Button size", tr!("Button size")),
+        // Button sizes, shown by name (draw.js SIZE_NAMES).
+        ("Compact", trc!("button size", "Compact")),
+        ("Normal", trc!("button size", "Normal")),
+        ("Big", trc!("button size", "Big")),
         ("Stage screen only (the room won't see it)", tr!("Stage screen only (the room won't see it)")),
         // remote.js
         ("Hide message", tr!("Hide message")),

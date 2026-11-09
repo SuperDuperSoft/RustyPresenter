@@ -666,7 +666,7 @@ msgstr "Detener"
 msgid "Preview animations"
 msgstr "Vista previa de animaciones"
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr "Notas"
 
@@ -4598,6 +4598,37 @@ msgstr "Quitarla del escenario"
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
 msgstr "Notas del presentador"
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr "Notas más grandes"
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr "Notas más pequeñas"
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr "Arrastra para agrandar o achicar las notas"
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr "Tamaño de botones"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr "Compacto"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr "Normal"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
+msgstr "Grande"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"

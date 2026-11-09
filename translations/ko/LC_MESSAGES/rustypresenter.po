@@ -666,7 +666,7 @@ msgstr "정지"
 msgid "Preview animations"
 msgstr "애니메이션 미리 보기"
 
-#: ui/dialogs/design-editor.slint src/strings/stage.rs
+#: ui/dialogs/design-editor.slint src/i18n/remote_strings.rs src/strings/stage.rs
 msgid "Notes"
 msgstr "메모"
 
@@ -4598,6 +4598,37 @@ msgstr "무대에서 내리기"
 #: src/i18n/remote_strings.rs
 msgid "Presenter notes"
 msgstr "발표자 메모"
+
+#: src/i18n/remote_strings.rs
+msgid "Bigger notes text"
+msgstr "메모 글자 크게"
+
+#: src/i18n/remote_strings.rs
+msgid "Smaller notes text"
+msgstr "메모 글자 작게"
+
+#: src/i18n/remote_strings.rs
+msgid "Drag to make the notes bigger or smaller"
+msgstr "끌어서 메모 크기를 바꾸세요"
+
+#: src/i18n/remote_strings.rs
+msgid "Button size"
+msgstr "버튼 크기"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Compact"
+msgstr "작게"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Normal"
+msgstr "보통"
+
+#: src/i18n/remote_strings.rs
+msgctxt "button size"
+msgid "Big"
+msgstr "크게"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
