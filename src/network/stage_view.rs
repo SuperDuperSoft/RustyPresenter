@@ -268,7 +268,7 @@ mod tests {
     #[tokio::test]
     async fn picture_and_designed_slides_show_their_pictures() {
         let app = test_app();
-        let deck = crate::model::Deck { id: uuid::Uuid::new_v4(), title: "Talk".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        let deck = crate::model::Deck { id: uuid::Uuid::new_v4(), title: "Talk".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         show(&app, crate::model::ItemKind::Deck { deck_id: deck.id });
         assert_eq!(slide_boxes(&app), [("picture".into(), "live".into()), ("picture".into(), "next".into())], "not \"(slide picture)\"");

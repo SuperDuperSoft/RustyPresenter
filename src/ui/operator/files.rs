@@ -12,6 +12,7 @@ use crate::{
     import::{CANCELLED, deck::DECK_EXT, media},
     model::{AssetId, Deck, ItemKind, ServiceItem},
     platform::winit_events::{self, Dispatcher, WindowEvent},
+    pplive::strings as pplive,
     ui::{ImportingRow, ServicePlanning, dialogs},
 };
 use slint::{ComponentHandle, Model, ModelRc, Timer, VecModel};
@@ -119,6 +120,8 @@ pub fn deck_title(answer: Option<&str>) -> String {
 pub struct FilesState {
     watches: RefCell<Vec<DeckWatch>>,
     drop: RefCell<DropBatch>,
+    /// 1.2: imports that replace a deck item when they end (Item edit → How it shows…): job, item, its title.
+    replacing: RefCell<Vec<(Uuid, Uuid, String)>>,
     #[cfg_attr(test, allow(dead_code))]
     last_folder: RefCell<Option<PathBuf>>,
     events: Dispatcher<WindowEvent>,
@@ -257,13 +260,14 @@ fn add_song(op: &Rc<Operator>, id: Uuid, toast: String, then: impl FnOnce(&Rc<Op
 
 fn next_file(op: &Rc<Operator>, mut rest: VecDeque<(PathBuf, ImportRow)>) {
     let Some((path, row)) = rest.pop_front() else { return op.dialog_refresh() };
-    // A .pptx or .odp can come in as slides to edit (1.1) or as pictures: asked each time; Cancel skips the file.
+    // A .pptx or .odp can come in as slides to edit (1.1), as pictures, or to run in PowerPoint (1.2, Windows with
+    // PowerPoint only; greyed elsewhere with the reason): asked each time; Cancel skips the file.
     if crate::import::pptx_text::EXT.contains(&ext(&path).as_str()) || ext(&path) == "odp" {
         let me = Rc::downgrade(op);
-        dialogs::choose(op, &tr::pptx_how(&file_name(&path)), &tr::editable_slides(), &tr::as_pictures(), move |answer| {
+        ask_how(op, &pplive::how(&file_name(&path)), move |purpose| {
             let Some(op) = me.upgrade() else { return };
-            match answer {
-                Some(editable) => import_file(&op, path, row, if editable { ImportPurpose::Slides } else { ImportPurpose::PowerPoint }, rest),
+            match purpose {
+                Some(purpose) => import_file(&op, path, row, purpose, rest),
                 None => { drop(row); next_file(&op, rest) }
             }
         });
@@ -271,6 +275,15 @@ fn next_file(op: &Rc<Operator>, mut rest: VecDeque<(PathBuf, ImportRow)>) {
     }
     let purpose = route(&path).purpose();
     import_file(op, path, row, purpose, rest);
+}
+
+/// Editable slides, Pictures or Run in PowerPoint. `done(None)` on Cancel.
+fn ask_how(op: &Rc<Operator>, question: &str, done: impl FnOnce(Option<ImportPurpose>) + 'static) {
+    let why = (!op.app().can_run_powerpoint()).then(pplive::needs_powerpoint);
+    let answers = [tr::editable_slides(), tr::as_pictures(), pplive::run_in_powerpoint()];
+    dialogs::choose3(op, question, answers.each_ref().map(String::as_str), why.as_deref(), move |answer| {
+        done(answer.map(|n| [ImportPurpose::Slides, ImportPurpose::PowerPoint, ImportPurpose::Show][n]))
+    });
 }
 
 fn import_file(op: &Rc<Operator>, path: PathBuf, row: ImportRow, purpose: ImportPurpose, rest: VecDeque<(PathBuf, ImportRow)>) {
@@ -342,19 +355,129 @@ impl Operator {
     pub(super) fn watch_decks(&self) {
         let Some(op) = self.me.upgrade() else { return };
         let Some(s) = self.state.borrow().snap.clone() else { return };
-        let (mut ready, mut added) = (VecDeque::new(), Vec::new());
+        let (mut ready, mut added, mut replaced) = (VecDeque::new(), Vec::new(), Vec::new());
         let items = s.data.service().map(|sv| sv.items.as_slice()).unwrap_or(&[]);
         let mut over = Vec::new();
-        self.files.watches.borrow_mut().retain(|w| match w.step(&s.job_ends, &s.data.decks, items) {
-            DeckWatchStep::Wait => true,
-            DeckWatchStep::Nothing => { over.push(w.0); false }
-            DeckWatchStep::Added(title) => { over.push(w.0); added.push(title); false }
-            DeckWatchStep::Ready(id, title) => { ready.push_back((id, title, w.0)); false }
+        let mut replacing = self.files.replacing.borrow_mut();
+        self.files.watches.borrow_mut().retain(|w| {
+            let step = w.step(&s.job_ends, &s.data.decks, items);
+            if step == DeckWatchStep::Wait { return true }
+            if let Some(at) = replacing.iter().position(|(job, ..)| *job == w.0) {
+                let (_, item, title) = replacing.remove(at);
+                let made = s.job_ends.iter().find(|(job, _)| *job == w.0).and_then(|(_, made)| *made);
+                let index = items.iter().position(|i| i.id == item);
+                if let (Some(made), Some(index), DeckWatchStep::Ready(..) | DeckWatchStep::Added(_)) = (made, index, &step) {
+                    replaced.push((item, index, title, made, matches!(step, DeckWatchStep::Added(_))));
+                }
+                // Its row goes now: the item it replaces is already in the service.
+                over.push(w.0);
+                return false;
+            }
+            match step {
+                DeckWatchStep::Wait => true,
+                DeckWatchStep::Nothing => { over.push(w.0); false }
+                DeckWatchStep::Added(title) => { over.push(w.0); added.push(title); false }
+                DeckWatchStep::Ready(id, title) => { ready.push_back((id, title, w.0)); false }
+            }
         });
+        drop(replacing);
         for job in over { self.end_import_job(job) }
         for title in added { op.toast(tr::deck_ready(&title), false) }
         add_decks(&op, ready);
+        for (item, index, title, made, design) in replaced { replace_item(&op, item, index, title, made, design) }
     }
+}
+
+/// Item edit → How it shows… (1.2): Editable slides, Pictures or Run in PowerPoint for deck item `item_id`.
+/// Pictures ↔ Run in PowerPoint only flips the deck when its file is kept; otherwise, and for Editable slides,
+/// the presentation comes in again (from the kept file, or one the operator picks) and takes the item's place.
+pub fn switch_deck(op: &Rc<Operator>, item_id: Uuid) {
+    let Some(snap) = op.state.borrow().snap.clone() else { return };
+    let deck = snap.data.service().and_then(|s| s.items.iter().find(|i| i.id == item_id)).and_then(|i| match i.kind {
+        ItemKind::Deck { deck_id } => snap.data.decks.iter().find(|d| d.id == deck_id).cloned(),
+        _ => None,
+    });
+    let Some(deck) = deck else { return };
+    let me = Rc::downgrade(op);
+    ask_how(op, &pplive::switch(&deck.title), move |purpose| {
+        let Some(op) = me.upgrade() else { return };
+        let Some(purpose) = purpose else { return };
+        match (purpose, &deck.show) {
+            (ImportPurpose::PowerPoint, None) => {}
+            (ImportPurpose::PowerPoint | ImportPurpose::Show, Some(_)) => {
+                let run = purpose == ImportPurpose::Show;
+                let toast = if run { pplive::now_runs(&deck.title) } else { pplive::now_pictures(&deck.title) };
+                let me = Rc::downgrade(&op);
+                op.ops.call::<serde_json::Value>("deck/show", json!({ "id": deck.id, "run": run }), move |r| {
+                    let Some(op) = me.upgrade() else { return };
+                    match r { Ok(_) => op.toast(toast, false), Err(e) => op.toast(e, true) }
+                });
+            }
+            _ => match deck.show.as_ref().map(|s| op.app().store.asset_path(&s.file)) {
+                Some(kept) => reimport(&op, kept, purpose, item_id, deck.title.clone()),
+                None => {
+                    op.toast(pplive::choose_file_again(&deck.title), false);
+                    let me = Rc::downgrade(&op);
+                    let title = deck.title.clone();
+                    pick(&op, Filter::PowerPoint, false, move |paths| {
+                        let (Some(op), Some(path)) = (me.upgrade(), paths.into_iter().next()) else { return };
+                        reimport(&op, path, purpose, item_id, title);
+                    });
+                }
+            },
+        }
+    });
+}
+
+/// Imports `path` for deck item `item_id`; `watch_decks` puts the result in its place.
+fn reimport(op: &Rc<Operator>, path: PathBuf, purpose: ImportPurpose, item_id: Uuid, title: String) {
+    let row = ImportRow::new(op, tr::importing_file(&title));
+    let me = Rc::downgrade(op);
+    op.ops.import(path, purpose, |_| {}, move |r| {
+        let Some(op) = me.upgrade() else { return };
+        match r {
+            Ok(Imported::Job(job)) => {
+                row.until_job(job);
+                op.files.replacing.borrow_mut().push((job, item_id, title));
+                op.files.watches.borrow_mut().push(DeckWatch(job));
+                op.watch_decks();
+            }
+            Err(e) if e == CANCELLED => {}
+            Err(e) => op.toast(tr::file_failed(&title, &e), true),
+            Ok(_) => op.toast(tr::action_stopped(), true),
+        }
+    });
+}
+
+/// Puts what a re-import made in item `item`'s place (it was at `index`), with the old title: a deck goes into the
+/// item itself; editable slides came in as an item of their own, which moves there while the old item goes.
+fn replace_item(op: &Rc<Operator>, item: Uuid, index: usize, title: String, made: Uuid, design: bool) {
+    let named = json!({ "id": made, "title": title.clone() });
+    let me = Rc::downgrade(op);
+    let done = move |r: Result<serde_json::Value, String>| {
+        let Some(op) = me.upgrade() else { return };
+        match r { Ok(_) => op.toast(tr::deck_ready(&title), false), Err(e) => op.toast(e, true) }
+    };
+    if !design {
+        let rename = named;
+        let me = Rc::downgrade(op);
+        return op.ops.call::<serde_json::Value>("service/update", json!({ "id": item, "kind": "deck", "deck_id": made }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            if let Err(e) = r { return op.toast(e, true) }
+            op.ops.call::<serde_json::Value>("deck/rename", rename, done);
+        });
+    }
+    let me = Rc::downgrade(op);
+    op.ops.call::<serde_json::Value>("service/move", json!({ "id": made, "to": index }), move |r| {
+        let Some(op) = me.upgrade() else { return };
+        if let Err(e) = r { return op.toast(e, true) }
+        let me = Rc::downgrade(&op);
+        op.ops.call::<serde_json::Value>("service/remove", json!({ "id": item }), move |r| {
+            let Some(op) = me.upgrade() else { return };
+            if let Err(e) = r { return op.toast(e, true) }
+            op.ops.call::<serde_json::Value>("service/update", named, done);
+        });
+    });
 }
 
 /// Adds each finished deck (with the job that made it), with its own "“T” is ready" toast.
@@ -862,8 +985,8 @@ mod window_tests {
     #[test]
     fn deck_watch_takes_only_its_own_result() {
         let (job, other) = (Uuid::new_v4(), Uuid::new_v4());
-        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
-        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        let old = Deck { id: Uuid::new_v4(), title: "Old".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
+        let new = Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         let w = DeckWatch(job);
         assert_eq!(w.step(&[(other, Some(old.id))], &[old.clone(), new.clone()], &[]), DeckWatchStep::Wait, "another job's end, and a new deck that may be anyone's");
         assert_eq!(w.step(&[(job, Some(new.id))], std::slice::from_ref(&old), &[]), DeckWatchStep::Wait, "a read that has the end but not yet the deck");
@@ -900,7 +1023,7 @@ mod window_tests {
         let op = opened(&app);
         let (bad, stopped) = (app.job_start("a"), app.job_start_cancellable("b").0);
         op.files.watches.borrow_mut().extend([DeckWatch(bad), DeckWatch(stopped)]);
-        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Someone else's".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+        app.edit(|d| { d.decks.push(Deck { id: Uuid::new_v4(), title: "Someone else's".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
         app.job_end(bad, Some("No.".into()));
         app.job_end_cancelled(stopped);
         refresh(&op);
@@ -928,7 +1051,7 @@ mod window_tests {
         refresh(&op);
         assert!(items(&app).is_empty(), "still converting");
         let id = Uuid::new_v4();
-        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
         app.job_result(job, id);
         app.job_end(job, None);
         refresh(&op);
@@ -941,7 +1064,7 @@ mod window_tests {
     #[test]
     fn import_powerpoint_adds_only_the_decks_its_jobs_made() {
         let app = test_app();
-        let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        let old = Deck { id: Uuid::new_v4(), title: "Last week".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         app.edit(|d| { d.decks.push(old.clone()); Ok(()) }).unwrap();
         let op = opened(&app);
         let jobs = [app.job_start("Importing “Talk” from PowerPoint"), app.job_start("Importing “Notices” from PowerPoint")];
@@ -950,7 +1073,11 @@ mod window_tests {
         crate::ui::dialogs::add::open_add(&op, AddTab::Deck);
         slint::ComponentHandle::global::<crate::ui::AddState>(&op.ui).invoke_import_deck();
         // Each .pptx asks how it comes in: the first as slides to edit, the second as pictures.
-        assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "How should “Talk.pptx” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint.");
+        let row = op.ui.get_ask().row_data(0).unwrap();
+        assert_eq!(row.text, "How should “Talk.pptx” come in? Editable slides can be changed in the slide editor. Pictures look exactly like PowerPoint. Run in PowerPoint plays every animation, transition and video in PowerPoint itself.");
+        // No PowerPoint here: the third answer is greyed and says why.
+        assert_eq!((row.third_label.as_str(), row.third_enabled), ("Run in PowerPoint", false));
+        assert_eq!(row.third_note, "Run in PowerPoint needs Microsoft PowerPoint on a Windows computer.");
         ask::answer(&op, true, String::new());
         ask::answer_other(&op);
         assert_eq!(crate::ui::ops::testing::PURPOSES.with(|p| p.borrow().clone()), [ImportPurpose::Slides, ImportPurpose::PowerPoint]);
@@ -958,7 +1085,7 @@ mod window_tests {
         assert!(items(&app).is_empty(), "both decks are still converting");
         let decks = [("Talk", jobs[0]), ("Notices", jobs[1])].map(|(title, job)| {
             let id = Uuid::new_v4();
-            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+            app.edit(|d| { d.decks.push(Deck { id, title: title.into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
             app.job_result(job, id);
             app.job_end(job, None);
             refresh(&op);
@@ -992,7 +1119,7 @@ mod window_tests {
         refresh(&op);
         assert_eq!(op.ui.global::<ServicePlanning>().get_importing().row_data(0).unwrap().percent, 40, "the job's progress");
         let id = Uuid::new_v4();
-        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] }); Ok(()) }).unwrap();
+        app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
         app.job_result(job, id);
         app.job_end(job, None);
         refresh(&op);
@@ -1022,6 +1149,20 @@ mod window_tests {
         app.job_end(job, Some("No.".into()));
         refresh(&op);
         assert!(importing(&op).is_empty());
+    }
+
+    #[test]
+    fn with_powerpoint_a_pptx_can_come_in_to_run_in_powerpoint() {
+        let app = test_app();
+        app.install_show_host(Box::new(crate::pplive::fake::FakeHost::with_clicks(&[0])));
+        let op = opened(&app);
+        let job = app.job_start("Importing “Talk” from PowerPoint");
+        crate::ui::ops::testing::will_import(Ok(Imported::Job(job)));
+        add_files(&op, vec![PathBuf::from("Talk.pptx")]);
+        assert!(op.ui.get_ask().row_data(0).unwrap().third_enabled);
+        ask::answer_third(&op);
+        assert_eq!(crate::ui::ops::testing::PURPOSES.with(|p| p.borrow().clone()), [ImportPurpose::Show]);
+        assert_eq!(*op.files.watches.borrow(), [DeckWatch(job)]);
     }
 
     fn hint_shown(op: &Operator) -> bool { find(op, "DropHint::box").is_some() }

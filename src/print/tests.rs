@@ -14,7 +14,7 @@ fn sample() -> (Data, Service) {
         copyright: "Public Domain".into(), lyrics: LYRICS.into(), arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into(), "Chorus".into()], ..Default::default() };
     let media = MediaFile { id: Uuid::new_v4(), name: "Walk-in".into(), kind: MediaKind::Video, asset: "a.mp4".into(), status: MediaStatus::Ready,
         original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-    let deck = Deck { id: Uuid::new_v4(), title: "Sermon".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+    let deck = Deck { id: Uuid::new_v4(), title: "Sermon".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
     let mut s = Service::new("Sunday 11/8/2026");
     s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 8);
     s.items = vec![

@@ -12,6 +12,10 @@ export struct AskRow {
     /// A second answer beside OK (`ask::choose`). Empty for none.
     other-label: string,
     danger: bool,
+    /// A third answer (`ask::choose3`, 1.2). Empty for none. Greyed unless `third-enabled`, with `third-note` saying why.
+    third-label: string,
+    third-enabled: bool,
+    third-note: string,
 }
 
 /// Enter = OK, Esc = Cancel. Esc cancels only this question: the dialog under it stays open.
@@ -21,6 +25,8 @@ export component AskOverlay inherits Rectangle {
     callback answer(bool, string);
     /// The `other-label` button.
     callback other();
+    /// The `third-label` button.
+    callback third();
 
     property <string> typed: root.ask.value;
 
@@ -83,6 +89,13 @@ export component AskOverlay inherits Rectangle {
                     font-size: 15px;
                     wrap: word-wrap;
                 }
+                if root.ask.third-label != "" && !root.ask.third-enabled && root.ask.third-note != "": Text {
+                    text: root.ask.third-note;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
                 if root.ask.prompt: Rectangle {
                     height: 38px;
                     background: Theme.bg;
@@ -132,6 +145,12 @@ export component AskOverlay inherits Rectangle {
                     if root.ask.other-label != "": other := Btn {
                         text: root.ask.other-label;
                         clicked => { root.other(); }
+                    }
+                    if root.ask.third-label != "": third := Btn {
+                        text: root.ask.third-label;
+                        enabled: root.ask.third-enabled;
+                        tooltip: root.ask.third-enabled ? "" : root.ask.third-note;
+                        clicked => { root.third(); }
                     }
                     ok := Btn {
                         text: root.ask.ok-label;

@@ -478,6 +478,17 @@ impl Live {
         outcome
     }
 
+    /// The outcome of command `id` if it was already applied (`pplive` answers Next itself and keeps this list too).
+    pub(crate) fn seen_outcome(&self, id: &str) -> Option<Outcome> {
+        self.seen.iter().find(|(seen, _)| seen == id).map(|(_, o)| Outcome { duplicate: true, ..o.clone() })
+    }
+
+    /// Remembers command `id` as applied elsewhere, so a second delivery is a duplicate.
+    pub(crate) fn note_seen(&mut self, id: String, outcome: Outcome) {
+        self.seen.push_back((id, outcome));
+        if self.seen.len() > SEEN { self.seen.pop_front(); }
+    }
+
     /// Runs several steps as one change (FEAT-2 macros): one version bump, one history snapshot. Each step runs
     /// against its own checkpoint, so a failed step leaves nothing behind and the later steps still run. Show
     /// steps are skipped when `seen_clear` is older than the clears at the start (the batch's own clears don't

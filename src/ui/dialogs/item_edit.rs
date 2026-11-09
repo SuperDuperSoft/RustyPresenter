@@ -76,6 +76,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_has_name(false);
     g.set_name("".into());
     g.set_deck_notes(ModelRc::default());
+    g.set_deck_shows_as("".into());
     let mut deck_notes = None;
     g.set_not_ready(false);
     g.set_translation("".into());
@@ -140,6 +141,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
             g.set_has_name(true);
             g.set_name(d.title.as_str().into());
             name = Some(Name::Deck { id: d.id, was: d.title.clone() });
+            g.set_deck_shows_as(if d.runs_in_powerpoint().is_some() { crate::pplive::strings::run_in_powerpoint() } else { crate::ui::operator::strings::as_pictures() }.into());
             let rows = Rc::new(VecModel::from((0..d.slides.len()).map(|i| with_transition(DeckNoteRow {
                 label: crate::tr!("Slide {n}", n = i + 1).into(),
                 notes: d.notes.get(i).map_or("", String::as_str).into(),
@@ -187,6 +189,12 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
         move || if let (Some(op), Some(edit)) = (me.upgrade(), edit.upgrade()) { f(&op, &edit) }
     };
     g.on_save(with(save));
+    // 1.2: How it shows… leaves the dialog (as Cancel does) for the question, which may bring the file in again.
+    g.on_deck_how(with(|op, edit| {
+        let id = edit.borrow().item.id;
+        op.close_dialog();
+        crate::ui::operator::files::switch_deck(op, id);
+    }));
     g.on_choose_breaks(with(|op, edit| save_then(op, edit, true)));
     g.on_remove(with(remove));
     g.on_edit_song(with(edit_song));
@@ -1272,7 +1280,7 @@ mod tests {
         assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise");
 
         // Slides: "Name" renames the deck.
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         refresh(&op);
@@ -1285,7 +1293,7 @@ mod tests {
     #[test]
     fn deck_speaker_notes_are_edited_per_slide() {
         let app = test_app();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![], advance_ms: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![], advance_ms: vec![], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1311,11 +1319,39 @@ mod tests {
     }
 
     #[test]
+    fn a_deck_says_how_it_shows_and_asks_to_change_it() {
+        use slint::Model;
+        let app = test_app();
+        let show = crate::model::DeckShow { file: "talk.pptx".into(), run: true };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: Some(show) };
+        app.data.lock().unwrap().decks.push(deck.clone());
+        let id = push(&app, ItemKind::Deck { deck_id: deck.id });
+        let op = opened(&app);
+        open(&op, id);
+        settle();
+        assert_eq!(op.ui.global::<ItemEdit>().get_deck_shows_as(), "Run in PowerPoint");
+        op.ui.global::<ItemEdit>().invoke_deck_how();
+        settle();
+        assert_eq!(op.dialog(), None, "the question replaces the dialog");
+        let row = op.ui.get_ask().row_data(0).unwrap();
+        assert_eq!(row.text, "How should “Talk” show? Editable slides and a deck without its file come in again from the presentation.");
+        assert!(!row.third_enabled, "no PowerPoint on this computer");
+        // Pictures: the kept file stays, only the deck's mode changes.
+        crate::ui::dialogs::ask::answer_other(&op);
+        let began = std::time::Instant::now();
+        while app.data.lock().unwrap().decks[0].show.as_ref().unwrap().run && began.elapsed() < std::time::Duration::from_secs(5) {
+            settle();
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        assert_eq!(app.data.lock().unwrap().decks[0].show, Some(crate::model::DeckShow { file: "talk.pptx".into(), run: false }));
+    }
+
+    #[test]
     fn deck_slide_transitions_are_shown_changed_and_used_for_all() {
         use crate::design::{Dir, Transition, TransitionKind};
         let app = test_app();
         let pushed = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)], advance_ms: vec![] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)], advance_ms: vec![], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1354,7 +1390,7 @@ mod tests {
     #[test]
     fn use_for_all_slides_also_copies_the_auto_advance_time() {
         let app = test_app();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(4000)] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(4000)], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
@@ -1372,7 +1408,7 @@ mod tests {
     #[test]
     fn deck_slide_auto_advance_is_shown_typed_and_saved() {
         let app = test_app();
-        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![Some(5000), Some(2500)] };
+        let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![Some(5000), Some(2500)], show: None };
         app.data.lock().unwrap().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);

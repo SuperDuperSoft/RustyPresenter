@@ -589,7 +589,7 @@ mod tests {
         image::RgbaImage::from_pixel(32, 18, image::Rgba([200, 30, 30, 255])).save(app.store.asset_path("s1.png")).unwrap();
         {
             let mut data = app.data.lock().unwrap();
-            let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![] };
+            let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
             data.decks.push(deck);
             data.services[0].items.push(item);

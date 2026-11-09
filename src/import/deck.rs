@@ -8,7 +8,7 @@ use super::{
 };
 use crate::{
     app::App,
-    model::{AssetId, Deck},
+    model::{AssetId, Deck, DeckShow},
     platform::tools::{self, Soffice},
 };
 use std::path::{Path, PathBuf};
@@ -111,11 +111,14 @@ impl Converters {
 
 /// Start importing `file`, and return the job. `file` is the staged copy, which this import owns, or a folder (a
 /// Keynote package), which is the operator's and stays.
-pub fn start(app: Arc<App>, file: PathBuf, display: String) -> Uuid {
+pub fn start(app: Arc<App>, file: PathBuf, display: String) -> Uuid { start_as(app, file, display, false) }
+
+/// `start`, and with `run` (1.2) the deck keeps its file and runs in PowerPoint on the room screen.
+pub fn start_as(app: Arc<App>, file: PathBuf, display: String, run: bool) -> Uuid {
     let label = strings::importing(&display);
     let (job, token) = app.job_start_cancellable(&label);
     tokio::spawn(async move {
-        let import = Import { app: &app, job, label, cancel: token };
+        let import = Import { app: &app, job, label, cancel: token, run };
         let result = import.run(&file, display).await;
         // `run` moves it unless it stopped early. Never a folder: `remove_file` refuses one.
         let _ = std::fs::remove_file(&file);
@@ -134,6 +137,8 @@ struct Import<'a> {
     job: Uuid,
     label: String,
     cancel: CancellationToken,
+    /// Keep the file and run it in PowerPoint (1.2).
+    run: bool,
 }
 
 /// What a conversion made, and what the operator should hear about it.
@@ -169,7 +174,7 @@ impl Import<'_> {
         let (transitions, advance) = transitions_off_thread(&input, notes::format(&kind)).await;
 
         let made = match route {
-            Route::Pdf => Made { slides: self.render(&converters, input, work.path(), None).await?, note: None },
+            Route::Pdf => Made { slides: self.render(&converters, input.clone(), work.path(), None).await?, note: None },
             Route::LibreOffice => self.by_libreoffice(&converters, &kind, &input, work.path(), false).await?,
             Route::PowerPoint { fallback } => self.by_powerpoint(&converters, &kind, &input, work.path(), fallback && has_pdfium).await?,
             Route::Missing => unreachable!("answered above"),
@@ -181,8 +186,9 @@ impl Import<'_> {
         let transitions = super::transitions::line_up(transitions, made.slides.len());
         let advance_ms = crate::model::deck_advance(super::transitions::line_up(advance, made.slides.len()), made.slides.len());
         let slides = self.publish(made.slides).await?;
+        let show = if self.run && runs_in_powerpoint(&kind) { Some(self.keep(&input, &kind).await?) } else { None };
         let id = Uuid::new_v4();
-        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone(), notes: notes.clone(), transitions: transitions.clone(), advance_ms: advance_ms.clone() }); Ok(()) })?;
+        self.app.edit(|d| { d.decks.push(Deck { id, title: display.clone(), slides: slides.clone(), notes: notes.clone(), transitions: transitions.clone(), advance_ms: advance_ms.clone(), show: show.clone() }); Ok(()) })?;
         self.app.job_result(self.job, id);
         if let Some(note) = made.note {
             self.app.job_note(self.job, note);
@@ -241,6 +247,14 @@ impl Import<'_> {
         renderer.render(pdf, out, ratio, progress, self.cancel.clone()).await
     }
 
+    /// The presentation itself into the store, to run in PowerPoint.
+    async fn keep(&self, input: &Path, kind: &Kind) -> Result<DeckShow, String> {
+        let (app, input, ext) = (self.app.clone(), input.to_path_buf(), sniff::staged_ext(kind).ok_or(not_presentation())?);
+        let file = tokio::task::spawn_blocking(move || app.store.import_file(&input, ext)).await.map_err(|_| slide_not_saved())?.map_err(|_| slide_not_saved())?;
+        if self.cancel.is_cancelled() { return Err(CANCELLED.to_string()) }
+        Ok(DeckShow { file, run: true })
+    }
+
     /// Off the async threads: a big deck is a lot of hashing.
     async fn publish(&self, slides: Vec<PathBuf>) -> Result<Vec<AssetId>, String> {
         let (app, job, cancel) = (self.app.clone(), self.job, self.cancel.clone());
@@ -287,6 +301,9 @@ async fn sniff_off_thread(file: PathBuf) -> Result<Kind, String> {
         }
     }
 }
+
+/// PowerPoint can run a slide show of these (not a PDF or a Keynote file).
+pub fn runs_in_powerpoint(kind: &Kind) -> bool { matches!(kind, Kind::Ooxml { .. } | Kind::Ppt | Kind::Odp) }
 
 /// Staged files are already in `tmp`, so this is a rename unless something odd is going on.
 fn move_or_copy(from: &Path, to: &Path) -> std::io::Result<()> {
