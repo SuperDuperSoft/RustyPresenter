@@ -134,7 +134,7 @@ fn builds_number_in_order_and_move() {
     let b = e.add_text().unwrap();
     let c = e.add_text().unwrap();
     for id in [a, b, c] { e.sel = vec![id]; e.set_build(true); }
-    let build = |e: &Editor, id| e.slide().objects.iter().find(|o| o.id == id).unwrap().build;
+    let build = |e: &Editor, id| e.slide().click_of(id);
     assert_eq!((build(&e, a), build(&e, b), build(&e, c)), (1, 2, 3));
     e.sel = vec![a];
     e.set_build(false);

@@ -61,8 +61,9 @@ fn set_motion(ui: &OperatorWindow, t: Option<Transition>, p: f32) {
         // Through black: the old slide goes dark, then the new one comes up out of it.
         Some((TransitionKind::Black, _)) if p < 0.5 => (1.0, 0.0, still(), still(), p * 2.0),
         Some((TransitionKind::Black, _)) => (0.0, 1.0, still(), still(), 2.0 - p * 2.0),
-        Some((kind @ (TransitionKind::Push | TransitionKind::Wipe), dir)) => (1.0, 1.0, crate::ui::room::geo(kind, dir, p, false), crate::ui::room::geo(kind, dir, p, true), 0.0),
+        Some((kind, dir)) if kind.moves() => (1.0, 1.0, crate::ui::room::geo(kind, dir, p, false), crate::ui::room::geo(kind, dir, p, true), 0.0),
         Some((TransitionKind::Cut, _)) | None => (0.0, 1.0, still(), still(), 0.0),
+        Some(_) => (1.0 - p, p, still(), still(), 0.0),
     };
     ui.set_monitor_slide_old_op(old_op);
     ui.set_monitor_slide_op(new_op);

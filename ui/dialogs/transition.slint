@@ -3,7 +3,8 @@
 import { Select, RangeSlider, Lbl } from "form.slint";
 
 export component TransitionPicker inherits VerticalLayout {
-    /// The kind picked: Fade, Cut, Through black, Push, Wipe; with `normal`, "Normal" comes first (index 0).
+    /// The kind picked: Fade, Cut, Through black, Push, Wipe, Cover, Uncover, Split, Zoom, Dissolve
+    /// (`TransitionKind::ALL`); with `normal`, "Normal" comes first (index 0).
     in-out property <int> kind;
     /// Left, Right, Up, Down.
     in-out property <int> dir;
@@ -17,9 +18,9 @@ export component TransitionPicker inherits VerticalLayout {
     callback ms-changed(int);
 
     property <int> first: root.normal ? 1 : 0;
-    // Cut and Normal have no time; Push and Wipe go one way.
+    // Cut and Normal have no time; Push, Wipe, Cover, Uncover and Split go one way.
     property <bool> has-time: root.kind - root.first != 1 && root.kind >= root.first;
-    property <bool> moves: root.kind - root.first >= 3;
+    property <bool> moves: root.kind - root.first >= 3 && root.kind - root.first <= 7;
 
     spacing: 6px;
     HorizontalLayout {
@@ -28,8 +29,8 @@ export component TransitionPicker inherits VerticalLayout {
             horizontal-stretch: 1;
             accessible-label: root.label;
             options: root.normal
-                ? [@tr("Normal"), @tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe")]
-                : [@tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe")];
+                ? [@tr("Normal"), @tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe"), @tr("Cover"), @tr("Uncover"), @tr("Split"), @tr("Zoom"), @tr("Dissolve")]
+                : [@tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe"), @tr("Cover"), @tr("Uncover"), @tr("Split"), @tr("Zoom"), @tr("Dissolve")];
             index <=> root.kind;
             changed(i) => { root.kind-changed(i); }
         }

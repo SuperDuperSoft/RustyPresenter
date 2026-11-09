@@ -41,8 +41,8 @@ fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
     if let Some(t) = plan.transition {
         return match t.kind {
             // A push or wipe moves the slide; the other layers crossfade for the same time.
-            TransitionKind::Fade | TransitionKind::Push | TransitionKind::Wipe => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))),
             TransitionKind::Cut | TransitionKind::Black => Duration::ZERO,
+            _ => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS))),
         };
     }
     if plan.look_change { Duration::from_millis(u64::from(view.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS))) } else { FADE }
@@ -74,18 +74,32 @@ pub(crate) fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
             (g.x, g.y) = (vx * k, vy * k);
         }
         // The edge moves `dir`: the new slide shows behind it, the old one ahead of it.
-        TransitionKind::Wipe => {
-            let cut = if new { 1.0 - p } else { p };
-            match (dir, new) {
-                (Dir::Left, true) | (Dir::Right, false) => g.l = cut,
-                (Dir::Left, false) | (Dir::Right, true) => g.r = cut,
-                (Dir::Up, true) | (Dir::Down, false) => g.t = cut,
-                (Dir::Up, false) | (Dir::Down, true) => g.b = cut,
-            }
-        }
+        TransitionKind::Wipe => wipe(&mut g, dir, p, new),
+        // The new slide moves in over the old one, which is cut where the new one is (so either may be on top).
+        TransitionKind::Cover => if new { (g.x, g.y) = (vx * (p - 1.0), vy * (p - 1.0)) } else { wipe(&mut g, dir, p, false) },
+        // The old slide moves off; the new one shows where it has gone.
+        TransitionKind::Uncover => if new { wipe(&mut g, dir, p, true) } else { (g.x, g.y) = (vx * p, vy * p) },
+        // The new slide opens from the middle, over the old one.
+        TransitionKind::Split => if new {
+            let cut = (1.0 - p) / 2.0;
+            if vx != 0.0 { (g.l, g.r) = (cut, cut) } else { (g.t, g.b) = (cut, cut) }
+            g.over = true;
+        },
+        TransitionKind::Zoom => if new { g.z = 1.0 - p; g.over = true },
         _ => {}
     }
     g
+}
+
+/// A wipe's cut on one face: the edge moves `dir`, the new slide behind it, the old one ahead of it.
+fn wipe(g: &mut Geo, dir: Dir, p: f32, new: bool) {
+    let cut = if new { 1.0 - p } else { p };
+    match (dir, new) {
+        (Dir::Left, true) | (Dir::Right, false) => g.l = cut,
+        (Dir::Left, false) | (Dir::Right, true) => g.r = cut,
+        (Dir::Up, true) | (Dir::Down, false) => g.t = cut,
+        (Dir::Up, false) | (Dir::Down, true) => g.b = cut,
+    }
 }
 
 /// Writes both slide faces' places for `mv` at `p` (none: both in place).
@@ -972,7 +986,7 @@ mod tests {
 
     #[test]
     fn push_and_wipe_move_the_faces_the_way_they_go() {
-        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b };
+        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b, ..Default::default() };
         let z = Geo::default();
         // Push left: the new slide comes in from the right, the old one goes out to the left.
         assert_eq!(geo(TransitionKind::Push, Dir::Left, 0.0, true), g(1.0, 0.0, 0.0, 0.0, 0.0, 0.0));
@@ -991,6 +1005,24 @@ mod tests {
         assert_eq!(fade_for(&plan(TransitionKind::Push), &v), Duration::from_millis(900), "the other layers fade as it moves");
         assert_eq!(moving(plan(TransitionKind::Wipe).transition).map(|t| t.kind), Some(TransitionKind::Wipe));
         assert_eq!(moving(plan(TransitionKind::Fade).transition), None);
+    }
+
+    #[test]
+    fn cover_uncover_split_and_zoom_move_the_faces() {
+        let g = |x: f32, y: f32, l: f32, r: f32, t: f32, b: f32| Geo { x, y, l, r, t, b, ..Default::default() };
+        // Cover left: the new slide comes in from the right; the old one is cut where it is.
+        assert_eq!(geo(TransitionKind::Cover, Dir::Left, 0.25, true), g(0.75, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Cover, Dir::Left, 0.25, false), g(0.0, 0.0, 0.0, 0.25, 0.0, 0.0));
+        // Uncover left: the old slide goes out to the left; the new one shows where it was.
+        assert_eq!(geo(TransitionKind::Uncover, Dir::Left, 0.25, false), g(-0.25, 0.0, 0.0, 0.0, 0.0, 0.0));
+        assert_eq!(geo(TransitionKind::Uncover, Dir::Left, 0.25, true), g(0.0, 0.0, 0.75, 0.0, 0.0, 0.0));
+        let split = geo(TransitionKind::Split, Dir::Up, 0.5, true);
+        assert_eq!((split.t, split.b, split.l, split.over), (0.25, 0.25, 0.0, true));
+        let zoom = geo(TransitionKind::Zoom, Dir::Left, 0.25, true);
+        assert_eq!((zoom.z, zoom.over), (0.75, true));
+        assert_eq!(geo(TransitionKind::Zoom, Dir::Left, 0.25, false), Geo::default());
+        assert!(TransitionKind::Zoom.moves() && !TransitionKind::Zoom.has_dir() && !TransitionKind::Dissolve.moves());
+        assert_eq!(serde_json::from_str::<TransitionKind>("\"morph\"").unwrap(), TransitionKind::Dissolve, "a newer kind plays as a fade");
     }
 
     #[test]
