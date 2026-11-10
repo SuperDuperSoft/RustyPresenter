@@ -57,6 +57,9 @@ pub struct Automation {
     /// N15: what each service item's slides do when taken live, by item id.
     #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
     pub slide_actions: BTreeMap<Uuid, slide_actions::ItemActions>,
+    /// 1.3: each song item's own auto-follow mode, by item id (else Settings → Auto-follow's).
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
+    pub follow: BTreeMap<Uuid, crate::follow::Mode>,
 }
 
 /// A map whose entries this version can't read are left out instead of failing the load (spec §4.1).

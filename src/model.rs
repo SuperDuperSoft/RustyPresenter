@@ -632,6 +632,9 @@ pub struct Settings {
     pub look_fade_ms: u32,
     /// N6: the Bible box's last references, newest first, at most `BIBLE_HISTORY_MAX`.
     pub bible_history: Vec<String>,
+    /// 1.3 Settings → Auto-follow: songs follow the singers. A value this version can't read loads as the defaults.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub follow: crate::follow::Settings,
 }
 
 /// The longest look fade Settings offers (N9).
@@ -747,6 +750,7 @@ impl Default for Settings {
             screens_at_start: true,
             look_fade_ms: 1000,
             bible_history: Vec::new(),
+            follow: Default::default(),
         }
     }
 }
