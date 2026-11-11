@@ -134,6 +134,10 @@ struct PairReq {
     #[serde(default)] password: String,
 }
 
+fn pair_closed(message: String) -> Response {
+    (StatusCode::BAD_REQUEST, Json(json!({ "error": message, "retry_with_pin": true }))).into_response()
+}
+
 async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Json(req): Json<PairReq>) -> Response {
     if !same_origin(&headers) { return forbidden(); }
     {
@@ -147,7 +151,7 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     let mut pairing = app.pairing.lock().unwrap();
     let Some(p) = pairing.as_mut().filter(|p| p.until > Instant::now()) else {
         *pairing = None;
-        return bad(crate::tr!("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."));
+        return pair_closed(crate::tr!("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."));
     };
     let by_qr = !req.pair.trim().is_empty();
     let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
@@ -156,8 +160,17 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     let password_ok = needed.as_deref().is_none_or(|h| crate::network::password::verify(&req.password, h));
     if !right || !password_ok {
         p.failures += 1;
-        if p.failures >= 5 { *pairing = None; return bad(crate::tr!("Too many wrong codes. Start pairing again on the computer.")); }
-        if !right { return bad(if by_qr { crate::tr!("That QR code has expired. On the computer, click Pair a phone again.") } else { crate::tr!("That code isn't right.") }) }
+        if p.failures >= 5 {
+            *pairing = None;
+            return pair_closed(crate::tr!("Too many wrong codes. Start pairing again on the computer."));
+        }
+        if !right {
+            return if by_qr {
+                pair_closed(crate::tr!("That QR code has expired. On the computer, click Pair a phone again."))
+            } else {
+                bad(crate::tr!("That code isn't right."))
+            };
+        }
         return bad(crate::network::strings::wrong_password());
     }
     *pairing = None;
@@ -755,8 +768,9 @@ msgstr[1] "{n} Folien"
         let app = lan_app();
         let (_, _, secret) = start(&app).await;
         app.pairing.lock().unwrap().as_mut().unwrap().until = Instant::now() - Duration::from_secs(1);
-        let (s, c, _) = pair(&app, 2, json!({ "pair": secret })).await;
+        let (s, c, v) = pair(&app, 2, json!({ "pair": secret })).await;
         assert_eq!((s, c), (StatusCode::BAD_REQUEST, None));
+        assert_eq!(v["retry_with_pin"], true);
         assert!(app.phones.lock().unwrap().is_empty());
     }
 

@@ -329,7 +329,8 @@ fn lock_hide_and_grid_controls_in_the_window() {
     click(&op, "BoxPanel::hide-check");
     assert!(g(&op).get_boxes().row_data(0).unwrap().hidden);
     assert!(!g(&op).get_show_grid());
-    click(&op, "StageLayoutsDialog::grid-check");
+    find(&op, "StageLayoutsDialog::grid-check").unwrap().invoke_accessible_default_action();
+    settle();
     assert!(g(&op).get_show_grid());
     assert!(find(&op, "StageCanvas::ruler-top").is_some());
 }

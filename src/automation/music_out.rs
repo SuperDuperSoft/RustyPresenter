@@ -56,33 +56,13 @@ mod tests {
     use crate::automation::music::{MusicList, MusicOp, MusicState, Track};
     use std::time::{Duration, Instant};
 
-    /// A quarter of a second of silence.
-    fn silent_wav(path: &std::path::Path) {
-        let (rate, n) = (8000u32, 2000u32);
-        let mut b = Vec::new();
-        b.extend_from_slice(b"RIFF");
-        b.extend_from_slice(&(36 + n * 2).to_le_bytes());
-        b.extend_from_slice(b"WAVEfmt ");
-        b.extend_from_slice(&16u32.to_le_bytes());
-        b.extend_from_slice(&1u16.to_le_bytes());
-        b.extend_from_slice(&1u16.to_le_bytes());
-        b.extend_from_slice(&rate.to_le_bytes());
-        b.extend_from_slice(&(rate * 2).to_le_bytes());
-        b.extend_from_slice(&2u16.to_le_bytes());
-        b.extend_from_slice(&16u16.to_le_bytes());
-        b.extend_from_slice(b"data");
-        b.extend_from_slice(&(n * 2).to_le_bytes());
-        b.resize(b.len() + (n * 2) as usize, 0);
-        std::fs::write(path, b).unwrap();
-    }
-
     /// With libmpv (`RP_VIDEO_TESTS=1`): the list plays through, song after song, and stops after the last.
     #[test]
     fn plays_the_list_through_libmpv() {
         if std::env::var("RP_VIDEO_TESTS").as_deref() != Ok("1") { return }
         let app = crate::app::test_app();
         let _ = std::fs::create_dir_all(app.store.asset_path("x").parent().unwrap());
-        for a in ["a.wav", "b.wav"] { silent_wav(&app.store.asset_path(a)) }
+        for a in ["a.wav", "b.wav"] { crate::video::silent_wav(&app.store.asset_path(a), 250) }
         let tracks = ["a.wav", "b.wav"].iter().map(|a| Track { id: uuid::Uuid::new_v4(), asset: a.to_string(), title: a.to_string(), duration: None }).collect();
         app.music_save(MusicList { tracks, repeat: false, ..MusicList::default() }).unwrap();
         start(&app, Some(Mpv::load().expect("libmpv (set RP_LIBMPV)")));

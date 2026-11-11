@@ -140,6 +140,42 @@ fn moves_a_service_to_an_empty_computer() {
 }
 
 #[test]
+fn designed_slide_and_powerpoint_assets_survive_a_round_trip() {
+    use crate::design::{Design, Obj, ObjKind, PctRect};
+    let (from, to) = (store(), store());
+    let mut data = sample(&from);
+    let picture = asset(&from, b"picture", "png");
+    let powerpoint = asset(&from, b"presentation", "pptx");
+    data.decks[0].show = Some(DeckShow { file: powerpoint.clone(), run: true });
+    let object = Obj::new(ObjKind::Picture { asset: picture.clone(), fit: Default::default() }, PctRect::new(0.0, 0.0, 50.0, 50.0));
+    let slide = Design { objects: vec![object], ..Default::default() };
+    data.service_mut().unwrap().items.push(item(ItemKind::Design { title: "Welcome".into(), slides: vec![slide] }));
+
+    let contents = open_in(&to, &saved(&from, &data)).unwrap();
+    assert_eq!(fs::read(to.asset_path(&picture)).unwrap(), b"picture");
+    assert_eq!(fs::read(to.asset_path(&powerpoint)).unwrap(), b"presentation");
+    let mut imported = sample(&to);
+    assert_eq!(merge(&mut imported, contents).decks_added, 1, "keep the PowerPoint variant beside the picture-only deck");
+    assert_eq!(imported.decks[1].runs_in_powerpoint(), Some(&powerpoint));
+}
+
+#[test]
+fn an_older_bundle_without_the_powerpoint_source_uses_its_slide_images() {
+    let (from, to) = (store(), store());
+    let mut data = sample(&from);
+    let powerpoint = asset(&from, b"presentation", "pptx");
+    data.decks[0].show = Some(DeckShow { file: powerpoint.clone(), run: true });
+    let (contents, mut assets) = gather(&data, current(&data), &|id| from.asset_path(id).exists()).unwrap();
+    assets.retain(|id| id != &powerpoint);
+    let path = from.root.join("older.rpservice");
+    write(&from, &contents, &assets, &path, &CancellationToken::new(), &|_| {}).unwrap();
+
+    let contents = open_in(&to, &path).unwrap();
+    assert!(contents.decks[0].show.is_none());
+    assert_eq!(fs::read(to.asset_path(&contents.decks[0].slides[0])).unwrap(), b"slide");
+}
+
+#[test]
 fn opening_twice_adds_a_second_service_and_nothing_else() {
     let (a, b) = (store(), store());
     let file = saved(&a, &sample(&a));

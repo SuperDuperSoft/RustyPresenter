@@ -1496,32 +1496,12 @@ mod tests {
         assert!(app.live_view().frame.audio.is_none());
     }
 
-    /// One second of silence, 16-bit mono PCM.
-    fn silent_wav(path: &std::path::Path) {
-        let (rate, n) = (8000u32, 8000u32);
-        let mut b = Vec::new();
-        b.extend_from_slice(b"RIFF");
-        b.extend_from_slice(&(36 + n * 2).to_le_bytes());
-        b.extend_from_slice(b"WAVEfmt ");
-        b.extend_from_slice(&16u32.to_le_bytes());
-        b.extend_from_slice(&1u16.to_le_bytes());
-        b.extend_from_slice(&1u16.to_le_bytes());
-        b.extend_from_slice(&rate.to_le_bytes());
-        b.extend_from_slice(&(rate * 2).to_le_bytes());
-        b.extend_from_slice(&2u16.to_le_bytes());
-        b.extend_from_slice(&16u16.to_le_bytes());
-        b.extend_from_slice(b"data");
-        b.extend_from_slice(&(n * 2).to_le_bytes());
-        b.resize(b.len() + (n * 2) as usize, 0);
-        std::fs::write(path, b).unwrap();
-    }
-
     #[test]
     fn audio_item_plays_after_commit_and_reports_by_instance() {
         if std::env::var("RP_VIDEO_TESTS").as_deref() != Ok("1") { return }
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
-        silent_wav(&app.store.asset_path("hush.wav"));
+        crate::video::silent_wav(&app.store.asset_path("hush.wav"), 1000);
         let audio = media(&app, MediaKind::Audio, "hush.wav");
         let mpv = crate::video::ffi::Mpv::load().expect("libmpv (set RP_LIBMPV)");
         let room = Room::open(app.clone(), Renderer::new(), Some(mpv), None).unwrap();

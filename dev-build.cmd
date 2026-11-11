@@ -17,8 +17,12 @@ echo BUILD STARTED %DATE% %TIME% > build.log
 where dlltool >> build.log 2>&1
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" ("%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -products * -property displayName >> build.log 2>&1) else (echo NO VSWHERE >> build.log)
 where ffmpeg >> build.log 2>&1
-cargo build --release >> build.log 2>&1
-echo BUILD EXIT %ERRORLEVEL% >> build.log
-cargo test --release >> build.log 2>&1
-echo TEST EXIT %ERRORLEVEL% >> build.log
+cargo build --locked --release >> build.log 2>&1
+set "BUILD_EXIT=%ERRORLEVEL%"
+echo BUILD EXIT %BUILD_EXIT% >> build.log
+cargo test --locked --release >> build.log 2>&1
+set "TEST_EXIT=%ERRORLEVEL%"
+echo TEST EXIT %TEST_EXIT% >> build.log
 echo BUILD FINISHED %DATE% %TIME% >> build.log
+if not "%BUILD_EXIT%"=="0" exit /b %BUILD_EXIT%
+exit /b %TEST_EXIT%

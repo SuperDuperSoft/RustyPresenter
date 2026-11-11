@@ -4,7 +4,7 @@
 use super::{password, strings as s};
 use crate::{app::App, live::{Command, Envelope}};
 use std::sync::{Arc, Weak, atomic::{AtomicUsize, Ordering}};
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader};
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
@@ -50,40 +50,44 @@ async fn accept(app: Weak<App>, listener: tokio::net::TcpListener, stop: Cancell
     loop {
         let conn = tokio::select! { _ = stop.cancelled() => return, c = listener.accept() => c };
         let Ok((stream, _)) = conn else { continue };
-        let Some(app) = app.upgrade() else { return };
         if open.load(Ordering::Relaxed) >= MAX_CONNECTIONS { drop(stream); continue }
         open.fetch_add(1, Ordering::Relaxed);
-        let (open, stop) = (open.clone(), stop.clone());
+        let (app, open, stop) = (app.clone(), open.clone(), stop.clone());
         tokio::spawn(async move {
-            tokio::select! { _ = stop.cancelled() => {}, _ = serve(Arc::downgrade(&app), stream) => {} }
+            tokio::select! { _ = stop.cancelled() => {}, _ = serve(app, stream) => {} }
             open.fetch_sub(1, Ordering::Relaxed);
         });
     }
 }
 
 async fn serve(app: Weak<App>, stream: tokio::net::TcpStream) {
-    let (r, mut w) = stream.into_split();
+    let (r, w) = stream.into_split();
+    serve_lines(app, r, w).await;
+}
+
+async fn serve_lines(app: Weak<App>, r: impl AsyncRead + Unpin, mut w: impl AsyncWrite + Unpin) {
     let mut r = BufReader::new(r);
     let mut session = Session::default();
     let mut buf = Vec::new();
     loop {
         buf.clear();
-        let Ok(n) = (&mut r).take(MAX_LINE as u64 + 1).read_until(b'\n', &mut buf).await else { return };
+        let Ok(n) = (&mut r).take(MAX_LINE as u64 + 2).read_until(b'\n', &mut buf).await else { return };
         if n == 0 { return }
-        let reply = if buf.len() > MAX_LINE && !buf.ends_with(b"\n") {
+        let line = buf.strip_suffix(b"\r\n").or_else(|| buf.strip_suffix(b"\n")).unwrap_or(&buf);
+        let reply = if line.len() > MAX_LINE {
             Reply { text: "ERR line too long".into(), close: true }
         } else {
             let Some(app) = app.upgrade() else { return };
-            answer(&app, String::from_utf8_lossy(&buf).trim(), &mut session)
+            answer(&app, String::from_utf8_lossy(line).trim(), &mut session)
         };
         if reply.text.starts_with("ERR wrong password") { tokio::time::sleep(std::time::Duration::from_secs(1)).await }
         if w.write_all(format!("{}\r\n", reply.text).as_bytes()).await.is_err() || reply.close { return }
     }
 }
 
-/// One connection's state: whether its password was given, and how many wrong ones.
+/// One connection's state: which password it proved and how many wrong ones it sent.
 #[derive(Default, Debug)]
-pub struct Session { authed: bool, wrong: u32 }
+pub struct Session { authenticated_hash: Option<String>, wrong: u32 }
 
 #[derive(Debug, PartialEq)]
 pub struct Reply { pub text: String, pub close: bool }
@@ -103,9 +107,12 @@ pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
         "quit" | "exit" | "bye" => return Reply { text: "OK bye".into(), close: true },
         "password" | "pass" => {
             let typed = line.split_once(char::is_whitespace).map_or("", |(_, p)| p.trim());
-            return match &needed {
+            return match needed {
                 None => reply("OK no password needed"),
-                Some(h) if password::verify(typed, h) => { session.authed = true; reply("OK") }
+                Some(h) if password::verify(typed, &h) => {
+                    session.authenticated_hash = Some(h);
+                    reply("OK")
+                }
                 Some(_) => {
                     session.wrong += 1;
                     Reply { text: "ERR wrong password".into(), close: session.wrong >= MAX_WRONG }
@@ -114,7 +121,9 @@ pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
         }
         _ => {}
     }
-    if needed.is_some() && !session.authed { return reply("ERR password needed: send password <password> first") }
+    if needed.is_some() && needed != session.authenticated_hash {
+        return reply("ERR password needed: send password <password> first");
+    }
     let cmd = match (verb.as_str(), args.first().map(|a| a.to_ascii_lowercase()).as_deref()) {
         ("next", _) => Command::Next,
         ("prev" | "previous" | "back", _) => Command::Prev,
@@ -156,7 +165,8 @@ fn status(app: &App) -> String {
     let (Some(c), Some(item)) = (&v.cursor, &v.item) else { return "OK nothing live".into() };
     let data = app.data.lock().unwrap();
     let place = data.service().and_then(|s| s.items.iter().position(|i| i.id == c.item_id)).map_or(0, |p| p + 1);
-    format!("OK live {place} {} {} {}", c.slide + 1, item.count, item.title)
+    let title = item.title.replace(['\r', '\n'], " ");
+    format!("OK live {place} {} {} {title}", c.slide + 1, item.count)
 }
 
 #[cfg(test)]
@@ -212,10 +222,30 @@ mod tests {
         assert_eq!(answer(&app, "password nope", &mut s), Reply { text: "ERR wrong password".into(), close: false });
         assert_eq!(answer(&app, "password lights", &mut s).text, "OK");
         assert_eq!(answer(&app, "next", &mut s).text, "OK");
+        app.data.lock().unwrap().settings.network.tcp_password = Some(password::hash("stage"));
+        assert_eq!(answer(&app, "next", &mut s).text, "ERR password needed: send password <password> first");
+        assert_eq!(answer(&app, "password stage", &mut s).text, "OK");
+        assert_eq!(answer(&app, "next", &mut s).text, "OK");
         let mut s = Session::default();
         answer(&app, "password a", &mut s);
         answer(&app, "password b", &mut s);
         assert!(answer(&app, "password c", &mut s).close);
+    }
+
+    #[tokio::test]
+    async fn command_length_excludes_the_line_ending() {
+        let app = test_app();
+        let (client, server) = tokio::io::duplex(MAX_LINE * 2);
+        let (r, w) = tokio::io::split(server);
+        let task = tokio::spawn(serve_lines(Arc::downgrade(&app), r, w));
+        let (r, mut w) = tokio::io::split(client);
+        let mut lines = BufReader::new(r).lines();
+        w.write_all(format!("ping{}\r\n", " ".repeat(MAX_LINE - 4)).as_bytes()).await.unwrap();
+        assert_eq!(lines.next_line().await.unwrap().as_deref(), Some("OK pong"));
+        w.write_all(format!("ping{}\n", " ".repeat(MAX_LINE - 3)).as_bytes()).await.unwrap();
+        assert_eq!(lines.next_line().await.unwrap().as_deref(), Some("ERR line too long"));
+        assert_eq!(lines.next_line().await.unwrap(), None);
+        task.await.unwrap();
     }
 
     #[tokio::test]

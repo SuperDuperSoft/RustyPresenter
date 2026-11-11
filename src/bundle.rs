@@ -86,7 +86,15 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
             ItemKind::Deck { deck_id } => match data.decks.iter().find(|d| d.id == *deck_id) {
                 Some(d) => if !decks.iter().any(|x| x.id == d.id) {
                     for slide in &d.slides { need(slide, strings::file_gone(&d.title), &mut missing) }
-                    decks.push(d.clone());
+                    let mut d = d.clone();
+                    if let Some(show) = &d.show {
+                        if show.run || has_asset(&show.file) {
+                            need(&show.file, strings::file_gone(&d.title), &mut missing);
+                        } else {
+                            d.show = None;
+                        }
+                    }
+                    decks.push(d);
                 },
                 None => missing.push(strings::deck_gone().into()),
             },
@@ -122,7 +130,7 @@ fn percent(done: u64, total: u64) -> u8 { (done.saturating_mul(99) / total.max(1
 /// assets are stored as they are: pictures and video do not compress.
 pub fn write(store: &Store, contents: &Contents, assets: &[AssetId], dest: &Path, cancel: &CancellationToken, progress: &dyn Fn(u8)) -> Result<(), String> {
     let mut part = dest.as_os_str().to_owned();
-    part.push(".part");
+    part.push(format!(".{}.part", Uuid::new_v4()));
     let part = PathBuf::from(part);
     let r = write_zip(store, contents, assets, &part, cancel, progress).and_then(|()| fs::rename(&part, dest).map_err(|e| e.to_string()));
     if r.is_err() { let _ = fs::remove_file(&part); } else { progress(100) }
@@ -166,6 +174,9 @@ fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
     }
     for i in &c.service.items {
         if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &i.background { set.insert(asset.clone()); }
+        if let ItemKind::Design { slides, .. } = &i.kind {
+            set.extend(slides.iter().flat_map(|slide| slide.assets()));
+        }
     }
     set
 }
@@ -175,12 +186,22 @@ fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
 pub fn read(store: &Store, path: &Path, cancel: &CancellationToken, progress: &dyn Fn(u8)) -> Result<Contents, String> {
     let file = fs::File::open(path).map_err(|e| e.to_string())?;
     let mut zip = ZipArchive::new(file).map_err(|_| strings::not_a_service_file())?;
-    let contents = read_contents(&mut zip)?;
+    let mut contents = read_contents(&mut zip)?;
     let ids = asset_ids(&contents);
     if !ids.iter().all(|id| is_asset_id(id)) { return Err(strings::damaged().into()) }
+    // Older exports could name the PowerPoint file without putting it in the archive.
+    // The slide images still let the deck play on a computer that lacks the original.
+    for deck in &mut contents.decks {
+        if !deck.slides.is_empty() && deck.show.as_ref().is_some_and(|show| {
+            !store.asset_path(&show.file).exists() && zip.index_for_name(&format!("{ASSETS}{}", show.file)).is_none()
+        }) {
+            deck.show = None;
+        }
+    }
     let mut sizes = BTreeMap::new();
-    for id in ids.iter().filter(|id| !store.asset_path(id).exists()) {
-        sizes.insert(id.clone(), zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::damaged())?.size());
+    for id in asset_ids(&contents).into_iter().filter(|id| !store.asset_path(id).exists()) {
+        let size = zip.by_name(&format!("{ASSETS}{id}")).map_err(|_| strings::damaged())?.size();
+        sizes.insert(id, size);
     }
     let stage = store.tmp().join(format!("bundle-{}", Uuid::new_v4()));
     fs::create_dir_all(&stage).map_err(|e| e.to_string())?;
@@ -211,6 +232,7 @@ fn unpack(store: &Store, zip: &mut ZipArchive<fs::File>, sizes: &BTreeMap<AssetI
         if hex(&hasher.finalize()) != hash { return Err(strings::damaged().into()) }
         out.sync_all().map_err(|e| e.to_string())?;
     }
+    if cancel.is_cancelled() { return Err(CANCELLED.into()) }
     for id in sizes.keys() {
         let (hash, ext) = id.split_once('.').unwrap_or_default();
         store.publish(&stage.join(id), hash, ext).map_err(|e| e.to_string())?;
@@ -253,7 +275,10 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
     }
     for mut d in decks {
         let old = d.id;
-        if let Some(have) = data.decks.iter().find(|x| x.slides == d.slides) { ids.insert(old, have.id); continue }
+        if let Some(have) = data.decks.iter().find(|x| {
+            x.slides == d.slides && x.show == d.show && x.notes == d.notes
+                && x.transitions == d.transitions && x.advance_ms == d.advance_ms
+        }) { ids.insert(old, have.id); continue }
         if data.decks.iter().any(|x| x.id == old) { d.id = Uuid::new_v4() }
         ids.insert(old, d.id);
         data.decks.push(d);

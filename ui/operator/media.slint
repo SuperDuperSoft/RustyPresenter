@@ -1,8 +1,9 @@
-// The media library along the bottom of the operator window: folders, kind tabs, search, thumbnail size and what to
-// do with the chosen file. The rows and filtering are in Rust (`media_bin.rs`).
+// The operator's bottom library pane. The rows and filtering are in Rust (`media_bin.rs`).
 import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox } from "../widgets.slint";
-import { TextField, RangeSlider, Select } from "../dialogs/form.slint";
+import { TextField, RangeSlider, Select, ListRow, RowMain } from "../dialogs/form.slint";
+import { AddRow } from "../dialogs/add-list.slint";
+import { ListView } from "std-widgets.slint";
 
 /// N11: the Video inputs tab (`src/ui/operator/video_inputs.rs`). `found` lists the cameras and capture cards found on
 /// this computer; `typed` is a name typed instead.
@@ -21,7 +22,7 @@ export struct BinRow { id: string, name: string, kind: string, tag: string, imag
 /// One folder of the list. An empty `name` is "All media".
 export struct BinFolder { name: string, label: string, count: int, on: bool }
 
-/// One tab: `id` is "all", "video", "image" or "audio".
+/// One tab in the bottom library pane.
 component BinTab inherits Rectangle {
     in property <string> text;
     in property <bool> on;
@@ -141,6 +142,10 @@ export component MediaBin inherits VerticalLayout {
     in property <[BinFolder]> folders;
     in property <[BinRow]> rows;
     in-out property <string> query;
+    in property <[AddRow]> songs;
+    in property <string> song-placeholder;
+    in property <string> song-empty;
+    in-out property <string> song-query;
     /// A file is chosen: its name, a hint and what can be done with it.
     in property <bool> has-pick;
     in property <string> pick-name;
@@ -159,6 +164,10 @@ export component MediaBin inherits VerticalLayout {
     callback import();
     callback new-folder();
     callback delete-folder();
+    callback song-search(string);
+    callback add-song(string);
+    callback edit-song(string);
+    callback new-song();
 
     /// The size slider: how wide a thumbnail is.
     in-out property <int> tile-size: 150;
@@ -181,7 +190,7 @@ export component MediaBin inherits VerticalLayout {
         toggle := Rectangle {
             width: toggle-row.preferred-width;
             accessible-role: button;
-            accessible-label: @tr("Media library");
+            accessible-label: root.tab == "songs" ? @tr("Songs") : @tr("Media library");
             accessible-expandable: true;
             accessible-expanded: root.open;
             accessible-action-default => { root.open = !root.open; }
@@ -195,7 +204,7 @@ export component MediaBin inherits VerticalLayout {
                     }
                 }
                 Text {
-                    text: @tr("Media library");
+                    text: root.tab == "songs" ? @tr("Songs") : @tr("Media library");
                     color: Theme.text;
                     font-family: Theme.font;
                     font-size: Theme.base-size;
@@ -215,6 +224,7 @@ export component MediaBin inherits VerticalLayout {
             tabs := HorizontalLayout {
                 padding: 1px;
                 spacing: 2px;
+                songs-tab := BinTab { text: @tr("Songs"); on: root.tab == "songs"; clicked => { root.set-tab("songs"); } }
                 BinTab { text: @tr("All"); on: root.tab == "all"; clicked => { root.set-tab("all"); } }
                 BinTab { text: @tr("Videos"); on: root.tab == "video"; clicked => { root.set-tab("video"); } }
                 BinTab { text: @tr("Pictures"); on: root.tab == "image"; clicked => { root.set-tab("image"); } }
@@ -223,15 +233,26 @@ export component MediaBin inherits VerticalLayout {
             }
         }
         Rectangle { horizontal-stretch: 1; }
-        if root.open: bin-search := TextField {
-            width: 190px;
+        if root.open && root.tab != "songs": bin-search := TextField {
+            min-width: 100px;
+            preferred-width: 190px;
+            max-width: 190px;
             search: true;
             text <=> root.query;
             placeholder: @tr("Search media");
             edited(t) => { root.search(t); }
         }
+        if root.open && root.tab == "songs": song-search-field := TextField {
+            min-width: 100px;
+            preferred-width: 190px;
+            max-width: 190px;
+            search: true;
+            text <=> root.song-query;
+            placeholder: root.song-placeholder;
+            edited(t) => { root.song-search(t); }
+        }
         // N8: the thumbnail size slider.
-        if root.open: HorizontalLayout {
+        if root.open && root.tab != "songs": HorizontalLayout {
             spacing: 6px;
             VerticalLayout {
                 alignment: center;
@@ -253,15 +274,71 @@ export component MediaBin inherits VerticalLayout {
                 }
             }
         }
-        if root.open: bin-import := Btn {
+        if root.open && root.tab != "songs": bin-import := Btn {
             small: true;
             icon: "upload";
             text: @tr("Import");
             clicked => { root.import(); }
         }
+        if root.open && root.tab == "songs": new-song-button := Btn {
+            small: true;
+            icon: "plus";
+            text: @tr("New song");
+            clicked => { root.new-song(); }
+        }
     }
 
-    if root.open: HorizontalLayout {
+    if root.open && root.tab == "songs": Rectangle {
+        height: 220px;
+        if root.songs.length == 0: Text {
+            width: parent.width;
+            height: parent.height;
+            text: root.song-empty;
+            color: Theme.muted;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        if root.songs.length > 0: ListView {
+            x: 8px;
+            y: 4px;
+            width: parent.width - 16px;
+            height: parent.height - 8px;
+            for song in root.songs: Rectangle {
+                height: 62px;
+                song-row := ListRow {
+                    x: 0;
+                    y: 0;
+                    width: parent.width;
+                    height: parent.height - 4px;
+                    accessible-role: list-item;
+                    accessible-label: song.title;
+                    accessible-description: song.subtitle;
+                    RowMain { title: song.title; sub: song.subtitle; }
+                    VerticalLayout {
+                        alignment: center;
+                        song-edit := Btn {
+                            small: true;
+                            icon: "edit";
+                            text: @tr("Edit");
+                            clicked => { root.edit-song(song.id); }
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        song-add := Btn {
+                            small: true;
+                            primary: true;
+                            icon: "plus";
+                            text: @tr("Add");
+                            clicked => { root.add-song(song.id); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if root.open && root.tab != "songs": HorizontalLayout {
         height: 220px;
         // Folders.
         Rectangle {

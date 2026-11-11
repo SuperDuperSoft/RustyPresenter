@@ -1357,8 +1357,9 @@ mod tests {
         let op = opened(&app);
         open(&op, id);
         settle();
-        assert_eq!(find_all(&op, "ItemEditDialog::deck-transition").len(), 3, "one picker per slide");
+        assert!(!find_all(&op, "ItemEditDialog::deck-transition").is_empty());
         let g = op.ui.global::<ItemEdit>();
+        assert_eq!(g.get_deck_notes().row_count(), 3, "one editable row per slide");
         let row = |i: usize| { let r = g.get_deck_notes().row_data(i).unwrap(); (r.transition, r.dir, r.ms) };
         assert_eq!((row(0), row(1)), ((0, 0, 400), (4, 2, 800)), "Normal, then Push up from the file");
         // Slide 3: Wipe, to the right, 1.2 s.

@@ -190,15 +190,27 @@ impl Store {
         // An older backup comes back in this build's format; the data it replaces is copied aside below.
         self.upgrade_format(&mut data, false);
         data.after_load();
+        let mut assets = data.referenced_assets();
+        assets.extend(manifest.assets);
+        // Older data used plain filenames as IDs, so accept those too, provided they stay in the asset folder.
+        if let Some(a) = assets.iter().find(|a| !asset_filename(a)) {
+            return Err(format!("Invalid backup asset name: {a:?}"));
+        }
         let store = self.root.join("backups").join("assets");
-        for a in &manifest.assets {
+        for a in &assets {
             let dst = self.asset_path(a);
-            if dst.exists() { continue; }
+            if dst.is_file() { continue; }
             let src = store.join(a);
-            fs::copy(&src, &dst).map_err(|e| format!("Backup asset {a} is missing: {e}"))?;
+            write_atomic_with(&dst, |out| {
+                io::copy(&mut fs::File::open(src)?, out)?;
+                Ok(())
+            }).map_err(|e| format!("Could not restore backup asset {a}: {e}"))?;
         }
         // Keep the data we are replacing, just in case.
-        if self.data_path().exists() { let _ = fs::copy(self.data_path(), self.root.join(format!("data.before-restore-{}.json", now_stamp()))); }
+        if self.data_path().exists() {
+            let previous = self.root.join(format!("data.before-restore-{}-{}.json", now_stamp(), uuid::Uuid::new_v4()));
+            fs::copy(self.data_path(), previous).map_err(|e| e.to_string())?;
+        }
         self.save(&data).map_err(|e| e.to_string())?;
         Ok(data)
     }
@@ -258,14 +270,22 @@ pub fn sanitize_ext(ext: &str) -> String {
     if e.is_empty() { "bin".into() } else { e }
 }
 
+fn asset_filename(name: &str) -> bool {
+    !name.contains(['/', '\\', ':', '\0']) && Path::new(name).file_name() == Some(std::ffi::OsStr::new(name))
+}
+
 pub fn write_atomic(path: &Path, bytes: &[u8]) -> io::Result<()> {
-    let tmp = path.with_extension("json.tmp");
-    {
-        let mut f = fs::File::create(&tmp)?;
-        f.write_all(bytes)?;
-        f.sync_all()?;
-    }
-    fs::rename(&tmp, path)
+    write_atomic_with(path, |file| file.write_all(bytes))
+}
+
+fn write_atomic_with(path: &Path, write: impl FnOnce(&mut fs::File) -> io::Result<()>) -> io::Result<()> {
+    let tmp = path.with_file_name(format!(".rp-{}.tmp", uuid::Uuid::new_v4()));
+    let mut file = fs::File::create_new(&tmp)?;
+    let written = write(&mut file).and_then(|()| file.sync_all());
+    drop(file);
+    let result = written.and_then(|()| fs::rename(&tmp, path));
+    if result.is_err() { let _ = fs::remove_file(&tmp); }
+    result
 }
 
 /// UTC timestamp like `2026-10-29_201530` without extra crates.
@@ -301,6 +321,37 @@ pub(crate) fn test_dir() -> PathBuf {
 mod tests {
     use super::*;
     use crate::model::*;
+
+    #[test]
+    fn atomic_write_preserves_the_destination_on_error_and_cleans_up() {
+        let root = test_dir();
+        let path = root.join("state.json");
+        let other = root.join("state.json.tmp");
+        fs::write(&other, b"another writer's temporary file").unwrap();
+        write_atomic(&path, b"old").unwrap();
+        let result = write_atomic_with(&path, |out| {
+            out.write_all(b"partial")?;
+            Err(io::Error::other("copy failed"))
+        });
+        assert!(result.is_err());
+        assert_eq!(fs::read(path).unwrap(), b"old");
+        assert_eq!(fs::read(other).unwrap(), b"another writer's temporary file");
+        assert_eq!(fs::read_dir(root).unwrap().count(), 2);
+    }
+
+    #[test]
+    fn restore_rejects_asset_paths_outside_the_backup_before_copying() {
+        let store = Store::open(test_dir()).unwrap();
+        let mut data = Data::default();
+        store.save(&data).unwrap();
+        let name = store.backup(&data).unwrap();
+        let backup = store.root.join("backups").join(&name);
+        data.settings.logo = Some("../data.json".into());
+        fs::write(backup.join("data.json"), serde_json::to_vec(&data).unwrap()).unwrap();
+
+        assert!(store.restore(&name).unwrap_err().contains("Invalid backup asset name"));
+        assert_eq!(store.load().unwrap().settings.logo, None);
+    }
 
     #[test]
     fn backup_restores_into_empty_folder_without_original_assets() {
