@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             g.invoke_press(50.0, 50.0, 1.0, 1.5, false, false);
             g.invoke_drag(50.0, 80.0);
             g.invoke_release();
-            g.invoke_build_on(true);
+            g.invoke_anim_add();
         })),
         ("nothing-chosen", Box::new(|op| {
             let g = window_of(op).global::<DesignDlg>();

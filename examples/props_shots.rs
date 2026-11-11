@@ -7,7 +7,7 @@ use rustypresenter::{
     model::*,
     render::{Renderer, mask::{Mask, MaskShape}},
     store::Store,
-    ui::{VideoInputs, dialogs::screens, operator::window::Operator, ops::Ops, room::Room},
+    ui::{VideoInputs, dialogs::screens, operator::window::Operator, ops::Ops, room::Room, test_support::window_of},
 };
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, rc::Rc, time::Duration};
@@ -37,7 +37,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         s.output_mut().target = ScreenTarget::Window;
         s.mask = Mask { shape: MaskShape::Rounded, inset: 4, radius: 18 };
         d.backgrounds.push(BackgroundEntry::new("Integrated Camera", Background::Camera { device: "Integrated Camera".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));
-        d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Welcome".into(), body: "Welcome home\nWe're glad you're here".into() }, background: Some(Background::Gradient { from: "#2b1530".into(), to: "#0d0f13".into(), angle: 135, dim: 0 }), notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem {
+            id: item,
+            kind: ItemKind::Text {
+                title: "Welcome".into(),
+                body: "Welcome home\nWe're glad you're here".into(),
+                layout: Default::default(),
+            },
+            background: Some(Background::Gradient { from: "#2b1530".into(), to: "#0d0f13".into(), angle: 135, dim: 0 }),
+            notes: String::new(),
+            theme: None,
+        });
     }
     let op = Operator::open(app.clone(), Ops::new(app.clone(), rt.handle().clone()), Rc::new(NoScreens))?;
     op.window().set_size(slint::PhysicalSize::new(1440, 900));
@@ -48,9 +58,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (700, Box::new(|op: &Rc<Operator>| save(op.window(), &out("screens-shape")))),
         (200, Box::new(|op: &Rc<Operator>| {
             op.close_dialog();
-            let g = op.ui.global::<VideoInputs>();
+            let ui = window_of(op);
+            let g = ui.global::<VideoInputs>();
             g.set_searching(true);
-            op.ui.invoke_bin_set_tab("inputs".into());
+            ui.invoke_bin_set_tab("inputs".into());
             let found: Vec<SharedString> = vec!["Integrated Camera".into(), "USB Capture HDMI".into()];
             g.set_found(ModelRc::new(VecModel::from(found)));
             g.set_searching(false);
@@ -59,7 +70,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (200, Box::new(move |_op: &Rc<Operator>| {
             let r = Room::open(app2.clone(), Renderer::new(), None, None).expect("room");
             r.window().set_size(slint::PhysicalSize::new(960, 540));
-            r.set_screen("room");
             app2.command(Envelope { id: "shots".into(), base: None, cmd: Command::Show { item_id: item, slide: 0 } });
             *room2.borrow_mut() = Some(r);
         })),

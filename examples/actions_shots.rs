@@ -8,7 +8,6 @@ use rustypresenter::{
     timers::SERMON_ID,
     ui::{dialogs::automation, operator::{action_palette, view::OperatorSnapshot, window::Operator}, test_support},
 };
-use slint::ComponentHandle;
 use std::{rc::Rc, sync::Arc, time::Duration};
 use uuid::Uuid;
 
@@ -23,7 +22,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut d = app.data.lock().unwrap();
         let body = "Welcome to church\n\nPlease find a seat\n\nWe begin in a few minutes\n\nTurn your phone to silent";
-        d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Text { title: "Welcome".into(), body: body.into() }, background: None, notes: String::new(), theme: None });
+        d.services[0].items.push(ServiceItem {
+            id: item_id,
+            kind: ItemKind::Text { title: "Welcome".into(), body: body.into(), layout: Default::default() },
+            background: None,
+            notes: String::new(),
+            theme: None,
+        });
         let a = &mut d.automation;
         slide_actions::add(a, item_id, 0, vec![MacroStep::TimerRestart { timer: SERMON_ID }, MacroStep::TimerShow { timer: SERMON_ID }]).unwrap();
         slide_actions::add(a, item_id, 2, vec![MacroStep::GoToSlide { slide: 0 }]).unwrap();
