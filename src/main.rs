@@ -15,6 +15,9 @@ thread_local! {
     static OPERATOR: RefCell<Option<Rc<Operator>>> = const { RefCell::new(None) };
 }
 
+/// How long after the operator opens the graphics test may be offered.
+const OFFER_TEST_AFTER: std::time::Duration = std::time::Duration::from_secs(4);
+
 /// Tests only: no windows, the core and the server with a stand-in room. A dialog would wait for nobody.
 fn headless_mode() -> bool { std::env::var_os("RUSTYPRESENTER_HEADLESS").is_some_and(|v| v == "1") }
 
@@ -46,6 +49,8 @@ fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
 
 fn main() {
     rustypresenter::import::libreoffice::fake_soffice_main();
+    // Settings → Video → "Test which is fastest" runs this program once per graphics choice.
+    if let Some(test) = video::bench::child_args(std::env::args_os().skip(1)) { std::process::exit(rustypresenter::ui::graphics_test::run(test)); }
     let args = supervisor::parse_args(std::env::args_os().skip(1));
     // The computer's language until the church's saved one is read, so a problem at start is in it too.
     let _ = i18n::set_language(&i18n::resolve(""));
@@ -60,6 +65,8 @@ fn main() {
     panic::test_crash_point("startup");
 
     // `--no-browser` from before the native operator is still accepted, and does nothing.
+    // "Restart now" (`recovery::restart`): the copy that started this one lets go of the port first.
+    if let Some(pid) = recovery::restart::wait_arg(&args.rest) { recovery::restart::wait_for(pid); }
     let port = startup::port();
     let root = startup::data_root().unwrap_or_else(|e| fail(&e));
     let listener = match instance::bind(port, args.restore) {
@@ -126,6 +133,7 @@ fn main() {
     native.start();
     // Queued after `start`'s reopen, so the room and stage are back before the operator picks its monitor.
     let (screens, handle, op_app, notices, settle_root) = (native.clone(), rt.handle().clone(), app.clone(), graphics.notices, root.clone());
+    let offer_test = !args.restore;
     let queued = invoke_from_active_event_loop(move |_| {
         let ops = Ops::new(op_app.clone(), handle);
         let operator = match Operator::open(op_app, ops, Rc::new(screens.clone()) as Rc<dyn OperatorScreens>) {
@@ -138,6 +146,11 @@ fn main() {
             match n { Notice::Dialog(t) => rustypresenter::ui::dialogs::ask::notice(&operator, &t), Notice::Toast(t) => operator.toast(t, true) }
         }
         slint::Timer::single_shot(safe_mode::SETTLE, move || safe_mode::passed(&settle_root));
+        // The graphics test is offered once the windows have drawn (they report the card), never after a crash.
+        if offer_test {
+            let me = Rc::downgrade(&operator);
+            slint::Timer::single_shot(OFFER_TEST_AFTER, move || if let Some(op) = me.upgrade() { rustypresenter::ui::dialogs::settings_graphics::offer_at_start(&op) });
+        }
         // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
         // and stage close with it below.
         operator.window().on_close_requested(|| { let _ = slint::quit_event_loop(); CloseRequestResponse::HideWindow });
@@ -154,4 +167,5 @@ fn main() {
     safe_mode::passed(&root);
     forget_live_state(&app, &root);
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
+    if recovery::restart::requested() { recovery::restart::relaunch(); }
 }

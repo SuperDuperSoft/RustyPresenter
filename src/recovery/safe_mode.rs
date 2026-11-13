@@ -67,9 +67,16 @@ pub enum Notice {
 pub struct Start { pub chosen: Chosen, pub notices: Vec<Notice> }
 
 /// Chooses the graphics for this start (`video::choose_backend`) and records the start. Call once, before any window.
+/// What Automatic tries first: the graphics test's `winner`, unless the last start failed with it.
+pub fn auto_first(winner: Option<Graphics>, last: Option<Trial>) -> Option<Graphics> {
+    winner.filter(|w| last.is_none_or(|t| t.graphics != *w))
+}
+
 pub fn start(app: &App, root: &Path, flag: bool) -> Start {
     let setting = app.data.lock().unwrap().settings.graphics;
-    let p = plan(setting, flag, load(root));
+    let last = load(root);
+    let p = plan(setting, flag, last);
+    let auto = auto_first(crate::video::bench::auto_pick(crate::video::bench::load(root).as_ref()), last);
     let mut notices = vec![];
     if p.why == Why::SafeMode {
         eprintln!("Graphics failed {} starts in a row: starting in safe mode (software).", FAILS);
@@ -77,9 +84,10 @@ pub fn start(app: &App, root: &Path, flag: bool) -> Start {
         notices.push(Notice::Dialog(graphics::safe_mode_notice()));
     }
     // Recorded before choosing too: a graphics driver can crash while it is chosen.
-    begin(root, Trial { graphics: p.graphics, fails: p.fails });
-    let chosen = graphics::choose_backend(p.graphics);
-    if chosen.graphics != p.graphics { begin(root, Trial { graphics: chosen.graphics, fails: p.fails }) }
+    let trying = if p.graphics == Graphics::Auto { auto.unwrap_or(Graphics::Auto) } else { p.graphics };
+    begin(root, Trial { graphics: trying, fails: p.fails });
+    let chosen = graphics::choose_backend_auto(p.graphics, auto);
+    if chosen.graphics != trying { begin(root, Trial { graphics: chosen.graphics, fails: p.fails }) }
     if let Some(wanted) = chosen.fell_back_from { notices.push(Notice::Toast(graphics::fell_back(wanted, chosen.graphics))) }
     Start { chosen, notices }
 }
@@ -120,6 +128,14 @@ mod tests {
     fn the_flag_forces_software_without_a_notice() {
         assert_eq!(plan(Direct3D, true, None), Plan { graphics: Software, why: Why::Flag, fails: 0 });
         assert_eq!(plan(Direct3D, true, failed(Direct3D, 5)).why, Why::Flag);
+    }
+
+    #[test]
+    fn automatic_skips_a_test_winner_that_just_failed_to_start() {
+        assert_eq!(auto_first(Some(Vulkan), None), Some(Vulkan));
+        assert_eq!(auto_first(Some(Vulkan), failed(Vulkan, 0)), None);
+        assert_eq!(auto_first(Some(Vulkan), failed(OpenGl, 0)), Some(Vulkan));
+        assert_eq!(auto_first(None, None), None);
     }
 
     #[test]

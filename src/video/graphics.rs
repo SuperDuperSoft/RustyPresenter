@@ -59,10 +59,14 @@ pub fn available(b: Build) -> Vec<Graphics> {
 
 /// What to try, in order: `want`, then Auto, then Software, leaving out what this build can't do. Software (safe
 /// mode) never tries the graphics card.
-pub fn attempts(want: Graphics, b: Build) -> Vec<Graphics> {
+pub fn attempts(want: Graphics, b: Build) -> Vec<Graphics> { attempts_auto(want, b, None) }
+
+/// `attempts`, with Automatic first trying `auto` (the graphics test's winner, `video::bench::auto_pick`).
+pub fn attempts_auto(want: Graphics, b: Build, auto: Option<Graphics>) -> Vec<Graphics> {
     if want == Graphics::Software { return vec![Graphics::Software] }
+    let first = match (want, auto) { (Graphics::Auto, Some(w)) => w, _ => want };
     let mut v: Vec<Graphics> = vec![];
-    for g in [want, Graphics::Auto, Graphics::Software] {
+    for g in [first, want, Graphics::Auto, Graphics::Software] {
         if !v.contains(&g) && renderer(g, b).is_some() { v.push(g) }
     }
     v
@@ -114,17 +118,20 @@ static CHOSEN: std::sync::OnceLock<Chosen> = std::sync::OnceLock::new();
 
 /// Picks Slint's backend for `want` (the setting, or Software in safe mode), falling back to Auto and then Software.
 /// `RP_FORCE_SOFTWARE=1` and `RP_RENDERER` override it. Call once, before any window.
-pub fn choose_backend(want: Graphics) -> Chosen {
+pub fn choose_backend(want: Graphics) -> Chosen { choose_backend_auto(want, None) }
+
+/// `choose_backend`, with Automatic trying `auto` first (see `attempts_auto`).
+pub fn choose_backend_auto(want: Graphics, auto: Option<Graphics>) -> Chosen {
     let force = std::env::var("RP_FORCE_SOFTWARE").ok();
     let named = std::env::var("RP_RENDERER").ok();
     let chosen = match env(force.as_deref(), named.as_deref()) {
-        Env::None => pick(want, Build::this()),
-        Env::Software => pick(Graphics::Software, Build::this()),
+        Env::None => pick(want, Build::this(), auto),
+        Env::Software => pick(Graphics::Software, Build::this(), None),
         Env::Renderer(name) => match select(&name, Api::Any) {
             Ok(()) => Chosen { graphics: graphics_of(&name), draw: draw_mode(&name), fell_back_from: None },
             Err(e) => {
                 eprintln!("{name} drawing unavailable ({e}); drawing in software");
-                pick(Graphics::Software, Build::this())
+                pick(Graphics::Software, Build::this(), None)
             }
         },
     };
@@ -132,16 +139,29 @@ pub fn choose_backend(want: Graphics) -> Chosen {
     chosen
 }
 
-fn pick(want: Graphics, b: Build) -> Chosen {
-    for g in attempts(want, b) {
+fn pick(want: Graphics, b: Build, auto: Option<Graphics>) -> Chosen {
+    for g in attempts_auto(want, b, auto) {
         let Some(r) = renderer(g, b) else { continue };
         match select(r.name, r.api) {
-            Ok(()) => return Chosen { graphics: g, draw: draw_mode(r.name), fell_back_from: (g != want).then_some(want) },
+            Ok(()) => {
+                // Automatic with the test's winner, or falling back from it to OpenGL, is still Automatic.
+                let as_asked = g == want || (want == Graphics::Auto && (g == Graphics::Auto || Some(g) == auto));
+                return Chosen { graphics: g, draw: draw_mode(r.name), fell_back_from: (!as_asked).then_some(want) };
+            }
             Err(e) => eprintln!("{} graphics unavailable ({e})", r.name),
         }
     }
     // No backend at all (no display): opening a window says so.
     Chosen { graphics: Graphics::Software, draw: DrawMode::Software, fell_back_from: None }
+}
+
+/// Exactly `g`, with no fallback (the graphics test's child, `video::bench`).
+pub fn choose_exact(g: Graphics) -> Result<Chosen, String> {
+    let r = renderer(g, Build::this()).ok_or_else(|| format!("{g:?} is not in this build"))?;
+    select(r.name, r.api).map_err(|e| e.to_string())?;
+    let chosen = Chosen { graphics: g, draw: draw_mode(r.name), fell_back_from: None };
+    let _ = CHOSEN.set(chosen);
+    Ok(chosen)
 }
 
 fn select(name: &str, api: Api) -> Result<(), slint::PlatformError> {
@@ -178,6 +198,46 @@ pub fn chosen() -> Chosen {
 
 /// How video is drawn (see `chosen`).
 pub fn drawing() -> DrawMode { chosen().draw }
+
+// ---- The graphics card ----
+
+static ADAPTER: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+/// The graphics card's name and driver as `api` reports it: OpenGL's renderer and version strings, or wgpu's adapter.
+/// `None` for what can't say.
+pub fn adapter_of(api: &slint::GraphicsAPI) -> Option<String> {
+    match api {
+        slint::GraphicsAPI::NativeOpenGL { get_proc_address } => gl_adapter(*get_proc_address),
+        #[cfg(feature = "gpu-apis")]
+        slint::GraphicsAPI::WGPU30 { device, .. } => {
+            let i = device.adapter_info();
+            Some(format!("{} ({:?}; {} {})", i.name, i.backend, i.driver, i.driver_info).trim().to_string())
+        }
+        _ => None,
+    }
+}
+
+const GL_RENDERER: u32 = 0x1F01;
+const GL_VERSION: u32 = 0x1F02;
+
+fn gl_adapter(gpa: &dyn Fn(&std::ffi::CStr) -> *const std::ffi::c_void) -> Option<String> {
+    let get = crate::ui::pacing::found(gpa(c"glGetString"))?;
+    let get: unsafe extern "system" fn(u32) -> *const std::ffi::c_char = unsafe { std::mem::transmute(get) };
+    let text = |what| {
+        let p = unsafe { get(what) };
+        if p.is_null() { String::new() } else { unsafe { std::ffi::CStr::from_ptr(p) }.to_string_lossy().into_owned() }
+    };
+    let (name, version) = (text(GL_RENDERER), text(GL_VERSION));
+    (!name.is_empty()).then(|| format!("{name} (OpenGL {version})"))
+}
+
+/// Remembers the first card report of this process (`ui::pacing::on_render`, at `RenderingSetup`).
+pub fn heard(api: &slint::GraphicsAPI) {
+    if ADAPTER.get().is_none() && let Some(a) = adapter_of(api) { let _ = ADAPTER.set(a); }
+}
+
+/// The graphics card this process draws with: empty until a window has drawn (and always for Software).
+pub fn adapter() -> String { ADAPTER.get().cloned().unwrap_or_default() }
 
 // ---- What the operator reads ----
 
@@ -276,6 +336,29 @@ mod tests {
         assert_eq!(attempts(Software, w), [Software]);
         assert_eq!(attempts(Vulkan, WINDOWS), [Auto, Software], "not built in: straight to Auto");
         assert_eq!(attempts(Metal, Build { skia: true, ..LINUX }), [Auto, Software], "not on this system");
+    }
+
+    #[test]
+    fn automatic_tries_the_tests_winner_first_then_as_before() {
+        let w = Build { wgpu: true, ..WINDOWS };
+        assert_eq!(attempts_auto(Auto, w, Some(Direct3D)), [Direct3D, Auto, Software]);
+        assert_eq!(attempts_auto(Auto, w, None), [Auto, Software]);
+        assert_eq!(attempts_auto(Auto, w, Some(OpenGl)), [OpenGl, Auto, Software]);
+        assert_eq!(attempts_auto(Auto, w, Some(Software)), [Software, Auto], "a PC where only software worked");
+        assert_eq!(attempts_auto(Auto, LINUX, Some(Vulkan)), [Auto, Software], "a winner this build lacks");
+        assert_eq!(attempts_auto(Vulkan, w, Some(Direct3D)), [Vulkan, Auto, Software], "only Automatic follows the test");
+        assert_eq!(attempts_auto(Software, w, Some(Direct3D)), [Software], "safe mode stays safe");
+    }
+
+    #[test]
+    fn opengl_names_the_card_and_driver() {
+        unsafe extern "system" fn get_string(what: u32) -> *const std::ffi::c_char {
+            match what { GL_RENDERER => c"Test GPU".as_ptr(), GL_VERSION => c"4.6 Driver 1.2".as_ptr(), _ => std::ptr::null() }
+        }
+        let gpa = |n: &std::ffi::CStr| if n == c"glGetString" { get_string as *const std::ffi::c_void } else { std::ptr::null() };
+        let api = slint::GraphicsAPI::NativeOpenGL { get_proc_address: &gpa };
+        assert_eq!(adapter_of(&api).as_deref(), Some("Test GPU (OpenGL 4.6 Driver 1.2)"));
+        assert_eq!(adapter_of(&slint::GraphicsAPI::NativeOpenGL { get_proc_address: &|_| std::ptr::null() }), None);
     }
 
     #[test]

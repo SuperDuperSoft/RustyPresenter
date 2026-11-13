@@ -55,7 +55,11 @@ pub fn app_args(attempt: u32, passthrough: &[OsString]) -> Vec<OsString> {
     let mut args = vec![];
     if attempt >= 1 && !restoring { args.push("--restore".into()); }
     if attempt >= 2 { args.extend(["--attempt".into(), attempt.to_string().into()]); }
-    args.extend_from_slice(passthrough);
+    // After a crash the copy that restarted this one is long gone (and its process number may be someone else's).
+    let mut it = passthrough.iter();
+    while let Some(a) = it.next() {
+        if attempt >= 1 && a == super::restart::WAIT_FLAG { it.next(); } else { args.push(a.clone()) }
+    }
     args
 }
 
@@ -330,6 +334,13 @@ mod tests {
         assert_eq!(app_args(0, &rest), os(&["--no-browser"]));
         assert_eq!(app_args(1, &rest), os(&["--restore", "--no-browser"]));
         assert_eq!(app_args(2, &rest), os(&["--restore", "--attempt", "2", "--no-browser"]));
+    }
+
+    #[test]
+    fn a_crash_restart_does_not_wait_for_the_old_copy_again() {
+        let rest = os(&["--wait-for", "77", "--no-browser"]);
+        assert_eq!(app_args(0, &rest), os(&["--wait-for", "77", "--no-browser"]));
+        assert_eq!(app_args(1, &rest), os(&["--restore", "--no-browser"]));
     }
 
     #[test]

@@ -489,6 +489,102 @@ fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
 }
 
 #[test]
+fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
+    use crate::{model::Graphics, video::bench::{self, Measured}};
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "SettingsVideo::graphics-test").is_some(), "the button");
+    assert_eq!(find(&op, "SettingsVideo::graphics-test-status").unwrap().accessible_label().unwrap(), "About 30 seconds. Test windows open and close while it runs.");
+    assert!(find(&op, "SettingsVideo::graphics-test-use").is_none(), "nothing to use yet");
+    assert!(find(&op, "SettingsVideo::graphics-restart").is_none(), "nothing to restart for yet");
+
+    let root = app.store.data_path().parent().unwrap().to_path_buf();
+    let ran = |graphics, fps| Measured { graphics, started: true, fps, low_ms: 18.0, cpu: Some(20.0), adapter: "GPU 1".into(), error: String::new() };
+    // The software choice is last in every build; the first real one wins.
+    let results = vec![ran(Graphics::OpenGl, 60.0), Measured::failed(Graphics::Software, "crashed")];
+    super::settings_graphics::finish(&g(&op), &root, results);
+    settle();
+    let rows: Vec<(String, String, bool)> = g(&op).get_graphics_test_rows().iter().map(|r| (r.name.to_string(), r.word.to_string(), r.best)).collect();
+    assert_eq!(rows, [("OpenGL".into(), "Smooth".into(), true), ("Software".into(), "Didn't work".into(), false)]);
+    assert_eq!(find_all(&op, "SettingsVideo::graphics-test-row").len(), 2);
+    assert_eq!(g(&op).get_graphics_test_pick(), 0, "the best is picked");
+    assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this PC. Automatic will use it from the next start.");
+    assert_eq!(bench::load(&root).unwrap().winner, Some(Graphics::OpenGl), "kept for Automatic");
+
+    click(&op, "SettingsVideo::graphics-test-use");
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+    assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
+    let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
+    assert_eq!(g(&op).get_graphics_index(), want);
+    // Nothing else changed: restarts at once, without asking.
+    click(&op, "SettingsVideo::graphics-restart");
+    assert_eq!(op.state.borrow().asks, 0);
+    assert_eq!(crate::recovery::restart::requests_here(), 1, "Restart now");
+
+    // A choice that didn't work can't be used.
+    super::settings_graphics::use_picked(&op, &Rc::new(edit_for(&app)), 1);
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+}
+
+fn graphics_choices() -> Vec<crate::model::Graphics> { crate::video::graphics::available(crate::video::graphics::Build::this()) }
+
+fn edit_for(app: &Arc<App>) -> Edit {
+    Edit {
+        settings: std::cell::RefCell::new(app.data.lock().unwrap().settings.clone()),
+        backups: Default::default(),
+        look: Default::default(),
+        bible: Default::default(),
+        language: Default::default(),
+        themes: Default::default(),
+    }
+}
+
+#[test]
+fn restart_now_asks_to_save_other_changes_first() {
+    use crate::recovery::restart::requests_here;
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    g(&op).set_graphics_restart(true);
+    let before = app.data.lock().unwrap().settings.show_performance;
+    g(&op).set_show_performance(!before);
+    click(&op, "SettingsVideo::graphics-restart");
+    assert_eq!(op.state.borrow().asks, 1, "asks once");
+    let ask = op.ui.get_ask().row_data(0).unwrap();
+    assert_eq!((ask.text.as_str(), ask.ok_label.as_str(), ask.cancel_label.as_str()), ("Save your other changes and restart?", "Save and restart", "Cancel"));
+    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    settle();
+    assert_eq!(requests_here(), 0, "Cancel: no restart");
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, before, "and nothing saved");
+    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Video)), "Settings stays open");
+
+    click(&op, "SettingsVideo::graphics-restart");
+    crate::ui::dialogs::ask::answer(&op, true, String::new());
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, !before, "saved first");
+    assert_eq!(requests_here(), 1, "then restarted");
+}
+
+#[test]
+fn the_graphics_test_is_offered_once_at_start() {
+    use crate::video::bench;
+    let app = test_app();
+    let op = opened(&app);
+    let root = app.store.data_path().parent().unwrap().to_path_buf();
+    super::settings_graphics::offer_at_start(&op);
+    assert_eq!(op.state.borrow().asks, 1, "asked");
+    assert!(bench::load(&root).unwrap().offered, "remembered");
+    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    assert_eq!(op.dialog(), None, "Not now leaves it");
+    super::settings_graphics::offer_at_start(&op);
+    assert_eq!(op.state.borrow().asks, 0, "only once");
+}
+
+#[test]
 fn the_sound_output_is_saved_and_shown_again() {
     let app = test_app();
     let op = opened(&app);

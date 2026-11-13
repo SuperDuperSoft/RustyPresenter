@@ -265,6 +265,9 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_also_layout_changed(with_i(settings_bible::also_layout));
     g.on_choose_language(with_i(settings_language::choose));
     g.on_graphics_changed(with_i(settings_graphics::choose));
+    g.on_graphics_test(with(settings_graphics::start_test));
+    g.on_graphics_test_use(with_i(settings_graphics::use_picked));
+    g.on_restart_now(with(restart_now));
     g.on_help_translate(with(settings_language::help_translate));
     g.on_edit_translation(with(|op, _| super::translation_editor::open(op, None)));
     g.on_add_language(with(|op, _| super::translation_editor::open_add(op)));
@@ -344,6 +347,18 @@ fn usage_report(op: &Rc<Operator>, edit: &Rc<Edit>) {
     confirm(op, &crate::usage::strings::save_first(), &crate::usage::strings::save_and_open(), &dlg::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         save_then(&op, &edit, super::usage::open);
+    });
+}
+
+/// "Restart now" (`recovery::restart`): at once, or, with other changes not saved yet, asks to save them first.
+fn restart_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if s == *edit.settings.borrow() { return crate::recovery::restart::request() }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    confirm(op, &crate::tr!("Save your other changes and restart?"), &crate::tr!("Save and restart"), &dlg::cancel(), false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, |_| crate::recovery::restart::request());
     });
 }
 

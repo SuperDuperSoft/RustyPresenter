@@ -100,6 +100,7 @@ fn cgl(gpa: &dyn Fn(&CStr) -> *const c_void, interval: i32) -> bool {
 /// Called from a rendering notifier: at `RenderingSetup` with OpenGL, sets the swap interval for `vsync` (and logs
 /// when it cannot); every event goes to the probe.
 pub(crate) fn on_render(label: &'static str, vsync: bool, state: &RenderingState, api: &GraphicsAPI) {
+    if matches!(state, RenderingState::RenderingSetup) { crate::video::graphics::heard(api) }
     if let (RenderingState::RenderingSetup, GraphicsAPI::NativeOpenGL { get_proc_address }) = (state, api) {
         let i = interval(vsync);
         match set_swap_interval(*get_proc_address, i) {
