@@ -667,6 +667,8 @@ export component SlidesPanel inherits VerticalLayout {
             }
         }
         if root.has-selection: slides-edit := Btn {
+            // Its own width: the title takes the spare room, so on a wide window this is not a 400 px button.
+            horizontal-stretch: 0;
             small: true;
             icon: "edit";
             text: @tr("Edit");
