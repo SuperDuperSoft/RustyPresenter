@@ -358,6 +358,26 @@ mod tests {
     }
 
     #[test]
+    fn the_usual_settings_entry_keeps_its_tab() {
+        crate::ui::ui_test_init();
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        let g = op.ui.global::<SettingsDlg>();
+        op.ui.invoke_settings();
+        assert_eq!(g.get_tab(), 0, "the gear opens on Look, as before");
+        op.close_dialog();
+        open_page(&op, 2);
+        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 2), "⋯ → Review log");
+        op.close_dialog();
+        op.ui.invoke_settings();
+        assert_eq!(g.get_tab(), 0, "the gear still opens on Look after the ⋯ menu");
+        op.close_dialog();
+        settings::open(&op, SettingsTab::Bible);
+        assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::Bible), "a menu asking for a tab gets it");
+    }
+
+    #[test]
     fn a_saved_input_that_is_unplugged_stays_chosen() {
         let (labels, names, index) = device_choices(&["Desk mix".into()], "");
         assert_eq!((labels.len(), names, index), (2, vec![String::new(), "Desk mix".into()], 0));
