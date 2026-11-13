@@ -18,8 +18,10 @@ pub struct Position {
     pub word: Option<usize>,
     /// Index in the plan (the planned slide order).
     pub plan_index: usize,
-    /// 0–1: how far ahead this place is of the best place on another slide (a slide with the very same words
-    /// is not another place: it shows the same thing).
+    /// 0–1: how far ahead this place is of the best place on another slide. A slide with the very same words
+    /// is not another place (it shows the same thing) until its last line is sung: there the next slide is
+    /// about to go up, so a copy that is followed by other words is another place again. 0 while a place the
+    /// operator's move seated in mid-slide is still unproved.
     pub confidence: f32,
     /// The last words matched nothing here (talk, prayer, an ad-lib).
     pub off_script: bool,
@@ -36,9 +38,11 @@ const SKIP: f32 = 0.4;
 const AHEAD: usize = 3;
 /// Back to the start of a line of the same slide (singers repeat a line).
 const REPEAT: f32 = 0.5;
-/// Just put on this slide by the operator: the first word heard may be anywhere on it. The same cost as a
-/// repeated line: cheaper than a jump, dearer than the next word.
-const SEAT: f32 = 0.5;
+/// Just put on this slide by the operator: the first word heard may be anywhere on it. Dearer than skipping
+/// two words (2 × `SKIP`), so the slide's opening wins whenever it explains the word: a refrain's last line
+/// often repeats its first ("it is well … it is well with my soul"), and a place on the last line brings the
+/// next slide up. Still far cheaper than a jump.
+const SEAT: f32 = 0.9;
 /// Anywhere else: a jump outside the plan.
 const JUMP: f32 = 3.0;
 /// A match at least this good counts towards a jump and clears misses.
@@ -66,6 +70,9 @@ struct Hyp {
     /// Good words still needed before this jump is believed; 0 = believed.
     pending: u8,
     misses: u8,
+    /// Seated in mid-slide by the operator's move (`seat_anywhere`): planned next words, heard exactly, still
+    /// needed before this place is sure; 0 = proved, or never seated.
+    seated: u8,
 }
 
 pub struct Aligner {
@@ -75,7 +82,8 @@ pub struct Aligner {
     starts: Vec<usize>,
     /// Per plan index, the first plan index whose slide has exactly the same words (itself when there is none,
     /// or when it has no words). Two slides with the same words show the same thing; which copy it is only
-    /// matters for what comes next, and the next words decide that.
+    /// matters for what comes next, and the next words decide that (see `report`: on the last line, copies
+    /// that are followed by different words are rivals until then).
     twin: Vec<usize>,
     by_key: HashMap<String, Vec<usize>>,
     keys: Vec<String>,
@@ -132,12 +140,17 @@ impl Aligner {
     /// singers may be anywhere on that slide, so the first word heard may land on any of its words, not only
     /// its first three. It never reaches another slide, and it ends at the next `reset_to`. A song's start
     /// does not ask for it: there one stray word matching the last line would change the slide early.
+    ///
+    /// A place found this way is reported at once but stays unsure (confidence 0) until `jump_words` exact
+    /// words in a row have been heard from it, the same proof as a jump: one or two common words must never
+    /// put the singers on the slide's last line, where the next slide would come up. The slide's opening wins
+    /// when it explains the word (`SEAT`), and of equally good places the earliest one (`best`).
     pub fn seat_anywhere(&mut self) { self.seat = true }
 
     fn restart(&mut self, plan_index: usize) {
         let p = plan_index.min(self.starts.len().saturating_sub(1));
         let next = self.starts.get(p).copied().unwrap_or(0);
-        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0 }];
+        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0, seated: 0 }];
         self.last = Position { word: None, plan_index: p, confidence: 0.0, off_script: false };
         self.seat = false;
     }
@@ -152,6 +165,14 @@ impl Aligner {
     }
 
     fn plan_of(&self, h: &Hyp) -> usize { if h.heard { self.track[h.next - 1].plan_index } else { h.plan } }
+
+    /// The best believed place. Of equally good ones the earliest: when two lines of a slide hold the same
+    /// words ("with my soul" in the middle and at the end), what was heard fits both, and taking the later one
+    /// would bring the next slide up while the earlier line is sung. The earlier one is late at worst; the
+    /// words that follow tell them apart.
+    fn best(&self) -> Option<&Hyp> {
+        self.beam.iter().filter(|h| h.pending == 0).max_by(|a, b| a.score.total_cmp(&b.score).then(b.next.cmp(&a.next)))
+    }
 
     /// Takes one heard word and returns the new place.
     pub fn push(&mut self, heard: &Heard) -> Position {
@@ -174,15 +195,21 @@ impl Aligner {
                     p if m >= GOOD => p - 1,
                     p => p,
                 };
+                // A seated place is proved by the planned next word, heard exactly (as a jump is).
+                let seated = if k == 0 && m >= GOOD { h.seated.saturating_sub(1) } else { h.seated };
                 out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending,
-                    misses: if m >= GOOD { 0 } else { h.misses } });
+                    misses: if m >= GOOD { 0 } else { h.misses }, seated });
             }
-            // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the same.
+            // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the
+            // same. Shown as the place at once, but not sure until `jump_words` exact words in a row are heard.
             if self.seat && !h.heard {
                 let end = self.starts.get(h.plan + 1).copied().unwrap_or(self.track.len());
                 for t in (h.next + AHEAD)..end {
                     let m = self.score(key, t, false);
-                    if m >= GOOD { out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, misses: 0 }) }
+                    if m >= GOOD {
+                        out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, misses: 0,
+                            seated: self.jump_words - 1 });
+                    }
                 }
             }
             // A line of the same slide again.
@@ -195,14 +222,14 @@ impl Aligner {
                         let m = self.score(key, t, false);
                         if m > 0.0 {
                             out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - REPEAT - SKIP * k as f32, pending: 0,
-                                misses: if m >= GOOD { 0 } else { h.misses } });
+                                misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated });
                         }
                     }
                 }
             }
         }
         // A jump outside the plan, from the best believed place, to a word that sounds exactly the same.
-        if let Some(best) = self.beam.iter().filter(|h| h.pending == 0).max_by(|a, b| a.score.total_cmp(&b.score)).cloned() {
+        if let Some(best) = self.best().cloned() {
             let here = self.plan_of(&best);
             let near = |t: usize| {
                 let s = &self.track[t];
@@ -214,7 +241,8 @@ impl Aligner {
                 let to = self.track[t].plan_index;
                 // Nearer places first, ahead before behind.
                 let far = if to >= here { (to - here) as f32 * 0.05 } else { 0.05 + (here - to) as f32 * 0.1 };
-                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - JUMP - far, pending: self.jump_words - 1, misses: 0 });
+                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - JUMP - far, pending: self.jump_words - 1, misses: 0,
+                    seated: 0 });
             }
         }
         // Keep the best per place; a jump being confirmed is kept apart from a believed place.
@@ -231,13 +259,24 @@ impl Aligner {
     }
 
     fn report(&self) -> Position {
-        let Some(best) = self.beam.iter().filter(|h| h.pending == 0).max_by(|a, b| a.score.total_cmp(&b.score)) else { return self.last.clone() };
+        let Some(best) = self.best() else { return self.last.clone() };
         let here = self.plan_of(best);
-        // Anything else on another slide, a jump being confirmed too, makes it less sure. A slide with the same
-        // words (a chorus that is in the plan more than once) is not a rival: the screen shows the same either way.
-        let rival = self.beam.iter().filter(|h| self.twin.get(self.plan_of(h)) != self.twin.get(here)).map(|h| h.score).fold(f32::NEG_INFINITY, f32::max);
+        // The slide's last line is being sung (no line of it starts after this place): from here on the rules
+        // put the NEXT slide up.
+        let end = self.starts.get(here + 1).copied().unwrap_or(self.track.len());
+        let last_line = best.heard && !(best.next..end).any(|t| self.track[t].line_start);
+        // A slide with the same words (a chorus that is in the plan more than once) shows the same either way.
+        // But on its last line the copy decides which slide goes up next, before a word of it is sung: there
+        // only a copy that is followed by the same words too is the same place. (Unsure then means the next
+        // slide waits for its own first word: a word late, never the wrong slide.)
+        let next_same = |p: usize| self.twin.get(p + 1) == self.twin.get(here + 1);
+        let same = |p: usize| self.twin.get(p) == self.twin.get(here) && (!last_line || next_same(p));
+        // Anything else, a jump being confirmed too, makes it less sure.
+        let rival = self.beam.iter().filter(|h| !same(self.plan_of(h))).map(|h| h.score).fold(f32::NEG_INFINITY, f32::max);
         let off_script = best.misses >= OFF_SCRIPT;
-        let confidence = if !best.heard || off_script { 0.0 } else { ((best.score - rival) / SURE_MARGIN).clamp(0.0, 1.0) };
+        // A seated place still to be proved is not sure, however alone it stands.
+        let unproved = !best.heard || off_script || best.seated > 0;
+        let confidence = if unproved { 0.0 } else { ((best.score - rival) / SURE_MARGIN).clamp(0.0, 1.0) };
         Position { word: best.heard.then(|| self.track[best.next - 1].word), plan_index: here, confidence, off_script }
     }
 }

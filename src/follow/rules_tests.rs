@@ -605,3 +605,221 @@ fn a_late_ear_does_not_delay_the_change() {
     assert_eq!(r.tick(t7 + 0.9, &at(7), Voice::Singing, 2.0, 0), None);
     assert_eq!(r.tick(t7 + 1.0, &at(7), Voice::Singing, 2.0, 0), Some(Show(1)));
 }
+
+#[test]
+fn a_believed_jump_back_a_slide_goes_back_at_once() {
+    // The chorus sits just before the song's last slide, which is live and has been sung to its end.
+    let s = song(&["how great is our god\nsing with me", "then sings my soul"]);
+    let last_verse = |r: &mut Rules| {
+        for (i, w) in (8..=11).enumerate() { assert_eq!(r.tick(i as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1), None, "word {w}") }
+    };
+    let mut r = Rules::new(auto(2.0), &s);
+    last_verse(&mut r);
+    // The chorus again from its top. The aligner only believes a move to another slide after four words in a
+    // row, so the first place it reports there is "our" (3). That is proof enough: no three words more (which
+    // would reach the chorus's last line, where the place is held as the tail of an early change).
+    assert_eq!(r.tick(2.4, &at(3), Voice::Singing, 2.0, 1), Some(Show(0)));
+    // Not when someone was talking as those words came (the leader quotes the chorus): three words in a row.
+    let mut r = Rules::new(auto(2.0), &s);
+    last_verse(&mut r);
+    assert_eq!(r.tick(2.2, &at(11), Voice::Speaking, 0.0, 1), None);
+    assert_eq!(r.tick(2.4, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(2.7, &at(4), Voice::Singing, 2.0, 1), None);
+    // Nor when the place there is unsure.
+    let mut r = Rules::new(auto(2.0), &s);
+    last_verse(&mut r);
+    assert_eq!(r.tick(2.4, &Position { confidence: 0.3, ..at(3) }, Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(2.5, &at(3), Voice::Singing, 2.0, 1), None, "turning sure later is one word, not a jump");
+}
+
+#[test]
+fn a_tag_of_a_short_last_line_does_not_flash_the_old_slide() {
+    // A last line of three words, and one of four: by the tag's third word (when it is known to be a tag) the
+    // line is over or nearly over. Going back would put the old slide up for a moment and the next one straight
+    // after it.
+    for (lines, last) in [("we sing we sing\nour god reigns", 6), ("we sing we sing\nour great god reigns", 7)] {
+        let s = song(&[lines, "come now"]);
+        let mut r = Rules::new(auto(2.0), &s);
+        let (mut t, acts) = sing_to(&mut r, 4, 0);
+        assert_eq!(acts, [Show(1)], "{lines:?}");
+        // Slide 1 is up. The singers finish the line, then sing it twice more.
+        for w in (5..=last).chain(4..=last).chain(4..=last) {
+            t += 1.0 / 3.0;
+            assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 1), None, "{lines:?} word {w}");
+            assert_eq!(r.tick(t + 0.1, &at(w), Voice::Singing, 2.0, 1), None, "{lines:?} word {w}, the next look");
+        }
+    }
+}
+
+#[test]
+fn a_slide_sung_again_from_the_top_gets_its_lead_again() {
+    let (mut r, mut t) = early_change();
+    // The singers go back to the top of slide 0 and the screen follows (`three_words_back_go_back`).
+    for w in 0..=1 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 1), None, "word {w}");
+    }
+    t += 0.3;
+    assert_eq!(r.tick(t, &at(2), Voice::Singing, 2.0, 1), Some(Show(0)));
+    // They sing the whole slide again. The next slide comes up on the last line, 2 s ahead as the first time,
+    // not only once the slide's last word has been heard.
+    for w in 3..=6 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 0), None, "word {w}");
+    }
+    assert_eq!(r.tick(t + 0.3, &at(7), Voice::Singing, 2.0, 0), Some(Show(1)));
+    // A tag brought slide 0 back, and then it is sung again from the top: the same.
+    let (mut r, mut t) = tagged();
+    for w in 0..=6 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 0), None, "after the tag, word {w}");
+    }
+    assert_eq!(r.tick(t + 0.3, &at(7), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn switching_to_automatic_after_the_next_slides_first_word() {
+    let s = hymn();
+    let suggest = Settings { mode: Mode::Suggest, ..auto(2.0) };
+    // The operator does not take the suggestion. The singers go on to slide 1's first word and pause after it;
+    // the band plays for three seconds. Then the operator switches Suggest to Automatic.
+    let mut r = Rules::new(suggest.clone(), &s);
+    let (t, _) = sing_to(&mut r, 13, 0);
+    assert_eq!(r.tick(t + 0.3, &at(14), Voice::Singing, 2.0, 0), Some(Suggest(1)));
+    for i in 0..30 { r.tick(t + 0.6 + i as f64 * 0.1, &at(14), Voice::Music, 3.0, 0); }
+    r.set_settings(auto(2.0));
+    assert_eq!(r.tick(t + 4.0, &at(14), Voice::Music, 3.0, 0), Some(Show(1)), "the singers are on slide 1: it goes up");
+    // Someone talked in the pause: the place may be left over from the talk. It waits for a word heard now.
+    let mut r = Rules::new(suggest.clone(), &s);
+    let (t, _) = sing_to(&mut r, 13, 0);
+    r.tick(t + 0.3, &at(14), Voice::Singing, 2.0, 0);
+    for i in 0..30 { r.tick(t + 0.6 + i as f64 * 0.1, &at(14), Voice::Speaking, 0.0, 0); }
+    r.set_settings(auto(2.0));
+    assert_eq!(r.tick(t + 4.0, &at(14), Voice::Music, 3.0, 0), None);
+    assert_eq!(r.tick(t + 5.0, &at(15), Voice::Singing, 2.0, 0), Some(Show(1)));
+    // The word itself came under a talking label: the same.
+    let mut r = Rules::new(suggest, &s);
+    let (t, _) = sing_to(&mut r, 13, 0);
+    r.tick(t + 0.3, &at(14), Voice::Speaking, 0.0, 0);
+    for i in 0..30 { r.tick(t + 0.6 + i as f64 * 0.1, &at(14), Voice::Music, 3.0, 0); }
+    r.set_settings(auto(2.0));
+    assert_eq!(r.tick(t + 4.0, &at(14), Voice::Music, 3.0, 0), None);
+}
+
+/// `texts`' last slide is live and its words `first..=last` are sung; then music until the words come off.
+fn ended(settings: Settings, texts: &[&str], first: usize, last: usize) -> Rules {
+    let s = song(texts);
+    let live = texts.len() - 1;
+    let mut r = Rules::new(settings, &s);
+    for (i, w) in (first..=last).enumerate() { r.tick(i as f64 * 0.3, &at(w), Voice::Singing, 2.0, live); }
+    let mut acts = vec![];
+    for i in 0..80 { acts.extend(r.tick(2.0 + i as f64 * 0.1, &at(last), Voice::Music, 3.0, live)) }
+    assert_eq!(acts, [Blank]);
+    r
+}
+
+#[test]
+fn after_the_end_a_short_last_line_comes_back() {
+    // Two words ("be still"): three sung words in a row are there once the tag is sung round a second time.
+    let mut r = ended(auto(2.0), &["amazing grace", "be still"], 2, 3);
+    assert_eq!(r.tick(20.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.4, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.8, &at(2), Voice::Singing, 2.0, 1), Some(Unblank(1)));
+    assert!(!r.blanked());
+    // Three words: the line's own last word is the third.
+    let mut r = ended(auto(2.0), &["amazing grace", "lord god almighty"], 2, 4);
+    assert_eq!(r.tick(20.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.4, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.8, &at(4), Voice::Singing, 2.0, 1), Some(Unblank(1)));
+    // Four words, and the ear misses one of them.
+    let (_s, mut r) = ended_song();
+    assert_eq!(r.tick(20.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.4, &at(4), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(20.8, &at(5), Voice::Singing, 2.0, 1), Some(Unblank(1)));
+    // Still not on one or two matching words of the next song.
+    let mut r = ended(auto(2.0), &["amazing grace", "be still"], 2, 3);
+    assert_eq!(r.tick(20.0, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(23.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(26.0, &at(3), Voice::Singing, 2.0, 1), None);
+    assert!(r.blanked());
+}
+
+#[test]
+fn after_the_end_spoken_and_old_words_are_not_words_in_a_row() {
+    // The pastor quotes the last line; on its third word the room's label flickers to singing.
+    let (_s, mut r) = ended_song();
+    assert_eq!(r.tick(20.0, &at(2), Voice::Speaking, 0.0, 1), None);
+    assert_eq!(r.tick(20.4, &at(3), Voice::Speaking, 0.0, 1), None);
+    assert_eq!(r.tick(20.8, &at(4), Voice::Singing, 2.0, 1), None);
+    assert!(r.blanked());
+    // Three matching words minutes apart are not in a row either.
+    let (_s, mut r) = ended_song();
+    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(60.0, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(200.0, &at(4), Voice::Singing, 2.0, 1), None);
+    assert!(r.blanked());
+}
+
+#[test]
+fn after_the_end_singing_on_to_another_slide_brings_its_words_up() {
+    let texts = ["amazing grace how sweet the sound", "how great is our god", "be still my soul"];
+    // After the last slide and a pause the congregation goes into the chorus (slide 1) again. The aligner
+    // believes that after four words in a row and reports "our" (9): the chorus comes up on it, not three
+    // words later.
+    let mut r = ended(auto(2.0), &texts, 11, 14);
+    assert_eq!(r.tick(20.0, &at(9), Voice::Singing, 2.0, 2), Some(Unblank(1)));
+    assert!(!r.blanked());
+    // Someone was talking as those words came (a quoted line, then the label flickers to singing): three sung
+    // words in a row, as on the last slide itself.
+    let mut r = ended(auto(2.0), &texts, 11, 14);
+    assert_eq!(r.tick(19.8, &at(14), Voice::Speaking, 0.0, 2), None);
+    assert_eq!(r.tick(20.0, &at(9), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(20.3, &at(10), Voice::Singing, 2.0, 2), None);
+    assert!(r.blanked());
+    // Jumps set to two words in a row (Settings): that is less than three, so three are still asked for.
+    let mut r = ended(Settings { jump_words: 2, ..auto(2.0) }, &texts, 11, 14);
+    assert_eq!(r.tick(20.0, &at(7), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(20.3, &at(8), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(20.6, &at(9), Voice::Singing, 2.0, 2), Some(Unblank(1)));
+    // The place had drifted off the song's last word before the words came off (talk): no jump is known, so
+    // one word on another slide is one word.
+    let s = song(&texts);
+    let mut r = Rules::new(auto(2.0), &s);
+    for (i, w) in (11..=14).enumerate() { r.tick(i as f64 * 0.3, &at(w), Voice::Singing, 2.0, 2); }
+    let drifted = Position { confidence: 0.2, ..at(8) };
+    let mut acts = vec![];
+    for i in 0..80 { acts.extend(r.tick(2.0 + i as f64 * 0.1, &drifted, Voice::Speaking, 0.0, 2)) }
+    assert_eq!(acts, [Blank]);
+    assert_eq!(r.tick(20.0, &at(9), Voice::Singing, 2.0, 2), None);
+    assert!(r.blanked());
+}
+
+#[test]
+fn a_place_heard_while_not_looking_is_old_when_they_look_again() {
+    let s = song(&["amazing grace how sweet", "the sound that saved", "a wretch like me"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(0.0, &at(8), Voice::Singing, 2.0, 2), None);
+    // Hold is on (the engine calls `missed`, not `tick`). The leader sings slide 0's line; then the band plays
+    // for 26 s.
+    for w in 0..=3 {
+        let t = 1.0 + w as f64 * 0.3;
+        r.missed(t, t, &at(w), Voice::Singing);
+    }
+    for i in 0..260 {
+        let t = 2.0 + i as f64 * 0.1;
+        r.missed(t, t, &at(3), Voice::Music);
+    }
+    // Hold is released. The place on slide 0 was heard 26 s ago: it moves nothing, whatever the label says.
+    assert_eq!(r.tick(28.0, &at(3), Voice::Music, 3.0, 2), None);
+    assert_eq!(r.tick(28.5, &at(3), Voice::Singing, 2.0, 2), None);
+    // A word heard now does.
+    assert_eq!(r.tick(40.0, &at(1), Voice::Singing, 2.0, 2), Some(Show(0)));
+    // Released a moment after the word was heard, the place is fresh: it follows.
+    let mut r = Rules::new(auto(2.0), &s);
+    r.tick(0.0, &at(8), Voice::Singing, 2.0, 2);
+    for w in 0..=3 {
+        let t = 1.0 + w as f64 * 0.3;
+        r.missed(t, t, &at(w), Voice::Singing);
+    }
+    assert_eq!(r.tick(2.5, &at(3), Voice::Singing, 2.0, 2), Some(Show(0)));
+}

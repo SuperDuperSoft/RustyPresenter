@@ -305,3 +305,35 @@ fn operator_back_mid_slide_locks_on_again() {
     assert_eq!(e.state().light, Light::Sure);
     assert_eq!(host.shown().last().map(String::as_str), Some("show 2"));
 }
+
+#[test]
+fn a_place_heard_during_a_hold_is_old_when_the_hold_ends() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    sing(&mut e, host.as_ref(), VERSE_2, &mut t);
+    assert_eq!(host.slide(), 2);
+    let before = host.shown();
+    // Hold. The leader goes back to the first verse for a line (the aligner follows him there: the light shows
+    // that line); then the band plays for 26 s.
+    e.set_hold(true);
+    sing(&mut e, host.as_ref(), "amazing grace how sweet the sound", &mut t);
+    assert_eq!(e.state().line.as_deref(), Some("amazing grace how sweet the sound"));
+    for _ in 0..260 {
+        t += 0.1;
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Music, t)));
+    }
+    // Hold is released with nobody singing. That place was heard 26 s ago, not just now: the screen stays.
+    e.set_hold(false);
+    e.step(host.as_ref(), t, None);
+    for _ in 0..20 {
+        t += 0.1;
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Music, t)));
+    }
+    assert_eq!(host.shown(), before, "an old place moved the screen as the hold ended");
+    assert_eq!(host.slide(), 2);
+    // The singers come in again where the leader was: a word heard now moves it.
+    sing(&mut e, host.as_ref(), "that", &mut t);
+    assert_eq!(host.shown().last().map(String::as_str), Some("show 0"));
+}

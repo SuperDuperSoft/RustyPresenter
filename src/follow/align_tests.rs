@@ -256,6 +256,129 @@ fn a_seat_never_leaves_the_operators_slide() {
     assert_eq!((p.word, p.plan_index), (None, 1), "a word of the next slide only");
 }
 
+/// A refrain whose last line repeats its first two ("It Is Well"), between two slides that share no word with it.
+fn well_song() -> SongText {
+    song(&["amazing grace how sweet the sound", "it is well\nwith my soul\nit is well it is well with my soul", "through many dangers toils and snares"])
+}
+
+#[test]
+fn a_seat_prefers_the_slides_opening_to_its_last_line() {
+    // The operator puts the refrain up as the singers start it, and the ear misses "it is".
+    let s = well_song();
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    a.seat_anywhere();
+    let p = sing(&mut a, "well", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "well")), 1), "line 1, not the same word on the last line");
+    let p = sing(&mut a, "with my soul", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "soul")), 1), "line 2");
+    assert!(p.word.unwrap() < s.slides[1].last_line_first_word, "the last line is still to be sung: {p:?}");
+}
+
+#[test]
+fn equal_seats_take_the_earliest_line() {
+    // "with my soul" ends line 2 and the last line. Heard first, it is taken as line 2: late at worst, never the
+    // next slide while the refrain's last line is still to come.
+    let s = well_song();
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    a.seat_anywhere();
+    let p = sing(&mut a, "with", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 1, "with")));
+    let p = sing(&mut a, "my soul", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "soul")), 1));
+    assert!(p.word.unwrap() < s.slides[1].last_line_first_word, "{p:?}");
+    // It was the last line after all: the next slide's first word says so.
+    let p = sing(&mut a, "through", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 2, "through")), 2, false));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn a_seat_is_not_sure_until_it_is_proved_like_a_jump() {
+    let s = song(&SONG);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    a.seat_anywhere();
+    // A word in mid-slide places the singers at once, but one or two words prove nothing yet.
+    for w in ["blind", "but", "now", "I"] {
+        let p = sing(&mut a, w, &mut t);
+        assert_eq!((p.plan_index, p.off_script), (1, false));
+        assert_eq!(p.confidence, 0.0, "{w}: {p:?}");
+    }
+    let p = sing(&mut a, "see", &mut t);
+    assert_eq!(p.word, Some(s.slides[1].end_word - 1));
+    assert!(p.confidence >= 0.6, "four exact words in a row (\"I\" is too short to count): {p:?}");
+    // The slide's opening needs no such proof.
+    a.reset_to(1);
+    a.seat_anywhere();
+    let p = sing(&mut a, "I once", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 1, "once")));
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // A laxer jump setting asks for fewer words.
+    let mut lax = Aligner::new(&s, &plan(&s)).with_jump_words(2);
+    lax.reset_to(1);
+    lax.seat_anywhere();
+    assert_eq!(sing(&mut lax, "blind", &mut t).confidence, 0.0);
+    assert!(sing(&mut lax, "but", &mut t).confidence >= 0.6);
+}
+
+#[test]
+fn twin_copies_with_different_next_slides_are_rivals_on_the_last_line() {
+    let s = chorus_song();
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, TO_THE_BRIDGE, &mut t);
+    // Off plan into the chorus: its own words go up at once, whichever copy it is.
+    let p = sing(&mut a, "my chains are gone", &mut t);
+    assert_eq!(p.plan_index, 6);
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // On its last line the next slide would go up. One copy ends the song, the others go on to a verse:
+    // which it is, is not known yet.
+    for w in ["I've", "been", "set", "free"] {
+        let p = sing(&mut a, w, &mut t);
+        assert_eq!((p.plan_index, p.off_script), (6, false));
+        assert!(p.confidence < 0.6, "{w}: {p:?}");
+    }
+    // The words that follow tell the copies apart.
+    let p = sing(&mut a, "the earth", &mut t);
+    assert_eq!((p.plan_index, p.word), (2, Some(index_of(&s, 2, "earth"))));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn twin_copies_followed_by_the_same_words_are_not_rivals() {
+    // Pre-chorus and chorus are in the plan twice; the first chorus goes on to verse 2, the second to the bridge.
+    let pre = "was blind but now\nonce lost then found";
+    let s = song(&["amazing grace how sweet the sound", pre, CHORUS, "the earth shall soon dissolve like snow", pre, CHORUS,
+        "through many dangers toils and snares"]);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "amazing grace how sweet the sound was blind but now once lost then found my chains are gone I've been set free", &mut t);
+    assert_eq!((p.plan_index, p.off_script), (2, false));
+    // Off plan: the leader goes back to the pre-chorus. Either copy is followed by the chorus, so the place
+    // stays sure on its last line too and the chorus goes up in time.
+    let p = sing(&mut a, "was blind but now", &mut t);
+    assert_eq!(p.plan_index, 4, "the copy next in the plan");
+    assert!(p.confidence >= 0.6, "{p:?}");
+    let p = sing(&mut a, "once lost then found", &mut t);
+    assert_eq!(p.plan_index, 4);
+    assert!(p.confidence >= 0.6, "both copies go on to the chorus: {p:?}");
+    let p = sing(&mut a, "my chains are gone", &mut t);
+    assert_eq!(p.plan_index, 5);
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // The chorus's last line: the bridge or verse 2 next? Not known until one of them is sung.
+    let p = sing(&mut a, "I've been set free", &mut t);
+    assert_eq!(p.plan_index, 5);
+    assert!(p.confidence < 0.6, "the copies go on to different slides: {p:?}");
+    let p = sing(&mut a, "the earth", &mut t);
+    assert_eq!((p.plan_index, p.word, p.off_script), (3, Some(index_of(&s, 3, "earth")), false));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
 #[test]
 fn a_is_stepped_over() {
     // The phoneme ear never hears "a" (one sound): the aligner steps over it.

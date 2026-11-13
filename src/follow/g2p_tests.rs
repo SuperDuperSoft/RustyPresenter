@@ -27,11 +27,47 @@ fn worship_words() {
 #[test]
 fn every_exception_has_two_sounds_or_is_a() {
     // A word of one sound is in every other word, so the phoneme ear leaves it out (`Lexicon::set_song`): only
-    // "a" may be one. And a word listed twice would have its second way ignored.
+    // "a" may be one. (The sung "Ah"s of one sound have their own table, `LONE`.) And a word listed twice would
+    // have its second way ignored.
     for (i, (word, ipa)) in EXCEPTIONS.iter().enumerate() {
         assert!(coarse(ipa).len() >= 2 || *word == "a", "{word}");
         assert!(EXCEPTIONS[..i].iter().all(|(w, _)| w != word), "{word} is listed twice");
     }
+}
+
+#[test]
+fn more_apostrophe_words() {
+    // "You're" was built by the rules as "jaʊɚ", two sounds away from any way it is sung: never heard.
+    for (word, ipa) in [
+        ("You're", "jʊɹ"), ("you’re", "jʊɹ"), ("they're", "ðɛɹ"), ("doesn't", "dʌzənt"), ("wasn't", "wʌzənt"),
+    ] {
+        assert_eq!(phonemes(word).as_deref(), Some(ipa), "{word}");
+    }
+    // "You're" and "your" are heard as the same sounds.
+    assert_eq!(phonemes("you're"), phonemes("your"));
+}
+
+#[test]
+fn one_sound_words_the_ear_listens_for() {
+    // Two sounds or more: always. One full vowel (a sung "Ooh", "Ah", "awe"): yes. The neutral "a" and "uh", a
+    // lone consonant and no sound at all: no.
+    for (word, yes) in [
+        ("grace", true), ("oh", true), ("ohh", true), ("ooh", true), ("Ah", true), ("ahh", true), ("awe", true),
+        ("a", false), ("uh", false), ("mm", false),
+    ] {
+        assert_eq!(variants(word).iter().any(|p| listened(&coarse(p))), yes, "{word}");
+    }
+    assert!(!listened(&[]));
+    assert!(!listened(&coarse("ə")) && !listened(&coarse("m")) && listened(&coarse("uː")) && listened(&coarse("ðə")));
+    // The sung syllables the rules get wrong: one full vowel each, and not in the main table too.
+    for (word, ipa) in LONE {
+        assert!(coarse(ipa).len() == 1 && listened(&coarse(ipa)), "{word}");
+        assert!(EXCEPTIONS.iter().all(|(w, _)| w != word), "{word} is listed twice");
+        assert_eq!(phonemes(word).as_deref(), Some(*ipa), "{word}");
+    }
+    assert_eq!(phonemes("ooh").as_deref(), Some("uː"));
+    assert_eq!(phonemes("Ah").as_deref(), Some("ɑː"));
+    assert_eq!(phonemes("ohh").as_deref(), Some("oʊ"));
 }
 
 #[test]

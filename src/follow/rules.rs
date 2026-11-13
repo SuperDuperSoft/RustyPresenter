@@ -105,14 +105,20 @@ const PACE_MIN_GAP: f64 = 0.25;
 /// is a held or stretched word, not missed words: the change then waits for the next word.
 const COAST_S: f64 = 2.5;
 /// Going back to the slide just before the live one needs this many new words in a row on it: a real repeat or
-/// tag gives three within about a second, one ad-lib or misheard word does not.
+/// tag gives three within about a second, one ad-lib or misheard word does not. A place that came back there
+/// from a later slide needs no more: the aligner has already asked for `jump_words` words in a row.
 const BACK_WORDS: u8 = 3;
 /// A move to another slide needs a word that arrived this recently. While singing, words come at least every
-/// second or so; a place older than this is left over from before a talk or a pause.
+/// second or so; a place older than this is left over from before a talk or a pause. Words "in a row" are no
+/// further apart than this either.
 const FRESH_S: f64 = 2.0;
-/// After the song's end the words come back on this many words in a row (the same proof as `BACK_WORDS`): the
-/// band may start the next song before the next item is clicked, and one of its words can match the old slide.
+/// After the song's end the words come back on this many sung words in a row (the same proof as `BACK_WORDS`):
+/// the band may start the next song before the next item is clicked, and one of its words can match the old
+/// slide. Spoken, unsure and long-ago words do not count.
 const ENDED_BACK_WORDS: u8 = 3;
+/// Going back a slide for less singing than this is only a flash (the old slide, then the next one again at
+/// once): the next slide stays up.
+const BACK_MIN_S: f64 = 1.0;
 /// The song's last word was sung and nobody has sung for this long: the song is over, the words come off.
 pub const SONG_END_QUIET: f64 = 5.0;
 /// A slide's last word was sung and nobody has sung for this long: an instrumental slide after it comes up.
@@ -151,24 +157,32 @@ pub struct Rules {
     /// The quiet is counted from here at the earliest: the operator's last move, or the end of a hold.
     quiet_from: Option<f64>,
     restart_quiet: bool,
-    /// New words in a row going forward on one slide: (slide, the last of them, how many). Sure or not: that is
-    /// checked when acting.
-    run: Option<(usize, usize, u8)>,
+    /// New words in a row going forward on one slide: (slide, the last of them, how many, proved). Sure or not:
+    /// that is checked when acting. Proved: the place came onto this slide from a later one, surely and with
+    /// nobody talking. The aligner only does that by a jump it has confirmed with `jump_words` words in a row,
+    /// so the proof `BACK_WORDS` asks for is already given.
+    run: Option<(usize, usize, u8, bool)>,
     /// On this slide the singers went back from its end: a tag (the last line sung again), not the tail of an
     /// early change.
     tag: Option<usize>,
-    /// The screen went back to this slide: it is left on its last word, not early again.
+    /// The screen went back to this slide, into its last line (a tag): it is left on its last word, not early
+    /// again.
     came_back: Option<usize>,
     /// The live slide at the last look.
     last_live: Option<usize>,
     /// The words came off because the song ended (not by one of Settings' timers).
     ended: bool,
+    /// Since the last word arrived the room's label has said talking, or the rules were not looking: the place
+    /// may be left over from talk.
+    talk_since_word: bool,
+    /// When the room's label last said talking.
+    last_talk: Option<f64>,
 }
 
 impl Rules {
     pub fn new(settings: Settings, song: &SongText) -> Rules {
         Rules { settings, song: song.clone(), pace: None, last_word: None, arrived: 0.0, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None, beat: None, blank_why: (false, 0.0), finished: None, sung: None, sung_run: 0, word_spoken: false, pace_from: None, quiet_from: None, restart_quiet: false,
-            run: None, tag: None, came_back: None, last_live: None, ended: false }
+            run: None, tag: None, came_back: None, last_live: None, ended: false, talk_since_word: false, last_talk: None }
     }
 
     /// The singers' pace in syllables a second, once heard.
@@ -202,6 +216,23 @@ impl Rules {
     pub fn resume(&mut self) {
         self.restart_quiet = true;
         self.speaking_since = None;
+        // Someone may have talked meanwhile.
+        self.talk_since_word = true;
+    }
+
+    /// The rules are not looking (Hold, a video, Manual, waiting for the singers after a hand move) but the ear
+    /// goes on: the engine calls this instead of `tick_sung`. A new place is noted with the time it was really
+    /// heard, so it is as old as it is when the rules look again: one heard long before the hold ended is not
+    /// "heard just now" then, and moves nothing. Nobody checked that it was sung, so it starts no run of sung
+    /// words.
+    pub fn missed(&mut self, now: f64, sung: f64, pos: &Position, voice: Voice) {
+        if voice == Voice::Speaking { self.last_talk = Some(now) }
+        if self.note_word(now, sung.min(now), pos) {
+            self.word_spoken = voice == Voice::Speaking;
+            self.sung = None;
+            self.sung_run = 0;
+        }
+        self.resume();
     }
 
     /// The screen did not take the rules' last blank or un-blank (someone else changed it at that moment):
@@ -246,14 +277,21 @@ impl Rules {
                 let r = onsets_per_s as f64;
                 if (0.5..=12.0).contains(&r) { self.beat = Some(r) }
             }
-            Voice::Speaking => { self.speaking_since.get_or_insert(now); }
+            Voice::Speaking => {
+                self.speaking_since.get_or_insert(now);
+                self.talk_since_word = true;
+                self.last_talk = Some(now);
+            }
             Voice::Music | Voice::Silence => self.speaking_since = None,
         }
         let sure = pos.confidence >= self.settings.min_conf && !pos.off_script;
         // A new word of the song is singing, whatever the room's label says (a loud band hides the voice from it).
         let new = self.note_word(now, sung.min(now), pos);
         if let Some(w) = pos.word.filter(|&w| w < self.song.words.len()) {
-            if new { self.word_spoken = voice == Voice::Speaking }
+            if new {
+                self.word_spoken = voice == Voice::Speaking;
+                self.talk_since_word = self.word_spoken;
+            }
             // Sung: a word that just arrived (not under a talking label) and is sure, now or a moment later.
             let just_heard = self.last_word.is_some() && now - self.arrived <= STILL_SINGING;
             if sure && voice != Voice::Speaking && !self.word_spoken && just_heard && self.sung.is_none_or(|(s, _)| s != w) {
@@ -287,19 +325,27 @@ impl Rules {
                 // Back when singing moves on from where it stopped; with no words heard at all (the ear can't
                 // tell words yet), as singing starts, on the live slide.
                 // A word counts when it was just sung (not a place left over from talk): one under a Singing
-                // label, two in a row when a loud band hides the voice from the label.
+                // label, two in a row when a loud band hides the voice from the label. After one of Settings'
+                // timers the word the singing stopped on does not count; after the song's end the words in a
+                // row asked for below say more than that, and a short last line could not come back without it.
                 let on = match pos.word {
                     Some(w) => {
                         let just_sung = self.sung.is_some_and(|(s, t)| s == w && now - t <= STILL_SINGING);
                         let label = voice == Voice::Singing || (voice != Voice::Speaking && self.sung_run >= 2);
-                        just_sung && label && Some(w) != self.blank_word && w < self.song.words.len()
+                        just_sung && label && (self.ended || Some(w) != self.blank_word) && w < self.song.words.len()
                     }
                     None => live_has_words && voice == Voice::Singing,
                 };
                 if !on { return None }
                 // After the song's end one matching word is not enough, whatever the label says: the band may be
-                // starting the next song. A tag or reprise gives several words in a row.
-                if self.ended && pos.word.is_some() && self.run.map_or(0, |r| r.2) < ENDED_BACK_WORDS { return None }
+                // starting the next song. A tag or reprise gives several words in a row, and every one of them
+                // must have been surely sung (a line the pastor quotes is not singing, even when the label
+                // flickers on its last word). Singing on to another slide (the chorus again) is proved by the
+                // aligner's own words in a row: its first sung word there is enough.
+                if self.ended && pos.word.is_some() {
+                    let run = self.run.filter(|r| r.3 || r.2 >= ENDED_BACK_WORDS);
+                    if !run.is_some_and(|r| self.sung_run >= r.2.min(ENDED_BACK_WORDS)) { return None }
+                }
                 self.blanked = false;
                 self.ended = false;
                 let slide = pos.word.map_or(live_slide, |w| self.song.words[w].slide);
@@ -318,8 +364,13 @@ impl Rules {
                 self.blank_word = if self.ended { finished_here.map(|(_, w)| w) } else { pos.word };
                 self.sung = None;
                 self.sung_run = 0;
-                // Words in a row are counted again from here.
-                self.run = None;
+                // Words in a row are counted again from here. After the song's end, with the aligner on the
+                // song's last word, that place is kept (no words counted): singing on to an earlier slide is
+                // then seen to come from it, which the aligner only does by a confirmed jump.
+                self.run = match self.blank_word {
+                    Some(b) if self.ended && pos.word == Some(b) => Some((live_slide, b, 0, false)),
+                    _ => None,
+                };
                 self.blank_why = if no_singing {
                     (false, self.settings.blank_after_s.unwrap_or(0.0))
                 } else if talking {
@@ -357,14 +408,27 @@ impl Rules {
             if self.trailing(w, at, live_slide) { return None }
             // A move to another slide needs a word heard just now: a place the aligner was left on before a
             // talk or a pause moves nothing when the label stops saying "talking".
-            if !(self.last_word.is_some() && now - self.arrived <= FRESH_S) { return None }
+            let fresh = self.last_word.is_some() && now - self.arrived <= FRESH_S;
+            // But not left over from talk: the first words of the next slide, surely sung as they arrived, and
+            // nobody has talked since. The singers went on and then paused; the next words go up however long
+            // the pause (Suggest is switched to Automatic in it).
+            let sung_on_next = at > live_slide && (live_slide + 1..at).all(|s| self.song.slides[s].instrumental)
+                && !self.talk_since_word && self.sung.is_some_and(|(s, _)| s == w);
+            if !fresh && !sung_on_next { return None }
             // Back to the slide just before the live one: one ad-lib or misheard word must not flip the screen
-            // back and forward again. A real repeat or tag gives several words in a row.
+            // back and forward again. A real repeat or tag gives several words in a row; a place that came back
+            // from the live slide has given them to the aligner already.
             let just_before = at < live_slide && (at + 1..live_slide).all(|s| self.song.slides[s].instrumental);
             if just_before && live_has_words {
-                let n = self.run.filter(|r| r.0 == at).map_or(0, |r| r.2);
-                if n < BACK_WORDS { return None }
-                self.came_back = Some(at);
+                if !self.run.is_some_and(|r| r.0 == at && (r.3 || r.2 >= BACK_WORDS)) { return None }
+                // The slide's last word, or under a second of it left (a tag of a short last line): going back
+                // would only flash the old slide, the next one comes up again at once. The next slide stays.
+                let span = &self.song.slides[at];
+                let left: u32 = self.song.words[w + 1..span.end_word].iter().map(|x| x.syllables as u32).sum();
+                if (left as f64) < BACK_MIN_S * self.pace.or(self.beat).unwrap_or(DEFAULT_PACE) { return None }
+                // Back into the last line (a tag): see `came_back`. A slide sung again from further up gets
+                // its lead as usual.
+                if w >= span.last_line_first_word { self.came_back = Some(at) }
             }
             return act(at);
         }
@@ -373,12 +437,17 @@ impl Rules {
         // line has started, never past the last slide. Once the last word is heard the next words are up and
         // wait there, however long it is held or the band plays on.
         let span = &self.song.slides[live_slide];
-        if w < span.last_line_first_word { return None }
+        if w < span.last_line_first_word {
+            // After a tag the slide is sung again from further up (three words in a row say so, as for going
+            // back): the tag is over, and the next slide gets its lead as usual.
+            if self.run.is_some_and(|r| r.0 == live_slide && r.2 >= BACK_WORDS) { self.came_back = None }
+            return None;
+        }
         let next = live_slide + 1;
         let after = self.song.slides.get(next)?;
         // An instrumental slide next: handled above, when it is quiet.
         if after.instrumental { return None }
-        // The screen came back to this slide (a repeat, a tag): the words being sung are already inside the
+        // The screen came back into this slide's last line (a tag): the words being sung are already inside the
         // lead, so without this the next slide would flip up again at once. It is left on its last word; if the
         // ear misses that, the next slide's first heard word brings it up.
         if self.came_back == Some(live_slide) && w + 1 != span.end_word { return None }
@@ -427,17 +496,31 @@ impl Rules {
             }
             _ => self.pace_from = Some((w, sung)),
         }
-        // Words in a row going forward on one slide.
+        // Words in a row going forward on one slide. In a row in time too: a word that comes long after the one
+        // before it starts the count again.
         let slide = self.song.words[w].slide;
+        let end = self.song.slides[slide].end_word;
         let before = self.run;
+        let stale = now - self.arrived > FRESH_S;
+        // The place comes onto an earlier slide from a later one. The aligner only does that by a jump it has
+        // confirmed with `jump_words` words in a row, which is the proof asked of words in a row. Not when the
+        // place is unsure, when jumps are set to less than that proof, or when someone talked while those
+        // words came (a quoted line is not singing).
+        let sure = pos.confidence >= self.settings.min_conf && !pos.off_script;
+        let jumped = sure && self.settings.jump() >= BACK_WORDS && self.last_talk.is_none_or(|t| now - t > FRESH_S);
         self.run = Some(match before {
-            Some((s, last, n)) if s == slide && w > last => (slide, w, n.saturating_add(1)),
-            _ => (slide, w, 1),
+            Some((s, last, n, proved)) if s == slide && w > last && !stale => (slide, w, n.saturating_add(1), proved),
+            // After the song's end a short last line is sung round again: the count goes on (two words never
+            // give three in a row otherwise).
+            Some((s, last, n, proved)) if self.ended && s == slide && w < last && last + 2 >= end && !stale => {
+                (slide, w, n.saturating_add(1), proved)
+            }
+            Some((s, _, _, _)) if slide < s => (slide, w, 1, jumped),
+            _ => (slide, w, 1, false),
         });
         // A tag: they were at the slide's last or next-to-last word and are now further back on it. (A step
         // back from the middle of a line is more likely one misheard word.)
-        let end = self.song.slides[slide].end_word;
-        if before.is_some_and(|(s, last, _)| s == slide && w < last && last + 2 >= end) { self.tag = Some(slide) }
+        if before.is_some_and(|(s, last, _, _)| s == slide && w < last && last + 2 >= end) { self.tag = Some(slide) }
         self.last_word = Some((w, sung));
         self.arrived = now;
         true

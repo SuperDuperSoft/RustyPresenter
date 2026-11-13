@@ -16,7 +16,7 @@ const EXCEPTIONS: &[(&str, &str)] = &[
     ("heart", "hɑːɹt"), ("heaven", "hɛvən"), ("here", "hɪɹ"), ("his", "hɪz"), ("holy", "hoʊli"), ("how", "haʊ"),
     ("i", "aɪ"), ("into", "ɪntuː"), ("is", "ɪz"), ("jesus", "dʒiːzəs"), ("know", "noʊ"), ("live", "lɪv"), ("lord", "lɔːɹd"),
     ("love", "lʌv"), ("low", "loʊ"), ("many", "mɛni"), ("me", "miː"), ("mother", "mʌðɚ"), ("my", "maɪ"), ("no", "noʊ"),
-    ("now", "naʊ"), ("o", "oʊ"), ("of", "ʌv"), ("oh", "oʊ"), ("once", "wʌns"), ("one", "wʌn"), ("only", "oʊnli"),
+    ("now", "naʊ"), ("o", "oʊ"), ("of", "ʌv"), ("oh", "oʊ"), ("ohh", "oʊ"), ("once", "wʌns"), ("one", "wʌn"), ("only", "oʊnli"),
     ("other", "ʌðɚ"), ("our", "aʊɚ"), ("own", "oʊn"), ("put", "pʊt"), ("said", "sɛd"), ("says", "sɛz"), ("shall", "ʃæl"),
     ("she", "ʃiː"), ("should", "ʃʊd"), ("show", "ʃoʊ"), ("slow", "sloʊ"), ("so", "soʊ"), ("some", "sʌm"), ("son", "sʌn"),
     ("sorrow", "sɑːɹoʊ"), ("spirit", "spɪɹɪt"), ("sure", "ʃʊɹ"), ("than", "ðæn"), ("that", "ðæt"), ("the", "ðə"),
@@ -37,10 +37,15 @@ const EXCEPTIONS: &[(&str, &str)] = &[
     ("people", "piːpəl"), ("forever", "fɚɹɛvɚ"), ("honor", "ɑːnɚ"), ("honour", "ɑːnɚ"), ("ocean", "oʊʃən"),
     ("beautiful", "bjuːɾɪfəl"), ("worth", "wɜːθ"),
     // Words with an apostrophe, as they arrive here without it: "I'm", "I'll", "I'd", "he's", "don't", "won't",
-    // "o'er", "e'er", "heav'n". (So the rare sung "ill", "id" and "wont" are said as these.)
+    // "o'er", "e'er", "heav'n", "you're", "they're", "doesn't", "wasn't". (So the rare sung "ill", "id" and "wont"
+    // are said as these.)
     ("im", "aɪm"), ("ill", "aɪl"), ("id", "aɪd"), ("hes", "hiːz"), ("dont", "doʊnt"), ("wont", "woʊnt"), ("oer", "oːɹ"),
-    ("eer", "ɛɹ"), ("heavn", "hɛvən"),
+    ("eer", "ɛɹ"), ("heavn", "hɛvən"), ("youre", "jʊɹ"), ("theyre", "ðɛɹ"), ("doesnt", "dʌzənt"), ("wasnt", "wʌzənt"),
 ];
+
+/// Sung syllables of one sound that the rules get wrong ("Ah" is not the "a" of "at"). Kept apart from
+/// `EXCEPTIONS`, whose words all have two sounds or more. ("Ooh", "oo", "awe" come out right by the rules.)
+const LONE: &[(&str, &str)] = &[("ah", "ɑː"), ("ahh", "ɑː"), ("aah", "ɑː"), ("ooo", "uː"), ("oooh", "uː")];
 
 /// Other ways a word is sung ("ay-men", "bless-ed"). Long words only: a short extra way is a short extra false hit.
 const SUNG: &[(&str, &[&str])] = &[
@@ -75,6 +80,17 @@ pub fn variants(word: &str) -> Vec<String> {
     out
 }
 
+/// Whether the phoneme ear listens for a word said with these sounds (`coarse`). Two sounds or more: always. One
+/// sound: only a full vowel, a sung "Ooh" or "Ah", and the ear hears that only when it stands alone at a pause.
+/// The neutral vowel of "a" and "uh" is in every stray sound, and a lone consonant ("mm") is no word: never.
+pub fn listened(sounds: &[char]) -> bool {
+    match sounds {
+        [] => false,
+        [one] => matches!(*one, 'u' | 'ɑ' | 'e' | 'i' | 'o'),
+        _ => true,
+    }
+}
+
 /// What the ear compares for a word: its phonemes, or for other scripts its letters.
 pub fn key(word: &str) -> String { phonemes(word).unwrap_or_else(|| letters(word)) }
 
@@ -86,7 +102,7 @@ pub fn letters(word: &str) -> String {
     }
 }
 
-fn exception(w: &str) -> Option<&'static str> { EXCEPTIONS.iter().find(|(k, _)| *k == w).map(|(_, v)| *v) }
+fn exception(w: &str) -> Option<&'static str> { EXCEPTIONS.iter().chain(LONE).find(|(k, _)| *k == w).map(|(_, v)| *v) }
 
 fn vowel(c: u8) -> bool { matches!(c, b'a' | b'e' | b'i' | b'o' | b'u' | b'y') }
 

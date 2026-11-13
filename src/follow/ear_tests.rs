@@ -47,6 +47,15 @@ fn lexicon_of(slides: &[&str]) -> Lexicon {
 
 fn keys(heard: &[Heard]) -> Vec<String> { heard.iter().map(|h| h.key.clone()).collect() }
 
+/// The keys the phoneme ear hears in `sounds` (IPA, no pauses), to the end, for a song with these slides.
+fn spotted(slides: &[&str], sounds: &str) -> Vec<String> {
+    let mut spot = Spotter { lexicon: lexicon_of(slides), buf: vec![] };
+    let mut heard = vec![];
+    for (i, c) in coarse(sounds).into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
+    heard.extend(spot.flush());
+    keys(&heard)
+}
+
 /// A phoneme decoder for a one-slide song, fed one 20 ms frame at a time.
 struct Hears { d: Decoder, vocab: Vec<String>, t: f64 }
 
@@ -129,6 +138,77 @@ fn a_is_not_heard_in_every_schwa() {
 }
 
 #[test]
+fn lexicon_keeps_a_sung_ooh_and_ah() {
+    // One full vowel is a sung syllable and is listened for; the neutral "a" and "uh" are not.
+    let words = lexicon_of(&["ooh ah a uh grace"]).words();
+    let phones: Vec<Vec<char>> = words.iter().map(|w| w.phones.clone()).collect();
+    assert_eq!(phones, [coarse("uː"), coarse("ɑː"), coarse(&g2p::phonemes("grace").unwrap())], "{words:?}");
+    assert_eq!(words[0].key, sound_key("ooh"));
+}
+
+#[test]
+fn a_lone_ooh_is_heard_at_a_pause() {
+    let mut h = Hears::new(&["u", "s", "i", "ŋ"], "sing ooh ooh ooh");
+    // One held "Ooh" and a breath: with nothing else waiting it is the song's word.
+    assert!(h.rows(&["u"]).is_empty());
+    let heard = h.blanks(PAUSE_FRAMES as usize);
+    assert_eq!(keys(&heard), [sound_key("ooh")]);
+    assert!(heard[0].at.abs() < 1e-9 && heard[0].conf > 0.7, "{heard:?}");
+    // Two with a short gap between them: both.
+    assert!(h.rows(&["u"]).is_empty());
+    assert!(h.blanks(5).is_empty());
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh"), sound_key("ooh")]);
+    // Straight after a whole song word.
+    assert!(h.rows(&["s", "i", "ŋ", "u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("sing"), sound_key("ooh")]);
+}
+
+#[test]
+fn an_ooh_is_not_heard_inside_other_sounds() {
+    // (A long word in the song, so that nothing is decided before the pause.)
+    let mut h = Hears::new(&["u", "k", "p", "s", "i", "ŋ"], "sing ooh hallelujah");
+    // A vowel among stray sounds, in a long run and before a pause: none of them is "Ooh".
+    assert!(h.rows(&["k", "u", "p", "u", "k", "u", "p", "u", "k"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    assert!(h.rows(&["k", "u"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    // A stray sound was thrown away before the word at this pause: the vowel after it is not trusted either.
+    assert!(h.rows(&["k", "s", "i", "ŋ", "u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("sing")]);
+    // Run together with no pause, it is not looked for at all.
+    assert!(spotted(&["sing ooh"], "ukupuku").is_empty());
+}
+
+#[test]
+fn an_exact_short_word_beats_a_longer_one_with_a_sound_missing() {
+    // "your" comes first in the song; "you are" is still "you", "are" (it was "your", "are").
+    assert_eq!(spotted(&["your you are"], "juːɑːɹ"), ["you", "are"].map(sound_key));
+    assert_eq!(spotted(&["your you"], "juː"), [sound_key("you")]);
+    // The longer word, sung whole, is still itself.
+    assert_eq!(spotted(&["your you"], "jʊɹ"), [sound_key("your")]);
+    // "pray" is not "prayer" sung "pray-er" with its ending lost.
+    assert_eq!(spotted(&["prayer pray"], "pɹeɪ"), [sound_key("pray")]);
+    assert_eq!(spotted(&["prayer pray"], "pɹeɪɚ"), [sound_key("prayer")]);
+}
+
+#[test]
+fn i_is_not_heard_as_im() {
+    // "I'm" is earlier in the song; a sung "I am" is "I", "am" (it was "I'm", "am").
+    assert_eq!(spotted(&["I'm no longer I am"], "aɪæm"), ["I", "am"].map(sound_key));
+    assert_eq!(spotted(&["I'm no longer I am"], "aɪm"), [sound_key("I'm")]);
+    // And "I'd" is itself, not an earlier "died" with its first sound missing.
+    assert_eq!(spotted(&["he died I'd"], "aɪd"), [sound_key("I'd")]);
+    assert_eq!(spotted(&["he died I'd"], "daɪd"), [sound_key("died")]);
+}
+
+#[test]
+fn youre_is_heard() {
+    // A song with "You're" and no "your".
+    assert_eq!(spotted(&["you're a good good father"], "jʊɹ"), [sound_key("you're")]);
+}
+
+#[test]
 fn either_pronunciation_is_heard() {
     let lex = lexicon_of(&["blessed be your name amen"]);
     // As sung ("bless-ed", "ay-men"), then as said.
@@ -198,6 +278,19 @@ fn a_begun_word_is_given_up_after_three_seconds() {
     assert!(h.rows(&["s", "ɑ", "u"]).is_empty());
     // Three seconds of nothing new: the word was never finished. Its ending, when it comes, is no word.
     assert!(h.blanks(HOLD_FRAMES as usize).is_empty());
+    assert!(h.rows(&["n", "d"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+}
+
+#[test]
+fn a_begun_word_given_up_is_not_taken_for_a_shorter_one() {
+    let mut h = Hears::new(&["ð", "ə", "s", "ɑ", "u", "n", "d"], "how sweet the sound");
+    assert!(h.rows(&["ð", "ə", "s", "ɑ", "u"]).is_empty());
+    // The pause: "the" is whole; "sou" begins "sound" and waits.
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("the")]);
+    // Three seconds of nothing new. "Sou" is one sound from "how", but it began "sound": it is dropped, not
+    // heard as "how" three seconds late.
+    assert!(h.blanks((HOLD_FRAMES - PAUSE_FRAMES) as usize).is_empty());
     assert!(h.rows(&["n", "d"]).is_empty());
     assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
 }

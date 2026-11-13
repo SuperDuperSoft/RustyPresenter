@@ -235,8 +235,9 @@ impl Engine {
             Light::Unsure
         };
         if mode == Mode::Manual || blocked {
-            // Not looking: what the rules heard before is old by the time they look again.
-            run.rules.resume();
+            // Not looking, but the ear goes on. The rules are told the place and when it was heard: by the time
+            // they look again it is as old as it is, and a place heard long before moves nothing then.
+            run.rules.missed(now, sung, &run.pos, self.voice);
             return;
         }
 

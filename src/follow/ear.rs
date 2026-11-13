@@ -8,7 +8,7 @@
 //! word's key. Without a song it reports the phoneme groups between pauses.
 use super::align::Heard;
 use super::audio::Ear;
-use super::g2p::{coarse, variants};
+use super::g2p::{coarse, listened, variants};
 use super::lyrics::{SongText, sound_key};
 use super::voice::RATE;
 use std::collections::HashSet;
@@ -47,9 +47,11 @@ impl Lexicon {
         for w in &song.words {
             for p in variants(&w.text) {
                 let phones = coarse(&p);
-                // A word of one sound ("a") is in every other word: it would be heard in any stray vowel and pull
-                // the place ahead. It is left out; the aligner steps over it.
-                if phones.len() < 2 || !seen.insert((phones.clone(), w.key.clone())) { continue }
+                // A word of one neutral sound ("a") is in every other word: it would be heard in any stray vowel
+                // and pull the place ahead. It is left out; the aligner steps over it. A sung "Ooh" or "Ah" (one
+                // full vowel, `g2p::listened`) stays, or a slide of nothing else would have no word to hear and
+                // the song's end would never be seen. It is only heard standing alone at a pause (`Spotter::pause`).
+                if !listened(&phones) || !seen.insert((phones.clone(), w.key.clone())) { continue }
                 words.push(LexWord { phones, key: w.key.clone() });
             }
         }
@@ -90,7 +92,13 @@ struct Spotter {
     buf: Vec<(char, f64, f32)>,
 }
 
-struct Found { end: usize, key: String, conf: f32 }
+/// A song word in the buffer: from `start` (1 when a stray sound comes first) to before `end`.
+struct Found { start: usize, end: usize, key: String, conf: f32 }
+
+/// The key of the song word that is this one sound alone (a sung "Ooh", "Ah"), if the song has one.
+fn lone_key(words: &[LexWord], sound: char) -> Option<&str> {
+    words.iter().find(|w| w.phones.len() == 1 && w.phones[0] == sound).map(|w| w.key.as_str())
+}
 
 impl Spotter {
     fn push(&mut self, c: char, at: f64, p: f32) -> Vec<Heard> {
@@ -113,17 +121,46 @@ impl Spotter {
     /// A pause: what is waiting is decided now, except the beginning of a longer song word (`begun`). A note held
     /// inside a word ("sou——nd") looks like a pause; the word's beginning waits for its end, and is not thrown
     /// away or taken for a shorter word.
+    ///
+    /// A pause is also the only place a song word of one sound (a sung "Ooh", "Ah") is heard: when such sounds
+    /// are all that is waiting, with nothing thrown away before them at this pause. Among other sounds a lone
+    /// vowel is never a word (it is in every other word).
     fn pause(&mut self) -> Vec<Heard> {
         let words = self.lexicon.words();
         if words.is_empty() { return self.flush() }
         let mut out = vec![];
+        // No sound was thrown away at this pause yet: what is left stands alone, or right after whole song words.
+        let mut clean = true;
         while !self.buf.is_empty() && !self.begun(&words) {
             match self.find(&words) {
-                Some(f) => out.push(self.take(f)),
-                None => { self.buf.remove(0); }
+                Some(f) => {
+                    if f.start > 0 { clean = false }
+                    out.push(self.take(f))
+                }
+                None if clean && self.buf.iter().all(|b| lone_key(&words, b.0).is_some()) => {
+                    for (c, at, p) in self.buf.drain(..) {
+                        if let Some(key) = lone_key(&words, c) { out.push(Heard { key: key.to_string(), at, conf: p }) }
+                    }
+                }
+                None => {
+                    self.buf.remove(0);
+                    clean = false;
+                }
             }
         }
         out
+    }
+
+    /// A long silence (`HOLD_FRAMES`): a word that was begun and never finished is thrown away. `pause` kept it
+    /// so that it would not be taken for a shorter word ("sou—" for "how"); it must not be taken for one now,
+    /// seconds late, either. Anything else still waiting is decided as at a break in the sound.
+    fn give_up(&mut self) -> Vec<Heard> {
+        let words = self.lexicon.words();
+        if !words.is_empty() && self.begun(&words) {
+            self.buf.clear();
+            return vec![];
+        }
+        self.flush()
     }
 
     /// All that is waiting is the beginning of a longer song word, with more of it missing than a dropped ending
@@ -165,29 +202,35 @@ impl Spotter {
         out
     }
 
-    /// The best song word at the start of the buffer (one stray sound may come first).
+    /// The best song word at the start of the buffer (one stray sound may come first). A word of one sound is
+    /// not looked for here: it would be found in every other word (`pause` hears it when it stands alone).
     fn find(&self, words: &[LexWord]) -> Option<Found> {
         let heard: Vec<char> = self.buf.iter().map(|b| b.0).collect();
-        let mut best: Option<(f32, Found)> = None;
+        // The best so far: its score, its edits, the word.
+        let mut best: Option<(f32, usize, Found)> = None;
         for start in 0..=1.min(heard.len().saturating_sub(1)) {
             for w in words {
                 let len = w.phones.len();
+                if len < 2 { continue }
                 let tol = tolerance(len);
                 for l in len.saturating_sub(tol).max(1)..=len + tol {
                     if start + l > heard.len() { break }
                     let d = edits(&w.phones, &heard[start..start + l]);
                     if d > tol { continue }
                     let score = len as f32 - d as f32 - start as f32 * 0.5;
-                    if best.as_ref().is_none_or(|(s, _)| score > *s) {
+                    // On equal scores the word with fewer edits wins, whichever comes first in the song: "you"
+                    // sung exactly is "you", not an earlier "your" with its ending dropped; "I" is not "I'm".
+                    // (Scores are whole halves, so `==` is exact.)
+                    if best.as_ref().is_none_or(|(s, bd, _)| score > *s || (score == *s && d < *bd)) {
                         let probs = &self.buf[start..start + l];
                         let p = probs.iter().map(|b| b.2).sum::<f32>() / l as f32;
                         let conf = (1.0 - d as f32 / len as f32) * p;
-                        best = Some((score, Found { end: start + l, key: w.key.clone(), conf }));
+                        best = Some((score, d, Found { start, end: start + l, key: w.key.clone(), conf }));
                     }
                 }
             }
         }
-        best.map(|(_, f)| f)
+        best.map(|(_, _, f)| f)
     }
 
     fn take(&mut self, f: Found) -> Heard {
@@ -253,11 +296,12 @@ impl Decoder {
         }
     }
 
-    /// A long silence (`HOLD_FRAMES`) or a break in the sound: nothing is kept waiting any longer.
+    /// A long silence (`HOLD_FRAMES`) or a break in the sound: nothing is kept waiting any longer. The phoneme
+    /// ear throws away a word that was only begun (`Spotter::give_up`).
     pub fn give_up(&mut self) -> Vec<Heard> {
         match self.units {
             Units::Letters => self.end_word(),
-            Units::Phonemes => self.spot.flush(),
+            Units::Phonemes => self.spot.give_up(),
         }
     }
 
