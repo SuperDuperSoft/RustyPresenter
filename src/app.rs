@@ -273,6 +273,8 @@ pub struct App {
     room_canvas: AtomicU64,
     /// 1.2: decks that run in PowerPoint (`pplive`).
     pub(crate) pplive: crate::pplive::app::Hub,
+    /// 1.3 song auto-follow, once started (`start_follower`).
+    follower: OnceLock<crate::follow::Follower>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -332,7 +334,7 @@ impl App {
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
-            listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(),
+            listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
         });
         crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         {
@@ -427,9 +429,21 @@ impl App {
     /// Two threads can get here at once: the room's commit and an operator's Next. Sent out of order, the older view
     /// would replace the newer one in the room's `latest`, and the room would never see the slide it was asked for.
     pub fn broadcast_live(&self) {
-        let _order = self.live_order.lock().unwrap();
-        let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view())));
+        {
+            let _order = self.live_order.lock().unwrap();
+            let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view())));
+        }
+        // Whatever moved the live slide (a click, a phone, a macro, an edit), auto-follow looks again.
+        if let Some(f) = self.follower.get() { f.on_live_change() }
     }
+
+    /// Starts song auto-follow's worker (once).
+    pub fn start_follower(self: &Arc<Self>) -> &crate::follow::Follower {
+        self.follower.get_or_init(|| crate::follow::Follower::start(Arc::downgrade(self)))
+    }
+
+    /// Song auto-follow, once started.
+    pub fn follower(&self) -> Option<&crate::follow::Follower> { self.follower.get() }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> {
