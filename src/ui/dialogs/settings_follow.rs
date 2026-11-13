@@ -131,6 +131,7 @@ pub(super) fn load(op: &Rc<Operator>) {
         let text = review_lines(&op).join("\n");
         super::settings::copy(&op, &text, &crate::tr!("Review log copied"));
     });
+    g.set_follow_page(0);
     fill_practice(op);
     g.set_review_lines(strings(review_lines(op)));
 }

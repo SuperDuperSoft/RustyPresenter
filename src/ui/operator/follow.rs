@@ -106,6 +106,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     g.on_open_log(move || if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_follow::open_page(&op, 2) });
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_open_practice(move || if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_follow::open_page(&op, 1) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_open_settings(move || if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_follow::open_page(&op, 0) });
 }
 
 #[cfg(test)]
@@ -199,6 +201,31 @@ mod tests {
         app.data.lock().unwrap().settings.follow.mode = Mode::Suggest;
         show(&op, fresh);
         assert_eq!(label(&op, "FollowRow::follow-chip"), "Suggest");
+    }
+
+    #[test]
+    fn options_button_opens_the_menu() {
+        use crate::ui::SettingsDlg;
+        crate::ui::ui_test_init();
+        let app = test_app();
+        let song = add_song(&app);
+        let op = opened(&app);
+        show(&op, song);
+        let more = find(&op, "FollowRow::follow-more").expect("the ⋯ button shows beside the chip");
+        more.mock_single_click(PointerEventButton::Left);
+        slint::platform::update_timers_and_animations();
+        let pick = |id: &str, page: i32| {
+            let line = find(&op, id).unwrap_or_else(|| panic!("{id} in the menu"));
+            line.invoke_accessible_default_action();
+            let g = op.ui.global::<SettingsDlg>();
+            assert_eq!((g.get_tab(), g.get_follow_page()), (4, page), "{id}");
+            op.close_dialog();
+        };
+        pick("FollowRow::follow-menu-log", 2);
+        more.mock_single_click(PointerEventButton::Left);
+        pick("FollowRow::follow-menu-practice", 1);
+        more.mock_single_click(PointerEventButton::Left);
+        pick("FollowRow::follow-menu-settings", 0);
     }
 
     #[test]

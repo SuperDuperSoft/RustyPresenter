@@ -24,6 +24,24 @@ export global FollowUi {
     /// The chip's right-click menu: Settings → Auto-follow on its Review log or Practice page.
     callback open-log();
     callback open-practice();
+    callback open-settings();
+}
+
+/// One line of the options menu.
+component MenuLine inherits Rectangle {
+    in property <string> text;
+    callback clicked();
+    height: 34px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Text { x: 10px; text: root.text; color: Theme.text; font-family: Theme.font; font-size: 13px; vertical-alignment: center; }
 }
 
 /// The colour of the listening light.
@@ -74,6 +92,45 @@ export component FollowRow inherits HorizontalLayout {
                 MenuItem {
                     title: @tr("Practice with a recording…");
                     activated => { FollowUi.open-practice(); }
+                }
+                MenuItem {
+                    title: @tr("Auto-follow settings…");
+                    activated => { FollowUi.open-settings(); }
+                }
+            }
+        }
+    }
+    // The same menu as a right-click on the chip, for those who don't right-click.
+    follow-more := Btn {
+        small: true;
+        text: "⋯";
+        tooltip: @tr("Auto-follow options");
+        clicked => { follow-menu.show(); }
+    }
+    follow-menu := PopupWindow {
+        x: follow-more.x;
+        y: follow-more.y + follow-more.height + 2px;
+        width: 240px;
+        height: 3 * 34px + 8px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                follow-menu-log := MenuLine {
+                    text: @tr("Review log…");
+                    clicked => { follow-menu.close(); FollowUi.open-log(); }
+                }
+                follow-menu-practice := MenuLine {
+                    text: @tr("Practice with a recording…");
+                    clicked => { follow-menu.close(); FollowUi.open-practice(); }
+                }
+                follow-menu-settings := MenuLine {
+                    text: @tr("Auto-follow settings…");
+                    clicked => { follow-menu.close(); FollowUi.open-settings(); }
                 }
             }
         }
