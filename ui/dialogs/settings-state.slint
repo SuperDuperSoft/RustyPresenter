@@ -31,6 +31,9 @@ export struct SettingsLanguageRow { title: string, sub: string, on: bool, font-w
 
 /// A row of the keyboard table in Help.
 /// A Help row: its keys, what they do, the shortcut's id (empty for a fixed key) and whether the church changed it.
+/// Settings → Video → "Test which is fastest": one graphics choice's result (`video::bench::Row`).
+export struct GraphicsTestRow { name: string, bar: float, word: string, best: bool, works: bool }
+
 export struct SettingsHelpRow { keys: string, what: string, id: string, changed: bool }
 
 export global SettingsDlg {
@@ -162,6 +165,12 @@ export global SettingsDlg {
     in property <[string]> graphics-labels;
     in-out property <int> graphics-index;
     in property <string> graphics-now;
+    /// The graphics test (`video::bench`): running, what it is doing or found, each choice's result and the one
+    /// picked for "Use this".
+    in property <bool> graphics-testing;
+    in property <string> graphics-test-status;
+    in property <[GraphicsTestRow]> graphics-test-rows;
+    in-out property <int> graphics-test-pick;
 
     // ---- Backups ----
     in property <string> backups-folder;
@@ -192,6 +201,9 @@ export global SettingsDlg {
     callback add-language();
     /// Settings → Video → Graphics: saved at once (`settings/graphics`), used from the next start.
     callback graphics-changed(int);
+    /// "Test which is fastest", and "Use this" with the picked row.
+    callback graphics-test();
+    callback graphics-test-use(int);
     /// Any Look edit: the preview is drawn again 150 ms later.
     callback look-changed();
     callback choose-logo();

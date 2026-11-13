@@ -135,6 +135,86 @@ component SettingsVideo inherits VerticalLayout {
             accessible-role: text;
             accessible-label: self.text;
         }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            graphics-test := Btn {
+                small: true;
+                text: @tr("Test which is fastest");
+                enabled: !SettingsDlg.graphics-testing;
+                clicked => { SettingsDlg.graphics-test(); }
+            }
+            graphics-test-status := Text {
+                text: SettingsDlg.graphics-test-status != "" ? SettingsDlg.graphics-test-status : @tr("About 30 seconds. Test windows open and close while it runs.");
+                color: Theme.muted;
+                wrap: word-wrap;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+        for r[i] in SettingsDlg.graphics-test-rows: graphics-test-row := Rectangle {
+            height: 30px;
+            border-radius: 6px;
+            background: SettingsDlg.graphics-test-pick == i ? Theme.raise : transparent;
+            accessible-role: list-item;
+            accessible-label: (r.best ? "★ " : "") + r.name + ": " + r.word;
+            accessible-item-selectable: true;
+            accessible-item-selected: SettingsDlg.graphics-test-pick == i;
+            accessible-action-default => { SettingsDlg.graphics-test-pick = i; }
+            TouchArea {
+                enabled: r.works;
+                mouse-cursor: r.works ? pointer : default;
+                clicked => { SettingsDlg.graphics-test-pick = i; }
+            }
+            HorizontalLayout {
+                padding-left: 6px;
+                padding-right: 6px;
+                spacing: 10px;
+                Text {
+                    width: 16px;
+                    text: r.best ? "★" : "";
+                    color: Theme.accent;
+                    vertical-alignment: center;
+                }
+                Text {
+                    width: 90px;
+                    text: r.name;
+                    color: Theme.text;
+                    vertical-alignment: center;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 180px;
+                        height: 8px;
+                        border-radius: 4px;
+                        background: Theme.line;
+                        Rectangle {
+                            x: 0;
+                            width: parent.width * clamp(r.bar, 0, 1);
+                            border-radius: 4px;
+                            background: r.best ? Theme.accent : Theme.muted;
+                        }
+                    }
+                }
+                Text {
+                    text: r.word;
+                    color: r.works ? Theme.text : Theme.muted;
+                    vertical-alignment: center;
+                }
+            }
+        }
+        if SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing: HorizontalLayout {
+            alignment: start;
+            graphics-test-use := Btn {
+                small: true;
+                primary: true;
+                text: @tr("Use this");
+                clicked => { SettingsDlg.graphics-test-use(SettingsDlg.graphics-test-pick); }
+            }
+        }
     }
     Field {
         label: @tr("Performance");

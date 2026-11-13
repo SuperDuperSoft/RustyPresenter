@@ -1,4 +1,5 @@
 //! Video and audio playback through libmpv (loaded at runtime, never linked).
+pub mod bench;
 pub mod ffi;
 pub mod graphics;
 pub mod inputs;
