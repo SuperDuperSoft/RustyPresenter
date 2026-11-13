@@ -615,7 +615,10 @@ fn save_follow(op: &Rc<Operator>, item_id: Uuid) {
         let Some(op) = me.upgrade() else { return };
         match o.error {
             Some(e) => op.toast(e, true),
-            None => crate::ui::operator::follow::listen(&op, false),
+            None => {
+                crate::ui::operator::follow::listen(&op, false);
+                if mode.is_some_and(|m| m != crate::follow::Mode::Manual) { super::settings_model::offer(&op) }
+            }
         }
     });
 }
@@ -822,6 +825,9 @@ mod tests {
         g(&op).set_follow_mode(3);
         press(&op, "ItemEditDialog::save");
         assert_eq!(app.data.lock().unwrap().automation.follow.get(&id), Some(&Mode::Auto));
+        // No speech model yet: the download is offered.
+        assert_eq!(op.state.borrow().asks, 1);
+        crate::ui::dialogs::ask::answer(&op, false, String::new());
         refresh(&op);
         open(&op, id);
         assert_eq!(g(&op).get_follow_mode(), 3);

@@ -74,12 +74,15 @@ pub(crate) fn toggle_hold(op: &Rc<Operator>, toast: bool) -> bool {
 fn send(op: &Rc<Operator>, cmd: Command, done: Option<String>) {
     let me = Rc::downgrade(op);
     let mode = matches!(cmd, Command::FollowMode { .. });
+    // Suggest and Auto need a speech model: offer it the first time.
+    let offer = matches!(cmd, Command::FollowMode { mode: Some(m), .. } if m != Mode::Manual);
     op.ops().cmd(cmd, None, move |o| {
         let Some(op) = me.upgrade() else { return };
         match (o.ok, o.error) {
             (false, Some(e)) => op.toast(e, true),
             (true, _) => {
                 if mode { listen(&op, false) }
+                if offer { crate::ui::dialogs::settings_model::offer(&op) }
                 if let Some(t) = done { op.toast(t, false) }
             }
             _ => {}
@@ -185,6 +188,10 @@ mod tests {
         assert!(find(&op, "FollowRow::follow-hold").is_none(), "no Hold in Manual");
         click(&op, "FollowRow::follow-chip");
         assert_eq!((label(&op, "FollowRow::follow-chip"), saved(&app, song)), ("Suggest".into(), Some(Mode::Suggest)));
+        // No speech model yet: the download is offered, once.
+        assert_eq!(op.state.borrow().asks, 1, "Auto-follow needs a speech model (378 MB). Download now?");
+        crate::ui::dialogs::ask::answer(&op, false, String::new());
+        assert!(op.dialog().is_none(), "Not now: nothing opens");
         click(&op, "FollowRow::follow-chip");
         assert_eq!((label(&op, "FollowRow::follow-chip"), saved(&app, song)), ("Auto".into(), Some(Mode::Auto)));
         assert!(find(&op, "FollowRow::follow-hold").is_some(), "Hold shows while it follows");
@@ -196,6 +203,7 @@ mod tests {
         assert!(op.toast_log().iter().any(|(t, err)| t == "Auto-follow on" && !err));
         press(&op, "a");
         assert_eq!(saved(&app, song), Some(Mode::Manual));
+        assert_eq!(op.state.borrow().asks, 0, "asked only once");
         // Settings → Auto-follow's mode is used by a song with none of its own.
         let fresh = add_song(&app);
         app.data.lock().unwrap().settings.follow.mode = Mode::Suggest;

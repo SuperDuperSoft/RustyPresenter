@@ -130,19 +130,85 @@ component SettingsFollowMain inherits VerticalLayout {
     Heading { text: @tr("Listening model"); }
     Rectangle { height: 6px; }
     Field {
-        label: @tr("Model size");
-        help: @tr("Comes in a later update.");
+        label: @tr("Speech model");
+        help: @tr("Downloaded once, then it works without internet. Apache-2.0, by Facebook AI.");
         HorizontalLayout {
             alignment: start;
-            // Greyed out and not clickable until the model comes.
-            Rectangle {
-                follow-model := Segmented {
-                    opacity: 0.45;
-                    labels: [@tr("Fast"), @tr("Balanced"), @tr("Best")];
-                    index: 0;
-                }
-                TouchArea { }
+            model-pick := Segmented {
+                labels: [@tr("Fast (English)"), @tr("Best (all languages)")];
+                index <=> SettingsDlg.model-pick;
+                changed(i) => { SettingsDlg.model-pick-changed(i); }
             }
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            if SettingsDlg.model-installed: model-installed := Text {
+                text: @tr("Installed ✓ ({})", SettingsDlg.model-size);
+                color: Theme.ok;
+                font-family: Theme.font;
+                font-weight: 700;
+                vertical-alignment: center;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            if SettingsDlg.model-installed: model-remove := Btn {
+                small: true;
+                enabled: !SettingsDlg.model-busy;
+                text: @tr("Remove");
+                clicked => { SettingsDlg.model-remove(); }
+            }
+            if !SettingsDlg.model-installed && !SettingsDlg.model-downloading: model-download := Btn {
+                small: true;
+                primary: true;
+                enabled: !SettingsDlg.model-busy;
+                text: @tr("Download ({})", SettingsDlg.model-size);
+                clicked => { SettingsDlg.model-download(); }
+            }
+            if SettingsDlg.model-downloading: model-cancel := Btn {
+                small: true;
+                text: @tr("Cancel");
+                clicked => { SettingsDlg.model-cancel(); }
+            }
+            model-speed-check := Btn {
+                small: true;
+                enabled: !SettingsDlg.model-checking;
+                text: @tr("Test speed");
+                tooltip: @tr("Tries the downloaded models on this PC and says which one suits it.");
+                clicked => { SettingsDlg.model-speed-check(); }
+            }
+        }
+        if SettingsDlg.model-downloading: model-progress := Rectangle {
+            accessible-role: progress-indicator;
+            accessible-label: @tr("Download");
+            accessible-value: SettingsDlg.model-progress;
+            height: 8px;
+            border-radius: 4px;
+            background: Theme.line;
+            Rectangle {
+                x: 0;
+                width: parent.width * clamp(SettingsDlg.model-progress, 0, 1);
+                border-radius: 4px;
+                background: Theme.accent;
+            }
+        }
+        if SettingsDlg.model-status != "": model-status := Text {
+            text: SettingsDlg.model-status;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if SettingsDlg.model-speed != "": model-speed := Text {
+            text: SettingsDlg.model-speed;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
         }
     }
 }

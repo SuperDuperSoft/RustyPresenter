@@ -70,6 +70,22 @@ export global SettingsDlg {
     in property <[string]> practice-lines;
     callback practice-choose();
     callback practice-run();
+    /// The speech model: 0 Fast, 1 Best; its size; downloaded or downloading (`model-busy`: any download runs).
+    in-out property <int> model-pick;
+    in property <string> model-size;
+    in property <bool> model-installed;
+    in property <bool> model-downloading;
+    in property <bool> model-busy;
+    in property <float> model-progress;
+    in property <string> model-status;
+    /// Test speed's answer, and while it runs.
+    in property <string> model-speed;
+    in property <bool> model-checking;
+    callback model-pick-changed(int);
+    callback model-download();
+    callback model-cancel();
+    callback model-remove();
+    callback model-speed-check();
     /// Review log: one line per change auto-follow made or suggested this session.
     in property <[string]> review-lines;
     callback review-copy();

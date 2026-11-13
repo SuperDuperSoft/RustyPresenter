@@ -237,7 +237,7 @@ fn test(op: &Rc<Operator>) {
     let (tx, rx) = std::sync::mpsc::channel();
     let device = read_device(&g).or_else(|| audio::input_devices().into_iter().next());
     let started = match device {
-        Some(d) => audio::Capture::start(&d, tx),
+        Some(d) => audio::Capture::start(&d, Box::new(audio::NoEar), tx),
         None => Err(crate::tr!("no microphone or line-in found")),
     };
     let said = match started {
