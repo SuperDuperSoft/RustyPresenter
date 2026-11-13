@@ -272,8 +272,11 @@ fn last_slide_holds_then_blanks_never_next_item() {
     assert_eq!(acts, [Blank], "the last slide holds, then blanks; nothing past it");
     assert_eq!(r.blank_why(), (false, 5.0), "the song's last word, then five quiet seconds");
     for i in 0..50 { assert_eq!(r.tick(40.0 + i as f64 * 0.1, &at(5), Voice::Singing, 2.0, 1), None) }
-    // The last line sung again (a tag): the words come back.
-    assert_eq!(r.tick(46.0, &at(3), Voice::Singing, 2.0, 1), Some(Unblank(1)));
+    // The last line sung again (a tag): the words come back, on its third word in a row (after the song's end
+    // one matching word could as well be the next song starting).
+    assert_eq!(r.tick(46.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(46.3, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(46.6, &at(4), Voice::Singing, 2.0, 1), Some(Unblank(1)));
     // Not before the last word: a pause on the last slide keeps the words.
     let mut r = Rules::new(auto(4.0), &s);
     r.tick(0.0, &at(4), Voice::Singing, 2.0, 1);
@@ -308,13 +311,47 @@ fn ended_song() -> (SongText, Rules) {
 
 #[test]
 fn a_tag_under_a_loud_band_brings_the_words_back() {
-    let (_s, mut r) = ended_song();
-    // The label still says music: one heard word is not enough, two in a row are.
-    assert_eq!(r.tick(9.0, &at(2), Voice::Music, 3.0, 1), None);
-    assert_eq!(r.tick(9.4, &at(3), Voice::Music, 3.0, 1), Some(Unblank(1)));
+    // Words taken off by a Settings timer (the song is not over). The label still says music: one heard word is
+    // not enough, two in a row are.
+    let s = hymn();
+    let mut r = Rules::new(timed(2.0), &s);
+    sing_to(&mut r, 3, 0);
+    let mut acts = vec![];
+    for i in 0..40 { acts.extend(r.tick(1.0 + i as f64 * 0.1, &at(3), Voice::Music, 4.0, 0)) }
+    assert_eq!(acts, [Blank]);
+    assert_eq!(r.tick(9.0, &at(4), Voice::Music, 3.0, 0), None);
+    assert_eq!(r.tick(9.4, &at(5), Voice::Music, 3.0, 0), Some(Unblank(0)));
     // Under a singing label one word is enough.
+    let mut r = Rules::new(timed(2.0), &s);
+    sing_to(&mut r, 3, 0);
+    for i in 0..40 { r.tick(1.0 + i as f64 * 0.1, &at(3), Voice::Music, 4.0, 0); }
+    assert_eq!(r.tick(9.0, &at(4), Voice::Singing, 3.0, 0), Some(Unblank(0)));
+    // After the song's end (the band may be starting the next song before the next item is clicked) it takes
+    // three words in a row, whatever the label says.
     let (_s, mut r) = ended_song();
-    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+    assert_eq!(r.tick(9.0, &at(2), Voice::Music, 3.0, 1), None);
+    assert_eq!(r.tick(9.4, &at(3), Voice::Music, 3.0, 1), None);
+    assert_eq!(r.tick(9.8, &at(4), Voice::Music, 3.0, 1), Some(Unblank(1)));
+}
+
+#[test]
+fn after_the_end_one_stray_word_does_not_bring_the_words_back() {
+    let (_s, mut r) = ended_song();
+    // The band starts the next song before the next item is clicked. One of its words matches the old slide,
+    // under a singing label; two seconds later another one does.
+    assert_eq!(r.tick(9.0, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(11.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert!(r.blanked());
+}
+
+#[test]
+fn after_the_end_a_tag_brings_the_words_back() {
+    let (_s, mut r) = ended_song();
+    // The last slide sung again: three of its words in a row.
+    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(9.3, &at(3), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(9.6, &at(4), Voice::Singing, 2.0, 1), Some(Unblank(1)));
+    assert!(!r.blanked());
 }
 
 #[test]
@@ -408,8 +445,163 @@ fn a_refused_blank_or_unblank_is_tried_again() {
     // The screen did not take the blank: the rules ask again.
     r.set_blanked(false);
     assert_eq!(r.tick(8.0, &at(5), Voice::Music, 3.0, 1), Some(Blank));
-    // The screen did not take the un-blank: asked again on the next look.
-    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+    // The screen did not take the un-blank (after the song's end: on the tag's third word): asked again on the
+    // next look.
+    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 3.0, 1), None);
+    assert_eq!(r.tick(9.3, &at(3), Voice::Singing, 3.0, 1), None);
+    assert_eq!(r.tick(9.6, &at(4), Voice::Singing, 3.0, 1), Some(Unblank(1)));
     r.set_blanked(true);
-    assert_eq!(r.tick(9.1, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+    assert_eq!(r.tick(9.7, &at(4), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+}
+
+/// Slide 0's last line is being sung and slide 1 went up early (2 s lead) as "god" was heard; the time of "god".
+fn early_change() -> (Rules, f64) {
+    let s = hymn();
+    let mut r = Rules::new(auto(2.0), &s);
+    let (t7, acts) = sing_to(&mut r, 7, 0);
+    assert_eq!(acts, [Show(1)]);
+    (r, t7)
+}
+
+/// After the early change the singers finish slide 0, then sing its last line again (a tag): on the tag's third
+/// word the screen goes back to slide 0. The time of that word.
+fn tagged() -> (Rules, f64) {
+    let (mut r, mut t) = early_change();
+    for w in 8..=13 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 1), None, "word {w}");
+    }
+    for w in 6..=7 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 1), None, "tag word {w}");
+    }
+    t += 0.3;
+    assert_eq!(r.tick(t, &at(8), Voice::Singing, 2.0, 1), Some(Show(0)), "the tag's third word");
+    (r, t)
+}
+
+#[test]
+fn a_held_word_stops_the_clock() {
+    // A slow song with a long last line, one syllable a word.
+    let s = song(&["one two three\nwe will sing of your love for all our days", "come now"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    // A word every two thirds of a second. "we" (3) starts the last line: nine words, 6 s, are left.
+    for w in 0..=3 { assert_eq!(r.tick(w as f64 / 1.5, &at(w), Voice::Singing, 2.0, 0), None, "word {w}") }
+    assert!((r.pace().unwrap() - 1.5).abs() < 0.01);
+    // The leader holds the word, stretches it or sings something else over it: singing, but no new word, for
+    // 20 s. The clock alone never takes the unsung line away (it used to, 4 s in).
+    for i in 1..=200 { assert_eq!(r.tick(2.0 + i as f64 * 0.1, &at(3), Voice::Singing, 2.0, 0), None, "held {i}") }
+    // The line goes on. The change comes on the word that leaves three words, 2 s, to go.
+    for (i, w) in (4..=8).enumerate() {
+        assert_eq!(r.tick(22.0 + (i + 1) as f64 / 1.5, &at(w), Voice::Singing, 2.0, 0), None, "word {w}");
+    }
+    assert_eq!(r.tick(22.0 + 6.0 / 1.5, &at(9), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn a_normal_line_coasts_as_before() {
+    // The clock still stands in for the words between: here for 1.5 s after "god", well inside the limit.
+    let s = hymn();
+    let mut r = Rules::new(auto(0.5), &s);
+    let (t7, acts) = sing_to(&mut r, 7, 0);
+    assert_eq!(acts, []);
+    assert_eq!(r.tick(t7 + 1.0, &at(7), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(t7 + 1.5, &at(7), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn one_word_never_goes_back_a_slide() {
+    let (mut r, t7) = early_change();
+    // Slide 1 is live and the singers are finishing slide 0. One stray word (an ad-lib, a misheard word) lands
+    // on slide 0's first line: the screen does not flip back and forward again.
+    for (i, &w) in [8, 9, 0, 10, 11].iter().enumerate() {
+        assert_eq!(r.tick(t7 + (i + 1) as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1), None, "word {w}");
+    }
+}
+
+#[test]
+fn three_words_back_go_back() {
+    let (mut r, t7) = early_change();
+    // The singers really went back to the top of slide 0 (the verse again): three words in a row say so.
+    assert_eq!(r.tick(t7 + 0.3, &at(0), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(t7 + 0.6, &at(1), Voice::Singing, 2.0, 1), None);
+    assert_eq!(r.tick(t7 + 0.9, &at(2), Voice::Singing, 2.0, 1), Some(Show(0)));
+}
+
+#[test]
+fn tag_of_the_last_line_brings_the_slide_back() {
+    // All of it is in `tagged`: the first time through the last line holds; sung again from its end, it brings
+    // slide 0 back on the third word.
+    let (r, _) = tagged();
+    assert!(!r.blanked());
+}
+
+#[test]
+fn after_a_tag_the_next_slide_waits_for_the_last_word() {
+    let (mut r, mut t) = tagged();
+    // Slide 0 is live again and the tag is already inside the lead: the next slide must not flip up again at
+    // once. It waits for the slide's last word.
+    for w in 9..=12 {
+        t += 0.3;
+        assert_eq!(r.tick(t, &at(w), Voice::Singing, 2.0, 0), None, "word {w}");
+    }
+    assert_eq!(r.tick(t + 0.3, &at(13), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn a_step_back_in_mid_line_is_not_a_tag() {
+    let (mut r, t7) = early_change();
+    // One misheard word puts the place back from the middle of the last line (not from its end): the words
+    // after it are still the tail of the early change, and the screen stays on slide 1.
+    for (i, &w) in [8, 9, 6, 10, 11, 12].iter().enumerate() {
+        assert_eq!(r.tick(t7 + (i + 1) as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1), None, "word {w}");
+    }
+}
+
+#[test]
+fn stale_place_does_not_move_when_talk_pauses() {
+    let s = hymn();
+    let mut r = Rules::new(auto(2.0), &s);
+    // In a talk the aligner drifts onto slide 1 ("come"), under a talking label: hold.
+    for i in 0..=100 { assert_eq!(r.tick(10.0 + i as f64 * 0.1, &at(14), Voice::Speaking, 0.0, 0), None, "{i}") }
+    // The talk pauses. The place is ten seconds old: no reason to move the screen.
+    assert_eq!(r.tick(20.1, &at(14), Voice::Silence, 0.0, 0), None);
+    // A word heard now is.
+    assert_eq!(r.tick(25.0, &at(15), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn pace_uses_when_words_were_sung() {
+    // Three one-syllable words a second, delivered two at a time when the second one is over.
+    let s = hymn();
+    let mut r = Rules::new(auto(1.0), &s);
+    for w in 0..=7usize { r.tick_sung((w | 1) as f64 / 3.0, w as f64 / 3.0, &at(w), Voice::Singing, 2.0, 0); }
+    let pace = r.pace().expect("a pace");
+    assert!((pace - 3.0).abs() < 0.05, "three syllables a second, was {pace}");
+    // Delivered late and unevenly (a slow run of the model, then a quick one): still three a second.
+    let delivered = [1.0, 1.0, 1.0, 1.5, 1.5, 3.0, 3.0, 3.0];
+    let mut r = Rules::new(auto(1.0), &s);
+    for (w, &now) in delivered.iter().enumerate() { r.tick_sung(now, w as f64 / 3.0, &at(w), Voice::Singing, 2.0, 0); }
+    let pace = r.pace().expect("a pace");
+    assert!((pace - 3.0).abs() < 0.05, "three syllables a second, was {pace}");
+    // Timed by when they arrived, the same words give a pace that is far off.
+    let mut r = Rules::new(auto(1.0), &s);
+    for (w, &now) in delivered.iter().enumerate() { r.tick(now, &at(w), Voice::Singing, 2.0, 0); }
+    let pace = r.pace().expect("a pace");
+    assert!((pace - 3.0).abs() > 0.5, "the arrival times mislead, was {pace}");
+}
+
+#[test]
+fn a_late_ear_does_not_delay_the_change() {
+    // Every word reaches the rules 0.8 s after it was sung.
+    let s = hymn();
+    let mut r = Rules::new(auto(1.0), &s);
+    for w in 0..=7usize {
+        let sung = w as f64 / 3.0;
+        assert_eq!(r.tick_sung(sung + 0.8, sung, &at(w), Voice::Singing, 2.0, 0), None, "word {w}");
+    }
+    // "god" (7) was sung with 2 s to go: the change is due 1 s after it was sung, not 1 s after it arrived.
+    let t7 = 7.0 / 3.0;
+    assert_eq!(r.tick(t7 + 0.9, &at(7), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(t7 + 1.0, &at(7), Voice::Singing, 2.0, 0), Some(Show(1)));
 }

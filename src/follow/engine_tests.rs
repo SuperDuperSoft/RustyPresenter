@@ -251,3 +251,57 @@ fn no_words_only_blanks_never_moves() {
     // A real ear later: words count again.
     e.step(host.as_ref(), t, Some(FollowEvent::Listening { words: true }));
 }
+
+/// Verse 1 with a 1 s lead. Word i reaches the follower at i/3 + 0.5 s on its own clock, `lag` seconds after it
+/// was sung, and the sound input's clock reads `clock` seconds more than the follower's. What was shown, and
+/// when the first change was made (the follower's clock).
+fn sung_late(clock: f64, lag: f64) -> (Vec<String>, f64) {
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.settings.lead_s = 1.0);
+    let mut e = Engine::new();
+    for (i, w) in VERSE_1.split_whitespace().enumerate() {
+        let d = i as f64 / 3.0 + 0.5;
+        e.step(host.as_ref(), d, Some(FollowEvent::Voice(Voice::Singing, d + clock)));
+        e.step(host.as_ref(), d, Some(FollowEvent::Heard(Heard { key: sound_key(w), at: d + clock - lag, conf: 1.0 })));
+    }
+    let log = e.take_log();
+    (host.shown(), log.first().expect("a change").at)
+}
+
+#[test]
+fn words_stamped_when_sung_change_sooner() {
+    // The same words reach the follower at the same moments. In A the ear says they were sung just then; in B,
+    // that they were sung half a second earlier (what a real ear's delay looks like).
+    let (shown_a, at_a) = sung_late(0.0, 0.0);
+    let (shown_b, at_b) = sung_late(0.0, 0.5);
+    assert_eq!(shown_a, ["show 1"]);
+    assert_eq!(shown_b, ["show 1"]);
+    // B's singers are half a second further on than the arrival times say: the next slide is due sooner.
+    assert!(at_b < at_a, "{at_b} should be before {at_a}");
+}
+
+#[test]
+fn the_sound_clock_may_start_anywhere() {
+    let (shown, at) = sung_late(0.0, 0.5);
+    // The sound input's clock is 100 s behind the follower's: nothing changes.
+    let (shown_far, at_far) = sung_late(-100.0, 0.5);
+    assert_eq!(shown_far, shown);
+    assert!((at_far - at).abs() < 1e-9, "{at_far} should be {at}");
+}
+
+#[test]
+fn operator_back_mid_slide_locks_on_again() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    assert_eq!(host.shown(), ["show 1"]);
+    sing(&mut e, host.as_ref(), "I once was lost", &mut t);
+    // The operator goes back a slide by mistake, then forward again: the singers are mid-slide.
+    host.operator_show(0);
+    e.step(host.as_ref(), t, None);
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "blind but now I see", &mut t);
+    assert_eq!(e.state().light, Light::Sure);
+    assert_eq!(host.shown().last().map(String::as_str), Some("show 2"));
+}

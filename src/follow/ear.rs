@@ -8,7 +8,7 @@
 //! word's key. Without a song it reports the phoneme groups between pauses.
 use super::align::Heard;
 use super::audio::Ear;
-use super::g2p::{coarse, phonemes};
+use super::g2p::{coarse, variants};
 use super::lyrics::{SongText, sound_key};
 use super::voice::RATE;
 use std::collections::HashSet;
@@ -39,15 +39,19 @@ pub struct LexWord { pub phones: Vec<char>, pub key: String }
 pub struct Lexicon(Arc<Mutex<Arc<Vec<LexWord>>>>);
 
 impl Lexicon {
-    /// The words of `song`, each once. Words without phonemes (other scripts) can't be heard by the phoneme ear.
+    /// The words of `song`, each once per way it is said or sung (`g2p::variants`). Words without phonemes (other
+    /// scripts) can't be heard by the phoneme ear.
     pub fn set_song(&self, song: &SongText) {
         let mut seen = HashSet::new();
         let mut words = vec![];
         for w in &song.words {
-            let Some(p) = phonemes(&w.text) else { continue };
-            let phones = coarse(&p);
-            if phones.is_empty() || !seen.insert((phones.clone(), w.key.clone())) { continue }
-            words.push(LexWord { phones, key: w.key.clone() });
+            for p in variants(&w.text) {
+                let phones = coarse(&p);
+                // A word of one sound ("a") is in every other word: it would be heard in any stray vowel and pull
+                // the place ahead. It is left out; the aligner steps over it.
+                if phones.len() < 2 || !seen.insert((phones.clone(), w.key.clone())) { continue }
+                words.push(LexWord { phones, key: w.key.clone() });
+            }
         }
         *self.0.lock().unwrap_or_else(|e| e.into_inner()) = Arc::new(words);
     }
@@ -57,6 +61,9 @@ impl Lexicon {
 
 /// Blank frames in a row that count as a pause (a word break for both models).
 const PAUSE_FRAMES: u32 = 15;
+/// Blank frames in a row (3 s of nothing new) after which a word that was begun and never finished is given up:
+/// longer than any note held inside a word that is worth waiting for, and over before the next line.
+const HOLD_FRAMES: u32 = 150;
 
 /// Edits allowed between a song word's phonemes and what was heard.
 fn tolerance(len: usize) -> usize { match len { 0..=2 => 0, 3..=5 => 1, _ => 2 } }
@@ -103,7 +110,39 @@ impl Spotter {
         out
     }
 
-    /// A pause: everything still waiting is decided now.
+    /// A pause: what is waiting is decided now, except the beginning of a longer song word (`begun`). A note held
+    /// inside a word ("sou——nd") looks like a pause; the word's beginning waits for its end, and is not thrown
+    /// away or taken for a shorter word.
+    fn pause(&mut self) -> Vec<Heard> {
+        let words = self.lexicon.words();
+        if words.is_empty() { return self.flush() }
+        let mut out = vec![];
+        while !self.buf.is_empty() && !self.begun(&words) {
+            match self.find(&words) {
+                Some(f) => out.push(self.take(f)),
+                None => { self.buf.remove(0); }
+            }
+        }
+        out
+    }
+
+    /// All that is waiting is the beginning of a longer song word, with more of it missing than a dropped ending
+    /// (which `find` allows for, so that word is heard now). A whole song word is never held back.
+    fn begun(&self, words: &[LexWord]) -> bool {
+        let heard: Vec<char> = self.buf.iter().map(|b| b.0).collect();
+        if heard.len() < 2 { return false }
+        let mut any = false;
+        for w in words {
+            if w.phones == heard { return false }
+            if w.phones.len() > heard.len() && w.phones.starts_with(&heard) {
+                if w.phones.len() - heard.len() <= tolerance(w.phones.len()) { return false }
+                any = true;
+            }
+        }
+        any
+    }
+
+    /// Everything still waiting is decided now (a long silence, a break in the sound).
     fn flush(&mut self) -> Vec<Heard> {
         let words = self.lexicon.words();
         let mut out = vec![];
@@ -183,7 +222,11 @@ impl Decoder {
         if id == self.blank {
             self.prev = id;
             self.quiet += 1;
-            return if self.quiet == PAUSE_FRAMES { self.pause() } else { vec![] };
+            return match self.quiet {
+                PAUSE_FRAMES => self.pause(),
+                HOLD_FRAMES => self.give_up(),
+                _ => vec![],
+            };
         }
         self.quiet = 0;
         if id == self.prev { return vec![] }
@@ -202,8 +245,16 @@ impl Decoder {
         }
     }
 
-    /// A pause in the singing ends the word.
+    /// A pause in the singing ends the word. The phoneme ear keeps a word that has only begun (a held note).
     pub fn pause(&mut self) -> Vec<Heard> {
+        match self.units {
+            Units::Letters => self.end_word(),
+            Units::Phonemes => self.spot.pause(),
+        }
+    }
+
+    /// A long silence (`HOLD_FRAMES`) or a break in the sound: nothing is kept waiting any longer.
+    pub fn give_up(&mut self) -> Vec<Heard> {
         match self.units {
             Units::Letters => self.end_word(),
             Units::Phonemes => self.spot.flush(),
@@ -250,7 +301,7 @@ impl Stream {
     /// Adds samples starting at `at` seconds. A gap (or a jump back) starts again.
     pub fn push(&mut self, pcm: &[i16], at: f64) {
         if self.buf.is_empty() || (at - self.end()).abs() > 0.1 {
-            if !self.buf.is_empty() { let _ = self.decoder.pause(); }
+            if !self.buf.is_empty() { let _ = self.decoder.give_up(); }
             self.buf.clear();
             self.start = at;
             self.done = at;

@@ -1,5 +1,6 @@
 use super::*;
 use crate::follow::lyrics::sound_key;
+use crate::follow::testing::SONG;
 use crate::model::{Slide, SlideContent};
 
 fn song(texts: &[&str]) -> SongText {
@@ -161,4 +162,106 @@ fn empty_song_stays_put() {
     let mut none = Aligner::new(&s, &[]);
     none.reset_to(5);
     assert_eq!(none.push(&Heard { key: String::new(), at: 1.0, conf: 0.0 }).word, None);
+}
+
+const CHORUS: &str = "my chains are gone\nI've been set free";
+
+/// A song whose chorus is in the plan three times, the last one after a bridge.
+fn chorus_song() -> SongText {
+    song(&["amazing grace how sweet the sound", CHORUS, "the earth shall soon dissolve like snow", CHORUS, "when we've been there ten thousand years",
+        "through many dangers toils and snares", CHORUS])
+}
+
+/// `chorus_song`'s slides 0 to 4 as they are planned.
+const TO_THE_BRIDGE: &str = "amazing grace how sweet the sound my chains are gone I've been set free the earth shall soon dissolve like snow \
+    my chains are gone I've been set free when we've been there ten thousand years";
+
+#[test]
+fn jump_into_a_repeated_chorus_is_sure() {
+    let s = chorus_song();
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, TO_THE_BRIDGE, &mut t);
+    assert_eq!((p.plan_index, p.off_script), (4, false));
+    // Off plan: back to the chorus, skipping the next slide.
+    let p = sing(&mut a, "my chains are", &mut t);
+    assert_eq!(p.plan_index, 4, "three words stay");
+    let p = sing(&mut a, "gone", &mut t);
+    assert_eq!((p.plan_index, p.off_script), (6, false), "the copy next in the plan");
+    assert!(p.confidence >= 0.6, "the other copies of the chorus are not rivals: {p:?}");
+}
+
+#[test]
+fn twin_copy_follows_what_is_sung_next() {
+    let s = chorus_song();
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, TO_THE_BRIDGE, &mut t);
+    let p = sing(&mut a, "my chains are gone I've been set free", &mut t);
+    assert_eq!((p.plan_index, p.word), (6, Some(index_of(&s, 6, "free"))));
+    // What follows the first chorus is sung: it was that copy after all.
+    let p = sing(&mut a, "the earth", &mut t);
+    assert_eq!((p.plan_index, p.word, p.off_script), (2, Some(index_of(&s, 2, "earth")), false));
+}
+
+#[test]
+fn shared_first_line_stays_unsure_until_the_words_differ() {
+    let s = song(&["my hope is built on nothing less\nthan jesus blood and righteousness", "amazing grace how sweet the sound",
+        "my hope is built on nothing less\non christ the solid rock I stand"]);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    let p = sing(&mut a, "my hope is built", &mut t);
+    assert!(p.confidence < 0.6, "two slides start with these words and they are not twins: {p:?}");
+    let p = sing(&mut a, "on nothing less on christ the", &mut t);
+    assert_eq!(p.plan_index, 2);
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn an_operator_seat_finds_the_singers_mid_slide() {
+    let s = song(&SONG);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    a.seat_anywhere();
+    let p = sing(&mut a, "blind", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "blind")), 1, false));
+    let p = sing(&mut a, "but now I see", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(s.slides[1].end_word - 1), 1));
+}
+
+#[test]
+fn without_the_seat_a_mid_slide_word_is_not_believed() {
+    let s = song(&SONG);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    let p = sing(&mut a, "blind", &mut t);
+    assert_eq!((p.word, p.plan_index), (None, 1), "as at a song's start");
+    // The seat ends at the next move.
+    a.seat_anywhere();
+    a.reset_to(1);
+    assert_eq!(sing(&mut a, "blind", &mut t).word, None);
+}
+
+#[test]
+fn a_seat_never_leaves_the_operators_slide() {
+    let s = song(&SONG);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    a.reset_to(1);
+    a.seat_anywhere();
+    let p = sing(&mut a, "dangers", &mut t);
+    assert_eq!((p.word, p.plan_index), (None, 1), "a word of the next slide only");
+}
+
+#[test]
+fn a_is_stepped_over() {
+    // The phoneme ear never hears "a" (one sound): the aligner steps over it.
+    let s = song(&GRACE);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "amazing grace how sweet the sound that saved wretch like", &mut t);
+    assert_eq!((p.word, p.off_script), (Some(index_of(&s, 1, "like")), false));
 }

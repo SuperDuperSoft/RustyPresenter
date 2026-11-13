@@ -16,7 +16,9 @@ use std::sync::{Arc, Mutex, Weak};
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-/// What the audio side tells the follower. Times are `Follower::now` seconds.
+/// What the audio side tells the follower. The times of `Heard`, `Voice` and `Onsets` are the sound input's own
+/// clock (seconds of sound since it started), not `Follower::now`: the engine lines the two up from the voice
+/// labels, so a word is timed by when it was sung, not by when the ear delivered it.
 #[derive(Clone, Debug, PartialEq)]
 pub enum FollowEvent {
     Heard(Heard),
@@ -122,12 +124,20 @@ pub struct Engine {
     fresh: Vec<LogEntry>,
     /// The live song's words for the phoneme ear.
     lexicon: Lexicon,
+    /// The follower's clock minus the sound input's clock, from the latest voice label (they come ten times a
+    /// second, almost as the sound does): added to the time a word was sung, it gives that time on the
+    /// follower's clock. `None` until a label has come.
+    skew: Option<f64>,
 }
+
+/// A word is never taken as sung longer ago than this. The ear's half-second hop, the model's run time and the
+/// word spotter's wait are well inside it; anything older is a fault of the clocks.
+const MAX_EAR_LAG: f64 = 5.0;
 
 impl Default for Engine {
     fn default() -> Self {
         Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
-            lexicon: Lexicon::default() }
+            lexicon: Lexicon::default(), skew: None }
     }
 }
 
@@ -150,15 +160,22 @@ impl Engine {
         let mut heard = None;
         match ev {
             Some(FollowEvent::Heard(h)) => heard = Some(h),
-            Some(FollowEvent::Voice(v, _)) => self.voice = v,
+            Some(FollowEvent::Voice(v, at)) => { self.voice = v; self.skew = Some(now - at) }
             Some(FollowEvent::Onsets(r, _)) => self.onsets = r,
             Some(FollowEvent::InputLost(why)) => {
                 if !self.lost { host.notice(&crate::tr!("Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand.", error = why)) }
                 self.lost = true;
             }
-            Some(FollowEvent::Listening { words }) => { self.lost = false; self.words = words }
+            // A sound input that starts (again) starts its clock again: wait for its first voice label.
+            Some(FollowEvent::Listening { words }) => { self.lost = false; self.words = words; self.skew = None }
             None => {}
         }
+        // When the word just heard was sung, on the follower's clock: never in the future, never long ago. On a
+        // look without a heard word (and before the first voice label) it is `now`.
+        let sung = match (&heard, self.skew) {
+            (Some(h), Some(skew)) => (h.at + skew).max(now - MAX_EAR_LAG).min(now),
+            _ => now,
+        };
         self.state.holding = self.hold;
         let live = host.live().filter(|l| l.is_song);
         let Some(live) = live else {
@@ -182,6 +199,8 @@ impl Engine {
         if (live.slide, live.words_up) != run.seen {
             run.seen = (live.slide, live.words_up);
             run.aligner.reset_to(live.slide);
+            // The operator may have gone back into the middle of a slide: the first word heard may be anywhere on it.
+            run.aligner.seat_anywhere();
             run.pos = run.aligner.position().clone();
             run.rules.reset();
             run.paused = self.words.then_some(live.slide);
@@ -221,7 +240,7 @@ impl Engine {
             return;
         }
 
-        let Some(action) = run.rules.tick(now, &run.pos, self.voice, self.onsets, live.slide) else { return };
+        let Some(action) = run.rules.tick_sung(now, sung, &run.pos, self.voice, self.onsets, live.slide) else { return };
         let said = match run.pos.word {
             Some(w) => crate::tr!("heard \"{words}\"", words = run.text.words[w.saturating_sub(3)..=w].iter().map(|x| x.text.as_str()).collect::<Vec<_>>().join(" ")),
             None => crate::tr!("singing again"),
@@ -322,7 +341,8 @@ impl Follower {
     /// This session's review log, oldest first.
     pub fn log(&self) -> Vec<LogEntry> { self.log.lock().unwrap().entries() }
 
-    /// Seconds since the follower started: the clock event times use.
+    /// Seconds since the follower started: the clock its looks and the review log use. (Events carry the sound
+    /// input's own clock; any clock that runs at the same speed will do, this one too.)
     pub fn now(&self) -> f64 { self.clock.elapsed().as_secs_f64() }
 
     fn send(&self, m: Msg) { let _ = self.tx.send(m); }

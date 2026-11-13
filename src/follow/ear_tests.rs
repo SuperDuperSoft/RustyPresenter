@@ -38,6 +38,42 @@ fn say(vocab: &[String], tokens: &[&str], frames: usize, secs: f64) -> Vec<i16> 
 
 fn spell(word: &str) -> Vec<String> { word.chars().map(|c| c.to_string()).collect() }
 
+/// The phoneme ear's words for a song with these slides.
+fn lexicon_of(slides: &[&str]) -> Lexicon {
+    let lex = Lexicon::default();
+    lex.set_song(&SongText::from_slides(&slides.iter().map(|t| text(t)).collect::<Vec<_>>()));
+    lex
+}
+
+fn keys(heard: &[Heard]) -> Vec<String> { heard.iter().map(|h| h.key.clone()).collect() }
+
+/// A phoneme decoder for a one-slide song, fed one 20 ms frame at a time.
+struct Hears { d: Decoder, vocab: Vec<String>, t: f64 }
+
+impl Hears {
+    /// Knows the words of `slide`; the model can write `sounds` (and "<pad>", the blank).
+    fn new(sounds: &[&str], slide: &str) -> Hears {
+        let mut vocab = vec!["<pad>".to_string()];
+        vocab.extend(sounds.iter().map(|s| s.to_string()));
+        Hears { d: Decoder::new(Units::Phonemes, vocab.clone(), 0, lexicon_of(&[slide])), vocab, t: 0.0 }
+    }
+
+    /// One frame for each of `tokens`; the words heard.
+    fn rows(&mut self, tokens: &[&str]) -> Vec<Heard> {
+        let mut out = vec![];
+        for tok in tokens {
+            let id = self.vocab.iter().position(|v| v == tok).unwrap_or_else(|| panic!("{tok}"));
+            let row: Vec<f32> = (0..self.vocab.len()).map(|i| if i == id { -0.2 } else { -4.0 }).collect();
+            out.extend(self.d.frame(&row, self.t));
+            self.t += 0.02;
+        }
+        out
+    }
+
+    /// `n` frames of nothing new.
+    fn blanks(&mut self, n: usize) -> Vec<Heard> { self.rows(&vec!["<pad>"; n]) }
+}
+
 #[test]
 fn letters_collapse_into_words() {
     let v = letters_vocab();
@@ -72,6 +108,108 @@ fn phonemes_find_the_songs_words() {
     let mut spot = Spotter { lexicon: Lexicon::default(), buf: vec![] };
     for c in coarse("ɡɹeɪs") { assert!(spot.push(c, 0.0, 1.0).is_empty()) }
     assert_eq!(spot.flush().into_iter().map(|h| h.key).collect::<Vec<_>>(), [coarse("ɡɹeɪs").into_iter().collect::<String>()]);
+}
+
+#[test]
+fn lexicon_skips_one_sound_words() {
+    // "a" is one sound: it is in every other word, so it is not listened for.
+    let words = lexicon_of(&["a grace"]).words();
+    assert_eq!(words.len(), 1, "{words:?}");
+    assert_eq!(words[0].key, sound_key("grace"));
+}
+
+#[test]
+fn a_is_not_heard_in_every_schwa() {
+    let mut spot = Spotter { lexicon: lexicon_of(&["saved a wretch"]), buf: vec![] };
+    let mut heard = vec![];
+    // Stray sounds with a schwa at the front, again and again: none of them is "a".
+    for (i, c) in coarse("əkəpə").into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
+    heard.extend(spot.flush());
+    assert!(heard.is_empty(), "{heard:?}");
+}
+
+#[test]
+fn either_pronunciation_is_heard() {
+    let lex = lexicon_of(&["blessed be your name amen"]);
+    // As sung ("bless-ed", "ay-men"), then as said.
+    for (blessed, amen) in [("blɛsɪd", "eɪmɛn"), ("blɛst", "ɑːmɛn")] {
+        let mut spot = Spotter { lexicon: lex.clone(), buf: vec![] };
+        let mut heard = vec![];
+        for (i, c) in coarse(blessed).into_iter().chain(coarse(amen)).enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
+        heard.extend(spot.flush());
+        assert_eq!(keys(&heard), ["blessed", "amen"].map(sound_key), "{blessed} {amen}");
+    }
+}
+
+#[test]
+fn sung_hallelujah_is_heard() {
+    let mut spot = Spotter { lexicon: lexicon_of(&["hallelujah"]), buf: vec![] };
+    let mut heard = vec![];
+    // "Hah-leh-loo-yah": three sounds away from the spoken "hælɪluːjə", too far for one way of saying it.
+    for (i, c) in coarse("hɑːlɛluːjɑː").into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
+    heard.extend(spot.flush());
+    assert_eq!(keys(&heard), [sound_key("hallelujah")]);
+}
+
+#[test]
+fn a_held_note_inside_a_word_waits() {
+    let mut h = Hears::new(&["s", "ɑ", "u", "n", "d"], "sound");
+    // "Sou——nd": the note is held for 0.8 s (the model writes nothing new), then the word ends.
+    assert!(h.rows(&["s", "ɑ", "u"]).is_empty());
+    assert!(h.blanks(40).is_empty());
+    assert!(h.rows(&["n", "d"]).is_empty());
+    let heard = h.blanks(PAUSE_FRAMES as usize);
+    assert_eq!(keys(&heard), [sound_key("sound")]);
+    // Heard at its last sound: the 45th frame.
+    assert!((heard[0].at - 0.88).abs() < 1e-6, "{heard:?}");
+}
+
+#[test]
+fn a_held_sound_is_not_heard_as_how() {
+    let mut spot = Spotter { lexicon: lexicon_of(&SONG), buf: vec![] };
+    for c in coarse("ðəsɑu") { assert!(spot.push(c, 0.0, 0.9).is_empty()) }
+    // The pause of a held note: "the" is whole and is heard; "sou" is one sound from "how" but begins "sound",
+    // so it waits.
+    assert_eq!(keys(&spot.pause()), [sound_key("the")]);
+    for c in coarse("nd") { assert!(spot.push(c, 0.0, 0.9).is_empty()) }
+    assert_eq!(keys(&spot.flush()), [sound_key("sound")]);
+}
+
+#[test]
+fn a_dropped_ending_is_not_held_back() {
+    let mut h = Hears::new(&["ɡ", "ɹ", "eɪ"], "grace");
+    // "Gra-" and a breath: only the ending is missing, so it is heard at the pause, as before.
+    assert!(h.rows(&["ɡ", "ɹ", "eɪ"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize - 1).is_empty());
+    assert_eq!(keys(&h.blanks(1)), [sound_key("grace")]);
+}
+
+#[test]
+fn a_whole_short_word_is_not_held_back() {
+    // "see" is also how "seated" begins: a whole word is heard at the pause all the same.
+    let mut h = Hears::new(&["s", "i"], "see seated");
+    assert!(h.rows(&["s", "i"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("see")]);
+}
+
+#[test]
+fn a_begun_word_is_given_up_after_three_seconds() {
+    let mut h = Hears::new(&["s", "ɑ", "u", "n", "d"], "sound");
+    assert!(h.rows(&["s", "ɑ", "u"]).is_empty());
+    // Three seconds of nothing new: the word was never finished. Its ending, when it comes, is no word.
+    assert!(h.blanks(HOLD_FRAMES as usize).is_empty());
+    assert!(h.rows(&["n", "d"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+}
+
+#[test]
+fn junk_tail_is_not_kept() {
+    let mut h = Hears::new(&["k", "p", "ɡ", "ɹ", "eɪ", "s"], "grace");
+    // Sounds that begin no song word are dropped at the pause, as before: they are not in the way of the next word.
+    assert!(h.rows(&["k", "p"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    assert!(h.rows(&["ɡ", "ɹ", "eɪ", "s"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("grace")]);
 }
 
 #[test]

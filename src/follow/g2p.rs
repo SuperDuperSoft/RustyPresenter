@@ -26,15 +26,53 @@ const EXCEPTIONS: &[(&str, &str)] = &[
     ("what", "wʌt"), ("where", "wɛɹ"), ("who", "huː"), ("whom", "huːm"), ("whose", "huːz"), ("with", "wɪð"),
     ("won", "wʌn"), ("word", "wɜːd"), ("work", "wɜːk"), ("world", "wɜːld"), ("worship", "wɜːʃɪp"), ("worthy", "wɜːði"),
     ("would", "wʊd"), ("you", "juː"), ("your", "jʊɹ"),
+    // Names sung in worship: long, strong words that lock the place, and the rules miss them.
+    ("emmanuel", "ɪmænjuːɛl"), ("immanuel", "ɪmænjuːɛl"), ("yahweh", "jɑːweɪ"), ("messiah", "məsaɪə"), ("israel", "ɪzɹeɪəl"),
+    ("jerusalem", "dʒəɹuːsələm"), ("zion", "zaɪən"), ("judah", "dʒuːdə"), ("jehovah", "dʒɪhoʊvə"), ("adonai", "ɑːdoʊnaɪ"),
+    ("calvary", "kælvɚi"), ("savior", "seɪvjɚ"), ("saviour", "seɪvjɚ"),
+    // More common words the rules get wrong.
+    ("lion", "laɪən"), ("angel", "eɪndʒəl"), ("valley", "væli"), ("blood", "blʌd"), ("flood", "flʌd"), ("enough", "ɪnʌf"),
+    ("reign", "ɹeɪn"), ("died", "daɪd"), ("cried", "kɹaɪd"), ("tried", "tɹaɪd"), ("death", "dɛθ"), ("dead", "dɛd"),
+    ("head", "hɛd"), ("bread", "bɹɛd"), ("breath", "bɹɛθ"), ("soul", "soʊl"), ("eye", "aɪ"), ("prayer", "pɹɛɹ"),
+    ("people", "piːpəl"), ("forever", "fɚɹɛvɚ"), ("honor", "ɑːnɚ"), ("honour", "ɑːnɚ"), ("ocean", "oʊʃən"),
+    ("beautiful", "bjuːɾɪfəl"), ("worth", "wɜːθ"),
+    // Words with an apostrophe, as they arrive here without it: "I'm", "I'll", "I'd", "he's", "don't", "won't",
+    // "o'er", "e'er", "heav'n". (So the rare sung "ill", "id" and "wont" are said as these.)
+    ("im", "aɪm"), ("ill", "aɪl"), ("id", "aɪd"), ("hes", "hiːz"), ("dont", "doʊnt"), ("wont", "woʊnt"), ("oer", "oːɹ"),
+    ("eer", "ɛɹ"), ("heavn", "hɛvən"),
 ];
+
+/// Other ways a word is sung ("ay-men", "bless-ed"). Long words only: a short extra way is a short extra false hit.
+const SUNG: &[(&str, &[&str])] = &[
+    ("amen", &["eɪmɛn"]), ("blessed", &["blɛsɪd"]), ("hallelujah", &["hɑːleɪluːjɑː"]), ("alleluia", &["ɑːleɪluːjɑː"]),
+    ("prayer", &["pɹeɪɚ"]),
+];
+
+/// The word in a–z only, as the tables and the rules read it. `None` for a word that isn't written in Latin
+/// letters, or has no letters at all.
+fn folded(word: &str) -> Option<String> {
+    let w = latin(word)?;
+    let w: String = w.chars().filter(|c| c.is_ascii_lowercase()).collect();
+    if w.is_empty() { return None }
+    Some(w)
+}
 
 /// The word as espeak-style IPA (en-us, no stress marks), e.g. "grace" → "ɡɹeɪs". `None` for a word that isn't
 /// written in Latin letters (it keeps its letters, `key`).
 pub fn phonemes(word: &str) -> Option<String> {
-    let w = latin(word)?;
-    let w: String = w.chars().filter(|c| c.is_ascii_lowercase()).collect();
-    if w.is_empty() { return None }
+    let w = folded(word)?;
     Some(english(&w))
+}
+
+/// Every way the phoneme ear listens for the word: the plain one (`phonemes`) first, then the ways it is sung
+/// (`SUNG`), so the leader is heard whichever way the word comes out. Empty when the word has no phonemes.
+pub fn variants(word: &str) -> Vec<String> {
+    let Some(w) = folded(word) else { return vec![] };
+    let mut out = vec![english(&w)];
+    for (k, ways) in SUNG {
+        if *k == w.as_str() { out.extend(ways.iter().map(|s| s.to_string())) }
+    }
+    out
 }
 
 /// What the ear compares for a word: its phonemes, or for other scripts its letters.

@@ -13,6 +13,41 @@ fn english_words_to_espeak_phonemes() {
 }
 
 #[test]
+fn worship_words() {
+    // Words the rules alone get wrong; plurals and apostrophe words come through the same table.
+    for (word, ipa) in [
+        ("emmanuel", "ɪmænjuːɛl"), ("Yahweh", "jɑːweɪ"), ("messiah", "məsaɪə"), ("Zion", "zaɪən"), ("Israel", "ɪzɹeɪəl"),
+        ("saviour", "seɪvjɚ"), ("blood", "blʌd"), ("died", "daɪd"), ("forever", "fɚɹɛvɚ"), ("angels", "eɪndʒəlz"),
+        ("eyes", "aɪz"), ("I'm", "aɪm"), ("don't", "doʊnt"), ("he's", "hiːz"),
+    ] {
+        assert_eq!(phonemes(word).as_deref(), Some(ipa), "{word}");
+    }
+}
+
+#[test]
+fn every_exception_has_two_sounds_or_is_a() {
+    // A word of one sound is in every other word, so the phoneme ear leaves it out (`Lexicon::set_song`): only
+    // "a" may be one. And a word listed twice would have its second way ignored.
+    for (i, (word, ipa)) in EXCEPTIONS.iter().enumerate() {
+        assert!(coarse(ipa).len() >= 2 || *word == "a", "{word}");
+        assert!(EXCEPTIONS[..i].iter().all(|(w, _)| w != word), "{word} is listed twice");
+    }
+}
+
+#[test]
+fn variants_first_is_the_plain_one() {
+    assert_eq!(variants("grace"), ["ɡɹeɪs"]);
+    assert_eq!(variants("blessed"), ["blɛst", "blɛsɪd"]);
+    assert_eq!(variants("Blessed,"), ["blɛst", "blɛsɪd"]);
+    assert!(variants("恩典").is_empty());
+    // The sung ways are for long words only: a short one would be heard everywhere.
+    for (word, ways) in SUNG {
+        assert_eq!(variants(word).len(), 1 + ways.len(), "{word}");
+        for way in ways.iter() { assert!(coarse(way).len() >= 4, "{word} {way}") }
+    }
+}
+
+#[test]
 fn other_scripts_keep_their_letters() {
     assert_eq!(phonemes("恩典"), None);
     assert_eq!(key("恩典"), "恩典");

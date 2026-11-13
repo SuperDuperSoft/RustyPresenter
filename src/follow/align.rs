@@ -18,7 +18,8 @@ pub struct Position {
     pub word: Option<usize>,
     /// Index in the plan (the planned slide order).
     pub plan_index: usize,
-    /// 0–1: how far ahead this place is of the best place on another slide.
+    /// 0–1: how far ahead this place is of the best place on another slide (a slide with the very same words
+    /// is not another place: it shows the same thing).
     pub confidence: f32,
     /// The last words matched nothing here (talk, prayer, an ad-lib).
     pub off_script: bool,
@@ -35,6 +36,9 @@ const SKIP: f32 = 0.4;
 const AHEAD: usize = 3;
 /// Back to the start of a line of the same slide (singers repeat a line).
 const REPEAT: f32 = 0.5;
+/// Just put on this slide by the operator: the first word heard may be anywhere on it. The same cost as a
+/// repeated line: cheaper than a jump, dearer than the next word.
+const SEAT: f32 = 0.5;
 /// Anywhere else: a jump outside the plan.
 const JUMP: f32 = 3.0;
 /// A match at least this good counts towards a jump and clears misses.
@@ -69,10 +73,16 @@ pub struct Aligner {
     track: Vec<Spot>,
     /// Per plan index, its first word in `track` (`track.len()` when it has none).
     starts: Vec<usize>,
+    /// Per plan index, the first plan index whose slide has exactly the same words (itself when there is none,
+    /// or when it has no words). Two slides with the same words show the same thing; which copy it is only
+    /// matters for what comes next, and the next words decide that.
+    twin: Vec<usize>,
     by_key: HashMap<String, Vec<usize>>,
     keys: Vec<String>,
     beam: Vec<Hyp>,
     jump_words: u8,
+    /// The operator just put this slide up (`seat_anywhere`): the first word heard may be anywhere on it.
+    seat: bool,
     last: Position,
 }
 
@@ -94,7 +104,11 @@ impl Aligner {
         }
         let mut by_key: HashMap<String, Vec<usize>> = HashMap::new();
         for (t, k) in keys.iter().enumerate() { if !k.is_empty() { by_key.entry(k.clone()).or_default().push(t) } }
-        let mut a = Aligner { plan: plan.to_vec(), track, starts, by_key, keys, beam: vec![], jump_words: JUMP_WORDS, last: Position { word: None, plan_index: 0, confidence: 0.0, off_script: false } };
+        let twin: Vec<usize> = (0..starts.len())
+            .map(|p| (0..p).find(|&q| !words_of(&keys, &starts, p).is_empty() && words_of(&keys, &starts, q) == words_of(&keys, &starts, p)).unwrap_or(p))
+            .collect();
+        let mut a = Aligner { plan: plan.to_vec(), track, starts, twin, by_key, keys, beam: vec![], jump_words: JUMP_WORDS, seat: false,
+            last: Position { word: None, plan_index: 0, confidence: 0.0, off_script: false } };
         a.restart(0);
         a
     }
@@ -114,11 +128,18 @@ impl Aligner {
         self.restart(p)
     }
 
+    /// Call right after `reset_to` when the operator moved by hand in mid-song (Back after an early change): the
+    /// singers may be anywhere on that slide, so the first word heard may land on any of its words, not only
+    /// its first three. It never reaches another slide, and it ends at the next `reset_to`. A song's start
+    /// does not ask for it: there one stray word matching the last line would change the slide early.
+    pub fn seat_anywhere(&mut self) { self.seat = true }
+
     fn restart(&mut self, plan_index: usize) {
         let p = plan_index.min(self.starts.len().saturating_sub(1));
         let next = self.starts.get(p).copied().unwrap_or(0);
         self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0 }];
         self.last = Position { word: None, plan_index: p, confidence: 0.0, off_script: false };
+        self.seat = false;
     }
 
     /// How well `heard` matches planned word `t`: 1 same key, less for short keys ("the", "a"), 0.5 one sound
@@ -155,6 +176,14 @@ impl Aligner {
                 };
                 out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending,
                     misses: if m >= GOOD { 0 } else { h.misses } });
+            }
+            // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the same.
+            if self.seat && !h.heard {
+                let end = self.starts.get(h.plan + 1).copied().unwrap_or(self.track.len());
+                for t in (h.next + AHEAD)..end {
+                    let m = self.score(key, t, false);
+                    if m >= GOOD { out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, misses: 0 }) }
+                }
             }
             // A line of the same slide again.
             if h.heard && h.pending == 0 {
@@ -204,12 +233,18 @@ impl Aligner {
     fn report(&self) -> Position {
         let Some(best) = self.beam.iter().filter(|h| h.pending == 0).max_by(|a, b| a.score.total_cmp(&b.score)) else { return self.last.clone() };
         let here = self.plan_of(best);
-        // Anything else on another slide, a jump being confirmed too, makes it less sure.
-        let rival = self.beam.iter().filter(|h| self.plan_of(h) != here).map(|h| h.score).fold(f32::NEG_INFINITY, f32::max);
+        // Anything else on another slide, a jump being confirmed too, makes it less sure. A slide with the same
+        // words (a chorus that is in the plan more than once) is not a rival: the screen shows the same either way.
+        let rival = self.beam.iter().filter(|h| self.twin.get(self.plan_of(h)) != self.twin.get(here)).map(|h| h.score).fold(f32::NEG_INFINITY, f32::max);
         let off_script = best.misses >= OFF_SCRIPT;
         let confidence = if !best.heard || off_script { 0.0 } else { ((best.score - rival) / SURE_MARGIN).clamp(0.0, 1.0) };
         Position { word: best.heard.then(|| self.track[best.next - 1].word), plan_index: here, confidence, off_script }
     }
+}
+
+/// The word keys of plan index `p`: from its first word to the next plan index's first.
+fn words_of<'a>(keys: &'a [String], starts: &[usize], p: usize) -> &'a [String] {
+    &keys[starts[p]..starts.get(p + 1).copied().unwrap_or(keys.len())]
 }
 
 /// True when `a` and `b` differ by one letter added, removed or changed.
