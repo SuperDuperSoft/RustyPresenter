@@ -1972,8 +1972,8 @@ msgid "Sound input"
 msgstr "Звуковой вход"
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
-msgstr "Лучше всего подходит основной микс с пульта."
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgstr "Лучше всего: отдельный сигнал микрофона ведущего вокалиста с пульта. На втором месте: основной микс. Микрофон в зале слышит слишком много лишнего."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -9735,8 +9735,8 @@ msgid "Download a model first, then test its speed."
 msgstr "Сначала скачайте модель, затем проверьте её скорость."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr "Этот ПК слишком медленный для моделей речи: автоследование будет только убирать текст, когда никто не поёт."
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgstr "Этот ПК слишком медленный для моделей речи: автоследование не слышит здесь слова и поэтому не может следовать за песнями."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."

@@ -1972,8 +1972,8 @@ msgid "Sound input"
 msgstr "소리 입력"
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
-msgstr "음향 콘솔의 메인 믹스가 가장 좋아요."
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgstr "가장 좋은 것: 음향 콘솔에서 따로 보내는 리드 싱어의 마이크. 그다음: 메인 믹스. 실내에 둔 마이크는 다른 소리를 너무 많이 들어요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -9651,8 +9651,8 @@ msgid "Download a model first, then test its speed."
 msgstr "먼저 모델을 다운로드한 다음 속도를 테스트하세요."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr "이 PC는 음성 모델을 쓰기에 너무 느려요. 자동 따라가기는 아무도 부르지 않을 때 가사만 내려요."
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgstr "이 PC는 음성 모델을 쓰기에 너무 느려요. 자동 따라가기가 여기서는 가사를 듣지 못해서 노래를 따라갈 수 없어요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."

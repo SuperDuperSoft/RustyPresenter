@@ -1969,7 +1969,7 @@ msgid "Sound input"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
@@ -9682,7 +9682,7 @@ msgid "Download a model first, then test its speed."
 msgstr ""
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
 msgstr ""
 
 #: src/ui/dialogs/settings_model.rs

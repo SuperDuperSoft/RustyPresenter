@@ -1972,8 +1972,8 @@ msgid "Sound input"
 msgstr "Input ng tunog"
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
-msgstr "Pinakamainam ang main mix mula sa sound desk."
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgstr "Pinakamainam: ang mikropono ng lead singer nang mag-isa, na ipinapadala mula sa sound desk. Sunod na pinakamainam: ang main mix. Masyadong maraming ibang naririnig ang mikropono sa loob ng silid."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -9693,8 +9693,8 @@ msgid "Download a model first, then test its speed."
 msgstr "Mag-download muna ng modelo, saka subukan ang bilis nito."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr "Masyadong mabagal ang PC na ito para sa mga speech model: aalisin lang ng auto-sunod ang mga salita kapag walang kumakanta."
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgstr "Masyadong mabagal ang PC na ito para sa mga speech model: hindi marinig ng auto-sunod ang mga salita rito, kaya hindi nito masusundan ang mga kanta."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."

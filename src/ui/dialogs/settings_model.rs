@@ -48,7 +48,7 @@ pub fn speed_words(choice: Choice, deps: &Path) -> String {
         Choice::Fast if best => crate::tr!("Use Fast on this PC: Best is too slow here."),
         Choice::Fast => crate::tr!("Fast runs fine here. Download Best to check it too."),
         Choice::Off if !any_installed(deps) => crate::tr!("Download a model first, then test its speed."),
-        Choice::Off => crate::tr!("This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."),
+        Choice::Off => crate::tr!("This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."),
     }
 }
 

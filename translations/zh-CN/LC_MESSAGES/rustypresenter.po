@@ -1972,8 +1972,8 @@ msgid "Sound input"
 msgstr "声音输入"
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
-msgstr "最好使用调音台的主混音。"
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgstr "最佳：从调音台单独送出的主唱话筒。其次：主混音。现场的话筒会收进太多其他声音。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -9651,8 +9651,8 @@ msgid "Download a model first, then test its speed."
 msgstr "请先下载模型，再测试速度。"
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr "这台电脑对语音模型来说太慢：自动跟随只会在无人演唱时撤下歌词。"
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgstr "这台电脑对语音模型来说太慢：自动跟随在这里听不到歌词，因此无法跟随歌曲。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."

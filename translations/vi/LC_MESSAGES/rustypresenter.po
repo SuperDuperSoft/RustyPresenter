@@ -1972,8 +1972,8 @@ msgid "Sound input"
 msgstr "Đầu vào âm thanh"
 
 #: ui/dialogs/settings-follow.slint
-msgid "The main mix from the sound desk works best."
-msgstr "Tốt nhất là dùng bản phối chính từ bàn mixer."
+msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgstr "Tốt nhất: micro của ca sĩ hát chính, gửi riêng từ bàn mixer. Kế đến: bản phối chính. Micro đặt trong phòng thu quá nhiều âm thanh khác."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -9651,8 +9651,8 @@ msgid "Download a model first, then test its speed."
 msgstr "Hãy tải một mô hình trước, rồi thử tốc độ."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr "Máy này quá chậm cho các mô hình giọng nói: tự động theo chỉ ẩn lời khi không ai hát."
+msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgstr "Máy này quá chậm cho các mô hình giọng nói: tự động theo không nghe được lời ở đây nên không thể theo các bài hát."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."

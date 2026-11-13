@@ -17,7 +17,7 @@ component SettingsFollowMain inherits VerticalLayout {
     Rectangle { height: 6px; }
     Field {
         label: @tr("Sound input");
-        help: @tr("The main mix from the sound desk works best.");
+        help: @tr("Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else.");
         follow-device := Select {
             options: SettingsDlg.follow-device-labels;
             index <=> SettingsDlg.follow-device-index;
