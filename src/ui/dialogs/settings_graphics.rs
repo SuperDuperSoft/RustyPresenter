@@ -27,6 +27,7 @@ pub(super) fn choose(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
             Ok(v) => {
                 edit.settings.borrow_mut().graphics = choice;
                 if let Some(t) = v["toast"].as_str() { op.toast(t, false) }
+                op.ui.global::<SettingsDlg>().set_graphics_restart(true);
             }
             Err(e) => op.toast(e, true),
         }
@@ -97,6 +98,9 @@ fn run_test(op: &Rc<Operator>) {
         let _ = ui.upgrade_in_event_loop(move |ui| finish(&ui.global::<SettingsDlg>(), &root, results));
     });
 }
+
+/// "Restart now": the normal quit, then a new copy (`recovery::restart`).
+pub(super) fn restart_now(_op: &Rc<Operator>, _edit: &Rc<Edit>) { crate::recovery::restart::request() }
 
 /// "Use this": saves the picked choice as the setting (`settings/graphics`), used from the next start.
 pub(super) fn use_picked(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {

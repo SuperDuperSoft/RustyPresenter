@@ -498,6 +498,7 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert!(find(&op, "SettingsVideo::graphics-test").is_some(), "the button");
     assert_eq!(find(&op, "SettingsVideo::graphics-test-status").unwrap().accessible_label().unwrap(), "About 30 seconds. Test windows open and close while it runs.");
     assert!(find(&op, "SettingsVideo::graphics-test-use").is_none(), "nothing to use yet");
+    assert!(find(&op, "SettingsVideo::graphics-restart").is_none(), "nothing to restart for yet");
 
     let root = app.store.data_path().parent().unwrap().to_path_buf();
     let ran = |graphics, fps| Measured { graphics, started: true, fps, low_ms: 18.0, cpu: Some(20.0), adapter: "GPU 1".into(), error: String::new() };
@@ -517,6 +518,8 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
     let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
     assert_eq!(g(&op).get_graphics_index(), want);
+    click(&op, "SettingsVideo::graphics-restart");
+    assert!(crate::recovery::restart::requested(), "Restart now");
 
     // A choice that didn't work can't be used.
     super::settings_graphics::use_picked(&op, &Rc::new(edit_for(&app)), 1);

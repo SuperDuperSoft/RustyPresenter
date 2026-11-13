@@ -206,13 +206,20 @@ component SettingsVideo inherits VerticalLayout {
                 }
             }
         }
-        if SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing: HorizontalLayout {
+        if (SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing) || SettingsDlg.graphics-restart: HorizontalLayout {
             alignment: start;
-            graphics-test-use := Btn {
+            spacing: 10px;
+            if SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing: graphics-test-use := Btn {
                 small: true;
-                primary: true;
+                primary: !SettingsDlg.graphics-restart;
                 text: @tr("Use this");
                 clicked => { SettingsDlg.graphics-test-use(SettingsDlg.graphics-test-pick); }
+            }
+            if SettingsDlg.graphics-restart: graphics-restart := Btn {
+                small: true;
+                primary: true;
+                text: @tr("Restart now");
+                clicked => { SettingsDlg.restart-now(); }
             }
         }
     }

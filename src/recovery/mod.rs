@@ -3,6 +3,7 @@
 pub mod exitcode;
 pub mod headless;
 pub mod panic;
+pub mod restart;
 pub mod restore;
 pub mod safe_mode;
 pub mod state;

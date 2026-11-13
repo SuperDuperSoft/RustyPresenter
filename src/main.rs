@@ -65,6 +65,8 @@ fn main() {
     panic::test_crash_point("startup");
 
     // `--no-browser` from before the native operator is still accepted, and does nothing.
+    // "Restart now" (`recovery::restart`): the copy that started this one lets go of the port first.
+    if let Some(pid) = recovery::restart::wait_arg(&args.rest) { recovery::restart::wait_for(pid); }
     let port = startup::port();
     let root = startup::data_root().unwrap_or_else(|e| fail(&e));
     let listener = match instance::bind(port, args.restore) {
@@ -163,4 +165,5 @@ fn main() {
     safe_mode::passed(&root);
     forget_live_state(&app, &root);
     rt.shutdown_timeout(std::time::Duration::from_secs(2));
+    if recovery::restart::requested() { recovery::restart::relaunch(); }
 }

@@ -171,6 +171,8 @@ export global SettingsDlg {
     in property <string> graphics-test-status;
     in property <[GraphicsTestRow]> graphics-test-rows;
     in-out property <int> graphics-test-pick;
+    /// A graphics change was saved: "Restart now" shows (`recovery::restart`).
+    in property <bool> graphics-restart;
 
     // ---- Backups ----
     in property <string> backups-folder;
@@ -204,6 +206,8 @@ export global SettingsDlg {
     /// "Test which is fastest", and "Use this" with the picked row.
     callback graphics-test();
     callback graphics-test-use(int);
+    /// "Restart now": quits and starts again, so a setting used from the next start applies.
+    callback restart-now();
     /// Any Look edit: the preview is drawn again 150 ms later.
     callback look-changed();
     callback choose-logo();

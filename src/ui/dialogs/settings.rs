@@ -263,6 +263,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_graphics_changed(with_i(settings_graphics::choose));
     g.on_graphics_test(with(settings_graphics::start_test));
     g.on_graphics_test_use(with_i(settings_graphics::use_picked));
+    g.on_restart_now(with(settings_graphics::restart_now));
     g.on_help_translate(with(settings_language::help_translate));
     g.on_edit_translation(with(|op, _| super::translation_editor::open(op, None)));
     g.on_add_language(with(|op, _| super::translation_editor::open_add(op)));
