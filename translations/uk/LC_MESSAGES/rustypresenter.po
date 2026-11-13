@@ -1,6 +1,15 @@
 # Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: uk\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Українська\nX-English-Name: Ukrainian\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uk\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Native-Name: Українська\n"
+"X-English-Name: Ukrainian\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Виберіть Біблію"
 msgid "Try again"
 msgstr "Спробувати ще"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Змінити"
 
@@ -94,7 +103,7 @@ msgstr "Копіювати"
 msgid "Check again"
 msgstr "Перевірити ще раз"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Нова пісня"
 
@@ -126,7 +135,7 @@ msgstr "Натомість вставити вірші"
 msgid "Verses per slide"
 msgstr "Віршів на слайд"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Авто"
 
@@ -1147,7 +1156,7 @@ msgstr "4 вірші"
 msgid "Choose slide breaks…"
 msgstr "Вибрати розриви слайдів…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Розмір тексту"
 
@@ -1287,7 +1296,7 @@ msgstr "Прибрати зі служіння"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Фонова музика грає далі, поки змінюються слайди. «Очистити аудіо» та «Очистити все» зупиняють її."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Пісні"
 
@@ -2455,7 +2464,7 @@ msgstr "Затемнення"
 msgid "Makes text easier to read"
 msgstr "Полегшує читання тексту"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Рядків на слайд"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Починає новий слайд там, де курсор"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Куплет 1]\nО благодать, спасла мене,\nЯ був пропащий, а тепер\n\n[Приспів]\nКайдани впали…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Куплет 1]\n"
+"О благодать, спасла мене,\n"
+"Я був пропащий, а тепер\n"
+"\n"
+"[Приспів]\n"
+"Кайдани впали…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2758,6 +2779,34 @@ msgstr "(необов’язково)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Залиште порожнім, щоб використати порядок як у тексті"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Менше рядків на слайд у цій пісні"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Більше рядків на слайд у цій пісні"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Менший текст для цієї пісні"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Більший текст для цієї пісні"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Повернути рядки й розмір із налаштувань"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3528,16 +3577,8 @@ msgid "Nothing selected"
 msgstr "Нічого не вибрано"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Менший текст для цього уривка"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3570,6 +3611,10 @@ msgstr "Зберегти в бібліотеку"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Зберегти цей уривок у бібліотеці пісень, щоб змінити його або використати знову"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Рядки"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4126,6 +4171,10 @@ msgstr "{name} — імпортований файл"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Дайте пісні назву."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Цієї пісні більше немає в бібліотеці."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7578,8 +7627,12 @@ msgid "Settings saved"
 msgstr "Налаштування збережено"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "О благодать, спасла мене,\nЯ був пропащий, а тепер"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"О благодать, спасла мене,\n"
+"Я був пропащий, а тепер"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9259,12 +9312,20 @@ msgstr[1] "Показати {n} готові теми"
 msgstr[2] "Показати {n} готових тем"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Великдень\nСлужіння о 9:00 і 11:00"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Великдень\n"
+"Служіння о 9:00 і 11:00"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "«Зупиніться і пізнайте, що Я — Бог».\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"«Зупиніться і пізнайте, що Я — Бог».\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9275,8 +9336,14 @@ msgid "Youth camp in the mountains"
 msgstr "Молодіжний табір у горах"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Моліться щодня\nЧитайте Біблію\nСлужіть ближньому"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Моліться щодня\n"
+"Читайте Біблію\n"
+"Служіть ближньому"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9849,3 +9916,6 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Повернути кількість рядків із налаштувань"

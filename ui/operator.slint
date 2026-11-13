@@ -133,6 +133,13 @@ export component OperatorWindow inherits Window {
     in property <bool> slides-text-size-shown;
     in property <string> slides-text-size;
     in property <bool> slides-text-size-custom;
+    /// A song is selected: its lines per slide with − / + / Auto, and the size buttons change the song's size.
+    in property <bool> slides-song-fit;
+    in property <string> slides-lines;
+    in property <bool> slides-lines-custom;
+    callback slides-lines-fewer();
+    callback slides-lines-more();
+    callback slides-lines-auto();
     /// The selected item's note under the grid (a passage's missing verses), or "".
     in property <string> slides-note;
     in property <bool> slides-custom-order;
@@ -982,6 +989,12 @@ export component OperatorWindow inherits Window {
                                 text-size-shown: root.slides-text-size-shown;
                                 text-size: root.slides-text-size;
                                 text-size-custom: root.slides-text-size-custom;
+                                song-fit: root.slides-song-fit;
+                                lines: root.slides-lines;
+                                lines-custom: root.slides-lines-custom;
+                                lines-fewer => { root.focus-keys(); root.slides-lines-fewer(); }
+                                lines-more => { root.focus-keys(); root.slides-lines-more(); }
+                                lines-auto => { root.focus-keys(); root.slides-lines-auto(); }
                                 note: root.slides-note;
                                 custom-order: root.slides-custom-order;
                                 text-smaller => { root.focus-keys(); root.slides-text-smaller(); }

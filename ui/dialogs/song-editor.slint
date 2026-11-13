@@ -30,6 +30,12 @@ export global SongEditorState {
     /// "Label this slide…", then the slide labels (Settings → Sections).
     in property <[string]> labels;
     in-out property <string> order;
+    /// This song's own lines per slide and text size; 0 = Settings' (shown as "Auto").
+    in-out property <int> lines;
+    in-out property <int> text-size;
+    /// What 0 stands for now, so the first press steps from what the slides show.
+    in property <int> lines-default: 2;
+    in property <int> text-size-default: 84;
     in property <[SectionChipRow]> chips;
     in property <[PreviewSlide]> previews;
     /// "Not in the lyrics: X, Y", or empty.
@@ -270,6 +276,95 @@ export component SongEditor inherits VerticalLayout {
                         }
                     }
                 }
+                // How this song fits its slides: lines on each slide and the text size. 0 = Settings' ("Auto").
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    VerticalLayout {
+                        alignment: center;
+                        Text { text: @tr("Lines per slide"); color: Theme.muted; font-family: Theme.font; font-size: 12.5px; }
+                    }
+                    fit-lines-fewer := Btn {
+                        small: true;
+                        text: "−";
+                        accessible-role: button;
+                        accessible-label: @tr("Fewer lines on each slide of this song");
+                        clicked => {
+                            SongEditorState.lines = max(1, (SongEditorState.lines == 0 ? SongEditorState.lines-default : SongEditorState.lines) - 1);
+                            SongEditorState.edited();
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        fit-lines := Text {
+                            min-width: 34px;
+                            text: SongEditorState.lines == 0 ? @tr("Auto") : SongEditorState.lines;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            font-weight: 600;
+                            horizontal-alignment: center;
+                        }
+                    }
+                    fit-lines-more := Btn {
+                        small: true;
+                        text: "+";
+                        accessible-role: button;
+                        accessible-label: @tr("More lines on each slide of this song");
+                        clicked => {
+                            SongEditorState.lines = min(8, (SongEditorState.lines == 0 ? SongEditorState.lines-default : SongEditorState.lines) + 1);
+                            SongEditorState.edited();
+                        }
+                    }
+                    Rectangle { width: 14px; }
+                    VerticalLayout {
+                        alignment: center;
+                        Text { text: @tr("Text size"); color: Theme.muted; font-family: Theme.font; font-size: 12.5px; }
+                    }
+                    fit-text-smaller := Btn {
+                        small: true;
+                        text: @tr("A−");
+                        accessible-role: button;
+                        accessible-label: @tr("Smaller text for this song");
+                        clicked => {
+                            SongEditorState.text-size = max(24, (SongEditorState.text-size == 0 ? SongEditorState.text-size-default : SongEditorState.text-size) - 8);
+                            SongEditorState.edited();
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        fit-text-size := Text {
+                            min-width: 34px;
+                            text: SongEditorState.text-size == 0 ? @tr("Auto") : SongEditorState.text-size;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            font-weight: 600;
+                            horizontal-alignment: center;
+                        }
+                    }
+                    fit-text-larger := Btn {
+                        small: true;
+                        text: @tr("A+");
+                        accessible-role: button;
+                        accessible-label: @tr("Bigger text for this song");
+                        clicked => {
+                            SongEditorState.text-size = min(200, (SongEditorState.text-size == 0 ? SongEditorState.text-size-default : SongEditorState.text-size) + 8);
+                            SongEditorState.edited();
+                        }
+                    }
+                    if SongEditorState.lines != 0 || SongEditorState.text-size != 0: fit-auto := Btn {
+                        small: true;
+                        text: @tr("Auto");
+                        tooltip: @tr("Back to the lines and size in Settings");
+                        clicked => {
+                            SongEditorState.lines = 0;
+                            SongEditorState.text-size = 0;
+                            SongEditorState.edited();
+                        }
+                    }
+                }
+                Rectangle { height: 10px; }
                 // `.lbl`, 8 px above the preview.
                 Text {
                     text: @tr("Slides").to-uppercase();

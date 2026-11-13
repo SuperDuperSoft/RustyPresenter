@@ -1,6 +1,15 @@
 # Russian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ru\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Русский\nX-English-Name: Russian\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Native-Name: Русский\n"
+"X-English-Name: Russian\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Выберите Библию"
 msgid "Try again"
 msgstr "Повторить"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Изменить"
 
@@ -94,7 +103,7 @@ msgstr "Копировать"
 msgid "Check again"
 msgstr "Проверить снова"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Новая песня"
 
@@ -126,7 +135,7 @@ msgstr "Вставить стихи вручную"
 msgid "Verses per slide"
 msgstr "Стихов на слайде"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Авто"
 
@@ -1147,7 +1156,7 @@ msgstr "4 стиха"
 msgid "Choose slide breaks…"
 msgstr "Выбрать разрывы слайдов…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Размер текста"
 
@@ -1287,7 +1296,7 @@ msgstr "Убрать из служения"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Музыка перед служением продолжает играть при смене слайдов. «Убрать звук» и «Очистить всё» останавливают её."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Песни"
 
@@ -2455,7 +2464,7 @@ msgstr "Затемнение"
 msgid "Makes text easier to read"
 msgstr "Текст легче читать"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Строк на слайде"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Начинает новый слайд с места курсора"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Куплет 1]\nО благодать, спасён тобой\nЯ из пучины бед\n\n[Припев]\nЦепей уж нет…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Куплет 1]\n"
+"О благодать, спасён тобой\n"
+"Я из пучины бед\n"
+"\n"
+"[Припев]\n"
+"Цепей уж нет…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2758,6 +2779,34 @@ msgstr "(необязательно)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Оставьте пустым, чтобы использовать порядок как в тексте"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Меньше строк на слайде в этой песне"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Больше строк на слайде в этой песне"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Меньше текст для этой песни"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Больше текст для этой песни"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Вернуть строки и размер из настроек"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3528,16 +3577,8 @@ msgid "Nothing selected"
 msgstr "Ничего не выбрано"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Меньше текст для этого отрывка"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3570,6 +3611,10 @@ msgstr "В библиотеку"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Сохранить этот отрывок в библиотеке песен, чтобы изменить или использовать снова"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Строки"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4126,6 +4171,10 @@ msgstr "{name} — импортированный файл"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Укажите название песни."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Этой песни больше нет в библиотеке."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7578,8 +7627,12 @@ msgid "Settings saved"
 msgstr "Настройки сохранены"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "О благодать, как сладок звук,\nЧто спас меня, грешного"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"О благодать, как сладок звук,\n"
+"Что спас меня, грешного"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9259,12 +9312,20 @@ msgstr[1] "Показать {n} готовые темы"
 msgstr[2] "Показать {n} готовых тем"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Пасхальное воскресенье\nСлужения в 9 и 11 часов"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Пасхальное воскресенье\n"
+"Служения в 9 и 11 часов"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "«Остановитесь и познайте, что Я — Бог».\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"«Остановитесь и познайте, что Я — Бог».\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9275,8 +9336,14 @@ msgid "Youth camp in the mountains"
 msgstr "Молодёжный лагерь в горах"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Молитесь каждый день\nЧитайте Библию\nСлужите ближнему"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Молитесь каждый день\n"
+"Читайте Библию\n"
+"Служите ближнему"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9849,3 +9916,6 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Вернуть число строк из настроек"

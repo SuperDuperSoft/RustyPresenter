@@ -1,6 +1,15 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ht\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Kreyòl ayisyen\n"
+"X-English-Name: Haitian Creole\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Chwazi yon Bib"
 msgid "Try again"
 msgstr "Eseye ankò"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Modifye"
 
@@ -94,7 +103,7 @@ msgstr "Kopye"
 msgid "Check again"
 msgstr "Tcheke ankò"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Nouvo chante"
 
@@ -126,7 +135,7 @@ msgstr "Kole vèsè yo pito"
 msgid "Verses per slide"
 msgstr "Vèsè pou chak diapo"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Oto"
 
@@ -1147,7 +1156,7 @@ msgstr "4 vèsè"
 msgid "Choose slide breaks…"
 msgstr "Chwazi kote pou koupe diapo…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Gwosè tèks"
 
@@ -1287,7 +1296,7 @@ msgstr "Retire nan sèvis la"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Mizik akèy la kontinye jwe pandan diapo yo ap chanje. Efase son ak Efase Tout kanpe l."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Chante"
 
@@ -2455,7 +2464,7 @@ msgstr "Fè pi fonse"
 msgid "Makes text easier to read"
 msgstr "Fè tèks la pi fasil pou li"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Liy pou chak diapo"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Kòmanse yon nouvo diapo kote kurseur la ye"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Kouplè 1]\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"[Koral]\n"
+"My chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2758,6 +2779,34 @@ msgstr "(si ou vle)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Kite l vid pou itilize lòd jan l ekri a"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Mwens liy sou chak diapo chante sa a"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Plis liy sou chak diapo chante sa a"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Tèks pi piti pou chante sa a"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Tèks pi gwo pou chante sa a"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Retounen nan liy ak gwosè ki nan Paramèt"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3528,16 +3577,8 @@ msgid "Nothing selected"
 msgstr "Anyen pa chwazi"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Tèks pi piti pou pasaj sa a"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3570,6 +3611,10 @@ msgstr "Anrejistre nan bibliyotèk"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Kenbe pasaj sa a nan bibliyotèk chante a, pou modifye l oswa itilize l ankò"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Liy"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4126,6 +4171,10 @@ msgstr "{name} — fichye enpòte"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Bay chante a yon tit."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Chante sa a pa nan bibliyotèk la ankò."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7548,8 +7597,12 @@ msgid "Settings saved"
 msgstr "Paramèt anrejistre"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Gras etonan, ala dous son an\nKi sove yon malere tankou m"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Gras etonan, ala dous son an\n"
+"Ki sove yon malere tankou m"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9217,12 +9270,20 @@ msgstr[0] "Montre {n} tèm ki tou fèt"
 msgstr[1] "Montre {n} tèm ki tou fèt"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Dimanch Pak\nSèvis a 9 è ak 11 è dimaten"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Dimanch Pak\n"
+"Sèvis a 9 è ak 11 è dimaten"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Rete trankil, epi konnen se mwen ki Bondye.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Rete trankil, epi konnen se mwen ki Bondye.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9233,8 +9294,14 @@ msgid "Youth camp in the mountains"
 msgstr "Kan jèn nan mòn yo"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Priye chak jou\nLi Bib la\nSèvi pwochen ou"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Priye chak jou\n"
+"Li Bib la\n"
+"Sèvi pwochen ou"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9803,3 +9870,6 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Retounen nan kantite liy ki nan Paramèt"

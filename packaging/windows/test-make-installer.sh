@@ -183,8 +183,8 @@ check "unfiles.nsh removes the empty folder" has "$U" 'RMDir "$INSTDIR\\licenses
 check "unfiles.nsh never removes a folder recursively" bash -c "! grep -q 'RMDir /r' '$U'"
 check "same number of File and Delete lines" test "$(grep -c '^File ' "$N")" = "$(grep -c '^Delete ' "$U")"
 A="$T/log/makensis-args.txt"
-check "makensis gets the version" has "$A" "-DVERSION=1.2.0"
-check "makensis gets a four-part version" has "$A" "-DVIVERSION=1.2.0.0"
+check "makensis gets the version" has "$A" "-DVERSION=1.2.1"
+check "makensis gets a four-part version" has "$A" "-DVIVERSION=1.2.1.0"
 check "makensis builds rustypresenter.nsi" has "$A" "rustypresenter.nsi"
 # Again: everything is reused, nothing downloaded.
 : >"$T/log/curl.txt"

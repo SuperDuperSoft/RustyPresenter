@@ -1,6 +1,15 @@
 # Vietnamese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: vi\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: Tiếng Việt\nX-English-Name: Vietnamese\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Native-Name: Tiếng Việt\n"
+"X-English-Name: Vietnamese\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Chọn bản Kinh Thánh"
 msgid "Try again"
 msgstr "Thử lại"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Sửa"
 
@@ -94,7 +103,7 @@ msgstr "Sao chép"
 msgid "Check again"
 msgstr "Kiểm tra lại"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Bài hát mới"
 
@@ -126,7 +135,7 @@ msgstr "Dán các câu thay vào đó"
 msgid "Verses per slide"
 msgstr "Số câu mỗi trang"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Tự động"
 
@@ -1147,7 +1156,7 @@ msgstr "4 câu"
 msgid "Choose slide breaks…"
 msgstr "Chọn chỗ ngắt trang…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Cỡ chữ"
 
@@ -1287,7 +1296,7 @@ msgstr "Gỡ khỏi buổi lễ"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Nhạc chào đón vẫn phát khi chuyển trang chiếu. Xóa âm thanh và Xóa tất cả sẽ dừng nhạc."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Bài hát"
 
@@ -2455,7 +2464,7 @@ msgstr "Làm tối"
 msgid "Makes text easier to read"
 msgstr "Giúp chữ dễ đọc hơn"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Số dòng mỗi trang"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Bắt đầu trang chiếu mới tại vị trí con trỏ"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\nÂn điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi\n\nChorus\nXiềng xích tôi đã rơi…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verse 1\n"
+"Ân điển lạ lùng, ôi ngọt ngào thay\n"
+"Đã cứu kẻ khốn hèn như tôi\n"
+"\n"
+"Chorus\n"
+"Xiềng xích tôi đã rơi…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2758,6 +2779,34 @@ msgstr "(không bắt buộc)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Để trống để dùng thứ tự đã viết"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Ít dòng hơn trên mỗi trang của bài hát này"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Nhiều dòng hơn trên mỗi trang của bài hát này"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Chữ nhỏ hơn cho bài hát này"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Chữ lớn hơn cho bài hát này"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Về số dòng và cỡ chữ trong Cài đặt"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3528,16 +3577,8 @@ msgid "Nothing selected"
 msgstr "Chưa chọn gì"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Chữ nhỏ hơn cho phân đoạn này"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3570,6 +3611,10 @@ msgstr "Lưu vào thư viện"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Giữ phân đoạn này trong thư viện bài hát để sửa hoặc dùng lại"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Số dòng"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4126,6 +4171,10 @@ msgstr "{name} — tệp đã nhập"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Hãy đặt tên cho bài hát."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Bài hát đó không còn trong thư viện nữa."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7518,8 +7567,12 @@ msgid "Settings saved"
 msgstr "Đã lưu cài đặt"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Ân điển lạ lùng, ôi ngọt ngào thay\nĐã cứu kẻ khốn hèn như tôi"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Ân điển lạ lùng, ôi ngọt ngào thay\n"
+"Đã cứu kẻ khốn hèn như tôi"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9175,12 +9228,20 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "Hiện {n} chủ đề có sẵn"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Chúa Nhật Phục Sinh\nLễ lúc 9 giờ và 11 giờ sáng"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Chúa Nhật Phục Sinh\n"
+"Lễ lúc 9 giờ và 11 giờ sáng"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Hãy yên lặng và biết rằng ta là Đức Chúa Trời.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Hãy yên lặng và biết rằng ta là Đức Chúa Trời.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9191,8 +9252,14 @@ msgid "Youth camp in the mountains"
 msgstr "Trại thanh niên trên núi"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Cầu nguyện mỗi ngày\nĐọc Kinh Thánh\nPhục vụ người lân cận"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Cầu nguyện mỗi ngày\n"
+"Đọc Kinh Thánh\n"
+"Phục vụ người lân cận"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9757,3 +9824,6 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Về số dòng trong Cài đặt"

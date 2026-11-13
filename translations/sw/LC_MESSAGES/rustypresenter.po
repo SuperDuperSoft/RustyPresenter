@@ -1,6 +1,15 @@
 # Swahili for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: sw\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kiswahili\nX-English-Name: Swahili\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sw\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Kiswahili\n"
+"X-English-Name: Swahili\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Chagua Biblia"
 msgid "Try again"
 msgstr "Jaribu tena"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Hariri"
 
@@ -94,7 +103,7 @@ msgstr "Nakili"
 msgid "Check again"
 msgstr "Angalia tena"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Wimbo mpya"
 
@@ -126,7 +135,7 @@ msgstr "Bandika mistari badala yake"
 msgid "Verses per slide"
 msgstr "Mistari kwa kila slaidi"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Otomatiki"
 
@@ -1147,7 +1156,7 @@ msgstr "Mistari 4"
 msgid "Choose slide breaks…"
 msgstr "Chagua migawanyiko ya slaidi…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Ukubwa wa maandishi"
 
@@ -1287,7 +1296,7 @@ msgstr "Ondoa kwenye ibada"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Muziki wa kuingia unaendelea kucheza slaidi zinapobadilika. Safisha sauti na Safisha Zote huusimamisha."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Nyimbo"
 
@@ -2455,7 +2464,7 @@ msgstr "Tia giza"
 msgid "Makes text easier to read"
 msgstr "Hufanya maandishi kusomeka kwa urahisi"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Mistari kwa kila slaidi"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Huanza slaidi mpya pale kishale kilipo"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Ubeti 1]\nNeema ya ajabu, sauti tamu\nIliyoniokoa mimi\n\n[Kiitikio]\nMinyororo imekatika…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Ubeti 1]\n"
+"Neema ya ajabu, sauti tamu\n"
+"Iliyoniokoa mimi\n"
+"\n"
+"[Kiitikio]\n"
+"Minyororo imekatika…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2758,6 +2779,34 @@ msgstr "(si lazima)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Mistari michache kwa kila slaidi ya wimbo huu"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Mistari mingi zaidi kwa kila slaidi ya wimbo huu"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Maandishi madogo zaidi kwa wimbo huu"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Maandishi makubwa zaidi kwa wimbo huu"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Rudi kwenye mistari na ukubwa ulio katika Mipangilio"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3528,16 +3577,8 @@ msgid "Nothing selected"
 msgstr "Hakuna kilichochaguliwa"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Maandishi madogo zaidi kwa kifungu hiki"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3570,6 +3611,10 @@ msgstr "Hifadhi kwenye maktaba"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Weka kifungu hiki kwenye maktaba ya nyimbo, ili ukihariri au ukitumie tena"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Mistari"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4126,6 +4171,10 @@ msgstr "{name} — faili iliyoletwa"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Upe wimbo kichwa."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Wimbo huo haupo tena kwenye maktaba."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7548,8 +7597,12 @@ msgid "Settings saved"
 msgstr "Mipangilio imehifadhiwa"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Neema ya ajabu, sauti tamu\nIliyoniokoa mimi"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Neema ya ajabu, sauti tamu\n"
+"Iliyoniokoa mimi"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9217,12 +9270,20 @@ msgstr[0] "Onyesha mandhari {n} yaliyo tayari"
 msgstr[1] "Onyesha mandhari {n} yaliyo tayari"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Jumapili ya Pasaka\nIbada saa 3 na saa 5 asubuhi"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Jumapili ya Pasaka\n"
+"Ibada saa 3 na saa 5 asubuhi"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Nyamazeni, mjue ya kuwa mimi ni Mungu.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Nyamazeni, mjue ya kuwa mimi ni Mungu.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9233,8 +9294,14 @@ msgid "Youth camp in the mountains"
 msgstr "Kambi ya vijana milimani"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Omba kila siku\nSoma Biblia\nMtumikie jirani yako"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Omba kila siku\n"
+"Soma Biblia\n"
+"Mtumikie jirani yako"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9803,3 +9870,6 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Rudi kwenye idadi ya mistari iliyo katika Mipangilio"
