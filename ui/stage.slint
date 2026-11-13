@@ -69,6 +69,8 @@ export component StageWindow inherits Window {
     in property <[Sprite]> anim-sprites;
     /// A message when the layout has no message box: a banner over the top of the screen.
     in property <string> banner;
+    /// 1.3: "Auto: following — Chorus 2", small at the bottom left, while the live song follows the singers.
+    in property <string> follow;
     /// Words Rust measures (with `probe-*`) to find the size that fits a box.
     /// The live slide with the phone drawing on it, in a corner (Settings → "Show drawings on the stage screen").
     in property <bool> drawing-on;
@@ -367,6 +369,23 @@ export component StageWindow inherits Window {
             height: parent.height;
             source: root.drawing;
             image-fit: contain;
+        }
+    }
+    if root.follow != "": follow-line := Rectangle {
+        x: 1.5 * vw;
+        y: root.height - self.height - 1.5 * vh;
+        width: follow-text.preferred-width + 2 * vh;
+        height: 5 * vh;
+        border-radius: self.height / 2;
+        background: #000000b0;
+        follow-text := Text {
+            text: root.follow;
+            color: #3ccf91;
+            font-size: 2.8 * vh;
+            font-weight: 700;
+            vertical-alignment: center;
+            accessible-role: text;
+            accessible-label: self.text;
         }
     }
     if root.testing: test-pattern := Image {

@@ -26,7 +26,8 @@ pub enum FollowEvent {
 }
 
 /// The Live column's listening light.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(serde::Serialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
 pub enum Light {
     #[default]
     Off,
@@ -38,7 +39,7 @@ pub enum Light {
 }
 
 /// What the Live column, stage and phone show about auto-follow.
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(serde::Serialize, Clone, Debug, PartialEq, Default)]
 pub struct FollowState {
     pub mode: Mode,
     pub light: Light,
@@ -76,6 +77,8 @@ pub trait Host: Send + Sync {
     fn clear_slide(&self, base: u64) -> bool;
     fn notice(&self, text: &str);
     fn save_mode(&self, item: Uuid, mode: Mode);
+    /// What the follower shows changed (the light, the line, Hold): screens and phones look again.
+    fn changed(&self) {}
 }
 
 /// The live song being followed.
@@ -288,7 +291,12 @@ fn work(host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, 
             Err(RecvTimeoutError::Disconnected) => break,
         };
         engine.step(host.as_ref(), now(), ev);
-        *state.lock().unwrap() = engine.state();
+        let new = engine.state();
+        let changed = *state.lock().unwrap() != new;
+        if changed {
+            *state.lock().unwrap() = new;
+            host.changed();
+        }
     }
 }
 
@@ -330,6 +338,8 @@ impl Host for AppHost {
     }
 
     fn notice(&self, text: &str) { if let Some(app) = self.0.upgrade() { app.set_notice(text) } }
+
+    fn changed(&self) { if let Some(app) = self.0.upgrade() { app.broadcast_live() } }
 
     fn save_mode(&self, item: Uuid, mode: Mode) {
         let Some(app) = self.0.upgrade() else { return };

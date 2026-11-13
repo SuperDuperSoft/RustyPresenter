@@ -216,6 +216,8 @@ impl Operator {
             for i in 0..n { self.set_cell(i) }
         }
         self.mark_slides();
+        // 1.3 Suggest: the glow follows the selection.
+        super::follow::render(self);
     }
 
     /// `markLive()`: marks the live slide of the selected item, and scrolls it into view when it changed.

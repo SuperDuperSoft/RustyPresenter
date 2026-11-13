@@ -78,6 +78,13 @@
   .secs { display: none; gap: 6px; overflow-x: auto; padding: 8px 0 0; }
   .sec { flex: none; min-width: 44px; height: 38px; border-radius: 10px; border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); color: inherit; font-weight: 700; font-size: 15px; }
   .sec.live { background: var(--c); color: #0d0f13; }
+  .follow { display: none; align-items: center; gap: 10px; }
+  .follow.on { display: flex; }
+  .follow button { padding: 12px 16px; border-radius: 12px; background: var(--raise); font-weight: 700; font-size: 15px; }
+  .follow #followChip.auto { background: #3ccf91; color: #0d0f13; }
+  .follow #followChip.suggest { background: var(--accent); color: #1a1405; }
+  .follow #followHold.on { background: var(--accent); color: #1a1405; }
+  .follow .fl { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .auto { display: none; flex-direction: column; gap: 8px; }
   .auto.on { display: flex; }
   .auto h2 { margin: 4px 0 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -207,6 +214,7 @@
   <button class="notesbtn" id="notesBtn"></button>
   <div class="pnotes" id="pnotes"><div class="label" data-t>Presenter notes</div><div class="text" id="notesText"></div></div>
   <div class="stage" id="stage"><div class="label" data-t>Stage only</div><div class="text" id="stageText"></div><button id="stageOff" data-t>Take it off the stage</button></div>
+  <div class="follow" id="follow"><button id="followChip"></button><span class="fl" id="followLine"></span><button id="followHold"></button></div>
   <div class="nav"><button id="prev">‹ Back</button><button class="go" id="next">Next ›</button></div>
   <div class="media" id="media"><button id="mediaBtn" data-t>Pause video</button></div>
   <div class="next"><div class="label" data-t>Up next <span id="nextLabel"></span></div><div class="text" id="nextText"></div></div>

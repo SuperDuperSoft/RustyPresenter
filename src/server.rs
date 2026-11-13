@@ -311,7 +311,9 @@ fn phone_may(env: &Envelope) -> bool {
         // FEAT-2 §5.11: macros and messages marked for the phone (`phone_automation` checks the marks).
         | Command::RunMacro { .. } | Command::ShowMessage { .. } | Command::HideMessage
         // N29: a slide for the stage screen only.
-        | Command::StageOnly { .. });
+        | Command::StageOnly { .. }
+        // 1.3: the live song's auto-follow chip and Hold.
+        | Command::FollowMode { .. } | Command::FollowHold { .. });
     let has_base = !matches!(env.cmd, Command::Show { .. } | Command::Jump { .. }) || env.base.is_some();
     allowed && has_base
 }
@@ -410,6 +412,8 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         "timers": timer_lines(&timers),
         // N13: the walk-in music.
         "music": timers.music,
+        // 1.3: the live song's auto-follow (mode, light, line, Hold), for the chip and Hold.
+        "follow": app.follow_view(&data, &live).map(|f| json!({ "mode": f.mode, "light": f.light, "line": f.line, "holding": f.holding })),
         // N29: the slide on the stage screen only, if any.
         "stage_only": app.live_view_stage_only().map(|o| json!({ "item_id": o.item_id, "slide": o.index, "label": o.slide.label, "text": slide_text(&o.slide) })),
         // I18N: the page reads `/i18n.json` again when this changes.
@@ -644,6 +648,46 @@ msgstr[1] "{n} Folien"
         assert_eq!(i18n_map()["Connect"], "Enlazar");
         assert!(words(&app) > before, "the phone is told to read the words again");
         crate::i18n::set_language("en").unwrap();
+    }
+
+    #[test]
+    fn phone_has_auto_and_hold() {
+        use crate::model::{ItemKind, ServiceItem, Song};
+        let app = test_app();
+        app.start_follower();
+        let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\nAmazing grace\n\nChorus\nMy chains are gone".into(), ..Default::default() };
+        let (id, text) = (Uuid::new_v4(), Uuid::new_v4());
+        {
+            let mut d = app.data.lock().unwrap();
+            d.songs.push(song.clone());
+            d.services[0].items.push(ServiceItem { id, kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None });
+            d.services[0].items.push(ServiceItem { id: text, kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        }
+        let cmd = |v: Value| -> Envelope { serde_json::from_value(v).unwrap() };
+        assert!(app.command(cmd(json!({ "id": "a", "cmd": "show", "item_id": id, "slide": 0 }))).ok);
+        let follow = |app: &App| serde_json::from_str::<Value>(&remote_view(app, None)).unwrap()["follow"].clone();
+        assert_eq!((follow(&app)["mode"].as_str(), follow(&app)["holding"].as_bool()), (Some("manual"), Some(false)));
+        // The chip: no base needed, the room doesn't change.
+        let auto = cmd(json!({ "id": "b", "cmd": "follow_mode", "item_id": id, "mode": "auto" }));
+        assert!(phone_may(&auto));
+        assert!(app.command(auto).ok);
+        assert_eq!(follow(&app)["mode"], "auto");
+        let hold = cmd(json!({ "id": "c", "cmd": "follow_hold", "on": true }));
+        assert!(phone_may(&hold));
+        assert!(app.command(hold).ok);
+        assert_eq!((follow(&app)["holding"].as_bool(), follow(&app)["light"].as_str()), (Some(true), Some("holding")));
+        // Not a song: no chip.
+        assert!(app.command(cmd(json!({ "id": "d", "cmd": "show", "item_id": text, "slide": 0 }))).ok);
+        assert!(follow(&app).is_null());
+        // The page sends both and has its words.
+        let js = include_str!("../web/remote.js");
+        assert!(js.contains("send('follow_mode'") && js.contains("send('follow_hold'"));
+        let m = i18n_map();
+        for w in ["Manual", "Suggest", "Auto", "Hold", "Holding", "Not listening", "Listening…", "Following the singers",
+            "Not sure — staying on this slide", "Holding — the slides stay put", "Nobody singing — words off"] {
+            assert!(m.get(w).is_some(), "“{w}” is not in src/i18n/remote_strings.rs");
+            assert!(js.contains(&format!("'{w}'")), "“{w}” is not in remote.js");
+        }
     }
 
     /// Every `t('…')` in `remote.js` and `data-t` text in `remote.html` is in `/i18n.json`.

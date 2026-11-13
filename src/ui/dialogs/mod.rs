@@ -23,6 +23,7 @@ pub mod settings;
 pub mod slide_breaks;
 pub mod settings_audio;
 pub mod settings_bible;
+pub mod settings_follow;
 pub mod settings_graphics;
 pub mod settings_keys;
 pub mod settings_language;
@@ -53,7 +54,7 @@ pub enum AddTab { #[default] Song, Scripture, Media, Deck, Text }
 
 /// The tabs of Settings (`operator.js:883`), and About (native spec §7).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum SettingsTab { #[default] Look, Themes, Language, Songs, Bible, Video, Media, Backups, Help, About, Sections }
+pub enum SettingsTab { #[default] Look, Themes, Language, Songs, AutoFollow, Bible, Video, Media, Backups, Help, About, Sections }
 
 /// The dialogs of the web operator; one at a time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

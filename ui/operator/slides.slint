@@ -3,6 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Icon, Btn, ScrollBox, TipBox, Segmented } from "../widgets.slint";
 import { RangeSlider } from "../dialogs/form.slint";
+import { FollowUi } from "follow.slint";
 import { PanelExtras } from "extras.slint";
 import { SlideActs, ActionPalette } from "action-palette.slint";
 
@@ -115,7 +116,9 @@ component Thumb inherits Rectangle {
 
     /// The caption row: 6 px padding over one 12.5 px line.
     out property <length> caption-h: 23px;
-    property <length> outline: root.cell.live ? 3px : 2px;
+    /// 1.3 Suggest: auto-follow thinks this slide is next.
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    property <length> outline: root.cell.live || root.glow ? 3px : 2px;
 
     height: root.width * 9 / 16 + root.caption-h;
     accessible-role: button;
@@ -133,7 +136,9 @@ component Thumb inherits Rectangle {
         height: screen.height + 2 * root.outline;
         border-radius: 9px + root.outline;
         border-width: root.outline;
-        border-color: root.cell.live ? Theme.live : ta.has-hover ? Theme.thumb-hover : Theme.line;
+        border-color: root.cell.live ? Theme.live : root.glow ? Theme.ok : ta.has-hover ? Theme.thumb-hover : Theme.line;
+        drop-shadow-blur: root.glow ? 14px : 0px;
+        drop-shadow-color: Theme.ok;
     }
 
     screen := Rectangle {
@@ -304,8 +309,9 @@ component EasyRow inherits Rectangle {
     height: 112px;
     border-radius: 9px;
     background: Theme.panel-2;
-    border-width: root.cell.live ? 3px : 1.5px;
-    border-color: root.cell.live ? Theme.live : ta.has-hover ? Theme.thumb-hover : Theme.line;
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    border-width: root.cell.live || root.glow ? 3px : 1.5px;
+    border-color: root.cell.live ? Theme.live : root.glow ? Theme.ok : ta.has-hover ? Theme.thumb-hover : Theme.line;
     accessible-role: button;
     accessible-label: root.cell.label;
     accessible-description: root.cell.text;
@@ -368,9 +374,10 @@ component TableRow inherits Rectangle {
     callback clicked();
     height: 64px;
     border-radius: 7px;
-    background: root.cell.live ? Theme.live.with-alpha(0.16) : ta.has-hover ? Theme.panel-2 : transparent;
-    border-width: root.cell.live ? 1.5px : 0px;
-    border-color: Theme.live;
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    background: root.cell.live ? Theme.live.with-alpha(0.16) : root.glow ? Theme.ok.with-alpha(0.14) : ta.has-hover ? Theme.panel-2 : transparent;
+    border-width: root.cell.live || root.glow ? 1.5px : 0px;
+    border-color: root.glow ? Theme.ok : Theme.live;
     accessible-role: button;
     accessible-label: root.cell.label;
     accessible-description: root.cell.text;

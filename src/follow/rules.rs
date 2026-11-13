@@ -17,6 +17,21 @@ pub enum Mode {
     Auto,
 }
 
+impl Mode {
+    /// The Auto chip's next mode: Manual → Suggest → Auto → Manual.
+    pub fn next(self) -> Mode {
+        match self { Mode::Manual => Mode::Suggest, Mode::Suggest => Mode::Auto, Mode::Auto => Mode::Manual }
+    }
+
+    /// The A key: Auto on, or (when on) back to Manual.
+    pub fn toggle_auto(self) -> Mode { if self == Mode::Auto { Mode::Manual } else { Mode::Auto } }
+
+    /// 0 Manual, 1 Suggest, 2 Auto (the chip and Settings' choices).
+    pub fn index(self) -> usize { match self { Mode::Manual => 0, Mode::Suggest => 1, Mode::Auto => 2 } }
+
+    pub fn from_index(i: usize) -> Mode { [Mode::Manual, Mode::Suggest, Mode::Auto].get(i).copied().unwrap_or_default() }
+}
+
 /// What the room sounds like right now (the voice tracker's label).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Voice { Singing, Speaking, Music, Silence }
@@ -37,11 +52,14 @@ pub struct Settings {
     pub jump_words: u8,
     /// Below this confidence (0–1) Automatic holds and Suggest only highlights.
     pub min_conf: f32,
+    /// The sound input to listen to (`audio::input_devices`); empty: the computer's usual one.
+    pub device: String,
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Settings { mode: Mode::Manual, lead_s: 2.0, blank_after_s: Some(3.0), talk_blank_after_s: Some(8.0), jump_words: super::align::JUMP_WORDS, min_conf: 0.6 }
+        Settings { mode: Mode::Manual, lead_s: 2.0, blank_after_s: Some(3.0), talk_blank_after_s: Some(8.0), jump_words: super::align::JUMP_WORDS, min_conf: 0.6,
+            device: String::new() }
     }
 }
 

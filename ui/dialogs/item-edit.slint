@@ -83,6 +83,8 @@ export global ItemEdit {
     in-out property <bool> advance-on;
     in-out property <string> advance-secs: "8";
     in-out property <bool> advance-loop: true;
+    /// 1.3 Song: how it follows the singers. 0 As in Settings, 1 Manual, 2 Suggest, 3 Auto.
+    in-out property <int> follow-mode;
 
     /// Song: this service's order (FEAT-4 §3.5). Ticked: the song's usual order, shown dimmed; unticked: the strip
     /// is this service's own order.
@@ -501,6 +503,17 @@ export component ItemEditDialog inherits VerticalLayout {
                 custom-color(c) => { ItemEdit.custom-color(c); }
                 custom-hex(t) => { ItemEdit.custom-hex(t); }
                 upload => { ItemEdit.upload(); }
+            }
+        }
+        if ItemEdit.kind == "song": Field {
+            label: @tr("Follow the singers");
+            help: @tr("Suggest: the next slide glows. Auto: the slides move by themselves.");
+            HorizontalLayout {
+                alignment: start;
+                follow-mode := Segmented {
+                    labels: [@tr("As in Settings"), @tr("auto-follow" => "Manual"), @tr("auto-follow" => "Suggest"), @tr("auto-follow" => "Auto")];
+                    index <=> ItemEdit.follow-mode;
+                }
             }
         }
         if ItemEdit.advance-shown: VerticalLayout {

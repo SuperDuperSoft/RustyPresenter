@@ -1,0 +1,99 @@
+// 1.3 song auto-follow in the Live column: the Auto chip (Manual / Suggest / Auto), the listening light with the
+// line it thinks is being sung, and Hold. Everything comes from Rust (`src/ui/operator/follow.rs`).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+
+export global FollowUi {
+    /// The live item is a song: the row shows.
+    in property <bool> shown;
+    /// 0 Manual, 1 Suggest, 2 Auto.
+    in property <int> mode;
+    in property <string> mode-label;
+    in property <string> mode-tip;
+    /// off, listening, sure, unsure, holding or blank.
+    in property <string> light;
+    in property <string> light-label;
+    /// The line it thinks is being sung (empty: the light's words show).
+    in property <string> line;
+    in property <bool> holding;
+    in property <string> hold-tip;
+    /// Suggest: the slide of the shown item that glows as "next" (-1: none).
+    in property <int> suggested: -1;
+    callback cycle-mode();
+    callback toggle-hold();
+}
+
+/// The colour of the listening light.
+export global FollowLook {
+    public pure function light-color(light: string) -> color {
+        return light == "sure" ? Theme.ok
+            : light == "unsure" || light == "holding" ? Theme.accent
+            : light == "listening" ? Theme.muted
+            : Theme.faint;
+    }
+}
+
+export component FollowRow inherits HorizontalLayout {
+    spacing: 8px;
+    follow-chip := Rectangle {
+        accessible-role: button;
+        accessible-label: FollowUi.mode-label;
+        accessible-description: FollowUi.mode-tip;
+        accessible-action-default => { FollowUi.cycle-mode(); }
+        border-radius: self.height / 2;
+        border-width: 1.5px;
+        border-color: FollowUi.mode == 2 ? Theme.ok : FollowUi.mode == 1 ? Theme.accent : Theme.line;
+        background: FollowUi.mode == 2 ? Theme.ok.with-alpha(0.18) : FollowUi.mode == 1 ? Theme.accent.with-alpha(0.14) : Theme.raise;
+        HorizontalLayout {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 12px;
+            padding-right: 12px;
+            Text {
+                text: FollowUi.mode-label;
+                color: FollowUi.mode == 2 ? Theme.ok : FollowUi.mode == 1 ? Theme.accent : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: 700;
+                vertical-alignment: center;
+            }
+        }
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { FollowUi.cycle-mode(); }
+        }
+    }
+    VerticalLayout {
+        alignment: center;
+        follow-light := Rectangle {
+            accessible-role: text;
+            accessible-label: FollowUi.light-label;
+            accessible-value: FollowUi.light;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background: FollowLook.light-color(FollowUi.light);
+            drop-shadow-blur: FollowUi.light == "sure" ? 8px : 0px;
+            drop-shadow-color: Theme.ok;
+        }
+    }
+    follow-line := Text {
+        horizontal-stretch: 1;
+        text: FollowUi.line != "" ? FollowUi.line : FollowUi.light-label;
+        color: FollowUi.line != "" ? Theme.text : Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        font-italic: FollowUi.line != "";
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: text;
+        accessible-label: self.text;
+    }
+    if FollowUi.mode != 0 || FollowUi.holding: follow-hold := Btn {
+        small: true;
+        primary: FollowUi.holding;
+        text: FollowUi.holding ? @tr("Holding") : @tr("Hold");
+        tooltip: FollowUi.hold-tip;
+        clicked => { FollowUi.toggle-hold(); }
+    }
+}

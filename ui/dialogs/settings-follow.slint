@@ -1,0 +1,148 @@
+// Settings → Auto-follow (1.3): songs follow the singers. The sound input with a level meter and Test, the songs'
+// usual mode, the lead time, when the words go off, and how sure a jump must be. Read and written by
+// `src/ui/dialogs/settings_follow.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Field, Segmented } from "../widgets.slint";
+import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { Heading } from "settings-media.slint";
+
+export component SettingsFollow inherits VerticalLayout {
+    spacing: 4px;
+    Note {
+        text: @tr("RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer.");
+    }
+    Rectangle { height: 10px; }
+    Heading { text: @tr("Listening"); }
+    Rectangle { height: 6px; }
+    Field {
+        label: @tr("Sound input");
+        help: @tr("The main mix from the sound desk works best.");
+        follow-device := Select {
+            options: SettingsDlg.follow-device-labels;
+            index <=> SettingsDlg.follow-device-index;
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            VerticalLayout {
+                alignment: center;
+                horizontal-stretch: 1;
+                follow-level := Rectangle {
+                    accessible-role: progress-indicator;
+                    accessible-label: @tr("Sound level");
+                    accessible-value-minimum: 0;
+                    accessible-value-maximum: 1;
+                    accessible-value: SettingsDlg.follow-level;
+                    height: 8px;
+                    border-radius: 4px;
+                    background: Theme.line;
+                    Rectangle {
+                        x: 0;
+                        width: parent.width * clamp(SettingsDlg.follow-level, 0, 1);
+                        border-radius: 4px;
+                        background: Theme.ok;
+                    }
+                }
+            }
+            follow-test := Btn {
+                small: true;
+                text: @tr("Test");
+                tooltip: @tr("Sing or say a line: the meter moves when it hears you.");
+                clicked => { SettingsDlg.follow-test(); }
+            }
+        }
+        if SettingsDlg.follow-test-result != "": follow-test-result := Text {
+            text: SettingsDlg.follow-test-result;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    Field {
+        label: @tr("Songs follow the singers");
+        help: @tr("A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it.");
+        HorizontalLayout {
+            alignment: start;
+            follow-mode := Segmented {
+                labels: [@tr("auto-follow" => "Manual"), @tr("auto-follow" => "Suggest"), @tr("auto-follow" => "Auto")];
+                index <=> SettingsDlg.follow-mode;
+            }
+        }
+    }
+    Rectangle { height: 10px; }
+    Heading { text: @tr("Timing"); }
+    Rectangle { height: 6px; }
+    Field {
+        label: @tr("Show the next slide before it is sung");
+        help: @tr("Early enough to read, not so early that people sing ahead.");
+        HorizontalLayout {
+            spacing: 12px;
+            follow-lead := RangeSlider {
+                horizontal-stretch: 1;
+                minimum: 5;
+                maximum: 40;
+                value <=> SettingsDlg.follow-lead;
+            }
+            follow-lead-text := Text {
+                min-width: 48px;
+                text: @tr("{} s", (SettingsDlg.follow-lead / 10).to-fixed(1));
+                color: Theme.text;
+                font-family: Theme.font;
+                vertical-alignment: center;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+    }
+    Field {
+        label: @tr("When nobody sings");
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            follow-blank-on := Check {
+                text: @tr("Take the words off after (seconds)");
+                checked <=> SettingsDlg.follow-blank-on;
+            }
+            if SettingsDlg.follow-blank-on: follow-blank-secs := TextField { width: 70px; text <=> SettingsDlg.follow-blank-secs; }
+        }
+    }
+    Field {
+        label: @tr("When someone talks or prays");
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            follow-talk-on := Check {
+                text: @tr("Take the words off after (seconds)");
+                checked <=> SettingsDlg.follow-talk-on;
+            }
+            if SettingsDlg.follow-talk-on: follow-talk-secs := TextField { width: 70px; text <=> SettingsDlg.follow-talk-secs; }
+        }
+    }
+    Field {
+        label: @tr("Jump to another part of the song after (words heard in a row)");
+        help: @tr("More words: fewer wrong jumps, but slower to follow a change in the order.");
+        follow-jump := TextField { width: 70px; text <=> SettingsDlg.follow-jump; }
+    }
+    Rectangle { height: 10px; }
+    Heading { text: @tr("Listening model"); }
+    Rectangle { height: 6px; }
+    Field {
+        label: @tr("Model size");
+        help: @tr("Comes in a later update.");
+        HorizontalLayout {
+            alignment: start;
+            // Greyed out and not clickable until the model comes.
+            Rectangle {
+                follow-model := Segmented {
+                    opacity: 0.45;
+                    labels: [@tr("Fast"), @tr("Balanced"), @tr("Best")];
+                    index: 0;
+                }
+                TouchArea { }
+            }
+        }
+    }
+}

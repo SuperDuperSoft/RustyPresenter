@@ -52,6 +52,10 @@ function draw(v) {
   $('screen').style.background = v.background;
   const host = $('cells');
   host.replaceChildren(...v.cells.map(c => cell(c, v.version)));
+  // 1.3: "Auto: following — Chorus 2" while the song follows the singers.
+  const f = $('follow');
+  f.textContent = v.follow || '';
+  f.style.display = v.follow ? 'block' : 'none';
   const b = $('banner');
   b.textContent = v.banner || '';
   b.style.display = v.banner ? 'flex' : 'none';

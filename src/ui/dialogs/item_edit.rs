@@ -92,6 +92,8 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_advance_on(adv.is_some());
     g.set_advance_secs(adv.map_or(crate::automation::advance::DEFAULT_SECS, |a| a.secs).to_string().into());
     g.set_advance_loop(adv.is_none_or(|a| a.loop_item));
+    // 1.3 auto-follow: the song's own mode, else "As in Settings".
+    g.set_follow_mode(snap.data.automation.follow.get(&id).map_or(0, |m| m.index() as i32 + 1));
     let mut name = None;
     let mut order = None;
     let bible = match &item.kind { ItemKind::Scripture { translation, .. } => Some(translation.clone()), _ => None };
@@ -567,6 +569,7 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>, breaks: bool) {
     let bad_time = edit.borrow().deck_notes.as_ref().is_some_and(|(.., rows)| rows.iter().any(|r| advance_ms(&r.advance).is_err()));
     if bad_time { return op.toast(crate::tr!("Auto-advance after: type a number of seconds, or leave it empty."), true) }
     if g.get_advance_shown() && !save_advance(op, edit.borrow().item.id) { return }
+    if g.get_kind() == "song" { save_follow(op, edit.borrow().item.id) }
     let (item, rename, chosen, was) = {
         let e = edit.borrow();
         let library: Vec<_> = e.name.as_ref().and_then(|n| rename(n, &g.get_name())).into_iter().chain(deck_notes_call(&e)).chain(deck_transitions_call(&e)).collect();
@@ -599,6 +602,18 @@ fn save_advance(op: &Rc<Operator>, item: Uuid) -> bool {
     let me = Rc::downgrade(op);
     op.ops().call::<serde_json::Value>("automation/advance", body, move |r| if let (Err(e), Some(op)) = (r, me.upgrade()) { op.toast(e, true) });
     true
+}
+
+/// Saves the song's own auto-follow mode (1.3) when it changed; "As in Settings" drops it.
+fn save_follow(op: &Rc<Operator>, item_id: Uuid) {
+    let g = op.ui.global::<ItemEdit>();
+    let mode = usize::try_from(g.get_follow_mode() - 1).ok().map(crate::follow::Mode::from_index);
+    let was = super::settings::snap(op).and_then(|s| s.data.automation.follow.get(&item_id).copied());
+    if mode == was { return }
+    let me = Rc::downgrade(op);
+    op.ops().cmd(crate::live::Command::FollowMode { item_id, mode }, None, move |o| {
+        if let (Some(e), Some(op)) = (o.error, me.upgrade()) { op.toast(e, true) }
+    });
 }
 
 /// The library changes (rename, speaker notes), then `service/update` with `item`, then "Saved" and `note` (an Also Bible left out).
@@ -790,6 +805,25 @@ mod tests {
     fn untick_usual(op: &Operator) {
         g(op).set_usual_order(false);
         g(op).invoke_usual_order_toggled(false);
+    }
+
+    #[test]
+    fn song_has_its_own_follow_mode() {
+        use crate::follow::Mode;
+        let app = test_app();
+        let (_, id) = song_item(&app, None);
+        let op = opened(&app);
+        open(&op, id);
+        assert_eq!(g(&op).get_follow_mode(), 0, "As in Settings");
+        g(&op).set_follow_mode(3);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().automation.follow.get(&id), Some(&Mode::Auto));
+        refresh(&op);
+        open(&op, id);
+        assert_eq!(g(&op).get_follow_mode(), 3);
+        g(&op).set_follow_mode(0);
+        press(&op, "ItemEditDialog::save");
+        assert_eq!(app.data.lock().unwrap().automation.follow.get(&id), None, "back to Settings' mode");
     }
 
     #[test]

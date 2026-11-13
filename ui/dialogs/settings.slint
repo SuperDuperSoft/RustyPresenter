@@ -13,6 +13,7 @@ import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
 import { SettingsSections } from "settings-sections.slint";
 import { SettingsHelp } from "settings-keys.slint";
 import { SettingsMedia, Heading } from "settings-media.slint";
+import { SettingsFollow } from "settings-follow.slint";
 
 export { SettingsDlg }
 
@@ -259,7 +260,7 @@ component SettingsBackups inherits VerticalLayout {
 export component SettingsDialog inherits VerticalLayout {
     DialogBody {
         tabs := Tabs {
-            labels: [@tr("Look"), @tr("Themes"), @tr("Language"), @tr("Songs"), @tr("Bible"), @tr("Video"), @tr("Media"), @tr("Backups"), @tr("Help"), @tr("About")];
+            labels: [@tr("Look"), @tr("Themes"), @tr("Language"), @tr("Songs"), @tr("Auto-follow"), @tr("Bible"), @tr("Video"), @tr("Media"), @tr("Backups"), @tr("Help"), @tr("About")];
             index <=> SettingsDlg.tab;
             changed(i) => { SettingsDlg.tab-changed(i); }
         }
@@ -268,12 +269,13 @@ export component SettingsDialog inherits VerticalLayout {
         if SettingsDlg.tab == 1: themes := SettingsThemes {}
         if SettingsDlg.tab == 2: language := SettingsLanguage {}
         if SettingsDlg.tab == 3: songs := SettingsSongs {}
-        if SettingsDlg.tab == 4: bible := SettingsBible {}
-        if SettingsDlg.tab == 5: video := SettingsVideo {}
-        if SettingsDlg.tab == 6: media := SettingsMedia {}
-        if SettingsDlg.tab == 7: backups := SettingsBackups {}
-        if SettingsDlg.tab == 8: help := SettingsHelp {}
-        if SettingsDlg.tab == 9: about := SettingsAbout {}
+        if SettingsDlg.tab == 4: follow := SettingsFollow {}
+        if SettingsDlg.tab == 5: bible := SettingsBible {}
+        if SettingsDlg.tab == 6: video := SettingsVideo {}
+        if SettingsDlg.tab == 7: media := SettingsMedia {}
+        if SettingsDlg.tab == 8: backups := SettingsBackups {}
+        if SettingsDlg.tab == 9: help := SettingsHelp {}
+        if SettingsDlg.tab == 10: about := SettingsAbout {}
     }
     // While a theme is being edited, the footer saves the theme instead of the settings.
     if SettingsDlg.tab == 1 && ThemesDlg.editing: DialogFoot {

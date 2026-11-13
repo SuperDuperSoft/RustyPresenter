@@ -29,6 +29,8 @@ pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, 
     let lan_url = lan_ip.map(|ip| format!("http://{ip}:{port}/remote"));
     let app = App::new(store, data, port, lan_url);
     app.set_read_only(read_only);
+    // 1.3: song auto-follow's worker (idle until a song follows the singers).
+    app.start_follower();
     if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
     Ok(Started { app, listener, root })
 }

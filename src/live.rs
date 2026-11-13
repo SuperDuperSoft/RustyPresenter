@@ -221,6 +221,11 @@ pub enum Command {
     PlayMedia { item_id: Uuid },
     /// N15: show the live item in saved theme `theme` until another item goes live.
     UseTheme { theme: Uuid },
+    /// 1.3: how song item `item_id` follows the singers; no `mode` goes back to Settings → Auto-follow's. The App
+    /// keeps it (`App::follow_command`); the screen doesn't change.
+    FollowMode { item_id: Uuid, #[serde(default)] mode: Option<crate::follow::Mode> },
+    /// 1.3: Hold ("don't move now") on or off for auto-follow. The App's follower keeps it.
+    FollowHold { on: bool },
 }
 
 /// One layer a clear key or clear group takes down (N18). `Overlays` is the saved ones only (pictures, clocks,
@@ -659,6 +664,8 @@ impl Live {
             Command::StageOnly { .. } => Ok(()),
             Command::PlayMedia { item_id } => self.play_media(plan, *item_id),
             Command::UseTheme { theme } => self.use_theme(plan, *theme),
+            // The App keeps auto-follow's mode and Hold (`App::command`); the engine never sees them.
+            Command::FollowMode { .. } | Command::FollowHold { .. } => Ok(()),
         }
     }
 

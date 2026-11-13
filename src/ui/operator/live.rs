@@ -108,6 +108,7 @@ impl Operator {
         self.render_monitor(v);
         self.render_drawing(&v.drawing, false);
         self.render_overlay_strip();
+        super::follow::render(self);
     }
 
     /// The phone drawing on the monitor, and the Drawing chip. An older drawing than the one shown is ignored (a

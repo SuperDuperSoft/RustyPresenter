@@ -9,6 +9,7 @@ import { OverlaysStrip } from "overlay-strip.slint";
 import { MenuKeys } from "../keys.slint";
 import { OutputsState } from "outputs.slint";
 import { Select } from "../dialogs/form.slint";
+import { FollowRow, FollowUi } from "follow.slint";
 
 /// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
 export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
@@ -332,6 +333,9 @@ export component LiveColumn inherits Rectangle {
                         clicked => { root.song-action("edit"); }
                     }
                 }
+
+                // 1.3: song auto-follow (Auto chip, listening light, Hold).
+                if FollowUi.shown: follow := FollowRow {}
 
                 if root.song.banner != "": live-changed := Rectangle {
                     accessible-role: text;

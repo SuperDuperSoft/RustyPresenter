@@ -107,7 +107,7 @@ mod tests {
         refresh(&op);
         settings::open(&op, SettingsTab::Media);
         let g = op.ui.global::<SettingsDlg>();
-        assert_eq!(g.get_tab(), 6);
+        assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::Media));
         assert_eq!((g.get_media_scale(), g.get_picture_secs(), g.get_video_end(), g.get_channels()), (2, 3, 3, 3));
         assert_eq!(g.get_delay_ms(), "120");
         assert_eq!(read_listen(&g), "wasapi/{phones}", "kept while the list is read");

@@ -226,7 +226,7 @@ fn look_preview_rebuilt_on_tab_return() {
     g(&op).invoke_look_changed();
     // Leave before the preview is drawn again: the image goes.
     let tabs = find_all(&op, "Tabs::tab");
-    assert_eq!(tabs.len(), 10);
+    assert_eq!(tabs.len(), 11);
     tabs[1].mock_single_click(PointerEventButton::Left);
     settle();
     assert_eq!(g(&op).get_tab(), 1);

@@ -480,7 +480,7 @@ mod tests {
     fn view() -> LiveView {
         LiveView {
             version: 1, committed: 1, pending: false, frame: Frame::default(), cursor: None, item: None, slide: None, next: None,
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(), stage_only: None, look_fade_ms: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(), stage_only: None, look_fade_ms: 0, follow: None,
         }
     }
 

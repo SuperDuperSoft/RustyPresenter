@@ -100,5 +100,17 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Open", tr!("Open")),
         // The name a newly paired phone gets in the computer's list of phones.
         ("Android phone", tr!("Android phone")),
+        // 1.3: the live song follows the singers: the chip (Manual → Suggest → Auto), the light's words and Hold.
+        ("Manual", trc!("auto-follow", "Manual")),
+        ("Suggest", trc!("auto-follow", "Suggest")),
+        ("Auto", trc!("auto-follow", "Auto")),
+        ("Hold", tr!("Hold")),
+        ("Holding", tr!("Holding")),
+        ("Not listening", tr!("Not listening")),
+        ("Listening…", tr!("Listening…")),
+        ("Following the singers", tr!("Following the singers")),
+        ("Not sure — staying on this slide", tr!("Not sure — staying on this slide")),
+        ("Holding — the slides stay put", tr!("Holding — the slides stay put")),
+        ("Nobody singing — words off", tr!("Nobody singing — words off")),
     ]
 }

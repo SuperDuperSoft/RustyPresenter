@@ -50,6 +50,8 @@ pub fn what(action: Action, groups: &[ClearGroup]) -> String {
         Action::Find => st::do_find(),
         Action::ShowMessage => crate::tr!("Show a message on the screen"),
         Action::FindMouse => sh::find_mouse(),
+        Action::FollowAuto => sh::follow_auto(),
+        Action::FollowHold => sh::follow_hold(),
     }
 }
 

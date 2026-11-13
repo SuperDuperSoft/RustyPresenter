@@ -22,6 +22,8 @@ pub struct StageView {
     pub cells: Vec<Cell>,
     /// A message is up but the layout has no message box: show it as a banner instead.
     pub message_fallback: Option<String>,
+    /// 1.3: "Auto: following — Chorus 2", a small line at the bottom, while the live song follows the singers.
+    pub follow_line: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -65,7 +67,16 @@ pub fn build(inp: &StageInputs, layout: &StageLayout) -> StageView {
         font: layout.font.clone(),
         cells,
         message_fallback: (!message.is_empty() && !has_message_box).then(|| message.clone()),
+        follow_line: follow_line(inp.live),
     }
+}
+
+/// 1.3: "Auto: following — Chorus 2" while the live song follows the singers (Suggest or Auto); none in Manual or
+/// for anything but a song.
+pub fn follow_line(live: &LiveView) -> Option<String> {
+    let f = live.follow.as_ref().filter(|_| is_song(live))?;
+    let section = live.slide.as_ref().map(|s| section_of(&s.label));
+    crate::follow::strings::stage_line(f.mode, f.light, section)
 }
 
 /// Boxes in exactly the same place: the first one with something to show wins, the rest go empty. Shapes (N10)
@@ -244,7 +255,7 @@ mod tests {
             item: Some(LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: slides.len(), song_id: None }),
             slide: Some(now),
             next: slides.get(at + 1).map(|s| NextUp { title: "Amazing Grace".into(), slide: s.clone() }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0, drawing: Default::default(), stage_only: None, look_fade_ms: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, stage_message: String::new(), clear_epoch: 0, drawing: Default::default(), stage_only: None, look_fade_ms: 0, follow: None,
         }
     }
     fn empty_view() -> LiveView {
@@ -278,6 +289,23 @@ mod tests {
         &v.cells.iter().find(|c| c.element == id).unwrap().content
     }
     const CUR: ElementKind = ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: false };
+
+    #[test]
+    fn stage_shows_follow_line() {
+        use crate::follow::{FollowState, Light, Mode};
+        let mut v = song_view(&song(), 2);
+        let layout = one(CUR);
+        assert_eq!(view_of(&v, &song(), &layout).follow_line, None, "no auto-follow: no line");
+        v.follow = Some(FollowState { mode: Mode::Auto, light: Light::Sure, ..Default::default() });
+        assert_eq!(view_of(&v, &song(), &layout).follow_line.as_deref(), Some("Auto: following — Chorus"));
+        v.follow = Some(FollowState { mode: Mode::Suggest, light: Light::Holding, ..Default::default() });
+        assert_eq!(follow_line(&song_view(&song(), 1)), None);
+        let mut held = song_view(&song(), 1);
+        held.follow = v.follow.clone();
+        assert_eq!(follow_line(&held).as_deref(), Some("Suggest: holding — Verse 1"), "the page count is left out");
+        v.follow = Some(FollowState { mode: Mode::Manual, light: Light::Off, ..Default::default() });
+        assert_eq!(follow_line(&v), None, "Manual: nothing on the stage");
+    }
 
     #[test]
     fn current_and_next_slide_follow_the_live_view() {

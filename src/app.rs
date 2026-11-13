@@ -106,6 +106,9 @@ pub struct LiveView {
     /// N9: Settings' look fade, in ms (the room fades this long when only the theme changes).
     #[serde(skip)]
     pub look_fade_ms: u32,
+    /// 1.3: song auto-follow for the live song (none for anything else): the mode, the light, the line, Hold.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub follow: Option<crate::follow::FollowState>,
 }
 
 /// N29: the slide on the stage screen only, and where it came from (the operator marks its thumbnail).
@@ -421,7 +424,24 @@ impl App {
             drawing: live.drawing.clone(),
             stage_only: self.stage_only.lock().unwrap().clone(),
             look_fade_ms: data.settings.look_fade_ms,
+            follow: self.follow_view(&data, &live),
         }
+    }
+
+    /// 1.3: auto-follow as the live song shows it. The mode and Hold are read here (the worker may not have
+    /// looked yet); the light, line and suggestion are the worker's.
+    pub(crate) fn follow_view(&self, data: &Data, live: &crate::live::Live) -> Option<crate::follow::FollowState> {
+        use crate::follow::{Light, Mode};
+        let item = live.item.as_ref().filter(|i| i.kind == "song")?;
+        let mode = data.automation.follow.get(&item.item_id).copied().unwrap_or(data.settings.follow.mode);
+        let f = self.follower.get();
+        let mut s = f.map(|f| f.state()).unwrap_or_default();
+        s.holding = f.is_some_and(|f| f.holding());
+        if mode != s.mode { s.light = Light::Off }
+        if mode != Mode::Suggest { s.suggest = None }
+        if mode == Mode::Manual { s.light = Light::Off } else if s.holding { s.light = Light::Holding }
+        s.mode = mode;
+        Some(s)
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver<Update> { self.tx.subscribe() }
@@ -528,6 +548,8 @@ impl App {
                 Err(e) => Outcome { ok: false, version, error: Some(e), duplicate: false },
             };
         }
+        // 1.3: auto-follow's mode and Hold are the App's; the room never changes.
+        if matches!(env.cmd, Command::FollowMode { .. } | Command::FollowHold { .. }) { return self.follow_command(&env.cmd) }
         // 1.2: Next/Back on a deck running in PowerPoint click there first.
         if let Some(out) = self.show_command(&env) { return out }
         let cmd = env.cmd.clone();
@@ -543,6 +565,26 @@ impl App {
             self.automation_after(None);
         }
         out
+    }
+
+    /// 1.3: a song item's auto-follow mode (kept with the service's automation), or Hold on or off.
+    fn follow_command(&self, cmd: &Command) -> Outcome {
+        let r = match *cmd {
+            Command::FollowMode { item_id, mode } => self.edit_untracked(|d| {
+                if !d.services.iter().any(|s| s.items.iter().any(|i| i.id == item_id)) { return Err(tr!("That item isn't in the service any more.")) }
+                match mode {
+                    Some(m) => { d.automation.follow.insert(item_id, m); }
+                    None => { d.automation.follow.remove(&item_id); }
+                }
+                Ok(())
+            }),
+            Command::FollowHold { on } => { if let Some(f) = self.follower.get() { f.set_hold(on) } Ok(()) }
+            _ => Ok(()),
+        };
+        let version = self.live.lock().unwrap().version;
+        // The Live column, stage and phones show the new mode or Hold at once; the follower looks again.
+        if r.is_ok() { self.broadcast_live() }
+        Outcome { ok: r.is_ok(), version, error: r.err(), duplicate: false }
     }
 
     pub fn set_state_writer(&self, w: StateWriter) { *self.state_writer.lock().unwrap() = Some(w); }

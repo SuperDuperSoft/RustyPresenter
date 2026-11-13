@@ -126,6 +126,8 @@ pub enum Action {
     /// A clear group (its id).
     Group(Uuid),
     PasteLink, Undo, Redo, Find, ShowMessage, FindMouse,
+    /// 1.3: the live song's auto-follow on or off (A), and Hold (H).
+    FollowAuto, FollowHold,
 }
 
 /// Where a shortcut works.
@@ -140,10 +142,11 @@ pub enum Reach {
 }
 
 /// The fixed actions in the Help table's order; the clear groups follow `ClearTimers`.
-const FIXED: [Action; 18] = [
+const FIXED: [Action; 20] = [
     Action::Next, Action::Back, Action::Take, Action::FocusBible, Action::ClearAll, Action::ClearSlide, Action::ClearMedia,
     Action::ClearAudio, Action::Logo, Action::ClearOverlays, Action::ClearMessage, Action::ClearTimers,
     Action::PasteLink, Action::Undo, Action::Redo, Action::Find, Action::ShowMessage, Action::FindMouse,
+    Action::FollowAuto, Action::FollowHold,
 ];
 
 /// The clear group every church starts with: "Everything but the background" on F9.
@@ -160,6 +163,7 @@ impl Action {
             Action::ClearMessage => "clear_message", Action::ClearTimers => "clear_timers", Action::PasteLink => "paste_link",
             Action::Undo => "undo", Action::Redo => "redo", Action::Find => "find", Action::ShowMessage => "show_message",
             Action::FindMouse => "find_mouse",
+            Action::FollowAuto => "follow_auto", Action::FollowHold => "follow_hold",
         };
         id.to_string()
     }
@@ -193,6 +197,8 @@ impl Action {
             Action::Find => vec![Chord::ctrl("f")],
             Action::ShowMessage => vec![Chord::new("m", true, false, true)],
             Action::FindMouse => vec![Chord::new("m", false, true, false)],
+            Action::FollowAuto => f("a"),
+            Action::FollowHold => f("h"),
         }
     }
 
@@ -201,7 +207,8 @@ impl Action {
             Action::ClearAll | Action::ClearSlide | Action::ClearMedia | Action::ClearAudio | Action::Logo | Action::ClearOverlays
             | Action::ClearMessage | Action::ClearTimers | Action::Group(_) | Action::FindMouse => Reach::Anywhere,
             Action::FocusBible | Action::Find | Action::ShowMessage => Reach::Window,
-            Action::Next | Action::Back | Action::Take | Action::PasteLink | Action::Undo | Action::Redo => Reach::Free,
+            Action::Next | Action::Back | Action::Take | Action::PasteLink | Action::Undo | Action::Redo
+            | Action::FollowAuto | Action::FollowHold => Reach::Free,
         }
     }
 
@@ -408,6 +415,8 @@ pub mod strings {
     pub fn clear_timers() -> String { tr!("Clear the timers") }
     pub fn clear_group(name: &str) -> String { tr!("Clear group: {name}", name = name) }
     pub fn find_mouse() -> String { tr!("Find my mouse") }
+    pub fn follow_auto() -> String { tr!("Auto-follow on or off for the live song") }
+    pub fn follow_hold() -> String { tr!("Hold auto-follow (the slides stay put)") }
     pub fn all_but_background() -> String { tr!("Everything but the background") }
 }
 

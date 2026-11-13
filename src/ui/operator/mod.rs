@@ -10,6 +10,7 @@ pub mod file_input;
 #[cfg(test)]
 mod fit;
 pub mod files;
+pub mod follow;
 pub mod help;
 #[path = "../../strings/operator.rs"]
 pub mod strings;

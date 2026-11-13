@@ -135,7 +135,7 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
         if let (Value::Object(c), Value::Object(e)) = (&mut cell, extra) { c.extend(e) }
         Some(cell)
     }).collect();
-    json!({ "type": "stage", "background": v.background, "cells": cells, "banner": v.message_fallback, "version": live.version })
+    json!({ "type": "stage", "background": v.background, "cells": cells, "banner": v.message_fallback, "follow": v.follow_line, "version": live.version })
 }
 
 /// Live stage updates: a new view when anything changes and once a second for the clock and timers, sent only

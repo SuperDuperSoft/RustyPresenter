@@ -4,7 +4,7 @@
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_graphics, settings_language, settings_look, settings_media, settings_sections, settings_themes, strings as dlg};
+use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_follow, settings_graphics, settings_language, settings_look, settings_media, settings_sections, settings_themes, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
@@ -30,12 +30,13 @@ pub fn tab_index(tab: SettingsTab) -> i32 {
         SettingsTab::Themes => 1,
         SettingsTab::Language => 2,
         SettingsTab::Songs | SettingsTab::Sections => 3,
-        SettingsTab::Bible => 4,
-        SettingsTab::Video => 5,
-        SettingsTab::Media => 6,
-        SettingsTab::Backups => 7,
-        SettingsTab::Help => 8,
-        SettingsTab::About => 9,
+        SettingsTab::AutoFollow => 4,
+        SettingsTab::Bible => 5,
+        SettingsTab::Video => 6,
+        SettingsTab::Media => 7,
+        SettingsTab::Backups => 8,
+        SettingsTab::Help => 9,
+        SettingsTab::About => 10,
     }
 }
 
@@ -81,10 +82,11 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     settings_bible::reset(&g);
     settings_audio::load(op);
     super::settings_record::load(op);
+    settings_follow::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
     if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
     let closing = edit.clone();
-    op.on_dialog_close(move |op| { closing.look.stop(); closing.themes.stop(); super::settings_keys::stop(op) });
+    op.on_dialog_close(move |op| { closing.look.stop(); closing.themes.stop(); super::settings_keys::stop(op); settings_follow::stop() });
 }
 
 /// "Find more Bibles…" in the Bible picker: Settings on the Bible tab, with the picker's search in the library's
@@ -118,6 +120,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     settings_graphics::fill(g, s.graphics);
     settings_media::fill_form(g, &s.media, &[]);
     super::settings_record::fill_form(g, &s.record);
+    settings_follow::fill_form(g, &s.follow, &[]);
 }
 
 /// Reads the form back into `s` (Save and every Look change).
@@ -143,6 +146,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);
     super::settings_record::read_form(g, &mut s.record);
+    settings_follow::read_form(g, &mut s.follow);
     super::stage_layouts::read_settings(g, s);
 }
 

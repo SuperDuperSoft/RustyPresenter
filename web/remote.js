@@ -263,6 +263,7 @@ function render() {
   $('pnotes').classList.toggle('on', notesOn && notes !== '');
   renderNotesBtn();
   renderSections();
+  renderFollow();
   renderAuto();
   // N29: a slide on the stage screen only.
   $('stage').classList.toggle('on', !!V.stage_only);
@@ -300,6 +301,26 @@ function renderSections() {
     b.onclick = () => send('jump', { item_id: V.cursor.item_id, kind: o.kind, occurrence: o.occurrence }, true);
     return b;
   }));
+}
+
+// 1.3: the live song follows the singers. The chip goes Manual → Suggest → Auto; Hold keeps the slide still.
+const FOLLOW_NEXT = { manual: 'suggest', suggest: 'auto', auto: 'manual' };
+const FOLLOW_WORDS = { manual: 'Manual', suggest: 'Suggest', auto: 'Auto' };
+const LIGHT_WORDS = { off: 'Not listening', listening: 'Listening…', sure: 'Following the singers', unsure: 'Not sure — staying on this slide', holding: 'Holding — the slides stay put', blank: 'Nobody singing — words off' };
+function renderFollow() {
+  const f = V.follow;
+  $('follow').classList.toggle('on', !!(f && V.cursor));
+  if (!f || !V.cursor) return;
+  const chip = $('followChip');
+  chip.textContent = t(FOLLOW_WORDS[f.mode] || 'Manual');
+  chip.className = f.mode;
+  chip.onclick = () => send('follow_mode', { item_id: V.cursor.item_id, mode: FOLLOW_NEXT[f.mode] || 'manual' });
+  $('followLine').textContent = f.mode === 'manual' ? '' : (f.line || t(LIGHT_WORDS[f.light] || ''));
+  const hold = $('followHold');
+  hold.style.display = f.mode !== 'manual' || f.holding ? '' : 'none';
+  hold.textContent = f.holding ? t('Holding') : t('Hold');
+  hold.classList.toggle('on', !!f.holding);
+  hold.onclick = () => send('follow_hold', { on: !f.holding });
 }
 
 // FEAT-2: messages and macros marked for the phone, and the timers marked "Show on phone".

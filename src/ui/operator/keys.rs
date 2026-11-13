@@ -34,6 +34,9 @@ pub enum KeyAction {
     Edit(EditKey),
     /// ↑ (`false`) or ↓ (`true`) after a click in the service list: the item above or below is selected.
     ListStep(bool),
+    /// 1.3: A turns auto-follow on or off for the live song; H holds it.
+    FollowAuto,
+    FollowHold,
     None,
 }
 
@@ -152,6 +155,8 @@ fn key_action(action: Action) -> KeyAction {
         Action::Find => KeyAction::Find,
         Action::ShowMessage => KeyAction::ShowMessage,
         Action::FindMouse => KeyAction::FindMouse,
+        Action::FollowAuto => KeyAction::FollowAuto,
+        Action::FollowHold => KeyAction::FollowHold,
         _ => KeyAction::None,
     }
 }
@@ -247,6 +252,8 @@ impl Operator {
             KeyAction::ShowMessage => crate::ui::dialogs::show_message::open(self),
             KeyAction::ClearGroup(id) => self.clear_group(id),
             KeyAction::FindMouse => self.find_mouse(),
+            KeyAction::FollowAuto => return super::follow::toggle_auto(self, true),
+            KeyAction::FollowHold => return super::follow::toggle_hold(self, true),
             KeyAction::None => return false,
         }
         true

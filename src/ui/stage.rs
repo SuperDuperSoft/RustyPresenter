@@ -250,6 +250,7 @@ fn show_classic(ui: &StageWindow, view: &LiveView, timer: &str) {
     ui.set_next(t.next.into());
     ui.set_timer(t.timer.into());
     ui.set_message(t.message.into());
+    ui.set_follow(crate::stage::view::follow_line(view).unwrap_or_default().into());
     fit(ui);
 }
 
@@ -265,6 +266,7 @@ fn draw_cells(ui: &StageWindow, screen: &StageScreen, shown: &Shown) {
     drop(state);
     ui.set_bg(color(&v.background));
     ui.set_banner(v.message_fallback.unwrap_or_default().into());
+    ui.set_follow(v.follow_line.unwrap_or_default().into());
     let picture = shown.next_picture.clone().map(slint::Image::from_rgba8).unwrap_or_default();
     let live = shown.live_picture.clone().map(slint::Image::from_rgba8).unwrap_or_default();
     let rows: Vec<StageCellVm> = v.cells.iter().filter_map(|c| cell_vm(ui, screen, c, &picture, &live)).collect();
@@ -515,7 +517,7 @@ mod tests {
             item: now.as_ref().map(|_| LiveItemSummary { item_id: Uuid::nil(), title: "Amazing Grace".into(), kind: "song".into(), count: 2, song_id: None }),
             slide: now,
             next: next.map(|slide| NextUp { title: "Amazing Grace".into(), slide }),
-            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(), stage_only: None, look_fade_ms: 0,
+            media: None, audio: None, notice: None, sections: vec![], changed: None, theme: Theme::default(), logo: None, clear_epoch: 0, stage_message: String::new(), drawing: Default::default(), stage_only: None, look_fade_ms: 0, follow: None,
         }
     }
 
