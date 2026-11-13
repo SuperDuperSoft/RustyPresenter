@@ -171,7 +171,69 @@ fn instrumental_slide_comes_up_when_quiet_and_leaves_as_singing_starts() {
     let mut r = Rules::new(Settings { mode: Mode::Suggest, ..auto(4.0) }, &s);
     r.tick(10.0, &at(15), Voice::Singing, 2.0, 1);
     assert_eq!(r.tick(13.0, &at(15), Voice::Music, 4.0, 1), Some(Suggest(2)));
+    // (The band is heard on the instrumental slide before the singing starts: see
+    // `an_instrumental_slide_waits_for_singing_to_start_on_it`.)
+    assert_eq!(r.tick(16.0, &at(15), Voice::Music, 4.0, 2), None);
     assert_eq!(r.tick(20.0, &at(15), Voice::Singing, 2.0, 2), Some(Suggest(3)));
+}
+
+#[test]
+fn an_instrumental_slide_waits_for_singing_to_start_on_it() {
+    // The operator takes the next song live on its intro slide while the last note of the song before is still
+    // held. The room's label says singing, but nothing has started: the intro slide stays.
+    let s = song(&["{Instrumental}", "amazing grace", "how sweet the sound"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    for i in 0..30 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "held note {i}") }
+    // The note ends and the band plays the intro. Then the singers come in: the first words go up.
+    for i in 0..100 { assert_eq!(r.tick(3.0 + i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
+    assert_eq!(r.tick(13.0, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    // A sure word heard on another slide does not wait for the label.
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(0.0, &nowhere(), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(0.5, &at(0), Voice::Singing, 2.0, 0), Some(Show(1)));
+    // It is asked of each slide: the band was heard on the intro slide, then the screen goes to a break slide
+    // while someone sings. Nothing has started on that one yet.
+    let s = song(&["{Instrumental}", "amazing grace", "{Instrumental}", "how sweet the sound"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(0.0, &nowhere(), Voice::Music, 4.0, 0), None);
+    assert_eq!(r.tick(1.0, &nowhere(), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(2.0, &nowhere(), Voice::Silence, 0.0, 2), None);
+    assert_eq!(r.tick(3.0, &nowhere(), Voice::Singing, 2.0, 2), Some(Show(3)));
+}
+
+/// A verse (slide 0), an instrumental slide, the next verse. The verse's last word has been sung and it has been
+/// quiet for two seconds: the instrumental slide is up.
+fn on_the_break() -> Rules {
+    let s = song(&["I once was lost but now am found\nwas blind but now I see", "{Instrumental}", "twas grace that taught"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(40.0, &at(13), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(42.5, &at(13), Voice::Silence, 0.0, 0), Some(Show(1)));
+    r
+}
+
+#[test]
+fn on_an_instrumental_slide_one_stray_word_does_not_bring_the_verse_back() {
+    // The leader says something over the break. The ear finds a song word in it ("I", the start of the verse's
+    // first line) and delivers it when the room is quiet again: the instrumental slide stays, however long.
+    let mut r = on_the_break();
+    for i in 0..50 { assert_eq!(r.tick(50.0 + i as f64 * 0.1, &at(0), Voice::Silence, 0.0, 1), None, "{i}") }
+    // The leader quotes the line: three words in a row, but they came while the room's label said talking.
+    let mut r = on_the_break();
+    for w in 0..=2 { assert_eq!(r.tick(50.0 + w as f64 * 0.3, &at(w), Voice::Speaking, 0.0, 1), None, "word {w}") }
+    assert_eq!(r.tick(50.8, &at(2), Voice::Silence, 0.0, 1), None, "a quoted line is not singing");
+    // Three words in a row of which only the last was surely heard: one sung word is not two.
+    let mut r = on_the_break();
+    for w in 0..=1 {
+        assert_eq!(r.tick(60.0 + w as f64 * 0.3, &Position { confidence: 0.3, ..at(w) }, Voice::Music, 4.0, 1), None, "word {w}");
+    }
+    assert_eq!(r.tick(60.6, &at(2), Voice::Music, 4.0, 1), None);
+    assert_eq!(r.tick(60.9, &at(3), Voice::Music, 4.0, 1), Some(Show(0)), "the second sure word in a row");
+    // The verse really is sung again (a loud band hides the voice from the room's label): its third word in a
+    // row brings it back, as from a slide with words.
+    let mut r = on_the_break();
+    assert_eq!(r.tick(60.0, &at(0), Voice::Music, 4.0, 1), None);
+    assert_eq!(r.tick(60.3, &at(1), Voice::Music, 4.0, 1), None);
+    assert_eq!(r.tick(60.6, &at(2), Voice::Music, 4.0, 1), Some(Show(0)));
 }
 
 #[test]

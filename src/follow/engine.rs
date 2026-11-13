@@ -104,6 +104,12 @@ struct Run {
     relock: u8,
     /// The operator took the words off: nothing moves until they show a slide again.
     cleared: bool,
+    /// The operator moved on to a later slide while the singers were still on an earlier one: the sound keys of
+    /// the words that slide still had to come. Heard after the move, they only finish the old slide. They are
+    /// no proof for the operator's slide, even when it holds the very same words (the chorus on two slides in
+    /// a row, verses that end on the same line): taken as proof, Automatic would lock on at that slide's last
+    /// line and put the slide after it up.
+    tail: Vec<String>,
 }
 
 fn sig(slides: &[Slide]) -> (usize, usize) {
@@ -197,6 +203,16 @@ impl Engine {
 
         // Moved or cleared by someone else: the operator wins.
         if (live.slide, live.words_up) != run.seen {
+            // On to a later slide than the one the singers are on: the words they still have to sing there (see
+            // `Run::tail`). A move back, or a move when no place was known, leaves none; any move forgets the
+            // tail of the move before it.
+            let was = run.pos.word.and_then(|w| Some((w, run.text.words.get(w)?.slide)));
+            run.tail = match was {
+                Some((w, old)) if old < live.slide => {
+                    run.text.words[w + 1..run.text.slides[old].end_word].iter().map(|x| x.key.clone()).collect()
+                }
+                _ => vec![],
+            };
             run.seen = (live.slide, live.words_up);
             run.aligner.reset_to(live.slide);
             // The operator may have gone back into the middle of a slide: the first word heard may be anywhere on it.
@@ -213,9 +229,26 @@ impl Engine {
             let before = run.pos.word;
             run.pos = run.aligner.push(&h);
             if let Some(from) = run.paused {
-                let on = run.pos.word.is_some() && run.pos.word != before && !run.pos.off_script && run.pos.plan_index >= from;
-                run.relock = if on { run.relock.saturating_add(1) } else if run.pos.word != before || run.pos.off_script { 0 } else { run.relock };
-                if run.relock >= live.settings.jump() && run.pos.confidence >= live.settings.min_conf { run.paused = None }
+                if let Some(i) = run.tail.iter().position(|k| *k == h.key) {
+                    // A word the old slide still had to come (the ear may have missed some before it: they go
+                    // too). The singers are finishing that slide. Wherever the aligner put the word, it is not
+                    // counted, the count starts again, and Automatic stays paused.
+                    run.tail = run.tail.split_off(i + 1);
+                    run.relock = 0;
+                } else {
+                    // Any other word: the old slide is over, and words count as they come.
+                    run.tail.clear();
+                    let on = run.pos.word.is_some() && run.pos.word != before && !run.pos.off_script && run.pos.plan_index >= from;
+                    run.relock = if on { run.relock.saturating_add(1) } else if run.pos.word != before || run.pos.off_script { 0 } else { run.relock };
+                    // The operator's slide has no words (an intro, a break): waiting for `jump` words would leave
+                    // the screen empty through most of the next slide's first line. From there the aligner can
+                    // only place a single word on the first words of the next slide with words, so one sure word
+                    // is enough. (The room's label alone is not: a last note still held at the click would undo
+                    // the click at once.)
+                    let wordless = run.text.slides.get(from).is_some_and(|s| s.instrumental);
+                    let need = if wordless { 1 } else { live.settings.jump() };
+                    if run.relock >= need && run.pos.confidence >= live.settings.min_conf { run.paused = None }
+                }
             }
         }
 
@@ -290,7 +323,7 @@ impl Run {
         aligner.reset_to(live.slide);
         let rules = Rules::new(live.settings.clone(), &text);
         Run { item: live.item_id, sig, pos: aligner.position().clone(), text, aligner, rules, seen: (live.slide, live.words_up), paused: None, relock: 0,
-            cleared: !live.words_up }
+            cleared: !live.words_up, tail: vec![] }
     }
 }
 

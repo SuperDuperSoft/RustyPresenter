@@ -337,3 +337,96 @@ fn a_place_heard_during_a_hold_is_old_when_the_hold_ends() {
     sing(&mut e, host.as_ref(), "that", &mut t);
     assert_eq!(host.shown().last().map(String::as_str), Some("show 0"));
 }
+
+#[test]
+fn the_old_slides_last_line_does_not_prove_the_operators_slide() {
+    // The chorus is on two slides in a row, then a verse.
+    let chorus = "my chains are gone\nI've been set free";
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
+    // A line early, the operator goes on to the second copy. The singers finish the first one: the very words
+    // of the operator's slide's last line, but they are not singing that slide yet.
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "I've been set free", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "the verse came up while the first chorus was being finished");
+    assert_eq!(host.slide(), 1);
+    assert_eq!(e.state().light, Light::Holding);
+    // The chorus again, now on the operator's slide: Auto locks on, and its last line brings the verse up.
+    sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new());
+    sing(&mut e, host.as_ref(), "I've been set free", &mut t);
+    assert_eq!(host.shown(), ["show 2"]);
+}
+
+#[test]
+fn a_last_line_shared_with_the_slide_before_does_not_prove_the_operators_slide() {
+    // Two verses that end on the same line, then a third slide.
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text("glory be to God on high\ncome and praise the Lord"),
+        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "glory be to God on high", &mut t);
+    // The operator presses Next as the first verse's last line begins.
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "come and praise the Lord", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "Auto went one slide past the operator's");
+    assert_eq!(host.slide(), 1);
+    assert_eq!(e.state().light, Light::Holding);
+}
+
+#[test]
+fn an_instrumental_slide_put_up_by_hand_leaves_on_the_first_sure_word() {
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text(SONG[2])]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new());
+    // The verse's last note is still held (the room's label says singing) when the operator puts the
+    // instrumental slide up. Then the band plays, and the label says singing again as the singers come in.
+    // The label alone never undoes the operator's click.
+    host.operator_show(1);
+    for (voice, looks) in [(Voice::Singing, 20), (Voice::Music, 100), (Voice::Singing, 3)] {
+        for _ in 0..looks {
+            t += 0.1;
+            e.step(host.as_ref(), t, Some(FollowEvent::Voice(voice, t)));
+        }
+    }
+    assert_eq!(host.shown(), Vec::<String>::new(), "the operator's slide stays until a word is heard");
+    assert_eq!(e.state().light, Light::Holding);
+    // The next slide's first word, surely heard: its words come up now, not four words into it.
+    sing(&mut e, host.as_ref(), "through", &mut t);
+    assert_eq!(host.shown(), ["show 2"]);
+}
+
+#[test]
+fn a_new_song_on_its_intro_slide_waits_for_singing_to_start() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "amazing grace", &mut t);
+    // The last note of this song is still held when the operator takes the next song live, on its intro slide.
+    host.change(|l| {
+        l.item_id = Uuid::new_v4();
+        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])];
+        l.slide = 0;
+    });
+    for _ in 0..30 {
+        t += 0.1;
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Singing, t)));
+    }
+    assert_eq!(host.shown(), Vec::<String>::new(), "Auto left the intro slide the operator had just put up");
+    // The note ends and the band plays the intro: nothing. The singers come in: the first words go up.
+    for _ in 0..50 {
+        t += 0.1;
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Music, t)));
+    }
+    assert_eq!(host.shown(), Vec::<String>::new());
+    t += 0.1;
+    e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Singing, t)));
+    assert_eq!(host.shown(), ["show 1"]);
+}

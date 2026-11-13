@@ -4,6 +4,11 @@
 //! line of the same slide costs a little, and a jump anywhere else costs a penalty and must be confirmed by
 //! `jump_words` well-matched words in a row before it is ever reported. Talk that matches nothing leaves the
 //! position where it was and reports `off_script`.
+//!
+//! One jump is cheaper: when the ear misses three to five words in a row, the singers are a little further on
+//! along the SAME slide. That place is found again by two exact words in a row, and it never reaches another
+//! slide, so the worst a false one can do is move the place a few words on along the slide that is already up.
+use super::g2p;
 use super::lyrics::SongText;
 use std::collections::HashMap;
 
@@ -36,6 +41,9 @@ const INSERT: f32 = 0.6;
 const SKIP: f32 = 0.4;
 /// How many words ahead a heard word may land (so at most two are skipped).
 const AHEAD: usize = 3;
+/// How far ahead, on its own slide, a place that has lost the singers is looked for again (nearer than `AHEAD`
+/// is a plain skip): the ear missed three to five words in a row, about a line.
+const REFIND: usize = 5;
 /// Back to the start of a line of the same slide (singers repeat a line).
 const REPEAT: f32 = 0.5;
 /// Just put on this slide by the operator: the first word heard may be anywhere on it. Dearer than skipping
@@ -73,6 +81,9 @@ struct Hyp {
     /// Seated in mid-slide by the operator's move (`seat_anywhere`): planned next words, heard exactly, still
     /// needed before this place is sure; 0 = proved, or never seated.
     seated: u8,
+    /// A place found again a little ahead on its own slide, still being confirmed by the cheaper proof (two
+    /// exact words in a row instead of `jump_words`): it is only ever finished on that slide (`plan`).
+    refind: bool,
 }
 
 pub struct Aligner {
@@ -87,6 +98,8 @@ pub struct Aligner {
     twin: Vec<usize>,
     by_key: HashMap<String, Vec<usize>>,
     keys: Vec<String>,
+    /// Per planned word (`track`), whether the phoneme ear never delivers it (`undelivered`: "a").
+    silent: Vec<bool>,
     beam: Vec<Hyp>,
     jump_words: u8,
     /// The operator just put this slide up (`seat_anywhere`): the first word heard may be anywhere on it.
@@ -101,6 +114,7 @@ impl Aligner {
         let mut track = Vec::new();
         let mut starts = Vec::new();
         let mut keys = Vec::new();
+        let mut silent = Vec::new();
         for (p, &slide) in plan.iter().enumerate() {
             starts.push(track.len());
             let Some(span) = song.slides.get(slide) else { continue };
@@ -108,6 +122,7 @@ impl Aligner {
                 let line_start = w == span.first_word || song.words[w].line != song.words[w - 1].line;
                 track.push(Spot { plan_index: p, word: w, line_start });
                 keys.push(song.words[w].key.clone());
+                silent.push(undelivered(&song.words[w].text));
             }
         }
         let mut by_key: HashMap<String, Vec<usize>> = HashMap::new();
@@ -115,7 +130,7 @@ impl Aligner {
         let twin: Vec<usize> = (0..starts.len())
             .map(|p| (0..p).find(|&q| !words_of(&keys, &starts, p).is_empty() && words_of(&keys, &starts, q) == words_of(&keys, &starts, p)).unwrap_or(p))
             .collect();
-        let mut a = Aligner { plan: plan.to_vec(), track, starts, twin, by_key, keys, beam: vec![], jump_words: JUMP_WORDS, seat: false,
+        let mut a = Aligner { plan: plan.to_vec(), track, starts, twin, by_key, keys, silent, beam: vec![], jump_words: JUMP_WORDS, seat: false,
             last: Position { word: None, plan_index: 0, confidence: 0.0, off_script: false } };
         a.restart(0);
         a
@@ -150,7 +165,7 @@ impl Aligner {
     fn restart(&mut self, plan_index: usize) {
         let p = plan_index.min(self.starts.len().saturating_sub(1));
         let next = self.starts.get(p).copied().unwrap_or(0);
-        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0, seated: 0 }];
+        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0, seated: 0, refind: false }];
         self.last = Position { word: None, plan_index: p, confidence: 0.0, off_script: false };
         self.seat = false;
     }
@@ -191,14 +206,19 @@ impl Aligner {
                 if m <= 0.0 { continue }
                 let pending = match h.pending {
                     0 => 0,
-                    _ if k > 0 => continue,
+                    // A jump being confirmed has no words to spare. But some planned words the ear never delivers
+                    // ("a"), and a true jump must not end at each of them: those alone it steps over. The step is
+                    // no proof; only the word heard counts, so the proof is as long as before.
+                    _ if k > 0 && !(h.next..t).all(|s| self.silent[s]) => continue,
+                    // The cheaper proof of a re-find is for its own slide: it is never finished on the next one.
+                    _ if h.refind && self.track[t].plan_index != h.plan => continue,
                     p if m >= GOOD => p - 1,
                     p => p,
                 };
                 // A seated place is proved by the planned next word, heard exactly (as a jump is).
                 let seated = if k == 0 && m >= GOOD { h.seated.saturating_sub(1) } else { h.seated };
                 out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending,
-                    misses: if m >= GOOD { 0 } else { h.misses }, seated });
+                    misses: if m >= GOOD { 0 } else { h.misses }, seated, refind: h.refind && pending > 0 });
             }
             // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the
             // same. Shown as the place at once, but not sure until `jump_words` exact words in a row are heard.
@@ -208,7 +228,7 @@ impl Aligner {
                     let m = self.score(key, t, false);
                     if m >= GOOD {
                         out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, misses: 0,
-                            seated: self.jump_words - 1 });
+                            seated: self.jump_words - 1, refind: false });
                     }
                 }
             }
@@ -222,7 +242,7 @@ impl Aligner {
                         let m = self.score(key, t, false);
                         if m > 0.0 {
                             out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - REPEAT - SKIP * k as f32, pending: 0,
-                                misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated });
+                                misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated, refind: false });
                         }
                     }
                 }
@@ -235,14 +255,29 @@ impl Aligner {
                 let s = &self.track[t];
                 (t >= best.next && t < best.next + AHEAD) || (s.plan_index == here && t < best.next)
             };
+            // The place was heard on this slide, is proved, and has just failed to explain a word: the ear may have
+            // missed three words in a row or more, and then the singers are a little further on along this slide.
+            // (A place nothing was heard from, or one the operator's move seated, keeps the full proof.)
+            let lost = best.heard && best.seated == 0 && best.misses >= 1;
             for &t in self.by_key.get(key).into_iter().flatten() {
                 let m = self.score(key, t, false);
                 if m < GOOD || near(t) { continue }
                 let to = self.track[t].plan_index;
                 // Nearer places first, ahead before behind.
                 let far = if to >= here { (to - here) as f32 * 0.05 } else { 0.05 + (here - to) as f32 * 0.1 };
-                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - JUMP - far, pending: self.jump_words - 1, misses: 0,
-                    seated: 0 });
+                // Found again a little ahead on the SAME slide: two exact words in a row are enough (this one and
+                // the next), at the price of the words stepped over instead of a jump's. So the place found is
+                // sure at once and the next slide still comes up in time, where the full proof left the old slide
+                // up for a line of the next one. Wrong, it only moves the place a few words on along the slide
+                // that is already up. Never for another slide: the second word must be on this slide too (the
+                // slide's last word keeps the full proof), and the proof is held to this slide (`Hyp::refind`).
+                let ahead = (best.next + AHEAD..=best.next + REFIND).contains(&t);
+                let second = (t + 1..self.track.len()).find(|&s| !self.silent[s]);
+                let refind = lost && to == here && ahead && second.is_some_and(|s| self.track[s].plan_index == here);
+                let (cost, pending) = if refind { ((SKIP * (t - best.next) as f32).min(JUMP), 1) } else { (JUMP, self.jump_words - 1) };
+                // (`far` is 0 for a re-find: it is on this slide.)
+                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - cost - far, pending, misses: 0, seated: 0,
+                    refind });
             }
         }
         // Keep the best per place; a jump being confirmed is kept apart from a believed place.
@@ -284,6 +319,17 @@ impl Aligner {
 /// The word keys of plan index `p`: from its first word to the next plan index's first.
 fn words_of<'a>(keys: &'a [String], starts: &[usize], p: usize) -> &'a [String] {
     &keys[starts[p]..starts.get(p + 1).copied().unwrap_or(keys.len())]
+}
+
+/// A word the phoneme ear never delivers: it has phonemes, and none of the ways it is said or sung is listened
+/// for (`g2p::listened`; one neutral sound, "a"). A word with no phonemes at all (another script, no letters) is
+/// not one of these: the ear that hears it writes it out in full, so it is never stepped over.
+fn undelivered(word: &str) -> bool {
+    let ways = g2p::variants(word);
+    !ways.is_empty() && ways.iter().all(|p| {
+        let sounds = g2p::coarse(p);
+        !sounds.is_empty() && !g2p::listened(&sounds)
+    })
 }
 
 /// True when `a` and `b` differ by one letter added, removed or changed.

@@ -388,3 +388,94 @@ fn a_is_stepped_over() {
     let p = sing(&mut a, "amazing grace how sweet the sound that saved wretch like", &mut t);
     assert_eq!((p.word, p.off_script), (Some(index_of(&s, 1, "like")), false));
 }
+
+#[test]
+fn only_a_word_the_phoneme_ear_never_delivers_is_stepped_over() {
+    assert!(undelivered("a") && undelivered("A"), "one neutral sound");
+    // Two sounds or more, a sung "Ah", and words with no phonemes at all (another script, nothing).
+    for w in ["I", "the", "oh", "ah", "grace", "主", ""] { assert!(!undelivered(w), "{w:?}") }
+}
+
+#[test]
+fn a_jump_being_confirmed_steps_over_a_word_the_ear_never_delivers() {
+    let s = song(&GRACE);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace", &mut t);
+    // Off plan to slide 2, as the phoneme ear hears it: "a" never arrives. The jump must not end there.
+    let p = sing(&mut a, "that saved wretch", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "three words heard stay: the step over \"a\" is no proof");
+    let p = sing(&mut a, "like", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "like")), 1, false), "the fourth word heard jumps");
+    // A word the ear does deliver is not stepped over: the count starts again after it.
+    let mut b = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut b, "amazing grace", &mut t);
+    let p = sing(&mut b, "through dangers toils and", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "\"many\" was missed: four in a row from \"dangers\" are not heard yet");
+    let p = sing(&mut b, "snares", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 2, "snares")), 2));
+}
+
+/// A verse slide whose last line is easily lost, and the chorus after it.
+const PRECIOUS: [&str; 2] = ["how precious did that grace appear\nthe hour I first believed", "my chains are gone\nI've been set free"];
+
+#[test]
+fn a_place_lost_for_three_words_is_found_again_on_its_slide() {
+    let s = song(&PRECIOUS);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "how precious did that grace", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 0, "grace")));
+    // The ear misses "appear the hour". "I" is too short to place anyone: it is a word the place can't explain.
+    let p = sing(&mut a, "I first", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 0, "grace")), 0), "one word a little ahead proves nothing");
+    let p = sing(&mut a, "believed", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 0, "believed")), 0, false), "two exact words in a row");
+    assert!(p.confidence >= 0.6, "sure, so the chorus goes up before it is sung: {p:?}");
+    let p = sing(&mut a, "my chains", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "chains")), 1));
+}
+
+#[test]
+fn a_refind_needs_a_miss_before_it_and_a_second_word_after_it() {
+    let s = song(&PRECIOUS);
+    let grace = Some(index_of(&s, 0, "grace"));
+    // The second word does not follow: the place stays.
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "how precious did that grace", &mut t);
+    let p = sing(&mut a, "I first zzzq", &mut t);
+    assert_eq!((p.word, p.plan_index), (grace, 0));
+    // The place had explained every word so far: a word four ahead starts an ordinary jump, four words long.
+    let mut b = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut b, "how precious did that grace", &mut t);
+    let p = sing(&mut b, "first believed", &mut t);
+    assert_eq!((p.word, p.plan_index), (grace, 0), "two words are not the full proof");
+    let p = sing(&mut b, "my chains", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "chains")), 1), "the fourth word in a row");
+}
+
+#[test]
+fn a_refind_never_reaches_another_slide() {
+    let s = song(&PRECIOUS);
+    // A word of the NEXT slide, a little ahead of a place that has just missed a word: the full proof.
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "how precious did that grace appear the hour", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 0, "hour")));
+    let p = sing(&mut a, "zzzq my chains are", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 0, "hour")), 0), "three words of the next slide stay");
+    let p = sing(&mut a, "gone", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "gone")), 1), "the fourth word jumps");
+    // A re-find begun on this slide is not finished on the next one. "first" begins it; the slide's last word is
+    // heard one sound off ("relieved"), which is no proof; "my" is the next slide's.
+    let mut b = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut b, "how precious did that grace", &mut t);
+    let p = sing(&mut b, "zzzq first relieved my", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 0, "grace")), 0), "the next slide asks for the full proof");
+    let p = sing(&mut b, "chains are gone", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "gone")), 1));
+}
