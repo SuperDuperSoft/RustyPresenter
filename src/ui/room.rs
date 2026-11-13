@@ -1154,7 +1154,9 @@ mod tests {
         assert_eq!(ui.get_sprites().row_count(), 0, "nothing plays as the slide comes up");
         let step = |cmd| { let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(app.live_view().version), cmd }); assert!(out.ok, "{out:?}"); out.version };
         let v = step(Command::Next);
-        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() > 0), "the click's pictures go up");
+        // Both of them: on the first frame the flying shape can still be off the screen, with no picture of its own yet.
+        // The room reports the click as shown a moment after its pictures go up, so wait for both.
+        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() == 2 && app.live_view().committed == v), "the click's pictures go up");
         assert_eq!(app.live_view().committed, v);
         let rows: Vec<_> = (0..ui.get_sprites().row_count()).filter_map(|r| ui.get_sprites().row_data(r)).collect();
         assert_eq!(rows.len(), 2, "the still shape and the flying one");
@@ -1181,7 +1183,7 @@ mod tests {
         let room = open(&app);
         let ui = &room.inner.ui;
         show(&app, id);
-        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() > 0), "group 0 plays as the slide comes up");
+        assert!(pump_until(&room, 15.0, || ui.get_sprites().row_count() == 2), "group 0 plays as the slide comes up");
         let row = |r| ui.get_sprites().row_data(r).unwrap();
         assert_eq!(ui.get_sprites().row_count(), 2);
         assert!(row(0).op < 1.0, "the still shape comes in with the transition, not a cut: {}", row(0).op);

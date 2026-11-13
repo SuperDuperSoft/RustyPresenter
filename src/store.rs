@@ -137,8 +137,16 @@ impl Store {
     pub fn backup_labeled(&self, data: &Data, label: &str) -> io::Result<String> { self.backup_named(data, Some(label)) }
 
     fn backup_named(&self, data: &Data, label: Option<&str>) -> io::Result<String> {
-        let created = now_stamp();
-        let name = match label { Some(l) => format!("backup-{created}-{l}"), None => format!("backup-{created}") };
+        // Names carry the time to the second. Two backups in one second (a restore right after a backup) would
+        // collide and the second would fail, so it waits for the clock instead.
+        let named = |created: &str| match label { Some(l) => format!("backup-{created}-{l}"), None => format!("backup-{created}") };
+        let mut created = now_stamp();
+        for _ in 0..8 {
+            if !self.root.join("backups").join(named(&created)).exists() { break }
+            std::thread::sleep(std::time::Duration::from_millis(250));
+            created = now_stamp();
+        }
+        let name = named(&created);
         let dir = self.root.join("backups").join(&name);
         let partial = self.root.join("backups").join(format!("{name}.partial"));
         fs::create_dir_all(&partial)?;
@@ -154,9 +162,11 @@ impl Store {
             fs::rename(&tmp, &dst)?;
         }
         let data = crate::scripture::online::without_online_text(data, &self.root);
-        fs::write(partial.join("data.json"), serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?)?;
-        fs::write(partial.join("manifest.json"), serde_json::to_vec_pretty(&Manifest { created: created.clone(), assets }).map_err(io::Error::other)?)?;
-        fs::write(partial.join("COMPLETE"), b"ok")?;
+        // Each file reaches the disk before the marker is written, so a power cut can never leave a backup that is
+        // marked complete with an empty `data.json`.
+        write_synced(&partial.join("data.json"), &serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?)?;
+        write_synced(&partial.join("manifest.json"), &serde_json::to_vec_pretty(&Manifest { created: created.clone(), assets }).map_err(io::Error::other)?)?;
+        write_synced(&partial.join("COMPLETE"), b"ok")?;
         fs::rename(&partial, &dir)?;
         self.prune_backups()?;
         Ok(name)
@@ -221,13 +231,10 @@ impl Store {
         for old in all.iter().filter(|b| !kept.contains(&b.name)) {
             let _ = fs::remove_dir_all(self.root.join("backups").join(&old.name));
         }
-        // Drop backup asset copies no retained backup references.
-        let mut keep = std::collections::BTreeSet::new();
-        for b in all.iter().filter(|b| kept.contains(&b.name)) {
-            if let Ok(bytes) = fs::read(self.root.join("backups").join(&b.name).join("manifest.json")) {
-                if let Ok(m) = serde_json::from_slice::<Manifest>(&bytes) { keep.extend(m.assets); }
-            }
-        }
+        // Drop backup asset copies that no backup left on the disk names. Every backup folder counts, also one this
+        // build cannot list (made by a newer RustyPresenter, or still being written): if any of them cannot say which
+        // files it needs, nothing is dropped this time.
+        let Some(keep) = self.backup_assets_in_use() else { return Ok(()) };
         if let Ok(rd) = fs::read_dir(self.root.join("backups").join("assets")) {
             for e in rd.flatten() {
                 let n = e.file_name().to_string_lossy().to_string();
@@ -235,6 +242,18 @@ impl Store {
             }
         }
         Ok(())
+    }
+
+    /// The asset copies named by the backup folders on the disk. None when a folder's list cannot be read.
+    fn backup_assets_in_use(&self) -> Option<std::collections::BTreeSet<AssetId>> {
+        let mut keep = std::collections::BTreeSet::new();
+        for e in fs::read_dir(self.root.join("backups")).ok()?.flatten() {
+            // A `.partial` folder is a backup that never finished; it can't be restored and holds no claim.
+            if e.file_name() == "assets" || !e.path().is_dir() || e.file_name().to_string_lossy().ends_with(".partial") { continue }
+            let manifest: Manifest = serde_json::from_slice(&fs::read(e.path().join("manifest.json")).ok()?).ok()?;
+            keep.extend(manifest.assets);
+        }
+        Some(keep)
     }
 
     /// Clean temp files left by an interrupted import (startup only).
@@ -272,6 +291,13 @@ pub fn sanitize_ext(ext: &str) -> String {
 
 fn asset_filename(name: &str) -> bool {
     !name.contains(['/', '\\', ':', '\0']) && Path::new(name).file_name() == Some(std::ffi::OsStr::new(name))
+}
+
+/// Writes a new file and waits until it is on the disk.
+fn write_synced(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    let mut file = fs::File::create(path)?;
+    file.write_all(bytes)?;
+    file.sync_all()
 }
 
 pub fn write_atomic(path: &Path, bytes: &[u8]) -> io::Result<()> {
@@ -351,6 +377,32 @@ mod tests {
 
         assert!(store.restore(&name).unwrap_err().contains("Invalid backup asset name"));
         assert_eq!(store.load().unwrap().settings.logo, None);
+    }
+
+    #[test]
+    fn pruning_keeps_the_files_of_a_backup_this_build_cannot_read() {
+        let store = Store::open(test_dir()).unwrap();
+        // A backup from a newer build: complete, with a list of its files, but data this build cannot parse.
+        let newer = store.root.join("backups").join("backup-2020-01-01_000000");
+        fs::create_dir_all(&newer).unwrap();
+        fs::write(newer.join("data.json"), br#"{"format":99,"songs":"not a list"}"#).unwrap();
+        fs::write(newer.join("manifest.json"), br#"{"created":"2020-01-01_000000","assets":["aa.png"]}"#).unwrap();
+        fs::write(newer.join("COMPLETE"), b"ok").unwrap();
+        let copies = store.root.join("backups").join("assets");
+        fs::write(copies.join("aa.png"), b"the newer backup's picture").unwrap();
+        fs::write(copies.join("bb.png"), b"nobody's").unwrap();
+        assert!(store.backups().is_empty(), "this build does not list it");
+
+        store.backup(&Data::default()).unwrap();
+        assert!(copies.join("aa.png").exists(), "still there for the build that can restore it");
+        assert!(!copies.join("bb.png").exists(), "a copy no backup names still goes");
+
+        // A folder that cannot say what it needs: nothing is dropped.
+        fs::write(copies.join("cc.png"), b"unknown").unwrap();
+        fs::write(newer.join("manifest.json"), b"torn").unwrap();
+        store.backup(&Data::default()).unwrap();
+        assert!(copies.join("cc.png").exists() && copies.join("aa.png").exists());
+        assert_eq!(store.backups().len(), 2, "two backups in the same second both exist");
     }
 
     #[test]
