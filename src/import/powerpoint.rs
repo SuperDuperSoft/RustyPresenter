@@ -870,8 +870,9 @@ pub(crate) mod tests {
     #[cfg(windows)]
     #[tokio::test]
     async fn count_extends_the_time_allowed() {
-        let mut fx = fixture("count:2,size:960:540,sleep:900,slides:2:1920:1080");
-        fx.ppt.fake.as_mut().unwrap().timeout = Some((Duration::from_millis(400), Duration::from_millis(500)));
+        let mut fx = fixture("count:2,size:960:540,sleep:1500,slides:2:1920:1080");
+        // Sleep past the startup timeout while allowing time to start the helper and write the PNGs on a busy PC.
+        fx.ppt.fake.as_mut().unwrap().timeout = Some((Duration::from_secs(1), Duration::from_secs(2)));
         let pngs = fx.ppt.export(&fx.input, &fx.out, &quiet, &no_progress, &CancellationToken::new()).await.unwrap();
         assert_eq!(pngs.len(), 2);
     }

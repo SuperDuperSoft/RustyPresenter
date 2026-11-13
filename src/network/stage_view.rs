@@ -48,9 +48,10 @@ fn cookie(headers: &HeaderMap) -> Option<String> {
 /// Whether this request may see the stage: the stage view is on, and there is no password or the cookie is a
 /// current sign-in.
 pub fn allowed(app: &App, headers: &HeaderMap) -> bool {
-    let (on, pw) = { let n = &app.data.lock().unwrap().settings.network; (n.stage_view, n.stage_password.is_some()) };
-    if !on { return false }
-    if !pw { return true }
+    let data = app.data.lock().unwrap();
+    let network = &data.settings.network;
+    if !network.stage_view { return false }
+    if network.stage_password.is_none() { return true }
     let Some(token) = cookie(headers) else { return false };
     let h = crate::app::hash_token(&token);
     let mut tokens = app.net.stage_tokens.lock().unwrap();
@@ -79,10 +80,22 @@ async fn login(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<Socke
     if !on { return err(StatusCode::NOT_FOUND, s::stage_view_off()) }
     let Some(hash) = hash else { return Json(json!({ "ok": true })).into_response() };
     if !app.net.may_try(addr.ip()) { return err(StatusCode::TOO_MANY_REQUESTS, s::too_fast()) }
-    let right = tokio::task::spawn_blocking(move || password::verify(&req.password, &hash)).await.unwrap_or(false);
-    if !right { return err(StatusCode::UNAUTHORIZED, s::wrong_password()) }
+    let checked = tokio::task::spawn_blocking(move || {
+        password::verify(&req.password, &hash).then_some(hash)
+    }).await.ok().flatten();
+    let Some(hash) = checked else { return err(StatusCode::UNAUTHORIZED, s::wrong_password()) };
+    stage_sign_in(&app, &hash)
+}
+
+fn stage_sign_in(app: &App, verified_hash: &str) -> Response {
     let token = crate::app::random_token();
     {
+        let data = app.data.lock().unwrap();
+        let network = &data.settings.network;
+        if !network.stage_view { return err(StatusCode::NOT_FOUND, s::stage_view_off()) }
+        if network.stage_password.as_deref() != Some(verified_hash) {
+            return err(StatusCode::UNAUTHORIZED, s::wrong_password());
+        }
         let mut tokens = app.net.stage_tokens.lock().unwrap();
         if tokens.len() >= MAX_SIGN_INS { tokens.remove(0); }
         tokens.push((crate::app::hash_token(&token), Instant::now()));
@@ -209,6 +222,17 @@ mod tests {
         let r = login(State(app.clone()), ConnectInfo(addr), h, Json(Login { password: pw.into() })).await;
         let c = r.headers().get(header::SET_COOKIE).map(|v| v.to_str().unwrap().split(';').next().unwrap().to_string());
         (r.status(), c)
+    }
+
+    #[test]
+    fn a_login_checked_against_a_replaced_password_cannot_issue_a_cookie() {
+        let app = test_app();
+        turn_on(&app, Some("altos"));
+        let old = app.data.lock().unwrap().settings.network.stage_password.clone().unwrap();
+        turn_on(&app, Some("sopranos"));
+        let response = stage_sign_in(&app, &old);
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        assert!(!response.headers().contains_key(header::SET_COOKIE));
     }
 
     fn with_cookie(c: &str) -> HeaderMap { let mut h = HeaderMap::new(); h.insert(header::COOKIE, c.parse().unwrap()); h }

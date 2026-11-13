@@ -1,6 +1,15 @@
 # Spanish for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: es\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Español\nX-English-Name: Spanish\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Native-Name: Español\n"
+"X-English-Name: Spanish\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Elige una Biblia"
 msgid "Try again"
 msgstr "Reintentar"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Editar"
 
@@ -94,7 +103,7 @@ msgstr "Copiar"
 msgid "Check again"
 msgstr "Volver a comprobar"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Canción nueva"
 
@@ -126,7 +135,7 @@ msgstr "Pegar los versículos"
 msgid "Verses per slide"
 msgstr "Versículos por diapositiva"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Auto"
 
@@ -1147,7 +1156,7 @@ msgstr "4 versículos"
 msgid "Choose slide breaks…"
 msgstr "Elegir cortes de diapositiva…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "Tamaño del texto"
 
@@ -1314,7 +1323,7 @@ msgstr "Quitar del culto"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "La música de entrada sigue sonando mientras cambian las diapositivas. Limpiar audio y Limpiar todo la detienen."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Canciones"
 
@@ -2630,7 +2639,7 @@ msgstr "Oscurecer"
 msgid "Makes text easier to read"
 msgstr "Hace el texto más fácil de leer"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "Líneas por diapositiva"
 
@@ -2939,8 +2948,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Empieza una nueva diapositiva donde está el cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verso 1\nSublime gracia del Señor\nque a mí, pecador, salvó\n\nCoro\nYa libre soy…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verso 1\n"
+"Sublime gracia del Señor\n"
+"que a mí, pecador, salvó\n"
+"\n"
+"Coro\n"
+"Ya libre soy…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2953,6 +2974,34 @@ msgstr "(opcional)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "Déjalo vacío para usar el orden escrito"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "Menos líneas por diapositiva en esta canción"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "Más líneas por diapositiva en esta canción"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "Texto más pequeño para esta canción"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "Texto más grande para esta canción"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "Volver a las líneas y el tamaño de Configuración"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3747,16 +3796,8 @@ msgid "Nothing selected"
 msgstr "Nada seleccionado"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "Texto más pequeño para este pasaje"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3789,6 +3830,10 @@ msgstr "Guardar en biblioteca"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "Guarda este pasaje en la biblioteca de canciones para editarlo o volver a usarlo"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "Líneas"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4345,6 +4390,10 @@ msgstr "{name} — archivo importado"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "Ponle un título a la canción."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "Esa canción ya no está en la biblioteca."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7903,8 +7952,12 @@ msgid "Settings saved"
 msgstr "Configuración guardada"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Sublime gracia del Señor\nque a un infeliz salvó"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Sublime gracia del Señor\n"
+"que a un infeliz salvó"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9702,12 +9755,20 @@ msgstr[0] "Mostrar {n} tema predefinido"
 msgstr[1] "Mostrar {n} temas predefinidos"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Domingo de Resurrección\nCultos a las 9 y a las 11 a. m."
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Domingo de Resurrección\n"
+"Cultos a las 9 y a las 11 a. m."
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Estad quietos, y conoced que yo soy Dios.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Estad quietos, y conoced que yo soy Dios.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9718,8 +9779,14 @@ msgid "Youth camp in the mountains"
 msgstr "Campamento juvenil en las montañas"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Ora cada día\nLee la Biblia\nSirve a tu prójimo"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Ora cada día\n"
+"Lee la Biblia\n"
+"Sirve a tu prójimo"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -10325,3 +10392,6 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "Volver al número de líneas de Configuración"

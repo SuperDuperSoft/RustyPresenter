@@ -139,7 +139,7 @@ pub fn song_slides(song: &Song, settings: &Settings) -> Vec<Slide> { song_slides
 /// `song_slides` in `order` instead of the song's usual order.
 pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec<Slide> {
     let sections = parse_sections(&song.lyrics);
-    let lps = settings.lines_per_slide as usize;
+    let lps = song.lines(settings);
     let mut slides = Vec::new();
     let credit = credit_line(song, settings);
     let order = order_of(order, &sections);
@@ -152,7 +152,7 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
                 // N10: chords stay out of the room's words; the stage can show them.
                 let (text, chords) = match strip_chords(&text) { Some(plain) => (plain, Some(text)), None => (text, None) };
-                let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: 0, parallel: None });
+                let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: song.text_size, parallel: None });
                 slide.chords = chords;
                 if p == 0 { slide.tag = tag.clone() }
                 slides.push(slide);
@@ -526,6 +526,21 @@ mod tests {
     fn song_item(song: uuid::Uuid, own: Option<&[&str]>) -> ServiceItem {
         let arrangement = own.map(|o| o.iter().map(|s| s.to_string()).collect());
         ServiceItem { id: uuid::Uuid::new_v4(), kind: ItemKind::Song { song_id: song, arrangement }, background: None, notes: String::new(), theme: None }
+    }
+
+    #[test]
+    fn a_songs_own_lines_and_size_win_over_settings() {
+        let settings = Settings { credits: "none".into(), lines_per_slide: 2, ..Default::default() };
+        let song = Song { lyrics: "Verse 1\na\nb\nc\nd".into(), ..Default::default() };
+        assert_eq!(song_slides(&song, &settings).len(), 2);
+        let own = Song { lines_per_slide: 4, text_size: 96, ..song.clone() };
+        let slides = song_slides(&own, &settings);
+        assert_eq!(slides.len(), 1);
+        assert!(matches!(slides[0].content, SlideContent::Text { size: 96, .. }));
+        let json = serde_json::to_value(&song).unwrap();
+        assert!(json.get("lines_per_slide").is_none() && json.get("text_size").is_none(), "old files stay the same");
+        let back: Song = serde_json::from_value(serde_json::to_value(&own).unwrap()).unwrap();
+        assert_eq!((back.lines_per_slide, back.text_size), (4, 96));
     }
 
     fn usual_song() -> Song {

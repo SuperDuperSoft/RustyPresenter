@@ -556,8 +556,10 @@ impl Watch {
             }
             OBS_TIME => {
                 let Some(t) = num() else { return };
+                // A paused seek may produce only one position event, even within the playback throttle.
+                let paused_seek = self.paused && t != self.position;
                 self.position = t;
-                if self.loaded && running && self.last_at.elapsed() >= TICK {
+                if self.loaded && running && (paused_seek || self.last_at.elapsed() >= TICK) {
                     let s = self.last.clone().unwrap_or(PlayState::Playing);
                     self.send(s, None);
                 }
@@ -680,8 +682,10 @@ mod tests {
     #[test]
     fn seeks_forward_back_and_to_near_the_end() {
         let Some(mpv) = mpv() else { return };
-        let (p, rx) = start(&mpv, Role::Foreground(EndAction::Hold), 4, "av://lavfi:testsrc2=size=320x240:rate=30:duration=40");
-        let (v, ok) = until(&rx, 5.0, |r| r.state == PlayState::Playing && r.duration > 1.0);
+        let path = crate::store::test_dir().join("seek.wav");
+        crate::video::silent_wav(&path, 40_000);
+        let (p, rx) = start(&mpv, Role::Foreground(EndAction::Hold), 4, path.to_str().unwrap());
+        let (v, ok) = until(&rx, 5.0, |r| r.state == PlayState::Playing && r.duration >= 39.0);
         assert!(ok, "{v:?}");
         p.set_paused(true);
         p.seek_by(15.0);

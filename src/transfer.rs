@@ -78,10 +78,11 @@ pub fn service_words(data: &Data, service: &Service) -> Option<String> {
 /// The service as an M3U playlist: every picture, video and sound file in order (with its full path), and the
 /// other items as comments, so the list reads as the service order.
 pub fn playlist(data: &Data, service: &Service, asset_path: &dyn Fn(&str) -> PathBuf) -> String {
-    let mut out = vec!["#EXTM3U".to_string(), format!("#PLAYLIST:{}", service.name)];
+    let one_line = |name: &str| name.replace(['\r', '\n'], " ");
+    let mut out = vec!["#EXTM3U".to_string(), format!("#PLAYLIST:{}", one_line(&service.name))];
     let media = |id: Uuid| data.media.iter().find(|m| m.id == id);
     let file = |out: &mut Vec<String>, name: &str, secs: Option<f64>, asset: &str| {
-        out.push(format!("#EXTINF:{},{name}", secs.map_or(-1, |s| s.round() as i64)));
+        out.push(format!("#EXTINF:{},{}", secs.map_or(-1, |s| s.round() as i64), one_line(name)));
         out.push(asset_path(asset).display().to_string());
     };
     for item in &service.items {
@@ -90,10 +91,10 @@ pub fn playlist(data: &Data, service: &Service, asset_path: &dyn Fn(&str) -> Pat
             ItemKind::Deck { deck_id } => if let Some(d) = data.decks.iter().find(|d| d.id == *deck_id) {
                 for (i, a) in d.slides.iter().enumerate() { file(&mut out, &format!("{} {}", d.title, i + 1), None, a) }
             },
-            ItemKind::Header { title, .. } => out.push(format!("# —— {title} ——")),
+            ItemKind::Header { title, .. } => out.push(format!("# -- {} --", one_line(title))),
             _ => {
                 let (title, _, slides) = crate::slides::build_item(data, item);
-                out.push(format!("# {title}"));
+                out.push(format!("# {}", one_line(&title)));
                 // Media inside other items (a song's video slide) is listed too.
                 for s in slides {
                     if let SlideContent::Video { asset, .. } | SlideContent::Still { asset } | SlideContent::Audio { asset, .. } = &s.content {
@@ -354,13 +355,15 @@ mod tests {
         d.media.push(video.clone());
         d.decks.push(Deck { id: Uuid::new_v4(), title: "Notices".into(), slides: vec!["n1.png".into(), "n2.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
         let deck = d.decks[0].id;
-        d.services[0].name = "Sunday".into();
+        d.services[0].name = "Sunday\nMorning".into();
         d.services[0].items = vec![item(ItemKind::Header { title: "Worship".into(), color: String::new() }), item(ItemKind::Media { media_id: video.id, autoplay: true, end: Default::default(), looped: false }),
             item(ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }), item(ItemKind::Deck { deck_id: deck })];
-        let list = playlist(&d, &d.services[0], &|a| PathBuf::from("/media").join(a));
+        let root = PathBuf::from("/media");
+        let (video, first, second) = (root.join("v.mp4"), root.join("n1.png"), root.join("n2.png"));
+        let list = playlist(&d, &d.services[0], &|a| root.join(a));
         let lines: Vec<&str> = list.lines().collect();
-        assert_eq!(lines, ["#EXTM3U", "#PLAYLIST:Sunday", "# —— Worship ——", "#EXTINF:61,Walk-in.mp4", "/media/v.mp4", "# Welcome",
-            "#EXTINF:-1,Notices 1", "/media/n1.png", "#EXTINF:-1,Notices 2", "/media/n2.png"]);
+        assert_eq!(lines, ["#EXTM3U", "#PLAYLIST:Sunday Morning", "# -- Worship --", "#EXTINF:61,Walk-in.mp4", video.to_str().unwrap(), "# Welcome",
+            "#EXTINF:-1,Notices 1", first.to_str().unwrap(), "#EXTINF:-1,Notices 2", second.to_str().unwrap()]);
     }
 
     #[test]

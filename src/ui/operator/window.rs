@@ -55,7 +55,7 @@ pub use crate::ui::dialogs::DialogKind;
 /// Which list the editing keys work on: the service list or the media library after a click in it; `Live` after a
 /// click on a slide or showing an item, so ↑ and ↓ are Back and Next again.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub(crate) enum ListFocus { #[default] Live, Service, Media }
+pub(crate) enum ListFocus { #[default] Live, Service, Media, Songs }
 
 #[derive(Default)]
 pub(crate) struct OpState {

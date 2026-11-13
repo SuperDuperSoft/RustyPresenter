@@ -29,7 +29,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let mut d = app.data.lock().unwrap();
         for (id, color) in [(red, "#cc0000"), (white, "#ffffff")] {
-            d.services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Recording test".into(), body: "Recording test".into() }, background: Some(Background::Color { color: color.into() }), notes: String::new(), theme: None });
+            d.services[0].items.push(ServiceItem {
+                id,
+                kind: ItemKind::Text {
+                    title: "Recording test".into(),
+                    body: "Recording test".into(),
+                    layout: Default::default(),
+                },
+                background: Some(Background::Color { color: color.into() }),
+                notes: String::new(),
+                theme: None,
+            });
         }
     }
     let ffmpeg = run::find_ffmpeg(&app.store.root).expect("ffmpeg");

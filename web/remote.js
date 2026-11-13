@@ -52,6 +52,20 @@ function send(cmd, extra = {}, withBase = false) {
 
 const phoneName = () => /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? t('Android phone') : t('Phone');
 
+async function requestPair(code, password = '') {
+  try {
+    const r = await fetch('/remote/pair', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...code, password, name: phoneName() }),
+    });
+    if (r.ok) return { ok: true };
+    const body = await r.json().catch(() => ({}));
+    return { error: body.error || t('Could not connect.'), retryWithPin: body.retry_with_pin === true };
+  } catch {
+    return { error: t('Not connected') };
+  }
+}
+
 // The QR code opens /remote#pair=<one-time secret>. Take it out of the address bar straight away (so it is not
 // bookmarked, shared or reused), then pair with it: no typing.
 async function pairFromLink() {
@@ -63,10 +77,11 @@ async function pairFromLink() {
   if (st.paired) return false;
   // N31: with a password the QR code still saves typing the code; the password is asked first.
   if (st.password) { qrSecret = m[1]; return false; }
-  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pair: m[1], name: phoneName() }) }).catch(() => null);
-  if (r && r.ok) { toast(t('Connected'), true); return false; }
+  const result = await requestPair({ pair: m[1] });
+  if (result.ok) { toast(t('Connected'), true); return false; }
+  if (!result.retryWithPin) qrSecret = m[1];
   await start();
-  $('pairErr').textContent = t('That QR code has expired. On the computer, click Pair a phone again.');
+  $('pairErr').textContent = result.error;
   return true;
 }
 
@@ -76,34 +91,47 @@ async function start() {
   const st = await fetch('/remote/status').then(r => r.json()).catch(() => ({ paired: false }));
   if (st.paired) { $('pair').style.display = 'none'; $('app').style.display = 'flex'; connect(); }
   else {
+    if (es) { es.close(); es = null; }
     $('pair').style.display = 'block'; $('app').style.display = 'none';
     // N31: the password field when the church set one; the code field unless the QR code gave the secret.
     for (const id of ['pw', 'pwHelp']) $(id).style.display = st.password ? 'block' : 'none';
     $('pin').style.display = qrSecret ? 'none' : 'block';
     $('pw').placeholder = t('Password');
-    setTimeout(() => $(qrSecret || !st.password ? 'pin' : 'pw').focus(), 50);
+    const first = qrSecret ? (st.password ? 'pw' : 'pairBtn') : 'pin';
+    setTimeout(() => $(first).focus(), 50);
   }
 }
 
 $('notesBtn').onclick = toggleNotes;
 $('pairBtn').onclick = async () => {
+  const button = $('pairBtn');
+  if (button.disabled) return;
+  button.disabled = true;
   $('pairErr').textContent = '';
-  const code = qrSecret ? { pair: qrSecret } : { pin: $('pin').value.trim() };
-  const r = await fetch('/remote/pair', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...code, password: $('pw').value, name: phoneName() }) });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) { $('pairErr').textContent = j.error || t('Could not connect.'); if (j.error === t('That QR code has expired. On the computer, click Pair a phone again.')) { qrSecret = null; start(); } return; }
-  qrSecret = null;
-  $('pw').value = '';
-  start();
+  try {
+    const code = qrSecret ? { pair: qrSecret } : { pin: $('pin').value.trim() };
+    const result = await requestPair(code, $('pw').value);
+    if (!result.ok) {
+      $('pairErr').textContent = result.error;
+      if (qrSecret && result.retryWithPin) { qrSecret = null; await start(); }
+      return;
+    }
+    qrSecret = null;
+    $('pw').value = '';
+    await start();
+  } finally {
+    button.disabled = false;
+  }
 };
 $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('pairBtn').click(); });
 $('pw').addEventListener('keydown', e => { if (e.key === 'Enter') $('pairBtn').click(); });
 
 function connect() {
   if (es) es.close();
-  es = new EventSource('/remote/events');
-  es.onopen = () => $('dot').classList.add('on');
-  es.onmessage = e => {
+  const source = es = new EventSource('/remote/events');
+  source.onopen = () => { if (source === es) $('dot').classList.add('on'); };
+  source.onmessage = e => {
+    if (source !== es) return;
     const m = JSON.parse(e.data);
     // FEAT-2: a tick sends only the timer lines.
     if (m.type === 'timers') { if (V) { V.timers = m.timers; V.music = m.music; renderAuto(); } return; }
@@ -114,10 +142,11 @@ function connect() {
     render();
     if (m.lang && (m.lang !== lang || m.words !== words)) { lang = m.lang; words = m.words; loadWords(); }
   };
-  es.onerror = async () => {
+  source.onerror = async () => {
+    if (source !== es) return;
     $('dot').classList.remove('on');
     const st = await fetch('/remote/status').then(r => r.json()).catch(() => null);
-    if (st && !st.paired) { es.close(); es = null; start(); }
+    if (source === es && st && !st.paired) { source.close(); es = null; start(); }
   };
 }
 
@@ -145,6 +174,7 @@ function showPicture(src, tr) {
   const img = $('nowImg'), box = $('picBox');
   box.querySelectorAll('img.old').forEach(o => o.remove());
   img.getAnimations().forEach(a => a.cancel());
+  img.style.position = img.style.zIndex = '';
   const ms = tr ? Math.max(0, Math.min(tr.ms || 0, 5000)) : 0;
   if (!tr || tr.kind === 'cut' || !ms || !img.complete || !img.naturalWidth || !img.animate) { img.src = src; return; }
   const old = img.cloneNode(); old.removeAttribute('id'); old.className = 'old'; old.alt = '';
@@ -162,8 +192,13 @@ function showPicture(src, tr) {
       const [x, y] = STEP[tr.dir] || STEP.left;
       img.style.position = 'relative'; img.style.zIndex = 1;
       a = img.animate([{ transform: `translate(${-x * 100}%, ${-y * 100}%)` }, { transform: 'none' }], opts);
-      a.onfinish = () => { img.style.position = img.style.zIndex = ''; old.remove(); };
-      setTimeout(() => old.remove(), ms + 50);
+      const finish = () => {
+        if (!old.isConnected) return;
+        img.style.position = img.style.zIndex = '';
+        old.remove();
+      };
+      a.onfinish = finish;
+      setTimeout(finish, ms + 50);
       return;
     } else if (tr.kind === 'uncover') {
       const [x, y] = STEP[tr.dir] || STEP.left;

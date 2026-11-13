@@ -199,8 +199,8 @@ dummy: Immediate exit requested"#;
         let dir = std::env::temp_dir().join(format!("rp-v4l2-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).unwrap();
         for n in ["video10", "video2", "video0", "vchiq", "videox"] { std::fs::write(dir.join(n), "").unwrap() }
-        let d = dir.to_string_lossy().into_owned();
-        assert_eq!(list_v4l2(&dir), [format!("{d}/video0"), format!("{d}/video2"), format!("{d}/video10")]);
+        let expected = ["video0", "video2", "video10"].map(|name| dir.join(name).to_string_lossy().into_owned());
+        assert_eq!(list_v4l2(&dir), expected);
         let _ = std::fs::remove_dir_all(dir);
     }
 

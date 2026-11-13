@@ -137,6 +137,27 @@ pub struct Song {
     /// Section labels in performance order. Empty = the order they are written.
     #[serde(default)]
     pub arrangement: Vec<String>,
+    /// Lines on each slide for this song; 0 = the number in Settings → Songs.
+    #[serde(default, skip_serializing_if = "is_zero_u8")]
+    pub lines_per_slide: u8,
+    /// This song's largest text size in pixels on a 1080p screen; 0 = automatic (the theme's size).
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub text_size: u32,
+}
+
+fn is_zero_u8(n: &u8) -> bool { *n == 0 }
+
+impl Song {
+    /// The range of a song's own lines per slide (0 = Settings').
+    pub const MAX_LINES: u8 = 8;
+    /// The range of a song's own text size (0 = automatic).
+    pub const MIN_TEXT: u32 = 24;
+    pub const MAX_TEXT: u32 = 200;
+
+    /// Lines per slide for this song: its own number, else `settings`'.
+    pub fn lines(&self, settings: &Settings) -> usize {
+        (if self.lines_per_slide > 0 { self.lines_per_slide } else { settings.lines_per_slide }).max(1) as usize
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]

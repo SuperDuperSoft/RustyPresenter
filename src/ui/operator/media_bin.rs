@@ -1,11 +1,9 @@
-//! The media library along the bottom of the window: which files show (pure, tested below), their thumbnails, and
-//! what the buttons do. Files stay in `Data::media`; folders are `MediaFile::folder` plus `Data::media_folders`, so a
-//! folder can exist before anything is in it.
+//! The bottom library pane: saved songs, media and video inputs. Media folders may exist before they contain a file.
 use super::{add_item::add_item, file_input::Filter as FileFilter, files, strings as tr, window::Operator};
 use crate::{
     app::Imported,
     model::{AssetId, Background, MediaFile, MediaKind, MediaStatus},
-    ui::{BinFolder, BinRow, dialogs::ask, thumbs::{ThumbJob, ThumbKey, Thumbs}},
+    ui::{AddRow, BinFolder, BinRow, dialogs::{add, add_strings, ask, song_editor::open_song_editor}, thumbs::{ThumbJob, ThumbKey, Thumbs}},
 };
 use serde_json::{Value, json};
 use slint::{Image, Model, ModelRc};
@@ -14,15 +12,18 @@ use uuid::Uuid;
 
 /// Thumbnails are drawn at the largest tile's size, twice over for high-DPI screens.
 const THUMB: (u32, u32) = (420, 236);
+const SONGS: &str = "songs";
 
 /// The library's choices between updates.
 #[derive(Default)]
 pub struct BinState {
-    /// "all", "video", "image" or "audio"; empty counts as "all".
+    /// The active tab; empty counts as "all".
     pub(super) tab: String,
     /// The folder shown; empty is "All media".
     folder: String,
     pub(super) query: String,
+    song_query: String,
+    songs: Vec<AddRow>,
     pub(super) picked: Option<Uuid>,
     images: HashMap<AssetId, Image>,
     on_screen: Option<AssetId>,
@@ -113,6 +114,11 @@ impl Operator {
 
     /// Redraws the folders, the tiles and the side panel from the current snapshot.
     pub(super) fn render_media(&self) {
+        if self.bin.borrow().tab == SONGS {
+            let Some(snap) = self.state.borrow().snap.clone() else { return };
+            self.bin.borrow_mut().songs = add::song_rows(&snap.data.songs);
+            return self.render_songs();
+        }
         let Some((media, listed)) = self.state.borrow().snap.as_ref().map(|s| (s.data.media.clone(), s.data.media_folders.clone())) else { return };
         let on_screen = self.bin_on_screen();
         {
@@ -157,10 +163,21 @@ impl Operator {
 
     /// Moves the "ON SCREEN" mark when the live item changed, without rebuilding the tiles.
     pub(super) fn mark_media(&self) {
+        if self.bin.borrow().tab == SONGS { return }
         let now = self.bin_on_screen();
         if self.bin.borrow().on_screen == now { return }
         self.bin.borrow_mut().on_screen = now;
         self.render_media();
+    }
+
+    fn render_songs(&self) {
+        let bin = self.bin.borrow();
+        let query = bin.song_query.trim().to_lowercase();
+        let rows: Vec<AddRow> = bin.songs.iter().filter(|song| song.key.contains(query.as_str())).cloned().collect();
+        self.ui.set_bin_song_placeholder(add_strings::search_songs(bin.songs.len()).into());
+        let empty = if query.is_empty() { add_strings::nothing_yet() } else { add_strings::nothing_matches() };
+        self.ui.set_bin_song_empty(empty.into());
+        self.ui.set_bin_songs(ModelRc::new(slint::VecModel::from(rows)));
     }
 
     fn render_pick(&self) {
@@ -313,6 +330,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_bin_set_tab(move |t| if let Some(op) = me.upgrade() {
         op.ui.set_bin_tab(t.clone());
         op.bin.borrow_mut().tab = t.to_string();
+        let mut state = op.state.borrow_mut();
+        if t == SONGS { state.list = super::window::ListFocus::Songs; }
+        else if state.list == super::window::ListFocus::Songs { state.list = super::window::ListFocus::Live; }
+        drop(state);
         op.render_media();
         if t == super::video_inputs::TAB { op.inputs_opened() }
     });
@@ -325,6 +346,23 @@ pub(super) fn wire(op: &Rc<Operator>) {
         op.bin.borrow_mut().picked = id.parse().ok();
         op.state.borrow_mut().list = super::window::ListFocus::Media;
         op.render_media();
+    });
+    ui.on_bin_new_song(on(|op| open_song_editor(op, None, false)));
+    let me = Rc::downgrade(op);
+    ui.on_bin_song_search(move |query| if let Some(op) = me.upgrade() {
+        op.bin.borrow_mut().song_query = query.into();
+        op.render_songs();
+    });
+    let me = Rc::downgrade(op);
+    ui.on_bin_edit_song(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), Uuid::parse_str(&id)) {
+        open_song_editor(&op, Some(id), false);
+    });
+    let me = Rc::downgrade(op);
+    ui.on_bin_add_song(move |id| if let (Some(op), Ok(id)) = (me.upgrade(), Uuid::parse_str(&id)) {
+        let me = Rc::downgrade(&op);
+        add_item(&op, json!({ "kind": "song", "song_id": id }), false, move |result| {
+            if let (Some(op), Err(error)) = (me.upgrade(), result) { op.toast(error, true); }
+        });
     });
 }
 
@@ -378,5 +416,51 @@ mod tests {
         let mut busy = file("i", MediaKind::Image, "");
         busy.status = MediaStatus::Converting { percent: 10 };
         assert_eq!(as_background(&busy), None);
+    }
+
+    #[test]
+    fn the_bottom_songs_tab_searches_and_uses_the_saved_library() {
+        use crate::{app::test_app, model::{ItemKind, Song}, ui::{SongEditorState, dialogs::DialogKind}};
+        use super::super::window::testing::{find, open, refresh};
+        use slint::{ComponentHandle, platform::PointerEventButton};
+
+        let app = test_app();
+        let grace = Uuid::new_v4();
+        app.data.lock().unwrap().songs = vec![
+            Song { id: grace, title: "Amazing Grace".into(), writers: "John Newton".into(), lyrics: "Verse 1\nAmazing grace".into(), ..Default::default() },
+            Song { id: Uuid::new_v4(), title: "Abide with Me".into(), ..Default::default() },
+        ];
+        let op = open(&app);
+        op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
+        refresh(&op);
+        let click = |id| {
+            find(&op, id).unwrap_or_else(|| panic!("{id} not found")).mock_single_click(PointerEventButton::Left);
+            slint::platform::update_timers_and_animations();
+        };
+        find(&op, "MediaBin::songs-tab").unwrap().invoke_accessible_default_action();
+        slint::platform::update_timers_and_animations();
+        let titles = || op.ui.get_bin_songs().iter().map(|row| row.title.to_string()).collect::<Vec<_>>();
+        assert_eq!(titles(), ["Abide with Me", "Amazing Grace"]);
+        let search = find(&op, "MediaBin::song-search-field").unwrap();
+        search.set_accessible_value("newton");
+        slint::platform::update_timers_and_animations();
+        assert_eq!(titles(), ["Amazing Grace"]);
+
+        click("MediaBin::song-add");
+        assert!(matches!(app.data.lock().unwrap().service().unwrap().items.first().map(|item| &item.kind),
+            Some(ItemKind::Song { song_id, .. }) if *song_id == grace), "{:?}", op.toast_log());
+        assert!(app.live_view().cursor.is_none());
+        click("MediaBin::song-edit");
+        assert_eq!(op.dialog(), Some(DialogKind::SongEditor { song_id: Some(grace), add_after: false }));
+        op.close_dialog();
+        click("MediaBin::new-song-button");
+        let editor = op.ui.global::<SongEditorState>();
+        editor.set_title("Evening Hymn".into());
+        editor.set_lyrics("Verse 1\nThe day is done".into());
+        click("SongEditor::save");
+        refresh(&op);
+        search.set_accessible_value("");
+        assert_eq!(titles(), ["Abide with Me", "Amazing Grace", "Evening Hymn"]);
+        assert_eq!(app.data.lock().unwrap().service().unwrap().items.len(), 1);
     }
 }

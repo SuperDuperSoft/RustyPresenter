@@ -1,6 +1,15 @@
 # Japanese for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ja\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 日本語\nX-English-Name: Japanese\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Native-Name: 日本語\n"
+"X-English-Name: Japanese\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "聖書を選択"
 msgid "Try again"
 msgstr "再試行"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "編集"
 
@@ -94,7 +103,7 @@ msgstr "コピー"
 msgid "Check again"
 msgstr "再確認"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "新しい曲"
 
@@ -126,7 +135,7 @@ msgstr "聖句を貼り付ける"
 msgid "Verses per slide"
 msgstr "スライドごとの節数"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "自動"
 
@@ -1147,7 +1156,7 @@ msgstr "4 節"
 msgid "Choose slide breaks…"
 msgstr "スライドの区切りを選択…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "文字サイズ"
 
@@ -1314,7 +1323,7 @@ msgstr "礼拝から削除"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "入場時の音楽はスライドが変わっても流れ続けます。「音声をクリア」と「すべてクリア」で停止します。"
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "曲"
 
@@ -2630,7 +2639,7 @@ msgstr "暗くする"
 msgid "Makes text easier to read"
 msgstr "文字を読みやすくします"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "スライドごとの行数"
 
@@ -2939,8 +2948,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "カーソル位置から新しいスライドを始めます"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "バース 1\n驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に\n\nサビ\n鎖は解かれ…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"バース 1\n"
+"驚くばかりの 恵みなりき\n"
+"この身の汚れを 知れる我に\n"
+"\n"
+"サビ\n"
+"鎖は解かれ…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2953,6 +2974,34 @@ msgstr "（省略可）"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "空欄の場合は記載順を使います"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "この曲のスライドごとの行数を減らす"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "この曲のスライドごとの行数を増やす"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "この曲の文字を小さく"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "この曲の文字を大きく"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "設定の行数とサイズに戻す"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3747,16 +3796,8 @@ msgid "Nothing selected"
 msgstr "何も選択されていません"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "この聖句の文字を小さく"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3789,6 +3830,10 @@ msgstr "ライブラリに保存"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "この聖句を曲ライブラリに保存して、編集や再利用ができるようにします"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "行数"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4345,6 +4390,10 @@ msgstr "{name} — 取り込んだファイル"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "曲にタイトルを付けてください。"
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "その曲はもうライブラリにありません。"
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7873,8 +7922,12 @@ msgid "Settings saved"
 msgstr "設定を保存しました"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "驚くばかりの 恵みなりき\nこの身の汚れを 知れる我に"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"驚くばかりの 恵みなりき\n"
+"この身の汚れを 知れる我に"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9659,12 +9712,20 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "既製のテーマ {n} 個を表示"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "イースター礼拝\n午前9時と11時"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"イースター礼拝\n"
+"午前9時と11時"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "「静まって、わたしこそ神であることを知れ。」\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"「静まって、わたしこそ神であることを知れ。」\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9675,8 +9736,14 @@ msgid "Youth camp in the mountains"
 msgstr "山でのユースキャンプ"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "毎日祈る\n聖書を読む\n隣人に仕える"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"毎日祈る\n"
+"聖書を読む\n"
+"隣人に仕える"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -10278,3 +10345,6 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "設定の行数に戻す"

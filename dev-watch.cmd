@@ -8,7 +8,11 @@ if exist build.request (
   del build.request
   echo [%TIME%] Building...
   call "%~dp0dev-build.cmd"
-  echo [%TIME%] Done. See build.log
+  if errorlevel 1 (
+    echo Build or tests failed. See build.log
+  ) else (
+    echo Build and tests passed. See build.log
+  )
 )
 if exist stop.request (
   del stop.request

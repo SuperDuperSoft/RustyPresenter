@@ -99,11 +99,7 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
     let st = op.ui.global::<AddState>();
     show_bible(op, ctx);
     let (rows, placeholder, pictures) = match tab {
-        AddTab::Song => {
-            let mut songs: Vec<&Song> = snap.data.songs.iter().collect();
-            songs.sort_by_cached_key(|s| s.title.to_lowercase());
-            (songs.into_iter().map(song_row).collect(), tr::search_songs(snap.data.songs.len()), Vec::new())
-        }
+        AddTab::Song => (song_rows(&snap.data.songs), tr::search_songs(snap.data.songs.len()), Vec::new()),
         AddTab::Media | AddTab::Deck => super::add_media::rows(&snap, tab),
         AddTab::Scripture | AddTab::Text => (Vec::new(), String::new(), Vec::new()),
     };
@@ -158,6 +154,12 @@ fn search(op: &Operator, ctx: &AddCtx, text: &str) {
 /// A library entry's search key: its JSON, lowercased.
 pub(crate) fn search_key(x: &impl serde::Serialize) -> slint::SharedString {
     serde_json::to_string(x).unwrap_or_default().to_lowercase().into()
+}
+
+pub(crate) fn song_rows(songs: &[Song]) -> Vec<AddRow> {
+    let mut sorted: Vec<&Song> = songs.iter().collect();
+    sorted.sort_by_cached_key(|song| song.title.to_lowercase());
+    sorted.into_iter().map(song_row).collect()
 }
 
 fn song_row(s: &Song) -> AddRow {

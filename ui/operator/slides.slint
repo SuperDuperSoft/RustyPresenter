@@ -502,6 +502,12 @@ export component SlidesPanel inherits VerticalLayout {
     in property <bool> text-size-shown;
     in property <string> text-size;
     in property <bool> text-size-custom;
+    /// The selected item is a song: the size is the song's own, and the lines-per-slide buttons show.
+    in property <bool> song-fit;
+    /// The song's lines on each slide, as a number.
+    in property <string> lines;
+    /// The song has its own number of lines or its own size (not Settings').
+    in property <bool> lines-custom;
     /// What the operator should know about the selected item's slides (a verse a Bible lacks), under the grid.
     in property <string> note;
     /// The selected song plays in this service's own order (FEAT-4).
@@ -518,6 +524,9 @@ export component SlidesPanel inherits VerticalLayout {
     callback text-smaller();
     callback text-larger();
     callback text-auto();
+    callback lines-fewer();
+    callback lines-more();
+    callback lines-auto();
     /// The grid's width changed (Rust works out the columns and the thumbnail size).
     callback grid-resized(length);
     /// The view and size controls under the slides (N37, N8).
@@ -590,8 +599,8 @@ export component SlidesPanel inherits VerticalLayout {
                 overflow: elide;
             }
         }
-        // The passage's text size: smaller, bigger, or back to Settings' size.
-        if root.text-size-shown: HorizontalLayout {
+        // The passage's text size: smaller, bigger, or back to Settings' size. (A song's is on the tools row.)
+        if root.text-size-shown && !root.song-fit: HorizontalLayout {
             spacing: 4px;
             text-smaller := Btn {
                 small: true;
@@ -665,6 +674,8 @@ export component SlidesPanel inherits VerticalLayout {
             }
         }
         if root.has-selection: slides-edit := Btn {
+            // Its own width: the title takes the spare room, so on a wide window this is not a 400 px button.
+            horizontal-stretch: 0;
             small: true;
             icon: "edit";
             text: @tr("Edit");
@@ -702,6 +713,84 @@ export component SlidesPanel inherits VerticalLayout {
                 text: @tr("Save to library");
                 tooltip: @tr("Keep this passage in the song library, to edit it or use it again");
                 clicked => { PanelExtras.save-passage(); }
+            }
+        }
+        // A song's lines on each slide: fewer, more, or back to Settings' number. Kept with the song.
+        if root.song-fit: HorizontalLayout {
+            spacing: 4px;
+            VerticalLayout {
+                alignment: center;
+                Text {
+                    text: @tr("Lines");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+            }
+            lines-fewer := Btn {
+                small: true;
+                text: "−";
+                tooltip: @tr("Fewer lines on each slide of this song");
+                clicked => { root.lines-fewer(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                lines := Text {
+                    min-width: 18px;
+                    text: root.lines;
+                    color: root.lines-custom ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Lines per slide");
+                    accessible-value: self.text;
+                }
+            }
+            lines-more := Btn {
+                small: true;
+                text: "+";
+                tooltip: @tr("More lines on each slide of this song");
+                clicked => { root.lines-more(); }
+            }
+        }
+        // The song's text size, kept with the song like its lines.
+        if root.song-fit: HorizontalLayout {
+            spacing: 4px;
+            song-text-smaller := Btn {
+                small: true;
+                text: @tr("A−");
+                tooltip: @tr("Smaller text for this song");
+                clicked => { root.text-smaller(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                song-text-size := Text {
+                    min-width: 34px;
+                    text: root.text-size;
+                    color: root.text-size-custom ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Text size");
+                    accessible-value: self.text;
+                }
+            }
+            song-text-larger := Btn {
+                small: true;
+                text: @tr("A+");
+                tooltip: @tr("Bigger text for this song");
+                clicked => { root.text-larger(); }
+            }
+            // One Auto for both: the song follows Settings again.
+            if root.text-size-custom || root.lines-custom: song-fit-auto := Btn {
+                small: true;
+                text: @tr("Auto");
+                tooltip: @tr("Back to the lines and size in Settings");
+                clicked => { root.lines-auto(); root.text-auto(); }
             }
         }
         Rectangle { horizontal-stretch: 1; }

@@ -69,9 +69,14 @@ pub fn plan(old: &NetworkSettings, req: &SaveReq, http_port: u16) -> Result<Netw
 fn save(app: &Arc<App>, req: SaveReq) -> Result<(), String> {
     let old = app.data.lock().unwrap().settings.network.clone();
     let new = plan(&old, &req, app.port)?;
-    // A new stage password (or none) signs every stage view out.
-    if new.stage_password != old.stage_password || !new.stage_view { app.net.stage_tokens.lock().unwrap().clear() }
-    app.edit_untracked(|d| { d.settings.network = new; Ok(()) })?;
+    app.edit_untracked(|d| {
+        // Serialize sign-outs with logins and the change to the password they check.
+        if new.stage_password != d.settings.network.stage_password || !new.stage_view {
+            app.net.stage_tokens.lock().unwrap().clear();
+        }
+        d.settings.network = new;
+        Ok(())
+    })?;
     tcp::sync(app)
 }
 

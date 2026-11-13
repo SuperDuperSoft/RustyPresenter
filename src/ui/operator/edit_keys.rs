@@ -27,7 +27,9 @@ impl Operator {
 
     /// An editing key or its Edit menu item; false when it had nothing to work on.
     pub(crate) fn edit_key(self: &Rc<Self>, key: EditKey) -> bool {
-        let media = self.state.borrow().list == ListFocus::Media;
+        let focus = self.state.borrow().list;
+        if focus == ListFocus::Songs { return false }
+        let media = focus == ListFocus::Media;
         if media {
             // The media library has one picked file: Delete asks, as the Add dialog's trash button does.
             let Some(file) = self.picked().filter(|_| key == EditKey::Delete) else { return false };

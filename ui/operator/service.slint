@@ -61,6 +61,8 @@ export component ServiceColumn inherits VerticalLayout {
     in property <[ServiceRow]> rows;
     /// "3 items", or empty.
     in property <string> count;
+    /// The number of items alone, shown in the head.
+    in property <string> count-short;
     /// The first state read has arrived; until then the list is empty with no empty-state text.
     in property <bool> loaded;
     /// N8: the words in the filter box under the list; rows without them are hidden.
@@ -84,7 +86,9 @@ export component ServiceColumn inherits VerticalLayout {
 
     PanelHead {
         title: @tr("Service");
-        count: root.count;
+        // The bare number: "12 items" (longer still in other languages) does not fit beside the two buttons and
+        // was cut to "1 it…".
+        count: root.count-short != "" ? root.count-short : root.count;
         VerticalLayout {
             alignment: center;
             header-btn := Btn {

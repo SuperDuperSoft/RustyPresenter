@@ -1321,3 +1321,16 @@ Jake said to keep adding features ("nah ima keep adding features"). Branch **`fi
 - **Polish:** "Importing…" rows, phone stage view pictures, motion-path drag handles, no transition → normal fade, "Use for all slides" copies auto-advance, phone draw view with notes + Back/Next + resizable parts.
 - Tests: lib 2862 + fixes; Windows release build OK; `RustyPresenter-Setup-1.2.0.exe` (56 MB) made on Jake's PC.
 - Next: Jake tests Run in PowerPoint on real PowerPoint; rich-text editing of selected words; logo/overlays over a PowerPoint show; livestreaming (1.3); Mac/Linux; own libmpv build when GitHub is usable.
+### November 12, 2026 (night) — Claude (cloud session, branch `finish-8` = 1.2.1)
+
+Jake: "songs need to be a part of the library at the bottom and changing how much text there is on each slide should be much more easily changeable for songs and the size of the text", then "make it easy to do it in songs that are already added".
+- **Base:** `finish-7-review` (`4765310`, Nov 11: bottom **Songs** tab with search, New song, Edit, Add; service transfer and playback fixes) on `finish-7-cleanup` on `finish-7` `06bf098`. Those two were only bundles in `.tools\xfer` until now.
+- **New: each song has its own lines per slide and text size** (`Song::lines_per_slide`, `Song::text_size`; 0 = Settings; old data loads unchanged). Kept with the song, so it holds every week and in every service.
+  - Slides panel, tools row, when a song is selected (also a song that was already in the service): `Lines − 2 +  A− 76 A+  Auto`. One click re-splits or resizes at once. Size on the live song redraws at once; a change of lines on the live song shows the usual "Update screen" banner.
+  - Song editor: `Lines per slide − Auto +   Text size A− Auto A+   Auto`; the preview follows.
+  - New action `song/fit` `{id, lines_per_slide?, text_size?}` changes only those fields (two quick presses never undo each other). `song/save` keeps both within range.
+- **Evidence (Linux sandbox):** lib 2876 passed / 2 ignored; cleanup, i18n_catalogs, proc_tree, recovery, render_golden, ui_operator_flows pass; operator and song editor rendered under Xvfb at 1366×820 and looked at. Nothing run on Windows by tests.
+- **Translations:** 6 new texts in all 13 languages (machine-drafted).
+- **Cloud build this run:** `.tools\xfer\fetch\crates.tar` + `r0544\extra.tar` + `r0641\extra.tar` unpacked to a vendor folder needs no stand-ins for this lock. Use one job (two jobs ran out of memory building `rp-ui`).
+- **Flaky here (not from this change):** `ui::room::tests::a_click_plays_its_animation_over_the_slide_then_the_slide_takes_over` failed 2 runs in 6 (a timing test); it passes alone most times.
+- **Not done:** lines/size per service (Jake did not ask); the Songs tab has no import button (File → Import has it).

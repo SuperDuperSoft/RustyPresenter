@@ -36,7 +36,7 @@ msgstr ""
 msgid "Try again"
 msgstr ""
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr ""
 
@@ -100,7 +100,7 @@ msgstr ""
 msgid "Check again"
 msgstr ""
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr ""
 
@@ -132,7 +132,7 @@ msgstr ""
 msgid "Verses per slide"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr ""
 
@@ -1153,7 +1153,7 @@ msgstr ""
 msgid "Choose slide breaks…"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr ""
 
@@ -1320,7 +1320,7 @@ msgstr ""
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr ""
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr ""
 
@@ -2636,7 +2636,7 @@ msgstr ""
 msgid "Makes text easier to read"
 msgstr ""
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr ""
 
@@ -2964,6 +2964,34 @@ msgstr ""
 
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
@@ -3759,15 +3787,7 @@ msgid "Nothing selected"
 msgstr ""
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr ""
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
-msgstr ""
-
-#: ui/operator/slides.slint
-msgid "A+"
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -3800,6 +3820,10 @@ msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Lines"
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -4356,6 +4380,10 @@ msgstr ""
 
 #: src/app.rs
 msgid "Give the song a title."
+msgstr ""
+
+#: src/app.rs
+msgid "That song is not in the library any more."
 msgstr ""
 
 #: src/app.rs

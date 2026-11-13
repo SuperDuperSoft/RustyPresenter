@@ -83,7 +83,7 @@ pub fn passage_song(title: &str, copyright: &str, slides: &[crate::model::Slide]
         }
         _ => None,
     }).collect::<Vec<_>>().join("\n\n");
-    Song { id: Uuid::nil(), title: title.into(), writers: String::new(), ccli: String::new(), copyright: copyright.into(), lyrics, arrangement: vec![], artist: String::new(), publisher: String::new(), year: String::new() }
+    Song { id: Uuid::nil(), title: title.into(), writers: String::new(), ccli: String::new(), copyright: copyright.into(), lyrics, arrangement: vec![], artist: String::new(), publisher: String::new(), year: String::new(), lines_per_slide: 0, text_size: 0 }
 }
 
 /// Save to library: the selected passage as a new song, its slides as sections, with the Bible's credit.

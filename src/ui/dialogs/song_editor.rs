@@ -86,6 +86,12 @@ fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool
         .chain(label_names(op)).map(SharedString::from).collect();
     st.set_labels(ModelRc::new(VecModel::from(labels)));
     st.set_order(s.arrangement.join(", ").into());
+    st.set_lines(i32::from(s.lines_per_slide));
+    st.set_text_size(i32::try_from(s.text_size).unwrap_or(0));
+    if let Some(set) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) {
+        st.set_lines_default(i32::from(set.lines_per_slide.clamp(1, Song::MAX_LINES)));
+        st.set_text_size_default(if set.theme.size == 0 { 84 } else { set.theme.size.clamp(Song::MIN_TEXT, Song::MAX_TEXT) as i32 });
+    }
     st.set_existing(song.is_some());
     st.set_add_after(add_after);
     st.set_focus_lyrics(song.is_some());
@@ -184,6 +190,8 @@ fn song_from_fields(st: &SongEditorState, id: Option<Uuid>, trim: bool) -> Song 
         id: id.unwrap_or_else(Uuid::nil), title: f(st.get_title()), writers: f(st.get_writers()), ccli: f(st.get_ccli()),
         copyright: f(st.get_copyright()), lyrics: st.get_lyrics().to_string(), arrangement: parse_order(&st.get_order()),
         artist: f(st.get_artist()), publisher: f(st.get_publisher()), year: f(st.get_year()),
+        lines_per_slide: u8::try_from(st.get_lines()).unwrap_or(0).min(Song::MAX_LINES),
+        text_size: u32::try_from(st.get_text_size()).unwrap_or(0),
     }
 }
 

@@ -1,6 +1,15 @@
 # Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ko\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 한국어\nX-English-Name: Korean\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Native-Name: 한국어\n"
+"X-English-Name: Korean\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "성경 선택"
 msgid "Try again"
 msgstr "다시 시도"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "편집"
 
@@ -94,7 +103,7 @@ msgstr "복사"
 msgid "Check again"
 msgstr "다시 확인"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "새 찬양"
 
@@ -126,7 +135,7 @@ msgstr "대신 구절 붙여 넣기"
 msgid "Verses per slide"
 msgstr "슬라이드당 구절 수"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "자동"
 
@@ -1147,7 +1156,7 @@ msgstr "4절"
 msgid "Choose slide breaks…"
 msgstr "슬라이드 나누기 선택…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "글자 크기"
 
@@ -1314,7 +1323,7 @@ msgstr "예배에서 제거"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "슬라이드가 바뀌어도 입장 음악은 계속 재생돼요. 오디오 지우기와 모두 지우기로 멈춰요."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "찬양"
 
@@ -2630,7 +2639,7 @@ msgstr "어둡게"
 msgid "Makes text easier to read"
 msgstr "글자를 더 읽기 쉽게 해요"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "슬라이드당 줄 수"
 
@@ -2939,8 +2948,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "커서 위치에서 새 슬라이드를 시작해요"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\n나 같은 죄인 살리신\n주 은혜 놀라워\n\nChorus\n잃었던 생명 찾았고…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verse 1\n"
+"나 같은 죄인 살리신\n"
+"주 은혜 놀라워\n"
+"\n"
+"Chorus\n"
+"잃었던 생명 찾았고…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2953,6 +2974,34 @@ msgstr "(선택 사항)"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "비워 두면 작성 순서를 사용해요"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "이 찬양의 슬라이드당 줄 수 줄이기"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "이 찬양의 슬라이드당 줄 수 늘리기"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "이 찬양 글자 작게"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "이 찬양 글자 크게"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "설정의 줄 수와 크기로 되돌리기"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3747,16 +3796,8 @@ msgid "Nothing selected"
 msgstr "선택된 항목 없음"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "이 본문 글자 작게"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3789,6 +3830,10 @@ msgstr "라이브러리에 저장"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "이 본문을 찬양 라이브러리에 보관해서 편집하거나 다시 사용해요"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "줄"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4345,6 +4390,10 @@ msgstr "{name} — 가져온 파일"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "찬양 제목을 입력하세요."
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "그 찬양은 더 이상 라이브러리에 없습니다."
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7873,8 +7922,12 @@ msgid "Settings saved"
 msgstr "설정 저장됨"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "나 같은 죄인 살리신\n주 은혜 놀라워"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"나 같은 죄인 살리신\n"
+"주 은혜 놀라워"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9659,12 +9712,20 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "기본 제공 테마 {n}개 표시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "부활주일\n예배: 오전 9시, 11시"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"부활주일\n"
+"예배: 오전 9시, 11시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“가만히 있어 내가 하나님 됨을 알지어다.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“가만히 있어 내가 하나님 됨을 알지어다.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9675,8 +9736,14 @@ msgid "Youth camp in the mountains"
 msgstr "산으로 떠나는 청소년 수련회"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "매일 기도하기\n성경 읽기\n이웃 섬기기"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"매일 기도하기\n"
+"성경 읽기\n"
+"이웃 섬기기"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -10278,3 +10345,6 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "설정의 줄 수로 되돌리기"

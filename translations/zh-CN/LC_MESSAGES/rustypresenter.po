@@ -1,6 +1,15 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh-CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Native-Name: 简体中文\n"
+"X-English-Name: Chinese (Simplified)\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "选择圣经"
 msgid "Try again"
 msgstr "重试"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "编辑"
 
@@ -94,7 +103,7 @@ msgstr "复制"
 msgid "Check again"
 msgstr "重新检查"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "新建诗歌"
 
@@ -126,7 +135,7 @@ msgstr "改为粘贴经文"
 msgid "Verses per slide"
 msgstr "每张幻灯片的经节数"
 
-#: ui/dialogs/add.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "自动"
 
@@ -1147,7 +1156,7 @@ msgstr "4 节"
 msgid "Choose slide breaks…"
 msgstr "选择幻灯片分页…"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/operator/slides.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Text size"
 msgstr "文字大小"
 
@@ -1314,7 +1323,7 @@ msgstr "从聚会中移除"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "幻灯片切换时入场音乐继续播放。“清除音频”和“全部清空”会停止它。"
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "诗歌"
 
@@ -2630,7 +2639,7 @@ msgstr "调暗"
 msgid "Makes text easier to read"
 msgstr "使文字更易阅读"
 
-#: ui/dialogs/settings.slint
+#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Lines per slide"
 msgstr "每张幻灯片行数"
 
@@ -2939,8 +2948,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "在光标处开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verse 1\n"
+"奇异恩典，何等甘甜\n"
+"我罪已得赦免\n"
+"\n"
+"Chorus\n"
+"我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -2953,6 +2974,34 @@ msgstr "（可选）"
 #: ui/dialogs/song-editor.slint
 msgid "Leave empty to use the written order"
 msgstr "留空则使用书写顺序"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Fewer lines on each slide of this song"
+msgstr "减少这首诗歌每张幻灯片的行数"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "More lines on each slide of this song"
+msgstr "增加这首诗歌每张幻灯片的行数"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A−"
+msgstr "A−"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Smaller text for this song"
+msgstr "缩小这首诗歌的文字"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "A+"
+msgstr "A+"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Bigger text for this song"
+msgstr "放大这首诗歌的文字"
+
+#: ui/dialogs/song-editor.slint ui/operator/slides.slint
+msgid "Back to the lines and size in Settings"
+msgstr "恢复为设置中的行数和大小"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -3747,16 +3796,8 @@ msgid "Nothing selected"
 msgstr "未选择任何内容"
 
 #: ui/operator/slides.slint
-msgid "A−"
-msgstr "A−"
-
-#: ui/operator/slides.slint
 msgid "Smaller text for this passage"
 msgstr "缩小这段经文的文字"
-
-#: ui/operator/slides.slint
-msgid "A+"
-msgstr "A+"
 
 #: ui/operator/slides.slint
 msgid "Bigger text for this passage"
@@ -3789,6 +3830,10 @@ msgstr "保存到库"
 #: ui/operator/slides.slint
 msgid "Keep this passage in the song library, to edit it or use it again"
 msgstr "把这段经文保存到诗歌库，以便编辑或再次使用"
+
+#: ui/operator/slides.slint
+msgid "Lines"
+msgstr "行数"
 
 #: ui/operator/slides.slint
 msgid "Actions"
@@ -4345,6 +4390,10 @@ msgstr "{name} — 导入的文件"
 #: src/app.rs
 msgid "Give the song a title."
 msgstr "请为诗歌输入标题。"
+
+#: src/app.rs
+msgid "That song is not in the library any more."
+msgstr "那首诗歌已不在曲库中。"
 
 #: src/app.rs
 msgid "This song is in a service. Remove it from the service first."
@@ -7873,8 +7922,12 @@ msgid "Settings saved"
 msgstr "设置已保存"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "奇异恩典，何等甘甜\n我罪已得赦免"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"奇异恩典，何等甘甜\n"
+"我罪已得赦免"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9659,12 +9712,20 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "显示 {n} 个现成主题"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "复活节主日\n上午 9 点和 11 点聚会"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"复活节主日\n"
+"上午 9 点和 11 点聚会"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“你们要休息，要知道我是神。”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“你们要休息，要知道我是神。”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9675,8 +9736,14 @@ msgid "Youth camp in the mountains"
 msgstr "山区青年营"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "每天祷告\n读圣经\n服事邻舍"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"每天祷告\n"
+"读圣经\n"
+"服事邻舍"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -10278,3 +10345,6 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Back to the number of lines in Settings"
+#~ msgstr "恢复为设置中的行数"

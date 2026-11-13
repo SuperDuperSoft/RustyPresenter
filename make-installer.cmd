@@ -7,7 +7,7 @@ rem It builds the app exactly like try-latest.cmd (same branch, same build folde
 rem then downloads NSIS (the installer maker) and the video/PDF libraries once into .tools\installer, checks each
 rem download against packaging\pins.env, and builds the setup file.
 rem
-rem   make-installer.cmd                 the branch in .tools\xfer\latest-branch.txt
+rem   make-installer.cmd                 the branch in .tools\xfer\latest-branch.txt, or this checkout's HEAD
 rem   make-installer.cmd finish-3        another branch
 rem   make-installer.cmd --dry-run       only print the steps; nothing is built, downloaded or changed
 rem
@@ -55,7 +55,7 @@ if /i "%HERE%"=="%ROOT%" set "MODE=branch"
 if "%MODE%"=="checkout" goto have_src
 set "SRC=%WT%"
 if "%BRANCH%"=="" if exist "%TOOLS%\xfer\latest-branch.txt" set /p BRANCH=<"%TOOLS%\xfer\latest-branch.txt"
-if "%BRANCH%"=="" set "BRANCH=finish-3"
+if not defined BRANCH set "BRANCH=HEAD"
 :have_src
 
 set "DESKTOP="
@@ -100,7 +100,7 @@ echo   log           %OUT%\installer.txt
 if "%DRY%"=="0" goto real_run
 echo.
 echo == Dry run: nothing is fetched, built, downloaded or changed.
-if "%MODE%"=="branch" echo == Would run: git -C "%WT%" checkout --force --detach %BRANCH%
+if "%MODE%"=="branch" echo == Would run: git -C "%WT%" checkout --detach --no-overwrite-ignore "%BRANCH%"
 echo == Would run in %SRC%: cargo build --release  (output to %OUT%\build.txt)
 if not defined BASH goto no_bash
 if not exist "%SRC%\packaging\windows\make-installer.sh" (
@@ -119,23 +119,31 @@ exit /b 0
 if not defined BASH goto no_bash
 if not exist "%OUT%" mkdir "%OUT%"
 if "%MODE%"=="checkout" goto build
+set "REVISION="
+for /f %%c in ('git -C "%ROOT%" rev-parse --verify --end-of-options "%BRANCH%" 2^>nul') do set "REVISION=%%c"
+if not defined REVISION goto bad_ref
 echo.
 echo Getting %BRANCH%...
 if exist "%WT%\.git" goto have_worktree
-git -C "%ROOT%" worktree add --detach "%WT%" %BRANCH% > "%OUT%\git.txt" 2>&1
+git -C "%ROOT%" worktree add --detach "%WT%" "%REVISION%" > "%OUT%\git.txt" 2>&1
 if errorlevel 1 goto git_failed
+goto build
 :have_worktree
-git -C "%WT%" checkout --force --detach %BRANCH% >> "%OUT%\git.txt" 2>&1
+git -C "%WT%" diff --quiet -- >nul 2>&1
+if errorlevel 1 goto worktree_dirty
+git -C "%WT%" diff --cached --quiet -- >nul 2>&1
+if errorlevel 1 goto worktree_dirty
+git -C "%WT%" checkout --detach --no-overwrite-ignore "%REVISION%" > "%OUT%\git.txt" 2>&1
 if errorlevel 1 goto git_failed
 
 :build
+if not exist "%SRC%\packaging\windows\make-installer.sh" goto old_branch
 for /f %%c in ('git -C "%SRC%" rev-parse --short HEAD 2^>nul') do set "COMMIT=%%c"
 cd /d "%SRC%"
 echo.
 echo Building RustyPresenter (%COMMIT%). This window stays quiet until it is done (5-10 minutes)...
 cargo build --release > "%OUT%\build.txt" 2>&1
 if errorlevel 1 goto build_failed
-if not exist "%SRC%\packaging\windows\make-installer.sh" goto old_branch
 
 echo.
 echo Making the installer...
@@ -201,5 +209,16 @@ exit /b 1
 :git_failed
 echo Git could not get %BRANCH%. See %OUT%\git.txt
 type "%OUT%\git.txt"
+pause
+exit /b 1
+
+:bad_ref
+echo Git could not find %BRANCH% in %ROOT%.
+pause
+exit /b 1
+
+:worktree_dirty
+echo Cannot reuse %WT% because it has local changes or could not be read.
+echo Check that worktree with git status before retrying.
 pause
 exit /b 1
