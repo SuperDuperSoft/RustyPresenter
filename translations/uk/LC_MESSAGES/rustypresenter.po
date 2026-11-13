@@ -1,6 +1,15 @@
 # Ukrainian for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: uk\nPlural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\nX-Native-Name: Українська\nX-English-Name: Ukrainian\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: uk\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Native-Name: Українська\n"
+"X-English-Name: Ukrainian\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Виберіть Біблію"
 msgid "Try again"
 msgstr "Спробувати ще"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Змінити"
 
@@ -94,7 +103,7 @@ msgstr "Копіювати"
 msgid "Check again"
 msgstr "Перевірити ще раз"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Нова пісня"
 
@@ -1287,7 +1296,7 @@ msgstr "Прибрати зі служіння"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Фонова музика грає далі, поки змінюються слайди. «Очистити аудіо» та «Очистити все» зупиняють її."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Пісні"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Починає новий слайд там, де курсор"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Куплет 1]\nО благодать, спасла мене,\nЯ був пропащий, а тепер\n\n[Приспів]\nКайдани впали…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Куплет 1]\n"
+"О благодать, спасла мене,\n"
+"Я був пропащий, а тепер\n"
+"\n"
+"[Приспів]\n"
+"Кайдани впали…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -4550,6 +4571,10 @@ msgstr "Кінець діапазону стоїть перед початком
 #: src/bible.rs
 msgid "Paste the verse text first."
 msgstr "Спочатку вставте текст віршів."
+
+#: src/follow/engine.rs
+msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
+msgstr "Автостеження зупинено: звуковий вхід зник ({error}). Перемикайте слайди вручну."
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -7578,8 +7603,12 @@ msgid "Settings saved"
 msgstr "Налаштування збережено"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "О благодать, спасла мене,\nЯ був пропащий, а тепер"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"О благодать, спасла мене,\n"
+"Я був пропащий, а тепер"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9259,12 +9288,20 @@ msgstr[1] "Показати {n} готові теми"
 msgstr[2] "Показати {n} готових тем"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Великдень\nСлужіння о 9:00 і 11:00"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Великдень\n"
+"Служіння о 9:00 і 11:00"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "«Зупиніться і пізнайте, що Я — Бог».\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"«Зупиніться і пізнайте, що Я — Бог».\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9275,8 +9312,14 @@ msgid "Youth camp in the mountains"
 msgstr "Молодіжний табір у горах"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Моліться щодня\nЧитайте Біблію\nСлужіть ближньому"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Моліться щодня\n"
+"Читайте Біблію\n"
+"Служіть ближньому"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"

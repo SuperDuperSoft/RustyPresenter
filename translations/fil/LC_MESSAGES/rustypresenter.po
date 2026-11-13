@@ -1,6 +1,15 @@
 # Filipino for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: fil\nPlural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\nX-Native-Name: Filipino\nX-English-Name: Filipino\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fil\n"
+"Plural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\n"
+"X-Native-Name: Filipino\n"
+"X-English-Name: Filipino\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Pumili ng Bibliya"
 msgid "Try again"
 msgstr "Subukang muli"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "I-edit"
 
@@ -94,7 +103,7 @@ msgstr "Kopyahin"
 msgid "Check again"
 msgstr "Suriin muli"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Bagong kanta"
 
@@ -1287,7 +1296,7 @@ msgstr "Alisin sa service"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "Patuloy na tumutugtog ang walk-in music habang nagpapalit ng slides. Ihihinto ito ng I-clear ang audio at I-clear Lahat."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Mga kanta"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Nagsisimula ng bagong slide kung nasaan ang cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -4550,6 +4571,10 @@ msgstr "Nauuna ang dulo ng range kaysa sa simula."
 #: src/bible.rs
 msgid "Paste the verse text first."
 msgstr "I-paste muna ang teksto ng talata."
+
+#: src/follow/engine.rs
+msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
+msgstr "Huminto ang auto-follow: nawala ang sound input ({error}). Ilipat ang mga slide nang mano-mano."
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -7548,8 +7573,12 @@ msgid "Settings saved"
 msgstr "Na-save ang settings"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9217,12 +9246,20 @@ msgstr[0] "Ipakita ang {n} handang theme"
 msgstr[1] "Ipakita ang {n} na handang theme"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Linggo ng Pagkabuhay\nMga service sa 9 at 11 ng umaga"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Linggo ng Pagkabuhay\n"
+"Mga service sa 9 at 11 ng umaga"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Tumahimik kayo, at kilalanin ninyong ako ang Diyos.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Tumahimik kayo, at kilalanin ninyong ako ang Diyos.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9233,8 +9270,14 @@ msgid "Youth camp in the mountains"
 msgstr "Youth camp sa kabundukan"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Manalangin araw-araw\nBasahin ang Bibliya\nPaglingkuran ang kapwa"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Manalangin araw-araw\n"
+"Basahin ang Bibliya\n"
+"Paglingkuran ang kapwa"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"

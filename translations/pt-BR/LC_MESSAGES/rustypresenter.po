@@ -1,6 +1,15 @@
 # Portuguese (Brazil) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: pt-BR\nPlural-Forms: nplurals=2; plural=(n > 1);\nX-Native-Name: Português (Brasil)\nX-English-Name: Portuguese (Brazil)\nX-Reviewed: no\n"
+msgstr ""
+"Project-Id-Version: RustyPresenter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: pt-BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Native-Name: Português (Brasil)\n"
+"X-English-Name: Portuguese (Brazil)\n"
+"X-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -30,7 +39,7 @@ msgstr "Escolher uma Bíblia"
 msgid "Try again"
 msgstr "Tentar de novo"
 
-#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
+#: ui/dialogs/add-list.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/operator/media.slint ui/operator/service.slint ui/operator/slides.slint ui/operator.slint
 msgid "Edit"
 msgstr "Editar"
 
@@ -94,7 +103,7 @@ msgstr "Copiar"
 msgid "Check again"
 msgstr "Verificar de novo"
 
-#: ui/dialogs/add.slint src/strings/dialogs.rs
+#: ui/dialogs/add.slint ui/operator/media.slint src/strings/dialogs.rs
 msgid "New song"
 msgstr "Nova música"
 
@@ -1287,7 +1296,7 @@ msgstr "Remover do culto"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
 msgstr "A música de entrada continua tocando enquanto os slides mudam. Limpar áudio e Limpar tudo a param."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Músicas"
 
@@ -2744,8 +2753,20 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Começa um novo slide onde está o cursor"
 
 #: ui/dialogs/song-editor.slint
-msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
-msgstr "[Estrofe 1]\nMaravilhosa graça, que doce som\nQue salvou um miserável como eu\n\n[Refrão]\nMinhas correntes caíram…"
+msgid ""
+"Verse 1\n"
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me\n"
+"\n"
+"Chorus\n"
+"My chains are gone…"
+msgstr ""
+"[Estrofe 1]\n"
+"Maravilhosa graça, que doce som\n"
+"Que salvou um miserável como eu\n"
+"\n"
+"[Refrão]\n"
+"Minhas correntes caíram…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -4550,6 +4571,10 @@ msgstr "O fim do intervalo vem antes do início."
 #: src/bible.rs
 msgid "Paste the verse text first."
 msgstr "Cole o texto dos versículos primeiro."
+
+#: src/follow/engine.rs
+msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
+msgstr "O acompanhamento automático parou: a entrada de som sumiu ({error}). Passe os slides à mão."
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -7548,8 +7573,12 @@ msgid "Settings saved"
 msgstr "Configurações salvas"
 
 #: src/strings/settings.rs
-msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
-msgstr "Maravilhosa graça, que doce som\nQue salvou um miserável como eu"
+msgid ""
+"Amazing grace how sweet the sound\n"
+"That saved a wretch like me"
+msgstr ""
+"Maravilhosa graça, que doce som\n"
+"Que salvou um miserável como eu"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9217,12 +9246,20 @@ msgstr[0] "Mostrar {n} tema pronto"
 msgstr[1] "Mostrar {n} temas prontos"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Easter Sunday\nServices at 9 and 11 am"
-msgstr "Domingo de Páscoa\nCultos às 9h e às 11h"
+msgid ""
+"Easter Sunday\n"
+"Services at 9 and 11 am"
+msgstr ""
+"Domingo de Páscoa\n"
+"Cultos às 9h e às 11h"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "“Be still, and know that I am God.”\nPsalm 46:10"
-msgstr "“Aquietai-vos e sabei que eu sou Deus.”\nPsalm 46:10"
+msgid ""
+"“Be still, and know that I am God.”\n"
+"Psalm 46:10"
+msgstr ""
+"“Aquietai-vos e sabei que eu sou Deus.”\n"
+"Psalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9233,8 +9270,14 @@ msgid "Youth camp in the mountains"
 msgstr "Acampamento de jovens na serra"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid "Pray every day\nRead the Bible\nServe your neighbour"
-msgstr "Ore todos os dias\nLeia a Bíblia\nSirva ao próximo"
+msgid ""
+"Pray every day\n"
+"Read the Bible\n"
+"Serve your neighbour"
+msgstr ""
+"Ore todos os dias\n"
+"Leia a Bíblia\n"
+"Sirva ao próximo"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
