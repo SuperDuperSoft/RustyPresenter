@@ -19,7 +19,7 @@ use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio_util::sync::CancellationToken;
 
-/// What hears words in the sound (the acoustic model, part B).
+/// What hears words in the sound (`ear::CtcEar`, the acoustic model).
 pub trait Ear: Send {
     /// It recognises words. False for `NoEar`: then the follower only blanks and never moves a slide by itself.
     fn words(&self) -> bool;
@@ -27,7 +27,7 @@ pub trait Ear: Send {
     fn frames(&mut self, pcm: &[i16], at: f64) -> Vec<Heard>;
 }
 
-/// The stand-in until the acoustic model comes (part B): hears no words.
+/// No model downloaded (or none fast enough here): hears no words.
 pub struct NoEar;
 
 impl Ear for NoEar {
@@ -166,9 +166,9 @@ pub struct Capture {
 }
 
 impl Capture {
-    /// Starts listening to `device` (a name from `input_devices`).
-    pub fn start(device: &str, tx: Sender<FollowEvent>) -> Result<Capture, String> {
-        Capture::run(ffmpeg()?, device_args(tools::OS, device), Box::new(NoEar), tx)
+    /// Starts listening to `device` (a name from `input_devices`) with `ear` (`ear::room_ear`).
+    pub fn start(device: &str, ear: Box<dyn Ear>, tx: Sender<FollowEvent>) -> Result<Capture, String> {
+        Capture::run(ffmpeg()?, device_args(tools::OS, device), ear, tx)
     }
 
     /// Starts `program` with `args` (FFmpeg, or a stand-in in tests) and listens to its output with `ear`.

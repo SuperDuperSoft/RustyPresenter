@@ -1,4 +1,6 @@
 use super::*;
+use crate::follow::audio::NoEar;
+use crate::follow::testing::{FakeEar, VERSE_1, VERSE_2};
 use crate::follow::log::LogAction;
 use crate::follow::testing::{SONG, text};
 use crate::follow::voice::tests::{silence, singing};
@@ -47,5 +49,27 @@ fn practice_runs_on_a_file() {
     // FFmpeg can't read the file: its words come back as the error.
     let bad: Vec<OsString> = vec!["-c".into(), "echo 'Sunday.wav: Invalid data found' >&2; exit 1".into()];
     assert_eq!(practice_with(sh, bad, slides, Settings::default(), Box::new(NoEar)), Err("Sunday.wav: Invalid data found".into()));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[cfg(unix)]
+#[test]
+fn fake_ear_drives_follower_end_to_end() {
+    let dir = std::env::temp_dir().join(format!("rp-follow-ear-{}", Uuid::new_v4()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let file = dir.join("Sunday.wav");
+    std::fs::write(&file, wav(&singing(11.0))).unwrap();
+    let sh = Path::new("/bin/sh");
+    let args: Vec<OsString> = vec!["-c".into(), "tail -c +45 \"$0\"".into(), file.clone().into()];
+    let slides: Vec<Slide> = SONG.iter().map(|t| text(t)).collect();
+    // Verse 1 from 0.5 s, verse 2 from 4.5 s, heard by the ear as the sound goes by.
+    let mut ear = FakeEar::sings(0.5, VERSE_1);
+    ear.words.extend(FakeEar::sings(4.5, VERSE_2).words);
+    let log = practice_with(sh, args, slides, Settings::default(), Box::new(ear)).unwrap();
+    let acts: Vec<LogAction> = log.iter().map(|l| l.action).collect();
+    assert_eq!(acts, [LogAction::Show(1), LogAction::Show(2)], "{log:?}");
+    // Verse 2's words are up before it is sung.
+    assert!(log[0].at < 4.5, "{}", log[0].at);
+    assert!(log[0].reason.starts_with("heard \""), "{}", log[0].reason);
     let _ = std::fs::remove_dir_all(&dir);
 }

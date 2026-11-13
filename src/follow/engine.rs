@@ -3,6 +3,7 @@
 //! follow). The operator always wins: a slide moved or cleared by hand pauses Automatic until the singers are
 //! heard, sure, from the operator's place on.
 use super::align::{Aligner, Heard, Position};
+use super::ear::Lexicon;
 use super::log::{LogAction, LogEntry, ReviewLog};
 use super::lyrics::SongText;
 use super::rules::{FollowAction, Mode, Rules, Settings, Voice};
@@ -116,11 +117,14 @@ pub struct Engine {
     words: bool,
     /// Review log entries not yet taken (`take_log`).
     fresh: Vec<LogEntry>,
+    /// The live song's words for the phoneme ear.
+    lexicon: Lexicon,
 }
 
 impl Default for Engine {
     fn default() -> Self {
-        Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![] }
+        Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
+            lexicon: Lexicon::default() }
     }
 }
 
@@ -128,6 +132,9 @@ impl Engine {
     pub fn new() -> Engine { Engine::default() }
 
     pub fn state(&self) -> FollowState { self.state.clone() }
+
+    /// The live song's words, for the ear (`ear::room_ear`).
+    pub fn lexicon(&self) -> Lexicon { self.lexicon.clone() }
 
     /// Hold ("don't move now") on or off.
     pub fn set_hold(&mut self, on: bool) { self.hold = on }
@@ -160,7 +167,9 @@ impl Engine {
         self.state.mode = mode;
         let s = sig(&live.slides);
         if self.run.as_ref().is_none_or(|r| r.item != live.item_id || r.sig != s) {
-            self.run = Some(Run::new(&live, s));
+            let run = Run::new(&live, s);
+            self.lexicon.set_song(&run.text);
+            self.run = Some(run);
             self.state.suggest = None;
         }
         let Some(run) = self.run.as_mut() else { return };
@@ -262,6 +271,7 @@ pub struct Follower {
     log: Arc<Mutex<ReviewLog>>,
     hold: AtomicBool,
     clock: Instant,
+    lexicon: Lexicon,
 }
 
 /// How often the worker looks without new events (blanking needs the clock to move).
@@ -278,9 +288,14 @@ impl Follower {
         let log = Arc::new(Mutex::new(ReviewLog::default()));
         let clock = Instant::now();
         let (shared, kept) = (state.clone(), log.clone());
-        std::thread::Builder::new().name("follow".into()).spawn(move || work(host, rx, shared, kept, clock)).expect("follow thread");
-        Follower { tx, state, log, hold: AtomicBool::new(false), clock }
+        let engine = Engine::new();
+        let lexicon = engine.lexicon();
+        std::thread::Builder::new().name("follow".into()).spawn(move || work(engine, host, rx, shared, kept, clock)).expect("follow thread");
+        Follower { tx, state, log, hold: AtomicBool::new(false), clock, lexicon }
     }
+
+    /// The live song's words, for the ear (`ear::room_ear`).
+    pub fn lexicon(&self) -> Lexicon { self.lexicon.clone() }
 
     /// A sender for the sound input (`audio::Capture`): what it sends reaches the follower until it is dropped.
     pub fn sender(&self) -> Sender<FollowEvent> {
@@ -318,8 +333,7 @@ impl Follower {
     pub fn set_mode(&self, item: Uuid, mode: Mode) { self.send(Msg::Mode(item, mode)) }
 }
 
-fn work(host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, log: Arc<Mutex<ReviewLog>>, clock: Instant) {
-    let mut engine = Engine::new();
+fn work(mut engine: Engine, host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, log: Arc<Mutex<ReviewLog>>, clock: Instant) {
     let mut last_event = f64::NEG_INFINITY;
     loop {
         let now = || clock.elapsed().as_secs_f64();

@@ -135,7 +135,7 @@ fn fold(c: char) -> Option<&'static str> {
 }
 
 /// The word in plain lowercase a–z and digits, or `None` when it has letters of another script.
-fn latin(word: &str) -> Option<String> {
+pub(crate) fn latin(word: &str) -> Option<String> {
     let mut s = String::new();
     for c in word.to_lowercase().chars() {
         if c.is_ascii_lowercase() || c.is_ascii_digit() { s.push(c) }
