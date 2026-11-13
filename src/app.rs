@@ -275,6 +275,8 @@ pub struct App {
     pub(crate) pplive: crate::pplive::app::Hub,
     /// 1.3 song auto-follow, once started (`start_follower`).
     follower: OnceLock<crate::follow::Follower>,
+    /// The sound input auto-follow listens to (`start_follow_if_wanted`).
+    listen: Mutex<Option<crate::follow::Capture>>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -335,6 +337,7 @@ impl App {
             history: Mutex::default(),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
             listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
+            listen: Mutex::default(),
         });
         crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         {
@@ -444,6 +447,38 @@ impl App {
 
     /// Song auto-follow, once started.
     pub fn follower(&self) -> Option<&crate::follow::Follower> { self.follower.get() }
+
+    /// Auto-follow is wanted: Settings → Auto-follow or a song item is set to Suggest or Automatic.
+    pub fn follow_wanted(&self) -> bool {
+        let d = self.data.lock().unwrap();
+        d.settings.follow.mode != crate::follow::Mode::Manual || d.automation.follow.values().any(|m| *m != crate::follow::Mode::Manual)
+    }
+
+    /// Starts auto-follow and its sound input when wanted and not running: at start, and when a song is first set
+    /// to Suggest or Automatic. Runs FFmpeg, so not on the UI thread. Without an input the follower stays in Manual
+    /// and tells the operator why.
+    pub fn start_follow_if_wanted(self: &Arc<Self>) {
+        if !self.follow_wanted() { return }
+        let f = self.start_follower();
+        let mut listen = self.listen.lock().unwrap();
+        if listen.as_ref().is_some_and(|c| c.running()) { return }
+        let chosen = self.data.lock().unwrap().settings.follow.input.clone();
+        let device = chosen.filter(|d| !d.is_empty()).or_else(|| crate::follow::input_devices().into_iter().next());
+        let started = match device {
+            Some(d) => crate::follow::Capture::start(&d, f.sender()),
+            None => Err(crate::tr!("no microphone or line-in found")),
+        };
+        match started {
+            Ok(c) => *listen = Some(c),
+            Err(e) => { *listen = None; f.feed(crate::follow::FollowEvent::InputLost(e)) }
+        }
+    }
+
+    /// Settings → Auto-follow's sound input changed: listen to the new one. Runs FFmpeg, so not on the UI thread.
+    pub fn listen_again(self: &Arc<Self>) {
+        self.listen.lock().unwrap().take();
+        self.start_follow_if_wanted();
+    }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> {

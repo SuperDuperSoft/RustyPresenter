@@ -1,69 +1,6 @@
 use super::*;
 use crate::follow::lyrics::sound_key;
-
-fn text(t: &str) -> Slide { Slide::new("", SlideContent::Text { text: t.into(), footer: None, reference: None, size: 0, parallel: None }) }
-
-const SONG: [&str; 3] = [
-    "amazing grace how sweet the sound\nthat saved a wretch like me",
-    "I once was lost but now am found\nwas blind but now I see",
-    "through many dangers toils and snares\nI have already come",
-];
-
-/// A live engine stand-in: records the follower's own changes; `operator` changes as a click would.
-struct Fake { live: Mutex<Option<LiveSong>>, shown: Mutex<Vec<String>>, notices: Mutex<Vec<String>>, modes: Mutex<Vec<(Uuid, Mode)>> }
-
-impl Fake {
-    fn song(mode: Mode) -> Arc<Fake> {
-        let live = LiveSong { item_id: Uuid::new_v4(), is_song: true, slides: SONG.iter().map(|t| text(t)).collect(), slide: 0, words_up: true,
-            video_playing: false, version: 1, mode, settings: Settings::default() };
-        Arc::new(Fake { live: Mutex::new(Some(live)), shown: Mutex::default(), notices: Mutex::default(), modes: Mutex::default() })
-    }
-    fn change(&self, f: impl FnOnce(&mut LiveSong)) {
-        let mut l = self.live.lock().unwrap();
-        let l = l.as_mut().unwrap();
-        f(l);
-        l.version += 1;
-    }
-    fn operator_show(&self, slide: usize) { self.change(|l| { l.slide = slide; l.words_up = true }) }
-    fn slide(&self) -> usize { self.live.lock().unwrap().as_ref().unwrap().slide }
-    fn item(&self) -> Uuid { self.live.lock().unwrap().as_ref().unwrap().item_id }
-    fn shown(&self) -> Vec<String> { self.shown.lock().unwrap().clone() }
-}
-
-impl Host for Fake {
-    fn live(&self) -> Option<LiveSong> { self.live.lock().unwrap().clone() }
-    fn show(&self, item: Uuid, slide: usize, base: u64) -> bool {
-        let mut l = self.live.lock().unwrap();
-        let Some(l) = l.as_mut().filter(|l| l.version == base && l.item_id == item) else { return false };
-        l.slide = slide;
-        l.words_up = true;
-        l.version += 1;
-        self.shown.lock().unwrap().push(format!("show {slide}"));
-        true
-    }
-    fn clear_slide(&self, base: u64) -> bool {
-        let mut l = self.live.lock().unwrap();
-        let Some(l) = l.as_mut().filter(|l| l.version == base) else { return false };
-        l.words_up = false;
-        l.version += 1;
-        self.shown.lock().unwrap().push("blank".into());
-        true
-    }
-    fn notice(&self, text: &str) { self.notices.lock().unwrap().push(text.into()) }
-    fn save_mode(&self, item: Uuid, mode: Mode) { self.modes.lock().unwrap().push((item, mode)) }
-}
-
-/// Sings `words` a third of a second apart (each one heard as it is sung); the clock moves on.
-fn sing(e: &mut Engine, host: &dyn Host, words: &str, t: &mut f64) {
-    for w in words.split_whitespace() {
-        *t += 1.0 / 3.0;
-        e.step(host, *t, Some(FollowEvent::Voice(Voice::Singing, *t)));
-        e.step(host, *t, Some(FollowEvent::Heard(Heard { key: sound_key(w), at: *t, conf: 1.0 })));
-    }
-}
-
-const VERSE_1: &str = "amazing grace how sweet the sound that saved a wretch like me";
-const VERSE_2: &str = "I once was lost but now am found was blind but now I see";
+use crate::follow::testing::*;
 
 #[test]
 fn auto_shows_next_slide_via_command() {
@@ -244,4 +181,69 @@ fn follower_thread_moves_and_stops() {
     while !f.state().holding && Instant::now() < until { std::thread::sleep(Duration::from_millis(20)) }
     assert!(f.state().holding);
     drop(f);
+}
+
+#[test]
+fn log_records_reason_and_confidence() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    for i in 0..40 { e.step(host.as_ref(), t + i as f64 * 0.1, Some(FollowEvent::Voice(Voice::Music, t))) }
+    let log = e.take_log();
+    assert_eq!(log.iter().map(|l| l.action).collect::<Vec<_>>(), [LogAction::Show(1), LogAction::Blank]);
+    assert!(log.iter().all(|l| l.item == host.item()));
+    let show = &log[0];
+    assert_eq!(show.reason, "heard \"sweet the sound that\"", "the last words heard when it changed, 2 s ahead");
+    assert!(show.confidence >= 0.6 && show.confidence <= 1.0, "{}", show.confidence);
+    assert_eq!(log[1].reason, "no singing for 3 s");
+    assert!(log[1].at > show.at);
+    let line = show.line();
+    assert!(line.starts_with("0:0") && line.contains("Slide 2") && line.ends_with("%)"), "{line}");
+    assert!(e.take_log().is_empty(), "taken once");
+    // The follower thread keeps them for the session.
+    let host = Fake::song(Mode::Auto);
+    let f = Follower::start_with(host.clone());
+    for w in VERSE_1.split_whitespace() {
+        let at = f.now();
+        f.feed(FollowEvent::Voice(Voice::Singing, at));
+        f.feed(FollowEvent::Heard(Heard { key: sound_key(w), at, conf: 1.0 }));
+    }
+    let until = Instant::now() + Duration::from_secs(5);
+    while f.log().is_empty() && Instant::now() < until { std::thread::sleep(Duration::from_millis(20)) }
+    assert_eq!(f.log().first().map(|l| l.action), Some(LogAction::Show(1)));
+}
+
+#[test]
+fn no_words_only_blanks_never_moves() {
+    // The ear can't tell words yet: singing, beats and quiet only blank and bring the words back.
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    e.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: false }));
+    let mut t = 0.0;
+    let run = |e: &mut Engine, voice: Voice, secs: f64, t: &mut f64| {
+        for _ in 0..(secs * 10.0) as usize {
+            *t += 0.1;
+            e.step(host.as_ref(), *t, Some(FollowEvent::Voice(voice, *t)));
+            e.step(host.as_ref(), *t, Some(FollowEvent::Onsets(3.0, *t)));
+        }
+    };
+    run(&mut e, Voice::Singing, 30.0, &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "a minute of singing at a steady beat never moves on by pace alone");
+    assert_eq!(e.state().light, Light::Listening);
+    run(&mut e, Voice::Music, 4.0, &mut t);
+    assert_eq!(host.shown(), ["blank"]);
+    run(&mut e, Voice::Singing, 1.0, &mut t);
+    assert_eq!(host.shown(), ["blank", "show 0"], "words back on the same slide as singing starts");
+    // The operator moves on by hand: no re-lock is needed for blanking to go on working.
+    host.operator_show(1);
+    run(&mut e, Voice::Singing, 20.0, &mut t);
+    run(&mut e, Voice::Silence, 4.0, &mut t);
+    run(&mut e, Voice::Singing, 1.0, &mut t);
+    assert_eq!(host.shown(), ["blank", "show 0", "blank", "show 1"]);
+    assert_eq!(host.slide(), 1);
+    let log = e.take_log();
+    assert_eq!(log[1].reason, "singing again");
+    // A real ear later: words count again.
+    e.step(host.as_ref(), t, Some(FollowEvent::Listening { words: true }));
 }

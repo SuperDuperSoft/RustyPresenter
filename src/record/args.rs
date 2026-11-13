@@ -85,6 +85,11 @@ fn quoted(l: &str) -> Option<&str> {
     Some(&l[a + 1..b])
 }
 
+/// What FFmpeg's `-i` needs to open sound input `name` with `format` (dshow wants `audio=…`, avfoundation `:…`).
+pub fn device_input(format: &str, name: &str) -> String {
+    match format { "dshow" => format!("audio={name}"), "avfoundation" => format!(":{name}"), _ => name.to_string() }
+}
+
 /// One recording's FFmpeg run: raw RGBA pictures on its input, H.264 (and the input's sound) into Matroska, which
 /// is readable even if the app or the computer stops halfway.
 pub struct Record<'a> {
@@ -105,7 +110,7 @@ pub fn record(r: &Record) -> Vec<OsString> {
     push(&["-hide_banner", "-loglevel", "warning", "-y"]);
     push(&["-f", "rawvideo", "-pix_fmt", "rgba", "-video_size", &size, "-framerate", &fps, "-thread_queue_size", "8", "-i", "pipe:0"]);
     if let Some((format, name)) = r.input {
-        let device = match format { "dshow" => format!("audio={name}"), "avfoundation" => format!(":{name}"), _ => name.to_string() };
+        let device = device_input(format, name);
         // dshow holds half a second of sound by default; 50 ms keeps it close to the picture.
         if format == "dshow" { push(&["-audio_buffer_size", "50"]) }
         push(&["-thread_queue_size", "1024", "-f", format, "-i", &device]);

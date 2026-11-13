@@ -37,11 +37,14 @@ pub struct Settings {
     pub jump_words: u8,
     /// Below this confidence (0–1) Automatic holds and Suggest only highlights.
     pub min_conf: f32,
+    /// The sound input to listen to (a name from `audio::input_devices`); `None`: the first one.
+    pub input: Option<String>,
 }
 
 impl Default for Settings {
     fn default() -> Self {
-        Settings { mode: Mode::Manual, lead_s: 2.0, blank_after_s: Some(3.0), talk_blank_after_s: Some(8.0), jump_words: super::align::JUMP_WORDS, min_conf: 0.6 }
+        Settings { mode: Mode::Manual, lead_s: 2.0, blank_after_s: Some(3.0), talk_blank_after_s: Some(8.0), jump_words: super::align::JUMP_WORDS, min_conf: 0.6,
+            input: None }
     }
 }
 
@@ -89,11 +92,13 @@ pub struct Rules {
     blanked: bool,
     /// The word sung last when the words were taken off; singing must move on from it to bring them back.
     blank_word: Option<usize>,
+    /// The pace the onsets give while singing, until words give one.
+    beat: Option<f64>,
 }
 
 impl Rules {
     pub fn new(settings: Settings, song: &SongText) -> Rules {
-        Rules { settings, song: song.clone(), pace: None, last_word: None, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None }
+        Rules { settings, song: song.clone(), pace: None, last_word: None, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None, beat: None }
     }
 
     /// The singers' pace in syllables a second, once heard.
@@ -114,12 +119,17 @@ impl Rules {
     pub fn set_settings(&mut self, settings: Settings) { self.settings = settings }
 
     /// One look at `now` (seconds): where the aligner is, what the room sounds like, and the live slide.
-    /// `onsets_per_s` is kept for the beat tracker; the decisions use the words' pace for now.
+    /// `onsets_per_s` (note onsets while singing) stands in for the pace until words have been heard. Without a
+    /// heard word nothing ever changes slide: the room's sound alone only blanks and brings the words back.
     pub fn tick(&mut self, now: f64, pos: &Position, voice: Voice, onsets_per_s: f32, live_slide: usize) -> Option<FollowAction> {
-        let _ = onsets_per_s;
         let started = *self.started.get_or_insert(now);
         match voice {
-            Voice::Singing => { self.last_singing = Some(now); self.speaking_since = None }
+            Voice::Singing => {
+                self.last_singing = Some(now);
+                self.speaking_since = None;
+                let r = onsets_per_s as f64;
+                if (0.5..=12.0).contains(&r) { self.beat = Some(r) }
+            }
             Voice::Speaking => { self.speaking_since.get_or_insert(now); }
             Voice::Music | Voice::Silence => self.speaking_since = None,
         }
@@ -132,10 +142,12 @@ impl Rules {
         // Blanking (Automatic only).
         if mode == Mode::Auto {
             if self.blanked {
-                let back = voice == Voice::Singing && sure && pos.word.is_some() && pos.word != self.blank_word;
-                if !back { return None }
+                // Back when singing moves on from where it stopped; with no words heard at all (the ear can't
+                // tell words yet), as singing starts, on the live slide.
+                let on = match pos.word { Some(w) => sure && pos.word != self.blank_word && w < self.song.words.len(), None => live_has_words };
+                if voice != Voice::Singing || !on { return None }
                 self.blanked = false;
-                let slide = self.song.words[pos.word?].slide;
+                let slide = pos.word.map_or(live_slide, |w| self.song.words[w].slide);
                 return Some(FollowAction::Unblank(slide));
             }
             let quiet = now - self.last_singing.unwrap_or(started);
@@ -173,7 +185,7 @@ impl Rules {
         if !singing { return None }
         let (_, heard_at) = self.last_word?;
         let left: u32 = self.song.words[w + 1..span.end_word].iter().map(|x| x.syllables as u32).sum();
-        let predicted = heard_at + left as f64 / self.pace.unwrap_or(DEFAULT_PACE);
+        let predicted = heard_at + left as f64 / self.pace.or(self.beat).unwrap_or(DEFAULT_PACE);
         if predicted - now <= self.settings.lead() as f64 + 1e-6 { act(next) } else { None }
     }
 
