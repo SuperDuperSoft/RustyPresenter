@@ -116,7 +116,7 @@ fn causes(e: &dyn std::error::Error) -> String {
 }
 
 /// A file or folder that could not be written, with its path.
-fn io_at(path: &Path, e: std::io::Error) -> FetchError {
+pub(crate) fn io_at(path: &Path, e: std::io::Error) -> FetchError {
     if is_disk_full(&e) { FetchError::DiskFull } else { FetchError::Other(crate::tr!("couldn't write to {path} ({error})", path = path.display(), error = e)) }
 }
 
@@ -557,7 +557,7 @@ fn clean_old(root: &Path, keep: &str) {
 
 /// The shared client for helper downloads: no total time limit (a download can take minutes), but a stalled
 /// connection gives up. rustls with ring, like `bible::sources::client`.
-fn client() -> Result<&'static reqwest::Client, FetchError> {
+pub(crate) fn client() -> Result<&'static reqwest::Client, FetchError> {
     static CLIENT: OnceLock<Result<reqwest::Client, String>> = OnceLock::new();
     CLIENT.get_or_init(|| build_client(reqwest::redirect::Policy::default())).as_ref().map_err(|e| FetchError::Other(e.clone()))
 }
@@ -611,7 +611,7 @@ async fn rename_retrying(from: &Path, to: &Path) -> std::io::Result<()> {
 }
 
 /// The answer, or its HTTP status with the address asked for (not the long signed one it was redirected to).
-fn ok_or_status(resp: reqwest::Response, url: &str) -> Result<reqwest::Response, FetchError> {
+pub(crate) fn ok_or_status(resp: reqwest::Response, url: &str) -> Result<reqwest::Response, FetchError> {
     let status = resp.status();
     if status.is_client_error() || status.is_server_error() { Err(FetchError::Http(status.as_u16(), url.to_string())) } else { Ok(resp) }
 }

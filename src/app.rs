@@ -485,7 +485,7 @@ impl App {
         let chosen = self.data.lock().unwrap().settings.follow.input.clone();
         let device = chosen.filter(|d| !d.is_empty()).or_else(|| crate::follow::input_devices().into_iter().next());
         let started = match device {
-            Some(d) => crate::follow::Capture::start(&d, f.sender()),
+            Some(d) => crate::follow::Capture::start(&d, crate::follow::room_ear(f.lexicon()), f.sender()),
             None => Err(crate::tr!("no microphone or line-in found")),
         };
         match started {

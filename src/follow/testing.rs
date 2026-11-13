@@ -71,3 +71,21 @@ pub fn sing(e: &mut Engine, host: &dyn Host, words: &str, t: &mut f64) {
 pub const VERSE_1: &str = "amazing grace how sweet the sound that saved a wretch like me";
 pub const VERSE_2: &str = "I once was lost but now am found was blind but now I see";
 
+
+/// An ear that hears scripted words: each one as the sound reaches its time.
+pub struct FakeEar { pub words: Vec<(f64, String)> }
+
+impl FakeEar {
+    /// `words` sung a third of a second apart from `start` seconds.
+    pub fn sings(start: f64, words: &str) -> FakeEar {
+        FakeEar { words: words.split_whitespace().enumerate().map(|(i, w)| (start + i as f64 / 3.0, w.to_string())).collect() }
+    }
+}
+
+impl super::audio::Ear for FakeEar {
+    fn words(&self) -> bool { true }
+    fn frames(&mut self, _pcm: &[i16], at: f64) -> Vec<Heard> {
+        let n = self.words.iter().take_while(|(t, _)| *t < at + 0.02).count();
+        self.words.drain(..n).map(|(t, w)| Heard { key: sound_key(&w), at: t, conf: 1.0 }).collect()
+    }
+}
